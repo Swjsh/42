@@ -1,0 +1,595 @@
+{
+  "generated_at_utc": "2026-08-30T02:49:42+00:00",
+  "as_of_et_date": "2026-08-29",
+  "window_days": 7,
+  "provenance_note": "Every usd figure here is a CLIENT-SIDE ESTIMATE (Anthropic list-price token counts, or an SDK/self-reported query cost) -- NONE of it is a billed invoice. coverage=\"unknown\" always means usd=null, never a silent zero; a real zero only appears when the underlying ledger was actually read and had nothing to report.",
+  "today": {
+    "date_et": "2026-08-29",
+    "claude_code": {
+      "usd": 1804.6523,
+      "known": true,
+      "coverage": "full",
+      "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+    },
+    "minimax": {
+      "usd": 0.0,
+      "known": true,
+      "coverage": "full",
+      "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+    },
+    "groq": {
+      "usd": 0.0,
+      "known": true,
+      "coverage": "full",
+      "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+    },
+    "total_usd": {
+      "usd": 1804.6523,
+      "known": true,
+      "coverage": "full",
+      "method": "claude_code + minimax + groq"
+    },
+    "by_origin": {
+      "conductor": {
+        "usd": 24.3432,
+        "known": true,
+        "coverage": "full",
+        "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+        "fires": 11,
+        "raw_self_reported_usd": 11.27
+      },
+      "card_fire": {
+        "usd": 1.0321,
+        "known": true,
+        "coverage": "full",
+        "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+        "asks_seen": 1
+      },
+      "chat": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+        "asks_seen": 0
+      },
+      "companion_other": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+        "asks_seen": 0
+      },
+      "other": {
+        "usd": 1779.277,
+        "known": true,
+        "coverage": "full",
+        "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+      }
+    }
+  },
+  "trailing_7d": {
+    "claude_code": {
+      "usd": 3386.7581,
+      "known": true,
+      "coverage": "full",
+      "method": "sum of daily claude_code"
+    },
+    "minimax": {
+      "usd": 0.2324,
+      "known": true,
+      "coverage": "full",
+      "method": "sum of daily minimax"
+    },
+    "groq": {
+      "usd": 0.0,
+      "known": true,
+      "coverage": "full",
+      "method": "sum of daily groq"
+    },
+    "total_usd": {
+      "usd": 3386.9905,
+      "known": true,
+      "coverage": "full",
+      "method": "sum of daily total_usd"
+    },
+    "by_origin": {
+      "conductor": {
+        "usd": 94.8024,
+        "known": true,
+        "coverage": "full",
+        "method": "sum of daily conductor"
+      },
+      "card_fire": {
+        "usd": 1.0321,
+        "known": true,
+        "coverage": "full",
+        "method": "sum of daily card_fire"
+      },
+      "chat": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "sum of daily chat"
+      },
+      "companion_other": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "sum of daily companion_other"
+      },
+      "other": {
+        "usd": 3290.9236,
+        "known": true,
+        "coverage": "full",
+        "method": "sum of daily other"
+      }
+    }
+  },
+  "days": {
+    "2026-08-29": {
+      "date_et": "2026-08-29",
+      "claude_code": {
+        "usd": 1804.6523,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 1804.6523,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 24.3432,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 11,
+          "raw_self_reported_usd": 11.27
+        },
+        "card_fire": {
+          "usd": 1.0321,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 1
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 1779.277,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    },
+    "2026-08-28": {
+      "date_et": "2026-08-28",
+      "claude_code": {
+        "usd": 542.517,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0455,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 542.5625,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 5.508,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 3,
+          "raw_self_reported_usd": 2.55
+        },
+        "card_fire": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 0
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 537.009,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    },
+    "2026-08-27": {
+      "date_et": "2026-08-27",
+      "claude_code": {
+        "usd": 217.3528,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0388,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 217.3916,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 19.7856,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 2,
+          "raw_self_reported_usd": 9.16
+        },
+        "card_fire": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 0
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 197.5672,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    },
+    "2026-08-26": {
+      "date_et": "2026-08-26",
+      "claude_code": {
+        "usd": 186.037,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0487,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 186.0857,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 8.748,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 4,
+          "raw_self_reported_usd": 4.05
+        },
+        "card_fire": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 0
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 177.289,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    },
+    "2026-08-25": {
+      "date_et": "2026-08-25",
+      "claude_code": {
+        "usd": 160.358,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0383,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 160.3963,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 9.7416,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 1,
+          "raw_self_reported_usd": 4.51
+        },
+        "card_fire": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 0
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 150.6164,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    },
+    "2026-08-24": {
+      "date_et": "2026-08-24",
+      "claude_code": {
+        "usd": 269.2644,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0484,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 269.3128,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 7.56,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 2,
+          "raw_self_reported_usd": 3.5
+        },
+        "card_fire": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 0
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 261.7044,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    },
+    "2026-08-23": {
+      "date_et": "2026-08-23",
+      "claude_code": {
+        "usd": 206.5766,
+        "known": true,
+        "coverage": "full",
+        "method": "live scan of Claude Code session transcripts, Anthropic list-price token estimate (spend_summary.py's own scanner, called directly)"
+      },
+      "minimax": {
+        "usd": 0.0127,
+        "known": true,
+        "coverage": "full",
+        "method": "minimax-calls.jsonl real cost_usd telemetry (OpenRouter)"
+      },
+      "groq": {
+        "usd": 0.0,
+        "known": true,
+        "coverage": "full",
+        "method": "swarm-calls.jsonl tokens priced at Groq's published on-demand rate"
+      },
+      "total_usd": {
+        "usd": 206.5893,
+        "known": true,
+        "coverage": "full",
+        "method": "claude_code + minimax + groq"
+      },
+      "by_origin": {
+        "conductor": {
+          "usd": 19.116,
+          "known": true,
+          "coverage": "full",
+          "method": "self-reported cost_usd from conductor-outcomes.jsonl, corrected x2.16 (same factor conductor_budget.py's spend governor applies -- imported, not re-derived)",
+          "fires": 21,
+          "raw_self_reported_usd": 8.85
+        },
+        "card_fire": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin=='card'",
+          "asks_seen": 0
+        },
+        "chat": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed joined to companion-ask-results.jsonl origin in {chat,cockpit-chat,text,diagram,voice}",
+          "asks_seen": 0
+        },
+        "companion_other": {
+          "usd": 0.0,
+          "known": true,
+          "coverage": "full",
+          "method": "SDK self-reported per-query cost, companion-ask-feed id with no origin match in companion-ask-results.jsonl (join gap, not zero spend)",
+          "asks_seen": 0
+        },
+        "other": {
+          "usd": 187.4606,
+          "known": true,
+          "coverage": "full",
+          "method": "other = claude_code_total - conductor - card_fire - chat - companion_other"
+        }
+      }
+    }
+  },
+  "companion_feed_coverage": {
+    "files_retained": 50,
+    "prune_keep": 50,
+    "oldest_retained_date": "2026-06-21",
+    "newest_retained_date": "2026-08-29",
+    "at_prune_cap": true,
+    "origin_index_available": true,
+    "origin_index_error": null
+  },
+  "data_quality_flags": [],
+  "sources": {
+    "claude_code_minimax_groq": "setup/scripts/spend_summary.py (_scan_claude_sessions/_scan_minimax/_scan_swarm_calls, called live)",
+    "conductor": "automation/state/conductor-outcomes.jsonl, corrected via conductor_budget.SELF_REPORT_CORRECTION",
+    "card_fire_and_chat": "automation/state/companion-ask-feed/*.jsonl result frames (pruned to the 50 most-recently-completed asks repo-wide), joined by ask id to companion-ask-results.jsonl's origin tag",
+    "companion_other": "same feed, ask ids with no origin match in companion-ask-results.jsonl",
+    "other": "residual = claude_code total - conductor - card_fire - chat - companion_other (no distinct 'workflow' ledger exists on this box -- see module docstring)"
+  }
+}

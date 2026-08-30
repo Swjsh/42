@@ -69,6 +69,12 @@ CALENDAR_JSON = REPO / "analysis" / "journal" / "calendar-data.json"
 CALENDAR_HTML = REPO / "analysis" / "journal" / "calendar.html"
 STATUS_MD = REPO / "automation" / "overnight" / "STATUS.md"
 SIGNATURE_MD = REPO / "analysis" / "winner-autopsies" / "SIGNATURE.md"
+# Written by setup/scripts/gamma_cost_meter.py -- today + trailing-7d Claude Code /
+# MiniMax / Groq spend, broken down by origin where the data supports it. Every
+# figure inside already carries its own {"usd","known","coverage","method"}
+# provenance (see that module's docstring) -- this page never recomputes or
+# reformats a dollar number, only renders what the meter already decided.
+COST_METER_JSON = STATE / "cost-meter.json"
 
 # A source older than this is shown with an amber staleness badge rather than
 # presented as current. Generous on purpose: this page is read after hours too.
@@ -519,6 +525,7 @@ def _money(v) -> str:
 def build(quiet: bool = False) -> dict:
     hq, hq_meta = _hq_json()
     cal, cal_meta = _load_json(CALENDAR_JSON)
+    cost_meter, cost_meter_meta = _load_json(COST_METER_JSON)
     payload = {
         "generated_et": _et_label(),
         # ISO ET stamp for the page's view-time age maths. _et_label() is a HUMAN
@@ -533,6 +540,8 @@ def build(quiet: bool = False) -> dict:
         "calendar_full": cal or {},
         "calendar_scale": calendar_scale(cal or {}),
         "calendar_source": cal_meta,
+        "cost_meter": cost_meter or {},
+        "cost_meter_source": cost_meter_meta,
         "answers": build_answers(),
         "desks": build_desks(),
         "allocation": build_allocation(),
