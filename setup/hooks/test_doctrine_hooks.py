@@ -1094,3 +1094,30 @@ def test_ascii_safe_never_raises_on_none_or_empty():
 
     assert G._ascii_safe("") == ""
     assert G._ascii_safe(None) == ""
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "Everything else is ready. Still owed: the chat endpoint. That's next.",
+        "Fixed the guard. Next up: the cost meter.",
+        "Committed. Then I will wire the digest.",
+    ],
+)
+def test_deferral_endings_are_caught(msg):
+    """J, 2026-08-29: 'i thought hooks prevented you from ending with saying you are doing
+    something and not doing it.' He was right -- announcing future work and stopping passed
+    both the OP-0 ask-guard and the OP-33 claim-guard. Ending on a promise is not a report."""
+    assert D.is_deferral(msg)
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "A workflow is running the other lanes in the background; I will report when it lands.",
+        "Shipped all six. Revert with git revert abc123.",
+        "Arming live money needs you (OP-0 #1) -- that is next only with your go-ahead.",
+    ],
+)
+def test_inflight_and_escalation_endings_are_not_deferrals(msg):
+    assert not D.is_deferral(msg)

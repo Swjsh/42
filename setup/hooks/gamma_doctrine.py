@@ -543,6 +543,19 @@ def _handle_stop(payload: dict) -> int:
             "four, name which one and the guard stands down.)",
         )
 
+    if D.is_deferral(message) and not blocked.get("defer"):
+        blocked["defer"] = True
+        _save_session_state(path, state)
+        _log({"event": "Stop", "rule": "OP-0-deferral"}, payload)
+        return _deny(
+            "Stop",
+            "This turn ends by announcing work rather than doing it. Naming the next task and "
+            "stopping is the same failed turn as asking permission for it -- OP-0 does not "
+            "distinguish between them. Do the thing now and report what changed, or say "
+            "plainly why it cannot be done in this turn. (A genuinely in-flight background "
+            "job is not a deferral; say what is running and this guard stands down.)",
+        )
+
     if not blocked.get("op33"):
         calls, user_prompt = _turn_context(payload.get("transcript_path") or "")
         if D.is_unverified_claim(message, calls, user_prompt):

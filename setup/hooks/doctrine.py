@@ -358,6 +358,45 @@ _ASK_PATTERNS = re.compile(
     re.IGNORECASE,
 )
 
+# DEFERRAL is the same failed turn wearing different words. J, 2026-08-29: "i thought hooks
+# prevented you from ending with saying you are doing something and not doing it" -- after a
+# turn that ended "Still owed: the chat endpoint. That's next." The OP-0 guard caught
+# permission questions and OP-33 caught unverified claims, but announcing future work and then
+# stopping passed straight through both. Ending on a promise is not a report.
+_DEFER_PATTERNS = re.compile(
+    r"(?:"
+    r"that(?:'|’)?s\s+next\b"
+    r"|next\s+up\b"
+    r"|still\s+owed\b"
+    r"|coming\s+next\b"
+    r"|i\s*(?:(?:'|’)ll|\s+will)\s+(?:do|build|fix|tackle|start|handle|take|wire)\s+(?:that|this|it)"
+    r"|then\s+i\s*(?:(?:'|’)ll|\s+will)\b"
+    r"|(?:after|once)\s+that,?\s+i\s*(?:(?:'|’)ll|\s+will)\b"
+    r")",
+    re.IGNORECASE,
+)
+
+# Deferring is LEGITIMATE when something is genuinely in flight and the turn cannot proceed
+# until it lands -- a background workflow, a spawned agent, a long build. The failure is
+# deferring work that could have been done in the turn that announced it.
+_INFLIGHT_MARKERS = re.compile(
+    r"(?:background|in\s+flight|still\s+running|workflow\s+is\s+running|agents?\s+(?:are\s+)?running"
+    r"|when\s+it\s+lands|report\s+back|notification|waiting\s+on|blocked\s+on)",
+    re.IGNORECASE,
+)
+
+
+def is_deferral(message: str, tail_chars: int = 500) -> bool:
+    """True when the turn ENDS by promising work instead of doing it, with nothing in flight."""
+    if not message:
+        return False
+    if _INFLIGHT_MARKERS.search(message):
+        return False
+    if _ESCALATION_MARKERS.search(message):
+        return False
+    return bool(_DEFER_PATTERNS.search(message[-tail_chars:]))
+
+
 # If the turn is a genuine OP-0 escalation, the ask is CORRECT and must not be blocked.
 _ESCALATION_MARKERS = re.compile(
     r"(?:live\s+money|arm(?:ing)?\s+(?:the\s+)?live|GAMMA_CORE_ARMED|live:\s*true"
