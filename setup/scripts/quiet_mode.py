@@ -67,6 +67,42 @@ QUIET_START_HOUR = 18       # 18:00 ET -- after the EOD chain has finished writi
 MAINTENANCE_START_HOUR = 23  # 23:00 ET -- blackout lifts, nightly work runs
 MAINTENANCE_END_HOUR = 8     # 08:00 ET -- when Gamma_LaunchTV opens the trading day
 
+# 2026-08-30 WEEKEND STARVATION FIX (J: "its not quiet hours i have a 200/mo plan we're
+# not wasting it doing nothing on the weekend").
+#
+# ROOT CAUSE: the weekend band held ALL 116 non-essential tasks down from 08:00 to 23:00,
+# so every Saturday and Sunday the kitchen, the futures lane, the multi-symbol lane, the
+# prospector and the conductor were off for 30 of the weekend's 48 hours -- measured live
+# Sun 2026-08-30 12:07 ET: 116 held down, kitchen daemon dead, last free-tier task 4h old.
+#
+# The original directive was never "do no work at the weekend". It was "no popups and no
+# 4-worker grind on top of my gaming session" -- a CPU-and-focus constraint, which the
+# PRESENCE GATE below now enforces directly and far better than a clock ever did. Holding
+# the whole fleet down on top of that is belt-and-braces paid for in a dark research day.
+#
+# So the weekend daytime becomes a RESEARCH band: the headless, $0, IO-bound producers run
+# (kitchen on free-tier models, futures lane, multi-symbol lane, prospector, conductor),
+# while the genuinely core-pegging grinders below stay held. J's weekend EVENING is
+# untouched -- 18:00-23:00 is still a full blackout, exactly as on a weekday -- and a
+# fullscreen game still takes everything down through the presence gate whatever the clock
+# says, because that gate reads the real constraint rather than guessing at it.
+WEEKEND_RESEARCH_START_HOUR = MAINTENANCE_END_HOUR   # 08:00 ET
+WEEKEND_RESEARCH_END_HOUR = QUIET_START_HOUR         # 18:00 ET -- J's evening begins
+
+# The core-peggers. These are what actually landed on J's gaming session, so they are the
+# ONLY thing the research band still holds down. Everything else is network-bound: it waits
+# on an HTTP response, it does not eat a core.
+HEAVY_TASKS = {
+    "Gamma_EngineStressSwarm",      # spawns a swarm of concurrent model consults
+    "Gamma_CryptoGrinderKeepalive", # revives the multi-worker crypto grinder
+    "Gamma_GymSession",             # full gym run, all validators
+    "Gamma_GuardsFull",             # full pytest suite
+    "Gamma_DressRehearsal",         # end-to-end replay
+    "Gamma_TwinChaos",              # chaos harness
+    "Gamma_EodFullAudit",           # heavy audit sweep
+    "Gamma_EodDeepDive",            # heavy replay + analysis
+}
+
 # Tasks that stay alive even in the blackout.
 #   - the trading chain, so a market day is never lost to quiet mode
 #   - the window-leak detector, which IS the popup guard
@@ -151,9 +187,23 @@ def in_quiet_window(now: dt.datetime | None = None) -> bool:
     # only runs Mon-Fri is a guard that misses every weekend regression.
     if hour >= MAINTENANCE_START_HOUR or hour < MAINTENANCE_END_HOUR:
         return False
-    if now.weekday() >= 5:  # weekend daytime + evening stays quiet
-        return True
+    if now.weekday() >= 5:
+        # Weekend DAYTIME is the research band (loud-but-light); only the evening is quiet.
+        return hour >= WEEKEND_RESEARCH_END_HOUR
     return hour >= QUIET_START_HOUR
+
+
+def in_research_band(now: dt.datetime | None = None) -> bool:
+    """Weekend 08:00-18:00 ET: light producers run, core-peggers stay down.
+
+    Deliberately narrower than "not quiet": on a WEEKDAY the same hours are the trading
+    day, when the heavy tasks are wanted too. This band exists only because J is at the
+    machine on a weekend afternoon, which is a reason to spare his cores -- not a reason
+    to stop thinking.
+    """
+    now = now or dt.datetime.now(ET)
+    return (now.weekday() >= 5
+            and WEEKEND_RESEARCH_START_HOUR <= now.hour < WEEKEND_RESEARCH_END_HOUR)
 
 
 def _gamma_tasks() -> dict[str, str]:
@@ -394,12 +444,48 @@ def _write_status(active: bool, detail: dict) -> None:
         "quiet_active": active,
         "updated_at": dt.datetime.now(ET).isoformat(),
         "quiet_window_et": (
-            f"weekday {QUIET_START_HOUR:02d}:00-{MAINTENANCE_START_HOUR:02d}:00 ET + weekend "
-            f"{MAINTENANCE_END_HOUR:02d}:00-{MAINTENANCE_START_HOUR:02d}:00; "
-            f"LOUD maintenance band {MAINTENANCE_START_HOUR:02d}:00-{MAINTENANCE_END_HOUR:02d}:00"
+            f"quiet {QUIET_START_HOUR:02d}:00-{MAINTENANCE_START_HOUR:02d}:00 ET every day "
+            f"(J's evening); LOUD maintenance {MAINTENANCE_START_HOUR:02d}:00-"
+            f"{MAINTENANCE_END_HOUR:02d}:00; weekend {WEEKEND_RESEARCH_START_HOUR:02d}:00-"
+            f"{WEEKEND_RESEARCH_END_HOUR:02d}:00 = RESEARCH band (light producers run)"
         ),
         **detail,
     }, indent=2), encoding="utf-8")
+
+
+def go_research() -> int:
+    """Weekend daytime: restore the light producers, keep the core-peggers down.
+
+    Written as restore-then-hold rather than a selective enable so it is idempotent and
+    self-healing: whatever a previous fire left disabled, this converges to exactly
+    "everything except HEAVY_TASKS", and it does NOT kill running processes -- a kitchen
+    task mid-flight through a free-tier model call is precisely the work this band exists
+    to allow.
+    """
+    tasks = _gamma_tasks()
+    if not tasks:
+        _log("ERROR no Gamma tasks enumerated -- refusing to act")
+        return 1
+
+    wanted = _load_restore_list()
+    light = [n for n in wanted if n not in HEAVY_TASKS]
+    heavy_up = [n for n, state in tasks.items()
+                if n in HEAVY_TASKS and state == STATE_READY]
+
+    # The heavy set must stay on the restore list, or the 23:00 maintenance band would
+    # never bring it back: that list is the ONLY record of what quiet mode took down.
+    enabled = _set_tasks(light, enable=True)
+    held = _set_tasks(heavy_up, enable=False)
+    _log(f"RESEARCH BAND: light_up={enabled}/{len(light)} heavy_held={held}")
+    _write_status(False, {
+        "band": "weekend-research",
+        "light_enabled": enabled,
+        "light_expected": len(light),
+        "heavy_held_down": sorted(HEAVY_TASKS),
+        "note": ("weekend daytime -- headless $0 producers run, core-peggers held. "
+                 "A fullscreen app still triggers a full blackout via the presence gate."),
+    })
+    return 0
 
 
 def go_quiet() -> int:
@@ -456,6 +542,7 @@ def main() -> int:
         now = dt.datetime.now(ET)
         print(f"ET now      : {now:%Y-%m-%d %H:%M:%S %a}")
         print(f"quiet window: {in_quiet_window(now)}")
+        print(f"research band: {in_research_band(now)}")
         print(f"presence hold: {presence_hold(now) or 'none'}")
         print(f"held down   : {len(_load_restore_list())} tasks")
         if STATUS_FILE.exists():
@@ -481,9 +568,31 @@ def main() -> int:
         if in_quiet_window():
             return go_quiet()
         held = presence_hold()
+        if held and in_research_band():
+            # J at the machine on a weekend afternoon DOWNGRADES to research, it does not
+            # black out. Measured 2026-08-30 12:14 ET: the band had correctly flipped LOUD
+            # and the presence gate still held all 116 tasks down, because Apex was
+            # foreground -- which is J's normal weekend state, so a full blackout there is
+            # the same 30-hour outage wearing a different trigger.
+            #
+            # What actually protects a frame rate is HEAVY_TASKS staying down, and the
+            # research band already does that. The other half of the 2026-08-29 scar was a
+            # console window stealing focus mid-match; that is structurally handled --
+            # every Gamma task launches through a hidden wscript shim (all 4 shims use
+            # windowStyle 0 / WshShell.Exec, audited 2026-08-30), and
+            # Gamma_WindowLeakDetectorKeepalive is ESSENTIAL so it keeps watching either
+            # way. A task that still flashes a window is a bug in that task, and hiding it
+            # behind a fleet-wide blackout is how it stays unfixed.
+            _log(f"PRESENCE -> research band (not blackout): {held}")
+            return go_research()
         if held:
+            # Outside the research band the original behaviour stands unchanged: this is
+            # the 23:00 maintenance case from 2026-08-29, when the heavy grinders ARE
+            # scheduled and a blackout is the right answer.
             _log(f"QUIET HELD past the clock: {held}")
             return go_quiet()
+        if in_research_band():
+            return go_research()
         return go_loud()
     except Exception as exc:  # noqa: BLE001
         # FAIL OPEN: never leave the rig disabled because the enforcer broke.
