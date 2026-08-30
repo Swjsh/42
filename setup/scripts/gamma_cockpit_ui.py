@@ -8,10 +8,15 @@ HARD CONSTRAINT: one self-contained file. No CDN, no web fonts, no external JS o
 CSS. It must work from a file:// URL with no network, which rules out every chart
 library - the sparklines, bars and the org graph are hand-rolled SVG.
 
-DESIGN SYSTEM (from the 2026 design research, sources in the session report)
-  * OKLCH neutrals on hue 265 at near-zero chroma. Perceptually even lightness
-    steps, which a flat hex ladder does not give you - that evenness is what
-    makes an elevation ramp read as a system instead of as noise.
+DESIGN SYSTEM -- governed by markdown/infra/COCKPIT-DESIGN-SPEC.md (5-lane research
+fleet + synthesis, 2026-08-30). The load-bearing rules:
+  * Neutrals at chroma ZERO, every step. A half-tinted grey ramp reads as a colour
+    bug; the page-wide aurora that caused one is deleted, and the single bloom lives
+    inside the graph canvas only.
+  * Elevation is LUMINANCE (void .085 -> card .175 -> raised .212), not shadow.
+    Hairlines are alpha-of-foreground, never a fixed hex.
+  * Purple means YOU CAN ACT ON THIS (fills on Fire/Send, strokes, focus). ALIVE is
+    cyan (--st-live). Green/red stay reserved for P&L.
   * Semantic colours pinned to L 68-72% so profit/loss/warning read as equally
     vivid against the canvas.
   * ONE MEANING PER COLOUR. Red/green are reserved for P&L only. System and agent
@@ -52,23 +57,31 @@ CSS = r"""
      The old palette carried chroma .012-.018 in every neutral, which read as a purple
      wash; production dark UIs keep the neutrals clean and spend colour ONLY on the
      accent. */
-  --bg-canvas:oklch(11% .004 300); --bg-1:oklch(15% .005 300); --bg-2:oklch(18.5% .006 300);
-  --bg-3:oklch(23% .007 300); --bg-inset:oklch(8.5% .003 300);
-  --bd-subtle:rgba(255,255,255,.05);
-  --bd:rgba(255,255,255,.08);
-  --bd-strong:rgba(255,255,255,.14);
-  --topline:inset 0 1px 0 rgba(255,255,255,.05);
-  --ring:0 0 0 1px rgba(0,0,0,.35);
-  --tx-1:oklch(96.8% .003 300); --tx-2:oklch(78% .006 300);
-  --tx-3:oklch(60% .008 300); --tx-4:oklch(45% .008 300);
+  /* SPEC v1 (research fleet, 2026-08-30): every neutral at chroma ZERO -- a half-tinted
+     grey ramp reads as a colour-management bug, and the aurora that caused it is gone.
+     Elevation is LUMINANCE, not shadow: void .085 -> card .175 -> raised .212, so a card
+     is visibly a card with no border doing the work. Hairlines are alpha-of-foreground,
+     never a fixed hex, so edges scale across nested surfaces. */
+  --bg-canvas:oklch(8.5% 0 0); --bg-1:oklch(17.5% 0 0); --bg-2:oklch(21.2% 0 0);
+  --bg-3:oklch(24.8% 0 0); --bg-inset:oklch(11.5% 0 0);
+  --bd-subtle:oklch(94.5% 0 0/.065);
+  --bd:oklch(94.5% 0 0/.11);
+  --bd-strong:oklch(94.5% 0 0/.18);
+  --topline:inset 0 1px 0 oklch(94.5% 0 0/.05);
+  --ring:0 0 0 1px oklch(0% 0 0/.40);
+  --tx-1:oklch(94.5% 0 0); --tx-2:oklch(80% 0 0);
+  --tx-3:oklch(62% 0 0); --tx-4:oklch(48% 0 0);
   /* pos/neg stay where they are: red and green are RESERVED for P&L in this cockpit, so
      the accent must never be able to be mistaken for either. */
   --pos:oklch(72% .19 152); --pos-dim:color-mix(in oklch,var(--pos) 16%,transparent);
   --neg:oklch(68% .21 25);  --neg-dim:color-mix(in oklch,var(--neg) 16%,transparent);
   --warn:oklch(78% .17 80); --warn-dim:color-mix(in oklch,var(--warn) 16%,transparent);
-  --acc:oklch(70% .19 300); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
-  /* deep form for FILLS (21st.dev primary shape: dark, saturated, white text on top) */
-  --acc-deep:oklch(48% .27 300); --acc-deep-hi:oklch(56% .27 300);
+  --acc:oklch(73.5% .185 300); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
+  /* deep form for FILLS -- and per spec it appears on exactly ONE control (Fire), so
+     purple always means "you can act on this" and never also means "this is breathing". */
+  --acc-deep:oklch(41% .098 299); --acc-deep-hi:oklch(47% .115 300);
+  /* ALIVE is cyan, its own hue -- never actionable, never the accent's job. */
+  --st-live:oklch(79% .125 207);
   --acc-soft:color-mix(in oklch,var(--acc) 9%,transparent);
   --acc-line:color-mix(in oklch,var(--acc) 42%,transparent);
   /* Coloured elevation: a violet-tinted glow reads as light coming off the accent rather
@@ -82,7 +95,7 @@ CSS = r"""
   --sh-4:0 4px 8px oklch(0% 0 0/.24),0 20px 48px oklch(0% 0 0/.40);
   --s1:2px;--s2:4px;--s3:8px;--s4:12px;--s5:16px;--s6:20px;--s7:24px;--s8:32px;--s9:40px;
   --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-pill:999px;
-  --e-hover:cubic-bezier(.16,1,.3,1); --e-open:cubic-bezier(.32,.72,0,1);
+  --e-hover:cubic-bezier(.4,0,.2,1); --e-enter:cubic-bezier(.16,1,.3,1); --e-open:cubic-bezier(.32,.72,0,1);
   --e-close:cubic-bezier(.4,0,1,1); --e-route:cubic-bezier(.65,0,.35,1);
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
@@ -91,14 +104,17 @@ CSS = r"""
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-size:14px;
-  line-height:1.5;-webkit-font-smoothing:antialiased}
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  font-variant-numeric:lining-nums tabular-nums slashed-zero;
+  font-feature-settings:"tnum" 1,"lnum" 1,"zero" 1}
 .num,td.n,.big,.mid,.stat{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
 /* ambient wash + subliminal grain (kills gradient banding) */
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(1100px 600px at 18% -12%,color-mix(in oklch,var(--acc-deep) 26%,transparent),transparent 60%),
-    radial-gradient(800px 500px at 100% 0%,color-mix(in oklch,var(--acc) 7%,transparent),transparent 60%),
-    radial-gradient(900px 700px at 50% 118%,color-mix(in oklch,var(--acc-deep) 10%,transparent),transparent 55%)}
+/* The page-wide aurora is DELETED, not tuned (spec move #1): it bled hue into every
+   neutral downstream. The one bloom now lives inside the graph canvas only, so purple
+   reads as light the graph emits, not a tint applied to the app. */
+.armywrap{position:relative}
+.armywrap::before{content:"";position:absolute;inset:-8px;pointer-events:none;
+  background:radial-gradient(60% 55% at 50% 18%,oklch(73.5% .185 300/.055),transparent 70%)}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.035;
   mix-blend-mode:overlay;background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)"/></svg>')}
 a{color:var(--acc);text-decoration:none}
@@ -342,7 +358,7 @@ section+section{margin-top:var(--s8)}
   outline:none;transition:border-color .16s var(--e-hover),box-shadow .16s var(--e-hover)}
 .chatfoot textarea:focus{border-color:var(--acc-line);box-shadow:var(--glow-soft)}
 .chatfoot textarea:disabled{opacity:.55}
-#chatsend{font:700 13px/1 var(--font);padding:12px 22px;border-radius:9px;cursor:pointer;color:#fff;
+#chatsend{font:600 13px/1 var(--font);padding:12px 22px;border-radius:9px;cursor:pointer;color:#fff;
   border:1px solid color-mix(in oklch,var(--acc) 45%,transparent);
   background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,0) 45%),var(--acc-deep);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 20px -8px var(--acc-deep);
@@ -364,7 +380,7 @@ section+section{margin-top:var(--s8)}
 /* ---------------- fire button: show what clicking does ---------------- */
 .firewhat{font-size:12.5px;line-height:1.5;color:var(--tx-2);margin:0 0 10px}
 .firewhat b{color:var(--acc);font-weight:600}
-.firebtn{font:700 13px/1 var(--font);padding:12px 22px;border-radius:9px;cursor:pointer;color:#fff;
+.firebtn{font:600 13px/1 var(--font);padding:12px 22px;border-radius:9px;cursor:pointer;color:#fff;
   border:1px solid color-mix(in oklch,var(--acc) 45%,transparent);
   background:linear-gradient(rgba(255,255,255,.14),rgba(255,255,255,0) 45%),var(--acc-deep);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 20px -8px var(--acc-deep),var(--ring);

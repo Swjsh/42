@@ -140,7 +140,7 @@ function armySvg(a){
   const og=mk('g',{class:'army-node',id:'army-orc'});
   og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
   og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'url(#orcGrad)',stroke:'var(--acc)','stroke-width':1.5,opacity:.9}));
-  og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--acc)',class:'army-ring'}));
+  og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--st-live)',class:'army-ring'}));
   og.appendChild(ltxt(ocx-150,ocy-8,orc?orc.name:'—','var(--tx-1)',21,700));
   og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',11.5,600));
   if(orc&&orc.title)og.appendChild(ltxt(ocx-166,ocy+34,orc.title.slice(0,52),'var(--tx-4)',11,400));
@@ -323,10 +323,13 @@ function armySvg(a){
 }
 
 function armyDotColour(s,lastSeen){
+  /* Spec move #3: ALIVE is cyan (--st-live), its own hue. Green is reserved for P&L, and
+     "recently talked" was borrowing it -- a canvas of green dots also hides the one that
+     matters. Quiet-but-alive is a neutral, not amber: quiet is not degraded. */
   if(!s.alive)return'var(--neg)';
   const seen=lastSeen[s.session_id];
   const age=seen?agoOf(seen):null;                 // hours
-  if(age!=null&&age*3600<=300)return'var(--pos)';  // talked within 5 min
+  if(age!=null&&age*3600<=300)return'var(--st-live)';  // talked within 5 min
   return'var(--warn)';
 }
 
