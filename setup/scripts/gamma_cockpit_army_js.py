@@ -24,8 +24,10 @@ let armyState=null;
 function armySvg(a){
   const ns='http://www.w3.org/2000/svg';
   const mk=(t,attrs)=>{const e=document.createElementNS(ns,t);for(const k in (attrs||{}))e.setAttribute(k,attrs[k]);return e};
-  const stxt=(x,y,str,c,sz,w)=>{const e=mk('text',{x,y,fill:c||'var(--tx-2)','font-size':sz||11,
-    'font-family':'var(--font)','font-weight':w||500,'text-anchor':'middle'});e.textContent=str;return e};
+  const stxt=(x,y,str,c,sz,w,anchor)=>{const e=mk('text',{x,y,fill:c||'var(--tx-2)','font-size':sz||11,
+    'font-family':'var(--font)','font-weight':w||500,'text-anchor':anchor||'middle'});e.textContent=str;return e};
+  /* Left-aligned label -- reading a box is scanning a short list, not centring a poster. */
+  const ltxt=(x,y,str,c,sz,w)=>stxt(x,y,str,c,sz,w,'start');
 
   const sessions=(a.sessions||[]).slice(0,12), workers=a.workers||[];
   const byWorkerSession={};
@@ -35,20 +37,44 @@ function armySvg(a){
   // last_seen computation; recomputed as pulses arrive via armyDotColour() below.
   const lastSeen={}; (a.pulses||[]).forEach(r=>{if(r.session_id&&r.ts)lastSeen[r.session_id]=r.ts});
 
-  const N=Math.max(1,sessions.length), W=Math.max(880,N*200+140), sessY=210, H=sessY+150;
-  const svg=mk('svg',{viewBox:`0 0 ${W} ${H}`,id:'armysvg'});
-  svg.setAttribute('width','100%');svg.setAttribute('height',H);svg.style.minWidth='780px';
+  /* LAYOUT -- fixed box size in a GRID, never one scaled row.
+     The first version laid every session out in a single row and sized the viewBox to
+     fit: W = N*200+140. With 10 sessions that is a 2140-wide viewBox rendered into a
+     ~1250px column, so the browser scaled everything to ~58% and 13px labels became
+     7.6px. More sessions made the text SMALLER -- exactly backwards. J, seeing it:
+     "look how tiny it is... i have no idea what im even looking at."
+     Now the viewBox width is FIXED near the real column width and rows wrap, so box
+     size and type size never depend on how many sessions are alive. */
+  const COLS=3, BW=330, BH=132, GAPX=26, GAPY=30, PAD=34;
+  const MAX_BOXES=9;
+  const shown=sessions.slice(0,MAX_BOXES);
+  const hiddenCount=Math.max(0,(a.sessions||[]).length-shown.length);
+  const rows=Math.max(1,Math.ceil(shown.length/COLS));
+  const W=PAD*2+COLS*BW+(COLS-1)*GAPX;
+  const ocy=62, SESS_TOP=196;
+  const H=SESS_TOP+rows*(BH+GAPY)+56;
+  /* Bleed the viewBox by 8px on every side. Measured after the grid rewrite: the content
+     bbox started at (-6,-6) because strokes and text ascenders sit outside their nominal
+     box, so a 0-origin viewBox shaved the top-left edge of the orchestrator. */
+  const BLEED=8;
+  const svg=mk('svg',{viewBox:`${-BLEED} ${-BLEED} ${W+BLEED*2} ${H+BLEED*2}`,id:'armysvg'});
+  // height is a CSS concern, not an SVG attribute: setAttribute('height','auto') is
+  // invalid per spec and threw "Expected length" in the console. The viewBox plus
+  // width:100% already gives proportional scaling; CSS height:auto completes it.
+  svg.setAttribute('width','100%');
+  svg.style.cssText='display:block;margin:0 auto;height:auto;max-width:'+W+'px';
 
   const centers={}, edges={};
-  const ocx=W/2, ocy=48;
+  const ocx=W/2;
   centers.orc={x:ocx,y:ocy};
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node',id:'army-orc'});
-  og.appendChild(mk('rect',{x:ocx-120,y:ocy-32,width:240,height:64,rx:14,fill:'var(--bg-2)',stroke:'var(--acc)','stroke-width':1.6}));
-  og.appendChild(stxt(ocx,ocy-12,'ORCHESTRATOR','var(--tx-4)',10,600));
-  og.appendChild(stxt(ocx,ocy+9,orc?orc.name:'—','var(--tx-1)',15,650));
-  if(orc&&orc.title)og.appendChild(stxt(ocx,ocy+25,orc.title.slice(0,38),'var(--tx-4)',9.5,400));
-  if(orc)og.onclick=()=>armySessionDrawer(orc,byWorkerSession[orc.session_id]||[]);
+  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--acc)','stroke-width':2}));
+  og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--acc)',class:'army-ring'}));
+  og.appendChild(ltxt(ocx-150,ocy-8,orc?orc.name:'—','var(--tx-1)',21,700));
+  og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — the one giving orders','var(--acc)',11.5,600));
+  if(orc&&orc.title)og.appendChild(ltxt(ocx-166,ocy+34,orc.title.slice(0,52),'var(--tx-4)',11,400));
+  if(orc){og.style.cursor='pointer';og.onclick=()=>armySessionDrawer(orc,byWorkerSession[orc.session_id]||[]);}
   svg.appendChild(og);
 
   // off-box: where a pulse goes when its recipient cannot be resolved on this box
@@ -62,44 +88,91 @@ function armySvg(a){
   offg.appendChild(stxt(offx,offy+13,'cloud / unknown','var(--tx-4)',8.5,400));
   svg.appendChild(offg);
 
-  sessions.forEach((s,i)=>{
-    const sx=(W/N)*(i+.5), sy=sessY;
+  shown.forEach((s,i)=>{
+    const col=i%COLS, row=Math.floor(i/COLS);
+    const sx=PAD+col*(BW+GAPX)+BW/2;
+    const sy=SESS_TOP+row*(BH+GAPY)+BH/2;
+    const L=sx-BW/2, T=sy-BH/2;                    // box left / top, for readable labels
     centers['s:'+s.session_id]={x:sx,y:sy};
-    const edge=mk('path',{d:`M ${ocx} ${ocy+32} C ${ocx} ${(ocy+sy)/2}, ${sx} ${(ocy+sy)/2}, ${sx} ${sy-38}`,
-      fill:'none',stroke:'var(--bd-strong)','stroke-width':1.2,opacity:.12});
+    const edge=mk('path',{d:`M ${ocx} ${ocy+44} C ${ocx} ${(ocy+T)/2}, ${sx} ${(ocy+T)/2}, ${sx} ${T}`,
+      fill:'none',stroke:'var(--bd-strong)','stroke-width':1.4,opacity:.16});
     edge.id='armyedge-'+s.session_id;
     svg.appendChild(edge);
     edges[s.session_id]=edge;
 
     const g=mk('g',{class:'army-node','data-sid':s.session_id});
-    g.appendChild(mk('rect',{x:sx-84,y:sy-38,width:168,height:96,rx:12,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
-    const dot=mk('circle',{cx:sx-68,cy:sy-20,r:4,fill:armyDotColour(s,lastSeen)});
+    g.style.cursor='pointer';
+    g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1.4}));
+    const dot=mk('circle',{cx:L+22,cy:T+27,r:6,fill:armyDotColour(s,lastSeen)});
     dot.id='armydot-'+s.session_id;
     g.appendChild(dot);
-    g.appendChild(stxt(sx+6,sy-16,s.name,'var(--tx-1)',13,650));
-    if(s.title)g.appendChild(stxt(sx,sy,s.title.slice(0,40),'var(--tx-3)',9.5,500));
+    g.appendChild(ltxt(L+38,T+33,s.name,'var(--tx-1)',19,700));
+    // Say what the box IS, not just what it is called -- the screenshot complaint was
+    // "what box is what", and a bare session handle answers that for nobody.
+    g.appendChild(ltxt(L+18,T+56,(s.kind==='interactive'?'your window':'background')+
+      (s.entrypoint?' · '+String(s.entrypoint).replace('claude-','') : ''),'var(--tx-4)',11,600));
+    if(s.title)g.appendChild(ltxt(L+18,T+76,s.title.slice(0,42),'var(--tx-3)',12,500));
     const wc=(byWorkerSession[s.session_id]||[]).length;
-    g.appendChild(stxt(sx,sy+16,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+(s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',9,500));
-    const actEl=stxt(sx,sy+32,'','var(--tx-4)',8.5,400); actEl.id='armyact-'+s.session_id; g.appendChild(actEl);
-    g.appendChild(stxt(sx,sy+46,s.started_at?('since '+s.started_at.slice(11,16)):'','var(--tx-4)',8,400));
+    g.appendChild(ltxt(L+18,T+98,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
+      (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
+    const actEl=ltxt(L+18,T+118,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id; g.appendChild(actEl);
+    // Explicit affordance: the whole box was already clickable but nothing said so.
+    g.appendChild(stxt(L+BW-30,T+27,'open ▸','var(--acc)',11,600,'end'));
     g.onclick=()=>armySessionDrawer(s,byWorkerSession[s.session_id]||[]);
     svg.appendChild(g);
 
-    (byWorkerSession[s.session_id]||[]).slice(0,6).forEach((w,j)=>{
-      const wx=sx-60+j*24, wy=sy+64;
+    (byWorkerSession[s.session_id]||[]).slice(0,5).forEach((w,j)=>{
+      const wx=L+26+j*26, wy=T+BH+17;
       centers['w:'+w.agent_id]={x:wx,y:wy};
       const wg=mk('g',{class:'army-node'});
-      const wc2=mk('circle',{cx:wx,cy:wy,r:7,
-        fill:w.active?'var(--acc-dim)':'var(--bg-3)',stroke:w.active?'var(--acc)':'var(--bd)','stroke-width':1.2});
+      wg.style.cursor='pointer';
+      const wc2=mk('circle',{cx:wx,cy:wy,r:9,
+        fill:w.active?'var(--acc-dim)':'var(--bg-3)',stroke:w.active?'var(--acc)':'var(--bd)','stroke-width':1.4});
       wc2.id='armyworker-'+w.agent_id;
       wg.appendChild(wc2);
       const tt=mk('title',{}); tt.textContent=w.task||w.agent_type||'worker'; wg.appendChild(tt);
       wg.onclick=()=>armyWorkerDrawer(w);
       svg.appendChild(wg);
     });
+    if(wc)svg.appendChild(ltxt(L+26+Math.min(wc,5)*26,T+BH+21,'workers','var(--tx-4)',10,500));
   });
 
-  const wrap=el('div','org armywrap'); wrap.appendChild(svg);
+  if(hiddenCount){
+    svg.appendChild(stxt(W/2,H-18,'+'+hiddenCount+' more session'+(hiddenCount===1?'':'s')+
+      ' not shown — the roster is capped so the boxes stay readable','var(--tx-4)',11,500));
+  }
+
+  /* TOOLBAR -- J on the first screenshot: "there is no butotns or anything". The graph
+     was fully interactive (every box opened a drawer) but advertised none of it, and the
+     only place with real actions -- the Cards view -- was reachable only from the nav. */
+  const wrap=el('div','org armywrap');
+  const bar=el('div','armybar');
+  bar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px';
+  const mkbtn=(label,title,fn,primary)=>{
+    const b=document.createElement('button');
+    b.type='button'; b.textContent=label; b.title=title;
+    b.style.cssText='font:600 12px/1 var(--font);padding:9px 14px;border-radius:8px;cursor:pointer;'+
+      'border:1px solid '+(primary?'var(--acc)':'var(--bd)')+';'+
+      'background:'+(primary?'var(--acc-dim)':'var(--bg-2)')+';color:'+(primary?'var(--acc)':'var(--tx-2)')+';';
+    b.onclick=fn;
+    return b;
+  };
+  bar.appendChild(mkbtn('Refresh now','Re-read the session roster and pulse log immediately',
+    ()=>{try{route('army')}catch(_){}} ,true));
+  bar.appendChild(mkbtn('Action cards ▸','Go to the Cards view -- that is where the fire buttons live',
+    ()=>{try{route('cards');history.replaceState(null,'','#cards')}catch(_){}}));
+  const pauseBtn=mkbtn('Pause pulses','Stop the travelling dots without stopping the data',()=>{
+    if(!armyState)return;
+    armyState.paused=!armyState.paused;
+    pauseBtn.textContent=armyState.paused?'Resume pulses':'Pause pulses';
+  });
+  bar.appendChild(pauseBtn);
+  const hint=document.createElement('span');
+  hint.style.cssText='font:500 11.5px/1.4 var(--font);color:var(--tx-4);margin-left:6px';
+  hint.textContent='Click any box to see what that session is doing.';
+  bar.appendChild(hint);
+  wrap.appendChild(bar);
+  wrap.appendChild(svg);
   return {wrap,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
 }
 
@@ -159,8 +232,11 @@ function armyQueuePulse(fromKey,toKey,colour){
       else{path.setAttribute('stroke','var(--bd-strong)');path.setAttribute('opacity','.12')} },400);
     return;
   }
+  // Paused means "stop the motion", never "stop the data": the ledger and the state dots
+  // keep updating underneath, so pausing to read the graph cannot hide a live event.
+  if(st.paused)return;
   const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  dot.setAttribute('r','4'); dot.setAttribute('fill',colour);
+  dot.setAttribute('r','6'); dot.setAttribute('fill',colour);
   svg.appendChild(dot);
   const entry={path,ephemeral,dot,len:path.getTotalLength(),start:performance.now(),dur:900};
   st.queue.push(entry);
