@@ -43,6 +43,7 @@ STATE_DIR = ROOT / "automation" / "state"
 RESTORE_FILE = STATE_DIR / "quiet-mode-restore.json"
 STATUS_FILE = STATE_DIR / "quiet-mode.json"
 HOLD_FILE = STATE_DIR / "quiet-hold.json"
+PRESENCE_FILE = STATE_DIR / "quiet-presence.json"
 LOG_FILE = STATE_DIR / "quiet-mode.log"
 
 # ET comes from et_clock, never zoneinfo: this box runs Mountain time, and the system
@@ -341,15 +342,50 @@ def _in_trading_band(now: dt.datetime | None = None) -> bool:
     return now.weekday() < 5 and MAINTENANCE_END_HOUR <= now.hour < QUIET_START_HOUR
 
 
+# Alt-tabbing out of a game for thirty seconds must not restore 116 tasks and put the
+# popups straight back on screen. The hold LINGERS past the last sighting, so a glance
+# at Discord costs nothing and only genuinely walking away lifts the blackout.
+PRESENCE_LINGER_MIN = 15
+
+
+def _remember_presence(app: str, now: dt.datetime) -> None:
+    try:
+        PRESENCE_FILE.write_text(json.dumps(
+            {"last_fullscreen_at": now.isoformat(), "app": app}, indent=2), encoding="utf-8")
+    except OSError as exc:
+        _log(f"WARN could not record presence ({exc})")
+
+
+def _presence_linger(now: dt.datetime) -> str | None:
+    if not PRESENCE_FILE.exists():
+        return None
+    try:
+        data = json.loads(PRESENCE_FILE.read_text(encoding="utf-8"))
+        seen = dt.datetime.fromisoformat(data["last_fullscreen_at"])
+    except (OSError, ValueError, KeyError):
+        PRESENCE_FILE.unlink(missing_ok=True)
+        return None
+    age_min = (now - seen).total_seconds() / 60
+    if age_min >= PRESENCE_LINGER_MIN:
+        PRESENCE_FILE.unlink(missing_ok=True)
+        return None
+    return (f"linger: {data.get('app', 'fullscreen app')} was foreground "
+            f"{age_min:.0f}m ago (<{PRESENCE_LINGER_MIN}m)")
+
+
 def presence_hold(now: dt.datetime | None = None) -> str | None:
     """Reason to stay quiet despite the clock saying LOUD, or None."""
+    now = now or dt.datetime.now(ET)
     if _in_trading_band(now):
         return None
     manual = _manual_hold()
     if manual:
         return manual
     app = _foreground_fullscreen()
-    return f"fullscreen app in foreground ({app})" if app else None
+    if app:
+        _remember_presence(app, now)
+        return f"fullscreen app in foreground ({app})"
+    return _presence_linger(now)
 # ========================================================================================
 
 

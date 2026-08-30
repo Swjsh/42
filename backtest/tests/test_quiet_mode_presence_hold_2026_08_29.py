@@ -76,3 +76,20 @@ def test_enforce_path_consults_presence_hold():
     src = (ROOT / "setup" / "scripts" / "quiet_mode.py").read_text(encoding="utf-8")
     main = src.split("def main(")[1]
     assert "presence_hold()" in main, "--enforce ignores the presence gate"
+
+
+def test_linger_survives_an_alt_tab(monkeypatch, tmp_path):
+    """A brief alt-tab must not restore 116 tasks and put the popups back."""
+    monkeypatch.setattr(qm, "PRESENCE_FILE", tmp_path / "presence.json")
+    monkeypatch.setattr(qm, "_manual_hold", lambda: None)
+    night = _et("2026-08-29", 23)
+
+    monkeypatch.setattr(qm, "_foreground_fullscreen", lambda: "r5apex_dx12.exe")
+    assert qm.presence_hold(night)  # game seen -> recorded
+
+    monkeypatch.setattr(qm, "_foreground_fullscreen", lambda: None)
+    just_after = night + dt.timedelta(minutes=qm.PRESENCE_LINGER_MIN - 1)
+    assert "linger" in (qm.presence_hold(just_after) or ""), "alt-tab dropped the hold"
+
+    walked_away = night + dt.timedelta(minutes=qm.PRESENCE_LINGER_MIN + 1)
+    assert qm.presence_hold(walked_away) is None, "hold never expires"
