@@ -8,10 +8,18 @@ risk this whole cockpit exists to close).
 RANKING IS NOT INVENTED HERE (spec: scratchpad/SPEC.md sec 4). It mirrors the
 conductor's own STAGE 1 priority order verbatim -- reusing task_scorer.py's
 ranker for source 3 rather than writing a second one:
+  0. automation/state/active-goal.json     -- the goal's next '- [ ]' item.
+                                               ALWAYS prepended as rank 1 when
+                                               present+unexpired (2026-08-29
+                                               goal-to-card linkage fix): the
+                                               loop's own next step must never
+                                               be outranked by anything below.
   1. automation/state/engine-health.json   -- any critical check not GREEN
   2. automation/overnight/STATUS.md        -- '## Known broken' / '### BROKEN:'
   3. task_scorer.rank()                    -- top 3 ready backlog items
-  4. automation/state/active-goal.json     -- the goal's next '- [ ]' item
+  4. gamma_cockpit_army sessions[].context_pct -- any session > 85% of its
+                                               autoCompactWindow (never when
+                                               context_source == "unknown")
   5. automation/state/unattended-health.json -- RED/YELLOW units
 
 QUIET-MODE IS READ FIRST (the #1 false-alarm source per the spec). When
@@ -37,21 +45,38 @@ Nothing here ever writes automation/state/action-cards.json with a card whose
 prompt could arm live money, touch a secret, or take an irreversible external
 action. Every failure degrades to fewer cards, never a crash -- this module
 must never be the reason the cockpit page fails to build.
+
+AUTOFIRE SAFETY (2026-08-29, the field the auto-fire runner depends on): every
+card also carries `autofire_safe` (bool) + `autofire_reason` (str). Default is
+FALSE -- a card the classifier cannot confidently place is not safe. TRUE is
+reserved for cards whose objective is unambiguously READ-AND-REPORT
+(investigate/measure/audit/check/summarise) with no action verb anywhere in
+the card's own text. Unconditionally FALSE, regardless of verb, when the
+card's untrusted text mentions live arming, a secret, or an irreversible
+external action, or when it touches the frozen trading path during the
+2026-08-31 -> 2026-09-29 config freeze (doctrine.freeze_active /
+doctrine.FROZEN_TRADING_PATH). See _autofire_classification().
 """
 from __future__ import annotations
 
 import json
 import re
 import sys
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
-sys.path.insert(0, str(Path(__file__).resolve().parent))  # sibling imports below
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_SCRIPTS_DIR))  # sibling imports below (setup/scripts)
+sys.path.insert(0, str(_SCRIPTS_DIR.parent / "hooks"))  # setup/hooks -- doctrine.py
 
 import et_clock  # noqa: E402  -- the ONE DST-aware ET source (never Bash TZ=...)
 import task_scorer  # noqa: E402  -- the ONE backlog ranker (never re-derive ROI here)
+import gamma_cockpit_army  # noqa: E402  -- source of sessions[].context_pct for the context-alarm cards
+import doctrine  # noqa: E402  -- setup/hooks/doctrine.py: REUSED verbatim (not re-parsed) for
+                  # goal_next_open_item/goal_expired (goal-to-card linkage) and
+                  # freeze_active/FROZEN_TRADING_PATH (autofire classification)
 
 ENGINE_HEALTH_JSON = STATE / "engine-health.json"
 UNATTENDED_HEALTH_JSON = STATE / "unattended-health.json"
@@ -104,6 +129,115 @@ def _looks_dangerous(untrusted_text: str) -> str | None:
         if pat.search(untrusted_text):
             return label
     return None
+
+
+# ----------------------------------------------------------- autofire safety
+#
+# _looks_dangerous() (above) is a narrow, syntax-specific denylist -- it drops
+# a card outright on a hit. This classifier is broader on purpose: it also
+# catches a card that merely TALKS ABOUT live arming / a secret / an
+# irreversible action without matching one of the specific command shapes
+# above, and it is the thing that decides whether the auto-fire runner may
+# dispatch a SURVIVING card without a human looking at it first. Same scoping
+# rule as _looks_dangerous: runs ONLY on the untrusted, state-derived text
+# (title/why/objective/done_when + source_path), never the static safety
+# footer -- the footer legitimately NAMES "live arming"/"secret"/
+# "irreversible" in order to prohibit them, which would otherwise mark every
+# card unsafe for the wrong reason.
+
+_READ_ONLY_VERBS = ("investigate", "measure", "audit", "check", "summarise", "summarize")
+
+# Any of these appearing ANYWHERE in the card's own text means the work is not
+# purely read-and-report -- the objective's opening verb alone is not trusted,
+# because a "check X" objective whose `why`/`done_when` also says "then update
+# the file" is not actually a read-only card.
+_ACTION_VERB_RE = re.compile(
+    r"\b("
+    r"edit|edits|editing|change|changes|changing|commit|commits|committing|"
+    r"resolve|resolves|resolving|restore|restores|restoring|fix|fixes|fixing|"
+    r"drain|drains|draining|complete|completes|completing|update|updates|updating|"
+    r"modify|modifies|modifying|write|writes|writing|apply|applies|applying|"
+    r"ship|ships|shipping|revert|reverts|reverting|delete|deletes|deleting|"
+    r"create|creates|creating|arm|arms|arming|rotate|rotates|rotating|"
+    r"place|places|placing|cancel|cancels|cancelling|canceling|close|closes|closing|"
+    r"replace|replaces|replacing|exercise|exercises|exercising|push|pushes|pushing|"
+    r"merge|merges|merging|deploy|deploys|deploying|kill|kills|killing|"
+    r"restart|restarts|restarting|mark|marks|marking|set"
+    r")\b", re.I,
+)
+
+_LIVE_ARM_MENTION_RE = re.compile(
+    r"\blive\b[^\n.;]{0,30}\barm\w*|\barm\w*[^\n.;]{0,30}\blive\b|"
+    r"GAMMA_CORE_ARMED|\blive\s*:\s*true\b|\blive[- ]money\b|\blive\s+order\b",
+    re.I,
+)
+_SECRET_MENTION_RE = re.compile(
+    r"\bsecret(s)?\b|\bcredential(s)?\b|\bapi[- ]?key(s)?\b|\.key\b|\btoken(s)?\b|"
+    r"\bpassword(s)?\b|\.vapid\.json|push-subscriptions\.json",
+    re.I,
+)
+_IRREVERSIBLE_MENTION_RE = re.compile(
+    r"\birreversible\b|force[- ]push|\bgit\s+push\b|\brm\s+-rf\b|\bpermanently\s+delete\b",
+    re.I,
+)
+
+
+def _autofire_classification(title: str, why: list[str], objective: str, done_when: str,
+                              source_path: str, today: date | None = None) -> tuple[bool, str]:
+    """(autofire_safe, autofire_reason) for one card. Default is FALSE.
+
+    TRUE only when ALL of:
+      - none of the three unconditional-false triggers below hit, AND
+      - the (freeze-window, frozen-path) trigger below misses, AND
+      - `objective` opens on a read-only verb (investigate/measure/audit/
+        check/summarise), AND
+      - no action verb (edit/change/commit/fix/arm/place/push/...) appears
+        ANYWHERE in title/why/objective/done_when.
+
+    `today` is injectable for tests; defaults to the real ET calendar date.
+    """
+    text = " ".join([title, " ".join(why), objective, done_when])
+
+    if _LIVE_ARM_MENTION_RE.search(text):
+        return False, "prompt mentions live arming -- unconditionally unsafe to auto-fire."
+    if _SECRET_MENTION_RE.search(text):
+        return False, "prompt mentions a secret/credential -- unconditionally unsafe to auto-fire."
+    if _IRREVERSIBLE_MENTION_RE.search(text):
+        return False, "prompt mentions an irreversible external action -- unconditionally unsafe to auto-fire."
+
+    if today is None:
+        today = date.fromisoformat(et_clock.et_today_str())
+    if doctrine.freeze_active(today):
+        frozen_hit = doctrine.frozen_path_hit(source_path)
+        if not frozen_hit:
+            text_l = text.lower()
+            for entry in doctrine.FROZEN_TRADING_PATH:
+                base = entry.rsplit("/", 1)[-1]
+                if entry.lower() in text_l or base.lower() in text_l:
+                    frozen_hit = entry
+                    break
+        if frozen_hit:
+            return False, (
+                "on the frozen trading path (%s) during the %s -> %s config freeze -- "
+                "unconditionally unsafe to auto-fire." % (frozen_hit, doctrine.FREEZE_START, doctrine.FREEZE_END)
+            )
+
+    objective_l = _clean(objective).lower()
+    if not any(objective_l.startswith(v) for v in _READ_ONLY_VERBS):
+        return False, (
+            "objective is not a read-and-report action (investigate/measure/audit/check/"
+            "summarise) -- default is unsafe."
+        )
+    if _ACTION_VERB_RE.search(text):
+        return False, (
+            "objective opens read-only but an action verb (edit/change/commit/fix/...) "
+            "still appears in the card text -- default is unsafe when the classifier "
+            "cannot confidently place it."
+        )
+    return True, (
+        "objective is read-and-report only (investigate/measure/audit/check/summarise) "
+        "with no action verb anywhere in the card -- safe to auto-fire."
+    )
 
 
 # -------------------------------------------------------------------- helpers
@@ -225,6 +359,8 @@ def _card(card_id: str, title: str, why: list[str], source_path: str,
     if hit:
         print("WARN: dropped card %s -- denylist hit (%s)" % (card_id, hit), file=sys.stderr)
         return None
+    autofire_safe, autofire_reason = _autofire_classification(
+        title, why, objective, done_when, source_path)
     return {
         "id": card_id,
         "rank": 0,  # assigned by build_cards() once every source has contributed
@@ -234,6 +370,8 @@ def _card(card_id: str, title: str, why: list[str], source_path: str,
         "source_age_h": round(source_age_h, 2) if isinstance(source_age_h, (int, float)) else None,
         "model": MODEL,
         "gated": bool(gated),
+        "autofire_safe": autofire_safe,
+        "autofire_reason": _clip(autofire_reason, 220),
         "prompt": _prompt(card_id, _clip(objective, 400), why, source_path, _clip(done_when, 400)),
     }
 
@@ -401,39 +539,35 @@ def _cards_task_scorer() -> list[dict]:
     return out
 
 
-# ------------------------------------------------------------- source 4: goal
+# ------------------------------------------------------------- source 0: goal
+#
+# ALWAYS prepended as rank 1 by build_cards() when it fires -- see that
+# function. Parsing is REUSED (imported), not re-derived: goal_next_open_item
+# and goal_expired both come straight from setup/hooks/doctrine.py, the same
+# functions the Stop-hook continuation logic runs on. Writing a second parser
+# here would risk the two readers of active-goal.json/the goal .md silently
+# disagreeing about what "the next open item" or "expired" means.
 
 def _cards_active_goal() -> list[dict]:
     goal = _load_json(ACTIVE_GOAL_JSON)
     if not isinstance(goal, dict) or not goal.get("active"):
         return []
-    expires = str(goal.get("expires_at_et", ""))[:10]
-    if expires and expires < et_clock.et_today_str():
+    if doctrine.goal_expired(goal.get("expires_at_et"), et_clock.et_now()):
         return []  # expired -- not this fire's job to resurrect it
     goal_file = REPO / str(goal.get("file", ""))
     try:
         text = goal_file.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return []
-    m = re.search(r"^## QUEUE\s*$", text, re.MULTILINE)
-    if not m:
-        return []
-    tail = text[m.end():]
-    stop = re.search(r"^## ", tail, re.MULTILINE)
-    section = tail[: stop.start() if stop else len(tail)]
-    item = None
-    for line in section.splitlines():
-        s = line.strip()
-        if s.startswith("- [ ]"):
-            item = s[len("- [ ]"):].strip()
-            break
+    item = doctrine.goal_next_open_item(text)
     if not item:
         return []
     goal_id = str(goal.get("id", "?"))
     c = _card(
         card_id="card-goal-%s" % re.sub(r"[^a-z0-9]+", "-", goal_id.lower()).strip("-"),
         title="Goal %s: %s" % (goal_id, _clip(item, 90)),
-        why=[_clip(item, 260), "next open '- [ ]' item in the goal's own QUEUE"],
+        why=[_clip(item, 260),
+             "next open '- [ ]' item in the goal's own QUEUE (doctrine.goal_next_open_item)"],
         source_path=_rel(goal_file),
         source_age_h=_age_h(goal_file),
         objective="Complete the next open step of goal %s: %s" % (goal_id, _clip(item, 300)),
@@ -443,6 +577,66 @@ def _cards_active_goal() -> list[dict]:
         gated=False,  # a literal '- [ ]' item is by construction not '[B]'/'[B-J]' blocked
     )
     return [c] if c else []
+
+
+# ------------------------------------------------------ source 4: context alarm
+#
+# gamma_cockpit_army.build_army() already computes sessions[].context_pct
+# (verified live 2026-08-29: two sessions at 88%/90% of the 800000
+# autoCompactWindow). A session over CONTEXT_ALARM_PCT is a thing to ACT on --
+# close it, or let it compact -- not a colour on a bar nobody reads.
+#
+# HONESTY (mirrors gamma_cockpit_army's own contract verbatim): NEVER emit a
+# card when context_source == gamma_cockpit_army.CONTEXT_UNKNOWN. An alarm
+# computed from a number that could not be computed is worse than no alarm.
+
+CONTEXT_ALARM_PCT = 85.0
+MAX_CONTEXT_CARDS = 3
+
+
+def _cards_context_alarm(army_payload: dict | None = None) -> list[dict]:
+    if army_payload is None:
+        try:
+            army_payload = gamma_cockpit_army.build_army()
+        except Exception as e:  # noqa: BLE001 - this source must degrade, never crash the build
+            print("WARN: context-alarm source skipped -- build_army() failed (%s)" % e, file=sys.stderr)
+            return []
+    sessions = (army_payload or {}).get("sessions") or []
+    out: list[dict] = []
+    for s in sessions:
+        if not isinstance(s, dict):
+            continue
+        if s.get("context_source") == gamma_cockpit_army.CONTEXT_UNKNOWN:
+            continue  # unknown source -- never alarm on a number that couldn't be computed
+        pct = s.get("context_pct")
+        if not isinstance(pct, (int, float)) or pct < CONTEXT_ALARM_PCT:
+            continue
+        sid = str(s.get("session_id") or "")
+        name = _clip(s.get("title") or s.get("name") or sid or "session", 80)
+        limit = s.get("context_limit")
+        tokens = s.get("context_tokens")
+        c = _card(
+            card_id="card-context-%s" % (re.sub(r"[^a-z0-9]+", "-", sid.lower()).strip("-") or "unknown"),
+            title="Session '%s' is at %.0f%% context" % (name, pct),
+            why=[
+                "context_pct %.1f%% of context_limit %s tokens (context_tokens %s), "
+                "context_source=%s" % (pct, limit, tokens, s.get("context_source")),
+                "gamma_cockpit_army sessions[] over the %.0f%% alarm threshold" % CONTEXT_ALARM_PCT,
+            ],
+            source_path="~/.claude/sessions/*.json (gamma_cockpit_army.build_army)",
+            source_age_h=None,
+            objective="Act on session '%s' (id %s), which is sitting at %.0f%% of its "
+                      "%s-token autoCompactWindow: close it, or let it auto-compact -- "
+                      "don't leave it to silently run out of room." % (name, sid or "?", pct, limit),
+            done_when="Re-run gamma_cockpit_army.build_army() (or re-read the cockpit Army "
+                      "view) and confirm session '%s' either no longer appears (closed) or "
+                      "its context_pct now reads under %.0f%% (compacted)." % (name, CONTEXT_ALARM_PCT),
+        )
+        if c:
+            out.append(c)
+        if len(out) >= MAX_CONTEXT_CARDS:
+            break
+    return out
 
 
 # --------------------------------------------------- source 5: unattended health
@@ -530,12 +724,26 @@ def _cards_unattended(quiesced: set[str]) -> list[dict]:
 
 def build_cards(write: bool = True) -> dict:
     quiesced = _quiesced_task_names()
+
+    # The goal's next open item is computed FIRST and prepended, not appended
+    # in source order -- it must ALWAYS be rank 1 when it fires, outranking
+    # every other source, never merely "wherever source 0 happens to sort".
+    goal_cards = _cards_active_goal()
+
+    try:
+        army_payload = gamma_cockpit_army.build_army()
+    except Exception as e:  # noqa: BLE001 - a presence-telemetry failure must not lose the cards page
+        print("WARN: gamma_cockpit_army.build_army() failed -- context-alarm source "
+              "skipped (%s)" % e, file=sys.stderr)
+        army_payload = None
+
     cards: list[dict] = []
     cards += _cards_engine_health()
     cards += _cards_status_md()
     cards += _cards_task_scorer()
-    cards += _cards_active_goal()
+    cards += _cards_context_alarm(army_payload)
     cards += _cards_unattended(quiesced)
+    cards = goal_cards + cards
     for i, c in enumerate(cards, start=1):
         c["rank"] = i
 
@@ -546,9 +754,10 @@ def build_cards(write: bool = True) -> dict:
         "rth_now": et_clock.is_market_hours(),
         "quiet_active": bool(quiet.get("quiet_active")),
         "quiesced_task_count": len(quiesced),
-        "legend": ("Deterministic, no LLM. Ranking mirrors the conductor's own STAGE 1 "
-                   "priority order. A producer quiet-mode itself held down renders as "
-                   "quiesced, never as a card and never as RED."),
+        "legend": ("Deterministic, no LLM. The active goal's next open item, when present "
+                   "and unexpired, is ALWAYS rank 1. Below that, ranking mirrors the "
+                   "conductor's own STAGE 1 priority order. A producer quiet-mode itself "
+                   "held down renders as quiesced, never as a card and never as RED."),
         "source": {
             "engine_health": {"path": _rel(ENGINE_HEALTH_JSON), "age_h": _age_h(ENGINE_HEALTH_JSON),
                                "ok": ENGINE_HEALTH_JSON.exists()},
@@ -557,6 +766,8 @@ def build_cards(write: bool = True) -> dict:
                       "ok": task_scorer.QUEUE.exists()},
             "active_goal": {"path": _rel(ACTIVE_GOAL_JSON), "age_h": _age_h(ACTIVE_GOAL_JSON),
                              "ok": ACTIVE_GOAL_JSON.exists()},
+            "context_alarm": {"path": "~/.claude/sessions/*.json", "age_h": None,
+                               "ok": army_payload is not None},
             "unattended_health": {"path": _rel(UNATTENDED_HEALTH_JSON), "age_h": _age_h(UNATTENDED_HEALTH_JSON),
                                    "ok": UNATTENDED_HEALTH_JSON.exists()},
         },
