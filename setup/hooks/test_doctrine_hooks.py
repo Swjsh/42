@@ -297,6 +297,11 @@ def test_real_command_inside_double_quotes_is_still_not_a_bypass_for_unquoted_us
         "That's the analysis. Should I proceed with the refactor?",
         "Ready when you are -- let me know if you'd like me to ship it.",
         "Two options exist here. Your call.",
+        # The 2026-08-30 escape, verbatim: a conditional offer is an ask wearing a
+        # statement's clothes. J: "it should have been done already."
+        "That's the next real autonomy fix if you want it.",
+        "I can wire the digest too, if you'd like.",
+        "Happy to build the persistent session next.",
     ],
 )
 def test_permission_questions_are_caught(msg):
@@ -1102,6 +1107,7 @@ def test_ascii_safe_never_raises_on_none_or_empty():
         "Everything else is ready. Still owed: the chat endpoint. That's next.",
         "Fixed the guard. Next up: the cost meter.",
         "Committed. Then I will wire the digest.",
+        "That's the next real autonomy fix if you want it.",
     ],
 )
 def test_deferral_endings_are_caught(msg):
@@ -1121,3 +1127,16 @@ def test_deferral_endings_are_caught(msg):
 )
 def test_inflight_and_escalation_endings_are_not_deferrals(msg):
     assert not D.is_deferral(msg)
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "Revert with git revert if you want to undo it.",
+        "Set GAMMA_HOOKS_OFF=1 if you want to silence the hooks.",
+    ],
+)
+def test_instructional_if_you_want_to_is_not_an_ask(msg):
+    """'if you want to <verb>' teaches J how to act; 'if you want it' asks J whether
+    Gamma should. Only the second is the OP-0 anti-pattern."""
+    assert not D.is_permission_question(msg)

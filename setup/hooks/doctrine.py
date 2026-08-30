@@ -354,6 +354,10 @@ _ASK_PATTERNS = re.compile(
     r"|let\s+me\s+know\s+if\s+you(?:'|’)?d\s+like"
     r"|your\s+call\b"
     r"|say\s+the\s+word\b"
+    r"|if\s+you\s+want\s+(?:it|this|that|them|me|one)\b"
+    r"|if\s+you(?:'|’)?d\s+like\b"
+    r"|if\s+that(?:'|’)?s\s+what\s+you\s+want\b"
+    r"|happy\s+to\s+(?:do|build|add|wire|make|ship|run)\s"
     r")",
     re.IGNORECASE,
 )
@@ -365,7 +369,7 @@ _ASK_PATTERNS = re.compile(
 # stopping passed straight through both. Ending on a promise is not a report.
 _DEFER_PATTERNS = re.compile(
     r"(?:"
-    r"that(?:'|’)?s\s+next\b"
+    r"that(?:'|’)?s\s+(?:the\s+)?next\b"
     r"|next\s+up\b"
     r"|still\s+owed\b"
     r"|coming\s+next\b"
