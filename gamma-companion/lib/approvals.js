@@ -42,7 +42,20 @@ function cardAcksPath(root) {
 }
 
 function isSyntheticCardId(id) {
-  return /^(oblig|act)-/.test(String(id || ""));
+  // "card-" added 2026-08-29. gamma_cockpit_cards.py emits ids like
+  // "card-broken-0-run-ps1-hidden-masked-exit", and this predicate only knew the
+  // "oblig-"/"act-" prefixes. A cockpit card was therefore classified as a REAL QUEUED
+  // card -- and, never having been in the pending queue, hit resolveApproval's
+  // "already gone, so the first decision won" branch and returned already:true. server.js
+  // gates the escalation on (act && !r.already), so EVERY cockpit card fire since the
+  // feature shipped was a silent no-op: no session, no box on the Army view, no error.
+  // J: "i clicked a card to start it and i dont see a new box on the army page?"
+  //
+  // Generated cards are synthetic by construction -- nothing dequeues them -- which is
+  // exactly what the synthetic branch exists to handle (snooze instead of remove). The
+  // same omission also blocked snoozeCard/unsnoozeCard, so a tapped card could not stay
+  // cleared either. One prefix fixes all three coherently.
+  return /^(oblig|act|card)-/.test(String(id || ""));
 }
 
 // Normalize a synthetic card's evidence signature so age-bearing tokens in the

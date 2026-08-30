@@ -147,7 +147,11 @@ function armySvg(a){
        hash -- it identifies a session to the machine and to nobody else. What J recognises
        is what the window is ABOUT. So the big line is the title and the handle drops to a
        small monospace tag. */
-    const bigLabel=(s.title||s.name||'untitled').slice(0,34);
+    /* A just-spawned session has no title yet, so the label fell back to the 8-hex session
+       id -- reproducing the exact "wtf is 42-dd" unreadability this view was fixed for. Say
+       what it IS instead until it names itself. */
+    const untitled=!s.title&&/^[0-9a-f]{6,}$/i.test(String(s.name||''));
+    const bigLabel=untitled?'New session — starting up':(s.title||s.name||'untitled').slice(0,34);
     g.appendChild(ltxt(L+38,T+33,bigLabel,'var(--tx-1)',17,700));
     const tag=ltxt(L+18,T+56,s.name,'var(--tx-4)',11,600);
     tag.setAttribute('font-family','var(--mono, ui-monospace, monospace)');
