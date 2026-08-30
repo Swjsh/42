@@ -118,8 +118,12 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
 .armywrap svg{position:relative;z-index:1}
 /* Beam comets (Aceternity recipe): the dash is the comet, the per-edge spatial gradient
    colours it as it travels. AMBIENT class -- slow, linear, never the interaction curve. */
-.army-beam{stroke-dasharray:34 520;animation:beamflow 5.5s linear infinite;opacity:.55;
+.army-beam{stroke-dasharray:34 520;opacity:.55;
+  animation:beamflow 5.5s linear infinite,beamin 1s var(--e-enter) backwards;
   transition:opacity .2s var(--e-hover)}
+/* Beams POWER ON after the tiles land (load choreography). From .15, not 0, per the
+   entrance-owns-correctness scar below: a desynced clock leaves them dim, never gone. */
+@keyframes beamin{from{opacity:.3}}
 .army-beam.lit{opacity:1;stroke-width:2.2;filter:drop-shadow(0 0 5px #6344F5)}
 /* entrance: nodes rise into place once, staggered -- backwards fill so pre-delay is invisible */
 /* Rise WITHOUT fade, no backwards fill. The first version faded from opacity 0 with a
@@ -141,11 +145,19 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
    units whatever the real perimeter is, so resizing the hero can't desync the comet. */
 .army-trace{stroke-dasharray:70 930;animation:traceorbit 6s linear infinite;
   filter:drop-shadow(0 0 6px var(--acc))}
+/* The featured tile's crown: same orbit machinery, slower + quieter than the hero's, so
+   the strip stays the alpha light and the featured cell reads as second-in-command. */
+.army-trace2{stroke-dasharray:55 945;animation:traceorbit 9s linear infinite;opacity:.6;
+  filter:drop-shadow(0 0 4px var(--acc))}
+/* Cursor spotlight over the stage: the page notices your hand. Pure light film --
+   pointer-events none, sub-10% alpha, fades on the hover curve. */
+.army-spot{transition:opacity .4s var(--e-hover)}
 @keyframes traceorbit{from{stroke-dashoffset:0}to{stroke-dashoffset:-1000}}
 @media (prefers-reduced-motion:reduce){
-  .army-beam,.army-trace{animation:none}
+  .army-beam,.army-trace,.army-trace2{animation:none}
   .army-beam{stroke-dashoffset:180}
   .army-stars{opacity:.4}
+  .army-flick{display:none}
 }
 .armywrap::before{content:"";position:absolute;inset:-8px;pointer-events:none;
   background:radial-gradient(60% 55% at 50% 18%,oklch(73.5% .185 300/.055),transparent 70%)}

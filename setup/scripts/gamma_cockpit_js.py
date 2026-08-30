@@ -78,7 +78,13 @@ function stag(host,cap=8){[...host.children].forEach((c,i)=>c.style.setProperty(
 function countUp(node,to,fmt){
   if(RM||to==null||isNaN(to)){node.textContent=fmt(to);return}
   const t0=performance.now(),dur=600,ease=t=>1-Math.pow(1-t,3);
-  (function tick(now){const t=Math.min((now-t0)/dur,1);
+  // rAF timestamps are speced to share performance.now()'s origin, but desynced
+  // clocks (headless virtual time) hand rAF a stamp BEFORE t0 -- t goes negative and
+  // an 88% context read -114% (clamped: froze at 0%). Per the entrance-owns-correctness
+  // scar: when the clocks disagree, print the TRUTH instantly and skip the show.
+  (function tick(now){
+    if(now<t0){node.textContent=fmt(to);return}
+    const t=Math.min((now-t0)/dur,1);
     node.textContent=fmt(to*ease(t)); if(t<1)requestAnimationFrame(tick); else node.textContent=fmt(to)})(t0);
 }
 function spot(card){

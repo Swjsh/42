@@ -217,7 +217,7 @@ function armySvg(a){
   const rowsUsed=seats.length?Math.max(...seats.map(t=>t.row))+1:1;
   H=SESS_TOP+rowsUsed*(BH+GAPY)+40;
   svg.setAttribute('viewBox',`${-BLEED} ${-BLEED} ${W+BLEED*2} ${H+BLEED*2}`);
-  const starsC=wrapStars(); if(starsC){starsC.width=W;starsC.height=H;}
+  document.querySelectorAll('.army-stars').forEach(c=>{c.width=W;c.height=H;});
   shown.forEach((s,i)=>{
     const seat=seats[i];
     const w=seat.span*BW+(seat.span-1)*GAPX;
@@ -244,7 +244,10 @@ function armySvg(a){
     defs.appendChild(bg);
     const beam=mk('path',{d:dPath,fill:'none',stroke:'url(#'+gid+')','stroke-width':2.2,
       class:'army-beam','stroke-linecap':'round'});
-    beam.style.animationDelay=(i*1.1)+'s';
+    // Two comma-separated delays, one per animation in the class: the dash comet keeps
+    // its per-edge phase; the power-on waits for this tile's entrance to land first.
+    // A single inline delay would clobber both.
+    beam.style.animationDelay=(i*1.1)+'s,'+(550+i*120)+'ms';
     svg.appendChild(beam);
 
     const g=mk('g',{class:'army-node army-enter','data-sid':s.session_id});
@@ -256,6 +259,12 @@ function armySvg(a){
     g.addEventListener('mouseleave',()=>{beam.classList.remove('lit');edge.style.opacity=.055;});
     g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
     g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
+    if(seat.span===2){
+      // The featured cell earned its area; the crown makes the earning visible.
+      g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'none',stroke:'var(--acc)',
+        'stroke-width':1.5,class:'army-trace2','stroke-linecap':'round','pathLength':'1000',
+        'pointer-events':'none'}));
+    }
     const dot=mk('circle',{cx:L+26,cy:T+33,r:7.5,fill:armyDotColour(s,lastSeen)});
     dot.id='armydot-'+s.session_id;
     if(s.activity==='active'){
@@ -319,8 +328,11 @@ function armySvg(a){
           fill:i<lit?col:'color-mix(in oklch,white 8%,transparent)'}));
       }
       g.appendChild(meter);
-      /* ctx as a bento STAT: big numeral, small unit -- the Stats-Bento look. */
+      /* ctx as a bento STAT: big numeral, small unit -- the Stats-Bento look.
+         Numerals COUNT UP on load (existing countUp helper; RM gets the final value
+         instantly inside it) -- the cockpit reads as coming online, not as a print. */
       const lab=stxt(L+w-20,T+44,Math.round(cpct)+'%',col,24,600,'end');
+      setTimeout(()=>{ if(lab.isConnected)countUp(lab,cpct,v=>Math.round(v)+'%'); },380);
       const unit=stxt(L+w-20,T+62,'context',col,10,500,'end');
       unit.setAttribute('opacity','.6'); unit.id='armyctxunit-'+s.session_id;
       g.appendChild(unit);
@@ -423,7 +435,31 @@ function armySvg(a){
   stars.className='army-stars'; stars.width=W; stars.height=H;
   wrap.appendChild(stars);
   armyStars(stars,W,H);
+  /* Compute-field: a faint cyan cell-grid winking under the stage (magicui
+     FlickeringGrid, tuned down). Cyan is the ALIVE hue -- the field says the SYSTEM
+     is alive, ambiently, the way rack activity lights do. Own canvas so reduced
+     motion can kill it wholesale (.army-flick{display:none}). */
+  const flick=document.createElement('canvas');
+  flick.className='army-stars army-flick'; flick.width=W; flick.height=H;
+  wrap.appendChild(flick);
+  if(!RM)armyFlicker(flick);
   wrap.appendChild(svg);
+  /* Cursor spotlight: one soft violet film that follows the pointer across the stage.
+     getScreenCTM maps client px -> viewBox units so the CSS scale can't desync it. */
+  const sg2=mk('radialGradient',{id:'spotGrad'});
+  sg2.appendChild(mk('stop',{offset:'0%','stop-color':'#8b5cf6','stop-opacity':'.09'}));
+  sg2.appendChild(mk('stop',{offset:'100%','stop-color':'#8b5cf6','stop-opacity':'0'}));
+  defs.appendChild(sg2);
+  const spotC=mk('circle',{r:230,fill:'url(#spotGrad)','pointer-events':'none',
+    opacity:0,class:'army-spot'});
+  svg.appendChild(spotC);
+  svg.addEventListener('pointermove',(e)=>{
+    const m=svg.getScreenCTM(); if(!m)return;
+    spotC.setAttribute('cx',(e.clientX-m.e)/m.a);
+    spotC.setAttribute('cy',(e.clientY-m.f)/m.d);
+    spotC.setAttribute('opacity','1');
+  });
+  svg.addEventListener('pointerleave',()=>spotC.setAttribute('opacity','0'));
   return {wrap,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
 }
 
@@ -451,6 +487,38 @@ function armyStars(canvas,W,H){
     if(!RM)requestAnimationFrame(frame);
   }
   if(RM){ frame(); return; }
+  requestAnimationFrame(frame);
+}
+
+function armyFlicker(canvas){
+  /* magicui FlickeringGrid, retuned for a backdrop (theirs is a hero): 3px cells on a
+     12px pitch, max alpha .09. DETERMINISTIC winks -- each cell pulses on its own
+     hashed phase/speed (sin^8 gives a short blink in a long dark period), no RNG, so
+     two renders of the same second look the same and screenshot diffs stay honest.
+     30fps cap; self-terminating like every army loop; skips hidden tabs. */
+  const ctx=canvas.getContext('2d'); if(!ctx)return;
+  const STEP=12,SQ=3;
+  let even=false;
+  function frame(){
+    if(!canvas.isConnected)return;
+    requestAnimationFrame(frame);
+    even=!even; if(even||document.hidden)return;   // 30fps + tab-hidden skip
+    const W=canvas.width,H=canvas.height,cols=Math.ceil(W/STEP),rows=Math.ceil(H/STEP);
+    const t=performance.now()/1000;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='rgb(103,232,249)';   // the ALIVE cyan family (--st-live)
+    for(let cx=0;cx<cols;cx++)for(let cy=0;cy<rows;cy++){
+      const h=Math.sin(cx*127.1+cy*311.7)*43758.5453;
+      const ph=(h-Math.floor(h))*6.2832, sp=.25+((cx*7+cy*13)%10)/22;
+      const s=Math.sin(t*sp+ph);
+      if(s<=0)continue;
+      const a=Math.pow(s,8)*.09;
+      if(a<.008)continue;
+      ctx.globalAlpha=a;
+      ctx.fillRect(cx*STEP,cy*STEP,SQ,SQ);
+    }
+    ctx.globalAlpha=1;
+  }
   requestAnimationFrame(frame);
 }
 
