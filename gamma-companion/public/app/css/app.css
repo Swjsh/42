@@ -123,7 +123,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .brand__mark::after{content:"";position:absolute;inset:0;border-radius:inherit;
   background:radial-gradient(60% 60% at 32% 26%,oklch(100% 0 0/.32),transparent 70%)}
 .brand__name{font-size:15px;display:block;line-height:1}
-.brand__sub{display:block;font:600 9px/1 var(--sans);letter-spacing:.19em;color:var(--ink-4);
+.brand__sub{display:block;font:600 12px/1 var(--sans);letter-spacing:.19em;color:var(--ink-4);
   text-transform:uppercase;margin-top:4px}
 .top__spacer{margin-left:auto}
 .top__clock{font:500 12px/1 var(--mono);color:var(--ink-3)}
@@ -131,7 +131,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 /* status pill — the only always-on state readout */
 .pill{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:var(--pill);
   border:1px solid var(--line-2);background:var(--bg-1);
-  font:600 10.5px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
+  font:600 12px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3)}
 .pill__dot{width:6px;height:6px;border-radius:50%;background:var(--ink-4);flex:none}
 .pill[data-on] .pill__dot{background:var(--live);box-shadow:0 0 0 0 var(--live-wash);
   animation:ping 2.4s cubic-bezier(.22,.61,.36,1) infinite}
@@ -168,7 +168,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .hero{padding:clamp(64px,11vh,132px) 0 0;text-align:center;position:relative}
 .eyebrow{display:inline-flex;align-items:center;gap:9px;padding:7px 15px 7px 9px;
   border-radius:var(--pill);border:1px solid var(--line-2);background:color-mix(in oklch,var(--bg-1) 70%,transparent);
-  font:600 11px/1 var(--sans);letter-spacing:.075em;text-transform:uppercase;color:var(--ink-3);
+  font:600 12px/1 var(--sans);letter-spacing:.075em;text-transform:uppercase;color:var(--ink-3);
   backdrop-filter:blur(8px)}
 .eyebrow b{color:var(--ink);font-weight:600}
 .eyebrow__tag{padding:3px 8px;border-radius:var(--pill);background:var(--acc-wash);
@@ -201,8 +201,8 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%),var(--acc-wash),transparent 68%)}
 .panel:hover::after{opacity:1}
 .panel__k{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
-.panel__label{font:600 10.5px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
-.panel__delta{padding:4px 9px;border-radius:var(--pill);font:600 10.5px/1 var(--sans);
+.panel__label{font:600 12px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
+.panel__delta{padding:4px 9px;border-radius:var(--pill);font:600 12px/1 var(--sans);
   letter-spacing:.04em;background:var(--bg-3);color:var(--ink-3)}
 .panel__delta[data-t="pos"]{background:color-mix(in oklch,var(--pos) 15%,transparent);color:var(--pos)}
 .panel__delta[data-t="neg"]{background:color-mix(in oklch,var(--neg) 15%,transparent);color:var(--neg)}
@@ -254,19 +254,19 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .card:hover{transform:translateY(-3px);border-color:var(--line-2);
   box-shadow:inset 0 1px 0 oklch(100% 0 0/.06),0 22px 50px -26px oklch(0% 0 0/.95)}
 .card__top{display:flex;align-items:center;gap:8px;padding:var(--s4) var(--s4) 0}
-.tag{padding:5px 10px;border-radius:8px;font:700 9.5px/1 var(--sans);letter-spacing:.1em;
+.tag{padding:5px 10px;border-radius:8px;font:700 12px/1 var(--sans);letter-spacing:.1em;
   text-transform:uppercase;background:var(--bg-3);color:var(--ink-3)}
 .tag[data-sev="red"]{background:color-mix(in oklch,var(--neg) 20%,transparent);color:var(--neg)}
 .tag[data-sev="amber"]{background:color-mix(in oklch,var(--warn) 18%,transparent);color:var(--warn)}
 .tag[data-sev="act"]{background:var(--acc-wash);color:var(--acc)}
-.card__age{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.06em;color:var(--ink-4);
+.card__age{margin-left:auto;font:600 12px/1 var(--mono);letter-spacing:.06em;color:var(--ink-4);
   padding:5px 9px;border-radius:7px;background:var(--bg-2)}
 .card__h{padding:var(--s3) var(--s4) 0;font-size:15.5px;font-weight:600;line-height:1.4;
   letter-spacing:-.012em;color:var(--ink)}
 .card__band{margin:var(--s4) var(--s4) 0;padding:var(--s3) 0;display:grid;grid-template-columns:repeat(3,1fr);
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);gap:var(--s3)}
 .card__stat{min-width:0}
-.card__stat b{display:block;font-size:9.5px;font-weight:700;letter-spacing:.11em;
+.card__stat b{display:block;font-size:12px;font-weight:700;letter-spacing:.11em;
   text-transform:uppercase;color:var(--ink-4)}
 .card__stat i{display:block;margin-top:5px;font-style:normal;font-size:16px;font-weight:600;
   letter-spacing:-.02em;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -300,15 +300,15 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .ac__t{min-width:0;flex:1}
 .ac__t h3{font-size:17px;font-weight:600;letter-spacing:-.02em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ac__t p{margin-top:4px;font:500 11.5px/1.4 var(--mono);color:var(--ink-4)}
+.ac__t p{margin-top:4px;font:500 12px/1.4 var(--mono);color:var(--ink-4)}
 .ac__kind{flex:none;padding:5px 10px;border-radius:8px;background:var(--bg-3);
-  font:700 9.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+  font:700 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .ac__tiles{margin-top:var(--s4);display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
 .tile{padding:var(--s4);border-radius:var(--r2);background:var(--bg-2);border:1px solid var(--line)}
 .tile--lit{background:linear-gradient(155deg,color-mix(in oklch,var(--live) 13%,var(--bg-2)),var(--bg-2));
   border-color:color-mix(in oklch,var(--live) 28%,transparent)}
 .tile__k{display:flex;align-items:center;justify-content:space-between;
-  font:600 10px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;color:var(--ink-4)}
+  font:600 12px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;color:var(--ink-4)}
 .tile--lit .tile__k{color:color-mix(in oklch,var(--live) 72%,var(--ink-2))}
 .tile__v{margin-top:11px;font-size:27px;font-weight:600;letter-spacing:-.035em;line-height:1;color:var(--ink)}
 .tile--lit .tile__v{color:var(--live)}
@@ -319,7 +319,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .seg i[data-on="warn"]{background:var(--warn)}
 .seg i[data-on="neg"]{background:var(--neg)}
 .legend{margin-top:10px;display:flex;flex-wrap:wrap;gap:12px;
-  font:500 10.5px/1 var(--sans);color:var(--ink-4)}
+  font:500 12px/1 var(--sans);color:var(--ink-4)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:6px;height:6px;border-radius:50%;background:var(--ink-4)}
 
@@ -330,7 +330,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .arow:hover{background:var(--bg-2)}
 .arow__d{width:6px;height:6px;border-radius:50%;background:var(--ink-4);flex:none}
 .arow__d[data-on]{background:var(--live);box-shadow:0 0 8px -1px var(--live)}
-.arow__tag{flex:none;width:104px;font:600 10.5px/1 var(--mono);color:var(--ink-3);
+.arow__tag{flex:none;width:104px;font:600 12px/1 var(--mono);color:var(--ink-3);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .arow__p{min-width:0;flex:1;font-size:12.5px;color:var(--ink-4);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -372,12 +372,12 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   transition:all var(--t-fast) var(--ease)}
 .chip:hover{color:var(--ink);border-color:var(--acc-line);background:var(--acc-wash)}
 .turn{display:flex;flex-direction:column;gap:6px;animation:rise .4s var(--ease) backwards}
-.turn__w{font:700 9.5px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
+.turn__w{font:700 12px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
 .turn__b{font-size:14px;line-height:1.62;color:var(--ink-2);white-space:pre-wrap;word-break:break-word}
 .turn--me .turn__b{color:var(--ink);align-self:flex-start;padding:11px 15px;border-radius:14px 14px 14px 4px;
   background:var(--bg-2);border:1px solid var(--line)}
 .turn__steps{display:flex;flex-direction:column;gap:3px;margin-top:2px}
-.turn__step{font:500 11px/1.5 var(--mono);color:var(--ink-4)}
+.turn__step{font:500 12px/1.5 var(--mono);color:var(--ink-4)}
 .turn__step[data-t="ok"]{color:var(--pos)}
 .turn__step[data-t="bad"]{color:var(--neg)}
 .chat__foot{display:flex;gap:var(--s3);align-items:flex-end;padding:var(--s4) var(--s5) var(--s5);
@@ -408,13 +408,13 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .auth__artin p{margin-top:var(--s4);max-width:40ch;color:var(--ink-3);font-size:14.5px}
 .auth__stats{margin-top:var(--s6);display:flex;gap:var(--s6);flex-wrap:wrap}
 .auth__stat b{display:block;font-size:23px;font-weight:600;letter-spacing:-.03em}
-.auth__stat span{font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4)}
+.auth__stat span{font:600 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-4)}
 .auth__form{display:flex;align-items:center;justify-content:center;padding:var(--s7) var(--s6);background:var(--bg-0);position:relative;z-index:2}
 .auth__box{width:100%;max-width:404px}
 .auth__box h1{font-size:31px;font-weight:600;letter-spacing:-.032em}
 .auth__box .sub{margin-top:9px;color:var(--ink-4);font-size:14px}
 .field{margin-top:var(--s5)}
-.field label{display:block;font:600 11px/1 var(--sans);letter-spacing:.09em;
+.field label{display:block;font:600 12px/1 var(--sans);letter-spacing:.09em;
   text-transform:uppercase;color:var(--ink-4);margin-bottom:9px}
 .field input{width:100%;padding:14px 16px;border-radius:var(--r1);background:var(--bg-1);
   border:1px solid var(--line-2);color:var(--ink);font-size:14.5px;
@@ -426,7 +426,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .auth__row a{color:var(--acc)}
 .auth__sub{margin-top:var(--s5);width:100%;justify-content:center}
 .auth__or{margin:var(--s5) 0;display:flex;align-items:center;gap:var(--s4);
-  font:600 10px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)}
+  font:600 12px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-4)}
 .auth__or::before,.auth__or::after{content:"";height:1px;flex:1;background:var(--line)}
 .oauth{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
 .oauth button{display:flex;align-items:center;justify-content:center;gap:9px;padding:13px;
@@ -435,7 +435,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   transition:all var(--t-fast) var(--ease)}
 .oauth button:hover{background:var(--bg-2);border-color:var(--line-3);color:var(--ink)}
 .oauth svg{width:17px;height:17px;flex:none}
-.auth__note{margin-top:var(--s5);font-size:11.5px;line-height:1.6;color:var(--ink-4)}
+.auth__note{margin-top:var(--s5);font-size:12px;line-height:1.6;color:var(--ink-4)}
 .auth__note b{color:var(--ink-3);font-weight:600}
 
 /* --- empty / error states — never a blank region ------------------------- */
@@ -444,7 +444,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .empty b{display:block;color:var(--ink-2);font-size:15px;font-weight:600;margin-bottom:7px}
 
 .srcrow{margin-top:var(--s6);display:flex;flex-wrap:wrap;gap:var(--s4);
-  font:500 11px/1 var(--mono);color:var(--ink-4)}
+  font:500 12px/1 var(--mono);color:var(--ink-4)}
 
 /* --- calendar (behind Total Profit) --------------------------------------- */
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
@@ -453,10 +453,10 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   overflow:hidden;
   transition:transform var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease)}
 .cal__d:hover{transform:scale(1.05);border-color:var(--line-3);z-index:2}
-.cal__n{font:600 10px/1 var(--mono);color:var(--ink-4)}
-.cal__v{font-size:10.5px;font-weight:600;letter-spacing:-.03em;
+.cal__n{font:600 12px/1 var(--mono);color:var(--ink-4)}
+.cal__v{font-size:12px;font-weight:600;letter-spacing:-.03em;
   white-space:nowrap;overflow:hidden;text-overflow:clip}
-.cal__hd{font:700 9.5px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+.cal__hd{font:700 12px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;
   color:var(--ink-4);text-align:center;padding-bottom:6px}
 
 @media (max-width:1180px){ .panels{grid-template-columns:repeat(2,1fr)} }
@@ -481,7 +481,7 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
 .chat{max-width:1000px}
 .chat__body{height:min(58vh,560px)}
 .msel{margin-left:auto;padding:6px 10px;border-radius:var(--pill);background:var(--bg-1);
-  border:1px solid var(--line-2);font:600 11px/1 var(--mono);color:var(--ink-2);
+  border:1px solid var(--line-2);font:600 12px/1 var(--mono);color:var(--ink-2);
   letter-spacing:.04em;cursor:pointer}
 .msel:focus{outline:none;border-color:var(--acc-line)}
 .chat__bar .pill{margin-left:0}
@@ -489,16 +489,16 @@ h1,h2,h3{text-wrap:balance;letter-spacing:-.02em;font-weight:600}
   box-shadow:inset 0 0 0 1px color-mix(in oklch,var(--neg) 42%,transparent)}
 .chat__stop:hover{background:color-mix(in oklch,var(--neg) 16%,var(--bg-3))}
 .chat__hint{display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap;
-  padding:0 var(--s5) var(--s4);font:500 10.5px/1 var(--sans);color:var(--ink-4)}
+  padding:0 var(--s5) var(--s4);font:500 12px/1 var(--sans);color:var(--ink-4)}
 .chat__hint-r{margin-left:auto;color:var(--ink-4)}
-kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var(--bg-2);
+kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var(--bg-2);
   border:1px solid var(--line-2);color:var(--ink-3)}
 
 /* --- the tool timeline. One row per thing it actually did. ---------------- */
 .tl{display:flex;flex-direction:column;gap:1px;margin:2px 0 8px}
 .tl:empty{display:none}
 .tl__r{display:flex;align-items:baseline;gap:9px;padding:3px 0;
-  font:500 11.5px/1.5 var(--mono);color:var(--ink-4)}
+  font:500 12px/1.5 var(--mono);color:var(--ink-4)}
 .tl__d{width:5px;height:5px;border-radius:50%;background:var(--line-3);flex:none;
   transform:translateY(-2px)}
 .tl__t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -542,7 +542,7 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .md .cb code{font:500 12.5px/1.62 var(--mono);background:none;border:none;padding:0;
   color:var(--ink-2);white-space:pre}
 .md .cb[data-l]::after{content:attr(data-l);position:absolute;top:7px;right:11px;
-  font:700 9px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
+  font:700 12px/1 var(--sans);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-4)}
 /* An agent still in flight. Without this a spawned agent's row looks identical to a
    finished one, so an orchestration fan-out reads as one long unexplained pause. */
 .tl__r[data-run] .tl__d{animation:runpulse 1.15s ease-in-out infinite}
@@ -569,11 +569,11 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .pal__i{display:flex;align-items:center;gap:12px;width:100%;padding:11px 13px;
   border-radius:9px;text-align:left;font-size:13.5px;color:var(--ink-2)}
 .pal__i[aria-selected="true"]{background:var(--bg-3);color:var(--ink)}
-.pal__i small{margin-left:auto;font:500 10.5px/1 var(--mono);color:var(--ink-4)}
+.pal__i small{margin-left:auto;font:500 12px/1 var(--mono);color:var(--ink-4)}
 .pal__none{padding:22px;text-align:center;color:var(--ink-4);font-size:13px}
 
 .kbtn{display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:var(--pill);
-  border:1px solid var(--line-2);background:var(--bg-1);font:600 11px/1 var(--sans);
+  border:1px solid var(--line-2);background:var(--bg-1);font:600 12px/1 var(--sans);
   color:var(--ink-4);transition:all var(--t-fast) var(--ease)}
 .kbtn:hover{color:var(--ink-2);border-color:var(--line-3)}
 .kbtn kbd{background:var(--bg-3)}
@@ -634,7 +634,7 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .ev{display:flex;align-items:baseline;gap:9px;padding:7px 0;
   border-bottom:1px solid var(--line);font-size:12.5px}
 .ev:last-child{border-bottom:none}
-.ev__k{flex:none;width:52px;font:700 8.5px/1.6 var(--sans);letter-spacing:.1em;
+.ev__k{flex:none;width:52px;font:700 12px/1.6 var(--sans);letter-spacing:.1em;
   text-transform:uppercase;color:var(--acc)}
 .ev[data-t="neg"] .ev__k{color:var(--neg)}
 .ev[data-t="warn"] .ev__k{color:var(--warn)}
@@ -642,7 +642,7 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .ev[data-auto] .ev__t{color:var(--ink-4)}
 .ev__t{min-width:0;flex:1;color:var(--ink-2);line-height:1.45;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ev__w{flex:none;font-size:10.5px;color:var(--ink-4)}
+.ev__w{flex:none;font-size:12px;color:var(--ink-4)}
 
 @media (max-width:1000px){ .desk__split{grid-template-columns:1fr} }
 @media (prefers-reduced-motion:reduce){ .beam,.beacon{animation:none} .beam{stroke-dashoffset:120} }
@@ -661,9 +661,9 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   font-size:13.5px;color:var(--ink-2);line-height:1.5}
 .triage__first span{display:inline-block;margin-right:9px;padding:3px 8px;border-radius:6px;
   background:var(--acc-wash);color:var(--acc);
-  font:700 9px/1.5 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+  font:700 12px/1.5 var(--sans);letter-spacing:.11em;text-transform:uppercase;
   vertical-align:2px}
-.triage__note{margin-top:var(--s3);font-size:11.5px;color:var(--ink-4);line-height:1.55}
+.triage__note{margin-top:var(--s3);font-size:12px;color:var(--ink-4);line-height:1.55}
 
 /* =======================================================================
    GAMMA'S OWN STATE. J: "where is the autonomy, how do we have gamma be
@@ -690,25 +690,25 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   border:1px solid var(--line)}
 .auto__c[data-t="warn"]{border-color:color-mix(in oklch,var(--warn) 34%,transparent);
   background:color-mix(in oklch,var(--warn) 6%,var(--bg-2))}
-.auto__l{display:block;font:700 9.5px/1 var(--sans);letter-spacing:.12em;
+.auto__l{display:block;font:700 12px/1 var(--sans);letter-spacing:.12em;
   text-transform:uppercase;color:var(--ink-4);margin-bottom:9px}
 .auto__v{font-size:13.5px;color:var(--ink-2);line-height:1.5}
 .auto__c[data-t="warn"] .auto__v{color:var(--warn)}
 .auto__v .dim{color:var(--ink-4)}
-.auto__why{margin-top:7px;font-size:11.5px;line-height:1.55;color:var(--ink-4)}
+.auto__why{margin-top:7px;font-size:12px;line-height:1.55;color:var(--ink-4)}
 .auto__why b{color:var(--ink-3);font-weight:600}
 
 .auto__fires{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line)}
-.auto__fires h4{font:700 9.5px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+.auto__fires h4{font:700 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
   color:var(--ink-4);margin-bottom:var(--s3)}
 .auto__f{display:flex;gap:11px;align-items:baseline;padding:5px 0;font-size:12px}
-.auto__f .mono{flex:none;color:var(--ink-4);font-size:10.5px}
+.auto__f .mono{flex:none;color:var(--ink-4);font-size:12px}
 .auto__fn{min-width:0;flex:1;color:var(--ink-3);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.auto__fd{flex:none;color:var(--ink-4);font-size:11px;font-variant-numeric:tabular-nums}
+.auto__fd{flex:none;color:var(--ink-4);font-size:12px;font-variant-numeric:tabular-nums}
 .auto__bar{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line);
   display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap}
-.auto__say{font:500 11.5px/1.5 var(--mono);color:var(--ink-4);min-width:0;flex:1}
+.auto__say{font:500 12px/1.5 var(--mono);color:var(--ink-4);min-width:0;flex:1}
 
 /* === THE CONSOLE SHELL (2026-08-30) ======================================
    J: "why are you not making use of side bars, its all good panels kind of but
@@ -745,7 +745,7 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
   border-bottom:1px solid var(--line);
 }
-.rail__s{font-size:11px;font-weight:450;letter-spacing:.02em;
+.rail__s{font-size:12px;font-weight:450;letter-spacing:.02em;
   text-transform:none;color:var(--ink-4)}
 .rail__body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
   padding:var(--s3) var(--s4) var(--s6);display:flex;flex-direction:column;gap:var(--s3)}
@@ -795,18 +795,18 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .lane__h{display:flex;align-items:center;gap:var(--s2)}
 .lane__dot{width:7px;height:7px;border-radius:50%;background:var(--ink-4);flex:0 0 auto}
 .lane__n{font-size:13.5px;font-weight:620;letter-spacing:-.01em}
-.lane__k{font-size:10.5px;color:var(--ink-4);letter-spacing:.04em;text-transform:uppercase}
-.lane__w{margin-left:auto;font-size:11px;color:var(--ink-4);flex:0 0 auto}
-.lane__s{font-size:10.5px;font-weight:700;letter-spacing:.11em;color:var(--ink-3)}
+.lane__k{font-size:12px;color:var(--ink-4);letter-spacing:.04em;text-transform:uppercase}
+.lane__w{margin-left:auto;font-size:12px;color:var(--ink-4);flex:0 0 auto}
+.lane__s{font-size:12px;font-weight:700;letter-spacing:.11em;color:var(--ink-3)}
 .lane__d{font-size:12px;line-height:1.45;color:var(--ink-2);
   /* a lane detail can be a 150-char health string; two lines then ellipsis keeps
      every row the same shape so the rail stays scannable */
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.lane__do{font-size:11.5px;color:var(--ink-3);font-style:italic;
+.lane__do{font-size:12px;color:var(--ink-3);font-style:italic;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lane__f{display:flex;align-items:baseline;gap:6px;margin-top:2px}
 .lane__m{font-size:13px;font-weight:600;color:var(--ink)}
-.lane__ml{font-size:10.5px;color:var(--ink-4);letter-spacing:.03em}
+.lane__ml{font-size:12px;color:var(--ink-4);letter-spacing:.03em}
 
 /* Tone is carried by the dot and the state word only. The card body stays
    neutral: five cards each tinted its own colour reads as a warning that
@@ -878,12 +878,12 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
    the glance needs, and this is what you open when that line looks wrong. */
 .auto__fold{border-top:1px solid var(--line);margin-top:var(--s3);padding-top:var(--s3)}
 .auto__foldt{
-  cursor:pointer;list-style:none;font-size:11.5px;letter-spacing:.06em;
+  cursor:pointer;list-style:none;font-size:12px;letter-spacing:.06em;
   text-transform:uppercase;color:var(--ink-4);user-select:none;
   display:flex;align-items:center;gap:6px;transition:color var(--t) var(--ease);
 }
 .auto__foldt::-webkit-details-marker{display:none}
-.auto__foldt::before{content:"▸";font-size:10px;transition:transform var(--t) var(--ease)}
+.auto__foldt::before{content:"▸";font-size:12px;transition:transform var(--t) var(--ease)}
 .auto__fold[open] .auto__foldt::before{transform:rotate(90deg)}
 .auto__foldt:hover{color:var(--ink-2)}
 .auto__fold[open] .auto__grid{margin-top:var(--s3)}
@@ -972,51 +972,6 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .org__mem .num{position:absolute;right:0;top:-17px;font-size:12px;color:var(--ink-4)}
 .org__none{position:relative;z-index:1;text-align:center;font-size:13px;color:var(--ink-4);
   padding:var(--s5) 0}
-
-/* === READABILITY FLOOR (goal DONE-WHEN a: nothing on the desk under 12px) ===
-   J, three separate times, ending with "literally size two font". Micro-type is
-   a habit, so the floor is enforced here at the END of the sheet where it wins
-   the cascade over every earlier 10-11px declaration on desk surfaces. */
-.lane__k,.lane__w,.lane__s,.lane__ml,.lane__do{font-size:12px}
-.lane__d{font-size:12.5px}
-.lane__m{font-size:13.5px}
-.rail__t{font-size:12.5px}
-.rail__s{font-size:12px}
-.auto__foldt{font-size:12px}
-.auto__state{font-size:15.5px}
-.auto__sub{font-size:13px}
-.ev__k{font-size:12px}
-.ev__t{font-size:12.5px}
-.ev__w{font-size:12px}
-.auto__f,.auto__fn{font-size:12.5px}
-.auto__fires h4{font-size:12px}
-.feed__h{font-size:13px}
-.ev--wire .ev__k{color:var(--acc)}
-
-/* Floor sweep, round two: the first pass raised what the LAYOUT rebuild touched;
-   the DOM assertion then found 46 survivors from earlier sheets (brand line 9px,
-   panel labels 9.5px, kbd 10px...). All raised here at the end of the cascade —
-   the assertion in the goal file is the arbiter, not the eye. */
-.brand__sub{font-size:12px;letter-spacing:.15em}
-.auto__l{font-size:12px;letter-spacing:.1em}
-.auto__why{font-size:12px}
-.auto__f .mono{font-size:12px}
-.auto__fd{font-size:12px}
-.auto__foldt::before{font-size:12px}
-.ev__w{font-size:12px}
-.card__stat b{font-size:12px;letter-spacing:.08em}
-.cal__v{font-size:12px}
-.auth__note,.triage__note{font-size:12px}
-kbd{font-size:12px;padding:3px 6px}
-.chat__hint{font-size:12.5px}
-.top .mono,.top__status,.top span{font-size:12px}
-
-/* Floor sweep, final: the chat pane's own micro-type (found by the DOM
-   assertion after round two — "You"/"Gamma" turn labels at 9.5, status pill at
-   10.5, timeline note at 11.5). */
-.turn__w{font-size:12px}
-.tl__r{font-size:12px}
-.chat__status,.chat__head span,.chat .pill{font-size:12px}
 
 /* === THE TRADING BAND (2026-08-30) =========================================
    J: "single pane of glass ai trading command center". Full-width, fixed, above
