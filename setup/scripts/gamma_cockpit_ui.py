@@ -118,7 +118,21 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
 .armywrap svg{position:relative;z-index:1}
 /* Beam comets (Aceternity recipe): the dash is the comet, the per-edge spatial gradient
    colours it as it travels. AMBIENT class -- slow, linear, never the interaction curve. */
-.army-beam{stroke-dasharray:34 520;animation:beamflow 5.5s linear infinite;opacity:.75}
+.army-beam{stroke-dasharray:34 520;animation:beamflow 5.5s linear infinite;opacity:.55;
+  transition:opacity .2s var(--e-hover)}
+.army-beam.lit{opacity:1;stroke-width:2.2;filter:drop-shadow(0 0 5px #6344F5)}
+/* entrance: nodes rise into place once, staggered -- backwards fill so pre-delay is invisible */
+/* Rise WITHOUT fade, no backwards fill. The first version faded from opacity 0 with a
+   staggered delay -- and a headless screenshot caught boxes frozen invisible, because
+   virtual-time desyncs the CSS animation clock from RAF. If an entrance animation not
+   playing can make content INVISIBLE, the entrance owns the content's correctness --
+   never acceptable. A 8px rise degrades to "sits 8px low for a frame" at worst. */
+.army-enter{animation:nodein .5s var(--e-enter)}
+@keyframes nodein{from{transform:translateY(8px)}to{transform:none}}
+/* the hero's aura breathes on the ambient clock */
+.army-aura{transform-origin:center;transform-box:fill-box;animation:aurabreathe 4.6s ease-in-out infinite}
+@keyframes aurabreathe{0%,100%{opacity:.55;transform:scale(.94)}50%{opacity:1;transform:scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.army-enter,.army-aura{animation:none}}
 @keyframes beamflow{from{stroke-dashoffset:554}to{stroke-dashoffset:0}}
 /* Tracing border: one 80px segment orbiting the hero's ~895px perimeter. */
 .army-trace{stroke-dasharray:80 815;animation:traceorbit 4.8s linear infinite;

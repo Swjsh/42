@@ -20,6 +20,17 @@ ARMY_JS = r"""
    moment the router has replaced #view with a different screen. Nothing here
    hooks the shared router to make that true. */
 let armyState=null;
+let armyState_offboxSpec=null;
+function armyEnsureOffbox(){
+  if(document.getElementById('army-off'))return;
+  const sp=armyState_offboxSpec; if(!sp)return;
+  const {svg,mk,stxt,offx,offy}=sp;
+  const offg=mk('g',{class:'army-node army-enter',id:'army-off'});
+  offg.appendChild(mk('rect',{x:offx-64,y:offy-24,width:128,height:48,rx:10,fill:'var(--bg-inset)',stroke:'var(--bd)','stroke-width':1,'stroke-dasharray':'3 3'}));
+  offg.appendChild(stxt(offx,offy-2,'OFF-BOX','var(--tx-4)',9.5,600));
+  offg.appendChild(stxt(offx,offy+13,'cloud / unknown','var(--tx-4)',8.5,400));
+  svg.appendChild(offg);
+}
 
 function armyHumanAct(detail){
   /* A raw "Ran: cd C:/Users/jackw/Desktop/42 && backtest/.venv/..." is developer noise on
@@ -136,8 +147,19 @@ function armySvg(a){
   const centers={}, edges={};
   const ocx=W/2;
   centers.orc={x:ocx,y:ocy};
+  /* Meridian rings: two faint circles centred on the hero give the stage a command-map
+     structure the eye reads instantly; the aura beneath the hero breathes on the ambient
+     clock -- the rig's heartbeat, literally. */
+  const aura=mk('ellipse',{cx:ocx,cy:ocy,rx:260,ry:96,fill:'url(#orcAura)',class:'army-aura'});
+  svg.appendChild(aura);
+  [150,260].forEach(r=>svg.appendChild(mk('circle',{cx:ocx,cy:ocy,r,fill:'none',
+    stroke:'var(--tx-1)','stroke-width':1,opacity:.04})));
+  const ag=mk('radialGradient',{id:'orcAura'});
+  ag.appendChild(mk('stop',{offset:'0%','stop-color':'#6344F5','stop-opacity':'.16'}));
+  ag.appendChild(mk('stop',{offset:'100%','stop-color':'#6344F5','stop-opacity':'0'}));
+  defs.appendChild(ag);
   const orc=a.orchestrator;
-  const og=mk('g',{class:'army-node',id:'army-orc'});
+  const og=mk('g',{class:'army-node army-enter',id:'army-orc'});
   og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
   og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
   /* Tracing border: an ~80px accent comet orbits the hero's ~895px perimeter -- lit and
@@ -154,13 +176,12 @@ function armySvg(a){
   // off-box: where a pulse goes when its recipient cannot be resolved on this box
   // (a cloud/Remote Control session, or a name that doesn't match the roster) --
   // dropping it silently would misrepresent a send as never having happened.
+  /* OFF-BOX is born LAZILY: permanent furniture for an occasional event is clutter
+     (J: "too busy"). armyEnsureOffbox() creates it on the first pulse that actually
+     needs an unresolvable destination; until then the corner stays empty sky. */
   const offx=W-70, offy=H-34;
   centers.off={x:offx,y:offy};
-  const offg=mk('g',{class:'army-node',id:'army-off'});
-  offg.appendChild(mk('rect',{x:offx-64,y:offy-24,width:128,height:48,rx:10,fill:'var(--bg-inset)',stroke:'var(--bd)','stroke-width':1,'stroke-dasharray':'3 3'}));
-  offg.appendChild(stxt(offx,offy-2,'OFF-BOX','var(--tx-4)',9.5,600));
-  offg.appendChild(stxt(offx,offy+13,'cloud / unknown','var(--tx-4)',8.5,400));
-  svg.appendChild(offg);
+  armyState_offboxSpec={svg,mk,stxt,offx,offy};
 
   shown.forEach((s,i)=>{
     const col=i%COLS, row=Math.floor(i/COLS);
@@ -190,8 +211,13 @@ function armySvg(a){
     beam.style.animationDelay=(i*1.1)+'s';
     svg.appendChild(beam);
 
-    const g=mk('g',{class:'army-node','data-sid':s.session_id});
+    const g=mk('g',{class:'army-node army-enter','data-sid':s.session_id});
     g.style.cursor='pointer';
+    g.style.animationDelay=(120+i*70)+'ms';
+    /* Hover lights this box's OWN beam to full -- the wiring answers "which line is mine"
+       exactly when the question is being asked, and never otherwise. */
+    g.addEventListener('mouseenter',()=>{beam.classList.add('lit');edge.style.opacity=.18;});
+    g.addEventListener('mouseleave',()=>{beam.classList.remove('lit');edge.style.opacity=.055;});
     g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
     g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
     const dot=mk('circle',{cx:L+22,cy:T+27,r:6,fill:armyDotColour(s,lastSeen)});
@@ -207,9 +233,7 @@ function armySvg(a){
     const untitled=!s.title&&/^[0-9a-f]{6,}$/i.test(String(s.name||''));
     const bigLabel=untitled?'New session — starting up':(s.title||s.name||'untitled').slice(0,34);
     g.appendChild(ltxt(L+38,T+33,bigLabel,'var(--tx-1)',17,700));
-    const tag=ltxt(L+18,T+56,s.name,'var(--tx-4)',11,600);
-    tag.setAttribute('font-family','var(--mono, ui-monospace, monospace)');
-    g.appendChild(tag);
+    // handle (42-xx) lives in the drawer now -- five text rows read as a form, not a card
     /* Say WHEN, not just what. "a Claude window YOU have open" was flatly untrue for a
        chat closed two days ago whose process merely lingered. */
     const lw=s.last_write_min;
@@ -299,23 +323,28 @@ function armySvg(a){
     b.onclick=fn;
     return b;
   };
-  bar.appendChild(mkbtn('Refresh now','Re-read the session roster and pulse log immediately',
-    ()=>{try{route('army')}catch(_){}} ,true));
-  bar.appendChild(mkbtn('Action cards ▸','Go to the Cards view -- that is where the fire buttons live',
-    ()=>{try{route('cards');history.replaceState(null,'','#cards')}catch(_){}}));
+  bar.style.cssText='display:flex;gap:6px;align-items:center;margin:0 0 10px;'+
+    'position:absolute;top:10px;right:12px;z-index:5';
+  bar.appendChild(mkbtn('↻','Re-read the roster and pulse log now',
+    ()=>{try{route('army')}catch(_){}}));
   const staleN=((a.sessions||[]).filter(x=>x.activity==='stale'&&x.session_id!==(a.orchestrator||{}).session_id)).length;
   if(staleN){
-    const t=mkbtn(armyShowStale?('Hide '+staleN+' old chat'+(staleN===1?'':'s')):('Show '+staleN+' old chat'+(staleN===1?'':'s')),
-      'Sessions with no transcript write for over 2 hours. Their process is still running because Claude Desktop keeps one per closed chat.',
+    const t=mkbtn(armyShowStale?'−'+staleN:'+'+staleN,
+      (armyShowStale?'Hide ':'Show ')+staleN+' idle chats (no transcript write for 2h+)',
       ()=>{ armyShowStale=!armyShowStale; try{route('army')}catch(_){} });
     bar.appendChild(t);
   }
-  const pauseBtn=mkbtn('Pause pulses','Stop the travelling dots without stopping the data',()=>{
+  const pauseBtn=mkbtn('⏸','Stop the travelling dots without stopping the data',()=>{
     if(!armyState)return;
     armyState.paused=!armyState.paused;
-    pauseBtn.textContent=armyState.paused?'Resume pulses':'Pause pulses';
+    pauseBtn.textContent=armyState.paused?'▶':'⏸';
   });
   bar.appendChild(pauseBtn);
+  const helpBtn=mkbtn('?','What am I looking at?',()=>{
+    const lg=wrap.querySelector('.armylegend');
+    if(lg)lg.style.display=(lg.style.display==='none'?'':'none');
+  });
+  bar.appendChild(helpBtn);
   wrap.appendChild(bar);
 
   /* LEGEND -- the page has to answer "how do I read this" without J asking a human.
@@ -337,6 +366,7 @@ function armySvg(a){
     (staleCount&&!armyShowStale?' '+staleCount+' idle chat'+(staleCount===1?'':'s')+' hidden.':'')));
   legend.appendChild(li('Cards on the right = things to do.',
     'Click one to open it, then Fire to spawn a worker that handles it.'));
+  legend.style.display='none';   // furniture on demand, not permanent -- J: "too busy"
   wrap.appendChild(legend);
   const stars=document.createElement('canvas');
   stars.className='army-stars'; stars.width=W; stars.height=H;
@@ -412,6 +442,7 @@ function armyDim(sid){
 function armyQueuePulse(fromKey,toKey,colour){
   const st=armyState; if(!st)return;
   const svg=document.getElementById('armysvg'); if(!svg)return;
+  if(toKey==='off'||!st.centers[toKey])armyEnsureOffbox();   // the node is born on first use
   const from=st.centers[fromKey]||st.centers.orc, to=st.centers[toKey]||st.centers.off;
   if(!from||!to)return;
   let path=(fromKey==='orc'&&st.edges[toKey.slice(2)])?st.edges[toKey.slice(2)]
@@ -674,9 +705,9 @@ function vArmy(h){
   const live=location.protocol!=='file:';
   /* The topbar already says "Army" -- repeating it as an h2 directly underneath was the
      view introducing itself twice. One slim status line carries what is actually new. */
-  h.appendChild(el('div','shead',
-    `<span class="chip ${live?'ok':''}"><i class="dot"></i>${live?'LIVE':'SNAPSHOT'}</span>`+
-    `<span class="dim" style="font-size:11.5px">${esc(a.scope_note||'')}</span>`));
+  const shead=el('div','shead',
+    `<span class="chip ${live?'ok':''}" title="${esc(a.scope_note||'')}"><i class="dot"></i>${live?'LIVE':'SNAPSHOT'}</span>`);
+  h.appendChild(shead);
 
   /* Two-column shell. align-self:start is load-bearing, not cosmetic: grid's default
      `stretch` makes the short rail column match its taller sibling's height, which
