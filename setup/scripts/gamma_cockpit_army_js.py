@@ -21,6 +21,7 @@ ARMY_JS = r"""
    hooks the shared router to make that true. */
 let armyState=null;
 let armyState_offboxSpec=null;
+function wrapStars(){ try{ return document.querySelector('.army-stars'); }catch(_){ return null; } }
 function armyEnsureOffbox(){
   if(document.getElementById('army-off'))return;
   const sp=armyState_offboxSpec; if(!sp)return;
@@ -110,10 +111,12 @@ function armySvg(a){
   const peers=armyShowStale?allPeers:allPeers.filter(s=>s.activity!=='stale');
   const shown=peers.slice(0,MAX_BOXES);
   const hiddenCount=Math.max(0,peers.length-shown.length);
-  const rows=Math.max(1,Math.ceil(shown.length/COLS));
+  const rows=1; // recomputed below once bento seats exist
   const W=PAD*2+COLS*BW+(COLS-1)*GAPX;
-  const ocy=84, SESS_TOP=280;
-  const H=SESS_TOP+rows*(BH+GAPY)+56;
+  const ocy=54, SESS_TOP=150;
+  // H depends on bento rows, which depend on which tile is featured -- computed after
+  // seating, so declared with let and patched below.
+  let H=SESS_TOP+1*(BH+GAPY)+40;
   /* Bleed the viewBox by 8px on every side. Measured after the grid rewrite: the content
      bbox started at (-6,-6) because strokes and text ascenders sit outside their nominal
      box, so a 0-origin viewBox shaved the top-left edge of the orchestrator. */
@@ -154,26 +157,25 @@ function armySvg(a){
   /* Meridian rings: two faint circles centred on the hero give the stage a command-map
      structure the eye reads instantly; the aura beneath the hero breathes on the ambient
      clock -- the rig's heartbeat, literally. */
-  const aura=mk('ellipse',{cx:ocx,cy:ocy,rx:360,ry:130,fill:'url(#orcAura)',class:'army-aura'});
+  const aura=mk('ellipse',{cx:ocx,cy:54,rx:Math.min(520,W*.38),ry:95,fill:'url(#orcAura)',class:'army-aura'});
   svg.appendChild(aura);
-  [210,360].forEach(r=>svg.appendChild(mk('circle',{cx:ocx,cy:ocy,r,fill:'none',
-    stroke:'var(--tx-1)','stroke-width':1,opacity:.04})));
   const ag=mk('radialGradient',{id:'orcAura'});
   ag.appendChild(mk('stop',{offset:'0%','stop-color':'#6344F5','stop-opacity':'.16'}));
   ag.appendChild(mk('stop',{offset:'100%','stop-color':'#6344F5','stop-opacity':'0'}));
   defs.appendChild(ag);
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node army-enter',id:'army-orc'});
-  og.appendChild(mk('rect',{x:ocx-280,y:ocy-60,width:560,height:120,rx:20,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
-  og.appendChild(mk('rect',{x:ocx-280,y:ocy-60,width:560,height:120,rx:20,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
+  og.appendChild(mk('rect',{x:PAD,y:16,width:W-PAD*2,height:76,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
+  og.appendChild(mk('rect',{x:PAD,y:16,width:W-PAD*2,height:76,rx:16,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
   /* Tracing border: an ~80px accent comet orbits the hero's ~895px perimeter -- lit and
      alive without a static heavy stroke shouting. */
-  og.appendChild(mk('rect',{x:ocx-280,y:ocy-60,width:560,height:120,rx:20,fill:'none',
-    stroke:'var(--acc)','stroke-width':2,class:'army-trace','stroke-linecap':'round'}));
-  og.appendChild(mk('circle',{cx:ocx-248,cy:ocy-20,r:8,fill:'var(--st-live)',class:'army-ring'}));
-  og.appendChild(ltxt(ocx-228,ocy-10,orc?orc.name:'—','var(--tx-1)',30,700));
-  og.appendChild(ltxt(ocx-248,ocy+22,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',13,600));
-  if(orc&&orc.title)og.appendChild(ltxt(ocx-248,ocy+44,orc.title.slice(0,60),'var(--tx-4)',12.5,400));
+  og.appendChild(mk('rect',{x:PAD,y:16,width:W-PAD*2,height:76,rx:16,fill:'none',
+    stroke:'var(--acc)','stroke-width':2,class:'army-trace','stroke-linecap':'round','pathLength':'1000'}));
+  og.appendChild(mk('circle',{cx:PAD+30,cy:54,r:9,fill:'none',stroke:'var(--st-live)','stroke-width':1.5,class:'army-ping'}));
+  og.appendChild(mk('circle',{cx:PAD+30,cy:54,r:8,fill:'var(--st-live)',class:'army-ring'}));
+  og.appendChild(ltxt(PAD+52,62,orc?orc.name:'—','var(--tx-1)',26,700));
+  og.appendChild(ltxt(PAD+170,62,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',12.5,600));
+  if(orc&&orc.title)og.appendChild(stxt(W-PAD-20,62,orc.title.slice(0,48),'var(--tx-4)',12,400,'end'));
   if(orc){og.style.cursor='pointer';og.onclick=()=>armySessionDrawer(orc,byWorkerSession[orc.session_id]||[]);}
   svg.appendChild(og);
 
@@ -187,13 +189,43 @@ function armySvg(a){
   centers.off={x:offx,y:offy};
   armyState_offboxSpec={svg,mk,stxt,offx,offy};
 
+  /* BENTO SEATING (21st.dev bento family: Stats/Analytics/Cybernetic grids): the busiest
+     session earns the DOUBLE-WIDTH cell; everything else flows around it in a tight grid.
+     Importance gets area -- that is the entire bento idea. Seats are computed first so
+     render code just reads its cell. */
+  const seats=[];
+  {
+    let fi=-1;
+    if(shown.length>=2&&COLS>=2){
+      let best=-1;
+      shown.forEach((s,k)=>{const sc=(s.worker_count||0)*1000+(s.context_pct||0);
+        if(sc>best){best=sc;fi=k;}});
+    }
+    /* Featured seats FIRST (row 0, cols 0-1) -- seating it in arrival order left a hole
+       in row 0 and pushed a lone wide tile to row 1, which the screenshot made obvious. */
+    const order=fi>=0?[fi,...shown.map((_,k)=>k).filter(k=>k!==fi)]:shown.map((_,k)=>k);
+    const seatByIdx={};
+    let col=0,row=0;
+    order.forEach(k=>{
+      const span=(k===fi)?2:1;
+      if(col+span>COLS){col=0;row++;}
+      seatByIdx[k]={col,row,span};
+      col+=span; if(col>=COLS){col=0;row++;}
+    });
+    shown.forEach((_,k)=>seats.push(seatByIdx[k]));
+  }
+  const rowsUsed=seats.length?Math.max(...seats.map(t=>t.row))+1:1;
+  H=SESS_TOP+rowsUsed*(BH+GAPY)+40;
+  svg.setAttribute('viewBox',`${-BLEED} ${-BLEED} ${W+BLEED*2} ${H+BLEED*2}`);
+  const starsC=wrapStars(); if(starsC){starsC.width=W;starsC.height=H;}
   shown.forEach((s,i)=>{
-    const col=i%COLS, row=Math.floor(i/COLS);
-    const sx=PAD+col*(BW+GAPX)+BW/2;
-    const sy=SESS_TOP+row*(BH+GAPY)+BH/2;
-    const L=sx-BW/2, T=sy-BH/2;                    // box left / top, for readable labels
+    const seat=seats[i];
+    const w=seat.span*BW+(seat.span-1)*GAPX;
+    const L=PAD+seat.col*(BW+GAPX);
+    const T=SESS_TOP+seat.row*(BH+GAPY);
+    const sx=L+w/2, sy=T+BH/2;
     centers['s:'+s.session_id]={x:sx,y:sy};
-    const dPath=`M ${ocx} ${ocy+60} C ${ocx} ${(ocy+T)/2}, ${sx} ${(ocy+T)/2}, ${sx} ${T}`;
+    const dPath=`M ${sx} ${92} C ${sx} ${(92+T)/2}, ${sx} ${(92+T)/2}, ${sx} ${T}`;
     /* Ghost rail: Aceternity's measured base -- ~.5px stroke at 5% -- wiring that is
        present but silent until something moves along it. */
     const edge=mk('path',{d:dPath,fill:'none',stroke:'var(--tx-1)','stroke-width':.6,opacity:.055});
@@ -206,7 +238,7 @@ function armySvg(a){
        feedback to a click. */
     const gid='beam-'+i;
     const bg=mk('linearGradient',{id:gid,gradientUnits:'userSpaceOnUse',
-      x1:ocx,y1:ocy+60,x2:sx,y2:T});
+      x1:sx,y1:92,x2:sx,y2:T});
     [['0%','#18CCFC','0'],['12%','#18CCFC','.9'],['32.5%','#6344F5','.9'],['100%','#AE48FF','0']]
       .forEach(([o,c,op])=>bg.appendChild(mk('stop',{offset:o,'stop-color':c,'stop-opacity':op})));
     defs.appendChild(bg);
@@ -222,10 +254,15 @@ function armySvg(a){
        exactly when the question is being asked, and never otherwise. */
     g.addEventListener('mouseenter',()=>{beam.classList.add('lit');edge.style.opacity=.18;});
     g.addEventListener('mouseleave',()=>{beam.classList.remove('lit');edge.style.opacity=.055;});
-    g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
-    g.appendChild(mk('rect',{x:L,y:T,width:BW,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
+    g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
+    g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
     const dot=mk('circle',{cx:L+26,cy:T+33,r:7.5,fill:armyDotColour(s,lastSeen)});
     dot.id='armydot-'+s.session_id;
+    if(s.activity==='active'){
+      /* radar ping: an expanding fading ring says LIVE without a single word */
+      g.appendChild(mk('circle',{cx:L+26,cy:T+33,r:8,fill:'none',stroke:'var(--st-live)',
+        'stroke-width':1.5,class:'army-ping'}));
+    }
     g.appendChild(dot);
     /* TITLE FIRST, handle second. `42-dd` is auto-derived from the project folder plus a
        hash -- it identifies a session to the machine and to nobody else. What J recognises
@@ -268,15 +305,19 @@ function armySvg(a){
     if(cknown){
       const frac=Math.max(0,Math.min(100,cpct))/100;
       const cy=T+BH-8;
-      g.appendChild(mk('rect',{x:L+1,y:cy,width:BW-2,height:6,rx:3,
+      g.appendChild(mk('rect',{x:L+1,y:cy,width:w-2,height:6,rx:3,
         fill:'color-mix(in oklch,white 8%,transparent)'}));
       // warn/neg rather than the accent: nearing a compact is a STATE, and severity is not
       // what the purple means anywhere else on this page.
       const col=cpct>=90?'var(--neg)':(cpct>=75?'var(--warn)':'var(--acc)');
-      const fill=mk('rect',{x:L+1,y:cy,width:Math.max(2,(BW-2)*frac),height:6,rx:3,fill:col});
+      const fill=mk('rect',{x:L+1,y:cy,width:Math.max(2,(w-2)*frac),height:6,rx:3,fill:col});
       fill.id='armyctx-'+s.session_id;
       g.appendChild(fill);
-      const lab=stxt(L+BW-20,T+40,Math.round(cpct)+'% ctx',col,13,600,'end');
+      /* ctx as a bento STAT: big numeral, small unit -- the Stats-Bento look. */
+      const lab=stxt(L+w-20,T+44,Math.round(cpct)+'%',col,24,600,'end');
+      const unit=stxt(L+w-20,T+62,'context',col,10,500,'end');
+      unit.setAttribute('opacity','.6'); unit.id='armyctxunit-'+s.session_id;
+      g.appendChild(unit);
       lab.id='armyctxlab-'+s.session_id;
       g.appendChild(lab);
     }
@@ -284,7 +325,7 @@ function armySvg(a){
     // Explicit affordance: the whole box was already clickable but nothing said so.
     // Bottom-right, not beside the title: at 17px a 34-char title runs to ~L+320 and
     // collided with an affordance sitting at the same baseline (seen in a headless shot).
-    g.appendChild(stxt(L+BW-20,T+BH-14,'open ▸','var(--acc)',13,600,'end'));
+    g.appendChild(stxt(L+w-20,T+BH-14,'open ▸','var(--acc)',13,600,'end'));
     g.onclick=()=>armySessionDrawer(s,byWorkerSession[s.session_id]||[]);
     svg.appendChild(g);
 
@@ -304,7 +345,7 @@ function armySvg(a){
       wg.onclick=()=>armyWorkerDrawer(w);
       g.appendChild(wg);
     });
-    if(wc)g.appendChild(ltxt(L+26+Math.min(wc,5)*24,T+BH-26,'workers','var(--tx-4)',10,500));
+    if(wc)g.appendChild(ltxt(L+52+Math.min(wc,5)*30,T+BH-31,'workers','var(--tx-4)',11.5,500));
   });
 
   if(hiddenCount){

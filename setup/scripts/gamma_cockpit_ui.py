@@ -132,12 +132,16 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
 /* the hero's aura breathes on the ambient clock */
 .army-aura{transform-origin:center;transform-box:fill-box;animation:aurabreathe 4.6s ease-in-out infinite}
 @keyframes aurabreathe{0%,100%{opacity:.55;transform:scale(.94)}50%{opacity:1;transform:scale(1.05)}}
-@media (prefers-reduced-motion:reduce){.army-enter,.army-aura{animation:none}}
+.army-ping{transform-box:fill-box;transform-origin:center;animation:radarping 2.4s cubic-bezier(.22,.61,.36,1) infinite}
+@keyframes radarping{0%{transform:scale(.55);opacity:.75}75%,100%{transform:scale(2.7);opacity:0}}
+@media (prefers-reduced-motion:reduce){.army-enter,.army-aura,.army-ping{animation:none}}
 @keyframes beamflow{from{stroke-dashoffset:554}to{stroke-dashoffset:0}}
 /* Tracing border: one 80px segment orbiting the hero's ~895px perimeter. */
-.army-trace{stroke-dasharray:80 815;animation:traceorbit 4.8s linear infinite;
+/* pathLength=1000 on the rect normalises the orbit: dasharray/offset are in the SAME
+   units whatever the real perimeter is, so resizing the hero can't desync the comet. */
+.army-trace{stroke-dasharray:70 930;animation:traceorbit 6s linear infinite;
   filter:drop-shadow(0 0 6px var(--acc))}
-@keyframes traceorbit{from{stroke-dashoffset:0}to{stroke-dashoffset:-895}}
+@keyframes traceorbit{from{stroke-dashoffset:0}to{stroke-dashoffset:-1000}}
 @media (prefers-reduced-motion:reduce){
   .army-beam,.army-trace{animation:none}
   .army-beam{stroke-dashoffset:180}
@@ -357,7 +361,7 @@ section+section{margin-top:var(--s8)}
 .chathead{display:flex;align-items:center;gap:var(--s4);font-size:13px}
 .chathead select{margin-left:auto;font:600 11.5px/1 var(--mono);padding:6px 10px;
   border-radius:var(--r-sm);border:1px solid var(--bd);background:var(--bg-2);color:var(--tx-2);cursor:pointer}
-.chatbody{min-height:120px;max-height:22vh;overflow:auto;display:flex;flex-direction:column;
+.chatbody{min-height:100px;max-height:16vh;overflow:auto;display:flex;flex-direction:column;
   gap:var(--s4);padding:var(--s5);border:1px solid var(--bd-subtle);border-radius:var(--r-md);
   background:rgba(0,0,0,.28);box-shadow:inset 0 1px 4px rgba(0,0,0,.4)}
 .chatturn{padding:10px 14px;border-radius:10px;border:1px solid transparent}
