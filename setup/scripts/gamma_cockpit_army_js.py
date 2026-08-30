@@ -142,7 +142,7 @@ function armySvg(a){
      accent bleeding in from the top so the hero box reads as LIT, not outlined. */
   const defs=mk('defs',{});
   const g1=mk('linearGradient',{id:'cardGrad',x1:'0',y1:'0',x2:'0',y2:'1'});
-  g1.appendChild(mk('stop',{offset:'0%','stop-color':'rgba(255,255,255,.035)'}));
+  g1.appendChild(mk('stop',{offset:'0%','stop-color':'rgba(255,255,255,.05)'}));
   g1.appendChild(mk('stop',{offset:'45%','stop-color':'rgba(255,255,255,0)'}));
   defs.appendChild(g1);
   const g2=mk('linearGradient',{id:'orcGrad',x1:'0',y1:'0',x2:'0',y2:'1'});
@@ -305,14 +305,20 @@ function armySvg(a){
     if(cknown){
       const frac=Math.max(0,Math.min(100,cpct))/100;
       const cy=T+BH-8;
-      g.appendChild(mk('rect',{x:L+1,y:cy,width:w-2,height:6,rx:3,
-        fill:'color-mix(in oklch,white 8%,transparent)'}));
       // warn/neg rather than the accent: nearing a compact is a STATE, and severity is not
       // what the purple means anywhere else on this page.
       const col=cpct>=90?'var(--neg)':(cpct>=75?'var(--warn)':'var(--acc)');
-      const fill=mk('rect',{x:L+1,y:cy,width:Math.max(2,(w-2)*frac),height:6,rx:3,fill:col});
-      fill.id='armyctx-'+s.session_id;
-      g.appendChild(fill);
+      /* SEGMENTED meter, not a continuous bar: discrete square-ended blocks with visible
+         gaps read as an instrument with a resolution -- a loading bar reads as waiting.
+         (nothing-design-skill's signature data-viz; 2-3px gaps, no pill radius.) */
+      const segs=14, sgap=3, sbw=((w-2)-sgap*(segs-1))/segs;
+      const lit=frac>0?Math.max(1,Math.round(frac*segs)):0;
+      const meter=mk('g',{id:'armyctx-'+s.session_id});
+      for(let i=0;i<segs;i++){
+        meter.appendChild(mk('rect',{x:L+1+i*(sbw+sgap),y:cy,width:sbw,height:6,rx:1,
+          fill:i<lit?col:'color-mix(in oklch,white 8%,transparent)'}));
+      }
+      g.appendChild(meter);
       /* ctx as a bento STAT: big numeral, small unit -- the Stats-Bento look. */
       const lab=stxt(L+w-20,T+44,Math.round(cpct)+'%',col,24,600,'end');
       const unit=stxt(L+w-20,T+62,'context',col,10,500,'end');

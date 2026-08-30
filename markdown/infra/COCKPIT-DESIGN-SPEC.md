@@ -681,3 +681,44 @@ Ranked by visual yield against the described current state (aurora background, h
 
 **Scope**
 - Refuse any CDN link, `@font-face`, `@import` of a remote stylesheet, or framework import. The spec above is complete in vanilla CSS/JS/SVG; if a recipe seems to need a library, the recipe is wrong.
+---
+
+## Ratified recipes — 2026-08-30 deep-research pass (provenance attached)
+
+Two Sonnet crawls (production design systems + Claude design-skill repos) audited this spec
+against the field. Read this section before any restyle: it separates what is VALIDATED
+(change needs new evidence) from what was ADDED (revert = git revert).
+
+**Validated by independent convergence — do not relitigate without new evidence:**
+- Zero-chroma OKLCH surface ramp: Vercel Geist ships `oklch(0.027/0.205 0 0)`, Midday
+  (funded finance SaaS) ships HSL 5%/7%/11%L — three unrelated systems, same strategy.
+- Alpha-of-foreground hairlines: Vercel (`gray-alpha-300/400/700`) and Grafana
+  (`rgba(204,204,220,.12/.20/.30)`) both do borders as alpha, never flat hex.
+- Same-hue radial glow (`0 0 Npx` no offset, accent at 20-35% alpha) over drop shadows:
+  Resend's entire elevation model. Our deep-fill buttons already carry it.
+- No backdrop-filter / no glassmorphism blur: banned independently by nothing-design-skill
+  (2.8K★) and ibelick/ui-skills baseline-ui.
+- tabular-nums on live numerals, grain layer, one-accent-per-view: all field-standard.
+
+**Added this pass (all in the generators, `git revert` to undo):**
+- SEGMENTED context meters (army tiles): 14 square-ended blocks, 3px gaps, rx 1 —
+  discrete blocks read as an instrument with a resolution; a continuous bar reads as
+  loading. Source: nothing-design-skill's signature data-viz.
+- Card ambient light-bleed: trailing `inset 0 -20px 70px -24px rgba(255,255,255,.055)`
+  on `.card` (magicui bento recipe at lower alpha). SVG tiles: cardGrad top stop .035→.05.
+
+**Ratified rules for FUTURE work (not yet wired anywhere):**
+- P&L color: never traffic-light saturation. Split fill vs text variants —
+  `--pnl-pos-fill oklch(62% .16 155)` / `--pnl-pos-text oklch(78% .18 155)`,
+  `--pnl-neg-fill oklch(58% .20 25)` / `--pnl-neg-text oklch(72% .22 25)`.
+  Grafana, TradingView convention and Linear's blog all split solid vs on-dark-text.
+- Hover/selected = exactly ONE step up the same luminance scale, never a jump to accent
+  (Vercel Geist state convention). If hover states multiply, add a separate control
+  ladder (`--ctl-idle/hover/active`, Trigger.dev pattern) instead of reusing bg tokens.
+- Status pills: solid hue for dot+text, same hue at 15% alpha for the pill fill
+  (Raycast). Scales to N statuses with zero new tokens.
+- One pattern-break per screen (the featured bento tile is ours). A second break is chaos.
+
+**21st.dev CLI** (J sent /mcp link 2026-08-30): search needs login. After a one-time
+`npx -y @21st-dev/cli@latest login` (browser, J-only), any session can pull real
+component code loginless-ly via the saved token: `npx 21st search/get/theme`.

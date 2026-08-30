@@ -216,7 +216,11 @@ section+section{margin-top:var(--s8)}
 
 .card{background:linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,0) 42%),var(--bg-1);
   border:1px solid var(--bd);border-radius:var(--r-lg);padding:var(--s6);
-  box-shadow:var(--topline),var(--ring),var(--sh-2);position:relative}
+  /* trailing inset: magicui bento's ambient light-bleed (0 -20px 80px -20px inset) at
+     lower alpha -- a soft white wash off the lower edge that reads as glass in ambient
+     light, without backdrop-filter (banned: perf + slop). */
+  box-shadow:var(--topline),var(--ring),var(--sh-2),inset 0 -20px 70px -24px rgba(255,255,255,.055);
+  position:relative}
 .card h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3);
   margin-bottom:var(--s4)}
 .card.click{cursor:pointer}
