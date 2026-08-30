@@ -213,6 +213,7 @@ a:hover{text-decoration:underline}
 section+section{margin-top:var(--s8)}
 .shead{display:flex;align-items:baseline;gap:var(--s4);margin-bottom:var(--s5)}
 .shead h2{font-size:18px;font-weight:600;letter-spacing:-.01em}
+h1,h2,h3{text-wrap:balance}  /* no orphan words on multi-line panel titles */
 
 .card{background:linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,0) 42%),var(--bg-1);
   border:1px solid var(--bd);border-radius:var(--r-lg);padding:var(--s6);

@@ -722,3 +722,11 @@ against the field. Read this section before any restyle: it separates what is VA
 **21st.dev CLI** (J sent /mcp link 2026-08-30): search needs login. After a one-time
 `npx -y @21st-dev/cli@latest login` (browser, J-only), any session can pull real
 component code loginless-ly via the saved token: `npx 21st search/get/theme`.
+
+**Third crawl (Anthropic frontend-design + Wondelai top-design/refactoring-ui) deltas:**
+- `--pos`/`--neg` audited compliant (desaturated OKLCH, never traffic-light) — no change.
+- `text-wrap:balance` on h1-h3 (applied). `::selection` tint already present.
+- Hierarchy LEVER rule (recorded): a value emphasizes via ONE of size/weight/color;
+  stacking all three is reserved for the single hero number per view.
+- Multi-series rule (recorded): blue+orange for 2 simultaneous series
+  (deuteranopia-safe); red/green are reserved for P&L sign, NEVER series identity.
