@@ -40,9 +40,9 @@
         'grades every fill against the ten rules, and spends the night researching what to ' +
         'change next. Everything below is measured, never estimated.</p>' +
       '<div class="hero__act rise" style="animation-delay:260ms">' +
-        '<a class="cta" href="#/chat">Talk to the orchestrator ' +
+        '<a class="cta" href="#/desk">Open the desk ' +
           '<span class="cta__arrow">' + ARROW + '</span></a>' +
-        '<a class="cta cta--quiet" href="#/agents">See the agents</a>' +
+        '<a class="cta cta--quiet" href="#/cards">What needs deciding</a>' +
       '</div>';
     wrap.appendChild(head);
 
@@ -57,9 +57,10 @@
       go: 'Open the calendar', spark: cal ? cal.rows.map((r) => r.net) : null,
     }));
     panels.appendChild(panel({
-      href: '#/agents', label: 'Agents running', delta: a ? a.delta : '',
+      href: '#/desk', label: 'Agents running', delta: a ? a.delta : '',
       tone: a ? a.tone : '', value: a ? a.v : null, unit: a ? a.unit : '',
-      sub: a ? a.sub : '~/.claude/sessions + the companion', go: 'See what each is doing',
+      sub: a ? a.sub : '~/.claude/sessions + the companion',
+      go: 'Open the desk — chat, agents and last night',
     }));
     panels.appendChild(panel({
       href: '#/cards', label: 'Needs a decision', delta: c ? c.delta : '',
@@ -287,6 +288,29 @@
       'Ranked worst first. Each card names the file that raised it and what firing it ' +
       'would actually run.');
     if (!c) { s.appendChild(D.miss('No open cards', 'automation/state/cards.json')); return s; }
+
+    /* THE VERDICT LINE, before the wall of cards. A bare count tells J how MUCH
+       there is without telling him what to do about any of it. */
+    const bySev = { red: [], amber: [], act: [] };
+    c.list.forEach((x) => bySev[D.cardSev(x)].push(x));
+    const first = (bySev.red[0] || bySev.amber[0] || bySev.act[0]);
+    const v = el('div'); v.className = 'triage';
+    v.innerHTML =
+      '<div class="triage__row">' +
+        (bySev.red.length ? '<span class="triage__p" data-t="red"><b>' + bySev.red.length +
+          '</b> broken</span>' : '') +
+        (bySev.amber.length ? '<span class="triage__p" data-t="amber"><b>' +
+          bySev.amber.length + '</b> degraded or held</span>' : '') +
+        (bySev.act.length ? '<span class="triage__p"><b>' + bySev.act.length +
+          '</b> queued work</span>' : '') +
+      '</div>' +
+      (first ? '<div class="triage__first"><span>Start here</span>' +
+        esc(String(first.title).slice(0, 120)) + '</div>' : '') +
+      '<p class="triage__note">Nothing here fires on its own. "Broken" means a health ' +
+      'check wrote RED or FAIL into the file named on the card; "queued work" is ' +
+      'backlog Gamma raised for itself, not a fault.</p>';
+    s.appendChild(v);
+
     const grid = el('div'); grid.className = 'cards';
     c.list.forEach((card, i) => grid.appendChild(cardNode(card, i)));
     s.appendChild(grid);

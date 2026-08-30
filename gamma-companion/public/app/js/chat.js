@@ -285,11 +285,11 @@
   }
 
   /* ---- the view ------------------------------------------------------------ */
-  function view() {
-    const s = G.views.page('The <b>orchestrator</b>',
-      'A real Claude Code session, running in this repo with the full tool set. It ' +
-      'remembers the conversation across reloads, and everything it touches is listed ' +
-      'as it happens.');
+  /* panel() returns just the console; view() wraps it in a page of its own.
+     J: "orchestrator doesnt need to be its own page it can be a chat on the same
+     page as the agents" -- so the Desk embeds panel() beside the agent graph, and
+     the standalone route stays only as a direct link. */
+  function panel() {
     const c = el('div'); c.className = 'chat';
     c.innerHTML =
       '<div class="chat__bar">' +
@@ -315,8 +315,6 @@
         '<span class="chat__hint-r">Runs in <span class="mono">C:\\Users\\jackw\\Desktop\\42</span> ' +
         'with your hooks enforcing the rules</span>' +
       '</div>';
-    s.appendChild(c);
-
     const b = c.querySelector('#cbody');
     if (st.turns.length) {
       st.turns.forEach((t) => {
@@ -355,6 +353,15 @@
       st.pinned = (b.scrollHeight - b.scrollTop - b.clientHeight) < 34;
     }, { passive: true });
     setTimeout(() => { const x = document.getElementById('cin'); if (x) x.focus(); }, 60);
+    return c;
+  }
+
+  function view() {
+    const s = G.views.page('The <b>orchestrator</b>',
+      'A real Claude Code session, running in this repo with the full tool set. It ' +
+      'remembers the conversation across reloads, and everything it touches is listed ' +
+      'as it happens.');
+    s.appendChild(panel());
     return s;
   }
 
@@ -379,5 +386,5 @@
     return e;
   }
 
-  G.chat = { view, send, stop };
+  G.chat = { view, panel, send, stop };
 })(window.G = window.G || {});

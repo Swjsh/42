@@ -14,8 +14,13 @@
     '/': () => G.views.hero(),
     '/profit': (arg) => G.views.profit(arg),
     '/cards': () => G.views.cards(),
-    '/agents': () => G.views.agents(),
-    '/chat': () => G.chat.view(),
+    /* ONE page for the orchestrator AND its agents. J: "orchestratort doesnt need
+       to be its own page it can be a chat on the same page as the agents". /agents
+       and /chat stay as aliases so old links and the palette keep working. */
+    '/desk': () => G.desk.view(),
+    '/agents': () => G.desk.view(),
+    '/chat': () => G.desk.view(),
+    '/console': () => G.chat.view(),
     '/signin': () => G.views.signin(),
   };
 

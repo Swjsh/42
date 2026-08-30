@@ -586,3 +586,75 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
   background:color-mix(in oklch,var(--warn) 9%,transparent)}
 .offbar b{font-weight:700}
 .offbar .mono{color:var(--ink-4);margin-left:6px}
+
+/* =======================================================================
+   THE DESK — one page: orchestrator on top, pulsing lines to the sessions
+   it is working with, the console and the overnight feed underneath.
+   J: "orchestratort doesnt need to be its own page it can be a chat on the
+   same page as the agents ... i dont see anywhere what gamma did all night".
+   ======================================================================= */
+.stage{position:relative;border-radius:var(--r3);background:var(--bg-0);
+  border:1px solid var(--line);padding:var(--s4);overflow:hidden;
+  box-shadow:inset 0 1px 0 oklch(100% 0 0/.04),0 24px 60px -40px oklch(0% 0 0/.9)}
+.stage::before{content:"";position:absolute;left:50%;top:-40%;width:80%;height:120%;
+  transform:translateX(-50%);pointer-events:none;
+  background:radial-gradient(50% 44% at 50% 50%,var(--acc-wash),transparent 70%)}
+.stage__svg{position:relative;display:block;width:100%;height:auto}
+.stage__none{margin-top:var(--s4);text-align:center;color:var(--ink-4);font-size:13px}
+
+/* the comet. AMBIENT: slow, linear, never the interaction curve — the rig's own
+   activity must never read as feedback to something the reader just clicked. */
+.beam{stroke-dasharray:26 300;animation:beamflow linear infinite}
+@keyframes beamflow{from{stroke-dashoffset:326}to{stroke-dashoffset:0}}
+/* a node that is genuinely alive breathes; a quiet one does not */
+.beacon{animation:beat 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes beat{0%,100%{opacity:.55;transform:scale(.86)}50%{opacity:1;transform:scale(1.12)}}
+.nodein{animation:nodein .5s var(--jelly) backwards}
+@keyframes nodein{from{transform:translateY(10px)}to{transform:none}}
+.node{cursor:default}
+
+.desk__split{margin-top:var(--s5);display:grid;gap:var(--s4);
+  grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);align-items:start}
+.desk__chat .chat{max-width:none}
+.desk__chat .chat__body{height:min(40vh,380px)}
+.desk__feed{border-radius:var(--r3);background:var(--bg-1);border:1px solid var(--line);
+  padding:var(--s5);max-height:min(56vh,540px);overflow-y:auto}
+.desk__ft{font-size:12px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-4);margin-bottom:var(--s4)}
+.feed__h{font-size:13px;color:var(--ink-3);margin-bottom:var(--s4);
+  padding-bottom:var(--s3);border-bottom:1px solid var(--line)}
+.feed__h b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+
+.ev{display:flex;align-items:baseline;gap:9px;padding:7px 0;
+  border-bottom:1px solid var(--line);font-size:12.5px}
+.ev:last-child{border-bottom:none}
+.ev__k{flex:none;width:52px;font:700 8.5px/1.6 var(--sans);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--acc)}
+.ev[data-t="neg"] .ev__k{color:var(--neg)}
+.ev[data-t="warn"] .ev__k{color:var(--warn)}
+.ev[data-auto] .ev__k{color:var(--ink-4)}
+.ev[data-auto] .ev__t{color:var(--ink-4)}
+.ev__t{min-width:0;flex:1;color:var(--ink-2);line-height:1.45;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ev__w{flex:none;font-size:10.5px;color:var(--ink-4)}
+
+@media (max-width:1000px){ .desk__split{grid-template-columns:1fr} }
+@media (prefers-reduced-motion:reduce){ .beam,.beacon{animation:none} .beam{stroke-dashoffset:120} }
+
+/* Triage verdict above the card wall — a count without a verdict is a number, not
+   information. J: "it says 12 things are broken. i still feel lost on here." */
+.triage{margin-bottom:var(--s5);padding:var(--s4) var(--s5);border-radius:var(--r2);
+  background:var(--bg-1);border:1px solid var(--line)}
+.triage__row{display:flex;flex-wrap:wrap;gap:var(--s5);align-items:baseline}
+.triage__p{font-size:12.5px;color:var(--ink-3)}
+.triage__p b{font-size:20px;font-weight:600;letter-spacing:-.03em;color:var(--ink);
+  margin-right:6px;font-variant-numeric:tabular-nums}
+.triage__p[data-t="red"] b{color:var(--neg)}
+.triage__p[data-t="amber"] b{color:var(--warn)}
+.triage__first{margin-top:var(--s4);padding-top:var(--s3);border-top:1px solid var(--line);
+  font-size:13.5px;color:var(--ink-2);line-height:1.5}
+.triage__first span{display:inline-block;margin-right:9px;padding:3px 8px;border-radius:6px;
+  background:var(--acc-wash);color:var(--acc);
+  font:700 9px/1.5 var(--sans);letter-spacing:.11em;text-transform:uppercase;
+  vertical-align:2px}
+.triage__note{margin-top:var(--s3);font-size:11.5px;color:var(--ink-4);line-height:1.55}

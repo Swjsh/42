@@ -555,9 +555,22 @@ def build(quiet: bool = False) -> dict:
         "wants_full": _wants_full(),
         "wants_source": {"path": GAMMA_WANTS.relative_to(REPO).as_posix(),
                          "age_h": _age_h(GAMMA_WANTS), "ok": GAMMA_WANTS.exists()},
+        # WHAT GAMMA DID WHILE J SLEPT. He asked for it by name -- "i dont see
+        # anywhere what gamma did all night or anything of an activity feed". The
+        # digest already existed as a CLI (whats_changed.py, built for the same
+        # repeated question); this only puts it on the page instead of behind a
+        # command. Read-only, and a failure degrades to an empty feed.
+        "activity": None,
         "army": None,   # filled below; a presence-telemetry failure must not lose the page
         "cards": None,  # filled below; a card-generation failure must not lose the page
     }
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        import whats_changed as _wc
+        payload["activity"] = _wc.build_digest()
+    except Exception as e:                       # noqa: BLE001 - never lose the page over a feed
+        payload["activity"] = {"error": str(e)[:160], "sections": {}, "total_changes": 0}
+
     try:
         payload["army"] = _army().build_army()
     except Exception as e:                       # noqa: BLE001 - Army view must degrade, not 500 the page
