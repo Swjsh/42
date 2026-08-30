@@ -68,6 +68,10 @@
           // Lanes ride the same live slice: a lane row exists to say whether a
           // lane is alive RIGHT NOW, and that answer is worthless at payload age.
           if (j.lanes && S.payload) S.payload.lanes = j.lanes;
+          // The trading slice. Rides the live path rather than the baked payload for the
+          // same reason as the others, only more so: an equity or a position served at
+          // payload age is not stale data, it is a wrong answer to "am I in something".
+          if (j.glass && S.payload) S.payload.glass = j.glass;
           S.live_at = Date.now();
         }
       }

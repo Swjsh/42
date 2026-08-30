@@ -52,6 +52,15 @@ def main() -> int:
     except Exception as e:                       # noqa: BLE001
         out["lanes"] = None
         out["lanes_error"] = str(e)[:200]
+    # The TRADING slice (2026-08-30). Fourth fast group, same contract as the others:
+    # a pure read over files already on disk, 0.7s, and independently failable -- a
+    # broken P&L read must not take the agent roster down with it.
+    try:
+        import gamma_glass
+        out["glass"] = gamma_glass.build()
+    except Exception as e:                       # noqa: BLE001
+        out["glass"] = None
+        out["glass_error"] = str(e)[:200]
     json.dump(out, sys.stdout, default=str)
     return 0
 

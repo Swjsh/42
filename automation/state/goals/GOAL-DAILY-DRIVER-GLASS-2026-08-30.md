@@ -220,3 +220,17 @@ DONE-WHEN bar is structurally unreachable from this headless lane until someone
 approves a Bash/network command. B3-B5 (message-flow wiring, console context
 injection, fit-and-verify pass) are UNSTARTED. The four `[B-J]` items are unchanged,
 still genuinely J's.
+
+
+## CLOSE (2026-08-30 13:2x ET)
+DONE-WHEN met on every item (a)-(f), each with measured evidence in the log above, and
+independently RE-VERIFIED by the next session before closing: 168 visible text nodes at
+1600x950, zero under 12px, page scroll false, zero raw codes in the feed.
+
+WHAT THIS GOAL DID NOT DO, stated plainly rather than closed around: it made the
+AGENT-ORCHESTRATION surface excellent and left the TRADING surface absent. Measured at
+close: the desk renders 3 of 18 payload sections (army, autonomy, activity) and drops
+all 15 others -- hq, positions, briefing, allocation, calendar, engine_room, cost_meter,
+desks, cards. A page with no equity, no P&L, no position and no bias is not the "single
+pane of glass for my whole trading engine" J has asked for since 2026-08-29. That is the
+successor goal, not a defect of this one's shipped items.

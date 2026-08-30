@@ -1,1 +1,10 @@
-{"id": "GOAL-DAILY-DRIVER-GLASS-2026-08-30", "active": true, "opened_at_et": "2026-08-30T12:55:00-04:00", "expires_at_et": "2026-09-06", "file": "automation/state/goals/GOAL-DAILY-DRIVER-GLASS-2026-08-30.md", "queue_id": "GOAL-DAILY-DRIVER-GLASS-2026-08-30", "max_continuations_per_session": 3, "last_next_item": "B3 \u2014 Message-flow events: drive beam packets + feed sentences from companion"}
+{
+  "id": "GOAL-COMMAND-CENTER-2026-08-30",
+  "active": true,
+  "opened_at_et": "2026-08-30T13:28:00-04:00",
+  "expires_at_et": "2026-09-06",
+  "file": "automation/state/goals/GOAL-COMMAND-CENTER-2026-08-30.md",
+  "queue_id": "GOAL-COMMAND-CENTER-2026-08-30",
+  "max_continuations_per_session": 3,
+  "last_next_item": null
+}
