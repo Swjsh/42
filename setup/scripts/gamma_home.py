@@ -561,9 +561,20 @@ def build(quiet: bool = False) -> dict:
         # repeated question); this only puts it on the page instead of behind a
         # command. Read-only, and a failure degrades to an empty feed.
         "activity": None,
+        # IS GAMMA AWAKE, AND WHAT DOES IT THINK IT SHOULD DO NEXT. J: "where is
+        # the autonomy ... give it the ability to do actions like choose recc
+        # action cards, theorize whats next". The loop was real and invisible.
+        "autonomy": None,
         "army": None,   # filled below; a presence-telemetry failure must not lose the page
         "cards": None,  # filled below; a card-generation failure must not lose the page
     }
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        import gamma_autonomy as _au
+        payload["autonomy"] = _au.build()
+    except Exception as e:                       # noqa: BLE001 - status must never 500 the page
+        payload["autonomy"] = {"error": str(e)[:160], "awake": None}
+
     try:
         sys.path.insert(0, str(REPO / "setup" / "scripts"))
         import whats_changed as _wc

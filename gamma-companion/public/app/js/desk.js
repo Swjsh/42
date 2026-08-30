@@ -209,6 +209,118 @@
     return box;
   }
 
+  /* ---- IS GAMMA AWAKE, AND WHAT IS IT ABOUT TO DO -------------------------
+     J: "where is the autonomy, how do we have gamma be alive and on the page and
+     give it the ability to do actions like choose recc action cards, theorize
+     whats next".
+
+     The loop was real the whole time -- 48 commits landed unattended overnight --
+     and reached no surface, so from here it looked like nothing was happening.
+     This panel is that loop's face. It reports state; it never acts. */
+  function autonomy(au) {
+    const wrap = el('div'); wrap.className = 'auto';
+    if (!au || au.error) {
+      wrap.appendChild(D.miss('Autonomy status unavailable',
+        au && au.error ? 'gamma_autonomy.py: ' + au.error : 'setup/scripts/gamma_autonomy.py'));
+      return wrap;
+    }
+    const q = au.quiet || {}, af = au.autofire || {}, w = au.watcher || {};
+    const bud = au.budget || {};
+    const awake = au.awake === true;
+    const until = q.next_loud ? String(q.next_loud).slice(11, 16) : null;
+
+    /* The headline is a STATE, not a number: asleep-by-schedule and asleep-because-
+       something-broke look identical from a task list and mean opposite things. */
+    const head = el('div'); head.className = 'auto__head';
+    head.innerHTML =
+      '<span class="auto__dot"' + (awake ? ' data-on' : '') + '></span>' +
+      '<span class="auto__state">' + (awake ? 'AWAKE — working' : 'RESTING') + '</span>' +
+      '<span class="auto__sub">' + (awake
+        ? 'Running its own loop right now.'
+        : 'Quiet hours' + (until ? ' until <b>' + esc(until) + ' ET</b>' : '') +
+          (q.held_down ? ' · ' + esc(String(q.held_down)) + ' scheduled jobs held down' : '') +
+          '. This is on purpose, not a fault — it works through the night.') + '</span>';
+    wrap.appendChild(head);
+
+    const grid = el('div'); grid.className = 'auto__grid';
+
+    /* NEXT MOVE — the goal's own top open item IS the conductor's next pick, so
+       this is what it will actually do, not a guess about what it might. */
+    const nm = au.next_move;
+    grid.appendChild(cell('Next move', nm
+      ? esc(nm.text)
+      : '<span class="dim">Nothing queued for itself — every open item is waiting on you.</span>',
+      nm ? '' : 'dim'));
+
+    /* CAN IT CHOOSE CARDS BY ITSELF — the exact thing J asked about, answered
+       without flattery. Built, set to --live on weekdays, never once executed. */
+    const fireState = af.ever_fired
+      ? (af.fired_today ? af.fired_today + ' fired today' : 'armed · none needed today')
+      : 'has never fired';
+    const t = af.task || {};
+    grid.appendChild(cell('Fires action cards itself', esc(fireState) +
+      '<div class="auto__why">' +
+      (af.ever_fired
+        ? 'Guards: refuses during market hours, obeys quiet mode, capped per run and per day.'
+        : 'Built and set to <span class="mono">--live</span> on weekdays, but its task is ' +
+          esc(t.schedule || 'unscheduled') + ' and has <b>never executed</b>' +
+          (t.state ? ' (currently ' + esc(t.state) + ')' : '') + '. ' +
+          (af.last ? 'Last decision: <b>' + esc(af.last.decision || '?') + '</b> — ' +
+            esc(af.last.reason || '') + '.' : '')) +
+      '</div>', af.ever_fired ? '' : 'warn'));
+
+    /* Why it stopped. A throttle and a breakdown look identical from outside, and
+       here the throttle is the fire COUNT while only a fraction of the money cap
+       was spent — which is a tuning decision for J, not a fault to fix. */
+    if (bud.verdict) {
+      const done = String(bud.verdict).toUpperCase() === 'EXHAUSTED';
+      grid.appendChild(cell('Today’s budget',
+        (done ? 'Used up — <b>' + esc(String(bud.fires_used)) + ' runs</b> of ' +
+          esc(String(bud.fires_cap)) + ' allowed'
+              : esc(String(bud.fires_used || 0)) + ' of ' + esc(String(bud.fires_cap)) + ' runs used') +
+        '<div class="auto__why">' +
+        (bud.spent_usd != null && bud.cap_usd
+          ? 'Spent <b>$' + esc(Number(bud.spent_usd).toFixed(2)) + '</b> of a $' +
+            esc(String(bud.cap_usd)) + ' cap — it is the RUN COUNT that stopped it, not the money. ' +
+            'Raising <span class="mono">max_fires</span> in conductor-budget.json is your call.'
+          : esc(bud.reason || '')) +
+        '</div>', done ? 'warn' : ''));
+    }
+
+    grid.appendChild(cell('Self-check', w.checked_at
+      ? esc(String(w.checked_at).slice(11, 16)) + ' · ' +
+        (w.ok ? 'all clear' : (w.findings || []).length + ' finding(s)') +
+        '<div class="auto__why">' +
+        ((w.findings || []).map((f) => esc(f.message)).join('<br>') || 'Nothing flagged.') +
+        '</div>'
+      : '<span class="dim">never run</span>', w.ok === false ? 'warn' : ''));
+
+    wrap.appendChild(grid);
+
+    const fires = au.recent_fires || [];
+    if (fires.length) {
+      const f = el('div'); f.className = 'auto__fires';
+      f.innerHTML = '<h4>What it did on its own, last ' + fires.length + ' runs</h4>';
+      fires.forEach((r) => {
+        const row = el('div'); row.className = 'auto__f';
+        row.innerHTML = '<span class="mono">' + esc(String(r.at || '').slice(11, 16)) + '</span>' +
+          '<span class="auto__fn">' + esc(String(r.note || r.task || '').slice(0, 150)) + '</span>' +
+          '<span class="auto__fd">' + esc(String(r.drained == null ? '' : r.drained)) + '</span>';
+        f.appendChild(row);
+      });
+      wrap.appendChild(f);
+    }
+    return wrap;
+  }
+
+  function cell(label, html, tone) {
+    const c = el('div'); c.className = 'auto__c';
+    if (tone) c.setAttribute('data-t', tone);
+    c.innerHTML = '<span class="auto__l">' + esc(label) + '</span>' +
+      '<div class="auto__v">' + html + '</div>';
+    return c;
+  }
+
   /* ---- what happened while he slept ---------------------------------------- */
   function activity(a) {
     const wrap = el('div'); wrap.className = 'feed';
@@ -265,6 +377,10 @@
       '<p class="vhead__p">Everything Gamma is doing, and everything it did. The ' +
       'orchestrator is on top; a line runs to every session it is working with, and ' +
       'the agents inside each one are named.</p></div>';
+
+    /* Autonomy first: "is it alive and what is it about to do" outranks the
+       roster, because the roster is meaningless if the loop is off. */
+    s.appendChild(autonomy((D.S.payload || {}).autonomy));
 
     if (!(army.sessions || []).length) {
       s.appendChild(D.miss('No sessions found', '~/.claude/sessions/*.json'));

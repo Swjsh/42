@@ -135,6 +135,20 @@ named — not silently dropped and not faked with a worse imitation.
   after sign in page", but `/` currently serves the phone PWA (`m.html`) — it is the
   manifest `start_url` and the target push notifications open. Swapping it silently
   repoints his installed phone app. One-line change in `serveStatic` once he says so.
+- [B-J] ARM AUTONOMOUS CARD-FIRING? Gamma_AutofireCards is registered WEEKLY while
+  its runner is written for weekdays, and it has NEVER executed once (last result
+  267011 = never run). So "Gamma chooses a recommended card by itself" -- the thing J
+  asked for by name on 2026-08-30 -- has never happened. The fix is one schtasks
+  re-registration. NOT taken unilaterally for two reasons: the config freeze opens
+  2026-08-31, and turning on unattended repo-editing sessions the day before a
+  scoring window is bad timing regardless of the guards (which are real: RTH refusal,
+  quiet mode, per-run and per-day caps, and a dangerous-prompt check at fire time).
+- [B-J] RAISE THE CONDUCTOR'S RUN CAP? It stopped today at 6 fires against
+  max_fires=4 having spent $3.67 of a $30 daily cap. The RUN COUNT is the binding
+  constraint, not the money, and the count cap exists because the conductor family was
+  once 93.3% of automation burn. Raising max_fires in
+  automation/state/conductor-budget.json costs real tokens per extra fire, so it is a
+  spend decision, not a config tweak.
 - [B-J] VERIFY-A (carried from GOAL-COCKPIT-BUILD-2026-08-29) — a pulse visibly
   travels on a REAL cross-session message. Needs J to send one while watching.
 - [B-J] VERIFY-B (carried) — one card click spawns exactly one escalation and a
