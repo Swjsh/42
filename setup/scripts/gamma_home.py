@@ -441,6 +441,39 @@ def build_answers() -> list:
                      "ok": live > 0}],
     })
 
+    # 7. What changed since I last looked? -----------------------------------
+    # ADDED 2026-08-29. J: "Every time you come back you ask me." -- a repeated
+    # question is a missing instrument (CLAUDE.md judgment-guards), so this
+    # reads the digest whats_changed.py writes rather than answering by hand.
+    # Read-only: this card never runs the script or advances its marker --
+    # merely looking at the page must never clear the digest. Run
+    # `python setup/scripts/whats_changed.py --seen` to mark it read.
+    wch, wch_m = _load_json(STATE / "whats-changed.json")
+    if wch:
+        answers.append({
+            "q": "What changed since I last looked?",
+            "verdict": "GREEN" if wch.get("total_changes") else "OK",
+            "answer": wch.get("headline", "?"),
+            "detail": _clip("; ".join(
+                "%s: %d" % (name, sec.get("count", 0))
+                for name, sec in (wch.get("sections") or {}).items()
+                if isinstance(sec, dict) and sec.get("count")
+            ), 200),
+            "means": ("New activity since the marker -- run `whats_changed.py --seen` once you've "
+                      "read it to reset the digest." if wch.get("total_changes") else
+                      "Quiet since the marker -- nothing to catch up on."),
+            "sources": [wch_m],
+        })
+    else:
+        answers.append({
+            "q": "What changed since I last looked?",
+            "verdict": "NO DATA",
+            "answer": "whats-changed.json unreadable",
+            "detail": "run: python setup/scripts/whats_changed.py",
+            "means": "The digest hasn't been generated yet (or its file is unreadable).",
+            "sources": [wch_m],
+        })
+
     return answers
 
 
