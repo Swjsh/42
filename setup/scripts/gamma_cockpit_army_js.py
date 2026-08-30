@@ -139,7 +139,11 @@ function armySvg(a){
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node',id:'army-orc'});
   og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1}));
-  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'url(#orcGrad)',stroke:'var(--acc)','stroke-width':1.5,opacity:.9}));
+  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}));
+  /* Tracing border: an ~80px accent comet orbits the hero's ~895px perimeter -- lit and
+     alive without a static heavy stroke shouting. */
+  og.appendChild(mk('rect',{x:ocx-190,y:ocy-44,width:380,height:88,rx:16,fill:'none',
+    stroke:'var(--acc)','stroke-width':1.6,class:'army-trace','stroke-linecap':'round'}));
   og.appendChild(mk('circle',{cx:ocx-166,cy:ocy-14,r:6,fill:'var(--st-live)',class:'army-ring'}));
   og.appendChild(ltxt(ocx-150,ocy-8,orc?orc.name:'—','var(--tx-1)',21,700));
   og.appendChild(ltxt(ocx-166,ocy+16,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',11.5,600));
@@ -164,11 +168,27 @@ function armySvg(a){
     const sy=SESS_TOP+row*(BH+GAPY)+BH/2;
     const L=sx-BW/2, T=sy-BH/2;                    // box left / top, for readable labels
     centers['s:'+s.session_id]={x:sx,y:sy};
-    const edge=mk('path',{d:`M ${ocx} ${ocy+44} C ${ocx} ${(ocy+T)/2}, ${sx} ${(ocy+T)/2}, ${sx} ${T}`,
-      fill:'none',stroke:'var(--bd-strong)','stroke-width':1.4,opacity:.16});
+    const dPath=`M ${ocx} ${ocy+44} C ${ocx} ${(ocy+T)/2}, ${sx} ${(ocy+T)/2}, ${sx} ${T}`;
+    /* Ghost rail: Aceternity's measured base -- ~.5px stroke at 5% -- wiring that is
+       present but silent until something moves along it. */
+    const edge=mk('path',{d:dPath,fill:'none',stroke:'var(--tx-1)','stroke-width':.6,opacity:.055});
     edge.id='armyedge-'+s.session_id;
     svg.appendChild(edge);
     edges[s.session_id]=edge;
+    /* Beam comet: per-edge userSpaceOnUse gradient with their exact stops (cyan head,
+       #6344F5 at 32.5%, purple tail to 0) + a slow travelling dash that samples the
+       spatial gradient as it moves. Ambient class -- the rig's own activity, never
+       feedback to a click. */
+    const gid='beam-'+i;
+    const bg=mk('linearGradient',{id:gid,gradientUnits:'userSpaceOnUse',
+      x1:ocx,y1:ocy+44,x2:sx,y2:T});
+    [['0%','#18CCFC','0'],['12%','#18CCFC','.9'],['32.5%','#6344F5','.9'],['100%','#AE48FF','0']]
+      .forEach(([o,c,op])=>bg.appendChild(mk('stop',{offset:o,'stop-color':c,'stop-opacity':op})));
+    defs.appendChild(bg);
+    const beam=mk('path',{d:dPath,fill:'none',stroke:'url(#'+gid+')','stroke-width':1.6,
+      class:'army-beam','stroke-linecap':'round'});
+    beam.style.animationDelay=(i*1.1)+'s';
+    svg.appendChild(beam);
 
     const g=mk('g',{class:'army-node','data-sid':s.session_id});
     g.style.cursor='pointer';
@@ -318,8 +338,39 @@ function armySvg(a){
   legend.appendChild(li('Cards on the right = things to do.',
     'Click one to open it, then Fire to spawn a worker that handles it.'));
   wrap.appendChild(legend);
+  const stars=document.createElement('canvas');
+  stars.className='army-stars'; stars.width=W; stars.height=H;
+  wrap.appendChild(stars);
+  armyStars(stars,W,H);
   wrap.appendChild(svg);
   return {wrap,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
+}
+
+function armyStars(canvas,W,H){
+  /* Stage backdrop. Deterministic placement (golden-angle scatter, no RNG), two depth
+     layers, slow drift + sine twinkle. Self-terminating like every army loop: stops when
+     the canvas leaves the document. Reduced motion gets one static paint. */
+  const ctx=canvas.getContext('2d'); if(!ctx)return;
+  const N=90, dots=[];
+  for(let k=0;k<N;k++){
+    const deep=k%3!==0;
+    dots.push({x:(k*137.508)%W, y:(k*91.7)%H, r:deep?0.8:1.4,
+               v:deep?0.006:0.014, tw:(k%17)/17*6.2832});
+  }
+  let t=0;
+  function frame(){
+    if(!canvas.isConnected)return;
+    ctx.clearRect(0,0,W,H); t+=1;
+    for(const d of dots){
+      d.x+=d.v; if(d.x>W+2)d.x=-2;
+      const a=0.10+0.16*(0.5+0.5*Math.sin(t*0.008+d.tw));
+      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.2832);
+      ctx.fillStyle='rgba(200,190,255,'+a.toFixed(3)+')'; ctx.fill();
+    }
+    if(!RM)requestAnimationFrame(frame);
+  }
+  if(RM){ frame(); return; }
+  requestAnimationFrame(frame);
 }
 
 function armyDotColour(s,lastSeen){

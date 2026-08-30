@@ -113,6 +113,22 @@ body{background:var(--bg-canvas);color:var(--tx-1);font-family:var(--font);font-
    neutral downstream. The one bloom now lives inside the graph canvas only, so purple
    reads as light the graph emits, not a tint applied to the app. */
 .armywrap{position:relative}
+/* the stage's starfield canvas sits under the SVG, over the bloom */
+.army-stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.85}
+.armywrap svg{position:relative;z-index:1}
+/* Beam comets (Aceternity recipe): the dash is the comet, the per-edge spatial gradient
+   colours it as it travels. AMBIENT class -- slow, linear, never the interaction curve. */
+.army-beam{stroke-dasharray:34 520;animation:beamflow 5.5s linear infinite;opacity:.75}
+@keyframes beamflow{from{stroke-dashoffset:554}to{stroke-dashoffset:0}}
+/* Tracing border: one 80px segment orbiting the hero's ~895px perimeter. */
+.army-trace{stroke-dasharray:80 815;animation:traceorbit 4.8s linear infinite;
+  filter:drop-shadow(0 0 6px var(--acc))}
+@keyframes traceorbit{from{stroke-dashoffset:0}to{stroke-dashoffset:-895}}
+@media (prefers-reduced-motion:reduce){
+  .army-beam,.army-trace{animation:none}
+  .army-beam{stroke-dashoffset:180}
+  .army-stars{opacity:.4}
+}
 .armywrap::before{content:"";position:absolute;inset:-8px;pointer-events:none;
   background:radial-gradient(60% 55% at 50% 18%,oklch(73.5% .185 300/.055),transparent 70%)}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.035;
@@ -124,47 +140,38 @@ a:hover{text-decoration:underline}
 ::selection{background:var(--acc-dim)}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:var(--r-sm)}
 
-/* ---------------- shell ---------------- */
-.app{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh;position:relative;z-index:1}
-.side{border-right:1px solid var(--bd-subtle);background:var(--bg-inset);padding:var(--s6) var(--s4);
-  position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:var(--s1)}
-.brand{display:flex;align-items:center;gap:var(--s4);padding:var(--s1) var(--s3) var(--s6)}
-.mark{width:32px;height:32px;border-radius:9px;flex:none;position:relative;
-  background:linear-gradient(145deg,var(--acc),oklch(64% .19 300));
-  box-shadow:inset 0 1px 0 color-mix(in oklch,white 22%,transparent),0 6px 18px -6px var(--acc)}
-.mark::after{content:"Γ";position:absolute;inset:0;display:grid;place-items:center;font:700 17px/1 var(--font);color:#fff}
-.brand b{font-size:15px;font-weight:600;letter-spacing:-.015em}
-.brand small{display:block;color:var(--tx-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
-.nav{display:flex;flex-direction:column;gap:1px}
-.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:var(--r-md);color:var(--tx-3);
-  font-size:13.5px;font-weight:500;position:relative;border:1px solid transparent;
-  transition:background .14s var(--e-hover),color .14s var(--e-hover),border-color .14s var(--e-hover)}
-.nav a:hover{background:rgba(255,255,255,.03);color:var(--tx-1);text-decoration:none}
-.nav a.on{background:linear-gradient(rgba(255,255,255,.03),rgba(255,255,255,0)),var(--bg-2);
-  color:var(--tx-1);border-color:var(--bd);box-shadow:var(--topline)}
-.nav a.on::before{content:"";position:absolute;left:-12px;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;
-  background:var(--acc);box-shadow:0 0 12px var(--acc)}
-.nav .ic{width:17px;text-align:center;font-size:13px;opacity:.9}
-.nav .badge{margin-left:auto;font-size:11px;font-weight:600;padding:1px 7px;border-radius:var(--r-pill);
-  background:var(--bg-3);color:var(--tx-2);border:1px solid var(--bd)}
-.nav .badge.hot{background:var(--warn-dim);color:var(--warn);border-color:color-mix(in oklch,var(--warn) 34%,transparent)}
-.side .foot{margin-top:auto;font-size:11px;color:var(--tx-4);line-height:1.8;padding:var(--s4) var(--s3) 0;
-  border-top:1px solid var(--bd-subtle)}
-kbd{background:var(--bg-3);border:1px solid var(--bd);border-bottom-width:2px;border-radius:5px;padding:1px 5px;
-  font:600 11px/1.4 var(--mono);color:var(--tx-2)}
-
-.main{min-width:0;display:flex;flex-direction:column}
-.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:var(--s4);padding:var(--s5) var(--s7);
-  border-bottom:1px solid var(--bd-subtle);
-  background:color-mix(in oklch,var(--bg-canvas) 78%,transparent);
-  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%)}
-.top h1{font-size:24px;font-weight:600;letter-spacing:-.015em}
-.sp{flex:1}
-.clock{font:400 11px/1.4 var(--mono);color:var(--tx-3);letter-spacing:.02em;text-align:right}
-.view{padding:var(--s7);max-width:1560px;width:100%}
-.view.anim{animation:vin .3s var(--e-route)}
-@keyframes vin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
+/* ---------------- shell: the bridge ---------------- */
+.app{display:flex;flex-direction:column;min-height:100vh;position:relative;z-index:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.cmdbar{height:52px;display:flex;align-items:center;gap:var(--s5);padding:0 var(--s6);
+  background:color-mix(in oklch,var(--bg-inset) 88%,transparent);
+  border-bottom:1px solid var(--bd-subtle);backdrop-filter:blur(10px);
+  position:sticky;top:0;z-index:40}
+.mark{width:26px;height:26px;border-radius:8px;flex:none;position:relative;
+  background:linear-gradient(145deg,var(--acc),var(--acc-deep));
+  box-shadow:inset 0 1px 0 oklch(100% 0 0/.25),0 4px 14px -4px var(--acc-deep)}
+.mark::after{content:"Γ";position:absolute;inset:0;display:grid;place-items:center;
+  font:700 14px/1 var(--font);color:#fff}
+.word{font:650 13px/1 var(--font);letter-spacing:.14em;color:var(--tx-1)}
+.word span{display:block;font:500 8px/1 var(--font);letter-spacing:.30em;color:var(--tx-4);margin-top:3px}
+.tabs{display:flex;align-items:center;gap:2px;margin-left:var(--s6);height:100%}
+.tabs a{display:flex;align-items:center;height:100%;padding:0 14px;position:relative;
+  font:600 11px/1 var(--font);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--tx-4);transition:color .15s var(--e-hover)}
+.tabs a:hover{color:var(--tx-2);text-decoration:none}
+.tabs a.on{color:var(--tx-1)}
+.tabs a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;
+  background:var(--acc);box-shadow:0 0 10px var(--acc);border-radius:2px}
+.tabs a .badge{margin-left:7px;font-size:9.5px;font-weight:600;padding:2px 6px;
+  border-radius:var(--r-pill);background:var(--bg-3);color:var(--tx-3)}
+.tabs a .badge.hot{background:var(--warn-dim);color:var(--warn)}
+.tabs .more{font:600 13px/1 var(--font);color:var(--tx-4);padding:6px 10px;cursor:pointer;
+  border:0;background:none;border-radius:var(--r-sm)}
+.tabs .more:hover{color:var(--tx-1);background:var(--bg-2)}
+.ticker{display:flex;align-items:center;gap:var(--s5)}
+.kbd-hint kbd{font:600 10px/1 var(--mono);color:var(--tx-4);border:1px solid var(--bd);
+  border-bottom-width:2px;border-radius:5px;padding:4px 6px;background:var(--bg-2)}
+.main{flex:1;display:flex;flex-direction:column;min-height:0;padding:var(--s5) var(--s6) var(--s4)}
 /* ---------------- primitives ---------------- */
 .eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3)}
 .big{font-size:40px;font-weight:650;letter-spacing:-.02em;line-height:1.1}
@@ -492,8 +499,8 @@ tr:last-child td{border-bottom:none}
 @container (max-width:250px){.card .spark{display:none}}
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:var(--s3)}
-  .side .foot{display:none}.nav{flex-direction:row;flex-wrap:wrap}.nav a.on::before{display:none}
+  
+  .side 
   .view{padding:var(--s5)}
 }
 @media (prefers-reduced-motion:reduce){
@@ -511,21 +518,28 @@ SHELL = r"""<!doctype html>
 <style>__CSS__</style>
 </head>
 <body>
+<!-- THE BRIDGE (2026-08-30). The left sidebar with nine options was the tell of a
+     generated admin panel -- J: "the side panel is wayyy too many options... same generic
+     claude pages". One operator, one primary surface. Navigation collapses into a strip of
+     text tabs on a single command bar; everything else is one keystroke away (Cmd-K). The
+     content area is a full-bleed stage, not a page of nested cards. -->
 <div class="app">
-  <aside class="side">
-    <div class="brand"><div class="mark"></div><div><b>Gamma</b><small>Cockpit</small></div></div>
-    <nav class="nav" id="nav"></nav>
-    <div class="foot"><kbd>⌘</kbd><kbd>K</kbd> palette · <kbd>?</kbd> help<br><span id="footstamp"></span></div>
-  </aside>
-  <main class="main">
-    <header class="top">
-      <h1 id="vtitle">Overview</h1>
+  <header class="cmdbar">
+    <div class="mark"></div>
+    <div class="word">GAMMA<span>COCKPIT</span></div>
+    <nav class="tabs" id="nav"></nav>
+    <div class="sp"></div>
+    <div class="ticker">
       <span class="chip live" id="statechip"><i class="dot"></i><span id="statetxt"></span></span>
-      <div class="sp"></div>
       <div class="clock" id="clock"></div>
-    </header>
+      <span class="kbd-hint"><kbd>⌘K</kbd></span>
+    </div>
+  </header>
+  <main class="main">
+    <h1 id="vtitle" class="sr">Overview</h1>
     <div class="view anim" id="view"></div>
   </main>
+  <span id="footstamp" class="sr"></span>
 </div>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer" aria-hidden="true">

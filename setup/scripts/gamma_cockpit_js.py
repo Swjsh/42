@@ -217,9 +217,12 @@ function closeDrawer(){
 
 /* ============================ nav + palette ============================ */
 function navBuild(){
+  /* THE BRIDGE: nine sidebar options collapsed to four text tabs + everything via Cmd-K.
+     One operator, one primary surface -- the rest is one keystroke away, not a wall. */
+  const PRIMARY=['army','cards','journal','answers'];
   const n=$('#nav'); n.innerHTML='';
-  VIEWS.forEach(v=>{
-    const a=el('a',null,`<span class="ic">${v.ic}</span><span>${v.label}</span>`);
+  VIEWS.filter(v=>PRIMARY.includes(v.id)).forEach(v=>{
+    const a=el('a',null,`<span>${v.label}</span>`);
     a.href='#'+v.id; a.dataset.v=v.id;
     // Route on click as well as on hashchange. Some hosts (the in-app preview
     // serves the file as a data: URL) do not fire hashchange, which would leave
@@ -235,6 +238,11 @@ function navBuild(){
     }
     n.appendChild(a);
   });
+  const more=document.createElement('button');
+  more.type='button'; more.className='more'; more.textContent='···';
+  more.title='Everything else — or press Cmd-K';
+  more.onclick=()=>{ try{palOpen()}catch(_){ const p=$('#pal'); if(p)p.classList.add('open'); const i=$('#palin'); if(i)i.focus(); } };
+  n.appendChild(more);
 }
 const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
 let CUR='overview';
