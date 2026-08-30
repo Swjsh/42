@@ -147,3 +147,34 @@ def test_shipped_page_is_current_and_substantial():
         assert ph not in txt
     for bad in ("Â·", "â€"):
         assert bad not in txt, "mojibake in the shipped page"
+
+
+# ── Worker honesty (2026-08-30) ────────────────────────────────────────────────
+# J, third ask: "i still dont know what im looking at like subagent wise on the
+# screen." Investigating it surfaced something worse than illegibility: session
+# 42-c9 rendered "8 workers +43" beside five solid dots while EVERY ONE of its 51
+# subagents had finished 9.3 hours earlier. The `8` was never a quantity — it is
+# MAX_WORKERS_PER_SESSION, the display cap — so the label read cap+overflow and
+# implied a standing army that did not exist. A cockpit that looks authoritative
+# while overstating live capacity is the exact failure this file exists to prevent.
+def test_payload_separates_workers_ever_spawned_from_workers_running_now():
+    """worker_count is HISTORY; only worker_active may back a present-tense claim."""
+    from gamma_cockpit_army import build_army
+
+    army = build_army()
+    workers = army.get("workers") or []
+    for s in army.get("sessions") or []:
+        assert "worker_active" in s, f"{s.get('name')} cannot state live capacity honestly"
+        assert isinstance(s["worker_active"], int)
+        assert 0 <= s["worker_active"] <= s["worker_count"], (
+            f"{s.get('name')}: {s['worker_active']} running exceeds {s['worker_count']} spawned"
+        )
+        # The count must agree with the workers actually shipped for that session,
+        # so the number and the dots beside it can never tell different stories.
+        shipped_live = sum(
+            1 for w in workers if w.get("session_id") == s["session_id"] and w.get("active")
+        )
+        assert s["worker_active"] >= shipped_live, (
+            f"{s.get('name')}: payload ships {shipped_live} live workers but claims "
+            f"{s['worker_active']}"
+        )

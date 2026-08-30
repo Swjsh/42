@@ -550,6 +550,13 @@ def build_army() -> dict:
             "is_orchestrator": s["session_id"] == orchestrator_sid,
             "worker_count": len(workers),
             "worker_overflow": max(0, len(workers) - MAX_WORKERS_PER_SESSION),
+            # RUNNING RIGHT NOW vs ever-spawned. Without this split the cockpit drew a
+            # standing army that had evaporated: 42-c9 rendered "8 workers +43" with five
+            # solid dots while every one of its 51 subagents had finished 9.3h earlier
+            # (verified 2026-08-30). worker_count is a HISTORY total; only worker_active
+            # is a claim about the present, and any "N workers" phrasing on the page must
+            # be sourced from this field.
+            "worker_active": sum(1 for w in workers if w.get("active")),
             "context_tokens": context["context_tokens"],
             "context_limit": context["context_limit"],
             "context_pct": context["context_pct"],
