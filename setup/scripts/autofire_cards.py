@@ -216,11 +216,47 @@ def _load_cards() -> list[dict]:
     return cards if isinstance(cards, list) else []
 
 
+def _prompt_is_dangerous(card: dict) -> str | None:
+    """SECOND, independent safety pass on the card's actual prompt, at fire time.
+
+    Defense-in-depth added 2026-08-29 after the adversarial review named the real risk:
+    the runner trusted `autofire_safe` with ZERO secondary check, so a single classifier
+    miss upstream = a dangerous card fired unattended. Re-running the danger denylist here,
+    on the prompt that is ABOUT TO BE SENT, means one bug in the generator can no longer
+    reach a live session on its own -- both would have to fail the same way at once.
+
+    Best-effort: if the classifier can't be imported, that is itself disqualifying (fail
+    toward refuse), because firing without the check is the exact thing this exists to stop.
+    """
+    try:
+        import gamma_cockpit_cards as _cards  # sibling on sys.path
+
+        text = str(card.get("prompt") or "")
+        hit = _cards._looks_dangerous(text)
+        if hit:
+            return hit
+        if _cards._ACTION_VERB_RE.search(text):
+            return "prompt contains a mutating action verb"
+        return None
+    except Exception as exc:
+        return f"secondary safety check unavailable ({exc!r}) -- refusing rather than firing blind"
+
+
 def _safe_cards_by_rank(cards: list[dict]) -> list[dict]:
-    """Only cards whose `autofire_safe` is literally True, rank ascending
-    (rank 1 first) -- the SAME order the cockpit itself ranks them, so
-    autofire drains the highest-priority safe cards first."""
-    safe = [c for c in cards if isinstance(c, dict) and c.get("autofire_safe") is True]
+    """Only cards whose `autofire_safe` is literally True AND whose prompt survives an
+    independent second danger pass, rank ascending (rank 1 first) -- the SAME order the
+    cockpit ranks them, so autofire drains the highest-priority safe cards first. The
+    double check is deliberate: autofire_safe is set by the generator; _prompt_is_dangerous
+    re-derives from the prompt itself here, so neither is a single point of trust."""
+    safe = []
+    for c in cards:
+        if not (isinstance(c, dict) and c.get("autofire_safe") is True):
+            continue
+        danger = _prompt_is_dangerous(c)
+        if danger:
+            c["_autofire_veto"] = danger  # surfaced in the ledger so a veto is never silent
+            continue
+        safe.append(c)
     safe.sort(key=lambda c: c.get("rank") if isinstance(c.get("rank"), (int, float)) else 1e9)
     return safe
 

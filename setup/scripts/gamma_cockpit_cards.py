@@ -151,18 +151,54 @@ _READ_ONLY_VERBS = ("investigate", "measure", "audit", "check", "summarise", "su
 # purely read-and-report -- the objective's opening verb alone is not trusted,
 # because a "check X" objective whose `why`/`done_when` also says "then update
 # the file" is not actually a read-only card.
+# Every entry is a verb ROOT plus its full inflection set INCLUDING the past participle.
+# The 2026-08-29 adversarial pass proved the old table matched present/-ing/-s but MISSED
+# every -ed/irregular past form: "fixed the bug", "params were changed", "order was placed",
+# "PR was merged" all returned False. A card whose objective opens read-only but whose
+# why/done_when describes a completed mutation in past tense was therefore misclassified
+# autofire_safe=True. This is the single field the auto-fire runner trusts, so the miss is
+# the whole ballgame even though no live card hit it today.
+#
+# Built root-by-root rather than with a blanket \w* suffix ON PURPOSE: "arm\w*" would match
+# "army", which appears in nearly every card in this cockpit, flagging everything dangerous
+# and killing the feature. Precision matters in BOTH directions -- miss a past tense and the
+# safety net has a hole; over-match and nothing ever auto-fires.
 _ACTION_VERB_RE = re.compile(
     r"\b("
-    r"edit|edits|editing|change|changes|changing|commit|commits|committing|"
-    r"resolve|resolves|resolving|restore|restores|restoring|fix|fixes|fixing|"
-    r"drain|drains|draining|complete|completes|completing|update|updates|updating|"
-    r"modify|modifies|modifying|write|writes|writing|apply|applies|applying|"
-    r"ship|ships|shipping|revert|reverts|reverting|delete|deletes|deleting|"
-    r"create|creates|creating|arm|arms|arming|rotate|rotates|rotating|"
-    r"place|places|placing|cancel|cancels|cancelling|canceling|close|closes|closing|"
-    r"replace|replaces|replacing|exercise|exercises|exercising|push|pushes|pushing|"
-    r"merge|merges|merging|deploy|deploys|deploying|kill|kills|killing|"
-    r"restart|restarts|restarting|mark|marks|marking|set"
+    r"edit(?:s|ed|ing)?|"
+    r"chang(?:e|es|ed|ing)|"
+    r"commit(?:s|ted|ting)?|"
+    r"resolv(?:e|es|ed|ing)|"
+    r"restor(?:e|es|ed|ing)|"
+    r"fix(?:es|ed|ing)?|"
+    r"drain(?:s|ed|ing)?|"
+    r"complet(?:e|es|ed|ing)|"
+    r"updat(?:e|es|ed|ing)|"
+    r"modif(?:y|ies|ied|ying)|"
+    r"writ(?:e|es|ing|ten)|wrote|"
+    r"appl(?:y|ies|ied|ying)|"
+    r"ship(?:s|ped|ping)?|"
+    r"revert(?:s|ed|ing)?|"
+    r"delet(?:e|es|ed|ing)|"
+    r"creat(?:e|es|ed|ing)|"
+    r"arm(?:s|ed|ing)?|"          # NOT arm\w* -- would catch "army"
+    r"rotat(?:e|es|ed|ing)|"
+    r"plac(?:e|es|ed|ing)|"
+    r"cancel(?:s|led|ling|ed|ing)?|"
+    r"clos(?:e|es|ed|ing)|"
+    r"replac(?:e|es|ed|ing)|"
+    r"exercis(?:e|es|ed|ing)|"
+    r"push(?:es|ed|ing)?|"
+    r"merg(?:e|es|ed|ing)|"
+    r"deploy(?:s|ed|ing)?|"
+    r"kill(?:s|ed|ing)?|"
+    r"restart(?:s|ed|ing)?|"
+    r"mark(?:s|ed|ing)?|"
+    r"set(?:s|ting)?|"            # past of "set" is "set" itself
+    r"remov(?:e|es|ed|ing)|"
+    r"disabl(?:e|es|ed|ing)|enabl(?:e|es|ed|ing)|"
+    r"overwrit(?:e|es|ing|ten)|overwrote|"
+    r"installs?|installed|installing"
     r")\b", re.I,
 )
 

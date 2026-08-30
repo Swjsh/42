@@ -257,3 +257,27 @@ def test_card_constructor_always_sets_both_autofire_fields():
     assert c is not None
     assert c["autofire_safe"] is False  # the default fallback objective is a "Resolve..." action
     assert isinstance(c["autofire_reason"], str) and c["autofire_reason"]
+
+
+import pytest as _pytest
+
+
+@_pytest.mark.parametrize(
+    "text",
+    ["fixed the bug", "params were changed", "order was placed", "PR was merged",
+     "position was closed", "task was killed", "file was written", "the account was armed"],
+)
+def test_action_verb_regex_catches_past_tense(text):
+    """The 2026-08-29 gap: past-participle verb forms slipped the classifier, so a card whose
+    why/done_when described a completed mutation read as autofire_safe. Each must now match."""
+    import gamma_cockpit_cards as C
+    assert C._ACTION_VERB_RE.search(text) is not None, text
+
+
+@_pytest.mark.parametrize("text", ["army lane review", "armor plating", "a settled prediction",
+                                    "investigate the outage", "measure the tape"])
+def test_action_verb_regex_no_false_positive_on_army(text):
+    """arm\w* would catch 'army', which is everywhere in this cockpit -- the regex is
+    root+inflection precisely so it does not flag every card dangerous."""
+    import gamma_cockpit_cards as C
+    assert C._ACTION_VERB_RE.search(text) is None, text

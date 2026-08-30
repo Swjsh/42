@@ -363,3 +363,24 @@ def test_fire_error_does_not_count_toward_day_cap(tmp_path, monkeypatch):
     rows = _read_ledger()
     assert rows[0]["decision"] == "fire-error"
     assert af._fired_today_count("2026-08-29") == 0
+
+
+def test_double_check_vetoes_a_forged_safe_card():
+    """2026-08-29 adversarial finding: the runner trusted autofire_safe with no secondary
+    check, so one classifier miss upstream = a dangerous card fired unattended. A forged
+    card marked autofire_safe:True whose prompt describes a completed mutation in PAST tense
+    (the exact gap the old _ACTION_VERB_RE missed) must be vetoed at fire time."""
+    import autofire_cards as A
+
+    forged = [{"id": "card-x", "rank": 1, "autofire_safe": True,
+               "prompt": "done when params.json has been updated and the account was armed"}]
+    assert A._safe_cards_by_rank(forged) == []
+    assert forged[0].get("_autofire_veto")
+
+
+def test_double_check_passes_a_genuinely_safe_card():
+    import autofire_cards as A
+
+    ok = [{"id": "card-y", "rank": 2, "autofire_safe": True,
+           "prompt": "Investigate why the quote tape never captured a session and report findings."}]
+    assert len(A._safe_cards_by_rank(ok)) == 1
