@@ -180,6 +180,13 @@
     const t = document.getElementById('top');
     const h = t ? Math.round(t.getBoundingClientRect().height) : 0;
     if (h > 0) document.documentElement.style.setProperty('--top', h + 'px');
+    // The trading band sits between the top bar and the columns, so the shell has
+    // to subtract BOTH or the page scrolls again. Measured, never assumed: the band
+    // reflows with the viewport and a hard-coded height is a scrollbar waiting to
+    // happen -- the same defect --top was introduced to fix, one element lower.
+    const b = document.querySelector('.gstrip');
+    document.documentElement.style.setProperty('--band',
+      (b ? Math.round(b.getBoundingClientRect().height) : 0) + 'px');
   }
 
   addEventListener('gamma:data', () => { engineState(); offlineBanner(); });

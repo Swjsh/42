@@ -651,13 +651,31 @@
      *   right  WHAT ALREADY HAPPENED         (activity)
      * Present tense in the middle where the eye lands; standing work and past
      * work in the rails on either side. */
+    /* THE TRADING BAND (2026-08-30, C2 of GOAL-COMMAND-CENTER). Full width, above
+       the three columns, always visible. Glass-cockpit convention: the state you
+       must never have to look for lives in a fixed band at the top, and everything
+       that can wait lives in a column below it. This is what makes the page a
+       TRADING command center rather than an agent console -- before it, the live
+       DOM had hasEquity:false and hasPosition:false. */
+    s.appendChild(G.glass.strip((D.S.payload || {}).glass));
+
     const shell = el('div'); shell.className = 'deskshell';
 
     /* --- left rail: the lanes --- */
     const L = document.createElement('aside'); L.className = 'rail rail--l';
-    L.innerHTML = '<h3 class="rail__t">Lanes' +
-      '<span class="rail__s">standing work</span></h3>';
-    L.appendChild(lanes((D.S.payload || {}).lanes));
+    L.innerHTML = '<h3 class="rail__t">The desk' +
+      '<span class="rail__s">engine · arms · lanes</span></h3>';
+    const lbody = el('rail__body');
+    lbody.appendChild(G.glass.mind((D.S.payload || {}).glass));
+    const armsH = el('rail__sub'); armsH.textContent = 'Arms';
+    lbody.appendChild(armsH);
+    lbody.appendChild(G.glass.arms((D.S.payload || {}).glass));
+    const lanesH = el('rail__sub'); lanesH.textContent = 'Research lanes';
+    lbody.appendChild(lanesH);
+    const ln = lanes((D.S.payload || {}).lanes);
+    ln.className = 'lanes__list';
+    lbody.appendChild(ln);
+    L.appendChild(lbody);
 
     /* --- centre: Gamma itself, then the console --- */
     const C = el('div'); C.className = 'deskmain';
@@ -709,11 +727,18 @@
       }
       oldOrg.replaceWith(next);
     }
+    const oldStrip = root.querySelector('.gstrip');
+    if (oldStrip) oldStrip.replaceWith(G.glass.strip((D.S.payload || {}).glass));
+    const oldMind = root.querySelector('.gmind');
+    if (oldMind) oldMind.replaceWith(G.glass.mind((D.S.payload || {}).glass));
+    const oldArms = root.querySelector('.garms');
+    if (oldArms) oldArms.replaceWith(G.glass.arms((D.S.payload || {}).glass));
     const oldAuto = root.querySelector('.auto');
     if (oldAuto) oldAuto.replaceWith(autonomy((D.S.payload || {}).autonomy));
-    const oldLanes = document.querySelector('.rail--l .rail__body');
+    const oldLanes = document.querySelector('.rail--l .lanes__list');
     if (oldLanes) {
       const next = lanes((D.S.payload || {}).lanes);
+      next.className = 'lanes__list';
       oldLanes.replaceWith(next);
     }
   }
