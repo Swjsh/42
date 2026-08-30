@@ -72,9 +72,41 @@
           // same reason as the others, only more so: an equity or a position served at
           // payload age is not stale data, it is a wrong answer to "am I in something".
           if (j.glass && S.payload) S.payload.glass = j.glass;
+          // DURABLE half of a card's history: that it ran at all, from the ledger,
+          // which survives a companion restart. The in-memory registry below adds
+          // HOW it went, and only for runs still in memory.
+          G.cardRunsDurable = j.card_runs || {};
           S.live_at = Date.now();
         }
       }
+      /* The companion's task registry, keyed by the card that spawned each run.
+         This is what lets a card say "ran 12:19, still open" instead of showing a
+         live-looking Run button over work that already happened. Cheap (in-memory
+         on the server) and independently failable: no registry just means the
+         cards fall back to their unrun appearance, never to a wrong claim. */
+      try {
+        const r2 = await fetch('/api/state', { cache: 'no-store',
+          headers: tok ? { 'x-gamma-token': tok } : {} });
+        if (r2.ok) {
+          const st = await r2.json();
+          const c = (st && st.claude) || {};
+          const byCard = {};
+          [].concat(c.running || [], c.recent || []).forEach(function (t) {
+            if (t && t.card_id && !byCard[t.card_id]) byCard[t.card_id] = t;
+          });
+          // Merge: durable says IT RAN (survives restarts), memory says HOW IT WENT.
+          // A card whose run is only in the ledger shows "ran <time>" with no
+          // outcome rather than pretending it never happened.
+          const merged = {};
+          Object.keys(G.cardRunsDurable || {}).forEach(function (cid) {
+            const d0 = G.cardRunsDurable[cid];
+            merged[cid] = { id: d0.id, started: d0.ts, finished: d0.ts,
+                            status: 'done', ok: null, fromLedger: true };
+          });
+          Object.keys(byCard).forEach(function (cid) { merged[cid] = byCard[cid]; });
+          G.cardRuns = merged;
+        }
+      } catch (_) { /* cards simply show as unrun */ }
     } catch (_) { /* fall back to the baked copy, which is old but true */ }
     /* Announce every load so the chrome reacts to THIS load rather than to the next
        poll tick. Polling for the answer meant the offline banner could linger up to

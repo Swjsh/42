@@ -466,29 +466,76 @@
       const n = el('gcard');
       const h = G.human ? G.human.broken(String(card.title || '')) : { text: card.title, raw: card.title };
       n.title = h.raw || '';
+      n.setAttribute('data-card', card.id || '');
       const auto = card.autofire_safe;
+
+      /* THE STATE LINE. J fired a card, watched it finish, and the card sat there
+         with a live-looking Run button -- so it read as "the agent did nothing".
+         It had in fact run AND been correct to come back: the run diagnosed the
+         stale earnings feed but did not create the missing file, so the obligation
+         was still open. All true, and none of it was on the card.
+         G.cardRuns is joined from the companion's task registry by card_id. */
+      const run = (G.cardRuns || {})[card.id];
+      let state = 'new', line = auto ? 'safe to auto-run' : 'needs you';
+      if (run && run.status === 'running') {
+        state = 'running';
+        line = 'running now' + (run.lastStep ? ' · ' + run.lastStep : '');
+      } else if (run) {
+        state = run.ok === false ? 'failed' : 'ran';
+        const when = String(run.finished || run.started || '').slice(11, 16);
+        // A run known only from the durable ledger has no outcome recorded -- say
+        // "ran", not "ran and it worked", which would be a claim nothing supports.
+        line = run.ok === false ? 'ran ' + when + ' · failed'
+             : (run.fromLedger ? 'ran ' + when + ' · outcome not recorded'
+                               : 'ran ' + when + ' · still open');
+      }
+      n.setAttribute('data-state', state);
+
       n.innerHTML =
         '<div class="gcard__t">' + esc(h.text) + '</div>' +
         '<div class="gcard__m">' +
-          '<span class="gcard__k" data-t="' + (auto ? 'auto' : 'ask') + '">' +
-            (auto ? 'safe to auto-run' : 'needs you') + '</span>' +
-          (card.source_age_h != null
-            ? '<span class="gcard__a">' + esc(G.human ? G.human.ago(
-                new Date(Date.now() - card.source_age_h * 3600000).toISOString()) : '') + '</span>'
-            : '') +
+          '<span class="gcard__k" data-t="' + state + '">' + esc(line) + '</span>' +
         '</div>';
-      const btn = document.createElement('button');
-      btn.className = 'gcard__go';
-      btn.textContent = 'Run';
-      btn.addEventListener('click', function () {
-        btn.disabled = true;
-        btn.textContent = 'Sending…';
-        if (G.fireCard) G.fireCard(card, btn);
-        else { btn.textContent = 'unavailable'; btn.disabled = false; }
+
+      const go = document.createElement('button');
+      go.className = 'gcard__go';
+      go.textContent = state === 'running' ? 'Running'
+        : (state === 'new' ? 'Run' : 'Run again');
+      go.disabled = state === 'running';
+      go.title = state === 'ran'
+        ? 'This already ran and the underlying problem is still open, so the card came '
+          + 'back. Running again starts a fresh session.'
+        : 'Start a Claude session on this card and watch it in the console below.';
+      go.addEventListener('click', function () {
+        go.disabled = true; go.textContent = 'Sending…';
+        if (G.fireCard) G.fireCard(card, go);
+        else { go.textContent = 'unavailable'; go.disabled = false; }
       });
-      // The button rides the meta row: on its own line it cost ~30px per card and
-      // four cards is the whole rail's budget.
-      (n.querySelector('.gcard__m') || n).appendChild(btn);
+      (n.querySelector('.gcard__m') || n).appendChild(go);
+
+      /* The X. A snooze, never a delete -- it comes back when the window lapses or
+         the evidence changes, so hiding something that still matters cannot lose it. */
+      const x = document.createElement('button');
+      x.className = 'gcard__x';
+      x.textContent = '✕';
+      x.setAttribute('aria-label', 'Dismiss for 12 hours');
+      x.title = 'Hide for 12 hours. It returns if the problem is still there and the '
+        + 'evidence changes.';
+      x.addEventListener('click', function () {
+        const tok = (document.querySelector('meta[name="gamma-token"]') || {}).content || '';
+        x.disabled = true;
+        fetch('/api/card-dismiss', { method: 'POST',
+          headers: { 'content-type': 'application/json', 'x-gamma-token': tok },
+          body: JSON.stringify({ id: card.id, hours: 12 }) })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j && j.snoozed) { n.setAttribute('data-gone', ''); setTimeout(function () {
+              try { n.remove(); } catch (_) { /* already gone */ } }, 220); }
+            else { x.disabled = false; x.title = (j && j.note) || 'could not dismiss this one'; }
+          })
+          .catch(function () { x.disabled = false; x.title = 'could not reach the companion'; });
+      });
+      n.appendChild(x);
       wrap.appendChild(n);
     });
     if (G.motion) G.motion.stagger(wrap.children, 40);

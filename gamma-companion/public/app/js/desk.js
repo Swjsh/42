@@ -465,8 +465,31 @@
       .then((r) => r.json()).then((j) => paintHalt(j && j.halted))
       .catch(() => { halt.textContent = 'no companion'; });
 
+    /* TWO-STEP TO STOP, ONE CLICK TO RECOVER.
+       Driving the page found this firing on a single click: one brush of "Halt
+       everything" and the whole rig stopped, on a surface J is meant to live in
+       all day. (I had previously described this control as already two-step; it
+       was not -- the confirm was on the card-pass button beside it.)
+       The asymmetry is deliberate: STOPPING is destructive-ish and must be
+       deliberate, RESUMING restores service and must never be gated behind an
+       extra click. Arms for 4s, then stands down on its own. */
     halt.onclick = () => {
       const goingDown = halt.textContent.indexOf('Halt') === 0;
+      if (goingDown && !halt.dataset.armed) {
+        halt.dataset.armed = '1';
+        halt.textContent = 'Confirm — stops everything';
+        halt.style.color = 'var(--warn)';
+        setTimeout(() => {
+          if (halt.dataset.armed) {
+            delete halt.dataset.armed;
+            halt.textContent = 'Halt everything';
+            halt.style.color = '';
+          }
+        }, 4000);
+        return;
+      }
+      delete halt.dataset.armed;
+      halt.style.color = '';
       halt.disabled = true;
       post(goingDown ? 'halt' : 'resume')
         .then((j) => paintHalt(j && j.halted))

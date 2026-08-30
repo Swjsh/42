@@ -1328,3 +1328,33 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 }
 .org__cap b{color:var(--ink-3);font-weight:640}
 @media (max-width:1180px){ .org__cap{display:none} }
+
+/* --- card state: a card must say what it has already done ------------------
+   J fired one, watched it finish, and the card sat there with a live-looking
+   Run button -- so it read as "the agent did nothing". It HAD run, and was
+   correct to come back (the run diagnosed the stale feed but the file is still
+   missing, so the obligation is still open). All true; none of it was visible. */
+.gcard{position:relative;padding-right:26px}
+.gcard[data-state="ran"]{opacity:.82}
+.gcard[data-state="ran"]:hover{opacity:1}
+.gcard[data-state="running"]{border-color:color-mix(in oklch,var(--live) 38%,var(--line))}
+.gcard[data-state="failed"]{border-color:color-mix(in oklch,var(--alarm) 34%,var(--line))}
+.gcard__k[data-t="new"]{color:var(--acc)}
+.gcard__k[data-t="running"]{color:var(--live)}
+.gcard__k[data-t="ran"]{color:var(--ink-4)}
+.gcard__k[data-t="failed"]{color:var(--alarm)}
+@media (prefers-reduced-motion:no-preference){
+  .gcard[data-state="running"]{animation:lanepulse 2.4s var(--ease) infinite}
+}
+.gcard__go:disabled{opacity:.55;cursor:default}
+
+/* The X. A snooze, never a delete. */
+.gcard__x{
+  position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;
+  display:grid;place-items:center;font-size:12px;line-height:1;
+  color:var(--ink-4);background:transparent;opacity:0;
+  transition:opacity var(--t) var(--ease),background var(--t) var(--ease),color var(--t) var(--ease);
+}
+.gcard:hover .gcard__x,.gcard__x:focus-visible{opacity:1}
+.gcard__x:hover{background:var(--bg-2);color:var(--ink)}
+.gcard[data-gone]{opacity:0;transform:translateX(10px);transition:opacity .2s,transform .2s}

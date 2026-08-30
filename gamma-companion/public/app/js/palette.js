@@ -100,6 +100,16 @@
       e.preventDefault();
       const cur = document.querySelector('.pal');
       if (cur) close(cur); else show();
+      return;
+    }
+    /* Escape at the WINDOW, not only on the input. The input's own handler covers
+       the normal case (it has focus on open), but the moment focus moved anywhere
+       else the palette became uncloseable by keyboard -- found by driving it with
+       focus on the body. The P&L sheet already listens at this level; this makes
+       the two modal surfaces behave the same way. */
+    if (e.key === 'Escape') {
+      const cur = document.querySelector('.pal');
+      if (cur) { e.preventDefault(); close(cur); }
     }
   });
 

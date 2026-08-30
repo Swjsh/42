@@ -430,5 +430,23 @@
     return e;
   }
 
+  /* ESC STOPS A RUN FROM ANYWHERE ON THE PAGE.
+     It was bound to the textarea's own onkeydown, so it only worked while the
+     input had focus -- yet the hint bar promises "Esc stop" unconditionally.
+     Click a card, a lane, the calendar, then try to abort a long run and nothing
+     happened. Found by driving the page rather than reading it.
+
+     A modal wins: if the P&L sheet or the command palette is open, Escape belongs
+     to whichever of those is on top, and the run keeps going. Closing the sheet
+     you opened must never also kill the work you were watching. */
+  addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape' || !st.busy) return;
+    if (document.querySelector('.gsheet') || document.querySelector('.pal')) return;
+    const a = document.activeElement;
+    if (a && a.id === 'cin') return;      // the input's own handler already has it
+    e.preventDefault();
+    stop(false);
+  });
+
   G.chat = { view, panel, send, stop, adopt, note };
 })(window.G = window.G || {});

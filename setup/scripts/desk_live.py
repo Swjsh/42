@@ -61,8 +61,43 @@ def main() -> int:
     except Exception as e:                       # noqa: BLE001
         out["glass"] = None
         out["glass_error"] = str(e)[:200]
+    # WHICH ACTION CARDS HAVE ALREADY BEEN RUN (2026-08-30).
+    #
+    # J fired a card, watched it finish, and the card sat there with a live-looking
+    # Run button -- so it read as "the agent did nothing". The companion's in-memory
+    # task registry knew, but it dies on every restart, so after one the card was
+    # "new" again. companion-asks.jsonl records `from_card` durably, which is what
+    # makes "ran 12:19" survive a restart. The in-memory registry still supplies HOW
+    # it went (status/ok/summary); this supplies THAT it happened.
+    try:
+        out["card_runs"] = _card_runs()
+    except Exception as e:                       # noqa: BLE001
+        out["card_runs"] = None
+        out["card_runs_error"] = str(e)[:200]
     json.dump(out, sys.stdout, default=str)
     return 0
+
+
+def _card_runs() -> dict:
+    """card_id -> the most recent escalation it spawned, from the durable ledger."""
+    import json as _json
+    path = REPO / "automation" / "state" / "companion-asks.jsonl"
+    out: dict = {}
+    try:
+        with path.open("r", encoding="utf-8", errors="replace") as fh:
+            lines = fh.readlines()[-400:]
+    except OSError:
+        return out
+    for line in lines:
+        try:
+            r = _json.loads(line)
+        except ValueError:
+            continue
+        cid = r.get("from_card") or r.get("card_id")
+        if cid:
+            # later lines win: the map ends up holding the MOST RECENT run per card
+            out[str(cid)] = {"id": r.get("id"), "ts": r.get("ts")}
+    return out
 
 
 if __name__ == "__main__":

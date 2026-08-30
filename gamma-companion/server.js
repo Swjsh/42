@@ -19,7 +19,7 @@ const fs = require("fs");
 const path = require("path");
 const { spawn, spawnSync } = require("child_process");
 const { buildState, summarize } = require("./lib/state");
-const { resolveApproval, isCardSnoozed } = require("./lib/approvals");
+const { resolveApproval, isCardSnoozed, snoozeCard } = require("./lib/approvals");
 const { runEscalation, getTasks, getTaskStatus, cancelTask, subscribeAskStream, unsubscribeAskStream, askFeedPath, loadChatSession } = require("./lib/escalate");
 // isHalted was referenced by the orchestrator-chat route but NEVER imported -- the
 // resulting ReferenceError was swallowed by readBody's old catch and re-surfaced as a
@@ -968,6 +968,34 @@ const server = http.createServer((req, res) => {
           stream_token: streamToken,
           source_model: (face && face.source_model) || null,
         });
+      });
+    });
+  }
+
+  // POST /api/card-dismiss {id, hours?} -- hide one action card for a while.
+  //
+  // J, 2026-08-30: "it didnt go away after running. it should give a little X in the
+  // corner or just go away." The card he fired had run to completion AND was correct
+  // to still be there -- the run diagnosed the stale earnings feed but did not create
+  // the missing file, so the obligation was still open and the generator re-emitted
+  // it. Correct, and completely unreadable: there was no way to say "I have seen this,
+  // hide it" short of fixing the underlying thing.
+  //
+  // This is a SNOOZE, never a delete: the card returns when the window lapses or the
+  // evidence changes, so dismissing something that still matters cannot lose it. The
+  // same store the escalation-completion path already writes to.
+  if (req.method === "POST" && u === "/api/card-dismiss") {
+    if (!authed(req)) return sendJSON(res, 403, { ok: false, error: "unauthorized" });
+    return readBody(req, res, (b) => {
+      const id = String((b && b.id) || "");
+      if (!id) return sendJSON(res, 400, { ok: false, error: "need a card id" });
+      const hours = Math.min(72, Math.max(1, Number((b && b.hours) || 12)));
+      const sig = obligationDetailFor(id) || (b && b.detail) || null;
+      const ok = snoozeCard(ROOT, id, sig, hours * 60);
+      return sendJSON(res, 200, {
+        ok: true, snoozed: ok, hours,
+        // snoozeCard only handles synthetic ids; say so rather than implying success
+        note: ok ? null : "this card id is not snoozeable (not a synthetic/derived card)",
       });
     });
   }
