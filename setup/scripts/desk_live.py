@@ -42,6 +42,16 @@ def main() -> int:
     except Exception as e:                       # noqa: BLE001
         out["autonomy"] = None
         out["autonomy_error"] = str(e)[:200]
+    # Lanes are the third fast slice (2026-08-30). They belong here rather than in the
+    # baked payload for the same reason the other two do: a lane's whole job is to say
+    # whether it is alive RIGHT NOW, and a liveness answer served from a file written on
+    # a schedule is the exact staleness this endpoint exists to remove.
+    try:
+        import gamma_lanes
+        out["lanes"] = gamma_lanes.build()
+    except Exception as e:                       # noqa: BLE001
+        out["lanes"] = None
+        out["lanes_error"] = str(e)[:200]
     json.dump(out, sys.stdout, default=str)
     return 0
 

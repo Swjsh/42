@@ -309,7 +309,25 @@
         '</div>'
       : '<span class="dim">never run</span>', w.ok === false ? 'warn' : ''));
 
-    wrap.appendChild(grid);
+    /* The four detail cells fold away by default (2026-08-30). Measured: the
+       autonomy block ran 680px inside a 657px column, so on its own it pushed the
+       console off the screen -- and its content is diagnostic prose, which is
+       exactly the kind of thing you read when something looks wrong and never
+       when it does not. The STATE line above stays permanently visible, so the
+       glance still works; the paragraph behind it is one click away.
+
+       <details> rather than a JS toggle: it is keyboard-operable, findable by the
+       browser's own in-page search even while closed, and needs no state of its
+       own to get out of sync. */
+    // document.createElement, NOT el(): el's first argument is a CLASS NAME and it
+    // always builds a <div>, so el('details') produced <div class="details"> -- a
+    // fold that rendered its contents permanently open and reported .open as
+    // undefined. Real <details> is the entire point here.
+    const fold = document.createElement('details'); fold.className = 'auto__fold';
+    const sum = document.createElement('summary'); sum.className = 'auto__foldt';
+    sum.textContent = 'Detail — next move, card firing, budget, self-check';
+    fold.appendChild(sum); fold.appendChild(grid);
+    wrap.appendChild(fold);
 
     /* CONTROLS. J: "give it the ability to do actions". Watching a loop you cannot
        touch makes the panel a poster. Both buttons drive mechanisms that already
@@ -386,20 +404,30 @@
     bar.appendChild(halt); bar.appendChild(runb); bar.appendChild(say);
     wrap.appendChild(bar);
 
-    const fires = au.recent_fires || [];
-    if (fires.length) {
-      const f = el('div'); f.className = 'auto__fires';
-      f.innerHTML = '<h4>What it did on its own, last ' + fires.length + ' runs</h4>';
-      fires.forEach((r) => {
-        const row = el('div'); row.className = 'auto__f';
-        row.innerHTML = '<span class="mono">' + esc(String(r.at || '').slice(11, 16)) + '</span>' +
-          '<span class="auto__fn">' + esc(String(r.note || r.task || '').slice(0, 150)) + '</span>' +
-          '<span class="auto__fd">' + esc(String(r.drained == null ? '' : r.drained)) + '</span>';
-        f.appendChild(row);
-      });
-      wrap.appendChild(f);
-    }
+    // The "what it did on its own" list used to hang off the bottom of this panel.
+    // It moved to the activity rail (2026-08-30): it is PAST tense, and leaving it
+    // in the centre column pushed the console — the one thing J types into — below
+    // the fold, which is the ordering complaint that prompted the rebuild. The
+    // centre answers "what now", the right rail answers "what already happened".
     return wrap;
+  }
+
+  /* Gamma's own autonomous fires, rendered for the activity rail. Kept separate
+     from the git/commit feed above it because the two answer different questions:
+     the feed is what LANDED, this is what Gamma decided to do unprompted. */
+  function fires(au) {
+    const rows = ((au || {}).recent_fires) || [];
+    if (!rows.length) return null;
+    const f = el('div'); f.className = 'auto__fires';
+    f.innerHTML = '<h4>What Gamma did on its own · last ' + rows.length + ' runs</h4>';
+    rows.forEach((r) => {
+      const row = el('div'); row.className = 'auto__f';
+      row.innerHTML = '<span class="mono">' + esc(String(r.at || '').slice(11, 16)) + '</span>' +
+        '<span class="auto__fn">' + esc(String(r.note || r.task || '').slice(0, 150)) + '</span>' +
+        '<span class="auto__fd">' + esc(String(r.drained == null ? '' : r.drained)) + '</span>';
+      f.appendChild(row);
+    });
+    return f;
   }
 
   function cell(label, html, tone) {
@@ -457,34 +485,119 @@
     return wrap;
   }
 
+  /* ---- the LANES rail ------------------------------------------------------
+   * J, 2026-08-30: "wheres the kitchen? ... wheres the futures, wheres the tech
+   * analyiss on tickets non spy, etc that should be in activity feed and like 1
+   * agent per or somthing".
+   *
+   * The page had a session roster (who is typing) and a commit feed (what
+   * landed), and nothing at all for the firm's standing lines of work. This is
+   * that missing middle. One row per lane, and the row leads with STATE because
+   * the only question worth answering at a glance is "is this alive".
+   *
+   * The state comes from each lane's own artefacts, never from whether its
+   * scheduled task is enabled — see gamma_lanes.py. A row can therefore read
+   * STALE while its tasks are all Ready, which is exactly what the multi-symbol
+   * lane looked like the day this shipped, and exactly what a task-derived
+   * roster would have drawn green. */
+  const LANE_TONE = { WORKING: 'ok', HELD: 'warn', STALE: 'warn',
+                      BROKEN: 'neg', ERROR: 'neg', 'NO DATA': null };
+
+  function ago(iso) {
+    if (!iso) return '';
+    const t = Date.parse(iso);
+    if (!isFinite(t)) return '';
+    const m = Math.round((Date.now() - t) / 60000);
+    if (m < 1) return 'now';
+    if (m < 60) return m + 'm';
+    const h = Math.round(m / 60);
+    return h < 48 ? h + 'h' : Math.round(h / 24) + 'd';
+  }
+
+  function lanes(payload) {
+    const wrap = el('div'); wrap.className = 'rail__body';
+    const rows = ((payload || {}).lanes) || [];
+    if (!rows.length) {
+      wrap.appendChild(D.miss('No lanes', 'setup/scripts/gamma_lanes.py'));
+      return wrap;
+    }
+    rows.forEach((l) => {
+      const n = document.createElement('article'); n.className = 'lane';
+      const tone = LANE_TONE[l.state];
+      if (tone) n.setAttribute('data-t', tone);
+      n.innerHTML =
+        '<header class="lane__h">' +
+          '<span class="lane__dot"></span>' +
+          '<b class="lane__n">' + esc(l.label || l.id || '?') + '</b>' +
+          '<span class="lane__k">' + esc(l.kind || '') + '</span>' +
+          '<span class="lane__w mono">' + esc(ago(l.last_at)) + '</span>' +
+        '</header>' +
+        '<div class="lane__s">' + esc(l.state || '?') + '</div>' +
+        '<p class="lane__d">' + esc(l.detail || '') + '</p>' +
+        (l.doing ? '<p class="lane__do" title="' + esc(l.doing) + '">' +
+                     esc(l.doing) + '</p>' : '') +
+        '<footer class="lane__f">' +
+          '<span class="lane__m mono">' + esc(String(l.metric == null ? '' : l.metric)) + '</span>' +
+          '<span class="lane__ml">' + esc(l.metric_label || '') + '</span>' +
+        '</footer>';
+      wrap.appendChild(n);
+    });
+    return wrap;
+  }
+
   /* ---- the page ------------------------------------------------------------ */
   function view() {
     const army = D.S.army || {};
-    const s = el('section'); s.className = 'view wrap';
-    s.innerHTML = '<a class="back" href="#/">‹ Back</a>' +
-      '<div class="vhead"><h2 class="vhead__t">The <b>desk</b></h2>' +
-      '<p class="vhead__p">Everything Gamma is doing, and everything it did. The ' +
-      'orchestrator is on top; a line runs to every session it is working with, and ' +
-      'the agents inside each one are named.</p></div>';
+    const s = document.createElement('section'); s.className = 'view deskv';
 
-    /* Autonomy first: "is it alive and what is it about to do" outranks the
-       roster, because the roster is meaningless if the loop is off. */
-    s.appendChild(autonomy((D.S.payload || {}).autonomy));
+    /* THE CONSOLE SHELL (rebuilt 2026-08-30). J: "why are you not making use of
+     * side bars, its all good panels kind of but the ordering os not intuitive
+     * for me at all and id rather not scroll".
+     *
+     * The old desk was one long column — autonomy, then the graph, then a
+     * chat/feed split — so every question below the fold cost a scroll, and the
+     * three things he checks most were stacked in the order they happened to be
+     * built. This is a fixed-height console instead: three columns that each
+     * scroll INSIDE themselves, so the page never moves.
+     *
+     * Column order is by question, not by history:
+     *   left   WHAT IS THE FIRM WORKING ON   (lanes — the thing he asked for)
+     *   centre WHAT IS GAMMA DOING, AND TALK TO IT  (state + graph + console)
+     *   right  WHAT ALREADY HAPPENED         (activity)
+     * Present tense in the middle where the eye lands; standing work and past
+     * work in the rails on either side. */
+    const shell = el('div'); shell.className = 'deskshell';
 
+    /* --- left rail: the lanes --- */
+    const L = document.createElement('aside'); L.className = 'rail rail--l';
+    L.innerHTML = '<h3 class="rail__t">Lanes' +
+      '<span class="rail__s">standing work</span></h3>';
+    L.appendChild(lanes((D.S.payload || {}).lanes));
+
+    /* --- centre: Gamma itself, then the console --- */
+    const C = el('div'); C.className = 'deskmain';
+    C.appendChild(autonomy((D.S.payload || {}).autonomy));
     if (!(army.sessions || []).length) {
-      s.appendChild(D.miss('No sessions found', '~/.claude/sessions/*.json'));
+      C.appendChild(D.miss('No sessions found', '~/.claude/sessions/*.json'));
     } else {
-      s.appendChild(stage(army));
+      C.appendChild(stage(army));
     }
+    const chatBox = el('div'); chatBox.className = 'deskmain__chat';
+    chatBox.appendChild(G.chat.panel());
+    C.appendChild(chatBox);
 
-    const split = el('div'); split.className = 'desk__split';
-    const left = el('div'); left.className = 'desk__chat';
-    left.appendChild(G.chat.panel());
-    const right = el('div'); right.className = 'desk__feed';
-    right.innerHTML = '<h3 class="desk__ft">While you were away</h3>';
-    right.appendChild(activity((D.S.payload || {}).activity));
-    split.appendChild(left); split.appendChild(right);
-    s.appendChild(split);
+    /* --- right rail: what happened --- */
+    const R = document.createElement('aside'); R.className = 'rail rail--r';
+    R.innerHTML = '<h3 class="rail__t">Activity' +
+      '<span class="rail__s">while you were away</span></h3>';
+    const rbody = el('div'); rbody.className = 'rail__scroll';
+    rbody.appendChild(activity((D.S.payload || {}).activity));
+    const fr = fires((D.S.payload || {}).autonomy);
+    if (fr) rbody.appendChild(fr);
+    R.appendChild(rbody);
+
+    shell.appendChild(L); shell.appendChild(C); shell.appendChild(R);
+    s.appendChild(shell);
     return s;
   }
 

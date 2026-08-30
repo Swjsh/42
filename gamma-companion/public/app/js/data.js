@@ -65,6 +65,9 @@
         if (j && j.ok) {
           if (j.army) S.army = j.army;
           if (j.autonomy && S.payload) S.payload.autonomy = j.autonomy;
+          // Lanes ride the same live slice: a lane row exists to say whether a
+          // lane is alive RIGHT NOW, and that answer is worthless at payload age.
+          if (j.lanes && S.payload) S.payload.lanes = j.lanes;
           S.live_at = Date.now();
         }
       }

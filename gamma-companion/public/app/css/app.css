@@ -706,3 +706,189 @@ kbd{font:600 10px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .auto__bar{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--line);
   display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap}
 .auto__say{font:500 11.5px/1.5 var(--mono);color:var(--ink-4);min-width:0;flex:1}
+
+/* === THE CONSOLE SHELL (2026-08-30) ======================================
+   J: "why are you not making use of side bars, its all good panels kind of but
+   the ordering os not intuitive for me at all and id rather not scroll".
+
+   The desk was a single long column, so the lanes, the graph and the feed each
+   cost a scroll to reach and sat in build order rather than in the order he
+   asks the questions. This turns it into a fixed-height console: the shell is
+   exactly the viewport minus the top bar, and each of the three columns scrolls
+   INSIDE itself. The page body never scrolls on the desk, which is the whole
+   request -- so the height here is a hard constraint, not a preference, and any
+   child that grows must clip rather than push. */
+.deskv{padding:0;height:100%}
+.deskshell{
+  /* --top is the sticky bar's height. dvh, not vh: on a phone the URL bar makes
+     vh taller than what is actually visible, and a "no scroll" console that is
+     6% too tall scrolls. */
+  height:calc(100dvh - var(--top,64px));
+  display:grid;
+  grid-template-columns:clamp(232px,19vw,290px) minmax(0,1fr) clamp(280px,23vw,360px);
+  gap:1px;                       /* the gap IS the divider -- see the rail bg */
+  background:var(--line);        /* ...showing through as a 1px hairline */
+  border-top:1px solid var(--line);
+}
+.deskshell > *{background:var(--void);min-width:0;min-height:0;overflow:hidden}
+
+/* Every scrolling region is its own box. min-height:0 is load-bearing on a grid
+   child: without it the child's content sets a floor and the whole shell grows
+   past the viewport, which is precisely the scroll being removed here. */
+.rail{display:flex;flex-direction:column;min-height:0}
+.rail__t{
+  flex:0 0 auto;display:flex;align-items:baseline;gap:var(--s2);
+  padding:var(--s4) var(--s4) var(--s3);font-size:12px;font-weight:650;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  border-bottom:1px solid var(--line);
+}
+.rail__s{font-size:11px;font-weight:450;letter-spacing:.02em;
+  text-transform:none;color:var(--ink-4)}
+.rail__body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:var(--s3) var(--s4) var(--s6);display:flex;flex-direction:column;gap:var(--s3)}
+/* The right rail holds two stacked blocks (what landed, then what Gamma did on its
+   own), so the SCROLLER is their shared parent -- putting overflow on the feed
+   itself gave two independent scrollbars in one column. */
+.rail__scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  padding:var(--s3) var(--s4) var(--s6)}
+.rail--r .feed{padding:0}
+.rail--r .auto__fires{margin-top:var(--s5)}
+
+/* overflow-y:auto, not hidden. The first cut clipped the console clean off the
+   bottom on a 950px-tall window -- "the page does not scroll" must never mean
+   "the thing you type into is not reachable". The column scrolls; the page does
+   not. */
+.deskmain{display:flex;flex-direction:column;min-height:0;
+  padding:var(--s4) var(--s5);gap:var(--s4);
+  overflow-y:auto;overscroll-behavior:contain}
+/* The console takes whatever the state block and the graph leave, and never less
+   than a usable reading height -- a chat pane that collapses to two lines when
+   the graph gets tall is worse than a slightly clipped graph. */
+/* The console gets a FIXED share and the graph absorbs the remainder, not the
+   other way round. Sized off the viewport rather than a pixel floor so the same
+   rule holds on a laptop and a big monitor: at 720px tall it takes 288px, at
+   1440 it takes 460 and stops growing.
+
+   This ordering is deliberate. The graph is an orientation device -- it answers
+   "how many sessions, are they lit" and degrades gracefully when squeezed. The
+   console is the thing J types into, and a console that shrinks to two lines on
+   a short window is useless. So the flexible one is the one that can afford to
+   lose height. */
+.deskmain__chat{flex:0 0 auto;height:clamp(240px,40vh,460px);
+  display:flex;flex-direction:column;min-height:0}
+.deskmain__chat .chat{max-width:none;flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.deskmain__chat .chat__body{flex:1 1 auto;height:auto;min-height:0;overflow-y:auto}
+/* (the stage's flex is set below, where the column's height budget is decided) */
+
+/* --- a lane row ----------------------------------------------------------
+   Leads with state because "is this alive" is the only question the rail has to
+   answer at a glance; the numbers are for when the answer is interesting. */
+.lane{
+  border:1px solid var(--line);border-radius:var(--r2);background:var(--bg-1);
+  padding:var(--s3);display:flex;flex-direction:column;gap:6px;
+  transition:border-color var(--t) var(--ease),background var(--t) var(--ease);
+}
+.lane:hover{border-color:var(--line-2);background:var(--bg-2)}
+.lane__h{display:flex;align-items:center;gap:var(--s2)}
+.lane__dot{width:7px;height:7px;border-radius:50%;background:var(--ink-4);flex:0 0 auto}
+.lane__n{font-size:13.5px;font-weight:620;letter-spacing:-.01em}
+.lane__k{font-size:10.5px;color:var(--ink-4);letter-spacing:.04em;text-transform:uppercase}
+.lane__w{margin-left:auto;font-size:11px;color:var(--ink-4);flex:0 0 auto}
+.lane__s{font-size:10.5px;font-weight:700;letter-spacing:.11em;color:var(--ink-3)}
+.lane__d{font-size:12px;line-height:1.45;color:var(--ink-2);
+  /* a lane detail can be a 150-char health string; two lines then ellipsis keeps
+     every row the same shape so the rail stays scannable */
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.lane__do{font-size:11.5px;color:var(--ink-3);font-style:italic;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane__f{display:flex;align-items:baseline;gap:6px;margin-top:2px}
+.lane__m{font-size:13px;font-weight:600;color:var(--ink)}
+.lane__ml{font-size:10.5px;color:var(--ink-4);letter-spacing:.03em}
+
+/* Tone is carried by the dot and the state word only. The card body stays
+   neutral: five cards each tinted its own colour reads as a warning that
+   everything is wrong, and green/red are reserved for P&L everywhere else in
+   this app, so a lane never borrows them. */
+.lane[data-t="ok"]   .lane__dot{background:var(--live);
+  box-shadow:0 0 0 3px color-mix(in oklch,var(--live) 18%,transparent)}
+.lane[data-t="ok"]   .lane__s{color:var(--live)}
+.lane[data-t="warn"] .lane__dot{background:var(--warn)}
+.lane[data-t="warn"] .lane__s{color:var(--warn)}
+.lane[data-t="warn"] {border-color:color-mix(in oklch,var(--warn) 26%,var(--line))}
+.lane[data-t="neg"]  .lane__dot{background:var(--neg)}
+.lane[data-t="neg"]  .lane__s{color:var(--neg)}
+.lane[data-t="neg"]  {border-color:color-mix(in oklch,var(--neg) 30%,var(--line))}
+
+/* A working lane breathes, so "alive" is legible without reading a word. */
+@media (prefers-reduced-motion:no-preference){
+  .lane[data-t="ok"] .lane__dot{animation:lanepulse 2.4s var(--ease) infinite}
+}
+@keyframes lanepulse{
+  0%,100%{box-shadow:0 0 0 3px color-mix(in oklch,var(--live) 18%,transparent)}
+  50%    {box-shadow:0 0 0 6px color-mix(in oklch,var(--live) 4%,transparent)}
+}
+
+/* --- narrower: drop rails in order of dispensability ---------------------
+   The activity rail goes first (it is the past, and it survives as a scroll),
+   then the lane rail folds above the console rather than disappearing -- the
+   lanes are the answer to the question that prompted this layout, so they are
+   the last thing to lose. Below the fold the no-scroll rule is relaxed on
+   purpose: on a phone a fixed-height three-pane console is unusable, and
+   honouring the letter of "no scroll" there would break the spirit of it. */
+@media (max-width:1180px){
+  .deskshell{grid-template-columns:clamp(214px,24vw,264px) minmax(0,1fr)}
+  .rail--r{display:none}
+}
+@media (max-width:900px){
+  .deskshell{grid-template-columns:1fr;height:auto;gap:0;border-top:none}
+  .deskshell > *{overflow:visible}
+  .rail,.rail__body,.rail--r .feed{overflow:visible;min-height:0}
+  .rail--r{display:flex}
+  .rail__body{max-height:none}
+  .deskmain{order:-1;overflow:visible}
+  .deskmain__chat .chat__body{height:min(46vh,400px);flex:0 0 auto}
+  .rail--l .rail__body{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+}
+
+/* --- fitting the centre column to one screen ------------------------------
+   After the rails went in, the autonomy block and the session graph together
+   ran ~830px on a 888px column and pushed the console — the thing J actually
+   types into — clean off the bottom. A console you have to scroll to reach is
+   the same defect as a page you have to scroll, so the two blocks above it are
+   capped and the chat takes the remainder.
+
+   Nothing is DELETED to make this fit. The diagnostic prose is clamped, not
+   dropped, and stays reachable in full on hover via its title -- a layout that
+   fits by discarding the explanation of WHY a lane is broken would trade one
+   kind of blindness for another. */
+.deskmain .auto__why{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.deskmain .auto__grid{gap:var(--s3)}
+.deskmain .auto__c{padding:var(--s3)}
+/* The graph is an orientation device, not a reading surface: it answers "how
+   many sessions and are they lit". Capping it keeps that answer on screen. */
+.deskmain .stage{flex:1 1 auto;min-height:120px;overflow:hidden}
+.deskmain .stage__svg{max-height:100%;width:auto;margin:0 auto}
+
+/* The autonomy detail fold. Closed by default; the state line above it is what
+   the glance needs, and this is what you open when that line looks wrong. */
+.auto__fold{border-top:1px solid var(--line);margin-top:var(--s3);padding-top:var(--s3)}
+.auto__foldt{
+  cursor:pointer;list-style:none;font-size:11.5px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-4);user-select:none;
+  display:flex;align-items:center;gap:6px;transition:color var(--t) var(--ease);
+}
+.auto__foldt::-webkit-details-marker{display:none}
+.auto__foldt::before{content:"▸";font-size:10px;transition:transform var(--t) var(--ease)}
+.auto__fold[open] .auto__foldt::before{transform:rotate(90deg)}
+.auto__foldt:hover{color:var(--ink-2)}
+.auto__fold[open] .auto__grid{margin-top:var(--s3)}
+
+/* Short windows. At 720px tall the three centre blocks came to 680px against a
+   662px budget -- an 18px overflow that is entirely gap and padding, so that is
+   what gives, rather than the graph losing another quarter of its height. */
+@media (max-height:820px){
+  .deskmain{padding:var(--s3) var(--s4);gap:var(--s3)}
+  .deskmain .stage{min-height:96px}
+}
