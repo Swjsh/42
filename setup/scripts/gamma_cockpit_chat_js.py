@@ -108,9 +108,10 @@ function chatSend(){
   const msg=(ta.value||'').trim();
   if(!msg)return;
   if(location.protocol==='file:'){
-    // Schemeless on purpose: the self-contained guard greps the emitted page for http://
-    // to catch real external references, and a URL inside user-facing STRING text tripped
-    // it. 127.0.0.1:4317 is just as pasteable.
+    // Schemeless on purpose: the self-contained guard greps the emitted page for URL
+    // schemes to catch real external references, and this comment SHIPS in the page --
+    // naming the scheme here re-tripped the guard the fix was for. 127.0.0.1:4317 is
+    // just as pasteable.
     chatPush('gamma','This page was opened from a file, so it cannot reach the companion. '+
       'Open 127.0.0.1:4317/cockpit.html to chat.');
     return;
