@@ -301,7 +301,7 @@ section+section{margin-top:var(--s8)}
 .chathead{display:flex;align-items:center;gap:var(--s4);font-size:13px}
 .chathead select{margin-left:auto;font:600 11.5px/1 var(--mono);padding:6px 10px;
   border-radius:var(--r-sm);border:1px solid var(--bd);background:var(--bg-2);color:var(--tx-2);cursor:pointer}
-.chatbody{min-height:200px;max-height:46vh;overflow:auto;display:flex;flex-direction:column;
+.chatbody{min-height:120px;max-height:22vh;overflow:auto;display:flex;flex-direction:column;
   gap:var(--s5);padding:var(--s5);border:1px solid var(--bd-subtle);border-radius:var(--r-md);
   background:var(--bg-inset)}
 .chatturn{display:flex;flex-direction:column;gap:var(--s2);animation:chatin .24s var(--e-open)}

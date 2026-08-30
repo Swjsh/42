@@ -90,7 +90,16 @@ function armySvg(a){
   // invalid per spec and threw "Expected length" in the console. The viewBox plus
   // width:100% already gives proportional scaling; CSS height:auto completes it.
   svg.setAttribute('width','100%');
-  svg.style.cssText='display:block;margin:0 auto;height:auto;max-width:'+W+'px';
+  // preserveAspectRatio defaults to xMidYMid meet, so height:100% + width:100% makes the
+  // graph shrink to fit its row rather than pushing the page taller.
+  /* Scale to fit, but never below legible. Shooting at 900px tall showed the honest cost of
+     "one page": the graph shrank until the labels were unreadable again -- trading the
+     original complaint for itself. A min-height floor means the graph stays readable and the
+     CARD scrolls internally on a short screen, instead of the whole page scrolling on a tall
+     one. One page where it fits; legible everywhere. */
+  const MIN_GRAPH_H=Math.min(H, 300);
+  svg.style.cssText='display:block;margin:0 auto;width:100%;height:100%;'+
+    'min-height:'+MIN_GRAPH_H+'px;max-width:'+W+'px';
 
   const centers={}, edges={};
   const ocx=W/2;
@@ -253,9 +262,9 @@ function armySvg(a){
      Counts are computed, never hard-coded, so the sentence cannot drift from the graph. */
   const wct=(a.workers||[]).length;
   const legend=el('div','armylegend');
-  legend.style.cssText='display:flex;flex-wrap:wrap;gap:18px;align-items:baseline;margin:0 0 16px;'+
-    'padding:12px 16px;border:1px solid var(--bd);border-radius:10px;background:var(--bg-inset);'+
-    'font:500 12.5px/1.6 var(--font);color:var(--tx-3)';
+  legend.style.cssText='display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;margin:0 0 10px;'+
+    'padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg-inset);'+
+    'font:500 11.5px/1.4 var(--font);color:var(--tx-3);flex:none';
   const li=(strong,rest)=>{
     const d=document.createElement('div');
     d.innerHTML='<b style="color:var(--tx-1);font-weight:700">'+strong+'</b> '+rest;
@@ -516,20 +525,29 @@ function vArmy(h){
   /* Two-column shell. align-self:start is load-bearing, not cosmetic: grid's default
      `stretch` makes the short rail column match its taller sibling's height, which
      silently defeats position:sticky. */
+  /* ONE SCREEN, NO SCROLL. J: "make it one page i dont want to ahve to scroll."
+     The page was a growing document; it is now a fixed-height viewport grid. The graph gets
+     the elastic row (flex:1, min-height:0) and the SVG scales to FIT that box rather than
+     dictating it, so adding a session makes the boxes smaller instead of making the page
+     longer. min-height:0 is load-bearing -- without it a flex child refuses to shrink below
+     its content and the whole thing overflows anyway. */
   const shell=el('div','armyshell');
-  shell.style.cssText='display:grid;grid-template-columns:1fr minmax(300px,340px);'+
-    'gap:20px;align-items:start';
+  shell.style.cssText='display:grid;grid-template-columns:1fr minmax(280px,320px);'+
+    'gap:16px;align-items:stretch;height:calc(100vh - 150px);min-height:520px';
 
   const main=el('div');
-  const stage=el('div'); stage.id='armystage'; main.appendChild(stage);
+  main.style.cssText='display:flex;flex-direction:column;gap:12px;min-height:0;overflow:hidden';
+  const stage=el('div'); stage.id='armystage'; stage.style.flex='none'; main.appendChild(stage);
 
   const card=el('div','card');
+  card.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto';
   const built=armySvg(a);
+  built.wrap.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column';
   card.appendChild(built.wrap);
   /* BOTTOM PANEL: chat first, the raw event ledger behind a tab. J asked for the terminal
      to BE the orchestrator window; the ledger is still useful telemetry, so it moves rather
      than dies. */
-  const tabs=el('div','chattabs');
+  const tabs=el('div','chattabs'); tabs.style.flex='none';
   const ledger=el('div','armyledger'); ledger.id='armyledger'; ledger.style.display='none';
   const chat=chatPane();
   const mkTab=(label,on)=>{
@@ -547,6 +565,8 @@ function vArmy(h){
   tChat.onclick=()=>pick(true); tAct.onclick=()=>pick(false);
   tabs.appendChild(tChat); tabs.appendChild(tAct);
   card.appendChild(tabs);
+  chat.style.cssText='flex:none';
+  ledger.style.maxHeight='150px';
   card.appendChild(chat);
   card.appendChild(ledger);
   card.appendChild(srcRow([a.source&&a.source.pulse,a.source&&a.source.sessions].filter(Boolean)));
@@ -555,7 +575,7 @@ function vArmy(h){
   shell.appendChild(main);
 
   const rail=el('div'); rail.id='armyrail';
-  rail.style.cssText='position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto';
+  rail.style.cssText='min-height:0;overflow:auto;padding-right:4px';
   shell.appendChild(rail);
 
   h.appendChild(shell);   // attached to the document NOW -- ids below become queryable
