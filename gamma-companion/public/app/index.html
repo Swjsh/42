@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Gamma</title>
+<meta name="description" content="Gamma — autonomous 0DTE options research.">
+<!-- No CDN, no web font, no framework: repo doctrine, and it survives being opened
+     with the network down. Everything below is served from this box. -->
+<link rel="stylesheet" href="./css/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%237c5cff'/%3E%3Ctext x='16' y='23' font-family='system-ui' font-size='19' font-weight='700' fill='white' text-anchor='middle'%3E%CE%93%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<!-- one aurora, one grain, one vignette. Fixed and inert. -->
+<div class="amb" aria-hidden="true">
+  <div class="amb__glow"></div>
+  <div class="amb__grain"></div>
+  <div class="amb__vign"></div>
+</div>
+
+<!-- The top bar carries identity and state only. J: "I dont want a million nav
+     panels" — so routing lives on the hero panels, not up here. -->
+<header class="top" id="top" hidden>
+  <div class="top__in">
+    <a class="brand" href="#/" aria-label="Gamma home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span>
+        <span class="brand__name">GAMMA</span>
+        <span class="brand__sub">0DTE research</span>
+      </span>
+    </a>
+    <span class="top__spacer"></span>
+    <span class="top__clock mono" id="clock"></span>
+    <span class="pill" id="engine"><i class="pill__dot"></i><span>checking</span></span>
+  </div>
+</header>
+
+<main id="view" role="main"></main>
+
+<script src="./js/art.js"></script>
+<script src="./js/auth.js"></script>
+<script src="./js/data.js"></script>
+<script src="./js/views.js"></script>
+<script src="./js/chat.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>

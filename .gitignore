@@ -359,3 +359,9 @@ automation/state/hooks/
 # Cockpit design screenshots -- iteration artifacts from cockpit_shot.py, regenerated on
 # demand and often multi-MB. The generator is tracked; the PNGs are not.
 analysis/home/_shots/
+
+# Firebase web config for the app sign-in. The apiKey is a public project
+# identifier rather than a secret, but this repo is PUBLIC and a project id in
+# git is an invitation to probe the project. Served by the companion at
+# /api/auth-config; absent file = the sign-in honestly reports "not wired".
+automation/state/.firebase-config.json

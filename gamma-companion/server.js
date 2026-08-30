@@ -284,6 +284,10 @@ function serveStatic(req, res) {
   // installed phone app + a bare root load both get the current mobile build, not
   // the older desktop redesign (index.html, still reachable at /index.html).
   if (rel === "/") rel = "/m.html";
+  // Directory index. Without it /app/ 404s while /app/index.html works, which is
+  // a trap for anyone who types the obvious URL. Resolved before the traversal
+  // check below so a crafted path still cannot escape PUBLIC.
+  if (rel.endsWith("/")) rel += "index.html";
   const file = path.normalize(path.join(PUBLIC, rel));
   if (!file.startsWith(PUBLIC)) {
     res.writeHead(403);
@@ -1188,6 +1192,28 @@ const server = http.createServer((req, res) => {
       if (!saved) return sendJSON(res, 400, { ok: false, error: "need { endpoint, keys:{p256dh,auth} }" });
       return sendJSON(res, 200, { ok: true, subscribed: true });
     });
+  }
+
+  // ── Firebase web config for the app's sign-in ─────────────────────────────
+  // Deliberately UNAUTHED: a Firebase web apiKey is a public project identifier,
+  // not a secret (access is controlled by Auth rules + authorized domains). It is
+  // still read from a GITIGNORED file rather than committed, because this repo is
+  // public and a project id in git is an invitation to probe it. Absent file ->
+  // {ok:false}, which is what makes the sign-in view say "not wired" instead of
+  // pretending it can authenticate anyone.
+  if (req.method === "GET" && u === "/api/auth-config") {
+    try {
+      const raw = fs.readFileSync(path.join(ROOT, "automation", "state", ".firebase-config.json"), "utf8");
+      const c = JSON.parse(raw);
+      if (!c || !c.apiKey) return sendJSON(res, 200, { ok: false, reason: "no apiKey in .firebase-config.json" });
+      // Echo ONLY the public web-config fields, never whatever else is in the file.
+      return sendJSON(res, 200, {
+        ok: true, apiKey: c.apiKey, authDomain: c.authDomain || null,
+        projectId: c.projectId || null,
+      });
+    } catch (e) {
+      return sendJSON(res, 200, { ok: false, reason: "automation/state/.firebase-config.json not found" });
+    }
   }
 
   // ── Web Push: VAPID public key for pushManager.subscribe (authed) ──

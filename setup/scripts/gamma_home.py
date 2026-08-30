@@ -61,6 +61,7 @@ OUT_HTML = REPO / "analysis" / "home" / "index.html"
 # no network) apart from served-over-http (live mode, 1s poll). Never hand-edit --
 # same generator, same OUT_HTML.gitignore reasoning, see .gitignore.
 COMPANION_HTML = REPO / "gamma-companion" / "public" / "cockpit.html"
+COMPANION_JSON = REPO / "gamma-companion" / "public" / "payload.json"
 
 # OP-27 L41 / C8: never let a headless (pythonw) scheduled task flash a conhost window.
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
@@ -630,6 +631,19 @@ def main() -> int:
     except OSError as e:
         if not a.quiet:
             print("WARN: companion copy not written (%s) -> %s" % (COMPANION_HTML, e), file=sys.stderr)
+
+    # The same payload as raw JSON, for the app under public/app/. That app is real
+    # static files rather than a generated blob, so it FETCHES its data instead of
+    # having it baked in -- one source of truth, and the app can refresh without a
+    # rebuild. Same bonus-not-dependency contract as the companion copy above.
+    try:
+        COMPANION_JSON.parent.mkdir(parents=True, exist_ok=True)
+        COMPANION_JSON.write_text(json.dumps(payload, default=str), encoding="utf-8")
+        if not a.quiet:
+            print("wrote -> %s" % COMPANION_JSON.relative_to(REPO))
+    except OSError as e:
+        if not a.quiet:
+            print("WARN: payload.json not written (%s) -> %s" % (COMPANION_JSON, e), file=sys.stderr)
 
     if not a.quiet:
         nodata = [x["q"] for x in payload["answers"] if str(x.get("verdict")).upper() in ("NO DATA", "NODATA")]
