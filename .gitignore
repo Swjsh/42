@@ -355,3 +355,7 @@ gamma-companion/public/cockpit.html
 # it would churn history on every session and re-run the L214/C34 "git ops revert live state"
 # hazard. The hooks themselves are tracked (.claude/settings.json + setup/hooks/).
 automation/state/hooks/
+
+# Cockpit design screenshots -- iteration artifacts from cockpit_shot.py, regenerated on
+# demand and often multi-MB. The generator is tracked; the PNGs are not.
+analysis/home/_shots/

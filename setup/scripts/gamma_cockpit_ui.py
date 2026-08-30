@@ -39,17 +39,31 @@ import json
 
 CSS = r"""
 :root{
-  --bg-canvas:oklch(14% .020 265); --bg-1:oklch(18% .020 265); --bg-2:oklch(22% .022 265);
-  --bg-3:oklch(26% .024 265); --bg-inset:oklch(11% .018 265);
-  --bd-subtle:color-mix(in oklch, white 7%, transparent);
-  --bd:color-mix(in oklch, white 12%, transparent);
-  --bd-strong:color-mix(in oklch, white 20%, transparent);
-  --tx-1:oklch(97% .005 265); --tx-2:oklch(78% .010 265);
-  --tx-3:oklch(58% .012 265); --tx-4:oklch(40% .010 265);
+  /* THEME: near-black greys, one space-purple accent (J, 2026-08-29).
+     Grounds carry almost no chroma (.010-.018) so they read as black/grey rather than
+     "purple UI"; the hue is still 300 so every neutral sits in the SAME family as the
+     accent and the greys look chosen instead of inherited. The boldness is spent in one
+     place -- --acc -- and nowhere else. */
+  --bg-canvas:oklch(10% .012 300); --bg-1:oklch(14.5% .014 300); --bg-2:oklch(18% .016 300);
+  --bg-3:oklch(23% .018 300); --bg-inset:oklch(8% .010 300);
+  --bd-subtle:color-mix(in oklch, white 6%, transparent);
+  --bd:color-mix(in oklch, white 11%, transparent);
+  --bd-strong:color-mix(in oklch, white 19%, transparent);
+  --tx-1:oklch(97% .006 300); --tx-2:oklch(79% .011 300);
+  --tx-3:oklch(60% .013 300); --tx-4:oklch(44% .012 300);
+  /* pos/neg stay where they are: red and green are RESERVED for P&L in this cockpit, so
+     the accent must never be able to be mistaken for either. */
   --pos:oklch(72% .19 152); --pos-dim:color-mix(in oklch,var(--pos) 16%,transparent);
   --neg:oklch(68% .21 25);  --neg-dim:color-mix(in oklch,var(--neg) 16%,transparent);
   --warn:oklch(78% .17 80); --warn-dim:color-mix(in oklch,var(--warn) 16%,transparent);
-  --acc:oklch(70% .16 250); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
+  --acc:oklch(67% .21 300); --acc-dim:color-mix(in oklch,var(--acc) 16%,transparent);
+  --acc-soft:color-mix(in oklch,var(--acc) 9%,transparent);
+  --acc-line:color-mix(in oklch,var(--acc) 42%,transparent);
+  /* Coloured elevation: a violet-tinted glow reads as light coming off the accent rather
+     than a grey drop shadow bolted underneath it. */
+  --glow:0 0 0 1px color-mix(in oklch,var(--acc) 30%,transparent),
+         0 4px 24px -6px color-mix(in oklch,var(--acc) 34%,transparent);
+  --glow-soft:0 0 18px -6px color-mix(in oklch,var(--acc) 45%,transparent);
   --sh-1:0 1px 2px oklch(0% 0 0/.24);
   --sh-2:0 1px 2px oklch(0% 0 0/.20),0 4px 10px oklch(0% 0 0/.24);
   --sh-3:0 2px 4px oklch(0% 0 0/.20),0 10px 24px oklch(0% 0 0/.32);
@@ -237,10 +251,45 @@ section+section{margin-top:var(--s8)}
    indicator, not a big number reporting money. */
 .armywrap{overflow-x:auto}
 .army-node{cursor:pointer}
-.army-ring{animation:armyring 2s ease-in-out infinite}
-@keyframes armyring{0%,100%{opacity:.35}50%{opacity:.85}}
+/* Nodes lift toward the light on hover. transform+filter only, so it stays on the
+   compositor and never reflows a 9-box grid mid-animation. */
+.army-node rect{transition:stroke .18s var(--e-hover),filter .18s var(--e-hover)}
+.army-node:hover rect{stroke:var(--acc-line);filter:drop-shadow(var(--glow-soft))}
+.army-ring{animation:armyring 2.4s ease-in-out infinite;transform-origin:center}
+@keyframes armyring{0%,100%{opacity:.30}50%{opacity:1}}
 .army-glow{animation:armyglow .6s ease-out}
-@keyframes armyglow{from{filter:drop-shadow(0 0 7px var(--acc))}to{filter:none}}
+@keyframes armyglow{from{filter:drop-shadow(0 0 9px var(--acc))}to{filter:none}}
+/* The travelling message dot gets a real corona -- J asked for "pulsing heartbeats for the
+   messages going back and forth", and a flat 6px circle reads as a bullet, not a signal. */
+.army-pulse{filter:drop-shadow(0 0 6px var(--acc)) drop-shadow(0 0 14px var(--acc));
+  animation:pulsebeat .9s ease-in-out infinite}
+@keyframes pulsebeat{0%,100%{opacity:.85;r:5}50%{opacity:1;r:7}}
+
+/* ---------------- action-card rail ---------------- */
+.acard-item{transition:transform .18s var(--e-hover),border-color .18s var(--e-hover),
+  box-shadow .18s var(--e-hover),background .18s var(--e-hover)}
+.acard-item:hover{transform:translateY(-2px);border-color:var(--acc-line)!important;
+  box-shadow:var(--glow-soft);background:var(--bg-2)!important}
+.acard-item:active{transform:translateY(0)}
+/* A hairline of accent down the leading edge, revealed on hover -- cheaper than a border
+   change and it reads as the card being "armed" rather than merely highlighted. */
+.acard-item{position:relative;overflow:hidden}
+.acard-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--acc);opacity:0;transition:opacity .18s var(--e-hover)}
+.acard-item:hover::before{opacity:.9}
+.acard-open{box-shadow:var(--glow);animation:acardin .32s var(--e-open)}
+@keyframes acardin{from{opacity:0;transform:translateY(-6px) scale(.985)}to{opacity:1;transform:none}}
+/* Context bar under a session box: fill width is set inline from context_pct. */
+.ctxbar{height:4px;border-radius:999px;background:color-mix(in oklch,white 8%,transparent);overflow:hidden}
+.ctxbar i{display:block;height:100%;border-radius:999px;background:var(--acc);
+  transition:width .6s var(--e-hover)}
+.ctxbar.hot i{background:var(--warn)}
+.ctxbar.full i{background:var(--neg)}
+@media (prefers-reduced-motion:reduce){
+  .army-ring,.army-glow,.army-pulse,.acard-open{animation:none}
+  .acard-item,.acard-item::before,.army-node rect,.ctxbar i{transition:none}
+  .acard-item:hover{transform:none}
+}
 .armyledger{max-height:240px;overflow:auto;margin-top:var(--s5);padding-top:var(--s4);
   border-top:1px solid var(--bd-subtle);font-size:11px;color:var(--tx-3)}
 .armyledger div{display:flex;gap:var(--s3);padding:3px 0;white-space:nowrap;overflow:hidden}

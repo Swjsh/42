@@ -50,7 +50,7 @@ function armySvg(a){
      scales to 0.56 -- which is the exact tininess this layout was rewritten to kill. So
      pick the widest column count that still FITS, and let the graph get taller instead of
      smaller. Falls back to 3 when the width cannot be read (file:// pre-layout). */
-  const BW=330, BH=132, GAPX=26, GAPY=30, PAD=34;
+  const BW=330, BH=164, GAPX=26, GAPY=26, PAD=34;
   const fitCols=(avail)=>{
     for(let c=3;c>1;c--){ if(PAD*2+c*BW+(c-1)*GAPX<=avail) return c; }
     return 1;
@@ -140,16 +140,21 @@ function armySvg(a){
       (s.kind==='interactive'?'a Claude window YOU have open':'background session'),
       'var(--tx-3)',12,500));
     const wc=(byWorkerSession[s.session_id]||[]).length;
-    g.appendChild(ltxt(L+18,T+98,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
+    g.appendChild(ltxt(L+18,T+100,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
       (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
-    const actEl=ltxt(L+18,T+118,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id; g.appendChild(actEl);
+    const actEl=ltxt(L+18,T+120,'','var(--tx-4)',11,400); actEl.id='armyact-'+s.session_id; g.appendChild(actEl);
     // Explicit affordance: the whole box was already clickable but nothing said so.
-    g.appendChild(stxt(L+BW-30,T+27,'open ▸','var(--acc)',11,600,'end'));
+    // Bottom-right, not beside the title: at 17px a 34-char title runs to ~L+320 and
+    // collided with an affordance sitting at the same baseline (seen in a headless shot).
+    g.appendChild(stxt(L+BW-16,T+BH-12,'open ▸','var(--acc)',11,600,'end'));
     g.onclick=()=>armySessionDrawer(s,byWorkerSession[s.session_id]||[]);
     svg.appendChild(g);
 
+    /* Worker chips INSIDE the card. They used to sit at T+BH+17 -- in the GAP between
+       grid rows -- so they read as loose confetti belonging to nothing, which a headless
+       screenshot made obvious immediately. */
     (byWorkerSession[s.session_id]||[]).slice(0,5).forEach((w,j)=>{
-      const wx=L+26+j*26, wy=T+BH+17;
+      const wx=L+26+j*24, wy=T+BH-30;
       centers['w:'+w.agent_id]={x:wx,y:wy};
       const wg=mk('g',{class:'army-node'});
       wg.style.cursor='pointer';
@@ -159,9 +164,9 @@ function armySvg(a){
       wg.appendChild(wc2);
       const tt=mk('title',{}); tt.textContent=w.task||w.agent_type||'worker'; wg.appendChild(tt);
       wg.onclick=()=>armyWorkerDrawer(w);
-      svg.appendChild(wg);
+      g.appendChild(wg);
     });
-    if(wc)svg.appendChild(ltxt(L+26+Math.min(wc,5)*26,T+BH+21,'workers','var(--tx-4)',10,500));
+    if(wc)g.appendChild(ltxt(L+26+Math.min(wc,5)*24,T+BH-26,'workers','var(--tx-4)',10,500));
   });
 
   if(hiddenCount){
@@ -281,7 +286,7 @@ function armyQueuePulse(fromKey,toKey,colour){
   // keep updating underneath, so pausing to read the graph cannot hide a live event.
   if(st.paused)return;
   const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-  dot.setAttribute('r','6'); dot.setAttribute('fill',colour);
+  dot.setAttribute('r','6'); dot.setAttribute('fill',colour); dot.setAttribute('class','army-pulse');
   svg.appendChild(dot);
   const entry={path,ephemeral,dot,len:path.getTotalLength(),start:performance.now(),dur:900};
   st.queue.push(entry);
@@ -422,12 +427,21 @@ function armyPaintCards(){
     // Radius/padding from the two independently-sourced token scales the research found
     // agreeing (Linear + Geist): 12px container radius, 4px-base spacing, hairline border
     // for elevation rather than a shadow.
-    it.style.cssText='padding:12px 14px;margin:0 0 8px;cursor:pointer;border-radius:12px;'+
+    it.style.cssText='padding:12px 14px 12px 18px;margin:0 0 8px;cursor:pointer;border-radius:12px;'+
       'border:1px solid '+(open?'var(--acc)':'var(--bd)')+';background:var(--bg-1);'+
       (open?'opacity:.45;':'');
     if(!open)it.style.viewTransitionName=armyCardVtName(c.id);
     it.onclick=()=>armySelectCard(c.id);
-    const r=el('div','micro'); r.textContent='#'+c.rank+' · '+(c.source_path||'').split('/').pop();
+    /* Severity is encoded in the leading edge, not just the number. Cards sourced from
+       STATUS.md are things that are BROKEN; queue items are things that are QUEUED. A rail
+       where every row looks identical makes "ranked, worst first" a claim the eye cannot
+       verify. Semantic colour only -- the purple accent is never used to mean severity. */
+    const src=(c.source_path||'').split('/').pop();
+    const sev=/STATUS/i.test(src)?'var(--neg)':(/unattended/i.test(src)?'var(--warn)':'var(--acc)');
+    const edge=document.createElement('i');
+    edge.style.cssText='position:absolute;left:0;top:0;bottom:0;width:3px;background:'+sev+';opacity:.85';
+    it.appendChild(edge);
+    const r=el('div','micro'); r.textContent='#'+c.rank+' · '+src;
     r.style.color='var(--tx-4)';
     const t=el('div'); t.textContent=String(c.title||'').slice(0,84);
     t.style.cssText='font:600 13.5px/1.35 var(--font);color:var(--tx-1);margin-top:4px';
