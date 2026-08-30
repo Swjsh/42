@@ -5,51 +5,61 @@
 
 # CANDIDATE: TRENDLINE_BREAK_CALL_VETO
 
-**Filed:** 2026-08-20  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Filed:** 2026-06-26
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** filter_change
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The trendline break signal, when detected as a bearish structure break (5m-close-through-respected-ascending-support), serves as a reliable indicator of bearish momentum. By vetoing CALL entries when this signal is active, we avoid entering bullish trades during bearish breakdowns, thus reducing losses on days like 5/07 where the engine took losing CALL trades. The signal does not fire as a PUT trigger because the J anchor days for PUTs do not exhibit the specific structure (ascending support break) required for the signal, hence zero impact on PUT winners.
+The TRENDLINE_BREAK_CALL_VETO gate aims to veto CALL entries when a bearish market structure is confirmed via a 5m close through a respected ascending support level. This edge exists because on days like 5/07, the engine takes losing CALL trades that occur during counter-trend rallies within a broader bearish structure, which can be avoided by recognizing the broken structure.
 
 ## Mechanism
 
-The signal fires when the 5-minute bar closes below a respected ascending support trendline (defined by at least two touches) and the trendline is deemed respected (price has bounced off it at least once without breaking). Entry logic: for CALL setups (BULLISH_RECLAIM_RIDE_THE_RIBBON), if the trendline_break_call_veto flag is true at the time of the entry trigger, the entry is blocked. Exit logic remains unchanged: standard chart stop, TP1 at +50%, runner, chandelier profit-lock, and 15:50 ET time stop.
+The gate uses the `trendline_break_call_veto` detector (which fires when the 5m close breaks below an ascending support line that has at least two touches and is respected by price action). When the detector fires, it sets a `call_veto` flag in the structure state. If the `call_veto` flag is enabled (via the `trendline_break_call_veto` params knob) and the engine is evaluating a CALL entry, the entry is blocked. The exit logic for entered trades remains unchanged (managed exits with chart stop, chandelier profit-lock, etc.).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | Takes PUT winner (+$342) | Same PUT winner (+$342) | $0 |
-| 5/01 winner | Takes PUT winner (+$470) | Same PUT winner (+$470) | $0 |
-| 5/04 winner | Takes PUT winner (+$730) | Same PUT winner (+$730) | $0 |
-| 5/05 loser | Skips (engine currently does not take this loser) | Same skip | $0 |
-| 5/06 loser | Skips | Same skip | $0 |
-| 5/07 loser 1 | Takes CALL loser (-$45) | Skips (veto blocks) | +$45 |
-| 5/07 loser 2 | Takes CALL loser (-$120) | Skips (veto blocks) | +$120 |
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+
+(Note: The current engine behavior for the J days is known from the leaderboard: as a PUT trigger it fires on all 6 J dates equally (so no discrimination) and as a CALL VETO it blocks the 5/07 CALL loser. However, we are running a full OOS real-fills A/B to get the proper incremental P&L and win rate impact on CALL entries over the entire 16 months. Therefore, we cannot rely on the anchor days alone for the full impact.)
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (based on ITM-2 0DTE put premium ~$1.00, 28 contracts = $2,800 risk, 50% of account => $5,600 account needed for full size; $1K paper would trade 5 contracts, realizing ~18% of headline P&L).
-2. **Sample bias:** We used the same 16-month OPRA dataset (2025-01-02 to 2026-06-18) for IS and OOS. The signal is structural and not optimized, so overfit risk is low. However, the signal may be regime-dependent (works best in bearish breakdowns).
-3. **Out-of-sample:** We performed a walk-forward OOS test (split: 12 months IS, 4 months OOS, repeated). The OOS expectancy for the veto was +$0.82/trade on the removed cohort (17 CALL trades removed, netting +$14.00 IS, +$13.94 OOS). The OOS test passed (WF ratio = 0.98).
-4. **Real-fills:** We validated on the top 3 J days (4/29, 5/01, 5/04) using real OPRA fills. The veto did not fire on any of these days (as expected, since they are PUT days and the signal is for bearish structure breaks which did not occur in the context of CALL entries on these days). Thus, no impact on real-fills for the anchor days.
-5. **Failure modes:** Worst day: if the signal fires incorrectly during a strong bullish breakout, it could block a winning CALL trade. Max drawdown scenario: prolonged bullish regime where the signal fires frequently, blocking many CALL winners. Blow-up scenario: none, as the veto only removes trades and does not add risk.
-6. **Concentration:** The removed cohort (CALL veto trades) constitutes 1.2% of total P&L in the IS period. The top 5 days of the removed cohort account for 68% of its P&L, indicating some concentration but low absolute impact.
+1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account ~= 14% of headline P&L (based on risk rules: 3 contracts at $1K, scaling to 15+ contracts at $25K+).
+
+2. **Sample bias:** We will use the full 16-month OOS window (2025-01-02 to 2026-06-18) with real OPRA fills. The sample is not biased by look-ahead because the trendline break detector uses only closed bars and historical data. However, the sample may be subject to regime changes and overfit risk if the gate parameters are tuned on the same window. We are using the existing guard test as a starting point, which has no tuned parameters (the knob is a simple enable/disable). Therefore, overfit risk is low.
+
+3. **Out-of-sample:** We are conducting a full 16-month OOS real-fills A/B test (the entire available window). There is no in-sample window in this test because we are testing the knob over the entire period. However, to avoid look-ahead bias, we will split the window into walk-forward windows to check for consistency. We will report the walk-forward ratio as part of the pre-merge gate.
+
+4. **Real-fills:** We will use the real OPRA fill simulator (cached real fills, real bid-ask, slippage model) for the A/B test. We will validate the top 3 J days (4/29, 5/01, 5/04) to ensure the simulator matches real fills within ±20% for the base strategy.
+
+5. **Failure modes:** 
+   - Worst day: The gate may block a winning CALL entry on a day where the bearish structure break is a false signal (e.g., a bullish breakout after a brief pullback). 
+   - Max drawdown: We will monitor the drawdown during the A/B test and compare to baseline.
+   - Blow-up scenario: If the gate is enabled during a strong bull trend, it may block many CALL entries, turning a winning strategy into a losing one by missing the bull runs.
+
+6. **Concentration:** We will compute the top-5 days' P&L contribution to the incremental P&L from the gate. If the top 5 days account for more than 50% of the incremental P&L, we will disclose the concentration percentage.
 
 ## Pre-merge gate
 
-- Gym validators: must pass all tests in `backtest/tests/test_trendline_engine.py` (7/7).
-- Walk-forward OOS test: must have WF ratio >= 0.70 and positive OOS expectancy.
-- Real-fills validation on top 3 J days: must show no regression on anchor days (delta_edge_capture = 0 for PUT winners).
-- Concentration check: top 5 days of removed cohort must not exceed 50% of the removed cohort's P&L (to avoid tail dependence).
+We require:
+- Gym validators: `backtest/tests/test_trendline_engine.py` must pass (7/7).
+- Walk-forward: We will split the 16-month window into 4 quarters and require that the walk-forward OOS/tr ratio is >= 0.70 in each quarter (or at least not negative in more than one quarter).
+- Real-fills: We will run the A/B test on the full window and validate the top 3 J days via real-fills check (simulated real OPRA fills vs. BS sim must be within ±20% for the base strategy on those days).
 
 ## Confidence
 
-7 / 10 -- The signal shows promise as a CALL veto with low false-positive rate in bullish regimes, but we have not tested it in a sufficiently diverse set of market conditions (e.g., high volatility bull markets). The OOS test passed, but the sample size of removed trades is small (n=17).
+3 / 10 -- We have timing validation from the anchor days (the break occurs before J's 11:15+ call entries on 5/07) but we lack the full OOS real-fills A/B to quantify the incremental P&L and win rate impact on CALL entries. The guard tests pass, but we need the A/B data to proceed.
 
 ## Pre-existing leaderboard impact
 
-This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (rank ★) which vetoes wrong-way trades based on 5m trend classification. The TRENDLINE_BREAK_CALL_VETO is more specific to breaks of ascending trendlines and may catch different scenarios. There is no conflict; they can be used together.
+This candidate (WS4) is currently in the leaderboard as NEEDS-MORE-DATA. Running the A/B test will provide the data needed to move it to PROMISING or REJECTED. It does not conflict with other candidates; it is a structural gate that can be combined with other filters.
