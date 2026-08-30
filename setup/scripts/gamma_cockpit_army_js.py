@@ -67,7 +67,14 @@ function armySvg(a){
      does that mean i have 9 subagnts open right now??" -- no, and the duplicate was a big
      part of why that was unanswerable. */
   const orcSid=(a.orchestrator||{}).session_id;
-  const peers=sessions.filter(s=>s.session_id!==orcSid);
+  /* STALE CHATS ARE HIDDEN BY DEFAULT. J: "i dont have any claude windows open besides this
+     one they are just old chats... maybe they shouldnt be pulled in if they are not active."
+     Every registry PID is a live `claude` process because Desktop leaves one running per
+     closed chat, so aliveness proved nothing; transcript recency does. Stale is >2h since
+     the last write -- four of his were between 22 and 50 HOURS old. */
+  const allPeers=sessions.filter(s=>s.session_id!==orcSid);
+  const staleCount=allPeers.filter(s=>s.activity==='stale').length;
+  const peers=armyShowStale?allPeers:allPeers.filter(s=>s.activity!=='stale');
   const shown=peers.slice(0,MAX_BOXES);
   const hiddenCount=Math.max(0,peers.length-shown.length);
   const rows=Math.max(1,Math.ceil(shown.length/COLS));
@@ -136,9 +143,15 @@ function armySvg(a){
     const tag=ltxt(L+18,T+56,s.name,'var(--tx-4)',11,600);
     tag.setAttribute('font-family','var(--mono, ui-monospace, monospace)');
     g.appendChild(tag);
-    g.appendChild(ltxt(L+18,T+76,
-      (s.kind==='interactive'?'a Claude window YOU have open':'background session'),
-      'var(--tx-3)',12,500));
+    /* Say WHEN, not just what. "a Claude window YOU have open" was flatly untrue for a
+       chat closed two days ago whose process merely lingered. */
+    const lw=s.last_write_min;
+    const ago=(lw==null)?'':(lw<1?'just now':(lw<60?Math.round(lw)+'m ago':
+      (lw<1440?Math.round(lw/60)+'h ago':Math.round(lw/1440)+'d ago')));
+    const act=s.activity||'unknown';
+    const actWord=act==='active'?'ACTIVE NOW':(act==='idle'?'idle':(act==='stale'?'old chat':'unknown'));
+    const actCol=act==='active'?'var(--pos)':(act==='idle'?'var(--tx-3)':'var(--tx-4)');
+    g.appendChild(ltxt(L+18,T+76,actWord+(ago?' · '+ago:''),actCol,12,act==='active'?700:500));
     const wc=(byWorkerSession[s.session_id]||[]).length;
     g.appendChild(ltxt(L+18,T+100,(wc?wc+' worker'+(wc===1?'':'s'):'no workers')+
       (s.worker_overflow?' +'+s.worker_overflow:''),'var(--tx-4)',11,500));
@@ -221,6 +234,13 @@ function armySvg(a){
     ()=>{try{route('army')}catch(_){}} ,true));
   bar.appendChild(mkbtn('Action cards ▸','Go to the Cards view -- that is where the fire buttons live',
     ()=>{try{route('cards');history.replaceState(null,'','#cards')}catch(_){}}));
+  const staleN=((a.sessions||[]).filter(x=>x.activity==='stale'&&x.session_id!==(a.orchestrator||{}).session_id)).length;
+  if(staleN){
+    const t=mkbtn(armyShowStale?('Hide '+staleN+' old chat'+(staleN===1?'':'s')):('Show '+staleN+' old chat'+(staleN===1?'':'s')),
+      'Sessions with no transcript write for over 2 hours. Their process is still running because Claude Desktop keeps one per closed chat.',
+      ()=>{ armyShowStale=!armyShowStale; try{route('army')}catch(_){} });
+    bar.appendChild(t);
+  }
   const pauseBtn=mkbtn('Pause pulses','Stop the travelling dots without stopping the data',()=>{
     if(!armyState)return;
     armyState.paused=!armyState.paused;
@@ -244,7 +264,8 @@ function armySvg(a){
   legend.appendChild(li('Top box = this page.',
     'The Claude session you are talking to right now.'));
   legend.appendChild(li(shown.length+' box'+(shown.length===1?'':'es')+' below =',
-    'other Claude windows <em>you</em> have open. Not subagents.'));
+    'other Claude sessions on this machine. Not subagents.'+
+    (staleCount&&!armyShowStale?' <em>'+staleCount+' old chat'+(staleCount===1?'':'s')+' hidden.</em>':'')));
   legend.appendChild(li(wct+' worker'+(wct===1?'':'s')+' =',
     'the small circles. <em>Those</em> are the subagents.'));
   legend.appendChild(li('Click any box',
@@ -402,6 +423,7 @@ function armyPoll(){
    and size between them by itself. Chromium 111+, which is the only target this page has,
    so there is no FLIP math and no fallback branch beyond reduced-motion. */
 let armyCardSel=null;
+let armyShowStale=false;
 
 function armyCardVtName(id){ return 'acard-'+String(id||'').replace(/[^A-Za-z0-9_-]/g,''); }
 

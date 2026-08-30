@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import ctypes
 import datetime as dt
+import time
 import json
 import os
 import re
@@ -323,6 +324,48 @@ def _load_sessions() -> list[dict]:
     return out
 
 
+# --------------------------------------------------------------------------------------
+# ACTIVITY, not aliveness. J, 2026-08-29: "i dont have any claude windows open besides this
+# one they are just old chats."
+#
+# He was right and the view was wrong. Every one of the 10 registry PIDs resolves to a live
+# process named `claude`, because Claude Desktop leaves a CLI process running per chat long
+# after the chat is closed. So "the process exists" was never evidence that J has a window
+# open -- it only proves the app has not reaped it yet.
+#
+# The honest signal is the transcript mtime. Measured on this box at the moment of the
+# complaint: this session 0.0 min, then 8.7 / 42 / 56 min, then 310 min, then four sessions
+# between 22 and 50 HOURS stale. A view that presents a 50-hour-old chat identically to the
+# window you are typing in is not a presence view.
+# --------------------------------------------------------------------------------------
+ACTIVE_MINUTES = 5      # writing right now -- this is a window in use
+IDLE_MINUTES = 120      # touched this session-ish; worth showing, visually quieter
+
+
+def _last_write_minutes(slug: str, session_id: str) -> float | None:
+    """Minutes since the session transcript was last written, or None if unreadable."""
+    if not slug or not session_id:
+        return None
+    try:
+        path = PROJECTS_DIR / slug / f"{session_id}.jsonl"
+        if not path.is_file():
+            return None
+        return max(0.0, (time.time() - path.stat().st_mtime) / 60.0)
+    except OSError:
+        return None
+
+
+def _activity_of(minutes: float | None) -> str:
+    """active | idle | stale | unknown. Unknown never masquerades as active."""
+    if minutes is None:
+        return "unknown"
+    if minutes <= ACTIVE_MINUTES:
+        return "active"
+    if minutes <= IDLE_MINUTES:
+        return "idle"
+    return "stale"
+
+
 def _session_title(slug: str, session_id: str) -> str:
     """Human title, preferring an explicit `customTitle` over the derived
     `aiTitle` (same precedence the client's own tab title uses). Bounded read
@@ -469,7 +512,7 @@ def build_army() -> dict:
 
     ordered = sorted(
         sessions,
-        key=lambda s: (s["session_id"] != orchestrator_sid, not s["alive"], -(s.get("started_at") or 0)),
+        key=lambda s: (s["session_id"] != orchestrator_sid, not s["alive"], -(s.get("started_at") or 0)),  # noqa: E501
     )
     visible = ordered[:MAX_SESSION_NODES]
     overflow = max(0, len(ordered) - len(visible))
@@ -483,6 +526,8 @@ def build_army() -> dict:
         title = _session_title(slug, s["session_id"])
         workers = _worker_rows_for_session(slug, s["session_id"])
         context = _context_usage(slug, s["session_id"], s["cwd"], settings_cache)
+        last_write_min = _last_write_minutes(slug, s["session_id"])
+        activity = _activity_of(last_write_min)
         seen = last_seen.get(s["session_id"])
         recent = False
         if seen:
@@ -509,6 +554,8 @@ def build_army() -> dict:
             "context_limit": context["context_limit"],
             "context_pct": context["context_pct"],
             "context_source": context["context_source"],
+            "last_write_min": None if last_write_min is None else round(last_write_min, 1),
+            "activity": activity,
         })
         worker_out.extend(workers[:MAX_WORKERS_PER_SESSION])
 
