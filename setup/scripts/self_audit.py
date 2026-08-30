@@ -224,6 +224,30 @@ _CONSENSUS_LEADIN_RE = re.compile(
     r"|the most (rigorous|compelling|persuasive|convincing) view is perspectives?\s*\d"
     r"|the strongest perspective is\s*\d)"
 )
+# 2026-08-19: a THIRD lexical family of the exact same synthesis cross-reference-noise
+# class, using abbreviated "P1/P2/P3" shorthand instead of the spelled-out "Perspective
+# N" that _PERSPECTIVE_REF_RE requires, or an "all agree/concur" verb that
+# _CONSENSUS_LEADIN_RE requires. Leaked 4 of 8 flagged "gaps" in the 2026-08-19 batch
+# (en-dash synthesis bullets: "P1, P2, and P3 all flag ...", "P1 and P2 explicitly note
+# ...", "P1 shows ... P2 calls ...", "P1's <claim> and P3's <claim> both demand ...") and
+# sat un-triaged in new-gaps-flagged.md for 5 more days before anyone re-read the batch.
+# Two shapes:
+#   (a) "P<n>[, P<n>]* (all )?<verb> ..." -- one or more P<n> tokens then a reporting verb
+#   (b) "P<n>'s ... and P<m>'s ... <verb>" -- possessive P<n> tokens joined by "and"
+#       (the "verb" here typically lands past the 90-char _norm truncation, e.g. "both
+#       demand", so this shape is anchored on the "P<n>'s ... and P<m>'s" join alone,
+#       which always survives truncation since it appears early in the sentence).
+# Conservative: both require a LITERAL "p<digit>" token, which does not occur in genuine
+# gap prose (0DTE/SPY/options text never abbreviates a perspective this way), so
+# over-rejection risk is effectively nil.
+_ABBREV_PERSPECTIVE_LEADIN_RE = re.compile(
+    r"^p\d+(?:s)?"
+    r"(?:\s*,?\s*(?:and\s+)?p\d+(?:s)?)*"
+    r"\s+(?:all\s+|and\s+)?(?:explicitly\s+|clearly\s+|specifically\s+)?"
+    r"(?:flag|flags|note|notes|show|shows|call|calls|demand|demands|warn|warns"
+    r"|argue|argues|converge|convergess|rank|ranks|view|views|agree|agrees)\b"
+)
+_ABBREV_PERSPECTIVE_BOTH_RE = re.compile(r"^p\d+s\b.*\band\s+p\d+s\b")
 
 
 def _is_real_gap(text: str) -> bool:
@@ -245,6 +269,8 @@ def _is_real_gap(text: str) -> bool:
         return False
     if _CONSENSUS_LEADIN_RE.match(n):        # 'All perspectives agree that ...' consensus commentary
         return False
+    if _ABBREV_PERSPECTIVE_LEADIN_RE.match(n) or _ABBREV_PERSPECTIVE_BOTH_RE.match(n):
+        return False                          # 'P1, P2 all flag ...' / "P1's X and P3's Y ..."
     for p in _SCAFFOLD_PREFIXES:
         # multi-word scaffold prefixes match as a true prefix (handles tokens the
         # normalizer fuses, e.g. "pilot/heartbeat" -> "pilotheartbeat"); single-word

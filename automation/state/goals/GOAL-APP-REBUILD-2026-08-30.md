@@ -226,3 +226,18 @@ genuinely J's.** The five DONE-WHEN checks:
   installed app, which is his call, not mine.
 - The two carried human-in-the-loop verifications (a pulse observed travelling; a
   card double-tap observed by a person) still need eyes on the screen.
+
+## CLOSED
+
+**2026-08-30 12:42 ET (conductor AFTERHOURS, GOAL-APP-REBUILD-2026-08-30).** Re-read
+the full QUEUE fresh this fire: every non-`[B-J]` line is `[x]`; no bare `[ ]` remains.
+Nothing changed since the 04:05 ET HONEST STATE update above — re-verifying by re-reading
+rather than re-running the screenshots (no code changed in the interim, so no visual
+claim needs a fresh shot). DONE-WHEN 1-5 stand as MET per that entry. Closing per the
+`/gamma-goal close` procedure: `active-goal.json` flipped to `active:false` (pointer kept,
+never deleted), `queue.md` row flipped to `[x]`/`status:done`. The four `[B-J]` items
+(Firebase config, admin-auth token verification, `/` routing swap, two human-eyes
+verifications) are not re-queued — they are J's, not stalled work; if J supplies the
+missing input a fresh goal (or a plain queue item, since none of the four need more than
+one fire once unblocked) picks them up. Revert: none needed, this is a state-file-only
+close with no code change.

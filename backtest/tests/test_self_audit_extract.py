@@ -55,6 +55,17 @@ SCAFFOLD = [
     "There is broad agreement that Gamma's *health-monitoring and self-healing* layer is insufficient: the scheduler (`wscrip",
     "Finally, all concur that Gamma should have an automated kill-switch or circuit-breaker (e.g., a file-trigger or cost l",
     "Perspectives 1, 2, 5 view the guard issue as a symptom of a broader class of problems (lack of pre-flight commit che",
+    # 2026-08-19: a NEW lexical family of the same synthesis cross-reference-noise
+    # class, using abbreviated "P1/P2/P3" instead of the spelled-out "Perspective N"
+    # neither _PERSPECTIVE_REF_RE (requires the literal word "perspective") nor
+    # _CONSENSUS_LEADIN_RE (requires an "all X agree/concur" lead-in verb at the very
+    # start) catches -- leaked verbatim into the 2026-08-19 batch (4 of 8 flagged
+    # "gaps" were this shape), sat un-triaged through 2026-08-24 in
+    # analysis/self-audit/new-gaps-flagged.md.
+    "– P1, P2, and P3 all flag that the system only logs theta-stall alerts and never acts on them.",
+    "– P1 and P2 explicitly note the \"conviction-c4-c5\" incident (C5 = None) and call for a self-healing fix.",
+    "– P1 shows persistent flips (worst-case 13×/session) despite N=5; P2 calls the static N=5 a weakness.",
+    "– P1's \"candidate parameter loop not closed\" and P3's \"automated back-testing pipeline for new candidates\" both demand an automated path from proposal → validation → shadow-trade → promotion/demote.",
 ]
 
 # The EXACT real gaps that must survive (from the 06-28/06-29 batches + perspective 4).

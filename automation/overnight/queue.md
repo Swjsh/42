@@ -1598,7 +1598,7 @@ estore_to_ready (115 entries) and Gamma_QuietMode is Ready firing every 5min; re
 ### OPTION-CACHE-ITM-COVERAGE-GAP (LOW, spec-only, adjacent finding, filed 2026-08-02 from OPTION-BAR-RESOLUTION-BIAS-2026-08-02)
 
 - [x] GOAL-COCKPIT-BUILD-2026-08-29 (HIGH, goal) :: ship the Gamma Orchestrator Cockpit build order (Army View, Heartbeat Pulse, Action Cards, /gamma-goal) across its 8 steps â€” file: automation/state/goals/GOAL-COCKPIT-BUILD-2026-08-29.md :: depends:none :: status:done
-- [ ] GOAL-APP-REBUILD-2026-08-30 (HIGH, goal) :: build the new Gamma app as J's daily driver from the five 21st.dev elements he chose - file: automation/state/goals/GOAL-APP-REBUILD-2026-08-30.md :: depends:none :: status:in_progress
+- [x] GOAL-APP-REBUILD-2026-08-30 (HIGH, goal) :: build the new Gamma app as J's daily driver from the five 21st.dev elements he chose - file: automation/state/goals/GOAL-APP-REBUILD-2026-08-30.md :: depends:none :: status:done
 
 ## Blocked
 (none active â€” Rule-9 J-ruling items live in Active Tier 2, which are decisions not blocks)
@@ -1608,6 +1608,7 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-SWEEP-20260830-100017 (MED) :: v14_sweep liquidity-grab at level=78000 dir=down bar_idx=8 | wick_excess=0.0243% close_back=0.1236% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-30T09:57:02.053096+00:00:78000:down:8 :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260828-100151 (MED) :: BTC v03_indicators rsi_14=80.60 (overbought) at last_close=81111.0 bin=2026-08-28T01:25:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-28T01:25:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260828-100152 (MED) :: BTC v03_indicators rsi_14=81.16 (overbought) at last_close=81138.0 bin=2026-08-28T01:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-28T01:30:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260828-100153 (MED) :: BTC v03_indicators rsi_14=81.84 (overbought) at last_close=81172.76 bin=2026-08-28T01:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-28T01:35:00+00:00:overbought :: depends:none :: status:queued
@@ -1622,7 +1623,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-RSIEXTREME-20260827-100131 (MED) :: BTC v03_indicators rsi_14=85.79 (overbought) at last_close=79703.18 bin=2026-08-27T08:10:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-27T08:10:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260827-100132 (MED) :: BTC v03_indicators rsi_14=82.20 (overbought) at last_close=80496.72 bin=2026-08-27T09:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-27T09:30:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-RIBBONFLIP-20260827-100133 (MED) :: v08_ribbon flip MIXED -> BULL | spread=672.08>100 | recent dist BULL=90 BEAR=18 MIXED=92 :: key=EDGE_RIBBON_FLIP:2026-08-27T09:00:00+00:00:BULL :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260827-100134 (MED) :: v14_sweep liquidity-grab at level=79000 dir=up bar_idx=103 | wick_excess=0.0305% close_back=0.0848% â€” feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-27T09:57:01.756927+00:00:79000:up:103 :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 
@@ -2379,3 +2379,5 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
 **Action:** STOP-A sign-off -> T-W7 confirmatory on the frozen v2 candidates Â· enumerate levers beyond exit shape per markdown/trading-knowledge/GENERATIVE-LENS.md (DTE / spread / strike / sizing) :: depends:none :: status:proposed
 
 - [ ] ESCALATION (worker_fabrication) [5b354718027914a9] (seen 3x since 2026-08-20) â€” critic claimed artifacts that do not exist for 'critique_gap_and_go_weakest_assumption': backtest/gap_and_go_config.json _(gamma_manager 2026-08-29 05:53 ET)_
+
+- [ ] ESCALATION (manager_flagged) [71b11ddf50de3d1b] — Ideate ONE concrete new variant of the l: Pending queue.md tail item #1-3 explicitly demand a level-rejection pullback variant that passes the structure-shift null. Two prior kills make this a genuine _(gamma_manager 2026-08-30 05:53 ET)_

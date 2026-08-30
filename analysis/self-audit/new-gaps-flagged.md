@@ -1050,6 +1050,43 @@ additive only). -->
 - – P1 shows persistent flips (worst‑case 13×/session) despite N=5; P2 calls the static N=5 a weakness.
 - – P1’s “candidate parameter loop not closed” and P3’s “automated back‑testing pipeline for new candidates” both demand an automated path from proposal → validation → shadow‑trade → promotion/demote.
 
+<!-- DONE 2026-08-30T12:xx ET conductor (AFTERHOURS): TRIAGED, all 8 disposed, and the
+recurring root cause (4 of 8) FIXED, not just re-triaged. Items #5-8 (the "– P1, P2, and
+P3 all flag ...", "P1 and P2 explicitly note ...", "P1 shows ... P2 calls ...", "P1's ...
+and P3's ... both demand ..." lines) are the SAME synthesis cross-reference-noise class
+the 2026-07-01/07-19/08-18 fixes already targeted, a 4th lexical variant (abbreviated
+"P1/P2/P3" instead of spelled-out "Perspective N") neither `_PERSPECTIVE_REF_RE` nor
+`_CONSENSUS_LEADIN_RE` catches -- per OP-25 a re-violated lesson MUST graduate to a code
+assertion. FIX: two new regexes in `setup/scripts/self_audit.py`
+(`_ABBREV_PERSPECTIVE_LEADIN_RE` for "P<n>[, P<n>]* <verb> ..." and
+`_ABBREV_PERSPECTIVE_BOTH_RE` for "P<n>'s ... and P<m>'s ..."), wired into `_is_real_gap`.
+RED-proofed: added all 4 exact leaked strings to `test_self_audit_extract.py`'s SCAFFOLD
+fixture BEFORE the fix -- confirmed 4 failures ("scaffold leaked") on the unfixed code,
+then GREEN after the fix (72/72). `run_safety_gate.py` (curated 6-suite) 59/59 PASS.
+Items #1-4 (the 4 substantive lines) were checked against live code, not re-derived:
+"No automated exit on theta-stall" is BY DESIGN, not a gap -- `theta_clock.py`'s own
+module docstring states "VISIBILITY ONLY ... A THETA-based EXIT class is explicitly a
+SEPARATE pre-registered study; nothing here arms one" (J's 2026-08-01 directive was for
+visibility, not an auto-exit). "Static hysteresis N=5 does not adapt to flip-count or
+volatility" is TRUE but not urgent -- `refresh_levels_intraday.py`'s `HYSTERESIS_MISS_N`
+is explicitly calibrated from the real 2026-07-31 observed flicker distribution (max
+observed gap = 4 refreshes, N=5 chosen to bridge every observed case with documented
+rationale in-file), and it governs level IDENTITY in key-levels.json, not a trading gate
+directly -- no concrete whipsaw-into-a-trade incident cited. Left as a future-improvement
+idea, not filed as a new queue item (no incident evidence). "Conviction signal regression
+(C5 = None)" was ALREADY FIXED before this batch ran: `incident_fix_status.py`'s own
+2026-08-22 note confirms C5 was fully wired since 2026-08-14 and scoring correctly by
+2026-08-19 (164/164 real conviction rows carry a diverse non-None `structure_reason`) --
+the batch was reading a stale/incorrect signal, not a live regression. "Risk-model
+mis-calibration: unchecked spreads distort the implied-vol surface used for Greeks"
+does not describe a mechanism that exists in this codebase -- grepped `theta_clock.py`
+(the only Greeks-adjacent module touched by recent work) for any IV-surface-from-spreads
+computation: zero hits. It computes a closed-form intrinsic + sqrt-time-decay estimate,
+never an IV surface, and real broker greeks (when present) are used raw, not
+recalibrated against spread data. Not actionable against real code. Zero trading-path
+file touched (self_audit.py is an observation-only R&D organ). Revert: `git revert
+<this commit>` (2 files: self_audit.py + its test file, additive only). -->
+
 ## 2026-08-20T17:32:22 -- 12 new gap(s) Gamma self-identified
 - What’s missing: No self‑healing check that timestamps the last successful pull; if a feed stalls > Δt (e.g., 60 min for Kalshi, 5 min for Alpaca Greeks) the system continues to use stale values and only surfaces the issue in a manual [...]
 - Actionable fix: Add a lightweight watchdog (run every minute) that writes `feed‑health.json` with `last_ok_ts_et` and a boolean `stale`. If `stale==true`, automatically switch the corresponding consumer (e.g., conviction‑C4/C5, [...]
