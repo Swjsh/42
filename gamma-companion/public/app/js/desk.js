@@ -701,6 +701,14 @@
     R.innerHTML = '<h3 class="rail__t">Activity' +
       '<span class="rail__s">while you were away</span></h3>';
     const rbody = el('div'); rbody.className = 'rail__scroll';
+    /* Decisions first: this is the only block on the page that asks J for
+       something, and a queue you have to scroll to is a queue that does not get
+       worked. What already happened sits underneath it. */
+    const cq = el('rail__sub'); cq.textContent = 'Needs a decision';
+    rbody.appendChild(cq);
+    rbody.appendChild(G.glass.cards(D.S.payload));
+    const ah = el('rail__sub'); ah.textContent = 'What happened';
+    rbody.appendChild(ah);
     rbody.appendChild(activity((D.S.payload || {}).activity));
     const fr = fires((D.S.payload || {}).autonomy);
     if (fr) rbody.appendChild(fr);
@@ -740,6 +748,8 @@
     if (oldMind) oldMind.replaceWith(G.glass.mind((D.S.payload || {}).glass));
     const oldArms = root.querySelector('.garms');
     if (oldArms) oldArms.replaceWith(G.glass.arms((D.S.payload || {}).glass));
+    const oldCards = document.querySelector('.gcards');
+    if (oldCards) oldCards.replaceWith(G.glass.cards(D.S.payload));
     const oldAuto = root.querySelector('.auto');
     if (oldAuto) oldAuto.replaceWith(autonomy((D.S.payload || {}).autonomy));
     const oldLanes = document.querySelector('.rail--l .lanes__list');

@@ -73,12 +73,27 @@
   /* ---- guard codes: "ROSTER-LIVENESS: 1 lane(s) permanently DEAD (…)" ---- */
   function broken(text) {
     var raw = String(text || '');
-    var m = /^([A-Z][A-Z0-9-]{3,}):\s*(.*)$/.exec(raw);
+    // Two shapes reach this, and the first cut only handled one:
+    //   "ROSTER-LIVENESS: 1 lane(s) permanently DEAD"          <- code, colon, rest
+    //   "EARNINGS-CALENDAR STALE (RED): the file is 53h old"   <- code, WORDS, (sev), colon
+    // The second leaked straight onto the decision cards. The severity parenthetical
+    // is dropped rather than translated: the row already carries its own tone, and
+    // "(RED)" inside a sentence is the machine talking.
+    var m = /^([A-Z][A-Z0-9-]{3,})((?:\s+[A-Z][A-Z0-9-]*)*)\s*(?:\((?:RED|YELLOW|GREEN|WARN)\))?\s*:\s*(.*)$/
+      .exec(raw);
+    if (m) {
+      m = [m[0], m[1] + (m[2] || ''), m[3]];
+    }
     var name = m ? deCode(m[1]) : '';
     var rest = scrub(m ? m[2] : raw)
       .replace(/\b(\d+)\s*lane\(s\)/gi, '$1 lane')
       .replace(/\bDEAD\b/g, 'dead')
       .replace(/\s*\((?:[^()]*\/[^()]*|[A-Z0-9_]{6,})\)\s*/g, ' ')  // tech parentheticals
+      // NOTE: a bare filename is deliberately KEPT. An earlier version replaced it
+      // with "that file", which reads more human and is strictly less useful:
+      // "earnings-blackout.json is 53h old" tells J what to go look at; "that file
+      // is 53h old" tells him nothing. Scrubbing is for machine SYNTAX (codes,
+      // paths, hashes), never for the nouns a sentence is actually about.
       .trim();
     var s = name ? name + ' — ' + rest : cap(rest);
     return { text: cap(s), raw: raw };

@@ -216,6 +216,36 @@ function liveTradingContext(root) {
       lines.push("Kitchen: " + (kit.daemon_alive ? "alive" : "DOWN") + " · " +
         (q.pending || 0) + " pending · $" + (kit.today_cost_usd_paid_tier || 0) + " spent today");
     }
+    // THE MONEY. J: "It should know every single thing that's going on with trading."
+    // Without this the console could describe the machinery and not the book, which is
+    // the same gap the dashboard itself had before the trading band went in.
+    const eq = read("automation/state/book-equity-snapshot.json");
+    if (eq && typeof eq === "object") {
+      const rows = Object.keys(eq)
+        .filter((k) => eq[k] && typeof eq[k].equity === "number")
+        .map((k) => k + " $" + Math.round(eq[k].equity));
+      if (rows.length) {
+        const total = Object.keys(eq).reduce(
+          (a, k) => a + ((eq[k] && eq[k].equity) || 0), 0);
+        lines.push("Book equity: $" + Math.round(total) + " total (" + rows.join(", ") + ")");
+      }
+    }
+    // Per-arm net from the calendar's own precomputed views -- the same numbers the
+    // page shows, so the console and the glass can never disagree in front of J.
+    try {
+      const cal = read("analysis/journal/calendar-data.json");
+      const views = (cal && cal.views) || {};
+      const book = views.BOOK && views.BOOK.summary;
+      if (book && book.total_pnl_net != null) {
+        const per = Object.keys(views).filter((k) => k !== "BOOK").map((k) => {
+          const su = views[k].summary || {};
+          return k + " " + (su.total_pnl_net >= 0 ? "+" : "") + Math.round(su.total_pnl_net || 0);
+        });
+        lines.push("Net P&L (after fees): $" + Math.round(book.total_pnl_net) + " over " +
+          book.trading_days + " sessions, " + book.total_trades + " trades" +
+          (per.length ? " -- " + per.join(", ") : ""));
+      }
+    } catch { /* the calendar is large; its absence must not cost the whole block */ }
   } catch { /* whole block is optional */ }
   if (!lines.length) return "";
   return "\n\nLIVE TRADING STATE (auto-injected " + new Date().toISOString() +

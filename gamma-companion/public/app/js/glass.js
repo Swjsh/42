@@ -409,6 +409,60 @@
     return wrap;
   }
 
+
+  /* ---- NEEDS A DECISION -----------------------------------------------------
+   * J, 2026-08-30 01:20: "gamma will need to come up with all the recc action
+   * cards and they will need 1 button on them that sends it".
+   *
+   * The cards were being GENERATED the whole time (12 of them right now, written by
+   * gamma_cockpit_cards.py) and lived on a separate /cards route the one-page rebuild
+   * left behind. So the autonomy actuator existed and had no surface, which is the
+   * same failure the trading data had. Here they are on the one page, ranked, with
+   * the single button that fires them.
+   *
+   * The title is humanized: these come from STATUS.md and guard output, so they
+   * arrive as "EARNINGS-CALENDAR STALE (RED): earnings-blackout.json is 53.3h old…"
+   * which is machine-speak on a glanceable surface. Raw text stays in the title
+   * attribute. */
+  function cards(payload) {
+    const c = (payload || {}).cards || {};
+    const rows = (c.cards || []).slice(0, 6);
+    const wrap = el('gcards');
+    if (!rows.length) {
+      wrap.appendChild(D.miss('No decisions queued', 'automation/state/action-cards.json'));
+      return wrap;
+    }
+    rows.forEach(function (card) {
+      const n = el('gcard');
+      const h = G.human ? G.human.broken(String(card.title || '')) : { text: card.title, raw: card.title };
+      n.title = h.raw || '';
+      const auto = card.autofire_safe;
+      n.innerHTML =
+        '<div class="gcard__t">' + esc(h.text) + '</div>' +
+        '<div class="gcard__m">' +
+          '<span class="gcard__k" data-t="' + (auto ? 'auto' : 'ask') + '">' +
+            (auto ? 'safe to auto-run' : 'needs you') + '</span>' +
+          (card.source_age_h != null
+            ? '<span class="gcard__a">' + esc(G.human ? G.human.ago(
+                new Date(Date.now() - card.source_age_h * 3600000).toISOString()) : '') + '</span>'
+            : '') +
+        '</div>';
+      const btn = document.createElement('button');
+      btn.className = 'gcard__go';
+      btn.textContent = 'Run it';
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        btn.textContent = 'Sending…';
+        if (G.fireCard) G.fireCard(card, btn);
+        else { btn.textContent = 'unavailable'; btn.disabled = false; }
+      });
+      n.appendChild(btn);
+      wrap.appendChild(n);
+    });
+    if (G.motion) G.motion.stagger(wrap.children, 40);
+    return wrap;
+  }
+
   /* ---- THE ARMS ----------------------------------------------------------
    * One row per arm that holds real money. Bar width encodes net P&L against the
    * biggest absolute mover, so the reader compares arms by SHAPE before reading a
@@ -446,5 +500,5 @@
     return wrap;
   }
 
-  G.glass = { strip, mind, arms, spark, money, dash, tone, calendar, openCalendar };
+  G.glass = { strip, mind, arms, cards, spark, money, dash, tone, calendar, openCalendar };
 })(window.G = window.G || {});

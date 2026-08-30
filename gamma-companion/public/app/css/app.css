@@ -1260,3 +1260,30 @@ kbd{font:600 12px/1 var(--mono);padding:3px 5px;border-radius:5px;background:var
 .deskmain .auto__sub{flex:1 1 220px;min-width:0}
 .deskmain .auto__bar{margin:0 0 0 auto;padding:0;border:0;flex:0 0 auto}
 .deskmain .auto__fold{margin-top:var(--s2);padding-top:var(--s2)}
+
+/* === NEEDS A DECISION ======================================================
+   J, 2026-08-30: "gamma will need to come up with all the recc action cards and
+   they will need 1 button on them that sends it". The cards were being generated
+   the whole time and lived on a route the one-page rebuild left behind. */
+.gcards{display:flex;flex-direction:column;gap:var(--s2)}
+.gcard{position:relative;padding:9px 10px;border-radius:var(--r2);
+  background:var(--bg-1);border:1px solid var(--line);
+  display:flex;flex-direction:column;gap:6px;
+  transition:border-color var(--t) var(--ease)}
+.gcard:hover{border-color:var(--line-2)}
+.gcard__t{font-size:12.5px;line-height:1.4;color:var(--ink-2);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.gcard__m{display:flex;align-items:center;gap:8px}
+.gcard__k{font-size:12px;font-weight:640;letter-spacing:.04em}
+/* violet = actionable, cyan = already safe. Neither borrows a money colour. */
+.gcard__k[data-t="ask"]{color:var(--acc)}
+.gcard__k[data-t="auto"]{color:var(--live)}
+.gcard__a{font-size:12px;color:var(--ink-4);margin-left:auto}
+.gcard__go{align-self:flex-start;font-size:12px;font-weight:640;
+  padding:5px 12px;border-radius:999px;color:var(--ink);
+  background:color-mix(in oklch,var(--acc) 22%,transparent);
+  border:1px solid color-mix(in oklch,var(--acc) 34%,transparent);
+  transition:background var(--t) var(--ease)}
+.gcard__go:hover:not(:disabled){background:color-mix(in oklch,var(--acc) 34%,transparent)}
+.gcard__go:disabled{opacity:.6;cursor:default}
+@media (prefers-reduced-motion:no-preference){ .gcard{animation:rowIn 300ms var(--ease)} }
