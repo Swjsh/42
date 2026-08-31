@@ -1223,6 +1223,38 @@ rows non-None since 08-19) -- not re-verified a third time here, cited only. -->
 - Gap Gamma logs self-check BROKEN items (e.g., EARNINGS-CALENDAR STALE, RUN-CMD-HIDDEN) but does not autonomously attempt to diagnose or remediate them, requiring manual conductor intervention and violating the self-healing principle.
 - Gap Gamma's conductor outcome metric shows a regressing trend (net_improvement positive but cost_per_drained high and trend regressing), indicating it is accumulating technical debt faster than it is resolving; it should autonomously [...]
 
+<!-- DONE 2026-08-31T09:xx ET conductor (AFTERHOURS): TRIAGED, all 12 disposed -- live-checked
+against real scheduled tasks/scripts, not re-derived from swarm prose. (1/9) "autonomous gate
+revalidation triggering" is ALREADY BUILT: `Gamma_GateExpiryCheck` (01:00 ET daily, registered
+2026-07-31) reads gate-registry.json's per-gate `revalidation_interval_days` (default 21),
+mines the recent real-fills window via recency_check.py's own machinery, and flags a STATUS.md
+transition when a refused cohort's expectancy turns positive -- the exact mechanism this gap
+describes, not a hypothetical. (2/10) "weekend infrastructure maintenance" is ALREADY COVERED --
+Gamma_SelfCheck (24/7, 30min), Gamma_GuardsNightly/Gamma_OosCheck/Gamma_DressRehearsal/
+Gamma_LicenseMonitor/Gamma_GateExpiryCheck are all DAILY triggers (not weekday-restricted), so
+weekends get the identical maintenance cycle as weeknights. (3/11) "automated diagnosis and
+remediation of self-check BROKEN items" is ALREADY BUILT: `state_freshness_selfheal.py`
+(registered 2026-07-31) is wired into `run-tv-watchdog.ps1` (Gamma_TvWatchdog, every 5 min) --
+on a RED whose manifest entry names a resolvable Gamma_* task, it force-starts that task NOW via
+Start-ScheduledTask (cooldown-guarded, logged to state-freshness-selfheal-log.jsonl). This gap
+batch predates verifying that build was live; confirmed via `grep -rn state_freshness_selfheal`
+across .py and .ps1, it is imported and called, not dead code. (4) "closing the loop on tech
+debt" -- per OP-22, this entire self-audit triage thread (7+ batches closed since 08-19, mostly
+0-new-code because gaps are misreadings of infra that already exists) IS the loop-closing
+response the conductor_outcome regressing-trend flagged; noted, not itself a new fix. (5) "OPRA
+cache freshness monitoring" (framed via the TRENDLINE-SHADOW BLIND incident) is ALREADY FILED --
+`TRENDLINE-SHADOW-VERDICT-RECOMPUTE` (LOW, queue.md, filed 2026-08-29) targets the exact named
+incident (shadow-ledger grown to 4,786 rows, last verdict stamped 08-20); not a duplicate. (6)
+"self-healing for API burn on weekends" is too vague to action -- no named producer/failure
+mode; logged as candidate future work only. (7) "gate validation robustness (robust vs naive
+default)" is ALREADY the DEFAULT: `gate_expiry_check.py`'s nightly check mines REAL recent fills
+through `simulator_real.py`, not a naive registry-age check -- there is no separate "naive"
+path left to replace. (8) "automated backfill of missing data" is generic with no named target
+file/gap -- logged as candidate future work only, not actioned. (9-12) are Gap-prefixed
+restatements of (1)/(2)/(3)/(4) respectively -- disposed identically. Zero new code needed;
+all substantive claims resolve to already-shipped instruments once checked against the live
+scheduled-task registry instead of re-derived from swarm prose. -->
+
 ## 2026-08-24T17:32:16 -- 8 new gap(s) Gamma self-identified
 - Both perspectives agree that Gamma lacks an automated mechanism to detect and halt losing arms/strategies in real‑time (i.e., a circuit‑breaker based on per‑account P&L).
 - Both agree that the absence of such a guard leads to continued capital allocation to losing strategies, potential Rule 9/Rule 10 violations, and erodes confidence in the system’s autonomy.
