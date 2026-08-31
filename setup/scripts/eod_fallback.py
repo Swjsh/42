@@ -58,8 +58,11 @@ _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 # Last tier is paid MiniMax M2.5 (~$0.003/call) — only fires if all free tiers 429.
 # 2026-07-01 audit: deepseek-v4-flash:free + minimax-m2.5:free 404'd (de-tagged to paid) —
 # replaced with gpt-oss-120b + gemma-4-31b, both live-call verified from the free catalog.
+# 2026-08-31 re-audit (DEAD-MODEL-SLUG-IN-CHEF-SWARM-2026-08-31 follow-up): gpt-oss-120b:free
+# also silently dropped from the free catalog since — re-verified live (real call) and
+# replaced with nemotron-3-ultra-550b-a55b:free. Dead ids: automation/state/model-roster.json.
 _LADDER_FREE_1 = "nvidia/nemotron-3-super-120b-a12b:free"
-_LADDER_FREE_2 = "openai/gpt-oss-120b:free"
+_LADDER_FREE_2 = "nvidia/nemotron-3-ultra-550b-a55b:free"
 _LADDER_FREE_3 = "google/gemma-4-31b-it:free"
 _LADDER_PAID   = "minimax/minimax-m2.5"
 _MODEL_LADDER  = [_LADDER_FREE_1, _LADDER_FREE_2, _LADDER_FREE_3, _LADDER_PAID]

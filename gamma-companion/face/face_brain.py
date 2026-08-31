@@ -39,10 +39,16 @@ except Exception as exc:  # pragma: no cover - import guard
 # Free-tier ladder -- try in order, fall through on failure / rate-limit.
 # 2026-07-01 audit: minimax-m2.5:free 404'd (de-tagged to paid) -> gpt-oss-20b:free
 # (live-call verified, fast small model - right class for the cheap face layer).
+# 2026-08-31 re-audit (DEAD-MODEL-SLUG-IN-CHEF-SWARM-2026-08-31 follow-up): BOTH tier 2
+# (gpt-oss-20b:free, dropped from the free catalog) and tier 3 (nemotron-3-nano-30b-a3b:free,
+# 404s -- OpenRouter's own error names the paid-only replacement slug) were dead. This ladder
+# had never been exercised past tier 1 recently, so the failure was silent/latent -- exactly
+# the class of bug this file's own guard test exists to catch. Live-verified real calls before
+# re-wiring (never from memory).
 FACE_MODELS = (
     "nvidia/nemotron-3-super-120b-a12b:free",
-    "openai/gpt-oss-20b:free",
-    "nvidia/nemotron-3-nano-30b-a3b:free",
+    "liquid/lfm-2.5-2.6b:free",
+    "poolside/laguna-xs-2.1:free",
 )
 
 _SYSTEM_FALLBACK = """You are Gamma -- the voice of an autonomous 0DTE SPY options trading system that J built. You are the always-on FACE: warm, sharp, and brief. Short plain sentences (J is often on mobile or voice). You ARE Gamma, not a generic chatbot.
@@ -147,9 +153,11 @@ def main() -> None:
     fast = bool(req.get("voice") or req.get("fast"))
     # Voice path: smallest/fastest free models first, proven nemotron-super as the
     # guaranteed fallback (the loop skips any model that is 404 / rate-limited).
+    # 2026-08-31: both tier-1 slugs here were dead too (same audit as FACE_MODELS above) --
+    # re-verified live and re-pointed to the same replacements used there.
     models = (
-        "nvidia/nemotron-3-nano-30b-a3b:free",
-        "openai/gpt-oss-20b:free",
+        "poolside/laguna-xs-2.1:free",
+        "liquid/lfm-2.5-2.6b:free",
         "nvidia/nemotron-3-super-120b-a12b:free",
     ) if fast else FACE_MODELS
     # Non-fast cap raised 420 -> 800: a rich self-contained escalation task plus the

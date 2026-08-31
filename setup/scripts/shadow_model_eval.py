@@ -327,7 +327,13 @@ MODELS: dict = {
         "scorecard_subdir": "nemotron",
     },
     "qwen": {
-        "id": "qwen/qwen3-next-80b-a3b-instruct:free",  # 80B MoE, 262K ctx, instruction-tuned
+        # 2026-08-31: original qwen/qwen3-next-80b-a3b-instruct:free silently dropped from
+        # OpenRouter's free catalog (DEAD-MODEL-SLUG-IN-CHEF-SWARM-2026-08-31 follow-up;
+        # live-verified via swarm_consult.py --audit-roster). Not on any scheduled cron
+        # (Gamma_ShadowEval only runs --model nemotron) so no scorecard continuity was
+        # broken — but a manual `--model qwen` run would have silently 404'd. Re-pointed
+        # to a live free model; key name kept as-is (rename is a separate, deliberate move).
+        "id": "inclusionai/ling-3.0-flash-fin:free",  # live-verified 2026-08-31, distinct vendor
         "rubric_file": RUBRICS_DIR / "qwen.md",
         "temperature": 0.0,
         "max_tokens": 4096,
@@ -337,7 +343,10 @@ MODELS: dict = {
         "scorecard_subdir": "qwen",
     },
     "hermes": {
-        "id": "nousresearch/hermes-3-llama-3.1-405b:free",  # 405B, agentic, structured output
+        # 2026-08-31: original nousresearch/hermes-3-llama-3.1-405b:free silently dropped
+        # from the free catalog (same audit as above). Not on any scheduled cron; re-pointed
+        # to a live free model. Key name kept as-is (rename is a separate, deliberate move).
+        "id": "nvidia/nemotron-3.5-lightning:free",  # live-verified 2026-08-31
         "rubric_file": RUBRICS_DIR / "hermes.md",
         "temperature": 0.0,
         "max_tokens": 4096,

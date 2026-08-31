@@ -72,6 +72,10 @@ TIMEOUT_DEFAULT_S: int = 120
 #   * meta-llama/llama-3.3-70b-instruct:free  -- 131K ctx, general
 # DEAD (2026-07-01, de-tagged to paid — see model-roster.json "dead"):
 #   minimax/minimax-m2.5:free, deepseek/deepseek-v4-flash:free
+# ALSO DEAD as of the 2026-08-31 re-audit (qwen3-coder, gpt-oss-120b, llama-3.3-70b-instruct
+# above are all gone from the live free catalog too — see model-roster.json "dead" for the
+# current authoritative list; this table's :free entries stay cost=0 regardless via the
+# `_is_free_model` suffix check below, so a stale/missing PRICING row never mis-bills).
 # Free tier is rate-limited (not $-capped), so callers should fallback gracefully
 # on 429. Pricing entries are 0/0; daily $-cap logic does not apply.
 PRICING: dict[str, dict[str, float]] = {

@@ -29,7 +29,7 @@ DEFAULT MODELS (parallel fan-out, $0 each — see DEFAULT_PERSPECTIVE_MODELS bel
 the list here is illustrative and the CODE is the source of truth. Verify slugs
 against the live catalog with --audit-roster, never from memory.)
   nvidia/nemotron-3-super-120b-a12b:free   (primary reasoner, 1M ctx)
-  openai/gpt-oss-120b:free                 (distinct lineage, 131K ctx)
+  minimax/minimax-m2.7:free                (distinct lineage)
   google/gemma-4-31b-it:free               (262K ctx)
 Synthesizer: Nemotron.
 
@@ -82,7 +82,7 @@ _PROVIDERS: dict[str, dict] = {
 
 
 def _split_spec(spec: str) -> tuple[str, str]:
-    """'cerebras:zai-glm-4.7' -> ('cerebras','zai-glm-4.7'); bare slug -> ('openrouter', slug).
+    """'cerebras:some-model' -> ('cerebras','some-model'); bare slug -> ('openrouter', slug).
 
     OpenRouter slugs contain '/' (vendor/model) so the FIRST ':' only counts as a
     provider prefix when the prefix is a known provider — avoids mis-splitting a
@@ -95,27 +95,39 @@ def _split_spec(spec: str) -> tuple[str, str]:
     return "openrouter", spec
 
 
-# Default fan-out: 5 independent free perspectives across 4 distinct VENDORS + 2
-# providers (J 2026-06-28: "get 5 in the swarm" incl. GLM + DeepSeek). GLM via
-# Cerebras (free, no-train). DeepSeek is PAID on every reachable host right now
-# (OpenRouter paid; Groq decommissioned the free distills) — excluded under the
-# free-only rule; swap in when a free host returns. LIVE-VERIFIED 2026-06-28.
-# Lesson: NEVER hand-pick slugs from memory — catalogs rotate; probe live (--audit-roster).
+# Default fan-out: 5 independent free perspectives across 5 distinct VENDORS
+# (J 2026-06-28: "get 5 in the swarm" incl. GLM + DeepSeek). DeepSeek is PAID on
+# every reachable host right now (OpenRouter paid; Groq decommissioned the free
+# distills) — excluded under the free-only rule; swap in when a free host returns.
+# 2026-08-31 re-audit (DEAD-MODEL-SLUG-IN-CHEF-SWARM-2026-08-31 follow-up):
+# `swarm_consult.py --audit-roster` found the ORIGINAL cerebras:zai-glm-4.7 archived
+# by Cerebras AND its intended in-file fallback cerebras:gpt-oss-120b returning
+# 402 Payment Required (a Cerebras-account billing issue, not a per-model 404 —
+# the whole cerebras: lane is currently unusable on this account, live-probed).
+# Moved the GLM lineage to OpenRouter (z-ai/glm-5.2:free) to route around it
+# entirely. openai/gpt-oss-120b:free and qwen/qwen3-next-80b-a3b-instruct:free
+# also silently dropped from the free catalog since 06-28 — re-verified live
+# (real calls, not from memory) and re-replaced. Lesson holds: NEVER hand-pick
+# slugs from memory — catalogs rotate; probe live (--audit-roster) before trusting
+# any slug list, including this one.
 DEFAULT_PERSPECTIVE_MODELS: tuple[str, ...] = (
-    "cerebras:zai-glm-4.7",                      # GLM 4.7 — Cerebras free, no-train, strong reasoner
+    "z-ai/glm-5.2:free",                         # GLM 5.2 — OpenRouter (was cerebras:zai-glm-4.7, archived)
     "nvidia/nemotron-3-super-120b-a12b:free",   # NVIDIA 120B — 1M ctx
-    "openai/gpt-oss-120b:free",                  # OpenAI open 120B — distinct lineage
+    "minimax/minimax-m2.7:free",                 # MiniMax — distinct lineage (was gpt-oss-120b:free, dead)
     "google/gemma-4-31b-it:free",                # Google 31B — 262K ctx
-    "qwen/qwen3-next-80b-a3b-instruct:free",     # Qwen 80B — fifth vendor
+    "inclusionai/ling-3.0-flash-fin:free",       # InclusionAI — fifth vendor (was qwen3-next-80b, dead)
 )
 # Rotation pool: when a primary 429s/404s, _call_one_perspective falls through to
 # the next live model so we still get a full set. 429 = transient (rotate), 404 = dead (skip).
+# Re-verified live 2026-08-31 (real calls): cerebras:gpt-oss-120b (402 billing),
+# openai/gpt-oss-20b:free, meta-llama/llama-3.3-70b-instruct:free, and
+# nousresearch/hermes-3-llama-3.1-405b:free were all dead/unusable; replaced.
 PERSPECTIVE_FALLBACK_POOL: tuple[str, ...] = (
-    "cerebras:gpt-oss-120b",                     # Cerebras gpt-oss — GLM-lane fallback (no-train)
-    "openai/gpt-oss-20b:free",                   # OpenAI 20B — fast
-    "meta-llama/llama-3.3-70b-instruct:free",    # Meta 70B
-    "nousresearch/hermes-3-llama-3.1-405b:free", # Nous 405B
-    "qwen/qwen3-coder:free",                      # Qwen coder 1M ctx
+    "liquid/lfm-2.5-2.6b:free",                  # Liquid — no Cerebras dependency
+    "minimax/minimax-m3:free",                   # MiniMax M3 — fast
+    "cohere/north-mini-code:free",               # Cohere coder-flavored
+    "nvidia/nemotron-3.5-lightning:free",        # NVIDIA lightning — fast tier
+    "google/gemma-4-26b-a4b-it:free",            # Google 26B — distinct from primary Gemma
     "nvidia/nemotron-3-ultra-550b-a55b:free",    # NVIDIA 550B — heavy
 )
 # Errors worth rotating to a different model (transient capacity / de-tagged slug).
