@@ -1,0 +1,53 @@
+{
+  "IS": {
+    "label": "IN-SAMPLE",
+    "start": "2026-06-02",
+    "end": "2026-08-07",
+    "n_signal": 446,
+    "n_days": 41,
+    "n_nullA": 446,
+    "n_nullB": 3047,
+    "sig_mean_exc": 0.6919763314969881,
+    "nullA_mean_exc": 0.8093207431947185,
+    "nullB_mean_exc": 0.6271857580842842,
+    "lift_a": -0.11734441169773036,
+    "lift_b": 0.06479057341270389,
+    "p_a": 0.9330334832583708,
+    "p_b": 0.11394302848575712,
+    "beats_a": false,
+    "beats_b": false,
+    "monotone_h2": false,
+    "corr_strength_exc": -0.11174322253426865,
+    "verdict": "NO-LIFT: rejection does not beat random entry -> volume shelves are hindsight (C25)"
+  },
+  "OOS": {
+    "label": "OUT-OF-SAMPLE",
+    "start": "2026-08-10",
+    "end": "2026-08-28",
+    "n_signal": 128,
+    "n_days": 15,
+    "n_nullA": 128,
+    "n_nullB": 990,
+    "sig_mean_exc": 0.36861249999999135,
+    "nullA_mean_exc": 0.3914593749999984,
+    "nullB_mean_exc": 0.39005212121211996,
+    "lift_a": -0.02284687500000704,
+    "lift_b": -0.021439621212128612,
+    "p_a": 0.6011994002998501,
+    "p_b": 0.6521739130434783,
+    "beats_a": false,
+    "beats_b": false,
+    "monotone_h2": false,
+    "corr_strength_exc": -0.07516307189321253,
+    "verdict": "NO-LIFT: rejection does not beat random entry -> volume shelves are hindsight (C25)"
+  },
+  "oos_confirms_is": false,
+  "config": {
+    "lookback_days": 10,
+    "bin_width": 0.5,
+    "k_bars": 6,
+    "move_thresh": 0.15,
+    "n_perm": 2000,
+    "rng_seed": 20260831
+  }
+}

@@ -1196,6 +1196,18 @@ flagged here for a future batch if the pattern starts crowding real content. -->
 - Both perspectives agree that Project Gamma must autonomously detect and remediate systemic operational drifts (e.g., stale author inboxes, unmaintained allowlists) without manual intervention.
 - Both acknowledge that existing guards and self-checks are insufficient to prevent recurrence of known failure modes (e.g., conviction‑c4‑c5 regression, chef‑inbox starvation).
 - Consequently, there is no disagreement on substance, but Perspective 2 lacks the rigor and specificity needed to prioritize remediation.
+<!-- DONE 2026-08-31 ~05:xx ET conductor (AFTERHOURS): TRIAGED, all 3 disposed. Item 1
+("autonomously detect/remediate systemic drifts") and item 3 (meta-commentary on the other
+perspective's rigor) are generic asks/scaffold, not concrete gaps -- no action. Item 2
+named a SPECIFIC, checkable claim ("chef-inbox starvation") and it was TRUE: live-checked
+strategy/candidates/_chef-inbox/ and found exactly one non-.DONE item,
+2026-07-10-prospector-volume_shelf_tv_vp.md, untouched since 2026-08-05 (26 days) despite
+3 prior conductor passes deferring it with "next bounded step" notes rather than doing the
+step. ACTIONED, not just noted: built the detector + ran the pre-registered null test this
+fire (see the chef-inbox item's own closing DONE marker for the full result) -- real
+engine-benefit R&D output, not a process fix. The conviction-c4-c5 half of item 2 was
+already independently confirmed fixed in the 2026-08-20 batch's DONE marker (164/164 real
+rows non-None since 08-19) -- not re-verified a third time here, cited only. -->
 
 ## 2026-08-23T17:31:24 -- 12 new gap(s) Gamma self-identified
 - Autonomous gate revalidation triggering Because if a gate's evidence is stale and it is incorrectly blocking or allowing trades, it could lead to Rule 10 violations (trade not happening when it should, or happening when it shouldn't). The [...]

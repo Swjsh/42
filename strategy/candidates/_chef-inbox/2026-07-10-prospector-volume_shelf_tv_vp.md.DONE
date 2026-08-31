@@ -50,3 +50,46 @@ null-tested (C25/C27 discipline -- naive-fire-rate vs random-level null, not jus
 correlate"). No TV MCP dependency required for the research phase. -->
 
 <!-- NOTE 2026-08-05 ~05:45-06:15 ET conductor (AFTERHOURS, acting as chef, CHEF-INBOX-BACKLOG-DRAIN dedup pass): 2 newer near-duplicate(s) folded in this fire -- 2026-07-28-prospector-market-profile-tpo-built-in-tradingview-.md (same value-area/POC family (TPO framing) -- reduces to the same testable hypothesis per the 2026-07-23 note already on this canonical); 2026-08-02-prospector-market-profile-tpo-by-alex-grover.md (same idea, 2nd TPO-framing recurrence). Canonical status unchanged: STILL OPEN -- canonical for the value-area/POC/volume-profile/market-profile family; next bounded step already specified: build compute_volume_profile(bars, bin_width) from cached SPY 5m OHLCV, no TV MCP dependency needed. -->
+
+<!-- DONE 2026-08-31 ~05:xx ET conductor (AFTERHOURS, acting as chef): BUILT + NULL-TESTED,
+CLOSED WITH A NEGATIVE VERDICT (not a deferral this time -- the bounded next step named in the
+2026-08-05 note is now DONE). Built `backtest/lib/watchers/volume_profile.py`
+(stateless/causal/look-ahead-safe `VolumeProfile` class -- same design contract as
+`level_memory.py`: typical-price-weighted rolling volume histogram over a configurable
+lookback, HVN "shelf" = local-max bin >= MIN_SHELF_SHARE of window volume, POC = global max
+bin) computed directly from cached SPY 5m OHLCV+volume (no TV MCP dependency, confirming the
+07-23 note's finding). Null-tested via `backtest/autoresearch/volume_profile_null_test.py`,
+an EXACT structural mirror of `level_memory_null_test.py` (same K=6-bar/30min horizon, same
+permutation-test nulls A [random-price reject] and B [random entry], same C25/C27 discipline
+for H2 strength-monotonicity) on real SPY 5m bars 2026-05-19..2026-08-28, IS/OOS split per C4
+disclosure discipline (never pooled).
+
+**RESULT (real data, N=446 IS + 128 OOS shelf-rejection events across 56 distinct trading
+days): NO-LIFT on BOTH windows.** IS: signal mean excursion 0.692pt vs null-B (random entry)
+0.627pt, lift +0.065pt but p=0.114 (not significant); vs null-A (random-price reject) signal
+actually UNDERPERFORMED (-0.117pt, p=0.933). OOS: signal 0.369pt vs null-B 0.390pt (lift
+-0.021pt, p=0.652) -- a shelf rejection did not even beat a coin-flip-direction random entry
+out of sample. **H2 (does a STRONGER shelf predict a bigger reaction) is NOT just
+unsupported, it is INVERTED**: weak shelves show the biggest excursions (IS: weak=0.860 >
+mid=0.657 > strong=0.558pt; OOS: same ordering), corr(strength,excursion) is negative in both
+windows (-0.112 IS, -0.075 OOS). This is a materially cleaner failure than a generic
+no-signal null: if the mechanism were real, MORE volume memory should predict a BIGGER
+reaction (as it does, weakly, for LEVEL_MEMORY's swing-pivot levels) -- here it predicts a
+SMALLER one, which reads as "big volume nodes are simply high-liquidity zones where price
+passes through easily," the opposite of a support/resistance shelf.
+
+**VERDICT: DEAD, closing the loop rather than re-proposing.** Guard test
+`backtest/tests/test_volume_profile_shelf_2026_08_31.py` (6/6 PASS, RED-proofed live via an
+injected look-ahead leak -- caught it: `AssertionError: ... shelf near 510 visible at bar 20
+before the huge-volume cluster forms`). Scorecard filed:
+`analysis/recommendations/volume-profile-shelf-null-test-2026-08-31.json`. This closes the
+J-directed 2026-07-09 prospector idea (`volume_shelf_tv_vp`) and its 2 folded TPO/market-
+profile duplicates (2026-07-11, 2026-07-28, 2026-08-02) with a real, disclosed, IS+OOS
+negative result -- not a "still needs building" deferral. Detector code itself (`VolumeProfile`)
+stays in the repo as reusable infrastructure (look-ahead-safe, guard-tested) in case a
+DIFFERENT hypothesis about the same underlying data (e.g. LVN "air pockets" as breakout-
+acceleration zones rather than HVN shelves as reject zones) is worth testing later --
+re-running THIS hypothesis (HVN-as-support/resistance) without new evidence would be C25
+re-litigation of an answered question. Rail: pure R&D/observation-only fire -- zero trading-
+path/params/heartbeat file touched; revert is `git revert <this commit>` (all new files,
+fully additive). -->
