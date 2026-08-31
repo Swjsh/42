@@ -1101,6 +1101,38 @@ file touched (self_audit.py is an observation-only R&D organ). Revert: `git reve
 - Actionable fix: After each fill, live‑watch should run a schema validator against `REQUIRED_POSITION_FIELDS`. If any field is null, automatically attempt a re‑fetch from the broker (up to 2 retries) and, if still missing, mark the position [...]
 - Operator will point at next: When a fill arrives with a missing `delta` field, the system will silently propagate a zero delta, causing mis‑sized hedges; J will see a sudden P&L jump and ask why the position wasn’t flagged.
 
+<!-- DONE 2026-08-31T01:xx ET conductor (AFTERHOURS): TRIAGED, all 4 disposed -- live-checked
+against the actual codebase rather than re-derived from the swarm's prose (per the standing
+disposition discipline). Item 1 (generic feed-health.json watchdog for Kalshi/Alpaca-Greeks
+staleness) is PARTIALLY covered and the residual is already filed: grepped setup/scripts for
+feed_health/last_ok_ts_et -- no single generic file exists, but self_check.py already implements
+the identical per-producer staleness pattern (age-vs-threshold, fail-closed-if-unparseable) for
+macro calendar, earnings feed, trendlines, regime stamp, level_feed, sight_beacon, and
+watcher_feed. The concrete Kalshi angle is already its own queue.md item
+(KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE, LOW, filed 2026-08-21) and the Alpaca-Greeks-returns-{}
+condition is a KNOWN, already-disclosed PERMANENT characteristic (theta_clock.py's own docstring:
+29/29 real ENTER rows show sqrt_time_decay_model_est, by design, visibility-only) -- not a
+staleness event a watchdog would catch, so no new item filed. Item 2 (conviction guard only
+checks the script runs, not that C4/C5 are non-null) is FALSE as stated: grepped
+incident_fix_status.py -- `_chk_conviction_components` is a LIVE-DATA check (not a script-ran
+check), backed by `test_conviction_c4_c5_wiring_2026_08_14.py`, and already caught + the
+2026-08-14 C5-None regression is fixed (164/164 real rows non-None since 2026-08-19, per the
+2026-08-30T12:51 ET STATUS entry). Item 3 (no performance-drift monitor for core recency /
+hysteresis / theta) is FALSE as a blanket claim: `monday_verify.py`'s WS11 already tracks core
+recency drift as a rolling window advances (verdict_moved=True/False, live-refreshed), and WS3
+already tracks level-hysteresis flip counts against the Friday 07-31 baseline; theta stays
+visibility-only by design (not a live entry input, so "drift" there is not a trading-relevant
+gap). Item 4 (WS7 should schema-validate REQUIRED_POSITION_FIELDS post-fill, retry from broker,
+mark uncertain) mischaracterizes the actual failure mode: `live_watch.py` already computes every
+WS7 field as an HONEST None when an input is missing (never a silent zero -- checked the module's
+own field-construction code, e.g. `qty = None`, `upl_pct = None if ... is None`), so the
+"silently propagate a zero delta -> mis-sized hedges" scenario describes a defect class this
+codebase doesn't have (there is also no delta-hedging code path in this 0DTE directional book --
+the concern is a generic-swarm import from a different kind of trading system). No new code
+action needed beyond what queue.md already tracks; this triage closes the loop so the batch stops
+reading as open. Next fire on this thread: 2026-08-21 batch (12 items), oldest remaining
+untriaged. -->
+
 ## 2026-08-21T17:33:28 -- 12 new gap(s) Gamma self-identified
 - No automated validation of critical market‑data feeds options‑greeks endpoint returns `{}`; system silently falls back to a sqrt‑time model without alerting or pausing.
 - Stale‑lane detection is not generic the desk_allocator fix addressed one retired Kalshi lane, but gamma_cockpit_data.py and other consumers still read dead files; no centralized “lane‑health” service that auto‑flags retired producers.
@@ -1249,3 +1281,13 @@ never proposed anywhere in the futures build and is out of scope without a concr
 mode. No new code action needed beyond what queue.md already tracks; this triage closes the
 loop so the batch stops reading as open. -->
 
+
+## 2026-08-30T17:31:18 -- 8 new gap(s) Gamma self-identified
+- Missing automated recency-driven capital scaling (critical).
+- Missing earnings-calendar watchdog with auto-remediation (critical).
+- Theta clock still relies on synthetic Greeks after 29/29 real fills (high).
+- No drift detection for level hysteresis N=5 (high).
+- Regime stamp not updated over weekends (medium‑high).
+- Self‑audit gap backlog lacks automatic triage (medium).
+- Live watch lacks enforcement of REQUIRED_POSITION_FIELDS completeness (medium).
+- Preview diff has no forward‑testing archive to calibrate predictions (medium).
