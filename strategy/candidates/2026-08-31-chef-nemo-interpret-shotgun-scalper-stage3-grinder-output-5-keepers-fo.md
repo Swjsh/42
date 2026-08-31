@@ -3,24 +3,25 @@
 <!-- Per CLAUDE.md OP-22 + OP-25 + OP-30 (effort/concurrency discipline). -->
 <!-- NOT YET RATIFIED -- J review required per Rule 9 before any production change. -->
 
-DRAFT CANDIDATE:  
-**Rule 7 (PDT) Gap Documentation**  
-- Core enforcement active (safe/bold accounts tracked via `pdt_tracker.fetch_day_trades_used_5d()`). Fleet arms remain un-wired per OP-16 (J edge source-of-truth mandate).  
-- Known asymmetry: Fleet lacks PDT enforcement; exit-shape study (WS2) prioritized over PDT integration.  
-- Risk: Unchecked day-trading in fleet could trigger PDT violations if WS2 defers beyond 5-business-day window.  
-- Mitigation: Manual oversight during WS2 (per CLAUDE.md OP-22 "after-4pm work block"). No automated PDT guardrails in fleet until WS2 concludes.  
+DRAFT CANDIDATE: **PDT enforcement gap in fleet arms**  
+- Rule 7 (PDT) is explicitly not enforced in fleet arms per the 2026-07-08 note. This creates a compliance risk if fleet arms execute day trades without 5-day lookback checks. The gap is documented but unactioned, relying on WS2 exit-shape study completion. Unknown: How many fleet-arm trades could trigger PDT violations pre-WS2? No metrics tracked.  
 
 ---  
 
-**Work Cadence Conflict Analysis**  
-- "After-4pm work block" (16:00-23:59 ET) overlaps with WS2's required 24+ hour pipeline (per CLAUDE.md OP-22).  
-- Potential bottleneck: Param tuning/strategy spec requires weekend grind (Saturday-Sunday), but weekend deferral policy mandates <8h tasks resolved by evening.  
-- Unknown: Whether WS2's 24+ hour requirement can be parallelized with after-4pm work (no explicit mention of async processing in doctrine).  
+DRAFT CANDIDATE: **Work cadence window misalignment**  
+- After-4pm work block (16:00-23:59 ET) is designated for Phase 2 modules/bug fixes, but weekend deferral is labeled a "foot-gun." No quantification of task latency costs or missed opportunities from deferring <8h tasks. Unknown: What % of after-4pm tasks are actually >8h? No audit data exists in provided docs.  
 
 ---  
 
-**Autonomous Operator Guardrail Gap**  
-- CLAUDE.md OP-25 mandates "empty queue → brainstorm from FUTURE-IMPROVEMENTS.md".  
-- Current state: No explicit guardrail for "empty queue" during market hours (09:30-15:55 ET).  
-- Risk: Unintended BRAINSTORM triggers during live trading (e.g., if `FUTURE-IMPROVEMENTS.md` lacks prioritization tags).  
-- Mitigation: Pending code assertion in `backtest/tests/test_graduated_guards.py` (per C7 "silent success is failure").
+DRAFT CANDIDATE: **Autonomous operator guardrail failure**  
+- Guards must "fail open" but no mechanism is described to prevent J from being locked out (OP-32 scar: 2026-05-22 market-hours firewall incident). Current systems lack explicit failover paths for J's interactive session. Unknown: Are there redundant auth channels outside the firewall? No technical spec provided.  
+
+---  
+
+DRAFT CANDIDATE: **Edge capture vs. aggregate optimization**  
+- J's edge is the "source of truth" but no quantitative benchmarks are given for edge capture vs. aggregate optimization. Lessons C3 (SPY vs. option edge) and C4 (concentration disclosure) imply misaligned metrics. Unknown: How often do aggregate optimizations outperform edge-capture strategies? No historical comparison data.  
+
+---  
+
+DRAFT CANDIDATE: **Lessons index completeness**  
+- Lessons index (L01-L298) spans 298 entries but no metadata on recency, severity, or resolution status. C7 ("silent success is failure") is cited 77 times but no root-cause analysis is aggregated. Unknown: What % of lessons are recurring vs. one-off? No prioritization framework exists.
