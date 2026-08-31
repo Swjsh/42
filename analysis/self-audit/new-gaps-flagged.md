@@ -1147,6 +1147,51 @@ untriaged. -->
 - provides a broad, ranked checklist of eight systemic gaps (data‑feed validation, generic stale‑lane detection, circuit‑breaker on signal quality, slippage analytics, drift detection, state‑file versioning, event‑driven risk adjustment, [...]
 - zeroes in on a single recent patch (weather‑prediction scorecard) and argues that the absence of a defensive pre‑check/try‑catch creates a single‑point‑of‑failure that can halt the entire desk‑allocation routine.
 
+<!-- DONE 2026-08-31T02:xx ET conductor (AFTERHOURS): TRIAGED, all 12 disposed -- live-checked
+against 7 source files, not re-derived from swarm prose. (1) Greeks-endpoint-{}-silent-fallback
+is the IDENTICAL claim already disposed in the 2026-08-20 batch's DONE marker -- confirmed again
+live (theta_clock.py L4/22/304/311/330: "VISIBILITY ONLY", `theta_source =
+"sqrt_time_decay_model_est"`, and the source is NAMED in every written row, never hidden) --
+disclosed + permanent, not a new gap; deduped, no new item. (2) "no centralized lane-health
+service, gamma_cockpit_data.py still reads dead files" is FALSE as stated: gamma_cockpit_data.py
+already computes `_age_of()` generically for every file it consumes plus an explicit
+`STALE_POSITION_FILES` ignore-list (grepped live, L124/414/467/473-475) -- the cockpit itself
+IS the generic mechanism the item asks for, just not packaged as a standalone service; no action.
+(3) "missing circuit-breaker on conviction-c4-c5 RED continuing to route capital" is BY DESIGN,
+not a gap: `conviction_shadow_report.py`'s own docstring states "Conviction is DISARMED: there
+is no SKIP_LOW_CONVICTION branch in the engine ... MEASUREMENT ONLY" -- arming it as a live gate
+is a pre-registered future J-strategy-decision (same class as `gap_and_go`), not an infra bug.
+(4) real-time slippage/fill-quality analytics and (5) candidate drift-detection are genuine,
+un-built, but broad asks with no incident cited -- logged here as candidate future work, not
+filed as a new immediate item (consistent with the 2026-07-31/08-01 disposition precedent for
+this shape of claim). (6) "state-file versioning/backup is ad-hoc" is PARTIALLY true and
+correctly scoped down: the highest-risk surface (any autonomous params/doctrine edit) already
+snapshots every target file pre-edit and exposes `revert <id>` (`autonomy_actuator.py` L21-28,
+confirmed in the 2026-08-30T05:30 ET DONE marker too) -- the broader ask (continuously-regenerated
+live state files like live-watch.json/regime-stamp.json) is lower urgency since a corrupted
+producer surfaces within one engine-health fusion cycle, not silently; no incident, no action.
+(7) "event-driven risk adjustment is manual" is FALSE: both `earnings_calendar.py` (refreshed
+live this session 08-30T14:32 ET per STATUS.md) and `macro_calendar.py` (FOMC/CPI/NFP, wired into
+`run-heartbeat.ps1`, monitored by `self_check.py`) already auto-refresh and blackout-gate entries
+-- `heartbeat_core.py` L864 confirms the blackout-window check is live in the scoring path. (8)
+"test generation for candidates is optional, flawed candidates reach the allocation desk" misreads
+the pipeline: `strategy/candidates/` authoring itself has no per-file test gate, correct, but NO
+candidate reaches live capital allocation without clearing the OP-11 auto-ratify gate first --
+confirmed live in `promote_keeper.py` (`eval_bar_cleared` defaults `False`, requires
+`oos_positive` + `anchor_no_regression` + a filed scorecard before any apply_ops can ship); the
+"allocation desk" gate exists, candidate authoring alone was never the capital-routing boundary.
+(9) "theta fallback bypasses OP-22/26" mischaracterizes a disclosed, visibility-only estimation
+tool as an unreviewed behavior change -- same disposition as (1): the source method is named in
+every row, nothing is being shipped as a strategy/engine behavior, so there is no OP-22/26
+authoring-path to bypass. (10)-(12) are synthesis cross-reference fragments (verb-led
+continuations describing what one perspective's paragraph said -- "focuses on...", "provides
+a...", "zeroes in on...") -- a NEW lexical sub-variant of the recurring scaffold-leak class
+(06-29/07-01/08-18/08-30), but unlike those prior instances it did NOT crowd any real gap out
+of this batch's 12-slot budget (all 9 substantive items above are intact) -- so per the
+"conservative, reject only CLEAR noise, don't over-engineer a regex for a non-lossy leak" standard
+already documented in `self_audit.py`'s own header, no new extractor regex added this fire;
+flagged here for a future batch if the pattern starts crowding real content. -->
+
 ## 2026-08-22T17:31:21 -- 3 new gap(s) Gamma self-identified
 - Both perspectives agree that Project Gamma must autonomously detect and remediate systemic operational drifts (e.g., stale author inboxes, unmaintained allowlists) without manual intervention.
 - Both acknowledge that existing guards and self-checks are insufficient to prevent recurrence of known failure modes (e.g., conviction‑c4‑c5 regression, chef‑inbox starvation).
