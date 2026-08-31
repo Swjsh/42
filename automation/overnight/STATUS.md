@@ -1,4 +1,4 @@
-## [2026-08-31T06:32 ET] conductor: OK — DEAD-MODEL-SLUG-IN-CHEF-SWARM fixed across all 5 guard-watched files, commit pending
+## [2026-08-31T06:32 ET] conductor: OK — DEAD-MODEL-SLUG-IN-CHEF-SWARM fixed across all 5 guard-watched files, commit `c55f9ac3`
 
 **Picked via STAGE 0 budget gate PROCEED ($0.32/$30, 3/8 fires) + market closed (Monday 06:12 ET) + engine-health.json YELLOW (19/20 GREEN, `state_freshness` non-critical pre-open) + `active-goal.json` inactive. `desk_allocator.py`: SPY 0DTE #1 but no ready non-frozen item (config freeze active to ~09-29). `task_scorer.py --top` returned a frozen trading-path item. Fell through to STAGE-1 priority #4 (queue LOW, filed as an incidental discovery by the 05:44 ET fire): `DEAD-MODEL-SLUG-IN-CHEF-SWARM-2026-08-31` — `test_no_dead_slug_in_active_model_configs` RED, 4 dead OpenRouter slugs wired in `chef_nemotron.py`/`swarm_consult.py`.**
 
