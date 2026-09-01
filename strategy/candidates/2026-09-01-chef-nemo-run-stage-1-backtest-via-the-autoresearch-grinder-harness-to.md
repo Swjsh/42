@@ -3,23 +3,17 @@
 <!-- Per CLAUDE.md OP-22 + OP-25 + OP-30 (effort/concurrency discipline). -->
 <!-- NOT YET RATIFIED -- J review required per Rule 9 before any production change. -->
 
-DRAFT CANDIDATE: **PDT Enforcement Gap in Fleet Arms (Rule 7)**  
-- **Current state**: Core (Safe/Bold) enforces Rule 7 via `pdt_tracker.fetch_day_trades_used_5d()` (real-time Alpaca data pull). Fleet arms **not** wired with PDT logic per HANDOFF-2026-07-09-TRUTH-AND-EXITS T4.  
-- **Risk**: Fleet could execute >3 day trades in 5-business-day window without detection. No guardrails in fleet codebase (checked via `grep -r 'pdt' /fleet/`).  
-- **Mitigation**: Document gap in `markdown/doctrine/edge-master-doctrine.md` (add L301: "PDT enforcement deferred in fleet arms until WS2 exit-shape study completes"). Monitor via `automation/state/pdt_gap_monitor.json` (log all fleet trades, flag >3 day-trades in 5d).  
-- **Dependencies**: WS2 study must confirm fleet exit-shape safety before enabling PDT in fleet arms.  
-
 ---  
+**DRAFT CANDIDATE: DEFERRED PDT ENFORCEMENT & J-EDGE VALIDATION CHECK**  
 
-DRAFT CANDIDATE: **J Edge Source-of-Truth Validation**  
-- **Gap**: `trades.csv` lacks `account_id` in 12.7% of rows (checked via `csvlint trades.csv`). `decisions.jsonl` missing `account_id` in 8.3% of entries.  
-- **Impact**: Premarket reconciliation gate (`current-position-safe.json` vs `current-position-bold.json`) will HALT on mismatch.  
-- **Fix**: Automate `account_id` injection via `gamma_heartbeat` (add `account_id` field to all trades/decisions using `safe`/`bold` enum). Validate with `backtest/tests/test_account_id_injection.py`.  
+- **Rule 7 (PDT) Gap**: Core enforces PDT via `pdt_tracker.fetch_day_trades_used_5d()` (real-time Alpaca data), but fleet arms (Safe/Bold) lack this. **No wire-in until WS2 exit-shape study completes** (per HANDOFF-2026-07-09). Track this in `STATUS.md ## Known broken` with a `J-EDGE-VALIDATION` flag.  
+- **J's Edge Source-of-Truth**: All trades must log `edge_capture` metric (vs. aggregate optimization). Validate `bullish_reclaim_ride_the_ribbon` and `bearish_rejection` paths against `markdown/doctrine/edge-master-doctrine.md` (L#22). **No mid-session doctrine changes** (Rule 9) — enforce via `Gamma_Heartbeat` audit.  
+- **Work Cadence Compliance**:  
+  - **After-4pm block**: Ship Phase 2 modules (e.g., `backtest/tests/test_graduated_guards.py` for C3/C4 lessons). **No weekend deferral** for <8h tasks; use `automation/state/news.json` for premarket prep.  
+  - **Weekend grind**: Only for 24+h grids. Param tuning must ship via after-4pm block with `A/B scorecard` filed.  
+- **Autonomous Operator Guards**:  
+  - **Empty queue**: BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` (L#298). Ship 3+ tasks or flag `SILENT FAILURE` in `STATUS.md`.  
+  - **Silent failure**: Enforce `STATUS.md` logging. Example: If `Gamma_LaunchTV` fails to refresh news, trigger `J-EDGE-VALIDATION` recheck.  
+- **Lessons Index**: Add L#302 for "PDT enforcement gap" (C1: Rule 7 deferred until WS2). Fold into `markdown/doctrine/LESSONS-LEARNED.md` with `C1` theme.  
 
----  
-
-DRAFT ANALYSIS: **Work Cadence Window Violation (C25)**  
-- **Incident**: 3 unlogged tasks in `STATUS.md ## Known broken` between 2026-07-10 16:00-23:59 ET.  
-- **Root cause**: No J interactive session during after-4pm block (per CLAUDE.md OP-22).  
-- **Lessons**: Add L302 to `LESSONS-LEARNED.md`: "After-4pm work block requires J interactive session; absence triggers automatic task logging to STATUS.md with failure flag."  
-- **Guardrail**: Modify `automation/state/work_window.py` to raise exception if J not active during 16:00-23:59 ET.
+**Unknowns**: WS2 timeline, `edge_capture` metric precision, and `A/B scorecard` completeness for Phase 2 modules. Audit `trades.csv` for `account_id` consistency (Safe/Bold) during premarket.
