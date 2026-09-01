@@ -1265,6 +1265,42 @@ scheduled-task registry instead of re-derived from swarm prose. -->
 - The live‑watch archive check passes (append‑only file exists with ≈ expected tick count), **and**
 - The Greeks endpoint probe returns non‑empty data for at least one 0DTE contract (or, if still empty, the guard correctly blocks new entries and logs `greeks_source = 'UNAVAILABLE'`).
 
+<!-- DONE 2026-09-01T05:xx ET conductor (AFTERHOURS, commit 6047045b): TRIAGED, all 3
+substantive claims disposed -- item (a) BUILT, the other 2 are duplicates of already-live
+instruments, live-checked not re-derived from swarm prose. **Item (a) (live-watch.json has
+no historical archive -- "no post-close field verification") was a genuine, previously-named
+gap (first flagged as candidate future work in the 2026-08-03T20:xx DONE marker above) now
+RE-FLAGGED a 2nd time -- the OP-25/C7 graduation signal used identically for regime-stamp
+drift on 2026-08-03. Built it instead of deferring a 3rd time: live_watch.py now appends a
+slim, REQUIRED_POSITION_FIELDS-only row to automation/state/live-watch-archive.jsonl on
+every RTH tick (OP-22 retention-capped at 6000 lines, ~15 trading days), fail-open so an
+archive write can never break the production live-watch.json tick. Item "circuit-breaker
+based on per-account P&L to halt losing arms/strategies in real-time" is FALSE as a gap --
+Rule 5 + setup/scripts/daily_loss_guard.py already IS exactly this: a post-tick, broker-
+truth (not LLM-dependent) per-account daily-loss kill switch (-30% Safe / -50% Bold,
+isolated per account), wired into run-heartbeat*.ps1, fail-safe-by-design (only ever HALTS,
+never re-enables). Item (b) (Alpaca Greeks endpoint returns `{}`) is the same already-
+disclosed-permanent characteristic closed 7x prior (2026-08-15 DONE thread onward, most
+recently referenced in the 2026-08-24 self-audit's OWN sibling batch at line 964/977 above)
+-- theta_clock.py's sqrt_time_decay_model_est fallback is the standing, documented answer;
+re-closing here, not re-chasing.**
+
+**Verified, quoted (OP-33):** `pytest backtest/tests/test_live_watch.py -q` -> 28 passed
+(22 pre-existing + 6 new archive tests). RED-proofed live: `git stash` on live_watch.py ->
+all 6 new archive tests fail with `AttributeError: module 'live_watch' has no attribute
+'_append_archive'`/`'ARCHIVE_PATH'` (confirming they test the real gap, not a tautology) ->
+`git stash pop` -> 28/28 green again. Curated safety gate (`backtest/tests/run_safety_gate.py`)
+-> 59 passed, PASS. `git diff --stat` on the 2 touched files -> 150 insertions, 0 deletions,
+fully additive. Circuit-breaker disposition checked live against
+`setup/scripts/daily_loss_guard.py`'s own module docstring + CLAUDE.md Rule 5.
+
+**Rail (observation/monitoring-organ fire -- live_watch.py is a READ-ONLY visibility
+surface, places no order, touches no exit rule, writes nothing any engine reads per its own
+module docstring; zero params/heartbeat_core/filters/placement/exit code touched, consistent
+with the active config freeze):** guard = the 6 RED-proofed archive tests (a); revert =
+`git revert 6047045b` (2 files, fully additive) (b); this DONE marker + the matching
+STATUS.md entry are the REVOKE report (c). -->
+
 ## 2026-08-26T17:31:25 -- 4 new gap(s) Gamma self-identified
 - Both perspectives flag a *concentration‑guard* deficiency: verdict/scoring functions are accepting strategies based on raw mean PnL without checking that the edge survives removal of top winners.
 - Both note a *self‑healing* breakdown: Perspective 2 warns that a faulty verdict can trigger OP‑32 pop‑ups/lockouts (violating the “no pop‑ups during market hours” rule); Perspective 5 points to the EOD pipeline darkness where self‑heal [...]
@@ -1380,3 +1416,9 @@ loop so the batch stops reading as open. -->
 - Self‑audit gap backlog lacks automatic triage (medium).
 - Live watch lacks enforcement of REQUIRED_POSITION_FIELDS completeness (medium).
 - Preview diff has no forward‑testing archive to calibrate predictions (medium).
+
+## 2026-08-31T17:32:18 -- 4 new gap(s) Gamma self-identified
+- All perspectives note that Gamma detects anomalies (stale state files, data‑source outages, verification failures, aging backlogs) but does **not** autonomously remediate them; the system logs the issue and waits for human triage.
+- The lack of self‑healing triggers leads to downstream impacts: corrupted position‑sizing (theta‑clock), unmonitored real positions, and erosion of trust in the health dashboard.
+- and **Perspective 5** zero in on the live‑watch/state‑freshness pipeline as the primary failure mode (buffer‑flush logic, fill‑capture after config freeze).
+- enumerates a broader set of concrete gaps (Greeks endpoint, WS3 hysteresis second‑order fix, missing live P&L tracking, batch‑triage SLA, backtest suite exclusion) and ranks them by severity.
