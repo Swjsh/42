@@ -1417,6 +1417,61 @@ loop so the batch stops reading as open. -->
 - Live watch lacks enforcement of REQUIRED_POSITION_FIELDS completeness (medium).
 - Preview diff has no forward‑testing archive to calibrate predictions (medium).
 
+<!-- TRIAGED 2026-09-01T16:12 ET (conductor, AFTERHOURS), commit pending. Live-checked all 8
+against real code/schedule, not re-derived from swarm prose:
+(1) "recency-driven capital scaling" -- REAL GAP, but not a quick build: `sizing_matrix_
+2026_08_19.py` has scheme_recency_down/up as RESEARCH schemes only (no live wiring), and a
+live sizing-scheme deploy is a trading-path params change the active Sept config freeze
+blocks except pre-registered kill-type risk reductions. No action this fire; candidate for
+the post-freeze window (~09-29).
+(2) "earnings-calendar watchdog with auto-remediation" -- ALREADY BUILT, FALSE-as-stated:
+`Gamma_EarningsCalendar` (07:50 ET weekdays, registered 2026-08-21) refreshes the weekly-1
+earnings-blackout feed on a fail-CLOSED contract (WEEKLY-OPTIONS-PROGRAM.md), and self_check.
+py#check_earnings_calendar_freshness alerts BROKEN past the 48h threshold -- fail-closed IS
+the remediation (blocks weekly entries rather than trading blind). Applies to the weekly-1
+GLD/QQQ lane, not core SPY 0DTE (no single-name earnings risk there). No action.
+(3) "theta clock synthetic Greeks after 29/29 real fills" -- ALREADY-DISCLOSED PERMANENT
+characteristic, closed 7x+ prior (2026-08-15 onward, most recently in this same self-audit
+thread's 2026-08-24 batch): Alpaca's options-snapshots Greeks endpoint returns `{}` every
+time, verified live each time it's re-checked. Not a bug to fix; duplicate. No action.
+(4) "no drift detection for level hysteresis N=5" -- ALREADY BUILT, FALSE-as-stated:
+`monday_verify.py`'s WS6/WS3 checks (Gamma_MondayVerify, weekly) already compute per-level
+flip counts against the pre-fix Friday-07-31 baseline (14 flips) every Monday -- see this
+week's own 2026-08-31 STATUS entry (worst flip 10x vs baseline 14x). That IS the drift
+detector. No action.
+(5) "regime stamp not updated over weekends" -- FALSE-as-stated / BY DESIGN: Gamma_RegimeStamp
+fires 08:22 ET WEEKDAYS only (monday_verify's own WS6 spec: "the first ORGANIC fire" is a
+weekday concept) because the market is closed weekends -- Friday's regime characterization
+stays correct through Sat/Sun since no new trading day occurred to re-stamp. Not a gap. No
+action.
+(6) "self-audit gap backlog lacks automatic triage" -- META, not actionable as code: this
+exact triage thread (conductor STAGE-1 priority #3, running since 2026-08-19) IS the
+automatic-triage response to every batch this file accumulates. No action.
+(7) "Live watch lacks enforcement of REQUIRED_POSITION_FIELDS completeness" -- GENUINE GAP,
+FIXED THIS FIRE: the 2026-08-01 WS7 build only proved every REQUIRED_POSITION_FIELDS value
+populates on a SYNTHETIC position (`--dry-run-synthetic`); nothing alerted if a REAL in-trade
+position's field went null. Added `self_check.py#check_live_watch_field_completeness` (thin
+passthrough read of the production `live-watch.json` tick, DEGRADED-only per WS7's own
+VISIBILITY-ONLY contract, wired into `run()` as check #21) + guard
+`backtest/tests/test_self_check_live_watch_field_completeness_2026_09_01.py` (10/10, RED-
+proofed live via `git stash` -- all 10 failed with the expected
+`AttributeError: module 'self_check' has no attribute 'check_live_watch_field_completeness'`,
+restored, 10/10 green again). Curated safety gate: 59/59 PASS. `git status --porcelain`
+confirmed exactly 2 files touched (self_check.py + the new test).
+(8) "Preview diff has no forward-testing archive to calibrate predictions" -- GENUINE GAP,
+NOT actioned this fire (scope discipline -- bigger than a bounded single-item pick: needs a
+new MONDAY-PREVIEW archive producer + a comparison-to-actual scorer, not a one-function
+add). Filed as candidate future work; `monday_verify.py`'s WS1 preview-diff check already
+does a live single-week comparison when a preview file is dated for the checked Monday, but
+has no persisted history to calibrate against over time.
+
+Rail (observation/monitoring-organ fire -- `self_check.py#check_live_watch_field_
+completeness` is read-only on `live-watch.json`, places no order, touches no exit rule,
+same VISIBILITY-ONLY contract as the WS7 module it audits; zero params/heartbeat_core/
+filters/placement/exit code touched, consistent with the active Sept config freeze): guard
+= the 10 RED-proofed tests (a); revert = `git revert <this commit>` (2 files, additive
+only) (b); this DONE marker + the STATUS.md entry are the REVOKE report (c). -->
+
 ## 2026-08-31T17:32:18 -- 4 new gap(s) Gamma self-identified
 - All perspectives note that Gamma detects anomalies (stale state files, data‑source outages, verification failures, aging backlogs) but does **not** autonomously remediate them; the system logs the issue and waits for human triage.
 - The lack of self‑healing triggers leads to downstream impacts: corrupted position‑sizing (theta‑clock), unmonitored real positions, and erosion of trust in the health dashboard.

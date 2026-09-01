@@ -1795,6 +1795,50 @@ def check_futures_health(now, path=None) -> list[str]:
     return []
 
 
+def check_live_watch_field_completeness(now, path=None) -> list[str]:
+    """LIVE-WATCH FIELD COMPLETENESS -- self-audit gap batch 2026-08-30 item 7
+    ("Live watch lacks enforcement of REQUIRED_POSITION_FIELDS completeness"). The
+    2026-08-01 build proved the field-population promise only on a SYNTHETIC position
+    (--dry-run-synthetic); the 2026-09-01 05:38 ET archive build (live-watch-archive.jsonl)
+    records REQUIRED_POSITION_FIELDS for every real in-trade tick but never ALERTS when one
+    comes back null -- so a real degraded field (e.g. a broker quote outage collapsing
+    `mid`/`dist_to_stop_pct` to None) could sit silently in the archive forever. This closes
+    that live-enforcement gap without recomputing anything: reads the CURRENT production
+    live-watch.json tick (thin passthrough, same shape as check_futures_health), and for
+    every arm with in_trade=True flags any REQUIRED_POSITION_FIELDS value that is None.
+
+    DEGRADED only -- a visibility gap on a real position is worth a loud flag, but this is
+    WS7's own documented contract (VISIBILITY ONLY, places no order, touches no exit rule),
+    so it must never classify BROKEN (see _problem_is_broken; no BROKEN-keyword substring
+    used here on purpose). Fail-open: a missing/unreadable file, or live_watch's own
+    REQUIRED_POSITION_FIELDS import failing, returns [] -- freshness/liveness of the
+    live-watch.json tick itself is owned by other surfaces (engine-health.json), not this
+    check."""
+    p = path or (STATE / "live-watch.json")
+    try:
+        snap = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return []
+    if not isinstance(snap, dict):
+        return []
+    try:
+        from live_watch import REQUIRED_POSITION_FIELDS as _FIELDS
+    except Exception:  # noqa: BLE001
+        return []
+    out: list[str] = []
+    for arm_id, a in (snap.get("arms") or {}).items():
+        if not isinstance(a, dict) or not a.get("in_trade"):
+            continue
+        pos = a.get("position")
+        if not isinstance(pos, dict):
+            continue
+        missing = [k for k in _FIELDS if pos.get(k) is None]
+        if missing:
+            out.append(f"LIVE-WATCH INCOMPLETE ({arm_id}): {missing} null on a real "
+                       f"in-trade position -- WS7 completeness promise unenforced.")
+    return out
+
+
 def run() -> dict:
     now = et_now(); hm = now.strftime("%H:%M")
     rth = ("09:30" <= hm <= "15:55") and now.weekday() < 5
@@ -1972,6 +2016,11 @@ def run() -> dict:
     # until futures_health.py has fired at least once; a futures UNKNOWN/missing artifact
     # never turns an otherwise-GREEN self_check RED (see the check's own docstring).
     problems.extend(check_futures_health(now))
+
+    # 21. LIVE-WATCH FIELD COMPLETENESS -- self-audit gap batch 2026-08-30 item 7: the WS7
+    # REQUIRED_POSITION_FIELDS promise was only proven synthetically (--dry-run-synthetic);
+    # this enforces it live, on real in-trade positions, DEGRADED-only.
+    problems.extend(check_live_watch_field_completeness(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,
