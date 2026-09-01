@@ -72,6 +72,13 @@ STATE = REPO / "automation" / "state"
 FLEET = STATE / "fleet"
 OUT_PATH = STATE / "live-watch.json"
 DRYRUN_OUT_PATH = STATE / "live-watch-dryrun.json"
+# 2026-08-24 self-audit re-flag (2nd occurrence -- first named 2026-08-03 as candidate
+# future work): live-watch.json is OVERWRITTEN every minute, so nothing lets a later fire
+# verify REQUIRED_POSITION_FIELDS actually populated non-null across a real trade once the
+# tick has been overwritten/market has closed ("no post-close field verification"). This
+# append-only, retention-capped archive closes that gap -- OP-25 graduation-on-re-flag.
+ARCHIVE_PATH = STATE / "live-watch-archive.jsonl"
+ARCHIVE_MAX_LINES = 6000  # ~15 RTH trading days at ~400 ticks/day; OP-22 retention cap
 THETA_PATH = STATE / "theta-clock.json"          # READ-ONLY -- another task writes this
 SIGHT_BEACON_PATH = STATE / "sight-beacon.json"
 CORE_DECISIONS_PATH = STATE / "core-decisions.jsonl"
@@ -132,6 +139,48 @@ def _atomic_write_json(p: Path, payload: dict) -> None:
     tmp = p.with_suffix(p.suffix + ".tmp")
     tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     os.replace(tmp, p)
+
+
+def _archive_row(snap: dict) -> dict:
+    """Slim record of one snapshot for post-close field verification -- keeps only
+    REQUIRED_POSITION_FIELDS per arm (not the full decision/theta payload) so the
+    append-only history stays bounded regardless of retention window."""
+    arms_out: dict[str, Any] = {}
+    for arm_id, a in (snap.get("arms") or {}).items():
+        pos = a.get("position") if isinstance(a, dict) else None
+        pos_row = ({k: pos.get(k) for k in REQUIRED_POSITION_FIELDS}
+                   if isinstance(pos, dict) else None)
+        arms_out[arm_id] = {
+            "in_trade": bool(a.get("in_trade")) if isinstance(a, dict) else False,
+            "position": pos_row,
+        }
+    return {
+        "written_at_et": snap.get("written_at_et"),
+        "market_state": snap.get("market_state"),
+        "in_trade_count": snap.get("in_trade_count", 0),
+        "arms": arms_out,
+    }
+
+
+def _append_archive(snap: dict, path: Optional[Path] = None,
+                    cap: int = ARCHIVE_MAX_LINES) -> None:
+    """Append-only, OP-22 retention-capped history of live-watch snapshots. Fail-open
+    (C7): a write failure here must never break the production live-watch.json tick --
+    this is a visibility-only side channel, same contract as the rest of the module.
+    ``path`` defaults to the LIVE module-level ARCHIVE_PATH read at call time (not
+    bound at def time) so tests can monkeypatch it, matching OUT_PATH's own pattern."""
+    if path is None:
+        path = ARCHIVE_PATH
+    try:
+        row = _archive_row(snap)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if len(lines) > cap:
+            path.write_text("\n".join(lines[-cap:]) + "\n", encoding="utf-8")
+    except OSError:
+        pass
 
 
 def _parse_utc(ts: Any) -> Optional[dt.datetime]:
@@ -720,6 +769,7 @@ def run_once(force_open: bool = False) -> int:
         snap = build_snapshot(now_et=now_et, broker=broker, creds_by_arm=creds_by_arm,
                               accounts=_read_json(ACCOUNTS_PATH), prev=prev)
         _atomic_write_json(OUT_PATH, snap)
+        _append_archive(snap)
         print(f"[live_watch] {now_et:%H:%M} ET RTH snapshot written "
               f"(in_trade={snap['in_trade_count']}, arms={len(snap['arms'])}, "
               f"errors={len(snap['errors'])})")

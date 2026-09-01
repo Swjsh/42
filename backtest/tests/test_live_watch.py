@@ -452,3 +452,103 @@ def test_render_brief_in_trade_and_flat_and_closed():
                               "written_at_et": "2026-08-01T12:46:02"})
     assert "CLOSED" in closed
     assert lw.render_brief(None).startswith("LIVE WATCH: no snapshot")
+
+
+# --------------------------------------------------------------------------- #
+# 11. archive (2026-08-24 self-audit re-flag -- "no post-close field verification"
+#     since live-watch.json is overwritten every minute with no history)
+# --------------------------------------------------------------------------- #
+def _snap_with_position(**over):
+    pos = lw_module().build_position_view(
+        pos_raw=_pos_raw(), exit_rec=_mk_exit_rec(), mid=1.10,
+        mid_source="option_quote_mid", spy_last=746.0,
+        entry_time_et="2026-08-03T10:00:00", now_et=NOW)
+    snap = {"schema_version": 1, "written_at_et": "2026-08-03T10:15:00",
+            "market_state": "RTH", "in_trade_count": 1,
+            "arms": {
+                "safe-2": {"display_name": "CORE-SAFE", "in_trade": True,
+                           "position": pos, "last_decision": {"verdict": "HOLD"},
+                           "kill_switch": {"tripped": False}, "status": "ok"},
+                "bold-2": {"display_name": "CORE-BOLD", "in_trade": False,
+                           "position": None, "last_decision": None,
+                           "kill_switch": {"tripped": False}, "status": "ok"},
+            }}
+    snap.update(over)
+    return snap
+
+
+def lw_module():
+    return _lw()
+
+
+def test_archive_row_slims_to_required_fields_only():
+    lw = _lw()
+    row = lw._archive_row(_snap_with_position())
+    assert set(row.keys()) == {"written_at_et", "market_state", "in_trade_count", "arms"}
+    safe2 = row["arms"]["safe-2"]
+    assert safe2["in_trade"] is True
+    assert set(safe2["position"].keys()) == set(lw.REQUIRED_POSITION_FIELDS)
+    # the full position view carries extra fields (e.g. side) the archive must NOT keep --
+    # proves this is a deliberate slim, not an accidental full-payload dump
+    full_pos = _snap_with_position()["arms"]["safe-2"]["position"]
+    assert set(full_pos.keys()) - set(lw.REQUIRED_POSITION_FIELDS), \
+        "fixture must actually carry extra fields for this test to be meaningful"
+    bold2 = row["arms"]["bold-2"]
+    assert bold2["in_trade"] is False and bold2["position"] is None
+
+
+def test_append_archive_writes_one_jsonl_line(tmp_path):
+    lw = _lw()
+    path = tmp_path / "live-watch-archive.jsonl"
+    lw._append_archive(_snap_with_position(), path=path)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    row = json.loads(lines[0])
+    assert row["in_trade_count"] == 1
+    assert row["arms"]["safe-2"]["position"]["symbol"] == "SPY260803C00745000"
+
+
+def test_append_archive_retention_cap_prunes_oldest(tmp_path):
+    lw = _lw()
+    path = tmp_path / "live-watch-archive.jsonl"
+    for i in range(12):
+        lw._append_archive(_snap_with_position(written_at_et=f"tick-{i}"), path=path, cap=5)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 5, "OP-22 retention: must prune to the cap, never grow forever"
+    kept = [json.loads(l)["written_at_et"] for l in lines]
+    assert kept == [f"tick-{i}" for i in range(7, 12)], \
+        "must keep the NEWEST rows and drop the oldest, not the reverse"
+
+
+def test_append_archive_fails_open_never_raises(tmp_path, monkeypatch):
+    lw = _lw()
+    # point the archive at a path whose PARENT is a file (mkdir must OSError) --
+    # a write failure here must never propagate or break the caller.
+    blocker = tmp_path / "blocker"
+    blocker.write_text("x", encoding="utf-8")
+    bad_path = blocker / "sub" / "live-watch-archive.jsonl"
+    lw._append_archive(_snap_with_position(), path=bad_path)  # must not raise
+
+
+def test_run_once_wires_archive_alongside_the_json_snapshot(tmp_path, monkeypatch):
+    lw = _lw()
+    out = tmp_path / "live-watch.json"
+    archive = tmp_path / "live-watch-archive.jsonl"
+    monkeypatch.setattr(lw, "OUT_PATH", out)
+    monkeypatch.setattr(lw, "ARCHIVE_PATH", archive)
+    monkeypatch.setattr(lw, "THETA_PATH", tmp_path / "absent-theta.json")
+    monkeypatch.setattr(lw, "SIGHT_BEACON_PATH", tmp_path / "absent.json")
+    monkeypatch.setattr(lw, "CORE_DECISIONS_PATH", tmp_path / "absent.jsonl")
+    monkeypatch.setattr(lw, "market_state_for", lambda now: "RTH")
+    monkeypatch.setattr(lw, "_live_broker", lambda: lw.Broker(
+        positions=lambda c: [], option_mid=lambda c, s: None,
+        entry_fill_utc=lambda c, s: None))
+    monkeypatch.setattr(lw, "active_spy_arms", lambda accounts: [
+        {"id": "safe-2", "display_name": "CORE-SAFE", "execution": "mcp_heartbeat",
+         "status": "active", "instrument": "SPY_0DTE_OPTION"}])
+    assert lw.run_once() == 0
+    assert out.exists()
+    lines = archive.read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    row = json.loads(lines[0])
+    assert row["market_state"] == json.loads(out.read_text(encoding="utf-8"))["market_state"]
