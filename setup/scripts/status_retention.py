@@ -10,6 +10,9 @@ regrew to 226KB / 58 entries by 2026-06-24. This module makes consolidation a
 repeatable, tested, idempotent operation instead of a bespoke manual effort.
 
 Behaviour:
+  * FOLD consecutive byte-identical self-check blocks (see fold_consecutive_selfcheck_
+    blocks below) BEFORE the byte-budget pass -- shrinks noise first so fewer real
+    entries need to roll off to hit budget.
   * Split STATUS.md on `## [` entry boundaries (entries are newest-first at the top).
   * KEEP the newest entries while cumulative bytes <= --max-keep-bytes (default 45000,
     safely under the ~25K-token Read cap), always keeping at least --min-keep entries.
@@ -19,6 +22,23 @@ Behaviour:
   * Idempotent: if the file already fits the budget, it is a no-op (exit 0).
   * Fail-open (L181/OP-25): any error / missing file -> exit 0 noop, never raises into
     a caller. This is operational state hygiene; it must never block J or a fire.
+
+SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (queue.md, filed 2026-07-22, closed here
+2026-09-01): self_check.py's `_alert()` intentionally writes STATUS.md unthrottled on
+EVERY tick (2026-08-17 docstring: Discord throttles, the file never does -- a full
+audit trail was the deliberate design). That is correct for detection, but on a quiet
+market-hours-closed stretch it means the IDENTICAL problem text (e.g. "FUTURES-HEALTH
+RED: ... fills_recency ...") gets appended once per ~30min tick with nothing new to
+say -- confirmed 2026-09-01: 10 consecutive byte-identical 967-byte blocks between
+04:09 and 08:39 ET, one unbroken RED the whole time. Rather than change self_check.py's
+live write behaviour (risks re-opening the exact "STATUS Known broken channel went
+dark" failure mode a silent dedup could cause), this module POST-PROCESSES: it folds
+runs of literally-adjacent, content-identical self-check blocks into ONE block with a
+"(repeated Nx through <last ts>, content unchanged)" note. Nothing is dropped -- the
+full problem text is kept once, plus the repeat count and time span, which is MORE
+informative than 10 undated copies, not less. Only truly adjacent runs (nothing else
+interleaved) are folded, so it never reorders or merges across an unrelated producer's
+line sitting between two self-check blocks.
 
 Rail-4 clear: touches ONLY operational state (STATUS.md + its archive). Zero
 trading-logic / params / orders / doctrine change.
@@ -43,6 +63,60 @@ STATUS_PATH = os.path.join(REPO_ROOT, "automation", "overnight", "STATUS.md")
 ENTRY_SPLIT = re.compile(r"(?=^## \[)", re.M)
 DEFAULT_MAX_KEEP_BYTES = 45_000
 DEFAULT_MIN_KEEP = 8
+
+# `### <VERDICT>: self-check <ISO ts>` header, followed by zero or more `- ` body
+# lines -- exactly what self_check.py::_alert() appends every ~30min tick.
+SELFCHECK_BLOCK = re.compile(
+    r"^### (?P<verdict>\w+): self-check (?P<ts>\S+)\n(?P<body>(?:- .*\n)*)", re.M)
+
+
+def fold_consecutive_selfcheck_blocks(text: str) -> "tuple[str, int, int]":
+    """Fold runs of literally-adjacent, content-identical self-check blocks.
+
+    Returns (new_text, n_runs_folded, n_blocks_removed). Pure/testable -- no I/O.
+
+    A "run" is 2+ self-check blocks in a row with (a) identical `body` text and
+    (b) nothing but whitespace between one block's end and the next block's start
+    (i.e. genuinely adjacent in the file -- an unrelated producer's line sitting
+    between two self-check blocks breaks the run, by design, so folding never
+    reorders or merges across other content)."""
+    matches = list(SELFCHECK_BLOCK.finditer(text))
+    if len(matches) < 2:
+        return text, 0, 0
+
+    runs: list[list[re.Match]] = []
+    current = [matches[0]]
+    for prev, cur in zip(matches, matches[1:]):
+        between = text[prev.end():cur.start()]
+        if cur.group("body") == prev.group("body") and between.strip() == "":
+            current.append(cur)
+        else:
+            runs.append(current)
+            current = [cur]
+    runs.append(current)
+
+    foldable = [r for r in runs if len(r) >= 2]
+    if not foldable:
+        return text, 0, 0
+
+    out: list[str] = []
+    cursor = 0
+    n_runs_folded = 0
+    n_blocks_removed = 0
+    for run in runs:
+        first, last = run[0], run[-1]
+        out.append(text[cursor:first.start()])
+        if len(run) >= 2:
+            note = f" (repeated {len(run)}x through {last.group('ts')}, content unchanged)"
+            out.append(f"### {first.group('verdict')}: self-check {first.group('ts')}"
+                       f"{note}\n{first.group('body')}")
+            n_runs_folded += 1
+            n_blocks_removed += len(run) - 1
+        else:
+            out.append(text[first.start():first.end()])
+        cursor = last.end()
+    out.append(text[cursor:])
+    return "".join(out), n_runs_folded, n_blocks_removed
 
 
 def split_entries(text: str):
@@ -126,10 +200,15 @@ def apply_consolidation(status_path: str, max_keep_bytes: int, min_keep: int,
     with open(status_path, "r", encoding="utf-8") as fh:
         text = fh.read()
 
+    text, n_folded_runs, n_folded_blocks = fold_consecutive_selfcheck_blocks(text)
+
     plan = plan_consolidation(text, max_keep_bytes, min_keep)
     if plan["n_rolled"] == 0:
-        return {"changed": False, "n_kept": plan["n_kept"], "n_rolled": 0,
-                "new_bytes": len(text.encode("utf-8"))}
+        if n_folded_blocks:
+            _atomic_write(status_path, text)
+        return {"changed": bool(n_folded_blocks), "n_kept": plan["n_kept"], "n_rolled": 0,
+                "new_bytes": len(text.encode("utf-8")),
+                "n_folded_runs": n_folded_runs, "n_folded_blocks": n_folded_blocks}
 
     rolled = plan["rolled_entries"]
     rolled_lines = sum(e.count("\n") for e in rolled)
@@ -152,7 +231,8 @@ def apply_consolidation(status_path: str, max_keep_bytes: int, min_keep: int,
 
     return {"changed": True, "n_kept": plan["n_kept"], "n_rolled": plan["n_rolled"],
             "new_bytes": len(plan["kept_text"].encode("utf-8")),
-            "archive_path": archive_path}
+            "archive_path": archive_path,
+            "n_folded_runs": n_folded_runs, "n_folded_blocks": n_folded_blocks}
 
 
 def _atomic_write(path: str, content: str) -> None:
@@ -187,10 +267,15 @@ def main(argv=None) -> int:
                   f"({'OVER' if over else 'within'} budget {args.max_keep_bytes})")
             return 2 if over else 0
         res = apply_consolidation(args.status_path, args.max_keep_bytes, args.min_keep)
-        if res["changed"]:
+        fold_note = (f", folded {res['n_folded_runs']} run(s)/{res['n_folded_blocks']} "
+                     f"duplicate block(s)" if res.get("n_folded_blocks") else "")
+        if res["changed"] and res.get("n_rolled"):
             print(f"status_retention: kept {res['n_kept']} entries "
                   f"({res['new_bytes']} bytes), rolled {res['n_rolled']} to "
-                  f"{os.path.basename(res['archive_path'])}")
+                  f"{os.path.basename(res['archive_path'])}{fold_note}")
+        elif res["changed"]:
+            print(f"status_retention: within roll budget ({res['new_bytes']} bytes, "
+                  f"{res['n_kept']} entries){fold_note}")
         else:
             print(f"status_retention: within budget ({res['new_bytes']} bytes, "
                   f"{res['n_kept']} entries) -> noop")

@@ -600,19 +600,37 @@ estore_to_ready (115 entries) and Gamma_QuietMode is Ready firing every 5min; re
   heartbeat_core/strategies.py/CLAUDE.md touched, no broker import). depends:none ::
   status:CLOSED-NO-SHIP
 
-### SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
+### SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS, SHIPPED 2026-09-01 conductor AFTERHOURS)
 
-- [ ] SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW) :: `self_check.py`'s
+- [x] SELFCHECK-TRENDLINE-DRAW-DUPLICATE-SPAM (LOW) :: `self_check.py`'s
   "TRENDLINE-DRAW never marked today" DEGRADED finding appended a NEW near-identical block to
   STATUS.md 13x today (2026-07-22, every ~30min from 09:39 through 16:09 ET) for the exact same
   underlying fact (non-load-bearing visibility-only skip). This is the exact C7/OP-22 anti-pattern
   the retention-cap discipline exists to prevent -- one genuine finding should append ONCE per
-  day (or dedupe on re-check), not once per self-check tick. Not fixed this fire (scope
-  discipline -- one bounded task already picked). Fix: either (a) self_check.py checks
-  "already flagged today" before appending (same pattern conductor-rth's STAGE 0-RTH already
-  uses against Gamma_SelfCheck's own flags), or (b) STATUS.md consolidation folds same-day
-  duplicate DEGRADED blocks into one line with a repeat-count, same precedent as the L181
-  STATUS.md consolidation. :: depends:none :: status:pending
+  day (or dedupe on re-check), not once per self-check tick.
+  **Shipped fix (b)** (the queue item's own alternative -- (a) was rejected as riskier: it would
+  have changed self_check.py's deliberate 2026-08-17 "STATUS.md always gets the unthrottled
+  snapshot" design, risking a repeat of the "Known broken channel went dark" failure mode via a
+  silent live-write suppression). `status_retention.py::fold_consecutive_selfcheck_blocks()` now
+  POST-PROCESSES STATUS.md: literally-adjacent, content-identical self-check blocks fold into ONE
+  block + "(repeated Nx through <last ts>, content unchanged)" -- full content kept once, nothing
+  silently dropped, an unrelated producer's line between two self-check blocks still breaks the
+  run so nothing is ever reordered/merged across other content. Wired into `apply_consolidation()`
+  (called every conductor wake via `run-conductor.ps1`/`run-conductor-weekend.ps1`, already
+  fail-open/idempotent per the existing L181 guard) -- self-executing going forward, no new
+  schedule needed. **Verified live 2026-09-01, OP-33:** today's real STATUS.md had 10
+  byte-identical 967-byte FUTURES-HEALTH-RED self-check blocks (04:09-08:39 ET, one unbroken RED
+  the whole quiet pre-market stretch); ran `status_retention.py` for real -- folded to 2 summary
+  blocks (4x + 6x), file 67584 -> 59594 bytes, `grep -c "FUTURES-HEALTH RED"` dropped 10 -> 3 (the
+  2 folded headers + the 1 genuinely-new 09:09:57 block that added 2 new STALE lines, correctly
+  left unfolded since its content differs). 8 new pytest tests in `test_status_retention.py`
+  (adjacent-fold, interleaved-content never merged, distinct-content never folded, noop on
+  0/1 blocks, wired-into-apply_consolidation, idempotent-on-second-run) -- 17/17 total in that
+  file green. Rail-4: guard = the 8 new tests; revert = `git revert <this commit>` (2 files:
+  `setup/scripts/status_retention.py` additive, `backtest/tests/test_status_retention.py`
+  additive; the STATUS.md/STATUS-archive-2026-09.md content edit from running the tool live is
+  itself the operational hygiene this ships, not a code change to revert); this queue entry +
+  the matching STATUS.md line are the REVOKE report. :: depends:none :: status:CLOSED-SHIPPED
 
 ### QUEUE-MD-RETENTION-CAP (LOW, OP-22 hygiene, filed 2026-07-22 conductor AFTERHOURS)
 
@@ -1613,6 +1631,11 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 
 ## HARVESTED-FROM-GYM (auto-queued by crypto/benchmarks/gym_harvester.py)
 
+- [ ] HARVEST-RSIEXTREME-20260901-100018 (MED) :: BTC v03_indicators rsi_14=17.24 (oversold) at last_close=77941.57 bin=2026-09-01T08:30:00+00:00 :: key=EDGE_RSI_EXTREME:2026-09-01T08:30:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RSIEXTREME-20260901-100019 (MED) :: BTC v03_indicators rsi_14=15.67 (oversold) at last_close=77842.97 bin=2026-09-01T08:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-09-01T08:35:00+00:00:oversold :: depends:none :: status:queued
+- [ ] HARVEST-RIBBONFLIP-20260901-100020 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=370.03>100 | recent dist BULL=38 BEAR=77 MIXED=85 :: key=EDGE_RIBBON_FLIP:2026-09-01T09:00:00+00:00:BEAR :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260901-100021 (MED) :: v14_sweep liquidity-grab at level=79000 dir=up bar_idx=4 | wick_excess=0.0460% close_back=0.1227% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-01T09:57:01.738828+00:00:79000:up:4 :: depends:none :: status:queued
+- [ ] HARVEST-SWEEP-20260901-100022 (MED) :: v14_sweep liquidity-grab at level=78000 dir=up bar_idx=185 | wick_excess=0.0244% close_back=0.1268% — feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-09-01T09:57:01.738828+00:00:78000:up:185 :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260831-100018 (LOW) :: v09_regime TREND_UP dominant: 56/80 bars (70%) | last_regime=TREND_UP atr_14=122 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-31T08:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-REGIMEEXT-20260831-100019 (LOW) :: v09_regime TREND_UP dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=116 — sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-31T09:00:00+00:00:TREND_UP :: depends:none :: status:queued
 - [ ] HARVEST-RIBBONFLIP-20260831-100020 (MED) :: v08_ribbon flip MIXED -> BULL | spread=347.31>100 | recent dist BULL=50 BEAR=83 MIXED=66 :: key=EDGE_RIBBON_FLIP:2026-08-31T09:00:00+00:00:BULL :: depends:none :: status:queued
@@ -1623,11 +1646,6 @@ See automation/overnight/forward-backlog-2026-06-19.md for the post-all-night-lo
 - [ ] HARVEST-RSIEXTREME-20260828-100153 (MED) :: BTC v03_indicators rsi_14=81.84 (overbought) at last_close=81172.76 bin=2026-08-28T01:35:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-28T01:35:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-RSIEXTREME-20260828-100154 (MED) :: BTC v03_indicators rsi_14=82.10 (overbought) at last_close=81185.49 bin=2026-08-28T01:40:00+00:00 :: key=EDGE_RSI_EXTREME:2026-08-28T01:40:00+00:00:overbought :: depends:none :: status:queued
 - [ ] HARVEST-RIBBONFLIP-20260828-100155 (MED) :: v08_ribbon flip MIXED -> BEAR | spread=278.23>100 | recent dist BULL=42 BEAR=69 MIXED=88 :: key=EDGE_RIBBON_FLIP:2026-08-28T09:00:00+00:00:BEAR :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260828-100156 (MED) :: v14_sweep liquidity-grab at level=80000 dir=down bar_idx=30 | wick_excess=0.0472% close_back=0.0735% â€” feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-28T09:57:01.809024+00:00:80000:down:30 :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260828-100157 (MED) :: v14_sweep liquidity-grab at level=80000 dir=down bar_idx=52 | wick_excess=0.0335% close_back=0.0575% â€” feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-28T09:57:01.809024+00:00:80000:down:52 :: depends:none :: status:queued
-- [ ] HARVEST-SWEEP-20260828-100158 (MED) :: v14_sweep liquidity-grab at level=80000 dir=down bar_idx=108 | wick_excess=0.0338% close_back=0.1054% â€” feeds v15.2 sweep-blocker doctrine :: key=EDGE_SWEEP_DETECTED:2026-08-28T09:57:01.809024+00:00:80000:down:108 :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260827-100128 (LOW) :: v09_regime TREND_UP dominant: 57/81 bars (70%) | last_regime=TREND_UP atr_14=115 â€” sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-26T23:00:00+00:00:TREND_UP :: depends:none :: status:queued
-- [ ] HARVEST-REGIMEEXT-20260827-100129 (LOW) :: v09_regime TREND_UP dominant: 59/81 bars (73%) | last_regime=TREND_UP atr_14=119 â€” sustained BTC trend; check SPY correlation :: key=EDGE_REGIME_EXTREME:2026-08-27T00:00:00+00:00:TREND_UP :: depends:none :: status:queued
 
 ### T-GYM-20260619 HIGH gym-session RED for 2026-06-19
 

@@ -119,6 +119,89 @@ def test_new_roll_inserted_at_top_of_archive(tmp_path):
     assert "OLD ROLL" in arc  # prior archive preserved
 
 
+def _selfcheck_block(verdict: str, ts: str, lines: "list[str]") -> str:
+    body = "".join(f"- {ln}\n" for ln in lines)
+    return f"### {verdict}: self-check {ts}\n{body}"
+
+
+def test_fold_folds_adjacent_identical_blocks():
+    text = (
+        _selfcheck_block("BROKEN", "2026-09-01T04:09:57", ["FUTURES-HEALTH RED: same text"])
+        + "\n"
+        + _selfcheck_block("BROKEN", "2026-09-01T04:39:57", ["FUTURES-HEALTH RED: same text"])
+        + "\n"
+        + _selfcheck_block("BROKEN", "2026-09-01T05:09:57", ["FUTURES-HEALTH RED: same text"])
+    )
+    new_text, n_runs, n_removed = sr.fold_consecutive_selfcheck_blocks(text)
+    assert n_runs == 1
+    assert n_removed == 2
+    assert new_text.count("FUTURES-HEALTH RED: same text") == 1  # content kept ONCE
+    assert "repeated 3x through 2026-09-01T05:09:57" in new_text
+    assert "2026-09-01T04:09:57" in new_text  # first-seen ts kept in the header
+
+
+def test_fold_never_merges_across_interleaved_content():
+    text = (
+        _selfcheck_block("BROKEN", "2026-09-01T05:39:57", ["FUTURES-HEALTH RED: x"])
+        + "\n- [2026-09-01 04:00:01] scheduled-tasks audit RED -- see foo.json\n\n"
+        + _selfcheck_block("BROKEN", "2026-09-01T06:09:57", ["FUTURES-HEALTH RED: x"])
+    )
+    new_text, n_runs, n_removed = sr.fold_consecutive_selfcheck_blocks(text)
+    assert n_runs == 0 and n_removed == 0  # nothing adjacent -> nothing folded
+    assert new_text == text
+    assert "scheduled-tasks audit RED" in new_text  # unrelated content untouched
+
+
+def test_fold_leaves_distinct_content_blocks_alone():
+    text = (
+        _selfcheck_block("BROKEN", "2026-09-01T08:39:57", ["FUTURES-HEALTH RED: x"])
+        + "\n"
+        + _selfcheck_block("BROKEN", "2026-09-01T09:09:57", ["TRENDLINE-DRAW STALE: new finding",
+                                                              "FUTURES-HEALTH RED: x"])
+    )
+    new_text, n_runs, n_removed = sr.fold_consecutive_selfcheck_blocks(text)
+    assert n_runs == 0 and n_removed == 0
+    assert new_text == text
+    assert "TRENDLINE-DRAW STALE" in new_text
+
+
+def test_fold_noop_on_single_block_or_no_blocks():
+    text = _selfcheck_block("BROKEN", "2026-09-01T04:09:57", ["only one"])
+    new_text, n_runs, n_removed = sr.fold_consecutive_selfcheck_blocks(text)
+    assert (new_text, n_runs, n_removed) == (text, 0, 0)
+    plain = "no self-check blocks here at all\n"
+    assert sr.fold_consecutive_selfcheck_blocks(plain) == (plain, 0, 0)
+
+
+def test_fold_wired_into_apply_consolidation(tmp_path):
+    status = tmp_path / "STATUS.md"
+    dup_blocks = "".join(
+        _selfcheck_block("BROKEN", f"2026-09-01T0{i}:09:57", ["FUTURES-HEALTH RED: x"]) + "\n"
+        for i in range(4, 9))
+    status.write_text(_make_status(3) + dup_blocks, encoding="utf-8")
+    res = sr.apply_consolidation(str(status), max_keep_bytes=10_000_000, min_keep=4,
+                                 today=dt.date(2026, 9, 1))
+    assert res["changed"] is True
+    assert res["n_folded_runs"] == 1
+    assert res["n_folded_blocks"] == 4
+    kept = status.read_text(encoding="utf-8")
+    assert kept.count("FUTURES-HEALTH RED: x") == 1
+    assert "repeated 5x" in kept
+    # byte-budget entries (the "## [" ones) still present -- fold is additive, not
+    # a replacement for the existing roll behaviour.
+    assert "entry 0" in kept
+
+
+def test_fold_is_idempotent():
+    text = "".join(
+        _selfcheck_block("BROKEN", f"2026-09-01T0{i}:09:57", ["FUTURES-HEALTH RED: x"]) + "\n"
+        for i in range(4, 9))
+    once, _, _ = sr.fold_consecutive_selfcheck_blocks(text)
+    twice, n_runs2, n_removed2 = sr.fold_consecutive_selfcheck_blocks(once)
+    assert once == twice
+    assert (n_runs2, n_removed2) == (0, 0)
+
+
 def test_fail_open_on_missing_file():
     rc = sr.main(["--status-path", "/nonexistent/STATUS.md"])
     assert rc == 0  # noop, never raises
