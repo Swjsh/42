@@ -186,7 +186,7 @@ def _default_bar_lookup_factory() -> Callable[[dt.datetime], Optional[float]]:
     try:
         import yfinance as yf  # noqa: PLC0415
         df = yf.download("ES=F", period="7d", interval="1m", auto_adjust=False,
-                         progress=False, prepost=True)
+                         progress=False, prepost=True, timeout=10)
         if df is None or df.empty:
             return lambda ts: None
         if hasattr(df.columns, "nlevels") and df.columns.nlevels > 1:

@@ -611,7 +611,7 @@ def fetch_es_quote_1m() -> Optional[float]:
     try:
         import yfinance as yf  # noqa: PLC0415
         df = yf.download(YF_SYMBOL, period="1d", interval="1m", auto_adjust=False,
-                         progress=False, prepost=True)
+                         progress=False, prepost=True, timeout=10)
         if df is None or df.empty:
             return None
         if hasattr(df.columns, "nlevels") and df.columns.nlevels > 1:
@@ -633,7 +633,7 @@ def fetch_es_atr14() -> Optional[float]:
         from futures.swing_sim import wilder_atr  # noqa: PLC0415
 
         df = yf.download(YF_SYMBOL, period="10d", interval="5m", auto_adjust=False,
-                         progress=False, prepost=True)
+                         progress=False, prepost=True, timeout=10)
         if df is None or df.empty:
             return None
         if hasattr(df.columns, "nlevels") and df.columns.nlevels > 1:
