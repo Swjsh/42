@@ -198,6 +198,114 @@ def _close_episode(refs: list[dict], date: str) -> dict:
 
 # ── scoring (T+1, only where real option bars exist) ──────────────────────────
 
+def _data_creds() -> list[tuple[str, dict]]:
+    """Every credential that might read market data, ACTIVE arms first.
+
+    Ordering matters: `secrets.json` still lists retired arms (safe-1 401s as of
+    2026-09-01) and dict order is insertion order, so "just take the first" picks a dead
+    key roughly at random. Active arms are tried first and the caller falls through on
+    any HTTP failure.
+    """
+    active = ("safe-2", "bold-2", "safe-3", "risky-1", "risky-3")
+    out: list[tuple[str, dict]] = []
+    sys.path.insert(0, str(REPO / "automation" / "state" / "fleet"))
+    try:
+        import fleet_broker as fb  # noqa: PLC0415 -- load_creds() only, no order calls
+        creds = fb.load_creds()
+        out += [(f"fleet:{a}", creds[a]) for a in active if a in creds]
+        out += [(f"fleet:{a}", c) for a, c in creds.items() if a not in active]
+    except Exception as exc:  # noqa: BLE001
+        print(f"[refusals] fleet creds unavailable ({exc})")
+
+    try:                                   # .mcp.json is the other sanctioned store
+        cfg = json.loads((REPO / ".mcp.json").read_text(encoding="utf-8"))
+        for name, spec in (cfg.get("mcpServers") or cfg).items():
+            env = (spec or {}).get("env") or {}
+            key = env.get("ALPACA_API_KEY") or env.get("APCA_API_KEY_ID")
+            sec = env.get("ALPACA_SECRET_KEY") or env.get("APCA_API_SECRET_KEY")
+            if key and sec:
+                out.append((f"mcp:{name}", {"key": key, "secret": sec}))
+    except Exception:  # noqa: BLE001
+        pass
+    return out
+
+
+def fetch_bars(contract: str, date: str, *, timeout: float = 20.0) -> bool:
+    """Fetch 1-minute bars for `contract` on `date` into the highres cache.
+
+    WHY (2026-09-01): on day one this ledger priced 26 of 52 episodes and left the 22 bound
+    by `vix_gate_17.30_rising` UNSCORED -- because the highres cache happened to hold
+    766C/769C while every VIX-gated refusal was a BEAR setup needing PUTS. The gate whose
+    cost most needs measuring was the one gate we could not measure. The cache only ever
+    contained contracts something else had already fetched; nothing ever fetched the
+    contract a REFUSED setup would have used.
+
+    Historical option bars are NOT behind the OPRA gate -- `data_tier_check.py` verified
+    that `/v1beta1/options/bars` succeeds on these accounts while `/options/quotes/latest`
+    returns 403 "OPRA agreement is not signed". Only REAL-TIME option quotes are gated, so
+    this fetch works on the keys we already hold and needs no new subscription.
+
+    Returns True when a cache file now exists. Never raises: a fetch failure must leave the
+    episode honestly unscored, never crash the ledger or fabricate a price.
+    """
+    path = HIGHRES / f"{contract}_1m_{date}.csv"
+    if path.exists():
+        return True
+
+    import urllib.error  # noqa: PLC0415
+    import urllib.request  # noqa: PLC0415
+
+    creds_list = _data_creds()
+    if not creds_list:
+        print("[refusals] no usable creds for bar fetch -- leaving unscored")
+        return False
+
+    url = ("https://data.alpaca.markets/v1beta1/options/bars"
+           f"?symbols={contract}&timeframe=1Min&limit=1000"
+           f"&start={date}T09:30:00-04:00&end={date}T16:10:00-04:00")
+
+    # Try each arm in turn. `secrets.json` still carries RETIRED arms whose keys 401
+    # (safe-1, verified 2026-09-01) -- taking the first entry blindly made every fetch
+    # fail while six other arms would have answered. A dead key must degrade to the next
+    # candidate, never to a silent no-data conclusion.
+    body = None
+    last_err = "no attempt"
+    for label, creds in creds_list:
+        req = urllib.request.Request(url, headers={
+            "APCA-API-KEY-ID": creds["key"], "APCA-API-SECRET-KEY": creds["secret"]})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                body = json.loads(resp.read().decode("utf-8") or "{}")
+            break
+        except urllib.error.HTTPError as exc:
+            last_err = f"{label} HTTP {exc.code}"
+            continue                     # 401/403 on one arm says nothing about the rest
+        except Exception as exc:  # noqa: BLE001
+            last_err = f"{label} {exc}"
+            continue
+    if body is None:
+        print(f"[refusals] bar fetch failed for {contract}: every arm failed ({last_err})")
+        return False
+
+    bars = (body.get("bars") or {}).get(contract) or []
+    if not bars:
+        return False                       # genuinely no tape -- stays honestly unscored
+
+    HIGHRES.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="") as fh:
+        w = csv.writer(fh)
+        w.writerow(["timestamp_et", "open", "high", "low", "close", "volume"])
+        for b in bars:
+            # Alpaca stamps UTC ("...Z"); the cache convention is ET wall-clock, which is
+            # what score_episode's "09:45" <= t <= "15:50" comparisons assume.
+            ts = dt.datetime.fromisoformat(str(b["t"]).replace("Z", "+00:00"))
+            et = ts.astimezone(dt.timezone(dt.timedelta(hours=-4)))
+            w.writerow([et.strftime("%Y-%m-%d %H:%M:%S"),
+                        b["o"], b["h"], b["l"], b["c"], b.get("v", 0)])
+    print(f"[refusals] fetched {len(bars)} bar(s) -> {path.name}")
+    return True
+
+
 def _load_highres(contract: str, date: str) -> list[tuple[str, float, float, float, float]]:
     path = HIGHRES / f"{contract}_1m_{date}.csv"
     if not path.exists():
@@ -261,10 +369,16 @@ def score_episode(ep: dict, *, cat_cap: float = -0.50, tp1: float = 0.30,
 
 # ── main ──────────────────────────────────────────────────────────────────────
 
-def build(date: str, do_score: bool) -> dict:
+def build(date: str, do_score: bool, do_fetch: bool = False) -> dict:
     rows = load_rows(date)
     episodes = build_episodes(rows, date)
     n_scored = 0
+    if do_fetch:
+        # One fetch per DISTINCT contract -- many episodes share a strike, and the API
+        # should not be hit once per episode.
+        for contract in sorted({e["would_be_contract"] for e in episodes
+                                if e.get("would_be_contract")}):
+            fetch_bars(contract, date)
     if do_score:
         for ep in episodes:
             res = score_episode(ep)
@@ -310,10 +424,13 @@ def main() -> int:
     ap.add_argument("--date", default=None, help="session date (default: today ET)")
     ap.add_argument("--score", action="store_true",
                     help="also price episodes against recorded OPRA bars")
+    ap.add_argument("--fetch", action="store_true",
+                    help="fetch missing 1m option bars into the highres cache first "
+                         "(historical bars are not OPRA-gated)")
     a = ap.parse_args()
     date = a.date or et_now().date().isoformat()
 
-    doc = build(date, a.score)
+    doc = build(date, a.score, a.fetch)
     print(f"[refusals] {date}: {doc['n_episodes']} episode(s) from "
           f"{doc['_meta']['ticks_read']} tick(s); {doc['n_scored']} scored")
     for name, agg in doc["by_binding_blocker"].items():
