@@ -1,26 +1,26 @@
 {
  "_meta": {
   "date": "2026-08-31",
-  "generated_at_et": "2026-09-01T08:35:58",
+  "generated_at_et": "2026-09-01T15:56:59",
   "builder": "setup/scripts/refused_setup_ledger.py",
   "shadow_only": "MEASUREMENT ONLY -- never places, arms, or edits a gate.",
   "min_score": 6,
   "min_triggers": 1,
-  "ticks_read": 772,
+  "ticks_read": 760,
   "unscored_note": "episodes with scored=false have NO recorded option bars for their contract -- an honest null, not a zero"
  },
- "n_episodes": 52,
- "n_scored": 50,
+ "n_episodes": 50,
+ "n_scored": 48,
  "by_binding_blocker": {
   "ribbon_not_bull": {
-   "episodes": 28,
-   "scored": 28,
-   "usd": -217.8
+   "episodes": 26,
+   "scored": 26,
+   "usd": -211.4
   },
   "vix_gate_17.30_rising": {
    "episodes": 22,
    "scored": 20,
-   "usd": -7.8
+   "usd": -159.9
   },
   "spread_below_30c": {
    "episodes": 16,
@@ -37,11 +37,6 @@
    "scored": 4,
    "usd": -37.2
   },
-  "volume_divergence": {
-   "episodes": 2,
-   "scored": 2,
-   "usd": -6.4
-  },
   "breakdown_bar": {
    "episodes": 2,
    "scored": 2,
@@ -53,9 +48,9 @@
    "date": "2026-08-31",
    "account": "safe",
    "side": "bear",
-   "first_ts_et": "2026-08-31T09:30:03",
+   "first_ts_et": "2026-08-31T09:36:03",
    "last_ts_et": "2026-08-31T09:50:03",
-   "n_ticks": 16,
+   "n_ticks": 10,
    "peak_score": 9,
    "triggers": [
     "confluence",
@@ -67,63 +62,23 @@
    "binding_blocker_names": [
     "vix_gate_17.30_rising"
    ],
-   "spy_at_first": 769.375,
-   "vix_at_first": 15.32,
-   "level": 769.51,
-   "would_be_strike": 769,
-   "would_be_contract": "SPY260831P00769000",
+   "spy_at_first": 766.37,
+   "vix_at_first": 15.3,
+   "level": 767.53,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
    "scored": true,
    "score_result": {
-    "contract": "SPY260831P00769000",
-    "entry_t": "09:30",
-    "entry_px": 2.25,
-    "exit_t": "09:33",
-    "exit_px": 2.93,
-    "exit_kind": "tp1",
-    "pct": 30.0,
-    "per_contract_usd": 67.5,
-    "mfe_pct": 91.6,
-    "mae_pct": -33.3,
-    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
-   }
-  },
-  {
-   "date": "2026-08-31",
-   "account": "safe",
-   "side": "bull",
-   "first_ts_et": "2026-08-31T09:30:03",
-   "last_ts_et": "2026-08-31T09:30:03",
-   "n_ticks": 1,
-   "peak_score": 9,
-   "triggers": [
-    "confluence",
-    "level_reclaim"
-   ],
-   "binding_blockers": [
-    5,
-    7
-   ],
-   "binding_blocker_names": [
-    "ribbon_not_bull",
-    "volume_divergence"
-   ],
-   "spy_at_first": 769.375,
-   "vix_at_first": 15.32,
-   "level": 769.33,
-   "would_be_strike": 769,
-   "would_be_contract": "SPY260831C00769000",
-   "scored": true,
-   "score_result": {
-    "contract": "SPY260831C00769000",
-    "entry_t": "09:30",
-    "entry_px": 0.61,
-    "exit_t": "09:32",
-    "exit_px": 0.58,
+    "contract": "SPY260831P00766000",
+    "entry_t": "09:36",
+    "entry_px": 1.25,
+    "exit_t": "09:45",
+    "exit_px": 1.16,
     "exit_kind": "chandelier_trail",
-    "pct": -5.2,
-    "per_contract_usd": -3.2,
-    "mfe_pct": 203.3,
-    "mae_pct": -98.4,
+    "pct": -6.8,
+    "per_contract_usd": -8.55,
+    "mfe_pct": 46.4,
+    "mae_pct": -96.0,
     "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
    }
   },
@@ -131,9 +86,9 @@
    "date": "2026-08-31",
    "account": "bold",
    "side": "bear",
-   "first_ts_et": "2026-08-31T09:30:04",
+   "first_ts_et": "2026-08-31T09:36:04",
    "last_ts_et": "2026-08-31T09:50:04",
-   "n_ticks": 16,
+   "n_ticks": 10,
    "peak_score": 9,
    "triggers": [
     "confluence",
@@ -145,63 +100,23 @@
    "binding_blocker_names": [
     "vix_gate_17.30_rising"
    ],
-   "spy_at_first": 769.375,
-   "vix_at_first": 15.32,
-   "level": 769.51,
-   "would_be_strike": 769,
-   "would_be_contract": "SPY260831P00769000",
+   "spy_at_first": 766.37,
+   "vix_at_first": 15.3,
+   "level": 767.53,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
    "scored": true,
    "score_result": {
-    "contract": "SPY260831P00769000",
-    "entry_t": "09:30",
-    "entry_px": 2.25,
-    "exit_t": "09:33",
-    "exit_px": 2.93,
-    "exit_kind": "tp1",
-    "pct": 30.0,
-    "per_contract_usd": 67.5,
-    "mfe_pct": 91.6,
-    "mae_pct": -33.3,
-    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
-   }
-  },
-  {
-   "date": "2026-08-31",
-   "account": "bold",
-   "side": "bull",
-   "first_ts_et": "2026-08-31T09:30:04",
-   "last_ts_et": "2026-08-31T09:30:04",
-   "n_ticks": 1,
-   "peak_score": 9,
-   "triggers": [
-    "confluence",
-    "level_reclaim"
-   ],
-   "binding_blockers": [
-    5,
-    7
-   ],
-   "binding_blocker_names": [
-    "ribbon_not_bull",
-    "volume_divergence"
-   ],
-   "spy_at_first": 769.375,
-   "vix_at_first": 15.32,
-   "level": 769.33,
-   "would_be_strike": 769,
-   "would_be_contract": "SPY260831C00769000",
-   "scored": true,
-   "score_result": {
-    "contract": "SPY260831C00769000",
-    "entry_t": "09:30",
-    "entry_px": 0.61,
-    "exit_t": "09:32",
-    "exit_px": 0.58,
+    "contract": "SPY260831P00766000",
+    "entry_t": "09:36",
+    "entry_px": 1.25,
+    "exit_t": "09:45",
+    "exit_px": 1.16,
     "exit_kind": "chandelier_trail",
-    "pct": -5.2,
-    "per_contract_usd": -3.2,
-    "mfe_pct": 203.3,
-    "mae_pct": -98.4,
+    "pct": -6.8,
+    "per_contract_usd": -8.55,
+    "mfe_pct": 46.4,
+    "mae_pct": -96.0,
     "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
    }
   },

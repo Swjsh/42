@@ -86,8 +86,27 @@ def load_rows(date: str) -> list[dict]:
                 row = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if str(row.get("ts_et", "")).startswith(date):
-                out.append(row)
+            if not str(row.get("ts_et", "")).startswith(date):
+                continue
+            # STALE-BAR FILTER (2026-09-01). The first ~6 ticks of every session (12 rows,
+            # both arms) are scored against the PRIOR session's closing bar --
+            # bar_freshness.stale=true, age 1056-1060 min -- before the first fresh print
+            # lands at 09:36. Verified present in each of the last 7 sessions.
+            #
+            # Consequence, measured on 2026-09-01: those rows carry spy=767.40 (yesterday's
+            # 15:50 bar) while SPY actually opened 761.91, inflating the apparent session
+            # range from $4.71 to $7.54 -- $2.83 of PHANTOM range. Any range_position,
+            # entry-location, or session-high/low figure computed over unfiltered rows is
+            # wrong by that much, and this ledger's episode attribution reads those fields.
+            #
+            # The field has been logged on every row all along; a repo-wide grep for
+            # bar_freshness found only its WRITER (heartbeat_core.py) and two guard tests --
+            # zero analysis consumers filtered on it. This is a reader-side fix: no engine
+            # behaviour changes, and the engine was never fooled (all 12 stale ticks were
+            # HOLD). Only the analysis was.
+            if (row.get("bar_freshness") or {}).get("stale"):
+                continue
+            out.append(row)
     out.sort(key=lambda r: (str(r.get("ts_et")), str(r.get("account"))))
     return out
 
@@ -424,15 +443,42 @@ def main() -> int:
     ap.add_argument("--date", default=None, help="session date (default: today ET)")
     ap.add_argument("--score", action="store_true",
                     help="also price episodes against recorded OPRA bars")
+    ap.add_argument("--backfill", type=int, default=0, metavar="N",
+                    help="also re-process the N sessions BEFORE --date. Same-day option "
+                         "bars 403 on these keys (free-tier delay), so scoring only "
+                         "succeeds at T+1: the daily fire captures today's episodes and "
+                         "scores yesterday's on the same pass.")
     ap.add_argument("--fetch", action="store_true",
                     help="fetch missing 1m option bars into the highres cache first "
                          "(historical bars are not OPRA-gated)")
     a = ap.parse_args()
     date = a.date or et_now().date().isoformat()
 
-    doc = build(date, a.score, a.fetch)
+    targets = [date]
+    if a.backfill:
+        d0 = dt.date.fromisoformat(date)
+        # Walk back over CALENDAR days and keep the weekdays -- a session with no rows
+        # simply yields 0 episodes, so a holiday costs one cheap no-op rather than
+        # silently shifting the window.
+        back, probe = [], d0
+        while len(back) < a.backfill:
+            probe -= dt.timedelta(days=1)
+            if probe.weekday() < 5:
+                back.append(probe.isoformat())
+        targets += back
+
+    doc = None
+    for t in targets:
+        d = build(t, a.score, a.fetch)
+        if t == date:
+            doc = d
+        else:
+            print(f"[refusals] backfill {t}: {d['n_episodes']} episode(s); "
+                  f"{d['n_scored']} scored")
+
     print(f"[refusals] {date}: {doc['n_episodes']} episode(s) from "
-          f"{doc['_meta']['ticks_read']} tick(s); {doc['n_scored']} scored")
+          f"{doc['_meta']['ticks_read']} tick(s); {doc['n_scored']} scored "
+          f"(same-day bars 403 on free tier -- today scores on tomorrow's fire)")
     for name, agg in doc["by_binding_blocker"].items():
         usd = f"  scored {agg['scored']}, ${agg['usd']:+.2f}" if agg["scored"] else "  (unscored)"
         print(f"   {name:<32} {agg['episodes']:>3} episode(s){usd}")
