@@ -39,3 +39,63 @@ BY_SYMBOL = {i.symbol: i for i in (ES, MES, NQ, MNQ)}
 
 def get(symbol: str) -> Instrument:
     return BY_SYMBOL[symbol.upper()]
+
+
+# --------------------------------------------------------------------------- #
+# Tick alignment
+#
+# SCAR (2026-08-31): every bracket the TastytradeBroker lane tried to place was
+# rejected with `invalid_price_increment: Price must be in increments of $0.25`
+# -- e.g. stops at 7704.05, 7694.30, 7826.10. The signal generator emits raw
+# dollar offsets (entry -/+ N points of ATR-ish distance) and nothing ever
+# snapped them to the contract's tick, so the STOP leg was refused, which
+# aborted the whole bracket and turned every entry into ENTER_REFUSED. The
+# fill simulator has no such validation, so the sim lane traded happily while
+# the real-broker lane sat at exactly its starting net_liq for 10 sessions and
+# no alert fired. Root cause in one sentence: prices were never rounded to
+# `Instrument.tick_size` before being sent to a broker that enforces it.
+#
+# DIRECTION MATTERS. `futures_trader_core` sizes the position from
+# `stop_points = |entry - stop|` BEFORE placing. Widening a stop after sizing
+# would make real risk exceed the risk the rails approved, so callers must
+# round FIRST and then size off the rounded values. `snap_protective` rounds a
+# protective level toward the entry (never wider => never more risk than
+# sized); `snap` is plain nearest-tick for entries and targets.
+# --------------------------------------------------------------------------- #
+
+def snap(price: float, tick: float) -> float:
+    """Nearest valid tick. Use for entry and profit targets."""
+    if not tick or tick <= 0:
+        return float(price)
+    steps = round(float(price) / tick)
+    # Re-round to kill binary float dust (7704.050000000001 -> 7704.05 -> 7704.0).
+    return round(steps * tick, 10)
+
+
+def snap_protective(price: float, tick: float, *, entry: float) -> float:
+    """Snap a STOP toward `entry` -- tighter or equal, never wider.
+
+    Never-wider is the safety property: the position was sized off this
+    distance, so rounding away from entry would silently exceed the approved
+    per-trade risk.
+    """
+    import math
+
+    if not tick or tick <= 0:
+        return float(price)
+    price = float(price)
+    entry = float(entry)
+    steps = price / tick
+    if price >= entry:          # stop above entry => a SHORT => round DOWN toward entry
+        snapped = math.floor(steps + 1e-9) * tick
+    else:                       # stop below entry => a LONG => round UP toward entry
+        snapped = math.ceil(steps - 1e-9) * tick
+    return round(snapped, 10)
+
+
+def is_aligned(price: float, tick: float) -> bool:
+    """True when `price` sits exactly on a tick boundary (float-dust tolerant)."""
+    if not tick or tick <= 0:
+        return True
+    steps = float(price) / tick
+    return abs(steps - round(steps)) < 1e-6

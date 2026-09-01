@@ -6,7 +6,7 @@
 >
 > **Audit history & doctrine evolution:** [CHANGELOG.md](CHANGELOG.md). Don't touch CLAUDE.md when fixing a typo'd update entry — touch the changelog.
 
-> **J discipline reminder:** No interactive Claude sessions during 09:30–15:55 ET — load-bearing, but for **Rule 9 (no mid-session rule changes), not for tokens.** ⚠️ Provenance corrected 2026-08-29 (J challenged it; he was right): the "heartbeat shares the Max pool, a session can starve ticks" rationale **died on 2026-06-25** when the LLM heartbeat was retired. `heartbeat_core.py` is 3,267 lines of deterministic Python — its own docstring says *"No LLM on the hot path"* — and its only model layer (2 FREE models, groq/cerebras/gemini) has been OFF since 2026-08-12. **The live engine spends ZERO Anthropic tokens; nothing you do in a Claude session can starve it.** The sole RTH pool consumer is `Gamma_ConductorRTH` (Sonnet, low effort, **$0.50/day cap**, 13 fires, never fans out an agent). No automated guard after OP-32 removal (2026-05-23) — discipline is the only guard.
+> **J discipline reminder:** No interactive Claude sessions during 09:30–15:55 ET — load-bearing, but for **Rule 9 (no mid-session rule changes), not for tokens** (the live engine spends ZERO Anthropic tokens; nothing in a Claude session can starve it). Full provenance-correction narrative (2026-08-29): [`RTH-POOL-PROVENANCE.md`](markdown/doctrine/RTH-POOL-PROVENANCE.md).
 
 ---
 
@@ -151,8 +151,8 @@ See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md)
 
 ## Debugging discipline — diagnose before you fix (anti-"fake fix")
 
-> General protocol: `~/.claude/rules/common/debugging.md`. Rules: name root cause before fixing; stop repeating failing actions; quote the evidence; one hypothesis → one change → one test.
-> **Fable drills (invoke, don't improvise):** stuck/anomaly → `/fable-differential` (hypothesis ledger, ≥3 mechanisms, discriminating evidence). Great-looking result → `/fable-too-good` (7 artifact hunts BEFORE reporting). Any shared-surface edit → `/fable-blast-radius` (grep consumers, never recall). Full protocol for hard problems → `/think-like-fable`.
+> General protocol: `~/.claude/rules/common/debugging.md` — name root cause before fixing, stop repeating failing actions, quote the evidence, one hypothesis → one change → one test.
+> **Fable drills (invoke, don't improvise):** anomaly → `/fable-differential`; great-looking result → `/fable-too-good`; shared-surface edit → `/fable-blast-radius`; hard problem → `/think-like-fable`.
 
 - **THIS RIG KILLS ITS OWN PROCESSES.** Silent death — clean stderr, **no Windows Event Log entry**, ~3–5 min cadence — is an *external kill*, NOT a crash. Suspect #1: [`_shared.ps1`](setup/scripts/_shared.ps1)`#Stop-StaleClaudeProcesses` (reaps `python.exe` >5 min old unless in `$EXEMPT_DAEMONS`). Long grinds run as ONE 6–8-worker task (3 concurrent deadlock on OPRA cache); backtest venv must be `$EXEMPT_DAEMONS`.
 - **TIME = `et_clock`, NEVER Bash `TZ`.** Box runs Mountain time (ET = local+2); Bash `TZ=America/New_York date` returns UTC here (wrong). Verify ET via `setup/scripts/et_clock.py` (DST-aware) or PowerShell before any market-hours-gated action. Guard `test_et_clock`.
@@ -232,7 +232,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178,192,259,270,272,281,295 |
     | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94,161,165,166,191,212,218,235,251,258,269,276 |
-    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236,240,241,242,244,249,260,264,268,273,275,279,285,286,292,293,296,298 |
+    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236,240,241,242,244,249,260,264,268,273,275,279,285,286,292,293,296,298,299,301 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81,210,229,277,297 |
     | C9 | Anchor paths to __file__ | L21,42,49,56,60 |
     | C10 | Rate-limit pool: separate prod key | L54,62,68,69 |
@@ -243,7 +243,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C15 | Gates interact multiplicatively — trace session cascades | L07,08,09,66,95,163,180,199,209,222,230,263 |
     | C16 | Multi-bar reversal vs single-bar continuation discriminator | L52,59,75 |
     | C17 | Build reusable skills + crypto validation, not one-shots | L03,36,37 |
-    | C18 | Status-format discipline | L06,15,17,18,227 |
+    | C18 | Status-format discipline; Gamma-authored copy must obey the OPs | L06,15,17,18,227,300 |
     | C19 | Cowork FUSE mount: no deletes + truncated read-after-edit | L78 |
     | C20 | Gate direction must match setup structure: proximity gates anti-correlate with breakout setups | L102,219 |
     | C21 | Bypass fires at bar-level not date-level: verify trigger+time+type match J's entry | L103,153 |

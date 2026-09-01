@@ -479,6 +479,39 @@ def _blind_alarm(day: str) -> Optional[str]:
         return None
 
 
+def _refusals_eod_line(day: str) -> Optional[str]:
+    """"Why didn't we trade" -- the one fact the EOD brief was missing.
+
+    J 2026-08-31: after a zero-trade day the brief said "zero trades, a valid sat-out day"
+    and stopped. The reason lived upstream (334/334 ticks blocked by the VIX gate) and never
+    reached the summary he actually reads, so he had to ask. A brief that reports the
+    outcome but not the cause is what makes a repeated question necessary -- and a repeated
+    question is a missing instrument, not a query.
+
+    Reads analysis/refusals/{day}.json (setup/scripts/refused_setup_ledger.py). Silent when
+    absent: this line must never be the reason a brief fails to go out.
+    """
+    doc = _read_json(REPO / "analysis" / "refusals" / f"{day}.json")
+    if not doc or not doc.get("n_episodes"):
+        return None
+    by = doc.get("by_binding_blocker") or {}
+    if not by:
+        return None
+    name, agg = next(iter(by.items()))
+    spoken = name.replace("_", " ")
+    line = (f"The gates refused {doc['n_episodes']} qualifying setup(s) today; "
+            f"the binding one was {spoken} on {agg['episodes']} of them.")
+    if agg.get("scored"):
+        usd = agg["usd"]
+        verb = "would have cost us" if usd > 0 else "saved us"
+        line += (f" Priced against real option bars, {agg['scored']} of those "
+                 f"{verb} ${abs(usd):.0f} per contract.")
+    unscored = doc["n_episodes"] - doc.get("n_scored", 0)
+    if unscored:
+        line += f" {unscored} could not be priced -- no recorded bars for those contracts."
+    return line
+
+
 def compose_eod_text(facts: dict) -> str:
     lines = [f"Gamma here. End of day, {facts['day']}."]
     alarm = _liveness_alarm(facts["day"])
@@ -498,6 +531,10 @@ def compose_eod_text(facts: dict) -> str:
         lines.append(f"By account: {arm_txt}.")
     else:
         lines.append("No account traded today.")
+    # WHY we did or didn't trade -- immediately after WHETHER we did (J 2026-08-31).
+    refusals = _refusals_eod_line(facts["day"])
+    if refusals:
+        lines.append(refusals)
     lines.append(f"Overall I was {_pnl_oneliner(facts.get('total_pnl'))}. No sugar-coating either way.")
     nf = facts.get("n_filled")
     if nf is not None:

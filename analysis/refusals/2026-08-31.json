@@ -1,0 +1,1795 @@
+{
+ "_meta": {
+  "date": "2026-08-31",
+  "generated_at_et": "2026-08-31T23:29:29",
+  "builder": "setup/scripts/refused_setup_ledger.py",
+  "shadow_only": "MEASUREMENT ONLY -- never places, arms, or edits a gate.",
+  "min_score": 6,
+  "min_triggers": 1,
+  "ticks_read": 772,
+  "unscored_note": "episodes with scored=false have NO recorded option bars for their contract -- an honest null, not a zero"
+ },
+ "n_episodes": 52,
+ "n_scored": 26,
+ "by_binding_blocker": {
+  "ribbon_not_bull": {
+   "episodes": 28,
+   "scored": 24,
+   "usd": -255.6
+  },
+  "vix_gate_17.30_rising": {
+   "episodes": 22,
+   "scored": 0,
+   "usd": 0.0
+  },
+  "spread_below_30c": {
+   "episodes": 16,
+   "scored": 2,
+   "usd": -10.2
+  },
+  "buyer_pressure": {
+   "episodes": 14,
+   "scored": 12,
+   "usd": -205.0
+  },
+  "ribbon_not_bear": {
+   "episodes": 6,
+   "scored": 0,
+   "usd": 0.0
+  },
+  "volume_divergence": {
+   "episodes": 2,
+   "scored": 2,
+   "usd": -6.4
+  },
+  "breakdown_bar": {
+   "episodes": 2,
+   "scored": 0,
+   "usd": 0.0
+  }
+ },
+ "episodes": [
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T09:30:03",
+   "last_ts_et": "2026-08-31T09:50:03",
+   "n_ticks": 16,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 769.375,
+   "vix_at_first": 15.32,
+   "level": 769.51,
+   "would_be_strike": 769,
+   "would_be_contract": "SPY260831P00769000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T09:30:03",
+   "last_ts_et": "2026-08-31T09:30:03",
+   "n_ticks": 1,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    7
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "volume_divergence"
+   ],
+   "spy_at_first": 769.375,
+   "vix_at_first": 15.32,
+   "level": 769.33,
+   "would_be_strike": 769,
+   "would_be_contract": "SPY260831C00769000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00769000",
+    "entry_t": "09:30",
+    "entry_px": 0.61,
+    "exit_t": "09:32",
+    "exit_px": 0.58,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.2,
+    "per_contract_usd": -3.2,
+    "mfe_pct": 203.3,
+    "mae_pct": -98.4,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T09:30:04",
+   "last_ts_et": "2026-08-31T09:50:04",
+   "n_ticks": 16,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 769.375,
+   "vix_at_first": 15.32,
+   "level": 769.51,
+   "would_be_strike": 769,
+   "would_be_contract": "SPY260831P00769000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T09:30:04",
+   "last_ts_et": "2026-08-31T09:30:04",
+   "n_ticks": 1,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    7
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "volume_divergence"
+   ],
+   "spy_at_first": 769.375,
+   "vix_at_first": 15.32,
+   "level": 769.33,
+   "would_be_strike": 769,
+   "would_be_contract": "SPY260831C00769000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00769000",
+    "entry_t": "09:30",
+    "entry_px": 0.61,
+    "exit_t": "09:32",
+    "exit_px": 0.58,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.2,
+    "per_contract_usd": -3.2,
+    "mfe_pct": 203.3,
+    "mae_pct": -98.4,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T09:41:03",
+   "last_ts_et": "2026-08-31T09:45:03",
+   "n_ticks": 5,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 766.33,
+   "vix_at_first": 15.28,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "09:41",
+    "entry_px": 1.39,
+    "exit_t": "09:43",
+    "exit_px": 1.24,
+    "exit_kind": "chandelier_trail",
+    "pct": -10.7,
+    "per_contract_usd": -14.9,
+    "mfe_pct": 21.6,
+    "mae_pct": -82.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T09:41:04",
+   "last_ts_et": "2026-08-31T09:45:04",
+   "n_ticks": 5,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 766.33,
+   "vix_at_first": 15.28,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "09:41",
+    "entry_px": 1.39,
+    "exit_t": "09:43",
+    "exit_px": 1.24,
+    "exit_kind": "chandelier_trail",
+    "pct": -10.7,
+    "per_contract_usd": -14.9,
+    "mfe_pct": 21.6,
+    "mae_pct": -82.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T09:56:03",
+   "last_ts_et": "2026-08-31T10:00:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 766.475,
+   "vix_at_first": 15.35,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "09:56",
+    "entry_px": 1.44,
+    "exit_t": "10:24",
+    "exit_px": 0.72,
+    "exit_kind": "catastrophe_cap",
+    "pct": -50.0,
+    "per_contract_usd": -72.0,
+    "mfe_pct": 17.4,
+    "mae_pct": -83.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T09:56:04",
+   "last_ts_et": "2026-08-31T10:00:05",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 766.475,
+   "vix_at_first": 15.39,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "09:56",
+    "entry_px": 1.44,
+    "exit_t": "10:24",
+    "exit_px": 0.72,
+    "exit_kind": "catastrophe_cap",
+    "pct": -50.0,
+    "per_contract_usd": -72.0,
+    "mfe_pct": 17.4,
+    "mae_pct": -83.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T10:01:03",
+   "last_ts_et": "2026-08-31T10:15:03",
+   "n_ticks": 15,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.22,
+   "vix_at_first": 15.42,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T10:01:04",
+   "last_ts_et": "2026-08-31T10:15:04",
+   "n_ticks": 15,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.22,
+   "vix_at_first": 15.42,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T10:14:03",
+   "last_ts_et": "2026-08-31T10:20:03",
+   "n_ticks": 7,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.54,
+   "vix_at_first": 15.28,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "10:14",
+    "entry_px": 1.01,
+    "exit_t": "10:20",
+    "exit_px": 0.93,
+    "exit_kind": "chandelier_trail",
+    "pct": -8.3,
+    "per_contract_usd": -8.35,
+    "mfe_pct": 67.3,
+    "mae_pct": -76.2,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T10:14:04",
+   "last_ts_et": "2026-08-31T10:20:04",
+   "n_ticks": 7,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.54,
+   "vix_at_first": 15.28,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "10:14",
+    "entry_px": 1.01,
+    "exit_t": "10:20",
+    "exit_px": 0.93,
+    "exit_kind": "chandelier_trail",
+    "pct": -8.3,
+    "per_contract_usd": -8.35,
+    "mfe_pct": 67.3,
+    "mae_pct": -76.2,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T10:26:03",
+   "last_ts_et": "2026-08-31T11:10:03",
+   "n_ticks": 27,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8,
+    9
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising",
+    "breakdown_bar"
+   ],
+   "spy_at_first": 765.0,
+   "vix_at_first": 15.38,
+   "level": 765.5,
+   "would_be_strike": 765,
+   "would_be_contract": "SPY260831P00765000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T10:26:04",
+   "last_ts_et": "2026-08-31T11:10:04",
+   "n_ticks": 27,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8,
+    9
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising",
+    "breakdown_bar"
+   ],
+   "spy_at_first": 765.0,
+   "vix_at_first": 15.38,
+   "level": 765.5,
+   "would_be_strike": 765,
+   "would_be_contract": "SPY260831P00765000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T10:41:03",
+   "last_ts_et": "2026-08-31T10:45:03",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.535,
+   "vix_at_first": 15.4,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "10:41",
+    "entry_px": 0.98,
+    "exit_t": "10:44",
+    "exit_px": 0.91,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.2,
+    "per_contract_usd": -7.05,
+    "mfe_pct": 72.4,
+    "mae_pct": -75.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T10:41:04",
+   "last_ts_et": "2026-08-31T10:45:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.535,
+   "vix_at_first": 15.4,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "10:41",
+    "entry_px": 0.98,
+    "exit_t": "10:44",
+    "exit_px": 0.91,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.2,
+    "per_contract_usd": -7.05,
+    "mfe_pct": 72.4,
+    "mae_pct": -75.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T10:56:03",
+   "last_ts_et": "2026-08-31T11:00:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.835,
+   "vix_at_first": 15.23,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "10:56",
+    "entry_px": 1.04,
+    "exit_t": "10:59",
+    "exit_px": 1.03,
+    "exit_kind": "chandelier_trail",
+    "pct": -1.1,
+    "per_contract_usd": -1.15,
+    "mfe_pct": 62.5,
+    "mae_pct": -76.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T10:56:04",
+   "last_ts_et": "2026-08-31T11:00:05",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.835,
+   "vix_at_first": 15.23,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "10:56",
+    "entry_px": 1.04,
+    "exit_t": "10:59",
+    "exit_px": 1.03,
+    "exit_kind": "chandelier_trail",
+    "pct": -1.1,
+    "per_contract_usd": -1.15,
+    "mfe_pct": 62.5,
+    "mae_pct": -76.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T11:21:03",
+   "last_ts_et": "2026-08-31T11:25:03",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.71,
+   "vix_at_first": 15.16,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "11:21",
+    "entry_px": 0.93,
+    "exit_t": "11:26",
+    "exit_px": 0.86,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.7,
+    "per_contract_usd": -7.15,
+    "mfe_pct": 81.7,
+    "mae_pct": -74.2,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T11:21:04",
+   "last_ts_et": "2026-08-31T11:25:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.71,
+   "vix_at_first": 15.16,
+   "level": 765.5,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "11:21",
+    "entry_px": 0.93,
+    "exit_t": "11:26",
+    "exit_px": 0.86,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.7,
+    "per_contract_usd": -7.15,
+    "mfe_pct": 81.7,
+    "mae_pct": -74.2,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T11:34:03",
+   "last_ts_et": "2026-08-31T12:10:03",
+   "n_ticks": 24,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection",
+    "trendline_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 765.92,
+   "vix_at_first": 15.23,
+   "level": 766.14,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T11:34:04",
+   "last_ts_et": "2026-08-31T12:10:04",
+   "n_ticks": 24,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection",
+    "trendline_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 765.92,
+   "vix_at_first": 15.23,
+   "level": 766.14,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T11:36:03",
+   "last_ts_et": "2026-08-31T12:00:04",
+   "n_ticks": 16,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.71,
+   "vix_at_first": 15.21,
+   "level": 765.49,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "11:36",
+    "entry_px": 0.79,
+    "exit_t": "11:46",
+    "exit_px": 0.72,
+    "exit_kind": "chandelier_trail",
+    "pct": -8.5,
+    "per_contract_usd": -6.75,
+    "mfe_pct": 113.9,
+    "mae_pct": -69.6,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T11:36:04",
+   "last_ts_et": "2026-08-31T12:00:04",
+   "n_ticks": 16,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.71,
+   "vix_at_first": 15.19,
+   "level": 765.49,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "11:36",
+    "entry_px": 0.79,
+    "exit_t": "11:46",
+    "exit_px": 0.72,
+    "exit_kind": "chandelier_trail",
+    "pct": -8.5,
+    "per_contract_usd": -6.75,
+    "mfe_pct": 113.9,
+    "mae_pct": -69.6,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T12:16:03",
+   "last_ts_et": "2026-08-31T12:20:03",
+   "n_ticks": 5,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.72,
+   "vix_at_first": 15.27,
+   "level": 765.21,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "12:16",
+    "entry_px": 0.57,
+    "exit_t": "12:22",
+    "exit_px": 0.54,
+    "exit_kind": "chandelier_trail",
+    "pct": -4.6,
+    "per_contract_usd": -2.6,
+    "mfe_pct": 196.5,
+    "mae_pct": -57.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T12:16:04",
+   "last_ts_et": "2026-08-31T12:20:04",
+   "n_ticks": 5,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.72,
+   "vix_at_first": 15.27,
+   "level": 765.21,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "12:16",
+    "entry_px": 0.57,
+    "exit_t": "12:22",
+    "exit_px": 0.54,
+    "exit_kind": "chandelier_trail",
+    "pct": -4.6,
+    "per_contract_usd": -2.6,
+    "mfe_pct": 196.5,
+    "mae_pct": -57.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T12:24:07",
+   "last_ts_et": "2026-08-31T13:05:03",
+   "n_ticks": 37,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 765.43,
+   "vix_at_first": 15.26,
+   "level": 765.46,
+   "would_be_strike": 765,
+   "would_be_contract": "SPY260831P00765000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T12:24:08",
+   "last_ts_et": "2026-08-31T13:05:04",
+   "n_ticks": 37,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 765.43,
+   "vix_at_first": 15.26,
+   "level": 765.46,
+   "would_be_strike": 765,
+   "would_be_contract": "SPY260831P00765000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T12:31:03",
+   "last_ts_et": "2026-08-31T12:33:03",
+   "n_ticks": 3,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.86,
+   "vix_at_first": 15.19,
+   "level": 765.77,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "12:31",
+    "entry_px": 0.65,
+    "exit_t": "12:37",
+    "exit_px": 0.6,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.2,
+    "per_contract_usd": -4.65,
+    "mfe_pct": 160.0,
+    "mae_pct": -63.1,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T12:31:04",
+   "last_ts_et": "2026-08-31T12:33:04",
+   "n_ticks": 3,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.86,
+   "vix_at_first": 15.19,
+   "level": 765.77,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "12:31",
+    "entry_px": 0.65,
+    "exit_t": "12:37",
+    "exit_px": 0.6,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.2,
+    "per_contract_usd": -4.65,
+    "mfe_pct": 160.0,
+    "mae_pct": -63.1,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T12:51:03",
+   "last_ts_et": "2026-08-31T12:55:03",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.84,
+   "vix_at_first": 15.18,
+   "level": 765.46,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "12:51",
+    "entry_px": 0.68,
+    "exit_t": "12:54",
+    "exit_px": 0.61,
+    "exit_kind": "chandelier_trail",
+    "pct": -10.0,
+    "per_contract_usd": -6.8,
+    "mfe_pct": 148.5,
+    "mae_pct": -64.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T12:51:04",
+   "last_ts_et": "2026-08-31T12:55:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.84,
+   "vix_at_first": 15.18,
+   "level": 765.46,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "12:51",
+    "entry_px": 0.68,
+    "exit_t": "12:54",
+    "exit_px": 0.61,
+    "exit_kind": "chandelier_trail",
+    "pct": -10.0,
+    "per_contract_usd": -6.8,
+    "mfe_pct": 148.5,
+    "mae_pct": -64.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T13:21:03",
+   "last_ts_et": "2026-08-31T13:40:03",
+   "n_ticks": 20,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 765.73,
+   "vix_at_first": 15.16,
+   "level": 765.98,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T13:21:04",
+   "last_ts_et": "2026-08-31T13:40:04",
+   "n_ticks": 20,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    8
+   ],
+   "binding_blocker_names": [
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 765.73,
+   "vix_at_first": 15.16,
+   "level": 765.98,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T13:41:03",
+   "last_ts_et": "2026-08-31T13:55:03",
+   "n_ticks": 15,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.84,
+   "vix_at_first": 15.15,
+   "level": 765.54,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "13:41",
+    "entry_px": 0.68,
+    "exit_t": "13:46",
+    "exit_px": 0.75,
+    "exit_kind": "chandelier_trail",
+    "pct": 10.0,
+    "per_contract_usd": 6.8,
+    "mfe_pct": 148.5,
+    "mae_pct": -64.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T13:41:04",
+   "last_ts_et": "2026-08-31T13:55:04",
+   "n_ticks": 15,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull"
+   ],
+   "spy_at_first": 765.84,
+   "vix_at_first": 15.15,
+   "level": 765.54,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "13:41",
+    "entry_px": 0.68,
+    "exit_t": "13:46",
+    "exit_px": 0.75,
+    "exit_kind": "chandelier_trail",
+    "pct": 10.0,
+    "per_contract_usd": 6.8,
+    "mfe_pct": 148.5,
+    "mae_pct": -64.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T14:04:03",
+   "last_ts_et": "2026-08-31T14:05:04",
+   "n_ticks": 2,
+   "peak_score": 7,
+   "triggers": [
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bear",
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.51,
+   "vix_at_first": 15.07,
+   "level": 766.78,
+   "would_be_strike": 767,
+   "would_be_contract": "SPY260831P00767000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T14:04:04",
+   "last_ts_et": "2026-08-31T14:05:04",
+   "n_ticks": 2,
+   "peak_score": 7,
+   "triggers": [
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bear",
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.51,
+   "vix_at_first": 15.07,
+   "level": 766.78,
+   "would_be_strike": 767,
+   "would_be_contract": "SPY260831P00767000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T14:06:03",
+   "last_ts_et": "2026-08-31T14:10:03",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    6
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "spread_below_30c"
+   ],
+   "spy_at_first": 766.625,
+   "vix_at_first": 15.05,
+   "level": 766.3,
+   "would_be_strike": 767,
+   "would_be_contract": "SPY260831C00767000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T14:06:04",
+   "last_ts_et": "2026-08-31T14:10:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    6
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "spread_below_30c"
+   ],
+   "spy_at_first": 766.625,
+   "vix_at_first": 15.05,
+   "level": 766.3,
+   "would_be_strike": 767,
+   "would_be_contract": "SPY260831C00767000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T14:31:03",
+   "last_ts_et": "2026-08-31T15:10:03",
+   "n_ticks": 35,
+   "peak_score": 7,
+   "triggers": [
+    "confluence",
+    "level_rejection",
+    "ribbon_flip"
+   ],
+   "binding_blockers": [
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.31,
+   "vix_at_first": 15.06,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T14:31:04",
+   "last_ts_et": "2026-08-31T15:10:04",
+   "n_ticks": 35,
+   "peak_score": 7,
+   "triggers": [
+    "confluence",
+    "level_rejection",
+    "ribbon_flip"
+   ],
+   "binding_blockers": [
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.31,
+   "vix_at_first": 15.06,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T14:46:03",
+   "last_ts_et": "2026-08-31T14:50:04",
+   "n_ticks": 5,
+   "peak_score": 7,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "spread_below_30c",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.345,
+   "vix_at_first": 15.04,
+   "level": 765.14,
+   "would_be_strike": 765,
+   "would_be_contract": "SPY260831C00765000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T14:46:04",
+   "last_ts_et": "2026-08-31T14:50:05",
+   "n_ticks": 5,
+   "peak_score": 7,
+   "triggers": [
+    "confluence",
+    "level_reclaim"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    10
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bull",
+    "spread_below_30c",
+    "buyer_pressure"
+   ],
+   "spy_at_first": 765.345,
+   "vix_at_first": 15.04,
+   "level": 765.14,
+   "would_be_strike": 765,
+   "would_be_contract": "SPY260831C00765000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T15:11:03",
+   "last_ts_et": "2026-08-31T15:55:03",
+   "n_ticks": 32,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim",
+    "ribbon_flip"
+   ],
+   "binding_blockers": [
+    6
+   ],
+   "binding_blocker_names": [
+    "spread_below_30c"
+   ],
+   "spy_at_first": 766.025,
+   "vix_at_first": 15.1,
+   "level": 765.91,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "15:11",
+    "entry_px": 0.51,
+    "exit_t": "15:13",
+    "exit_px": 0.46,
+    "exit_kind": "chandelier_trail",
+    "pct": -10.0,
+    "per_contract_usd": -5.1,
+    "mfe_pct": 231.4,
+    "mae_pct": -15.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bull",
+   "first_ts_et": "2026-08-31T15:11:04",
+   "last_ts_et": "2026-08-31T15:55:04",
+   "n_ticks": 32,
+   "peak_score": 9,
+   "triggers": [
+    "confluence",
+    "level_reclaim",
+    "ribbon_flip"
+   ],
+   "binding_blockers": [
+    6
+   ],
+   "binding_blocker_names": [
+    "spread_below_30c"
+   ],
+   "spy_at_first": 766.025,
+   "vix_at_first": 15.1,
+   "level": 765.91,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831C00766000",
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260831C00766000",
+    "entry_t": "15:11",
+    "entry_px": 0.51,
+    "exit_t": "15:13",
+    "exit_px": 0.46,
+    "exit_kind": "chandelier_trail",
+    "pct": -10.0,
+    "per_contract_usd": -5.1,
+    "mfe_pct": 231.4,
+    "mae_pct": -15.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T15:21:03",
+   "last_ts_et": "2026-08-31T15:25:03",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.04,
+   "vix_at_first": 15.06,
+   "level": 766.05,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T15:21:04",
+   "last_ts_et": "2026-08-31T15:25:04",
+   "n_ticks": 5,
+   "peak_score": 8,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.04,
+   "vix_at_first": 15.06,
+   "level": 766.05,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T15:36:03",
+   "last_ts_et": "2026-08-31T15:40:03",
+   "n_ticks": 5,
+   "peak_score": 7,
+   "triggers": [
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bear",
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.4,
+   "vix_at_first": 15.03,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T15:36:04",
+   "last_ts_et": "2026-08-31T15:40:04",
+   "n_ticks": 5,
+   "peak_score": 7,
+   "triggers": [
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bear",
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.4,
+   "vix_at_first": 15.03,
+   "level": 766.3,
+   "would_be_strike": 766,
+   "would_be_contract": "SPY260831P00766000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "safe",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T15:51:03",
+   "last_ts_et": "2026-08-31T15:55:03",
+   "n_ticks": 5,
+   "peak_score": 7,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bear",
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.87,
+   "vix_at_first": 15.0,
+   "level": 766.96,
+   "would_be_strike": 767,
+   "would_be_contract": "SPY260831P00767000",
+   "scored": false,
+   "score_result": null
+  },
+  {
+   "date": "2026-08-31",
+   "account": "bold",
+   "side": "bear",
+   "first_ts_et": "2026-08-31T15:51:04",
+   "last_ts_et": "2026-08-31T15:55:04",
+   "n_ticks": 5,
+   "peak_score": 7,
+   "triggers": [
+    "confluence",
+    "level_rejection"
+   ],
+   "binding_blockers": [
+    5,
+    6,
+    8
+   ],
+   "binding_blocker_names": [
+    "ribbon_not_bear",
+    "spread_below_30c",
+    "vix_gate_17.30_rising"
+   ],
+   "spy_at_first": 766.87,
+   "vix_at_first": 15.0,
+   "level": 766.96,
+   "would_be_strike": 767,
+   "would_be_contract": "SPY260831P00767000",
+   "scored": false,
+   "score_result": null
+  }
+ ]
+}

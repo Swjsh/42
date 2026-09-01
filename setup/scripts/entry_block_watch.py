@@ -355,10 +355,14 @@ def compose_alert_text(row: dict, side: str) -> str:
         f"Gamma here. The engine sees a {score} out of {cfg['max_score']} {side} setup "
         f"{_level_phrase(row, side)} on {account} -- {trig_phrase} -- and is not taking it. "
         f"{_blocker_phrase(row, side)} "
-        # No fixed voice-arming command is documented anywhere in j_intent_executor.py
-        # (Claude translates J's sentence into an intent JSON, one turn, <60s -- there is
-        # no literal phrase to quote). See this build's report for the flagged gap.
-        "J, say the word to arm it."
+        # FORBIDDEN FRAMING FIX (J 2026-08-31): this string used to read
+        # "J, say the word to arm it." -- a permission-question on PAPER work, which is
+        # the exact anti-pattern OP-0 / OP-11 ban. Paper gates are Gamma's call to change
+        # via the eval-first ladder (OP-11), never J's to authorise by voice; the only
+        # things that route to J are live-money arming, secrets, irreversible external
+        # actions, and genuine doctrine forks. The alert's job is to REPORT a refusal and
+        # its cost, not to solicit an override.
+        "Logged for gate review; no action needed from you."
     ).strip()
 
 

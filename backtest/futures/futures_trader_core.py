@@ -246,6 +246,40 @@ def refresh_data(root: str, interval: str = "5m", *, force: bool = False) -> dic
     return verdict
 
 
+def _snap_signal_to_tick(sig: dict, inst) -> dict:
+    """Return a COPY of `sig` with every price on a valid tick for `inst`.
+
+    Fixes the 2026-08-31 scar: Tastytrade rejects any leg whose price is not a
+    multiple of the contract tick (`invalid_price_increment`), and a rejected
+    stop leg aborts the entire bracket -- so every entry became ENTER_REFUSED
+    while the tick-agnostic fill simulator traded on regardless.
+
+    Protective legs (stop) snap TOWARD entry so the realised risk can only be
+    <= the risk the rails sized for. Entry/tp1/runner snap to nearest tick.
+    Immutable by construction: the caller's signal dict is never touched.
+    """
+    from .instruments import snap, snap_protective  # noqa: PLC0415
+
+    tick = float(getattr(inst, "tick_size", 0) or 0)
+    if tick <= 0:
+        return sig
+
+    out = dict(sig)
+    entry = snap(float(sig["entry"]), tick)
+    out["entry"] = entry
+    out["stop"] = snap_protective(float(sig["stop"]), tick, entry=entry)
+    for key in ("tp1", "runner"):
+        if sig.get(key) is not None:
+            out[key] = snap(float(sig[key]), tick)
+
+    # A stop that collapses onto the entry is not a stop. Push it one tick out --
+    # this is the ONE case where widening is correct, and one tick of extra risk
+    # is immaterial next to placing a zero-distance protective order.
+    if out["stop"] == entry:
+        out["stop"] = round(entry + (tick if float(sig["stop"]) >= entry else -tick), 10)
+    return out
+
+
 # ── the tick ──────────────────────────────────────────────────────────────────
 
 def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
@@ -431,6 +465,12 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
     for sig in seen.get("signals", []):
         if not should_take_v3(sig["watcher"], sig["direction"], sig["confidence"], vix):
             continue
+        # TICK ALIGNMENT (scar 2026-08-31 -- see instruments.py "Tick alignment").
+        # Snap BEFORE sizing: stop_points below feeds rails.max_qty_for, so a stop
+        # widened after sizing would exceed the approved risk. Protective legs round
+        # toward entry (never wider); entry/targets round to nearest tick. New dict --
+        # the incoming signal is never mutated.
+        sig = _snap_signal_to_tick(sig, inst)
         stop_points = abs(float(sig["entry"]) - float(sig["stop"]))
         qty = rails.max_qty_for(equity=equity, stop_points=stop_points, instrument=inst)
         if qty < 1:
