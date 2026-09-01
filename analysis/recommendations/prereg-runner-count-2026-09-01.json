@@ -1,0 +1,49 @@
+{
+ "prereg_id": "PREREG-RUNNER-COUNT-2026-09-01",
+ "frozen_at_et": "2026-09-01T17:12:07",
+ "status": "FROZEN -- not run; measurement only; nothing armed",
+ "question": "J 2026-09-01: 'maybe we need 1 or 2 more contracts to ride the 100%+ wave so we capture more $ and give back less?' Decompose: (A) total size 3->5 at the same split; (B) same size, more runners (2/1 -> 1/2); (C) both.",
+ "why_prereg": "Every prior angle points the same way (tp1_qty_fraction 0.5->0.667->0.8 cleared; 3 protect-the-runner-earlier iterations ARM_NOTHING on the G4 runner-cohort veto; B10 quarter-Kelly=3 at $5K; equity-scaled sizing armed 08-13 reverted 08-14 with ~-$400 attributable). No single scorecard has tested contract COUNT and RUNNER COUNT as separate axes on real fills. This freezes that test so it is adjudicated on numbers, not on today's +117%/+126% n=1.",
+ "population": "fills-ledger.jsonl attribution=='engine', all arms, FIFO round trips, 2026-06-25 (ribbon_ride ship) -> present; replay via lib.simulator_real on real OPRA where leg re-sizing needs re-pricing; day-block bootstrap 2000 paths",
+ "control": {
+  "qty": 3,
+  "tp1_qty": 2,
+  "runner_qty": 1,
+  "exit_shape": "ribbon_ride SS-B cell (strategies.py) UNCHANGED"
+ },
+ "cells": {
+  "A_size5_same_split": {
+   "qty": 5,
+   "tp1_qty": 3,
+   "runner_qty": 2
+  },
+  "B_size3_more_runners": {
+   "qty": 3,
+   "tp1_qty": 1,
+   "runner_qty": 2
+  },
+  "C_size5_more_runners": {
+   "qty": 5,
+   "tp1_qty": 2,
+   "runner_qty": 3
+  },
+  "D_size4": {
+   "qty": 4,
+   "tp1_qty": 3,
+   "runner_qty": 1
+  }
+ },
+ "hard_caps": "Rule 6 30%/50% of equity per trade; max_contracts_per_entry=5 (TIGHT-LADDER control #1); any cell breaching a cap on a given trade is clamped, not skipped, and the clamp count is reported",
+ "gates": {
+  "G1_aggregate_positive_vs_control": "net $ delta > 0 on the full population",
+  "G2_survives_drop_best_day": "delta ex-best-day > 0 (C4 concentration)",
+  "G3_downside": "p05 arm-day P&L and max drawdown no worse than control by more than 10%",
+  "G4_runner_cohort_no_regression": "reused verbatim from exit-armscope/be-floor prereg: the 35-trade runner cohort must not regress -- HARD VETO",
+  "G5_08_14_replay": "the 2026-08-14 09:46 778C signal, re-sized per cell, must not lose more than control by >25% -- the re-arm condition named in commit 636c5ba4",
+  "G6_sub_window_stability": ">=3 of 4 sub-windows positive"
+ },
+ "decision_rule": "ALL of G1-G6 pass -> the winning cell is proposed for 2026-09-29 (post-freeze) via OP-11 ladder; any G4 or G5 fail -> KILL that cell and log the null; no cell passes -> log the null against J's hypothesis with the numbers",
+ "freeze_legality": "measurement only; touches no trading path; may run any evening",
+ "not_a_proxy_for": "an entry-quality discriminator. Even a passing cell does not solve the give-back; it scales it. The 2026-09-01 review established the discriminator does not exist yet.",
+ "owner": "sonnet worker per routing (Fable wrote the spec)"
+}
