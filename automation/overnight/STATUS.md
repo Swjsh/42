@@ -12,6 +12,8 @@
 
 **Next fire on the self-audit thread:** 2026-08-31T17:32:18 batch (4 items, oldest remaining untriaged) is next. `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping due ~2026-09-09 (14d from 08-26) if nothing higher-priority surfaces first; `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01` and the recency-capital-scaling item both stay parked for the post-freeze window (~09-29).
 
+**`conductor_outcome.py metric` this fire:** `trend=regressing` (net_improvement 43/20 fires, cost/drained $0.33). `function_latest` itself looks fine (13 enters / 4 fills / 2026-09-01) so the regression reads as a cost-per-drained drift, not a dead engine -- this fire's pick (a loop-closing self-audit triage, not a new artifact) is already the correct response per the trend guidance; not investigated further this fire (scope discipline).
+
 ---
 
 ## [2026-09-01T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-09-01 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
