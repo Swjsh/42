@@ -127,6 +127,14 @@ ESSENTIAL = {
     "Gamma_Heartbeat_Aggressive",
     "Gamma_SightBeacon",
     "Gamma_MarketKeepAwake",
+    # Its WATCHDOG must be as essential as the daemon it guards (2026-08-31). Registering
+    # it revealed the hole: Gamma_MarketKeepAwake was already ESSENTIAL, so quiet mode left
+    # the daemon running while disabling the only thing that would notice it die -- and
+    # dying silently mid-session is precisely this daemon's failure mode (09:23 ET that
+    # day, 99 ticks in, empty stderr). A presence hold can persist past 23:00 into the
+    # 07:47 ET first fire, so the clock bands alone do not close it. $0, read-only
+    # liveness probe -- same justification as Gamma_WindowLeakDetectorKeepalive above.
+    "Gamma_MarketKeepAwakeKeepalive",
     "Gamma_EodFlatten",
     "Gamma_EodFlatten_Aggressive",
     "Gamma_EodFlattenCore",
