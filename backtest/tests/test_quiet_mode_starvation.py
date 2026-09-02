@@ -169,6 +169,33 @@ def test_essential_set_covers_the_trading_chain():
     assert not missing, f"trading-chain tasks not exempt from the blackout: {missing}"
 
 
+def test_essential_set_covers_the_futures_trading_chain():
+    """Quiet mode must never black out the futures market's own open.
+
+    CME equity-index futures trade Sunday 18:00 ET -> Friday 17:00 ET (daily
+    17:00-18:00 ET maintenance break). Quiet mode's own bands put Sunday
+    18:00-23:00 ET inside the weekend-quiet band (WEEKEND_RESEARCH_END_HOUR),
+    and weekday 18:00-23:00 ET is quiet too -- both are live GLOBEX time. The
+    SPY chain is exempted by name "so a market day is never lost to quiet
+    mode"; the futures chain needs the identical exemption on the identical
+    rationale, or a session-open event during those hours is silently lost to
+    whichever futures producer would need to react to it.
+    """
+    must_survive = {
+        "Gamma_FuturesTrader", "Gamma_FuturesBrokerLane", "Gamma_FuturesMirror",
+    }
+    missing = sorted(must_survive - quiet_mode.ESSENTIAL)
+    assert not missing, f"futures trading-chain tasks not exempt from the blackout: {missing}"
+
+    # The exemption is only safe because these tasks never flash a window -- assert the
+    # comment's claim against the real thing checked, not memory: quiet mode's own
+    # exemption doctrine (module docstring) is popups/CPU, and ESSENTIAL already carries
+    # other network-bound, $0, hidden-spawn tasks (Gamma_SightBeacon, Gamma_HeartbeatCore)
+    # as precedent -- this test intentionally does not re-derive that from Task Scheduler
+    # (the sibling starvation test below already does live enumeration) to stay fast and
+    # offline-safe.
+
+
 def test_no_registered_task_is_starved_by_the_quiet_window():
     """THE regression guard. Every enabled task must have a reachable fire time."""
     starved = _starved()

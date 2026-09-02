@@ -151,6 +151,23 @@ ESSENTIAL = {
     # 08:00-18:00 band already covers, but disabling it here would be the same silent-gap
     # class of bug the flatten-coverage fix (2026-08-18) exists to prevent.
     "Gamma_DeadMansSwitch",
+    # Futures trading chain (2026-09-01, queue.md QUIET-MODE-BLACKS-OUT-THE-SUNDAY-
+    # FUTURES-OPEN). CME equity-index futures trade Sunday 18:00 ET -> Friday 17:00 ET;
+    # the SPY chain above is exempted "so a market day is never lost to quiet mode" but
+    # ESSENTIAL is 100% SPY-named, so every Sunday 18:00-23:00 ET -- the first five hours
+    # of the futures week, itself a weekend-quiet band per WEEKEND_RESEARCH_END_HOUR --
+    # and every weekday 18:00-23:00 ET (also live GLOBEX time) silently disabled the
+    # futures trading chain on the identical rationale that already exempts SPY. Verified
+    # before adding: all three launch through the flash-free wscript->run_exe_hidden.vbs->
+    # pythonw hidden-spawn chain (install-futures-trader.ps1 / install-futures-broker-
+    # lane.ps1 / install-futures-mirror.ps1, grepped live) -- no popup/window-flash risk,
+    # so this does not recreate J's #1 complaint. Currently a no-op in practice (all three
+    # only trigger 09:30-16:00/16:05 ET weekdays, already inside the LOUD trading-day
+    # band) -- this closes the gap for when a Sunday-open producer is added, and is what
+    # test_essential_set_covers_the_futures_trading_chain pins.
+    "Gamma_FuturesTrader",
+    "Gamma_FuturesBrokerLane",
+    "Gamma_FuturesMirror",
 }
 
 # Command-line substrings identifying project-owned CPU hogs to stop in the blackout.
