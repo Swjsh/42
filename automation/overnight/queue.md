@@ -2449,3 +2449,61 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
 
 **Claim:** entries fill materially above the signal-minute low -- the marketable ask+buffer buys the local premium spike (defect #2). **Evidence:** `{"median_paid_above_min_low": 0.105, "n": 30}` (analysis/autopsies/2026-09-01.md).
 **Action:** entry_manager shadow (T-W5): log limit-below/patience counterfactual fills next to real entries for 3+ sessions :: depends:none :: status:proposed
+
+### Filed 2026-09-02 (Opus, scheduled-task staleness root-cause)
+
+- [ ] QUIET-HOLD-CATCH-UP-SWEEP (HIGH, self-generated, filed 2026-09-02 from the GuardsFull
+  2-day darkness root-cause) :: quiet_mode.py disables ~120 tasks for J's evening and HOLDS the
+  blackout past its 23:00 ET clock while a fullscreen app is foreground. A trigger inside a hold
+  is SKIPPED, and because the task was *Disabled* rather than unavailable, Windows'
+  `StartWhenAvailable` cannot recover it -- nothing re-runs it, so the 23:00-01:00 ET maintenance
+  band is silently eaten on every evening J games late. Proven by a 7/7 differential over
+  2026-09-01 (holds 23:02-23:22 and 00:07-00:42 ET; every task inside missed, every task outside
+  ran). DETECTION is shipped (`Gamma_TaskStaleness`, 11fbe474/70be6ae2); the CAUSE is not fixed.
+  The obvious fix is a catch-up sweep at the end of `go_loud()`, but it needs a design decision
+  this session deliberately refused to guess at, and the constraints are the whole problem:
+  (a) WHICH TASKS may be auto-restarted hours late? A report-only producer, yes. `Gamma_KalshiAuto`
+  places orders off a next-day weather prediction -- restarting it at 04:00 ET on stale NOAA data
+  is a different act from re-running an audit. There is no field in the registry that distinguishes
+  them today, so the classification has to be built (or a curated allowlist justified).
+  (b) HEAVY tasks cannot simply be restarted: `_stop_heavy_processes()` kills project python on the
+  NEXT hold, so a 46-minute GuardsFull started at 23:22 gets killed ~45 minutes in at 00:07 and
+  produces nothing, repeatedly, while burning CPU. Either check for runway, or leave HEAVY to the
+  staleness report and a deliberate manual start.
+  (c) Only NON-REPEATING (daily/weekly) triggers genuinely lose a run -- a 5-minute repeater
+  self-heals on its next tick, so the sweep's scope should be derived from trigger cadence, not a
+  list. (d) Cap the number started per fire, most-overdue first, and gate on the LOUD/research band
+  so a hold lifting at 08:30 ET never launches a grind into premarket. Fail-open, and call it AFTER
+  the restore so a bug can never block the re-enable. :: depends:none :: status:filed
+
+- [ ] TASK-SCHEDULER-OPERATIONAL-LOG-DISABLED (MED, J-ONLY one-liner, filed 2026-09-02) :: the
+  `Microsoft-Windows-TaskScheduler/Operational` log is DISABLED on this box (`IsEnabled=False`,
+  zero records), so ~150 Gamma tasks have NO scheduler-side history. Every "did it actually fire?"
+  question must be reconstructed from artifacts and `run-cmd-hidden-*.log`, which is exactly why
+  the GuardsFull darkness took a differential to diagnose rather than one log query. Enabling it is
+  a single command and is diagnostic-only (more audit trail, not less). NOT done autonomously: it
+  is a machine-wide OS setting outside the repo and not git-revertible, so it is J's call. Command:
+  `wevtutil sl Microsoft-Windows-TaskScheduler/Operational /e:true` (elevated).
+  :: depends:J :: status:filed
+
+- [ ] FIRST-LIVE-DAY-REVIEW-CANNOT-TELL-NOT-YET-FROM-FAILED (MED, self-generated, filed 2026-09-02)
+  :: `first_live_day_review.py` run at 02:15 ET graded `dms_cadence` and `dms_verdicts` RED
+  ("never fired -- 0 rows") and `eod_flatten_aggressive` RED ("outcome=MISSING") for a trading day
+  that had not started yet. On its real 16:30 ET schedule those REDs are correct, so this is latent
+  rather than live -- but `check_fleet_kill_switch_proximity` already gets it right ("before the
+  open this is expected"), and the inconsistency is the tell. Any manual mid-morning run, or an
+  early fire, reports a RED that means only "too early", which is the cry-wolf pattern that gets an
+  instrument muted. FIX: day-scoped checks should return a distinct NOT_YET status (ranked with
+  NO_DATA -- never GREEN, never RED) when `now` precedes the session close on the review date,
+  naming the time in the reason. :: depends:none :: status:filed
+
+- [ ] REAPER-EXEMPTION-COMMENT-DOES-NOT-MATCH-MECHANISM (LOW, filed 2026-09-02) :: `_shared.ps1`'s
+  `$EXEMPT_DAEMONS` comment claims that matching on `guard_runner_full.py` "covers the parent AND
+  the pytest child, since Stop-ProcessTree walks the subtree". The exemption loop actually tests
+  each candidate's OWN CommandLine, and the child's (`python.exe -m pytest tests/ -q ...`) contains
+  neither the runner name nor the workdir -- so the child survives because it fails the `$isOurs`
+  test, not because of the exemption. Same outcome today, different mechanism, and the documented
+  reason would stop protecting it the moment a child is spawned with an absolute path under the
+  workdir. Verified empirically 2026-09-02: a 46-minute guard run survived well past the 5-minute
+  stale threshold. Documentation fix + a guard that asserts the real invariant.
+  :: depends:none :: status:filed
