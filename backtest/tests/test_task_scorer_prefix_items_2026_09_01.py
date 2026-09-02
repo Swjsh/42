@@ -93,26 +93,65 @@ def test_archived_section_before_active_backlog_still_excluded():
     assert "PREFIX-ARCHIVED-ITEM" not in ids
 
 
-def test_live_queue_surfaces_the_two_gate_blocking_items():
-    """End-to-end guard against the actual live incident: read the real
-    queue.md and confirm both previously-invisible HIGH items now parse."""
+# Verbatim shape of the live incident, captured 2026-09-01 from queue.md lines ~60-80:
+# two HIGH, gate-blocking items sitting ABOVE the '## Active backlog' heading with only the
+# H1 title and blockquote preamble above them. This is a SNAPSHOT on purpose -- see
+# test_the_incident_shape_still_parses.
+INCIDENT_SNAPSHOT = """\
+# OVERNIGHT TASK QUEUE — conductor work backlog
+
+> Format: `- [ ] <id> (<priority>) :: <description> :: depends:<id|none> :: status:<state>`
+
+- [ ] DEAD-MANS-SWITCH-POSITION-FLATTENER (HIGH) :: go_live_gate operational criterion 2 \
+has no position flattener of last resort. :: depends:none :: status:pending
+- [ ] PROD-SHADOW-ARM-DESIGNATION (HIGH) :: criterion 5 needs a designated prod-shadow arm \
+frozen before the window opens. :: depends:none :: status:pending
+
+## Active backlog
+
+- [ ] SOME-OTHER-ITEM (LOW) :: below the heading, always parsed. :: depends:none :: status:pending
+"""
+
+
+def test_the_incident_shape_still_parses():
+    """The 2026-09-01 parser-scope bug, pinned against a SNAPSHOT of the live file's shape.
+
+    WHY NOT READ THE LIVE queue.md (changed 2026-09-02, queue item
+    TASK-SCORER-LIVE-QUEUE-TEST-FIXTURE). This test used to read the real queue.md and
+    normalise those two ids' checkbox and status so the assertion stayed about parser scope.
+    That worked only while the ids were still IN the file. Both were completed and then
+    archived to queue-archive-2026-09-02.md by an ordinary queue consolidation (commit
+    b7f777b6) -- correct behaviour for a done item -- and the guard went RED for a reason
+    that has nothing to do with the parser.
+
+    The invariant was never about those two ids existing forever; it is about POSITION: an
+    item above '## Active backlog' must be seen. A snapshot pins that permanently, and
+    cannot be flipped by editing the backlog. Archiving a completed item must not turn a
+    parser guard red -- a suite that is always RED is a suite nobody reads (2026-08-20).
+    """
+    by_id = _by_id(TS.parse_queue(INCIDENT_SNAPSHOT))
+    for expected_id in ("DEAD-MANS-SWITCH-POSITION-FLATTENER", "PROD-SHADOW-ARM-DESIGNATION"):
+        assert expected_id in by_id, (
+            f"{expected_id} sits above '## Active backlog' and was not surfaced -- the "
+            "2026-09-01 parser-scope bug is back"
+        )
+        assert by_id[expected_id].priority == "HIGH"
+    assert "SOME-OTHER-ITEM" in by_id, "items below the heading stopped parsing"
+
+
+def test_the_live_queue_still_parses_at_all():
+    """A cheap liveness check on the real file, with no dependency on any particular id.
+
+    It catches the class of breakage the removed assertion was really protecting against --
+    a queue.md that the scorer silently reads as empty -- without going red every time an
+    item is completed and archived.
+    """
     queue_text = (REPO / "automation" / "overnight" / "queue.md").read_text(
         encoding="utf-8", errors="replace"
     )
-    # The two items sit ABOVE '## Active backlog' in the live file -- that placement is the
-    # incident this test guards. Their CHECKBOX state is not: both were legitimately closed
-    # (- [x] / status:done) once the fixes shipped 2026-09-01, and parse_queue() excludes
-    # completed items by design. Normalise the checkbox + status for these two ids only, so
-    # the assertion stays about PARSER SCOPE (position in the file), not about queue status.
-    for expected_id in ("DEAD-MANS-SWITCH-POSITION-FLATTENER", "PROD-SHADOW-ARM-DESIGNATION"):
-        assert expected_id in queue_text, f"{expected_id} no longer present in queue.md at all"
-        queue_text = queue_text.replace(f"- [x] {expected_id}", f"- [ ] {expected_id}")
-    lines = []
-    for ln in queue_text.splitlines():
-        if any(f"] {i}" in ln for i in ("DEAD-MANS-SWITCH-POSITION-FLATTENER", "PROD-SHADOW-ARM-DESIGNATION")):
-            ln = ln.replace("status:done", "status:pending")
-        lines.append(ln)
-    by_id = _by_id(TS.parse_queue("\n".join(lines)))
-    for expected_id in ("DEAD-MANS-SWITCH-POSITION-FLATTENER", "PROD-SHADOW-ARM-DESIGNATION"):
-        assert expected_id in by_id, f"{expected_id} missing from parse_queue(queue.md)"
-        assert by_id[expected_id].priority == "HIGH"
+    tasks = TS.parse_queue(queue_text)
+    assert len(tasks) >= 5, (
+        f"parse_queue() surfaced only {len(tasks)} item(s) from the live queue.md -- the "
+        "conductor picks its work from this list, so a near-empty parse means it is idling "
+        "with a full backlog"
+    )
