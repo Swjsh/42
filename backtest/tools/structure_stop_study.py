@@ -388,6 +388,35 @@ def run_layer_a(prepared: list[dict]) -> dict:
 # ---------------------------------------------------------------------------------------------
 # LAYER (b) -- REAL-FILLS ANCHOR  +  TODAY EXHIBIT (shares the position-prep machinery)
 # ---------------------------------------------------------------------------------------------
+# Preference order for the READ-ONLY market-data credential. Any arm's key can read OPRA;
+# this is a data fetch, never an order path, so the choice is purely about which key is
+# currently valid. safe-1 is LAST on purpose: it is a dormant arm (live:false) and its key
+# is the only one in the roster that 401s -- measured 2026-09-02 across all seven arms,
+# safe-1 the sole failure. It was hardcoded here, so every "today exhibit" layer in every
+# study using this helper silently returned [] and printed a fetch error nobody chased. The
+# structure-stop runs of 2026-09-02 recorded that as "a data-completeness gap"; it was not,
+# the data was there and reachable with six other keys in the same file.
+_OPRA_CRED_PREFERENCE = ("safe-2", "safe-3", "bold-2", "risky-1", "risky-3", "weekly-1", "safe-1")
+
+
+def _resolve_opra_creds(creds_all: dict) -> "dict | None":
+    """First arm in preference order that actually has a key/secret pair.
+
+    Deliberately NOT a live-probe: this runs inside a per-symbol fetch loop and a network
+    round-trip per call to test a key would cost more than the fetch it guards. The 401
+    retry inside fetch_option_bars_today_safe covers a key that exists but has been
+    revoked, which is the failure this whole change exists for.
+    """
+    for arm in _OPRA_CRED_PREFERENCE:
+        c = creds_all.get(arm)
+        if c and c.get("key") and c.get("secret"):
+            return c
+    for c in creds_all.values():  # roster changed shape -- take anything usable
+        if c and c.get("key") and c.get("secret"):
+            return c
+    return None
+
+
 def fetch_option_bars_today_safe(symbol: str, date_et: str, now_et: dt.datetime) -> list[dict]:
     """Like exit_shape_parity_study.fetch_option_bars, but caps the query window's END to
     (now_et - 2 min) instead of the hardcoded 16:05 ET.
@@ -405,11 +434,24 @@ def fetch_option_bars_today_safe(symbol: str, date_et: str, now_et: dt.datetime)
     methodology or substituting synthetic data (C1: real-fills is the only WR authority) --
     every position in today's exhibit closed by 10:34 ET, hours before this cap ever binds."""
     creds_all = fb_mod.load_creds()
-    creds = creds_all.get("safe-1")
+    creds = _resolve_opra_creds(creds_all)
     if not creds:
         return []
-    safe_end_et = now_et - dt.timedelta(minutes=16)
-    end_hhmm = min(safe_end_et.strftime("%H:%M"), "16:05")
+    # The 16-minute cap exists ONLY to dodge the real-time-data entitlement boundary on a
+    # session that is still running. Applied to a PAST date it is nonsense: it clamps the
+    # window's end to today's wall-clock time-of-day, so any run before ~09:45 ET asks for
+    # an end EARLIER than the 09:29 start and the API answers 400 Bad Request.
+    #
+    # This was invisible until 2026-09-02. The helper was fetching with a dormant arm's
+    # revoked key, so every call died at 401 during auth -- before the range was ever
+    # validated. Fixing the credential unmasked this. Two defects stacked, and the outer
+    # one hid the inner one: the study's "today exhibit" layer has been returning [] for
+    # every historical-date run, printing one line to stderr that nobody chased.
+    if date_et < now_et.strftime("%Y-%m-%d"):
+        end_hhmm = "16:05"          # fully-elapsed day: no entitlement boundary to dodge
+    else:
+        safe_end_et = now_et - dt.timedelta(minutes=16)
+        end_hhmm = min(safe_end_et.strftime("%H:%M"), "16:05")
     start = f"{date_et}T{esp._et_hhmm_to_utc(date_et, '09:29')}"
     end = f"{date_et}T{esp._et_hhmm_to_utc(date_et, end_hhmm)}"
     url = (f"{esp.OPTIONS_HOST}/v1beta1/options/bars?symbols={symbol}&timeframe=1Min"
