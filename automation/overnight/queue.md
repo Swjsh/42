@@ -2734,10 +2734,17 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   **$1,314 of $4,809 (27.3%) of the study's total P&L**. Concentrated in 2025-02 (14), 2025-12
   (13), 2026-02 (13), 2025-01 (10). Stated precisely: those 67 were SELECTED with the wall-clock
   gates evaluated an hour off; it does not follow that all 67 are wrong — some would have fired
-  either way — but which ones survive is unknown until a re-run. **SEVERITY IS BOUNDED TO
-  RESEARCH:** these CSVs live under `backtest/data/` and are read by backtest tools only. The
-  live engine takes its clock from `et_clock`/broker time, never from these files, so no live
-  trading decision has ever been affected. **THE REPAIR IS PROVEN AND EXACT:** the UTC instants
+  either way — but which ones survive is unknown until a re-run. **SEVERITY IS BOUNDED TO RESEARCH — with the
+  reader list checked, not assumed** (an earlier draft of this item said "backtest tools only",
+  which was wrong): FIVE modules outside `backtest/` read these CSVs —
+  `setup/scripts/dojo_session.py` (replay training), `setup/scripts/grade_decisions.py`
+  (decision grading), `automation/scripts/compute_ema_snapshot.py`, and
+  `automation/swarm/replay/{build_key_levels,build_raw_data}.py`. **None appears in
+  `SCHEDULED-TASKS.md`**, so none fires automatically, and the live engine takes its clock from
+  `et_clock`/broker time rather than any CSV — so no automated live decision consumes them. ⚠️
+  `compute_ema_snapshot.py` is the one worth a second look before this is closed: an EMA
+  snapshot is the kind of artifact someone could wire into a decision surface later, and its own
+  docstring already records a separate defect (it picked a large stale file by `st_size`). **THE REPAIR IS PROVEN AND EXACT:** the UTC instants
   are correct and only the ET labels are wrong, so `tz_convert('America/New_York')` fixes it —
   verified on five winter days (2025-01-03 10:30→09:30, 2025-02-14 10:30→09:30, 2025-12-05
   09:00→08:00, 2026-01-05 and 2026-02-11 09:05→08:05) with a summer control proving it is a
