@@ -1,3 +1,41 @@
+## [2026-09-02T07:57 ET] Opus: full sweep 913/1 -- the 1 was MY regression from earlier tonight -- REVOKE surface
+
+Commit `17453843`. Report-only monitor, no trading path.
+
+**Found by running the sweep, not by the change's own guard.** Widening
+`prereg_hygiene._results_index()` from `RECS_DIR.glob` to `ANALYSIS_DIR.rglob` earlier
+tonight -- the change that took `n_has_results_file` 12 -> 105 and reframed the prereg
+backlog from 52 aged items to 4 -- broke `test_registration_field_match_suppresses_the_flag`.
+Its sandbox patches `RECS_DIR` but NOT `ANALYSIS_DIR` (computed from REPO at import), so the
+index silently scanned the REAL repository instead of the sandbox: a result file sitting
+directly beside its prereg was invisible and the prereg was flagged as never-run.
+
+**I verified the widening against the NEW guard written for it and never re-ran this older
+sibling.** The tell was there and I missed it: 7 sandboxed tests taking 18 seconds is the
+signature of a function walking the real analysis tree.
+
+Fix scans both roots, deduped by resolved path. In production RECS_DIR is inside
+ANALYSIS_DIR so the second root adds nothing -- verified n_has_results_file still **105**,
+n_flagged still 0, 127 files. It exists because the two are INDEPENDENTLY rebindable, and an
+index must honour whichever directory it was actually pointed at. RED-proofed both
+directions, each caught by the test that owns it.
+
+**Sweep baseline for the next session:** 914 passed / 1 skipped across the 81 guard files
+touching self_check, status retention, broker fills, task scorer, prereg hygiene, chart,
+trendline and staleness.
+
+**Revoke:** `git revert 17453843`.
+
+## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1274.05); Bold_ATM_1+2=CONFIRM ($269.4)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-09-02T08:30 ET] Opus, work-order §2d: CANARY-OUT-OF-SAFE-2 closed -- the item's own diagnosis was wrong -- REVOKE surface
 
 Commits `6383274f` (fee residue) + `cc48a29f` (crypto bucket). Paper-only, additive, no
@@ -39,16 +77,6 @@ indistinguishable from the fee by quantity alone and gets dropped. The broker's
 dropped.
 
 **Revoke:** `git revert cc48a29f 6383274f`.
-
-## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1274.05); Bold_ATM_1+2=CONFIRM ($269.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-09-02T07:42 ET] Opus, work-order §2d: WEEKLY-CIRCUIT-BREAKER-CORE answered -- the answer is a NULL -- REVOKE surface
 
@@ -144,9 +172,10 @@ written**. Fix path is proven, not speculative.
 
 ## Known broken
 
+- [2026-09-02T07:48:41-04:00] MCP_AUDIT_YELLOW: Alpaca Safe (PA3POKNV46VG) + Bold (PA3WEBXJU67N) endpoints returning 404 (credential/account mismatch possible); TradingView CDP reachable; uvx processes active. Investigate key freshness before market open.
 - [2026-09-02T11:00+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): openrouter::nvidia/nemotron-3-super-120b-a12b:free. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-[2026-09-02T06:27:06] MCP_AUDIT_YELLOW: TradingView OK, Alpaca Safe/Bold MCP servers still connecting (session start)
-[2026-09-02T06:23:50.560122-04:00] MCP_AUDIT_YELLOW: Alpaca MCP servers not yet available; TradingView OK
+- [2026-09-02T06:27:06] MCP_AUDIT_YELLOW: TradingView OK, Alpaca Safe/Bold MCP servers still connecting (session start)
+- [2026-09-02T06:23:50.560122-04:00] MCP_AUDIT_YELLOW: Alpaca MCP servers not yet available; TradingView OK
 
 > **This section is the PREAMBLE and must stay above the first `## [` entry.**
 > `status_retention.py::split_entries` splits on `## [` headers and preserves only what
