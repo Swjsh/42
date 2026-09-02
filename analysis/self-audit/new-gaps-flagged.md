@@ -1477,3 +1477,52 @@ only) (b); this DONE marker + the STATUS.md entry are the REVOKE report (c). -->
 - The lack of self‑healing triggers leads to downstream impacts: corrupted position‑sizing (theta‑clock), unmonitored real positions, and erosion of trust in the health dashboard.
 - and **Perspective 5** zero in on the live‑watch/state‑freshness pipeline as the primary failure mode (buffer‑flush logic, fill‑capture after config freeze).
 - enumerates a broader set of concrete gaps (Greeks endpoint, WS3 hysteresis second‑order fix, missing live P&L tracking, batch‑triage SLA, backtest suite exclusion) and ranks them by severity.
+<!-- TRIAGED 2026-09-02T01:01 ET (conductor, AFTERHOURS). Live-checked all 4 lines against
+real code, not re-derived from swarm prose:
+(1) "Gamma detects anomalies but does not autonomously remediate them" -- FALSE-as-stated,
+duplicate of ground already covered: `dead_mans_switch.py` (Gamma_DeadMansSwitch, shipped
+2026-09-01T20:55 batch) flattens via broker REST on stale-ledger+open-position without
+waiting for a human; `daily_loss_guard.py` halts an account automatically at -30%/-50%
+(Rule 5); `eod_flatten.py` auto-flattens + trips the circuit-breaker on escalation. Three
+independent self-healing paths already exist; this line names no NEW anomaly class left
+unremediated.
+(2) "downstream impacts: corrupted position-sizing (theta-clock), unmonitored real
+positions" -- FALSE PREMISE: theta-clock is explicitly ALERT-ONLY, NEVER auto-exits or feeds
+position sizing (STATUS.md "Live watch" section header states this every time it fires) --
+there is no sizing path for it to corrupt. "Unmonitored real positions" is already closed:
+`self_check.py#check_live_watch_field_completeness` (check #21, shipped 2026-09-01) alerts
+DEGRADED the moment a REAL in-trade position's required field goes null.
+(3) "buffer-flush logic, fill-capture after config freeze" -- CHECKED, no bug found:
+`live_watch.py`'s only "buffer" reference is line-buffered stdout/stderr log redirection
+(`buffering=1`), not a data-loss risk. Fill-capture (`live_watch.py`, `trades_csv_writer.py`)
+is NOT on the Sept freeze's 10-file frozen list (heartbeat_core/filters/risk_gate/
+exit_manager/fleet_executor/strategies/build_shared_signal/params.json/aggressive-params.json/
+accounts.json) -- the freeze cannot be blocking it. No evidence this swarm perspective
+pointed at a real file/line; treated as unsubstantiated.
+(4) sub-items checked individually: Greeks-endpoint-returns-{} is the already-disclosed
+permanent characteristic closed 7x+ prior. WS3 hysteresis "second-order fix" names no
+concrete mechanism anywhere in the repo (grepped analysis/self-audit/ for "second-order" --
+only this one line exists) and `monday_verify.py` WS3 already computes live flip-count drift
+weekly -- treated as vague, not actionable. "Missing live P&L tracking" is FALSE-as-stated:
+`live_watch.py` already tracks `unrealized_pnl` per-position (the 3 THETA STALL lines in
+STATUS.md's Live-watch section quote "unrealized=-25.0%" sourced from it). "Batch-triage SLA"
+is this exact triage thread (meta, no action). "Backtest suite exclusion" -- checked
+`run_safety_gate.py`: the curated 59-test gate is a documented fast-path with `full=True`
+already wired to run the whole `backtest/tests/` dir -- not a silent exclusion.
+No code action this fire -- every sub-claim resolved to duplicate/false-as-stated/already-
+built/unsubstantiated on live inspection. This triage closes the loop so the batch stops
+reading as open; the next fire's oldest-untriaged pointer advances to 2026-09-01T17:31:48. -->
+
+## 2026-09-01T17:31:48 -- 12 new gap(s) Gamma self-identified
+- `new-gaps-flagged.md` is touched in this fire. That file is the audit backlog's source of truth. If it's modified to mark a gap DONE on the same fire that fixes the gap, the "oldest untriaged batch" logic now skips this batch on the next [...]
+- `conductor_outcome.py metric` reads `trend=regressing` (43/20 fires, cost/drained $0.33). This fire picked a self-audit triage *because* of the regressing trend — loop-closing, not new artifacts. Good. But the trend is being driven by [...]
+- The `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping is correctly suppressed until 09-09. Good. But the suppression logic is checked against `STATUS.md`, not memory — meaning if STATUS.md gets truncated or the entry is wrong, the suppression window [...]
+- `preview-diff forward-testing archive` is filed as "out-of-scope, needs a new producer." This is the second time it's been punted (per the "filed for post-freeze" pattern matching the recency-capital-scaling item). Two items now parked on [...]
+- WS1 preview diff returned NOT_EXERCISED because the check is date-scoped to 2026-08-03 but the run is 2026-09-01. That's a 30-day-stale preview. Either preview generation died 30 days ago (silent failure on a visibility-only producer — [...]
+- Live-watch writer has no dead-man switch. `Gamma_LiveWatch` ticks 401/405 expected — that's a 1% miss rate. If a real position is open and the writer dies, *nothing* alerts (heartbeat doesn't monitor the live-watch producer; the new [...]
+- `self_check.py` schema-migration blast radius. The new check #21 assumes a fixed `live-watch.json` schema (required position fields). If `Gamma_LiveWatch` upstream renames a field or restructures the JSON, this check either crashes [...]
+- Theta clock continues to be the de facto live-watch substitute for in-trade alerts (3 THETA STALL entries above all come from `theta-clock.json`, not `live-watch.json`). That's a single-producer dependency that was never designed to be [...]
+- Unnamed OP I think exists: The status mentions "VISIBILITY-ONLY contract as the WS7 module it audits." If there's no formal OP codifying what "VISIBILITY-ONLY" means and what it permits during a freeze, that's the gap — Gamma is *defining* [...]
+- Financial Unchecked negative theta decay on 3 SPY put positions (qty 3 and 5 respectively) could generate unrealized losses of $500–$1,500+ within a single trading session, growing exponentially as theta compounds. With no automated risk [...]
+- Operational Continuous "ALERT ONLY" messages flood the operator's view, creating cognitive overload and desensitization. The operator eventually ignores warnings until a crisis point (margin call, forced liquidation) forces reactive [...]
+- Systemic The live-watch field-completeness fix is sound, but the
