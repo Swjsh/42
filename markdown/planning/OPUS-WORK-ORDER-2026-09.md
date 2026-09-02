@@ -721,7 +721,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   fire-and-forget hop · `executed_stop_pct/price` logging · weekly circuit breaker (block-only) ·
   safe-2 retirement mechanics (ACCOUNTS from accounts.json, not hardcoded) · canary already moved.
   **BRANCH STATE 2026-09-02** — `safety-bundle-2026-09-29`, 2 commits, none merged:
-  `a632fb2c` fleet daily-loss kill-switch latch · **`93a3ccc3` executed-stop logging (NEW)**.
+  `a632fb2c` fleet daily-loss kill-switch latch · **`93a3ccc3` + `d7c0b3db` executed-stop logging, BOTH HALVES DONE (NEW)**.
   The logging component lands `armed_stop_kind` / `armed_stop_level` / `armed_stop_premium` /
   **`armed_stop_at_exit_premium`** / `armed_stop_at_exit_level` on `ExitAction`, plus
   `stop_exit_slack_dollars()` and `executed_stop_pct()` helpers, closing §2a's
@@ -733,8 +733,15 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   tick (measured 1.70 → 2.275), and the post-tick value never guarded anything. That mutation
   ESCAPED the first guard and the guard was strengthened rather than the mutation dropped.
   21 tests; existing exit_manager suites 30 passed; safety gate 55 passed on a full checkout.
-  **Remaining on this branch:** the writers (`heartbeat_core` / `fleet_executor`) must persist
-  those fields plus `executed_stop_price`; `time_stop_et ≤15:20`; early-close entry cutoff +
+  **Writer half done in `d7c0b3db`** — and the real caller was `exit_actuator.manage_tick`,
+  not `heartbeat_core`/`fleet_executor` as the spec assumed. It already logged the pre-tick
+  `runner_stop_premium` as `stop_premium`, so half the plumbing existed but was named for the
+  entry-time concept and declared nothing about WHICH stop was operative — the exact ambiguity
+  that made the 79% unreadable. `executed_stop_price` is **opportunistic by design**: Alpaca's
+  order-CREATE response for a market sell carries `filled_avg_price: null`, so the common case
+  is honestly "unknown yet"; it records None rather than substituting the quote or the stop
+  level, and the authoritative fill joins later by `order_id`. RED-proofed that a fabricated
+  fallback fill is caught. **Remaining on this branch:** `time_stop_et ≤15:20`; early-close entry cutoff +
   calendar-relative `_is_rth`; exit-pass pidfile mutex; safe-2 retirement mechanics. The weekly
   circuit breaker is NOT shipping — its own prereg (`3401e5fe`) returned a null.
 - [ ] **Do NOT ship** anything from §4. If J wants `feed=sip` earlier for data fidelity, that is a
