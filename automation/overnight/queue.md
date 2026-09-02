@@ -2709,3 +2709,27 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   invisible. `exit_coverage_check` is the one that matters: it reports exit coverage per arm, so a
   missing new arm reads as full coverage. Convert to `arm_roster.active_arms()`. Not done with the
   sweep itself to keep that change reviewable as one idea. :: depends:none :: status:filed
+
+- [ ] SPY-BAR-FILE-MIXES-TWO-TIME-FRAMES (HIGH, data provenance, blocks the regime-stress study,
+  found 2026-09-02 while wiring `backtest/tools/regime_stress_replay.py`) :: **`backtest/data/
+  spy_5m_2024-01-18_2026-07-22.csv` is a MERGE of two differently-framed sources, and the 2025+
+  half labels WINTER bars a full hour late.** Verbatim from the file:
+  `2024-12-18 09:30:00-0500` (DST-aware, winter session starts 09:30 ET — correct) vs
+  `2025-01-03 10:30:00-04:00` (fixed −04:00 all year — winter session starts 10:30). The two
+  offset FORMATS (`-0500`/`-0400` without a colon vs `-04:00` with one) are the seam between the
+  producers. **Proof it is a shift and not extended hours:** 2025-01-03 holds exactly **78 bars =
+  6.5h = precisely one RTH session**, labelled 10:30..16:55 instead of 09:30..15:55. Summer is
+  unaffected (−04:00 IS EDT), so the defect is winter-only and therefore easy to miss.
+  ⚠️ **`backtest/data/spy_5m_2025-01-01_2026-07-22.csv` — the file `engine_fullhist_replay.py`
+  uses for the canonical full-history study — carries the SAME fixed −04:00 across every row**
+  (`distinct offsets: ['-04:00']`). Every gate in the entry cascade is wall-clock (09:35 entry
+  floor, 15:00 ceiling, 15:40 time stop), so a +1h winter shift changes which bars are eligible
+  to trade. That means winter-period results in the full-history replay — and anything derived
+  from them — are measured against shifted times. **NOT silently corrected:** the stress runner
+  now ABORTS on a mixed-frame file rather than normalising, because emitting numbers that
+  disagree with every prior study on the same file *without anyone knowing which was right* is
+  precisely the unreproducible-result class retired earlier the same day. The data is what needs
+  fixing. **Next:** identify the producer that wrote the fixed −04:00 frame, re-fetch or re-stamp
+  2025+ bars DST-aware, then re-run both the stress study and the full-history replay and diff
+  the winter trades. Same class as the standing DST-frame lesson (naive joins = winter
+  look-ahead) — a THIRD sighting of that root. :: depends:none :: status:filed
