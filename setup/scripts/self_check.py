@@ -1750,6 +1750,7 @@ def check_llm_auth_outage(now, logs_dir=None, lookback_days: int = 7) -> list[st
 
 
 FUTURES_HEALTH_JSON = STATE / "futures" / "health.json"
+TASK_STALENESS_JSON = STATE / "scheduled-task-staleness.json"
 
 
 def check_futures_health(now, path=None) -> list[str]:
@@ -1792,6 +1793,56 @@ def check_futures_health(now, path=None) -> list[str]:
     if verdict == "YELLOW":
         return [f"FUTURES-HEALTH DEGRADED: {reason_str}"]
     # GREEN, or an unrecognized/missing verdict field (defensive: never a problem) -> silent
+    return []
+
+
+def check_task_staleness(now, path=None) -> list[str]:
+    """Fold scheduled_task_staleness.py's own verdict into the ONE health surface.
+
+    THE GAP (2026-09-02): Gamma_GuardsFull -- the ~11,400-test regression suite -- was dark
+    from 08-31 to 09-02 and NOTHING here noticed, because every scheduled-task awareness in
+    this file (and in task_state_guard.py) reads State + LastTaskResult. Neither field moves
+    when a task simply never starts. The witnesses are LastRunTime and NumberOfMissedRuns,
+    which nothing read until scheduled_task_staleness.py.
+
+    DO NOT RECOMPUTE the staleness logic here -- read the artifact that script already
+    wrote (its docstring carries the mechanism: quiet mode's presence hold skips triggers,
+    and StartWhenAvailable cannot recover a fire missed while the task was Disabled). Thin
+    passthrough, same shape as check_futures_health.
+
+    SILENT UNTIL DEPLOYED: a missing/unreadable artifact means Gamma_TaskStaleness has not
+    fired yet -- "not yet turned on", not a fault -- so it stays silent (fail-open).
+
+    RED   -> a problem containing "RED" (matches _problem_is_broken) so genuinely dark
+             scheduled work classifies BROKEN, same convention as `engine-health RED: ...`.
+    YELLOW/UNKNOWN -> DEGRADED-only. UNKNOWN is surfaced rather than swallowed (an
+             unreadable scheduler is not a healthy one) but must never escalate past
+             DEGRADED on its own, or a transient PowerShell hiccup would spuriously break
+             the whole self-check.
+    GREEN -> silent.
+    """
+    p = path or TASK_STALENESS_JSON
+    if not p.exists():
+        return []  # never deployed / not yet fired -- see SILENT UNTIL DEPLOYED above
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 -- an unreadable artifact is a fail-open no-op
+        return []
+    if not isinstance(data, dict):
+        return []
+    verdict = data.get("verdict")
+    findings = data.get("findings") or []
+    # BARE task names only. _problem_is_broken matches the SUBSTRING "RED", so interpolating
+    # each finding's own verdict ("Gamma_GuardsNightly(RED)") made every YELLOW and UNKNOWN
+    # message classify BROKEN -- contradicting this function's own DEGRADED-only contract.
+    # Caught by probing all four verdicts instead of only the RED path (2026-09-02).
+    named = ", ".join(
+        str(f.get("name")) for f in findings[:5] if isinstance(f, dict) and f.get("name")
+    ) or "(no tasks named)"
+    if verdict == "RED":
+        return [f"TASK-STALENESS RED: scheduled work is not running -- {named}"]
+    if verdict in ("YELLOW", "UNKNOWN"):
+        return [f"TASK-STALENESS DEGRADED ({verdict}): {named}"]
     return []
 
 
@@ -2021,6 +2072,14 @@ def run() -> dict:
     # REQUIRED_POSITION_FIELDS promise was only proven synthetically (--dry-run-synthetic);
     # this enforces it live, on real in-trade positions, DEGRADED-only.
     problems.extend(check_live_watch_field_completeness(now))
+
+    # 22. SCHEDULED-TASK STALENESS -- 2026-09-02: Gamma_GuardsFull, the ~11,400-test
+    # regression suite, was dark 08-31..09-02 and every surface in this file reported the
+    # rig healthy. Every scheduled-task check here and in task_state_guard.py reads State +
+    # LastTaskResult; neither moves when a task never starts. Thin passthrough of
+    # scheduled_task_staleness.py's own verdict -- never recomputed here. Silent until that
+    # task has fired at least once.
+    problems.extend(check_task_staleness(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,

@@ -206,3 +206,29 @@ def test_no_registered_task_is_starved_by_the_quiet_window():
         + "\n\nFix by re-timing the trigger into a loud band (23:00-08:00 ET), "
           "or by adding the task to quiet_mode.ESSENTIAL if it must survive the blackout."
     )
+
+
+def test_essential_set_covers_the_blackout_reporter():
+    """A monitor its own subject can switch off is not a monitor.
+
+    THIS module's presence hold is what made Gamma_GuardsFull -- the ~11,400-test
+    regression suite, the rig's main safety net -- dark from 2026-08-31 to 2026-09-02.
+    Quiet mode disables ~120 tasks for J's evening and holds past its 23:00 ET clock while
+    a fullscreen app is foreground; a trigger inside a hold is skipped, and because the task
+    was *Disabled* rather than merely unavailable, Windows' StartWhenAvailable cannot
+    recover the fire. Nothing noticed for 48 hours, because every existing surface reads
+    State/LastTaskResult -- neither of which moves when a task never starts.
+
+    Gamma_TaskStaleness reads the two fields that do (LastRunTime, NumberOfMissedRuns) and
+    names this hold as the cause. Leaving it disable-able would mean the first thing a long
+    blackout silences is the alarm about the blackout -- the same self-silencing shape as
+    the prereg-hygiene orphan-proxy bug found the night before, where filing the
+    adjudication drove the flagged count 6 -> 0 with nothing resolved.
+
+    Safe to exempt because it is report-only: $0, pure stdlib, and it never enables,
+    disables, starts or kills anything (pinned separately by
+    test_scheduled_task_staleness_2026_09_02.py::test_module_has_no_write_side_effects_on_import).
+    """
+    assert "Gamma_TaskStaleness" in quiet_mode.ESSENTIAL, (
+        "the instrument that reports what the blackout disabled must survive the blackout"
+    )

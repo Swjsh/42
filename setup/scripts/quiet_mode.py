@@ -168,6 +168,19 @@ ESSENTIAL = {
     "Gamma_FuturesTrader",
     "Gamma_FuturesBrokerLane",
     "Gamma_FuturesMirror",
+    # The staleness reporter (2026-09-02). Not trading-critical -- it is here because a
+    # monitor its own subject can switch off is not a monitor. THIS file's presence hold is
+    # what made Gamma_GuardsFull -- the ~11,400-test regression suite -- dark from 08-31 to
+    # 09-02: a trigger inside a hold is skipped, and because the task was Disabled rather
+    # than merely unavailable, Windows' StartWhenAvailable cannot recover the fire. Nothing
+    # noticed, because every surface reads State/LastTaskResult, neither of which moves when
+    # a task never starts. scheduled_task_staleness.py reads LastRunTime +
+    # NumberOfMissedRuns and names this hold as the cause -- so leaving it disable-able
+    # would mean the first thing a long blackout silences is the alarm about the blackout.
+    # It fires 05:45 ET (inside the LOUD band), $0, pure stdlib, report-only: it never
+    # enables, disables, starts or kills anything, so exempting it cannot affect J's
+    # evening. Same self-silencing class as the prereg-hygiene orphan-proxy bug (09-01).
+    "Gamma_TaskStaleness",
 }
 
 # Command-line substrings identifying project-owned CPU hogs to stop in the blackout.
