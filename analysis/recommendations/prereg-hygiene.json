@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-02T05:28:43",
+  "generated_at_et": "2026-09-02T05:45:29",
   "n_total": 126,
   "n_parsed": 126,
   "n_malformed": 0,
@@ -339,7 +339,7 @@
     },
     {
       "file": "premarket-touch-credit-preregistration.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- KILL",
       "age_days": 44.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -592,7 +592,7 @@
     {
       "file": "prereg-hygiene.json",
       "status": null,
-      "age_days": 0.1,
+      "age_days": 0.0,
       "age_source": "mtime_fallback",
       "orphan": false,
       "has_results_file": false,
@@ -618,7 +618,7 @@
     },
     {
       "file": "prereg-level-memory-wire-2026-07-15.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "BLOCKED -- RUNNER BROKEN (bit-rot, not a verdict)",
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -942,7 +942,7 @@
     },
     {
       "file": "prereg-trendline-break-battery-2026-07-14.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- KILL (0/12)",
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -969,7 +969,7 @@
     },
     {
       "file": "prereg-trendline-fade-battery-2026-07-14.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- 1/12 SURVIVOR, ROUTED TO SHADOW (not armed)",
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,

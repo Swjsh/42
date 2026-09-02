@@ -1,14 +1,15 @@
 {
   "_doc": "PRE-REGISTERED spec for the trendline BREAK entry battery (S1 of the 2026-07-14 trendline review). FROZEN BEFORE any replay is run -- exploratory != confirmatory, no re-picks after seeing results, a FAIL/KILL is a publishable outcome. Checked first: the in-flight audit crew's own frozen spec (analysis/recommendations/trendline-structure-conviction-preregistration.json) tests a DIFFERENT mechanism (a conviction OVERRIDE that rescues signals block_elite_bull would otherwise block) -- it is not an entry-on-break battery and does not cover V1/V2/V3 below, so it has NOT landed for this study; this file is the (not-otherwise-existing) break-entry pre-registration the task called for. The audit's own spec stays untouched (FROZEN_PENDING_RUN, owned by that crew, explicitly deferred by its own text -- not run here).",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE -- KILL (0/12)",
   "frozen_at": "2026-07-14T(pre-run)",
   "runner": "backtest/tools/trendline_break_battery.py",
   "signal_source": "analysis/trendlines/break-dataset.jsonl (G1, 380-day walk-forward, 78191 qualifying lines / 52833 breaks, 9/9 guard tests pass, committed). Dataset date_range ends 2026-07-13 -- TODAY (2026-07-14, the hypothesis-source day) is EXCLUDED FROM ALL EVALUATION WINDOWS BY CONSTRUCTION (the dataset simply does not contain it), not by a post-hoc filter.",
-
-  "line_families": ["wick", "body"],
+  "line_families": [
+    "wick",
+    "body"
+  ],
   "families_never_blended": "Every cell is reported separately per anchor_family (wick vs body) AND per kind/direction (support/bearish vs resistance/bullish) -- never pooled. 2x2 = 4 populations x 3 variants = 12 candidate cells.",
-
   "entry_variants": {
     "V1_close_through_immediate": {
       "population_filter": "break.break_type == 'close_through' (the wider wick_through_only breaks are excluded from V1/V3 -- a wick poke that closes back inside is a fakeout, not a confirmed break; V2 below is where retest+rejection recovers signal from the noisier wick_through_only population if any exists)",
@@ -29,7 +30,6 @@
       "strike": "ATM = round(entry_spot)"
     }
   },
-
   "exit_shape": {
     "label": "SS-B (current shipped ribbon_ride live exit shape, chart-stop-primary v15.3, read from automation/state/params.json at freeze time)",
     "premium_stop_pct": -0.5,
@@ -43,24 +43,20 @@
     "replay_mechanism": "backtest/tools/t4_exit_matrix.py's replay()/ExitState/plan_exit_actions -- the SAME live exit_manager decision core the actuator runs (per instruction: 'exit_manager live scope for exits'). Local 5-min OPRA option bars via lib.option_pricing_real.load_contract_bars, zero network. qty fixed at 10 (T4/T5 convention) so expectancy is measured per-trade at a comparable size across cells; this is a research-scale qty, not a live sizing recommendation.",
     "no_lookahead_note": "Entry premium = the first available OPTION bar's OPEN at/after the entry timestamp (never a bar before decision time); exit replay walks strictly forward bar-by-bar from that fill."
   },
-
   "nulls": {
     "random_entry_null": "For every REAL episode (any variant/family/direction cell), generate one matched null episode: SAME date, SAME side, but entered at a bar time drawn uniformly at random from that day's RTH session (09:35-15:30 ET, deterministic seed=1407 for reproducibility -- 'does the trigger add anything beyond being long/short SPY options on a day the tape happened to move'). Same ATM strike/exit-shape/replay path.",
     "opposite_direction_null": "For every REAL episode, a second null: SAME entry timestamp/spot/strike-basis, OPPOSITE side (PUT<->CALL) -- 'is the DIRECTION call informative, or does entering either side at that instant look similar' (catches generic theta-bleed noise that would fool a same-side-only comparison)."
   },
-
   "windows": {
     "is_oos_split": "IS = date < 2026-01-01, OOS = date >= 2026-01-01 (OOS_BOUNDARY, imported verbatim from backtest/autoresearch/strategy_space_grind.py -- same convention as every other T4/T5/P5 study in this repo, not re-derived).",
     "today_2026_07_14_excluded": "By dataset construction (date_range ends 2026-07-13) -- confirmed, not assumed."
   },
-
   "statistics": {
     "test": "one-sample two-sided t-test of per-trade pnl vs 0, per candidate cell (12 cells: 3 variants x 2 families x 2 directions)",
     "multiple_comparison_correction": "Benjamini-Hochberg FDR across the 12 candidate-cell p-values, alpha=0.10. Null-comparison cells (random-entry, opposite-direction) are NOT part of the FDR family -- they are baselines a PASSING candidate must beat, not additional hypotheses under test.",
     "evidence_floor": "n >= 20 per cell (OP-16 doctrine floor) for a verdict to be FAIL rather than INCONCLUSIVE-underpowered.",
     "concentration_disclosure": "top-5-trade % of total cell pnl, reported for every cell regardless of verdict (OP-20)."
   },
-
   "pass_bar": {
     "statement": "ALL of the following for a cell to PASS (anything else = FAIL, downgraded to INCONCLUSIVE only if n<20):",
     "condition_1_full_population_positive": "full-sample expectancy per trade > $0",
@@ -71,8 +67,12 @@
     "condition_6_anchor_no_regression": "informational only for this study (trendline-break entry is not currently armed on any live account, so there is no existing live rule to regress) -- reported as: does this cell fire on any of the 7 OP-16 anchor days (4/29,5/01,5/04 winners; 5/05,5/06,5/07x2 losers), and if so what does it do there. A PASS never requires anchor-day participation; catastrophic anchor-day losses are flagged even on an otherwise-PASSing cell.",
     "aggregation": "1+2+3+4+5 are AND (any failing = FAIL, or INCONCLUSIVE if n<20)."
   },
-
   "ship_gate_if_pass": "A PASS cell does NOT auto-arm live money (OP-0 #1). It qualifies for a new params.json shadow-to-live flip behind the standard OP-16 eval-first + A/B scorecard gate, paper-only, ships and reports for REVOKE per OP-0 -- no menu of options presented to J.",
-
-  "no_repick_clause": "Once frozen, no variant definition, threshold (1.5 volume ratio, 10-bar retest window, ATM strike, SS-B shape params), null design, or FDR alpha may be edited in light of results. FAIL/INCONCLUSIVE is a publishable, informative outcome for as many of the 12 cells as it applies to -- not a reason to adjust and re-run."
+  "no_repick_clause": "Once frozen, no variant definition, threshold (1.5 volume ratio, 10-bar retest window, ATM strike, SS-B shape params), null design, or FDR alpha may be edited in light of results. FAIL/INCONCLUSIVE is a publishable, informative outcome for as many of the 12 cells as it applies to -- not a reason to adjust and re-run.",
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/trendline_break_battery.py",
+    "result_file": "trendline-break-battery.json",
+    "verdict": "0 PASS, 12 FAIL. Every cell has NEGATIVE expectancy both in-sample and out of sample -- V2_break_retest_entry ranges $-98.69 to $-248.34, V3_break_volume_expansion $-44.37 to $-112.33, with OOS equally negative. Trendline BREAK entries are not an edge in any of the 12 cells tested.",
+    "reads_with": "prereg-trendline-fade-battery-2026-07-14.json, run the same day. BREAK is uniformly negative; FADE has one survivor. If anything survives this family it is fading the break, not taking it."
+  }
 }
