@@ -1,0 +1,85 @@
+{
+  "rule_id": "regime-stress-replay-2026-09-02",
+  "title": "FROZEN pre-registration -- what the current engine's protections actually DO on a high-volatility day. MEASUREMENT ONLY; nothing here can arm, size or gate anything.",
+  "status": "FROZEN_QUESTIONS_RUNNER_NOT_YET_BUILT",
+  "frozen_at_et": "2026-09-02 14:50 ET (market OPEN -- this file touches no trading path; et_clock.py verified)",
+  "opened_by": "markdown/planning/OPUS-WORK-ORDER-2026-09.md section 2b, box: 'Stress replay of the current engine over historical high-VIX windows with real OPRA bars ... Pre-register the questions; label sim-only.'",
+
+  "why_this_is_frozen_before_the_runner_exists": "The box's own instruction is 'pre-register the questions' -- and the questions are the part that must not be chosen after seeing the answers. Freezing the population rule, the metrics and the decision rule now, with the runner unbuilt, is the strongest available guarantee that the day list was not curated to a result. The enumerated days below were produced by running the frozen rule over the bar data ONCE, with no P&L computed and no engine invoked -- a power check, not a peek.",
+
+  "prior_coverage_checked_and_why_it_does_not_close_this": {
+    "artifact": "analysis/recommendations/v15-stress-test.json (generated 2026-05-09, candidate 'v15-seed6')",
+    "headline_it_reports": "11 event days, 22 trades, 1 winner (WR 4.5%), total -$414.98",
+    "why_it_is_NOT_usable_evidence": [
+      "Every trade row carries entry_time '?' and exit_time '?' -- there are no timestamps at all, so no exit can be attributed to a mechanism, which is the entire question this study asks.",
+      "Nearly every row has exit_premium 0 AND pnl_dollars 0 while exit_reason reads EXIT_ALL_PREMIUM_STOP. A -100% exit premium on dozens of 0DTE trades is not a fill; and per-trade P&L of exactly 0 does not reconcile with the -$414.98 headline. The per-day 'pnl' field is null throughout.",
+      "Its event days are 2026-03..2026-05 only -- it does not touch the two windows the work order actually names (April 2025, August 2024).",
+      "It scores candidate 'v15-seed6', four months and several ratified shape changes ago: chart-stop-primary (2026-06-18), the tight ladder (2026-08-29), deterministic LevelState resolution (2026-08-23)."
+    ],
+    "disposition": "Treated as UNUSABLE, not as a prior. It is not cited as a baseline anywhere in this prereg, and this study must not be scored as 'confirming' or 'contradicting' it."
+  },
+
+  "the_questions_frozen_now": [
+    "Q1 MECHANISM MIX: on a stress day, which exit actually fires? Distribution over {-50% catastrophe cap, chart/structure stop, chandelier profit-lock, TP1, runner target, 15:40 time-stop} -- by count and by dollars. The work order's question is literally 'what do the -50% cap, structure stops and the ladder actually DO in a -3% day', and a mechanism mix is the direct answer.",
+    "Q2 SIDE ASYMMETRY: bear entries should be the winners on a down day and bull entries the losers. Report P&L and exit mix SEPARATELY per side. A stress day on which the BULL side is not badly hurt is a signal the day was not actually adverse for the strategy, and must be reported rather than averaged away.",
+    "Q3 CAP BINDING RATE: how often does the -50% premium catastrophe cap bind BEFORE the chart stop? Chart-stop-primary (2026-06-18) made the premium stop a catastrophe backstop, not the primary invalidation. If on stress days the -50% cap is what actually fires most of the time, then the doctrine's stated hierarchy inverts exactly when it matters most -- that is the single most decision-relevant thing this study can find.",
+    "Q4 SIZE UNDER THE LADDER: what qty does the tight ladder (min_contracts 3 / max_contracts_per_entry 5 / max_position_dollars 1000) actually permit on a stress day, where premiums are elevated? Specifically whether max_position_dollars binds before max_contracts_per_entry when premium is high, which is the opposite of the current calm-regime ordering.",
+    "Q5 WORST CASE: worst single-day realized P&L per arm-equivalent, and worst intraday drawdown within a day. Reported against the Rule 5 per-day kill thresholds (-30% Safe / -50% Bold) so the answer to 'is the day-level kill switch reachable in a real stress regime?' is stated rather than assumed. The 2026-08-18 day-throttle prereg established it has never been reached on the calm record; this is the population where it might be.",
+    "Q6 PARTICIPATION: how many of the 24 days produce ANY entry at all? A stress-day study on which the engine mostly sits out is a finding about the gates, not about the exits, and must not be presented as an exit result."
+  ],
+
+  "population_rule_frozen": {
+    "rule": "A STRESS DAY is any RTH session where SPY close-to-close return <= -2.0% OR intraday range ((high-low)/close) >= 3.0%.",
+    "why_a_union_and_not_just_the_drop": "A -3% trend day and a 3%-range whipsaw day break a trend-following 0DTE engine in DIFFERENT ways, and the work order names both ('any -2%+ day' and the tariff week, which contained both shapes). Scoring only the drops would answer half the question. The two subsets are ALSO reported separately -- see stratification.",
+    "why_close_to_close_and_not_open_to_close": "Both were computed. cc<=-2% yields 17 days, oc<=-2% yields 10. cc is used because gap-down days are part of the regime the engine must survive, and an open-to-close screen structurally excludes exactly the overnight-gap days. oc is retained as a reported stratum, not as the selector.",
+    "data_window": "2024-08-01 .. 2026-07-22",
+    "why_that_window": "NOT chosen for results. SPY 5m bars exist from 2024-01-18 (backtest/data/spy_5m_2024-01-18_2026-07-22.csv), but VIX 5m coverage begins 2024-08-01 (vix_5m_2024-08-01_2024-12-31.csv). The engine's entry cascade consumes VIX (bull-block threshold, vix_bear_hard_cap), so a session without VIX cannot be replayed faithfully. Days before 2024-08-01 are EXCLUDED for data reasons and the exclusion is stated here, not discovered later: exactly ONE qualifying day (cc<=-2%) is lost this way.",
+    "enumerated_days_n": 24,
+    "enumerated_days": [
+      "2024-08-05", "2024-09-03", "2024-12-18", "2025-03-03", "2025-03-11", "2025-03-28",
+      "2025-04-03", "2025-04-04", "2025-04-07", "2025-04-08", "2025-04-09", "2025-04-10",
+      "2025-04-11", "2025-04-16", "2025-04-21", "2025-10-10", "2025-11-20", "2026-02-05",
+      "2026-03-23", "2026-03-31", "2026-04-14", "2026-04-24", "2026-06-05", "2026-06-09"
+    ],
+    "subset_counts_frozen_now": {
+      "close_to_close_le_-2pct": 16,
+      "close_to_close_le_-3pct": 4,
+      "open_to_close_le_-2pct": 8,
+      "intraday_range_ge_3pct": 15
+    }
+  },
+
+  "disclosures_that_bound_every_number_this_study_will_produce": [
+    "CONCENTRATION, and it is severe: NINE of the 24 days (37.5%) fall inside a single three-week stretch, 2025-04-03..2025-04-21 -- the April 2025 tariff sequence. This is one macro event, not nine independent observations. Every aggregate MUST be reported both with and without that block, and no headline may be quoted from the pooled number alone. This is C4 (disclose concentration) and it is pre-registered rather than discovered because the day list was enumerated before any P&L existed.",
+    "n=24 IS SMALL and the effective n is smaller still once the April block is treated as one event -- roughly 16 independent episodes. No significance claim survives that; this study is DESCRIPTIVE. It answers 'what does the machinery do' and cannot answer 'is the edge positive in stress'.",
+    "SIM-ONLY, as the work order requires. Entries and exits are simulated against real OPRA bars where the contract is cached; any entry whose contract CSV is absent is EXCLUDED and COUNTED (n_no_opra reported), never silently dropped and never filled at a modelled price. Cache coverage is 2024-01-18..2026-08-28, so it spans the window, but per-day coverage must be reported per day.",
+    "NO SLIPPAGE MODEL beyond the OPRA bar. Real stress-day spreads are wider than the calm-regime record; a bar-derived fill is therefore OPTIMISTIC in exactly the population being studied. The direction of that bias must be stated beside every P&L number in the output.",
+    "THE ENGINE IS FROZEN and this study cannot change it. Config freeze runs to 2026-10-30; nothing here proposes a shape change, and any change this motivates is a 10-30 menu item requiring its own prereg.",
+    "PAST REGIMES ARE NOT THE NEXT ONE. Two of the three largest episodes here (Aug 2024 yen-carry, Apr 2025 tariffs) were single-cause macro shocks. A result that the engine survives these is not a result that it survives an unlike shock."
+  ],
+
+  "metrics": {
+    "primary": "Per-day and per-side: n entries, n excluded for missing OPRA, realized dollar P&L on real OPRA bars, and the exit-reason distribution (Q1).",
+    "secondary": "Cap-binding rate (Q3), qty-clamp attribution (Q4: which of the three ladder caps bound), worst-day and worst-intraday-drawdown vs Rule 5 thresholds (Q5), participation rate (Q6).",
+    "stratification_required_in_the_output": [
+      "with vs without the 2025-04-03..04-21 block",
+      "drop-days (cc<=-2%) vs range-days (range>=3%, cc>-2%)",
+      "bull-side vs bear-side entries"
+    ]
+  },
+
+  "decision_rule": {
+    "what_this_study_can_conclude": "A DESCRIPTION of engine behaviour in stress, published into the go-live gate's REGIME COVERAGE block so that the gate's reader can see which regimes the scored window does and does not contain.",
+    "what_it_can_NEVER_conclude": "Nothing here arms, disarms, resizes or gates anything. It cannot ratify a shape change, and a favourable result is explicitly NOT evidence for arming -- the go-live gate's criteria are unchanged by this file.",
+    "if_the_result_is_bad": "A finding that the protections misbehave in stress (e.g. Q3 shows the -50% cap firing before the chart stop on most stress-day exits) becomes a 10-30 menu item with its own prereg, NOT an in-freeze fix.",
+    "no_repick_clause": "The population rule, the window, the 24 enumerated days, the six questions and the required stratifications are FROZEN as of this file. If the runner reveals a data problem that forces a change, the change must be recorded as a deviation IN THIS FILE with its reason, and the original rule left visible. Re-cutting the day list after seeing P&L invalidates the study."
+  },
+
+  "freeze_compliance": {
+    "trading_path_touched": false,
+    "files_added": ["analysis/recommendations/prereg-regime-stress-replay-2026-09-02.json"],
+    "note": "Questions frozen; runner not yet built. The next step is a runner that reads the enumerated days, replays the CURRENT engine over them with real OPRA bars, and emits the metrics above -- nothing in it may re-derive the day list."
+  },
+
+  "revert": "git revert <sha> -- additive, referenced by nothing in the live path."
+}

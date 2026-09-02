@@ -554,10 +554,26 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 ### 2b. Research (analysis only, $0, freeze-compatible)
 - [ ] **Null study weekly** (B1) — the single most important number on the board. Opus reads each
   Friday; a FAIL on P1 (post-08-11) ends any 10-30 arming talk before the gate colour matters.
-- [ ] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
+- [~] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
   (the April 2025 tariff week, Aug 2024, any −2%+ day in 2025–26): what do the −50% cap, structure
   stops and the ladder actually do in a −3% day? Pre-register the questions; label sim-only.
   *Done:* a REGIME-STRESS study + the gate's REGIME COVERAGE block cites it.
+  **QUESTIONS FROZEN 2026-09-02** — `analysis/recommendations/prereg-regime-stress-replay-2026-09-02.json`.
+  Six questions frozen before any runner exists, which is the strongest available guarantee the day
+  list was not curated to a result. **Population rule frozen:** SPY close-to-close ≤ −2% OR intraday
+  range ≥ 3%, over **2024-08-01..2026-07-22** — the window is bounded by **VIX** coverage, not SPY
+  (SPY bars start 2024-01-18; VIX starts 2024-08-01, and the entry cascade consumes VIX), which costs
+  exactly one qualifying day and is disclosed rather than discovered. **n=24**, and it lands on both
+  windows the box names: **2024-08-05** (yen-carry) and **nine days of 2025-04-03..04-21** (tariffs).
+  ⚠️ **That concentration is the headline disclosure:** 9 of 24 days (37.5%) are ONE macro event, so
+  every aggregate must be reported with and without that block — pre-registered, not found later.
+  **Prior coverage checked and rejected as unusable:** `v15-stress-test.json` (2026-05-09,
+  candidate `v15-seed6`) reports 11 days / 22 trades / 1 winner / −$414.98, but every trade row has
+  `entry_time: '?'`, and nearly all have `exit_premium: 0` and `pnl_dollars: 0` while claiming
+  `EXIT_ALL_PREMIUM_STOP` — per-trade P&L of zero does not reconcile with its own headline, it has no
+  timestamps to attribute an exit to a mechanism, and it predates chart-stop-primary, the tight ladder
+  and the LevelState work. It is NOT cited as a baseline. **Remaining:** build the runner (it may not
+  re-derive the day list) and publish into the gate's REGIME COVERAGE block.
 - [~] **XSP — FEASIBILITY DONE 2026-09-02, and the battery is deliberately NOT built yet.**
   `analysis/xsp/xsp-feasibility-2026-09-02.json`. The box asked for "prereg + first battery"; checking
   the premises first turned out to be the cheap move, because **two of the three are wrong or
