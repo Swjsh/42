@@ -1,3 +1,46 @@
+## [2026-09-02T07:42 ET] Opus, work-order §2d: WEEKLY-CIRCUIT-BREAKER-CORE answered -- the answer is a NULL -- REVOKE surface
+
+**No ship is proposed at 09-29.** Commits `3401e5fe` (study + prereg + guards), `c1e11540`
+(test hygiene). Nothing armed; no frozen file touched.
+
+**The gap is real.** Rule 5 is per-DAY, and the 08-18 day-throttle prereg already showed it
+unreachable (worst arm-day -24.4% against a -30% floor). Nothing in the core path looks
+ACROSS days. Real 3-day rolling realized losses: safe-2 -$640 · bold-2 -$955 · safe-3
+-$1,306 · risky-1 -$1,214 · risky-3 -$1,252, on ~$5,000 accounts -- roughly -26% spread
+across days that no per-day switch can see.
+
+**The obvious fix is refuted.** 8-cell grid (W=3,5 x T=$400..$1000): **every cell cost the
+book money** (-$53..-$1,718) and **6 of 8 made the worst per-arm drawdown DEEPER.** A circuit
+breaker that worsens the drawdown it exists to limit is not a safety device.
+
+**Mechanism, verified on a named case rather than asserted:** safe-3 lost -1048 / -156 / -102
+over three sessions, tripping a 3-day/-$1000 circuit -- and the very next session was
+**+457**. The circuit blocks the rebound. The window table agrees: safe-3's 10-day worst
+(-482) is *shallower* than its 3-day worst (-1306). Drawdowns mean-revert in this record.
+
+**What is frozen, and how weak it is.** W5/T800 and W5/T1000 are the only cells with positive
+drawdown improvement, frozen for FORWARD judgement at 10-30. The caveat is stated up front
+because it is load-bearing: at W5/T1000 the **entire +$133 comes from risky-1 blocking ONE
+day (2026-08-12)**; W5/T800's gain clusters on 08-12..08-14. One mid-August event. The
+correct prior is noise.
+
+**Deliberately NOT logged as a kill.** The record contains no regime in which a drawdown
+failed to recover, so it cannot speak to the case a circuit exists for. Absence of evidence
+FOR these thresholds -- not evidence against multi-day risk control.
+
+**Guards:** 16 tests, 8 mutations RED-proofed. Three initially escaped because MY fixtures
+were too weak (a short-history case that never breached; a blocked day whose real P&L was a
+win, which cannot distinguish carry-forward from zero). Fixtures strengthened, no mutation
+dropped. The null is pinned so a flattering regression cannot become a silent green light.
+
+**Also closed:** `TASK-SCORER-LIVE-QUEUE-TEST-FIXTURE` -- it had already gone RED exactly as
+its filing predicted. The two ids it read from the live queue.md were completed and archived
+by an ordinary consolidation (`b7f777b6`), so a parser guard failed for a reason unrelated to
+the parser. Replaced with a snapshot of the incident's shape plus an id-agnostic liveness
+check on the real file. Archiving a done item must not turn a guard red.
+
+**Revoke:** `git revert 3401e5fe c1e11540`.
+
 ## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
 
 > **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
