@@ -223,6 +223,21 @@ def test_unbalanced_round_trip_emitted_not_dropped(tmp_path):
 # --------------------------------------------------------------------------- #
 
 REAL_REPO_ROOT = ROOT
+
+# AUGUST 2026 ENGINE TOTAL -- one named constant, not a number repeated at N call sites.
+# WHY IT MOVED (2026-09-02): the pin was $1,744, set on 2026-08-27 while August was STILL
+# ACCRUING DAYS -- so it was guaranteed to rot, and it did. The 2026-09-01 journal/trades.csv
+# writer repair (wave 2, task B8: 25 rows repaired) plus the remaining August sessions bring
+# the true total to $3,048.00. Verified as a REPAIR, not a regression, by the strongest check
+# available: two INDEPENDENT groupings of the same fills agree to the cent --
+# flat_to_flat n=221 = $3,048.00 and broker_fills FIFO n=309 = $3,048.00, cross-basis delta
+# $0.00 -- and the untouched 2026-08-27 day anchor still reads n=12 / $1,897.
+# STABLE NOW in a way the old pin never was: August is CLOSED, so day-accrual can no longer
+# move this. Only a further ledger repair can -- and if one does, re-verify cross-basis
+# agreement FIRST (that is what proves a change is a repair rather than a regression), then
+# update this one constant.
+AUG_2026_ENGINE_TOTAL = 3048.0
+
 _real_fills = os.path.join(REAL_REPO_ROOT, "automation", "state", "fills-ledger.jsonl")
 
 
@@ -239,7 +254,8 @@ def test_real_tape_2026_08_27_and_august_totals():
 
     mon_rows = te._engine_rows_for(rows, lo="2026-08-01", hi="2026-08-31")
     mon_pnl = sum(r["pnl_dollars"] for r in mon_rows)
-    assert abs(mon_pnl - 1744.0) <= 10, f"August 2026 engine pnl {mon_pnl} not within $10 of +$1744"
+    assert abs(mon_pnl - AUG_2026_ENGINE_TOTAL) <= 10, (
+        f"August 2026 engine pnl {mon_pnl} not within $10 of +${AUG_2026_ENGINE_TOTAL:.0f}")
 
 
 def test_premium_stop_suspect_flags_impossible_positive_pnl(tmp_path):
@@ -389,10 +405,10 @@ def test_fifo_split_partial_exit_reconciles_to_flat_to_flat_pnl(tmp_path):
 
 
 @pytest.mark.skipif(not os.path.exists(_real_fills), reason="real fills-ledger.jsonl not present")
-def test_both_bases_reproduce_august_1744():
+def test_both_bases_reproduce_the_august_total():
     """Both LEGITIMATE bases -- this module's flat_to_flat (n=210 engine option trips) and
     broker_fills.fifo_round_trips (n=293 engine option trips) -- must reproduce the SAME
-    August 2026 engine total (+$1,744), because P&L is fill-additive regardless of how fills
+    August 2026 engine total (+$3,048), because P&L is fill-additive regardless of how fills
     are grouped into trips. WR/payoff differ by basis (34.8% flat_to_flat vs 44.0% FIFO,
     payoff ~2.04x vs ~1.38x, verified 2026-08-27) -- P&L does not."""
     import sys
@@ -403,7 +419,8 @@ def test_both_bases_reproduce_august_1744():
     result = te.rebuild(Path(REAL_REPO_ROOT), write=False)
     flat_rows = te._engine_rows_for(result["rows"], lo="2026-08-01", hi="2026-08-31")
     flat_pnl = sum(r["pnl_dollars"] for r in flat_rows)
-    assert abs(flat_pnl - 1744.0) <= 10, f"flat_to_flat August pnl {flat_pnl} not within $10 of $1744"
+    assert abs(flat_pnl - AUG_2026_ENGINE_TOTAL) <= 10, (
+        f"flat_to_flat August pnl {flat_pnl} not within $10 of ${AUG_2026_ENGINE_TOTAL:.0f}")
 
     fills = bf.load_existing_ledger(Path(_real_fills))[0]
     opt_fills = [f for f in fills if f.get("is_option")]
@@ -411,7 +428,8 @@ def test_both_bases_reproduce_august_1744():
     fifo_aug = [r for r in round_trips
                 if r["attribution"] == "engine" and r["date_et"].startswith("2026-08")]
     fifo_pnl = sum(r["pnl"] for r in fifo_aug)
-    assert abs(fifo_pnl - 1744.0) <= 10, f"FIFO August pnl {fifo_pnl} not within $10 of $1744"
+    assert abs(fifo_pnl - AUG_2026_ENGINE_TOTAL) <= 10, (
+        f"FIFO August pnl {fifo_pnl} not within $10 of ${AUG_2026_ENGINE_TOTAL:.0f}")
 
     assert abs(flat_pnl - fifo_pnl) <= 0.5, (
         f"the two bases must reconcile to the same August total: "

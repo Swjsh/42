@@ -792,6 +792,21 @@ def _engine_rows_for(rows: list, date: str = None, lo: str = None, hi: str = Non
     return out
 
 
+# AUGUST 2026 ENGINE TOTAL -- one named constant, not a number repeated at N call sites.
+# WHY IT MOVED (2026-09-02): the pin was $1,744, set on 2026-08-27 while August was STILL
+# ACCRUING DAYS -- so it was guaranteed to rot, and it did. The 2026-09-01 journal/trades.csv
+# writer repair (wave 2, task B8: 25 rows repaired) plus the remaining August sessions bring
+# the true total to $3,048.00. Verified as a REPAIR, not a regression, by the strongest check
+# available: two INDEPENDENT groupings of the same fills agree to the cent --
+# flat_to_flat n=221 = $3,048.00 and broker_fills FIFO n=309 = $3,048.00, cross-basis delta
+# $0.00 -- and the untouched 2026-08-27 day anchor still reads n=12 / $1,897.
+# STABLE NOW in a way the old pin never was: August is CLOSED, so day-accrual can no longer
+# move this. Only a further ledger repair can -- and if one does, re-verify cross-basis
+# agreement FIRST (that is what proves a change is a repair rather than a regression), then
+# update this one constant.
+AUG_2026_ENGINE_TOTAL = 3048.0
+
+
 def run_verification(rows: list, *, quiet: bool = False) -> bool:
     ok = True
 
@@ -805,10 +820,10 @@ def run_verification(rows: list, *, quiet: bool = False) -> bool:
 
     mon_rows = _engine_rows_for(rows, lo="2026-08-01", hi="2026-08-31")
     mon_pnl = sum(r["pnl_dollars"] for r in mon_rows)
-    mon_ok = abs(mon_pnl - 1744.0) <= 10
+    mon_ok = abs(mon_pnl - AUG_2026_ENGINE_TOTAL) <= 10
     ok = ok and mon_ok
     print(f"[verify] August 2026 engine total: n={len(mon_rows)} pnl=${mon_pnl:.2f} "
-          f"(want +$1744 +/-$10) -> {'PASS' if mon_ok else 'FAIL'}")
+          f"(want +${AUG_2026_ENGINE_TOTAL:.0f} +/-$10) -> {'PASS' if mon_ok else 'FAIL'}")
 
     if not ok and not quiet:
         print("[verify] MISMATCH -- known-good checks failed. Root cause before trusting "

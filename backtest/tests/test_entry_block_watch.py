@@ -318,7 +318,18 @@ def test_compose_alert_text_includes_score_triggers_and_blocker():
     assert "level rejection plus confluence" in text
     assert "ribbon" in text
     assert "Safe" in text
-    assert "say the word to arm it" in text
+    # COPY DRIFT FIXED 2026-09-02. This line used to assert "say the word to arm it".
+    # That phrasing was REMOVED from the composer on 2026-08-31 after J heard it read
+    # back -- "why am i being asked to arm anything??" -- because a paper gate refusing a
+    # setup is not one of OP-0's four J-routed things, and OP-11 names soliciting
+    # permission to ship a cleared edge as the banned anti-pattern. A dedicated guard,
+    # test_no_permission_framing_in_alerts_2026_08_31.py, now asserts that phrase is
+    # ABSENT -- so this assertion was directly CONTRADICTING that guard and demanding the
+    # exact anti-pattern J rejected. Assert the alert's real job instead: REPORT the
+    # refusal, never shop for an override.
+    assert "Logged for gate review" in text
+    assert "no action needed from you" in text
+    assert "arm it" not in text, "the alert must never ask J to arm paper work"
 
 
 def test_compose_alert_text_handles_missing_level_and_blockers_gracefully():
