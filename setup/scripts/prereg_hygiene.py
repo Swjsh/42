@@ -47,6 +47,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+# OP-27 L41 / C8: this script is scheduled (Gamma_PreregHygiene, 16:58 ET nightly) and
+# shells out to ripgrep. Without CREATE_NO_WINDOW that flashes a conhost window on J's
+# desktop every night -- the exact popup class that is J's standing #1 priority. Same
+# constant/spelling as guard_runner_full.py:59. Guard: test_window_leak_compliance.py
+# ::test_no_py_subprocess_missing_creationflags, which caught this.
+NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+
 REPO = Path(__file__).resolve().parents[2]
 RECS_DIR = REPO / "analysis" / "recommendations"
 OUT_FILE = RECS_DIR / "prereg-hygiene.json"
@@ -146,6 +153,7 @@ def _referenced_stems(stems: list[str]) -> Optional[set]:
     try:
         result = subprocess.run(
             args, cwd=str(REPO), capture_output=True, text=True, timeout=60,
+            creationflags=NO_WINDOW,
         )
     except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
         return None
