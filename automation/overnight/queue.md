@@ -2682,3 +2682,30 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   the pattern spreads: the fix is not a smarter parser but a STRUCTURED field -- e.g.
   `build_step: {file, symbol, must_contain}` -- so the claim is machine-checkable by construction
   instead of being prose a regex has to guess at. :: depends:none :: status:filed
+
+- [ ] SAFE-2-RETIREMENT-IS-NOT-A-REGISTRY-EDIT (HIGH, ships in the 09-29 bundle, found 2026-09-02
+  by the new arm-roster sweep) :: **Setting `safe-2` to `status: retired` in `accounts.json` would
+  NOT stop the core engine trading it.** `setup/scripts/heartbeat_core.py` hardcodes its roster as
+  `(safe-2, bold-2)` and never reads the registry to decide which accounts to trade. This is the
+  same arming asymmetry work-order §2a recorded from the other direction: fleet arms arm via the
+  roster's `live` flag, the core pair arms via `GAMMA_CORE_ARMED=1` in `run-heartbeat-core.ps1`
+  and carries **no `live` key at all**. So the roster alone can neither arm nor retire a core arm.
+  **Consequence for the checkpoint:** safe-2's retirement is a CODE change on
+  `safety-bundle-2026-09-29`, not a config tweak, and anyone who retires it by editing the
+  registry will believe it is done while the engine keeps trading. **Context measured the same
+  day:** 66 modules read `accounts.json` independently and **15 hardcode an arm tuple instead** --
+  `risky-3` is still named in nine of them five days after retirement, `safe-1` in four. Canonical
+  helper now exists (`automation/state/fleet/arm_roster.py`, semantics lifted from
+  `eod_flatten._active_arms` and pinned against it) and the sweep
+  (`backtest/tests/test_arm_roster_sweep_2026_09_02.py`) fails on any UNDECLARED static roster, so
+  the next retirement cannot be silent. Converting `heartbeat_core`'s own roster is deliberately
+  NOT done in the guard -- it is a trading-path change that belongs in the reviewed bundle merge.
+  :: depends:none :: status:filed
+
+- [ ] THREE-MODULES-SHOULD-READ-THE-ROSTER-DYNAMICALLY (LOW, filed 2026-09-02) :: `quote_recorder.py`,
+  `entry_location_shadow.py` and `exit_coverage_check.py` are declared `TODO-DYNAMIC` in the sweep's
+  allowlist: each hardcodes the five-arm tuple including retired `risky-3`, and none has a
+  historical reason to -- they observe LIVE state, so a retired arm is noise and a NEW arm is
+  invisible. `exit_coverage_check` is the one that matters: it reports exit coverage per arm, so a
+  missing new arm reads as full coverage. Convert to `arm_roster.active_arms()`. Not done with the
+  sweep itself to keep that change reviewable as one idea. :: depends:none :: status:filed
