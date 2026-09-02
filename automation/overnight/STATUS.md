@@ -8,7 +8,58 @@
 
 ---
 
+## [2026-09-02T07:20 ET] Opus, work-order §2d: STATUS-BROKEN-BLOCKS-DRAIN closed -- three causes, one symptom -- REVOKE surface
+
+**Symptom:** `### BROKEN: self-check` blocks recurring every 30 min on a surface nobody reads.
+Four blocks inside 23 minutes differed ONLY in a counter (13 -> 15 -> 17). Commit `478dadf2`.
+
+**1. The re-append -- and the ping suppression was broken by the same line.** `_alert` wrote
+STATUS.md unconditionally, and the Discord dedupe beside it keyed on `" | ".join(problems)`,
+the FULL text. Half of self_check's messages embed a running count, so the key changed on
+nearly every fire: STATUS.md grew a block per tick AND the 6h ping window never matched. One
+shared `_problem_set_signature()` now gates both, collapsing free-standing numbers only (a
+digit after a word char or hyphen stays -- `safe-2` must never collapse into `safe-3`).
+*The downstream mitigation shipped 09-01 for this same spam (`fold_consecutive_selfcheck_
+blocks`) folded 0 of the 5 live blocks -- they are not byte-identical. Same root cause
+defeated both layers; this one is at the source.*
+**VERIFIED COLD:** 4 consecutive runs 07:0x-07:16 ET, blocks held at 5, zero new Discord
+pings since 06:59 -- while the underlying count really did move 19 -> 22.
+
+**2. CHART-DRAWING was a FALSE ALARM against a retired producer (C14).** It watched
+`key-levels.json -> chart_drawing_summary.as_of`, written by premarket Step 5 (an LLM step).
+`Gamma_ChartAutoDraw` replaced that 2026-08-06 ($0, 08:35-16:05 ET /30m) and stamps
+`chart-autodraw.json`, so the old field froze at 2026-06-29 while the chart was in fact
+being redrawn correctly every day (verified: as_of=2026-09-01T16:05 ET, status=OK,
+dry_run=false, real removals at spot 761.57, task GREEN). Re-pointed, and gated on `status`
+too -- `draw_key_levels.py` write_state()s on its failure paths, so a bare date check reads
+GREEN on a TradingView-down morning with a stale chart.
+
+**3. `## Known broken` had left the preamble again.** Yesterday's fix moved it to the top; a
+producer prepended a dated entry at line 1 and it was back inside an entry, due to roll off
+to the archive with it -- the 2026-08-20 two-month outage restarting on day one. Pinning by
+POSITION cannot survive a producer that writes above you, so `status_retention` now pins by
+NAME (`PINNED_SECTIONS`) and hoists the newest occurrence from anywhere. The positional guard
+was replaced with the invariant it was a proxy for: does the section survive a real roll?
+
+**Guards:** 14 new + 13 rewritten + 24; 10 mutations RED-proofed, each caught by the intended
+test. Two of my own mutations initially ESCAPED (a fixture that buried the marker in an entry
+that survives anyway; a "reads the live producer" test that asserted the regression's
+spelling rather than its behaviour) -- both guards were strengthened, neither mutation
+dropped. A third caught a real defect in my own hoist: every copy was being lifted, not just
+the newest.
+
+**Still open, split out:** `TRENDLINE-DRAW-HEADLESS` is the one REAL alarm of the three --
+last run 2026-08-27, `reason="budget conservation"`, a string that appears in no code. An LLM
+skipped a step whose work is a $0 deterministic script. Filed with the constraint-provenance
+finding: `trendline_chart_draw.py` justifies its LLM-only design by citing a headless
+constraint that `Gamma_ChartAutoDraw` had disproved **three days before that module was
+written**. Fix path is proven, not speculative.
+
+**Revoke:** `git revert 478dadf2`.
+
 ## Known broken
+
+- [2026-09-02T11:00+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): openrouter::nvidia/nemotron-3-super-120b-a12b:free. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 [2026-09-02T06:27:06] MCP_AUDIT_YELLOW: TradingView OK, Alpaca Safe/Bold MCP servers still connecting (session start)
 [2026-09-02T06:23:50.560122-04:00] MCP_AUDIT_YELLOW: Alpaca MCP servers not yet available; TradingView OK
 
@@ -234,5 +285,23 @@
 ### BROKEN: self-check 2026-09-02T06:29:27
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 13 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 12x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: self-check 2026-09-02T06:39:56
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 15 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 14x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: self-check 2026-09-02T06:51:12
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 17 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 16x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: self-check 2026-09-02T06:59:25
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 18x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
