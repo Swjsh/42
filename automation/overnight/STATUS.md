@@ -1,3 +1,48 @@
+## [2026-09-02T09:14 ET] Opus, Phase 0 top box: guards repaired, full re-run HUNG, review made honest -- REVOKE surface
+
+**Correcting my own execution first.** §5.2 says "pick the top open box **in the current
+phase**". Today is Phase 0 (§1, 09-01..09-05); every box I had worked came from §2, Phase 1
+(09-08..09-26). I was executing the wrong phase and had skipped §5.2's read-the-matching-
+judgment-chapter step. Re-running the cadence as written led straight to work I would not
+otherwise have found.
+
+**Phase 0's top box** (09-02 16:30 first-live-day review) cannot close until tonight, but its
+own text names the precondition: the `guards_full` check "must not launder a fresh-looking
+count off a stale state file". Working that under chapter 01:
+
+- The box's premise is **stale**: `Gamma_GuardsFull` ran 02:29 local, `result=0`, state
+  stamped `2026-09-02 04:52 ET`. Not dark.
+- But its 5 failures were **all obsolete by 08:19**: 2 already passed, 3 were the known
+  stale-fixture trio. Repaired (`fb34ca92`) -- asserting the **pre-clamp** qty from the cap
+  note, because post-clamp qty is 5 in every case in that file and the obvious repair would
+  have been vacuous. Ceiling NOT weakened. A 4th test was **passing and equally vacuous**;
+  fixed, plus a non-vacuity guard.
+- **The full re-run HUNG.** 43 min, 1078 CPU-seconds then flat, zero output,
+  `guard-watch-full.json` never rewritten. Confirmed hung by sampling CPU twice (0.3s/20s),
+  verified all 4 PIDs were mine (`guard_runner_full.py` + its pytest), killed. NOT relaunched
+  into RTH -- re-running into the same conditions is the anti-pattern, and it would contend
+  with the heartbeat for CPU. The scheduled task did the same work in ~23 min at 04:29, so
+  the hang is manual-invocation-specific or intermittent. Filed.
+
+**So tonight's review would have reported a false verdict**, and `Gamma_GuardsFull` next runs
+**23:15 ET -- after the 16:30 review**, so it will not self-heal. The check measures staleness
+in DAYS, and 04:52 is the same day, so 5 failures read as current. Day granularity cannot fix
+this and shouldn't try: every same-day verdict is ~12h old by design, so flagging it would
+make the check permanently yellow. Fix is information, not an alarm -- the reason now always
+names the timestamp:
+`YELLOW | failed count deviates from expected 4: got 5 [verdict recorded 2026-09-02 04:52 ET;
+Gamma_GuardsFull next runs 23:15 ET, after this review]`
+
+**Deliberately NOT changed:** `GUARDS_FULL_EXPECTED_FAILED = 4` is a tolerance that has
+outlived its reason -- at 4 it reports GREEN for any four failures, including four new real
+ones, and the four it was sized for are now repaired. It should be 0. I lowered it, saw four
+tests encoding the old baseline go red, and **reverted**: 0 rests on the suite being clean and
+the hang means I cannot verify that. A 0 on an unverified suite is a permanently-yellow check
+-- the same disease inverted. Reasoning left in place; queue item
+`GUARDS-EXPECTED-FAILED-BASELINE-IS-STALE` carries the exact follow-up.
+
+**Market opens 09:30; stopping here.** Owed before 16:30: one green full guard run.
+
 ## [2026-09-02T08:06 ET] Opus: ARCHITECTURE refresh closed + a self-correction on tonight's own circuit study -- REVOKE surface
 
 **Self-correction first.** `rolling_loss_circuit_study.py`, shipped 50 minutes earlier
