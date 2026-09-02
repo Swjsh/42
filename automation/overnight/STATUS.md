@@ -1,3 +1,50 @@
+## [2026-09-02T09:16 ET] 🚨 J-DECISION: go-live criterion 5 is now UNREACHABLE ON BOTH CLOCKS -- arithmetic, not opinion
+
+**This is the criterion the whole 2026-10-30 decision rests on, and it cannot be met as
+frozen. It needs J, because fixing it means changing a bar that was registered before
+results -- which I must not do (OP-11), and which gates live money (OP-0 #1).**
+
+**The frozen bar** (`automation/state/prod-shadow-designation.json`, designated
+2026-09-01T20:22, BEFORE any result -- legitimate, not gameable):
+arm `safe-3`, window `2026-09-01..2026-09-29`, `min_days: 20`; extended clock `..2026-10-30`,
+`extended_clock_min_days: 40`.
+
+**A "scored day" requires a FILL.** `go_live_gate.py:729`:
+`days_scored = len({r["date"] for r in window_rows})` over trade rows. An arm that correctly
+sits out scores nothing.
+
+**Primary window -- arithmetically impossible:**
+- 2026-09-01..2026-09-29 contains **exactly 20 trading days** (Labor Day 09-07 excluded).
+- The bar is **20**, so it requires a fill on **every single one**.
+- 2 have elapsed (09-01, 09-02) with **0 scored** -- safe-3's last fill was 2026-08-28.
+- Ceiling is now **18/20**. No performance can recover it.
+
+**Extended clock -- not plausible either:**
+- 41 trading days remain to 10-30; bar is 40 -> requires **98% participation**.
+- safe-3's **measured** participation is **59%** (26 fills / 44 trading days, 06-29..08-28).
+- Peers: safe-2 68%, risky-1 59%, bold-2 47%. None is near 98%.
+- At 59%, expected scored days over 41 is ~24, not 40.
+
+**The mechanism, in one sentence:** the bar was written as "20 scored days in a
+20-trading-day window", which silently assumes **100% daily participation**, while the engine
+sits out ~40% of days BY DESIGN -- "sitting out is a valid day" (J 2026-08-12). The bar and
+the strategy are incompatible as written, and nothing checked that at designation time.
+
+**What I did NOT do:** change the bar, widen the window, or redefine a scored day. All three
+would be post-hoc bar changes on the live-money gate.
+
+**J's fork (no doctrine default exists):**
+1. Accept that criterion 5 cannot be met -> the 10-30 decision is made on criteria 1-4 with
+   criterion 5 recorded as UNREACHABLE, or the decision moves.
+2. Re-register the designation with a definition that counts a no-trade day as a scored day
+   (defensible on "sitting out is a valid day", but it IS a bar change and must be J's, in
+   writing, with the old one revoked explicitly).
+3. Lower `min_days` to something reachable at 59% participation (e.g. ~24 of 41 on the
+   extended clock) -- same caveat.
+
+Revoke path for the designation is already documented in the file: delete it and
+`prod_shadow_criterion()` falls back to NOT_WIRED with no other side effects.
+
 ## [2026-09-02T09:14 ET] Opus, Phase 0 top box: guards repaired, full re-run HUNG, review made honest -- REVOKE surface
 
 **Correcting my own execution first.** §5.2 says "pick the top open box **in the current
@@ -501,5 +548,15 @@ written**. Fix path is proven, not speculative.
 ### BROKEN: self-check 2026-09-02T06:59:25
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 19 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 18x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+## Kitchen
+Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+
+### BROKEN: self-check 2026-09-02T09:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-02) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 30x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
