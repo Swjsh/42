@@ -534,6 +534,14 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   cascade (C15). **Leave it RED with this reason recorded; do NOT weaken it.** Resolution is a decision,
   not a fixture edit, and all three options are SHAPE changes for the 10-30 menu: exempt boosted entries
   from `max_contracts_per_entry`, re-point the boost to a live arm, or delete boost + test together.
+  **STATUS 2026-09-02 — the RED is gone, and that needed handling.** The three tests were
+  repaired in `fb34ca92` with STRICTLY STRONGER assertions: the pre-clamp qty (parsed from the
+  cap note) proves the boost RAN, the ceiling is asserted to bind at 5, and their ORDER is
+  pinned — plus a fourth, silently VACUOUS test in the same file was caught and fixed. The
+  ceiling itself was never touched. That satisfies *"do not weaken"* but **not** *"leave it
+  RED"*: a green suite carries no marker, and this decision sat on no menu anywhere. **It is
+  therefore promoted to an explicit §3 checkpoint box**, so the repair cannot become a silent
+  deletion of the question.
   *Third sighting of the same root:* risky-3's retirement has now invalidated a prereg
   (`ladder-x-premium`), this boost lane, and its own exit A/B leg. **A retired arm's dependents are not
   swept** — worth a one-time sweep when any arm is retired.
@@ -699,6 +707,28 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 - [ ] **Do NOT ship** anything from §4. If J wants `feed=sip` earlier for data fidelity, that is a
   `[FABLE-OR-J]` trade of clock purity for realism; default is wait.
 - [ ] TIGHT-LADDER interim reading published as "interim, not decisive" (its own §5 forbids acting on it).
+
+- [ ] **`cheap_contract_qty_boost` — decide, or delete. (Added to this menu 2026-09-02; see the
+  note below on why it is here and not sitting RED in the suite.)** J's verbatim directive was
+  *"if it's under point five o for a contract, let's buy ten of them"*. `fleet_executor` applies
+  the boost and then hands the result to `risk_gate.cap_entry_qty`, where the ratified
+  `max_contracts_per_entry = 5` (PREREG-TIGHT-LADDER S2, 2026-08-29) clamps the boosted 10 back
+  to 5. **The knob is doubly dead:** it can never raise qty above 5, and on bold-tier params
+  where `min_contracts` is already 5 it changes nothing at all — and its only consumer arm is
+  **risky-3, `status: retired, live: false`**, so there is no live P&L exposure either way.
+  Three options, all SHAPE changes, all requiring a decision rather than a code tidy: **(a)**
+  exempt boosted entries from `max_contracts_per_entry`; **(b)** re-point the boost to a live
+  arm; **(c)** delete the boost and its guard together. Doing nothing is also a choice, but it
+  should be a stated one — the directive currently is not implemented.
+  ⚠️ **Why this is on the menu now:** the standing marker for this unmade decision used to be
+  three RED tests in `test_cheap_contract_qty_boost_2026_08_03.py`, which §2a explicitly said to
+  leave RED. On 2026-09-02 I repaired them (`fb34ca92`) — the assertions are strictly stronger
+  than before (they now pin that the boost RAN, via the pre-clamp qty in the cap note, *and*
+  that the ceiling binds, *and* their order; the ceiling itself was never weakened, and a
+  fourth silently-vacuous test in the same file was caught and fixed). But a green test carries
+  no marker, and this decision was on no menu anywhere — so the signal the RED was holding
+  would simply have evaporated at the checkpoint. Recorded here so the repair does not become a
+  silent deletion of the question.
 
 ---
 
