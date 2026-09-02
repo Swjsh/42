@@ -544,9 +544,16 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   generating the data that would refute the disarm**. Nails: EXIT_ARTIFACT / REGIME_BOUND / UNPOWERED /
   DOCTRINE (OP-16 holds both directions ACTIVE; disarming one is a doctrine change needing J, not a knob).
   Neither ships in-window — both are SHAPE changes, 10-30 menu only.
-- [ ] **After-tax target.** SPY options = ordinary short-term + wash-sale. *Done:* an after-tax version of
-  the $100–200/day target under two illustrative brackets, labeled NOT TAX ADVICE, plus the CPA
-  question list for J (§6).
+- [x] **After-tax target — DONE 2026-09-02. *** NOT TAX ADVICE ***** Table in `LIVE-FLIP-RUNBOOK.md`
+  §4b; producer `setup/scripts/after_tax_target.py` → `analysis/after-tax/after-tax-target.json`;
+  CPA question list below in §6. **To NET $200/day at 32%+5%, SPY must gross $317.46** — 59% above the
+  nominal target. **The finding that was not in the box:** SPY options are ordinary equity options
+  (100% short-term for 0DTE — the worst case, no long-term rate to reach for, wash-sale applies), while
+  XSP/SPX are generally **§1256**: 60/40 regardless of holding period, marked to market, no wash-sale.
+  At the higher illustrative bracket that is **$5,141/year on $200/day of the same trade**, requiring no
+  improvement in the edge. Criterion 1 FAILS on every arm, so "make the edge better" is a hard road and
+  "express the same read in a 60/40 instrument" is an arithmetic one — **this is now the strongest
+  argument the XSP box below has, and the two were never connected.** Verify with a CPA before acting.
 - [x] **First-live-month dollar model for safe-3 — DONE 2026-09-02.** Table lives in
   `LIVE-FLIP-RUNBOOK.md` §4a; producer `setup/scripts/first_live_month_model.py` →
   `analysis/first-live-month/<arm>.json`; guards `test_first_live_month_model_2026_09_02.py` (16).
@@ -668,7 +675,18 @@ Then a new 20–40 day window → the next arming question is **2027-Q1**.
   and the runbook says so in writing.
 - [ ] **Phone HALT drill** (2 minutes, any afternoon after B5 lands).
 - [ ] **DMS drill window:** say which afternoon(s) the engine may be killed on purpose (paper).
-- [ ] **CPA question list** (delivered with the after-tax study): wash-sale exposure at ~500 round
+- [x] **CPA question list — DELIVERED 2026-09-02**, full text in
+  `analysis/after-tax/after-tax-target.json` → `cpa_questions`. Seven questions, ordered by how much
+  each moves the number: (1) **is §1256 60/40 actually available on XSP/SPX for how I trade, and what
+  is it worth against my real marginal rate** — this repo's arithmetic makes it the largest lever on
+  after-tax return that does not require the strategy to improve; (2) wash-sale deferral across ~500
+  round trips on one underlying — does it change what I owe or only when, and what records from day
+  one; (3) trader tax status / IRC 475(f) mark-to-market — available? deadline? cost if abandoned?;
+  (4) estimated quarterlies on lumpy, sometimes-negative income — the safe harbour that avoids a
+  penalty without over-remitting; (5) a net-negative year — what is deductible, what carries forward,
+  how it interacts with 475(f); (6) entity vs personal at this size; (7) does my state mirror the
+  federal long/short distinction or tax the whole gain flat.
+- [ ] ~~CPA question list~~ (superseded by the line above): wash-sale exposure at ~500 round
   trips/yr with same-day re-entries; SPY vs XSP treatment; estimated-tax cadence.
 - [ ] **Kalshi API key** (unchanged from 08-29).
 - [ ] **10-30:** the accept/decline itself, if and only if the inputs in §4 are all green.

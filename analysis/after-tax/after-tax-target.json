@@ -1,0 +1,129 @@
+{
+  "_DISCLAIMER": "NOT TAX ADVICE. Arithmetic under illustrative assumptions only. No statement about any real taxpayer's situation, filing status, state, carryforwards or entity structure is made or implied.",
+  "trading_days_per_year": 252,
+  "trading_days_per_month": 20,
+  "brackets": {
+    "illustrative_low": {
+      "label": "22% federal marginal + 5% state",
+      "federal_ordinary": 0.22,
+      "state": 0.05,
+      "federal_longterm": 0.15
+    },
+    "illustrative_high": {
+      "label": "32% federal marginal + 5% state",
+      "federal_ordinary": 0.32,
+      "state": 0.05,
+      "federal_longterm": 0.15
+    }
+  },
+  "rows": [
+    {
+      "bracket": "illustrative_low",
+      "bracket_label": "22% federal marginal + 5% state",
+      "gross_target_per_day": 100.0,
+      "spy_ordinary": {
+        "gross_per_day": 100.0,
+        "effective_rate": 0.27,
+        "net_per_day": 73.0,
+        "net_per_month_20d": 1460.0,
+        "net_per_year_252d": 18396.0,
+        "gross_needed_to_net_the_target": 136.99
+      },
+      "xsp_section_1256": {
+        "gross_per_day": 100.0,
+        "effective_rate": 0.228,
+        "net_per_day": 77.2,
+        "net_per_month_20d": 1544.0,
+        "net_per_year_252d": 19454.4,
+        "gross_needed_to_net_the_target": 129.53
+      },
+      "section_1256_advantage_per_day": 4.2,
+      "section_1256_advantage_per_year": 1058.4
+    },
+    {
+      "bracket": "illustrative_low",
+      "bracket_label": "22% federal marginal + 5% state",
+      "gross_target_per_day": 200.0,
+      "spy_ordinary": {
+        "gross_per_day": 200.0,
+        "effective_rate": 0.27,
+        "net_per_day": 146.0,
+        "net_per_month_20d": 2920.0,
+        "net_per_year_252d": 36792.0,
+        "gross_needed_to_net_the_target": 273.97
+      },
+      "xsp_section_1256": {
+        "gross_per_day": 200.0,
+        "effective_rate": 0.228,
+        "net_per_day": 154.4,
+        "net_per_month_20d": 3088.0,
+        "net_per_year_252d": 38908.8,
+        "gross_needed_to_net_the_target": 259.07
+      },
+      "section_1256_advantage_per_day": 8.4,
+      "section_1256_advantage_per_year": 2116.8
+    },
+    {
+      "bracket": "illustrative_high",
+      "bracket_label": "32% federal marginal + 5% state",
+      "gross_target_per_day": 100.0,
+      "spy_ordinary": {
+        "gross_per_day": 100.0,
+        "effective_rate": 0.37,
+        "net_per_day": 63.0,
+        "net_per_month_20d": 1260.0,
+        "net_per_year_252d": 15876.0,
+        "gross_needed_to_net_the_target": 158.73
+      },
+      "xsp_section_1256": {
+        "gross_per_day": 100.0,
+        "effective_rate": 0.268,
+        "net_per_day": 73.2,
+        "net_per_month_20d": 1464.0,
+        "net_per_year_252d": 18446.4,
+        "gross_needed_to_net_the_target": 136.61
+      },
+      "section_1256_advantage_per_day": 10.2,
+      "section_1256_advantage_per_year": 2570.4
+    },
+    {
+      "bracket": "illustrative_high",
+      "bracket_label": "32% federal marginal + 5% state",
+      "gross_target_per_day": 200.0,
+      "spy_ordinary": {
+        "gross_per_day": 200.0,
+        "effective_rate": 0.37,
+        "net_per_day": 126.0,
+        "net_per_month_20d": 2520.0,
+        "net_per_year_252d": 31752.0,
+        "gross_needed_to_net_the_target": 317.46
+      },
+      "xsp_section_1256": {
+        "gross_per_day": 200.0,
+        "effective_rate": 0.268,
+        "net_per_day": 146.4,
+        "net_per_month_20d": 2928.0,
+        "net_per_year_252d": 36892.8,
+        "gross_needed_to_net_the_target": 273.22
+      },
+      "section_1256_advantage_per_day": 20.4,
+      "section_1256_advantage_per_year": 5140.8
+    }
+  ],
+  "cpa_questions": [
+    "SPY options vs XSP/SPX options: is the Section 1256 60/40 treatment actually available on the index products for how I trade, and what would it be worth against my real marginal rate? (This repo's own arithmetic says the gap is the single largest lever on after-tax return that does not require the strategy to get better.)",
+    "Wash sales across roughly 500 round trips a year on a single underlying: what is the realistic year-end deferral, and does it materially change what I owe or only when I owe it? What records do you need me to keep from day one?",
+    "Does trader tax status apply to this pattern of activity, and if so is an IRC 475(f) mark-to-market election worth making? What is the deadline, and what does it cost me if the strategy is later abandoned?",
+    "Estimated quarterly payments: given income that is lumpy and could be negative for a quarter, what is the safe-harbour approach that avoids an underpayment penalty without over-remitting?",
+    "If a year ends net negative, what is actually deductible against ordinary income, what carries forward, and how does that interact with the answer on 475(f)?",
+    "Is there any reason to hold this in an entity rather than personally, at this size?",
+    "State treatment: does my state mirror the federal long-term/short-term distinction, or tax the whole gain at one rate?"
+  ],
+  "assumptions_that_would_change_everything": [
+    "That every gain is short-term. True for 0DTE under ordinary treatment, and it is the WORST case -- there is no long-term rate to reach for.",
+    "That gains are taxed in the year realised with no offsetting losses carried in. A real first year may have carryforwards that change the effective rate to zero until they are used up.",
+    "That the state applies a flat rate to the whole gain and does not mirror the federal long-term preference. Some do; assuming otherwise would flatter XSP.",
+    "That no entity structure, mark-to-market election (IRC 475(f)) or trader-tax-status treatment applies. Any of those changes the answer materially, and whether they are available is a question for a professional.",
+    "That wash-sale deferrals net out within the year. Across roughly 500 round trips on ONE underlying they may not, and that is a bookkeeping problem before it is a tax problem."
+  ]
+}

@@ -262,6 +262,52 @@ P(month<0)=0.55, p5 −$1,895, maxDD p95 −$2,225. This producer, written from 
 fee model but with its own path logic, gets **0.577 / −$1,965 / −$2,293** on the same arm —
 agreement to a few percent on all three. The numbers above are reproducible, not a one-off.
 
+
+### 4b. The target after tax — *** NOT TAX ADVICE *** (2026-09-02)
+
+Every number in this repo is **pre-tax**, and for a strategy whose entire output is
+short-term gains that is not the number that reaches the bank. Producer:
+`setup/scripts/after_tax_target.py` → `analysis/after-tax/after-tax-target.json`.
+**Arithmetic under stated assumptions, not a statement about anyone's real tax situation.**
+Nobody here is qualified to make one — the real deliverable is the CPA question list.
+
+| bracket (illustrative) | gross/day | SPY net/day | XSP net/day | §1256 edge/yr |
+|---|---|---|---|---|
+| 22% fed + 5% state | $100 | $73.00 | $77.20 | $1,058 |
+| 22% fed + 5% state | $200 | $146.00 | $154.40 | $2,117 |
+| 32% fed + 5% state | $100 | $63.00 | $73.20 | $2,570 |
+| 32% fed + 5% state | $200 | $126.00 | $146.40 | **$5,141** |
+
+**To NET the target, gross must be:**
+
+| | net $100/day | net $200/day |
+|---|---|---|
+| SPY @ 22+5 | $136.99 | $273.97 |
+| SPY @ 32+5 | $158.73 | **$317.46** |
+| XSP @ 32+5 | $136.61 | $273.22 |
+
+**The structural fact this is really about.** SPY is an ETF, so SPY options are ordinary
+equity options: short-term gains at ordinary rates, wash-sale rules apply. SPX and XSP are
+broad-based INDEX options, generally **Section 1256** contracts: 60% long-term / 40%
+short-term *regardless of holding period*, marked to market at year end, and not subject to
+wash-sale. A 0DTE strategy holds nothing overnight, so under ordinary treatment **100% of its
+gains are short-term — the worst case**, with no long-term rate to reach for. The same read
+expressed in XSP blends 60/40.
+
+**Why that matters right now.** At the higher illustrative bracket that gap is **$5,141/year
+on $200/day of the same trade** — no improvement in the strategy required. Criterion 1
+currently FAILS on every arm (CI-lower 0.333–0.412 vs a 1.0 bar), so "make the edge better"
+is a hard road; "express the same read in a 60/40 instrument" is an arithmetic one. This is
+the strongest argument the **XSP box** in `OPUS-WORK-ORDER-2026-09` §2b has, and it was not
+previously connected to it. **Verify with a CPA before acting on it** — classification
+depends on facts about the instrument and the taxpayer, not on a script in this repo.
+
+**Assumptions that would change everything** (all in the JSON): every gain short-term; no
+loss carryforwards; state taxes the whole gain flat; no entity, trader-tax-status or IRC
+475(f) mark-to-market election; wash-sale deferrals net out within the year — which across
+~500 round trips on ONE underlying they may not, and that is a bookkeeping problem before it
+is a tax one.
+
 ---
 
 ## 5. Abort criteria — any ONE of these triggers §6 immediately, no discretion
