@@ -149,8 +149,16 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
   Goal line (one live account + paper lab; $25K = compounding waypoint), `tp1_qty_fraction 0.8/0.667`
   (shadowed — strategies.py hardcodes 0.667 both), 3× `decisions.jsonl` → `core-decisions.jsonl`,
   Rule 5/6 text gains "tighter of the % cap and the live $ caps ($1,000/position, $400/day)".
-- [ ] `setup/hooks/doctrine.py` `FREEZE_END = 2026-10-30`; freeze banner text names the 09-29 safety
-  checkpoint and the override token for pre-registered kill-type reductions.
+- [x] `setup/hooks/doctrine.py` `FREEZE_END = 2026-10-30`; freeze banner text names the 09-29 safety
+  checkpoint and the override token for pre-registered kill-type reductions. **DONE 2026-09-02 05:10 ET,
+  pulled forward from the Sat 09-05 pass — commit `3f6a1ad9`.** The constant was still `2026-09-29`, so
+  on **09-30 the hook would simply have stopped blocking trading-path edits**, mid-scoring-window, with
+  no symptom but the banner changing to "freeze closed". Silent + dated + one-line = does not wait for a
+  session that might not happen. Extending a freeze only ever blocks more, and it is git-revertible.
+  Banner now names the checkpoint and `GAMMA_FREEZE_OVERRIDE` on both sides of it and says risk
+  EXPANSIONS wait for 10-30 regardless. `test_freeze_window_boundaries` had asserted
+  `not freeze_active(2026-09-30)` — it pinned the bug, so it was rewritten (stronger, not weakened) plus
+  two new tests; RED-proofed, 189 passed. **The rest of the Sat 09-05 pass is untouched and still open.**
 - [ ] CHANGELOG rows; `markdown/doctrine/LESSONS-LEARNED.md` L302–L30x for tonight's field lessons
   (three-filename kill-switch; parser scope hides items above a heading; a plan whose gate pools
   history cannot be reached by adding days; broker expiry sweep unmodeled; early-close blind stack).
