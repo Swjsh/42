@@ -208,8 +208,27 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   `armed_stop_at_exit_premium` (the floor in force at the moment of exit, post-ratchet); without it no
   trailed exit can ever be reconciled, and `stop_exit_slack_dollars` is what the gate's 2¢ slippage
   assumption should be recalibrated against. Pure logging: no entry selection, size, or exit rule changes.
-- [ ] **safe-3 exit_patch provenance** (`{stop_mode: structure, profit_lock_mode: trailing}`, assigned
-  07-20 A/B). *Done:* written provenance + whether the frozen-window shadow IS its validation.
+- [x] **safe-3 exit_patch provenance** — **DONE 2026-09-02 (Opus). Provenance EXISTS; the patch is
+  PROVABLY INERT; and no, the frozen-window shadow is NOT its validation — there is nothing to
+  validate.** *Provenance (written, two places):* `accounts.json#update_note_2026_07_20` carries the full
+  EXIT-PARAMETER A/B design under J's directive (*"every fleet arm takes the SAME engine signals but with
+  DIFFERENT exit/risk parameters"*) — safe-3 = RIBBON lane, risky-1 = untouched control, risky-3 = wider
+  trail; and safe-3's own `note` states the assignment's scope verbatim: the patch forces
+  chart-stop-primary + trailing lock onto EVERY strategy the arm trades, *"for ribbon_ride this is a
+  **no-op (already the REGISTRY default)**, for vwap_continuation it's a real change"*.
+  *Why it is inert, measured:* `RIBBON_RIDE.exit` resolves `stop_mode='structure'` /
+  `profit_lock_mode='trailing'` — **byte-identical to the patch**. And safe-3 has traded **59 labelled
+  positions across its entire history, 100% ribbon_ride** (54 BULLISH_RECLAIM + 5 BEARISH_REJECTION);
+  **0 rows** where the patch could bite. So the override has never changed a single exit decision on this
+  arm, and the frozen-window shadow measures the registry shape, not a treatment.
+  **Implication for 10-30:** safe-3's "safe × tight" cell is effectively **registry-verbatim ribbon_ride**
+  differing from its siblings only by gate and sizing — which is what risky-3's own `_exit_patch_doc`
+  already asserts ("safe-3 (registry-verbatim, but a different cell)"). Read the prod-shadow result as a
+  test of the registry exit shape under a tight gate, never as a test of the 07-20 exit A/B.
+  *Hygiene gap (minor):* risky-3 carries a dedicated `_exit_patch_doc` key; safe-3 and risky-1 do not —
+  their provenance lives only in the shared `update_note_2026_07_20`, whose own text is **self-documented
+  as STALE** on the control question (risky-3's doc: "risky-1 is NOT the control ... the
+  update_note_2026_07_20 text above is STALE on this point"). Filed as part of the fleet findings.
 - [ ] **Overlapping-tick cessation since 08-15** — luck or an unlogged fix? *Done:* root cause or
   "unknown, monitor armed" (B3's `duplicate_ticks`).
 - [ ] **Alpaca paper fill model vs live** — document exactly what Alpaca simulates (NBBO match, no
