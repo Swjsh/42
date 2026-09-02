@@ -148,9 +148,24 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 - [ ] **BEARISH_REJECTION sign flip** (wave-level +$821 vs trip-level −$73). *Done:* both units scoped
   to 06-26..09-01; one canonical unit declared project-wide (trip = flat-to-flat) and every
   generator labels its unit.
-- [ ] **`planned_stop ≠ executed_stop` (79%) root cause** — read-only now (chandelier ratchet not
-  written back? render-vs-armed divergence?). *Done:* mechanism in one sentence + the `executed_stop`
-  field spec for the 09-29 bundle.
+- [x] **`planned_stop ≠ executed_stop` (79%) root cause** — **DONE 2026-09-02 (Opus). NOT a bug; a
+  field-semantics gap, and neither posted hypothesis was right.** *Mechanism, one sentence:* `planned_stop`
+  records the **premium-price floor armed at entry**, but in structure mode that floor is the −50%
+  **catastrophe cap** while the operative invalidation is a **SPY chart level** held only in `trigger_level`
+  / the `stop_display` string, so the realized exit premium is wherever the contract traded when SPY crossed
+  the level and has no reason to equal the recorded number. *Evidence:* structure-mode `planned_stop /
+  entry_px` median **0.503** (80% within ±0.03 of 0.50, n=186) vs premium-mode 0.907; the ledger's own
+  `stop_display` reads `STRUCTURE@754.00 (cat -50%)` with `premium_stop_pct: -0.5`; **77% of structure
+  stop-exits filled ABOVE the cap, median +$0.275/contract** — the chart stop firing before the cap, i.e.
+  chart-stop-primary working as designed. Secondary class: **trailed exits are 53/53 = 100% "mismatched"**
+  because the chandelier ratchets after entry and nothing writes the ratcheted floor back — median +$1.207
+  above the entry-time field at a median **+91.4% realized return**, i.e. they exited in PROFIT, which an
+  entry-time stop price cannot describe. Third class: every exit is an unconditional MARKET order, so even a
+  premium stop fills at touch ± spread, never exactly at the level. **`executed_stop` field spec for the
+  09-29 bundle filed in `queue.md` (`EXECUTED-STOP-FIELD-SPEC`)** — the load-bearing new field is
+  `armed_stop_at_exit_premium` (the floor in force at the moment of exit, post-ratchet); without it no
+  trailed exit can ever be reconciled, and `stop_exit_slack_dollars` is what the gate's 2¢ slippage
+  assumption should be recalibrated against. Pure logging: no entry selection, size, or exit rule changes.
 - [ ] **safe-3 exit_patch provenance** (`{stop_mode: structure, profit_lock_mode: trailing}`, assigned
   07-20 A/B). *Done:* written provenance + whether the frozen-window shadow IS its validation.
 - [ ] **Overlapping-tick cessation since 08-15** — luck or an unlogged fix? *Done:* root cause or
