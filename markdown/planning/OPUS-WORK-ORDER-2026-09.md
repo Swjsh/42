@@ -720,6 +720,23 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   calendar-relative `_is_rth` · exit-pass pidfile mutex + heartbeat task registered without the
   fire-and-forget hop · `executed_stop_pct/price` logging · weekly circuit breaker (block-only) ·
   safe-2 retirement mechanics (ACCOUNTS from accounts.json, not hardcoded) · canary already moved.
+  **BRANCH STATE 2026-09-02** — `safety-bundle-2026-09-29`, 2 commits, none merged:
+  `a632fb2c` fleet daily-loss kill-switch latch · **`93a3ccc3` executed-stop logging (NEW)**.
+  The logging component lands `armed_stop_kind` / `armed_stop_level` / `armed_stop_premium` /
+  **`armed_stop_at_exit_premium`** / `armed_stop_at_exit_level` on `ExitAction`, plus
+  `stop_exit_slack_dollars()` and `executed_stop_pct()` helpers, closing §2a's
+  `planned_stop ≠ executed_stop` with the field that made trailed exits unreconcilable.
+  **Attached by a WRAPPER, not at the fourteen `return ExitDecision` points** — the decision
+  body is byte-identical (diff: 115 insertions, exactly ONE deletion, the `def` line), and a
+  9-case differential test asserts wrapper and core agree field-for-field. ⚠️ **The snapshot
+  reads the PRE-tick floor**: on a trail exit the chandelier ratchets and sells in the SAME
+  tick (measured 1.70 → 2.275), and the post-tick value never guarded anything. That mutation
+  ESCAPED the first guard and the guard was strengthened rather than the mutation dropped.
+  21 tests; existing exit_manager suites 30 passed; safety gate 55 passed on a full checkout.
+  **Remaining on this branch:** the writers (`heartbeat_core` / `fleet_executor`) must persist
+  those fields plus `executed_stop_price`; `time_stop_et ≤15:20`; early-close entry cutoff +
+  calendar-relative `_is_rth`; exit-pass pidfile mutex; safe-2 retirement mechanics. The weekly
+  circuit breaker is NOT shipping — its own prereg (`3401e5fe`) returned a null.
 - [ ] **Do NOT ship** anything from §4. If J wants `feed=sip` earlier for data fidelity, that is a
   `[FABLE-OR-J]` trade of clock purity for realism; default is wait.
 - [ ] TIGHT-LADDER interim reading published as "interim, not decisive" (its own §5 forbids acting on it).
