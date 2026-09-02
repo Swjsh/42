@@ -465,6 +465,47 @@ def _proxy_trigger_level(row: dict) -> Optional[float]:
     return float(strike) - float(d) if d is not None else None
 
 
+def _magnitude_fidelity(compared: list[dict]) -> dict:
+    """Dollar-level fidelity of the walk, alongside (never instead of) sign agreement.
+
+    `aggregate_ratio` is replay-total / actual-total: 1.00 is faithful, <1 means the walk
+    under-reproduces the engine's net, >1 means it over-reproduces. Split by realised
+    outcome because the two sides fail differently and the aggregate hides which.
+    Returns None for a ratio whose denominator is ~0 rather than dividing by it."""
+    if not compared:
+        return {"n": 0}
+    real = [c["real_pnl"] for c in compared]
+    walk = [c["walked_pnl"] for c in compared]
+    errs = sorted(abs(w - a) for w, a in zip(walk, real))
+
+    def _ratio(num: float, den: float):
+        return round(num / den, 4) if abs(den) > 1e-9 else None
+
+    wins = [(w, a) for w, a in zip(walk, real) if a > 0]
+    loss = [(w, a) for w, a in zip(walk, real) if a < 0]
+    n = len(errs)
+    return {
+        "n": n,
+        "actual_total_dollars": round(sum(real), 2),
+        "replay_total_dollars": round(sum(walk), 2),
+        "aggregate_ratio": _ratio(sum(walk), sum(real)),
+        "total_error_dollars": round(sum(walk) - sum(real), 2),
+        "median_abs_error_dollars": round(errs[n // 2], 2),
+        "p90_abs_error_dollars": round(errs[min(n - 1, (9 * n) // 10)], 2),
+        "max_abs_error_dollars": round(errs[-1], 2),
+        "winners": {"n": len(wins), "actual": round(sum(a for _, a in wins), 2),
+                    "replay": round(sum(w for w, _ in wins), 2),
+                    "ratio": _ratio(sum(w for w, _ in wins), sum(a for _, a in wins))},
+        "losers": {"n": len(loss), "actual": round(sum(a for _, a in loss), 2),
+                   "replay": round(sum(w for w, _ in loss), 2),
+                   "ratio": _ratio(sum(w for w, _ in loss), sum(a for _, a in loss))},
+        "bar": None,
+        "bar_note": ("NO pass/fail bar is set. Any threshold chosen now would be fitted to "
+                     "values already seen; a magnitude bar needs pre-registration. These are "
+                     "disclosed so no dollar-denominated verdict is read without them."),
+    }
+
+
 def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict:
     compared, sign_agree, biases, skipped = [], 0, [], 0
     n_stop_mode_real, n_stop_mode_defaulted = 0, 0
@@ -578,6 +619,27 @@ def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict
         "the study's results is post-hoc by construction."
     )
 
+    # THE ASYMMETRY THAT MAKES MAGNITUDE BIAS DIRECTIONAL HERE (2026-09-02).
+    # The engine's P1 number is REAL FILLS. Every null (N_a, N_b, N_c) is WALKED. So any
+    # magnitude bias in the walker does NOT cancel between the two sides of the comparison --
+    # it flows one way, and a walker that under-reproduces winners makes the nulls look
+    # WORSE and therefore the engine look BETTER. That is exactly the direction that would
+    # flatter a PASS, so it is stated here rather than left for a reader to notice.
+    _mag = _magnitude_fidelity(compared)
+    _wr = (_mag.get("winners") or {}).get("ratio")
+    if _wr:
+        known_limitations.append(
+            "ENGINE IS REAL FILLS, NULLS ARE WALKED -- the magnitude bias does not cancel. "
+            "On this population the walker reproduced only {:.0%} of the engine's WINNING "
+            "dollars (losers replay at {:.2f}x, so the bias is concentrated in wins). If the "
+            "nulls carry the same under-capture, every walked null total is biased LOW, which "
+            "inflates the engine's apparent margin. Sensitivity: divide each walked null by "
+            "the winners ratio and re-check the pass criterion before treating a PASS as "
+            "settled. Disclosed, not corrected -- applying a correction factor chosen after "
+            "seeing the result would be the same post-hoc move the null-leg note above "
+            "refuses.".format(_wr, (_mag.get("losers") or {}).get("ratio") or float("nan"))
+        )
+
     return {
         "n_p1_rows": len(p1_rows), "n_compared": n, "n_skipped_no_bars": skipped,
         "n_sign_agree": sign_agree, "sign_agreement_rate": round(rate, 4),
@@ -586,6 +648,23 @@ def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict
         "min_bar_for_reliable": SIGN_AGREEMENT_MIN,
         "n_rows_with_real_trigger_level": sum(1 for r in p1_rows if r.get("trigger_level") is not None),
         "n_scratch_rows": n_scratch_rows,
+        # MAGNITUDE FIDELITY (2026-09-02). Sign agreement was the ONLY fidelity bar any
+        # exit-walk study in this repo used, and the PDT-blocked-counterfactual run proved
+        # that is not sufficient: it cleared 95.35% sign agreement while replaying its anchor
+        # set to -$2,201.60 against an actual -$538.00. A validator can be directionally
+        # faithful and still be useless for any gate stated in DOLLARS.
+        #
+        # DELIBERATELY NOT A PASS/FAIL GATE. No threshold is set here, because every candidate
+        # number would have been chosen AFTER seeing this population's values -- which is the
+        # exact bar-fitting this study already had to reverse once (see the prereg's
+        # addendum_2026_09_01_validator_fidelity). A magnitude BAR needs pre-registration.
+        # Until then these are DISCLOSED so no dollar-denominated verdict can be read without
+        # them, and so a future prereg has real numbers to set a bar against.
+        #
+        # Read winners_ratio / losers_ratio FIRST -- they localise the bias in a way the
+        # aggregate cannot. The engine's net is a small difference between two large numbers,
+        # so a modest shortfall on the winning side alone drags the aggregate a long way.
+        "magnitude_fidelity": _magnitude_fidelity(compared),
         "agreement_by_exit_reason": agreement_by_exit_reason,
         "stop_mode_fidelity": {"n_real_stop_mode": n_stop_mode_real,
                               "n_defaulted_structure_true": n_stop_mode_defaulted},

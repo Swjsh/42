@@ -422,3 +422,54 @@ def test_run_v9_threads_stop_mode_and_ribbon_account_per_row(monkeypatch):
 
 def test_sign_agreement_min_unchanged():
     assert wen.SIGN_AGREEMENT_MIN == 0.85
+
+
+# --------------------------------------------------------------------------------------- #
+# MAGNITUDE FIDELITY (added 2026-09-02). Sign agreement was the ONLY fidelity bar any
+# exit-walk study used, and the PDT-blocked-counterfactual run proved that insufficient:
+# 95.35% sign agreement while replaying its anchor set to -$2,201.60 against an actual
+# -$538.00. These pin that magnitude is now DISCLOSED -- and, just as importantly, that it
+# is NOT silently turned into a pass/fail bar fitted to values we have already seen.
+# --------------------------------------------------------------------------------------- #
+def _cmp(real, walked):
+    return [{"real_pnl": r, "walked_pnl": w} for r, w in zip(real, walked)]
+
+
+def test_magnitude_fidelity_reports_aggregate_and_per_side_ratios():
+    # winners under-reproduced, losers exact -- the shape actually observed on P1.
+    out = wen._magnitude_fidelity(_cmp([100.0, 200.0, -50.0], [88.0, 176.0, -50.0]))
+    assert out["n"] == 3
+    assert out["actual_total_dollars"] == 250.0
+    assert out["replay_total_dollars"] == 214.0
+    assert out["winners"]["ratio"] == round(264.0 / 300.0, 4)
+    assert out["losers"]["ratio"] == 1.0, "losers replayed exactly must read 1.0"
+    assert out["aggregate_ratio"] == round(214.0 / 250.0, 4)
+
+
+def test_magnitude_fidelity_is_disclosure_not_a_gate():
+    """The bar is deliberately absent. A threshold picked after seeing this population's
+    values is bar-fitting -- the exact failure the prereg's validator-fidelity addendum
+    already had to reverse once."""
+    out = wen._magnitude_fidelity(_cmp([10.0, -10.0], [5.0, -20.0]))
+    assert out["bar"] is None
+    assert "pre-registration" in out["bar_note"]
+    assert not any(k.startswith("pass") or k.endswith("_pass") for k in out), (
+        "magnitude must not introduce a pass/fail key -- sign agreement is the only gate")
+
+
+def test_magnitude_fidelity_never_divides_by_a_zero_denominator():
+    out = wen._magnitude_fidelity(_cmp([50.0, -50.0], [10.0, -10.0]))
+    assert out["aggregate_ratio"] is None, "net actual is 0 -- must report None, not divide"
+    assert out["winners"]["ratio"] is not None and out["losers"]["ratio"] is not None
+
+
+def test_magnitude_fidelity_handles_empty_input():
+    assert wen._magnitude_fidelity([]) == {"n": 0}
+
+
+def test_sign_agreement_remains_the_only_reliability_gate():
+    """Guard the separation: harness_reliable must key off sign agreement alone."""
+    src = (REPO / "setup" / "scripts" / "whole_engine_null.py").read_text(encoding="utf-8")
+    assert '"harness_reliable": rate >= SIGN_AGREEMENT_MIN' in src, (
+        "harness_reliable must depend on the sign-agreement rate only")
+    assert "magnitude" not in src.split('"harness_reliable"')[1].split("\n")[0]

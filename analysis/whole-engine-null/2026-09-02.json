@@ -1,11 +1,11 @@
 {
  "_meta": {
   "date": "2026-09-02",
-  "generated_at_et": "2026-09-02T00:24:07",
+  "generated_at_et": "2026-09-02T03:49:56",
   "builder": "setup/scripts/whole_engine_null.py",
   "prereg": "analysis/recommendations/prereg-whole-engine-null-2026-09-01.json",
   "shadow_only": "MEASUREMENT ONLY -- never places, arms, or edits a gate/params file.",
-  "elapsed_s": 642.1,
+  "elapsed_s": 562.9,
   "fetch_stats": {
    "cache_hit": 132393,
    "highres_hit": 0,
@@ -76,6 +76,30 @@
   "min_bar_for_reliable": 0.85,
   "n_rows_with_real_trigger_level": 107,
   "n_scratch_rows": 4,
+  "magnitude_fidelity": {
+   "n": 121,
+   "actual_total_dollars": 3562.0,
+   "replay_total_dollars": 2298.25,
+   "aggregate_ratio": 0.6452,
+   "total_error_dollars": -1263.75,
+   "median_abs_error_dollars": 15.0,
+   "p90_abs_error_dollars": 132.0,
+   "max_abs_error_dollars": 607.0,
+   "winners": {
+    "n": 49,
+    "actual": 10181.0,
+    "replay": 8957.4,
+    "ratio": 0.8798
+   },
+   "losers": {
+    "n": 68,
+    "actual": -6619.0,
+    "replay": -6724.15,
+    "ratio": 1.0159
+   },
+   "bar": null,
+   "bar_note": "NO pass/fail bar is set. Any threshold chosen now would be fitted to values already seen; a magnitude bar needs pre-registration. These are disclosed so no dollar-denominated verdict is read without them."
+  },
   "agreement_by_exit_reason": {
    "premium_stop": {
     "n": 31,
@@ -114,7 +138,8 @@
   },
   "known_limitations": [
    "ribbon_flip rows are walked against a RECONSTRUCTED ribbon series (automation/state/core-decisions.jsonl, backward-as-of onto each contract's 1-minute option bars -- see build_ribbon_tick_df), not the literal per-position ribbon read the live position actually saw -- a disclosed approximation of the real signal, not the recorded value itself. ribbon_flip sign agreement: 10/15 (66.7%).",
-   "NULL LEGS WALK STRUCTURE-ONLY. V9 now replays each row with the stop_mode the live engine actually resolved, but run_null_a and run_null_c still pass structure_stop_enabled=True for every walk (deliberately byte-identical to the frozen prereg design). The engine population they are compared against was: structure 107/121 (88.4%), premium 7/121 (5.8%), none 7/121 (5.8%). So the nulls are a structure-only variant of a mixed-mode engine. Reconciling this requires a prereg revision, NOT an in-window edit -- changing a null leg after seeing the study's results is post-hoc by construction."
+   "NULL LEGS WALK STRUCTURE-ONLY. V9 now replays each row with the stop_mode the live engine actually resolved, but run_null_a and run_null_c still pass structure_stop_enabled=True for every walk (deliberately byte-identical to the frozen prereg design). The engine population they are compared against was: structure 107/121 (88.4%), premium 7/121 (5.8%), none 7/121 (5.8%). So the nulls are a structure-only variant of a mixed-mode engine. Reconciling this requires a prereg revision, NOT an in-window edit -- changing a null leg after seeing the study's results is post-hoc by construction.",
+   "ENGINE IS REAL FILLS, NULLS ARE WALKED -- the magnitude bias does not cancel. On this population the walker reproduced only 88% of the engine's WINNING dollars (losers replay at 1.02x, so the bias is concentrated in wins). If the nulls carry the same under-capture, every walked null total is biased LOW, which inflates the engine's apparent margin. Sensitivity: divide each walked null by the winners ratio and re-check the pass criterion before treating a PASS as settled. Disclosed, not corrected -- applying a correction factor chosen after seeing the result would be the same post-hoc move the null-leg note above refuses."
   ],
   "detail": [
    {
