@@ -2755,3 +2755,21 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   measure of the damage. Do NOT re-stamp silently: it moves a published anchor (n=190/191) and
   needs to land as its own reviewed change with the before/after in the open. Same class as the standing DST-frame lesson (naive joins = winter
   look-ahead) — a THIRD sighting of that root. :: depends:none :: status:filed
+
+- [ ] FIVE-ET-FALLBACKS-STILL-HARDCODE-MINUS-4 (LOW — fallback paths only, filed 2026-09-02 while
+  hunting the SPY two-frame producer) :: Five modules still compute ET as
+  `dt.datetime.utcnow() - dt.timedelta(hours=4)`: `conductor_budget.py:165`,
+  `conductor_wake_watch.py:53`, `entry_block_watch.py:110`, `entry_location_shadow.py:96`,
+  `fill_funnel.py:54`. That is verbatim the anti-pattern `et_clock.py`'s own docstring exists to
+  replace ("Any code using naive datetime.now() or timezone(timedelta(hours=-4))..."), and the
+  TZ-SYSTEMIC pass (`50071b46`) did not reach them. **Severity is LOW and the reason is checked,
+  not assumed: every one is inside a `try: from et_clock import ... / except:` FALLBACK**, so the
+  primary path is already correct and these fire only if a local-module import fails. **Why it is
+  still worth fixing rather than tolerating:** the fallback is wrong by an hour all winter, and
+  two of them (`conductor_budget._et_today`, `entry_location_shadow`) derive a DATE — so between
+  00:00 and 01:00 ET in winter they would name the wrong DAY, and `conductor_budget` gates spend
+  by date. **Fix is trivial and dependency-free:** the fallback should use
+  `datetime.now(ZoneInfo("America/New_York"))` — stdlib since 3.9, so it cannot itself fail the
+  way the import it is guarding might. Grouped here rather than fixed inline because five files
+  in one sweep is its own reviewable change, and none is on a live order path.
+  :: depends:none :: status:filed
