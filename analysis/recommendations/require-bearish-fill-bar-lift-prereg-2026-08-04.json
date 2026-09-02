@@ -2,7 +2,7 @@
   "rule_id": "require-bearish-fill-bar-lift-trial",
   "frozen_at_et": "2026-08-04T01:50:00-04:00",
   "prereg_before_evaluation": true,
-  "status": "PREREG ONLY -- NOT armed tonight (tonight's arming is frozen to the staged package + ATM-TIER-EXTENSION; and two lift trials must not stack their kill windows on the same sessions as block_elite_bull trial 2).",
+  "status": "PARKED -- measurement runnable now, ARMING blocked to 2026-10-30",
   "origin": "Nightly gate-expiry refresh (this session, window 2026-06-29..2026-08-03, OPRA through 08-03): require_bearish_fill_bar (GATE_ORDER #7, Bold core) refused cohort +$20.61/tr, n=33 >= floor 10, total +$680.10 -- moved from flat ($0.44/tr on the 08-02 run) to RED once the post-level-feed-fix sessions entered the window. Ratifying evidence is 2026-06-17 (IS +$363 / OOS +$1,153), 47 days stale, and BOTH exit-shape changes (06-18 chart-stop-primary, 07-09 SS-B) postdate it -- the exact staleness shape that motivated the whole instrument (block_elite_bull's 6.9x case).",
   "hypothesis": "The fill-bar quality gate on Bold BEAR entries is refusing more winners than losers under the current exit shape and fixed level feed.",
   "look_ahead_disclosure": "gates.py's own docstring: the backtest form reads the idx+1 fill bar (unknown at signal time) -- 'backtest upper-bound only'. The instrument's refused-cohort replay inherits that flavor for this gate; the live trial (real fills) is the honest resolver, which is exactly why this routes to a trade-to-learn trial rather than another backtest.",
@@ -23,5 +23,11 @@
     "automation/state/gate-registry.json (provenance row, gate_order_rank 7)",
     "analysis/recommendations/fill-bar-gate-sweep.json (ratifying evidence 2026-06-17)",
     "backtest/lib/engine/gates.py:305-318 (look-ahead docstring)"
-  ]
+  ],
+  "adjudicated_2026_09_02": {
+    "disposition": "PARK, with the two halves separated because they have different blockers. The hypothesis is LIVE and supported: gate_expiry_check flags require_bearish_fill_bar as the largest currently-costing gate RED -- its refused cohort would have EARNED $46.15/trade at n=34, above the floor.",
+    "the_explicit_trap": "Do NOT flip on that naive mean. The same anti-pattern is documented on structure_veto_enabled from the same night: a positive refused-cohort mean is not an edge until it survives drop-topN and an OOS split. The G-battery that does this was filed then CLOSED 2026-08-30 'as a duplicate' -- pointing back at this prereg, which is how the question ended up with no owner.",
+    "reopen_condition_measurement": "Run the full G-battery now -- it is analysis-only and therefore freeze-compatible. Reuse backtest/tools/gate_revalidation_structure_veto_extended_2026_08_23.py verbatim (drop-topN, OOS split), per the closed item's own instruction.",
+    "reopen_condition_arming": "2026-10-30 at the earliest. Lifting a refusal INCREASES entries, so it is a risk EXPANSION -- the 09-29 safety checkpoint admits pre-registered kill-type REDUCTIONS only."
+  }
 }

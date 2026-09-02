@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-02T05:56:23",
+  "generated_at_et": "2026-09-02T06:02:55",
   "n_total": 126,
   "n_parsed": 126,
   "n_malformed": 0,
@@ -321,7 +321,7 @@
     },
     {
       "file": "entry-exit-matrix-stop-a-preregistration.json",
-      "status": "PENDING_STOP_A_SIGNOFF",
+      "status": "PARKED -- BLOCKED ON J SIGN-OFF (not on a run), 56d",
       "age_days": 56.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -834,7 +834,7 @@
     },
     {
       "file": "prereg-pre-tp1-ratchet-cost-2026-08-15.json",
-      "status": "FROZEN -- NOT RUN.",
+      "status": "PARKED -- a runner now exists (see adjudicated_2026_09_02)",
       "age_days": 18.4,
       "age_source": "filename_date",
       "orphan": false,
@@ -1203,7 +1203,7 @@
     },
     {
       "file": "require-bearish-fill-bar-lift-prereg-2026-08-04.json",
-      "status": "PREREG ONLY -- NOT armed tonight (tonight's arming is frozen to the staged package + ATM-TIER-EXTENSION; and two lift trials must not stack their kill windows on the same sessions as block_elite_bull trial 2).",
+      "status": "PARKED -- measurement runnable now, ARMING blocked to 2026-10-30",
       "age_days": 29.4,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1230,7 +1230,7 @@
     },
     {
       "file": "safe3-risky1-gate-retest-preregistration.json",
-      "status": "FROZEN_PENDING_ACCRUAL",
+      "status": "ACCRUING -- n=26/30 scored days, clock running correctly",
       "age_days": 47.4,
       "age_source": "frozen_at",
       "orphan": false,

@@ -13,9 +13,12 @@
     }
   ],
   "frozen_at": "2026-07-08",
-  "status": "PENDING_STOP_A_SIGNOFF",
+  "status": "PARKED -- BLOCKED ON J SIGN-OFF (not on a run), 56d",
   "strategy": "ribbon_ride",
-  "directions": ["bear", "bull"],
+  "directions": [
+    "bear",
+    "bull"
+  ],
   "signal_set_integrity": {
     "file": "analysis/exit-parity/signal-set.json",
     "sha256_16": "b5e8931994b9d34b",
@@ -32,7 +35,7 @@
     ],
     "auto_ratify_bar": {
       "oos_positive": "on layer (a), the fresh slice",
-      "wf_min": 0.70,
+      "wf_min": 0.7,
       "sub_window_stable": true,
       "anchor_no_regression": "on layer (b)",
       "p5_pass": "on layer (c) -- a non-survivor cannot auto-ratify even if (a)/(b) pass",
@@ -42,43 +45,114 @@
   "exit_candidates": [
     {
       "id": "exit-A-wide-ride",
-      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
       "rationale": "The strongest WIREABLE cell (live -50% catastrophe-cap convention, no new knobs): winner-capture ride + partial scalp at +150% + 15% chandelier. T2 worst-q MAE-10m is -43% in the cheap band -- a -50% stop clears the 1-in-4 noise tail everywhere.",
-      "t4_exploratory_cell": {"label": "stop-50/tp+150/sell66/trail15/tgtnone/t15:40", "exp": 42.99, "drop_top3": 17.88, "wr": 0.288, "qpf": 0.833, "wf": 2.061, "maxDD_qty10": -5718.8, "rank": "65/2016"},
+      "t4_exploratory_cell": {
+        "label": "stop-50/tp+150/sell66/trail15/tgtnone/t15:40",
+        "exp": 42.99,
+        "drop_top3": 17.88,
+        "wr": 0.288,
+        "qpf": 0.833,
+        "wf": 2.061,
+        "maxDD_qty10": -5718.8,
+        "rank": "65/2016"
+      },
       "anchor_note": "top-5 no-stop cousins made +$1053..1574 on the 79 real positions vs control -$757; this shape's own anchor replay is owed in T5 layer (b).",
       "wiring": "strategies.py RIBBON_RIDE ExitShape edit (all 6 arms follow -- fleet lane directly, core lane via heartbeat_core L1230 registration)."
     },
     {
       "id": "exit-B-perband-hybrid",
-      "shape": {"per_band_stop": {"<0.20": -0.25, "0.20-0.50": -0.35, ">=0.50": -0.50}, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "shape": {
+        "per_band_stop": {
+          "<0.20": -0.25,
+          "0.20-0.50": -0.35,
+          ">=0.50": -0.5
+        },
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
       "rationale": "T4's per-band refinement (cheap band prefers a moderate stop: its per-band leader ran -25) grafted onto exit-A. Tests whether band-conditional stops beat one-size -50.",
-      "t4_exploratory_cell": {"note": "composite -- per-band leaders table in entry-exit-matrix-t4-exits.md; <0.20 leader was stop-25/tp+150/sell66/trail15 at band-exp $10.14 vs control $4.02"},
+      "t4_exploratory_cell": {
+        "note": "composite -- per-band leaders table in entry-exit-matrix-t4-exits.md; <0.20 leader was stop-25/tp+150/sell66/trail15 at band-exp $10.14 vs control $4.02"
+      },
       "wiring": "NEW KNOB: premium-band-conditional stop resolved at ENTRY (pure function of entry premium) before ExitState.from_entry -- spec in the handoff T-W2. If T5 shows no lift over exit-A, DROP (prefer zero new knobs)."
     },
     {
       "id": "exit-C-paired-scalp",
-      "shape": {"premium_stop_pct": -0.35, "tp1_premium_pct": 0.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 2.5},
+      "shape": {
+        "premium_stop_pct": -0.35,
+        "tp1_premium_pct": 0.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 2.5
+      },
       "pair_only_with": "entry-2-limit-headroom",
       "rationale": "PAIR-ONLY: standalone this cell is weak (quoted below) -- the scalp shape only wins when the passive limit entry supplies basis + headroom (T3: limit-20%/pat10/cancel under this exit nets +$25..+$65 vs market across floors; entry offset IS stop headroom). Never test or ship it with a market entry.",
-      "t4_exploratory_cell_STANDALONE": {"label": "stop-35/tp+50/sell80/trail15/tgt2.5x/t15:40", "exp": 13.19, "drop_top3": 3.06, "wr": 0.396, "qpf": 0.667, "wf": 1.44, "maxDD_qty10": -2991.2, "rank": "609/2016"},
-      "t3_exploratory_paired": {"exit": "scalp(-35/+50/sell80/trail15)", "market_exp_floor0": 13.19, "best_cancel_policy": "limit-20%/pat10/cancel", "exp_incl_misses_floor0": 38.57, "net_vs_market_floor0": 25.38, "fill_rate": 0.81, "at_floor_0.30": {"exp_incl_misses": 64.67, "net_vs_market": 36.85}},
+      "t4_exploratory_cell_STANDALONE": {
+        "label": "stop-35/tp+50/sell80/trail15/tgt2.5x/t15:40",
+        "exp": 13.19,
+        "drop_top3": 3.06,
+        "wr": 0.396,
+        "qpf": 0.667,
+        "wf": 1.44,
+        "maxDD_qty10": -2991.2,
+        "rank": "609/2016"
+      },
+      "t3_exploratory_paired": {
+        "exit": "scalp(-35/+50/sell80/trail15)",
+        "market_exp_floor0": 13.19,
+        "best_cancel_policy": "limit-20%/pat10/cancel",
+        "exp_incl_misses_floor0": 38.57,
+        "net_vs_market_floor0": 25.38,
+        "fill_rate": 0.81,
+        "at_floor_0.30": {
+          "exp_incl_misses": 64.67,
+          "net_vs_market": 36.85
+        }
+      },
       "wiring": "needs the T6 entry_manager (limit/patience/cancel) -- exit side is a plain ExitShape."
     }
   ],
   "entry_candidates": [
     {
       "id": "entry-1-floor-only",
-      "policy": {"type": "market", "premium_floor": 0.30},
+      "policy": {
+        "type": "market",
+        "premium_floor": 0.3
+      },
       "rationale": "Cheapest change: refuse sub-$0.30 entries (defect #1: 2-tick stops, 42% spread proxy). Lifts the market baseline standalone.",
-      "t3_exploratory": {"control_exit_market_exp_at_floor_0.30": 36.62, "at_floor_0": 22.91, "eligible_n_at_0.30": 157},
+      "t3_exploratory": {
+        "control_exit_market_exp_at_floor_0.30": 36.62,
+        "at_floor_0": 22.91,
+        "eligible_n_at_0.30": 157
+      },
       "wiring": "pre-order admission check on the signal premium (plan-time), both lanes -- spec in handoff T-W3. NOT a risk_gate rule (it is strategy admission, not order sizing)."
     },
     {
       "id": "entry-2-limit-headroom",
-      "policy": {"type": "limit", "delta": 0.10, "patience_bars_5min": 3, "miss": "cancel", "premium_floor": 0.30},
+      "policy": {
+        "type": "limit",
+        "delta": 0.1,
+        "patience_bars_5min": 3,
+        "miss": "cancel",
+        "premium_floor": 0.3
+      },
       "pair_with_exit": "exit-C-paired-scalp",
       "rationale": "Passive headroom paired with the scalp exit -- the regime where T3 shows passive beating pay-up NET of real misses. delta 10%/pat3 chosen as the conservative middle of the winning cancel cells (5-25% deltas all positive under scalp exits at floor >= 0.20).",
-      "t3_exploratory": {"note": "under scalp exit: cancel policies net +$19..+$65 vs market across floors; see entry-exit-matrix-t3-entries.md HEADLINE"},
+      "t3_exploratory": {
+        "note": "under scalp exit: cancel policies net +$19..+$65 vs market across floors; see entry-exit-matrix-t3-entries.md HEADLINE"
+      },
       "wiring": "needs the T6 entry_manager state machine (limit at signal*(1-delta), patience ticks, cancel) -- spec in handoff T-W4."
     }
   ],
@@ -88,5 +162,11 @@
     "ATR-scaled + delta-mapped chart stops (not expressible in real-fills replay)",
     "joint entry x exit grid on the Pareto survivors (T6)",
     "friction/slippage model + account-risk-limit sizing (kill switch, per-trade cap) on the finalists"
-  ]
+  ],
+  "adjudicated_2026_09_02": {
+    "disposition": "PARK. This was never waiting for compute. The confirmatory pass layers (a)+(b) RAN on 2026-07-08 (analysis/recommendations/entry-exit-matrix-2026-07-09.json). What is outstanding is J's sign-off on markdown/planning/STOP-A-ENTRY-EXIT-MATRIX.md, which unblocks T5/T6. It has sat as a prereg status field for 56 days instead of on J's list, which is why nobody noticed.",
+    "why_it_is_not_urgent_despite_the_size_of_the_finding": "The finding is large -- the shipped ribbon_ride exit (-20/+150/sell80/fixed) LOSES $757 across 79 real fleet fills, while a wider-stop/partial-scalp/trailing shape makes +$1,053..1,574 on the SAME fills -- but acting on it is a trading-path change, which the config freeze blocks until 2026-10-30 regardless. So the sign-off is owed, not urgent.",
+    "reopen_condition": "J signs or rejects STOP-A. Independently, the exit-shape axis it explores has been narrowed since: the structure-stop trio run 2026-09-02 (SS-B PASSES, reference-level REJECT_ALL, zone-band REJECT_ALL) says the LIVE structure stop is unbeaten on shape, reference and buffer width -- so any T5/T6 candidate must now beat SS-B, not the old -20% premium stop.",
+    "routed_to": "J-ONLY list (surfaced in this session's STATUS entry)."
+  }
 }
