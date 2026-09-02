@@ -56,6 +56,10 @@ NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 REPO = Path(__file__).resolve().parents[2]
 RECS_DIR = REPO / "analysis" / "recommendations"
+ANALYSIS_DIR = REPO / "analysis"
+# Skip data ledgers: a result artifact is a verdict, not a tape. 17 files in this
+# tree exceed this; none of them is a study result.
+MAX_RESULT_BYTES = 3_000_000
 OUT_FILE = RECS_DIR / "prereg-hygiene.json"
 STATUS_MD = REPO / "automation" / "overnight" / "STATUS.md"
 SEARCH_DIRS = ["setup", "backtest", "automation"]
@@ -163,7 +167,7 @@ def _referenced_stems(stems: list[str]) -> Optional[set]:
     return {s for s in stems if s in hits}
 
 
-def _results_index() -> tuple[dict, dict]:
+def _results_index() -> tuple[dict, dict, dict]:
     """One pass over every *.json in RECS_DIR (a bounded recommendations directory, not
     a data ledger) building two lookup maps so a prereg can be matched to an existing
     result file even when its OWN status field never got updated after the run:
@@ -178,15 +182,45 @@ def _results_index() -> tuple[dict, dict]:
     registration) already have a completed sibling result sitting on disk while their
     OWN `status` field still reads a FROZEN/never-run value -- the PDT one was
     RE-RUN from scratch this same night before the duplication was caught, burning
-    real Sonnet compute on an answer that already existed. This is the fix."""
+    real Sonnet compute on an answer that already existed. This is the fix.
+
+    WIDENED 2026-09-02. The original scan was RECS_DIR-only and top-level, so it could
+    not see a result that legitimately lives in a sibling analysis/ subtree -- and that is
+    where a lot of them live: analysis/multi-lane/intraday-null-stageA.json (which carries
+    verdict FAIL_stop_the_lane for prereg-multi-intraday-null), analysis/whole-engine-null/
+    (which ran the same night and returned PASS while its prereg still read "NOT RUN"),
+    analysis/deep-research/2026-09-01-audit/findings.json. Measured before widening: the
+    whole analysis/ tree is 2,863 json files and reads in 0.5s, so a bounded rglob is
+    affordable for a daily monitor; files over MAX_RESULT_BYTES are skipped so a data
+    ledger can never turn this into a multi-minute walk.
+
+    A third map is added: by_named_prereg -- a result artifact that mentions the prereg's
+    own FILENAME STEM anywhere in its body. That is the convention most of the real
+    artifacts actually use, and matching only on rule_id/registration missed it.
+    """
     by_rule_id: dict[str, list[str]] = {}
     by_registration: dict[str, list[str]] = {}
-    for f in RECS_DIR.glob("*.json"):
-        if f.resolve() == OUT_FILE.resolve():
-            continue
+    by_named_prereg: dict[str, list[str]] = {}
+    prereg_names = {f.name for f in RECS_DIR.glob("*prereg*.json")}
+    for f in ANALYSIS_DIR.rglob("*.json"):
         try:
-            data = json.loads(f.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, ValueError, OSError):
+            if f.resolve() == OUT_FILE.resolve():
+                continue
+            if f.stat().st_size > MAX_RESULT_BYTES:
+                continue
+            raw = f.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        # A prereg is not a result. Without this, preregs that cross-reference each other
+        # would clear one another and the monitor would go quiet on a real backlog.
+        is_prereg = f.name in prereg_names
+        if not is_prereg:
+            for name in prereg_names:
+                if name[:-5] in raw and name != f.name:
+                    by_named_prereg.setdefault(name, []).append(f.name)
+        try:
+            data = json.loads(raw)
+        except (json.JSONDecodeError, ValueError):
             continue
         if not isinstance(data, dict):
             continue
@@ -196,10 +230,12 @@ def _results_index() -> tuple[dict, dict]:
         reg = data.get("registration")
         if isinstance(reg, str) and reg:
             by_registration.setdefault(Path(reg).name, []).append(f.name)
-    return by_rule_id, by_registration
+    return by_rule_id, by_registration, by_named_prereg
 
 
-def _matching_result_file(prereg_path: Path, data: dict, by_rule_id: dict, by_registration: dict) -> Optional[str]:
+def _matching_result_file(prereg_path: Path, data: dict, by_rule_id: dict,
+                          by_registration: dict,
+                          by_named_prereg: Optional[dict] = None) -> Optional[str]:
     """Best-effort: does this prereg already have a completed result sitting on disk?
     Tries, in order: rule_id match, registration-field match (a result naming this
     exact prereg filename), then the filename heuristic observed across every real
@@ -220,6 +256,11 @@ def _matching_result_file(prereg_path: Path, data: dict, by_rule_id: dict, by_re
     candidate = RECS_DIR / f"{bare}-results.json"
     if candidate.exists() and candidate.name != own:
         return candidate.name
+    # Last: a non-prereg artifact anywhere under analysis/ that names this prereg's own
+    # filename stem. Deliberately last so the explicit conventions win when present.
+    named = [n for n in (by_named_prereg or {}).get(own, []) if n != own]
+    if named:
+        return named[0]
     return None
 
 
@@ -272,7 +313,7 @@ def scan() -> dict:
     referenced = _referenced_stems(all_stems)
     if referenced is None:
         referenced = _referenced_stems_python(all_stems)
-    by_rule_id, by_registration = _results_index()
+    by_rule_id, by_registration, by_named_prereg = _results_index()
 
     entries = []
     flagged = []
@@ -281,7 +322,8 @@ def scan() -> dict:
         status = _status_field(data)
         age_days, age_source = _age_days(f, data)
         orphan = f.stem not in referenced
-        result_file = _matching_result_file(f, data, by_rule_id, by_registration)
+        result_file = _matching_result_file(f, data, by_rule_id, by_registration,
+                                            by_named_prereg)
         has_results = result_file is not None
         if has_results:
             has_results_count += 1

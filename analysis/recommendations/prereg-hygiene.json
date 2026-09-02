@@ -1,17 +1,72 @@
 {
-  "generated_at_et": "2026-09-02T05:52:03",
+  "generated_at_et": "2026-09-02T05:56:23",
   "n_total": 126,
   "n_parsed": 126,
   "n_malformed": 0,
   "malformed": [],
   "n_flagged": 0,
   "flagged": [],
-  "n_has_results_file": 12,
+  "n_has_results_file": 105,
   "stale_status_but_has_results": [
+    {
+      "file": "block-elite-bull-ssb-preregistration.json",
+      "status": "FROZEN_PENDING_RUN",
+      "result_file": "block-elite-bull-ssb-revalidation.json"
+    },
+    {
+      "file": "bold-floor-rescue-prereg-2026-08-25.json",
+      "status": "FROZEN_PREREG",
+      "result_file": "findings.json"
+    },
+    {
+      "file": "day-throttle-forward-prereg-2026-08-18.json",
+      "status": "FROZEN_PREREG_FORWARD",
+      "result_file": "day-throttle-shadow-summary.json"
+    },
+    {
+      "file": "entry-improvement-variants-prereg-2026-08-05.json",
+      "status": "FROZEN_PREREG",
+      "result_file": "EOD-2026-08-05-ENTRIES.json"
+    },
+    {
+      "file": "entry-quality-admissibility-prereg-2026-08-06.json",
+      "status": "FROZEN_PREREG",
+      "result_file": "ENTRY-QUALITY-2026-08-06.json"
+    },
     {
       "file": "entry-structure-forward-prereg-2026-08-06.json",
       "status": "FROZEN_PREREG_FORWARD",
       "result_file": "entry-structure-forward-2026-08-06.json"
+    },
+    {
+      "file": "lever-entry-count-prereg-2026-08-06.json",
+      "status": "FROZEN_PREREG",
+      "result_file": "LEVER-ENTRY-COUNT-2026-08-06.json"
+    },
+    {
+      "file": "loss-armed-budget-forward-prereg-2026-08-28.json",
+      "status": "FROZEN_PREREG_FORWARD",
+      "result_file": "loss-armed-budget-shadow-summary.json"
+    },
+    {
+      "file": "prereg-bold-strike-axis-2026-07-15.json",
+      "status": "FROZEN",
+      "result_file": "bold-strike-axis-2026-07-15.json"
+    },
+    {
+      "file": "prereg-bull-vix-soft-mode-2026-08-03.json",
+      "status": "NOT IMPLEMENTED -- this prereg specs a NEW code path (see arms_frozen). Nothing armed. Nothing run. This is ARM_C from the ALREADY-FROZEN prereg-vix-regime-gate-archetype-2026-08-02.json, explicitly deferred there: \"A bull-side soft-mode would require a genuinely NEW code path... If ARM_A/ARM_B's results suggest the bull side specifically is where the value is, a follow-up prereg should scope that new flag on its own, gated by this study's findings, not bundled in blind.\" This IS that follow-up.",
+      "result_file": "bull-vix-soft-mode-2026-08-03.json"
+    },
+    {
+      "file": "prereg-chasing-filter-2026-08-14.json",
+      "status": "FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.",
+      "result_file": "findings.json"
+    },
+    {
+      "file": "prereg-directional-gate-battery-2026-07-15.json",
+      "status": "FROZEN_PENDING_RUN",
+      "result_file": "directional-gate-battery-2026-07-15.json"
     },
     {
       "file": "prereg-expected-move-gate-2026-07-11.json",
@@ -19,9 +74,19 @@
       "result_file": "expected-move-gate-result.json"
     },
     {
+      "file": "prereg-favorable-extreme-entry-2026-07-17.json",
+      "status": "FROZEN_PENDING_RUN",
+      "result_file": "favorable-extreme-entry-2026-07-17.json"
+    },
+    {
       "file": "prereg-ladder-vwap-2026-08-11.json",
       "status": "FROZEN_BEFORE_RUNNER",
       "result_file": "ladder-vwap-2026-08-11-results.json"
+    },
+    {
+      "file": "prereg-ladder-x-premium-2026-08-09.json",
+      "status": "FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.",
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-morning-gate-2026-07-11.json",
@@ -29,14 +94,84 @@
       "result_file": "morning-gate-result.json"
     },
     {
+      "file": "prereg-multi-intraday-null-2026-08-20.json",
+      "status": "FROZEN_BEFORE_ANY_RESULT",
+      "result_file": "intraday-null-stageA.json"
+    },
+    {
+      "file": "prereg-multi-levels-transplant-2026-08-20.json",
+      "status": "FROZEN_BEFORE_ANY_RESULT",
+      "result_file": "levels-transplant.json"
+    },
+    {
       "file": "prereg-pdt-blocked-counterfactual-2026-08-11.json",
       "status": "FROZEN_BEFORE_RUNNER",
       "result_file": "pdt-blocked-counterfactual-2026-08-11-results.json"
     },
     {
+      "file": "prereg-pong-resting-limit-2026-07-17.json",
+      "status": "FROZEN_PENDING_RUN",
+      "result_file": "pong-resting-limit-2026-07-17.json"
+    },
+    {
       "file": "prereg-recency-qty-clamp-2026-08-11.json",
       "status": "FROZEN_BEFORE_RUNNER",
       "result_file": "recency-qty-clamp-2026-08-11-results.json"
+    },
+    {
+      "file": "prereg-regime-conditioned-validation-2026-07-17.json",
+      "status": "FROZEN_PENDING_RUN",
+      "result_file": "regime-conditioned-validation-2026-07-17.json"
+    },
+    {
+      "file": "prereg-regime-standdown-2026-08-02.json",
+      "status": "{\"source\": \"analysis/regime-library/early-classifier-2026-08-02.json, backtest/tools/build_regime_early_classifier.py, commit 76857479 (this session, frozen BEFORE this prereg)\", \"headline\": \"WEAK, on",
+      "result_file": "regime-standdown-2026-08-02.json"
+    },
+    {
+      "file": "prereg-runner-finite-tgt-candidate-2026-08-06.json",
+      "status": "CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.",
+      "result_file": "findings.json"
+    },
+    {
+      "file": "prereg-spy-production-calibration-2026-08-20.json",
+      "status": "FROZEN_BEFORE_ANY_RESULT",
+      "result_file": "spy-production-calibration.json"
+    },
+    {
+      "file": "prereg-time-stop-broker-sweep-2026-09-01.json",
+      "status": "FROZEN -- NOT SHIPPED. Kill-type risk reduction, pre-registered so it can ship at the freeze close (2026-09-29) or earlier if J's live-flip requires it. Deliberately NOT shipped mid-window: changing exit timing would contaminate the frozen-config scoring window.",
+      "result_file": "time-stop-band-2026-09-01.json"
+    },
+    {
+      "file": "prereg-vwapcont-htf-precheck-2026-07-16.json",
+      "status": "FROZEN_BEFORE_RESULTS",
+      "result_file": "vwapcont-htf-precheck-2026-07-16.json"
+    },
+    {
+      "file": "prereg-weekly-expiry-comparison-2026-08-18.json",
+      "status": "FROZEN_BEFORE_ANY_RESULT",
+      "result_file": "expiry-experiment-raw.json"
+    },
+    {
+      "file": "prereg-whole-engine-null-2026-09-01.json",
+      "status": "FROZEN -- NOT RUN. Design committed before any outcome was computed. Runner to be built (setup/scripts/whole_engine_null.py); first run on the Friday gate cadence.",
+      "result_file": "2026-09-01.json"
+    },
+    {
+      "file": "prereg-zone-rejection-band-2026-07-17.json",
+      "status": "FROZEN_PENDING_RUN",
+      "result_file": "zone-rejection-band-2026-07-17.json"
+    },
+    {
+      "file": "profit-lock-arm-scope-prereg-2026-08-06.json",
+      "status": "FROZEN \u2014 runner NOT yet built. Nothing ships until every gate below is scored.",
+      "result_file": "EOD-2026-08-05-REENTRY-SIZING.json"
+    },
+    {
+      "file": "vwap-family-killcheck-prereg-2026-08-18.json",
+      "status": "FROZEN_PREREG_FORWARD",
+      "result_file": "findings.json"
     }
   ],
   "entries": [
@@ -46,8 +181,8 @@
       "age_days": 29.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "EOD-2026-08-05-REENTRY-SIZING.json"
     },
     {
       "file": "block-elite-bull-ssb-preregistration.json",
@@ -55,8 +190,8 @@
       "age_days": 54.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "block-elite-bull-ssb-revalidation.json"
     },
     {
       "file": "bold-floor-rescue-prereg-2026-08-25.json",
@@ -64,8 +199,8 @@
       "age_days": 8.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "bull-f10-buyer-pressure-prereg-2026-08-04.json",
@@ -91,8 +226,8 @@
       "age_days": 32.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "bull-gate-f5class-requal-2026-08-01.json"
     },
     {
       "file": "bull-requalification-prereg-2026-07-22.json",
@@ -100,8 +235,8 @@
       "age_days": 42.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "bull-requalification-2026-07-22.json"
     },
     {
       "file": "catastrophe-stop-shakeout-prereg-2026-07-23.json",
@@ -109,8 +244,8 @@
       "age_days": 41.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "catastrophe-stop-shakeout-2026-07-23.json"
     },
     {
       "file": "chop-defense-prereg-2026-08-06.json",
@@ -118,8 +253,8 @@
       "age_days": 27.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "CHOP-DEFENSE-2026-08-06.json"
     },
     {
       "file": "day-throttle-forward-prereg-2026-08-18.json",
@@ -127,8 +262,8 @@
       "age_days": 15.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "day-throttle-shadow-summary.json"
     },
     {
       "file": "dynamic-exits-forward-prereg-2026-08-09.json",
@@ -145,8 +280,8 @@
       "age_days": 24.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "DYNAMIC-EXITS-2026-08-09.json"
     },
     {
       "file": "elite-bull-requal-prereg-2026-07-31.json",
@@ -154,8 +289,8 @@
       "age_days": 33.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "elite-bull-requal-2026-07-31.json"
     },
     {
       "file": "engulfing-at-local-cluster-prereg-2026-07-25.json",
@@ -163,8 +298,8 @@
       "age_days": 39.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "engulfing-at-local-cluster-2026-07-25.json"
     },
     {
       "file": "engulfing-at-structure-prereg-2026-07-23.json",
@@ -172,8 +307,8 @@
       "age_days": 41.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "engulfing-at-structure-2026-07-23.json"
     },
     {
       "file": "entry-buffer-reduction-prereg-2026-08-02.json",
@@ -199,8 +334,8 @@
       "age_days": 27.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "EOD-2026-08-05-ENTRIES.json"
     },
     {
       "file": "entry-quality-admissibility-prereg-2026-08-06.json",
@@ -208,8 +343,8 @@
       "age_days": 27.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "ENTRY-QUALITY-2026-08-06.json"
     },
     {
       "file": "entry-structure-forward-prereg-2026-08-06.json",
@@ -226,8 +361,8 @@
       "age_days": 26.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "finra-short-volume-preregistration.json",
@@ -235,8 +370,8 @@
       "age_days": 42.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "2026-07-22-173002-audit-audit-project-gamma-autonomous-0dte-spy-options-tr.json"
     },
     {
       "file": "fleet-same-bar-cooldown-prereg-2026-08-06.json",
@@ -280,8 +415,8 @@
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "headroom-retest-tw8.json"
     },
     {
       "file": "late-entry-ceiling-realfills-prereg-2026-07-23.json",
@@ -289,8 +424,8 @@
       "age_days": 41.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "late-entry-ceiling-realfills-2026-07-23.json"
     },
     {
       "file": "lbfs-shadow-wiring-preregistration.json",
@@ -298,8 +433,8 @@
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "lbfs-shadow-wiring-revalidation-2026-07-15.json"
     },
     {
       "file": "level-target-exit-prereg-2026-07-31.json",
@@ -316,8 +451,8 @@
       "age_days": 27.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "LEVER-ENTRY-COUNT-2026-08-06.json"
     },
     {
       "file": "loss-armed-budget-forward-prereg-2026-08-28.json",
@@ -325,8 +460,8 @@
       "age_days": 5.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "loss-armed-budget-shadow-summary.json"
     },
     {
       "file": "measured-move-preregistration.json",
@@ -334,8 +469,8 @@
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "measured-move-study.json"
     },
     {
       "file": "premarket-touch-credit-preregistration.json",
@@ -343,8 +478,8 @@
       "age_days": 44.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "premarket-touch-credit-2026-07-20.json"
     },
     {
       "file": "prereg-be-floor-2026-07-29.json",
@@ -352,8 +487,8 @@
       "age_days": 35.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "be-floor-ab-2026-07-29.json"
     },
     {
       "file": "prereg-bear-side-2026-09-02.json",
@@ -370,8 +505,8 @@
       "age_days": 31.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "bold-adaptive-sizing-2026-08-02.json"
     },
     {
       "file": "prereg-bold-selective-fallback-2026-08-02.json",
@@ -379,8 +514,8 @@
       "age_days": 31.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "bold-selective-fallback-2026-08-02.json"
     },
     {
       "file": "prereg-bold-strike-axis-2026-07-15.json",
@@ -388,8 +523,8 @@
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "bold-strike-axis-2026-07-15.json"
     },
     {
       "file": "prereg-bull-vix-soft-mode-2026-08-03.json",
@@ -397,8 +532,8 @@
       "age_days": 31.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "bull-vix-soft-mode-2026-08-03.json"
     },
     {
       "file": "prereg-catastrophe-cap-decision-2026-08-09.json",
@@ -415,8 +550,8 @@
       "age_days": 19.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-daytype-gate-2026-07-15.json",
@@ -424,8 +559,8 @@
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "prereg-day-archetype-gate-2026-07-23.json"
     },
     {
       "file": "prereg-debit-spread-ab-2026-07-14.json",
@@ -433,8 +568,8 @@
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "debit-spread-ab.json"
     },
     {
       "file": "prereg-directional-gate-battery-2026-07-15.json",
@@ -442,8 +577,8 @@
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "directional-gate-battery-2026-07-15.json"
     },
     {
       "file": "prereg-entry-exit-matrix-2026-08-09.json",
@@ -451,8 +586,8 @@
       "age_days": 24.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "ENTRY-EXIT-MATRIX-2026-08-09.json"
     },
     {
       "file": "prereg-entry-location-gate-2026-08-14.json",
@@ -460,8 +595,8 @@
       "age_days": 19.4,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-entry-range-context-2026-08-14.json",
@@ -469,8 +604,8 @@
       "age_days": 19.4,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-exit-armpct-2026-07-28.json",
@@ -478,8 +613,8 @@
       "age_days": 36.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "exit-armpct-ab-2026-07-28.json"
     },
     {
       "file": "prereg-exit-armscope-tp1-2026-07-28.json",
@@ -487,8 +622,8 @@
       "age_days": 36.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "exit-armscope-tp1-ab-2026-07-28.json"
     },
     {
       "file": "prereg-exit-policy-beats-null-2026-08-23.json",
@@ -496,8 +631,8 @@
       "age_days": 10.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "exit-policy-beats-null-2026-08-23.json"
     },
     {
       "file": "prereg-expected-move-gate-2026-07-11.json",
@@ -514,8 +649,8 @@
       "age_days": 47.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "favorable-extreme-entry-2026-07-17.json"
     },
     {
       "file": "prereg-fill-model-unification-2026-08-13.json",
@@ -532,8 +667,8 @@
       "age_days": 33.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "filter5-ribbon-2026-07-31.json"
     },
     {
       "file": "prereg-full-send-arm-2026-07-31.json",
@@ -550,8 +685,8 @@
       "age_days": 32.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "g2-trendline-bypass-2026-08-01.json"
     },
     {
       "file": "prereg-gate-revalidation-2026-08-08.json",
@@ -559,8 +694,8 @@
       "age_days": 25.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "gate-recency-audit-2026-08-08.json"
     },
     {
       "file": "prereg-giveback-ratchet-2026-08-10.json",
@@ -568,8 +703,8 @@
       "age_days": 23.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "giveback-ratchet-population-2026-08-10.json"
     },
     {
       "file": "prereg-hold-posture-2026-07-14.json",
@@ -577,8 +712,8 @@
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "hold-posture-ab.json"
     },
     {
       "file": "prereg-hour-gate-12xx-2026-09-02.json",
@@ -613,8 +748,8 @@
       "age_days": 24.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-level-memory-wire-2026-07-15.json",
@@ -622,8 +757,8 @@
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "level-memory-wire.json"
     },
     {
       "file": "prereg-lever-catcap-2026-08-06.json",
@@ -631,8 +766,8 @@
       "age_days": 27.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "LEVER-CATCAP-2026-08-06.json"
     },
     {
       "file": "prereg-min-contracts-bold-2026-08-02.json",
@@ -640,8 +775,8 @@
       "age_days": 31.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "min-contracts-bold-2026-08-02.json"
     },
     {
       "file": "prereg-morning-gate-2026-07-11.json",
@@ -658,8 +793,8 @@
       "age_days": 13.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "intraday-null-stageA.json"
     },
     {
       "file": "prereg-multi-levels-transplant-2026-08-20.json",
@@ -667,8 +802,8 @@
       "age_days": 13.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "levels-transplant.json"
     },
     {
       "file": "prereg-paired-ribbon-2026-08-01.json",
@@ -676,8 +811,8 @@
       "age_days": 32.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "paired-ribbon-2026-08-01.json"
     },
     {
       "file": "prereg-pdt-blocked-counterfactual-2026-08-11.json",
@@ -694,8 +829,8 @@
       "age_days": 47.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "pong-resting-limit-2026-07-17.json"
     },
     {
       "file": "prereg-pre-tp1-ratchet-cost-2026-08-15.json",
@@ -712,8 +847,8 @@
       "age_days": 31.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "pretp1-be-floor-isolated-ab-2026-08-02.json"
     },
     {
       "file": "prereg-profitability-2026-08-08.json",
@@ -721,8 +856,8 @@
       "age_days": 25.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "profitability-ab-2026-08-08.json"
     },
     {
       "file": "prereg-recency-qty-clamp-2026-08-11.json",
@@ -748,8 +883,8 @@
       "age_days": 47.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "regime-conditioned-validation-2026-07-17.json"
     },
     {
       "file": "prereg-regime-conditioning-2026-07-28.json",
@@ -757,8 +892,8 @@
       "age_days": 36.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "REGIME-RESLICE-2026-07-28.json"
     },
     {
       "file": "prereg-regime-standdown-2026-08-02.json",
@@ -766,8 +901,8 @@
       "age_days": 31.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "regime-standdown-2026-08-02.json"
     },
     {
       "file": "prereg-ribbon-confirm-2026-08-11.json",
@@ -775,8 +910,8 @@
       "age_days": 22.4,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-ribbon-flipback-buffer-2026-08-08.json",
@@ -784,8 +919,8 @@
       "age_days": 25.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "ribbon-flipback-buffer-2026-08-08.json"
     },
     {
       "file": "prereg-ribbon-flipback-buffer-v2-2026-08-08.json",
@@ -793,8 +928,8 @@
       "age_days": 25.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "ribbon-flipback-buffer-ab-v2-2026-08-08.json"
     },
     {
       "file": "prereg-runner-be-floor-2026-08-06.json",
@@ -820,8 +955,8 @@
       "age_days": 27.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-score-ladder-v2-2026-08-07.json",
@@ -829,8 +964,8 @@
       "age_days": 26.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "SCORE-LADDER-GATES-2026-08-07.json"
     },
     {
       "file": "prereg-slippage-rebaseline-2026-08-12.json",
@@ -838,8 +973,8 @@
       "age_days": 21.4,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "slippage-rebaseline-2026-08-12.json"
     },
     {
       "file": "prereg-spy-production-calibration-2026-08-20.json",
@@ -847,8 +982,8 @@
       "age_days": 13.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "spy-production-calibration.json"
     },
     {
       "file": "prereg-stop-mode-live-arm-risky3-2026-08-09.json",
@@ -874,8 +1009,8 @@
       "age_days": 36.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "filter5-ribbon-2026-07-31.json"
     },
     {
       "file": "prereg-structure-shift-confirmation-2026-07-28.json",
@@ -883,8 +1018,8 @@
       "age_days": 36.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "EOD-2026-08-06-FILTER5.json"
     },
     {
       "file": "prereg-structure-stop-zone-2026-08-11.json",
@@ -910,8 +1045,8 @@
       "age_days": 1.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "time-stop-band-2026-09-01.json"
     },
     {
       "file": "prereg-tp1-reachability-2026-08-06.json",
@@ -919,8 +1054,8 @@
       "age_days": 27.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "TP1-REACHABILITY-2026-08-06.json"
     },
     {
       "file": "prereg-trend-alignment-correlation-2026-07-14.json",
@@ -928,8 +1063,8 @@
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "trend-alignment-correlation.json"
     },
     {
       "file": "prereg-trendline-break-at-level-2026-08-13.json",
@@ -937,8 +1072,8 @@
       "age_days": 20.4,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-trendline-break-battery-2026-07-14.json",
@@ -946,8 +1081,8 @@
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "trendline-break-battery.json"
     },
     {
       "file": "prereg-trendline-context-conditioning-2026-08-01.json",
@@ -955,8 +1090,8 @@
       "age_days": 32.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.json"
     },
     {
       "file": "prereg-trendline-engine-validation-2026-08-09.json",
@@ -964,8 +1099,8 @@
       "age_days": 24.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "trendline-engine-validation-2026-08-09.json"
     },
     {
       "file": "prereg-trendline-fade-battery-2026-07-14.json",
@@ -973,8 +1108,8 @@
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "trendline-fade-battery.json"
     },
     {
       "file": "prereg-trigger-parity-2026-08-09.json",
@@ -982,8 +1117,8 @@
       "age_days": 24.4,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "prereg-vix-regime-gate-archetype-2026-08-02.json",
@@ -991,8 +1126,8 @@
       "age_days": 32.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "vix-regime-gate-archetype-2026-08-02.json"
     },
     {
       "file": "prereg-vwapcont-htf-precheck-2026-07-16.json",
@@ -1000,8 +1135,8 @@
       "age_days": 48.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "vwapcont-htf-precheck-2026-07-16.json"
     },
     {
       "file": "prereg-weekly-expiry-comparison-2026-08-18.json",
@@ -1009,8 +1144,8 @@
       "age_days": 15.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "expiry-experiment-raw.json"
     },
     {
       "file": "prereg-whole-engine-null-2026-09-01.json",
@@ -1018,8 +1153,8 @@
       "age_days": 1.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "2026-09-01.json"
     },
     {
       "file": "prereg-wick-lane-2026-07-31.json",
@@ -1027,8 +1162,8 @@
       "age_days": 33.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "wick-lane-2026-07-31-daily-bars.json"
     },
     {
       "file": "prereg-zone-rejection-band-2026-07-17.json",
@@ -1036,8 +1171,8 @@
       "age_days": 47.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "zone-rejection-band-2026-07-17.json"
     },
     {
       "file": "profit-lock-arm-scope-prereg-2026-08-06.json",
@@ -1045,8 +1180,8 @@
       "age_days": 27.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "EOD-2026-08-05-REENTRY-SIZING.json"
     },
     {
       "file": "pullback-hold-bull-prereg-2026-07-22.json",
@@ -1054,8 +1189,8 @@
       "age_days": 42.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "pullback-hold-bull-2026-07-22.json"
     },
     {
       "file": "pullback-hold-bull-prereg-v2-2026-07-22.json",
@@ -1063,8 +1198,8 @@
       "age_days": 42.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "pullback-hold-bull-v2-2026-07-22.json"
     },
     {
       "file": "require-bearish-fill-bar-lift-prereg-2026-08-04.json",
@@ -1081,8 +1216,8 @@
       "age_days": 41.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "ribbon-scope-gap-morning-episodes-2026-07-23.json"
     },
     {
       "file": "ribbon-state-entry-gate-prereg-2026-07-21.json",
@@ -1090,8 +1225,8 @@
       "age_days": 43.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "ribbon-state-entry-gate-2026-07-21.json"
     },
     {
       "file": "safe3-risky1-gate-retest-preregistration.json",
@@ -1108,8 +1243,8 @@
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "structure-stop-2026-07-09.json"
     },
     {
       "file": "structure-stop-reference-level-preregistration.json",
@@ -1117,8 +1252,8 @@
       "age_days": 44.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "structure-stop-reference-level-2026-07-20.json"
     },
     {
       "file": "structure-stop-zone-band-preregistration.json",
@@ -1126,8 +1261,8 @@
       "age_days": 44.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "structure-stop-zone-band-2026-07-20.json"
     },
     {
       "file": "structure-veto-lift-prereg-2026-08-04.json",
@@ -1144,8 +1279,8 @@
       "age_days": 43.4,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "trail-width-exit-2026-07-21.json"
     },
     {
       "file": "trendline-structure-conviction-preregistration.json",
@@ -1153,8 +1288,8 @@
       "age_days": 50.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "trendline-call-veto-ssb-reval.json"
     },
     {
       "file": "vwap-family-killcheck-prereg-2026-08-18.json",
@@ -1162,8 +1297,8 @@
       "age_days": 15.4,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "findings.json"
     },
     {
       "file": "vwapcont-matrix-preregistration.json",
@@ -1171,8 +1306,8 @@
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
-      "has_results_file": false,
-      "result_file": null
+      "has_results_file": true,
+      "result_file": "vwapcont-entry-exit-matrix.json"
     }
   ]
 }
