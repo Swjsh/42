@@ -245,3 +245,56 @@ def test_the_two_surviving_candidates_are_still_the_ones_pre_registered(rl):
         "analysis/recommendations/rolling-loss-circuit-core-2026-09-02.json froze "
         "(5, 800) and (5, 1000) and must be re-issued, not silently reinterpreted"
     )
+
+
+# ---------------------------------------------------------------------------------------
+# The roster must be READ, never hardcoded (C14 -- a hardcoded roster drifts)
+# ---------------------------------------------------------------------------------------
+
+def test_active_arms_reads_the_roster_and_excludes_retired(rl, tmp_path):
+    """The first cut of this module hardcoded five arms and called them 'the five arms
+    trading real fills'. accounts.json already said risky-3 was status=retired, live=False
+    (2026-08-28), so the live roster was FOUR. On a forward re-run that matters more than it
+    looks: a retired arm accrues no new days, so 'the circuit never tripped on risky-3'
+    would read as evidence when it only means the arm stopped trading."""
+    p = tmp_path / "accounts.json"
+    p.write_text(json.dumps({"arms": [
+        {"arm": "safe-2", "status": "active", "live": True},
+        {"arm": "safe-3", "status": "active", "live": True},
+        {"arm": "risky-3", "status": "retired", "live": False},
+        {"arm": "weekly-1", "status": "pending_build", "live": False},
+    ]}), encoding="utf-8")
+    assert set(rl.active_arms(p)) == {"safe-2", "safe-3"}
+
+
+def test_active_arms_falls_back_loudly_rather_than_claiming_everything_is_live(rl, tmp_path):
+    """An unreadable roster must not silently resolve to 'all arms active'. Falling back to
+    the calibration set is the conservative choice AND is reported, because the alternative
+    -- inventing a live roster -- is fabricated data in a risk-control study."""
+    assert rl.active_arms(tmp_path / "does-not-exist.json") == rl.CALIBRATION_ARMS
+    bad = tmp_path / "bad.json"
+    bad.write_text("{not json", encoding="utf-8")
+    assert rl.active_arms(bad) == rl.CALIBRATION_ARMS
+
+
+def test_the_report_names_retired_arms_in_the_sample(rl):
+    """Disclosure, not decoration: the forward re-run reads this field to know which arms
+    cannot produce new evidence."""
+    if not (REPO / "analysis" / "trades-enriched.jsonl").exists():
+        pytest.skip("ledger absent")
+    rep = rl.run()
+    assert "risky-3" in rep["retired_arms_in_sample"], (
+        "risky-3 retired 2026-08-28 and its history is still in the calibration sample -- "
+        "the report must say so, or a forward reader will treat its silence as a result"
+    )
+    assert "risky-3" not in rep["active_arms"]
+    assert set(rep["active_arms"]) == {"safe-2", "bold-2", "safe-3", "risky-1"}
+
+
+def test_calibration_keeps_retired_history_on_purpose(rl):
+    """Retired arms stay IN the calibration. Their fills happened; dropping them would
+    shrink an already-thin sample. The fix was labelling, not exclusion."""
+    assert "risky-3" in rl.CALIBRATION_ARMS
+    if not (REPO / "analysis" / "trades-enriched.jsonl").exists():
+        pytest.skip("ledger absent")
+    assert rl.run()["arms"]["risky-3"]["n_days"] > 0

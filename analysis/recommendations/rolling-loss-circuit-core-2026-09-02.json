@@ -1,5 +1,14 @@
 {
   "skipped_rows": 0,
+  "active_arms": [
+    "safe-3",
+    "safe-2",
+    "risky-1",
+    "bold-2"
+  ],
+  "retired_arms_in_sample": [
+    "risky-3"
+  ],
   "arms": {
     "safe-2": {
       "n_days": 32,

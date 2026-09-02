@@ -49,8 +49,38 @@ from typing import Iterable
 REPO = pathlib.Path(__file__).resolve().parents[2]
 TRADES_ENRICHED = REPO / "analysis" / "trades-enriched.jsonl"
 
-# The five arms trading real fills. safe-1 is dormant (live:false) and excluded.
-CORE_ARMS = ("safe-2", "bold-2", "safe-3", "risky-1", "risky-3")
+ACCOUNTS_JSON = REPO / "automation" / "state" / "fleet" / "accounts.json"
+
+# The arms whose HISTORY this calibration reads. Deliberately includes retired arms: their
+# fills happened, and excluding them would shrink an already-thin sample for no reason.
+# It is NOT the forward roster -- see active_arms() and the warning it feeds.
+CALIBRATION_ARMS = ("safe-2", "bold-2", "safe-3", "risky-1", "risky-3")
+CORE_ARMS = CALIBRATION_ARMS  # back-compat alias
+
+
+def active_arms(path: pathlib.Path | None = None) -> tuple:
+    """Arms still trading, read from the roster rather than hardcoded.
+
+    WHY THIS EXISTS (2026-09-02, same day as the calibration). The first cut of this module
+    hardcoded five arms and called them "the five arms trading real fills. safe-1 is dormant
+    (live:false) and excluded." That was already wrong when written: `accounts.json` says
+    **risky-3 is status=retired, live=False** as of its 2026-08-28 retirement, so the live
+    roster is FOUR arms -- safe-2, bold-2, safe-3, risky-1. A hardcoded roster that drifts is
+    exactly the dead-knob shape (C14), and here it would have corrupted the forward test: a
+    retired arm accrues no new days, so "the circuit never tripped on risky-3" would read as
+    evidence when it only means the arm stopped trading.
+
+    Falls back to the calibration set if the roster cannot be read -- and says so, rather
+    than silently pretending every arm is live.
+    """
+    p = path or ACCOUNTS_JSON
+    try:
+        roster = json.loads(p.read_text(encoding="utf-8")).get("arms")
+        live = tuple(str(a.get("arm") or a.get("id")) for a in roster
+                     if isinstance(a, dict) and str(a.get("status")) == "active")
+    except Exception:  # noqa: BLE001
+        return CALIBRATION_ARMS
+    return live or CALIBRATION_ARMS
 
 
 def load_arm_days(path: pathlib.Path | None = None,
@@ -179,10 +209,20 @@ def describe(values: list[float]) -> dict:
 
 
 def run(windows=(3, 5), thresholds=(400.0, 600.0, 800.0, 1000.0),
-        path: pathlib.Path | None = None, arms: Iterable[str] = CORE_ARMS) -> dict:
+        path: pathlib.Path | None = None, arms: Iterable[str] = CALIBRATION_ARMS) -> dict:
     data = load_arm_days(path, arms)
     skipped = data.pop("_skipped_rows", 0)
-    report: dict = {"skipped_rows": skipped, "arms": {}, "grid": []}
+    live = active_arms()
+    retired = tuple(a for a in data if a not in live)
+    report: dict = {
+        "skipped_rows": skipped,
+        "active_arms": list(live),
+        # A retired arm's history is legitimate calibration input, but it accrues NO new
+        # days -- so on a forward re-run "the circuit never tripped here" means only that
+        # the arm stopped trading. Named in the report so that cannot be misread.
+        "retired_arms_in_sample": list(retired),
+        "arms": {}, "grid": [],
+    }
 
     for arm, days in data.items():
         pnls = [p for _, p in days]
@@ -264,6 +304,12 @@ def main(argv: list[str] | None = None) -> int:
     print("\n'dd shallower' > 0 means the circuit reduced the worst peak-to-trough, summed "
           "per arm.\nA circuit may cost P&L and still be right IF that column is clearly "
           "positive -- read both.")
+    if rep.get("retired_arms_in_sample"):
+        print(f"\nRETIRED ARMS IN THIS SAMPLE: "
+              f"{', '.join(rep['retired_arms_in_sample'])} -- "
+              f"their history is valid calibration input but they accrue NO new days. On a "
+              f"forward re-run, 'the circuit never tripped' on these arms means only that "
+              f"they stopped trading. Live roster: {', '.join(rep['active_arms'])}.")
     if rep["skipped_rows"]:
         print(f"\nNOTE: {rep['skipped_rows']} ledger row(s) skipped for a missing/non-numeric "
               f"pnl_dollars -- NOT counted as flat days.")
