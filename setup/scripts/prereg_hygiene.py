@@ -167,6 +167,39 @@ def _referenced_stems(stems: list[str]) -> Optional[set]:
     return {s for s in stems if s in hits}
 
 
+def _result_scan_files():
+    """Every candidate result artifact, from ANALYSIS_DIR *and* RECS_DIR, deduped.
+
+    RECS_DIR is normally `analysis/recommendations`, i.e. already inside ANALYSIS_DIR, so in
+    production this second root adds nothing. It exists because the two are INDEPENDENTLY
+    rebindable: `ANALYSIS_DIR` is computed from REPO at import, and when a caller (or a test
+    sandbox) repoints RECS_DIR alone, scanning only ANALYSIS_DIR silently reads the real repo
+    instead -- so a result file sitting right next to the prereg is invisible and the prereg
+    is flagged as never-run.
+
+    That is a real 2026-09-02 regression, not a hypothetical: widening this scan from
+    `RECS_DIR.glob` to `ANALYSIS_DIR.rglob` (to take n_has_results_file from 12 to 105) broke
+    test_registration_field_match_suppresses_the_flag, whose sandbox patches RECS_DIR and not
+    ANALYSIS_DIR. The index must honour whichever directory it was actually pointed at.
+    """
+    seen: set = set()
+    for root in (ANALYSIS_DIR, RECS_DIR):
+        try:
+            if not root.is_dir():
+                continue
+        except OSError:
+            continue
+        for f in root.rglob("*.json"):
+            try:
+                key = f.resolve()
+            except OSError:
+                continue
+            if key in seen:
+                continue
+            seen.add(key)
+            yield f
+
+
 def _results_index() -> tuple[dict, dict, dict]:
     """One pass over every *.json in RECS_DIR (a bounded recommendations directory, not
     a data ledger) building two lookup maps so a prereg can be matched to an existing
@@ -202,7 +235,7 @@ def _results_index() -> tuple[dict, dict, dict]:
     by_registration: dict[str, list[str]] = {}
     by_named_prereg: dict[str, list[str]] = {}
     prereg_names = {f.name for f in RECS_DIR.glob("*prereg*.json")}
-    for f in ANALYSIS_DIR.rglob("*.json"):
+    for f in _result_scan_files():
         try:
             if f.resolve() == OUT_FILE.resolve():
                 continue
