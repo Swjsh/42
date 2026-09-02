@@ -2421,6 +2421,36 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   so a hold lifting at 08:30 ET never launches a grind into premarket. Fail-open, and call it AFTER
   the restore so a bug can never block the re-enable. :: depends:none :: status:filed
 
+  > **SHIPPED 2026-09-02 ~05:45 ET (conductor, AFTERHOURS), commit `6c8d7dc3`.** Implemented all
+  > four constraints in `setup/scripts/quiet_mode.py`: `CATCHUP_ELIGIBLE` is a curated 9-name
+  > ALLOWLIST (McpDailyAudit, GitHubAudit, SpendSummary, OosCheck, LicenseMonitor, GateExpiryCheck,
+  > RosterLiveness, PreregHygiene, RuleBreakAudit) -- every one $0-or-near-$0, report/audit/monitor
+  > only, no order placement, no broker/live-money touch, live-verified as `MSFT_TaskDailyTrigger`
+  > on the real box. KalshiAuto/FuturesBrokerProbe/GuardsFull/GuardsNightly/ConductorWeekend
+  > considered and excluded by name with reasons inline (constraint a/b). `_catchup_sweep()` reuses
+  > `scheduled_task_staleness.py`'s `attribute_quiet_hold()`/`parse_quiet_holds()` rather than
+  > re-deriving hold-attribution logic (constraint c -- only daily triggers can match by
+  > construction of that function). Capped at 5 starts/fire, most-overdue first by
+  > `NumberOfMissedRuns`, gated out of the weekday trading band via `_in_trading_band()`, called
+  > AFTER the restore in both `go_loud()` and `go_research()` (constraint d). Added idempotency not
+  > named in the original spec but required for correctness: a candidate whose real `LastRunTime`
+  > has already advanced past the most recent hold's close is skipped, so a 5-minute enforcer
+  > cadence cannot restart the same task repeatedly for as long as the hold stays in the 7-day
+  > attribution lookback. **This work was promoted from HIGH hygiene to GATE-BLOCKING** by the
+  > `CRITERION-5-WINDOW-HAS-ZERO-SLACK` finding below -- resolved that item's fork in the same
+  > fire (see its own SHIPPED note). **Verified:** 18 new guard tests
+  > (`test_quiet_hold_catchup_sweep_2026_09_02.py`), RED-proofed live (`git stash` the fix -> all
+  > 18 fail `AttributeError` on the missing module members; restore -> 18/18 green). No regression:
+  > the other 3 quiet_mode test files + scheduled-task-staleness suite = 102 passed; live starvation
+  > enumeration test = 5 passed. Curated safety gate 59/59 PASS. `git diff --stat` against the 10
+  > frozen trading-path files is empty. **Not done in this fire, left open:** J's own
+  > `TASK-SCHEDULER-OPERATIONAL-LOG-DISABLED` one-liner (machine-wide OS setting, not
+  > git-revertible); a live end-to-end proof that the sweep actually catches a REAL missed fire
+  > (this fire validated behaviour with mocked Task Scheduler responses only -- the first genuine
+  > overnight hold will be the live proof, worth a follow-up glance at `quiet-mode.log` for a
+  > `CATCH-UP started` line). **Revert:** `git revert 6c8d7dc3` (2 files, fully additive -- no
+  > existing function signature changed).
+
 - [ ] TASK-SCHEDULER-OPERATIONAL-LOG-DISABLED (MED, J-ONLY one-liner, filed 2026-09-02) :: the
   `Microsoft-Windows-TaskScheduler/Operational` log is DISABLED on this box (`IsEnabled=False`,
   zero records), so ~150 Gamma tasks have NO scheduler-side history. Every "did it actually fire?"
@@ -2466,6 +2496,26 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   reading (then the catch-up sweep is required work), or state that 10-30 was always the only reading
   that mattered and stop treating 09-29 as a gate date. Evidence: gate run 2026-09-02 05:04 ET,
   criterion 5 `INSUFFICIENT_DAYS days_scored=0/20`. :: depends:none :: status:filed
+
+  > **DECIDED 2026-09-02 ~05:40 ET (conductor, AFTERHOURS) -- 09-29 IS the registered bar; this was
+  > not actually undecided, it was unread.** `automation/state/prod-shadow-designation.json` was
+  > written 2026-09-01T20:22 ET -- BEFORE any prod-shadow result existed -- and says, verbatim:
+  > window `2026-09-01..2026-09-29`, `min_days: 20`, and "the PREREG-TIGHT-LADDER-2026-08-28.md
+  > 40-day clock (closing 2026-10-30) is tracked as an EXTENDED disclosure view only -- it never
+  > substitutes for or lowers this shorter, harder pass window." `go_live_gate.py`'s own generated
+  > report (`analysis/go-live-gate.md`) already renders it exactly that way: 09-29 in the Prod-shadow
+  > section as the scored bar, 10-30 labelled "(disclosure only, never the pass bar)" in the Plan
+  > Reachability table. This is a pre-registration, not a post-hoc read -- it predates every day of
+  > evidence in the window it governs, which is the strongest form of "already decided" this project
+  > recognizes (OP-11). The system-reminder's "risk EXPANSIONS wait for 10-30" is a SEPARATE clock
+  > (the config-freeze trading-path-edit lock, `setup/hooks/doctrine.py`) that happens to share an
+  > end date with the freeze's own 09-29 checkpoint by coincidence, not by being the same
+  > registration as criterion 5's prod-shadow window -- conflating the two is exactly how this read
+  > like an open fork. **Consequence: QUIET-HOLD-CATCH-UP-SWEEP is confirmed gate-blocking, not
+  > hygiene, and was shipped this same fire** (commit `6c8d7dc3`, see its own item above) precisely
+  > because 19 of the window's 20 required scored days remain and a second silently-lost day would
+  > put criterion 5 out of reach of its own pre-registered bar. Nothing else about the gate moves --
+  > criterion 1 still fails hard (CI-lower 0.333-0.412 vs a 1.0 bar) regardless of how this reads.
 
 - [ ] CRITERION-4-CANNOT-READ-ITS-OWN-AUDITOR (MED, gate-measurement change, PREREG-FIRST, filed
   2026-09-02) :: `Gamma_RuleBreakAudit` (shipped 2026-09-02, commit `4689dacd`) now writes the
