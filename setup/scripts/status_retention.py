@@ -119,10 +119,40 @@ def fold_consecutive_selfcheck_blocks(text: str) -> "tuple[str, int, int]":
     return "".join(out), n_runs_folded, n_blocks_removed
 
 
+# Sections that must NEVER roll off, wherever they physically sit in the file.
+# `## Known broken` is the standing channel for unresolved failures. It went DEAD for two
+# months (memory: status-known-broken-channel-2026-08-20 -- 3 guards sat RED and discarded)
+# and was moved into the preamble on 2026-09-02 so the retention roll could not carry it
+# away. That fix did not hold for one day: producers PREPEND dated entries at line 1, so by
+# the next morning `## Known broken` sat at line 11, BELOW the newest `## [` header.
+#
+# And it does not start with `## [`, so ENTRY_SPLIT never treats it as an entry of its own --
+# it is swallowed INTO whichever dated entry precedes it, and rolls off when that entry does.
+# Position-based pinning cannot survive a producer that writes above you; pin by NAME instead.
+PINNED_SECTIONS = ("## Known broken",)
+
+_ANY_H2 = re.compile(r"(?=^## )", re.M)
+
+
+def _extract_pinned(entry: str) -> "tuple[str, str]":
+    """Split one entry into (entry_without_pinned_block, pinned_block_or_empty)."""
+    blocks = _ANY_H2.split(entry)
+    keep, pinned = [], []
+    for b in blocks:
+        if any(b.lstrip().startswith(name) for name in PINNED_SECTIONS):
+            pinned.append(b)
+        else:
+            keep.append(b)
+    return "".join(keep), "".join(pinned)
+
+
 def split_entries(text: str):
     """Return (preamble, [entries]) splitting on `## [` headers (newest-first order).
 
-    The preamble is any text before the first entry (usually empty for STATUS.md).
+    The preamble is any text before the first entry, PLUS any PINNED_SECTIONS lifted out of
+    the entries themselves -- see PINNED_SECTIONS above for why hoisting is required rather
+    than trusting the section to stay physically at the top.
+
     Each entry string includes its trailing content up to the next `## [`.
     """
     parts = ENTRY_SPLIT.split(text)
@@ -130,8 +160,36 @@ def split_entries(text: str):
         return "", []
     # If the file starts with an entry, parts[0] is "" -> preamble empty.
     if parts[0].lstrip().startswith("## ["):
-        return "", parts
-    return parts[0], parts[1:]
+        preamble, entries = "", parts
+    else:
+        preamble, entries = parts[0], parts[1:]
+
+    if not any(name in text for name in PINNED_SECTIONS):
+        return preamble, entries  # cheap bail-out only; every real test below is structural
+
+    # Hoist only the FIRST (newest) occurrence. Older copies are part of the record of the
+    # entry that contains them and must roll off with it -- otherwise every archived month's
+    # copy accumulates in the live preamble forever. `done` must track what THIS loop has
+    # taken, not just what the original preamble held: keying the check on `preamble` alone
+    # hoisted every copy (caught by test_a_second_older_copy_is_left_alone_for_the_archive).
+    # Structural, not a substring test. The section carries a do-not-move note that QUOTES
+    # "## Known broken" in prose, so `name in preamble` is true for a preamble holding only
+    # the note -- and the real section would then never be hoisted. Ask whether a BLOCK
+    # starts with the name, which is what _extract_pinned already does.
+    done = bool(_extract_pinned(preamble)[1])
+    hoisted, out = [], []
+    for e in entries:
+        if not done:
+            rest, pinned = _extract_pinned(e)
+            if pinned:
+                hoisted.append(pinned)
+                e = rest
+                done = True
+        out.append(e)
+    if hoisted:
+        head = preamble.rstrip("\n") + "\n\n" if preamble.strip() else ""
+        preamble = head + "".join(hoisted).rstrip("\n") + "\n\n"
+    return preamble, out
 
 
 def plan_consolidation(text: str, max_keep_bytes: int, min_keep: int):

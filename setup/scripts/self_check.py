@@ -935,50 +935,64 @@ def check_trendline_draw_freshness(now, path=None) -> list:
     return []
 
 
-KEY_LEVELS_CHART_DRAW = STATE / "key-levels.json"
+CHART_AUTODRAW_STATE = STATE / "chart-autodraw.json"
+
+# Statuses of draw_key_levels.py that mean THE CHART WAS ACTUALLY REDRAWN. It calls
+# write_state() on its failure paths too (so a run always leaves a trace -- correct), which
+# means a bare "as_of is today" test would read GREEN on a TradingView-down morning while
+# J's chart still carried yesterday's levels. The status is the load-bearing half.
+CHART_AUTODRAW_OK_STATUSES = ("OK",)
 
 
 def check_chart_wipe_redraw_freshness(now, path=None) -> list:
-    """VISIBILITY instrument for premarket Step 5 (chart wipe + redraw of J's price levels,
-    automation/prompts/premarket.md) -- the sibling gap to Step 5c's trendline draw
-    (check_trendline_draw_freshness immediately above, whose exact posture this mirrors).
-    Step 5 stamps key-levels.json -> chart_drawing_summary.as_of every time it runs (drawn
-    or deferred); THIS producer's stamp sat at 2026-06-29T08:39:00-04:00 -- ~2 MONTHS stale
-    -- with ZERO alarm anywhere (self_check/STATUS.md/Discord) before this check existed. J's
-    chart has silently been carrying June's levels since, the same class of invisible miss
-    Step 5c already had covered.
+    """VISIBILITY instrument for the daily chart wipe + level redraw.
 
-    DEGRADED, never BROKEN: like Step 5c, chart wipe+redraw is additive visibility for J's
-    manual chart-reading -- the deterministic engine reads key-levels.json's `levels` array
-    directly for entries/exits, never chart_drawing_summary, so a miss costs J's eyeball
-    context, not trading correctness. Message deliberately says "CHART-DRAWING" (matching the
-    JSON field name), never the word "redraw" in upper case, because the literal substring
-    "RED" (as in "REDRAW") would wrongly trip _problem_is_broken's bare "RED" check and
-    misclassify this visibility gap as BROKEN -- outranking real trading-critical work in the
-    conductor's triage. Same weekend/before-slack handling as check_trendline_draw_freshness."""
+    RE-POINTED 2026-09-02 AT THE LIVE PRODUCER. This check was built to watch premarket
+    Step 5, an LLM step that stamped `key-levels.json -> chart_drawing_summary.as_of`. That
+    producer is RETIRED: `Gamma_ChartAutoDraw` (registered 2026-08-06, $0, 08:35-16:05 ET
+    every 30m) replaced it with `setup/scripts/draw_key_levels.py`, which stamps
+    `automation/state/chart-autodraw.json` instead and never touches the old field.
+
+    So the old stamp froze at 2026-06-29 and this check reported CHART-DRAWING STALE every
+    30 minutes for months -- against a chart that was in fact being redrawn correctly every
+    day. Verified 2026-09-02: chart-autodraw.json as_of=2026-09-01T16:05 ET, dry_run=false,
+    real removals at spot 761.57, task GREEN in scheduled_task_staleness. A check pointed at
+    a dead knob reports on the dead knob (C14), and its noise is what buried the whole
+    `### BROKEN` surface (queue.md STATUS-BROKEN-BLOCKS-DRAIN).
+
+    DEGRADED, never BROKEN: the deterministic engine reads key-levels.json's `levels` array
+    for entries/exits and never any drawing stamp, so a miss costs J's eyeball context, not
+    trading correctness. The message says "CHART-DRAWING" and never the upper-case substring
+    "RED" (as in "REDRAW"), which would trip _problem_is_broken's bare "RED" test and
+    outrank real trading-critical work in the conductor's triage."""
     if now.weekday() >= 5:
-        return []  # no premarket fire on weekends -- nothing to check
+        return []  # no weekday draw window on weekends -- nothing to check
     if now.strftime("%H:%M") < "09:00":
-        return []  # give Step 5 (08:30 ET) its slack window before judging today stale
-    p = path or KEY_LEVELS_CHART_DRAW
+        return []  # first fire is 08:35 ET; give it its slack window before judging today
+    p = path or CHART_AUTODRAW_STATE
     today = now.strftime("%Y-%m-%d")
     try:
         data = json.loads(p.read_text(encoding="utf-8-sig"))
     except Exception:  # noqa: BLE001
         data = {}
-    summary = data.get("chart_drawing_summary") if isinstance(data, dict) else None
-    as_of = summary.get("as_of") if isinstance(summary, dict) else None
-    if not as_of:
-        return [f"CHART-DRAWING never marked today ({today}) -- premarket Step 5 (chart wipe + "
-                f"level draw) may have silently skipped, leaving J's chart on stale levels with "
-                f"no trace. Non-load-bearing (visibility only); re-run premarket Step 5 by hand "
-                f"to catch up."]
-    as_of_date = str(as_of)[:10]
+    if not isinstance(data, dict) or not data.get("as_of"):
+        return [f"CHART-DRAWING never marked today ({today}) -- Gamma_ChartAutoDraw "
+                f"(draw_key_levels.py) left no stamp in {p.name}, so J's chart may be "
+                f"carrying stale levels with no trace. Non-load-bearing (visibility only); "
+                f"run `python setup/scripts/draw_key_levels.py` to catch up."]
+    as_of_date = str(data["as_of"])[:10]
     if as_of_date != today:
-        return [f"CHART-DRAWING STALE: last chart_drawing_summary.as_of was {as_of_date}, not "
-                f"today ({today}) -- premarket Step 5 (chart wipe + level draw) likely didn't "
-                f"fire this morning. Non-load-bearing (visibility only); re-run premarket Step "
-                f"5 by hand to catch up."]
+        return [f"CHART-DRAWING STALE: last chart-autodraw stamp was {as_of_date}, not today "
+                f"({today}) -- Gamma_ChartAutoDraw did not complete a run this morning. "
+                f"Non-load-bearing (visibility only); run "
+                f"`python setup/scripts/draw_key_levels.py` to catch up."]
+    status = str(data.get("status") or "UNKNOWN")
+    if status not in CHART_AUTODRAW_OK_STATUSES:
+        return [f"CHART-DRAWING DID NOT DRAW today ({today}): Gamma_ChartAutoDraw ran and "
+                f"stamped {p.name}, but status={status} -- it wrote a trace WITHOUT updating "
+                f"the chart (TradingView down, or a dry run), so J's chart still carries the "
+                f"previous session's levels. Non-load-bearing (visibility only); check "
+                f"TradingView/CDP on 9222, then run `python setup/scripts/draw_key_levels.py`."]
     return []
 
 
@@ -2101,7 +2115,10 @@ def run() -> dict:
     if LAST.exists():
         try:
             old = json.loads(LAST.read_text(encoding="utf-8")) or {}
-            prev_alert = {"_alerted_sig": old.get("_alerted_sig", ""), "_alerted_at": old.get("_alerted_at")}
+            prev_alert = {"_alerted_sig": old.get("_alerted_sig", ""),
+                           "_alerted_at": old.get("_alerted_at"),
+                           "_status_sig": old.get("_status_sig", ""),
+                           "_status_at": old.get("_status_at")}
         except Exception:  # noqa: BLE001
             prev_alert = {}
     LAST.write_text(json.dumps(result, indent=2), encoding="utf-8")
@@ -2109,6 +2126,29 @@ def run() -> dict:
     if problems:
         _alert(result, prev_alert)
     return result
+
+
+# A problem's IDENTITY, for dedupe. NOT its full text.
+#
+# WHY: the dedupe key used to be `" | ".join(result["problems"])` -- the whole message. Half
+# these messages embed a running COUNT ("run-*.ps1 shows 15 real non-zero exit(s)", "7
+# consecutive cycle failures", "stale for 3.2h"), so the key changed on nearly every fire and
+# BOTH consumers broke at once: STATUS.md grew a new `### BROKEN: self-check` block every 30
+# minutes (queue.md STATUS-BROKEN-BLOCKS-DRAIN -- four blocks in 23 minutes on 2026-09-02,
+# differing ONLY in `13` -> `15` -> `17`), and the 6-hour Discord suppression window below
+# never matched, so the same unresolved problem re-pinged all day.
+#
+# The fix collapses free-standing numbers and nothing else. A digit preceded by a word
+# character or a hyphen is part of a NAME and is kept -- `safe-2` must not collapse into
+# `safe-3`, and `Gamma_Heartbeat` variants must stay distinguishable. So a task going RED, a
+# new arm failing, or a different .ps1 appearing all still read as a changed problem set and
+# still append + ping. Only "the same problem, a bigger number" is suppressed.
+_COUNT_RUN = re.compile(r"(?<![\w-])\d+(?:\.\d+)?")
+
+
+def _problem_set_signature(problems: "list[str]") -> str:
+    """Stable identity for a set of problems: order-independent, count-insensitive."""
+    return " | ".join(sorted(_COUNT_RUN.sub("#", str(p)) for p in problems))
 
 
 SELF_CHECK_REPEAT_SUPPRESS_MIN = 360  # 6h -- an unresolved problem still re-pings
@@ -2149,17 +2189,38 @@ def _alert(result: dict, prev_alert: "dict | None" = None) -> None:
     the unthrottled snapshot regardless (this throttles the Discord PING only, never the
     underlying detection; no check anywhere in this file was weakened or disabled)."""
     prev_alert = prev_alert or {}
-    sig = " | ".join(result["problems"])
+    sig = _problem_set_signature(result["problems"])
     prev_sig = prev_alert.get("_alerted_sig", "")
     prev_at = prev_alert.get("_alerted_at")
-    # STATUS.md (always append the current snapshot -- unthrottled, file-only, not a ping)
-    try:
-        with STATUS_MD.open("a", encoding="utf-8") as f:
-            f.write(f"\n### {result['verdict']}: self-check {result['ts_et']}\n")
-            for p in result["problems"]:
-                f.write(f"- {p}\n")
-    except OSError:
-        pass
+
+    # STATUS.md -- append only when the PROBLEM SET changes, or after the same suppress
+    # window the ping uses. It used to append unconditionally on every BROKEN/DEGRADED run,
+    # and self_check runs every 30 minutes, so an unresolved problem re-appended forever
+    # (queue.md STATUS-BROKEN-BLOCKS-DRAIN). Same transition-only convention as
+    # guard_runner_slow._flag_status_md and gate_expiry_check.
+    status_sig = prev_alert.get("_status_sig", "")
+    status_at = prev_alert.get("_status_at")
+    status_stale_enough = True
+    if sig == status_sig and status_at:
+        try:
+            age = (dt.datetime.fromisoformat(result["ts_et"])
+                   - dt.datetime.fromisoformat(status_at)).total_seconds() / 60.0
+            status_stale_enough = age >= SELF_CHECK_REPEAT_SUPPRESS_MIN
+        except ValueError:
+            status_stale_enough = True  # unparseable stamp -> never silently suppress
+    if sig != status_sig or status_stale_enough:
+        try:
+            with STATUS_MD.open("a", encoding="utf-8") as f:
+                f.write(f"\n### {result['verdict']}: self-check {result['ts_et']}\n")
+                for p in result["problems"]:
+                    f.write(f"- {p}\n")
+            result["_status_sig"] = sig
+            result["_status_at"] = result["ts_et"]
+        except OSError:
+            pass
+    else:
+        result["_status_sig"] = status_sig
+        result["_status_at"] = status_at
     # Discord: always on a NEW/CHANGED problem set. A REPEAT of the identical set is
     # suppressed until SELF_CHECK_REPEAT_SUPPRESS_MIN has elapsed since the last real
     # SEND (never since the last SILENT cycle -- see the `else` branch below).
