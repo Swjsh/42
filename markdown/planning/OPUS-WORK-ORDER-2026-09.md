@@ -150,7 +150,7 @@ within tolerance) · 4 BEHAVIOURAL **PASS_UNVERIFIED** · 5 PROD-SHADOW **INSUFF
   **zero** days down >1%. The gate prints its own warning — *calm-only window, a GREEN here is untested
   in stress.*
 
-- [ ] 🚨 **CRITERION 5 HAS ZERO SLACK — new 2026-09-02, quantified, not previously stated anywhere.**
+- [x] 🚨 **CRITERION 5 HAS ZERO SLACK — new 2026-09-02, quantified, not previously stated anywhere.**
   The window `2026-09-01..2026-09-29` contains **exactly 20 trading days** (verified against
   `automation/state/calendar.json`: Labor Day 2026-09-07 is the only Sept/Oct holiday), against a bar of
   **20 scored days**. One elapsed, 19 to go, and **every one of them must score**. A single unscored day
@@ -162,6 +162,7 @@ within tolerance) · 4 BEHAVIOURAL **PASS_UNVERIFIED** · 5 PROD-SHADOW **INSUFF
   criterion-5 reading is worth defending (which means the `QUIET-HOLD-CATCH-UP-SWEEP` item is no longer
   hygiene, it is gate-blocking) or whether 10-30 is the only reading that was ever going to matter — in
   which case say so in writing and stop treating 09-29 as a gate date.
+  **ANSWERED 2026-09-02 05:45 ET, and it was never a fork.** `automation/state/prod-shadow-designation.json` (frozen `2026-09-01T20:22:26-04:00`, before any result) registers `2026-09-01..2026-09-29 / min_days 20` as THE bar and calls the 10-30 clock *“EXTENDED disclosure view only -- it never substitutes for or lowers this shorter, harder pass window.”* **09-29 is binding**, so the zero-slack finding is load-bearing and the catch-up sweep is gate-blocking work — shipped `6c8d7dc3` with a curated 9-name report-only allowlist that excludes `Gamma_KalshiAuto` (trades on stale weather), the broker probe, both HEAVY guard suites and the weekend conductor. Verified live: it caught up 5 tasks, all `rc=0`, and the staleness reporter went 5 RED → 3 RED — the 3 remaining being exactly the deliberately-excluded set. *The framing error is worth keeping:* this was called “a genuine fork with no right answer” when it was a question whose answer was already filed. Read the window's own designation before treating its terms as open.
 
 ### Fri 09-04 — first Friday cadence
 - [ ] `go_live_gate.py` re-run → HOME gate block; null study first Friday reading; **WEEK ORDER revived**

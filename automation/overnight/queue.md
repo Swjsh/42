@@ -2495,7 +2495,19 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   slack (43 trading days vs a 40-day bar) and absorbs a miss. DECIDE, in writing: defend the 09-29
   reading (then the catch-up sweep is required work), or state that 10-30 was always the only reading
   that mattered and stop treating 09-29 as a gate date. Evidence: gate run 2026-09-02 05:04 ET,
-  criterion 5 `INSUFFICIENT_DAYS days_scored=0/20`. :: depends:none :: status:filed
+  criterion 5 `INSUFFICIENT_DAYS days_scored=0/20`.
+  **RESOLVED 2026-09-02 05:45 ET -- AND THE 'FORK' WAS NOT ONE.** The question was already
+  answered in a pre-registration nobody re-read: `automation/state/prod-shadow-designation.json`,
+  written `2026-09-01T20:22:26-04:00` BEFORE any prod-shadow result existed, sets
+  `window_start 2026-09-01 / window_end 2026-09-29 / min_days 20` as the bar and says of the
+  10-30 clock, verbatim: *"EXTENDED disclosure view only -- it never substitutes for or lowers
+  this shorter, harder pass window."* Verified by reading the file directly, not on report.
+  So 09-29 IS the registered bar, the zero-slack finding is MORE load-bearing than filed, and
+  QUIET-HOLD-CATCH-UP-SWEEP was correctly promoted to gate-blocking (shipped `6c8d7dc3`).
+  **Process lesson, on me:** I labelled this a 'genuine fork with no right answer' and declined
+  to decide it. It was not a fork -- it was a question with a filed answer I did not go and
+  read. Check the window's own designation/pre-registration BEFORE treating its terms as open.
+  :: depends:none :: status:resolved
 
   > **DECIDED 2026-09-02 ~05:40 ET (conductor, AFTERHOURS) -- 09-29 IS the registered bar; this was
   > not actually undecided, it was unread.** `automation/state/prod-shadow-designation.json` was
