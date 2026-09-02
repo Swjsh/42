@@ -163,10 +163,43 @@ def test_frozen_path_hit_known_unresolved_limitations(path):
 
 
 def test_freeze_window_boundaries():
+    """CORRECTED 2026-09-02. This test previously asserted `not freeze_active(2026-09-30)`,
+    pinning FREEZE_END at 09-29 -- it encoded the bug rather than the intent. 09-29 is a
+    CHECKPOINT inside the freeze (the one date pre-registered kill-type risk REDUCTIONS may
+    ship); the freeze itself must outlive the scoring window it protects and run to the
+    2026-10-30 decision. Ending it on 09-29 would unblock trading-path edits a month early,
+    mid-window, and the only symptom would be the banner quietly changing to "freeze closed".
+    """
     assert not D.freeze_active(dt.date(2026, 8, 30))
     assert D.freeze_active(dt.date(2026, 8, 31))
     assert D.freeze_active(dt.date(2026, 9, 29))
-    assert not D.freeze_active(dt.date(2026, 9, 30))
+    assert D.freeze_active(dt.date(2026, 9, 30)), (
+        "the freeze must NOT expire at the 09-29 safety checkpoint -- that is a checkpoint "
+        "inside the window, not its end"
+    )
+    assert D.freeze_active(dt.date(2026, 10, 30))
+    assert not D.freeze_active(dt.date(2026, 10, 31))
+
+
+def test_freeze_end_outlives_the_safety_checkpoint():
+    """The two dates must never be conflated again, in either direction."""
+    assert D.FREEZE_SAFETY_CHECKPOINT == dt.date(2026, 9, 29)
+    assert D.FREEZE_END == dt.date(2026, 10, 30)
+    assert D.FREEZE_START < D.FREEZE_SAFETY_CHECKPOINT < D.FREEZE_END
+
+
+def test_freeze_banner_names_the_checkpoint_and_the_override_token():
+    """A banner that says only 'edits are blocked' leaves a session guessing what the one
+    sanctioned exception is and how to invoke it -- so it names both, on both sides of the
+    checkpoint, and states that risk EXPANSIONS are never in scope."""
+    before = D.freeze_banner(dt.date(2026, 9, 2))
+    after = D.freeze_banner(dt.date(2026, 9, 30))
+    for banner in (before, after):
+        assert "2026-09-29" in banner
+        assert D.FREEZE_OVERRIDE_TOKEN in banner
+        assert "EXPANSIONS" in banner
+    assert "not before" in before
+    assert "has passed" in after
 
 
 @pytest.mark.parametrize(

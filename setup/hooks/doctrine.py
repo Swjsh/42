@@ -55,7 +55,18 @@ Project Gamma operating facts (5 that carry the most weight):
 # to any session between these dates.
 # --------------------------------------------------------------------------------------
 FREEZE_START = dt.date(2026, 8, 31)
-FREEZE_END = dt.date(2026, 9, 29)
+# 2026-10-30, NOT 09-29. The freeze must outlive the scoring window it protects: the
+# go-live decision itself is dated 10-30 (OPUS-WORK-ORDER-2026-09 §4), and 09-29 is a
+# CHECKPOINT inside the freeze -- the one date on which pre-registered kill-type risk
+# REDUCTIONS may ship -- not its end. Ending the freeze on 09-29 would silently unblock
+# trading-path edits a month early, in the middle of the very window whose cleanliness the
+# whole decision rests on, and nothing would report it: the banner would simply start
+# saying "freeze closed". Corrected 2026-09-02 after finding the constant still at 09-29.
+FREEZE_END = dt.date(2026, 10, 30)
+# The 09-29 checkpoint. Pre-registered kill-type RISK REDUCTIONS (never expansions) may
+# ship on/after this date while the freeze is still active, each with its own prereg,
+# guard, RED-proof and revert line -- applied with FREEZE_OVERRIDE_TOKEN in the invocation.
+FREEZE_SAFETY_CHECKPOINT = dt.date(2026, 9, 29)
 FREEZE_OVERRIDE_TOKEN = "GAMMA_FREEZE_OVERRIDE"
 
 # The decision+execution path scored by the gate. Suffix-matched against a normalised path.
@@ -677,9 +688,18 @@ def freeze_banner(today: dt.date, days_left: int | None = None) -> str:
         )
     if freeze_active(today):
         left = (FREEZE_END - today).days if days_left is None else days_left
+        if today < FREEZE_SAFETY_CHECKPOINT:
+            gap = (FREEZE_SAFETY_CHECKPOINT - today).days
+            when = (f"Pre-registered kill-type risk REDUCTIONS ship at the "
+                    f"{FREEZE_SAFETY_CHECKPOINT} safety checkpoint ({gap}d away), not before")
+        else:
+            when = (f"The {FREEZE_SAFETY_CHECKPOINT} safety checkpoint has passed: "
+                    f"pre-registered kill-type risk REDUCTIONS may ship")
         return (
             f"Config freeze ACTIVE ({FREEZE_START} -> {FREEZE_END}, {left}d left). "
-            f"Trading-path edits are blocked; pre-registered kill-type risk reductions are not."
+            f"Trading-path edits are blocked. {when} -- each needs its own prereg, guard, "
+            f"RED-proof and revert line, applied with {FREEZE_OVERRIDE_TOKEN} in the "
+            f"invocation. Risk EXPANSIONS wait for 10-30 regardless."
         )
     return f"Config freeze closed {FREEZE_END}. go_live_gate.py scores the window."
 
