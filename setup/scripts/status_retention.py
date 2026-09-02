@@ -134,12 +134,32 @@ PINNED_SECTIONS = ("## Known broken",)
 _ANY_H2 = re.compile(r"(?=^## )", re.M)
 
 
+def _is_pinned_heading_line(first_line: str) -> bool:
+    """A block is the real pinned section only if its FIRST LINE is the marker exactly
+    (trailing whitespace only) -- never a `startswith` prefix match.
+
+    THE SCAR (found live 2026-09-02): a numbered bullet -- "**3. `## Known broken` had
+    left the preamble again.** ..." -- lost its "**3. `" prefix somewhere upstream
+    (root cause not fully reproduced), so the line began "## Known broken` had left the
+    preamble again.**" at true column 0. `_ANY_H2` (line-start regex) then split on it
+    same as the real section, and the old `b.lstrip().startswith(name)` check matched
+    it too -- a `startswith` cannot tell "## Known broken" (the section) from
+    "## Known broken` had left..." (a decoy with the same prefix). `grep -c "^## Known
+    broken"` returned 2 in the live file where exactly 1 was ever intended, and the
+    decoy got hoisted into the preamble as if it were the section, polluting it.
+    Requiring the FIRST LINE to equal the marker exactly closes that gap: a decoy with
+    ANY trailing text on the same line can never match, no matter where it lands.
+    """
+    line = first_line.split("\n", 1)[0].rstrip()
+    return any(line == name for name in PINNED_SECTIONS)
+
+
 def _extract_pinned(entry: str) -> "tuple[str, str]":
     """Split one entry into (entry_without_pinned_block, pinned_block_or_empty)."""
     blocks = _ANY_H2.split(entry)
     keep, pinned = [], []
     for b in blocks:
-        if any(b.lstrip().startswith(name) for name in PINNED_SECTIONS):
+        if _is_pinned_heading_line(b.lstrip()):
             pinned.append(b)
         else:
             keep.append(b)

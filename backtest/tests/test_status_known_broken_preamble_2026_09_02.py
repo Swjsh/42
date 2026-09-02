@@ -171,6 +171,56 @@ def test_preamble_carries_a_do_not_move_note(text: str):
     )
 
 
+DECOY_TAIL = "` had left the preamble again.** Yesterday's fix moved it to the top; a\nproducer prepended a dated entry at line 1."
+
+
+def test_a_decoy_line_starting_with_the_marker_is_not_hoisted_as_the_section():
+    """A DECOY at true line-start must not read as the section -- caught live 2026-09-02.
+
+    `test_prose_quoting_the_marker_does_not_count_as_the_section` above proves a MID-LINE
+    quote of the marker is safely ignored. This is the other direction: prose that happens
+    to land AT column 0 still matched the OLD `b.lstrip().startswith(name)` check, because
+    `startswith` cannot distinguish "## Known broken" (the section) from "## Known broken`
+    had left..." (a decoy with the same prefix and arbitrary trailing text).
+
+    Found live: a numbered bullet -- "**3. `## Known broken` had left the preamble
+    again.** ..." -- lost its "**3. `" prefix somewhere upstream (root cause of the strip
+    not fully reproduced), leaving the marker starting a real line. `grep -c "^## Known
+    broken"` then returned 2 in the live STATUS.md where exactly 1 was ever intended, and
+    the decoy got hoisted into the preamble alongside the real section, polluting it.
+
+    Fix: `_is_pinned_heading_line` now requires the block's FIRST LINE to equal the marker
+    exactly (trailing whitespace only), never a prefix match. This fixture reproduces the
+    live shape -- a decoy block appearing BEFORE the real section within one entry -- and
+    asserts only the real section's content is hoisted.
+    """
+    sr = _retention()
+    # The decoy sits AT TRUE LINE START (column 0) -- reproducing the live shape where a
+    # bullet's "**3. `" prefix was stripped upstream, leaving the marker begin the line.
+    # A decoy that stays mid-line (preceded by "**3. `") never reaches `_ANY_H2` at all --
+    # that case is already covered by test_prose_quoting_the_marker_does_not_count_as_
+    # the_section above. This fixture is the OTHER failure mode: the decoy at column 0.
+    entry = (
+        "## [2026-09-02T07:20 ET] some entry\n"
+        "body text before the decoy.\n\n"
+        f"{MARKER}{DECOY_TAIL}\n\n"
+        "**Revoke:** `git revert deadbeef`.\n\n"
+        f"{MARKER}\n"
+        f"- {FINDING}\n\n"
+    )
+    keep, pinned = sr._extract_pinned(entry)
+    assert FINDING in pinned, "the real section did not get hoisted"
+    assert DECOY_TAIL not in pinned, (
+        "the decoy line (prose starting with the marker text, sitting at column 0) was "
+        "hoisted as if it were the real section -- a `startswith` match cannot tell a "
+        "decoy from the marker; the first line must equal the marker exactly"
+    )
+    assert f"{MARKER}{DECOY_TAIL}" in keep, (
+        "the decoy should stay behind in the entry body and roll off normally with it, "
+        "not vanish or get treated as pinned content"
+    )
+
+
 def test_prose_quoting_the_marker_does_not_count_as_the_section():
     """The section's own do-not-move note QUOTES `## Known broken` in a blockquote line.
 
