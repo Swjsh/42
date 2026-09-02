@@ -163,6 +163,66 @@ def _referenced_stems(stems: list[str]) -> Optional[set]:
     return {s for s in stems if s in hits}
 
 
+def _results_index() -> tuple[dict, dict]:
+    """One pass over every *.json in RECS_DIR (a bounded recommendations directory, not
+    a data ledger) building two lookup maps so a prereg can be matched to an existing
+    result file even when its OWN status field never got updated after the run:
+
+    - by_rule_id: rule_id string -> result filename (for result files that self-label
+      with the same rule_id the prereg carries)
+    - by_registration: prereg filename -> result filename (for result files that name
+      the exact prereg they ran via a `registration` field, the older convention)
+
+    Confirmed live 2026-09-02: 5 real preregs (recency-qty-clamp, ladder-vwap,
+    pdt-blocked-counterfactual via rule_id; expected-move-gate, morning-gate via
+    registration) already have a completed sibling result sitting on disk while their
+    OWN `status` field still reads a FROZEN/never-run value -- the PDT one was
+    RE-RUN from scratch this same night before the duplication was caught, burning
+    real Sonnet compute on an answer that already existed. This is the fix."""
+    by_rule_id: dict[str, list[str]] = {}
+    by_registration: dict[str, list[str]] = {}
+    for f in RECS_DIR.glob("*.json"):
+        if f.resolve() == OUT_FILE.resolve():
+            continue
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, ValueError, OSError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        rid = data.get("rule_id")
+        if isinstance(rid, str) and rid:
+            by_rule_id.setdefault(rid, []).append(f.name)
+        reg = data.get("registration")
+        if isinstance(reg, str) and reg:
+            by_registration.setdefault(Path(reg).name, []).append(f.name)
+    return by_rule_id, by_registration
+
+
+def _matching_result_file(prereg_path: Path, data: dict, by_rule_id: dict, by_registration: dict) -> Optional[str]:
+    """Best-effort: does this prereg already have a completed result sitting on disk?
+    Tries, in order: rule_id match, registration-field match (a result naming this
+    exact prereg filename), then the filename heuristic observed across every real
+    example found live (strip a leading 'prereg-', append '-results.json'). Every
+    branch excludes a self-match -- a prereg carrying its own rule_id (with no
+    separate result file) must never be reported as "has a matching result"."""
+    own = prereg_path.name
+    rid = data.get("rule_id")
+    if isinstance(rid, str) and rid in by_rule_id:
+        others = [n for n in by_rule_id[rid] if n != own]
+        if others:
+            return others[0]
+    reg_hits = [n for n in by_registration.get(own, []) if n != own]
+    if reg_hits:
+        return reg_hits[0]
+    stem = prereg_path.stem
+    bare = stem[len("prereg-"):] if stem.startswith("prereg-") else stem
+    candidate = RECS_DIR / f"{bare}-results.json"
+    if candidate.exists() and candidate.name != own:
+        return candidate.name
+    return None
+
+
 def _referenced_stems_python(stems: list[str]) -> set:
     """Fallback for when `rg` is unavailable: ONE combined tree walk (not one walk per
     stem -- that was measured at multi-minute runtime against this repo's tree) checking
@@ -212,24 +272,46 @@ def scan() -> dict:
     referenced = _referenced_stems(all_stems)
     if referenced is None:
         referenced = _referenced_stems_python(all_stems)
+    by_rule_id, by_registration = _results_index()
 
     entries = []
     flagged = []
+    has_results_count = 0
     for f, data in parsed:
         status = _status_field(data)
         age_days, age_source = _age_days(f, data)
         orphan = f.stem not in referenced
+        result_file = _matching_result_file(f, data, by_rule_id, by_registration)
+        has_results = result_file is not None
+        if has_results:
+            has_results_count += 1
         entry = {
             "file": f.name,
             "status": status,
             "age_days": round(age_days, 1),
             "age_source": age_source,
             "orphan": orphan,
+            "has_results_file": has_results,
+            "result_file": result_file,
         }
         entries.append(entry)
         is_stale_status = bool(status and STALE_STATUS_RE.search(status))
-        if is_stale_status and age_days > AGE_DAYS_THRESHOLD and orphan:
+        # A prereg with a matched result file was demonstrably RUN, regardless of what
+        # its own stale status text says -- never flag it as "FROZEN/NOT RUN". This is
+        # the fix for the class caught live 2026-09-02: 3 preregs sat FROZEN-labelled
+        # with a completed verdict already on disk, and one (PDT counterfactual) was
+        # actually RE-RUN from scratch the same night before the duplication was found.
+        if is_stale_status and age_days > AGE_DAYS_THRESHOLD and orphan and not has_results:
             flagged.append({**entry, "reason": "FROZEN/NOT RUN + age>14d + orphan"})
+    # Reconciliation candidates: a prereg whose OWN status text still reads as never-run
+    # even though a result file matched -- these are exactly the entries whose status
+    # field is stale bookkeeping, surfaced so the next adjudication pass doesn't have
+    # to re-discover this by hand (or worse, re-run the study) the way tonight did.
+    stale_status_but_has_results = [
+        {"file": e["file"], "status": e["status"], "result_file": e["result_file"]}
+        for e in entries
+        if e["has_results_file"] and bool(e["status"] and STALE_STATUS_RE.search(e["status"]))
+    ]
     return {
         "generated_at_et": _et_ts(),
         "n_total": len(files),
@@ -238,6 +320,8 @@ def scan() -> dict:
         "malformed": malformed,
         "n_flagged": len(flagged),
         "flagged": flagged,
+        "n_has_results_file": has_results_count,
+        "stale_status_but_has_results": stale_status_but_has_results,
         "entries": entries,
     }
 
