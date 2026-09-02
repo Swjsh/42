@@ -7,49 +7,48 @@
 
 **Filed:** 2026-08-24
 **Filer:** chef-nemotron (free-tier autonomous R&D)
-**Type:** quality_gate
+**Type:** filter_change
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Adding a strict VIX > 20 filter for bearish PUT entries will reduce losses on loser days by avoiding entries when volatility is too low (which often leads to failed breakdowns) while preserving the winner days which occur on higher volatility days. The J anchor winner days (4/29, 5/01, 5/04) all had VIX above 20 at entry, while the loser days (5/05, 5/06, 5/07) had mixed VIX but we expect to avoid some losing entries.
+Adding a VIX >= 20 filter to the BEARISH_REJECTION_RIDE_THE_RIBBON setup will reduce losses on losing J days (5/05, 5/06) by avoiding entries when VIX is low, while preserving winning entries on 4/29, 5/01, 5/04 which historically had elevated VIX.
 
 ## Mechanism
 
-We add a quality gate that checks the VIX at the time of entry for bearish PUT setups. If VIX <= 20, the entry is blocked. This filter is applied after the existing trigger conditions but before entry. The exit logic remains unchanged (chart-stop primary, chandelier profit-lock, etc.).
+Before entering a BEARISH_REJECTION_RIDE_THE_RIBBON trade, check the current VIX value. Only allow entry if VIX >= 20.0. This filter is applied in the entry path after all other triggers fire. Exit logic remains unchanged (chart-stop primary, chandelier profit-lock, etc.).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | Takes the trade (assumed) | Takes the trade (VIX was above 20) | 0 |
-| 5/01 winner | Takes the trade (assumed) | Takes the trade (VIX was above 20) | 0 |
-| 5/04 winner | Takes the trade (assumed) | Takes the trade (VIX was above 20) | 0 |
-| 5/05 loser | Takes the trade (assumed) | May skip if VIX <= 20 | -$260 (if skipped) or less loss |
-| 5/06 loser | Takes the trade (assumed) | May skip if VIX <= 20 | -$300 (if skipped) or less loss |
-| 5/07 loser 1 | Takes the trade (assumed) | May skip if VIX <= 20 | -$45 (if skipped) or less loss |
-| 5/07 loser 2 | Takes the trade (assumed) | May skip if VIX <= 20 | -$120 (if skipped) or less loss |
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
-(unknown -- requires Stage-1 backtest to quantify exact delta based on historical VIX values)
+(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)
 
 ## OP-20 disclosures
 
 1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline
-2. **Sample bias:** Based on 6 J anchor days (3 winners, 3 losers); high overfit risk; requires full 16-month Stage-1 backtest to validate
-3. **Out-of-sample:** NEEDS-OOS
-4. **Real-fills:** NEEDS-REAL-FILLS
-5. **Failure modes:** Worst day: skipping a winner due to VIX<=20 (lose up to $730); max drawdown: increased if skipping winners in low-VIX regimes; blow-up: sustained low VIX causing low turnover and missed opportunities
-6. **Concentration:** unknown -- requires Stage-1 backtest
+2. **Sample bias:** We propose to test on the full 16-month SPY 5m bar dataset (2025-01-02 to 2026-06-18) using the BEARISH_REJECTION_RIDE_THE_RIBBON trigger as base. Sample size is all trigger fires; risk of overfit due to single-parameter addition.
+3. **Out-of-sample:** NEEDS-OOS (walk-forward held-out window not yet conducted)
+4. **Real-fills:** NEEDS-REAL-FILLS (real-fills check on top 3 J days not yet done)
+5. **Failure modes:** Worst day: if VIX filter is too restrictive, could skip winning entries on days where VIX dips below 20 intraday but recovers, turning winners into losers. Max drawdown scenario: consecutive losing days where VIX >=20 leads to multiple losses. Blow-up scenario: sudden VIX spike causing large adverse moves on filtered entries.
+6. **Concentration:** unknown -- requires Stage-1 backtest to compute concentration of P&L on top-5 days.
 
 ## Pre-merge gate
 
-Gym validators (all pass), walk-forward OOS positive with WF >= 0.70, sub-window stability (≤1 negative quarter in OOS), anchor no-regression (all 3 J winner days taken), real-fills check on top 3 J days (diff < ±20% from BS sim), OP-20 disclosures completed with actual results
+Gym validators must pass, walk-forward OOS test must show Sharpe >= 0.70 and positive edge_capture, and real-fills validation on J anchor days must be within ±20% deviation.
 
 ## Confidence
 
-5 / 10 -- Based on playbook VIX confirmation rule but lacks exact J-day VIX data and loser-day impact quantification
+4 / 10 -- based on hypothesis that VIX >=20 aligns with bearish put setups, but lack of backtest data.
 
 ## Pre-existing leaderboard impact
 
-Complements existing structure_veto and midday_trendline_gate; no known conflicts with ratified candidates; new quality_gate stackable with existing gates
----
+Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK (which deals with call side) and may interact with STRUCTURE_VETO_DIR_VS_TREND (which uses market structure). No direct overlap.
