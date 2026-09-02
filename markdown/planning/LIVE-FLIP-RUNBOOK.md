@@ -215,6 +215,53 @@ caps, not the doctrine prose (`FABLE-FULL-AUDIT-2026-09-01.md` §3.1). Any singl
 any point **freezes the ramp at the current size** (does not necessarily revert — see §5 for
 which triggers demand immediate revert vs freeze-and-review).
 
+
+### 4a. What month ONE actually looks like, in dollars (2026-09-02)
+
+The gate answers *"is the edge real?"*. It does not answer the question a person asks before
+turning on real money. This does. Day-level bootstrap, 20,000 ordered 20-day months resampled
+with replacement over trading DAYS (trades within a day are correlated), 2c/contract exit
+slippage plus the real OCC/ORF/TAF/SEC/CAT fee model. Ordered, because **max drawdown is a
+path statistic** — two months with the same total differ in how deep they go.
+Producer: `setup/scripts/first_live_month_model.py` → `analysis/first-live-month/<arm>.json`.
+
+| arm | | P(month<0) | month p5 | month median | maxDD p95 |
+|---|---|---|---|---|---|
+| **safe-3** *(prod-shadow)* | uncapped | 0.322 | −$1,821 | +$651 | −$2,553 |
+| **safe-3** | **with −$400/day cap** | **0.164** | **−$684** | **+$1,083** | **−$1,294** |
+| safe-2 | uncapped | 0.577 | −$1,965 | −$217 | −$2,293 |
+| safe-2 | with cap | 0.577 | −$1,965 | −$217 | −$2,293 |
+| bold-2 | with cap | 0.379 | −$1,550 | +$349 | −$2,072 |
+| risky-1 | with cap | 0.219 | −$1,213 | +$1,147 | −$1,947 |
+| risky-3 | with cap | 0.374 | −$1,632 | +$428 | −$2,119 |
+
+**Three things this says that nothing else on the board said.**
+
+1. **The −$400/day cap is doing most of the work on safe-3.** It roughly halves the chance of
+   a down month (0.322 → 0.164), cuts the 5th-percentile month by 62% (−$1,821 → −$684) and the
+   95th-percentile drawdown by 49% (−$2,553 → −$1,294). The ramp in §4 above reaches that cap
+   only in **Week 2** — so Week 1 runs in the *uncapped* column, where a bad month is −$1,821
+   and a bad path is −$2,553, about **48% of a ~$5.3K account**.
+2. **The cap has never bound on safe-2 — by $8.67.** safe-2's worst observed day is −$391.33
+   against a −$400 cap, which is why its capped and uncapped rows are identical. The control is
+   untested on that arm, not proven harmless on it.
+3. **safe-3 is the better arm on this measure** (P(month<0) 0.164 vs safe-2's 0.577, median
+   +$1,083 vs −$217), which is consistent with it being the designated prod-shadow arm — but
+   see the limits below before reading that as a green light.
+
+**Limits, and they are load-bearing.** A bootstrap cannot produce a day worse than the worst
+day it was given, and every arm's history here is **calm-regime** — the gate discloses zero
+days with VIX>20 and zero days down more than 1%. So every tail above is a **LOWER BOUND on a
+stressed month, not a forecast of one**. Days are resampled i.i.d., discarding autocorrelation,
+so if bad days cluster the real drawdowns are deeper. And none of this touches criterion 1,
+which still FAILS on every arm (CI-lower 0.333–0.412 against a 1.0 bar): *this is what the
+month looks like IF the edge is real, and the gate does not say it is.*
+
+**Method cross-check.** The 2026-09-01 audit computed safe-2 independently and got
+P(month<0)=0.55, p5 −$1,895, maxDD p95 −$2,225. This producer, written from the A1 bootstrap's
+fee model but with its own path logic, gets **0.577 / −$1,965 / −$2,293** on the same arm —
+agreement to a few percent on all three. The numbers above are reproducible, not a one-off.
+
 ---
 
 ## 5. Abort criteria — any ONE of these triggers §6 immediately, no discretion

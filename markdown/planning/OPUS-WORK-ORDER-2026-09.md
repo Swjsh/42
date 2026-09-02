@@ -547,9 +547,25 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 - [ ] **After-tax target.** SPY options = ordinary short-term + wash-sale. *Done:* an after-tax version of
   the $100–200/day target under two illustrative brackets, labeled NOT TAX ADVICE, plus the CPA
   question list for J (§6).
-- [ ] **First-live-month dollar model for safe-3** (the audit computed safe-2's): 20-day bootstraps on
-  the frozen-window days as they accrue; P(month<0), p5, maxDD p95, under the live caps.
-  *Done:* a table in the runbook §4.
+- [x] **First-live-month dollar model for safe-3 — DONE 2026-09-02.** Table lives in
+  `LIVE-FLIP-RUNBOOK.md` §4a; producer `setup/scripts/first_live_month_model.py` →
+  `analysis/first-live-month/<arm>.json`; guards `test_first_live_month_model_2026_09_02.py` (16).
+  Computed for **all six arms**, not just safe-3, since the marginal cost was zero and the comparison
+  is the point. **safe-3: P(month<0) 0.322 → 0.164 with the −$400/day cap, month p5 −$1,821 → −$684,
+  maxDD p95 −$2,553 → −$1,294.**
+  Three things it says that nothing else on the board did: (1) **the −$400 cap does most of the work**
+  — it halves P(month<0) and cuts the p5 month by 62% — yet §4's ramp only reaches that cap in
+  **Week 2**, so Week 1 runs uncapped where a bad path is −$2,553, ~**48% of a $5.3K account**;
+  (2) **the cap has never bound on safe-2 — by $8.67** (worst observed day −$391.33 against a −$400
+  cap), so it is untested there, not proven harmless; (3) safe-3 is the better arm on this measure
+  (P(month<0) 0.164 vs safe-2's 0.577), consistent with its prod-shadow designation.
+  **Note the deliberate frame:** the box asked for bootstraps on *frozen-window days as they accrue*,
+  and the frozen window holds ONE day — so this is computed on each arm's full real-fills history
+  instead, and says so. It is what the month looks like IF the edge is real; criterion 1 still FAILS
+  on every arm, and every tail is a **lower bound** because the entire history is calm-regime.
+  **Method cross-checked, not asserted:** the audit's independent safe-2 figures were 0.55 /
+  −$1,895 / −$2,225; this producer gets **0.577 / −$1,965 / −$2,293** on the same arm — agreement to a
+  few percent on all three.
 
 ### 2c. Drills (paper; scheduled, announced in STATUS the day before)
 - [ ] **Dead-man's-switch kill drill** — ≥5 kills of `Gamma_HeartbeatCore` mid-session with an open

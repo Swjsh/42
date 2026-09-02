@@ -1,0 +1,53 @@
+{
+  "arm": "safe-2",
+  "slip_cents": 2.0,
+  "trading_days_per_month": 20,
+  "daily_loss_cap": -400.0,
+  "scenarios": {
+    "uncapped": {
+      "n_observed_days": 32,
+      "observed_day_mean": -9.19,
+      "observed_day_worst": -391.33,
+      "observed_day_best": 660.95,
+      "n_boot": 20000,
+      "P(month<0)": 0.577,
+      "month_p5": -1965.14,
+      "month_median": -216.73,
+      "month_p95": 1681.07,
+      "month_mean": -187.52,
+      "maxDD_p50": -1101.48,
+      "maxDD_p95": -2292.65,
+      "maxDD_worst": -3971.44,
+      "observed_total": -294.21,
+      "window": [
+        "2026-06-26",
+        "2026-09-01"
+      ]
+    },
+    "with_400_daily_cap": {
+      "n_observed_days": 32,
+      "observed_day_mean": -9.19,
+      "observed_day_worst": -391.33,
+      "observed_day_best": 660.95,
+      "n_boot": 20000,
+      "P(month<0)": 0.577,
+      "month_p5": -1965.14,
+      "month_median": -216.73,
+      "month_p95": 1681.07,
+      "month_mean": -187.52,
+      "maxDD_p50": -1101.48,
+      "maxDD_p95": -2292.65,
+      "maxDD_worst": -3971.44,
+      "observed_total": -294.21,
+      "window": [
+        "2026-06-26",
+        "2026-09-01"
+      ]
+    }
+  },
+  "limits": [
+    "A bootstrap cannot produce a day worse than the worst day observed. This arm's history is calm-regime -- the go-live gate discloses zero days with VIX>20 and zero days down more than 1% -- so these tails are LOWER BOUNDS on a stressed month, not forecasts of one.",
+    "Days are resampled i.i.d., discarding autocorrelation. If bad days cluster, real drawdowns are deeper than modelled.",
+    "The -$400 cap is applied as a floor on each resampled day, which is the cap's intent rather than a tick-level simulation of it."
+  ]
+}
