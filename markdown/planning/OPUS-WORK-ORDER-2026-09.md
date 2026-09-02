@@ -50,7 +50,18 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
 ### Landed tonight (04f80c3f) — verify they behave on their first live day
 - [x] Dead-man's switch (`Gamma_DeadMansSwitch`, /2 min RTH), kill-switch wiring, conductor picker,
   gate criterion 5 + disclosures, generator fixes, preregs, docs. See audit §6.
-- [ ] **09-02 16:30 ET — first-live-day review (Opus, 20 min).** Read `automation/state/dead-mans-switch.json`
+- [ ] **09-02 16:30 ET — first-live-day review — MECHANISED 2026-09-02 02:15 ET, box stays OPEN until
+  today's fire produces a verdict.** This was a 20-minute checklist a human had to remember to run; §5's own
+  cadence rule says recurring work becomes a $0 script, so it is one: `setup/scripts/first_live_day_review.py`
+  → `analysis/first-live-day/{date}.json`, fired by `Gamma_FirstLiveDayReview` daily 16:30 ET
+  (registered + fired end-to-end, `exit=0`, artifact written — commit `ccf128e1`). Seven checks, pure stdlib,
+  no LLM. **Nothing is ticked by building it:** the DMS's own first production fire is 09:32 ET *today*, so the
+  first real verdict does not exist until 16:30 ET. A later session reads that JSON and closes this box —
+  and must read the `guards_full` check's reason FIRST, because `Gamma_GuardsFull` has produced no verdict
+  since 08-31 and a fresh-looking count off a stale state file is the failure this review must not launder.
+  Two build defects worth naming, both C7: `NO_DATA` was first ranked *better than GREEN* (a day with no state
+  files at all would have graded a clean pass), and `check_guards_full` reported its count before its staleness.
+  Manual fallback if the task is dark — read `automation/state/dead-mans-switch.json`
   + `automation/state/logs/dead-mans-switch-2026-09-02.jsonl`: fired every 2 min 09:32–15:58? every
   arm `LIVE_NO_ACTION`/`STALE_BUT_FLAT`, zero `FLATTENED`, zero `ERROR`? `engine_health.py` →
   `escalation_flags` GREEN, `duplicate_ticks` clean? Did `Gamma_EodFlatten_Aggressive` reach the
