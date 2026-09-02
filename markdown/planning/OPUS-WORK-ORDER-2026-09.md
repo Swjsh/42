@@ -721,7 +721,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   fire-and-forget hop · `executed_stop_pct/price` logging · weekly circuit breaker (block-only) ·
   safe-2 retirement mechanics (ACCOUNTS from accounts.json, not hardcoded) · canary already moved.
   **BRANCH STATE 2026-09-02** — `safety-bundle-2026-09-29`, 2 commits, none merged:
-  `a632fb2c` fleet daily-loss kill-switch latch · **`93a3ccc3` + `d7c0b3db` executed-stop logging, BOTH HALVES DONE (NEW)**.
+  `a632fb2c` fleet daily-loss kill-switch latch · **`93a3ccc3` + `d7c0b3db` executed-stop logging, BOTH HALVES DONE** · **`79b6d1ae` early-close entry cutoff + calendar-relative `_is_rth` (NEW)**.
   The logging component lands `armed_stop_kind` / `armed_stop_level` / `armed_stop_premium` /
   **`armed_stop_at_exit_premium`** / `armed_stop_at_exit_level` on `ExitAction`, plus
   `stop_exit_slack_dollars()` and `executed_stop_pct()` helpers, closing §2a's
@@ -741,8 +741,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   order-CREATE response for a market sell carries `filled_avg_price: null`, so the common case
   is honestly "unknown yet"; it records None rather than substituting the quote or the stop
   level, and the authoritative fill joins later by `order_id`. RED-proofed that a fabricated
-  fallback fill is caught. **Remaining on this branch:** `time_stop_et ≤15:20`; early-close entry cutoff +
-  calendar-relative `_is_rth`; exit-pass pidfile mutex; safe-2 retirement mechanics. The weekly
+  fallback fill is caught. **Early-close entry cutoff DONE in `79b6d1ae`** — the asymmetry was real: the FLATTEN path learned about early closes on 09-02 (B2) and the ENTRY path never did, so on a 13:00 close the fixed 15:00 ceiling sat **two hours after the market shut** and 12:55 was a legal entry minute (the drill itself swept at 12:45, also legal). Cutoff is DERIVED from doctrine's own 60-minutes-before-close ratio, so a normal day is provably byte-identical and no second constant can drift. Cache-only read (no network on the 1-min tick), unknown close keeps today's behaviour, and `test_the_cutoff_can_only_ever_tighten` sweeps 5 closes × every quarter-hour to prove it can never ENABLE an entry — kill-type asserted, not argued. **Remaining on this branch:** `time_stop_et ≤15:20`; exit-pass pidfile mutex; safe-2 retirement mechanics. The weekly
   circuit breaker is NOT shipping — its own prereg (`3401e5fe`) returned a null.
 - [ ] **Do NOT ship** anything from §4. If J wants `feed=sip` earlier for data fidelity, that is a
   `[FABLE-OR-J]` trade of clock purity for realism; default is wait.
