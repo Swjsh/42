@@ -157,9 +157,25 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   with Task Scheduler `IgnoreNew` preventing overlap; a stale signal blocks entries only, never exits.
   **Correction to this order's own text:** "it reads NO halt file today — confirm" is STALE — it does
   read one, every tick, since B5 shipped 2026-09-01.
-- [ ] **risky-1 FULL-SEND lane.** `a9c157a9` (08-29) disarmed the never-fired FULL-SEND producer;
-  accounts.json still carries `full_send: true` and a long doc. Confirm the lane is inert end to end
-  (producer flag + consumer), then decide: strip the dead key at 10-30 or keep as documented history.
+- [x] **risky-1 FULL-SEND lane.** — **DONE 2026-09-02 (Opus). The lane is NOT inert end to end, and the
+  key is NOT dead — so the 10-30 "strip it" option is a SHAPE CHANGE, not housekeeping.**
+  *Producer: disarmed, confirmed.* `build_shared_signal.FULL_SEND_LIVE = False` (line 1208), so the
+  full-send ENTRY lane (the extra trades it used to admit via `FULL_SEND_ALLOWED_VERDICTS`) is dead.
+  *Consumer: STILL LIVE.* risky-1's `gate_override` still carries `full_send: true`, and
+  `fleet_executor._is_full_send` (line 176-178) reads **that key**, not `FULL_SEND_LIVE`. It gates
+  `_apply_full_send_min_sizing` (line 300), which is called on BOTH live entry paths (lines 763 and 962)
+  and *"clamps qty DOWN to params.min_contracts on EVERY entry a full-send arm makes"*. That function's
+  own comment says it outright: *"risky-1 is full_send=true AND live=true"*.
+  *Production evidence, not inference:* risky-1's `decisions.jsonl` carries **30 clamp firings** —
+  **27× `qty clamped 8->5: FULL_SEND min size`** and **3× `12->5`** — most recently 2026-08-12. So the
+  arm's realized sizing is the FULL-SEND min-size profile, not its nominal "risky" sizing.
+  **Consequences.** (a) risky-1 appears in the gate's `$/day needed` table (52.45) as a risky-sized arm;
+  it is in fact structurally min-sized, so its dollar capacity is capped in a way the table does not say.
+  (b) Removing `full_send: true` would CHANGE risky-1's live sizing — that is a shape change and waits
+  for 10-30 under §0 regardless of the producer being dead. (c) The `full_send_doc` remains accurate as
+  history but its "disarmed" framing is incomplete: say **producer disarmed, sizing clamp still live**.
+  *Decision for the 10-30 menu:* strip the key AND the clamp together, or keep both — never strip the doc
+  while leaving the clamp, which is the state that would read as inert while still acting.
 - [ ] **WATCHER-LANE-PROVENANCE-AUDIT** (HIGH, open since 08-23): 5 extra_signals with zero real trades,
   VWAP_CONTINUATION −$1,046. *Done:* per-signal provenance (J-ratified with citation vs Claude-invented),
   verdict SHADOW/KEEP, staged params change for the 10-30 bundle (params.json is frozen).
