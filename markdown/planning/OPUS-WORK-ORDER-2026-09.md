@@ -331,8 +331,29 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   real quotes if available (paper-only support at Alpaca per REGULATORY doc), else labeled sim.
   *Done:* prereg + first battery + an after-tax comparison line. `[FABLE-OR-J]` on whether it ever
   becomes a lane — this month only answers "is it worth a lane".
-- [ ] **Per-hour and bear-side entry study** for the 10-30 menu: 11:xx/12:xx (−$599/−$984) vs 10:xx/14:xx;
-  puts −$1,160. Pre-register as candidate gates; DO NOT ship in-window. *Done:* preregs with kill nails.
+- [x] **Per-hour and bear-side entry study** — **DONE 2026-09-02 (Opus). Two preregs filed; and the
+  audit's own 11:xx candidate is KILLED by the measurement that was meant to support it.**
+  *⚠️ 11:xx SIGN-FLIPS BY ERA.* Full window (06-26..09-01) 11:xx = −$599; **post-ladder (≥08-11) 11:xx =
+  +$882** (per-trade +$28.45, WR 38.7%, ex-best-day +$107). The combined 11+12 window is −$1,583 on the
+  full window but **+$26 — flat — post-ladder**. Shipping the audit's proposed 11:xx+12:xx no-trade
+  window would have **removed +$882 from the era we actually trade**. The candidate was an artifact of
+  the pre-ladder engine. KILLED; do not carry 11:xx to the 10-30 menu.
+  *12:xx survives* — the only hour negative in BOTH eras and ex-best-day in both: −$984 full (n=48),
+  −$856 post-ladder (n=18, per-trade −$47.56, WR 16.7%). Filed as
+  `analysis/recommendations/prereg-hour-gate-12xx-2026-09-02.json` with nails ERA_FLIP / UNPOWERED /
+  CANNIBALISATION / CONCENTRATION. n=18 post-ladder is thin and the prereg says so.
+  *Bear side is the strongest candidate on the menu* — unlike 11:xx it does NOT flip: puts −$1,160 full
+  (n=144), −$826 post-ladder (n=72, per-trade −$11.47), **negative ex-best-day in both** (−$2,661 /
+  −$1,691), against calls post-ladder +$3,709 (per-trade +$44.15, ex-best-day **+$1,692**). Filed as
+  `analysis/recommendations/prereg-bear-side-2026-09-02.json`.
+  **That prereg refuses to let "disarm" be the default reading.** BEARISH_REJECTION enters on
+  `trendline_rejection`, whose trigger is a SLOPED line with no single price, so its structure stop keys
+  on a reconstructed level (conviction.py:64). *A directional edge exited badly reads identically to no
+  edge at trip level.* The prereg therefore REQUIRES an exit discriminator (re-walk the puts under the
+  recorded stop vs a premium stop) before any disarm may be proposed — because **a disarmed lane stops
+  generating the data that would refute the disarm**. Nails: EXIT_ARTIFACT / REGIME_BOUND / UNPOWERED /
+  DOCTRINE (OP-16 holds both directions ACTIVE; disarming one is a doctrine change needing J, not a knob).
+  Neither ships in-window — both are SHAPE changes, 10-30 menu only.
 - [ ] **After-tax target.** SPY options = ordinary short-term + wash-sale. *Done:* an after-tax version of
   the $100–200/day target under two illustrative brackets, labeled NOT TAX ADVICE, plus the CPA
   question list for J (§6).

@@ -1,0 +1,29 @@
+{
+  "id": "PREREG-HOUR-GATE-12XX-2026-09-02",
+  "status": "FROZEN -- NOT RUN as a shipping decision. Measurement recorded; the SHIP/KILL adjudication happens on the 2026-10-30 shape-change menu, never in-window (config freeze, work-order §0).",
+  "filed_by": "Opus session 2026-09-02, work-order §2b 'per-hour and bear-side entry study'",
+  "filed_at_et": "2026-09-02T01:35",
+  "hypothesis": "A no-new-entry window covering 12:00-12:59 ET improves the book. The candidate hour was PRE-SPECIFIED by the 2026-09-01 audit (which named 11:xx/12:xx at -$599/-$984), not selected after inspecting this data.",
+  "what_the_measurement_says": {
+    "full_window_2026_06_26_to_09_01": "12:xx n=48 over 16 days, total -$984, per-trade -$20.50, WR 20.8%, ex-best-day -$3,176",
+    "post_ladder_2026_08_11_plus": "12:xx n=18 over 7 days, total -$856, per-trade -$47.56, WR 16.7%, ex-best-day -$1,047",
+    "why_it_survives": "12:xx is the ONLY hour negative in BOTH eras, and it is negative ex-best-day in both. It is the single most consistent losing hour in the ledger.",
+    "power_caveat_stated_before_any_decision": "n=18 in the era that matters. That is far below any n>=20 DAY bar; this is a candidate, not a validated gate."
+  },
+  "sibling_candidate_KILLED_by_this_same_measurement": {
+    "which": "the 11:xx half of the audit's proposed 11:xx+12:xx no-trade window",
+    "nail": "SIGN FLIP BY ERA. 11:xx is -$599 on the full window but +$882 post-ladder (per-trade +$28.45, WR 38.7%, ex-best-day +$107). The combined 11+12 window is -$1,583 full but +$26 post-ladder -- i.e. flat, not negative. Gating 11:xx on the full-window evidence would REMOVE +$882 from the era we actually trade. The candidate is an artifact of the pre-ladder engine.",
+    "verdict": "KILLED. Do not carry 11:xx into the 10-30 menu."
+  },
+  "pass_criterion_frozen": "SHIP only if, at the 2026-10-30 adjudication on >=20 post-ladder trading days: 12:xx total is still negative on the frozen window AND negative ex-best-day AND the day-count of losing 12:xx days exceeds winning ones AND removing 12:xx entries does not reduce the book's total (no cannibalisation -- a blocked 12:xx entry must not simply reappear as a worse 13:xx entry).",
+  "kill_nails": {
+    "ERA_FLIP": "12:xx turns non-negative on the post-ladder window as n grows -- the same nail that killed 11:xx.",
+    "UNPOWERED": "fewer than 20 post-ladder 12:xx trading days at adjudication -- park, do not conclude.",
+    "CANNIBALISATION": "blocking 12:xx does not improve the book because the entries reappear in adjacent hours.",
+    "CONCENTRATION": "the negative total is carried by a single day (check ex-worst-day as well as ex-best-day)."
+  },
+  "does_this_ship_anything": "No. Measurement only. A no-trade-hour gate is a SHAPE change (it changes which trades are taken) and is forbidden before 2026-10-30 by the work order's §0 freeze decision.",
+  "look_ahead_guards": "entry_hour_et is recorded at entry time from the fill timestamp; no outcome-conditioned field is used to define the bucket. Hours were pre-specified by the prior audit.",
+  "consumer": "the 2026-10-30 shape-change menu (work-order §4).",
+  "revoke": "delete this file"
+}

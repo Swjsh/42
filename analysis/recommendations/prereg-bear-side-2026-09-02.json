@@ -1,0 +1,28 @@
+{
+  "id": "PREREG-BEAR-SIDE-2026-09-02",
+  "status": "FROZEN -- NOT RUN as a shipping decision. Adjudicated on the 2026-10-30 menu only.",
+  "filed_by": "Opus session 2026-09-02, work-order §2b 'per-hour and bear-side entry study'",
+  "filed_at_et": "2026-09-02T01:35",
+  "hypothesis": "The bear side (puts) does not carry its own weight and should be disarmed or fixed. PRE-SPECIFIED by the 2026-09-01 audit (puts -$1,160), not selected after inspection.",
+  "what_the_measurement_says": {
+    "puts_full_window": "n=144 over 31 days, total -$1,160, per-trade -$8.06, WR 30.6%, ex-best-day -$2,661",
+    "puts_post_ladder": "n=72 over 12 days, total -$826, per-trade -$11.47, WR 34.7%, ex-best-day -$1,691",
+    "calls_post_ladder_for_contrast": "n=84 over 10 days, total +$3,709, per-trade +$44.15, WR 40.5%, ex-best-day +$1,692",
+    "why_this_is_the_strongest_candidate_on_the_menu": "Unlike the 11:xx hour gate, the put result does NOT flip by era: negative on the full window, negative post-ladder, and negative EX-BEST-DAY in both. n=72 post-ladder is also the largest sample of any candidate."
+  },
+  "the_two_readings_that_must_be_separated_before_any_ship": {
+    "A_direction_is_dead": "the bear setup has no edge in this regime and should be disarmed.",
+    "B_direction_is_fine_the_EXIT_is_wrong": "BEARISH_REJECTION enters on trendline_rejection, whose trigger is a SLOPED line with no single price -- so its structure stop keys on a reconstructed/parallel level rather than a named horizontal one (see conviction.py:64 and the 2026-09-02 walker-fidelity work). A directional edge exited badly reads identically to no edge at trip level.",
+    "discriminator": "re-walk the put population through the production exit_manager with (i) its recorded stop and (ii) a premium-mode stop, and compare. If B, the fix is the exit, not a disarm. This discriminator MUST be run before any disarm is proposed -- disarming a direction is not reversible in evidence terms, because a disarmed lane stops generating the data that would refute the disarm."
+  },
+  "pass_criterion_frozen": "Propose a bear-side change at 2026-10-30 only if, on >=20 post-ladder trading days: puts remain negative as-traded AND ex-best-day AND cost-adjusted, AND the exit discriminator above has been run and reports which of reading A or B holds. A disarm proposal additionally requires that reading A survive the discriminator.",
+  "kill_nails": {
+    "EXIT_ARTIFACT": "the discriminator shows the put population is positive under a correctly-referenced stop -- then this is an EXIT defect and disarming the direction would destroy a real edge.",
+    "REGIME_BOUND": "the put result is confined to a single directional tape; a bear tape in the window flips it (the calls-carry-everything pattern is exactly what a rising tape produces -- see the whole-engine null study, which exists to separate edge from long beta).",
+    "UNPOWERED": "fewer than 20 post-ladder days at adjudication -- park.",
+    "DOCTRINE": "OP-16 states both directions are ACTIVE and that direction is not a scope -- validation is. Disarming a direction is a doctrine change, not a knob, and needs J."
+  },
+  "does_this_ship_anything": "No. Measurement only. Both a disarm and an exit change are SHAPE changes, forbidden before 2026-10-30 by the work order's §0 freeze decision. Live-money arming of either direction needs J (OP-0 #1).",
+  "consumer": "the 2026-10-30 shape-change menu (work-order §4).",
+  "revoke": "delete this file"
+}
