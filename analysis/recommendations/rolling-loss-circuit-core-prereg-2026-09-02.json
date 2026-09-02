@@ -1,0 +1,77 @@
+{
+  "rule_id": "rolling-loss-circuit-core-2026-09-02",
+  "title": "FORWARD pre-registration -- a MULTI-DAY realized-loss circuit for the core arms. The in-sample evidence is a NULL; these thresholds are frozen to be judged forward, not armed.",
+  "status": "FROZEN_PREREG_FORWARD",
+  "frozen_at_et": "2026-09-02 07:26 ET (market CLOSED -- et_clock.py verified market_hours=False at freeze time)",
+  "opened_by": "queue.md WEEKLY-CIRCUIT-BREAKER-CORE; markdown/planning/OPUS-WORK-ORDER-2026-09.md section 2d",
+  "instrument": "setup/scripts/rolling_loss_circuit_study.py",
+  "guard": "backtest/tests/test_rolling_loss_circuit_2026_09_02.py (16 tests, 8 mutations RED-proofed)",
+  "calibration_report": "analysis/recommendations/rolling-loss-circuit-core-2026-09-02.json",
+  "shadow_only": "MEASUREMENT ONLY -- this rule refuses NOTHING live during the window, and nothing in the frozen trading path imports the study module.",
+
+  "the_gap_in_one_paragraph": "Rule 5's kill switch is per-DAY: -30% of start-of-day equity (Safe) / -50% (Bold). The 2026-08-18 day-throttle pre-registration already established it has never been reachable -- across 105 arm-days the worst day was -24.4%, p10 -10.1%. Nothing in the core path looks ACROSS days, so a run of ordinary losing days compounds without any control ever being consulted. The weekly lane has a multi-day circuit (weekly/lib/kill_switch.py); the core arms have none. On the real-fills record the gap is genuine and reachable: 3-day rolling realized losses reach -$640 (safe-2), -$955 (bold-2), -$1,306 (safe-3), -$1,214 (risky-1) and -$1,252 (risky-3) on ~$5,000 accounts -- roughly -26% spread across days, which the per-day switch cannot see.",
+
+  "the_finding_that_kills_the_obvious_version": "A trailing-loss circuit blocks the REBOUND. Across an 8-cell grid (windows 3 and 5 x thresholds $400/$600/$800/$1000) run against the real ledger, EVERY cell cost the book money (-$53 to -$1,718) and SIX OF EIGHT made the worst per-arm drawdown DEEPER rather than shallower. Mechanism, verified on a single named case rather than asserted: safe-3 lost -1048 / -156 / -102 over three consecutive trading days, which trips a 3-day/-$1000 circuit, and the very next session was +457. Blocking that day removed the recovery and left the cumulative curve at its trough for longer. This is consistent with the per-arm window table, where 10-day worst windows are frequently SHALLOWER than 3-day worst windows (safe-3: 3d -1306 vs 10d -482) -- i.e. within this record, drawdowns mean-revert.",
+
+  "why_this_is_not_'never_build_it'": "The record contains no regime in which a drawdown failed to recover, so the study cannot speak to the case a circuit breaker exists for. A null here is an absence of evidence FOR the proposed thresholds, not evidence that multi-day risk control is wrong. That is precisely why this is a FORWARD pre-registration rather than a kill.",
+
+  "frozen_candidates": [
+    {
+      "id": "W5_T800",
+      "window_trading_days_with_fills": 5,
+      "threshold_dollars": 800.0,
+      "in_sample_book_delta": -61.0,
+      "in_sample_dd_improvement": 398.0,
+      "in_sample_trips": 4
+    },
+    {
+      "id": "W5_T1000",
+      "window_trading_days_with_fills": 5,
+      "threshold_dollars": 1000.0,
+      "in_sample_book_delta": -53.0,
+      "in_sample_dd_improvement": 133.0,
+      "in_sample_trips": 2
+    }
+  ],
+  "why_only_these_two": "They are the only two cells of eight whose drawdown improvement was positive, at near-zero P&L cost. They are frozen because they are the only candidates the data does not already refute -- NOT because they are supported.",
+
+  "disclosures_that_bound_every_number_above": [
+    "SINGLE-EVENT DEPENDENCE, the most important one. At W5_T1000 the ENTIRE +133 drawdown improvement comes from risky-1 blocking ONE day, 2026-08-12. At W5_T800 the improvement clusters on 2026-08-12..08-14 across risky-1 and risky-3. Both survivors rest on one mid-August stretch. n=1 event, not a distribution; the correct prior is that they are noise.",
+    "THE WINDOWS OVERLAP. A 3-day rolling window over 32 trading days yields 30 windows sharing 2/3 of their data. Percentiles over them describe one bad stretch, not a tail probability.",
+    "SAMPLE IS 22-32 TRADING DAYS PER ARM (safe-2 32, bold-2 22, safe-3 26, risky-1 26, risky-3 31). Any threshold that looks good here is fitted in-sample to one regime.",
+    "'DAYS' MEANS TRADING DAYS WITH FILLS, not calendar days. Sitting out is a valid day (J 2026-08-12) and carries no realized P&L; including no-fill days as zeros would dilute the window and make the circuit least sensitive exactly when the engine has gone quiet. A reader could reasonably choose the other convention -- stated so the choice is visible.",
+    "NO MULTIPLE-COMPARISONS CORRECTION IS APPLIED to the 8-cell grid, because no cell is being claimed as a finding. If a forward result is ever promoted, the grid size must enter that decision."
+  ],
+
+  "semantics_fixed_not_a_parameter": {
+    "action": "BLOCK NEW ENTRIES ONLY",
+    "never": "FORCE-CLOSE",
+    "reason": "Force-closing on a multi-day drawdown liquidates positions the strategy is designed to manage on its own terms -- a risk-control-SHAPED strategy change, not a safety measure. Same posture argued at length in weekly/lib/kill_switch.py. The study module contains no order path at all (AST-guarded).",
+    "per_account": "Evaluated per ARM against that arm's own realized P&L. Kill switches are isolated (Rule 5); one arm's circuit must never halt another."
+  },
+
+  "forward_evaluation": {
+    "window": "2026-09-02 .. 2026-10-30 (the config-freeze window; measurement only throughout)",
+    "how": "Re-run setup/scripts/rolling_loss_circuit_study.py on the ledger as of 2026-10-30 and compare the SAME 8 cells.",
+    "promotion_bar_frozen_now": [
+      "Both frozen candidates must show POSITIVE drawdown improvement out-of-sample, per arm, not only in aggregate.",
+      "The out-of-sample improvement must NOT depend on a single blocked day or a single clustered event -- at least 3 independent trip episodes on non-adjacent dates.",
+      "Book P&L cost must remain small relative to the drawdown improvement (cost < improvement).",
+      "If the in-sample null REVERSES out-of-sample, that is a regime change to explain, not a green light to arm."
+    ],
+    "if_the_bar_is_not_met": "LOG THE NULL and close the queue item. Do not re-cut the grid to find a cell that works -- that is the metric-picking this project's own backtesting playbook exists to prevent."
+  },
+
+  "freeze_compliance": {
+    "trading_path_touched": false,
+    "files_added": [
+      "setup/scripts/rolling_loss_circuit_study.py",
+      "backtest/tests/test_rolling_loss_circuit_2026_09_02.py",
+      "analysis/recommendations/rolling-loss-circuit-core-2026-09-02.json",
+      "analysis/recommendations/rolling-loss-circuit-core-prereg-2026-09-02.json"
+    ],
+    "note": "Nothing here is imported by heartbeat_core.py, risk_gate.py, strategies.py, exit_manager.py or fleet_executor.py. Arming any circuit is a kill-type risk REDUCTION and would require its own freeze-checkpoint ship with GAMMA_FREEZE_OVERRIDE -- on this evidence, no such ship is proposed."
+  },
+
+  "revert": "git revert <sha> -- all four files are additive; nothing in the live path references them."
+}

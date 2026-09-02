@@ -1,0 +1,856 @@
+{
+  "skipped_rows": 0,
+  "arms": {
+    "safe-2": {
+      "n_days": 32,
+      "first": "2026-06-26",
+      "last": "2026-09-01",
+      "total_pnl": -262.0,
+      "day": {
+        "n": 32,
+        "worst": -390.0,
+        "p05": -390.0,
+        "p10": -339.0,
+        "median": -66.0,
+        "best": 662.0
+      },
+      "rolling": {
+        "3": {
+          "n": 30,
+          "worst": -640.0,
+          "p05": -640.0,
+          "p10": -414.0,
+          "median": -92.5,
+          "best": 797.0
+        },
+        "5": {
+          "n": 28,
+          "worst": -655.0,
+          "p05": -655.0,
+          "p10": -559.0,
+          "median": -112.5,
+          "best": 712.0
+        }
+      }
+    },
+    "bold-2": {
+      "n_days": 22,
+      "first": "2026-06-26",
+      "last": "2026-09-01",
+      "total_pnl": 187.0,
+      "day": {
+        "n": 22,
+        "worst": -620.0,
+        "p05": -620.0,
+        "p10": -355.0,
+        "median": 43.5,
+        "best": 479.0
+      },
+      "rolling": {
+        "3": {
+          "n": 20,
+          "worst": -955.0,
+          "p05": -955.0,
+          "p10": -599.0,
+          "median": 113.5,
+          "best": 748.0
+        },
+        "5": {
+          "n": 18,
+          "worst": -862.0,
+          "p05": -862.0,
+          "p10": -862.0,
+          "median": 86.5,
+          "best": 707.0
+        }
+      }
+    },
+    "safe-3": {
+      "n_days": 26,
+      "first": "2026-06-29",
+      "last": "2026-08-28",
+      "total_pnl": 841.0,
+      "day": {
+        "n": 26,
+        "worst": -1048.0,
+        "p05": -1048.0,
+        "p10": -287.0,
+        "median": -15.0,
+        "best": 637.0
+      },
+      "rolling": {
+        "3": {
+          "n": 24,
+          "worst": -1306.0,
+          "p05": -1306.0,
+          "p10": -567.0,
+          "median": -95.5,
+          "best": 1190.0
+        },
+        "5": {
+          "n": 22,
+          "worst": -1136.0,
+          "p05": -1136.0,
+          "p10": -524.0,
+          "median": -157.0,
+          "best": 1161.0
+        }
+      }
+    },
+    "risky-1": {
+      "n_days": 26,
+      "first": "2026-06-29",
+      "last": "2026-08-28",
+      "total_pnl": 1292.0,
+      "day": {
+        "n": 26,
+        "worst": -640.0,
+        "p05": -640.0,
+        "p10": -468.0,
+        "median": -45.5,
+        "best": 1041.0
+      },
+      "rolling": {
+        "3": {
+          "n": 24,
+          "worst": -1214.0,
+          "p05": -1214.0,
+          "p10": -809.0,
+          "median": -160.0,
+          "best": 1604.0
+        },
+        "5": {
+          "n": 22,
+          "worst": -1056.0,
+          "p05": -1056.0,
+          "p10": -1051.0,
+          "median": -21.0,
+          "best": 1762.0
+        }
+      }
+    },
+    "risky-3": {
+      "n_days": 31,
+      "first": "2026-06-29",
+      "last": "2026-08-28",
+      "total_pnl": -530.0,
+      "day": {
+        "n": 31,
+        "worst": -1458.0,
+        "p05": -1458.0,
+        "p10": -460.0,
+        "median": -60.0,
+        "best": 830.0
+      },
+      "rolling": {
+        "3": {
+          "n": 29,
+          "worst": -1252.0,
+          "p05": -1252.0,
+          "p10": -580.0,
+          "median": 20.0,
+          "best": 1027.0
+        },
+        "5": {
+          "n": 27,
+          "worst": -935.0,
+          "p05": -935.0,
+          "p10": -706.0,
+          "median": -62.0,
+          "best": 1338.0
+        }
+      }
+    }
+  },
+  "grid": [
+    {
+      "window": 3,
+      "threshold": 400.0,
+      "book_delta": -1718.0,
+      "book_dd_improvement": -835.0,
+      "n_arms_dd_improved": 2,
+      "n_arms_dd_worsened": 3,
+      "total_trips": 12,
+      "total_days_blocked": 19,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -410.0,
+          "delta": -148.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -1024.0,
+          "dd_improvement": 35.0,
+          "trips": 4,
+          "days_blocked": 5,
+          "blocked_dates": [
+            "2026-07-07",
+            "2026-07-15",
+            "2026-07-28",
+            "2026-08-12",
+            "2026-08-27"
+          ]
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": -776.0,
+          "delta": -963.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1771.0,
+          "dd_improvement": -433.0,
+          "trips": 3,
+          "days_blocked": 6,
+          "blocked_dates": [
+            "2026-07-28",
+            "2026-08-04",
+            "2026-08-13",
+            "2026-08-17",
+            "2026-08-18",
+            "2026-08-19"
+          ]
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 486.0,
+          "delta": -355.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1491.0,
+          "dd_improvement": -185.0,
+          "trips": 1,
+          "days_blocked": 2,
+          "blocked_dates": [
+            "2026-08-12",
+            "2026-08-13"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1890.0,
+          "delta": 598.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -815.0,
+          "dd_improvement": 598.0,
+          "trips": 2,
+          "days_blocked": 2,
+          "blocked_dates": [
+            "2026-08-10",
+            "2026-08-12"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -1380.0,
+          "delta": -850.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -2507.0,
+          "dd_improvement": -850.0,
+          "trips": 2,
+          "days_blocked": 4,
+          "blocked_dates": [
+            "2026-08-06",
+            "2026-08-07",
+            "2026-08-10",
+            "2026-08-20"
+          ]
+        }
+      }
+    },
+    {
+      "window": 3,
+      "threshold": 600.0,
+      "book_delta": -860.0,
+      "book_dd_improvement": -690.0,
+      "n_arms_dd_improved": 1,
+      "n_arms_dd_worsened": 4,
+      "total_trips": 5,
+      "total_days_blocked": 7,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -424.0,
+          "delta": -162.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -1221.0,
+          "dd_improvement": -162.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-07-07"
+          ]
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": -22.0,
+          "delta": -209.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1547.0,
+          "dd_improvement": -209.0,
+          "trips": 1,
+          "days_blocked": 2,
+          "blocked_dates": [
+            "2026-08-04",
+            "2026-08-10"
+          ]
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 384.0,
+          "delta": -457.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1593.0,
+          "dd_improvement": -287.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-13"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1534.0,
+          "delta": 242.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1171.0,
+          "dd_improvement": 242.0,
+          "trips": 1,
+          "days_blocked": 2,
+          "blocked_dates": [
+            "2026-08-11",
+            "2026-08-12"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -804.0,
+          "delta": -274.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -1931.0,
+          "dd_improvement": -274.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-10"
+          ]
+        }
+      }
+    },
+    {
+      "window": 3,
+      "threshold": 800.0,
+      "book_delta": -968.0,
+      "book_dd_improvement": -798.0,
+      "n_arms_dd_improved": 1,
+      "n_arms_dd_worsened": 3,
+      "total_trips": 4,
+      "total_days_blocked": 5,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -262.0,
+          "delta": 0.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -1059.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": -292.0,
+          "delta": -479.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1817.0,
+          "dd_improvement": -479.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-04"
+          ]
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 384.0,
+          "delta": -457.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1593.0,
+          "dd_improvement": -287.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-13"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1534.0,
+          "delta": 242.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1171.0,
+          "dd_improvement": 242.0,
+          "trips": 1,
+          "days_blocked": 2,
+          "blocked_dates": [
+            "2026-08-11",
+            "2026-08-12"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -804.0,
+          "delta": -274.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -1931.0,
+          "dd_improvement": -274.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-10"
+          ]
+        }
+      }
+    },
+    {
+      "window": 3,
+      "threshold": 1000.0,
+      "book_delta": -598.0,
+      "book_dd_improvement": -428.0,
+      "n_arms_dd_improved": 1,
+      "n_arms_dd_worsened": 2,
+      "total_trips": 3,
+      "total_days_blocked": 3,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -262.0,
+          "delta": 0.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -1059.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": 187.0,
+          "delta": 0.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1338.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 384.0,
+          "delta": -457.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1593.0,
+          "dd_improvement": -287.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-13"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1425.0,
+          "delta": 133.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1280.0,
+          "dd_improvement": 133.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-12"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -804.0,
+          "delta": -274.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -1931.0,
+          "dd_improvement": -274.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-10"
+          ]
+        }
+      }
+    },
+    {
+      "window": 5,
+      "threshold": 400.0,
+      "book_delta": -1664.0,
+      "book_dd_improvement": -1356.0,
+      "n_arms_dd_improved": 2,
+      "n_arms_dd_worsened": 3,
+      "total_trips": 8,
+      "total_days_blocked": 25,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -1290.0,
+          "delta": -1028.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -2087.0,
+          "dd_improvement": -1028.0,
+          "trips": 4,
+          "days_blocked": 9,
+          "blocked_dates": [
+            "2026-07-16",
+            "2026-07-17",
+            "2026-07-28",
+            "2026-08-03",
+            "2026-08-04",
+            "2026-08-06",
+            "2026-08-10",
+            "2026-08-11",
+            "2026-08-12"
+          ]
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": 199.0,
+          "delta": 12.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1326.0,
+          "dd_improvement": 12.0,
+          "trips": 1,
+          "days_blocked": 4,
+          "blocked_dates": [
+            "2026-08-04",
+            "2026-08-10",
+            "2026-08-11",
+            "2026-08-12"
+          ]
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 485.0,
+          "delta": -356.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1465.0,
+          "dd_improvement": -159.0,
+          "trips": 1,
+          "days_blocked": 3,
+          "blocked_dates": [
+            "2026-08-13",
+            "2026-08-14",
+            "2026-08-19"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1237.0,
+          "delta": -55.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1357.0,
+          "dd_improvement": 56.0,
+          "trips": 1,
+          "days_blocked": 4,
+          "blocked_dates": [
+            "2026-08-12",
+            "2026-08-13",
+            "2026-08-14",
+            "2026-08-19"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -767.0,
+          "delta": -237.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -1894.0,
+          "dd_improvement": -237.0,
+          "trips": 1,
+          "days_blocked": 5,
+          "blocked_dates": [
+            "2026-08-06",
+            "2026-08-07",
+            "2026-08-10",
+            "2026-08-11",
+            "2026-08-12"
+          ]
+        }
+      }
+    },
+    {
+      "window": 5,
+      "threshold": 600.0,
+      "book_delta": -1256.0,
+      "book_dd_improvement": -710.0,
+      "n_arms_dd_improved": 2,
+      "n_arms_dd_worsened": 2,
+      "total_trips": 7,
+      "total_days_blocked": 13,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -179.0,
+          "delta": 83.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -976.0,
+          "dd_improvement": 83.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-07-16"
+          ]
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": -180.0,
+          "delta": -367.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1345.0,
+          "dd_improvement": -7.0,
+          "trips": 2,
+          "days_blocked": 2,
+          "blocked_dates": [
+            "2026-08-11",
+            "2026-08-17"
+          ]
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 655.0,
+          "delta": -186.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1306.0,
+          "dd_improvement": 0.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-19"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1491.0,
+          "delta": 199.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1214.0,
+          "dd_improvement": 199.0,
+          "trips": 1,
+          "days_blocked": 3,
+          "blocked_dates": [
+            "2026-08-12",
+            "2026-08-13",
+            "2026-08-14"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -1515.0,
+          "delta": -985.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -2642.0,
+          "dd_improvement": -985.0,
+          "trips": 2,
+          "days_blocked": 6,
+          "blocked_dates": [
+            "2026-08-06",
+            "2026-08-10",
+            "2026-08-11",
+            "2026-08-12",
+            "2026-08-13",
+            "2026-08-14"
+          ]
+        }
+      }
+    },
+    {
+      "window": 5,
+      "threshold": 800.0,
+      "book_delta": -61.0,
+      "book_dd_improvement": 398.0,
+      "n_arms_dd_improved": 2,
+      "n_arms_dd_worsened": 0,
+      "total_trips": 4,
+      "total_days_blocked": 6,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -262.0,
+          "delta": 0.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -1059.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": -173.0,
+          "delta": -360.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1338.0,
+          "dd_improvement": 0.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-17"
+          ]
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 655.0,
+          "delta": -186.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1306.0,
+          "dd_improvement": 0.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-19"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1491.0,
+          "delta": 199.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1214.0,
+          "dd_improvement": 199.0,
+          "trips": 1,
+          "days_blocked": 3,
+          "blocked_dates": [
+            "2026-08-12",
+            "2026-08-13",
+            "2026-08-14"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -244.0,
+          "delta": 286.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -1458.0,
+          "dd_improvement": 199.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-12"
+          ]
+        }
+      }
+    },
+    {
+      "window": 5,
+      "threshold": 1000.0,
+      "book_delta": -53.0,
+      "book_dd_improvement": 133.0,
+      "n_arms_dd_improved": 1,
+      "n_arms_dd_worsened": 0,
+      "total_trips": 2,
+      "total_days_blocked": 2,
+      "per_arm": {
+        "safe-2": {
+          "n_days": 32,
+          "actual_pnl": -262.0,
+          "counterfactual_pnl": -262.0,
+          "delta": 0.0,
+          "max_dd_actual": -1059.0,
+          "max_dd_counterfactual": -1059.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        },
+        "bold-2": {
+          "n_days": 22,
+          "actual_pnl": 187.0,
+          "counterfactual_pnl": 187.0,
+          "delta": 0.0,
+          "max_dd_actual": -1338.0,
+          "max_dd_counterfactual": -1338.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        },
+        "safe-3": {
+          "n_days": 26,
+          "actual_pnl": 841.0,
+          "counterfactual_pnl": 655.0,
+          "delta": -186.0,
+          "max_dd_actual": -1306.0,
+          "max_dd_counterfactual": -1306.0,
+          "dd_improvement": 0.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-19"
+          ]
+        },
+        "risky-1": {
+          "n_days": 26,
+          "actual_pnl": 1292.0,
+          "counterfactual_pnl": 1425.0,
+          "delta": 133.0,
+          "max_dd_actual": -1413.0,
+          "max_dd_counterfactual": -1280.0,
+          "dd_improvement": 133.0,
+          "trips": 1,
+          "days_blocked": 1,
+          "blocked_dates": [
+            "2026-08-12"
+          ]
+        },
+        "risky-3": {
+          "n_days": 31,
+          "actual_pnl": -530.0,
+          "counterfactual_pnl": -530.0,
+          "delta": 0.0,
+          "max_dd_actual": -1657.0,
+          "max_dd_counterfactual": -1657.0,
+          "dd_improvement": 0.0,
+          "trips": 0,
+          "days_blocked": 0,
+          "blocked_dates": []
+        }
+      }
+    }
+  ]
+}
