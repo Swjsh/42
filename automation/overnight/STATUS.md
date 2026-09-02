@@ -1,3 +1,47 @@
+## [2026-09-02T11:35 ET] A rehearsal was being read as a real flatten -- by TWO safety checks
+
+Went looking for the last stale baseline test and found a live false-green instead. The
+`first_live_day_review` verdict came back **GREEN at 11:12 ET** -- for a day that had not
+closed. That is the shape that is supposed to trigger suspicion, so I hunted the artifact.
+
+- **What was in the ledger.** An early-close flatten REHEARSAL fired 06:14 ET with an
+  injected clock and appended four rows to the PRODUCTION ledger
+  `automation/state/logs/eod-flatten-2026-09-02.jsonl`, carrying `dry:true / outcome:NOOP`
+  and stamped `12:45:00 ET` -- **hours ahead of their own write time**. The broker calendar
+  confirms today closes **16:00**; there was no early close at all.
+- **Two consumers read them as real**, both verified against the live file, not reasoned
+  about: `first_live_day_review.py` reported *"Core flatten confirmed flat for bold-2
+  (NOOP)"* four hours before the real 15:52 sweep, and `preopen_readiness.py` returned
+  `eod_reality:Gamma_EodFlattenCore GREEN {safe-3, safe-2, risky-1, bold-2 all NOOP}` -- the
+  gate that gates the **pre-open window**, certifying a drill as the safety net firing.
+- **Two defects, independently present in BOTH files:** `DRY_RUN` was a member of the
+  accepted-outcomes set, and nothing filtered `dry:true`. In `preopen_readiness` the second
+  is the dangerous half -- it keeps the LAST row per arm and rows are ordered by **append,
+  not `ts`**, so a drill run AFTER a genuinely failed sweep DISPLACES the failure with a NOOP
+  and the morning gate opens on a false green. The exact failure these checks exist to catch
+  is the one a leftover drill row makes report clean.
+- **Fixed both.** Rehearsals are excluded from evidence but COUNTED and NAMED in the reason
+  (a ledger holding four rows that reports MISSING with no explanation is a report an
+  operator argues with instead of acting on); only-rehearsals reports
+  `MISSING_ONLY_REHEARSALS`/RED. Checked 08-21..09-01 first: **every** genuine production row
+  carries `dry:False`, so the filter costs no real evidence and cannot go permanently red.
+- **Also discharged the note left for "the next session that gets a green full run":**
+  `GUARDS_FULL_EXPECTED_FAILED` **4 -> 0 ON EVIDENCE** -- the 11:09 ET run returned
+  **11,739 passed / 0 failed / rc=0**, so the four tolerated failures were repaired, not
+  re-baselined. One of the four baseline tests was a "clean day" fixture writing
+  `status=red / failed=4 / returncode=1` -- incoherent, and harmless only because the check
+  never read those two fields.
+- **Guards:** 5 new tests (66 total) + 4 new (63 total); each defect RED-proofed
+  **independently in each file** -- 4 mutations, all caught. Targeted sweep of the 10 modules
+  touching `first_live_day_review`/`eod_flatten`: **187 passed, 1 skipped**. Full-suite
+  re-run in flight.
+- **Left open, deliberately:** `DRILLS-WRITE-INTO-PRODUCTION-LEDGERS` (queue.md). Hardening
+  the readers closes this false-green, but nothing structurally stops a third reader making
+  the same assumption. That is a refactor on an EOD-safety path and it is market hours.
+
+Commit `a2683450` (7 files, no frozen trading-path file touched, safety gate 59 passed).
+REVOKE: `git revert a2683450`.
+
 ## [2026-09-02T10:45 ET] All 7 guard failures fixed; clean run in flight -- REVOKE surface
 
 The 10:15 ET full run came back **11,732 passed / 7 failed** (and the three cheap-contract
@@ -359,7 +403,14 @@ dry_run=false, real removals at spot 761.57, task GREEN). Re-pointed, and gated 
 too -- `draw_key_levels.py` write_state()s on its failure paths, so a bare date check reads
 GREEN on a TradingView-down morning with a stale chart.
 
-**3. `## Known broken` had left the preamble again.** Yesterday's fix moved it to the top; a
+**3. `## Live watch
+
+- [2026-09-02T11:25:00 ET] THETA STALL :: risky-1 SPY260902C00766000 qty=5 :: est theta burn -5.80 vs est delta gain +0.00 over last 15min (mid=0.955, unrealized=4.3%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
+
+---
+
+## Known broken` had left the preamble again.** Yesterday's fix moved it to the top; a
 producer prepended a dated entry at line 1 and it was back inside an entry, due to roll off
 to the archive with it -- the 2026-08-20 two-month outage restarting on day one. Pinning by
 POSITION cannot survive a producer that writes above you, so `status_retention` now pins by
@@ -384,6 +435,7 @@ written**. Fix path is proven, not speculative.
 
 ## Known broken
 
+- [2026-09-02T15:07+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02 10:15 ET] FULL-SUITE RED :: 11732 passed, 7 failed, 11 skipped :: tests/test_desk_allocator_kalshi_lane_fix_2026_08_21.py::test_live_kalshi_state_currently_healthy, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_measured_move_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_premarket_touch_credit_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_quiet_mode_weekend_research_2026_08_30.py::TestPresenceDowngrade::test_gaming_outside_the_research_band_still_blacks_out, tests/test_structure_stop_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_tw8_headroom_retest.py::test_preregistration_file_exists_and_is_frozen_v1 :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-02T14:14+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T07:48:41-04:00] MCP_AUDIT_YELLOW: Alpaca Safe (PA3POKNV46VG) + Bold (PA3WEBXJU67N) endpoints returning 404 (credential/account mismatch possible); TradingView CDP reachable; uvx processes active. Investigate key freshness before market open.
@@ -635,7 +687,7 @@ written**. Fix path is proven, not speculative.
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
 
 ## Kitchen
-Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=ollama::qwen3:14b
+Kitchen: alive, queue 35 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: self-check 2026-09-02T09:09:56
 - TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-02) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
@@ -656,4 +708,11 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=ollama
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 30x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 22 row(s), 20 transport-error, 2 broker-rejected; newest 2026-09-02T09:40:27 get_account_equity/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: self-check 2026-09-02T11:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-02) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 32 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 30x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 24 row(s), 22 transport-error, 2 broker-rejected; newest 2026-09-02T10:55:43 get_account_equity/transport_error
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
