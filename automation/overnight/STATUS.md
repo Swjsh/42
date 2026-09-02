@@ -1,3 +1,45 @@
+## [2026-09-02T10:45 ET] All 7 guard failures fixed; clean run in flight -- REVOKE surface
+
+The 10:15 ET full run came back **11,732 passed / 7 failed** (and the three cheap-contract
+fixtures repaired this morning were GONE -- that fix held). All seven are now addressed, and
+**not one was a real product defect**. Every one was a test or a schedule that ordinary
+correct operation turns red.
+
+- **4x prereg `is_frozen`** -- asserted `status == FROZEN_PENDING_RUN`; the preregs had been
+  legitimately RUN and their verdicts recorded. A prereg's STATUS is a state machine correct
+  operation advances; its CONTENT is what must never move. Replaced with a legal-state check
+  that ALSO requires a `RUN_COMPLETE` claim to carry a `closed_*` run record -- something the
+  old equality never checked. RED-proofed: an unfrozen DRAFT fails, RUN_COMPLETE with the
+  record deleted fails, and editing a frozen population hash still fails the sibling
+  anti-repick test. Commit `9e87eec8`.
+- **quiet-mode gaming blackout** -- TIME-DEPENDENT. `presence_hold()` short-circuits inside
+  the trading band (correctly -- the engine owns 09:30-15:55), so the test only ever passed
+  outside market hours. Surfaced today because **this is the first full guard run ever
+  executed during RTH** (the nightly fires ~04:29 ET). Now patches `_in_trading_band`.
+- **Kalshi weather 49h stale** -- the test offered two explanations and **both were wrong**
+  ("either the weather lane genuinely stopped, or the fix regressed"). The lane ran 08-31 with
+  rc=0. Its 23:08 ET trigger clears the CLOCK blackout -- which is why the 2026-08-26 re-time
+  looked sufficient -- but not the presence LINGER, which holds past 23:00 whenever the
+  machine is in use. Caught the lane up (48.9h -> 0.0h, guard 6/6) THEN re-timed 21:08 ->
+  23:40 MT; re-timing alone would not have gone green today. Registry updated.
+- **`free_model_cost_estimate_is_zero` "flaky"** -- **not flaky, deterministic**. It failed in
+  both full runs, passed alone (1 passed) and passed with its own whole file (129 passed,
+  17.5 min). `test_eod_quant_guard.py` plants a fake `run_minimax` into `sys.modules` at
+  IMPORT time and never removed it; alphabetically it collects BEFORE
+  `test_graduated_guards`, which then imported the stub. Fixed with save/restore in a
+  `finally` -- safe because `eod_fallback.py` binds `call_minimax` at module level and never
+  re-consults `sys.modules`. RED-proofed on the reproducing order: leak restored -> 1 failed;
+  fix in -> 9 passed.
+
+**Clean run fired 10:45 ET** with all fixes in (the 10:31 run was killed -- it predated the
+last fix, and a killed run writes nothing, so the 10:15 verdict was preserved; also backed up
+to `guard-watch-full.json.good-1015`).
+
+**The pattern worth naming:** 6 of 7 were guards that go red when the system behaves
+CORRECTLY -- a prereg gets run, a study completes, the market opens, a task is caught up.
+That is the "monitor that stays RED on known-correct behaviour" disease, and a suite carrying
+seven of them is a suite nobody reads.
+
 ## [2026-09-02T09:33 ET] Criterion 5 FIXED -- window widened, evidence bar untouched -- REVOKE surface
 
 Follows the 09:16 ET entry, which filed this as blocked-on-J. **J released it the same hour:**
@@ -342,6 +384,8 @@ written**. Fix path is proven, not speculative.
 
 ## Known broken
 
+- [2026-09-02 10:15 ET] FULL-SUITE RED :: 11732 passed, 7 failed, 11 skipped :: tests/test_desk_allocator_kalshi_lane_fix_2026_08_21.py::test_live_kalshi_state_currently_healthy, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_measured_move_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_premarket_touch_credit_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_quiet_mode_weekend_research_2026_08_30.py::TestPresenceDowngrade::test_gaming_outside_the_research_band_still_blacks_out, tests/test_structure_stop_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_tw8_headroom_retest.py::test_preregistration_file_exists_and_is_frozen_v1 :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-09-02T14:14+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T07:48:41-04:00] MCP_AUDIT_YELLOW: Alpaca Safe (PA3POKNV46VG) + Bold (PA3WEBXJU67N) endpoints returning 404 (credential/account mismatch possible); TradingView CDP reachable; uvx processes active. Investigate key freshness before market open.
 - [2026-09-02T11:00+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): openrouter::nvidia/nemotron-3-super-120b-a12b:free. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T06:27:06] MCP_AUDIT_YELLOW: TradingView OK, Alpaca Safe/Bold MCP servers still connecting (session start)
@@ -598,4 +642,18 @@ Kitchen: alive, queue 43 pending, last cook 0 min ago, today $0.00, model=ollama
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 30x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: self-check 2026-09-02T09:39:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-02) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 30x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: self-check 2026-09-02T10:09:56
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-02) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-02.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-02.log shows 31 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-seeder.ps1 (exit=[1], 1x), run-license-monitor.ps1 (exit=[1], 30x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 22 row(s), 20 transport-error, 2 broker-rejected; newest 2026-09-02T09:40:27 get_account_equity/transport_error
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
