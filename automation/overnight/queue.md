@@ -2571,7 +2571,9 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   (NOOP)"* and graded the whole day GREEN at 11:12 ET -- four hours before the real 15:52 sweep,
   on a day the broker calendar confirms closes 16:00 -- and `preopen_readiness.py` returned
   `eod_reality:Gamma_EodFlattenCore GREEN {safe-3: NOOP, safe-2: NOOP, risky-1: NOOP, bold-2:
-  NOOP}`, i.e. the gate gating the PRE-OPEN window certified a drill as the safety net firing.
+  NOOP}`, i.e. the PRE-OPEN readiness verdict certified a drill as the safety net firing. (That
+  verdict is notify-only and fail-open by design -- it blocks nothing -- so the harm is a false
+  all-clear to J, not a blocked open.)
   **Two independent defects in each file:** `DRY_RUN` was a member of the accepted-outcomes set
   (a dry run flattens nothing), and nothing filtered `dry: true`. The second is the dangerous
   half in `preopen_readiness`, which keeps the LAST row per arm and orders rows by APPEND, not

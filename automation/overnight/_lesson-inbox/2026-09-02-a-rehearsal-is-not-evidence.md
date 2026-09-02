@@ -22,7 +22,7 @@ against the real file, not reasoned about:
 | consumer | what it reported | when |
 |---|---|---|
 | `first_live_day_review.py` | `"Core flatten confirmed flat for bold-2 (NOOP)"`, whole day **GREEN** | 11:12 ET — four hours before the real 15:52 sweep |
-| `preopen_readiness.py` | `eod_reality:Gamma_EodFlattenCore GREEN {safe-3: NOOP, safe-2: NOOP, risky-1: NOOP, bold-2: NOOP}` | the gate that gates the **pre-open window** |
+| `preopen_readiness.py` | `eod_reality:Gamma_EodFlattenCore GREEN {safe-3: NOOP, safe-2: NOOP, risky-1: NOOP, bold-2: NOOP}` | the **pre-open readiness verdict** (notify-only; blocks nothing by design) |
 
 The broker calendar confirms 2026-09-02 closed at **16:00** — a normal full day. There was no
 early close. The 13:00 close and the 12:45 rows were entirely drill artifacts.

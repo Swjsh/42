@@ -13,7 +13,9 @@ closed. That is the shape that is supposed to trigger suspicion, so I hunted the
   about: `first_live_day_review.py` reported *"Core flatten confirmed flat for bold-2
   (NOOP)"* four hours before the real 15:52 sweep, and `preopen_readiness.py` returned
   `eod_reality:Gamma_EodFlattenCore GREEN {safe-3, safe-2, risky-1, bold-2 all NOOP}` -- the
-  gate that gates the **pre-open window**, certifying a drill as the safety net firing.
+  pre-open readiness verdict -- **notify-only, it blocks nothing by design** -- certifying a
+  drill as the safety net firing, i.e. the instrument that tells J the net is verified would
+  have said so off a rehearsal.
 - **Two defects, independently present in BOTH files:** `DRY_RUN` was a member of the
   accepted-outcomes set, and nothing filtered `dry:true`. In `preopen_readiness` the second
   is the dangerous half -- it keeps the LAST row per arm and rows are ordered by **append,
