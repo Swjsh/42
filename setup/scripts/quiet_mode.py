@@ -51,6 +51,9 @@ LOG_FILE = STATE_DIR / "quiet-mode.log"
 # scheduled task's interpreter (verified live 2026-08-24 -- exit 1, nothing logged).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from et_clock import ET_TZ as ET  # noqa: E402
+# Reused for the catch-up sweep below (query_tasks / parse_quiet_holds / attribute_quiet_hold)
+# rather than re-deriving the same hold-attribution logic a second time in this file.
+import scheduled_task_staleness as _sts  # noqa: E402
 
 # The blackout exists to keep the rig off J's EVENING (popups + a 4-worker grind on
 # top of his gaming session). It was never meant to be a 16-hour outage.
@@ -191,6 +194,118 @@ HEAVY_PROCESS_MARKERS = (
     "shotgun_scalper",
     "_grind",
 )
+
+# === CATCH-UP SWEEP (QUIET-HOLD-CATCH-UP-SWEEP, queue.md 2026-09-02) ====================
+# A trigger that fires while its task is Disabled is SKIPPED, and because the task was
+# Disabled rather than merely unavailable, Windows' StartWhenAvailable cannot recover the
+# fire -- proven 7/7 over 2026-09-01 (Gamma_GuardsFull et al went dark exactly this way).
+# Promoted from hygiene to gate-blocking work 2026-09-02: the go-live gate's registered
+# prod-shadow window (automation/state/prod-shadow-designation.json, 2026-09-01..2026-09-29,
+# pre-registered BEFORE any result was seen) has zero slack -- a single further silently-lost
+# day puts criterion 5 out of reach of its own 20-scored-day bar.
+#
+# CURATED ALLOWLIST, deliberately a POSITIVE list not a denylist (constraint (a)). Every name
+# below is $0-or-near-$0, report/audit/monitor-only, places no order, arms no live money, and
+# is NOT in HEAVY_TASKS. Anything not on this list is left to Gamma_TaskStaleness + a
+# deliberate manual start -- silence is the safe default for anything that could touch a
+# broker or capital on stale data.
+CATCHUP_ELIGIBLE = {
+    "Gamma_McpDailyAudit",   # MCP round-trip health probe (Alpaca+TV), no orders, ~$0.10
+    "Gamma_GitHubAudit",     # secrets/privacy scan of tracked files, public repo, $0
+    "Gamma_SpendSummary",    # cost rollup, $0
+    "Gamma_OosCheck",        # OOS drift check, report-only, $0
+    "Gamma_LicenseMonitor",  # notify-only RED->green license detector, $0
+    "Gamma_GateExpiryCheck", # prereg gate-expiry monitor, $0
+    "Gamma_RosterLiveness",  # model-roster liveness probe, $0
+    "Gamma_PreregHygiene",   # prereg staleness/orphan/malformed-JSON monitor, $0
+    "Gamma_RuleBreakAudit",  # rule-break ledger auditor (go-live criterion 4), report-only, $0
+}
+# Explicitly considered and EXCLUDED, stated so a future editor does not have to re-derive
+# why (constraint (a)/(b)):
+#   Gamma_KalshiAuto            -- places orders off a next-day weather prediction; restarting
+#                                  it hours late trades on stale NOAA data, a different act
+#                                  from re-running an audit.
+#   Gamma_FuturesBrokerProbe    -- broker-touching by name; excluded conservatively even
+#                                  though "probe" suggests read-only.
+#   Gamma_GuardsFull, Gamma_GuardsNightly -- HEAVY-class runtime (the former literally is
+#                                  HEAVY_TASKS; the latter runs ~35 data-heavy backtests and
+#                                  would hit the same "started, then killed mid-run by the
+#                                  next hold" failure -- constraint (b)). Left to
+#                                  Gamma_TaskStaleness + a deliberate manual start.
+#   Gamma_ConductorWeekend      -- spawns a full autonomous Sonnet session with its own
+#                                  ship/commit authority; a scheduler-level catch-up should
+#                                  not silently multiply conductor fires.
+CATCHUP_MAX_STARTS = 5  # constraint (d): cap started per fire, most-overdue first
+
+
+def _catchup_sweep(now: dt.datetime) -> list[str]:
+    """Start, at most once each this fire, CATCHUP_ELIGIBLE tasks that genuinely missed a
+    scheduled fire inside a quiet-mode hold. Returns the names actually started.
+
+    Constraints from the queue item, each enforced here:
+      (a) allowlist only -- see CATCHUP_ELIGIBLE above.
+      (b) HEAVY tasks are never in the allowlist, so they are never touched here.
+      (c) only DAILY triggers can match -- attribute_quiet_hold() only ever attributes a
+          daily trigger; a repeater self-heals on its own next tick and needs no help.
+      (d) capped at CATCHUP_MAX_STARTS, most-overdue (highest NumberOfMissedRuns) first,
+          and the caller gates this out of the weekday trading band.
+
+    Idempotency: a candidate is skipped if it has already run since the most recent hold
+    closed (real LastRunTime advances past the hold), so a 5-minute enforcer cadence cannot
+    restart the same task over and over for as long as the hold stays in the 7-day
+    attribution lookback.
+
+    Fail-open everywhere (OP-25): any read/query error yields an empty sweep, never an
+    exception -- this must never be able to block the restore that already happened above it.
+    """
+    if _in_trading_band(now):
+        return []  # constraint (d): never launch a grind into the premarket/trading day
+    try:
+        rows = _sts.query_tasks()
+    except Exception as exc:  # noqa: BLE001
+        _log(f"WARN catch-up sweep could not query tasks ({exc})")
+        return []
+    if not rows:
+        return []
+    try:
+        quiet_text = LOG_FILE.read_text(encoding="utf-8", errors="replace") if LOG_FILE.exists() else None
+    except OSError:
+        quiet_text = None
+    holds = _sts.parse_quiet_holds(quiet_text, now=now)
+    if not holds:
+        return []  # no attributable hold -- do not guess
+
+    latest_hold_end = max(h[1] for h in holds)
+    candidates: list[tuple[str, str, int]] = []
+    for row in rows:
+        name = row.get("name")
+        if name not in CATCHUP_ELIGIBLE:
+            continue
+        cause = _sts.attribute_quiet_hold(row, holds, now=now)
+        if not cause:
+            continue
+        last_run = _sts._parse_dt(row.get("lastRun"))
+        if _sts.is_never_ran(last_run):
+            last_run = None
+        if last_run is not None and last_run >= latest_hold_end:
+            continue  # already ran since the hold closed -- nothing to catch up
+        candidates.append((name, cause, int(row.get("missedRuns") or 0)))
+
+    if not candidates:
+        return []
+    candidates.sort(key=lambda c: (-c[2], c[0]))
+
+    started: list[str] = []
+    for name, cause, _missed in candidates[:CATCHUP_MAX_STARTS]:
+        try:
+            _ps(f"Start-ScheduledTask -TaskName '{name}' -ErrorAction Stop")
+            started.append(name)
+            _log(f"CATCH-UP started {name}: {cause}")
+        except Exception as exc:  # noqa: BLE001
+            _log(f"WARN catch-up start failed for {name}: {exc}")
+    return started
+# ========================================================================================
+
 
 NO_WINDOW = 0x08000000
 STATE_READY = "3"  # TASK_STATE: 1=Disabled 2=Queued 3=Ready 4=Running
@@ -528,11 +643,15 @@ def go_research() -> int:
     enabled = _set_tasks(light, enable=True)
     held = _set_tasks(heavy_up, enable=False)
     _log(f"RESEARCH BAND: light_up={enabled}/{len(light)} heavy_held={held}")
+    caught_up = _catchup_sweep(dt.datetime.now(ET))
+    if caught_up:
+        _log(f"CATCH-UP SWEEP: started {len(caught_up)} missed task(s): {', '.join(caught_up)}")
     _write_status(False, {
         "band": "weekend-research",
         "light_enabled": enabled,
         "light_expected": len(light),
         "heavy_held_down": sorted(HEAVY_TASKS),
+        "caught_up": caught_up,
         "note": ("weekend daytime -- headless $0 producers run, core-peggers held. "
                  "A fullscreen app still triggers a full blackout via the presence gate."),
     })
@@ -565,7 +684,14 @@ def go_quiet() -> int:
 def go_loud() -> int:
     names = _load_restore_list()
     if not names:
-        _write_status(False, {"note": "nothing to restore"})
+        # Still worth a catch-up pass: nothing was held down THIS fire, but an earlier
+        # fire this evening may already have restored everything while a hold-attributed
+        # task still hasn't run since -- cheap, fail-open, and idempotent (see
+        # _catchup_sweep's last-run check).
+        caught_up = _catchup_sweep(dt.datetime.now(ET))
+        if caught_up:
+            _log(f"CATCH-UP SWEEP: started {len(caught_up)} missed task(s): {', '.join(caught_up)}")
+        _write_status(False, {"note": "nothing to restore", "caught_up": caught_up})
         return 0
     enabled = _set_tasks(names, enable=True)
     _log(f"QUIET OFF: re-enabled={enabled}/{len(names)}")
@@ -573,7 +699,12 @@ def go_loud() -> int:
         RESTORE_FILE.unlink(missing_ok=True)
     else:
         _log("WARN partial restore -- keeping restore file for the next fire")
-    _write_status(False, {"restored_count": enabled, "expected": len(names)})
+    # Called AFTER the restore, so a bug in the sweep can never block the re-enable above
+    # (constraint (d)) -- and fail-open internally, so it can never turn this 0 into non-0.
+    caught_up = _catchup_sweep(dt.datetime.now(ET))
+    if caught_up:
+        _log(f"CATCH-UP SWEEP: started {len(caught_up)} missed task(s): {', '.join(caught_up)}")
+    _write_status(False, {"restored_count": enabled, "expected": len(names), "caught_up": caught_up})
     return 0
 
 
