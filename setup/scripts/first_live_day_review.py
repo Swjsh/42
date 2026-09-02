@@ -717,20 +717,32 @@ def check_guards_full(state: Optional[dict], review_date: str,
 # aggregation
 # ============================================================================
 
-_SEVERITY_ORDER = {"GREEN": 0, "ADVISORY": 0, "NO_DATA": 0, "YELLOW": 1, "RED": 2}
+# NO_DATA IS NOT GREEN -- HERE TOO. check_fleet_kill_switch_proximity's own inner order was
+# corrected to rank NO_DATA above GREEN on 2026-09-02, and this aggregator one function later
+# was left contradicting it: a gating check returning NO_DATA did not escalate, so a run where
+# EVERY gating check came back NO_DATA (every state file missing -- i.e. the box died) returned
+# GREEN. Reachable, not theoretical: fleet_kill_switch returned NO_DATA in the real
+# analysis/first-live-day/2026-09-02.json. ADVISORY stays at 0 because conductor_picks is
+# excluded from gating by design; absence is not.
+_SEVERITY_ORDER = {"GREEN": 0, "ADVISORY": 0, "NO_DATA": 1, "YELLOW": 1, "RED": 2}
 _GATING_CHECKS = ("dms_cadence", "dms_verdicts", "engine_health", "eod_flatten_aggressive",
                   "fleet_kill_switch", "guards_full")  # conductor_picks is advisory-only
 
 
 def combine_verdict(checks: dict[str, dict]) -> tuple[str, list[str]]:
     """Worse-wins across the GATING checks only. conductor_picks is explicitly excluded --
-    it is heuristic/textual and documented as advisory, never a pass/fail input."""
+    it is heuristic/textual and documented as advisory, never a pass/fail input.
+
+    A gating check that is ABSENT from `checks` counts as NO_DATA, never as a skip: if
+    run_review failed to produce one, the day was not fully reviewed, and silently omitting
+    it from the worst-wins fold is the same GREEN-by-absence bug as ranking NO_DATA at 0.
+    """
     worst = "GREEN"
     failing = []
     for name in _GATING_CHECKS:
         c = checks.get(name)
         if c is None:
-            continue
+            c = {"status": "NO_DATA", "reason": "check did not run"}
         st = c.get("status", "RED")
         if _SEVERITY_ORDER.get(st, 2) > 0:
             failing.append(f"{name}:{st}")

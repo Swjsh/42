@@ -643,3 +643,67 @@ def test_fleet_proximity_still_green_when_every_arm_has_healthy_data():
         {"safe-3": 4900.0},        # -2% draw, 28pp headroom
     )
     assert out["status"] == "GREEN", "a genuinely healthy arm must still read GREEN"
+
+
+# ============================================================================
+# NO_DATA IS NOT GREEN -- AT THE OUTER AGGREGATOR TOO (added 2026-09-02, second pass).
+# The inner fleet-proximity order was corrected earlier the same night; combine_verdict one
+# function later was left ranking NO_DATA at 0, so absence still read as health at the level
+# that actually produces the day's verdict. Found by reading the real 02:15 ET artifact,
+# where fleet_kill_switch had genuinely returned NO_DATA.
+# ============================================================================
+
+def test_no_data_gating_check_escalates_the_overall_verdict():
+    checks = {
+        "dms_cadence": {"status": "GREEN"},
+        "dms_verdicts": {"status": "GREEN"},
+        "engine_health": {"status": "GREEN"},
+        "eod_flatten_aggressive": {"status": "GREEN"},
+        "fleet_kill_switch": {"status": "NO_DATA"},
+        "guards_full": {"status": "GREEN"},
+        "conductor_picks": {"status": "ADVISORY"},
+    }
+    verdict, failing = flr.combine_verdict(checks)
+    assert verdict == "NO_DATA", "a gating check with no data must not read as a clean pass"
+    assert "fleet_kill_switch:NO_DATA" in failing
+
+
+def test_all_no_data_is_not_green():
+    """Every state file missing -- the box died -- must never grade as a clean day."""
+    checks = {name: {"status": "NO_DATA"} for name in flr._GATING_CHECKS}
+    verdict, failing = flr.combine_verdict(checks)
+    assert verdict != "GREEN"
+    assert len(failing) == len(flr._GATING_CHECKS)
+
+
+def test_a_missing_gating_check_is_no_data_not_a_skip():
+    """An absent check means the day was not fully reviewed. Silently dropping it from the
+    worst-wins fold is the same GREEN-by-absence bug in a different costume."""
+    checks = {
+        "dms_cadence": {"status": "GREEN"},
+        "dms_verdicts": {"status": "GREEN"},
+        "engine_health": {"status": "GREEN"},
+        "eod_flatten_aggressive": {"status": "GREEN"},
+        "guards_full": {"status": "GREEN"},
+        # fleet_kill_switch deliberately absent
+    }
+    verdict, failing = flr.combine_verdict(checks)
+    assert verdict == "NO_DATA"
+    assert "fleet_kill_switch:NO_DATA" in failing
+
+
+def test_red_still_outranks_no_data():
+    checks = {name: {"status": "NO_DATA"} for name in flr._GATING_CHECKS}
+    checks["dms_verdicts"] = {"status": "RED"}
+    verdict, _ = flr.combine_verdict(checks)
+    assert verdict == "RED"
+
+
+def test_advisory_still_never_gates():
+    """The fix must not sweep up conductor_picks: it is excluded BY DESIGN, which is a
+    different thing from absence."""
+    checks = {name: {"status": "GREEN"} for name in flr._GATING_CHECKS}
+    checks["conductor_picks"] = {"status": "ADVISORY"}
+    verdict, failing = flr.combine_verdict(checks)
+    assert verdict == "GREEN"
+    assert failing == []
