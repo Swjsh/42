@@ -1,15 +1,12 @@
 {
   "_doc": "PRE-REGISTERED spec for Phase 1 of the context-enrichment program (J 2026-07-14: 'do we cross-correlate any information before acting on signals... maybe it should be calculated beforehand and tagged onto the signal'). Phase 0 (commit b1597a6) shipped setup/scripts/context_bundle_producer.py::compute_trend_alignment -- a PURE, as-of-bounded function that reads daily/hourly/15m SPY structure and returns an alignment_score in [-3,+3], tagged onto the decision row LOGGED-ONLY (zero behavior change; nothing on the live decision path reads it yet). Phase 1 answers the actual question before anything is allowed to consume the tag: does trend alignment separate winning trades from losing trades? FROZEN BEFORE any scoring run -- exploratory != confirmatory, no re-picks after seeing results, a flat/non-monotonic KILL is a publishable outcome exactly like every other pre-reg in this program.",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE -- KILL",
   "frozen_at": "2026-07-14T19:15:39 ET (et_clock.py verified: 'Tuesday EDT', market_hours=False)",
   "runner": "backtest/tools/trend_alignment_correlation_study.py",
   "build_step_complete": "compute_trend_alignment imported UNMODIFIED from context_bundle_producer (identity-pinned by test_trend_alignment_correlation_study.py::test_compute_trend_alignment_is_the_same_object). alignment_for_decision() is the ONE slicing boundary this module adds, guarded by 3 no-look-ahead tests. Fetch/cache infrastructure (fetch_historical_bars, paginated Alpaca REST) built and VERIFIED against live data at freeze time: daily=510 bars/1 page, hourly=4239 bars/20 pages, m15=14973 bars/20 pages, cached under analysis/backtests/cache/trend-alignment-spy-{tf}-2024-07-01_2026-07-14.json (NOT committed to git -- regenerable working cache, same convention as context-bundle.json; regenerate via `--build-cache --refresh`). Population loaders (load_p1_population/load_p2_population/load_p3_population) built and smoke-tested against real on-disk data, schema-pinned by test_trend_alignment_correlation_study.py.",
-
   "hypothesis": "Signals ALIGNED with the multi-timeframe (daily+hourly+15m) trend at entry have higher expectancy than signals FIGHTING it. Operationalized as: per-trade P&L, grouped by an AGREEMENT bucket in [-3..+3] (positive = trend agrees with the trade's own side, negative = trend fights it, computed via alignment_vs_side()'s signed_score -- NOT the raw market-direction alignment_score, so bull and bear populations pool onto the same agreement axis), should show monotonic-ish increasing expectancy from bucket -3 to +3, and losing episodes should skew toward negative buckets while winners skew toward positive buckets.",
-
   "population_correction_disclosure": "The task brief that spawned this study described P1 as 'n in thousands -- the population the ribbon_ride/exit studies use; find it'. Having searched (STRATEGY-SPACE-REGISTRY.jsonl, mass-grind-total.json, every backtest/tools/*_exit_matrix.py / *_ab.py script), the actual canonical strike-independent ribbon_ride signal cohort every exit/strike study in this repo reuses (T3/T4, ribbon_ride_strike_exit_ab.py, WP5-STRIKE-AB) is analysis/exit-parity/signal-set.json via _signal_cache.load_or_build_signals() -- n=250, not thousands. There is no larger canonical population with SS-B-replayed real-OPRA outcomes in this repo as of 2026-07-14. This pre-registration uses the REAL n=250 cohort and states that correction explicitly (OP-33: verify, don't inherit an unverified premise) rather than silently proceeding on a wrong assumption or fabricating a bigger population.",
-
   "populations": {
     "P1_large_historical_signal_population": {
       "label": "MODELED",
@@ -33,40 +30,91 @@
       "source": "ssb_certification_study.J_ANCHOR_TRADES, reused VERBATIM via trend_alignment_correlation_study.load_p3_population() -- the SAME transcription CLAUDE.md OP-16 and the SS-B certification study already use (winner-sum-asserted == $1,542 in that module; re-asserted here by test_load_p3_population_is_the_op16_anchor_set).",
       "n": 7,
       "trades": [
-        {"date": "2026-04-29", "side": "P", "strike": 710, "qty": 6, "entry_time_et": "10:25:51", "role": "winner", "j_pnl": 342.0},
-        {"date": "2026-05-01", "side": "P", "strike": 721, "qty": 20, "entry_time_et": "13:09:14", "role": "winner", "j_pnl": 470.0},
-        {"date": "2026-05-04", "side": "P", "strike": 721, "qty": 10, "entry_time_et": "10:27:50", "role": "winner", "j_pnl": 730.0},
-        {"date": "2026-05-05", "side": "P", "strike": 722, "qty": 20, "entry_time_et": "13:00:33", "role": "loser", "j_pnl": -260.0},
-        {"date": "2026-05-06", "side": "P", "strike": 730, "qty": 10, "entry_time_et": "13:09:37", "role": "loser", "j_pnl": -300.0},
-        {"date": "2026-05-07", "side": "C", "strike": 734, "qty": 3, "entry_time_et": "12:30:00", "role": "loser", "j_pnl": -45.0},
-        {"date": "2026-05-07", "side": "C", "strike": 737, "qty": 10, "entry_time_et": "11:14:15", "role": "loser", "j_pnl": -120.0}
+        {
+          "date": "2026-04-29",
+          "side": "P",
+          "strike": 710,
+          "qty": 6,
+          "entry_time_et": "10:25:51",
+          "role": "winner",
+          "j_pnl": 342.0
+        },
+        {
+          "date": "2026-05-01",
+          "side": "P",
+          "strike": 721,
+          "qty": 20,
+          "entry_time_et": "13:09:14",
+          "role": "winner",
+          "j_pnl": 470.0
+        },
+        {
+          "date": "2026-05-04",
+          "side": "P",
+          "strike": 721,
+          "qty": 10,
+          "entry_time_et": "10:27:50",
+          "role": "winner",
+          "j_pnl": 730.0
+        },
+        {
+          "date": "2026-05-05",
+          "side": "P",
+          "strike": 722,
+          "qty": 20,
+          "entry_time_et": "13:00:33",
+          "role": "loser",
+          "j_pnl": -260.0
+        },
+        {
+          "date": "2026-05-06",
+          "side": "P",
+          "strike": 730,
+          "qty": 10,
+          "entry_time_et": "13:09:37",
+          "role": "loser",
+          "j_pnl": -300.0
+        },
+        {
+          "date": "2026-05-07",
+          "side": "C",
+          "strike": 734,
+          "qty": 3,
+          "entry_time_et": "12:30:00",
+          "role": "loser",
+          "j_pnl": -45.0
+        },
+        {
+          "date": "2026-05-07",
+          "side": "C",
+          "strike": 737,
+          "qty": 10,
+          "entry_time_et": "11:14:15",
+          "role": "loser",
+          "j_pnl": -120.0
+        }
       ],
       "outcome_used_for_scoring": "j_pnl (J's OWN real dollar outcome) is the primary label for these 7 -- NOT a fresh SS-B replay (these are real J fills, already MEASURED, not MODELED -- 'MODELED' above refers only to the alignment reconstruction step, which necessarily replays the market-structure read since no live context-bundle existed at trade time in April/May 2026, Phase 0 shipped 2026-07-14).",
       "alignment_reconstruction": "Same alignment_for_decision() call, entry_ts built from date + entry_time_et (naive ET, normalized inside alignment_for_decision), direction via side_from_option_char(side)."
     }
   },
-
   "primary_metric": {
     "statement": "Expectancy (mean per-trade P&L) by AGREEMENT bucket (signed_score in [-3..+3], from alignment_vs_side), computed SEPARATELY per population (P1/P2/P3 never pooled -- different label types, different n, different eras) and then as a POOLED cross-population check using only the sign/direction of the relationship (not raw dollars, which are not comparable across QTY=10-research-scale P1 vs real-account-sized P2/P3).",
     "winner_loser_separation": "For each population: % of LOSING episodes with signed_score < 0 (fighting the trend) vs % of WINNING episodes with signed_score > 0 (aligned with the trend). Reported as a 2x2 contingency (win/loss x aligned/fighting/neutral) per population, plus the pooled version."
   },
-
   "nulls": {
     "shuffle_null": "Within each population, shuffle the (episode -> signed_score) label assignment 1000x (fixed seed=1407, same seed convention as S1/TREND-FADE-PREREG for cross-study comparability) holding the P&L values fixed, recompute the bucket-expectancy monotonic-fit statistic (Spearman correlation of bucket vs mean-pnl) each time -- the real (unshuffled) statistic must fall outside the shuffle-null's empirical 90% interval (two-sided, alpha=0.10, same BH-FDR alpha this repo's other pre-regs use) to be considered non-random.",
     "per_bucket_vs_pooled": "Reported BOTH per-bucket (does bucket +3 beat bucket -3 in a direct two-sample comparison) AND pooled (does the whole -3..+3 series show a monotonic-ish trend) -- a population that is only significant pooled but has no clean per-bucket separation is flagged, not silently treated as a pass."
   },
-
   "windows": {
     "is_oos_split_p1": "IS = date < 2026-01-01, OOS = date >= 2026-01-01 (OOS_BOUNDARY, imported verbatim from backtest/autoresearch/strategy_space_grind.py -- same convention as every other T4/T5/P5/trendline study in this repo). Applies to P1 only (P2/P3 are single-era real fills, too small/recent for an IS/OOS split -- reported as single windows).",
     "today_excluded": "P2's fetch/cache window ends 2026-07-14 (today, the freeze date) -- any partial/still-open position on the freeze date is excluded from scoring by construction (reconstruct_positions() only returns CLOSED positions with exit_fills present)."
   },
-
   "statistics": {
     "test": "Spearman rank correlation of AGREEMENT bucket vs mean per-trade P&L, per population, against the shuffle-null's empirical interval (see nulls.shuffle_null). Two-sample t-test (aligned buckets [+1..+3] pooled vs fighting buckets [-1..-3] pooled) as a secondary, simpler-to-read statistic reported alongside the primary Spearman result -- NOT used to override a Spearman-based verdict, disclosed for readability only.",
     "evidence_floor": "n >= 15 per population for a verdict to be FAIL rather than INCONCLUSIVE-underpowered (OP-16's evidence_n >= 15 advisory floor -- P3 at n=7 is BY CONSTRUCTION always INCONCLUSIVE on its own; P3's ONLY job is corroboration/consistency-check against P1/P2's verdict, never a standalone kill/ship signal).",
     "concentration_disclosure": "top-3-episode % of total population P&L, reported for every population regardless of verdict (OP-20)."
   },
-
   "kill_criteria_and_confidence_bar": {
     "statement": "ALL of the following for the hypothesis to be considered SUPPORTED (anything else = KILL, downgraded to INCONCLUSIVE only where n<15 applies per the evidence floor above):",
     "condition_1_p1_oos_positive_correlation": "P1's OOS-only (date>=2026-01-01) Spearman correlation (bucket vs mean-pnl) is positive AND outside the shuffle-null's 90% interval.",
@@ -77,8 +125,12 @@
     "aggregation": "1+2+3+4 are AND, on P1 alone, for P1's OWN verdict. Condition 5 (P2 corroboration) is a SEPARATE, ADDITIONAL requirement for the overall hypothesis verdict to be SUPPORTED -- P1 passing alone with P2 contradicting it is reported as MIXED/INCONCLUSIVE, not SUPPORTED. P3 (n=7) is reported for every condition as color/context but never counted toward pass/fail.",
     "flat_non_monotonic_is_kill": "A flat or non-monotonic P1 OOS bucket series (fails condition_2) is KILL = alignment adds nothing beyond noise -- the SAME 'KILL is a publishable outcome' discipline as every other pre-reg in this program (TREND-FADE-PREREG, TRENDLINE-CONVICTION-OVERRIDE, morning-gate, expected-move-gate). A KILL here means Phase 0's bundle stays LOGGED-ONLY permanently (or is retired) -- it does NOT get promoted to a gate/veto/sizing input."
   },
-
   "ship_gate_if_supported": "A SUPPORTED verdict does NOT itself change any live behavior (OP-0 #1 / OP-16 eval-first gate). It qualifies Phase 2 -- a NEW, separately pre-registered proposal for HOW the alignment score gets consumed (a soft sizing multiplier? a hard veto on strongly-fighting buckets? informational only, forever?) -- to be drafted and A/B-scorecarded before any params.json change. This pre-reg's scope ends at 'does it correlate', not 'how do we use it'.",
-
-  "no_repick_clause": "Once frozen (this commit), no bucket definition, population filter, strike/shape choice (OTM-2/SS-B for P1), attribution convention (P2), seed (1407), FDR/shuffle alpha (0.10), or kill condition may be edited in light of results. A KILL/INCONCLUSIVE across any or all of P1/P2/P3 is a publishable, informative outcome -- not a reason to adjust and re-run. Any genuine build-time correction discovered AFTER this freeze (e.g. a bug in alignment_for_decision) gets fixed via a NEW pre-reg version bump with the correction disclosed, never a silent edit to this frozen spec."
+  "no_repick_clause": "Once frozen (this commit), no bucket definition, population filter, strike/shape choice (OTM-2/SS-B for P1), attribution convention (P2), seed (1407), FDR/shuffle alpha (0.10), or kill condition may be edited in light of results. A KILL/INCONCLUSIVE across any or all of P1/P2/P3 is a publishable, informative outcome -- not a reason to adjust and re-run. Any genuine build-time correction discovered AFTER this freeze (e.g. a bug in alignment_for_decision) gets fixed via a NEW pre-reg version bump with the correction disclosed, never a silent edit to this frozen spec.",
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/trend_alignment_correlation_study.py --build-cache then --score",
+    "result_file": "trend-alignment-correlation.json",
+    "verdict": "KILL. Every population's Spearman correlation between multi-timeframe trend alignment and P&L is NEGATIVE: P1_full rho=-0.025 (n=250), P1_OOS rho=-0.150 (n=90), P2_engine real fills rho=-0.078 (n=386). Kill conditions 1 (OOS positive correlation) and 2 (monotonic-ish) both fail. Alignment is, if anything, mildly ANTI-correlated with outcome -- the opposite of the hypothesis.",
+    "operational_consequence": "Gamma_ContextBundle computes exactly this alignment score every 5 min during RTH and its registry row describes a deferred 'Phase 2 (wiring a validated read into conviction/sizing)'. That read is now measured and KILLED, so Phase 2 must not be built. The producer stays logged-only or is retired; either way it is no longer a candidate feature."
+  }
 }

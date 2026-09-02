@@ -1,36 +1,47 @@
 {
   "_doc": "PRE-REGISTERED stop-REFERENCE-CHOICE A/B for the ALREADY-LIVE structure stop (structure_stop_enabled=true, SS-B shape, validated 2026-07-09). Frozen BEFORE any candidate replay is run (exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). This is item (b) of queue item STRUCTURE-STOP-ZONE-BAND, re-filed standalone as STRUCTURE-STOP-REFERENCE-LEVEL after item (a) (buffer-width-only sweep on the trigger-exact reference) closed REJECT_ALL_CANDIDATES 2026-07-20 ~16:19-17:xx ET (analysis/recommendations/structure-stop-zone-band-2026-07-20.json) -- every non-zero buffer failed fresh-slice expectancy, and the real-fills anchor 'wins' were a single-trade artifact (ONE 2026-07-08 signal) with a hard sub-window sign-flip (C24). That result directly motivates THIS study: item (a) widened the band on the SAME (trigger-exact) reference and found nothing; the remaining lever is WHICH level the structure stop compares against, not how wide a cushion it gets around the same level.",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE -- REJECT_ALL_CANDIDATES",
   "frozen_at": "2026-07-20T17:xx ET (before any candidate replay)",
   "runner": "backtest/tools/structure_stop_reference_level_ab.py",
   "reuses": "structure_stop_study.py's trigger-level recovery (recover_trigger_level_real_position, prepare_layer_a, prepare_positions), replay engine (replay_structure_aware, structure_stop_signal_time -- buffer arg held at 0.0 for every candidate, see band_width_rule below), and tw8_level_context.py's frozen_level_set_for_date (the per-day-frozen multi-level active set orchestrator.py itself trades against) -- UNCHANGED. Only the trigger_level RESOLUTION differs across candidates, not the replay engine, per the queue item's own spec.",
   "strategy": "ribbon_ride (both directions), all fleet_rest arms -- same population convention as structure-stop-zone-band-preregistration.json v1",
-
   "band_width_rule": "Buffer/band width is held at 0.00 (no band) for EVERY candidate in this study, by RULE not by omission: item (a) (analysis/recommendations/structure-stop-zone-band-2026-07-20.json) already conclusively swept 0.00/0.05/0.08/0.10/0.12/0.15/0.20 on the trigger-exact reference and found EVERY non-zero buffer worse on fresh-slice expectancy than the 0-buffer control, with the only 'wins' traced to a single anchor trade + sub-window sign-flip (REJECT_ALL_CANDIDATES). Re-opening the band-width axis here without new evidence that the REFERENCE itself carries signal would be fishing on an axis already falsified once; if (and only if) REF-ZONE clears this study's bar, a band-on-zone-boundary follow-up becomes evidence-motivated rather than speculative.",
-
   "zone_boundary_resolution_rule": "The zone-boundary reference is resolved as the NEAREST active level (tw8_level_context/lib.levels.LevelSet.active, the per-day-frozen level set orchestrator.py itself trades against) strictly beyond the recovered trigger_level, in the direction AWAY from spot (puts: next active level ABOVE trigger_level; calls: next active level BELOW trigger_level), within max_distance=2.00 dollars -- the SAME max_distance default already live in exit_manager.nearest_active_level (production's own entry-side proximity resolver), reused rather than hand-picked so the zone lookup applies the same 'meaningfully nearby' definition already vetted for the entry trigger. When no such level exists in the active set that day (or none within 2.00), REF-ZONE falls back to REF-EXACT's trigger_level identically for that position (byte-identical degradation, never a guess, matching every other fallback convention in this study family).",
-
   "fixed_exit_shape": {
     "note": "SS-B, the shape CURRENTLY LIVE in automation/state/fleet/strategies.py#RIBBON_RIDE.exit (params.json structure_stop_enabled=true since 2026-07-09). Held FIXED across every candidate -- identical to item (a)'s fixed shape, for direct cross-study comparability.",
-    "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667,
-              "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9}
+    "shape": {
+      "premium_stop_pct": -0.5,
+      "tp1_premium_pct": 1.0,
+      "tp1_qty_fraction": 0.667,
+      "profit_lock_mode": "trailing",
+      "trail_pct": 0.15,
+      "runner_target_pct": 9.9
+    }
   },
-
   "candidates": {
-    "REF-EXACT": {"reference": "trigger_exact", "buffer": 0.00,
-                  "role": "CONTROL -- exact byte-identical reproduction of the LIVE structure-stop condition today (== item (a)'s BAND-00)."},
-    "REF-ZONE": {"reference": "zone_boundary", "buffer": 0.00,
-                 "role": "the level/trendline-rejection setup's stop compares against the FAR side of the rejected/reclaimed zone (per zone_boundary_resolution_rule) instead of the exact trigger; falls back to REF-EXACT when no further level exists that day."},
-    "REF-NONE": {"reference": "none", "buffer": null,
-                 "role": "no structure check at all -- pure SS-B premium-only replay (catastrophe -50% cap + TP1 1.0 + trailing 15%, ss_time always None). Isolates whether ANY structure reference beats having none, independent of which one."}
+    "REF-EXACT": {
+      "reference": "trigger_exact",
+      "buffer": 0.0,
+      "role": "CONTROL -- exact byte-identical reproduction of the LIVE structure-stop condition today (== item (a)'s BAND-00)."
+    },
+    "REF-ZONE": {
+      "reference": "zone_boundary",
+      "buffer": 0.0,
+      "role": "the level/trendline-rejection setup's stop compares against the FAR side of the rejected/reclaimed zone (per zone_boundary_resolution_rule) instead of the exact trigger; falls back to REF-EXACT when no further level exists that day."
+    },
+    "REF-NONE": {
+      "reference": "none",
+      "buffer": null,
+      "role": "no structure check at all -- pure SS-B premium-only replay (catastrophe -50% cap + TP1 1.0 + trailing 15%, ss_time always None). Isolates whether ANY structure reference beats having none, independent of which one."
+    }
   },
   "control_id": "REF-EXACT",
-
   "signal_set_integrity": {
     "layer_a_fresh_slice": {
       "file": "analysis/exit-parity/signal-set-fresh-20260619-20260708.json",
-      "n": 18, "window": "2026-06-19..2026-07-08",
+      "n": 18,
+      "window": "2026-06-19..2026-07-08",
       "sha256_16": "d10e1a3a51cbf155",
       "reused_unchanged": true,
       "role": "independent OOS-like population (never seen the 2026-07-20 hypothesis -- entirely predates it); IDENTICAL population to item (a) (same hash), only the level-set lookup added on top."
@@ -39,22 +50,27 @@
       "source": "automation/state/fills-ledger.jsonl via exit_shape_parity_study.load_fleet_engine_fills()+reconstruct_positions(), ALL fleet_rest positions",
       "anchor_end_date": "2026-07-17",
       "anchor_end_date_note": "2026-07-20 (today, the hypothesis-generating day) is EXCLUDED from the anchor by construction -- EXHIBIT ONLY, reported separately, never pass/fail data.",
-      "n_positions": 99, "n_trading_days": 11,
+      "n_positions": 99,
+      "n_trading_days": 11,
       "date_span": "2026-06-29..2026-07-17",
       "population_sha256_16": "0c2d963360e57fd7",
       "population_sha256_note": "IDENTICAL population + hash to item (a)'s anchor (same construction, same date filter) -- reused directly, not recomputed, since the queue item's own spec states only the trigger_level RESOLUTION differs, not the position population."
     }
   },
-
   "structure_stop_signal_time_convention": "identical to structure_stop_study.py / item (a): first SPY 5m bar whose CLOSE breaches (close < reference_level for calls, close > reference_level for puts, buffer=0 every candidate here); C6 fill-mark = that bar's close time == next bar's open. Trigger-level recovery: layer(a) exact entry_spot-matched (tw8_level_context.enrich_signal, reusing find_trigger_bar + detect_level_reclaim/rejection); layer(b) backward-scan heuristic (lookback=8 bars/40min, structure_stop_study.recover_trigger_level_real_position, UNCHANGED). Zone-boundary resolution reuses the SAME frozen level_set (lc.frozen_level_set_for_date, memoized per date) that produced the trigger_level, so REF-ZONE and REF-EXACT are computed from the identical level snapshot -- no additional look-ahead risk introduced. Positions with no recoverable trigger_level fall back to the SAME SS-B premium-only replay (REF-NONE-equivalent) for REF-EXACT and REF-ZONE identically, per the pre-existing fallback discipline.",
-
   "pass_bar": {
     "primary": "a candidate (REF-ZONE or REF-NONE) beats REF-EXACT (today's literal live behavior) on BOTH layer(a) fresh-slice expectancy AND layer(b) anchor total -- same dual-layer gate as item (a) and the 2026-07-09 predecessor study.",
     "sub_window_stability": "layer(b) anchor split at the population midpoint by date (2026-06-29..2026-07-08 vs 2026-07-09..2026-07-17, ~50/50 by position count, IDENTICAL split to item (a)) -- the winning candidate (if any) must not FLIP SIGN of its delta-vs-REF-EXACT in either half (informational disclosure given small per-half n, reported explicitly either way, but a FLIP on a nominal PASS downgrades the ship recommendation to NO-SHIP per the orchestrating task's ship bar: 'no anchor regression, sub-window stable').",
     "small_n_disclosure": "only the subset with a recoverable trigger_level (and, for REF-ZONE, a resolvable zone_boundary) is exposed to the reference-choice difference at all -- report n_recoverable/n_zone_resolved for both layers plainly; evidence_n<15 on the recoverable-only subset is INCONCLUSIVE_UNDERPOWERED, not a FAIL.",
     "today_exhibit": "2026-07-20's 3 fills (the hypothesis-generating trade + siblings) replayed under every candidate for narrative comparison ONLY -- excluded from pass/fail, same discipline as item (a) and the 2026-07-09 study."
   },
-
   "if_a_candidate_clears": "ship as automation/state/fleet/exit_manager.py: add a pure sibling resolver (e.g. nearest_active_level_beyond) + a new ExitState field structure_stop_reference_mode: str='trigger_exact' (default = today's exact behavior, byte-identical for every existing caller/test) threaded through ExitState.from_entry (accepts an optional zone_boundary_level, resolves which level becomes the operative trigger_level based on exit_shape.get('structure_stop_reference_mode','trigger_exact')), and set automation/state/fleet/strategies.py#RIBBON_RIDE.exit's structure_stop_reference_mode to the cleared value. Guard test + git-revert path + REVOKE report per rail 4 (PAPER-only). Live reachability (heartbeat_core.py's trigger-level computation actually resolving+passing a zone_boundary_level) is a SEPARATE follow-up wiring step, explicitly out of scope for tonight's fire unless a candidate clears (per the task's own gating: 'ONLY IF a candidate clears... wire it into the live exit path').",
-  "if_none_clear": "leave REF-EXACT (today's live behavior) in place, document the null result plainly (NO-SHIP is a valid, statable outcome), and record that BOTH sub-fixes of the original STRUCTURE-STOP-ZONE-BAND queue item (band width, item a; reference choice, item b) have now been tested and rejected under the same dual-layer discipline -- the 2026-07-20 exhibit's own -$24 vs +$115-130 counterfactual remains a single anecdote (C24) that this study explicitly could not generalize into a population-level edge."
+  "if_none_clear": "leave REF-EXACT (today's live behavior) in place, document the null result plainly (NO-SHIP is a valid, statable outcome), and record that BOTH sub-fixes of the original STRUCTURE-STOP-ZONE-BAND queue item (band width, item a; reference choice, item b) have now been tested and rejected under the same dual-layer discipline -- the 2026-07-20 exhibit's own -$24 vs +$115-130 counterfactual remains a single anecdote (C24) that this study explicitly could not generalize into a population-level edge.",
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/structure_stop_reference_level_ab.py",
+    "result_file": "structure-stop-reference-level-2026-07-20.json",
+    "verdict": "REJECT_ALL_CANDIDATES. REF-ZONE and REF-NONE both FAIL. Layer (a) expectancy: REF-ZONE $-66.79 and REF-NONE $-84.29 vs control $-50.40 -- both WORSE than today's live trigger-exact reference. Layer (b) real-fills anchor passes for both, but sub-window deltas sign-flip (first=$1473.4, second=$-57.0), which the prereg's own stability condition treats as failure. The live structure stop's reference choice stands, unbeaten.",
+    "caveat": "Two OPRA bar fetches returned HTTP 401 during layer (b) (SPY260709C00751000/00750000). Layer (b) still resolved 89 positions with bars, and the verdict is carried by layer (a), which is fully cached -- but the 401 is a real data-completeness gap in the study harness and is filed. The LIVE broker path is unaffected: both paper accounts verified ACTIVE the same session.",
+    "note": "No design field was touched. Only `status` and this block were added, after results, per the prereg's own lifecycle -- the no_repick_clause forbids changing candidates/pass_bar, not recording the outcome."
+  }
 }

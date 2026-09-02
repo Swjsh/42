@@ -1,6 +1,6 @@
 {
   "_doc": "Phase 1 SCORING RUN output. Frozen pre-reg: prereg-trend-alignment-correlation-2026-07-14.json. MEASURED = real broker fills. MODELED = SS-B replay on real OPRA bars (P1) or alignment reconstructed for a real J fill whose j_pnl is MEASURED (P3). No-repick clause applies -- this run reflects the FROZEN spec exactly.",
-  "scored_at_et": "2026-07-14T19:48:08",
+  "scored_at_et": "2026-09-02T05:27:15",
   "hypothesis": "Signals ALIGNED with the multi-timeframe (daily+hourly+15m) trend at entry have higher expectancy than signals FIGHTING it. Operationalized as: per-trade P&L, grouped by an AGREEMENT bucket in [-3..+3] (positive = trend agrees with the trade's own side, negative = trend fights it, computed via alignment_vs_side()'s signed_score -- NOT the raw market-direction alignment_score, so bull and bear populations pool onto the same agreement axis), should show monotonic-ish increasing expectancy from bucket -3 to +3, and losing episodes should skew toward negative buckets while winners skew toward positive buckets.",
   "populations": {
     "P1_full": {
@@ -308,15 +308,15 @@
     },
     "P2_engine": {
       "label": "MEASURED",
-      "n": 110,
+      "n": 386,
       "stats": {
-        "n": 110,
+        "n": 386,
         "bucket_table": [
           {
             "bucket": -3,
-            "n": 9,
-            "mean_pnl": -8.44,
-            "total_pnl": -76.0
+            "n": 124,
+            "mean_pnl": -10.66,
+            "total_pnl": -1322.0
           },
           {
             "bucket": -2,
@@ -350,56 +350,56 @@
           },
           {
             "bucket": 3,
-            "n": 10,
-            "mean_pnl": -30.9,
-            "total_pnl": -309.0
+            "n": 171,
+            "mean_pnl": 21.31,
+            "total_pnl": 3644.0
           }
         ],
         "spearman": {
-          "rho": -0.14279775621963556,
-          "pvalue": 0.13669690322522007
+          "rho": -0.07773493684910326,
+          "pvalue": 0.12735794743761694
         },
         "shuffle_null": {
           "n_valid_draws": 1000,
           "interval_90pct": [
-            -0.16846379468089684,
-            0.15759468703143337
+            -0.08037400836554058,
+            0.08207426035360914
           ]
         },
         "beats_null": false,
         "monotonic_ish": {
-          "verdict": "FAIL",
+          "verdict": "PASS",
           "n_present_buckets": 4,
-          "n_inversions": 2,
+          "n_inversions": 1,
           "bucket_means_in_order": [
-            -8.44,
+            -10.66,
             -24.57,
             -7.96,
-            -30.9
+            21.31
           ]
         },
         "aligned_vs_fighting_ttest": {
-          "n_aligned": 64,
-          "n_fighting": 46,
-          "mean_aligned": -11.55,
-          "mean_fighting": -21.41,
-          "t_stat": 0.8104249213654934,
-          "p_value": 0.42039224253726504
+          "n_aligned": 225,
+          "n_fighting": 161,
+          "mean_aligned": 14.28,
+          "mean_fighting": -13.86,
+          "t_stat": 1.5860895084069766,
+          "p_value": 0.11354210566598344
         },
-        "concentration_top3_pct_of_total": -0.631,
+        "concentration_top3_pct_of_total": 2.308,
         "win_loss_contingency": {
           "contingency": {
-            "aligned_win": 6,
-            "aligned_loss": 58,
+            "aligned_win": 60,
+            "aligned_loss": 165,
             "neutral_win": 0,
             "neutral_loss": 0,
-            "fighting_win": 1,
-            "fighting_loss": 45
+            "fighting_win": 39,
+            "fighting_loss": 122
           },
-          "n_win": 7,
-          "n_loss": 103,
-          "pct_losers_fighting_trend": 43.7,
-          "pct_winners_aligned_with_trend": 85.7
+          "n_win": 99,
+          "n_loss": 287,
+          "pct_losers_fighting_trend": 42.5,
+          "pct_winners_aligned_with_trend": 60.6
         },
         "evidence_floor_met": true
       },
@@ -407,15 +407,15 @@
     },
     "P2_manual": {
       "label": "MEASURED",
-      "n": 3,
+      "n": 5,
       "stats": {
-        "n": 3,
+        "n": 5,
         "bucket_table": [
           {
             "bucket": -3,
-            "n": 0,
-            "mean_pnl": null,
-            "total_pnl": 0.0
+            "n": 1,
+            "mean_pnl": -60.0,
+            "total_pnl": -60.0
           },
           {
             "bucket": -2,
@@ -449,46 +449,51 @@
           },
           {
             "bucket": 3,
-            "n": 0,
-            "mean_pnl": null,
-            "total_pnl": 0.0
+            "n": 1,
+            "mean_pnl": 89.0,
+            "total_pnl": 89.0
           }
         ],
-        "spearman": null,
+        "spearman": {
+          "rho": 0.22360679774997896,
+          "pvalue": 0.7176856442107858
+        },
         "shuffle_null": {
-          "n_valid_draws": 0,
+          "n_valid_draws": 1000,
           "interval_90pct": [
-            null,
-            null
+            -0.6708203932499368,
+            0.6708203932499368
           ]
         },
         "beats_null": false,
         "monotonic_ish": {
-          "verdict": "INSUFFICIENT_BUCKETS",
-          "n_present_buckets": 1,
-          "n_inversions": null,
+          "verdict": "PASS",
+          "n_present_buckets": 3,
+          "n_inversions": 1,
           "bucket_means_in_order": [
-            91.33
+            -60.0,
+            91.33,
+            89.0
           ]
         },
         "aligned_vs_fighting_ttest": {
           "verdict": "INSUFFICIENT_N",
-          "n_aligned": 3,
-          "n_fighting": 0
+          "n_aligned": 4,
+          "n_fighting": 1
         },
-        "concentration_top3_pct_of_total": 1.0,
+        "concentration_top3_pct_of_total": 1.908,
         "win_loss_contingency": {
           "contingency": {
-            "aligned_win": 2,
+            "aligned_win": 3,
             "aligned_loss": 1,
             "neutral_win": 0,
             "neutral_loss": 0,
             "fighting_win": 0,
-            "fighting_loss": 0
+            "fighting_loss": 1
           },
-          "n_win": 2,
-          "n_loss": 1,
-          "pct_losers_fighting_trend": 0.0,
+          "n_win": 3,
+          "n_loss": 2,
+          "pct_losers_fighting_trend": 50.0,
           "pct_winners_aligned_with_trend": 100.0
         },
         "evidence_floor_met": false
@@ -729,7 +734,7 @@
     },
     "condition_5_p2_corroborates": {
       "passed": true,
-      "p2_engine_n": 110,
+      "p2_engine_n": 386,
       "p2_engine_evidence_floor_met": true
     }
   },
@@ -742,9 +747,9 @@
     "all_agree": false
   },
   "p2_attribution_breakdown": {
-    "engine": 110,
-    "manual": 3,
+    "engine": 386,
+    "manual": 5,
     "unknown_attribution": 0,
-    "n_positions_total": 113
+    "n_positions_total": 391
   }
 }

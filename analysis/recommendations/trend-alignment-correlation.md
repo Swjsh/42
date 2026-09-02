@@ -1,6 +1,6 @@
 # Trend-Alignment Correlation Study -- Phase 1 Results
 
-Scored: 2026-07-14T19:48:08 ET. Frozen pre-reg: `analysis/recommendations/prereg-trend-alignment-correlation-2026-07-14.json` (no re-picks after freeze).
+Scored: 2026-09-02T05:27:15 ET. Frozen pre-reg: `analysis/recommendations/prereg-trend-alignment-correlation-2026-07-14.json` (no re-picks after freeze).
 
 ## VERDICT: KILL
 
@@ -56,39 +56,39 @@ Win/loss x aligned/fighting contingency: {'aligned_win': 20, 'aligned_loss': 37,
 2. Monotonic-ish: **False**
 3. Survives drop-top-3-per-bucket: **True** (post-drop n=78, rho=-0.146, p=0.204)
 4. Both chronological halves same sign: **True** (first half n=45 rho=-0.129, p=0.399, second half n=45 rho=-0.251, p=0.097)
-5. P2 (real fills) corroborates sign: **True** (P2 engine n=110, evidence floor met=True)
+5. P2 (real fills) corroborates sign: **True** (P2 engine n=386, evidence floor met=True)
 
 ## P2 -- real engine fills (MEASURED)
 
-n=110 engine-attributed closed episodes ({'engine': 110, 'manual': 3, 'unknown_attribution': 0, 'n_positions_total': 113}), 0 still-open excluded by construction.
+n=386 engine-attributed closed episodes ({'engine': 386, 'manual': 5, 'unknown_attribution': 0, 'n_positions_total': 391}), 0 still-open excluded by construction.
 
 ### P2 engine expectancy-by-alignment-bucket
 
 | bucket | n | mean pnl | total pnl |
 |---|---|---|---|
-| -3 | 9 | $-8.44 | $-76.00 |
+| -3 | 124 | $-10.66 | $-1322.00 |
 | -2 | 0 | - | $0.00 |
 | -1 | 37 | $-24.57 | $-909.00 |
 | +0 | 0 | - | $0.00 |
 | +1 | 54 | $-7.96 | $-429.99 |
 | +2 | 0 | - | $0.00 |
-| +3 | 10 | $-30.90 | $-309.00 |
+| +3 | 171 | $21.31 | $3644.00 |
 
-Spearman: rho=-0.143, p=0.137. Beats null: False (n=110, evidence floor n>=15 met: True -- P2's job is DIRECTIONAL corroboration, not an independent statistical pass/fail).
+Spearman: rho=-0.078, p=0.127. Beats null: False (n=386, evidence floor n>=15 met: True -- P2's job is DIRECTIONAL corroboration, not an independent statistical pass/fail).
 
-Win/loss contingency: {'aligned_win': 6, 'aligned_loss': 58, 'neutral_win': 0, 'neutral_loss': 0, 'fighting_win': 1, 'fighting_loss': 45}. % losers fighting trend: 43.7. % winners aligned: 85.7.
+Win/loss contingency: {'aligned_win': 60, 'aligned_loss': 165, 'neutral_win': 0, 'neutral_loss': 0, 'fighting_win': 39, 'fighting_loss': 122}. % losers fighting trend: 42.5. % winners aligned: 60.6.
 
-### P2 manual (n=3, reported separately, NEVER pooled into engine expectancy)
+### P2 manual (n=5, reported separately, NEVER pooled into engine expectancy)
 
 | bucket | n | mean pnl | total pnl |
 |---|---|---|---|
-| -3 | 0 | - | $0.00 |
+| -3 | 1 | $-60.00 | $-60.00 |
 | -2 | 0 | - | $0.00 |
 | -1 | 0 | - | $0.00 |
 | +0 | 0 | - | $0.00 |
 | +1 | 3 | $91.33 | $274.00 |
 | +2 | 0 | - | $0.00 |
-| +3 | 0 | - | $0.00 |
+| +3 | 1 | $89.00 | $89.00 |
 
 ## P3 -- J's OP-16 anchor trades (n=7, corroboration/context ONLY, never counted toward pass/fail)
 
@@ -115,42 +115,3 @@ Spearman (n=7, always INCONCLUSIVE per evidence floor): rho=0.094, p=0.842.
 - P3's alignment reconstruction is MODELED (no live context-bundle existed at those April/May 2026 trade times) even though j_pnl itself is MEASURED.
 - This pre-reg's scope ends at 'does it correlate' -- a SUPPORTED verdict does NOT itself change any live behavior (OP-0 #1 / OP-16 eval-first gate). It only qualifies a separately pre-registered Phase 2 proposal for HOW the tag would be consumed.
 - **Build-time observation (disclosed, not a re-pick):** buckets 0/+2/-2 are EMPTY in every population's table above. Root cause verified directly (sampled 60 P1 alignment reads): `analyze_structure`'s per-timeframe classifier essentially never returns 'range'/'unknown' on SPY daily/hourly/15m history in this window -- every timeframe read was 'uptrend' or 'downtrend', never a 0-vote. `alignment_score` is therefore structurally odd-valued ({-3,-1,+1,+3}), not the full [-3,+3] the pre-reg's bucket range anticipated. This does not change any scoring/kill-criteria logic (all bucket math already handles n=0 buckets correctly) -- disclosed because it means this study's effective resolution is 4 buckets, not 7, a fact worth carrying into any Phase 2 design.
-
----
-
-## ADDENDUM 2026-07-20 evening -- re-check dispatched from winning-trade-map, verdict RE-CONFIRMED STANDING, no re-run
-
-Dispatched as "LEVER 1" from `analysis/winning-trade-map/SYNTHESIS-2026-07-20.md` signal #1,
-motivated by this week's disclosed confound (27 real episodes 07-13..07-20: 0/11 wins on
-positive-alignment entries [-$539] vs 6/15 on negative [+$625] -- see
-`analysis/winning-trade-map/MAP-2026-07-20.md`).
-
-**Action taken: none to the scoring above.** This frozen pre-reg's `no_repick_clause` forbids
-editing the population filter or re-running in light of new results without a NEW pre-reg
-version. P1 -- the population that gates the overall SUPPORTED/KILL verdict via the AND'd
-kill-criteria ladder -- is a FIXED historical cohort (n=250, 2025-01-01..2026-06-18,
-`_signal_cache.load_or_build_signals()`) that does not grow with new trading days; extending it
-to cover 07-20 would require a new cohort build, which is out of scope for a "re-check" and would
-itself be the re-pick pattern the freeze exists to prevent. P1 already fails condition_1
-(OOS-positive) and condition_2 (monotonic-ish) -- 2 of 4 AND'd conditions, not a close call --
-so no amount of additional P2 (real-fill) data can flip the overall verdict, since overall
-SUPPORTED requires P1 SUPPORTED (all 4) AND P2 corroboration. **Verdict re-confirmed standing:
-KILL.** This week's cross-tab (0/11 vs 6/15) is *directionally consistent* with the frozen
-finding that the fully-aligned bucket (+3) is the WORST bucket in both P1_OOS and P2_engine --
-i.e. more evidence for the same KILL, not a reason to re-open it.
-
-**Fresh verification this session (OP-33):**
-- `pytest backtest/tests/test_trend_alignment_correlation_study.py backtest/tests/test_context_bundle_producer.py backtest/tests/test_context_bundle_tag_no_behavior_change.py -q` -> `50 passed in 4.30s`.
-- `et_clock.py` -> `2026-07-20 17:42:33 Monday EDT` (market_hours=False -- after-hours work window, doctrine-compliant).
-- Housekeeping-only finding (not fixed, out of scope): the module's standalone
-  `--self-check` CLI path (`_self_check_no_lookahead()`) throws `AssertionError` when run by hand
-  -- it predates the bar-CLOSE granularity fix (commit bbcadc8) and still does a naive `<=T`
-  manual slice. The actual pytest guards (e.g.
-  `test_alignment_for_decision_matches_cutoff_only_series`) correctly use per-timeframe
-  granularity and pass; this is dead/orphaned CLI-only code, does not affect the frozen verdict.
-
-**Phase 2 (conviction/sizing modulation): NOT implemented.** Gated on Phase 1 clearing its bar
-per the plan doc (`~/.claude/plans/jazzy-giggling-trinket.md`); it does not. No changes to
-`setup/scripts/heartbeat_core.py`. `context_bundle.alignment_score` remains LOGGED-ONLY.
-
-Full note: `automation/overnight/queue.md` -> `## LEVER-1-TREND-ALIGNMENT-VERDICT-STANDING`.
