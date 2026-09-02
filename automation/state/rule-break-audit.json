@@ -1,0 +1,91 @@
+{
+  "generated_at_et": "2026-09-02 03:17:26",
+  "since": null,
+  "entries_audited": 495,
+  "date_range": [
+    "2026-06-21",
+    "2026-09-01"
+  ],
+  "arms_seen": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-2",
+    "safe-3"
+  ],
+  "breaks_found": 0,
+  "coverage_by_rule": {
+    "RULE_1_NAMED_SETUP": {
+      "checked": 495,
+      "not_checked": 0,
+      "breaks": 0
+    },
+    "RULE_2_WAIT_FOR_TRIGGER": {
+      "checked": 76,
+      "not_checked": 419,
+      "breaks": 0
+    },
+    "RULE_3_DEFINED_STOP": {
+      "checked": 364,
+      "not_checked": 131,
+      "breaks": 0
+    },
+    "RULE_4_NO_ADDING": {
+      "checked": 405,
+      "not_checked": 90,
+      "breaks": 0
+    },
+    "RULE_5_KILL_SWITCH": {
+      "checked": 405,
+      "not_checked": 90,
+      "breaks": 0
+    },
+    "RULE_6_RISK_CAP": {
+      "checked": 495,
+      "not_checked": 0,
+      "breaks": 0
+    }
+  },
+  "binding_evidence": {
+    "RULE_6_RISK_CAP": {
+      "n": 495,
+      "max_fraction_of_cap": 0.9894,
+      "n_above_80pct_of_cap": 8,
+      "informative": true,
+      "note": "the cap was approached and not crossed"
+    },
+    "RULE_5_KILL_SWITCH": {
+      "kill_switch_tripped_events_seen": 0,
+      "informative": false,
+      "note": "the kill switch never tripped in this window, so zero breaks says nothing about enforcement"
+    },
+    "RULE_4_NO_ADDING": {
+      "not_flat_at_entry_events_seen": 0,
+      "informative": false,
+      "note": "no entry was ever attempted while not flat -- the engine's own NOT_FLAT refusal fires upstream, so zero here is expected, not proof"
+    }
+  },
+  "rules_checked": {
+    "RULE_1_NAMED_SETUP": "entry's setup is a named playbook pattern",
+    "RULE_2_WAIT_FOR_TRIGGER": "entry timestamp is after its own trigger bar closed (anticipation entries are forbidden) -- core arms only",
+    "RULE_3_DEFINED_STOP": "entry carries a stop, and a structure-mode stop carries the chart level it is anchored to",
+    "RULE_4_NO_ADDING": "entry was placed while flat -- fleet arms only",
+    "RULE_5_KILL_SWITCH": "no entry after that arm's daily kill switch tripped -- fleet only",
+    "RULE_6_RISK_CAP": "position cost is within the arm's per-trade risk cap"
+  },
+  "rules_NOT_checked": {
+    "RULE_7_PDT": "needs the rolling 5-business-day day-trade count from the broker, not just the per-row `day_trades` field",
+    "RULE_8_JOURNAL": "needs a verified join from each fill to its journal/trades.csv row; the join key has not been established, and a wrong join would manufacture false breaks",
+    "RULE_9_NO_MIDSESSION_RULE_CHANGES": "needs params file history during RTH, which is not retained",
+    "RULE_10_GAMMA_VETO": "not mechanically checkable -- it is about a refusal that, when honoured, leaves no trade to audit"
+  },
+  "honesty_note": "'breaks_found: 0' means zero breaks AMONG THE RULES LISTED IN rules_checked, over entries where that rule's inputs were actually present (see coverage_by_rule.*.checked). It is NOT a statement that the window was clean: the rules in rules_NOT_checked were never evaluated, and any rule whose not_checked count is high was evaluated on very little. See binding_evidence: a zero from a rule tested at 99% of its limit and a zero from a rule that never had an opportunity to fire are the same number and completely different claims.",
+  "core_ledger_readable": true,
+  "fleet_arms_readable": {
+    "safe-3": true,
+    "safe-1": true,
+    "risky-1": true,
+    "risky-3": true
+  }
+}
