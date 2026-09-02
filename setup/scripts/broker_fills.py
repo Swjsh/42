@@ -284,6 +284,55 @@ def rewrite_ledger(rows: list, ledger_path: Path = LEDGER) -> None:
     tmp.replace(ledger_path)
 
 
+# Alpaca charges CRYPTO fees IN THE BASE ASSET. Buy 100 UNI at a 0.25% taker fee and only
+# 99.75 UNI is ever sellable, so a fully-closed crypto position PERMANENTLY leaves ~0.25% of
+# the bought quantity unmatched. Against a fixed 1e-9 absolute epsilon that reads as an open
+# lot, forever.
+#
+# MEASURED, NOT ASSUMED (2026-09-02, queue.md CANARY-OUT-OF-SAFE-2). All 16 phantom lots in
+# pnl-statement.json were EXACTLY 0.2500% of quantity bought -- across 6 arms and 6 symbols,
+# residues spanning 4.2e-06 BTC to 0.70 UNI -- while a live /v2/positions read returned 0
+# open positions on every one of the five live arms. The queue item called this "float dust";
+# it is not. 0.70 UNI (~$2) is not a rounding artifact, and raising the absolute epsilon
+# until it swallowed 0.70 would also swallow real positions. The mechanism is the fee.
+CRYPTO_FEE_CLOSEOUT_TOLERANCE = 0.005  # 2x the observed 0.25%, still ~200x too small to
+                                       # absorb a genuine position.
+
+
+def _is_crypto_symbol(symbol) -> bool:
+    """Alpaca crypto pairs carry a slash ("BTC/USD"); OCC option symbols never do."""
+    return "/" in str(symbol or "")
+
+
+def drop_fee_residue_lots(open_lots: list, group_fills: list) -> list:
+    """Remove leftover CRYPTO lots that are explained by fee-in-kind, keep everything else.
+
+    A lot survives unless ALL of the following hold:
+      * the symbol is a crypto pair (options are integer-quantity, no fee-in-kind);
+      * the lot is a BUY -- a fee deduction can only ever leave you holding LESS than you
+        bought, so an unmatched SELL residue is a different problem and must stay visible;
+      * the whole (arm, symbol) group is round-trip complete to within tolerance, i.e.
+        bought - sold <= CRYPTO_FEE_CLOSEOUT_TOLERANCE * bought.
+
+    That last test is the load-bearing one, and it is deliberately a property of the GROUP
+    rather than of the individual lot. Judging each lot against its own size lets a genuine
+    small position hide behind a big one's fee residue, and conversely strands the fee
+    residue of a large early buy on a small late lot. Tested both ways in
+    backtest/tests/test_broker_fills_fee_residue_2026_09_02.py.
+    """
+    if not open_lots:
+        return open_lots
+    bought = sum(float(f["qty"]) for f in group_fills if f.get("side") == "buy")
+    sold = sum(float(f["qty"]) for f in group_fills if f.get("side") == "sell")
+    if bought <= 0:
+        return open_lots
+    unmatched = bought - sold
+    if unmatched > CRYPTO_FEE_CLOSEOUT_TOLERANCE * bought:
+        return open_lots  # a real position remains -- report every lot, unchanged
+    return [l for l in open_lots
+            if not (_is_crypto_symbol(l.get("symbol")) and l.get("side") == "buy")]
+
+
 def fifo_round_trips(fills: list) -> "tuple[list[dict], list[dict]]":
     """FIFO-match opposite-side fills per (arm, symbol), sorted by ts_utc. PURE -- no I/O.
     A same-side fill while lots are open just adds to the open-lot queue (scale-in);
@@ -319,6 +368,12 @@ def fifo_round_trips(fills: list) -> "tuple[list[dict], list[dict]]":
                     open_lots.popleft()
             if remaining > 1e-9:
                 open_lots.append({**f, "qty": remaining})
+        # MATCHING IS UNCHANGED ABOVE THIS LINE, DELIBERATELY. The fee residue is a
+        # REPORTING problem, not a matching one: the round trips and their P&L are already
+        # right. An earlier cut of this fix popped fee-sized lots inside the loop and
+        # silently destroyed 90 of 790 round-trip rows, because a popped lot is no longer
+        # available for a later fill to match against. Classify at the end instead.
+        open_lots = drop_fee_residue_lots(list(open_lots), group_sorted)
         open_lots_out.extend(open_lots)
     return round_trips, open_lots_out
 
