@@ -400,8 +400,30 @@ def _main_inner() -> int:
 
     log_path, jsonl_path = _log_paths()
 
+    if not is_rth(et) and not DRY:
+        # OUT OF HOURS. There is genuinely nothing to protect outside 09:32-15:58 ET, but
+        # returning silently made a gated no-op byte-identical to "the task never fired" and
+        # to "it crashed before writing anything" -- three different states, one empty
+        # result (C7). The snapshot is overwritten, never appended, so recording it costs
+        # nothing and cannot grow.
+        _write_state_snapshot({
+            "last_run_et": _et_ts(), "dry": DRY, "stale_min_threshold": STALE_MIN,
+            "gated": "outside_rth",
+            "note": ("no arms checked -- outside the 09:32-15:58 ET weekday window. This "
+                     "row exists so a gated fire is distinguishable from a dead task."),
+            "per_arm": {},
+        })
+        return 0
+
     if not is_rth(et):
-        return 0  # nothing to protect outside 09:32-15:58 ET weekdays
+        # DRY forced past the gate. Safe by construction: the ONLY mutating call in this
+        # file is close_all_spy_options(..., live=(not DRY)), so DRY=1 cannot place an
+        # order at any hour. This exists because the alternative was worse -- before it,
+        # the switch's real path could not be exercised even once outside market hours, so
+        # its FIRST EVER execution would have been in production on a live position. A
+        # safety instrument nobody can rehearse is a safety instrument nobody has tested.
+        _log(log_path, "DMS_DRY_OUT_OF_HOURS forcing the full path outside RTH -- "
+                       "live=False on every broker call, no order can be placed")
 
     try:
         arms = list(_eod_flatten._active_arms())

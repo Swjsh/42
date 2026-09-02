@@ -132,7 +132,18 @@ def test_main_exits_0_and_does_nothing_off_rth(fake_env, monkeypatch) -> None:
     rc = dms.main()
     assert rc == 0
     assert fb.read_calls == 0, "off-RTH must never touch the broker"
-    assert not dms.STATE_PATH.exists(), "off-RTH must not even write a snapshot"
+
+    # CORRECTED 2026-09-02. This previously asserted `not dms.STATE_PATH.exists()` --
+    # "off-RTH must not even write a snapshot". That pinned a C7 defect rather than a
+    # property: a silent return made a gated no-op byte-identical to "the task never fired"
+    # and to "it crashed before writing anything". The valuable half of this test is the
+    # line above (no broker contact off-RTH, which still holds); the snapshot half is now
+    # inverted to assert the gate LEAVES EVIDENCE, which is strictly stronger -- it pins
+    # both "touched nothing" and "said so".
+    assert dms.STATE_PATH.exists(), "a gated fire must be distinguishable from a dead task"
+    snap = json.loads(dms.STATE_PATH.read_text(encoding="utf-8"))
+    assert snap.get("gated") == "outside_rth"
+    assert snap.get("per_arm") == {}, "off-RTH must check zero arms"
 
 
 # --------------------------------------------------------------------------------------- #
