@@ -2,10 +2,9 @@
   "_doc": "T-W8 HEADROOM + RETEST entry-candidate study -- FROZEN pre-registration (ground rule 12: exploratory != confirmatory; candidates + pass bar are frozen HERE, BEFORE the fresh-slice results are seen, so nothing gets re-picked after the fact). Do NOT edit candidates/thresholds/pass-bar after headroom-retest-tw8.json has been generated -- amend via a versioned amendment_log entry instead, same discipline as entry-exit-matrix-stop-a-preregistration.json.",
   "version": 1,
   "frozen_at": "2026-07-09",
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE -- FAIL / INCONCLUSIVE_SMALL_N (no candidate advances)",
   "runner": "backtest/tools/tw8_headroom_retest.py",
   "level_context_module": "backtest/tools/tw8_level_context.py",
-
   "hypothesis_provenance": {
     "date": "2026-07-09",
     "session": "live trading session",
@@ -13,10 +12,11 @@
     "excluded_from_all_windows": true,
     "why_excluded": "2026-07-09 generated this hypothesis -- including it in either window would let the study confirm itself on the very day it was mined from. Exploratory window ends 2026-06-18; fresh window ends 2026-07-08. Neither reaches 2026-07-09."
   },
-
   "strategy": "ribbon_ride (BEARISH_REJECTION_RIDE_THE_RIBBON + BULLISH_RECLAIM_RIDE_THE_RIBBON)",
-  "directions": ["bear", "bull"],
-
+  "directions": [
+    "bear",
+    "bull"
+  ],
   "signal_set_integrity": {
     "exploratory": {
       "file": "analysis/exit-parity/signal-set.json",
@@ -25,7 +25,10 @@
       "expected_sha256_16_from_task": "b5e8931994b9d34b",
       "verified_match": true,
       "n_signals": 250,
-      "by_direction": {"bear": 191, "bull": 59},
+      "by_direction": {
+        "bear": 191,
+        "bull": 59
+      },
       "window": "2025-01-01..2026-06-18",
       "status": "BURNED -- prior T3/T4/T5 exploratory grids already mined this window for entry/exit shape; reused here for hypothesis-refinement / directional-consistency only, NEVER as a confirmatory read.",
       "reused_from": "backtest/tools/_signal_cache.py (load_or_build_signals) -- NOT regenerated."
@@ -43,7 +46,6 @@
     },
     "note": "Both files are REUSED verbatim from T3/T4/T5 infrastructure per the task's explicit instruction not to reinvent signal generation. T-W8 adds LEVEL CONTEXT (trigger_level / next_opposing_level / headroom_dollars) as a separate enrichment layer computed from SPY bars -- it does not alter or regenerate either signal set."
   },
-
   "level_detector": {
     "module": "backtest/lib/levels.py :: _detect_from_history",
     "invocation": "Per-day FROZEN at the first evaluated bar (time >= 09:35 ET) of each calendar date, replicating lib/orchestrator.py's `_level_per_day` cache exactly (orchestrator.py ~line 917-924: `full_history = spy_df_full[timestamp_et <= bar_time]; _detect_from_history(full_history, bar_date)`, computed once per date and reused for every bar of that session). This is the SAME level set that was ACTIVE in the backtest when lib/filters.py's detect_level_reclaim/detect_level_rejection fired the original BEARISH_REJECTION/BULLISH_RECLAIM triggers -- not a re-derived per-bar snapshot.",
@@ -51,18 +53,25 @@
     "c6_look_ahead_guard": "frozen_bar_time <= entry_ts for every signal on the same date by construction (the evaluation loop only admits entries at bar_time >= 09:35 ET, so the freeze bar -- itself the first bar >= 09:35 -- is always <= any admitted entry same-day). Verified programmatically by backtest/tests/test_tw8_headroom_retest.py (synthetic future-level leak test).",
     "trigger_bar_recovery": "entry_spot in the signal set = the TRIGGER bar's close (simulator_real.py, no-look-ahead real-fills path); entry_ts = the FILL/confirmation bar's timestamp, one 5-min bar later (fill.entry_time_et is overwritten to entry_bar_opt.timestamp_et after the initial assignment). The trigger bar is recovered by searching backward from entry_ts on the same date for the bar whose close matches entry_spot within $0.005 (exact-cent match expected; both values originate from the same source CSV). v_pullback_enabled is OFF in the signal-generation params (L2_PATCH never sets it) so this is always the original trigger bar, never a later pullback bar."
   },
-
   "candidates": {
     "H": {
       "id": "headroom-gate",
-      "thresholds_usd": [0.5, 0.75, 1.0, 1.5],
+      "thresholds_usd": [
+        0.5,
+        0.75,
+        1.0,
+        1.5
+      ],
       "gate_definition": "At signal time, next_opposing_level = the nearest ACTIVE level (from the frozen per-day level set) strictly above entry_spot for calls (bull) / strictly below entry_spot for puts (bear) -- i.e. resistance for calls, support for puts. headroom_dollars = |next_opposing_level - entry_spot|. If no such level exists in the active set, headroom is treated as UNBOUNDED (the gate PASSES -- absence of a detected level is not evidence of nearby structure). Signals with headroom_dollars < threshold are SKIPPED (not replayed, $0, excluded from the kept cohort); headroom_dollars >= threshold (or unbounded) are KEPT and replayed with an UNCHANGED market entry (bars[0] open) -- H only gates ADMISSION, it does not change entry mechanics.",
       "entry_mechanism_unchanged": true,
       "eligible_population": "every prepared signal in the window (headroom_dollars is computable regardless of whether a literal trigger_level was detected)"
     },
     "R": {
       "id": "retest-limit-entry",
-      "patience_bars": [3, 6],
+      "patience_bars": [
+        3,
+        6
+      ],
       "entry_definition": "Instead of a market fill at the recorded confirmation bar, rest a limit AT the trigger_level price (reclaim level for bull / rejection level for bear, both from lib/filters.py's detect_level_reclaim/detect_level_rejection evaluated on the actual trigger bar + the frozen level set -- see level_detector.trigger_bar_recovery). Scan up to `patience` OPTION bars starting at the signal's recorded entry (index 0 = the confirmation bar itself, same indexing convention as t3_entry_matrix.py's entry_fill -- patience counts AVAILABLE option bars, not wall-clock bars, consistent with the existing T3 disclosure about option-bar gaps). At each index i, look up the SPY bar with the SAME timestamp (SPY trades continuously so this lookup essentially never misses) and check the retest condition: filled if spy_bar.low <= trigger_level (calls -- price pulled back down to retest a broken/reclaimed level from above) or spy_bar.high >= trigger_level (puts -- price bounced back up to retest a broken/rejected level from below). On fill at index i, the option ENTRY PREMIUM = that option bar's OPEN (frictionless -- matches the T3/T4/T5 convention of using bar-open fills elsewhere; no penny buffer is applied since this is a chart-structure retest check, not a simulated resting broker limit order on the option premium itself, which IS how T3's own delta-based entry works and does use a penny buffer). Unfilled within `patience` bars = MISSED, priced at $0 and INCLUDED in the denominator -- exactly like T3's cancel-policy convention (a real, counted cost, never excluded).",
       "bull_direction_source": "explicit in the live hypothesis narrative (\"a later bar's low touches the level again\")",
       "bear_direction_source": "symmetric extension by this pre-registration, not explicit in the live hypothesis narrative -- disclosed here rather than silently assumed",
@@ -71,29 +80,46 @@
     },
     "combination_policy": "H and R are tested as SEPARATE, independent candidate families against CONTROL (not cross-producted with each other) -- the task frames them as two alternative fixes for the same failure mode, and the fresh-slice n (18) is too small to support a further H x R split without every cell falling below the small-n gate."
   },
-
   "exit_shapes": {
     "CONTROL": {
       "source": "t4_exit_matrix.py CONTROL cell (`_shape(CONTROL)`) -- the SHIPPED ribbon_ride exit",
-      "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8,
-                "profit_lock_mode": "fixed", "trail_pct": 0.0, "runner_target_pct": 2.5},
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5
+      },
       "label": "stop-20/tp+150/sell80/fixed/tgt2.5x/t15:40"
     },
     "exit-A": {
       "source": "t5_confirmatory_matrix.py EXIT_A_SHAPE -- the T-W7 wide-ride confirmatory candidate",
-      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667,
-                "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
       "label": "stop-50/tp+150/sell66/trail15/tgt-none/t15:40"
     },
     "rationale": "Both exits so entry-quality x exit-shape interaction is visible (per T3: 'entry offset IS stop headroom' -- a headroom/retest entry fix could interact very differently with a tight -20% stop vs a wide -50% ride, exactly the interaction the T3 entry study found for the passive-limit hypothesis)."
   },
-
   "windows": {
-    "exploratory": {"span": "2025-01-01..2026-06-18", "role": "BURNED -- hypothesis-refinement / directional-consistency check only"},
-    "fresh": {"span": "2026-06-19..2026-07-08", "role": "HONEST holdout -- the primary confirmatory read, SMALL BY CONSTRUCTION"},
-    "excluded": ["2026-07-09 (generated the hypothesis -- see hypothesis_provenance)"]
+    "exploratory": {
+      "span": "2025-01-01..2026-06-18",
+      "role": "BURNED -- hypothesis-refinement / directional-consistency check only"
+    },
+    "fresh": {
+      "span": "2026-06-19..2026-07-08",
+      "role": "HONEST holdout -- the primary confirmatory read, SMALL BY CONSTRUCTION"
+    },
+    "excluded": [
+      "2026-07-09 (generated the hypothesis -- see hypothesis_provenance)"
+    ]
   },
-
   "null_baseline": {
     "id": "random-skip",
     "definition": "For each (H threshold, window, exit shape), let k = n_kept under that threshold in that window. Precompute the per-signal replayed pnl for EVERY prepared signal in that window under that exit shape ONCE (market entry, unchanged). Draw N_TRIALS seeded random subsets of size k (without replacement) from the FULL population, average each subset's precomputed pnls, and report the distribution (mean of means, stdev, min, max) across trials. This isolates 'does headroom pick a BETTER-than-random subset of size k' from the trivial fact that dropping any k trades changes the aggregate.",
@@ -103,7 +129,6 @@
     "pass_condition": "H's actual kept-cohort expectancy (its own exit shape, its own window) must exceed the null's mean-of-means kept-cohort expectancy (same exit shape, same window) -- otherwise headroom is statistically indistinguishable from randomly dropping the same fraction of trades, i.e. the 'gate' is just trade-count reduction, not a real filter.",
     "applies_to": "H only -- R's fill/miss mechanism is not a signal-admission gate over the same population in the same sense (it changes ENTRY PRICE conditional on a retest, not which signals are admitted), so a size-matched random-skip null is not the relevant comparison for R. R's own null is implicit in its pass bar: it must beat CONTROL net of its OWN real misses (priced at $0), which is a stronger, already-adversarial bar (T3 precedent)."
   },
-
   "pass_bar": {
     "definition_source": "OP-11 (Karpathy method eval-first gate) applied to this study",
     "components": {
@@ -118,13 +143,19 @@
     "small_n_handling": "a cell with n_eligible (or n_kept, for H) < 8 is marked small_n=true and its component checks are computed for disclosure but the cell verdict is INCONCLUSIVE_SMALL_N, never PASS or FAIL -- matches t5_confirmatory_matrix.py's SMALL_N_THRESHOLD=8 convention exactly, for consistency across the T-series studies.",
     "no_repick_after_fresh_seen": "the candidate grid (H thresholds, R patience values, the two exit shapes), the null trial count/seed, and every pass-bar component above are FROZEN in this file before headroom-retest-tw8.json is generated. If every cell fails or is inconclusive, the published verdict is FAIL/INCONCLUSIVE -- that is a valid, publishable outcome per the task directive, not a reason to loosen the bar after the fact."
   },
-
   "measured_coverage_at_freeze_time": {
     "note": "Reference numbers from backtest/tools/tw8_level_context.py's self-check, run 2026-07-09 BEFORE the main study -- included here so a reader can sanity-check n's without re-running. NOT part of the frozen candidate grid itself.",
-    "exploratory": {"n": 250, "n_finite_headroom": 234, "n_detectable_trigger_level": 98},
-    "fresh": {"n": 18, "n_finite_headroom": 17, "n_detectable_trigger_level": 14}
+    "exploratory": {
+      "n": 250,
+      "n_finite_headroom": 234,
+      "n_detectable_trigger_level": 98
+    },
+    "fresh": {
+      "n": 18,
+      "n_finite_headroom": 17,
+      "n_detectable_trigger_level": 14
+    }
   },
-
   "disclosures": [
     "qty fixed at 10 (T3/T4/T5 convention) -- absolute $/expectancy is relative-to-control, not an OP-16 account-scaled number.",
     "Frictionless fills at trigger/retest levels; 5-min OPRA bars (touch semantics; 1-min close timing not modelled, same disclosed gap as T3/T4/T5).",
@@ -136,6 +167,11 @@
     "trigger_level coverage is a real constraint on R's eligible population (measured 98/250 exploratory, 14/18 fresh) -- the majority of ribbon_ride signals are admitted via ribbon_flip/sequence/confluence-only triggers without a literal level cross on the recovered trigger bar, and those signals cannot be given a retest anchor.",
     "H's headroom is computed from lib/levels.py's approximation of chart structure (5-day rolling H/L, POC, anchored VWAP, round numbers, etc. -- see levels.py's own docstring) -- it is NOT the live level_memory.py shadow multi-day feed (wired live 2026-07-09, same day as this hypothesis) since level_memory has no historical backtest presence over either window; this study answers 'would the BACKTEST's own level definition have flagged this' not 'would the live memory feed have flagged this'."
   ],
-
-  "amendment_log": []
+  "amendment_log": [],
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/tw8_headroom_retest.py",
+    "verdict": "No candidate advances. The HEADROOM arms (H@1.0, H@1.5) are INCONCLUSIVE_SMALL_N on both CONTROL and exit-A -- underpowered, not refuted. The RETEST arms (R@3, R@6) FAIL outright on both. So: retest is killed on the evidence; headroom is unresolved for want of population.",
+    "honest_split": "Reporting these differently is the point. An INCONCLUSIVE arm and a FAIL arm in the same battery are different findings, and collapsing both to 'no edge' would lose the fact that headroom was never actually tested at power.",
+    "reopen_condition": "HEADROOM only: re-run once the eligible population grows enough to clear the prereg's own n floor. RETEST needs no re-open -- it failed."
+  }
 }

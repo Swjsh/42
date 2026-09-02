@@ -1,0 +1,518 @@
+{
+  "_doc": "MEASURED-MOVE study (base-depth -> projected target) -- pre-registered, frozen before any depth/MFE/touch computation or exit replay. ANALYSIS ONLY: no trading-path file touched.",
+  "generated_at": "2026-09-02T03:48:54.399294",
+  "preregistration_file": "analysis/recommendations/measured-move-preregistration.json",
+  "preflight": {
+    "signal_set_sha256_16": "b5e8931994b9d34b",
+    "signal_set_hash_ok": true,
+    "fresh_slice_sha256_16": "d10e1a3a51cbf155",
+    "fresh_slice_hash_ok": true,
+    "preregistration_version": 1,
+    "preregistration_version_ok": true
+  },
+  "population_stats": {
+    "exploratory_burned": {
+      "n_total": 250,
+      "n_missing_bars": 0,
+      "n_recoverable_trigger_level": 98,
+      "n_fallback": 152
+    },
+    "fresh_decisive": {
+      "n_total": 18,
+      "n_missing_bars": 0,
+      "n_recoverable_trigger_level": 14,
+      "n_fallback": 4
+    }
+  },
+  "question_a_information_test": {
+    "n_total_signals": 268,
+    "n_recoverable_trigger_level": 112,
+    "n_excluded_no_trigger_level": 156,
+    "n_eligible_ok_outcome": 111,
+    "by_window": {
+      "exploratory_burned": 98,
+      "fresh_decisive": 14
+    },
+    "by_side": {
+      "C": 59,
+      "P": 52
+    },
+    "terciles_by_K": {
+      "12": [
+        {
+          "tercile": "T1",
+          "n": 37,
+          "depth_range": [
+            0.0,
+            1.145
+          ],
+          "touch_rate": 0.486,
+          "median_time_to_touch_min": 5.0,
+          "mean_mfe": 2.27,
+          "median_mfe": 1.747
+        },
+        {
+          "tercile": "T2",
+          "n": 37,
+          "depth_range": [
+            1.15,
+            2.59
+          ],
+          "touch_rate": 0.27,
+          "median_time_to_touch_min": 12.5,
+          "mean_mfe": 1.827,
+          "median_mfe": 0.97
+        },
+        {
+          "tercile": "T3",
+          "n": 37,
+          "depth_range": [
+            2.603,
+            11.25
+          ],
+          "touch_rate": 0.27,
+          "median_time_to_touch_min": 62.5,
+          "mean_mfe": 2.975,
+          "median_mfe": 2.237
+        }
+      ],
+      "24": [
+        {
+          "tercile": "T1",
+          "n": 37,
+          "depth_range": [
+            0.0,
+            1.84
+          ],
+          "touch_rate": 0.541,
+          "median_time_to_touch_min": 0.0,
+          "mean_mfe": 2.288,
+          "median_mfe": 1.075
+        },
+        {
+          "tercile": "T2",
+          "n": 37,
+          "depth_range": [
+            1.86,
+            3.135
+          ],
+          "touch_rate": 0.243,
+          "median_time_to_touch_min": 60.0,
+          "mean_mfe": 1.877,
+          "median_mfe": 1.2
+        },
+        {
+          "tercile": "T3",
+          "n": 37,
+          "depth_range": [
+            3.14,
+            11.25
+          ],
+          "touch_rate": 0.243,
+          "median_time_to_touch_min": 80.0,
+          "mean_mfe": 2.908,
+          "median_mfe": 2.237
+        }
+      ],
+      "48": [
+        {
+          "tercile": "T1",
+          "n": 37,
+          "depth_range": [
+            0.536,
+            2.4
+          ],
+          "touch_rate": 0.432,
+          "median_time_to_touch_min": 0.0,
+          "mean_mfe": 1.968,
+          "median_mfe": 0.96
+        },
+        {
+          "tercile": "T2",
+          "n": 37,
+          "depth_range": [
+            2.42,
+            3.98
+          ],
+          "touch_rate": 0.432,
+          "median_time_to_touch_min": 50.0,
+          "mean_mfe": 2.568,
+          "median_mfe": 2.215
+        },
+        {
+          "tercile": "T3",
+          "n": 37,
+          "depth_range": [
+            3.99,
+            11.25
+          ],
+          "touch_rate": 0.162,
+          "median_time_to_touch_min": 72.5,
+          "mean_mfe": 2.536,
+          "median_mfe": 1.63
+        }
+      ]
+    },
+    "shuffle_null_K_primary": {
+      "n_signals": 111,
+      "k": 24,
+      "seed": 1337,
+      "n_perm": 2000,
+      "spearman_depth_vs_mfe": {
+        "real": 0.1495,
+        "null_mean": -0.0026,
+        "null_std": 0.0945,
+        "null_std_nonzero": true,
+        "p_value": 0.1155,
+        "percentile_rank_of_real": 0.9485,
+        "n_perm": 2000
+      },
+      "tercile_touch_rate_spread_deep_minus_shallow": {
+        "real": -0.2973,
+        "null_mean": 0.0004,
+        "null_std": 0.1102,
+        "null_std_nonzero": true,
+        "p_value": 0.998,
+        "percentile_rank_of_real": 0.003,
+        "n_perm": 2000
+      }
+    },
+    "fresh_slice_only_terciles_K_primary": {
+      "n": 14,
+      "small_n_disclosure": true,
+      "terciles": [
+        {
+          "tercile": "T1",
+          "n": 5,
+          "depth_range": [
+            0.755,
+            2.97
+          ],
+          "touch_rate": 0.4,
+          "median_time_to_touch_min": 50.0,
+          "mean_mfe": 2.705,
+          "median_mfe": 1.88
+        },
+        {
+          "tercile": "T2",
+          "n": 5,
+          "depth_range": [
+            3.31,
+            5.32
+          ],
+          "touch_rate": 0.0,
+          "median_time_to_touch_min": null,
+          "mean_mfe": 1.404,
+          "median_mfe": 0.92
+        },
+        {
+          "tercile": "T3",
+          "n": 4,
+          "depth_range": [
+            5.788,
+            9.08
+          ],
+          "touch_rate": 0.0,
+          "median_time_to_touch_min": null,
+          "mean_mfe": 1.239,
+          "median_mfe": 0.926
+        }
+      ]
+    },
+    "n_depth_clipped_by_K": {
+      "12": 2,
+      "24": 1,
+      "48": 0
+    }
+  },
+  "question_b_exit_test": {
+    "policies": {
+      "TRAIL_ONLY": {
+        "windows": {
+          "exploratory_burned": {
+            "n": 250,
+            "total": 5266.8,
+            "expectancy": 21.07,
+            "wr": 0.312,
+            "edge_capture_rel": -24.4,
+            "oos_total": 2917.2,
+            "oos_positive": true,
+            "wf": 2.207,
+            "wf_ge_070": true,
+            "qpf": 0.5,
+            "exp_drop_top3": 1.11,
+            "worst_trade": -905.0,
+            "worst_decile_mean": -610.8,
+            "max_dd": -4892.6,
+            "n_stopped": 0,
+            "n_used_projection": 0,
+            "n_fallback_to_trail": 0,
+            "n_projection_fired": 0,
+            "n_structure_fired": 31,
+            "by_band": {
+              "<0.20": {
+                "n": 62,
+                "exp": -10.38
+              },
+              "0.20-0.50": {
+                "n": 86,
+                "exp": 48.09
+              },
+              "0.50-1.00": {
+                "n": 72,
+                "exp": 56.34
+              },
+              ">1.00": {
+                "n": 30,
+                "exp": -76.05
+              }
+            }
+          },
+          "fresh_decisive": {
+            "n": 18,
+            "total": -852.2,
+            "expectancy": -47.34,
+            "wr": 0.222,
+            "edge_capture_rel": 0.0,
+            "oos_total": -852.2,
+            "oos_positive": false,
+            "wf": null,
+            "wf_ge_070": false,
+            "qpf": 0.5,
+            "exp_drop_top3": -211.79,
+            "worst_trade": -965.0,
+            "worst_decile_mean": -965.0,
+            "max_dd": -2178.0,
+            "n_stopped": 0,
+            "n_used_projection": 0,
+            "n_fallback_to_trail": 0,
+            "n_projection_fired": 0,
+            "n_structure_fired": 5,
+            "by_band": {
+              "<0.20": {
+                "n": 4,
+                "exp": -70.0
+              },
+              "0.20-0.50": {
+                "n": 5,
+                "exp": 91.04
+              },
+              "0.50-1.00": {
+                "n": 7,
+                "exp": 29.66
+              },
+              ">1.00": {
+                "n": 2,
+                "exp": -617.5
+              }
+            }
+          }
+        }
+      },
+      "PROJECTION_ONLY": {
+        "windows": {
+          "exploratory_burned": {
+            "n": 250,
+            "total": 2708.6,
+            "expectancy": 10.83,
+            "wr": 0.312,
+            "edge_capture_rel": -24.4,
+            "oos_total": 1843.6,
+            "oos_positive": true,
+            "wf": 3.789,
+            "wf_ge_070": true,
+            "qpf": 0.5,
+            "exp_drop_top3": -11.09,
+            "worst_trade": -905.0,
+            "worst_decile_mean": -610.8,
+            "max_dd": -5098.6,
+            "n_stopped": 0,
+            "n_used_projection": 98,
+            "n_fallback_to_trail": 152,
+            "n_projection_fired": 20,
+            "n_structure_fired": 31,
+            "by_band": {
+              "<0.20": {
+                "n": 62,
+                "exp": -14.03
+              },
+              "0.20-0.50": {
+                "n": 86,
+                "exp": 38.07
+              },
+              "0.50-1.00": {
+                "n": 72,
+                "exp": 33.77
+              },
+              ">1.00": {
+                "n": 30,
+                "exp": -70.9
+              }
+            }
+          },
+          "fresh_decisive": {
+            "n": 18,
+            "total": -1374.0,
+            "expectancy": -76.33,
+            "wr": 0.222,
+            "edge_capture_rel": 0.0,
+            "oos_total": -1374.0,
+            "oos_positive": false,
+            "wf": null,
+            "wf_ge_070": false,
+            "qpf": 0.5,
+            "exp_drop_top3": -224.53,
+            "worst_trade": -965.0,
+            "worst_decile_mean": -965.0,
+            "max_dd": -2362.0,
+            "n_stopped": 0,
+            "n_used_projection": 14,
+            "n_fallback_to_trail": 4,
+            "n_projection_fired": 2,
+            "n_structure_fired": 5,
+            "by_band": {
+              "<0.20": {
+                "n": 4,
+                "exp": -70.0
+              },
+              "0.20-0.50": {
+                "n": 5,
+                "exp": 53.0
+              },
+              "0.50-1.00": {
+                "n": 7,
+                "exp": -17.71
+              },
+              ">1.00": {
+                "n": 2,
+                "exp": -617.5
+              }
+            }
+          }
+        }
+      },
+      "PROJECTION_OR_TRAIL": {
+        "windows": {
+          "exploratory_burned": {
+            "n": 250,
+            "total": 5266.8,
+            "expectancy": 21.07,
+            "wr": 0.312,
+            "edge_capture_rel": -24.4,
+            "oos_total": 2917.2,
+            "oos_positive": true,
+            "wf": 2.207,
+            "wf_ge_070": true,
+            "qpf": 0.5,
+            "exp_drop_top3": 1.11,
+            "worst_trade": -905.0,
+            "worst_decile_mean": -610.8,
+            "max_dd": -4892.6,
+            "n_stopped": 0,
+            "n_used_projection": 98,
+            "n_fallback_to_trail": 152,
+            "n_projection_fired": 0,
+            "n_structure_fired": 31,
+            "by_band": {
+              "<0.20": {
+                "n": 62,
+                "exp": -10.38
+              },
+              "0.20-0.50": {
+                "n": 86,
+                "exp": 48.09
+              },
+              "0.50-1.00": {
+                "n": 72,
+                "exp": 56.34
+              },
+              ">1.00": {
+                "n": 30,
+                "exp": -76.05
+              }
+            }
+          },
+          "fresh_decisive": {
+            "n": 18,
+            "total": -852.2,
+            "expectancy": -47.34,
+            "wr": 0.222,
+            "edge_capture_rel": 0.0,
+            "oos_total": -852.2,
+            "oos_positive": false,
+            "wf": null,
+            "wf_ge_070": false,
+            "qpf": 0.5,
+            "exp_drop_top3": -211.79,
+            "worst_trade": -965.0,
+            "worst_decile_mean": -965.0,
+            "max_dd": -2178.0,
+            "n_stopped": 0,
+            "n_used_projection": 14,
+            "n_fallback_to_trail": 4,
+            "n_projection_fired": 0,
+            "n_structure_fired": 5,
+            "by_band": {
+              "<0.20": {
+                "n": 4,
+                "exp": -70.0
+              },
+              "0.20-0.50": {
+                "n": 5,
+                "exp": 91.04
+              },
+              "0.50-1.00": {
+                "n": 7,
+                "exp": 29.66
+              },
+              ">1.00": {
+                "n": 2,
+                "exp": -617.5
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "question_b_verdict": {
+    "per_policy": {
+      "PROJECTION_ONLY": {
+        "beats_control_fresh_decisive": false,
+        "beats_control_exploratory_burned": false,
+        "drop_top3_positive_fresh_decisive": false,
+        "drop_top3_positive_exploratory_burned": false,
+        "overall": "FAIL",
+        "reason": "fresh: cand $-76.33 vs ctl $-47.34 (FAIL); burned: cand $10.83 vs ctl $21.07 (FAIL); drop3 fresh $-224.53 (FAIL); drop3 burned $-11.09 (FAIL)"
+      },
+      "PROJECTION_OR_TRAIL": {
+        "beats_control_fresh_decisive": false,
+        "beats_control_exploratory_burned": false,
+        "drop_top3_positive_fresh_decisive": false,
+        "drop_top3_positive_exploratory_burned": true,
+        "overall": "FAIL",
+        "reason": "fresh: cand $-47.34 vs ctl $-47.34 (FAIL); burned: cand $21.07 vs ctl $21.07 (FAIL); drop3 fresh $-211.79 (FAIL); drop3 burned $1.11 (PASS)"
+      }
+    },
+    "headline": "CONTROL_TRAIL_ONLY_STANDS"
+  },
+  "key_findings": [
+    "QUESTION A: n=111 eligible signals (K=24 primary). Tercile touch-rate spread (deepest-shallowest) = -0.2973 vs shuffle-null mean 0.0004 (std 0.1102), one-sided p=0.998. Spearman(depth, MFE) = 0.1495 vs null mean -0.0026, two-sided p=0.1155.",
+    "QUESTION B PROJECTION_ONLY: fresh exp $-76.33 (n=18, projection fired 2/14 eligible), burned exp $10.83 (n=250, projection fired 20/98 eligible) -> FAIL.",
+    "QUESTION B PROJECTION_OR_TRAIL: fresh exp $-47.34 (n=18, projection fired 0/14 eligible), burned exp $21.07 (n=250, projection fired 0/98 eligible) -> FAIL.",
+    "CONTROL (TRAIL_ONLY): fresh exp $-47.34 (n=18), burned exp $21.07 (n=250) -- the numbers every challenger is measured against. Verdict: CONTROL_TRAIL_ONLY_STANDS."
+  ],
+  "disclosures": [
+    "Trigger-level recovery is the SAME approximate backtest-level detector (lib/levels.py._detect_from_history) used throughout this study line -- 112/268 signals have a recoverable trigger_level. The rest are EXCLUDED from Question A (cannot measure depth without a level) and FALL BACK to trail-only-equivalent replay in Question B (never dropped).",
+    "K-bar lookback is bar-count based across the continuous 5-min sequence (not session-bounded); n_short_window=0 for all K in this population (no early-data edge cases hit) -- verified at prep time.",
+    "Depth is clipped at 0 when the raw K-bar window computation is marginally negative: K=12 clipped=2, K=24 clipped=1, K=48 clipped=0 (of 112 recoverable signals).",
+    "MFE/touch/horizon window ends at the EARLIEST of the structure-stop firing (buffer 0, side-aware, C6-safe next-bar-open convention) or the 15:40 ET time-stop or day end -- the SAME structure-stop mechanism validated in structure_stop_study.py, reused verbatim (shared between Question A's horizon and Question B's SS-B body).",
+    "Question B's projection-touch fill uses the OPTION bar's CLOSE at the SPY-bar-aligned timestamp (tw8_level_context.spy_bars_by_time_for_day, the 'candidate R retest scan' alignment convention) -- a real, bar-priced fill, not a Black-Scholes-derived one (C1: real-fills only).",
+    "Same-bar tie-break: STOP-FIRST (t4_exit_matrix.py's own documented convention), applied uniformly to both PROJECTION_ONLY and PROJECTION_OR_TRAIL.",
+    "Fresh-slice tercile view is SMALL BY CONSTRUCTION (n=14 recoverable of 18) -- descriptive only, no separate shuffle null run on it (underpowered).",
+    "Scope interpretation: ribbon_ride BOTH directions (bull reclaim + bear rejection) -- see the pre-registration's scope_interpretation for the rationale (the task's own mirrored-puts formula + structure_stop_study's both-directions scope).",
+    "Frictionless fills, 5-min cached OTM-2 OPRA bars (t4_exit_matrix convention), qty 10 fixed (t4.QTY) -- same disclosed gaps as every prior tool in this study line (touch-based stops on 5-min bars; ATR/delta-mapped stops not expressible).",
+    "2026-07-09 (today, the motivating trade) is NOT in either signal-set window (burned ends 2026-06-18, fresh ends 2026-07-08) -- the study's own hypothesis-generating example is never a data point in it.",
+    "L176 discipline (C30): n_used_projection / n_fallback_to_trail / n_projection_fired are reported per policy per window so a reader can judge whether the projection mechanism is a live, binding exit or a near-dead knob -- regardless of the aggregate expectancy delta."
+  ]
+}

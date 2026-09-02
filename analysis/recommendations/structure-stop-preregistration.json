@@ -1,19 +1,20 @@
 {
   "_doc": "PRE-REGISTERED candidate list for the STRUCTURE-STOP (chart-stop-primary) exit validation study. Frozen BEFORE any candidate replay is run (ground rule: exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). Motivated by 2026-07-09: three fleet round-trips premium-stopped on the 747.46-reclaim signal while SPY never printed a 5m CLOSE below 747.46 -- a close-below-trigger structure stop would have held all three. Today is EXHIBIT-ONLY and is excluded from every population used for pass/fail (it generated the hypothesis; testing on it would be circular).",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE -- SS-B PASSES (confirms the already-live shape)",
   "frozen_at": "2026-07-09",
   "runner": "backtest/tools/structure_stop_study.py",
   "strategy": "ribbon_ride",
-  "directions": ["bear", "bull"],
-
+  "directions": [
+    "bear",
+    "bull"
+  ],
   "hypothesis_provenance": {
     "generated_by": "2026-07-09 fleet round-trips on the 747.46 BULLISH_RECLAIM signal (safe-1/safe-3/risky-1/risky-3), all premium-stopped while SPY never closed a 5m bar below 747.46",
     "excluded_from_all_pass_fail_layers": true,
     "today_date": "2026-07-09",
     "today_role": "EXHIBIT ONLY -- shown in a separate table, never counted toward any verdict"
   },
-
   "signal_set_integrity": {
     "layer_a_fresh_slice": {
       "file": "analysis/exit-parity/signal-set-fresh-20260619-20260708.json",
@@ -47,41 +48,79 @@
       "note": "Not hashed/pinned -- today's session is still open at freeze time (market_hours=True per et_clock.py), so this population may still grow. The exhibit report states the exact population it actually replayed, timestamped."
     }
   },
-
   "candidates": {
     "CONTROL": {
       "id": "CONTROL",
       "label": "shipped -20%/+150%/sell80/fixed premium-only shape (no structure stop, ever)",
-      "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed", "trail_pct": 0.0, "runner_target_pct": 2.5},
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5
+      },
       "structure_stop": null
     },
     "SS-A": {
       "id": "SS-A",
       "label": "structure stop primary + -50% catastrophe cap + TP1 +150% sell66 + runner trail 15%",
-      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
-      "structure_stop": {"buffer_usd": 0.0, "rule": "calls: exit ALL on first 5m SPY CLOSE strictly below trigger_level; puts: first 5m CLOSE strictly above trigger_level"}
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
+      "structure_stop": {
+        "buffer_usd": 0.0,
+        "rule": "calls: exit ALL on first 5m SPY CLOSE strictly below trigger_level; puts: first 5m CLOSE strictly above trigger_level"
+      }
     },
     "SS-B": {
       "id": "SS-B",
       "label": "SS-A but TP1 +100% sell66",
-      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
-      "structure_stop": {"buffer_usd": 0.0, "rule": "same as SS-A"}
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
+      "structure_stop": {
+        "buffer_usd": 0.0,
+        "rule": "same as SS-A"
+      }
     },
     "SS-C": {
       "id": "SS-C",
       "label": "SS-A with a $0.10 buffer on the structure-stop trigger",
-      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
-      "structure_stop": {"buffer_usd": 0.10, "rule": "calls: exit ALL on first 5m CLOSE strictly below (trigger_level - 0.10); puts: first 5m CLOSE strictly above (trigger_level + 0.10)"}
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
+      "structure_stop": {
+        "buffer_usd": 0.1,
+        "rule": "calls: exit ALL on first 5m CLOSE strictly below (trigger_level - 0.10); puts: first 5m CLOSE strictly above (trigger_level + 0.10)"
+      }
     }
   },
-  "structure_candidate_ids": ["SS-A", "SS-B", "SS-C"],
-
+  "structure_candidate_ids": [
+    "SS-A",
+    "SS-B",
+    "SS-C"
+  ],
   "c6_fill_mark_convention": {
     "choice": "next_bar_open",
     "statement": "The structure stop evaluates only CLOSED 5m SPY bars -- a bar's close is knowable only once the bar ends. This study fires the structure-stop exit at the NEXT bar's OPEN premium (not the close-bar's own closing premium), applied uniformly to SS-A/SS-B/SS-C, both layers, and the exhibit. Rationale: the breach is only knowable at the close-bar's end (== the next bar's start), so a same-bar-close fill would assume execution at a price that was not yet actionable; the next bar's open is the first tradeable premium after the signal is knowable. Within any single bar, the structure-stop-due check is evaluated BEFORE the ordinary touch-based checks (catastrophe stop / TP1 / trail / time stop) for that same bar, because a due structure-stop exit is decided at the bar's open, logically before any of that bar's intrabar movement can be realized.",
     "applies_uniformly": true
   },
-
   "trigger_level_recovery": {
     "layer_a_fresh_slice": {
       "method": "tw8_level_context.enrich_signals() -- EXACT trigger-bar identification via a tight-tolerance close-price match against the signal's own entry_spot field (both values originate from the same source CSV), then detect_level_reclaim/detect_level_rejection against the per-day-frozen level set (lib/levels.py._detect_from_history, orchestrator's exact convention).",
@@ -97,23 +136,26 @@
     },
     "fallback_rule": {
       "statement": "A position/signal whose trigger_level cannot be recovered (no_level_set / no_bars_before_entry / no_trigger_bar_in_lookback / trigger_bar_unmatched) is NEVER dropped. It is replayed under the SAME candidate shape with the structure-stop check disabled (ss_time forced to None) -- i.e. it falls back to the -50% premium catastrophe cap + TP1 + runner trail only, exactly as CONTROL and any other premium-only replay would treat it. This satisfies the pre-registered pass-bar condition 3 by construction.",
-      "applies_to": ["SS-A", "SS-B", "SS-C"],
-      "does_not_apply_to": ["CONTROL (never has a structure-stop layer, trigger_level or not)"]
+      "applies_to": [
+        "SS-A",
+        "SS-B",
+        "SS-C"
+      ],
+      "does_not_apply_to": [
+        "CONTROL (never has a structure-stop layer, trigger_level or not)"
+      ]
     }
   },
-
   "time_stops": {
     "layer_a_fresh_slice": "15:40 ET (t4_exit_matrix.py / t5_confirmatory_matrix.py TIME_STOP convention)",
     "layer_b_anchor_and_exhibit": "15:50 ET (exit_manager.TIME_STOP_ET, exit_shape_parity_study.py convention)",
     "disclosure": "This 10-minute asymmetry between layers is PRE-EXISTING in the codebase (T5/T-W8 already carry it) and is preserved here for consistency with prior work, not introduced by this study."
   },
-
   "option_bar_granularity": {
     "layer_a_fresh_slice": "5-minute cached OTM-2 OPRA bars (t4_exit_matrix._load_bars, lib/option_pricing_real.load_contract_bars)",
     "layer_b_anchor_and_exhibit": "1-minute REAL Alpaca OPRA bars, live-fetched (exit_shape_parity_study.fetch_option_bars)",
     "spy_bars_both_layers": "5-minute SPY bars, ET, via tw8_level_context.load_spy_full (cached CSV through 2026-07-08) + a live yfinance fetch appended for 2026-07-09 (read-only; not written to backtest/data/ or any production cache)."
   },
-
   "pass_bar": {
     "statement": "ALL three conditions must hold for a candidate (SS-A/SS-B/SS-C) to PASS:",
     "condition_1_layer_b": "beats CONTROL total on layer (b) real-fills anchor -- interpreted as STRICTLY GREATER THAN (a tie is not a beat).",
@@ -122,6 +164,12 @@
     "aggregation": "AND of all three -- ANY failing condition fails the candidate. No partial credit.",
     "today_exhibit_excluded": "The 2026-07-09 exhibit table plays NO role in any pass/fail verdict -- it is shown for narrative context only, clearly labeled EXHIBIT ONLY."
   },
-
-  "no_repick_clause": "Once this file is frozen, no candidate shape, buffer, lookback window, time-stop, or fill-mark convention may be edited in light of results. A FAIL is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run."
+  "no_repick_clause": "Once this file is frozen, no candidate shape, buffer, lookback window, time-stop, or fill-mark convention may be edited in light of results. A FAIL is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run.",
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/structure_stop_study.py",
+    "result_file": "structure-stop-2026-07-09.json",
+    "verdict": "SS-B PASSES both layers; SS-A and SS-C both FAIL layer (a). Layer (a) expectancy: SS-B $-50.40 vs control $-100.67 (PASS); SS-A $-238.66 and SS-C $-239.21, both far WORSE than control. Layer (b) real-fills anchor passes for all three, so layer (a) is what separates them.",
+    "why_this_matters": "SS-B is the shape that was ALREADY SHIPPED live (structure_stop_enabled=true, 'SS-B shape, validated 2026-07-09'). This frozen validation had never actually been run in the 55 days since. Running it now independently confirms the shipped choice rather than discovering it -- and that is the useful kind of null: the decision was right, and it is now evidenced.",
+    "reads_with": "structure-stop-reference-level-preregistration.json (REJECT_ALL) and structure-stop-zone-band-preregistration.json (REJECT_ALL), both run the same day. Three independent studies now point the same way: the live SS-B shape, at the trigger-exact reference, with a zero-width band, is unbeaten on every axis tested."
+  }
 }

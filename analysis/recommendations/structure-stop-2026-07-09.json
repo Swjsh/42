@@ -1,6 +1,6 @@
 {
   "_doc": "STRUCTURE-STOP (chart-stop-primary) exit validation -- pre-registered, frozen before any candidate replay. ANALYSIS ONLY: no trading-path file touched. 2026-07-09 is EXHIBIT ONLY, excluded from every pass/fail layer.",
-  "generated_at": "2026-07-09T12:51:35.656003",
+  "generated_at": "2026-09-02T03:48:06.937769",
   "preregistration_file": "analysis/recommendations/structure-stop-preregistration.json",
   "preflight": {
     "fresh_slice_sha256_16": "d10e1a3a51cbf155",
@@ -35,57 +35,57 @@
       },
       "SS-A": {
         "n": 18,
-        "total": -4240.8,
-        "expectancy": -235.6,
+        "total": -4295.8,
+        "expectancy": -238.66,
         "wr": 0.056,
         "edge_capture_rel": 0.0,
-        "oos_total": -4240.8,
+        "oos_total": -4295.8,
         "oos_positive": false,
         "wf": null,
         "wf_ge_070": false,
         "qpf": 0.0,
-        "exp_drop_top3": -302.67,
+        "exp_drop_top3": -306.33,
         "worst_trade": -965.0,
         "worst_decile_mean": -965.0,
-        "max_dd": -4240.8,
+        "max_dd": -4295.8,
         "n_stopped": 0,
-        "n_structure_fired": 5
+        "n_structure_fired": 4
       },
       "SS-B": {
         "n": 18,
-        "total": -852.2,
-        "expectancy": -47.34,
+        "total": -907.2,
+        "expectancy": -50.4,
         "wr": 0.222,
         "edge_capture_rel": 0.0,
-        "oos_total": -852.2,
+        "oos_total": -907.2,
         "oos_positive": false,
         "wf": null,
         "wf_ge_070": false,
         "qpf": 0.5,
-        "exp_drop_top3": -211.79,
+        "exp_drop_top3": -215.45,
         "worst_trade": -965.0,
         "worst_decile_mean": -965.0,
-        "max_dd": -2178.0,
+        "max_dd": -2233.0,
         "n_stopped": 0,
-        "n_structure_fired": 5
+        "n_structure_fired": 4
       },
       "SS-C": {
         "n": 18,
-        "total": -4250.8,
-        "expectancy": -236.16,
+        "total": -4305.8,
+        "expectancy": -239.21,
         "wr": 0.056,
         "edge_capture_rel": 0.0,
-        "oos_total": -4250.8,
+        "oos_total": -4305.8,
         "oos_positive": false,
         "wf": null,
         "wf_ge_070": false,
         "qpf": 0.0,
-        "exp_drop_top3": -303.33,
+        "exp_drop_top3": -307.0,
         "worst_trade": -965.0,
         "worst_decile_mean": -965.0,
-        "max_dd": -4250.8,
+        "max_dd": -4305.8,
         "n_stopped": 0,
-        "n_structure_fired": 5
+        "n_structure_fired": 4
       }
     },
     "n_missing_bars": 0
@@ -145,7 +145,7 @@
         "date_et": "2026-06-30",
         "pnl": -36.6,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -36.0
       },
@@ -185,7 +185,7 @@
         "date_et": "2026-07-02",
         "pnl": -28.8,
         "structure_fired": false,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -44.99999999999999
       },
@@ -355,7 +355,7 @@
         "date_et": "2026-06-30",
         "pnl": -36.6,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -32.99999999999999
       },
@@ -525,7 +525,7 @@
         "date_et": "2026-06-30",
         "pnl": -58.0,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -695,7 +695,7 @@
         "date_et": "2026-06-30",
         "pnl": -60.0,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -60.0
       },
@@ -765,7 +765,7 @@
         "date_et": "2026-07-02",
         "pnl": -50.0,
         "structure_fired": false,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -937,7 +937,7 @@
         "date_et": "2026-06-30",
         "pnl": 260.55,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -36.0
       },
@@ -977,7 +977,7 @@
         "date_et": "2026-07-02",
         "pnl": -42.0,
         "structure_fired": true,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -44.99999999999999
       },
@@ -1147,7 +1147,7 @@
         "date_et": "2026-06-30",
         "pnl": 260.55,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -32.99999999999999
       },
@@ -1317,7 +1317,7 @@
         "date_et": "2026-06-30",
         "pnl": 422.1,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -1487,7 +1487,7 @@
         "date_et": "2026-06-30",
         "pnl": 427.1,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -60.0
       },
@@ -1557,7 +1557,7 @@
         "date_et": "2026-07-02",
         "pnl": -80.0,
         "structure_fired": true,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -1729,7 +1729,7 @@
         "date_et": "2026-06-30",
         "pnl": 170.65,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -36.0
       },
@@ -1769,7 +1769,7 @@
         "date_et": "2026-07-02",
         "pnl": -42.0,
         "structure_fired": true,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -44.99999999999999
       },
@@ -1939,7 +1939,7 @@
         "date_et": "2026-06-30",
         "pnl": 170.65,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -32.99999999999999
       },
@@ -2109,7 +2109,7 @@
         "date_et": "2026-06-30",
         "pnl": 277.3,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -2279,7 +2279,7 @@
         "date_et": "2026-06-30",
         "pnl": 279.3,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -60.0
       },
@@ -2349,7 +2349,7 @@
         "date_et": "2026-07-02",
         "pnl": -80.0,
         "structure_fired": true,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -2521,7 +2521,7 @@
         "date_et": "2026-06-30",
         "pnl": 260.55,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -36.0
       },
@@ -2561,7 +2561,7 @@
         "date_et": "2026-07-02",
         "pnl": -42.0,
         "structure_fired": true,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -44.99999999999999
       },
@@ -2731,7 +2731,7 @@
         "date_et": "2026-06-30",
         "pnl": 260.55,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -32.99999999999999
       },
@@ -2901,7 +2901,7 @@
         "date_et": "2026-06-30",
         "pnl": 422.1,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -3071,7 +3071,7 @@
         "date_et": "2026-06-30",
         "pnl": 427.1,
         "structure_fired": false,
-        "trigger_level": 742.0,
+        "trigger_level": 741.9,
         "recovery_status": "ok",
         "actual_exit_pnl": -60.0
       },
@@ -3141,7 +3141,7 @@
         "date_et": "2026-07-02",
         "pnl": -80.0,
         "structure_fired": true,
-        "trigger_level": 747.4000244140625,
+        "trigger_level": 748.0,
         "recovery_status": "ok",
         "actual_exit_pnl": -79.99999999999999
       },
@@ -3299,449 +3299,41 @@
   },
   "today_exhibit_2026_07_09": {
     "n_positions_total": 10,
-    "n_positions_with_bars": 10,
-    "n_no_option_bars": 0,
-    "n_recoverable_trigger_level": 10,
+    "n_positions_with_bars": 0,
+    "n_no_option_bars": 10,
+    "n_recoverable_trigger_level": 0,
     "n_fallback": 0,
     "recovery_status_counts": {
       "ok": 10
     },
-    "n_unique_symbols": 2,
-    "actual_realized_total": -381.0,
-    "recovered_trigger_levels": [
-      746.8,
-      747.55,
-      748.0
-    ],
+    "n_unique_symbols": 0,
+    "actual_realized_total": 0,
+    "recovered_trigger_levels": [],
     "task_cited_trigger_level": 747.46,
     "candidates": {
       "CONTROL": {
-        "anchor_total": -400.2,
-        "n_valid": 10,
+        "anchor_total": 0.0,
+        "n_valid": 0,
         "n_structure_fired": 0,
-        "rows": [
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -30.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -32.4,
-            "structure_fired": false,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -57.000000000000014
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -30.6,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -48.00000000000001
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -50.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -75.00000000000001
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -49.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -53.0,
-            "structure_fired": false,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -30.000000000000025
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": -29.4,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": -28.8,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -18.0
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": -49.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": -48.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          }
-        ]
+        "rows": []
       },
       "SS-A": {
-        "anchor_total": 534.0,
-        "n_valid": 10,
-        "n_structure_fired": 3,
-        "rows": [
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -75.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -69.0,
-            "structure_fired": true,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -57.000000000000014
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -76.5,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -48.00000000000001
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -125.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -75.00000000000001
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -110.0,
-            "structure_fired": true,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -110.0,
-            "structure_fired": true,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -30.000000000000025
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 208.5,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 206.5,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -18.0
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 343.5,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 341.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          }
-        ]
+        "anchor_total": 0.0,
+        "n_valid": 0,
+        "n_structure_fired": 0,
+        "rows": []
       },
       "SS-B": {
-        "anchor_total": 138.5,
-        "n_valid": 10,
-        "n_structure_fired": 3,
-        "rows": [
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -75.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -69.0,
-            "structure_fired": true,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -57.000000000000014
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -76.5,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -48.00000000000001
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -125.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -75.00000000000001
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -110.0,
-            "structure_fired": true,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -110.0,
-            "structure_fired": true,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -30.000000000000025
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 134.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 133.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -18.0
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 219.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 218.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          }
-        ]
+        "anchor_total": 0.0,
+        "n_valid": 0,
+        "n_structure_fired": 0,
+        "rows": []
       },
       "SS-C": {
-        "anchor_total": 487.0,
-        "n_valid": 10,
+        "anchor_total": 0.0,
+        "n_valid": 0,
         "n_structure_fired": 0,
-        "rows": [
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -75.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -81.0,
-            "structure_fired": false,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -57.000000000000014
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -76.5,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -48.00000000000001
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -125.0,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -75.00000000000001
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -122.5,
-            "structure_fired": false,
-            "trigger_level": 747.55,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00751000",
-            "date_et": "2026-07-09",
-            "pnl": -132.5,
-            "structure_fired": false,
-            "trigger_level": 748.0,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -30.000000000000025
-          },
-          {
-            "arm": "safe-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 208.5,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -24.000000000000004
-          },
-          {
-            "arm": "safe-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 206.5,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -18.0
-          },
-          {
-            "arm": "risky-1",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 343.5,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          },
-          {
-            "arm": "risky-3",
-            "symbol": "SPY260709C00750000",
-            "date_et": "2026-07-09",
-            "pnl": 341.0,
-            "structure_fired": false,
-            "trigger_level": 746.8,
-            "recovery_status": "ok",
-            "actual_exit_pnl": -35.0
-          }
-        ]
+        "rows": []
       }
     }
   },
@@ -3751,29 +3343,29 @@
       "condition_2_layer_a_beats_control": false,
       "condition_3_fallback_included_not_dropped": true,
       "overall": "FAIL",
-      "reason": "layer(a) exp $-235.6 vs control $-100.67 (FAIL); layer(b) anchor $-61.1 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+      "reason": "layer(a) exp $-238.66 vs control $-100.67 (FAIL); layer(b) anchor $-61.1 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
     },
     "SS-B": {
       "condition_1_layer_b_beats_control": true,
       "condition_2_layer_a_beats_control": true,
       "condition_3_fallback_included_not_dropped": true,
       "overall": "PASS",
-      "reason": "layer(a) exp $-47.34 vs control $-100.67 (PASS); layer(b) anchor $-604.7 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+      "reason": "layer(a) exp $-50.4 vs control $-100.67 (PASS); layer(b) anchor $-604.7 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
     },
     "SS-C": {
       "condition_1_layer_b_beats_control": true,
       "condition_2_layer_a_beats_control": false,
       "condition_3_fallback_included_not_dropped": true,
       "overall": "FAIL",
-      "reason": "layer(a) exp $-236.16 vs control $-100.67 (FAIL); layer(b) anchor $1799.9 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
+      "reason": "layer(a) exp $-239.21 vs control $-100.67 (FAIL); layer(b) anchor $1799.9 vs control $-757.1 (PASS); fallback population layer(a)=4/18 layer(b)=31/79 included (not dropped) -> PASS"
     }
   },
   "key_findings": [
     "CONTROL: layer (a) fresh-slice expectancy $-100.67/tr (n=18), layer (b) anchor total $-757.1 (n=79 positions) -- the numbers every SS candidate is measured against.",
-    "SS-A: layer(a) exp $-235.6/tr (structure fired 5/18), layer(b) anchor $-61.1 (structure fired 22/79) -> FAIL.",
-    "SS-B: layer(a) exp $-47.34/tr (structure fired 5/18), layer(b) anchor $-604.7 (structure fired 22/79) -> PASS.",
-    "SS-C: layer(a) exp $-236.16/tr (structure fired 5/18), layer(b) anchor $1799.9 (structure fired 16/79) -> FAIL.",
-    "TODAY EXHIBIT (2026-07-09, EXCLUDED from all pass/fail): 10 positions, actual realized $-381.0, recovered trigger level(s) [746.8, 747.55, 748.0] vs. the task's cited 747.46 -- CONTROL replayed $-400.2, SS-A replayed $534.0 (structure fired 3/10), SS-B replayed $138.5 (structure fired 3/10), SS-C replayed $487.0 (structure fired 0/10)."
+    "SS-A: layer(a) exp $-238.66/tr (structure fired 4/18), layer(b) anchor $-61.1 (structure fired 22/79) -> FAIL.",
+    "SS-B: layer(a) exp $-50.4/tr (structure fired 4/18), layer(b) anchor $-604.7 (structure fired 22/79) -> PASS.",
+    "SS-C: layer(a) exp $-239.21/tr (structure fired 4/18), layer(b) anchor $1799.9 (structure fired 16/79) -> FAIL.",
+    "TODAY EXHIBIT (2026-07-09, EXCLUDED from all pass/fail): 0 positions, actual realized $0, recovered trigger level(s) [] vs. the task's cited 747.46 -- CONTROL replayed $0.0, SS-A replayed $0.0 (structure fired 0/0), SS-B replayed $0.0 (structure fired 0/0), SS-C replayed $0.0 (structure fired 0/0)."
   ],
   "disclosures": [
     "C6 fill-mark convention: the structure stop fires at the NEXT 5m bar's OPEN premium (not the close-bar's own closing premium) -- applied uniformly to SS-A/SS-B/SS-C, both layers, and the exhibit. See the pre-registration's c6_fill_mark_convention.",

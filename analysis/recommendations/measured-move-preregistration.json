@@ -1,0 +1,152 @@
+{
+  "_doc": "PRE-REGISTERED design for the MEASURED-MOVE study (base-depth -> projected target). Frozen BEFORE any depth/MFE/touch computation or exit replay is run (ground rule: exploratory != confirmatory -- no re-picks after seeing results; a NULL result is fully publishable). Motivated by 2026-07-09: J read an inverse head-and-shoulders on SPY (neckline 747.5, head 743.3, projection = neckline + (neckline-head) ~= 751.7) and price hit it; the engine traded the neckline reclaim (level_reclaim trigger) but has no concept of a projected target from base depth. QUESTION: does base-depth-derived projection carry real information (Question A), and would a projected-target runner exit beat trail-only (Question B)? NEITHER of today's actual signals is in either signal-set window used here (burned ends 2026-06-18, fresh ends 2026-07-08) -- the motivating trade is NOT itself in-sample anywhere in this study, avoiding the exact circularity structure_stop_study.py flagged for its own motivating example.",
+  "version": 1,
+  "status": "RUN_COMPLETE -- KILL (no information, control stands)",
+  "frozen_at": "2026-07-09",
+  "runner": "backtest/tools/measured_move_study.py",
+  "strategy": "ribbon_ride",
+  "directions": [
+    "bear",
+    "bull"
+  ],
+  "scope_interpretation": {
+    "statement": "'the ribbon_ride level-reclaim population' is read as the LEVEL-TRIGGERED ribbon_ride population -- BOTH directions (BULLISH_RECLAIM_RIDE_THE_RIBBON via detect_level_reclaim, side C, AND BEARISH_REJECTION_RIDE_THE_RIBBON via detect_level_rejection, side P) -- not calls-only. Two pieces of evidence support this reading over a calls-only literal parse: (1) the task's own depth/projection formula is given as 'calls; mirrored for puts', which would be vacuous documentation if puts were out of scope; (2) structure_stop_study.py (the tool this study is instructed to reuse) is explicitly scoped to 'ribbon_ride (both directions)', and this study reuses its loaders/replay verbatim. Disclosed as a judgment call, not silently assumed.",
+    "today_example_role": "The 747.5-neckline/743.3-head trade that motivated this study occurred 2026-07-09, AFTER both signal-set windows end (burned <= 2026-06-18, fresh <= 2026-07-08) -- it is illustrative only, never a data point in this study."
+  },
+  "signal_population": {
+    "exploratory_burned": {
+      "file": "analysis/exit-parity/signal-set.json",
+      "n": 250,
+      "window": "2025-01-01..2026-06-18",
+      "sha256_16_full_file_bytes": "b5e8931994b9d34b",
+      "sha256_note": "sha256 of the RAW FILE BYTES (t5_confirmatory_matrix.py's EXPECTED_SHA16 convention) -- re-verified by hand before freezing this file: MATCH.",
+      "label_rationale": "Consumed by T3/T4/T5's exploratory grids already -- 'burned' (seen), included here for statistical power and as the non-decisive corroboration layer, not the decision-maker."
+    },
+    "fresh_decisive": {
+      "file": "analysis/exit-parity/signal-set-fresh-20260619-20260708.json",
+      "n": 18,
+      "window": "2026-06-19..2026-07-08",
+      "sha256_16_signals_list": "d10e1a3a51cbf155",
+      "sha256_note": "sha256 of json.dumps(sort_keys=True) of the KEPT signals list only (structure_stop_study.py's EXPECTED_FRESH_SHA16 convention) -- re-verified by hand before freezing this file: MATCH.",
+      "label_rationale": "Never seen by any exploratory grid -- the DECISIVE layer per the task's own framing ('fresh slice = decisive')."
+    },
+    "total_n": 268
+  },
+  "trigger_level_recovery": {
+    "method": "tw8_level_context's PUBLIC functions called directly (frozen_level_set_for_date + find_trigger_bar + lib.filters.detect_level_reclaim/detect_level_rejection) -- the IDENTICAL method tw8_level_context.enrich_signal uses internally, called directly (not via enrich_signal) because this study additionally needs the trigger BAR's own timestamp (for the K-bar depth window), which enrich_signal's return value does not expose. tw8_level_context.py is NOT edited (ANALYSIS ONLY / no live-file-edits constraint) -- this is a new, additive caller of its existing public surface.",
+    "precision": "exact (entry_spot-matched trigger bar, tolerance 0.005 -- tw8_level_context.TRIGGER_BAR_MATCH_TOLERANCE, unchanged)",
+    "spy_history_window": "2025-01-01..2026-07-08 (covers both signal-set windows exactly; verified locally cached as backtest/data/spy_5m_2025-01-01_2026-07-08.csv before freezing this file)",
+    "exclusion_categories": [
+      "no_level_set",
+      "trigger_bar_no_bars",
+      "trigger_bar_unmatched(diff=...)",
+      "ok_no_level_trigger"
+    ],
+    "empirically_observed_at_freeze_time": {
+      "n_recoverable_ok": 112,
+      "n_excluded": 156,
+      "breakdown_by_window": {
+        "exploratory_burned": 98,
+        "fresh_decisive": 14
+      },
+      "breakdown_by_side": {
+        "C": 60,
+        "P": 52
+      },
+      "note": "Recorded here for pre-registration transparency (verified by hand before freezing) -- NOT a re-pick trigger. The population size is a property of the existing signal sets + the existing level detector, not a parameter this study tunes."
+    },
+    "fallback_rule_question_a": "A signal without a recoverable trigger_level has no depth/projection and is EXCLUDED from Question A (the information test) by construction -- disclosed exclusion, not a biased drop (there is nothing to measure).",
+    "fallback_rule_question_b": "A signal without a recoverable trigger_level is NEVER dropped from Question B -- under the PROJECTION_ONLY / PROJECTION_OR_TRAIL policies it is replayed with the projection-touch check inert (degrading EXACTLY to the TRAIL_ONLY control's own byte-identical replay logic for that signal). This is a conservative fallback: it can only pull a challenger's aggregate toward control, never away from it in the challenger's favor."
+  },
+  "base_depth_definition": {
+    "formula_calls": "depth = trigger_level - min(low) over the K SPY 5-min bars strictly preceding the trigger bar (timestamp_et < trigger_bar_time, taking the LAST K such bars chronologically). projection = trigger_level + depth.",
+    "formula_puts_mirrored": "depth = max(high over the same K-bar window) - trigger_level. projection = trigger_level - depth.",
+    "window_convention": "Bar-count based across the continuous 5-min SPY sequence, NOT session-bounded -- an early-morning trigger bar may pull bars from the prior trading session to reach K bars. All bars used satisfy timestamp_et < trigger_bar_time (strict), preserving C6 (no look-ahead: the trigger bar itself and everything after it is excluded from the depth measurement).",
+    "k_grid": [
+      12,
+      24,
+      48
+    ],
+    "k_primary": 24,
+    "k_grid_rationale": "5-min bars: K=12 ~= 1h base, K=24 ~= 2h base, K=48 ~= 4h base. K=24 is PRIMARY (frozen decision point for the touch-rate/tercile table and the shuffle null); K=12/K=48 are SENSITIVITY ONLY, reported but never decision-driving.",
+    "negative_depth_floor": "A raw (trigger_level - min(low)) [calls] or (max(high) - trigger_level) [puts] can be marginally negative when the K-bar window does not fully capture the pattern's true extreme (e.g. the extreme printed just before the window's own start). Such values are CLIPPED to 0.0 and counted separately (depth_K{K}_clipped flag + n_depth_clipped aggregate) -- never silently kept negative (a negative 'base depth' is not interpretable) and never dropped.",
+    "short_window_handling": "If fewer than K prior bars exist at all (data-start edge case), depth is computed from whatever bars ARE available (n_bars_used < K, disclosed) unless ZERO prior bars exist (spy_full has no bars before the trigger bar), in which case depth/projection = None for that signal (falls back exactly like an unrecoverable trigger_level). Empirically observed at freeze time: n_short_window = 0 for all three K values on this population (no data-start edge cases are actually hit)."
+  },
+  "position_horizon_and_outcomes": {
+    "horizon_start": "entry_ts (the signal's own tradeable entry bar -- one bar after the trigger bar per tw8_level_context's documented ENTRY_TS-vs-ENTRY_SPOT convention).",
+    "horizon_end": "the EARLIEST of: (a) the structure-stop fire time -- structure_stop_study.structure_stop_signal_time(spy_lifetime, side, trigger_level, buffer=0.0), reused VERBATIM (same C6-safe closed-5m-bar-close, next-bar-open-of-breach convention already validated in structure_stop_study.py's own test suite); (b) 15:40 ET same day (t4_exit_matrix.py / t5_confirmatory_matrix.py TIME_STOP convention, the SAME time-stop this study's own Question B replay uses); (c) the last available SPY bar of that trading day.",
+    "rationale": "Ties 'position horizon' directly to the SAME chart-stop-primary structure-stop mechanism (v15.3 doctrine) already governing this exact signal population -- this is not an arbitrary new invalidation rule, it is the one the live/backtest engine already applies.",
+    "mfe_definition": "MFE (calls) = max(high over [entry_ts, horizon_end]) - trigger_level. MFE (puts) = trigger_level - min(low over the same window). Reference basis is trigger_level (the SAME anchor depth/projection use), not the option entry premium -- keeps depth/projection/MFE on one consistent SPY-price basis. Reported signed (not floored at 0); a negative MFE means price never traded back to trigger_level at all before horizon_end.",
+    "touch_definition": "touched_projection (calls) = max(high over the horizon window) >= projection, equivalently MFE >= depth. touched_projection (puts) = min(low over the horizon window) <= projection, equivalently MFE >= depth. By construction 'touched before stopping' is automatically satisfied: the horizon window already ends at the structure-stop fire time when one occurs, so any touch counted is provably prior to that stop.",
+    "time_to_touch_definition": "For touched signals only: (first bar's timestamp within the horizon window whose high/low satisfies the touch condition) - entry_ts, in minutes. None for un-touched signals."
+  },
+  "question_a_information_test": {
+    "population": "all signals with a recoverable trigger_level (n=112 at freeze time) AND a non-empty horizon outcome (outcome_status=='ok').",
+    "primary_statistic": "tercile touch-rate spread: touch_rate(deepest depth_K24 tercile) - touch_rate(shallowest depth_K24 tercile), pooled across both windows. One-sided (directional hypothesis: deeper base -> higher touch rate).",
+    "secondary_statistic": "Spearman rank correlation between depth_K24 and MFE, pooled across both windows. Two-sided.",
+    "tercile_method": "Sort the eligible population by depth_K24 ascending; split into 3 groups of nearly-equal size (remainder bars distributed to the first groups). Report per tercile: n, depth range, touch_rate, median_time_to_touch_min (touched signals only), mean_mfe, median_mfe.",
+    "reporting_table": "By depth tercile: touch rate, median time-to-touch, MFE (mean + median) -- exactly the table the task requests.",
+    "sensitivity": "The SAME tercile table + Spearman correlation, recomputed for K=12 and K=48, reported alongside K=24 as sensitivity checks (not decision-driving).",
+    "fresh_slice_only_view": "A SEPARATE, SMALL-BY-CONSTRUCTION (n=14 recoverable of 18) tercile table restricted to fresh_decisive signals only, reported for descriptive/informational purposes. NO separate shuffle null is run on this subset (underpowered at n=14 for a 3-way split) -- it is context, not a second decision layer.",
+    "shuffle_null": {
+      "method": "Permute the depth_K24 VALUES across the pooled eligible population (n=112) while holding each signal's own MFE/touched_projection outcome fixed -- i.e. randomly reassign which signal 'owns' which depth value, recompute BOTH the primary and secondary statistics on the shuffled assignment. Repeat N_PERM=2000 times with a fixed deterministic seed (PERM_SEED=1337, python's stdlib random.Random -- reproducible across runs, no global RNG side effects, matching autoresearch.null_baseline.py's determinism convention).",
+      "n_perm": 2000,
+      "seed": 1337,
+      "reporting": "For each statistic: the REAL value, the null distribution's mean + std (non-vacuity requires std > 0), the empirical p-value (one-sided for the tercile spread: fraction of null values >= real; two-sided for Spearman: fraction of |null| >= |real|), and the real value's percentile rank within the null distribution.",
+      "interpretation_note": "This is an INFORMATION test, not a ship/kill gate -- Question A has no pass bar. A conventional p<0.05 read is offered as calibration only, not as a hard threshold."
+    }
+  },
+  "question_b_exit_test": {
+    "shared_body_SS_B": {
+      "source": "structure_stop_study.SS_B_SHAPE, reused VERBATIM: premium_stop_pct=-0.50 (catastrophe cap), tp1_premium_pct=1.0 (TP1 at +100%), tp1_qty_fraction=0.667 (sell66), PLUS the structure-stop-primary layer (structure_stop_study.structure_stop_signal_time, buffer=0.0, side-aware) sitting in front of plan_exit_actions -- the EXACT SS-B candidate the referenced structure-stop study already validated as the live cell. This study changes ONLY the post-TP1 runner policy; the pre-TP1 body (structure stop / catastrophe cap / TP1) is IDENTICAL across all three candidates.",
+      "qty": "t4_exit_matrix.QTY = 10 (fixed), matching every prior anchor/exploratory tool in this line -- tp1_qty=int(10*0.667)=6, runner_qty=4.",
+      "time_stop": "15:40 ET (t4/t5 TIME_STOP convention) for BOTH windows -- matches how signal-set.json and the fresh slice are already consumed identically elsewhere in this codebase."
+    },
+    "runner_policies": {
+      "i_TRAIL_ONLY": {
+        "label": "trail15 only (the live SS-B cell) -- CONTROL",
+        "definition": "profit_lock_mode='trailing', trail_pct=0.15 -- SS_B_SHAPE completely unmodified. This is a parity-verified byte-identical replay of structure_stop_study.replay_structure_aware under SS_B_SHAPE (see test_measured_move_study.py)."
+      },
+      "ii_PROJECTION_ONLY": {
+        "label": "exit runner at the projection",
+        "definition": "Post-TP1, profit_lock_mode is set to 'fixed' (BE floor only, no trailing) AND a new projection-touch check is added: once the runner phase begins (state.tp1_filled==True), if the SPY bar aligned (by time-of-day, via tw8_level_context.spy_bars_by_time_for_day -- the SAME alignment convention documented for 'candidate R's retest scan') to the current option bar shows high>=projection (calls) / low<=projection (puts), SELL_ALL the runner at THAT option bar's CLOSE.",
+        "fill_convention": "Option bar CLOSE at the matching SPY-bar timestamp -- the SAME 'known-in-time market exit' fill convention already used for time-stop/EOD-mark fills throughout t4_exit_matrix.py and structure_stop_study.py (there is no formula translating a SPY price level into an option premium without Black-Scholes, which this codebase avoids per the real-fills doctrine).",
+        "fallback": "If this signal has no recoverable trigger_level (projection is None), the shape is NOT modified to 'fixed' -- it stays 'trailing' (SS_B_SHAPE unmodified), i.e. this signal's replay is byte-identical to TRAIL_ONLY. Verified by test."
+      },
+      "iii_PROJECTION_OR_TRAIL": {
+        "label": "projection-OR-trail whichever first",
+        "definition": "Post-TP1, profit_lock_mode STAYS 'trailing' (trail_pct=0.15, unchanged from control) AND the SAME projection-touch check from (ii) runs concurrently. Whichever fires first (by bar) closes the runner.",
+        "fallback": "If projection is None for this signal, the projection-touch branch is simply always-false -- replay is byte-identical to TRAIL_ONLY for that signal."
+      },
+      "same_bar_tie_break": "STOP-FIRST -- if, within the SAME 5-min bar, both plan_exit_actions' own runner-exit action (trail-stop / BE-stop / time-stop) AND the projection-touch condition would fire, the ordinary plan_exit_actions action wins (checked first; the projection check is skipped that bar). This is t4_exit_matrix.py's OWN documented convention ('Same-bar -S/+T ties resolve STOP-FIRST'), applied uniformly here rather than invented ad hoc."
+    },
+    "windows": [
+      "exploratory_burned",
+      "fresh_decisive"
+    ],
+    "metrics": "t4_exit_matrix.battery(trades) reused verbatim per (policy, window) -- gives n/total/expectancy/wr/exp_drop_top3/oos/wf/qpf/worst_trade/max_dd -- PLUS a per-band breakdown (t4_exit_matrix.band_of/BANDS) and n_used_projection / n_fallback_to_trail (L176 discipline: confirm the projection mechanism actually fires on a meaningful fraction of trades before trusting any sweep of it).",
+    "pass_bar": {
+      "statement": "A challenger (ii or iii) PASSES only if ALL FOUR conditions hold (frozen, no partial credit):",
+      "condition_1": "expectancy on fresh_decisive STRICTLY GREATER THAN control's expectancy on fresh_decisive.",
+      "condition_2": "expectancy on exploratory_burned STRICTLY GREATER THAN control's expectancy on exploratory_burned.",
+      "condition_3": "exp_drop_top3 (expectancy after removing the 3 largest winners) POSITIVE (>0) on fresh_decisive.",
+      "condition_4": "exp_drop_top3 POSITIVE (>0) on exploratory_burned.",
+      "beats_definition": "STRICTLY GREATER THAN -- a tie is not a beat (structure_stop_study.py's established convention).",
+      "outcome_if_no_challenger_passes": "CONTROL (trail-only) STANDS -- explicit, matches the task's own framing.",
+      "outcome_if_a_challenger_passes": "That challenger is PROPOSED (not auto-shipped -- this study is ANALYSIS ONLY, report-only, no wiring per the task's own closing instruction)."
+    }
+  },
+  "cautions_baked_in_from_doctrine": [
+    "C30 (exit-target knobs are repeatedly dead/harmful here, L148/L176/L177/L178): Question B reports n_used_projection / n_fallback_to_trail AND n_projection_fired per policy per window -- if the projection-touch mechanism rarely or never actually fires (a near-dead knob), that is reported prominently, not buried, regardless of the aggregate expectancy delta.",
+    "C27 (pattern detectors firing on >80% of days measure noise, L145): if Question A's touch rate is uniformly high across ALL terciles (including the shallowest), that is evidence the projection is trivially reached regardless of depth (noise, not signal) -- the shuffle null is the primary defense against over-reading a high-but-undiscriminating touch rate as 'depth matters'.",
+    "C6 (no look-ahead): depth uses ONLY bars strictly before the trigger bar; MFE/touch/horizon use ONLY bars from entry_ts through horizon_end (which itself is bounded by the C6-safe structure-stop convention). Tested explicitly (test_measured_move_study.py) with a planted look-ahead bar that would materially change the result if leaked.",
+    "A NULL result on either question is fully publishable -- no re-picks, no scope changes, no new K values or policies added after this file is frozen."
+  ],
+  "no_repick_clause": "Once this file is frozen, no K value, horizon rule, depth formula, fill convention, tie-break rule, or pass-bar condition may be edited in light of results. A NULL/FAIL is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run.",
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/measured_move_study.py",
+    "result_file": "measured-move-study.json",
+    "verdict": "KILL on both questions. Question A (does base depth carry information about the projected target?): n_eligible=111, shuffle-null spread p=0.998, Spearman p=0.1155 -- indistinguishable from shuffled. Question B (does a measured-move target beat the incumbent exit?): CONTROL_TRAIL_ONLY_STANDS. The projection carries no information AND does not beat trail-only.",
+    "note": "Populations disclosed as designed: 250 exploratory_burned (98 recoverable trigger_level, 152 fallback) and 18 fresh_decisive (14 recoverable). The verdict rests on the information test, which does not depend on the fallback split."
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-02T05:45:29",
+  "generated_at_et": "2026-09-02T05:49:39",
   "n_total": 126,
   "n_parsed": 126,
   "n_malformed": 0,
@@ -276,7 +276,7 @@
     },
     {
       "file": "headroom-retest-preregistration.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- FAIL / INCONCLUSIVE_SMALL_N (no candidate advances)",
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -330,7 +330,7 @@
     },
     {
       "file": "measured-move-preregistration.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- KILL (no information, control stands)",
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -1104,7 +1104,7 @@
     },
     {
       "file": "structure-stop-preregistration.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- SS-B PASSES (confirms the already-live shape)",
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
