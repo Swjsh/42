@@ -22,6 +22,7 @@ to the no-boost expectations (test_no_boost_without_key stays green and pins tha
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -67,17 +68,87 @@ def _plain_params(**over):
     return p
 
 
+# --- reading the boost through the tight-ladder ceiling ----------------------------
+#
+# WHY EVERY ASSERTION BELOW READS `reason` AND NOT JUST `qty` (repaired 2026-09-02,
+# queue.md TIGHT-LADDER-LEFT-THREE-STALE-QTY-FIXTURES).
+#
+# These fixtures were written 2026-08-03, before `max_contracts_per_entry: 5` shipped on
+# 2026-08-29 (PREREG-TIGHT-LADDER-2026-08-28 S2, a ratified risk control inside the config
+# freeze). The ceiling now clamps the boost's 10 down to 5 BEFORE the decision is returned,
+# so `assert d.qty == 10` fails -- correctly. The ceiling is right; the fixtures were stale.
+#
+# The trap in the obvious repair: post-clamp qty is **5 in every single case** -- boosted or
+# not, threshold or not. Rewriting these as `assert d.qty == 5` would make them pass while
+# testing NOTHING (they could no longer distinguish a working boost from a deleted one --
+# C14, a knob that cannot be observed is a knob that quietly dies).
+#
+# The clamp records what it clamped FROM: "qty capped 10->5: tight-ladder
+# max_contracts_per_entry" (fleet_executor.py:1345). That pre-clamp number is the only
+# surviving evidence the boost ran, so it is what these tests assert -- which pins both
+# mechanisms AND their ORDER (boost first, ceiling second), strictly more than the original
+# assertion did.
+_CAP_RE = re.compile(r"qty capped (\d+)->(\d+): tight-ladder max_contracts_per_entry")
+
+
+def _preclamp_qty(d):
+    """The qty the sizing chain produced BEFORE the tight-ladder ceiling, or None if the
+    ceiling never bound (in which case d.qty IS the pre-clamp qty)."""
+    m = _CAP_RE.search(d.reason or "")
+    return int(m.group(1)) if m else None
+
+
+def _effective_qty(d):
+    """What the boost computed, whether or not the ceiling then clamped it."""
+    pre = _preclamp_qty(d)
+    return d.qty if pre is None else pre
+
+
 # --- 1. the vary-and-assert -------------------------------------------------------
 def test_boost_fires_below_threshold():
+    """The boost raises 5 -> 10, and the tight-ladder ceiling then binds at 5.
+
+    Both halves are asserted: the ceiling is the operative cap (qty), and the boost really
+    ran (pre-clamp 10). Dropping either half loses a mechanism.
+    """
     d = _finalize(_plan(qty=5), _boost_params(), premium=0.38)
     assert d.action == "ENTER_BULL", d
-    assert d.qty == 10, f"expected boosted qty 10, got {d.qty}"
+    assert _effective_qty(d) == 10, f"boost did not raise 5->10: {d.reason!r}"
+    assert d.qty == 5, (
+        f"tight-ladder max_contracts_per_entry must bind at 5, got {d.qty} -- the ratified "
+        f"risk control is not clamping: {d.reason!r}"
+    )
 
 
 def test_no_boost_without_key():
+    """Absent key = OFF, byte-identical.
+
+    This test was PASSING while the other three failed, and it was still broken -- just
+    silently. It asserted `d.qty == 5`, and since 2026-08-29 the tight-ladder ceiling makes
+    returned qty 5 whether the boost runs or not, so it passed identically with the key
+    present. A green vacuous test is more dangerous than a red stale one: nothing flags it.
+    Assert the pre-clamp qty and the absence of a cap note, which do differ.
+    """
     d = _finalize(_plan(qty=5), _plain_params(), premium=0.38)
     assert d.action == "ENTER_BULL", d
-    assert d.qty == 5, f"key absent must be byte-identical: got {d.qty}"
+    assert _effective_qty(d) == 5, f"key absent must be byte-identical: {d.reason!r}"
+    assert _preclamp_qty(d) is None, (
+        f"no boost means nothing to clamp, so no cap note should appear: {d.reason!r}"
+    )
+
+
+def test_the_fixtures_can_still_tell_boost_on_from_boost_off():
+    """Non-vacuity, pinned. The tight-ladder ceiling flattens every returned qty in this
+    file to 5, so a future 'simplification' back to `assert d.qty == N` would leave a suite
+    that passes with the boost deleted. This asserts the two configurations are actually
+    distinguishable by what the tests read."""
+    on = _finalize(_plan(qty=5), _boost_params(), premium=0.38)
+    off = _finalize(_plan(qty=5), _plain_params(), premium=0.38)
+    assert on.qty == off.qty == 5, "premise: the ceiling flattens both to 5"
+    assert _effective_qty(on) != _effective_qty(off), (
+        "boost-on and boost-off are indistinguishable to these assertions -- the suite can "
+        "no longer detect a dead boost"
+    )
 
 
 # --- 2. scope: the LIVE registry patches exactly one arm --------------------------
@@ -94,19 +165,37 @@ def test_only_risky3_carries_the_key_live():
 
 
 # --- 3. threshold edges -----------------------------------------------------------
-@pytest.mark.parametrize("premium,expected_qty", [
-    (0.49, 10),   # below -> boost
-    (0.50, 5),    # exactly at threshold -> strictly-below, no boost
-    (0.55, 5),    # above -> no boost
+@pytest.mark.parametrize("premium,expected_effective_qty,expect_boost", [
+    (0.49, 10, True),    # below -> boost
+    (0.50, 5, False),    # exactly at threshold -> strictly-below, no boost
+    (0.55, 5, False),    # above -> no boost
 ])
-def test_threshold_is_strictly_below(premium, expected_qty):
+def test_threshold_is_strictly_below(premium, expected_effective_qty, expect_boost):
+    """The strictly-below edge, read through the ceiling.
+
+    NOTE the parameters are EFFECTIVE (pre-clamp) qty, not returned qty: the ceiling makes
+    returned qty 5 on all three rows, so a `d.qty ==` assertion here would pass for every
+    premium and prove nothing about the threshold.
+    """
     d = _finalize(_plan(qty=5), _boost_params(), premium=premium)
-    assert d.qty == expected_qty, (premium, d.qty)
+    assert _effective_qty(d) == expected_effective_qty, (premium, d.reason)
+    assert (_preclamp_qty(d) is not None) is expect_boost, (
+        f"premium {premium}: expected boost={expect_boost}; reason={d.reason!r}"
+    )
+    assert d.qty == 5, f"the ceiling must bind at 5 regardless: {d.reason!r}"
 
 
 def test_boost_never_shrinks_a_larger_plan():
+    """A plan already above the boost's qty must not be pulled DOWN to it.
+
+    Read pre-clamp, because the ceiling flattens every outcome to 5: the property is that
+    the pre-clamp qty is 12 (untouched), never 10 (the boost overwriting a larger plan).
+    """
     d = _finalize(_plan(qty=12), _boost_params(), premium=0.38)
-    assert d.qty >= 12, f"boost must never reduce qty: got {d.qty}"
+    assert _effective_qty(d) == 12, (
+        f"boost reduced a larger plan to its own qty: {d.reason!r}"
+    )
+    assert d.qty == 5, f"the ceiling must still bind at 5: {d.reason!r}"
 
 
 # --- 4. Rule 6 stays authoritative over the boosted size --------------------------
