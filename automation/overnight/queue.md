@@ -2729,7 +2729,22 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   now ABORTS on a mixed-frame file rather than normalising, because emitting numbers that
   disagree with every prior study on the same file *without anyone knowing which was right* is
   precisely the unreproducible-result class retired earlier the same day. The data is what needs
-  fixing. **Next:** identify the producer that wrote the fixed −04:00 frame, re-fetch or re-stamp
-  2025+ bars DST-aware, then re-run both the stress study and the full-history replay and diff
-  the winter trades. Same class as the standing DST-frame lesson (naive joins = winter
+  fixing. **IMPACT QUANTIFIED 2026-09-02:** of the canonical `engine-fullhist-replay-2026-07-23`
+  scorecard's 191 trades, **67 (35.1%) fall in winter (EST)** — the shifted half — carrying
+  **$1,314 of $4,809 (27.3%) of the study's total P&L**. Concentrated in 2025-02 (14), 2025-12
+  (13), 2026-02 (13), 2025-01 (10). Stated precisely: those 67 were SELECTED with the wall-clock
+  gates evaluated an hour off; it does not follow that all 67 are wrong — some would have fired
+  either way — but which ones survive is unknown until a re-run. **SEVERITY IS BOUNDED TO
+  RESEARCH:** these CSVs live under `backtest/data/` and are read by backtest tools only. The
+  live engine takes its clock from `et_clock`/broker time, never from these files, so no live
+  trading decision has ever been affected. **THE REPAIR IS PROVEN AND EXACT:** the UTC instants
+  are correct and only the ET labels are wrong, so `tz_convert('America/New_York')` fixes it —
+  verified on five winter days (2025-01-03 10:30→09:30, 2025-02-14 10:30→09:30, 2025-12-05
+  09:00→08:00, 2026-01-05 and 2026-02-11 09:05→08:05) with a summer control proving it is a
+  NO-OP where the data is already right (2025-07-08 08:30→08:30, 2026-06-10 04:00→04:00). So the
+  conversion cannot corrupt correct rows. **Next:** find the producer that wrote the fixed −04:00
+  frame (fix it there, or every future fetch reintroduces this), re-stamp 2025+ bars, then re-run
+  the full-history replay and the stress study and DIFF the winter trades — the diff is the real
+  measure of the damage. Do NOT re-stamp silently: it moves a published anchor (n=190/191) and
+  needs to land as its own reviewed change with the before/after in the open. Same class as the standing DST-frame lesson (naive joins = winter
   look-ahead) — a THIRD sighting of that root. :: depends:none :: status:filed
