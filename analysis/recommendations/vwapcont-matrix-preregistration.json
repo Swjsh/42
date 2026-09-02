@@ -7,19 +7,26 @@
     "markdown/audits/T-W6-VWAP-TWO-LANE-PROVENANCE-2026-07-08.md (two-lane drift investigation + recommendation)"
   ],
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE -- CONTROL-STANDS (0 candidates pass)",
   "frozen_at": "2026-07-09",
   "strategy": "vwap_continuation",
-  "directions": ["C (bull)", "P (bear)"],
-
+  "directions": [
+    "C (bull)",
+    "P (bear)"
+  ],
   "live_cell_as_of_freeze": {
-    "shape": {"premium_stop_pct": -0.06, "tp1_premium_pct": 0.40, "tp1_qty_fraction": 0.8,
-              "profit_lock_mode": "fixed", "profit_lock_arm_pct": 0.05, "runner_target_pct": 2.5},
+    "shape": {
+      "premium_stop_pct": -0.06,
+      "tp1_premium_pct": 0.4,
+      "tp1_qty_fraction": 0.8,
+      "profit_lock_mode": "fixed",
+      "profit_lock_arm_pct": 0.05,
+      "runner_target_pct": 2.5
+    },
     "strike": "ATM (strike_offset=0)",
     "source": "automation/state/fleet/strategies.py VWAP_CONTINUATION.exit (both lanes synced 2026-07-09, STOP-B ship 2, commit b125055 -- fleet lane now ports the FULL validated core cell, no two-lane drift) + automation/state/params.json j_vwap_cont_premium_stop_pct=-0.06 / j_vwap_cont_tp1_pct=0.4 / j_vwap_cont_strike_offset_safe=0",
     "validated_by": "vwapcont-exit-ab-ship-gate.json, n=149 real OPRA fills, ALL 5 OP-22 gates PASS, OOS $75.47/tr vs prior $66.83/tr"
   },
-
   "signal_population": {
     "detector": "byte-for-byte j_daily_pattern_ratify.detect_j_vwap_continuation via autoresearch._edgehunt_vwap_continuation.detect_signals(breakout_only=False, put_needs_rising_vix=False) -- the SAME headline-cell generator/loader convention as vwapcont-walkforward.json and vwapcont-exit-ab-ship-gate.json (reused verbatim, not reimplemented, per C14)",
     "window": "2025-01-01..2026-07-08",
@@ -30,17 +37,29 @@
     "signal_set_sha256_16": "1e7c84bda5f91727",
     "signal_set_hash_method": "sha256(json.dumps(sort_keys=True)) of the sorted [{date,time,side,stop_level(round 4dp),note}] list, one row per detected signal -- keyed by (date,time,side), NOT raw dataframe bar_idx, so the hash is stable across data reloads that don't change the signals themselves",
     "is_oos_fresh_split": {
-      "IS_2025": {"date_range": "2025-01-02..2025-12-31", "n": 115,
-                  "role": "in-sample -- used for ranking, expected to be evidence, not held out"},
-      "OOS_old_burned": {"date_range": "2026-01-01..2026-05-15", "n": 43,
-                         "status": "BURNED -- visible during the 2026-07-07 walk-forward + ship-gate ranking (both used this exact window as their OOS split); cannot confirm anything now. Reported for continuity/comparison only, NOT part of the pass bar. Mirrors ribbon_ride HANDOFF-2026-07-11 ground rule 14."},
-      "FRESH_TAIL_never_touched": {"date_range": "2026-05-18..2026-07-08", "n": 14, "n_trading_days": 35,
-                                   "status": "NEVER seen by any vwap_continuation grid or ranking to date (both prior studies ended 2026-05-15) -- this is the confirmatory slice for this study.",
-                                   "caveat": "SMALL BY CONSTRUCTION (n=14 signals, ~13 expected fills at the historical 94.3% fill rate) -- mirrors ribbon_ride T5's own disclosed fresh-slice smallness (~13 trading days there too). A single-digit-N slice is HIGH VARIANCE; 'beats control on the fresh tail' at this N is suggestive, not a strong statistical claim -- treat accordingly, do not oversell."}
+      "IS_2025": {
+        "date_range": "2025-01-02..2025-12-31",
+        "n": 115,
+        "role": "in-sample -- used for ranking, expected to be evidence, not held out"
+      },
+      "OOS_old_burned": {
+        "date_range": "2026-01-01..2026-05-15",
+        "n": 43,
+        "status": "BURNED -- visible during the 2026-07-07 walk-forward + ship-gate ranking (both used this exact window as their OOS split); cannot confirm anything now. Reported for continuity/comparison only, NOT part of the pass bar. Mirrors ribbon_ride HANDOFF-2026-07-11 ground rule 14."
+      },
+      "FRESH_TAIL_never_touched": {
+        "date_range": "2026-05-18..2026-07-08",
+        "n": 14,
+        "n_trading_days": 35,
+        "status": "NEVER seen by any vwap_continuation grid or ranking to date (both prior studies ended 2026-05-15) -- this is the confirmatory slice for this study.",
+        "caveat": "SMALL BY CONSTRUCTION (n=14 signals, ~13 expected fills at the historical 94.3% fill rate) -- mirrors ribbon_ride T5's own disclosed fresh-slice smallness (~13 trading days there too). A single-digit-N slice is HIGH VARIANCE; 'beats control on the fresh tail' at this N is suggestive, not a strong statistical claim -- treat accordingly, do not oversell."
+      }
     },
-    "side_counts": {"C": 94, "P": 78}
+    "side_counts": {
+      "C": 94,
+      "P": 78
+    }
   },
-
   "replay_engine": {
     "choice": "T4-style bar-replay (backtest/tools/t4_exit_matrix.py + backtest/tools/structure_stop_study.py pattern): ATM option bars loaded ONCE per signal via lib.option_pricing_real.load_contract_bars/option_symbol + autoresearch.infinite_ammo_discovery._nearest_cached_strike (<=4-step snap, same convention as the ratified ship-gate study), then EVERY exit shape in the grid is replayed cheaply through the LIVE automation/state/fleet/exit_manager.plan_exit_actions decision core -- the SAME pure core the live actuator runs and exit_shape_parity_study/structure_stop_study use for their anchors.",
     "why_not_simulate_trade_real_for_the_whole_grid": "simulate_trade_real (the C1 fills authority used by the walk-forward/ship-gate studies) has no native concept of a VWAP-based structure stop -- it only supports a fixed chart-stop level (session extreme) via rejection_level. Running 24 cells against it would also mean the structure-stop cells use a DIFFERENT engine than the premium-stop cells within the SAME grid, which is less internally consistent than one uniform replay engine across all 24 cells. T4 chose plan_exit_actions for exactly this reason (it is also the LIVE decision core, so results are directly actionable).",
@@ -48,46 +67,304 @@
     "parity_check_required": "Before any grid cell is trusted, replay the CONTROL cell (this file's live_cell_as_of_freeze shape) through BOTH engines (this bar-replay AND lib.simulator_real.simulate_trade_real, the latter exactly as vwapcont_exit_ab_ship_gate.py calls it) on the OLD window signals (<=2026-05-15) and quote the delta. A large, unexplained delta means STOP and diagnose before trusting the grid -- mirrors the parity_gate pattern used throughout this codebase (vwapcont_exit_ab_ship_gate.py's own $0.75/tr tolerance, structure_stop_study.py's preflight anchor-parity check).",
     "time_stop": "15:50 ET (exit_manager.TIME_STOP_ET, the live default AND simulate_trade_real's own TIME_STOP_ET default) -- NOT ribbon_ride's T4/T5 convention of 15:40; vwap_continuation's own studies and the live engine both use 15:50."
   },
-
   "exit_grid": {
     "axes_as_given": {
-      "stops": {"P1_control": -0.06, "P2": -0.12, "P3": -0.20, "P4": -0.35,
-                "STRUCT": "5m SPY CLOSE back through the AS-OF session VWAP (not a fixed level) + -50% premium catastrophe cap -- see structure_definition below"},
-      "tp1": {"T1_control": 0.40, "T2": 1.00},
-      "tp1_qty_fraction": {"F1_control": 0.8, "F2": 0.667},
-      "profit_lock": {"L1_control": ["fixed", 0.0], "L2": ["trailing", 0.15]}
+      "stops": {
+        "P1_control": -0.06,
+        "P2": -0.12,
+        "P3": -0.2,
+        "P4": -0.35,
+        "STRUCT": "5m SPY CLOSE back through the AS-OF session VWAP (not a fixed level) + -50% premium catastrophe cap -- see structure_definition below"
+      },
+      "tp1": {
+        "T1_control": 0.4,
+        "T2": 1.0
+      },
+      "tp1_qty_fraction": {
+        "F1_control": 0.8,
+        "F2": 0.667
+      },
+      "profit_lock": {
+        "L1_control": [
+          "fixed",
+          0.0
+        ],
+        "L2": [
+          "trailing",
+          0.15
+        ]
+      }
     },
     "cap_note": "the raw cartesian product of the given axes is 5(stops incl. STRUCT) x 2(tp1) x 2(frac) x 2(lock) = 40 cells. Capped at 24 per the task's instruction via a REDUCED design: full pairwise crosses of every axis against the STOP axis (stop x tp1, stop x lock, stop x frac) relative to CONTROL, all three remaining pairwise crosses at the control stop (tp1 x frac, tp1 x lock, frac x lock), ONE 4-way 'kitchen sink' widened cell, and a small 4-cell structure-stop family mirroring the ribbon_ride SS-A/B/C precedent (structure_stop_study.py) rather than crossing STRUCT against every tp1/frac/lock combination. This is NOT a full factorial -- disclosed, not hidden.",
     "control_id": "P1T1F1L1",
     "n_cells": 24,
     "cells": [
-      {"id": "P1T1F1L1", "group": "control", "stop": -0.06, "tp1": 0.40, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P1T2F1L1", "group": "A_stop_x_tp1", "stop": -0.06, "tp1": 1.00, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P2T1F1L1", "group": "A_stop_x_tp1", "stop": -0.12, "tp1": 0.40, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P2T2F1L1", "group": "A_stop_x_tp1", "stop": -0.12, "tp1": 1.00, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P3T1F1L1", "group": "A_stop_x_tp1", "stop": -0.20, "tp1": 0.40, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P3T2F1L1", "group": "A_stop_x_tp1", "stop": -0.20, "tp1": 1.00, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P4T1F1L1", "group": "A_stop_x_tp1", "stop": -0.35, "tp1": 0.40, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P4T2F1L1", "group": "A_stop_x_tp1", "stop": -0.35, "tp1": 1.00, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "P1T1F1L2", "group": "B_stop_x_lock", "stop": -0.06, "tp1": 0.40, "frac": 0.8, "lock": ["trailing", 0.15]},
-      {"id": "P2T1F1L2", "group": "B_stop_x_lock", "stop": -0.12, "tp1": 0.40, "frac": 0.8, "lock": ["trailing", 0.15]},
-      {"id": "P3T1F1L2", "group": "B_stop_x_lock", "stop": -0.20, "tp1": 0.40, "frac": 0.8, "lock": ["trailing", 0.15]},
-      {"id": "P4T1F1L2", "group": "B_stop_x_lock", "stop": -0.35, "tp1": 0.40, "frac": 0.8, "lock": ["trailing", 0.15]},
-      {"id": "P1T1F2L1", "group": "C_stop_x_frac", "stop": -0.06, "tp1": 0.40, "frac": 0.667, "lock": ["fixed", 0.0]},
-      {"id": "P2T1F2L1", "group": "C_stop_x_frac", "stop": -0.12, "tp1": 0.40, "frac": 0.667, "lock": ["fixed", 0.0]},
-      {"id": "P3T1F2L1", "group": "C_stop_x_frac", "stop": -0.20, "tp1": 0.40, "frac": 0.667, "lock": ["fixed", 0.0]},
-      {"id": "P4T1F2L1", "group": "C_stop_x_frac", "stop": -0.35, "tp1": 0.40, "frac": 0.667, "lock": ["fixed", 0.0]},
-      {"id": "P1T2F2L1", "group": "D_control_stop_pairs", "stop": -0.06, "tp1": 1.00, "frac": 0.667, "lock": ["fixed", 0.0]},
-      {"id": "P1T2F1L2", "group": "D_control_stop_pairs", "stop": -0.06, "tp1": 1.00, "frac": 0.8, "lock": ["trailing", 0.15]},
-      {"id": "P1T1F2L2", "group": "D_control_stop_pairs", "stop": -0.06, "tp1": 0.40, "frac": 0.667, "lock": ["trailing", 0.15]},
-      {"id": "P4T2F2L2", "group": "E_kitchen_sink", "stop": -0.35, "tp1": 1.00, "frac": 0.667, "lock": ["trailing", 0.15]},
-      {"id": "STRUCT_BASE", "group": "F_structure", "stop": "STRUCT", "tp1": 0.40, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "STRUCT_TP100", "group": "F_structure", "stop": "STRUCT", "tp1": 1.00, "frac": 0.8, "lock": ["fixed", 0.0]},
-      {"id": "STRUCT_TRAIL", "group": "F_structure", "stop": "STRUCT", "tp1": 0.40, "frac": 0.8, "lock": ["trailing", 0.15]},
-      {"id": "STRUCT_SINK", "group": "F_structure", "stop": "STRUCT", "tp1": 1.00, "frac": 0.667, "lock": ["trailing", 0.15]}
+      {
+        "id": "P1T1F1L1",
+        "group": "control",
+        "stop": -0.06,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P1T2F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.06,
+        "tp1": 1.0,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P2T1F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.12,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P2T2F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.12,
+        "tp1": 1.0,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P3T1F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.2,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P3T2F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.2,
+        "tp1": 1.0,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P4T1F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.35,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P4T2F1L1",
+        "group": "A_stop_x_tp1",
+        "stop": -0.35,
+        "tp1": 1.0,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P1T1F1L2",
+        "group": "B_stop_x_lock",
+        "stop": -0.06,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "P2T1F1L2",
+        "group": "B_stop_x_lock",
+        "stop": -0.12,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "P3T1F1L2",
+        "group": "B_stop_x_lock",
+        "stop": -0.2,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "P4T1F1L2",
+        "group": "B_stop_x_lock",
+        "stop": -0.35,
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "P1T1F2L1",
+        "group": "C_stop_x_frac",
+        "stop": -0.06,
+        "tp1": 0.4,
+        "frac": 0.667,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P2T1F2L1",
+        "group": "C_stop_x_frac",
+        "stop": -0.12,
+        "tp1": 0.4,
+        "frac": 0.667,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P3T1F2L1",
+        "group": "C_stop_x_frac",
+        "stop": -0.2,
+        "tp1": 0.4,
+        "frac": 0.667,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P4T1F2L1",
+        "group": "C_stop_x_frac",
+        "stop": -0.35,
+        "tp1": 0.4,
+        "frac": 0.667,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P1T2F2L1",
+        "group": "D_control_stop_pairs",
+        "stop": -0.06,
+        "tp1": 1.0,
+        "frac": 0.667,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "P1T2F1L2",
+        "group": "D_control_stop_pairs",
+        "stop": -0.06,
+        "tp1": 1.0,
+        "frac": 0.8,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "P1T1F2L2",
+        "group": "D_control_stop_pairs",
+        "stop": -0.06,
+        "tp1": 0.4,
+        "frac": 0.667,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "P4T2F2L2",
+        "group": "E_kitchen_sink",
+        "stop": -0.35,
+        "tp1": 1.0,
+        "frac": 0.667,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "STRUCT_BASE",
+        "group": "F_structure",
+        "stop": "STRUCT",
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "STRUCT_TP100",
+        "group": "F_structure",
+        "stop": "STRUCT",
+        "tp1": 1.0,
+        "frac": 0.8,
+        "lock": [
+          "fixed",
+          0.0
+        ]
+      },
+      {
+        "id": "STRUCT_TRAIL",
+        "group": "F_structure",
+        "stop": "STRUCT",
+        "tp1": 0.4,
+        "frac": 0.8,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      },
+      {
+        "id": "STRUCT_SINK",
+        "group": "F_structure",
+        "stop": "STRUCT",
+        "tp1": 1.0,
+        "frac": 0.667,
+        "lock": [
+          "trailing",
+          0.15
+        ]
+      }
     ]
   },
-
   "structure_definition": {
     "task_instruction": "vwap setups may anchor to VWAP itself rather than a key level -- implement price closing back through VWAP as the structure variant (task's own words, not re-derived)",
     "choice_made": "AS-OF (dynamically recomputed) session VWAP, NOT a value frozen at entry. Every subsequent 5m SPY bar's CLOSE is compared against THAT bar's own cumulative session VWAP (identical formula to autoresearch.infinite_ammo_discovery.session_vwap_asof / the watcher's _session_rth_vwap: typical-price*volume cumulative / volume cumulative).",
@@ -97,30 +374,36 @@
     "catastrophe_cap": "-50% premium stop, same CATASTROPHE_STOP_PCT convention as exit_manager.py and ribbon_ride's SS-A/B/C -- protects a structure-stop position between the VWAP breach and its next-bar-open fill, and protects it entirely if the VWAP check never fires (e.g. VWAP data unavailable for a bar).",
     "spy_bar_granularity": "5-min SPY bars (same cache tw8_level_context/t4/structure_stop_study already use) -- NOT the live engine's finer feed. Option bars are ALSO 5-min (backtest/data/options/ cache), consistent with the rest of this grid."
   },
-
   "entry_probes": {
     "n_cells": 4,
     "policies": [
-      {"id": "market", "type": "market", "description": "pay-up at the signal bar's fill convention (this study's own control entry -- the SAME entry every exit-grid cell above uses)"},
-      {"id": "limit5pat2", "type": "limit", "delta": 0.05, "patience_bars_5min": 2, "miss": "cancel",
-       "description": "T3 convention (backtest/tools/t3_entry_matrix.py entry_fill): limit at signal_premium*(1-0.05), filled if a bar's LOW <= limit-$0.01 within 2 five-minute bars of the signal, else MISSED and priced at $0 (honest -- not silently dropped, not converted to a market fill)."}
+      {
+        "id": "market",
+        "type": "market",
+        "description": "pay-up at the signal bar's fill convention (this study's own control entry -- the SAME entry every exit-grid cell above uses)"
+      },
+      {
+        "id": "limit5pat2",
+        "type": "limit",
+        "delta": 0.05,
+        "patience_bars_5min": 2,
+        "miss": "cancel",
+        "description": "T3 convention (backtest/tools/t3_entry_matrix.py entry_fill): limit at signal_premium*(1-0.05), filled if a bar's LOW <= limit-$0.01 within 2 five-minute bars of the signal, else MISSED and priced at $0 (honest -- not silently dropped, not converted to a market fill)."
+      }
     ],
     "exit_pairing_rule": "control exit (P1T1F1L1, this file's live_cell_as_of_freeze shape) x BOTH entry policies, PLUS the exit_grid's TOP-RANKED cell (by fresh-tail expectancy, tie-break by IS expectancy -- an OBJECTIVE post-hoc rule fixed HERE before the grid is run, not a hand-picked exit) x BOTH entry policies = 4 cells total. This rule is pre-registered so which exit shape gets paired with the entry probe is never a judgment call made after seeing results.",
     "miss_pricing": "misses priced at $0 exactly like t3_entry_matrix.py -- expectancy-including-misses is the adjudicating metric, NOT filled-only expectancy (a passive entry that gets great filled-only numbers by skipping every loser is not evidence of an edge)."
   },
-
   "real_fills_anchor": {
     "source_instruction": "find them via the parity-study fills source filtered to strategy=vwap_continuation; if too few for an anchor, DISCLOSE and mark INCONCLUSIVE-ANCHOR (task's own words)",
     "scope": "BOTH lanes -- fleet_rest arms (safe-1/3, risky-1/3, strategies.py VWAP_CONTINUATION) AND core arms (safe-2, bold-2, params.json j_vwap_cont_* via heartbeat_core._SETUP_EXIT_OVERRIDES) -- 'this month' = 2026-07",
     "fallback_rule": "if the live fills ledger (automation/state/fills-ledger.jsonl) carries no per-fill strategy/setup attribution that can be joined back to individual vwap_continuation entries with reasonable confidence, OR the recoverable population is too thin (n<5 positions) to say anything, the anchor layer is marked INCONCLUSIVE-ANCHOR with the exact reason stated -- it does NOT silently pass or silently fail candidates. A cell cannot be reported PASS on the anchor condition while the anchor is INCONCLUSIVE; the pass bar treats an inconclusive anchor as the anchor condition being UNMET (conservative: CONTROL STANDS unless the anchor genuinely confirms)."
   },
-
   "pass_bar": {
     "statement": "A challenger exit-grid cell REPLACES the live control cell in this study's verdict ONLY if ALL FOUR hold simultaneously: (1) beats control on IS (2025) per-trade expectancy; (2) beats control on the NEVER-TOUCHED fresh tail (2026-05-18..2026-07-08) per-trade expectancy; (3) its own drop-top-3 expectancy is POSITIVE; (4) the real-fills anchor shows no regression vs control (or the anchor is INCONCLUSIVE, in which case condition 4 is treated as UNMET, not vacuously true). Otherwise: CONTROL STANDS -- itself a valid, reportable verdict, not a failure of the study.",
     "ranking_among_passers": "if more than one cell clears all four conditions, rank by fresh-tail expectancy (the least-contaminated evidence -- IS and the old OOS window were both already visible to the two prior vwap_continuation studies), tie-break by full-window (2025-01-01..2026-07-08) expectancy.",
     "no_repicks": "this pass bar and the 24+4 cell list above are FROZEN at this file's frozen_at date. No cell may be added, removed, or have its shape edited after any replay result is seen. A v2 amendment (like ribbon_ride's v1->v2) requires a written reason logged in an amendment_log block, made BEFORE re-running anything."
   },
-
   "disclosures": [
     "5-min OPRA bars (touch-based stops/TP1/structure checks; 1-min close timing not modelled here -- same disclosed gap as every T3/T4/T5/structure_stop_study precedent in this codebase).",
     "Frictionless entry fills at the next-bar open (no bid/ask spread modelled) for the ENTIRE exit grid -- consistent with T4's own convention, but a departure from simulate_trade_real's small entry_slippage add-on (quantified via the required parity check above).",
@@ -130,5 +413,11 @@
     "Fresh-tail is SMALL BY CONSTRUCTION (n=14 signals / 35 trading days) -- any fresh-tail win is suggestive at this N, not proof; stated plainly in the final verdict, not buried.",
     "The exit grid is a REDUCED design (24 of 40 possible axis combinations), not a full cartesian -- see exit_grid.cap_note.",
     "Not run here (owed elsewhere, per the task's own scope): 1m-close vs 5m-close vs touch stop timing; ATR-scaled/delta-mapped chart stops; ITM/OTM strike tiers; a joint entry x exit grid beyond the 4 pre-registered pairs; P5-gate membership (this is ANALYSIS ONLY -- no wiring, no staging params; the P5 shipping gate is a separate concern for whoever the reviewer routes a challenger to)."
-  ]
+  ],
+  "closed_2026_09_02": {
+    "ran": "backtest/tools/vwapcont_entry_exit_matrix.py",
+    "result_file": "vwapcont-entry-exit-matrix.json",
+    "verdict": "CONTROL-STANDS. Zero candidates clear the 3-condition ex-anchor bar and zero clear the full 4-condition bar. CONTROL exp $10.29 (IS $17.61, fresh $-31.03 on n_fresh=13). Best grid exits: market $14.97 at fill_rate 1.0, limit5pat2 $-7.19 at fill_rate 0.791 -- neither advances.",
+    "anchor": "OK_BUT_THIN, n=12, verdict INCONCLUSIVE-ANCHOR. Recorded as inconclusive rather than folded into the pass/fail, which is why the ex-anchor bar is reported separately -- and both are empty, so the anchor's thinness does not change the outcome."
+  }
 }

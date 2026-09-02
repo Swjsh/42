@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-02T05:49:39",
+  "generated_at_et": "2026-09-02T05:52:03",
   "n_total": 126,
   "n_parsed": 126,
   "n_malformed": 0,
@@ -294,7 +294,7 @@
     },
     {
       "file": "lbfs-shadow-wiring-preregistration.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- STUDY_FAILS_BAR, SHADOW ONLY REGARDLESS",
       "age_days": 49.4,
       "age_source": "frozen_at",
       "orphan": false,
@@ -1167,7 +1167,7 @@
     },
     {
       "file": "vwapcont-matrix-preregistration.json",
-      "status": "FROZEN_PENDING_RUN",
+      "status": "RUN_COMPLETE -- CONTROL-STANDS (0 candidates pass)",
       "age_days": 55.4,
       "age_source": "frozen_at",
       "orphan": false,
