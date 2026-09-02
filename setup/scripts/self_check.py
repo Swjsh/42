@@ -1832,17 +1832,28 @@ def check_task_staleness(now, path=None) -> list[str]:
         return []
     verdict = data.get("verdict")
     findings = data.get("findings") or []
-    # BARE task names only. _problem_is_broken matches the SUBSTRING "RED", so interpolating
-    # each finding's own verdict ("Gamma_GuardsNightly(RED)") made every YELLOW and UNKNOWN
-    # message classify BROKEN -- contradicting this function's own DEGRADED-only contract.
-    # Caught by probing all four verdicts instead of only the RED path (2026-09-02).
-    named = ", ".join(
-        str(f.get("name")) for f in findings[:5] if isinstance(f, dict) and f.get("name")
-    ) or "(no tasks named)"
+    # Name ONLY the findings whose own verdict matches the headline. Two constraints collide
+    # here and this is the shape that satisfies both:
+    #   * _problem_is_broken matches the SUBSTRING "RED", so a finding's own verdict can
+    #     never be interpolated ("Gamma_X(RED)") -- that made every YELLOW/UNKNOWN message
+    #     classify BROKEN, contradicting the DEGRADED-only contract (caught 2026-09-02 by
+    #     probing all four verdicts instead of only the happy path).
+    #   * but naming the top-5 findings REGARDLESS of severity under a headline that states
+    #     the OVERALL verdict reads as though every task listed is at that severity. Live
+    #     example the same morning: Gamma_DeadMansSwitch is UNKNOWN ("never run, next fire
+    #     09:32 ET, expected for a freshly registered task") and was being listed inside a
+    #     "TASK-STALENESS RED" line. Mislabelling a healthy task as RED is the cry-wolf
+    #     pattern this whole instrument exists to avoid.
+    # So: filter by severity, interpolate no verdict strings.
+    def _named(*severities: str) -> str:
+        hits = [str(f.get("name")) for f in findings
+                if isinstance(f, dict) and f.get("name") and f.get("verdict") in severities]
+        return ", ".join(hits[:5]) or "(no tasks named)"
+
     if verdict == "RED":
-        return [f"TASK-STALENESS RED: scheduled work is not running -- {named}"]
+        return [f"TASK-STALENESS RED: scheduled work is not running -- {_named('RED')}"]
     if verdict in ("YELLOW", "UNKNOWN"):
-        return [f"TASK-STALENESS DEGRADED ({verdict}): {named}"]
+        return [f"TASK-STALENESS DEGRADED ({verdict}): {_named('YELLOW', 'UNKNOWN')}"]
     return []
 
 
