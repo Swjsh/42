@@ -70,6 +70,27 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
   flatteners in favour of the Core alone (`[FABLE-OR-J]`: defense-in-depth vs. noise that writes
   false halts). Conductor fires overnight: did any pick a `GATE-BLOCKING` item first?
 
+- [x] **The safety net itself was dark, and the cause is quiet mode — CLOSED 2026-09-02 05:00 ET.**
+  `Gamma_GuardsFull` (the ~11,400-test suite) produced no verdict 08-31 → 09-02 while every surface
+  read healthy: `State=Ready`, `LastTaskResult=0`. **Neither field moves when a task never starts** —
+  `LastRunTime` and `NumberOfMissedRuns` were read by nothing. Root cause, proven 7/7 rather than
+  assumed: quiet mode disables ~120 tasks for J's evening and **holds past its own 23:00 ET clock
+  while a fullscreen app is foreground**; a trigger inside a hold is skipped, and because the task
+  was *Disabled* rather than merely unavailable, `StartWhenAvailable` cannot recover it. On 09-01 the
+  holds (23:02–23:22, 00:07–00:42) ate `FuturesBrokerProbe` 23:05, `GuardsFull` 23:15,
+  `GuardsNightly` 00:30 — while `SpendSummary` 23:30, `OosCheck` 23:40, `LicenseMonitor` 23:58 and
+  `GateExpiryCheck` 01:00 all ran. **Shipped:** `Gamma_TaskStaleness` (daily 05:45 ET, $0,
+  report-only, 53 tests) → `self_check.py` item 22 → quiet mode's `ESSENTIAL` set, so the blackout
+  cannot silence the alarm about the blackout. `GuardsFull` + `GuardsNightly` caught up by hand;
+  GuardsFull's first verdict since 08-31 is **11,461 passed / 5 failed**, four of them the known
+  pre-existing set. **The cause is NOT fixed** — a catch-up sweep needs a decision on which tasks may
+  be auto-restarted hours late (a report-only producer, yes; `Gamma_KalshiAuto` placing orders off
+  stale next-day weather, no), so it is filed as `QUIET-HOLD-CATCH-UP-SWEEP` with that constraint
+  rather than shipped on a guess. Also fixed en route: `## Known broken` had drifted back below the
+  first STATUS.md entry (the 2026-08-20 two-month-discard scar), now pinned in the preamble by a
+  test; and the first-live-day review's **outer** aggregator still ranked `NO_DATA` as GREEN, so an
+  all-absent day — the box dead — graded clean.
+
 ### Wave 2 (Sonnet builders launched 21:30 ET; verify + review inside the workflow, then commit)
 - [x] B1 `setup/scripts/whole_engine_null.py` per `prereg-whole-engine-null-2026-09-01.json` — BUILT + RUN
   2026-09-01 evening (300 resamples/day, cache-warm, 0 network fetches); task `Gamma_WholeEngineNull`
