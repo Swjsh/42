@@ -230,3 +230,77 @@ def test_the_live_ledger_reports_flat(bf):
         "If any of these is a REAL position the broker also reports, this test is right and "
         "the position is the finding."
     )
+
+
+# ---------------------------------------------------------------------------------------
+# The crypto bucket: `manual` must mean a hand-placed OPTION trade
+# ---------------------------------------------------------------------------------------
+
+def test_crypto_round_trips_do_not_count_as_manual_trades(bf):
+    """The nightly $10 BTC canary made safe-2 report n_manual=164 -- 157 of them canary --
+    which reads as J hand-trading 164 times. The money was never the issue (-$1.08 across
+    the whole book); the count on a human-read surface was."""
+    rts = [
+        {"arm": "safe-2", "date_et": "2026-09-01", "symbol": "BTC/USD",
+         "attribution": "manual", "pnl": -0.01},
+        {"arm": "safe-2", "date_et": "2026-09-01", "symbol": "SPY260901C00650000",
+         "attribution": "manual", "pnl": -50.0},
+        {"arm": "safe-2", "date_et": "2026-09-01", "symbol": "SPY260901C00650000",
+         "attribution": "engine", "pnl": 120.0},
+    ]
+    st = bf.build_statement(rts, [])
+    a = st["per_account"]["safe-2"]
+    assert a["n_manual"] == 1, "a crypto round trip is still being counted as a manual trade"
+    assert a["n_crypto"] == 1
+    assert a["n_engine"] == 1
+    assert a["manual_pnl"] == pytest.approx(-50.0)
+    assert a["crypto_pnl"] == pytest.approx(-0.01)
+
+
+def test_the_buckets_still_sum_to_realized(bf):
+    """Adding a bucket must not lose or double-count a cent."""
+    rts = [
+        {"arm": "safe-2", "date_et": "2026-09-01", "symbol": "BTC/USD",
+         "attribution": "manual", "pnl": -0.01},
+        {"arm": "safe-2", "date_et": "2026-09-01", "symbol": "SPY260901C00650000",
+         "attribution": "manual", "pnl": -50.0},
+        {"arm": "safe-2", "date_et": "2026-09-01", "symbol": "SPY260901C00650000",
+         "attribution": "engine", "pnl": 120.0},
+    ]
+    st = bf.build_statement(rts, [])
+    a = st["per_account"]["safe-2"]
+    assert a["realized_pnl"] == pytest.approx(
+        a["engine_pnl"] + a["manual_pnl"] + a["crypto_pnl"])
+    assert a["n_round_trips"] == a["n_engine"] + a["n_manual"] + a["n_crypto"]
+    d = st["per_day"]["2026-09-01"]["safe-2"]
+    assert d["realized_pnl"] == pytest.approx(
+        d["engine_pnl"] + d["manual_pnl"] + d["crypto_pnl"])
+
+
+def test_an_engine_crypto_fill_stays_engine(bf):
+    """Bucketing must not demote a genuine engine trade just because it is crypto. Engine
+    attribution, once earned, is never taken away (promote_ledger_attribution's rule)."""
+    st = bf.build_statement([{"arm": "safe-2", "date_et": "2026-09-01", "symbol": "BTC/USD",
+                              "attribution": "engine", "pnl": 5.0}], [])
+    a = st["per_account"]["safe-2"]
+    assert a["n_engine"] == 1 and a["n_crypto"] == 0
+
+
+def test_the_live_statement_reclassifies_the_canary(bf):
+    """End-to-end on the real ledger: safe-2's manual count must drop to the handful of
+    genuine hand-placed OPTION trades, with the ~157 canary round trips in their own bucket."""
+    rts, lots = bf.fifo_round_trips(_live_fills())
+    st = bf.build_statement(rts, lots)
+    a = st["per_account"].get("safe-2")
+    if not a:
+        pytest.skip("safe-2 absent from the ledger")
+    assert a["n_crypto"] > 100, (
+        f"expected the nightly canary's round trips in the crypto bucket, got "
+        f"n_crypto={a['n_crypto']}"
+    )
+    assert a["n_manual"] < 20, (
+        f"safe-2 still reports n_manual={a['n_manual']} -- crypto is leaking into the "
+        "hand-placed-trade count"
+    )
+    assert a["realized_pnl"] == pytest.approx(
+        a["engine_pnl"] + a["manual_pnl"] + a["crypto_pnl"], abs=0.02)

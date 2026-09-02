@@ -378,32 +378,63 @@ def fifo_round_trips(fills: list) -> "tuple[list[dict], list[dict]]":
     return round_trips, open_lots_out
 
 
+def statement_bucket(round_trip: dict) -> str:
+    """Which P&L bucket a round trip belongs to: engine / crypto / manual.
+
+    WHY CRYPTO IS ITS OWN BUCKET (2026-09-02, queue.md CANARY-OUT-OF-SAFE-2). Every crypto
+    fill is hard-attributed "manual" by normalize_fill, so the nightly $10 BTC dress-rehearsal
+    canary accumulated into safe-2's MANUAL trade count: 157 of safe-2's 284 round trips were
+    canary, and the account reported n_manual=164 -- which reads as J hand-trading 164 times.
+    The money never mattered (crypto realized P&L is -$1.08 across the whole book); the COUNT
+    on a human-read surface did.
+
+    Split on the SYMBOL, which is definitive -- Alpaca crypto pairs carry a slash and OCC
+    option symbols never do. No new state file, no order-id registry, and no heuristic: an
+    earlier design recorded canary order ids and classified history by (arm, symbol, notional,
+    date), which is more machinery and more ways to be wrong for a distinction nothing needs.
+    This bucket therefore covers BOTH the canary and the retired 2026-06-30 crypto-gym fills,
+    and that is correct -- neither is a hand-placed option trade.
+
+    `manual` now means what a reader assumes it means: a human-placed OPTION trade.
+    """
+    if round_trip.get("attribution") == "engine":
+        return "engine"
+    return "crypto" if _is_crypto_symbol(round_trip.get("symbol")) else "manual"
+
+
+_BUCKETS = ("engine", "crypto", "manual")
+
+
 def build_statement(round_trips: list, open_lots: list) -> dict:
-    """Per-account + per-day n_round_trips / realized P&L / engine-vs-manual split. PURE."""
+    """Per-account + per-day n_round_trips / realized P&L / engine-crypto-manual split. PURE."""
     per_account: dict = {}
     per_day: dict = {}
     for rt in round_trips:
-        arm, day, attr, pnl = rt["arm"], rt["date_et"], rt["attribution"], rt["pnl"]
+        arm, day, pnl = rt["arm"], rt["date_et"], rt["pnl"]
+        bucket = statement_bucket(rt)
         a = per_account.setdefault(arm, {"n_round_trips": 0, "realized_pnl": 0.0,
                                           "engine_pnl": 0.0, "manual_pnl": 0.0,
-                                          "n_engine": 0, "n_manual": 0})
+                                          "crypto_pnl": 0.0,
+                                          "n_engine": 0, "n_manual": 0, "n_crypto": 0})
         a["n_round_trips"] += 1
         a["realized_pnl"] += pnl
-        a["engine_pnl" if attr == "engine" else "manual_pnl"] += pnl
-        a["n_engine" if attr == "engine" else "n_manual"] += 1
+        a[f"{bucket}_pnl"] += pnl
+        a[f"n_{bucket}"] += 1
 
         da = per_day.setdefault(day, {}).setdefault(
-            arm, {"n_round_trips": 0, "realized_pnl": 0.0, "engine_pnl": 0.0, "manual_pnl": 0.0})
+            arm, {"n_round_trips": 0, "realized_pnl": 0.0, "engine_pnl": 0.0,
+                  "manual_pnl": 0.0, "crypto_pnl": 0.0})
         da["n_round_trips"] += 1
         da["realized_pnl"] += pnl
-        da["engine_pnl" if attr == "engine" else "manual_pnl"] += pnl
+        da[f"{bucket}_pnl"] += pnl
 
+    money_keys = ("realized_pnl",) + tuple(f"{b}_pnl" for b in _BUCKETS)
     for a in per_account.values():
-        for k in ("realized_pnl", "engine_pnl", "manual_pnl"):
+        for k in money_keys:
             a[k] = round(a[k], 2)
     for d in per_day.values():
         for arm_stats in d.values():
-            for k in ("realized_pnl", "engine_pnl", "manual_pnl"):
+            for k in money_keys:
                 arm_stats[k] = round(arm_stats[k], 2)
 
     return {
@@ -414,6 +445,7 @@ def build_statement(round_trips: list, open_lots: list) -> dict:
         "open_lots": open_lots,
         "total_engine_pnl": round(sum(a["engine_pnl"] for a in per_account.values()), 2),
         "total_manual_pnl": round(sum(a["manual_pnl"] for a in per_account.values()), 2),
+        "total_crypto_pnl": round(sum(a["crypto_pnl"] for a in per_account.values()), 2),
         "total_realized_pnl": round(sum(a["realized_pnl"] for a in per_account.values()), 2),
         "note": ("Broker-truth (Alpaca /v2/account/activities/FILL). Decision ledgers "
                  "(decisions.jsonl / core-decisions.jsonl / fleet/*/decisions.jsonl) are "
