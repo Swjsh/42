@@ -145,9 +145,30 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 - [ ] **The 15 frozen, never-run preregs** (list in `analysis/recommendations/prereg-hygiene.json` once
   B3 runs). *Done:* each is RUN (Sonnet, on the existing harness) or KILLED with a named nail, or
   PARKED with a re-open condition. No "still frozen" survives the month.
-- [ ] **BEARISH_REJECTION sign flip** (wave-level +$821 vs trip-level −$73). *Done:* both units scoped
-  to 06-26..09-01; one canonical unit declared project-wide (trip = flat-to-flat) and every
-  generator labels its unit.
+- [x] **BEARISH_REJECTION sign flip** — **DONE 2026-09-02 (Opus). There is NO sign flip by unit of
+  account.** `winner_signature.wavify` sets `w["pnl"] = sum(row pnl)`, so Σ(wave) ≡ Σ(trip) by
+  construction — a regrouping cannot move a total. Verified: 349 trips → 109 waves, totals identical
+  to the dollar. The apparent flip decomposes into two unrelated causes:
+  **(1) WINDOW, and it is the whole story.** SIGNATURE spans 2026-04-29→09-01; trades-enriched carries
+  BEARISH rows only from 06-26. Just **4 trades before 2026-06-26 are worth +$772** — they alone carry
+  the positive sign. Scope SIGNATURE's OWN source to 06-26..09-01 and it reads **−$381** (n=131). Both
+  surfaces agree BEARISH is negative in the window that matters.
+  **(2) BASIS + an unnormalized taxonomy ($308).** Same window: `journal/trades.csv` (fill basis)
+  −$381/131 vs `analysis/trades-enriched.jsonl` (flat_to_flat) −$73/104. **Grand totals reconcile to
+  −$11** ($+1,275 vs $+1,286), so neither file is wrong about money — only about attribution. The
+  attribution gap is real and filed: trades.csv splits one setup across **case-variant duplicate
+  labels** (`VWAP_CONTINUATION` n=45 AND `vwap_continuation` n=7; `VWAP_RECLAIM_FAILED_BREAK` n=3 AND
+  `vwap_reclaim_failed_break` n=9), carries an `UNKNOWN` bucket (n=25) and legacy strategy names
+  (`bollinger_squeeze` −$121, `vix_regime_dayside` −$306) absent from the enriched taxonomy, while
+  trades-enriched has **36 unjoined blank-setup rows worth −$896**. See queue.md
+  `SETUP-TAXONOMY-UNNORMALIZED-ACROSS-PNL-SURFACES`.
+  **CANONICAL UNIT (declared):** `analysis/trades-enriched.jsonl` flat_to_flat **trip** is the unit for
+  behavioural/attribution work; `journal/trades.csv` fill basis is the unit for accounting. Every
+  generator must state BOTH its unit and its window — this whole episode was a window difference
+  reported as a unit difference.
+  **Side effect, disclosed:** SIGNATURE.md was stale against the 09-01 `trades.csv` repair (generated
+  20:22 ET, before it). Regenerated 2026-09-02 00:44 ET: fills 521→544, waves 130→137, sessions 49→52,
+  **net $3,027 → $2,208**, BEARISH $821→$709. Any number quoted from the pre-repair file is wrong.
 - [x] **`planned_stop ≠ executed_stop` (79%) root cause** — **DONE 2026-09-02 (Opus). NOT a bug; a
   field-semantics gap, and neither posted hypothesis was right.** *Mechanism, one sentence:* `planned_stop`
   records the **premium-price floor armed at entry**, but in structure mode that floor is the −50%
