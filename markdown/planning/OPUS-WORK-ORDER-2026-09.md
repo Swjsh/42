@@ -130,12 +130,33 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
 Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 
 ### 2a. Further review and auditing (Opus judgment; Sonnet fact-packs)
-- [ ] **Fleet money path at R1 depth.** The audit read `heartbeat_core.py` end-to-end; the fleet arms
-  (safe-3 = the prod-shadow candidate!) run `fleet_live.py` → `fleet_executor.py` → `exit_manager.py`
-  in a separate process. Walk that path the same way: order types, idempotency, exit management on
-  process death, what halts it (it reads NO halt file today — confirm), how `Gamma_FleetExecutor`
-  is launched (same fire-and-forget wrapper?), tick timing vs the core. *Done:* a fact-pack with
-  file:line evidence and any gap filed with a tag. `[Opus + 1 Sonnet]`
+- [x] **Fleet money path at R1 depth.** — **DONE 2026-09-02 (Opus judgment + Sonnet fact-pack).** Full
+  file:line fact-pack answering all six questions; findings filed in queue.md as
+  `FLEET-KILL-SWITCH-NOT-LATCHED` (headline) and `FLEET-PATH-AUDIT-FINDINGS` (residuals).
+  **HEADLINE — Rule 5 is not latched on the fleet arms, safe-3 included.** Rule 5 says *"Day closed
+  for that account. No revenge trades."* Nothing closes the day on this path. Verified cold on three
+  legs: `daily_loss_guard.py` (the durable-latch producer) has **zero** references to any fleet arm;
+  fleet Rule-5 enforcement is a **live per-tick recompute** at `risk_gate.py:750-755` whose denial
+  message reads *"day closed, no revenge trades"* while persisting nothing; and the only production
+  writers of `tripped=True` are `daily_loss_guard.py:295` (core), `eod_flatten.py:207` (escalation) and
+  `halt_command.py:224/243` (phone). Because equity = cash + position MARK, an arm can breach −30% on
+  an underwater open 0DTE, be blocked, then have the mark recover and **silently resume entering the
+  same session**. **Calibration, measured: 0 observed breaches to date** — worst intraday draws risky-3
+  **−24.4%** (5.6pp from the floor), safe-3 **−18.2%**. Latent and reachable, not yet exercised; it
+  becomes a real-money defect the moment anything is armed. The fix is a kill-type risk reduction, so it
+  belongs in the **09-29 safety bundle (§3)**.
+  **Also found:** no broker-side stop EVER exists (entries are a bare marketable limit; every exit is an
+  unconditional market order; the runner ratchet is tick-managed), so 100% of between-tick protection is
+  software that must actually run — and the one independent backstop, `Gamma_DeadMansSwitch`, **does**
+  cover fleet arms but shows `LastRunTime = 11/30/1999` / `LastTaskResult = 267011` (never run). **Its
+  first production fire is 2026-09-02 09:32 ET — exactly what the §1 first-live-day review must check.**
+  Plus an UNVERIFIED exit-state batch-save race, PDT computed-but-not-enforced (decide it with the Sat
+  09-05 Rule 7 rewrite), and three stale comments.
+  **Verified GOOD, no action:** phone-HALT genuinely works tick-to-tick; exits are deliberately never
+  halted (2026-08-10 fix); entry idempotency is double-guarded (claim TTL + fail-CLOSED broker query)
+  with Task Scheduler `IgnoreNew` preventing overlap; a stale signal blocks entries only, never exits.
+  **Correction to this order's own text:** "it reads NO halt file today — confirm" is STALE — it does
+  read one, every tick, since B5 shipped 2026-09-01.
 - [ ] **risky-1 FULL-SEND lane.** `a9c157a9` (08-29) disarmed the never-fired FULL-SEND producer;
   accounts.json still carries `full_send: true` and a long doc. Confirm the lane is inert end to end
   (producer flag + consumer), then decide: strip the dead key at 10-30 or keep as documented history.
