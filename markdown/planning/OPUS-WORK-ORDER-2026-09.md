@@ -310,9 +310,30 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   **Method note that cost time and should not be repeated:** runner-exists ≠ runner-works, and an
   import-level smoke test does not close the gap — all 11 named runners returned IMPORT_OK including
   the one that dies at runtime. Only running proves it.
-  *Remaining:* 2 of the 12 unrun (`vwapcont_entry_exit_matrix`, `lbfs_shadow_revalidation`), 1 to
-  repair (`level_memory_wire_ab`), and the 40 with no runner still need KILL-with-a-nail or
-  PARK-with-a-reopen-condition.
+  **ALL 12 NOW ATTEMPTED** — `vwapcont_entry_exit_matrix` → **CONTROL-STANDS** (zero candidates clear
+  either bar) and `lbfs_shadow_revalidation` → **FAILS_BAR, shadow only** (headline +$746.60 is entirely
+  in-sample: wf −0.44, IS +$1,340, OOS −$593; its "stable" sub-window flag tolerates one hurt third and
+  should never be quoted without the thirds beside it). Only `level_memory_wire_ab` remains, blocked on
+  bit-rot.
+
+  ### 🚨 The 40 "no-runner" preregs are NOT a research backlog — the count was a monitor defect
+  Adjudication started, and stopped, on the first real check: cross-referencing each against result
+  artifacts anywhere under `analysis/` (excluding self-hits, prereg-to-prereg mentions, and artifacts
+  with no verdict field) found **31 of the 40 already had a real result on disk**. Their `status` field
+  was stale; the research was done. `analysis/multi-lane/intraday-null-stageA.json` carries
+  `verdict: FAIL_stop_the_lane` and names its prereg explicitly; `analysis/whole-engine-null/` ran the
+  same night and returned PASS while its prereg still read *"FROZEN — NOT RUN"*.
+  **Root cause:** `prereg_hygiene._results_index()` scanned only the top level of
+  `analysis/recommendations/`, so it structurally could not see a result in a sibling subtree. Fixed
+  (`993edd42`): recursive index over `analysis/`, plus filename-stem matching, files >3MB skipped,
+  1s → 20s. `n_has_results_file` **12 → 105**.
+  **The real backlog is 7, of which 3 were filed in the last 48h — so FOUR aged items:**
+  `entry-exit-matrix-stop-a` (56d, awaiting STOP-A sign-off, not a run) · `safe3-risky1-gate-retest`
+  (47d) · `require-bearish-fill-bar-lift` (29d) · `prereg-pre-tp1-ratchet-cost` (18d).
+  **The box's premise was wrong and so was my restatement of it:** it said 15, I counted 52, the answer
+  is 4. Guarded so the phantom cannot return — and guarded in the other direction too, since widening a
+  "has this been answered?" search is precisely how a monitor silences itself (a test asserts preregs can
+  never satisfy each other, and that the reported backlog is neither 0 nor ≥25).
 - [x] **BEARISH_REJECTION sign flip** — **DONE 2026-09-02 (Opus). There is NO sign flip by unit of
   account.** `winner_signature.wavify` sets `w["pnl"] = sum(row pnl)`, so Σ(wave) ≡ Σ(trip) by
   construction — a regrouping cannot move a total. Verified: 349 trips → 109 waves, totals identical
