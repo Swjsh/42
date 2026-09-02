@@ -305,9 +305,34 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   and overlaps return.** That is why B3's `duplicate_ticks` monitor stays armed and why the §3 09-29
   bundle item (exit-pass pidfile mutex + heartbeat task registered without the fire-and-forget hop)
   is still required rather than closable on this evidence.
-- [ ] **Alpaca paper fill model vs live** — document exactly what Alpaca simulates (NBBO match, no
-  impact, no queue) from their docs; pair with the quote tape (≥20 days by late September) to
-  measure paper-exit-vs-quote slippage; recalibrate the gate's 2¢ assumption with data, not a guess.
+- [x] **Alpaca paper fill model vs live** — **DONE 2026-09-02 (Opus): documented from Alpaca's own docs,
+  fee model re-verified against LIVE broker rows, and TWO corrections — one to their docs, one to a
+  field this repo could easily misuse.**
+  *What paper does NOT simulate (`us/paper-trading`):* market impact, information leakage, **price
+  slippage due to latency**, order-queue position for non-marketable limits, price improvement, and
+  dividends. Orders fill only when marketable and are **matched against NBBO**. Critically: *"your order
+  quantity is **not checked against the NBBO quantities** — you can submit and receive a fill for an
+  order much larger than the actual available liquidity"*, with random partial fills ~10% of the time.
+  Since **every one of our exits is an unconditional market order**, paper fills them at the touch with
+  zero latency cost — so the gate's slippage constant stands in for the WHOLE of what paper refuses to
+  model, not part of it.
+  *⚠️ CORRECTION TO THE DOCS, verified against the live account.* Alpaca's page lists "Regulatory fees"
+  among the things paper does not account for. **That is false for this account.** `PA3POKNV46VG` books
+  real `FEE` activities with sub-types **ORF, OCC, REG, TAF and CAT**. Trust the account, not the page.
+  *Fee model re-verified, so §2d's FEE-RECALIBRATION needs no build — it is already calibrated:* every
+  rate in `go_live_gate.FEE_RATES` matches live broker rows — ORF $0.015/contract (5 samples), TAF
+  $0.00329 (5), SEC/REG 2.06e-05 per sell-dollar (all 9 observations match under ceil-to-cent), OCC
+  $0.025/contract (consistent across 1/2/3/6-contract fills), CAT $0.01/arm-day.
+  *The 2¢ slippage constant CANNOT yet be recalibrated — the instrument is nearly dark.* The quote tape
+  holds exactly **one session** (`2026-09-01.jsonl`, 310 rows) and `trades-enriched`'s exit-quote join is
+  **3/391 = 0.77%**. This item's own plan said "≥20 days by late September"; we have 1. Re-check late
+  September — until then 2¢ is a stated assumption, not a measurement.
+  *⚠️ TRAP — do NOT use `spread_cents` as a bid/ask spread.* `trades-enriched.jsonl`'s `spread_cents`
+  comes from `lib.ribbon` via `heartbeat_core.py:780` — it is the **EMA ribbon spread** (a trend-strength
+  measure), NOT the quote spread. Its median reads ~70 "cents" on rows whose real NBBO spread is
+  $0.00–$0.02, and the values are 17-decimal floats. I nearly calibrated the 2¢ assumption against it.
+  The real quote fields are `exit_quote_bid/ask_before/after` (0.77% populated) and the core ledger's
+  `exec.nbbo.spread`.
 - [ ] **The 13 known-RED tests** (08-29 baseline: 10,888 passed / 13 failed). *Done:* fixtures fixed
   (never assertions weakened), `Gamma_GuardsFull` reports 0 failed, and STATUS `## Known broken` shows
   the nightly result line.

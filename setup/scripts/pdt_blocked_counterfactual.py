@@ -1,0 +1,587 @@
+#!/usr/bin/env python
+"""pdt_blocked_counterfactual.py -- runner for the FROZEN prereg
+analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11.json
+(rule_id PDT-BLOCKED-COUNTERFACTUAL-2026-08-11, status FROZEN_BEFORE_RUNNER since 2026-08-11).
+
+QUESTION (from the prereg, verbatim intent): on PAPER accounts the engine self-imposes the
+live PDT rule (3 day-trades / 5 business days under $25k). Did that self-imposed constraint
+COST money or SAVE money? MEASUREMENT ONLY -- this script ships nothing and arms nothing.
+
+POPULATION: every status == RISK_DENY_PDT row in automation/state/core-decisions.jsonl that
+carries a symbol, deduped to unique (account, symbol, date) intents, keyed by the FIRST
+chronological attempt (the engine retries the same blocked intent roughly once a minute while
+the setup stays valid; the first attempt is the moment the trigger fired and the entry would
+genuinely have been placed -- qty/premium are read from THAT row, matching the prereg's "LOGGED
+qty and premium"). Re-derived fresh from the ledger every run -- see load_population().
+
+METHOD: price each blocked intent through the REAL exit_manager via
+backtest/tools/multileg_exit_walk.py (calibration v5: fill_mode="extreme", slippage=$0.01,
+SPY union feed for last_closed_5m_close so structure/ribbon exits can fire). Exit shape =
+that account's config, resolved deterministically from doctrine + git history (see
+"SHAPE RESOLUTION" below) -- never re-picked after seeing any P&L number.
+
+SHAPE RESOLUTION (decided from written history BEFORE this script priced a single intent):
+  ribbon_ride's exit shape changed exactly once inside the study window. Commit 933bd651
+  ("feat(exit): SS-B structure-stop live, both lanes, flag-ON (STOP-B ship 1)"), dated
+  2026-07-09, shipped structure_stop_enabled=true + a new ExitShape (catastrophe cap -50%,
+  TP1 +100% sell 66%, trailing runner 15% off HWM, arm +5%). `git show 933bd651~1:automation/
+  state/fleet/strategies.py` recovers the PRIOR literal: ExitShape(premium_stop_pct=-0.20,
+  tp1_premium_pct=1.5, tp1_qty_fraction=0.8, profit_lock_mode="fixed") -- premium-mode only,
+  structure_stop_enabled did not exist yet.
+    date < 2026-07-09  -> PRE_STOPB_SHAPE (git-recovered literal above), stop_mode="premium"
+    date >= 2026-07-09 -> current strategies.by_name("ribbon_ride").exit.to_dict(), with the
+                          pre_tp1_* ladder/floor/trail knobs forced OFF (they postdate this
+                          window -- pre_tp1_ladder shipped 2026-08-10, AFTER the last intent
+                          in this population, 2026-08-07; same precedent already used by the
+                          sibling harness backtest/tools/harness_fidelity_anchor.py for the
+                          identical reason).
+  tp1_qty_fraction is read from the STRATEGY body (0.667), not CLAUDE.md's per-account table
+  (0.8 safe / 0.667 bold) -- CLAUDE.md's own account-context section says "TP1 IS NOT A
+  PER-ACCOUNT SETTING -- it comes from the STRATEGY (ribbon_ride hardcodes +100%/sell-66%;
+  per-arm overrides exist) ... Read the arm's exit-state.json for live truth, never this
+  table." No historical per-date exit-state.json snapshot exists to check per-arm overrides
+  against, so the STRATEGY body (the thing CLAUDE.md says to trust over its own table, and the
+  literal object heartbeat_core._execute's non-isolated-setup branch registers verbatim via
+  `_shape = strategies.by_name("ribbon_ride").exit.to_dict()`) is used for BOTH accounts. This
+  is disclosed as a DEVIATION from a literal reading of "per-arm 0.8/0.667", not a silent
+  substitution.
+  Structure vs premium is resolved PER INTENT: structure only if (a) date >= 2026-07-09 AND
+  (b) the ledger row itself logged a resolvable trigger_level (trigger_level_exact, or the
+  side-appropriate bull_reclaim_level_raw / bear_rejection_level_raw). Absent either condition
+  -> premium mode, which is exactly exit_manager.ExitState.from_entry's own null-trigger_level
+  fallback (automation/state/fleet/exit_manager.py) -- not a guess invented for this study.
+  core-decisions.jsonl did not carry trigger_level_exact at all before the field was added to
+  its schema; every 2026-07-08 intent (the day before STOP-B shipped) predates BOTH the field
+  and the feature, so premium mode there is doctrine-correct, not a data gap being papered over.
+
+HARNESS VALIDATION (mandatory before trusting any gate number, tonight's standing rule after
+a sibling null study's verdict had to be WITHHELD on a 79.3%-agreement walker): replay a sample
+of the SAME accounts' ACTUAL PLACED trades from the SAME window through the identical harness
+configuration and compare the sign of the replay P&L against the broker-realized `pnl_dollars`
+in analysis/trades-enriched.jsonl. Per-row RECORDED stop_mode/trigger_level are used when
+present (exit_manager.py's from_entry resolves premium mode whenever no trigger_level exists --
+~27% of the real population genuinely ran premium, so assuming structure for all of them would
+overstate this harness's own fidelity). Below 85% sign agreement, the counterfactual's gates
+are still computed and reported, but the overall verdict is WITHHELD_HARNESS_UNRELIABLE.
+
+EXPLICITLY FORBIDDEN (prereg, verbatim): dropping losing days; re-picking the exit shape after
+seeing results; converting a pass into a live-money change (PDT is a real regulatory rule for
+live accounts under $25k and is NOT being questioned there).
+
+KNOWN LIMITATION, restated prominently per the prereg (NOT resolved by this script): this is a
+NAIVE counterfactual. Taking a blocked trade would have shifted the rolling PDT window and
+could have blocked a DIFFERENT later trade. This measures the marginal value of the blocked
+intents in ISOLATION, not a full sequential re-simulation. A positive result licenses a forward
+trial, never a direct ship. n=18 is below the advisory n>=20 bar -- a pass is SUGGESTIVE, not
+sufficient on its own.
+
+$0, deterministic, no network (OPRA bar caches + SPY union feed are pre-fetched on disk; if any
+required cache is missing this script reports an honest gap rather than fetching or estimating).
+"""
+from __future__ import annotations
+
+import glob as _glob
+import json
+import re
+import statistics as stt
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+for _p in ("backtest", "backtest/lib", "backtest/tools", "automation/state/fleet"):
+    _full = str(REPO / _p)
+    if _full not in sys.path:
+        sys.path.insert(0, _full)
+
+import pandas as pd  # noqa: E402
+
+import strategies as st  # noqa: E402
+from lib.option_pricing_real import load_contract_bars  # noqa: E402
+from multileg_exit_walk import walk  # noqa: E402
+
+PREREG_PATH = REPO / "analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11.json"
+CORE_LEDGER = REPO / "automation/state/core-decisions.jsonl"
+TRADES_ENRICHED = REPO / "analysis/trades-enriched.jsonl"
+OUT_JSON = REPO / "analysis/recommendations/pdt-blocked-counterfactual-2026-09-02.json"
+OUT_MD = REPO / "analysis/recommendations/pdt-blocked-counterfactual-2026-09-02.md"
+
+ACCT2ARM = {"safe": "safe-2", "bold": "bold-2"}
+STOP_B_SHIP_DATE = "2026-07-09"          # commit 933bd651, git-verified (see module docstring)
+STUDY_WINDOW_START = "2026-07-08"
+STUDY_WINDOW_END = "2026-08-07"
+HARNESS_SIGN_AGREEMENT_BAR = 0.85         # tonight's standing rule
+PER_TRADE_RISK_CAP_PCT = {"safe": 0.30, "bold": 0.50}  # CLAUDE.md Rule 6
+
+# git show 933bd651~1:automation/state/fleet/strategies.py -- the exact PRE-STOP-B literal.
+PRE_STOPB_SHAPE = {
+    "premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8,
+    "profit_lock_mode": "fixed", "stop_mode": "premium",
+    # dataclass defaults the pre-STOP-B 4-arg literal did not override:
+    "runner_target_pct": 2.5, "trail_pct": 0.125, "profit_lock_arm_pct": 0.05,
+    "catastrophe_stop_pct": -0.50,
+}
+
+
+# --- SHAPE RESOLUTION (pure, date-keyed -- see module docstring) -------------------------
+def canonical_shape(date: str) -> dict:
+    """The exit shape ribbon_ride ran on `date`, decided from doctrine/git history alone."""
+    if date < STOP_B_SHIP_DATE:
+        return dict(PRE_STOPB_SHAPE)
+    strat = st.by_name("ribbon_ride")
+    base = strat.exit.to_dict() if strat else dict(PRE_STOPB_SHAPE)
+    shape = dict(base)
+    shape.update(pre_tp1_be_floor_arm_pct=None, pre_tp1_floor_pct=None, pre_tp1_ladder=None,
+                 pre_tp1_trail_arm_pct=None, pre_tp1_trail_pct=None)
+    return shape
+
+
+def resolve_trigger_level(date: str, trigger_level) -> float:
+    """0.0 -> premium mode inside multileg_exit_walk.walk() (it sets
+    structure_stop_enabled=bool(trigger_level) internally); a non-zero value -> structure mode
+    IS attempted (still gated by the shape's own stop_mode=="structure" declaration)."""
+    if date < STOP_B_SHIP_DATE or trigger_level is None:
+        return 0.0
+    try:
+        v = float(trigger_level)
+    except (TypeError, ValueError):
+        return 0.0
+    return v if v > 0 else 0.0
+
+
+# --- POPULATION (re-derived fresh from the ledger every run) -----------------------------
+def load_population(ledger_path: Path = CORE_LEDGER) -> tuple[list[dict], dict]:
+    attempts: list[dict] = []
+    with open(ledger_path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            if "RISK_DENY_PDT" not in line:  # cheap prefilter, ledger is large
+                continue
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            ex = row.get("exec") or {}
+            if ex.get("status") != "RISK_DENY_PDT":
+                continue
+            sym = ex.get("symbol")
+            if not sym:
+                continue
+            attempts.append({
+                "ts_et": row.get("ts_et"), "account": row.get("account"), "symbol": sym,
+                "qty": ex.get("qty"), "premium": ex.get("premium"), "reason": ex.get("reason"),
+                "side": row.get("side"), "setup": row.get("setup"),
+                "trigger_level_exact": row.get("trigger_level_exact"),
+                "bear_rejection_level_raw": row.get("bear_rejection_level_raw"),
+                "bull_reclaim_level_raw": row.get("bull_reclaim_level_raw"),
+            })
+
+    uniq: dict[tuple, list[dict]] = {}
+    for a in attempts:
+        date = (a["ts_et"] or "")[:10]
+        key = (a["account"], a["symbol"], date)
+        uniq.setdefault(key, []).append(a)
+
+    intents: list[dict] = []
+    for (account, symbol, date), rows in sorted(uniq.items(), key=lambda kv: (kv[0][2], kv[0][0], kv[0][1])):
+        rows_sorted = sorted(rows, key=lambda r: r["ts_et"] or "")
+        first = rows_sorted[0]
+        side = first.get("side") or ("P" if "P00" in symbol else "C")
+        trig = first.get("trigger_level_exact")
+        if trig is None:
+            trig = first.get("bull_reclaim_level_raw") if side == "C" else first.get("bear_rejection_level_raw")
+        equity = None
+        m = re.search(r"equity\s*\$([\d,]+)", first.get("reason") or "")
+        if m:
+            equity = float(m.group(1).replace(",", ""))
+        intents.append({
+            "account": account, "arm": ACCT2ARM.get(account, account), "symbol": symbol,
+            "date": date, "entry_time": (first["ts_et"] or "")[11:], "side": side,
+            "qty": int(first["qty"]), "entry_premium": float(first["premium"]),
+            "setup": first.get("setup"), "n_attempts": len(rows_sorted),
+            "trigger_level": trig, "equity_at_block": equity,
+        })
+    counts = {
+        "n_attempts_top_level": len(attempts),
+        "n_unique_intents": len(intents),
+        "date_range": [intents[0]["date"], intents[-1]["date"]] if intents else None,
+        "n_days": len({i["date"] for i in intents}),
+    }
+    return intents, counts
+
+
+# --- PRICING ------------------------------------------------------------------------------
+def spy_by_day() -> dict:
+    """{date: {"HH:MM": closed 5m SPY close}} -- union of every spy_5m_*.csv cache, same
+    de-dup/normalize logic as backtest/tools/harness_fidelity_anchor.py#spy_by_day (kept as an
+    independent copy here rather than importing that module, since this script must stand alone
+    even if that sibling tool is later removed)."""
+    frames = []
+    for fpath in _glob.glob(str(REPO / "backtest/data/spy_5m_*.csv")):
+        try:
+            d = pd.read_csv(fpath)
+            ts = pd.to_datetime(d["timestamp_et"], format="mixed")
+            ts = ts.dt.tz_convert("America/New_York") if ts.dt.tz is not None \
+                else ts.dt.tz_localize("America/New_York")
+            d["ts"] = ts
+            frames.append(d)
+        except Exception:  # noqa: BLE001
+            continue
+    if not frames:
+        return {}
+    best = pd.concat(frames, ignore_index=True).drop_duplicates(subset=["ts"]).sort_values("ts")
+    out: dict = {}
+    for day, g in best.groupby(best["ts"].dt.strftime("%Y-%m-%d")):
+        out[day] = dict(zip(g["ts"].dt.strftime("%H:%M"), g["close"].astype(float)))
+    return out
+
+
+def price_intent(intent: dict, bars: pd.DataFrame, spy_map: dict) -> dict:
+    shape = canonical_shape(intent["date"])
+    trig = resolve_trigger_level(intent["date"], intent["trigger_level"])
+    fill = {"entry_premium": intent["entry_premium"], "qty": intent["qty"],
+            "symbol": intent["symbol"], "date": intent["date"],
+            "entry_time": intent["entry_time"], "strategy": intent.get("setup") or "RIBBON"}
+    res = walk(fill, shape, bars, trigger_level=trig, fill_mode="extreme",
+               spy_closes=spy_map.get(intent["date"]), slippage=0.01)
+    return res
+
+
+def run_counterfactual(intents: list[dict], spy_map: dict) -> tuple[list[dict], list[str]]:
+    priced: list[dict] = []
+    deviations: list[str] = []
+    for it in intents:
+        if it["date"] >= STOP_B_SHIP_DATE and not it.get("trigger_level"):
+            deviations.append(
+                f"{it['symbol']} ({it['date']}, {it['account']}): post-STOP-B date but the "
+                f"ledger row logged no resolvable trigger_level -- ran PREMIUM mode as a "
+                f"genuine data gap (schema/telemetry miss), not a policy choice. Priced "
+                f"anyway (disclosed here, not hidden).")
+        bars = load_contract_bars(it["symbol"])
+        if bars is None or bars.empty:
+            deviations.append(f"NO CACHED BARS for {it['symbol']} ({it['date']}) -- intent "
+                               f"excluded, not estimated/substituted.")
+            continue
+        res = price_intent(it, bars, spy_map)
+        if "error" in res:
+            deviations.append(f"walk() error on {it['symbol']} ({it['date']}): {res['error']} "
+                               f"-- intent excluded, not estimated/substituted.")
+            continue
+        cap_pct = PER_TRADE_RISK_CAP_PCT.get(it["account"])
+        notional = it["entry_premium"] * it["qty"] * 100.0
+        capital_flag = None
+        if it.get("equity_at_block") and cap_pct:
+            cap_dollars = it["equity_at_block"] * cap_pct
+            if notional > cap_dollars:
+                capital_flag = (f"notional ${notional:,.0f} > {cap_pct:.0%} risk cap "
+                                 f"${cap_dollars:,.0f} at equity ${it['equity_at_block']:,.0f}")
+        priced.append({**it, "pnl": res["pnl"], "n_legs": res.get("n_legs", 0),
+                       "legs": res.get("legs", []), "mfe_pct": res.get("mfe_pct"),
+                       "notional": round(notional, 2), "capital_flag": capital_flag})
+    return priced, deviations
+
+
+# --- GATES (pure functions -- guard-tested on synthetic inputs) ---------------------------
+def day_pnls_from_priced(priced: list[dict]) -> dict:
+    out: dict = {}
+    for p in priced:
+        out[p["date"]] = out.get(p["date"], 0.0) + p["pnl"]
+    return out
+
+
+def compute_gates(day_pnls: dict) -> dict:
+    """G1-G4 exactly as defined in the frozen prereg. Pure -- no I/O, no P&L computation of
+    its own. day_pnls: {date: net $ for that day}."""
+    net_total = sum(day_pnls.values()) if day_pnls else 0.0
+    profitable_days = sum(1 for v in day_pnls.values() if v > 0)
+    losing_days = sum(1 for v in day_pnls.values() if v < 0)
+    best_day_name = max(day_pnls, key=day_pnls.get) if day_pnls else None
+    best_day_pnl = day_pnls.get(best_day_name, 0.0) if best_day_name else 0.0
+
+    g1 = net_total > 0
+    g2 = profitable_days > losing_days
+    g3 = (net_total - best_day_pnl) >= 0
+    if net_total > 0:
+        g4_pct = best_day_pnl / net_total
+        g4 = best_day_pnl <= 0.6 * net_total
+    else:
+        g4_pct = None
+        g4 = False  # "60% of a POSITIVE net" is undefined when net isn't positive -> can't pass
+
+    return {
+        "G1_net_positive": {"pass": g1, "net_total": round(net_total, 2)},
+        "G2_day_balance": {"pass": g2, "profitable_days": profitable_days,
+                           "losing_days": losing_days, "flat_days": len(day_pnls) - profitable_days - losing_days},
+        "G3_drop_best": {"pass": g3, "net_minus_best_day": round(net_total - best_day_pnl, 2),
+                         "best_day": best_day_name, "best_day_pnl": round(best_day_pnl, 2)},
+        "G4_not_concentrated": {"pass": g4, "best_day_pct_of_net": (round(g4_pct, 4) if g4_pct is not None else None),
+                                "note": None if net_total > 0 else "net not positive -- 'X% of a positive net' is undefined, gate cannot pass"},
+        "all_pass": bool(g1 and g2 and g3 and g4),
+        "n_days": len(day_pnls),
+    }
+
+
+# --- HARNESS VALIDATION (validate the validator, before trusting any gate) ---------------
+def load_anchor_sample(window_start: str = STUDY_WINDOW_START,
+                       window_end: str = STUDY_WINDOW_END) -> list[dict]:
+    rows: list[dict] = []
+    with open(TRADES_ENRICHED, encoding="utf-8") as f:
+        for line in f:
+            r = json.loads(line)
+            if r.get("_meta"):
+                continue
+            if r.get("arm") not in ("safe-2", "bold-2"):
+                continue
+            if not (window_start <= r["date"] <= window_end):
+                continue
+            if r.get("attribution") != "engine":
+                continue
+            if r.get("pnl_dollars") is None or r.get("entry_px") is None or not r.get("qty"):
+                continue
+            rows.append(r)
+    return rows
+
+
+def anchor_trigger_level(row: dict) -> float:
+    """Honors the row's OWN recorded stop_mode when present (tonight's instruction) instead
+    of assuming structure; falls back to the date rule only when stop_mode is unrecorded."""
+    mode = row.get("stop_mode")
+    trig = row.get("trigger_level")
+    if mode == "structure":
+        return float(trig) if trig is not None else 0.0
+    if mode == "premium":
+        return 0.0
+    return resolve_trigger_level(row["date"], trig)
+
+
+def harness_validation() -> dict:
+    rows = load_anchor_sample()
+    spy_map = spy_by_day()
+    cache: dict = {}
+    results: list[dict] = []
+    skipped_no_bars = 0
+    for r in rows:
+        sym = r["symbol"]
+        if sym not in cache:
+            try:
+                cache[sym] = load_contract_bars(sym)
+            except Exception:  # noqa: BLE001
+                cache[sym] = None
+        bars = cache[sym]
+        if bars is None or bars.empty:
+            skipped_no_bars += 1
+            continue
+        shape = canonical_shape(r["date"])
+        mode = r.get("stop_mode")
+        if mode in ("structure", "premium"):
+            shape = dict(shape)
+            shape["stop_mode"] = mode
+        trig = anchor_trigger_level(r)
+        fill = {"entry_premium": r["entry_px"], "qty": int(r["qty"]), "symbol": sym,
+                "date": r["date"], "entry_time": r["entry_ts_et"][11:19], "strategy": "RIBBON"}
+        res = walk(fill, shape, bars, trigger_level=trig, fill_mode="extreme",
+                   spy_closes=spy_map.get(r["date"]), slippage=0.01)
+        if "error" in res:
+            continue
+        actual = float(r["pnl_dollars"])
+        replay = res["pnl"]
+        results.append({
+            "date": r["date"], "arm": r["arm"], "symbol": sym, "stop_mode": mode,
+            "actual": actual, "replay": replay, "err": round(replay - actual, 2),
+            "sign_ok": (actual > 0) == (replay > 0) or abs(replay - actual) < 1e-9,
+        })
+    n = len(results)
+    if n == 0:
+        return {"n": 0, "sign_agreement": None, "skipped_no_bars": skipped_no_bars,
+                "note": "no anchor rows could be replayed"}
+    sign_ok = sum(1 for r in results if r["sign_ok"])
+    errs = [r["err"] for r in results]
+    return {
+        "n": n, "skipped_no_bars": skipped_no_bars,
+        "sign_agreement": round(sign_ok / n, 4),
+        "actual_total": round(sum(r["actual"] for r in results), 2),
+        "replay_total": round(sum(r["replay"] for r in results), 2),
+        "median_abs_error": round(stt.median([abs(e) for e in errs]), 2),
+        "rows": results,
+    }
+
+
+# --- ORCHESTRATION --------------------------------------------------------------------
+def main() -> int:
+    deviations: list[str] = []
+
+    if not PREREG_PATH.exists():
+        print(f"FATAL: prereg not found at {PREREG_PATH}")
+        return 1
+    prereg = json.loads(PREREG_PATH.read_text(encoding="utf-8"))
+    if prereg.get("status") != "FROZEN_BEFORE_RUNNER":
+        deviations.append(f"prereg status is {prereg.get('status')!r}, not "
+                           f"FROZEN_BEFORE_RUNNER -- proceeding anyway, disclosed.")
+
+    intents, counts = load_population()
+    print(f"=== POPULATION (re-derived from {CORE_LEDGER.relative_to(REPO)}) ===")
+    print(f"  RISK_DENY_PDT attempts (top-level exec.status): {counts['n_attempts_top_level']}")
+    print(f"  unique (account,symbol,date) intents:           {counts['n_unique_intents']}")
+    print(f"  date range: {counts['date_range']}  n_days={counts['n_days']}")
+    if (counts["n_attempts_top_level"], counts["n_unique_intents"]) != (68, 18):
+        deviations.append(
+            f"prereg claimed 68 attempts -> 18 unique intents; this run found "
+            f"{counts['n_attempts_top_level']} -> {counts['n_unique_intents']} "
+            f"(ledger has grown/changed since 2026-08-11 -- reported as found, not forced).")
+    else:
+        print("  MATCHES prereg's original count (68 -> 18) exactly.")
+
+    print("\n=== VALIDATE THE VALIDATOR (harness fidelity vs broker truth) ===")
+    hv = harness_validation()
+    if hv.get("sign_agreement") is not None:
+        print(f"  n={hv['n']} anchor positions (safe-2/bold-2, {STUDY_WINDOW_START}..{STUDY_WINDOW_END}, engine-attributed)")
+        print(f"  sign agreement: {hv['sign_agreement']*100:.1f}%  (bar: {HARNESS_SIGN_AGREEMENT_BAR*100:.0f}%)")
+        print(f"  actual total ${hv['actual_total']:+,.0f}  replay total ${hv['replay_total']:+,.0f}  "
+              f"median abs err ${hv['median_abs_error']:,.0f}")
+    else:
+        print(f"  COULD NOT VALIDATE: {hv.get('note')}")
+    harness_reliable = (hv.get("sign_agreement") is not None
+                        and hv["sign_agreement"] >= HARNESS_SIGN_AGREEMENT_BAR)
+
+    print("\n=== PRICING the blocked cohort (calibration v5) ===")
+    spy_map = spy_by_day()
+    if not spy_map:
+        deviations.append("NO SPY union feed cached -- structure/ribbon exits cannot fire for "
+                          "ANY intent (silent premium-mode-equivalent walk). Disclosed, not "
+                          "hidden.")
+    priced, price_deviations = run_counterfactual(intents, spy_map)
+    deviations.extend(price_deviations)
+    print(f"  priced {len(priced)}/{len(intents)} intents "
+          f"({len(intents) - len(priced)} excluded -- see deviations)")
+
+    day_pnls = day_pnls_from_priced(priced)
+    gates = compute_gates(day_pnls)
+    print("\n=== GATES ===")
+    for k in ("G1_net_positive", "G2_day_balance", "G3_drop_best", "G4_not_concentrated"):
+        print(f"  {k}: {gates[k]}")
+    print(f"  ALL PASS: {gates['all_pass']}")
+
+    if not priced:
+        verdict = "WITHHELD_NO_PRICEABLE_POPULATION"
+    elif not harness_reliable:
+        verdict = "WITHHELD_HARNESS_UNRELIABLE"
+    elif gates["all_pass"]:
+        verdict = "PASS_PROPOSE_FORWARD_TRIAL"
+    else:
+        verdict = "FAIL_PDT_STAYS_AS_IS"
+
+    print(f"\n=== VERDICT: {verdict} ===")
+    if verdict == "WITHHELD_HARNESS_UNRELIABLE":
+        print("  Gates were computed and are reported below, but the harness that produced "
+              "them has not been shown reliable enough to trust the number. What would need "
+              "fixing: raise sign agreement (investigate the specific mismatches in "
+              "hv['rows']) before this verdict can be un-withheld.")
+
+    capital_flags = [p for p in priced if p.get("capital_flag")]
+
+    out = {
+        "rule_id": prereg.get("rule_id"),
+        "prereg_path": str(PREREG_PATH.relative_to(REPO)),
+        "run_at_note": "generated by setup/scripts/pdt_blocked_counterfactual.py",
+        "calibration": {"fill_mode": "extreme", "slippage": 0.01, "spy_feed": "union of backtest/data/spy_5m_*.csv"},
+        "population": {**counts, "intents": [
+            {k: v for k, v in it.items() if k not in ("trigger_level_exact",)} for it in intents]},
+        "harness_validation": hv,
+        "harness_reliable": harness_reliable,
+        "priced": priced,
+        "day_pnls": {k: round(v, 2) for k, v in sorted(day_pnls.items())},
+        "gates": gates,
+        "verdict": verdict,
+        "capital_non_binding_flags": capital_flags,
+        "known_limitations_stated_before_running": prereg.get("known_limitations_stated_before_running"),
+        "explicitly_forbidden": prereg.get("explicitly_forbidden"),
+        "deviations": deviations,
+    }
+    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+    OUT_JSON.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
+    print(f"\nwrote {OUT_JSON}")
+
+    md = _render_md(out)
+    OUT_MD.write_text(md, encoding="utf-8")
+    print(f"wrote {OUT_MD}")
+    return 0
+
+
+def _render_md(out: dict) -> str:
+    g = out["gates"]
+    hv = out["harness_validation"]
+    lines = [
+        f"# PDT-BLOCKED-COUNTERFACTUAL-2026-08-11 -- runner result ({OUT_JSON.name})",
+        "",
+        f"**Verdict: {out['verdict']}**",
+        "",
+        "## Naive-counterfactual limitation (restated prominently, per the frozen prereg)",
+        "",
+        "> Taking a blocked trade would have shifted the rolling PDT window and could have "
+        "blocked a DIFFERENT later trade. This measures the marginal value of the blocked "
+        "intents in ISOLATION, not a full sequential re-simulation. **A positive result "
+        "licenses a forward trial, never a direct ship.** n=18 is below the advisory n>=20 "
+        "bar -- a pass is SUGGESTIVE, not sufficient on its own. PDT stays exactly as-is for "
+        "live accounts under $25k regardless of this result -- that is a real regulatory "
+        "rule and is NOT being questioned here.",
+        "",
+        "## Population (re-derived from core-decisions.jsonl, not copied from the prereg)",
+        "",
+        f"- RISK_DENY_PDT attempts: **{out['population']['n_attempts_top_level']}**",
+        f"- unique (account,symbol,date) intents: **{out['population']['n_unique_intents']}**",
+        f"- date range: {out['population']['date_range']}, {out['population']['n_days']} days",
+        "",
+        "## Harness validation (validate the validator)",
+        "",
+    ]
+    if hv.get("sign_agreement") is not None:
+        lines += [
+            f"- n = {hv['n']} anchor positions (safe-2/bold-2, engine-attributed, "
+            f"{STUDY_WINDOW_START}..{STUDY_WINDOW_END})",
+            f"- **sign agreement: {hv['sign_agreement']*100:.1f}%** "
+            f"(bar: {HARNESS_SIGN_AGREEMENT_BAR*100:.0f}%) "
+            f"-> {'RELIABLE' if out['harness_reliable'] else 'NOT RELIABLE'}",
+            f"- actual total ${hv['actual_total']:+,.0f} vs replay total ${hv['replay_total']:+,.0f}, "
+            f"median abs error ${hv['median_abs_error']:,.0f}",
+        ]
+    else:
+        lines.append(f"- COULD NOT VALIDATE: {hv.get('note')}")
+    lines += [
+        "",
+        "## Gates",
+        "",
+        "| Gate | Pass | Detail |",
+        "|---|---|---|",
+        f"| G1 net_positive | {g['G1_net_positive']['pass']} | net_total = ${g['G1_net_positive']['net_total']:+,.2f} |",
+        f"| G2 day_balance | {g['G2_day_balance']['pass']} | {g['G2_day_balance']['profitable_days']} profitable vs {g['G2_day_balance']['losing_days']} losing days |",
+        f"| G3 drop_best | {g['G3_drop_best']['pass']} | net - best_day = ${g['G3_drop_best']['net_minus_best_day']:+,.2f} (best day {g['G3_drop_best']['best_day']}: ${g['G3_drop_best']['best_day_pnl']:+,.2f}) |",
+        f"| G4 not_concentrated | {g['G4_not_concentrated']['pass']} | best day = {g['G4_not_concentrated']['best_day_pct_of_net']} of net |",
+        f"| **ALL PASS** | **{g['all_pass']}** | |",
+        "",
+        f"Days priced: {g['n_days']}",
+        "",
+        "## Deviations from the frozen design",
+        "",
+    ]
+    if out["deviations"]:
+        lines += [f"- {d}" for d in out["deviations"]]
+    else:
+        lines.append("- none")
+    if out["capital_non_binding_flags"]:
+        lines += ["", "## Capital-non-binding assumption violated for:", ""]
+        for c in out["capital_non_binding_flags"]:
+            lines.append(f"- {c['account']} {c['symbol']} {c['date']}: {c['capital_flag']}")
+    lines += [
+        "",
+        "## Per-intent detail",
+        "",
+        "| Date | Account | Symbol | Qty | Entry | PnL | Legs |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for p in out["priced"]:
+        lines.append(f"| {p['date']} | {p['account']} | {p['symbol']} | {p['qty']} | "
+                     f"${p['entry_premium']:.2f} | ${p['pnl']:+,.2f} | {p['n_legs']} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
