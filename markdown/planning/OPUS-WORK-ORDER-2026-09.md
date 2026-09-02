@@ -821,6 +821,29 @@ Then a new 20–40 day window → the next arming question is **2027-Q1**.
 6. Never touch a frozen file in-window; never ship a shape change before 10-30; never end a turn
    asking J for permission on sanctioned paper work.
 
+### What "done" means — a SESSION vs THIS ORDER (added 2026-09-02)
+
+This was implicit in step 2 and cost a full session of churn by not being written down, so it is
+written down now. **This order is not a task a session can finish.** It spans **2026-09-01 →
+2026-10-03** and most of its boxes are bound to dates that have not arrived — the Friday cadence,
+the Sunday adjudication, the 09-29 checkpoint, the 10-30 decision. A session that "completes the
+work order" has either time-travelled or violated Rule 9.
+
+**A session is DONE when it has:** advanced the top open box(es) in the current phase to a
+verifiable state · verified cold and quoted the check · committed with a one-line revert · left a
+STATUS entry · ticked what it closed here · filed what it found in `queue.md`. That is step 2 plus
+step 4, and nothing more is owed.
+
+**THIS ORDER is DONE at 10-30**, when §4's decision is taken. Not before, and not by any single
+session.
+
+**Corollary, and the reason this matters beyond bookkeeping:** if a session cannot find a runnable
+box, the correct output is *"nothing was runnable and here is why"* — a stated null. It is NOT to
+manufacture work against future-dated boxes, pull a doctrine change forward past its Rule-9
+weekend, or run a Friday cadence on a Wednesday to make a checklist look fuller. An order padded
+to look complete is worth less than one that is honestly partial, because the next session inherits
+the padding as fact.
+
 ---
 
 ## 6. J's items (the only things Gamma cannot do)
