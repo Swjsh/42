@@ -333,9 +333,32 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   $0.00–$0.02, and the values are 17-decimal floats. I nearly calibrated the 2¢ assumption against it.
   The real quote fields are `exit_quote_bid/ask_before/after` (0.77% populated) and the core ledger's
   `exec.nbbo.spread`.
-- [ ] **The 13 known-RED tests** (08-29 baseline: 10,888 passed / 13 failed). *Done:* fixtures fixed
-  (never assertions weakened), `Gamma_GuardsFull` reports 0 failed, and STATUS `## Known broken` shows
-  the nightly result line.
+- [x] **The 13 known-RED tests** — **DIAGNOSED 2026-09-02 (Opus). The count is stale and the two halves
+  need OPPOSITE treatments — one is fixture rot, the other is a real interaction bug.**
+  *Count:* the order cites 13 (08-29 baseline). The last real verdict
+  (`automation/state/guard-watch-full.json`, 2026-08-31 09:55 ET) reads **11,097 passed / 8 failed / 11
+  skipped**. Targeted re-runs tonight show **6 currently RED** —
+  `test_graduated_guards::test_free_model_cost_estimate_is_zero` now passes (129 passed / 1 skipped) and
+  `test_quiet_mode_weekend_research_2026_08_30` now passes. **And the nightly net has produced no verdict
+  since 08-31** — see `GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING`; that is why nobody saw any of this.
+  *Half one — FIXTURE ROT (3): `test_trades_enriched.py`* pins an August total of **$1,744** that is now
+  **$3,048** as more days accrued. Proven pre-existing (identical with tonight's changes stashed). Fix the
+  pin, not the assertion — or better, make it a range/recomputed expectation so it cannot rot again.
+  *Half two — A REAL BUG (3): `test_cheap_contract_qty_boost_2026_08_03.py`*, failing
+  "expected boosted qty 10, got 5". **This is NOT a stale fixture.** J's verbatim directive was *"if it's
+  under point five o for a contract, let's buy ten of them"*; `fleet_executor` applies the boost and then
+  hands it to `risk_gate.cap_entry_qty`, and **`max_contracts_per_entry = 5`** — shipped 2026-08-29 by
+  PREREG-TIGHT-LADDER — caps the boosted 10 straight back to 5. The knob is **doubly dead**: it can never
+  raise qty above 5 (and on bold-tier params, where `min_contracts` is already 5, it changes nothing at
+  all), AND its only consumer arm is **risky-3, `status: retired, live: false`**. So there is no live P&L
+  impact — but the code no longer does what the directive said, and the guard that caught it is a
+  vary-and-assert written for exactly this dead-knob class (C14) sitting on exactly this gates-compose
+  cascade (C15). **Leave it RED with this reason recorded; do NOT weaken it.** Resolution is a decision,
+  not a fixture edit, and all three options are SHAPE changes for the 10-30 menu: exempt boosted entries
+  from `max_contracts_per_entry`, re-point the boost to a live arm, or delete boost + test together.
+  *Third sighting of the same root:* risky-3's retirement has now invalidated a prereg
+  (`ladder-x-premium`), this boost lane, and its own exit A/B leg. **A retired arm's dependents are not
+  swept** — worth a one-time sweep when any arm is retired.
 - [ ] **ARCHITECTURE.md refresh** (stale since 06-25, omits the fleet layer that holds 3 of 4 scored
   arms, exit_manager, tight-ladder caps, multi lane). *Done:* current wiring + the mixed live/paper
   process topology (heartbeat_core drives safe-2 + bold-2 only).
