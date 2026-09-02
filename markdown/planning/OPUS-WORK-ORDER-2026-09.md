@@ -136,6 +136,33 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
 - [x] B7 LIVE-FLIP-RUNBOOK rewritten against the live caps and tonight's prerequisites.
 - [x] B8 `journal/trades.csv` writer fixed + 25 rows repaired (backup kept) + parse guard.
 
+### Gate reading 2026-09-02 05:04 ET (off-cadence, disclosure — the Friday box below is still open)
+
+**OVERALL RED.** 1 STATISTICAL **FAIL** · 2 OPERATIONAL PASS (6/6) · 3 RECONCILIATION PASS (4/4 arms
+within tolerance) · 4 BEHAVIOURAL **PASS_UNVERIFIED** · 5 PROD-SHADOW **INSUFFICIENT_DAYS 0/20**.
+
+- Criterion 1 is not close and it is not close on any arm: day-level bootstrap PF CI-lower vs a 1.0 bar
+  — safe-3 0.356 (n=26) · safe-2 0.333 (n=30) · risky-1 0.412 (n=26) · bold-2 0.347 (n=20). Distance to
+  the bar **0.71–0.75** on all four. Book ex-best-day `P(PF<=1)=0.573` — a coin flip.
+- Criterion 4 reports `PASS_UNVERIFIED` honestly: `rule-breaks.jsonl` was last written **2026-05-18**,
+  before the window even starts, so "0 breaks" cannot be distinguished from an abandoned ledger.
+- Regime is still the known problem: frozen window `n_days=1`, VIX daily-max 16.8, **zero** days VIX>20,
+  **zero** days down >1%. The gate prints its own warning — *calm-only window, a GREEN here is untested
+  in stress.*
+
+- [ ] 🚨 **CRITERION 5 HAS ZERO SLACK — new 2026-09-02, quantified, not previously stated anywhere.**
+  The window `2026-09-01..2026-09-29` contains **exactly 20 trading days** (verified against
+  `automation/state/calendar.json`: Labor Day 2026-09-07 is the only Sept/Oct holiday), against a bar of
+  **20 scored days**. One elapsed, 19 to go, and **every one of them must score**. A single unscored day
+  puts criterion 5 out of reach of its own registered window — and tonight proved the rig silently loses
+  scheduled days: `Gamma_GuardsFull` was dark 08-31→09-02 because quiet mode's presence hold ate its
+  trigger and `StartWhenAvailable` cannot recover a fire missed while Disabled. **These two facts had
+  never been put next to each other.** The extended clock to 10-30 has 3 days of slack (43 trading days
+  vs a 40-day bar), so it absorbs a miss; the 09-29 reading does not. ACTION: decide whether the 09-29
+  criterion-5 reading is worth defending (which means the `QUIET-HOLD-CATCH-UP-SWEEP` item is no longer
+  hygiene, it is gate-blocking) or whether 10-30 is the only reading that was ever going to matter — in
+  which case say so in writing and stop treating 09-29 as a gate date.
+
 ### Fri 09-04 — first Friday cadence
 - [ ] `go_live_gate.py` re-run → HOME gate block; null study first Friday reading; **WEEK ORDER revived**
   (`analysis/deep-research/WEEK-ORDER-2026-09-08.md`, Thursday-evening synthesis; queue item
