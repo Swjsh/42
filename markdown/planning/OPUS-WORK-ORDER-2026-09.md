@@ -353,6 +353,18 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   the composer now says "Logged for gate review; no action needed from you" (the copy was deliberately
   reworded away from prompting J — fix the fixture, do NOT re-introduce the prompt).
   `test_quiet_mode_weekend_research_2026_08_30` now passes.
+  **✅ DEFINITIVE BASELINE, clean run 2026-09-02: `4 failed, 11,400 passed, 11 skipped, 46 deselected,
+  8 xfailed` in 46m19s.** Down from 9. Fixed tonight: `window_leak_compliance` (a real nightly popup,
+  `6bf61edc`), the 3 `trades_enriched` pins and `entry_block_watch` (`105a6a08`). **The remaining 4 are
+  the 3 `cheap_contract_qty_boost` failures — a real tight-ladder interaction bug that stays RED BY
+  DECISION until the 10-30 menu — plus the order-dependent `graduated_guards` test.** So
+  `Gamma_GuardsFull` now has a trustworthy target: **4 is the expected count, not 0**, and anything
+  else is news.
+  ⚠️ *One earlier "confirming" run reported 5 and named a 5th failure
+  (`test_entry_floor_2026_07_02::test_place_live_wires_floor`). That was MY contamination — I ran
+  `git checkout` onto the safety branch while that suite was executing, so it read a mixed tree. The
+  test passes cleanly on main. Do not mutate the working tree during a 45-minute measurement; it is
+  the same class of error as the test that rewrote the artifact it was verifying.*
   *Half one — FIXTURE ROT (3): `test_trades_enriched.py`* pins an August total of **$1,744** that is now
   **$3,048** as more days accrued. Proven pre-existing (identical with tonight's changes stashed). Fix the
   pin, not the assertion — or better, make it a range/recomputed expectation so it cannot rot again.

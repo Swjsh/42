@@ -104,3 +104,28 @@ metric nobody had decomposed, is a hypothesis — not a finding.
 that `exit_manager.py:268` makes true: every row with `stop_mode == "structure"` carries a
 non-null `trigger_level`. RED-proofed (7/8 fail on the unfixed producer with the exact
 missing-level signature).
+
+---
+
+## Coda, same night: three more invalid measurements, same family
+
+The lesson above is about a *confounded* measurement. Three more turned up in the same session, all
+of them invalid for a reason **outside the thing being measured** — which is worth naming as one
+family, because the tell is identical: the number looked fine and the setup was wrong.
+
+1. **A test that rewrote the artifact it was verifying.** `test_trades_enriched` calls
+   `te.rebuild(REAL_REPO_ROOT)`, which wrote the production `analysis/trades-enriched.jsonl`. Running
+   the suite against a stashed producer silently reverted a just-shipped fix. Caught only by
+   re-checking the invariant afterwards. Fixed with a `write=False` flag.
+2. **A monitor silenced by writing about it.** `prereg_hygiene` flags stale preregs only when they are
+   *orphans* — `f.stem not in referenced`. Filing the adjudication NAMED all six, so the flagged count
+   went 6 → 0 with nothing resolved. Documenting a problem made the instrument stop reporting it.
+3. **A 45-minute suite run contaminated by my own `git checkout`.** I switched to a feature branch to
+   verify a build while the confirming suite was mid-run, so it read a mixed tree and reported a
+   phantom 5th failure. The clean re-run returned exactly the predicted 4.
+
+**The generalisation:** before trusting a measurement, ask what could have changed its INPUTS while it
+ran — including you. A long-running measurement makes the working tree a shared resource, and the
+usual concurrency rule applies: do not mutate it while a reader holds it. All three of these were
+caught by re-checking rather than by the measurement announcing its own invalidity, which is the
+point — an invalid measurement reports a number, not an error.
