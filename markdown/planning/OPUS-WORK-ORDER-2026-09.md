@@ -176,9 +176,43 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   history but its "disarmed" framing is incomplete: say **producer disarmed, sizing clamp still live**.
   *Decision for the 10-30 menu:* strip the key AND the clamp together, or keep both — never strip the doc
   while leaving the clamp, which is the state that would read as inert while still acting.
-- [ ] **WATCHER-LANE-PROVENANCE-AUDIT** (HIGH, open since 08-23): 5 extra_signals with zero real trades,
-  VWAP_CONTINUATION −$1,046. *Done:* per-signal provenance (J-ratified with citation vs Claude-invented),
-  verdict SHADOW/KEEP, staged params change for the 10-30 bundle (params.json is frozen).
+- [x] **WATCHER-LANE-PROVENANCE-AUDIT** — **DONE 2026-09-02 (Opus). The item's own premise — "5
+  extra_signals with zero real trades" — is WRONG, and the reason is the taxonomy gap found the same
+  night.** Measured across BOTH P&L surfaces (fill basis `journal/trades.csv` | flat_to_flat
+  `analysis/trades-enriched.jsonl`):
+
+  | detector flag | setup label | csv n / $ | enriched n / $ | fires? |
+  |---|---|---:|---:|---|
+  | `j_vwap_cont_enabled` | VWAP_CONTINUATION | 52 / **−$1,278** | 34 / −$1,046 | yes |
+  | `j_vwap_reclaim_fb_enabled` | VWAP_RECLAIM_FAILED_BREAK | 12 / **−$479** | 3 / −$200 | yes |
+  | `j_vix_dayside_enabled` | VIX_REGIME_DAYSIDE | 10 / **−$306** | **0 — invisible** | yes |
+  | `bollinger_squeeze_enabled` | BOLLINGER_SQUEEZE | 15 / **−$121** | **0 — invisible** | yes |
+  | `gap_and_go_enabled` | GAP_AND_GO | **0** | **0** | yes (17,328 emissions) |
+  | `db_base_quiet_enabled` | DOUBLE_BOTTOM_BASE_QUIET | **0** | **0** | yes (16,573 emissions) |
+
+  **Four have traded and every one is negative — −$2,184 over 89 fills**, against ribbon_ride's
+  +$5,815/302. The extra-signal lane is a net drag while ribbon carries the book. **Two of the four are
+  invisible in `trades-enriched.jsonl`** (VIX_REGIME_DAYSIDE, BOLLINGER_SQUEEZE) — that invisibility IS
+  the `SETUP-TAXONOMY-UNNORMALIZED-ACROSS-PNL-SURFACES` defect, and it is why the "zero real trades"
+  claim looked true: it was read off the enriched surface alone.
+  **The other two fire constantly and have NEVER produced a trade** — `gap_and_go` and
+  `double_bottom_base_quiet` emit on essentially every tick yet converted 0 entries in the ledger's whole
+  life. They cost nothing in P&L but "enabled" implies they do something; they are dead weight until
+  someone shows why they never convert.
+  **Provenance — and a caveat.** The `j_` prefix looks like a J-ratified marker (`j_vwap_cont`,
+  `j_vwap_reclaim_fb`, `j_vix_dayside` carry it; `gap_and_go`, `db_base_quiet`, `bollinger_squeeze` do
+  not). **It is NOT a reliable provenance signal** — J-prefixed *strike-override* keys exist for two of
+  the non-prefixed detectors (`j_bollinger_squeeze_strike_override_enabled`,
+  `j_db_base_quiet_strike_override_enabled`), so J demonstrably ratified parts of lanes whose detector
+  flag is unprefixed. Do not use the prefix as a citation; each flag still needs a real one.
+  **Also corrected:** `engine_health.dispatch_health` reads **GREEN** ("safe 386/386") because it only
+  asks whether ANY `extra_signals` exist on a tick — it is aggregate, not per-detector, so it cannot see
+  a single detector going dark. That is the exact G16 silent-dispatch-death class it was built for,
+  one level down.
+  **STAGED for the 10-30 bundle (params.json is frozen — nothing ships now):** move all four traded
+  detectors to SHADOW; decide gap_and_go / double_bottom_base_quiet on a firing-conversion investigation
+  rather than a P&L verdict; make `dispatch_health` per-detector. n is small (10–52 each) and these are
+  fill-basis figures — this is a disclosure, not a validated A/B.
 - [ ] **The 15 frozen, never-run preregs** (list in `analysis/recommendations/prereg-hygiene.json` once
   B3 runs). *Done:* each is RUN (Sonnet, on the existing harness) or KILLED with a named nail, or
   PARKED with a re-open condition. No "still frozen" survives the month.
