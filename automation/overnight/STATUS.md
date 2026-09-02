@@ -1,3 +1,42 @@
+## [2026-09-02T08:06 ET] Opus: ARCHITECTURE refresh closed + a self-correction on tonight's own circuit study -- REVOKE surface
+
+**Self-correction first.** `rolling_loss_circuit_study.py`, shipped 50 minutes earlier
+tonight, hardcoded five arms and called them "the five arms trading real fills". That was
+wrong when written: `accounts.json` says **risky-3 is `status: retired`, `live: false`** since
+its 2026-08-28 retirement (last decision row 2026-08-28T15:54, last option fill 13:29). The
+live roster is **four** -- safe-2, bold-2, safe-3, risky-1.
+
+It matters beyond tidiness: risky-3 is 31 of the sample's trading days, and a retired arm
+accrues no new ones -- so on the forward re-run "the circuit never tripped on risky-3" would
+read as evidence when it only means the arm stopped trading. Fixed by READING the roster
+(`active_arms()`), naming `retired_arms_in_sample` in the report, and printing a warning; the
+prereg's forward plan now scores the four active arms only. Calibration deliberately KEEPS
+risky-3's history -- those fills happened and the sample is thin. The fix was labelling, not
+exclusion. Guards 16 -> 20, 3 more mutations RED-proofed. Commit in this block.
+
+**`CLAUDE.md:66` carries the same stale claim** ("the 5 active real-fills arms ... risky-3"),
+so the book-wide $500-1,000/day figure derived from it is overstated by one arm. **Filed into
+the Sat 09-05 doctrine box, not edited** -- Rule 9 puts doctrine changes in the weekend pass,
+in writing, with a documented reason. The doctrine text is where the stale claim originated,
+which is why fixing it there is what stops the next copy.
+
+**ARCHITECTURE.md refresh closed.** A parallel session had already landed the fleet layer,
+exit_manager, order shape, halts and disclosed gaps in §3.2a (`3e114b62`) -- checked before
+writing, did not redo. Added the three it did not reach:
+- **§3.2b multi-symbol lane** -- a symbol-generic FORK, shadow-only (no order call exists in
+  `multi/core.py`), and **paused in a way green tasks hide**: `Gamma_MultiCore` is `Disabled`
+  with **300 missed runs** (last 2026-08-20, stopped on its own gate's null) while
+  `MultiEvaluate`/`MultiOutcomes` still fire daily against a ledger frozen at 231 rows.
+- **Tight-ladder caps** (3/5/$1,000) -- enforced by `risk_gate.cap_entry_qty`, verified called
+  from BOTH money paths (`heartbeat_core.py:2740`, `fleet_executor.py:1331`).
+- **The arming asymmetry** -- `live: true` means *places paper orders*, not live money; fleet
+  arms are armed by the roster flag, the core pair by `GAMMA_CORE_ARMED=1` in
+  `run-heartbeat-core.ps1:8` with **no `live` key at all**. The roster alone will never show
+  you that core is armed.
+
+**Session close:** 14 commits, all pathspec-scoped, zero frozen-path files touched. Guard
+sweep 914 passed / 1 skipped. `engine_health` GREEN (`reds: []`).
+
 ## [2026-09-02T07:57 ET] Opus: full sweep 913/1 -- the 1 was MY regression from earlier tonight -- REVOKE surface
 
 Commit `17453843`. Report-only monitor, no trading path.
