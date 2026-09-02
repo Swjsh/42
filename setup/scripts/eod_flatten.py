@@ -39,8 +39,9 @@ import json
 import os
 import sys
 import time
-from datetime import timezone, datetime
+from datetime import timezone, datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 # ---- path setup (mirrors heartbeat_core pattern) --------------------------------
 _SCRIPTS = Path(__file__).resolve().parent
@@ -56,6 +57,7 @@ except Exception:
     pass
 
 import fleet_broker  # noqa: E402 (from automation/state/fleet)
+import market_calendar  # noqa: E402 (from setup/scripts -- shared calendar cache, B2 2026-09-01)
 from et_clock import et_now  # noqa: E402 (from setup/scripts)
 
 # ---- config ---------------------------------------------------------------------
@@ -230,10 +232,19 @@ def _escalate_inner(arm: str, remaining: int, errors: list, log: Path) -> None:
         _log(log, f"EOD_FLATTEN_STATUS_FAILED arm={arm} err={type(exc).__name__}: {exc}")
 
 
-def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path) -> dict:
-    """Flatten one account.  Returns a result dict.  NEVER raises."""
+def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path,
+                      reason: Optional[str] = None) -> dict:
+    """Flatten one account.  Returns a result dict.  NEVER raises.
+
+    `reason` (added B2, 2026-09-01) tags every jsonl row this call writes -- e.g.
+    'EARLY_CLOSE' for the --only-if-early-close path -- so the ledger can tell an
+    early-close-triggered flatten from the normal 15:52/15:55 one. Must be set BEFORE
+    the first _append_jsonl call below, not patched onto the returned dict after the
+    fact (that would miss every row this function writes itself)."""
     ts_start = _et_ts()
     result: dict = {"arm": arm, "ts": ts_start, "dry": DRY}
+    if reason:
+        result["reason"] = reason
 
     try:
         # Step 1: check current positions.
@@ -349,9 +360,37 @@ def _flatten_account(arm: str, creds: dict[str, str], log: Path, jsonl: Path) ->
 
 # ---- main -----------------------------------------------------------------------
 
+def _run_sweep(log_path: Path, jsonl_path: Path, all_creds: dict, reason: Optional[str] = None) -> list:
+    """The actual per-arm flatten loop, shared by the normal 15:52/15:55 fire (main())
+    and the --only-if-early-close path (_run_only_if_early_close below) so an early-close
+    day runs through EXACTLY the same code (same retry loop, same escalation, same log/
+    jsonl shape) -- only a `reason` tag differs. Extracted 2026-09-01 (B2); no behavior
+    change for the existing 15:52/15:55 callers."""
+    tag = f" reason={reason}" if reason else ""
+    _log(log_path, f"EOD_FLATTEN_FIRE ts={_et_ts()} dry={DRY} accounts={ACCOUNTS}{tag}")
+
+    results = []
+    for arm in ACCOUNTS:
+        if arm not in all_creds:
+            msg = f"EOD_FLATTEN_SKIP_NO_CREDS arm={arm} -- not found in secrets.json"
+            _log(log_path, msg)
+            rec: dict = {"arm": arm, "outcome": "SKIP_NO_CREDS", "ts": _et_ts()}
+            if reason:
+                rec["reason"] = reason
+            _append_jsonl(jsonl_path, rec)
+            results.append(rec)
+            continue
+
+        result = _flatten_account(arm, all_creds[arm], log_path, jsonl_path, reason=reason)
+        results.append(result)
+
+    outcomes = [r.get("outcome", "UNKNOWN") for r in results]
+    _log(log_path, f"EOD_FLATTEN_COMPLETE outcomes={outcomes}{tag}")
+    return results
+
+
 def main() -> int:
     log_path, jsonl_path = _log_path()
-    _log(log_path, f"EOD_FLATTEN_FIRE ts={_et_ts()} dry={DRY} accounts={ACCOUNTS}")
 
     # Load creds once (fail-open per account if missing)
     try:
@@ -361,24 +400,88 @@ def main() -> int:
         _append_jsonl(jsonl_path, {"outcome": "CREDS_ERROR", "error": str(exc), "ts": _et_ts()})
         return 1
 
-    results = []
-    for arm in ACCOUNTS:
-        if arm not in all_creds:
-            msg = f"EOD_FLATTEN_SKIP_NO_CREDS arm={arm} -- not found in secrets.json"
-            _log(log_path, msg)
-            rec = {"arm": arm, "outcome": "SKIP_NO_CREDS", "ts": _et_ts()}
-            _append_jsonl(jsonl_path, rec)
-            results.append(rec)
+    _run_sweep(log_path, jsonl_path, all_creds)
+    return 0
+
+
+# ---- --only-if-early-close (B2, 2026-09-01) --------------------------------------
+#
+# The live broker calendar closes 2026-11-27 and 2026-12-24 at 13:00 ET. The normal
+# 15:52/15:55 flatten fires (Gamma_EodFlatten*, scheduled elsewhere) run AFTER that
+# expiry on those two days -- too late to matter. heartbeat_core.py's entry-side
+# _is_rth fix for the SAME calendar is frozen until 2026-09-29, so this ships the
+# EXIT-side half now: a second, independently-scheduled task that fires mid-day,
+# checks whether TODAY is an early close, and if so runs the identical sweep 30
+# minutes before that early close instead of waiting for the normal EOD time.
+#
+# FAIL-CLOSED ON UNKNOWN, by design: this path only ever ACTS (closes real
+# positions) -- OP's "fail-CLOSED on any ACTION that touches a position" applies
+# directly. If neither the calendar cache nor a live GET can say what today's close
+# is, the correct behavior is to do NOTHING and let the normal 15:52/15:55 flatten
+# (which does not depend on this calendar at all) handle it as always.
+
+def _resolve_today_close(all_creds: dict) -> Optional[str]:
+    """Today's scheduled close ('HH:MM' ET). Cache first (market_calendar.cached_close);
+    live GET fallback via fleet_broker._request on /v2/calendar (today only) if the
+    cache doesn't cover this date. Returns None only if BOTH fail -- 'unknown', never a
+    guessed default."""
+    today = et_now().strftime("%Y-%m-%d")
+    close = market_calendar.cached_close(today)
+    if close is not None:
+        return close
+    for arm_creds in all_creds.values():
+        try:
+            res = fleet_broker._request(arm_creds, f"calendar?start={today}&end={today}")
+        except Exception:  # noqa: BLE001 -- try the next arm's creds
             continue
+        if isinstance(res, list) and res and isinstance(res[0], dict) and "date" in res[0]:
+            return str(res[0].get("close") or market_calendar.DEFAULT_CLOSE)
+    return None
 
-        result = _flatten_account(arm, all_creds[arm], log_path, jsonl_path)
-        results.append(result)
 
-    # Summary
-    outcomes = [r.get("outcome", "UNKNOWN") for r in results]
-    _log(log_path, f"EOD_FLATTEN_COMPLETE outcomes={outcomes}")
+def _run_only_if_early_close() -> int:
+    log_path, jsonl_path = _log_path()
+
+    try:
+        all_creds = fleet_broker.load_creds()
+    except Exception as exc:
+        _log(log_path, f"EOD_FLATTEN_CREDS_ERROR: {exc} -- cannot resolve calendar or flatten")
+        _append_jsonl(jsonl_path, {"outcome": "CREDS_ERROR", "error": str(exc), "ts": _et_ts()})
+        return 0  # fail-open: a watchdog/monitor task never wedges (OP-25); the normal
+                  # 15:52/15:55 flatten is unaffected by this failure either way.
+
+    close = _resolve_today_close(all_creds)
+    if close is None:
+        msg = ("EARLY_CLOSE_UNKNOWN -- calendar cache miss AND live GET failed; refusing to "
+               "act (fail-closed on unknown calendar state; the normal 15:52/15:55 flatten "
+               "still runs regardless of this task)")
+        _log(log_path, msg)
+        _append_jsonl(jsonl_path, {"outcome": "EARLY_CLOSE_UNKNOWN", "ts": _et_ts()})
+        return 0
+
+    if close == market_calendar.DEFAULT_CLOSE:
+        _log(log_path, f"EARLY_CLOSE_NOOP -- today's close is {close} ET (normal full day)")
+        _append_jsonl(jsonl_path, {"outcome": "EARLY_CLOSE_NOOP_FULL_DAY", "close": close, "ts": _et_ts()})
+        return 0
+
+    hh, mm = close.split(":")
+    now = et_now()
+    close_dt = now.replace(hour=int(hh), minute=int(mm), second=0, microsecond=0)
+    threshold = close_dt - timedelta(minutes=30)
+    if now < threshold:
+        _log(log_path, (f"EARLY_CLOSE_WAIT -- today closes {close} ET, sweep window opens "
+                         f"{threshold.strftime('%H:%M')} ET, now {now.strftime('%H:%M')} ET"))
+        _append_jsonl(jsonl_path, {"outcome": "EARLY_CLOSE_WAIT", "close": close,
+                                    "threshold_et": threshold.strftime("%H:%M"), "ts": _et_ts()})
+        return 0
+
+    _log(log_path, (f"EARLY_CLOSE_TRIGGER -- today closes {close} ET, now {now.strftime('%H:%M')} ET "
+                     f">= threshold {threshold.strftime('%H:%M')} ET -- running sweep"))
+    _run_sweep(log_path, jsonl_path, all_creds, reason="EARLY_CLOSE")
     return 0
 
 
 if __name__ == "__main__":
+    if "--only-if-early-close" in sys.argv[1:]:
+        raise SystemExit(_run_only_if_early_close())
     raise SystemExit(main())

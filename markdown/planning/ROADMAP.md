@@ -36,6 +36,8 @@
 > not check: dead-man's switch drilled, early-close calendar awareness (2026-11-27 / 12-24 close
 > 13:00 ET), broker-sweep-aware time stop (Alpaca liquidates expiring ITM longs from 15:30 ET),
 > real OPRA data tier, a phone-reachable HALT, a whole-engine null study, an after-tax target.
+> **Execution order for every session until 10-30:** [`OPUS-WORK-ORDER-2026-09.md`](OPUS-WORK-ORDER-2026-09.md)
+> (phases, review/audit/test list, drills, the freeze-to-10-30 decision, J's items).
 
 ## 1. The destination
 

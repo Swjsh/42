@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-01 20:16:50 Tuesday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-01 23:28:41 Tuesday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -14,9 +14,25 @@
 | risky-3 | 4,282.65 | **+0.00** | flat |
 | **BOOK** | | **+77.45** | |
 
+## The gate
+
+- **overall verdict:** `RED` (as of `2026-09-01T22:17:13`)
+- **criterion 5 (prod-shadow)** — arm `safe-3` · 0/20 days scored · CI-lo(2.5%) `n/a` · status `INSUFFICIENT_DAYS`
+- **frozen-window BOOK** (ex-best-day) — PF `n/a` · CI-lo(2.5%) `n/a`
+
+| Arm | $/day needed by `2026-10-30` | already clears |
+|---|---:|---|
+| safe-3 | 59.42 | False |
+| safe-2 | 65.91 | False |
+| risky-1 | 52.45 | False |
+| bold-2 | 57.18 | False |
+
+- **null study:** WHOLE-ENGINE-NULL 2026-09-01: WITHHELD (harness unreliable -- V9 sign agreement 79.3% < 85%). Mechanical sub-checks read PASS on the raw numbers (engine P1 $+3562.00, N_a p95 2545.5375000000004, N_c $-4676.40) but describe the walker, not the engine, until the walker is fixed.
+- **governing clock:** `2026-10-30`
+
 ## Today's levels
 
-*as of `2026-09-01T17:58:37-04:00`*
+*as of `2026-09-01T23:28:37-04:00`*
 
 - **731.22** — PRIOR_CLOSE_2026-06-26
 - **734.52** — PML_2026-06-29
@@ -67,7 +83,7 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=93)
-- **twin** last journal row `2026-09-01T07:53:37.961330+00:00` · 2407 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-09-02T03:28:38.101437+00:00` · 2415 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ## This week
 

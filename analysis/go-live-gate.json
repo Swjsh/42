@@ -1,5 +1,5 @@
 {
-  "generated_et": "2026-09-01T20:50:20",
+  "generated_et": "2026-09-01T22:17:13",
   "instrument": "setup/scripts/go_live_gate.py",
   "note": "REPORTING INSTRUMENT ONLY. Arms nothing. Never edits params*.json/heartbeat_core.py/filters.py/strategies.py/fleet_executor.py/risk_gate.py/exit_manager.py. Live-money arming stays J's decision alone (OP-0 #1). See MEMORY / CLAUDE.md.",
   "overall_verdict": "RED",
@@ -196,7 +196,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "........                                                                 [100%]\n8 passed in 0.28s",
+          "summary_tail": "........                                                                 [100%]\n8 passed in 0.22s",
           "pass": true
         },
         "eod_flatten_read_failure_fails_open": {
@@ -204,7 +204,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "......                                                                   [100%]\n6 passed in 0.25s",
+          "summary_tail": "......                                                                   [100%]\n6 passed in 0.22s",
           "pass": true
         },
         "never_average_down_no_stacked_entry": {
@@ -212,7 +212,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".........                                                                [100%]\n9 passed in 0.71s",
+          "summary_tail": ".........                                                                [100%]\n9 passed in 0.50s",
           "pass": true
         },
         "killswitch_threshold_parity_rule5": {
@@ -220,7 +220,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".......                                                                  [100%]\n7 passed in 0.24s",
+          "summary_tail": ".......                                                                  [100%]\n7 passed in 0.16s",
           "pass": true
         },
         "orphan_position_adoption": {
@@ -228,7 +228,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "..........                                                               [100%]\n10 passed in 0.27s",
+          "summary_tail": "..........                                                               [100%]\n10 passed in 0.22s",
           "pass": true
         },
         "dead_mans_switch_open_position_on_process_death": {
@@ -236,7 +236,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".............                                                            [100%]\n13 passed in 0.34s",
+          "summary_tail": ".............                                                            [100%]\n13 passed in 0.25s",
           "pass": true
         }
       },
@@ -564,5 +564,34 @@
         }
       }
     }
+  },
+  "regime_coverage": {
+    "label": "disclosure only -- never gates the overall verdict",
+    "lifetime": {
+      "n_days": 5,
+      "vix_daily_max_min": 14.82,
+      "vix_daily_max_max": 16.8,
+      "days_vix_gt_20": 0,
+      "spy_cumulative_return_pct": -0.634,
+      "worst_day": {
+        "date": "2026-09-01",
+        "ret_pct": -0.8
+      },
+      "days_down_gt_1pct": 0
+    },
+    "frozen_config_window": {
+      "window_start": "2026-09-01",
+      "n_days": 1,
+      "vix_daily_max_min": 16.8,
+      "vix_daily_max_max": 16.8,
+      "days_vix_gt_20": 0,
+      "spy_cumulative_return_pct": -0.8,
+      "worst_day": {
+        "date": "2026-09-01",
+        "ret_pct": -0.8
+      },
+      "days_down_gt_1pct": 0
+    },
+    "calm_only_window_warning": "calm-only window -- a GREEN here is untested in stress"
   }
 }

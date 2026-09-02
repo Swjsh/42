@@ -1,0 +1,364 @@
+{
+  "id": "TIME-STOP-BAND-MEASURE-2026-09-01",
+  "measures_prereg": "prereg-time-stop-broker-sweep-2026-09-01",
+  "generated_at_et": "2026-09-01T21:26:45.663986",
+  "sources": {
+    "trades_enriched": "analysis/trades-enriched.jsonl",
+    "spy_5m": "backtest/data/spy_5m_2026-05-19_2026-09-01.csv",
+    "n_trade_rows": 391
+  },
+  "recency_cutoff_assumption": "post-08-11 = date >= 2026-08-11 (ASSUMPTION -- no standing repo constant found under this name; chosen per recency-over-aggregate doctrine, J 2026-07-31)",
+  "measurement": {
+    "band_census": {
+      "band_15_20_to_15_40": {
+        "n": 3,
+        "total_pnl_dollars": -52.0,
+        "share_of_gross_winner_dollars_lifetime": 0.010148,
+        "share_of_gross_winner_dollars_post_2026_08_11": 0.0
+      },
+      "band_15_25_to_15_40_strict": {
+        "n": 2,
+        "total_pnl_dollars": 218.0,
+        "share_of_gross_winner_dollars_lifetime": 0.010148,
+        "share_of_gross_winner_dollars_post_2026_08_11": 0.0
+      },
+      "lifetime_gross_winner_dollars": 22960.0,
+      "post_2026_08_11_gross_winner_dollars": 11424.0,
+      "post_2026_08_11_n_rows": 156,
+      "lifetime_n_rows": 391
+    },
+    "give_up_at_1520": {
+      "n_positions_still_open_at_1520": 16,
+      "n_measured": 16,
+      "n_unverified": 0,
+      "total_give_up_dollars_measured_only": -294.0,
+      "rows": [
+        {
+          "date": "2026-06-26",
+          "arm": "safe-2",
+          "symbol": "SPY260626P00732000",
+          "exit_ts_et": "2026-06-26T15:45:07.950326",
+          "actual_pnl_dollars": -237.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.55,
+          "hypothetical_1520_pnl_dollars": -129.0,
+          "give_up_dollars": -108.0
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "risky-1",
+          "symbol": "SPY260630C00750000",
+          "exit_ts_et": "2026-06-30T15:45:06.306037",
+          "actual_pnl_dollars": -30.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.1,
+          "hypothetical_1520_pnl_dollars": 10.0,
+          "give_up_dollars": -40.0
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "risky-1",
+          "symbol": "SPY260630C00751000",
+          "exit_ts_et": "2026-06-30T15:52:05.860734",
+          "actual_pnl_dollars": -10.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.04,
+          "hypothetical_1520_pnl_dollars": 5.0,
+          "give_up_dollars": -15.0
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "risky-3",
+          "symbol": "SPY260630C00751000",
+          "exit_ts_et": "2026-06-30T15:25:05.474938",
+          "actual_pnl_dollars": -15.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.04,
+          "hypothetical_1520_pnl_dollars": -5.0,
+          "give_up_dollars": -10.0
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "safe-1",
+          "symbol": "SPY260630C00750000",
+          "exit_ts_et": "2026-06-30T15:45:05.430185",
+          "actual_pnl_dollars": -18.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.1,
+          "hypothetical_1520_pnl_dollars": 6.0,
+          "give_up_dollars": -24.0
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "safe-3",
+          "symbol": "SPY260630C00750000",
+          "exit_ts_et": "2026-06-30T15:45:05.092468",
+          "actual_pnl_dollars": -18.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.1,
+          "hypothetical_1520_pnl_dollars": 6.0,
+          "give_up_dollars": -24.0
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "safe-3",
+          "symbol": "SPY260630C00751000",
+          "exit_ts_et": "2026-06-30T15:52:05.067253",
+          "actual_pnl_dollars": -6.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.04,
+          "hypothetical_1520_pnl_dollars": 3.0,
+          "give_up_dollars": -9.0
+        },
+        {
+          "date": "2026-07-07",
+          "arm": "bold-2",
+          "symbol": "SPY260707P00750000",
+          "exit_ts_et": "2026-07-07T15:45:05.243473",
+          "actual_pnl_dollars": 327.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 3.47,
+          "hypothetical_1520_pnl_dollars": 399.0,
+          "give_up_dollars": -72.0
+        },
+        {
+          "date": "2026-07-07",
+          "arm": "safe-2",
+          "symbol": "SPY260707P00747000",
+          "exit_ts_et": "2026-07-07T15:45:05.946984",
+          "actual_pnl_dollars": 162.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.77,
+          "hypothetical_1520_pnl_dollars": -25.0,
+          "give_up_dollars": 187.0
+        },
+        {
+          "date": "2026-07-17",
+          "arm": "risky-1",
+          "symbol": "SPY260717P00742000",
+          "exit_ts_et": "2026-07-17T15:40:04.224246",
+          "actual_pnl_dollars": 0.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.42,
+          "hypothetical_1520_pnl_dollars": 45.0,
+          "give_up_dollars": -45.0
+        },
+        {
+          "date": "2026-07-17",
+          "arm": "risky-3",
+          "symbol": "SPY260717P00743000",
+          "exit_ts_et": "2026-07-17T15:28:04.209663",
+          "actual_pnl_dollars": 233.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.82,
+          "hypothetical_1520_pnl_dollars": 215.0,
+          "give_up_dollars": 18.0
+        },
+        {
+          "date": "2026-07-17",
+          "arm": "safe-3",
+          "symbol": "SPY260717P00742000",
+          "exit_ts_et": "2026-07-17T15:40:03.416349",
+          "actual_pnl_dollars": 0.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.42,
+          "hypothetical_1520_pnl_dollars": 27.0,
+          "give_up_dollars": -27.0
+        },
+        {
+          "date": "2026-08-10",
+          "arm": "risky-1",
+          "symbol": "SPY260810P00773000",
+          "exit_ts_et": "2026-08-10T15:45:06.307368",
+          "actual_pnl_dollars": -440.0,
+          "qty": 5.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.24,
+          "hypothetical_1520_pnl_dollars": -420.0,
+          "give_up_dollars": -20.0
+        },
+        {
+          "date": "2026-08-20",
+          "arm": "safe-2",
+          "symbol": "SPY260820P00764000",
+          "exit_ts_et": "2026-08-20T15:40:05.770716",
+          "actual_pnl_dollars": -27.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.92,
+          "hypothetical_1520_pnl_dollars": 39.0,
+          "give_up_dollars": -66.0
+        },
+        {
+          "date": "2026-08-26",
+          "arm": "safe-3",
+          "symbol": "SPY260826C00766000",
+          "exit_ts_et": "2026-08-26T15:40:07.904209",
+          "actual_pnl_dollars": 39.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 1.78,
+          "hypothetical_1520_pnl_dollars": 84.0,
+          "give_up_dollars": -45.0
+        },
+        {
+          "date": "2026-08-28",
+          "arm": "safe-2",
+          "symbol": "SPY260828P00770000",
+          "exit_ts_et": "2026-08-28T15:21:03.471259",
+          "actual_pnl_dollars": -270.0,
+          "qty": 3.0,
+          "status": "MEASURED",
+          "option_close_at_1520": 0.84,
+          "hypothetical_1520_pnl_dollars": -276.0,
+          "give_up_dollars": 6.0
+        }
+      ]
+    },
+    "sweep_exposure_1530": {
+      "n_positions_open_through_1530": 13,
+      "counts_by_classification": {
+        "OTM": 8,
+        "ITM": 3,
+        "NEAR_ATM": 2
+      },
+      "n_itm_or_near_atm": 5,
+      "rows": [
+        {
+          "date": "2026-06-26",
+          "arm": "safe-2",
+          "symbol": "SPY260626P00732000",
+          "right": "P",
+          "strike": 732.0,
+          "spy_close_1530": 732.6699829101562,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "risky-1",
+          "symbol": "SPY260630C00750000",
+          "right": "C",
+          "strike": 750.0,
+          "spy_close_1530": 747.1400146484375,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "risky-1",
+          "symbol": "SPY260630C00751000",
+          "right": "C",
+          "strike": 751.0,
+          "spy_close_1530": 747.1400146484375,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "safe-1",
+          "symbol": "SPY260630C00750000",
+          "right": "C",
+          "strike": 750.0,
+          "spy_close_1530": 747.1400146484375,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "safe-3",
+          "symbol": "SPY260630C00750000",
+          "right": "C",
+          "strike": 750.0,
+          "spy_close_1530": 747.1400146484375,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-06-30",
+          "arm": "safe-3",
+          "symbol": "SPY260630C00751000",
+          "right": "C",
+          "strike": 751.0,
+          "spy_close_1530": 747.1400146484375,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-07-07",
+          "arm": "bold-2",
+          "symbol": "SPY260707P00750000",
+          "right": "P",
+          "strike": 750.0,
+          "spy_close_1530": 747.1925048828125,
+          "classification": "ITM"
+        },
+        {
+          "date": "2026-07-07",
+          "arm": "safe-2",
+          "symbol": "SPY260707P00747000",
+          "right": "P",
+          "strike": 747.0,
+          "spy_close_1530": 747.1925048828125,
+          "classification": "NEAR_ATM"
+        },
+        {
+          "date": "2026-07-17",
+          "arm": "risky-1",
+          "symbol": "SPY260717P00742000",
+          "right": "P",
+          "strike": 742.0,
+          "spy_close_1530": 743.03,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-07-17",
+          "arm": "safe-3",
+          "symbol": "SPY260717P00742000",
+          "right": "P",
+          "strike": 742.0,
+          "spy_close_1530": 743.03,
+          "classification": "OTM"
+        },
+        {
+          "date": "2026-08-10",
+          "arm": "risky-1",
+          "symbol": "SPY260810P00773000",
+          "right": "P",
+          "strike": 773.0,
+          "spy_close_1530": 772.89,
+          "classification": "NEAR_ATM"
+        },
+        {
+          "date": "2026-08-20",
+          "arm": "safe-2",
+          "symbol": "SPY260820P00764000",
+          "right": "P",
+          "strike": 764.0,
+          "spy_close_1530": 763.19,
+          "classification": "ITM"
+        },
+        {
+          "date": "2026-08-26",
+          "arm": "safe-3",
+          "symbol": "SPY260826C00766000",
+          "right": "C",
+          "strike": 766.0,
+          "spy_close_1530": 766.86,
+          "classification": "ITM"
+        }
+      ]
+    }
+  },
+  "pass_criterion_applied": {
+    "verdict": "SHIP",
+    "reason": "[15:20,15:40] band carries 0.00% of post-2026-08-11 gross winner dollars (< 5% ship line)",
+    "share": 0.0
+  }
+}

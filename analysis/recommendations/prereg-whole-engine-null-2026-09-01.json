@@ -33,5 +33,12 @@
   "output": "analysis/recommendations/whole-engine-null-<date>.json + one summary line in the Friday go_live_gate.py re-run and in HOME.md's gate block",
   "consumer": "setup/scripts/whole_engine_null.py (to build; freeze-compatible -- analysis only, touches no trading-path file)",
   "does_this_ship_anything": "No. Measurement only. A FAIL freezes any live-arming discussion regardless of gate colour; a PASS is a necessary, not sufficient, condition for the 2026-10-30 arming question.",
-  "revoke": "delete this file"
+  "revoke": "delete this file",
+  "addendum_2026_09_01_validator_fidelity": {
+    "added_at_et": "2026-09-01T22:40",
+    "added_by": "Fable 5.1 (orchestrator), same night the prereg was filed, before any verdict was reported to J",
+    "what": "VALIDATE-THE-VALIDATOR precondition (fable-judgment 02-VALIDATION V9). Before any null verdict is reported, the exit walker used for N_a/N_b/N_c must replay the engine's OWN real entries and reproduce their realized P&L with sign agreement >= 0.85. Below that bar the study reports every mechanical sub-check but the overall verdict is WITHHELD (HARNESS_UNRELIABLE) -- a PASS or FAIL computed by an unfaithful walker is a statement about the harness, not the engine.",
+    "why_recorded_as_addendum": "The build brief that produced whole_engine_null.py carried this rule from the start; the frozen JSON omitted it, and a review pass on 2026-09-01 used that omission to promote a PASS computed at 79.3% sign agreement. The rule is doctrine, not a new knob; it is written here so it cannot be argued away again. It does not touch pass_criterion_frozen.",
+    "first_reading": "2026-09-01: sign_agreement=0.793 (n=121), mean_bias=-$20.76/trade -> verdict WITHHELD. Root cause candidate: 94/121 P1 rows lack the real chart-level trigger_level in trades-enriched.jsonl, so structure stops replay on a proxy level. Fixing that enrichment is the top research item before the next Friday run."
+  }
 }

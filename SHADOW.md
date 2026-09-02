@@ -1,6 +1,6 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-09-01 20:16:50 Tuesday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-09-01 23:28:41 Tuesday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
@@ -13,6 +13,10 @@
 
 ## Frozen preregs — auto-discovered
 
+- `prereg-whole-engine-null-2026-09-01` — [[analysis/recommendations/prereg-whole-engine-null-2026-09-01]]
+- `prereg-hygiene` — [[analysis/recommendations/prereg-hygiene]]
+- `prereg-time-stop-broker-sweep-2026-09-01` — [[analysis/recommendations/prereg-time-stop-broker-sweep-2026-09-01]]
+- `STRUCTURE-SHIFT-IN-CASCADE (pre-reg #2)` — [[analysis/recommendations/prereg-structure-shift-cascade-2026-07-28]]
 - `PREREG-RUNNER-COUNT-2026-09-01` — [[analysis/recommendations/prereg-runner-count-2026-09-01]]
 - `loss-armed-budget-forward-prereg-2026-08-28` — [[analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28]]
 - `entry-structure-forward-prereg-2026-08-06` — [[analysis/recommendations/entry-structure-forward-prereg-2026-08-06]]
@@ -34,11 +38,7 @@
 - `prereg-recency-qty-clamp-2026-08-11` — [[analysis/recommendations/prereg-recency-qty-clamp-2026-08-11]]
 - `prereg-pdt-blocked-counterfactual-2026-08-11` — [[analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11]]
 - `prereg-ladder-vwap-2026-08-11` — [[analysis/recommendations/prereg-ladder-vwap-2026-08-11]]
-- `RIBBON-CONFIRM-2026-08-11` — [[analysis/recommendations/prereg-ribbon-confirm-2026-08-11]]
-- `STRUCTURE-STOP-ZONE-2026-08-11` — [[analysis/recommendations/prereg-structure-stop-zone-2026-08-11]]
-- `TIGHT-STOP-VWAP-2026-08-11` — [[analysis/recommendations/prereg-tight-stop-vwap-2026-08-11]]
-- `REGIME-CONDITIONAL-EXIT-2026-08-11` — [[analysis/recommendations/prereg-regime-conditional-exit-2026-08-11]]
-- _+95 older preregs on disk (see `analysis/recommendations/*prereg*.json`)_
+- _+99 older preregs on disk (see `analysis/recommendations/*prereg*.json`)_
 
 ## Frozen preregs — curated (richer write-ups)
 

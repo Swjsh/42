@@ -12,7 +12,7 @@
     "G3 survives dropping the single best changed trade",
     "G4 preemption check: baseline winners preempted by an earlier shift-entry on the same day (one-position discipline) must not turn the day negative -- report every preemption explicitly",
     "G5 the 2026-07-27 09:40 bear anchor must be an ADDED trade in the treatment (the 07-28 bull anchor is signal-only, no OPRA cache)",
-    "EVIDENCE FLOOR: n_changed >= 10 for replay-based arming; below that, arm ONLY as forward-paper trial with the kill criteria below",
+    "EVIDENCE FLOOR: n_changed >= 10 for replay-based arming; below that, arm ONLY as forward-paper trial with the kill criteria below"
   ],
   "kill_criteria_post_arm": "Forward: 10 sessions or n>=8 shift-path fills, whichever first; negative expectancy vs counterfactual lagging-gate behavior -> revert the flag, record.",
   "no_new_knobs": "K=3 only (pre-reg #1's primary; K=2 sensitivity is dropped -- it was worse and adds a comparison). No other parameters exist.",

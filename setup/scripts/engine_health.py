@@ -37,6 +37,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
+import market_calendar  # noqa: E402 -- shared holidays+early-closes cache (B2, 2026-09-01)
+
 # ---------------------------------------------------------------------------
 # Repo layout anchors (OP-27: anchor to __file__, never bare relative)
 # ---------------------------------------------------------------------------
@@ -184,44 +189,14 @@ def _refresh_calendar_from_alpaca(cal_path: Path, year: int) -> bool:
     observed) a live trading day. The engine correctly stayed flat (all HOLD),
     but engine-health/self-check false-RED'd on watcher_feed staleness and the
     heartbeat ticked all morning scoring a frozen tape for nothing. Self-healed
-    here (not via the LLM premarket persona) to stay pure-Python / $0."""
-    import urllib.error
-    import urllib.request
+    here (not via the LLM premarket persona) to stay pure-Python / $0.
 
-    secrets_path = REPO / "automation" / "state" / "fleet" / "secrets.json"
-    try:
-        secrets = json.loads(secrets_path.read_text(encoding="utf-8"))
-        accounts = secrets.get("accounts", secrets)
-        creds = next(
-            (c for c in accounts.values() if isinstance(c, dict) and (c.get("key") or c.get("api_key"))),
-            None,
-        )
-        if not creds:
-            return False
-        key = creds.get("key") or creds.get("api_key")
-        secret = creds.get("secret") or creds.get("secret_key")
-        base = (creds.get("base_url") or "https://paper-api.alpaca.markets").rstrip("/")
-        req = urllib.request.Request(
-            f"{base}/v2/calendar?start={year}-01-01&end={year}-12-31",
-            headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret},
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:  # noqa: S310 -- fixed https host
-            days = json.loads(resp.read())
-        open_dates = {d["date"] for d in days}
-        d = datetime(year, 1, 1)
-        end = datetime(year, 12, 31)
-        holidays = []
-        while d <= end:
-            if d.weekday() < 5 and d.strftime("%Y-%m-%d") not in open_dates:
-                holidays.append(d.strftime("%Y-%m-%d"))
-            d += timedelta(days=1)
-        cal_path.write_text(json.dumps({
-            "source": "alpaca_v2_calendar", "fetched_at_et": _et_now().isoformat(),
-            "year_range": [f"{year}-01-01", f"{year}-12-31"], "holidays": sorted(holidays),
-        }, indent=2), encoding="utf-8")
-        return True
-    except (OSError, urllib.error.URLError, KeyError, ValueError, StopIteration):
-        return False
+    DELEGATED (B2, 2026-09-01): the actual fetch+write now lives in
+    market_calendar.refresh_calendar_from_alpaca -- the one shared implementation
+    eod_flatten.py's --only-if-early-close also relies on (it additionally writes
+    'early_closes'). This wrapper keeps the name/signature engine_health's own
+    tests patch (`mock.patch.object(eh, "_refresh_calendar_from_alpaca")`)."""
+    return market_calendar.refresh_calendar_from_alpaca(cal_path, year)
 
 
 def _load_holidays() -> set:
@@ -267,6 +242,28 @@ def _minutes_since_open(et: datetime) -> float:
 # ---------------------------------------------------------------------------
 # State readers (fail-safe: missing/garbled file -> (None, reason))
 # ---------------------------------------------------------------------------
+
+DUPLICATE_TICKS_TAIL_BYTES = 600_000  # mirrors dead_mans_switch.py's TAIL_BYTES budget --
+# generously covers >200 rows/account at ~2KB/row without ever loading the full 90MB+
+# core-decisions.jsonl into memory.
+
+
+def _tail_text(path: Path, n_bytes: int = DUPLICATE_TICKS_TAIL_BYTES) -> str:
+    """Read only the last n_bytes of a (potentially huge) jsonl file. Never raises --
+    returns "" on any read error, which callers treat as 'no data'. Mirrors
+    setup/scripts/dead_mans_switch.py's `_tail_text` (byte-seek from the end, not a full
+    read) -- duplicated locally rather than imported to keep this beacon dependency-free
+    of the dead-man's-switch module."""
+    try:
+        size = path.stat().st_size
+        with path.open("rb") as f:
+            if size > n_bytes:
+                f.seek(size - n_bytes)
+            data = f.read()
+        return data.decode("utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        return ""
+
 
 def _read_json(path: Path) -> tuple[Optional[dict], Optional[str]]:
     if not path.exists():
@@ -1114,6 +1111,91 @@ def check_state_freshness(et: datetime) -> dict:
                 critical=False)
 
 
+def check_duplicate_ticks(et: datetime) -> dict:
+    """NON-CRITICAL (B3-monitors, 2026-09-01): the fire-and-forget wrapper defeats
+    heartbeat_core's own overlap guard by letting a second scheduled invocation start
+    before the first exits (audit-flagged CRITICAL 2026-08 gap, frozen path until
+    2026-09-29 -- this check makes any RECURRENCE visible without touching the frozen
+    heartbeat_core.py itself). Signature: two DISTINCT core_tick_id values written for the
+    same (account, ts_et[:16]) minute -- i.e. the core ticked twice inside one wall-clock
+    minute for one account. None seen since 2026-08-15; this exists so the NEXT one pages
+    instead of sitting silent in a 90MB ledger.
+
+    Tail-reads only (TAIL_BYTES via _tail_text, same discipline as core_liveness_minutes
+    above) -- never loads the full 90MB core-decisions.jsonl. Scoped to the LAST TRADING
+    DAY present in the tail (the newest ts_et[:10] date), so a healthy today never gets
+    diluted/hidden by a scan across every prior day still sitting in the tail window.
+
+    YELLOW if 1-2 minutes show >1 distinct core_tick_id; RED at >=3 such minutes (this
+    task's threshold). Fails open (YELLOW) on any parse/read problem -- this must never
+    trade-halt or crash the beacon."""
+    name = "duplicate_ticks"
+    text = _tail_text(STATE / "core-decisions.jsonl")
+    if not text:
+        return _chk(name, "YELLOW", "core-decisions.jsonl unreadable/empty", critical=False)
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    rows = []
+    for raw in lines:
+        try:
+            row = json.loads(raw)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        ts_raw = row.get("ts_et")
+        acct = row.get("account")
+        tick = row.get("core_tick_id")
+        if not ts_raw or not acct or tick is None:
+            continue
+        rows.append((acct, str(ts_raw), tick))
+    if not rows:
+        return _chk(name, "YELLOW", "no parseable rows in tail window", critical=False)
+    # Scope to the last trading day present in the tail (newest ts_et date).
+    last_day = max(ts[:10] for _acct, ts, _tick in rows)
+    day_rows = [(acct, ts, tick) for acct, ts, tick in rows if ts[:10] == last_day]
+    # (account, minute) -> set of distinct core_tick_id values seen
+    minute_ticks: dict[tuple[str, str], set] = {}
+    for acct, ts, tick in day_rows:
+        key = (acct, ts[:16])  # minute resolution: YYYY-MM-DDTHH:MM
+        minute_ticks.setdefault(key, set()).add(tick)
+    dupes = sorted((k, v) for k, v in minute_ticks.items() if len(v) > 1)
+    if not dupes:
+        return _chk(name, "GREEN",
+                    f"{last_day}: no duplicate core_tick_id per (account,minute) "
+                    f"across {len(day_rows)} rows", critical=False)
+    (ex_acct, ex_minute), ex_ticks = dupes[0]
+    detail = (f"{last_day}: {len(dupes)} minute(s) with >1 core_tick_id -- e.g. "
+              f"{ex_acct}@{ex_minute} had {len(ex_ticks)} distinct ticks "
+              f"({sorted(ex_ticks)[:3]}) -- overlap guard NOT holding")
+    status = "RED" if len(dupes) >= 3 else "YELLOW"
+    return _chk(name, status, detail, critical=False)
+
+
+def check_early_close_today(et: datetime) -> dict:
+    """NON-CRITICAL visibility check (B2, 2026-09-01): surfaces an early-close trading day
+    (2026-11-27 / 2026-12-24 both close 13:00 ET on the live broker calendar) so a human
+    reading engine-health.json sees it, without gating the fused verdict or touching the
+    frozen 15:52/15:55 flatten schedule itself (that half ships separately as
+    eod_flatten.py --only-if-early-close; the entry-cutoff half needs heartbeat_core.py,
+    frozen until 2026-09-29 -- see queue item EARLY-CLOSE-CALENDAR-AWARENESS).
+
+    GREEN always (this never trade-halts): detail says 'normal 16:00 close', 'EARLY CLOSE
+    HH:MM today', or 'calendar unknown' (cache miss + live refresh both failed -- fail-open,
+    matches _load_holidays' contract for the same underlying file)."""
+    name = "early_close_today"
+    try:
+        info = market_calendar.early_close_today()
+    except Exception as exc:  # noqa: BLE001 -- never crash the beacon
+        return _chk(name, "GREEN", f"early-close check error (non-fatal): {type(exc).__name__}: {exc}",
+                    critical=False)
+    if info is None:
+        return _chk(name, "GREEN", "calendar state unknown (cache miss + live refresh failed)",
+                    critical=False)
+    if info["early_close"]:
+        return _chk(name, "GREEN", f"EARLY CLOSE {info['close']} ET today -- flatten schedule "
+                                    f"unaffected until 09-29 (see eod_flatten --only-if-early-close)",
+                    critical=False)
+    return _chk(name, "GREEN", f"normal {info['close']} ET close today", critical=False)
+
+
 def check_position(name: str, path: Path) -> dict:
     data, err = _read_json(path)
     if data is None:
@@ -1214,6 +1296,16 @@ def build_report() -> dict:
         # It found 9 further files already stale on 2026-07-30. Additive by construction:
         # one check name, manifest-driven, never trade-halts, fails open to UNKNOWN.
         check_state_freshness(et),
+        # NON-CRITICAL duplicate-tick monitor (B3-monitors, 2026-09-01): the fire-and-
+        # forget wrapper defeats heartbeat_core's own overlap guard (audit CRITICAL,
+        # frozen path until 2026-09-29) -- none seen since 2026-08-15; this makes
+        # recurrence visible without touching the frozen file. Never trade-halts.
+        check_duplicate_ticks(et),
+        # NON-CRITICAL early-close visibility (B2, 2026-09-01): surfaces a 13:00 ET early
+        # close (2026-11-27, 2026-12-24) so a human sees it in engine-health.json. Never
+        # trade-halts, never GATES the flatten schedule -- see eod_flatten.py
+        # --only-if-early-close for the half of this that actually acts.
+        check_early_close_today(et),
     ]
     verdict, reds = fuse(checks)
     red_checks = sorted(c["name"] for c in checks if c["status"] == "RED")

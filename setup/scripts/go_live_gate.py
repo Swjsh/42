@@ -80,6 +80,7 @@ for _p in (SCRIPTS_DIR,):
 from et_clock import et_now, ET_TZ  # noqa: E402
 
 TRADES_ENRICHED = REPO / "analysis" / "trades-enriched.jsonl"
+CORE_DECISIONS_PATH = REPO / "automation" / "state" / "core-decisions.jsonl"
 ACCOUNTS_PATH = REPO / "automation" / "state" / "fleet" / "accounts.json"
 SECRETS_PATH = REPO / "automation" / "state" / "fleet" / "secrets.json"
 RULE_BREAKS_PATH = REPO / "automation" / "state" / "rule-breaks.jsonl"
@@ -904,6 +905,111 @@ def plan_reachability_block(engine_rows: list[dict], today) -> dict:
     }
 
 
+def _load_core_decision_rows(path: "Path | None" = None) -> list[dict]:
+    """Reads core-decisions.jsonl in full (measured 0.5s / ~37k rows / ~90MB this session --
+    the gate is a weekly/on-demand instrument, not a hot-path check, so a full read is fine;
+    unlike engine_health.py's every-minute tail read, this needs LIFETIME coverage, not just
+    the newest rows). Fails open: a missing/unreadable file returns []; a malformed line is
+    skipped, never crashes the gate. `path` defaults to the MODULE-LEVEL CORE_DECISIONS_PATH
+    looked up at CALL time (not bound at def time) so tests can monkeypatch the module
+    attribute and have it take effect."""
+    if path is None:
+        path = CORE_DECISIONS_PATH
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    rows = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        date, ts_et, spy, vix = r.get("date"), r.get("ts_et"), r.get("spy"), r.get("vix")
+        if date is None or spy is None or vix is None:
+            continue
+        try:
+            spy_f, vix_f = float(spy), float(vix)
+        except (TypeError, ValueError):
+            continue
+        rows.append({"date": str(date), "ts_et": str(ts_et) if ts_et else "", "spy": spy_f, "vix": vix_f})
+    return rows
+
+
+def _per_day_regime_stats(rows: list[dict]) -> dict:
+    """Per date: VIX daily max, and an open->close SPY return (first/last row BY TS_ET
+    ordering, not insertion order -- rows can arrive out of order across a restart)."""
+    by_day: dict[str, list[dict]] = {}
+    for r in rows:
+        by_day.setdefault(r["date"], []).append(r)
+    out = {}
+    for date, day_rows in by_day.items():
+        day_rows_sorted = sorted(day_rows, key=lambda r: r["ts_et"])
+        vix_max = max(r["vix"] for r in day_rows)
+        spy_open = day_rows_sorted[0]["spy"]
+        spy_close = day_rows_sorted[-1]["spy"]
+        ret_pct = ((spy_close / spy_open) - 1.0) * 100.0 if spy_open else None
+        out[date] = {"vix_daily_max": vix_max, "spy_open": spy_open, "spy_close": spy_close,
+                     "ret_pct": ret_pct, "n_rows": len(day_rows)}
+    return out
+
+
+def _regime_window_summary(day_stats: dict) -> dict:
+    """Aggregate a {date: per-day stats} mapping into the disclosure fields: VIX daily-max
+    min/max, days with VIX>20, SPY cumulative return (geometric, first day's open to last
+    day's close), worst single day, count of days down >1%. Empty input -> all-None/zero,
+    never a crash or a fabricated number."""
+    dates = sorted(day_stats)
+    if not dates:
+        return {
+            "n_days": 0, "vix_daily_max_min": None, "vix_daily_max_max": None,
+            "days_vix_gt_20": 0, "spy_cumulative_return_pct": None,
+            "worst_day": None, "days_down_gt_1pct": 0,
+        }
+    vix_maxes = [day_stats[d]["vix_daily_max"] for d in dates]
+    rets = {d: day_stats[d]["ret_pct"] for d in dates if day_stats[d]["ret_pct"] is not None}
+    spy_open_first = day_stats[dates[0]]["spy_open"]
+    spy_close_last = day_stats[dates[-1]]["spy_close"]
+    cum_ret = ((spy_close_last / spy_open_first) - 1.0) * 100.0 if spy_open_first else None
+    worst_date = min(rets, key=lambda d: rets[d]) if rets else None
+    return {
+        "n_days": len(dates),
+        "vix_daily_max_min": round(min(vix_maxes), 2),
+        "vix_daily_max_max": round(max(vix_maxes), 2),
+        "days_vix_gt_20": sum(1 for v in vix_maxes if v > 20),
+        "spy_cumulative_return_pct": round(cum_ret, 3) if cum_ret is not None else None,
+        "worst_day": {"date": worst_date, "ret_pct": round(rets[worst_date], 3)} if worst_date else None,
+        "days_down_gt_1pct": sum(1 for r in rets.values() if r <= -1.0),
+    }
+
+
+def regime_coverage_block() -> dict:
+    """(e) DISCLOSURE ONLY -- never gates the overall verdict. Answers a question none of
+    the 5 pass/fail criteria ask: has the engine's evidence window actually SEEN a stressed
+    market, or is a GREEN verdict measuring only a calm stretch? Two windows: LIFETIME (every
+    engine day in core-decisions.jsonl) and the FROZEN CONFIG WINDOW (>= CURRENT_CONFIG_WINDOW_START,
+    2026-09-01 -- the same anchor frozen_config_window_view already uses for criterion 1's
+    disclosure sibling). Reads spy/vix/ts_et straight from core-decisions.jsonl -- no
+    re-derivation, no simulated bars."""
+    rows = _load_core_decision_rows()
+    day_stats = _per_day_regime_stats(rows)
+    lifetime = _regime_window_summary(day_stats)
+    frozen_days = {d: s for d, s in day_stats.items() if d >= CURRENT_CONFIG_WINDOW_START}
+    frozen = _regime_window_summary(frozen_days)
+    calm_only = frozen["n_days"] > 0 and frozen["days_vix_gt_20"] == 0 and frozen["days_down_gt_1pct"] == 0
+    return {
+        "label": "disclosure only -- never gates the overall verdict",
+        "lifetime": lifetime,
+        "frozen_config_window": {"window_start": CURRENT_CONFIG_WINDOW_START, **frozen},
+        "calm_only_window_warning": (
+            "calm-only window -- a GREEN here is untested in stress" if calm_only else None
+        ),
+    }
+
+
 # ========================================================================================= #
 # Orchestration
 # ========================================================================================= #
@@ -970,6 +1076,9 @@ def build_report() -> dict:
             "effective_evidence": effective_evidence_block(engine_rows, statistical),
             "plan_reachability": plan_reachability_block(engine_rows, today_et),
         },
+        # ADDITIVE, backward-compatible (TASK B3-monitors, 2026-09-01) -- disclosure only,
+        # never gates overall_verdict. See regime_coverage_block's own docstring.
+        "regime_coverage": regime_coverage_block(),
     }
 
 
@@ -1087,6 +1196,24 @@ def render_human(report: dict) -> str:
                 parts.append(f"{label}({h['end_date']})=${h.get('dollars_per_day')}/day"
                               + (" [already clears]" if h.get("already_clears") else ""))
             lines.append(f"   {arm_id:<9} " + "  ".join(parts))
+        lines.append("")
+
+    rc = report.get("regime_coverage")
+    if rc:
+        lt, fw = rc["lifetime"], rc["frozen_config_window"]
+        lines.append("REGIME COVERAGE (disclosure only)")
+        lines.append(f"   lifetime            n_days={lt['n_days']} "
+                      f"VIX_daily_max=[{lt['vix_daily_max_min']},{lt['vix_daily_max_max']}] "
+                      f"days_VIX>20={lt['days_vix_gt_20']} "
+                      f"SPY_cum_ret={lt['spy_cumulative_return_pct']}% "
+                      f"worst_day={lt['worst_day']} days_down>1%={lt['days_down_gt_1pct']}")
+        lines.append(f"   frozen({fw['window_start']}) n_days={fw['n_days']} "
+                      f"VIX_daily_max=[{fw['vix_daily_max_min']},{fw['vix_daily_max_max']}] "
+                      f"days_VIX>20={fw['days_vix_gt_20']} "
+                      f"SPY_cum_ret={fw['spy_cumulative_return_pct']}% "
+                      f"worst_day={fw['worst_day']} days_down>1%={fw['days_down_gt_1pct']}")
+        if rc.get("calm_only_window_warning"):
+            lines.append(f"   *** {rc['calm_only_window_warning']} ***")
         lines.append("")
 
     return "\n".join(lines)
@@ -1223,6 +1350,29 @@ def render_markdown(report: dict) -> str:
                 else:
                     cells.append(h.get("note", "n/a"))
             lines.append(f"| {arm_id} | {cells[0]} | {cells[1]} |")
+
+    rc = report.get("regime_coverage")
+    if rc:
+        lt, fw = rc["lifetime"], rc["frozen_config_window"]
+        lines += [
+            "",
+            "## REGIME COVERAGE (disclosure only)",
+            "",
+            "_never gates the overall verdict -- answers whether the evidence window has "
+            "actually seen a stressed market_",
+            "",
+            "| Window | n_days | VIX daily-max min/max | days VIX>20 | SPY cum. return | "
+            "worst day | days down >1% |",
+            "|---|---|---|---|---|---|---|",
+            f"| lifetime | {lt['n_days']} | {lt['vix_daily_max_min']}/{lt['vix_daily_max_max']} | "
+            f"{lt['days_vix_gt_20']} | {lt['spy_cumulative_return_pct']}% | "
+            f"{lt['worst_day']} | {lt['days_down_gt_1pct']} |",
+            f"| frozen (since {fw['window_start']}) | {fw['n_days']} | "
+            f"{fw['vix_daily_max_min']}/{fw['vix_daily_max_max']} | {fw['days_vix_gt_20']} | "
+            f"{fw['spy_cumulative_return_pct']}% | {fw['worst_day']} | {fw['days_down_gt_1pct']} |",
+        ]
+        if rc.get("calm_only_window_warning"):
+            lines += ["", f"**{rc['calm_only_window_warning']}**"]
 
     lines += [
         "",

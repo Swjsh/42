@@ -350,6 +350,98 @@ def render_other_lanes() -> list[str]:
     return L
 
 
+GATE_JSON = REPO / "analysis" / "go-live-gate.json"
+NULL_STUDY_SUMMARY = REPO / "analysis" / "whole-engine-null" / "summary-line.txt"
+GATE_CLOCK_END = "2026-10-30"
+
+
+def render_gate_block() -> list[str]:
+    """'## The gate' -- ONE number: are we go-live yet. Renders go_live_gate.py's own JSON
+
+    verbatim. This function computes NOTHING -- every value below is read straight off
+    analysis/go-live-gate.json (or the null-study summary line) and a missing key renders
+    'n/a', never a guess, per this task's own constraint (B4-home-gate-block). If the gate's
+    schema changes shape entirely, this degrades to the "gate file unreadable" branch rather
+    than raising -- a reporting surface must never be able to break a trading day (C7).
+    """
+    L: list[str] = ["## The gate", ""]
+    gate = read_json(GATE_JSON)
+    if not gate:
+        try:
+            shown = GATE_JSON.relative_to(REPO)
+        except ValueError:
+            shown = GATE_JSON
+        L.append(f"> ⚠️ gate file unreadable: `{shown}`")
+        L.append("")
+        return L
+
+    def g(d: Any, *path: str, default: Any = "n/a") -> Any:
+        cur = d
+        for k in path:
+            if not isinstance(cur, dict) or k not in cur:
+                return default
+            cur = cur[k]
+        return default if cur is None else cur
+
+    # 1. overall verdict
+    L.append(f"- **overall verdict:** `{g(gate, 'overall_verdict')}` "
+              f"(as of `{g(gate, 'generated_et')}`)")
+
+    # 2. criterion 5 line -- prod_shadow: arm, days scored/needed, CI_lo
+    ps = gate.get("criteria", {}).get("prod_shadow") or {}
+    arm = g(ps, "designation", "arm")
+    days_scored = g(ps, "days_scored")
+    days_needed = g(ps, "days_needed")
+    ci_lo = g(ps, "current_ci_lower_2.5")
+    L.append(f"- **criterion 5 (prod-shadow)** — arm `{arm}` · "
+             f"{days_scored}/{days_needed} days scored · CI-lo(2.5%) `{ci_lo}` · "
+             f"status `{g(ps, 'status')}`")
+
+    # 3. frozen-window BOOK PF ex-best-day + CI_lo
+    fw_book = g(gate, "disclosures", "frozen_config_window", "book_wide_correlated_rollup",
+                default={})
+    fw_ex = fw_book.get("ex_best_day") if isinstance(fw_book, dict) else None
+    pf_lo = g(fw_ex or {}, "pf_point")
+    ci_lo_fw = g(fw_ex or {}, "ci_lower_2.5")
+    L.append(f"- **frozen-window BOOK** (ex-best-day) — PF `{pf_lo}` · "
+             f"CI-lo(2.5%) `{ci_lo_fw}`")
+
+    # 4. per-arm plan-reachability $/day to the governing clock -- compact table
+    reach = g(gate, "disclosures", "plan_reachability", "per_arm", default={})
+    L.append("")
+    L.append(f"| Arm | $/day needed by `{GATE_CLOCK_END}` | already clears |")
+    L.append("|---|---:|---|")
+    if isinstance(reach, dict) and reach:
+        for arm_name, rows in reach.items():
+            tl = g(rows, "tight_ladder_clock_end", default={})
+            L.append(f"| {arm_name} | {g(tl, 'dollars_per_day')} | {g(tl, 'already_clears')} |")
+    else:
+        L.append("| n/a | n/a | n/a |")
+    L.append("")
+
+    # 5. regime line -- only if the gate itself reports one (optional disclosure, not a
+    # fixed row -- absence here means "not wired yet", not "n/a").
+    regime = gate.get("disclosures", {}).get("regime") if isinstance(
+        gate.get("disclosures"), dict) else None
+    if regime:
+        L.append(f"- **regime:** `{regime}`")
+
+    # 6. null-study line
+    if NULL_STUDY_SUMMARY.exists():
+        try:
+            null_line = NULL_STUDY_SUMMARY.read_text(encoding="utf-8", errors="replace").strip()
+        except Exception:  # noqa: BLE001
+            null_line = "unreadable"
+        L.append(f"- **null study:** {null_line or 'n/a'}")
+    else:
+        L.append("- **null study:** not run")
+
+    # 7. governing clock
+    L.append(f"- **governing clock:** `{GATE_CLOCK_END}`")
+    L.append("")
+    return L
+
+
 def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     levels = read_json(STATE / "key-levels.json") or {}
     bias = read_json(STATE / "today-bias.json") or {}
@@ -366,6 +458,8 @@ def build_home(date: str, stamp: str, market_open: bool, snap: dict) -> str:
     L.append("## Position & P&L")
     L.append("")
     L.extend(render_positions_table(snap))
+
+    L.extend(render_gate_block())
 
     L.append("## Today's levels")
     L.append("")
@@ -801,6 +895,8 @@ CLAUDE_ROUTING = [
     ("What are the rules?", "CLAUDE.md — the 10 rules + OP-0/3/11/16/22/25/31/32/33"),
     ("Is the futures lane alive / why didn't it trade?",
      "automation/state/futures/health.json + analysis/futures-eod/<date>.md"),
+    ("Are we go-live yet?",
+     "HOME.md §The gate (rendered from analysis/go-live-gate.json — one number, never re-derived)"),
 ]
 
 

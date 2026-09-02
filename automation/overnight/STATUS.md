@@ -1,3 +1,18 @@
+## [2026-09-01T23:05 ET] Fable session, wave 2: 8 more freeze-compatible ships + the OPUS work order -- REVOKE surface
+
+**Execution order for every session to 10-30:** `markdown/planning/OPUS-WORK-ORDER-2026-09.md` (phases, review/audit/test list, drills, J's items). **Decision recorded there:** freeze on SHAPE-changing edits extends to **2026-10-30**; pre-registered SAFETY changes ship at the 09-29 checkpoint; hook `FREEZE_END` + CLAUDE.md text change Sat 09-05 (Rule 9).
+
+**Shipped (verifier all green after one fix round; reviewer SHIP; frozen-path diff empty):**
+- **Whole-engine null study** `setup/scripts/whole_engine_null.py` + `Gamma_WholeEngineNull` (Fri 16:55 ET). **First reading: WITHHELD_HARNESS_UNRELIABLE** -- V9 sign agreement 79.3% (n=121) < 85%. Mechanical sub-checks all green on raw numbers (engine P1 +$3,562 > N_a p95 $2,546; N_b call -$2,642; N_c -$4,676) but published as `mechanical_verdict` only. A review pass had flipped this to PASS because the prereg JSON did not name V9; reversed by Fable, rule written into the prereg (`addendum_2026_09_01_validator_fidelity`). Top research item: WALKER-FIDELITY-TRIGGER-LEVEL (94/121 rows lack the real chart level in trades-enriched). REVOKE: `Unregister-ScheduledTask Gamma_WholeEngineNull`.
+- **Early-close flatten**: `setup/scripts/market_calendar.py` (calendar.json `early_closes`), `eod_flatten.py --only-if-early-close`, `Gamma_EodFlattenEarlyClose` 12:32 ET weekdays (NOOP on 16:00 days). Entry-cutoff half waits for 09-29 (heartbeat_core frozen). REVOKE: unregister the task.
+- **Monitors**: engine_health `duplicate_ticks` (GREEN 09-01) + `early_close_today`; `prereg_hygiene.py` + `Gamma_PreregHygiene` 16:58 ET; gate REGIME COVERAGE block ("calm-only window" warning). HOME.md `## The gate` block.
+- **Phone HALT**: `setup/scripts/halt_command.py` in the Discord responder -- `HALT <arm>` / `HALT ALL` / `HALT <arm> FLATTEN` / `RESUME <arm>` (allowlisted author; FLATTEN fail-closed on a failed broker read; fleet arms halt via `automation/state/fleet/<arm>/circuit-breaker.json`, read by fleet_live every tick). **J: drill it once from the phone.**
+- **Time-stop band measured**: [15:20,15:40] = 0.00% of post-08-11 gross winner dollars -> prereg verdict SHIP (<=15:20) at 09-29. `analysis/recommendations/time-stop-band-2026-09-01.json`.
+- **LIVE-FLIP-RUNBOOK rewritten** (safe-3, live caps, prerequisites). **journal/trades.csv** writer fixed (`trades_csv_writer.py`), 25 rows repaired, backup `trades.csv.bak-2026-09-01`, pandas parses (556,44).
+- Tests: 9 new files (119 tests) green; safety gate 59/59; graduated guards 94.
+
+---
+
 ## [2026-09-01T20:55 ET] Fable full audit session (interactive, ultracode): SHIPPED 5 freeze-compatible fixes + the audit itself -- REVOKE surface
 
 **Audit:** `analysis/deep-research/FABLE-FULL-AUDIT-2026-09-01.md` (verdict, edge re-derivation, RIGHT/WRONG/IMPROVE/ADD/BLIND-SPOT map, decisions). Provenance: `analysis/deep-research/2026-09-01-audit/findings.json`. Follow-ups filed under `## Active backlog` -> `### FABLE-FULL-AUDIT-2026-09-01 follow-ups` in queue.md.
@@ -286,3 +301,24 @@ Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=openro
 - CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+
+### BROKEN: prereg-hygiene 2026-09-01T21:35:54
+- 5 prereg(s) FROZEN/NOT RUN + age>14d + orphan (nothing references them):
+  - prereg-ladder-x-premium-2026-08-09.json (age 24.1d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.')
+  - prereg-pdt-blocked-counterfactual-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
+  - prereg-recency-qty-clamp-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 27.1d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.')
+  - profit-lock-arm-scope-prereg-2026-08-06.json (age 27.1d via frozen_at_et, status='FROZEN — runner NOT yet built. Nothing ships until every gate below is scored.')
+
+### BROKEN: prereg-hygiene 2026-09-01T21:41:16
+- 1 prereg(s) FROZEN/NOT RUN + age>14d + orphan (nothing references them):
+  - prereg-ladder-vwap-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
+
+### BROKEN: prereg-hygiene 2026-09-01T21:43:43
+- 6 prereg(s) FROZEN/NOT RUN + age>14d + orphan (nothing references them):
+  - prereg-ladder-vwap-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
+  - prereg-ladder-x-premium-2026-08-09.json (age 24.1d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.')
+  - prereg-pdt-blocked-counterfactual-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
+  - prereg-recency-qty-clamp-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 27.1d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.')
+  - profit-lock-arm-scope-prereg-2026-08-06.json (age 27.1d via frozen_at_et, status='FROZEN — runner NOT yet built. Nothing ships until every gate below is scored.')

@@ -47,6 +47,9 @@ _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0  # no conhost f
 from datetime import timedelta, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import halt_command  # noqa: E402 -- TASK B5-phone-halt: HALT/RESUME parsing + dispatch
+
 REPO = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO / "automation" / "state"
 INBOX = STATE_DIR / "discord-inbox.jsonl"
@@ -584,11 +587,30 @@ def main() -> int:
 
         # 0a) CAPTURE J'S CORRECTION (pure Python, $0, even during RTH) -- parity with
         # the terminal hook so Discord corrections aren't lost. Non-consuming side
-        # effect: we still revert/approve/answer below regardless.
+        # effect: we still revert/approve/answer below regardless. Verified (TASK B5,
+        # test_phone_halt_2026_09_01.py::test_correction_denylist_does_not_swallow_halt)
+        # that no HALT/RESUME text matches _CORRECTION_PATTERNS or is otherwise blocked
+        # by this step -- it only ever tags, never consumes.
         try:
             _capture_correction(content)
         except Exception as e:
             logging.exception("correction-capture error: %s", e)
+
+        # 0b) HALT/RESUME -- J's phone off-switch (TASK B5-phone-halt, 2026-09-01). Pure
+        # Python, $0, works ANY TIME (no after-hours gate, no proposal precondition) --
+        # this must never wait behind the LLM Q&A market-hours gate below. Takes priority
+        # over revert/approve/shelve so a HALT command can never be mis-parsed as one of
+        # those (arm ids like "safe-3" don't collide with _PROPOSAL_ID_RE in practice, but
+        # HALT/RESUME are checked first regardless, defense-in-depth).
+        try:
+            halt_ack = halt_command.handle_message(content, msg.get("author_id", ""))
+            if halt_ack is not None:
+                _queue_outbox(halt_ack, user_id)
+                _save_watermark(msg["discord_msg_id"])
+                continue
+        except Exception as e:
+            logging.exception("halt/resume dispatch error: %s", e)
+            # fall through -- never let a parse/dispatch bug eat the message silently
 
         # 0) REVERT (J's off-switch) -- dispatch to the actuator; works any time.
         try:

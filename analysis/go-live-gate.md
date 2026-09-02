@@ -1,6 +1,6 @@
 # Go-Live Gate -- RED
 
-_generated 2026-09-01T20:50:20 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
+_generated 2026-09-01T22:17:13 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
 
 | Criterion | Verdict |
 |---|---|
@@ -79,5 +79,16 @@ _zero-variance best case -- constant $/day over remaining trading days that woul
 | safe-2 | $166.33/day | $65.91/day |
 | risky-1 | $115.39/day | $52.45/day |
 | bold-2 | $137.64/day | $57.18/day |
+
+## REGIME COVERAGE (disclosure only)
+
+_never gates the overall verdict -- answers whether the evidence window has actually seen a stressed market_
+
+| Window | n_days | VIX daily-max min/max | days VIX>20 | SPY cum. return | worst day | days down >1% |
+|---|---|---|---|---|---|---|
+| lifetime | 5 | 14.82/16.8 | 0 | -0.634% | {'date': '2026-09-01', 'ret_pct': -0.8} | 0 |
+| frozen (since 2026-09-01) | 1 | 16.8/16.8 | 0 | -0.8% | {'date': '2026-09-01', 'ret_pct': -0.8} | 0 |
+
+**calm-only window -- a GREEN here is untested in stress**
 
 Full machine payload: `analysis/go-live-gate.json`. Runbook: `markdown/planning/LIVE-FLIP-RUNBOOK.md`.

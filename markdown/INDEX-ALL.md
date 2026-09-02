@@ -1,6 +1,6 @@
 # 📖 markdown/ — every doc
 
-> Auto-generated `2026-08-09 14:24:14 Sunday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-09-01 23:28:41 Tuesday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## trading-knowledge
 
@@ -8,6 +8,8 @@
 - [[markdown/trading-knowledge/GENERATIVE-LENS|GENERATIVE-LENS]]
 - [[markdown/trading-knowledge/market-structure-execution|market-structure-execution]]
 - [[markdown/trading-knowledge/options-greeks-structures|options-greeks-structures]]
+- [[markdown/trading-knowledge/PDT-CLAIM-VERIFICATION-2026-08-18|PDT-CLAIM-VERIFICATION-2026-08-18]]
+- [[markdown/trading-knowledge/REGULATORY-BROKER-LANDSCAPE-2026-08-18|REGULATORY-BROKER-LANDSCAPE-2026-08-18]]
 
 ## specs
 
@@ -71,8 +73,15 @@
 - [[markdown/research/V14E-REALFILLS-26K-2026-05-23|V14E-REALFILLS-26K-2026-05-23]]
 - [[markdown/research/WALK-FORWARD|WALK-FORWARD]]
 
+## prediction-markets
+
+- [[markdown/prediction-markets/KALSHI-DEEP-DIVE|KALSHI-DEEP-DIVE]]
+- [[markdown/prediction-markets/KALSHI-LANE-SETUP|KALSHI-LANE-SETUP]]
+- [[markdown/prediction-markets/PREDICTION-MARKETS-BRAINSTORM|PREDICTION-MARKETS-BRAINSTORM]]
+
 ## planning
 
+- [[markdown/planning/ARM-FUNNEL-HANDOFF-2026-08-29|ARM-FUNNEL-HANDOFF-2026-08-29]]
 - [[markdown/planning/AUTONOMY-ROADMAP|AUTONOMY-ROADMAP]]
 - [[markdown/planning/BOLD-QTY-FLOOR-RULING-2026-06-22|BOLD-QTY-FLOOR-RULING-2026-06-22]]
 - [[markdown/planning/BRAIN-SOVEREIGNTY|BRAIN-SOVEREIGNTY]]
@@ -80,9 +89,11 @@
 - [[markdown/planning/CROSS-TICKER-BRAINSTORM-2026-07-10|CROSS-TICKER-BRAINSTORM-2026-07-10]]
 - [[markdown/planning/CRYPTO-TWIN-TRAINING-GROUND|CRYPTO-TWIN-TRAINING-GROUND]]
 - [[markdown/planning/daily-review|daily-review]]
+- [[markdown/planning/ENTRY-QUALITY-HANDOFF-2026-08-14|ENTRY-QUALITY-HANDOFF-2026-08-14]]
 - [[markdown/planning/FREE-AGENT-PLAN-A-SHADOW-EVALS|FREE-AGENT-PLAN-A-SHADOW-EVALS]]
 - [[markdown/planning/FREE-AGENT-PLAN-B-KITCHEN|FREE-AGENT-PLAN-B-KITCHEN]]
 - [[markdown/planning/FUTURE-IMPROVEMENTS|FUTURE-IMPROVEMENTS]]
+- [[markdown/planning/FUTURES-FIRST-PLAN-2026-08-09|FUTURES-FIRST-PLAN-2026-08-09]]
 - [[markdown/planning/GAMMA-COCKPIT-EXECUTION-LOG|GAMMA-COCKPIT-EXECUTION-LOG]]
 - [[markdown/planning/GAMMA-FREE-WORKFORCE-MASTERPLAN|GAMMA-FREE-WORKFORCE-MASTERPLAN]]
 - [[markdown/planning/GAMMA-WORKER|GAMMA-WORKER]]
@@ -90,13 +101,23 @@
 - [[markdown/planning/HANDOFF-2026-07-09-TRUTH-AND-EXITS|HANDOFF-2026-07-09-TRUTH-AND-EXITS]]
 - [[markdown/planning/HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX|HANDOFF-2026-07-10-ENTRY-EXIT-MATRIX]]
 - [[markdown/planning/HANDOFF-2026-07-11-CONFIRM-AND-WIRE|HANDOFF-2026-07-11-CONFIRM-AND-WIRE]]
+- [[markdown/planning/HANDOFF-2026-08-15-ENGINE-REVIEW|HANDOFF-2026-08-15-ENGINE-REVIEW]]
 - [[markdown/planning/JARVIS-WATCH-DESIGN|JARVIS-WATCH-DESIGN]]
+- [[markdown/planning/LIVE-FLIP-RUNBOOK|LIVE-FLIP-RUNBOOK]]
 - [[markdown/planning/LIVE-PATH-WORKPACKAGE|LIVE-PATH-WORKPACKAGE]]
 - [[markdown/planning/MONDAY-READY-CHECKLIST|MONDAY-READY-CHECKLIST]]
+- [[markdown/planning/ONE-ACCOUNT-TRANSITION-2026-08-18|ONE-ACCOUNT-TRANSITION-2026-08-18]]
+- [[markdown/planning/OPUS-WORK-ORDER-2026-09|OPUS-WORK-ORDER-2026-09]]
+- [[markdown/planning/OPUS-WORKER-HANDOFF-2026-08-11|OPUS-WORKER-HANDOFF-2026-08-11]]
+- [[markdown/planning/OPUS-WORKER-HANDOFF-2026-08-20-GATE8|OPUS-WORKER-HANDOFF-2026-08-20-GATE8]]
+- [[markdown/planning/OPUS-WORKPACKAGE-MULTI-LANE-2026-08-20|OPUS-WORKPACKAGE-MULTI-LANE-2026-08-20]]
 - [[markdown/planning/OVERNIGHT-DRIVE-2026-07-09|OVERNIGHT-DRIVE-2026-07-09]]
 - [[markdown/planning/PIXEL-OFFICE-PAUL-PLAN|PIXEL-OFFICE-PAUL-PLAN]]
+- [[markdown/planning/ROADMAP|ROADMAP]]
 - [[markdown/planning/STOP-A-ENTRY-EXIT-MATRIX|STOP-A-ENTRY-EXIT-MATRIX]]
 - [[markdown/planning/TWIN-PROGRAM|TWIN-PROGRAM]]
+- [[markdown/planning/TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29|TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29]]
+- [[markdown/planning/WEEKLY-OPTIONS-PROGRAM|WEEKLY-OPTIONS-PROGRAM]]
 
 ## meta
 
@@ -107,9 +128,11 @@
 - [[markdown/infra/ACCOUNT-REPOINT-RUNBOOK|ACCOUNT-REPOINT-RUNBOOK]]
 - [[markdown/infra/alert-style|alert-style]]
 - [[markdown/infra/ARM-DISPLAY-NAMES|ARM-DISPLAY-NAMES]]
+- [[markdown/infra/COCKPIT-DESIGN-SPEC|COCKPIT-DESIGN-SPEC]]
 - [[markdown/infra/CONTEXT-LEANNESS|CONTEXT-LEANNESS]]
 - [[markdown/infra/DATA-PROVENANCE|DATA-PROVENANCE]]
 - [[markdown/infra/DOC-ARCHITECTURE|DOC-ARCHITECTURE]]
+- [[markdown/infra/DOCTRINE-HOOKS|DOCTRINE-HOOKS]]
 - [[markdown/infra/FREE-MODEL-AUDIT-HARNESS|FREE-MODEL-AUDIT-HARNESS]]
 - [[markdown/infra/gamma-companion|gamma-companion]]
 - [[markdown/infra/KARPATHY-METHOD|KARPATHY-METHOD]]
@@ -119,18 +142,23 @@
 - [[markdown/infra/MINIMAX-INTEGRATION|MINIMAX-INTEGRATION]]
 - [[markdown/infra/POWERSHELL-COMPAT|POWERSHELL-COMPAT]]
 - [[markdown/infra/PROSPECTOR-SPEC|PROSPECTOR-SPEC]]
+- [[markdown/infra/SECRET-EXPOSURE-2026-08-18|SECRET-EXPOSURE-2026-08-18]]
 - [[markdown/infra/SKILLS-CATALOG|SKILLS-CATALOG]]
 - [[markdown/infra/smoke-prompt|smoke-prompt]]
+- [[markdown/infra/THE-APP|THE-APP]]
+- [[markdown/infra/UNATTENDED-REGISTRY|UNATTENDED-REGISTRY]]
 - [[markdown/infra/verification|verification]]
 
 ## futures
 
+- [[markdown/futures/AUTONOMOUS-FUTURES-LANE|AUTONOMOUS-FUTURES-LANE]]
 - [[markdown/futures/CONTRACT-SPECS|CONTRACT-SPECS]]
 - [[markdown/futures/FUTURES-REVIVAL-PLAN-2026-07-02|FUTURES-REVIVAL-PLAN-2026-07-02]]
 - [[markdown/futures/MARGIN-LEVERAGE-RISK|MARGIN-LEVERAGE-RISK]]
 - [[markdown/futures/README|README]]
 - [[markdown/futures/SESSIONS-ROLLOVER-TAX|SESSIONS-ROLLOVER-TAX]]
 - [[markdown/futures/SOURCES|SOURCES]]
+- [[markdown/futures/TJR-MODEL|TJR-MODEL]]
 
 ## doctrine/fable-judgment
 
@@ -142,6 +170,7 @@
 
 ## doctrine
 
+- [[markdown/doctrine/AGENT-ORCHESTRATION|AGENT-ORCHESTRATION]]
 - [[markdown/doctrine/BULL-DIRECTION-ACTIVATION|BULL-DIRECTION-ACTIVATION]]
 - [[markdown/doctrine/DOCTRINE-ARCHIVE|DOCTRINE-ARCHIVE]]
 - [[markdown/doctrine/DOJO-HARVEST-2026-07-21|DOJO-HARVEST-2026-07-21]]
@@ -156,6 +185,7 @@
 - [[markdown/doctrine/LESSONS-LEARNED|LESSONS-LEARNED]]
 - [[markdown/doctrine/OP-33-verify-visibility|OP-33-verify-visibility]]
 - [[markdown/doctrine/rationalization-counters|rationalization-counters]]
+- [[markdown/doctrine/RTH-POOL-PROVENANCE|RTH-POOL-PROVENANCE]]
 - [[markdown/doctrine/rules-as-gates|rules-as-gates]]
 - [[markdown/doctrine/seed10095-exit-doctrine|seed10095-exit-doctrine]]
 

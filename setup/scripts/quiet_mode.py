@@ -138,6 +138,12 @@ ESSENTIAL = {
     "Gamma_EodFlatten",
     "Gamma_EodFlatten_Aggressive",
     "Gamma_EodFlattenCore",
+    # Early-close flatten check (B2, 2026-09-01). ESSENTIAL is an exact-match set, NOT a
+    # glob -- "Gamma_EodFlatten*" does not cover this task; it must be listed explicitly or
+    # quiet mode would silently disable the one task that acts before the 2026-11-27/12-24
+    # 13:00 ET early closes. Fires at 12:32 ET, well inside the LOUD weekday band anyway,
+    # but listed here for the same defense-in-depth reason as the other flatten backstops.
+    "Gamma_EodFlattenEarlyClose",
     # Independent open-position watchdog (TASK W1, 2026-09-01, queue.md
     # DEAD-MANS-SWITCH-POSITION-FLATTENER) -- trading-critical in exactly the same sense as
     # the flatten backstops above: it only ever acts on an ENGINE-STALE arm holding an open

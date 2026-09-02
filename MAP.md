@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-09-01 20:16:50 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-09-01 23:28:41 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -13,6 +13,7 @@
 | What broke before? | markdown/doctrine/LESSONS-LEARNED.md (L-numbered, themed C1-C36) |
 | What are the rules? | CLAUDE.md — the 10 rules + OP-0/3/11/16/22/25/31/32/33 |
 | Is the futures lane alive / why didn't it trade? | automation/state/futures/health.json + analysis/futures-eod/<date>.md |
+| Are we go-live yet? | HOME.md §The gate (rendered from analysis/go-live-gate.json — one number, never re-derived) |
 
 **Do not read the whole repo.** 6,777 markdown files exist; ~479 are human-written and the rest is machine output. This map plus the four ORIENT docs is the whole system at the level most questions need.
 
@@ -88,7 +89,7 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **842** · broken wikilinks: **33** · orphans (no links either way): **4**
+- visible notes: **846** · broken wikilinks: **34** · orphans (no links either way): **4**
   - ⛔ `memory-mirror/feedback_adhd_output_style_2026_07_09.md` → `concise-responses` unresolved
   - ⛔ `memory-mirror/feedback_dashboard_visuals_chat_ideas.md` → `STRATEGY-SPACE-MAP` unresolved
   - ⛔ `memory-mirror/feedback_design_starts_at_external_reference_2026_08_30.md` → `app-design-dossier` unresolved
@@ -99,7 +100,7 @@ flowchart LR
   - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `default-act-never-ask` unresolved
   - ⛔ `memory-mirror/feedback_free_model_audit_harness_2026_07_11.md` → `free-model-audit-harness-design` unresolved
   - ⛔ `memory-mirror/feedback_free_swarm_only.md` → `project_groq_paid_tier_2026_07_06` unresolved
-  - … +23 more
+  - … +24 more
 
 ## ⏰ The daily loop (live task state)
 
@@ -109,13 +110,13 @@ flowchart LR
 | 08:05/5m | `Gamma_TvWatchdog` | keeps CDP alive; heals in ~67s | Ready (last=0) |
 | 08:30 | `Gamma_Premarket` | levels, bias, hypothesis → journal note | Ready (last=0) |
 | 09:30–15:55 | `Gamma_HeartbeatCore` | THE engine, 1/min | Ready (last=0) |
-| /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Disabled (last=0) |
+| /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Ready (last=0) |
 | 15:55 | `Gamma_EodFlatten` | nothing 0DTE survives the close | Ready (last=0) |
-| 16:08 | `Gamma_ChopMeter` | did we trade chop today | Disabled (last=0) |
-| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Disabled (last=0) |
-| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Disabled (last=0) |
-| 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Disabled (last=0) |
-| 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Disabled (last=0) |
+| 16:08 | `Gamma_ChopMeter` | did we trade chop today | Ready (last=0) |
+| 16:25 | `Gamma_WinnerAutopsy` | capture rate + entry-quality fold | Ready (last=0) |
+| 16:40 | `Gamma_LadderRungShadow` | score-ladder shadow clock | Ready (last=0) |
+| 16:45 | `Gamma_ObsidianSync` | HOME + daily note + this map | Ready (last=0) |
+| 17:45 | `Gamma_RegimeAttribution` | was that us or the tape | Ready (last=0) |
 
 ## 💰 The arms — risk profiles, NOT strategies
 

@@ -1,6 +1,6 @@
 # 🌃 Overnight — STATUS, queue, archives
 
-> Auto-generated `2026-08-20 22:09:08 Thursday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-09-01 23:28:41 Tuesday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## _lesson-inbox
 
@@ -10,6 +10,7 @@
 - [[automation/overnight/_lesson-inbox/2026-08-06-samebar-wallclock-vs-engine-bar-identity|2026-08-06-samebar-wallclock-vs-engine-bar-identity]]
 - [[automation/overnight/_lesson-inbox/2026-08-09-hook-surface-invisible-to-popup-audit|2026-08-09-hook-surface-invisible-to-popup-audit]]
 - [[automation/overnight/_lesson-inbox/2026-08-20-wants-are-unverified-claims|2026-08-20-wants-are-unverified-claims]]
+- [[automation/overnight/_lesson-inbox/2026-08-30-hider-died-and-nothing-watched-it|2026-08-30-hider-died-and-nothing-watched-it]]
 
 ## (top level)
 
@@ -22,12 +23,14 @@
 - [[automation/overnight/queue-archive-2026-06-20|queue-archive-2026-06-20]]
 - [[automation/overnight/queue-archive-2026-07-23-completed|queue-archive-2026-07-23-completed]]
 - [[automation/overnight/queue-archive-2026-08-19|queue-archive-2026-08-19]]
+- [[automation/overnight/queue-archive-2026-08-29|queue-archive-2026-08-29]]
 - [[automation/overnight/queue-archive-2026-08|queue-archive-2026-08]]
 - [[automation/overnight/queue-harvest-archive|queue-harvest-archive]]
 - [[automation/overnight/queue|queue]]
 - [[automation/overnight/STATUS-archive-2026-06|STATUS-archive-2026-06]]
 - [[automation/overnight/STATUS-archive-2026-07|STATUS-archive-2026-07]]
 - [[automation/overnight/STATUS-archive-2026-08|STATUS-archive-2026-08]]
+- [[automation/overnight/STATUS-archive-2026-09|STATUS-archive-2026-09]]
 - [[automation/overnight/STATUS-ARCHIVE|STATUS-ARCHIVE]]
 - [[automation/overnight/STATUS|STATUS]]
 - [[automation/overnight/wake-protocol|wake-protocol]]
