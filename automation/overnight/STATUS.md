@@ -1,3 +1,40 @@
+## [2026-09-02T14:20 ET] The 12th frozen prereg: a live behaviour resting on a run nobody can reproduce
+
+Closed the last of the 12 frozen preregs that named a runner (work order section 2a) — and had
+to correct my own diagnosis of it from this morning.
+
+- **I said "bit-rot, the orchestrator signature changed". Wrong.** The signature never changed:
+  the hook the runner calls **was never committed**. `git show --stat e84c062f` — the commit
+  whose message says *"levels.py's new additive `memory_levels_by_day` hook"* — touches **six
+  files, none of them engine code**, and `git log -S memory_levels_by_day` over
+  `levels.py`/`orchestrator.py` returns **nothing across all history**.
+- **So the recorded verdict cannot be regenerated.** `level-memory-wire.json` reports CONTROL 28
+  / TREATMENT 26, n=3, −$489.50 — and no code here at any commit can produce that TREATMENT arm.
+  Likely an uncommitted local edit (inference). The control does not reproduce either: **28
+  trades in July, 36 today** on the same window.
+- **A faithful rebuild would still measure the wrong thing.** The frozen treatment is side-blind
+  *nearest-6*; the live wire changed **2026-07-27** to cap each side at 3, after J flagged that
+  side-blind selection *"produced an all-resistance set with ZERO supports"*. The study encodes
+  the version already known broken.
+- **Retired as unrunnable — NOT a kill, NOT a pass.** The hypothesis is UNMEASURED. Reviving it
+  needs a new prereg; re-pointing the frozen one would break its own `no_repick_clause`.
+- 🚨 **What it leaves live:** `params.json` has `level_memory_live_merge: true` and
+  `refresh_levels_intraday.py:700` really does merge memory levels into the live feed every
+  intraday refresh — kept ON on *"insufficient n for a kill"* (n=3 vs a floor of 15) from the
+  unreproducible scorecard. **Not turned off:** params.json is frozen to 10-30, and "we cannot
+  reproduce the evidence" is not a verdict that the behaviour is harmful. Filed as
+  `LEVEL-MEMORY-LIVE-MERGE-UNVALIDATED` with both options for the checkpoint.
+- **Guard:** 5 tests, 2 mutations RED-proofed — pins the retirement, keeps the forensics on the
+  prereg, and fails loudly *if the hook is ever built*, handing the builder a new prereg instead
+  of a revival. It deliberately does not assert the flag should be false.
+- Also filed `PREREG-BUILD-CLAIMS-ARE-UNFALSIFIABLE-AS-WRITTEN`: a generic "does the claimed
+  build exist?" monitor **would have passed this** — file and function both exist, only the
+  kwarg was missing. The fix is a structured `build_step` field, not a smarter regex. Not built
+  today (n=2 across all preregs).
+
+Section 2a's frozen-prereg box is now **[x]** — 12/12 runners resolved. Commit `be204a76`, no
+engine file touched. REVOKE: `git revert be204a76`.
+
 ## [2026-09-02T11:35 ET] A rehearsal was being read as a real flatten -- by TWO safety checks
 
 Went looking for the last stale baseline test and found a live false-green instead. The
