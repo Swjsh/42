@@ -1,3 +1,46 @@
+## Known broken
+
+> **This section is the PREAMBLE and must stay above the first `## [` entry.**
+> `status_retention.py::split_entries` splits on `## [` headers and preserves only what
+> precedes the first one. `## Known broken` does not start with `## [`, so anywhere below
+> that line it is absorbed into the body of whatever dated entry precedes it and rolls off
+> to the monthly archive when that entry ages out -- silently taking every producer that
+> targets this marker with it (`guard_runner_slow.py`, `gate_expiry_check.py`,
+> `twin_gauntlet_conductor_hook.py`, `prereg_hygiene.py`). That is the 2026-08-20 scar
+> where three guards discarded RED for two months. It was fixed once and drifted back,
+> because a session prepending a new entry pushes it down again. Restored to the top
+> 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
+> **Prepend new dated entries BELOW this block.**
+
+
+- [2026-09-02 04:52 ET] FULL-SUITE RED :: 11461 passed, 5 failed, 11 skipped :: tests/test_cheap_contract_qty_boost_2026_08_03.py::test_boost_fires_below_threshold, tests/test_cheap_contract_qty_boost_2026_08_03.py::test_threshold_is_strictly_below[0.49-10], tests/test_cheap_contract_qty_boost_2026_08_03.py::test_boost_never_shrinks_a_larger_plan, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_queue_md_retention_cap.py::test_queue_md_under_retention_cap :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-09-02T08:50+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
+- [2026-09-02T07:23+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
+- [2026-09-02T06:36+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
+- [2026-09-02T05:37+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
+
+---
+
+## [2026-09-02T05:00 ET] Opus, continuation: the root cause of "the safety net went dark" -- and it is not GuardsFull -- REVOKE surface
+
+**This closes item 4 of the 04:12 entry above, and it is worse than that entry said.**
+
+1. 🚨 **Quiet mode ate the runs.** It disables ~120 tasks for your evening and **holds past its own 23:00 ET clock while a fullscreen app is foreground** (+15min linger). A trigger inside a hold is skipped -- and because the task was *Disabled* rather than merely unavailable, Windows' `StartWhenAvailable` **cannot recover the fire**. Nothing re-runs it. The 23:00-01:00 ET maintenance band is silently eaten on every evening you game late. Proven 7/7 over 09-01: holds 23:02-23:22 and 00:07-00:42; `FuturesBrokerProbe` (23:05), `GuardsFull` (23:15), `GuardsNightly` (00:30) all missed -- `SpendSummary` (23:30), `OosCheck` (23:40), `LicenseMonitor` (23:58), `GateExpiryCheck` (01:00) all ran. No counter-examples.
+2. ✅ **Why nothing noticed: every surface reads the wrong two fields.** `task_state_guard.py` checks `State` + `LastTaskResult`. **Neither moves when a task never starts.** `LastRunTime` and `NumberOfMissedRuns` were read by nothing. New: **`Gamma_TaskStaleness`** (daily 05:45 ET, $0, report-only) reads exactly those, derives a bar from each task's own cadence, and **names the quiet-hold cause**. Wired into `self_check.py` (item 22) so it lands on a surface you already read, and into quiet mode's `ESSENTIAL` set so the blackout can never silence the alarm about the blackout.
+3. 📉 **Four more instruments are losing runs the same way** -- `Gamma_KalshiAuto`, `Gamma_McpDailyAudit`, `Gamma_GitHubAudit` (the public-repo secrets scan), `Gamma_ConductorWeekend`. I caught up `GuardsFull` and `GuardsNightly` by hand (report-only, correct window). I did **not** auto-restart the others: `KalshiAuto` places orders off a next-day weather prediction, and restarting a trading task hours late on stale data is a different act from re-running an audit. Filed as **QUIET-HOLD-CATCH-UP-SWEEP** with that constraint written down.
+4. ✅ **GuardsFull ran -- first verdict since 08-31: 11,461 passed / 5 failed.** Four are the known pre-existing failures. **The fifth was mine**: my own queue.md append crossed the 450KB retention cap. Consolidated per OP-22 -- 22 closed items archived verbatim to `queue-archive-2026-09-02.md`, `depends:` integrity verified, 451,643 -> 417,019 bytes.
+5. ⚠️ **Correction to the 04:12 entry.** It said the first-live-day review's "NO_DATA is not GREEN" defect was fixed. I fixed **one of two aggregators**: the inner per-arm one at `:587`, not the outer one at `:720` that actually produces the day's verdict. A run where every gating check returned NO_DATA -- every state file missing, i.e. the box died -- **returned GREEN**. Reachable, not theoretical: `fleet_kill_switch` genuinely returned NO_DATA in that task's own 02:15 ET artifact. Fixed and RED-proofed, before its 16:30 ET first real fire.
+
+**Also caught before shipping, by probing all four verdicts instead of the happy path:** the new `self_check` passthrough embedded each finding's own verdict in its message, and `_problem_is_broken` matches the substring `"RED"` -- so every YELLOW and UNKNOWN would have classified BROKEN. And my staleness reporter's first run said **37 RED** when 8 were real (bounded repeaters judged per-interval; Windows' never-ran sentinel `1999-11-30` read as *"last ran 234553.6h ago"*).
+
+**J-only, unchanged:** phone HALT drill · which afternoon the engine may be killed for the DMS drill. **New J-only, 1 line:** the Task Scheduler operational log is **disabled** on this box -- zero scheduler history for ~150 tasks, which is why this took a differential instead of one query. `wevtutil sl Microsoft-Windows-TaskScheduler/Operational /e:true` (elevated). Not done autonomously: machine-wide OS setting, not git-revertible.
+
+**Verified:** safety gate 59/59 on every commit · GuardsFull 11,461 passed · 116 + 244 passed on the touched suites · every fix RED-proofed against a reverted copy · `main` clean of frozen-file changes.
+
+**REVOKE:** `git revert <sha>` per commit. To drop the new monitor entirely: `Unregister-ScheduledTask -TaskName "Gamma_TaskStaleness" -Confirm:$false` + revert `11fbe474`, `70be6ae2`, `b7f777b6`.
+
+---
+
 ## [2026-09-02T04:12 ET] Opus, OPUS-WORK-ORDER execution session (overnight): 13 items closed, 22 commits -- REVOKE surface
 
 **Read these five, skip the rest.**
@@ -40,11 +83,6 @@
 
 ---
 
-## Known broken
-
-- [2026-09-02T07:23+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T06:36+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T05:37+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 ## [2026-09-02T01:01 ET] conductor: OK -- self-audit 2026-08-31T17:32:18 batch triaged (4/4 disposed, 0 code action needed)
 
 **Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/8 fires) + market closed (Wednesday 01:00 ET) + engine-health.json GREEN (23/23). `desk_allocator.py`: SPY 0DTE #1 (30 pts, config-freeze-blocked) then Futures #2 (20 pts, PROGRESS, no ready non-frozen item). `active-goal.json` inactive. `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY` but its 14-day re-ping suppression window (last real ping 2026-08-26) runs until ~09-09 -- correctly not due. Fell through to STAGE-1 priority #3: oldest untriaged self-audit batch = 2026-08-31T17:32:18 (4 gap-lines, predates the already-closed 2026-09-01T17:31:48 batch's own self-referential gap #1 about this exact same-fire-DONE-marker risk).**
@@ -243,4 +281,7 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
 
 ### BROKEN: self-check 2026-09-02T04:09:56
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+
+### BROKEN: self-check 2026-09-02T04:39:56
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
