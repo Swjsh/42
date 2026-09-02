@@ -271,6 +271,84 @@ def test_eod_flatten_agg_log_missing_does_not_block_core_pass():
     assert result["agg_llm_status"] == "NO_LOG"
 
 
+# --------------------------------------------------------------------------------------- #
+# A REHEARSAL IS NOT A FLATTEN (added 2026-09-02, caught in production, not in review).
+#
+# THE SCAR, verbatim from automation/state/logs/eod-flatten-2026-09-02.jsonl. An early-close
+# flatten REHEARSAL ran at 06:14 ET with an injected clock and wrote four rows stamped
+# "2026-09-02 12:45:00 ET" carrying `"dry": true, "outcome": "NOOP"` into the PRODUCTION
+# ledger. At 11:12 ET -- with the real 15:52 sweep still four hours in the future and the
+# actual 16:00 close confirmed by the broker calendar -- run_review() reported
+# "Core flatten confirmed flat for bold-2 (NOOP)" and graded the whole day GREEN.
+#
+# WHY IT MATTERS MORE THAN A COSMETIC MISREPORT: this check is the only thing standing
+# between an unflattened 0DTE position and an overnight hold. The failure mode it must
+# catch is "the 15:52 sweep did not run". A leftover drill row makes that exact case report
+# green, so the instrument is loudest precisely when it is wrong.
+#
+# TWO INDEPENDENT DEFECTS, both fixed, both pinned below:
+#   1. "DRY_RUN" was a member of EOD_CORE_GOOD_OUTCOMES -- a dry run flattens nothing.
+#   2. Nothing filtered `dry: true`, so a NOOP rehearsal row was read as production evidence.
+# Either alone reproduces the false green, so each gets its own test.
+# --------------------------------------------------------------------------------------- #
+
+REAL_REHEARSAL_ROWS_2026_09_02 = [
+    {"arm": "bold-2", "ts": "2026-09-02 12:45:00 ET", "dry": True, "reason": "EARLY_CLOSE",
+     "outcome": "NOOP", "closed": [], "errors": [], "remaining": 0},
+]
+
+
+def test_dry_rehearsal_row_alone_is_not_a_confirmed_flatten():
+    """THE production case. Four such rows existed today and graded the day GREEN."""
+    result = flr.check_eod_flatten_aggressive(REAL_REHEARSAL_ROWS_2026_09_02,
+                                              "=== END tick exit=0 ===")
+    assert result["status"] == "RED", (
+        f"a dry-run rehearsal was accepted as proof the account was flattened: {result}"
+    )
+    assert result["core_confirmed_flat"] is False
+    assert result["core_outcome"] == "MISSING_ONLY_REHEARSALS"
+
+
+def test_the_ignored_rehearsals_are_named_not_silently_dropped():
+    """A ledger holding rows that reads MISSING with no explanation is a report an operator
+    argues with instead of acting on. The count must appear in the human-facing reason."""
+    result = flr.check_eod_flatten_aggressive(REAL_REHEARSAL_ROWS_2026_09_02, None)
+    assert result["rehearsal_rows_ignored"] == 1
+    assert "rehearsal" in result["reason"].lower(), result["reason"]
+
+
+def test_dry_run_outcome_is_not_a_good_outcome():
+    """Defect 1 in isolation: even a row NOT marked `dry` cannot pass on outcome DRY_RUN."""
+    assert "DRY_RUN" not in flr.EOD_CORE_GOOD_OUTCOMES
+    result = flr.check_eod_flatten_aggressive(
+        [{"arm": "bold-2", "outcome": "DRY_RUN", "ts": "2026-09-02 15:52:01 ET"}], None)
+    assert result["status"] == "RED", result
+
+
+def test_a_real_flatten_still_passes_when_a_rehearsal_also_ran_that_day():
+    """The other direction, and the reason this fix is safe to ship: a drill earlier in the
+    day must not RED a day whose real 15:52 sweep genuinely confirmed flat. Every production
+    row since 2026-08-21 carries `dry: False`, so live evidence survives the filter."""
+    rows = REAL_REHEARSAL_ROWS_2026_09_02 + [
+        {"arm": "bold-2", "outcome": "NOOP", "dry": False, "ts": "2026-09-02 15:52:01 ET"},
+    ]
+    result = flr.check_eod_flatten_aggressive(rows, "=== END tick exit=0 ===")
+    assert result["status"] == "GREEN", result
+    assert result["rehearsal_rows_ignored"] == 1
+    assert "rehearsal" in result["reason"].lower()
+
+
+def test_rehearsal_filter_does_not_mask_a_real_failure_that_came_after_it():
+    """Ordering matters: the LAST live row wins, and a rehearsal must not shift which row
+    that is. A drill followed by a genuinely failed sweep stays RED."""
+    rows = REAL_REHEARSAL_ROWS_2026_09_02 + [
+        {"arm": "bold-2", "outcome": "READ_FAILED", "dry": False, "ts": "2026-09-02 15:52:01 ET"},
+    ]
+    result = flr.check_eod_flatten_aggressive(rows, None)
+    assert result["status"] == "RED"
+    assert result["core_outcome"] == "READ_FAILED", result
+
+
 # ============================================================================
 # check 6: fleet kill-switch proximity
 # ============================================================================
@@ -352,13 +430,29 @@ def test_min_equity_for_date_filters_by_date_and_ignores_nulls():
 # check 7: Gamma_GuardsFull
 # ============================================================================
 
-def test_guards_full_four_failures_fresh_not_flagged():
+def test_guards_full_clean_run_is_not_flagged():
     """Uses the REAL guard_runner_full.py write schema (counts.failed nested, no top-level
-    'failed' key -- confirmed live against automation/state/guard-watch-full.json)."""
-    state = {"status": "red", "at": "2026-09-01 23:20 ET",
-             "counts": {"passed": 11097, "failed": 4, "skipped": 11}, "returncode": 1}
+    'failed' key -- confirmed live against automation/state/guard-watch-full.json).
+
+    BASELINE CHANGED 4 -> 0 on 2026-09-02. This test previously asserted that FOUR failures
+    were fine, because four guards were known-stale. They were repaired (fb34ca92) and the
+    full suite then came back 11,739 passed / 0 failed, so the tolerance no longer describes
+    anything -- and at 4 this check would report GREEN for any four failures, including four
+    brand-new real ones."""
+    state = {"status": "green", "at": "2026-09-02 11:09 ET",
+             "counts": {"passed": 11739, "failed": 0, "skipped": 11}, "returncode": 0}
     result = flr.check_guards_full(state, REVIEW_DATE)
     assert result["status"] == "GREEN"
+
+
+def test_guards_full_four_failures_is_NOW_flagged():
+    """The teeth the old baseline removed: four failures must no longer pass silently."""
+    state = {"status": "red", "at": "2026-09-02 11:09 ET",
+             "counts": {"passed": 11097, "failed": 4, "skipped": 11}, "returncode": 1}
+    result = flr.check_guards_full(state, REVIEW_DATE)
+    assert result["status"] == "YELLOW", (
+        "four failures went unflagged -- the stale known-failure tolerance is back"
+    )
 
 
 def test_guards_full_five_failures_is_flagged():
@@ -368,7 +462,7 @@ def test_guards_full_five_failures_is_flagged():
     assert result["status"] == "YELLOW"
     # This state is FRESH (dated the day before the review); the point here is that a
     # count of 5 deviates from the expected 4. Assert semantics, not the reason's prose.
-    assert result["failed"] == 5 and result["expected_failed"] == 4
+    assert result["failed"] == 5 and result["expected_failed"] == 0
     assert result["failed"] != result["expected_failed"]
     assert not result["stale"], "2026-09-01 vs a 2026-09-02 review is not stale"
 
@@ -376,9 +470,10 @@ def test_guards_full_five_failures_is_flagged():
 def test_guards_full_top_level_failed_key_still_accepted_as_fallback():
     """Forward-compat fallback: a bare top-level 'failed' (not the real current schema, but
     accepted in case the writer's shape ever changes back) is still read correctly."""
-    state = {"status": "red", "at": "2026-09-01 23:20 ET", "failed": 4}
+    state = {"status": "green", "at": "2026-09-01 23:20 ET", "failed": 0}
     result = flr.check_guards_full(state, REVIEW_DATE)
     assert result["status"] == "GREEN"
+    assert result["failed"] == 0, "the top-level 'failed' key was not read"
 
 
 def test_guards_full_zero_verdict_is_flagged():
@@ -573,10 +668,17 @@ def test_run_review_clean_day_end_to_end_is_green(empty_state_env, tmp_path):
         {"name": "duplicate_ticks", "status": "GREEN"},
     ]}), encoding="utf-8")
 
+    # A CLEAN DAY MEANS A CLEAN SUITE (fixture corrected 2026-09-02 with the tolerance move
+    # 4 -> 0). This fixture previously wrote status=red / failed=4 / returncode=1 and still
+    # expected the day to grade GREEN, because the old tolerance treated 4 failures as
+    # steady state. check_guards_full reads only `failed` and `at`, so the red status and
+    # non-zero returncode were never consulted -- an incoherent fixture that happened not to
+    # matter. Left as-is it would start lying the moment the check learns to read either
+    # field, so the whole record is made internally consistent rather than just the count.
     gf_path = tmp_path / "automation" / "state" / "guard-watch-full.json"
-    gf_path.write_text(json.dumps({"status": "red", "at": f"{REVIEW_DATE} 23:20 ET",
-                                    "counts": {"passed": 11097, "failed": 4, "skipped": 11},
-                                    "returncode": 1}), encoding="utf-8")
+    gf_path.write_text(json.dumps({"status": "green", "at": f"{REVIEW_DATE} 23:20 ET",
+                                    "counts": {"passed": 11739, "failed": 0, "skipped": 11},
+                                    "returncode": 0}), encoding="utf-8")
 
     fleet_dir = tmp_path / "automation" / "state" / "fleet"
     accounts_path = fleet_dir / "accounts.json"

@@ -615,3 +615,93 @@ def test_build_report_canary_never_masks_a_real_unrelated_red():
     rep = por.build_report("t", states, _good_acct(), _cdp_up(), _good_eod_sources(), canary)
     assert rep["verdict"] == "RED"
     assert "Gamma_HeartbeatCore" in rep["reds"]
+
+
+# --------------------------------------------------------------------------------------- #
+# A REHEARSAL IS NOT PROOF THE SAFETY NET FIRED (added 2026-09-02, found on live state).
+#
+# THE SCAR, verbatim from automation/state/logs/eod-flatten-2026-09-02.jsonl. An early-close
+# flatten REHEARSAL ran at 06:14 ET with an injected clock and appended four rows carrying
+# `"dry": true, "outcome": "NOOP"` -- stamped "2026-09-02 12:45:00 ET", hours in the future
+# of their own write time -- into the PRODUCTION ledger. assess_eod_flatten_reality() then
+# returned, on the real files:
+#
+#   eod_reality:Gamma_EodFlattenCore GREEN 2026-09-02:
+#     {'safe-3': 'NOOP', 'safe-2': 'NOOP', 'risky-1': 'NOOP', 'bold-2': 'NOOP'}
+#
+# i.e. the check that gates the PRE-OPEN window certified a rehearsal as evidence the EOD
+# safety net had run. This module's own docstring says absence of positive evidence is never
+# silently GREEN -- and a dry run is exactly that: absence of positive evidence.
+#
+# TWO DEFECTS, each independently sufficient, each pinned separately below:
+#   1. "DRY_RUN" was a member of GOOD_EOD_OUTCOMES.
+#   2. fetch kept the LAST row per arm with no rehearsal filter -- and rows are ordered by
+#      APPEND, not by `ts`, so a drill can DISPLACE the day's real row entirely.
+# Defect 2 is the dangerous one: a drill run after a failed 15:52 sweep would overwrite the
+# failure with a NOOP and the morning gate would open on a false green.
+# --------------------------------------------------------------------------------------- #
+
+REAL_REHEARSAL_ROW_2026_09_02 = {
+    "arm": "bold-2", "ts": "2026-09-02 12:45:00 ET", "dry": True, "reason": "EARLY_CLOSE",
+    "outcome": "NOOP", "closed": [], "errors": [], "remaining": 0,
+}
+
+
+def test_dry_run_is_not_a_good_eod_outcome():
+    """Defect 1, isolated."""
+    assert "DRY_RUN" not in por.GOOD_EOD_OUTCOMES
+
+
+def test_eod_reality_red_when_every_row_is_a_rehearsal():
+    """THE production case: four dry rows, previously GREEN across all four arms."""
+    sources = {"Gamma_EodFlattenCore": {
+        "date": "2026-09-02",
+        "rows": [dict(REAL_REHEARSAL_ROW_2026_09_02, arm=a)
+                 for a in ("safe-3", "safe-2", "risky-1", "bold-2")],
+        "rehearsal_rows_ignored": 4,
+    }}
+    checks = [c for c in por.assess_eod_flatten_reality(sources) if "Core" in c.name]
+    assert len(checks) == 1
+    assert checks[0].status == "RED", checks[0]
+    assert "rehearsal" in checks[0].detail.lower(), checks[0].detail
+
+
+def test_a_rehearsal_appended_after_a_real_row_cannot_displace_it(tmp_path, monkeypatch):
+    """Defect 2, and the reason it is the dangerous half. The drill row is written LAST, so
+    the old 'keep the last row per arm' rule handed the assessor the rehearsal and threw
+    away the real outcome. Here the real row says READ_FAILED -- a genuine failure the
+    morning gate must see -- and the drill row that follows it says NOOP."""
+    monkeypatch.setattr(por, "LOG_DIR", tmp_path)
+    day = _et_now().date().isoformat()
+    (tmp_path / f"eod-flatten-{day}.jsonl").write_text(
+        json.dumps({"arm": "bold-2", "dry": False, "outcome": "READ_FAILED"}) + "\n"
+        + json.dumps(dict(REAL_REHEARSAL_ROW_2026_09_02, arm="bold-2")) + "\n",
+        encoding="utf-8",
+    )
+    out = por.fetch_eod_flatten_reality()
+    rows = out["Gamma_EodFlattenCore"]["rows"]
+    assert [r["outcome"] for r in rows] == ["READ_FAILED"], (
+        f"a rehearsal displaced the real row: {rows}"
+    )
+    assert out["Gamma_EodFlattenCore"]["rehearsal_rows_ignored"] == 1
+    core = [c for c in por.assess_eod_flatten_reality(out) if "Core" in c.name][0]
+    assert core.status == "RED", core
+
+
+def test_a_real_flatten_still_passes_when_a_drill_also_ran(tmp_path, monkeypatch):
+    """The other direction -- this fix must not RED a day whose real sweep did confirm flat.
+    Every genuine production row since 2026-08-21 carries `dry: False`, so live evidence
+    survives the filter; only the drill is dropped, and it is NAMED rather than hidden."""
+    monkeypatch.setattr(por, "LOG_DIR", tmp_path)
+    day = _et_now().date().isoformat()
+    (tmp_path / f"eod-flatten-{day}.jsonl").write_text(
+        json.dumps(dict(REAL_REHEARSAL_ROW_2026_09_02, arm="bold-2")) + "\n"
+        + json.dumps({"arm": "bold-2", "dry": False, "outcome": "NOOP"}) + "\n",
+        encoding="utf-8",
+    )
+    out = por.fetch_eod_flatten_reality()
+    core = [c for c in por.assess_eod_flatten_reality(out) if "Core" in c.name][0]
+    assert core.status == "GREEN", core
+    assert "rehearsal" in core.detail.lower(), (
+        f"the ignored drill must still be named on a GREEN: {core.detail}"
+    )

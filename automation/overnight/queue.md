@@ -2561,3 +2561,41 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   495 entries) because fleet rows do not record `trigger_bar_et` -- adding that field to the fleet
   ENTER row would take anticipation-entry coverage from 15% to ~100% of entries.
   :: depends:none :: status:filed
+
+- [x] REHEARSAL-ROWS-READ-AS-REAL-FLATTENS (HIGH, safety-net false-green, FIXED 2026-09-02) ::
+  An early-close flatten REHEARSAL at 06:14 ET wrote four `dry:true / outcome:NOOP` rows --
+  stamped `2026-09-02 12:45:00 ET`, hours ahead of their own write time -- into the PRODUCTION
+  ledger `automation/state/logs/eod-flatten-2026-09-02.jsonl`. **Two separate consumers read
+  them as proof the EOD flatten had run**, on real state, verified by running each against the
+  live file: `first_live_day_review.py` reported *"Core flatten confirmed flat for bold-2
+  (NOOP)"* and graded the whole day GREEN at 11:12 ET -- four hours before the real 15:52 sweep,
+  on a day the broker calendar confirms closes 16:00 -- and `preopen_readiness.py` returned
+  `eod_reality:Gamma_EodFlattenCore GREEN {safe-3: NOOP, safe-2: NOOP, risky-1: NOOP, bold-2:
+  NOOP}`, i.e. the gate gating the PRE-OPEN window certified a drill as the safety net firing.
+  **Two independent defects in each file:** `DRY_RUN` was a member of the accepted-outcomes set
+  (a dry run flattens nothing), and nothing filtered `dry: true`. The second is the dangerous
+  half in `preopen_readiness`, which keeps the LAST row per arm and orders rows by APPEND, not
+  by `ts` -- so a drill run AFTER a genuinely failed 15:52 sweep would DISPLACE the failure with
+  a NOOP and the morning gate would open on a false green. **Fixed both files:** rehearsals are
+  excluded from evidence but COUNTED and named in the human-facing reason (a populated ledger
+  reading MISSING with no explanation is a report an operator argues with instead of acting on);
+  a ledger holding only rehearsals reports `MISSING_ONLY_REHEARSALS`/RED. Every genuine
+  production row since 2026-08-21 carries `dry: False`, so no real evidence is lost -- checked
+  across 08-21..09-01 before shipping. Guards: 5 new tests in
+  `test_first_live_day_review_2026_09_02.py` (66 total) + 4 in `test_preopen_readiness.py` (63
+  total), each defect RED-proofed independently in both files (4 mutations, all caught).
+  :: depends:none :: status:done
+
+- [ ] DRILLS-WRITE-INTO-PRODUCTION-LEDGERS (MED, design question, filed 2026-09-02) :: The fix
+  above hardens the two READERS, which is right -- a reader must never credit a rehearsal. But
+  the root condition remains: a drill writes into the same ledger production reads, with a
+  SYNTHETIC timestamp, and `eod-flatten-*.jsonl` is a shared surface. Two consumers were found
+  and fixed; the question this item holds open is whether any FUTURE consumer will make the same
+  assumption, since nothing structurally prevents it. Options, not yet decided: (a) drills write
+  to `eod-flatten-REHEARSAL-<date>.jsonl` and production readers never glob it -- cleanest, but
+  loses the drill's co-location with the day it rehearsed; (b) keep co-location and add a
+  shared `is_rehearsal_row()` helper to one module both readers import (currently duplicated in
+  two files by deliberate choice, since neither imports the other); (c) leave as-is and rely on
+  the guards. Prefer (b) then (a). NOT done now: it is a refactor touching an EOD-safety path
+  during market hours, and the false-green is already closed.
+  :: depends:none :: status:filed

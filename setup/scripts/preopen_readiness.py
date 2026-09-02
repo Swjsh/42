@@ -74,7 +74,24 @@ MIN_OPTIONS_LEVEL = 2  # level 2 = long options (required to BUY 0DTE calls/puts
 # task's own log/jsonl tail instead -- the one place the real outcome survives the mask.
 EOD_FLATTEN_REALITY_TASKS = ("Gamma_EodFlatten", "Gamma_EodFlatten_Aggressive", "Gamma_EodFlattenCore")
 EOD_FLATTEN_MAX_AGE_DAYS = 6  # tolerate a long weekend/holiday gap before flagging "no fire"
-GOOD_EOD_OUTCOMES = {"NOOP", "SUCCESS", "DRY_RUN"}  # eod_flatten.py's per-arm outcome vocabulary
+# A REHEARSAL IS NOT PROOF THE SAFETY NET FIRED (2026-09-02). "DRY_RUN" was in this set and
+# nothing filtered `dry: true`, so a drill satisfied the check that gates the pre-open window.
+# Caught on live state: an early-close flatten rehearsal wrote four `dry:true / outcome:NOOP`
+# rows into the production ledger and this assessor returned
+# `eod_reality:Gamma_EodFlattenCore GREEN {safe-3: NOOP, safe-2: NOOP, risky-1: NOOP,
+# bold-2: NOOP}` -- crediting a rehearsal as evidence the flatten ran. This function's own
+# docstring says absence of positive evidence is never silently GREEN; a dry run IS absence
+# of positive evidence. Same defect found and fixed the same day in first_live_day_review.py.
+GOOD_EOD_OUTCOMES = {"NOOP", "SUCCESS"}  # eod_flatten.py's per-arm outcome vocabulary
+
+
+def is_rehearsal_row(row: dict) -> bool:
+    """A dry-run/rehearsal row: written by a drill, flattens nothing, proves nothing.
+
+    Shared by the fetch (which must not let a rehearsal DISPLACE the day's real row) and the
+    assessor (which must not grade one). Kept as one predicate so the two seams cannot drift.
+    """
+    return row.get("dry") is True or row.get("outcome") == "DRY_RUN"
 
 # --- broker canary (2026-07-11, markdown/planning/TWIN-PROGRAM.md) -----------------------
 # The 24/7 crypto twin observes Alpaca API health (latency/auth/error-rate) hours before
@@ -163,8 +180,22 @@ def assess_eod_flatten_reality(sources: dict) -> list[Check]:
         date = src["date"]
         if name == "Gamma_EodFlattenCore":
             rows = src.get("rows") or []
+            n_reh = int(src.get("rehearsal_rows_ignored") or 0)
+            _reh = (f" [{n_reh} DRY-RUN rehearsal row(s) present and IGNORED -- a rehearsal "
+                    f"flattens nothing]" if n_reh else "")
             if not rows:
-                checks.append(Check(cname, "RED", f"log dated {date} but no per-arm rows parsed", True))
+                checks.append(Check(
+                    cname, "RED",
+                    f"log dated {date} but no REAL per-arm rows parsed{_reh}", True))
+                continue
+            # Belt-and-braces: the fetch already drops rehearsals, but this assessor is the
+            # PURE seam callers can hand arbitrary rows to, so it re-checks rather than
+            # trusting its input to have been filtered upstream.
+            rows = [r for r in rows if not is_rehearsal_row(r)]
+            if not rows:
+                checks.append(Check(
+                    cname, "RED",
+                    f"log dated {date} but every per-arm row was a rehearsal{_reh}", True))
                 continue
             bad = [r for r in rows if r.get("outcome") not in GOOD_EOD_OUTCOMES]
             if bad:
@@ -176,7 +207,7 @@ def assess_eod_flatten_reality(sources: dict) -> list[Check]:
                 ))
             else:
                 outs = {r.get("arm"): r.get("outcome") for r in rows}
-                checks.append(Check(cname, "GREEN", f"{date}: {outs}", True))
+                checks.append(Check(cname, "GREEN", f"{date}: {outs}{_reh}", True))
         else:
             import re as _re
             text = src.get("text") or ""
@@ -392,6 +423,7 @@ def fetch_eod_flatten_reality() -> dict:
         if found:
             p, d = found
             last_by_arm: dict = {}
+            n_rehearsals = 0
             for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
                 line = line.strip()
                 if not line:
@@ -401,9 +433,20 @@ def fetch_eod_flatten_reality() -> dict:
                 except Exception:
                     continue
                 arm = row.get("arm")
-                if arm:
-                    last_by_arm[arm] = row  # keep the LAST row per arm (most recent attempt)
-            out["Gamma_EodFlattenCore"] = {"date": d, "rows": list(last_by_arm.values())}
+                if not arm:
+                    continue
+                # REHEARSALS MUST NOT DISPLACE THE REAL ROW (2026-09-02). Rows are ordered by
+                # APPEND, not by their `ts` field -- today's drill wrote rows stamped
+                # "12:45:00 ET" at 06:14 ET. So "last row per arm" is "last thing written",
+                # and a drill run after the real 15:52 sweep would silently become the row
+                # this check grades. Skipping them here keeps the last REAL row per arm;
+                # counting them lets the assessor say why an arm has no verdict.
+                if is_rehearsal_row(row):
+                    n_rehearsals += 1
+                    continue
+                last_by_arm[arm] = row  # keep the last REAL row per arm (most recent attempt)
+            out["Gamma_EodFlattenCore"] = {"date": d, "rows": list(last_by_arm.values()),
+                                            "rehearsal_rows_ignored": n_rehearsals}
     except Exception:
         return out  # partial is fine -- missing keys degrade to RED per-task in the assessor
 

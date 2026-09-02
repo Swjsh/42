@@ -46,12 +46,13 @@ THE CHECKS (see the work order + this file's own docstrings on each function):
                                 the headroom left before the account's own
                                 daily_loss_limit_pct floor.
   7. guards_full             -- did Gamma_GuardsFull (setup/guard_runner_full.py) produce
-                                a verdict recently? It has been silent since 2026-08-31
-                                (fullscreen-presence gate holds it down). Expected steady
-                                -state failure count is 4 (3x cheap_contract_qty_boost,
-                                a real tight-ladder bug kept RED by decision, + 1
-                                order-dependent test_graduated_guards.py case) -- any
-                                other count, or no verdict at all, is flagged.
+                                a verdict recently? Expected steady-state failure count is
+                                0, lowered from 4 on 2026-09-02 ON EVIDENCE: a full run at
+                                11:09 ET that day returned 11739 passed / 0 failed / rc=0,
+                                so the four tolerated failures (3x cheap_contract_qty_boost
+                                stale fixtures + 1 order-dependent test_graduated_guards.py
+                                case) were all repaired, not merely re-baselined. Any other
+                                count, or no verdict at all, is flagged.
 
 DESIGN RULE (OP-33 / C7 -- a check that could not run is NOT a pass): every loader in this
 file returns None on a missing/unreadable file, and every check function treats None (or
@@ -125,30 +126,38 @@ DMS_BAD_ACTIONS = {"FLATTENED", "ERROR", "NO_CREDS", "READ_FAILED", "DRY_RUN_WOU
 # is itself the bad thing DMS exists to catch, dry mode or not -- so it counts as a bad row
 # AND (below) as a not-really-armed row.
 
-# Known-failure tolerance. STILL 4 -- and that is now UNJUSTIFIED. Read before trusting it.
+# Known-failure tolerance. 4 -> 0 on 2026-09-02, ON EVIDENCE.
 #
-# This constant is a laundering mechanism the moment it outlives its reason: at 4 it reports
-# GREEN for any FOUR failures, including four brand-new real ones. It was set to 4 because
-# four guards were known-stale -- three cheap-contract-boost fixtures written before the
-# tight-ladder ceiling shipped 2026-08-29, plus one other. **Those were repaired in commit
-# fb34ca92 on 2026-09-02, so the tolerance no longer describes anything real.**
+# A tolerance that outlives its reason is a laundering mechanism: at 4 this check reported
+# GREEN for any FOUR failures, including four brand-new real ones -- the exact "fresh-looking
+# count" the 16:30 review exists not to launder. The four it was sized for were three
+# cheap-contract-boost fixtures predating the 2026-08-29 tight-ladder ceiling plus one other,
+# all repaired in fb34ca92.
 #
-# It SHOULD be 0. It is deliberately left at 4 because lowering it rests on a premise this
-# session could not verify: the full 11k-test suite has not been observed green since the
-# repair. The manual re-run on 2026-09-02 ~09:00 ET HUNG (43 min, 1078 CPU-seconds then
-# flat, no output, guard-watch-full.json never rewritten) and was killed rather than re-run
-# into market hours. Setting 0 on an unverified suite risks a permanently-YELLOW check --
-# the alarm everyone learns to ignore, which is the same disease in the opposite direction.
+# It was NOT lowered when those were fixed, deliberately: the full suite had not been observed
+# green, and setting 0 on an unverified suite risks a permanently-YELLOW check -- the same
+# disease inverted. That premise is now discharged. The 2026-09-02 11:09 ET run came back
+# **11,739 passed / 0 failed / 11 skipped, rc=0** after all seven failures were repaired
+# (4 prereg status assertions, 1 clock-dependent quiet-mode test, 1 Kalshi lane caught up,
+# 1 sys.modules leak between test files).
 #
-# ACTION FOR THE NEXT SESSION THAT GETS A GREEN FULL RUN: set this to 0 and update the four
-# tests in test_first_live_day_review_2026_09_02.py that encode the old baseline
-# (test_guards_full_four_failures_fresh_not_flagged and siblings). Queue item:
-# GUARDS-EXPECTED-FAILED-BASELINE-IS-STALE.
-GUARDS_FULL_EXPECTED_FAILED = 4
+# 0 means "any failure is worth a human look", which is the only defensible value once the
+# known set is empty. If a future run is legitimately expected to carry known failures, raise
+# this ONLY with the specific test names written down beside it -- a bare number is how it
+# went stale the first time.
+GUARDS_FULL_EXPECTED_FAILED = 0
 GUARDS_FULL_STALE_DAYS = 2      # >= this many days old -> flagged stale (nightly cadence
                                  # naturally puts a healthy run 0-1 days behind each morning)
 
-EOD_CORE_GOOD_OUTCOMES = {"NOOP", "SUCCESS", "DRY_RUN"}
+# A REHEARSAL IS NOT EVIDENCE OF A FLATTEN (2026-09-02). "DRY_RUN" was in this set, and
+# nothing filtered `dry: true` rows, so a drill row satisfied the one check standing between
+# an unflattened 0DTE position and an overnight hold. Caught live: an early-close flatten
+# REHEARSAL at 06:14 ET wrote four `dry:true / outcome:NOOP` rows stamped 12:45 ET into the
+# production ledger, and at 11:12 ET -- with the real 15:52 sweep still hours away -- the
+# review already read "Core flatten confirmed flat for bold-2 (NOOP)" and graded the day
+# GREEN. Every genuine production row since 2026-08-21 is `dry: False` at 15:52, so
+# excluding rehearsals costs no real evidence.
+EOD_CORE_GOOD_OUTCOMES = {"NOOP", "SUCCESS"}
 EOD_AGG_FAIL_MARKERS = ("ABORTED", "KILL_SWITCH_SET", "TIMEOUT_KILL", "MCP_UNREACHABLE",
                          "exit=1", "exit=124")
 EOD_AGG_OK_MARKER = "END tick exit=0"
@@ -483,9 +492,18 @@ def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
     LLM defense-in-depth flattener, 15:55 ET) is checked too and reported LOUDLY if it
     failed, but a Core success is what actually protects the account, so it alone drives
     this check's pass/fail status."""
-    core_arm_rows = [r for r in core_rows_for_date if r.get("arm") == arm]
+    all_arm_rows = [r for r in core_rows_for_date if r.get("arm") == arm]
+    # Rehearsal rows are excluded from evidence but COUNTED, so the reason can say why a
+    # populated-looking ledger produced no verdict. Silently dropping them would reproduce
+    # the original failure in a quieter form: a ledger with four rows in it reading MISSING
+    # with no explanation is a report an operator argues with instead of acting on.
+    def _is_rehearsal(r: dict) -> bool:
+        return r.get("dry") is True or r.get("outcome") == "DRY_RUN"
+
+    core_arm_rows = [r for r in all_arm_rows if not _is_rehearsal(r)]
+    n_reh = len(all_arm_rows) - len(core_arm_rows)
     if not core_arm_rows:
-        core_result = "MISSING"
+        core_result = "MISSING_ONLY_REHEARSALS" if n_reh else "MISSING"
         core_ok = False
     else:
         # last row for the arm this date (retries can write more than one)
@@ -508,9 +526,11 @@ def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
         else:
             agg_status = "INCONCLUSIVE"
 
+    _reh = (f" [{n_reh} DRY-RUN rehearsal row(s) present and IGNORED -- a rehearsal "
+            f"flattens nothing]" if n_reh else "")
     if not core_ok:
         status = "RED"
-        reason = f"Core flatten did not confirm flat for {arm}: outcome={core_result}"
+        reason = f"Core flatten did not confirm flat for {arm}: outcome={core_result}{_reh}"
     elif agg_status == "FAILED":
         status = "YELLOW"
         reason = (f"Core flatten OK ({core_result}) so {arm} is confirmed flat, but "
@@ -519,11 +539,11 @@ def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
                   f"of-concern instruction")
     else:
         status = "GREEN"
-        reason = f"Core flatten confirmed flat for {arm} ({core_result})"
+        reason = f"Core flatten confirmed flat for {arm} ({core_result}){_reh}"
 
     return {"status": status, "reason": reason, "core_outcome": core_result,
             "core_confirmed_flat": core_ok, "agg_llm_status": agg_status,
-            "agg_llm_evidence": agg_evidence}
+            "agg_llm_evidence": agg_evidence, "rehearsal_rows_ignored": n_reh}
 
 
 # ============================================================================
