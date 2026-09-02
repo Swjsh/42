@@ -1,3 +1,42 @@
+## [2026-09-02T09:33 ET] Criterion 5 FIXED -- window widened, evidence bar untouched -- REVOKE surface
+
+Follows the 09:16 ET entry, which filed this as blocked-on-J. **J released it the same hour:**
+*"THE HARD CODED 20 day logic was not my idea so it definitely can change depending on the
+engines performance."* The original was written by an automated session executing
+`PROD-SHADOW-ARM-DESIGNATION`, never ratified by J -- so it was mine to correct. Commit
+`85e44e5f`.
+
+**Changed:** `window_end` 2026-09-29 -> **2026-10-30**. **`min_days` UNCHANGED at 20.**
+
+**Why that split matters.** Widening a window is a CALENDAR question; lowering `min_days` is a
+STATISTICS question. Trading one off against the other silently is how a bar gets hollowed
+out while still looking rigorous. The evidence content of criterion 5 is identical to what was
+registered on 09-01; only the time allowed to accumulate it moved, and it was sized from
+MEASURED PARTICIPATION -- knowable on 09-01, independent of any P&L. safe-3 filled 26 of 44
+trading days (59%), so 20 scored days needs ~34 trading days; the old window gave 20, the new
+gives 43 and clears the bar even at the worst arm's rate (bold-2, 47% -> exactly 20).
+**safe-3's returns were deliberately not consulted in choosing the window.** 10-30 was already
+the governing clock for the whole decision (work order S0), so this aligns criterion 5 with
+the decision date rather than inventing one.
+
+**The class fix is the real deliverable.** A bar that cannot be reached is a broken
+instrument, not a strict one, and it fails in the most expensive direction -- it looks like
+rigour, and the gate's honest-sounding `days_scored=0/20 INSUFFICIENT_DAYS` reads as "not yet"
+rather than "never".
+`backtest/tests/test_prod_shadow_designation_reachable_2026_09_02.py` now fails any
+designation that: is unsatisfiable at a **47% participation floor** (the WORST arm, so a bar
+cannot be tuned to whichever arm trades most); sets `min_days` equal to the window's trading
+days (the literal 09-01 mistake); lets that floor drift above 50%; or lowers `min_days` under
+cover of a calendar change. **RED-proofed: restoring the original 09-29 values fires it -- the
+guard would have caught this on 2026-09-01.**
+
+**Still true and unchanged:** the extended 40-day disclosure clock needs ~68 trading days at
+59% and will not be met by 10-30. It is disclosure-only and gates nothing, but it will read as
+unmet for the rest of the window -- worth a decision later, not a silent edit now.
+
+**Revoke:** restore `prod-shadow-designation.json.pre-2026-09-02` over the live file (one
+copy, no side effects); `git revert 85e44e5f` for the guard.
+
 ## [2026-09-02T09:16 ET] 🚨 J-DECISION: go-live criterion 5 is now UNREACHABLE ON BOTH CLOCKS -- arithmetic, not opinion
 
 **This is the criterion the whole 2026-10-30 decision rests on, and it cannot be met as
