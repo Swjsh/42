@@ -26,12 +26,31 @@ def _load_eod_fallback():
     stub = types.ModuleType("run_minimax")
     stub.call_minimax = lambda *a, **k: {"ok": False, "error": "stubbed", "cost_usd": 0.0,
                                          "model": "stub"}
+    # RESTORE sys.modules AFTERWARDS (2026-09-02). This stub used to be left installed for
+    # the rest of the session, and since it is planted at IMPORT time it leaked into every
+    # test file collected after this one -- alphabetically that includes
+    # test_graduated_guards.py, whose test_free_model_cost_estimate_is_zero does
+    # importlib.import_module("run_minimax") and got THIS stub instead of the real module.
+    # That test consequently failed in every FULL suite run while passing alone and passing
+    # with its own whole file (129 passed) -- the classic "flaky" signature that is really
+    # cross-file global-state pollution.
+    #
+    # Restoring is safe because eod_fallback.py does `from run_minimax import call_minimax`
+    # at MODULE level (line 51), so it binds the stub's function into its own namespace
+    # during exec_module and never consults sys.modules again.
+    prior = sys.modules.get("run_minimax")
     sys.modules["run_minimax"] = stub
-    path = os.path.join(ROOT, "setup", "scripts", "eod_fallback.py")
-    spec = importlib.util.spec_from_file_location("eod_fallback_under_test", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    try:
+        path = os.path.join(ROOT, "setup", "scripts", "eod_fallback.py")
+        spec = importlib.util.spec_from_file_location("eod_fallback_under_test", path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+    finally:
+        if prior is not None:
+            sys.modules["run_minimax"] = prior
+        else:
+            sys.modules.pop("run_minimax", None)
 
 
 ef = _load_eod_fallback()
