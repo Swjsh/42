@@ -282,7 +282,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   detectors to SHADOW; decide gap_and_go / double_bottom_base_quiet on a firing-conversion investigation
   rather than a P&L verdict; make `dispatch_health` per-detector. n is small (10–52 each) and these are
   fill-basis figures — this is a disclosure, not a validated A/B.
-- [~] **The frozen, never-run preregs — IN PROGRESS 2026-09-02, 52 → 42.** The box said 15; the real
+- [x] **The frozen, never-run preregs — DONE 2026-09-02. All 12 runners resolved; 52 → 42 → the real backlog is 4.** The box said 15; the real
   count was **52**, and the useful split is not age but whether a runner exists: **12 named a runner
   on disk that had simply never been executed; 40 were written with no execution path at all.** A
   prereg with no runner is a wish, not a study — that 77% is the systemic finding, not the backlog
@@ -295,7 +295,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   | trendline-break-battery | 50d | **KILL 0/12** — every cell negative IS *and* OOS |
   | trendline-fade-battery | 50d | **1/12 survivor → SHADOW**, not armed (see wf caveat below) |
   | trend-alignment-correlation | 50d | **KILL** — every population's Spearman NEGATIVE |
-  | level-memory-wire | 49d | **BLOCKED** — runner bit-rotted (orchestrator kwarg drift) |
+  | level-memory-wire | 49d | **RETIRED UNRUNNABLE** — the hook was never committed; recorded verdict is unreproducible |
   | premarket-touch-credit | 44d | **KILL** — p_random 0.21, p_shuffled 0.208, both nulls fail |
   | structure-stop-reference-level | 44d | **REJECT_ALL** |
   | structure-stop-zone-band | 44d | **REJECT_ALL** |
@@ -314,8 +314,43 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   **ALL 12 NOW ATTEMPTED** — `vwapcont_entry_exit_matrix` → **CONTROL-STANDS** (zero candidates clear
   either bar) and `lbfs_shadow_revalidation` → **FAILS_BAR, shadow only** (headline +$746.60 is entirely
   in-sample: wf −0.44, IS +$1,340, OOS −$593; its "stable" sub-window flag tolerates one hurt third and
-  should never be quoted without the thirds beside it). Only `level_memory_wire_ab` remains, blocked on
-  bit-rot.
+  should never be quoted without the thirds beside it). `level_memory_wire_ab` is now resolved too — see the correction below.
+
+  **The 12th runner, and the correction to my own diagnosis of it (2026-09-02, second pass).**
+  I recorded `level-memory-wire` as "bit-rot — the study was written against an orchestrator
+  signature that has since changed". **That is wrong.** The signature never changed: the hook
+  the runner calls was **never committed**. `git show --stat e84c062f` — the commit whose
+  message reads *"levels.py's new additive `memory_levels_by_day` hook unions the SAME
+  spot-band+cap formula the live wire uses into real production trigger logic"* — touches
+  **six files and not one is engine code**, and `git log -S memory_levels_by_day` over
+  `levels.py`/`orchestrator.py` returns nothing across all history. The runner dies on that
+  kwarg *after* completing a full CONTROL backtest, which is exactly why the import smoke test
+  cleared it.
+  **So the recorded verdict cannot be regenerated.** `level-memory-wire.json` reports CONTROL
+  28 / TREATMENT 26, n_effect=3, −$489.50, NEGATIVE_INSUFFICIENT_N — and no code in this
+  repository at any commit can produce that TREATMENT arm. Most likely an uncommitted local
+  edit (inference, not established): the scorecard and runner were committed, the engine change
+  was not. The control does not reproduce either — same runner, same window, **28 trades in
+  July, 36 today**.
+  **And a faithful rebuild would still measure the wrong thing.** The frozen treatment is
+  side-blind *"nearest `memory_cap=6`"*; the live wire changed **2026-07-27** to cap each side
+  independently at 3, because side-blind selection *"produced an all-resistance set with ZERO
+  supports at today's session high"* (J live-flagged). The frozen study encodes the version J
+  identified as broken and had replaced six weeks before the run attempt.
+  **Disposition: RETIRED as unrunnable — explicitly NOT a kill and NOT a pass.** The question
+  is UNMEASURED. Reviving it needs a NEW prereg against the current per-side formula;
+  re-pointing this one would violate its own `no_repick_clause`.
+  **The live exposure this leaves, filed not fixed:** `params.json` carries
+  `level_memory_live_merge: true` and `refresh_levels_intraday.py:700` really does merge memory
+  levels into the live feed every intraday refresh — left ON on "insufficient n for a kill"
+  (n=3 vs a floor of 15) from the unreproducible scorecard. `params.json` is **frozen to
+  10-30 and was not touched**; turning it off would be inventing a verdict in the other
+  direction from "we cannot reproduce the evidence". Filed as
+  `LEVEL-MEMORY-LIVE-MERGE-UNVALIDATED`. Guard:
+  `backtest/tests/test_level_memory_wire_provenance_2026_09_02.py` (5 tests, 2 mutations
+  RED-proofed) pins the retirement, keeps the forensics attached to the prereg, and fails
+  loudly *if the hook is ever built* — pointing the builder at a new prereg rather than a
+  revival of the dead one.
 
   ### 🚨 The 40 "no-runner" preregs are NOT a research backlog — the count was a monitor defect
   Adjudication started, and stopped, on the first real check: cross-referencing each against result
