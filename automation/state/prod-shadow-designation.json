@@ -2,11 +2,24 @@
   "arm": "safe-3",
   "profile_summary": "FLEET-TIGHT-S (T20H): safe sizing, tight gate (min_triggers=2, require_confluence_or_sequence:true), exit_patch{stop_mode:structure, profit_lock_mode:trailing}, strike_tier_table=bold_core (ATM under $2K). Full-sample (as of 2026-09-01): n_days=26, +$841 total, WR 30.5%.",
   "window_start": "2026-09-01",
-  "window_end": "2026-09-29",
+  "window_end": "2026-10-30",
   "min_days": 20,
   "designated_at": "2026-09-01T20:22:26-04:00",
   "rationale": "Executes queue.md's PROD-SHADOW-ARM-DESIGNATION item verbatim: designate ONE arm as the explicit go-live PROD-SHADOW candidate and score it net of the A1 realistic cost model exactly like go_live_gate.py's STATISTICAL criterion (reuses statistical_criterion()). safe-3 chosen because: (1) it is TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29.md section 0.1's explicit best-in-class comparator (n=59, +$841, WR 30.5% on its primary path -- the same shape safe-2's OWN clean primary-path trading matched, once its now-disarmed extra-setup lane is excluded); (2) it is one of J's two named keepers in the consolidation directive ('risky-1 and safe-3'); (3) unlike risky-1, safe-3 has no live secondary-lane defect (handoff section 0.2's FULL_SEND gate_override finding is risky-1-specific). Window 2026-09-01..2026-09-29 matches the config-freeze scoring window (CLAUDE.md / setup/hooks/doctrine.py FREEZE_END, Labor Day 2026-09-07 excluded from trading days) and its >=20 scored-trading-day bar. The PREREG-TIGHT-LADDER-2026-08-28.md 40-day clock (closing 2026-10-30) is tracked as an EXTENDED disclosure view only -- it never substitutes for or lowers this shorter, harder pass window.",
   "extended_clock_end": "2026-10-30",
   "extended_clock_min_days": 40,
-  "revoke": "delete this file -- prod_shadow_criterion() falls back to NOT_WIRED with no other side effects"
+  "revoke": "delete this file -- prod_shadow_criterion() falls back to NOT_WIRED with no other side effects",
+  "_superseded_2026_09_02": {
+    "original": {
+      "window_end": "2026-09-29",
+      "min_days": 20
+    },
+    "what_changed": "window_end 2026-09-29 -> 2026-10-30. min_days UNCHANGED at 20.",
+    "why": "The original window was ARITHMETICALLY UNSATISFIABLE and that was knowable on the day it was designated. 2026-09-01..2026-09-29 contains exactly 20 trading days and the bar was 20 scored days, where a scored day requires a FILL (go_live_gate.py:729) -- so it demanded a fill on EVERY trading day, i.e. 100% participation. The engine sits out ~40% of days BY DESIGN ('sitting out is a valid day', J 2026-08-12). The bar and the strategy were never compatible.",
+    "why_this_is_not_result_shopping": "The EVIDENCE bar is unchanged at 20 scored days -- the statistical content of the criterion is identical. Only the calendar allowance moved, and it was sized from MEASURED PARTICIPATION, a quantity knowable on 2026-09-01 and independent of any P&L: safe-3 filled 26 of 44 trading days (59%) over 2026-06-29..2026-08-28. 20 scored days therefore needs ~34 trading days; the old window gave 20. The new window gives 43, which clears the bar even at the WORST arm's rate (bold-2, 47% -> exactly 20). safe-3's returns were deliberately not consulted in choosing it.",
+    "authority": "J, 2026-09-02: 'THE HARD CODED 20 day logic was not my idea so it definitely can change depending on the engines performance.' The original was set by an automated session executing queue.md's PROD-SHADOW-ARM-DESIGNATION, not ratified by J.",
+    "alignment": "2026-10-30 is already the governing clock for the whole decision (work order S0), so this aligns criterion 5's window with the decision date rather than inventing a new deadline.",
+    "revoke": "restore automation/state/prod-shadow-designation.json.pre-2026-09-02 over this file -- one copy, no other side effects."
+  },
+  "_min_days_doc": "20 scored days. NOT lowered on 2026-09-02 -- see _superseded_2026_09_02. Any future change to THIS number is a change to the evidence bar itself and needs its own written justification; changing the window is a calendar question, changing min_days is a statistics question, and they must never be traded off against each other silently."
 }
