@@ -560,9 +560,21 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   *Done:* 5/5 flattened, drill log in `analysis/drills/`, runbook §2 box ticked.
 - [ ] **Phone HALT drill** (J, 2 minutes): `HALT safe-2` from the phone → breaker tripped, reply
   received; `RESUME safe-2`. Then once with `FLATTEN` on an open paper position.
-- [ ] **Early-close dry run**: force the calendar helper to report a 13:00 close on a normal day with
-  `DRY=1` → `--only-if-early-close` acts at 12:30; `Gamma_EodFlattenEarlyClose` fires and NOOPs on a
-  real 16:00 day.
+- [x] **Early-close dry run — DONE 2026-09-02 06:16 ET, and made permanent.** All three branches
+  exercised: a real 16:00 day → `EARLY_CLOSE_NOOP`; a forced 13:00 close asked at 06:14 →
+  `EARLY_CLOSE_WAIT` naming the 12:30 window; asked at 12:45 → `EARLY_CLOSE_TRIGGER` → full sweep over
+  all four arms tagged `reason=EARLY_CLOSE` (so the ledger can tell it from the normal 15:52/15:55
+  flatten), every arm `NOOP` because already flat, `EOD_FLATTEN_COMPLETE`. **Pinned as a test rather
+  than left as a one-off** (`backtest/tests/test_early_close_dry_run_2026_09_02.py`, 6) because the
+  branch that matters is otherwise unreachable until **2026-11-27** — without this, the task's real
+  behaviour would first be exercised in production, on a half day, with live positions.
+  **Safety property verified, not assumed:** `eod_flatten` gates DIFFERENTLY from `dead_mans_switch`
+  and more strongly — the DMS passes `live=(not DRY)` into the broker call, whereas this file's
+  `if DRY:` returns with `outcome=DRY_RUN` before reaching the call at all. I asserted the DMS pattern
+  here first and the test correctly failed. *Twice* in this session a substring search found the
+  module docstring's PROSE mention of `close_all_spy_options` instead of the call site, once
+  concluding the order path ran before the DRY guard; the assertion now locates the call through the
+  `ast` parser, which is the only way to ask "where is the call" and get an answer about code.
 - [ ] **Broker expiry-sweep observation** (paper): on a non-scored account (weekly-1's or safe-2 after
   retirement) hold one ITM 0DTE past 15:30 ET and record what Alpaca PAPER does (does it simulate the
   sweep? at what price?). Ledger the OPEXC/OPASN/OPEXP activity types. *Done:* one observation write-up.
