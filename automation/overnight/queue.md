@@ -2466,3 +2466,31 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   reading (then the catch-up sweep is required work), or state that 10-30 was always the only reading
   that mattered and stop treating 09-29 as a gate date. Evidence: gate run 2026-09-02 05:04 ET,
   criterion 5 `INSUFFICIENT_DAYS days_scored=0/20`. :: depends:none :: status:filed
+
+- [ ] CRITERION-4-CANNOT-READ-ITS-OWN-AUDITOR (MED, gate-measurement change, PREREG-FIRST, filed
+  2026-09-02) :: `Gamma_RuleBreakAudit` (shipped 2026-09-02, commit `4689dacd`) now writes the
+  `rule-breaks.jsonl` ledger that go_live_gate criterion 4 counts -- but criterion 4's staleness test
+  is the LEDGER'S FILE MTIME, and a clean audit correctly writes nothing, so the mtime never advances
+  and criterion 4 stays `PASS_UNVERIFIED` forever even on days that WERE audited and were clean. The
+  fix is to read `automation/state/rule-break-audit.json` (the coverage artifact: what ran, over which
+  arms and dates, which rules were checkable) for the "is anyone auditing?" signal instead of the
+  break ledger's mtime. **NOT done in the same session on purpose:** that changes how a go-live
+  criterion is MEASURED, in the middle of the window it measures, and a measurement change slipped in
+  without a pre-registration is the post-hoc-bar-change anti-pattern OP-11 bans. Needs its own prereg
+  stating the new rule BEFORE the reading changes: PASS requires (a) 0 in-window breaks AND (b) a
+  coverage artifact whose audited date-range covers the window AND (c) the rule set actually checked
+  is disclosed in the gate output, so PASS can never mean "clean on rules nobody checked".
+  :: depends:none :: status:filed
+
+- [ ] RULE-AUDIT-COVERAGE-GAPS (MED, filed 2026-09-02 from the first rule-break audit run) :: the new
+  auditor covers rules 1-6 and explicitly cannot check four. Each is a real gap, not a permanent one:
+  **R7 PDT** needs the broker's rolling 5-business-day day-trade count (the per-row `day_trades` field
+  is not the same number -- one fleet row shows `day_trades: 0` next to `day_trades_true: 5`); **R8
+  journal-every-trade** needs a verified fill -> `journal/trades.csv` join key, and a wrong join would
+  manufacture false breaks on the gate's own ledger, so it was left unchecked rather than guessed;
+  **R9 no-mid-session-rule-changes** needs params-file history during RTH, which is not retained --
+  cheapest fix is a daily hash of the frozen trading-path files stamped at the open and the close;
+  **R10** is not mechanically checkable by construction. Also note `RULE_2` is core-arms-only (76 of
+  495 entries) because fleet rows do not record `trigger_bar_et` -- adding that field to the fleet
+  ENTER row would take anticipation-entry coverage from 15% to ~100% of entries.
+  :: depends:none :: status:filed
