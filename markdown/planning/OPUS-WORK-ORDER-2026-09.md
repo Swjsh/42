@@ -281,9 +281,38 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   detectors to SHADOW; decide gap_and_go / double_bottom_base_quiet on a firing-conversion investigation
   rather than a P&L verdict; make `dispatch_health` per-detector. n is small (10–52 each) and these are
   fill-basis figures — this is a disclosure, not a validated A/B.
-- [ ] **The 15 frozen, never-run preregs** (list in `analysis/recommendations/prereg-hygiene.json` once
-  B3 runs). *Done:* each is RUN (Sonnet, on the existing harness) or KILLED with a named nail, or
-  PARKED with a re-open condition. No "still frozen" survives the month.
+- [~] **The frozen, never-run preregs — IN PROGRESS 2026-09-02, 52 → 42.** The box said 15; the real
+  count was **52**, and the useful split is not age but whether a runner exists: **12 named a runner
+  on disk that had simply never been executed; 40 were written with no execution path at all.** A
+  prereg with no runner is a wish, not a study — that 77% is the systemic finding, not the backlog
+  size. Ten of the twelve were attempted this session:
+  | prereg | frozen | outcome |
+  |---|---|---|
+  | structure-stop | 55d | **SS-B PASSES** — confirms the already-live shape; SS-A/SS-C fail layer (a) |
+  | headroom-retest | 55d | RETEST **FAIL**; HEADROOM **INCONCLUSIVE_SMALL_N** (re-open on population only) |
+  | measured-move | 55d | **KILL** — shuffle-null p=0.998, Spearman p=0.1155; control trail-only stands |
+  | trendline-break-battery | 50d | **KILL 0/12** — every cell negative IS *and* OOS |
+  | trendline-fade-battery | 50d | **1/12 survivor → SHADOW**, not armed (see wf caveat below) |
+  | trend-alignment-correlation | 50d | **KILL** — every population's Spearman NEGATIVE |
+  | level-memory-wire | 49d | **BLOCKED** — runner bit-rotted (orchestrator kwarg drift) |
+  | premarket-touch-credit | 44d | **KILL** — p_random 0.21, p_shuffled 0.208, both nulls fail |
+  | structure-stop-reference-level | 44d | **REJECT_ALL** |
+  | structure-stop-zone-band | 44d | **REJECT_ALL** |
+  **Three consolidated reads worth carrying forward.** (1) The structure stop now has three
+  independent studies agreeing: the live SS-B shape, trigger-exact reference, zero band, is unbeaten
+  on every axis tested. (2) `trend-alignment` KILL has an operational consequence — `Gamma_ContextBundle`
+  computes that exact score every 5 min in RTH and its registry row describes a deferred *"Phase 2
+  (wiring a validated read into conviction/sizing)"*; that read is now measured and killed, so **Phase 2
+  must not be built**. (3) The fade battery's lone survivor cleared BH-FDR and both nulls honestly, but
+  its `wf=21.224` comes from `oos_mean/is_mean` with IS expectancy at **$3.79** — it clears a
+  *stability* bar by being maximally unstable. The pre-registered bar was **not** changed after seeing
+  that; the survivor goes to forward shadow.
+  **Method note that cost time and should not be repeated:** runner-exists ≠ runner-works, and an
+  import-level smoke test does not close the gap — all 11 named runners returned IMPORT_OK including
+  the one that dies at runtime. Only running proves it.
+  *Remaining:* 2 of the 12 unrun (`vwapcont_entry_exit_matrix`, `lbfs_shadow_revalidation`), 1 to
+  repair (`level_memory_wire_ab`), and the 40 with no runner still need KILL-with-a-nail or
+  PARK-with-a-reopen-condition.
 - [x] **BEARISH_REJECTION sign flip** — **DONE 2026-09-02 (Opus). There is NO sign flip by unit of
   account.** `winner_signature.wavify` sets `w["pnl"] = sum(row pnl)`, so Σ(wave) ≡ Σ(trip) by
   construction — a regrouping cannot move a total. Verified: 349 trips → 109 waves, totals identical
