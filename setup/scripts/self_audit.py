@@ -148,6 +148,56 @@ def _soft_truncate(s: str, limit: int = _SYNTH_BULLET_LIMIT) -> str:
     return cut.rstrip() + " [...]"
 
 
+# --- Model-truncation marker (2026-09-02, real observed corruption) --------
+# Root-caused live against the 2026-09-01T17:31:48 batch: `new-gaps-flagged.md`'s
+# 12th flagged gap read "Systemic The live-watch field-completeness fix is sound,
+# but the" -- a sentence fragment with no visible truncation marker, silently
+# committed alongside 11 genuine gaps. Traced to the SOURCE, not this file's own
+# writer: `analysis/swarm-consult/2026-09-01-173002-....json` perspective 3
+# (model liquid/lfm-2.5-2.6b:free) has `output_tokens == 2500 ==
+# max_tokens_per_perspective` exactly -- the free model's own generation was cut
+# off mid-sentence by the token cap, and that raw fragment was the LAST line of
+# its response, so `_extract_gaps`'s single-line bullet regex captured it intact
+# and `_soft_truncate` never fired (it was already under the 240-char limit).
+# The 240-char cut already marks itself with " [...]"; this closes the same gap
+# for the OTHER truncation source so a reader can tell "genuinely incomplete"
+# from "short but complete" without re-opening the raw consult JSON.
+#
+# NARROW BY DESIGN: an earlier draft of this fix required terminal punctuation
+# (".", "!", "?", a closing paren/quote) and OVER-flagged -- real gap headlines
+# routinely end mid-noun-phrase with no period ("Filter 5/9 static thresholds",
+# "Real-time OPRA data-health gate is missing from the premarket sequence"),
+# which is normal LLM bullet style, not truncation. Caught by the existing
+# `test_self_audit_extract.py` suite going RED before this shipped. The signal
+# that actually discriminates the real bug is a trailing DANGLING FUNCTION WORD
+# (article/conjunction/preposition) -- no genuine complete gap statement ends
+# on a bare "the"/"and"/"but"/etc, but a token-limit cutoff mid-clause reliably
+# does (the real fragment: "...fix is sound, but the").
+_DANGLING_TRAILING_WORDS = frozenset({
+    "the", "a", "an", "and", "or", "but", "nor", "so", "yet",
+    "to", "of", "in", "on", "at", "by", "for", "with", "as", "from", "into",
+    "onto", "over", "under", "about", "than", "then",
+    "is", "are", "was", "were", "be", "being", "been",
+    "that", "which", "who", "whose", "this", "these", "those", "its", "their",
+    "if", "because", "while", "when", "not", "no",
+})
+_TRAILING_WORD_RE = re.compile(r"[a-zA-Z']+$")
+
+
+def _mark_if_incomplete(s: str) -> str:
+    """Append the shared '[...]' marker when the bullet ends on a dangling
+    function word -- the specific, narrow signature of a model response cut
+    off mid-clause by its own token cap (see the comment above). Does NOT
+    fire on a merely period-less headline; that is normal LLM bullet style."""
+    t = s.rstrip()
+    if not t or t.endswith("[...]"):
+        return s
+    m = _TRAILING_WORD_RE.search(t)
+    if not m or m.group(0).lower() not in _DANGLING_TRAILING_WORDS:
+        return s
+    return t + " [...]"
+
+
 def _known_gap_keys() -> set[str]:
     if not LOG.exists():
         return set()
@@ -347,7 +397,7 @@ def _extract_gaps(consult_json: dict) -> list[str]:
             continue
         k = _norm(g)
         if k and k not in seen:
-            seen.add(k); ded.append(g)
+            seen.add(k); ded.append(_mark_if_incomplete(g))
     return ded[:12]
 
 
@@ -361,7 +411,13 @@ def main() -> int:
     before = {p.name for p in CONSULT_DIR.glob("*.json")} if CONSULT_DIR.exists() else set()
     try:
         subprocess.run([exe, str(SWARM), "audit", "--quiet", "--question", STANDING_QUESTION,
-                        "--context", _recent_context()],
+                        "--context", _recent_context(),
+                        # 2026-09-02: bump past swarm_consult's own 2500 default. The
+                        # 09-01T17:31 batch's 12th gap was cut off because a free
+                        # perspective (liquid/lfm-2.5-2.6b:free) hit output_tokens==2500
+                        # exactly mid-sentence. This caller only -- no other
+                        # swarm_consult.py consumer's default changes.
+                        "--max-tokens-per-perspective", "4000"],
                        cwd=str(REPO), timeout=SWARM_SUBPROCESS_TIMEOUT_S, capture_output=True,
                        text=True, creationflags=_CREATE_NO_WINDOW)
     except Exception as e:  # noqa: BLE001
