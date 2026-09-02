@@ -2452,3 +2452,17 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   workdir. Verified empirically 2026-09-02: a 46-minute guard run survived well past the 5-minute
   stale threshold. Documentation fix + a guard that asserts the real invariant.
   :: depends:none :: status:filed
+
+- [ ] CRITERION-5-WINDOW-HAS-ZERO-SLACK (HIGH, GATE-BLOCKING, filed 2026-09-02 from the off-cadence
+  gate run) :: the go-live gate's criterion 5 window `2026-09-01..2026-09-29` contains **exactly 20
+  trading days** against a **20 scored-day** bar -- verified against `automation/state/calendar.json`
+  (Labor Day 2026-09-07 is the only Sept/Oct holiday). One has elapsed; all 19 remaining must score.
+  A single unscored day puts criterion 5 out of reach of its own registered window. The same session
+  proved the rig silently loses scheduled days (quiet-mode presence hold skips triggers;
+  `StartWhenAvailable` cannot recover a fire missed while the task was Disabled -- `Gamma_GuardsFull`
+  dark 08-31..09-02). Those two facts had never been put next to each other, and together they promote
+  QUIET-HOLD-CATCH-UP-SWEEP from hygiene to gate-blocking. The extended clock to 10-30 has 3 days of
+  slack (43 trading days vs a 40-day bar) and absorbs a miss. DECIDE, in writing: defend the 09-29
+  reading (then the catch-up sweep is required work), or state that 10-30 was always the only reading
+  that mattered and stop treating 09-29 as a gate date. Evidence: gate run 2026-09-02 05:04 ET,
+  criterion 5 `INSUFFICIENT_DAYS days_scored=0/20`. :: depends:none :: status:filed

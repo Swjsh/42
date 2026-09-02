@@ -21,6 +21,20 @@
 
 ---
 
+## [2026-09-02T05:15 ET] Opus: freeze would have expired a month early · gate RED · criterion 5 has ZERO slack -- REVOKE surface
+
+1. 🚨 **The config freeze was set to expire 2026-09-29 -- a month early, mid-scoring-window.** `setup/hooks/doctrine.py` still had `FREEZE_END = 2026-09-29`. Per the work order the freeze runs to the **10-30 decision**, and 09-29 is a *checkpoint inside it* (the one date pre-registered kill-type risk REDUCTIONS may ship). On 09-30 the hook would simply have stopped blocking trading-path edits, and the only symptom would have been the banner changing to "freeze closed". Silent + dated + one line, so it shipped now rather than waiting for the Sat 09-05 pass -- extending a freeze only ever blocks more, and it is revertible. Commit `3f6a1ad9`. The test that asserted `not freeze_active(2026-09-30)` **pinned the bug**; rewritten stronger, RED-proofed, 189 passed. Rest of the Saturday doctrine pass untouched.
+2. 📉 **Gate re-run (off-cadence): RED.** Criterion 1 fails on **all four arms and is not close** -- day-level PF CI-lower **0.333-0.412** against a 1.0 bar, distance 0.71-0.75; book ex-best-day `P(PF<=1)=0.573`, a coin flip. 2 OPERATIONAL PASS (6/6) · 3 RECONCILIATION PASS (4/4) · 4 BEHAVIOURAL **PASS_UNVERIFIED** (`rule-breaks.jsonl` last written **2026-05-18**, so "0 breaks" cannot be told from an abandoned ledger) · 5 PROD-SHADOW `INSUFFICIENT_DAYS 0/20`. Regime still **calm-only**: zero days VIX>20, zero days down >1%.
+3. 🚨 **NEW, and it changes what tonight's outage work is worth: criterion 5's window has ZERO slack.** `2026-09-01..2026-09-29` is **exactly 20 trading days** against a **20 scored-day** bar (verified against `automation/state/calendar.json`; Labor Day 09-07 is the only holiday). One elapsed, **all 19 remaining must score**. A single unscored day puts criterion 5 out of reach of its own window -- and this session proved the rig **silently loses scheduled days**. Those two facts had never been put next to each other. The 10-30 clock has 3 days of slack and absorbs a miss; 09-29 does not.
+
+⚠️ **The decision that follows, and it is a real fork:** either the 09-29 criterion-5 reading is worth defending -- in which case `QUIET-HOLD-CATCH-UP-SWEEP` stops being hygiene and becomes gate-blocking work -- or 10-30 was always the only reading that mattered, in which case that goes in writing and 09-29 stops being described as a gate date. Filed as `CRITERION-5-WINDOW-HAS-ZERO-SLACK`. Not decided here: it is a genuine fork about what the 09-29 checkpoint is *for*, and the evidence supports either answer.
+
+**Verified:** freeze banner correct across every boundary date (09-02, 09-29, 09-30, 10-30, 10-31) · doctrine hooks 189 passed · safety gate 59/59 · queue retention 3 passed · `main` clean of frozen-file changes.
+
+**REVOKE:** `git revert 3f6a1ad9` restores the 09-29 freeze end (do not, unless the freeze really is meant to lapse mid-window). Docs-only commits revert independently.
+
+---
+
 ## [2026-09-02T05:00 ET] Opus, continuation: the root cause of "the safety net went dark" -- and it is not GuardsFull -- REVOKE surface
 
 **This closes item 4 of the 04:12 entry above, and it is worse than that entry said.**
