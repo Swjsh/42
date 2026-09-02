@@ -39,16 +39,32 @@ def src() -> str:
 
 def test_only_one_mutating_broker_call_exists(src: str):
     """The bypass is safe because there is exactly one order path to reason about."""
-    # Count CALL SITES, not prose. The docstring names the primitive too ("FLATTEN via
-    # fleet_broker.close_all_spy_options (the same primitive ...)"), and a \s* in the
-    # pattern swept that in -- my own first cut of this test failed on its own false
-    # positive. A real call has no space before the paren.
-    code = "\n".join(l for l in src.splitlines() if not l.lstrip().startswith("#"))
-    calls = re.findall(r"fleet_broker\.close_all_spy_options\(", code)
+    # Count CALL SITES via the AST. A substring search cannot: the module docstring names
+    # the primitive in prose ("FLATTEN via fleet_broker.close_all_spy_options (the same
+    # primitive ...)") and my first cut of this test failed on that false positive. Three
+    # guards this session were bitten the same way -- see
+    # automation/overnight/_lesson-inbox/2026-09-02-string-search-cannot-answer-code-questions.md
+    # Do NOT "simplify" this back to a regex.
+    import ast
+
+    tree = ast.parse(src)
+    calls = [n.lineno for n in ast.walk(tree)
+             if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+             and n.func.attr == "close_all_spy_options"]
     assert len(calls) == 1, (
-        f"{len(calls)} calls to close_all_spy_options -- the dry-run bypass was justified "
-        "on there being exactly one order path; re-verify every call before keeping it"
+        f"{len(calls)} calls to close_all_spy_options (lines {calls}) -- the dry-run bypass "
+        "was justified on there being exactly one order path; re-verify every call before "
+        "keeping it"
     )
+
+    # And that the ONE call really is gated on DRY, positionally.
+    live_kw_ok = any(
+        isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+        and n.func.attr == "close_all_spy_options"
+        and any(kw.arg == "live" and isinstance(kw.value, ast.UnaryOp)
+                and isinstance(kw.value.op, ast.Not) for kw in n.keywords)
+        for n in ast.walk(tree))
+    assert live_kw_ok, "the order call no longer passes live=(not DRY) as a keyword"
 
 
 def test_the_order_path_is_gated_on_dry(src: str):
