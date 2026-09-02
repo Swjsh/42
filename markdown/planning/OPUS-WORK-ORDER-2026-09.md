@@ -337,10 +337,22 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   need OPPOSITE treatments — one is fixture rot, the other is a real interaction bug.**
   *Count:* the order cites 13 (08-29 baseline). The last real verdict
   (`automation/state/guard-watch-full.json`, 2026-08-31 09:55 ET) reads **11,097 passed / 8 failed / 11
-  skipped**. Targeted re-runs tonight show **6 currently RED** —
-  `test_graduated_guards::test_free_model_cost_estimate_is_zero` now passes (129 passed / 1 skipped) and
-  `test_quiet_mode_weekend_research_2026_08_30` now passes. **And the nightly net has produced no verdict
-  since 08-31** — see `GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING`; that is why nobody saw any of this.
+  skipped**. **DEFINITIVE full-suite re-run completed 2026-09-02: 9 failed, 11,367 passed, 11 skipped,
+  46 deselected, 8 xfailed in 51m49s.** (An earlier note here said "6 currently RED" from targeted
+  runs — wrong: two failures were absent from the 08-31 baseline I was working from, and a third is
+  order-dependent. Targeted runs are not a substitute for the suite.) **The nightly net has produced no
+  verdict since 08-31** — see `GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING`; that is why nobody saw any
+  of it. The 9 break down as: 3 boost + 3 trades_enriched (below), plus
+  **`test_window_leak_compliance::test_no_py_subprocess_missing_creationflags` — FIXED 2026-09-02**
+  (`prereg_hygiene.py:147` shelled out to ripgrep with no `creationflags`, and that task runs nightly at
+  16:58 ET, so it would flash a conhost window on J's desktop every night — J's standing #1 priority,
+  shipped only the night before in wave 2 B3); **`test_graduated_guards::test_free_model_cost_estimate_is_zero`
+  — ORDER-DEPENDENT**, passes in isolation, fails in the suite, so its colour is evidence of nothing
+  until isolated (`TEST-ISOLATION-GRADUATED-GUARDS-FREE-MODEL-COST`); and
+  **`test_entry_block_watch` — copy drift**, it asserts the alert says "say the word to arm it" while
+  the composer now says "Logged for gate review; no action needed from you" (the copy was deliberately
+  reworded away from prompting J — fix the fixture, do NOT re-introduce the prompt).
+  `test_quiet_mode_weekend_research_2026_08_30` now passes.
   *Half one — FIXTURE ROT (3): `test_trades_enriched.py`* pins an August total of **$1,744** that is now
   **$3,048** as more days accrued. Proven pre-existing (identical with tonight's changes stashed). Fix the
   pin, not the assertion — or better, make it a range/recomputed expectation so it cannot rot again.
