@@ -1,0 +1,54 @@
+{
+  "_doc": "XSP feasibility + first-look, 2026-09-02. Answers the work order's question 'is it worth a lane' BEFORE building a battery, because two of the box's three stated premises turned out to be wrong and the third is outweighed.",
+  "generated_at_et": "2026-09-02 06:45 ET",
+  "premise_checks": {
+    "cash_settled_kills_assignment": {
+      "verdict": "TRUE",
+      "evidence": "Alpaca contract spec: XSP style=european, SPY style=american. European + cash-settled removes early assignment and the expiry sweep risk."
+    },
+    "section_1256_60_40": {
+      "verdict": "TRUE, but small per trade",
+      "evidence": "See analysis/after-tax/after-tax-target.json. At 32%+5% the blend is worth ~$5,141/yr on $200/day -- across ~500 round trips that is roughly $10 PER TRADE. Real, but it is the number the execution cost has to beat."
+    },
+    "one_tenth_SPY_notional_finer_sizing": {
+      "verdict": "FALSE -- the premise does not hold",
+      "evidence": "Alpaca contract spec: size=100 for BOTH XSP and SPY, and both trade at the same numeric level (~760 on 2026-09-02). Notional is COMPARABLE, not 1/10. XSP is 1/10 of SPX, not of SPY. So the 'finer sizing at $5K' rationale in the box is not available."
+    }
+  },
+  "liquidity_matched_contracts": {
+    "method": "Same strike (760C), same expiry date, same session, 1-minute OPRA bars.",
+    "sessions": [
+      {
+        "date": "2026-08-19",
+        "spy_bars": 89,
+        "spy_volume": 1299,
+        "xsp_bars": 33,
+        "xsp_volume": 135
+      },
+      {
+        "date": "2026-08-12",
+        "spy_bars": 51,
+        "spy_volume": 162,
+        "xsp_bars": 6,
+        "xsp_volume": 20
+      },
+      {
+        "date": "2026-07-31",
+        "spy_bars": 74,
+        "spy_volume": 1098,
+        "xsp_bars": 27,
+        "xsp_volume": 90
+      }
+    ],
+    "summary": "XSP prints ~8-12% of SPY's volume on the matched ATM contract and trades in only 12-37% of the minutes SPY trades in."
+  },
+  "quoted_spread_observation": {
+    "value": "SPY 760C bid 3.18 / ask 3.21 (spread $0.03); XSP 760C bid 3.72 / ask 4.60 (spread $0.88) -- 29x wider.",
+    "STATUS": "NOT EVIDENCE YET -- single snapshot taken 06:42 ET with the market CLOSED, which is exactly when quotes are widest and least representative. Recorded because it points the same way as the volume, NOT relied on. The RTH measurement below is what would settle it."
+  },
+  "verdict": "PROBABLY NOT WORTH A LANE -- and one measurement would settle it",
+  "reasoning": "The tax edge is real but is worth roughly $10 per round trip. The execution penalty has to be smaller than that for the switch to pay. On matched contracts XSP carries ~1/10 the volume and prints in a third of the minutes, and this engine enters on a 5-minute trigger with marketable limits and exits on intraday chart stops -- fill quality and the ability to GET OUT are precisely what thin liquidity degrades. A single closed-market quote showed a 29x wider spread; if anything close to that holds in RTH, the execution cost is an order of magnitude larger than the tax benefit and the question is settled.",
+  "the_one_measurement_that_would_settle_it": "Record XSP vs SPY NBBO spread at matched ATM strikes, every 5 minutes across 3+ RTH sessions, and express the mean spread as $/round-trip on a 3-lot. If that exceeds ~$10 per trade -- and $0.04 of spread on 3 contracts already does -- XSP cannot pay for itself on tax. This is a quote-recorder job, not a battery, and costs nothing but time.",
+  "what_this_saves": "The box asked for 'prereg + first battery'. Building a battery on an instrument whose premise is half wrong and whose execution cost plausibly swamps its only real advantage would be the expensive way to learn this. Feasibility first, battery only if the spread measurement survives.",
+  "data_availability_notes": "XSP historical 1-minute option bars ARE retrievable (verified on 2026-07-31 and 2026-08-19, three strikes), so a real-quote battery is possible -- it does NOT have to be sim. Two traps found on the way: (1) /v2/options/contracts lists only the CURRENT expiry for XSP, so historical symbols must be constructed rather than enumerated; (2) a 403 'OPRA agreement is not signed' on recent windows is the documented 15-minute real-time boundary and hits SPY IDENTICALLY -- it is not an XSP entitlement gap, which is what it looked like at first."
+}

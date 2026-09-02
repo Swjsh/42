@@ -516,11 +516,32 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   (the April 2025 tariff week, Aug 2024, any −2%+ day in 2025–26): what do the −50% cap, structure
   stops and the ladder actually do in a −3% day? Pre-register the questions; label sim-only.
   *Done:* a REGIME-STRESS study + the gate's REGIME COVERAGE block cites it.
-- [ ] **XSP as an expression of the same read** — cash-settled (kills assignment/sweep risk),
-  Section 1256, ~1/10 SPY notional (finer sizing at $5K). Prereg first: same entries, XSP contract,
-  real quotes if available (paper-only support at Alpaca per REGULATORY doc), else labeled sim.
-  *Done:* prereg + first battery + an after-tax comparison line. `[FABLE-OR-J]` on whether it ever
-  becomes a lane — this month only answers "is it worth a lane".
+- [~] **XSP — FEASIBILITY DONE 2026-09-02, and the battery is deliberately NOT built yet.**
+  `analysis/xsp/xsp-feasibility-2026-09-02.json`. The box asked for "prereg + first battery"; checking
+  the premises first turned out to be the cheap move, because **two of the three are wrong or
+  outweighed**:
+  | premise | verdict |
+  |---|---|
+  | cash-settled kills assignment/sweep risk | **TRUE** — Alpaca spec: XSP `style=european`, SPY `american` |
+  | §1256 60/40 | **TRUE but small** — ~$5,141/yr at $200/day ≈ **$10 per round trip** over ~500 trades |
+  | ~1/10 SPY notional, finer sizing at $5K | **FALSE** — `size=100` for BOTH, and both trade ~760. XSP is 1/10 of **SPX**, not of SPY. Notional is comparable; the sizing rationale is not available. |
+  **Liquidity, matched strike/expiry/session, 1-min OPRA bars:** XSP prints **~8–12% of SPY's volume**
+  (135 vs 1,299 · 20 vs 162 · 90 vs 1,098) and trades in only **12–37% of the minutes** SPY does.
+  This engine enters on a 5-minute trigger with marketable limits and exits on intraday chart stops —
+  fill quality and *the ability to get out* are exactly what thin liquidity degrades.
+  **Verdict: PROBABLY NOT WORTH A LANE.** The tax edge must beat the execution penalty, and it is only
+  ~$10/trade; $0.04 of extra spread on a 3-lot already eats it.
+  **The one measurement that would settle it** (a quote-recorder job, not a battery): XSP vs SPY NBBO
+  spread at matched ATM strikes, every 5 min across 3+ RTH sessions, expressed as $/round-trip on a
+  3-lot. A single snapshot showed **$0.88 vs $0.03 — 29× wider** — but it was taken at 06:42 ET with the
+  market CLOSED, which is exactly when quotes are least representative, so it is **recorded and not
+  relied on**.
+  **Data notes for whoever runs it:** XSP historical 1-min bars ARE retrievable (verified 07-31 and
+  08-19, three strikes) so the battery can use REAL quotes, not sim. Two traps: `/v2/options/contracts`
+  lists only the CURRENT expiry for XSP, so historical symbols must be *constructed*, not enumerated;
+  and a 403 `"OPRA agreement is not signed"` on recent windows is the documented 15-minute real-time
+  boundary that hits **SPY identically** — it is not an XSP entitlement gap, though it looks exactly
+  like one at first.
 - [x] **Per-hour and bear-side entry study** — **DONE 2026-09-02 (Opus). Two preregs filed; and the
   audit's own 11:xx candidate is KILLED by the measurement that was meant to support it.**
   *⚠️ 11:xx SIGN-FLIPS BY ERA.* Full window (06-26..09-01) 11:xx = −$599; **post-ladder (≥08-11) 11:xx =
