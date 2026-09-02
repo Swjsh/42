@@ -117,7 +117,11 @@ def test_dms_cadence_trailing_gap_caught_even_with_no_between_fire_gap():
     also checked against the last fire."""
     rows = [r for r in _clean_day_rows()
             if flr._parse_dms_ts(r["ts"]) <= datetime(2026, 9, 2, 13, 0, 30)]
-    result = flr.check_dms_cadence(rows, REVIEW_DATE)
+    # Evaluate AFTER the window closes -- the trailing gap is only a finding once there is
+    # a tail. At 10:47 "stopped after 13:00" and "has not reached 13:00 yet" are the same
+    # observation, so the review's own 16:30 fire time is what this must be judged at.
+    result = flr.check_dms_cadence(rows, REVIEW_DATE,
+                                   now=datetime(2026, 9, 2, 16, 30))
     assert result["status"] == "RED"
     trailing = [g for g in result["gaps"] if g["kind"] == "trailing"]
     assert len(trailing) == 1
@@ -524,7 +528,12 @@ def test_run_review_on_completely_empty_state_is_red_never_fired(empty_state_env
     assert "dms_cadence:RED" in report["failing_checks"]
     assert "dms_verdicts:RED" in report["failing_checks"]
     assert report["checks"]["dms_cadence"]["reason"].startswith("never fired")
-    assert report["checks"]["dms_verdicts"]["reason"] == "never fired -- 0 rows to verify"
+    # startswith, matching the dms_cadence assertion two lines up. The property under test
+    # is "RED, never fired" -- never green-by-absence -- not the exact wording. The message
+    # gained "inside the window" on 2026-09-02 when the checks started excluding
+    # out-of-window rehearsal rows, which is strictly more informative.
+    assert report["checks"]["dms_verdicts"]["reason"].startswith("never fired")
+    assert "0 rows to verify" in report["checks"]["dms_verdicts"]["reason"]
     # engine_health / guards_full / eod_flatten / fleet_kill_switch all missing -> also RED,
     # EXCEPT fleet_kill_switch which reports GREEN with 0 arms when accounts.json is simply
     # absent-but-empty-derived is NOT the case here -- accounts.json is missing entirely, so
@@ -707,3 +716,87 @@ def test_advisory_still_never_gates():
     verdict, failing = flr.combine_verdict(checks)
     assert verdict == "GREEN"
     assert failing == []
+
+
+# ============================================================================
+# Out-of-window rehearsal rows (added 2026-09-02)
+#
+# The DMS gained an out-of-hours DRY rehearsal path so a safety instrument could be
+# exercised before being trusted in production. On its FIRST production day a 06:10
+# pre-flight (4 rows, one per arm) made this review report RED on cadence (a bogus 201.8-min
+# "between-fires" gap from the rehearsal to the 09:32 first real fire) and YELLOW on verdicts
+# ("DMS was NOT armed"), while every real fire from 09:32 onward was armed and on cadence.
+# A review that cannot tell a rehearsal from a production fire cannot be trusted to grade the
+# day it exists to grade.
+# ============================================================================
+
+def _fire(ts: str, arm: str = "safe-2", action: str = "LIVE_NO_ACTION", dry: bool = False):
+    return {"ts": f"2026-09-02 {ts} ET", "arm": arm, "action": action, "dry": dry}
+
+
+def test_cadence_ignores_an_out_of_window_rehearsal_fire():
+    """The literal 2026-09-02 defect: a 06:10 rehearsal must not create a gap to 09:32."""
+    rows = [_fire("06:10:11", dry=True)] + [
+        _fire(f"{h:02d}:{m:02d}:01")
+        for h in range(9, 16) for m in range(0, 60, 2)
+        # stop at 15:56 -- fires land at :01 seconds, so a 15:58:01 fire would sit one
+        # second PAST the 15:58 window end and be (correctly) counted out-of-window,
+        # which would make this test's out_of_window_fires assertion about the wrong row.
+        if (h, m) >= (9, 32) and (h, m) <= (15, 56)
+    ]
+    r = flr.check_dms_cadence(rows, REVIEW_DATE, now=datetime(2026, 9, 2, 16, 30))
+    assert r["out_of_window_fires"] == 1, "the 06:10 rehearsal was not excluded"
+    assert not [g for g in r["gaps"] if g["kind"] == "between-fires"], (
+        f"a rehearsal fire invented a between-fires gap: {r['gaps']}"
+    )
+    assert r["status"] == "GREEN"
+    assert "out-of-window" in r["reason"], "exclusion must be DISCLOSED, not silent"
+
+
+def test_trailing_gap_is_not_judged_while_the_window_is_still_open():
+    """Judged at 10:47 the whole remaining session reads as a 312-minute 'gap'. Before the
+    window closes, 'stopped firing' and 'has not got there yet' are the same observation."""
+    rows = [_fire(f"{h:02d}:{m:02d}:01") for h in (9, 10) for m in range(0, 60, 2)
+            if (h, m) >= (9, 32)]
+    open_now = flr.check_dms_cadence(rows, REVIEW_DATE, now=datetime(2026, 9, 2, 10, 47))
+    assert open_now["window_closed"] is False
+    assert not [g for g in open_now["gaps"] if g["kind"] == "trailing"]
+    assert open_now["status"] == "GREEN"
+    # ...but once it HAS closed, the same rows are a real trailing gap.
+    closed = flr.check_dms_cadence(rows, REVIEW_DATE, now=datetime(2026, 9, 2, 16, 30))
+    assert closed["window_closed"] is True
+    assert [g for g in closed["gaps"] if g["kind"] == "trailing"], (
+        "after the window closes a switch that stopped at 10:58 MUST show a trailing gap"
+    )
+    assert closed["status"] == "RED"
+
+
+def test_verdicts_ignore_out_of_window_dry_rehearsal_rows():
+    rows = [_fire("06:10:11", arm=a, action="STALE_BUT_FLAT", dry=True)
+            for a in ("safe-2", "bold-2", "safe-3", "risky-1")]
+    rows += [_fire("09:32:01"), _fire("09:34:01")]
+    r = flr.check_dms_verdicts(rows)
+    assert r["out_of_window_rows"] == 4
+    assert r["not_armed_rows"] == [], "rehearsal rows were counted as unarmed production fires"
+    assert r["status"] == "GREEN"
+    assert "out-of-window" in r["reason"], "exclusion must be DISCLOSED"
+
+
+def test_an_IN_window_dry_row_is_still_flagged_not_armed():
+    """The narrowing must not become a loophole: a DRY fire DURING the session means the
+    switch genuinely was not armed, and that is the finding the check exists for."""
+    r = flr.check_dms_verdicts([_fire("09:32:01", dry=True), _fire("09:34:01")])
+    assert r["status"] == "YELLOW"
+    assert len(r["not_armed_rows"]) == 1
+    assert r["out_of_window_rows"] == 0
+
+
+def test_an_unparseable_timestamp_counts_as_in_window():
+    """Fail toward scrutiny. A row we cannot place in time must not be silently discarded as
+    'probably a rehearsal' -- that would be a way to make findings disappear."""
+    inw, out = flr._split_by_window([{"ts": "not-a-timestamp", "arm": "safe-2",
+                                      "action": "READ_FAILED"}])
+    assert len(inw) == 1 and len(out) == 0
+    r = flr.check_dms_verdicts([{"ts": "not-a-timestamp", "arm": "safe-2",
+                                 "action": "READ_FAILED"}])
+    assert r["status"] == "RED", "an unreadable-broker row must still fail the check"

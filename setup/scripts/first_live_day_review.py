@@ -262,7 +262,8 @@ def cluster_fire_times(timestamps: list[datetime],
 def check_dms_cadence(rows: list[dict], review_date: str,
                        rth_start: tuple = RTH_START, rth_end: tuple = RTH_END,
                        cadence_min: int = DMS_CADENCE_MIN,
-                       gap_threshold_min: int = GAP_THRESHOLD_MIN) -> dict:
+                       gap_threshold_min: int = GAP_THRESHOLD_MIN,
+                       now: "datetime | None" = None) -> dict:
     """Did Gamma_DeadMansSwitch fire on cadence? Enumerates any gap > gap_threshold_min,
     including a leading gap (window start -> first fire) and trailing gap (last fire ->
     window end) -- a switch that stopped firing after lunch shows no BETWEEN-fire gap
@@ -287,10 +288,30 @@ def check_dms_cadence(rows: list[dict], review_date: str,
             "gaps": [],
         }
 
-    fires = cluster_fire_times(times)
-    date_ref = fires[0].replace(hour=0, minute=0, second=0, microsecond=0)
+    all_fires = cluster_fire_times(times)
+    date_ref = all_fires[0].replace(hour=0, minute=0, second=0, microsecond=0)
     window_start = date_ref.replace(hour=rth_start[0], minute=rth_start[1])
     window_end = date_ref.replace(hour=rth_end[0], minute=rth_end[1])
+
+    # ONLY FIRES INSIDE THE TASK'S OWN WINDOW ARE CADENCE EVENTS (2026-09-02).
+    # Gamma_DeadMansSwitch is scheduled 09:32-15:58 ET. A row outside that window is a
+    # manual or rehearsal run -- and the DMS gained an explicit out-of-hours DRY rehearsal
+    # path the day before this check first ran, so such rows exist by design. Counting them
+    # as cadence events invents a gap between the rehearsal and the first real fire: a
+    # 06:10 pre-flight produced a bogus "201.8 min between-fires gap" and turned the whole
+    # review RED on the DMS's first production day. Excluded-and-counted, never dropped
+    # silently.
+    fires = [f for f in all_fires if window_start <= f <= window_end]
+    out_of_window = len(all_fires) - len(fires)
+    if not fires:
+        return {
+            "status": "RED",
+            "reason": (f"no fire landed inside the {rth_start[0]:02d}:{rth_start[1]:02d}-"
+                       f"{rth_end[0]:02d}:{rth_end[1]:02d} window "
+                       f"({out_of_window} out-of-window row(s) ignored)"),
+            "expected_fires": expected, "actual_fires": 0,
+            "out_of_window_fires": out_of_window, "gaps": [],
+        }
 
     gaps: list[dict] = []
 
@@ -303,30 +324,76 @@ def check_dms_cadence(rows: list[dict], review_date: str,
     _maybe_gap(window_start, fires[0], "startup")
     for a, b in zip(fires, fires[1:]):
         _maybe_gap(a, b, "between-fires")
-    _maybe_gap(fires[-1], window_end, "trailing")
+
+    # The TRAILING gap is only meaningful once the window has actually closed. This review
+    # is scheduled for 16:30 ET, after 15:58, so in production it always is -- but a mid-day
+    # re-run would otherwise report the entire remaining session as a "gap" (a 10:47 run
+    # produced a bogus 312-minute trailing gap). Judge the tail only when there IS a tail.
+    # `now` is INJECTED so this stays deterministic. Defaulting to the wall clock and
+    # leaving it at that is the same time-dependence that made
+    # test_gaming_outside_the_research_band_still_blacks_out pass only outside market hours.
+    at = now or datetime.now()
+    window_closed = at >= window_end
+    if window_closed:
+        _maybe_gap(fires[-1], window_end, "trailing")
 
     status = "RED" if gaps else "GREEN"
     reason = (f"{len(gaps)} gap(s) > {gap_threshold_min}min found" if gaps
               else "fired on cadence, no gap exceeded the threshold")
+    if not window_closed:
+        reason += " (window still open -- trailing gap not judged yet)"
+    if out_of_window:
+        reason += f"; {out_of_window} out-of-window row(s) ignored (rehearsal/manual)"
     return {
         "status": status,
         "reason": reason,
         "expected_fires": expected,
         "actual_fires": len(fires),
+        "out_of_window_fires": out_of_window,
+        "window_closed": window_closed,
         "gaps": gaps,
     }
 
 
-def check_dms_verdicts(rows: list[dict]) -> dict:
+def _split_by_window(rows: list[dict], rth_start: tuple = RTH_START,
+                     rth_end: tuple = RTH_END) -> "tuple[list, list]":
+    """(in_window, out_of_window) by each row's `ts`. Unparseable ts counts as IN-window --
+    fail toward scrutiny, never toward silently discarding a row we could not read."""
+    inw, out = [], []
+    for r in rows:
+        t = _parse_dms_ts(r.get("ts"))
+        if t is None:
+            inw.append(r)
+            continue
+        start = t.replace(hour=rth_start[0], minute=rth_start[1], second=0, microsecond=0)
+        end = t.replace(hour=rth_end[0], minute=rth_end[1], second=0, microsecond=0)
+        (inw if start <= t <= end else out).append(r)
+    return inw, out
+
+
+def check_dms_verdicts(rows: list[dict], rth_start: tuple = RTH_START,
+                        rth_end: tuple = RTH_END) -> dict:
     """Every row's `action` should be LIVE_NO_ACTION or STALE_BUT_FLAT. Anything in
     DMS_BAD_ACTIONS is a failure (work order text only calls out FLATTENED/ERROR --
     NO_CREDS and READ_FAILED are added here per this task's own instruction: a DMS that
     cannot read the broker is not a DMS). A `dry: true` row (or a DRY_RUN_WOULD_FLATTEN
     action) is flagged separately as 'not actually armed', regardless of whether it also
     counts as bad."""
+    # OUT-OF-WINDOW ROWS ARE REHEARSALS, NOT PRODUCTION FIRES (2026-09-02). The DMS gained
+    # an out-of-hours DRY rehearsal path the day before this check first ran, precisely so a
+    # safety instrument could be exercised before trusting it in production. Counting those
+    # rows here reports "the DMS was NOT armed" about fires that were never meant to be:
+    # a 06:10 pre-flight (4 rows, one per arm) turned this YELLOW on the switch's first
+    # production day, while every real fire from 09:32 onward was armed. Excluded and
+    # COUNTED -- the disclosure stays in the reason string.
+    rows, out_rows = _split_by_window(rows, rth_start, rth_end)
+    n_out = len(out_rows)
     if not rows:
-        return {"status": "RED", "reason": "never fired -- 0 rows to verify",
-                "bad_rows": [], "not_armed_rows": [], "per_arm_actions": {}}
+        return {"status": "RED",
+                "reason": ("never fired inside the window -- 0 rows to verify"
+                           + (f" ({n_out} out-of-window rehearsal row(s) ignored)" if n_out else "")),
+                "bad_rows": [], "not_armed_rows": [], "per_arm_actions": {},
+                "out_of_window_rows": n_out}
 
     bad_rows: list[dict] = []
     not_armed_rows: list[dict] = []
@@ -359,8 +426,12 @@ def check_dms_verdicts(rows: list[dict]) -> dict:
         status = "GREEN"
         reason = "every row LIVE_NO_ACTION/STALE_BUT_FLAT, none in dry mode"
 
+    if n_out:
+        reason += f"; {n_out} out-of-window rehearsal row(s) ignored"
+
     return {"status": status, "reason": reason, "bad_rows": bad_rows,
-            "not_armed_rows": not_armed_rows, "per_arm_actions": per_arm_actions}
+            "not_armed_rows": not_armed_rows, "per_arm_actions": per_arm_actions,
+            "out_of_window_rows": n_out}
 
 
 # ============================================================================
