@@ -129,6 +129,11 @@ analysis/stress-swarm/grid-*.json
 # deliverable). 2026-07-14.
 analysis/trendlines/break-dataset.jsonl
 
+# quote_recorder.py raw per-session bid/ask tick dump -- grows ~150-270KB/RTH day, own 90-day
+# retention/pruning in quote_recorder.py itself; the tracked deliverable is the derived summary
+# in analysis/trades-enriched.jsonl's exit_quote_* fields, not the raw tape. 2026-09-02.
+analysis/quote-tape/
+
 # Kokoro TTS weights + generated voice (340MB models / daily wavs - never in the public repo)
 setup/tts/*.onnx
 setup/tts/*.bin
