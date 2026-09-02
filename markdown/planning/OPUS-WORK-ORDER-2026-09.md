@@ -245,8 +245,32 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   their provenance lives only in the shared `update_note_2026_07_20`, whose own text is **self-documented
   as STALE** on the control question (risky-3's doc: "risky-1 is NOT the control ... the
   update_note_2026_07_20 text above is STALE on this point"). Filed as part of the fleet findings.
-- [ ] **Overlapping-tick cessation since 08-15** — luck or an unlogged fix? *Done:* root cause or
-  "unknown, monitor armed" (B3's `duplicate_ticks`).
+- [x] **Overlapping-tick cessation since 08-15** — **DONE 2026-09-02 (Opus). Neither luck nor unlogged:
+  the mechanism is identified, dated and attributable — but the underlying defect is NOT fixed, only
+  made unreachable.** *First, a date correction:* the last duplicated minute was **2026-08-14**, not
+  08-15, and there have been **12 clean trading days** since (08-17 .. 09-01).
+  *Not luck:* measured over the whole ledger (16,954 rows carrying `core_tick_id`, 22 days, the field's
+  entire life), duplicates ran 08-04 (2), 08-05 (3), 08-06 (1), 08-10 (4), **08-11 (10), 08-12 (11)**,
+  08-14 (2), then zero. Base rate was 7 of 10 trading days; 12 consecutive clean days at that rate is
+  ~5×10⁻⁷.
+  *The mechanism.* An overlap is only possible when a tick outlives its 60-second slot and the
+  fire-and-forget wrapper starts the next one. Per-day intra-tick span (proxy for tick duration) shows a
+  cliff: max **94s** with **13** ticks ≥60s on 08-12 → max **5s** with **0** on 08-13, and no day since
+  has exceeded 13s or produced a single ≥60s tick. Duplicate counts track it exactly (7 slow → 10 dups;
+  13 slow → 11 dups; 0 slow → 0 dups).
+  *The cause.* Commit `073469a9` (2026-08-12) disabled the free-model veto on the money path, and its own
+  message names the latency outright: *"31.2% accuracy, **60s entry-timing cost**, then passes the same
+  trade"* — and critically it *"skips the CALL not just the authority"*, i.e. it removed the round-trip,
+  not merely the veto power. `heartbeat_core.py:1092` now reads
+  `FREE_MODEL_VETO_ENABLED = os.environ.get("GAMMA_FREE_MODEL_VETO", "0") == "1"`. Guard:
+  `test_free_model_veto_disabled_2026_08_12.py`. **So it WAS logged — in a commit about veto accuracy.
+  The overlap cessation was an unremarked side effect of a change made for an unrelated reason**, which
+  is exactly why this question had to be asked at all.
+  ⚠️ **The defect itself is untouched.** The fire-and-forget wrapper still permits overlap; it is merely
+  unreachable while every tick finishes in single-digit seconds. **Put any latency back on the hot path
+  and overlaps return.** That is why B3's `duplicate_ticks` monitor stays armed and why the §3 09-29
+  bundle item (exit-pass pidfile mutex + heartbeat task registered without the fire-and-forget hop)
+  is still required rather than closable on this evidence.
 - [ ] **Alpaca paper fill model vs live** — document exactly what Alpaca simulates (NBBO match, no
   impact, no queue) from their docs; pair with the quote tape (≥20 days by late September) to
   measure paper-exit-vs-quote slippage; recalibrate the gate's 2¢ assumption with data, not a guess.
