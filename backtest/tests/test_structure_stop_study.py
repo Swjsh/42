@@ -56,7 +56,28 @@ def test_preregistration_file_exists_and_is_frozen():
     assert PREREG.exists(), f"pre-registration missing: {PREREG}"
     preg = json.loads(PREREG.read_text(encoding="utf-8"))
     assert preg["version"] == 1
-    assert preg["status"] == "FROZEN_PENDING_RUN"
+    # A prereg's STATUS is a state machine that correct operation ADVANCES; its CONTENT is
+    # what must never move. This line used to pin the status to FROZEN_PENDING_RUN, so the
+    # guard went RED the moment the study was legitimately run and its verdict recorded --
+    # exactly what a pre-registration exists to allow. Four of these fired together on
+    # 2026-09-02 for that reason, having been run the night before.
+    #
+    # This is NOT a weakened assertion. It pins the legal state machine AND requires a
+    # RUN_COMPLETE claim to be backed by an actual run record on the file, which the old
+    # equality check never did. Immutability of the design itself is guarded -- properly --
+    # by the sibling tests in this file that pin the sha256 population hashes and the
+    # runner's frozen constants; those are the anti-repick teeth, not this line.
+    status = str(preg["status"])
+    assert status.startswith("FROZEN_") or status.startswith("RUN_COMPLETE"), (
+        f"illegal prereg status {status!r} -- a prereg may sit FROZEN_* or advance to "
+        f"RUN_COMPLETE, and nothing else (a draft/unfrozen status here means the "
+        f"no-repick clause is not in force)"
+    )
+    if status.startswith("RUN_COMPLETE"):
+        assert any(k.startswith("closed_") for k in preg), (
+            f"status is {status!r} but the file carries no closed_* run record -- a "
+            f"completed verdict must be evidenced on the prereg, not just asserted"
+        )
     assert preg["hypothesis_provenance"]["excluded_from_all_pass_fail_layers"] is True
     assert preg["hypothesis_provenance"]["today_date"] == "2026-07-09"
 

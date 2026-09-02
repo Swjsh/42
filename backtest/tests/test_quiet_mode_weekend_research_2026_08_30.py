@@ -114,6 +114,15 @@ class TestPresenceDowngrade:
     """
 
     def _hold(self, monkeypatch, app="r5apex_dx12.exe"):
+        # _in_trading_band MUST be patched or these tests only pass outside market hours.
+        # presence_hold() short-circuits to None during the trading band (correctly -- the
+        # engine owns 09:30-15:55 and presence never gates it), so with the real clock a
+        # 10:29 ET run makes `held` falsy and main() legitimately reaches go_loud, failing
+        # an assertion that is about PRESENCE logic, not about the wall clock.
+        #
+        # Caught 2026-09-02 by the first full guard run ever executed during RTH (the
+        # nightly fires ~04:29 ET, so this latent time-dependence had never surfaced).
+        monkeypatch.setattr(qm, "_in_trading_band", lambda now=None: False)
         monkeypatch.setattr(qm, "_foreground_fullscreen", lambda: app)
         monkeypatch.setattr(qm, "_manual_hold", lambda: None)
         monkeypatch.setattr(qm, "_remember_presence", lambda a, n: None)
