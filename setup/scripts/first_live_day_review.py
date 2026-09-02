@@ -125,6 +125,25 @@ DMS_BAD_ACTIONS = {"FLATTENED", "ERROR", "NO_CREDS", "READ_FAILED", "DRY_RUN_WOU
 # is itself the bad thing DMS exists to catch, dry mode or not -- so it counts as a bad row
 # AND (below) as a not-really-armed row.
 
+# Known-failure tolerance. STILL 4 -- and that is now UNJUSTIFIED. Read before trusting it.
+#
+# This constant is a laundering mechanism the moment it outlives its reason: at 4 it reports
+# GREEN for any FOUR failures, including four brand-new real ones. It was set to 4 because
+# four guards were known-stale -- three cheap-contract-boost fixtures written before the
+# tight-ladder ceiling shipped 2026-08-29, plus one other. **Those were repaired in commit
+# fb34ca92 on 2026-09-02, so the tolerance no longer describes anything real.**
+#
+# It SHOULD be 0. It is deliberately left at 4 because lowering it rests on a premise this
+# session could not verify: the full 11k-test suite has not been observed green since the
+# repair. The manual re-run on 2026-09-02 ~09:00 ET HUNG (43 min, 1078 CPU-seconds then
+# flat, no output, guard-watch-full.json never rewritten) and was killed rather than re-run
+# into market hours. Setting 0 on an unverified suite risks a permanently-YELLOW check --
+# the alarm everyone learns to ignore, which is the same disease in the opposite direction.
+#
+# ACTION FOR THE NEXT SESSION THAT GETS A GREEN FULL RUN: set this to 0 and update the four
+# tests in test_first_live_day_review_2026_09_02.py that encode the old baseline
+# (test_guards_full_four_failures_fresh_not_flagged and siblings). Queue item:
+# GUARDS-EXPECTED-FAILED-BASELINE-IS-STALE.
 GUARDS_FULL_EXPECTED_FAILED = 4
 GUARDS_FULL_STALE_DAYS = 2      # >= this many days old -> flagged stale (nightly cadence
                                  # naturally puts a healthy run 0-1 days behind each morning)
@@ -701,13 +720,23 @@ def check_guards_full(state: Optional[dict], review_date: str,
                   + (f"; expected {expected_failed}" if deviates else ""))
     elif deviates:
         status = "YELLOW"
-        reason = f"failed count deviates from expected {expected_failed}: got {failed}{_age}"
+        # NAME THE VERDICT'S TIMESTAMP, ALWAYS (2026-09-02). Staleness here is measured in
+        # DAYS, so a verdict from 04:52 ET reads as "today" at a 16:30 review and its count
+        # is presented as current -- when in fact Gamma_GuardsFull fires ~04:29 ET and next
+        # runs at 23:15 ET, i.e. AFTER this review. Every same-day verdict this check ever
+        # sees is ~12h old by design, so flagging that as stale would make the check
+        # permanently yellow (the alarm nobody reads). Printing the time instead is
+        # information, not an alarm, and it is what stops a reader assuming "now".
+        reason = (f"failed count deviates from expected {expected_failed}: got {failed} "
+                  f"[verdict recorded {state.get('at') or 'at an unknown time'}; "
+                  f"Gamma_GuardsFull next runs 23:15 ET, after this review]{_age}")
     elif stale:
         status = "YELLOW"
         reason = f"verdict is stale (dated {at_date}, review date {review_date})"
     else:
         status = "GREEN"
-        reason = f"failed count matches expected steady-state ({expected_failed}), fresh"
+        reason = (f"failed count matches expected steady-state ({expected_failed}) "
+                  f"[verdict recorded {state.get('at') or 'at an unknown time'}]")
 
     return {"status": status, "reason": reason, "failed": failed,
             "expected_failed": expected_failed, "stale": stale, "at": state.get("at")}
