@@ -1,3 +1,55 @@
+## [2026-09-02T08:30 ET] Opus, work-order §2d: CANARY-OUT-OF-SAFE-2 closed -- the item's own diagnosis was wrong -- REVOKE surface
+
+Commits `6383274f` (fee residue) + `cc48a29f` (crypto bucket). Paper-only, additive, no
+frozen file touched.
+
+**16 phantom open lots vs a broker that says flat.** The queue item called it "FIFO float
+dust (1e-4..1e-6 vs a 1e-9 threshold)". Measured rather than assumed: all sixteen were
+**exactly 0.2500% of quantity bought**, across 6 arms and 6 symbols, from 4.2e-06 BTC to
+**0.70 UNI (~$2)**. That is Alpaca's crypto taker fee charged IN THE BASE ASSET -- buy 100
+UNI, pay 0.25 UNI, only 99.75 is ever sellable. Not dust: an epsilon big enough to swallow
+0.70 UNI would swallow real positions. `dress_rehearsal.py` already carried the mechanism in
+a comment ("fees can make position qty < order filled_qty"); nothing had connected it.
+
+**Fixed as a classifier, not a matcher change.** My first cut popped fee-sized lots inside
+the FIFO loop and silently destroyed **90 of 790 round-trip rows** -- a popped lot is no
+longer available for a later fill to match against. The round trips and their P&L were never
+wrong; only the leftover report was.
+**VERIFIED COLD:** round trips 790 -> 790, realized P&L $1,283.45 -> $1,283.45 to the cent,
+open lots **16 -> 0**, against a live `/v2/positions` read showing **0 positions on all five
+live arms** (safe-1 401s -- dormant, same dead key as the structure-stop finding).
+
+**Attribution: safe-2 reported n_manual=164.** 157 of those were the nightly $10 BTC canary,
+because every crypto fill is hard-attributed "manual". That reads as J hand-trading 164
+times. Crypto now has its own bucket, split on the SYMBOL (definitive; no state file, no
+order-id registry, no heuristic). **n_manual 164 -> 7**, n_crypto 157, manual_pnl -47.08 ->
+-46.00. Money was never the issue: crypto P&L is -$2.57 across the whole book.
+
+**The canary STAYS in safe-2 -- decided, not skipped.** The item asked to move it to the twin.
+Check 2 exists to prove safe-2's OWN auth+POST+fill+position machinery works tonight; moving
+it proves some other account's machinery and silently drops that coverage. The defect was the
+reporting. The go-live gate was never exposed either way -- it reads trades-enriched.jsonl,
+which is options-only.
+
+**Known limitation, pinned in a test:** a genuine position smaller than the fee residue is
+indistinguishable from the fee by quantity alone and gets dropped. The broker's
+`/v2/positions` is the only authority on flat (C11) -- which is exactly what exposed this.
+
+29 guards, 9 mutations RED-proofed. Two escaped on my own weak fixtures and were fixed, not
+dropped.
+
+**Revoke:** `git revert cc48a29f 6383274f`.
+
+## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1274.05); Bold_ATM_1+2=CONFIRM ($269.4)
+> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-09-02T07:42 ET] Opus, work-order §2d: WEEKLY-CIRCUIT-BREAKER-CORE answered -- the answer is a NULL -- REVOKE surface
 
 **No ship is proposed at 09-29.** Commits `3401e5fe` (study + prereg + guards), `c1e11540`
@@ -40,16 +92,6 @@ the parser. Replaced with a snapshot of the incident's shape plus an id-agnostic
 check on the real file. Archiving a done item must not turn a guard red.
 
 **Revoke:** `git revert 3401e5fe c1e11540`.
-
-## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1274.05); Bold_ATM_1+2=CONFIRM ($269.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-09-02T07:20 ET] Opus, work-order §2d: STATUS-BROKEN-BLOCKS-DRAIN closed -- three causes, one symptom -- REVOKE surface
 
