@@ -1,3 +1,19 @@
+## [2026-09-01T23:47 ET] conductor: OK -- futures trading chain exempted from quiet-mode blackout, commit `a6ccc6c5`
+
+**Picked via STAGE 0 budget gate PROCEED ($11.88/$30, 4/8 fires, 1 slot left) + market closed (Tuesday 23:42 ET) + engine-health.json GREEN (23/23). `desk_allocator.py`: SPY 0DTE #1 (30 pts, config-freeze-blocked) then Futures #2 (20 pts, PROGRESS). `task_scorer.py --top` returned `QUIET-MODE-BLACKS-OUT-THE-SUNDAY-FUTURES-OPEN` (HIGH) with an advisory to re-verify against current reality before executing (the 2026-07-18 stale-queue lesson) -- did so live rather than trusting the queue prose.**
+
+**Live-verified before touching anything:** `quiet_mode.py`'s bands confirmed (`weekend -> quiet` fires for Sunday 18:00-23:00 ET; weekday 18:00-23:00 also quiet) -- the item's factual claim holds. Ran `test_quiet_mode_starvation.py` cold: all 3 pre-existing tests PASS today, because none of the 3 named futures tasks (`Gamma_FuturesTrader`/`BrokerLane`/`Mirror`) actually has a trigger reaching the blackout window right now (all 3 fire only 09:30-16:00/16:05 ET weekdays, already inside the LOUD trading-day band) -- so this is a real architectural gap, not a currently-live starvation. Verified the item's own stated PRE-CONDITION live before adding anything: grepped all 3 installers (`install-futures-trader.ps1`/`install-futures-broker-lane.ps1`/`install-futures-mirror.ps1`) and confirmed each launches through the flash-free `wscript -> run_exe_hidden.vbs -> pythonw` hidden-spawn chain -- no popup/window-flash risk, so adding them to ESSENTIAL cannot recreate J's #1 complaint (window-leak-detector precedent check the item asked for, satisfied by the installer grep itself).
+
+**Fixed:** added the 3 futures trading-chain tasks to `quiet_mode.ESSENTIAL` on the identical rationale that already exempts the SPY chain ("so a market day is never lost to quiet mode"). New guard `test_essential_set_covers_the_futures_trading_chain` -- the session-aware assertion the item asked for.
+
+**Verified, quoted (OP-33):** RED-proofed live -- `git stash` on `quiet_mode.py` -> new test fails `AssertionError: futures trading-chain tasks not exempt from the blackout: ['Gamma_FuturesBrokerLane', 'Gamma_FuturesMirror', 'Gamma_FuturesTrader']` -> `git stash pop` -> re-verified all 3 names present in `ESSENTIAL` via direct import -> `test_quiet_mode_starvation.py` -> **4 passed**. Curated safety gate: **59 passed, PASS**. `git status --porcelain` on the 2 touched files confirmed exactly `quiet_mode.py` (M) + the test file (M), diff-stat `2 files changed, 44 insertions(+)`.
+
+**Rail (infra/scheduling fix -- `quiet_mode.py` is task-scheduling housekeeping, not one of the 10 frozen trading-path files (heartbeat_core/filters/risk_gate/exit_manager/fleet_executor/strategies/build_shared_signal/params.json/aggressive-params.json/accounts.json); zero live behavioral change today since no futures task's trigger currently reaches the blackout window):** guard = the RED-proofed test (a); revert = `git revert a6ccc6c5` (2 files, additive-only) (b); this STATUS entry + the queue.md CLOSED marker are the REVOKE report (c).
+
+**Next fire:** self-audit thread continues at 2026-08-30T17:31:18 batch (8 items, oldest remaining untriaged); `TWIN-DOCTRINE-FIRST-DEPLOY` re-ping still not due (last real ping 2026-08-26, inside the 14-day suppression window until ~09-09); `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01` and the recency-capital-scaling item stay parked for the post-freeze window (~09-29/10-30 per the OPUS work order).
+
+---
+
 ## [2026-09-01T23:05 ET] Fable session, wave 2: 8 more freeze-compatible ships + the OPUS work order -- REVOKE surface
 
 **Execution order for every session to 10-30:** `markdown/planning/OPUS-WORK-ORDER-2026-09.md` (phases, review/audit/test list, drills, J's items). **Decision recorded there:** freeze on SHAPE-changing edits extends to **2026-10-30**; pre-registered SAFETY changes ship at the 09-29 checkpoint; hook `FREEZE_END` + CLAUDE.md text change Sat 09-05 (Rule 9).
@@ -197,128 +213,3 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-08-31T01:00 ET] conductor: OK — self-audit 2026-08-20 batch triaged (4/4 disposed, 0 new code), no commit needed
-
-**Picked via STAGE 0 budget gate PROCEED ($0.00/$30, 0/8 fires) + market closed (Monday 01:00 ET) + engine-health.json YELLOW (19/20 checks GREEN; `state_freshness` YELLOW on `eod-summary.json` stale — pre-open, session not finished yet, non-critical, quiet-OK) + config freeze active (08-31→~09-29, blocks trading-path except pre-registered kill-type risk reductions). `desk_allocator.py`: SPY 0DTE desk ranks #1 (30 pts, arming-bar 100%) but has no matching bare `queue.md` HIGH item ready to pick without re-litigating the freeze; `task_scorer.py --top` returned `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01`, a trading-path params eval that the freeze does not exempt (not a kill-type risk reduction). `active-goal.json` is inactive (`GOAL-DESK-LEGIBILITY-2026-08-30` closed 08-30). Fell through to STAGE-1 priority #3: self-audit gaps — per the 2026-08-30T12:51 ET fire's own note, 5 batches (2026-08-20 through 2026-08-24) remained un-triaged; picked the oldest.**
-
-**Triaged `analysis/self-audit/new-gaps-flagged.md`'s 2026-08-20T17:32:22 batch (4 substantive claims, live-checked against code, not re-derived from swarm prose):** (1) generic Kalshi/Greeks feed-staleness watchdog — partially covered by `self_check.py`'s existing per-producer staleness pattern (macro calendar/earnings/trendlines/regime/level_feed/sight_beacon/watcher_feed all already implement age-vs-threshold, fail-closed-if-unparseable); the concrete Kalshi angle is already filed (`KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE`, LOW, 2026-08-21) and Alpaca Greeks returning `{}` is a known, disclosed, PERMANENT characteristic (not a staleness event) — no new item filed. (2) "conviction guard only checks the script ran, not that C4/C5 are non-null" is FALSE — `incident_fix_status.py::_chk_conviction_components` is a live-data check backed by `test_conviction_c4_c5_wiring_2026_08_14.py`, and the C5-None regression it targets is already fixed (164/164 real rows non-None since 2026-08-19). (3) "no performance-drift monitor for core recency/hysteresis/theta" is FALSE as a blanket claim — `monday_verify.py` WS11 tracks core-recency drift live, WS3 tracks level-hysteresis flip counts against the 07-31 baseline; theta stays visibility-only by design. (4) "WS7 should schema-validate + retry + mark-uncertain on missing fields, else a null delta silently zeroes and mis-sizes a hedge" mischaracterizes `live_watch.py`, which already emits an honest `None` (never a silent 0) for any missing input field, and this book has no delta-hedging code path at all — the concern is a generic-swarm import from a different kind of trading system. No new code action; DONE marker appended, batch closed.
-
-**Verified, quoted (OP-33):** disposition checked live against 3 source files (`self_check.py`, `incident_fix_status.py`, `live_watch.py`) plus `monday_verify.py`'s own WS3/WS11 output and `queue.md`'s existing `KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE` entry — every claim in the DONE marker cites the exact file/mechanism checked, not an assumption.
-
-**Rail (observation-only fire — a single markdown DONE-marker append to `analysis/self-audit/new-gaps-flagged.md`; zero trading-path/params/heartbeat/code file touched, consistent with the active config freeze):** guard = the citations above are independently re-checkable by grep; revert = `git revert <this commit>` (1 file, additive-only); this STATUS entry is the REVOKE report.
-
-**Next fire on this thread:** 2026-08-21T17:33:28 batch (12 items, oldest remaining untriaged of the original 5); after that 08-22/08-23/08-24, then the newer 2026-08-30T17:31:18 batch (8 items, not yet triaged). If engine-health flips GREEN and the freeze allows it, `FLEET-STRIKE-TIER-ATM-EXTENSION-EVAL-2026-08-01` is the next `task_scorer.py --top` pick once a pre-registered/kill-type framing is confirmed possible — otherwise it stays parked for the post-freeze window (~09-29).
-
----
-
-## [2026-08-30] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1274.05); Bold_ATM_1+2=CONFIRM ($269.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
-﻿## [2026-08-30T16:15:04 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-08-30 -- 1 GREEN / 0 YELLOW / 0 RED / 5 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | NOT_EXERCISED | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | no core-decisions.jsonl ticks dated 2026-08-30 -- no RTH session evidence (non-trading day or engine idle). |
-| WS6 regime stamp | NOT_EXERCISED | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual reâ€¦ | 2026-08-30 is not a weekday -- Gamma_Premarket/Gamma_RegimeStamp do not fire on weekends. |
-| WS3 level hysteresis | NOT_EXERCISED | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing wheneverâ€¦ | no core-decisions.jsonl ticks dated 2026-08-30. |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-08-30 window_end=2026-08-28 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=30 (delta +20 vs baseline n=10) exp=$-21.67/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=39 exp=$40.72/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | NOT_EXERCISED | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STILâ€¦ | no core-decisions.jsonl ticks dated 2026-08-30 -- non-trading day. |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_corâ€¦ | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-08-30 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-08-30`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## [2026-08-30T14:32 ET] fix: earnings-blackout.json refreshed â€” EARNINGS-CALENDAR STALE RED cleared
-
-**Root cause (one sentence):** `earnings-blackout.json` last generated `2026-08-28T08:20:01 ET` had crossed the 48h fail-closed threshold because the scheduled `earnings_calendar.py` task had not fired in >53h. Fix: ran `setup/scripts/earnings_calendar.py` directly via `backtest/.venv/Scripts/python.exe` â€” exit code 0, no symbol failures. File now reads `generated_at_et: 2026-08-30T14:32:03`. File is gitignored (runtime state); no commit needed. The `EARNINGS-CALENDAR STALE` bullet in the next `self_check.py` fire will be absent. Rail: state-only, no trading-path/params/heartbeat touched; revert = re-run script or delete the file (fail-closed blocks entries until it's regenerated).
-
----
-
-## [2026-08-30T12:51 ET] conductor: OK â€” closed GOAL-APP-REBUILD, fixed self-audit P1/P2/P3 noise leak, commit `85818d79`
-
-**Picked via STAGE 0 budget gate PROCEED ($3.67/$30, 7/8 fires used) + engine-health.json GREEN (19/19, weekend quiet-OK) + STAGE 1 clause 2a: `active-goal.json` still pointed at `GOAL-APP-REBUILD-2026-08-30` (not expired, expires 2026-09-04). Re-read the goal file fresh (not trusting the 05:30 ET flag) â€” every non-`[B-J]` QUEUE line is `[x]`, unchanged since 04:05 ET, nothing new to build. Per `/gamma-goal close`: appended a `## CLOSED` section to the goal file, flipped `active-goal.json` to `active:false` (pointer kept per doctrine, never deleted), flipped `queue.md`'s row to `[x]`/`status:done`. The four `[B-J]` items (Firebase config, admin-auth token verification, `/` routing swap, two human-eyes verifications) are not re-queued â€” genuinely J's, not stalled work.**
-
-**Fell through to self-audit gaps (priority #3): 6 batches sat un-triaged in `new-gaps-flagged.md` (2026-08-19 through 2026-08-24). Picked the oldest, 2026-08-19T17:33:58 (8 items). Live-checked all 4 substantive claims against real code rather than re-deriving: "no automated theta-stall exit" is BY DESIGN (`theta_clock.py`'s own docstring: "VISIBILITY ONLY ... a THETA-based EXIT class is explicitly a SEPARATE pre-registered study"); "static hysteresis N=5" is real but explicitly data-calibrated (`refresh_levels_intraday.py`'s `HYSTERESIS_MISS_N` derived from the observed 07-31 flicker distribution, max gap=4) with no incident cited, not urgent; "conviction C5=None regression" was ALREADY fixed before this batch even ran (`incident_fix_status.py`'s 08-22 note: C5 fully wired since 08-14, 164/164 real rows non-None by 08-19 â€” the batch read a stale/false detector, not a live bug); "risk-model mis-calibration: unchecked spreads distort the IV surface for Greeks" describes a mechanism that doesn't exist in this codebase (grepped `theta_clock.py`, the only Greeks-adjacent module â€” zero IV-surface-from-spreads computation).**
-
-**The other 4 of 8 items were a re-violated lesson, and per OP-25 that's a code fix, not a 5th triage note.** All 4 were the SAME synthesis cross-reference-noise class the 2026-07-01/07-19/08-18 fixes already targeted ("Perspective N flags...", "All X agree/concur...", "the most rigorous view is Perspective N...") â€” a 4th lexical variant using abbreviated "P1/P2/P3" shorthand ("P1, P2, and P3 all flag...", "P1's X and P3's Y both demand...") that neither existing regex catches. Added `_ABBREV_PERSPECTIVE_LEADIN_RE` + `_ABBREV_PERSPECTIVE_BOTH_RE` to `setup/scripts/self_audit.py`, wired into `_is_real_gap`.
-
-**Verified, quoted (OP-33):** RED-proofed by adding the 4 exact leaked strings to `test_self_audit_extract.py`'s SCAFFOLD fixture BEFORE the fix and running it â€” confirmed 4/72 failures ("scaffold leaked: ..."), then implemented the fix and re-ran: `72 passed`. `backtest/tests/run_safety_gate.py` (curated 6 suites) â†’ `59 passed, PASS`, run automatically again by the pre-commit hook on `git commit`. `git diff --cached --stat` confirmed exactly the 6 intended files staged (a concurrent process's benign harvest-queue append landed inside `queue.md` between read and edit â€” additive, no clobber, confirmed in the diff).
-
-**Rail (self_audit.py is an observation-only R&D organ; goal-close is a state-pointer-only edit â€” zero trading-path/params/heartbeat file touched):** guard is the 4 new RED-proofed test cases + the existing `test_self_audit_extract.py` suite (a); revert is `git revert 85818d79` (6 files, additive except the two 1-line flips) (b); this STATUS entry is the REVOKE report (c).
-
-**Next fire:** 5 more self-audit batches remain un-triaged (2026-08-20 through 2026-08-24, oldest first) â€” same disposition discipline: check each concrete claim against live code, action or dismiss with a named reason, fold any newly-recurring noise class into the same extractor fix rather than re-triaging it by hand.
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: self-check 2026-09-01T16:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-01) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-09-01T20:45:47+00:00
-- task: analyst
-- date_et: 2026-09-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-09-01 21:00:01] gym-session (2026-09-01) → **YELLOW** :: see `automation\state\gym-scorecard-2026-09-01.json`
-### BROKEN: self-check 2026-09-01T17:09:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-01) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-09-01T21:30:35+00:00
-- task: manager
-- date_et: 2026-09-01
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### BROKEN: self-check 2026-09-01T17:39:56
-- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
-- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-01) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
-- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
-- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
-
-### BROKEN: prereg-hygiene 2026-09-01T21:35:54
-- 5 prereg(s) FROZEN/NOT RUN + age>14d + orphan (nothing references them):
-  - prereg-ladder-x-premium-2026-08-09.json (age 24.1d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.')
-  - prereg-pdt-blocked-counterfactual-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
-  - prereg-recency-qty-clamp-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 27.1d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.')
-  - profit-lock-arm-scope-prereg-2026-08-06.json (age 27.1d via frozen_at_et, status='FROZEN — runner NOT yet built. Nothing ships until every gate below is scored.')
-
-### BROKEN: prereg-hygiene 2026-09-01T21:41:16
-- 1 prereg(s) FROZEN/NOT RUN + age>14d + orphan (nothing references them):
-  - prereg-ladder-vwap-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
-
-### BROKEN: prereg-hygiene 2026-09-01T21:43:43
-- 6 prereg(s) FROZEN/NOT RUN + age>14d + orphan (nothing references them):
-  - prereg-ladder-vwap-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
-  - prereg-ladder-x-premium-2026-08-09.json (age 24.1d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.')
-  - prereg-pdt-blocked-counterfactual-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
-  - prereg-recency-qty-clamp-2026-08-11.json (age 22.1d via frozen_at_et, status='FROZEN_BEFORE_RUNNER')
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 27.1d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.')
-  - profit-lock-arm-scope-prereg-2026-08-06.json (age 27.1d via frozen_at_et, status='FROZEN — runner NOT yet built. Nothing ships until every gate below is scored.')
