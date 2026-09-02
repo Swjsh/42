@@ -1,0 +1,38 @@
+{
+  "server": "alpaca",
+  "arm": "safe-2",
+  "window": [
+    "2026-08-03",
+    "2026-09-01"
+  ],
+  "n_activities": 194,
+  "n_trades": 47,
+  "n_trading_days": 20,
+  "actual": {
+    "REG": 0.39,
+    "TAF": 0.48,
+    "ORF": 4.32,
+    "OCC": 7.69,
+    "CAT": 0.2
+  },
+  "predicted_per_trade_ceiling": {
+    "OCC": 7.66,
+    "ORF": 4.78,
+    "TAF": 0.48,
+    "REG": 0.57,
+    "CAT": 0.2
+  },
+  "predicted_per_day_ceiling": {
+    "OCC": 7.2,
+    "ORF": 4.32,
+    "TAF": 0.48,
+    "REG": 0.44,
+    "CAT": 0.2
+  },
+  "total_actual": 13.08,
+  "total_predicted": 13.69,
+  "ratio_predicted_over_actual": 1.0466,
+  "direction": "CONSERVATIVE (model over-states cost)",
+  "finding": "The RATES are right; the gap is rounding granularity. The model ceils per TRADE, the broker ceils per DAY -- and the broker's activity count corroborates it (one ORF activity per trading day). Compare predicted_per_day_ceiling against actual: it is the closer match.",
+  "deliberately_not_fixed": "Correcting the granularity LOWERS modelled cost, RAISES cost-adjusted P&L, and makes go-live criterion 1 EASIER TO PASS mid-window. That is a post-hoc bar change (OP-11) however well-evidenced. The bias is conservative, so leaving it costs only a slightly pessimistic gate. Pre-register before correcting."
+}

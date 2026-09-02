@@ -628,7 +628,24 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 
 ### 2d. Non-shape builds (Sonnet; freeze-compatible)
 - [ ] CANARY-OUT-OF-SAFE-2 (+ FIFO dust threshold; attribute `canary`).
-- [ ] FEE-RECALIBRATION-FROM-BROKER (weekly pull of Alpaca FEE activities vs `FEE_RATES`).
+- [x] **FEE-RECALIBRATION-FROM-BROKER — DONE 2026-09-02.** `setup/scripts/fee_recalibration.py` →
+  `analysis/fee-recalibration/<arm>.json`; guards `test_fee_recalibration_2026_09_02.py` (12).
+  Pulls real Alpaca FEE activities and compares per sub-type against what `FEE_RATES` predicts for the
+  same trades and window. **Both core arms agree the model is CONSERVATIVE: safe-2 1.047×, bold-2
+  1.035×** (predicted over actual) — it over-states cost, which is the safe direction.
+  **The rates are RIGHT; the ~4–5% gap is rounding granularity, and the mechanism is proven not
+  guessed:** the model ceils `_ceil_cents` PER TRADE, the broker ceils PER DAY. Re-running ORF with a
+  daily ceiling hits **$4.3200 vs an actual $4.3200 on safe-2 and $5.1000 vs $5.1000 on bold-2 — exact
+  to the cent on both arms independently**, and the broker's own activity count corroborates it (one
+  ORF activity per trading day, 20 activities / 20 days).
+  ⛔ **Deliberately NOT fixed.** Correcting the granularity lowers modelled cost → raises
+  cost-adjusted P&L → makes **go-live criterion 1 easier to pass, mid-window**. That is a post-hoc bar
+  change (OP-11) however well-evidenced. The bias is conservative, so leaving it costs only a slightly
+  pessimistic gate. Filed to be **pre-registered before correcting**.
+  *Bug found in the instrument itself before shipping:* it mirrored `FEE_RATES` but wrote `ceil(2x)`
+  where the gate writes `2*ceil(x)`, under-counting OCC by $0.46 over 47 trades and flipping its own
+  verdict to "OPTIMISTIC — investigate immediately". A validator that does not reproduce what it
+  validates reports on itself; the first guard now compares directly against `go_live_gate.fee_ex_cat`.
 - [ ] CONDUCTOR-2030-FIRE-VS-QUIET-MODE; STATUS-BROKEN-BLOCKS-DRAIN; WEEKLY-CIRCUIT-BREAKER-CORE (prereg
   + build, block-new-entries semantics; SHIP at 09-29 as a kill-type reduction).
 - [ ] The 09-29 safety bundle prepared in a branch with tests (see §3) — built now, merged at the checkpoint.
