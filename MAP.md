@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-08-29 16:19:18 Saturday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-09-01 20:16:50 Tuesday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -88,18 +88,18 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **825** · broken wikilinks: **56** · orphans (no links either way): **3**
-  - ⛔ `SHADOW.md` → `analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/entry-structure-forward-prereg-2026-08-06` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/bold-floor-rescue-prereg-2026-08-25` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-exit-policy-beats-null-2026-08-23` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-multi-levels-transplant-2026-08-20` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-spy-production-calibration-2026-08-20` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-multi-intraday-null-2026-08-20` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/prereg-weekly-expiry-comparison-2026-08-18` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/vwap-family-killcheck-prereg-2026-08-18` unresolved
-  - ⛔ `SHADOW.md` → `analysis/recommendations/day-throttle-forward-prereg-2026-08-18` unresolved
-  - … +46 more
+- visible notes: **842** · broken wikilinks: **33** · orphans (no links either way): **4**
+  - ⛔ `memory-mirror/feedback_adhd_output_style_2026_07_09.md` → `concise-responses` unresolved
+  - ⛔ `memory-mirror/feedback_dashboard_visuals_chat_ideas.md` → `STRATEGY-SPACE-MAP` unresolved
+  - ⛔ `memory-mirror/feedback_design_starts_at_external_reference_2026_08_30.md` → `app-design-dossier` unresolved
+  - ⛔ `memory-mirror/feedback_design_starts_at_external_reference_2026_08_30.md` → `gamma-presence-not-prompting` unresolved
+  - ⛔ `memory-mirror/feedback_dynamic_market_recency_over_aggregate_2026_07_31.md` → `project_gate_expiry_instrument` unresolved
+  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `feedback-concise-responses` unresolved
+  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `ceo-free-agent-first` unresolved
+  - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `default-act-never-ask` unresolved
+  - ⛔ `memory-mirror/feedback_free_model_audit_harness_2026_07_11.md` → `free-model-audit-harness-design` unresolved
+  - ⛔ `memory-mirror/feedback_free_swarm_only.md` → `project_groq_paid_tier_2026_07_06` unresolved
+  - … +23 more
 
 ## ⏰ The daily loop (live task state)
 

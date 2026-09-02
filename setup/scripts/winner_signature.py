@@ -295,6 +295,58 @@ def _mult_band(m):
     return "<0.7×"
 
 
+def _ex_best_n_days_net(sel: list[dict], n: int = 2) -> float:
+    """Era net with its N best (highest-P&L) sessions excluded, to surface concentration.
+
+    A era that reads "net positive" can still be a handful of outsized days carrying the
+    whole population -- the per-trade table never shows that because it never groups by
+    session. This groups `sel` by date, sums P&L per date, and subtracts the top-N day
+    sums from the era total so the remaining number answers "how would this era read
+    without its best few days."
+    """
+    day_totals: dict[str, float] = collections.defaultdict(float)
+    for r in sel:
+        day_totals[r["date"]] += r["pnl"]
+    best = sorted(day_totals.values(), reverse=True)[:n]
+    return sum(day_totals.values()) - sum(best)
+
+
+def _post_ladder_prose(post: dict | None) -> str:
+    """The era-honesty paragraph, sign-matched to the ACTUAL computed post-ladder net.
+
+    WHY THIS EXISTS (W4, 2026-09-01): this paragraph used to hardcode "the post-ladder
+    era is still red" / "did NOT make the book positive" regardless of what the era table
+    directly above it computed -- a generated surface that could (and did) end up arguing
+    with its own numbers the moment the post-ladder era turned net positive. The prose is
+    now derived from `post["net"]`'s sign every run, and always cites the ex-best-2-days
+    net alongside it so a thin, concentrated positive era reads as exactly that, not as an
+    unqualified win.
+    """
+    if not post:
+        return ("**Read this honestly in both directions.** No post-ladder fills exist yet in "
+                "this population, so there is nothing to say about the post-ladder era's sign.")
+    net, ex2 = post["net"], post["ex_best2_net"]
+    if net > 0:
+        return (
+            "**Read this honestly in both directions.** The ratchet did what it was built to "
+            "do — the give-back leak is measurably closed. It DID make the book positive: the "
+            f"post-ladder era is net **+${net:,.0f}**, though ex its best 2 days that becomes "
+            f"**${ex2:,.0f}** — this many sessions concentrated in a couple of days is not yet "
+            "evidence of a broad edge, only that the ratchet stopped actively bleeding. That "
+            "concentration is what `day-throttle-forward-prereg-2026-08-18` measures — and the "
+            "post-ladder era is far too few sessions to conclude anything from on its own."
+        )
+    return (
+        "**Read this honestly in both directions.** The ratchet did what it was built to do — "
+        "the give-back leak is measurably closed. It did NOT make the book positive: the "
+        f"post-ladder era is still net **${net:,.0f}** (ex its best 2 days: **${ex2:,.0f}**), and "
+        "its losses now sit almost entirely in sub-1.0× exits, i.e. trades that never worked at "
+        "all rather than winners handed back. That is the absorption problem, which is what "
+        "`day-throttle-forward-prereg-2026-08-18` measures — and the post-ladder era is far too "
+        "few sessions to conclude anything from on its own."
+    )
+
+
 def main():
     from et_clock import et_now
 
@@ -345,11 +397,12 @@ def main():
       "fell from −46%/−72% MAE to −4%/−15%. Pooling across that is describing an engine we no longer "
       "run — and would keep nominating exit fixes for a leak that is already closed.")
     d("")
-    d("| era | sessions | fills | waves | trade WR | wave WR | net | $/session |")
-    d("|---|---:|---:|---:|---:|---:|---:|---:|")
+    d("| era | sessions | fills | waves | trade WR | wave WR | net | $/session | ex-best-2-days net |")
+    d("|---|---:|---:|---:|---:|---:|---:|---:|---:|")
     era_stats = {}
+    post_lab = f"post-ladder (≥{LADDER_ERA_START})"
     for lab, sel in (("pre-ladder (≤2026-08-10)", [r for r in recs if r["date"] < LADDER_ERA_START]),
-                     (f"post-ladder (≥{LADDER_ERA_START})", [r for r in recs if r["date"] >= LADDER_ERA_START])):
+                     (post_lab, [r for r in recs if r["date"] >= LADDER_ERA_START])):
         if not sel:
             continue
         ew = wavify(sorted(sel, key=lambda r: (r["date"], r["sec"])))
@@ -357,17 +410,15 @@ def main():
         tot = sum(r["pnl"] for r in sel)
         twr = 100 * sum(1 for r in sel if r["pnl"] > 0) / len(sel)
         wwr = 100 * sum(1 for x in ew if x["pnl"] > 0) / len(ew)
+        ex2 = _ex_best_n_days_net(sel, n=2)
         era_stats[lab] = {"sessions": sess, "fills": len(sel), "waves": len(ew),
                           "trade_wr_pct": round(twr, 1), "wave_wr_pct": round(wwr, 1),
-                          "net": round(tot, 2), "per_session": round(tot / sess, 2)}
-        d(f"| {lab} | {sess} | {len(sel)} | {len(ew)} | {twr:.0f}% | {wwr:.0f}% | ${tot:,.0f} | ${tot/sess:,.0f} |")
+                          "net": round(tot, 2), "per_session": round(tot / sess, 2),
+                          "ex_best2_net": round(ex2, 2)}
+        d(f"| {lab} | {sess} | {len(sel)} | {len(ew)} | {twr:.0f}% | {wwr:.0f}% | ${tot:,.0f} | "
+          f"${tot/sess:,.0f} | ${ex2:,.0f} |")
     d("")
-    d("**Read this honestly in both directions.** The ratchet did what it was built to do — the "
-      "give-back leak is measurably closed. It did NOT make the book positive: the post-ladder era is "
-      "still red, and its losses now sit almost entirely in sub-1.0× exits, i.e. trades that never "
-      "worked at all rather than winners handed back. That is the absorption problem, which is what "
-      "`day-throttle-forward-prereg-2026-08-18` measures — and the post-ladder era is far too few "
-      "sessions to conclude anything from on its own.")
+    d(_post_ladder_prose(era_stats.get(post_lab)))
     d("")
     d("> **Consequence for every section below:** they are still pooled across both eras, because "
       "splitting them would leave cell sizes that cannot support any read at all. Treat the "

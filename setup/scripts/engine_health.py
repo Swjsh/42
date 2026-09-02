@@ -785,6 +785,37 @@ def check_killswitch(name: str, path: Path) -> dict:
     return _chk(name, "GREEN", "armed, not tripped", critical=True)
 
 
+def check_escalation_flags(name: str) -> dict:
+    """CRITICAL: any unresolved EOD-flatten escalation still on disk (W2, 2026-09-01).
+
+    Two independent signals -- either one trips RED:
+      * any automation/state/kill-switch*.json file exists (eod_flatten.py's per-arm
+        escalation file -- fleet arms have no circuit-breaker.json, so this glob is
+        their only escalation surface).
+      * either core circuit-breaker.json carries escalation_unresolved=true (the flag
+        daily_loss_guard.rearm() now refuses to clear -- see that function's 2026-09-01
+        docstring).
+
+    CRITICAL (unlike killswitch_safe/bold's own check, which already covers the plain
+    tripped=true case): an unresolved escalation means a partial-fill flatten left
+    contracts open past 15:55 ET -- physical assignment risk -- and must read as a halt
+    signal in the fused verdict even before/alongside a bare .tripped read. Fail-open:
+    any read/glob error degrades this to a benign YELLOW, never crashes the beacon."""
+    try:
+        hits: list[str] = [p.name for p in sorted(STATE.glob("kill-switch*.json"))]
+        for label, path in (("safe", STATE / "circuit-breaker.json"),
+                             ("bold", AGG / "circuit-breaker.json")):
+            data, _err = _read_json(path)
+            if isinstance(data, dict) and data.get("escalation_unresolved"):
+                hits.append(f"{label}_circuit_breaker.escalation_unresolved")
+        if hits:
+            return _chk(name, "RED", f"unresolved escalation flag(s): {hits}", critical=True)
+        return _chk(name, "GREEN", "no unresolved escalation flags", critical=True)
+    except Exception as exc:  # noqa: BLE001 -- never crash the beacon
+        return _chk(name, "YELLOW", f"escalation_flags check error: {type(exc).__name__}: {exc}",
+                    critical=False)
+
+
 # Per-account breaker date-field (mirrors daily_loss_guard.py ACCOUNTS -- see that file's
 # docstring for the C9 symmetry trap: the two breakers use fully divergent field names).
 BREAKER_DATE_FIELD = {
@@ -1149,6 +1180,11 @@ def build_report() -> dict:
         check_watcher_feed(mkt, et),
         check_killswitch("killswitch_safe", STATE / "circuit-breaker.json"),
         check_killswitch("killswitch_bold", AGG / "circuit-breaker.json"),
+        # NEW 2026-09-01 (W2 kill-switch wiring fix): killswitch_safe/bold only ever read
+        # THEIR OWN .tripped -- this is the cross-cutting escalation surface (any
+        # kill-switch*.json file, or escalation_unresolved on either breaker) that a
+        # partial-fill EOD flatten now sets. CRITICAL like killswitch_safe/bold.
+        check_escalation_flags("escalation_flags"),
         # NON-CRITICAL breaker re-arm freshness (2026-07-09 incident): killswitch_* above
         # only proves "not tripped", not "armed on TODAY's equity" -- surfaces a silent
         # premarket/CCR-gateway death that leaves the daily-loss anchor stale. Never

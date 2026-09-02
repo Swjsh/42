@@ -84,13 +84,14 @@ DISCORD_OUTBOX_STATE = REPO_ROOT / "automation" / "state" / "discord-outbox.json
 
 # ---------------------------------------------------------------------------
 # Section parsing markers.
-#  - Active items start at "## Active backlog" and run to EOF.
+#  - Items are scanned from the TOP OF THE FILE to EOF (fixed 2026-09-01 —
+#    scoping to only-after "## Active backlog" hid items filed above it; see
+#    _active_lines() docstring for the confirmed-live incident).
 #  - Only the PROVABLY-resolved "## Archived ..." / "## Completed" sections are
-#    skipped; every other top-level "## " heading after Active backlog is
-#    scanned too (see EXCLUDED_SECTION_RE below for why this changed).
+#    skipped; every other top-level "## " heading (before or after
+#    Active backlog) is scanned too (see EXCLUDED_SECTION_RE below).
 #  - "### Tier N" are sub-headers WITHIN a section — they never toggle exclusion.
 # ---------------------------------------------------------------------------
-ACTIVE_HEADING = "## Active backlog"
 TOP_LEVEL_RE = re.compile(r"^##\s+\S")          # a "## " heading (not "### ")
 SUBHEADER_RE = re.compile(r"^###\s+")            # a "### " sub-header
 
@@ -504,38 +505,37 @@ def score_item(
 
 
 def _active_lines(text: str) -> list[str]:
-    """Return the lines from '## Active backlog' onward, skipping only the
+    """Return the WHOLE-FILE lines (top of file -> EOF), skipping only the
     provably-resolved 'Archived' / 'Completed' sections.
 
-    WHY THIS SCANS TO EOF (fixed 2026-07-23, was "stop at the first '## '
-    heading after Active backlog"): queue.md's actual append discipline never
-    matched that assumption — many conductor fires filed NEW dated top-level
-    sections below Active backlog instead of adding to it (e.g. '## Blocked',
-    '## Twin escalations', '## TRENDLINE-FIXES-2026-07-17 (HIGH...)',
-    '## HARVESTED-FROM-GYM' whose body also picked up non-harvest items like
-    GATE-TIERS-IMPLEMENT). The old stop-at-first-heading rule made every one
-    of those items permanently INVISIBLE to this ranker — confirmed live:
-    18 genuine ``status:pending`` items (9 of them HIGH) sat unrankable, some
-    for weeks, discovered only by a conductor fire manually grepping the file.
-    Same failure class as C14/L245-L246 (a parser's silent scope boundary
-    quietly drops real work). Fix: keep scanning to EOF; only skip sections
-    that are PROVABLY resolved (Archived/Completed — matched by
-    ``EXCLUDED_SECTION_RE``). 'HARVESTED-FROM-GYM' is deliberately NOT
-    excluded any more: its genuine auto-queued rows carry ``status:queued``,
-    which already self-excludes via READY_STATUSES, so including the section
-    only surfaces the real (non-harvest) items that had drifted into it.
-    '### Tier N' sub-headers never toggle exclusion (they are content within
-    whatever top-level section they sit under). Never raises.
+    WHY THIS SCANS THE WHOLE FILE, NOT JUST FROM '## Active backlog' (fixed
+    2026-09-01, PARSER SCOPE BUG): the prior version required an explicit
+    ``in_section`` gate that only opened at the literal '## Active backlog'
+    heading — so any genuine ``- [ ]`` item that a conductor fire appended
+    ABOVE that heading (e.g. a fresh top-of-file "just filed" block, which is
+    exactly how DEAD-MANS-SWITCH-POSITION-FLATTENER and
+    PROD-SHADOW-ARM-DESIGNATION landed on 2026-08-29 — both HIGH, both
+    go-live-gate-blocking) was silently invisible to parse_queue()/--top/
+    --all, identically to the 2026-07-23 EOF bug this same function already
+    fixed once. Confirmed live: both ids sat unrankable through ~9 conductor
+    fires. Fix: drop the ``in_section`` gate entirely and scan from line 0;
+    the file's own preamble (H1 title, blockquote prose before the first
+    item) never matches ``ITEM_RE`` so it is naturally inert — only real
+    ``- [ ]``/``- [x]`` blocks are ever emitted by ``_item_blocks()``. Only
+    skip sections that are PROVABLY resolved (Archived/Completed — matched
+    by ``EXCLUDED_SECTION_RE``); this keeps the 2026-07-23 EOF-scan fix
+    intact for every heading after '## Active backlog' too. 'HARVESTED-FROM-
+    GYM' is deliberately NOT excluded: its genuine auto-queued rows carry
+    ``status:queued``, which already self-excludes via READY_STATUSES, so
+    including the section only surfaces the real (non-harvest) items that
+    had drifted into it. '### Tier N' sub-headers never toggle exclusion
+    (they are content within whatever top-level section they sit under).
+    Never raises.
     """
     lines = text.splitlines()
     out: list[str] = []
-    in_section = False
     excluded = False
     for line in lines:
-        if not in_section:
-            if line.strip() == ACTIVE_HEADING:
-                in_section = True
-            continue
         # A top-level (but not sub-) heading starts a new section — decide
         # whether IT is one of the provably-resolved ones.
         if TOP_LEVEL_RE.match(line) and not SUBHEADER_RE.match(line):

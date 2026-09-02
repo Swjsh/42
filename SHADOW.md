@@ -1,18 +1,20 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-08-25 18:43:20 Tuesday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-09-01 20:16:50 Tuesday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
-- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 40 session rows; latest: `{"date": "2026-08-24", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-08-24T14:40:03.212177", "est": false, "n_added": 25, "added_pnl": 115.0, "binary_day_pnl": 0.0, "ladder_d`
+- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 50 session rows; latest: `{"date": "2026-09-01", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-09-01T14:40:04.919913", "est": false, "n_added": 44, "added_pnl": -270.0, "binary_day_pnl": 122.0, "ladde`
 - **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl` — ADJUDICATED: V-d1 **KILL** (pooled F4 p=0.6661) · V-e3 **EXTEND** (pooled F4 p=0.1252)
 - **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — artifact appears after the next close.
 
-- **stop_mode premium-vs-structure** (16:25 fold) — n=143 trades / 10 days, cum Δ **$497.60** (3.48/tr), mechanism HOLDS, 10 days to bar
-- **Direction symmetry** (16:25 fold) — **RED**: 4 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
+- **stop_mode premium-vs-structure** (16:25 fold) — n=174 trades / 15 days, cum Δ **$-1,940.90** (-11.15/tr), mechanism FAILS, 5 days to bar
+- **Direction symmetry** (16:25 fold) — **RED**: 2 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
 
 ## Frozen preregs — auto-discovered
 
+- `PREREG-RUNNER-COUNT-2026-09-01` — [[analysis/recommendations/prereg-runner-count-2026-09-01]]
+- `loss-armed-budget-forward-prereg-2026-08-28` — [[analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28]]
 - `entry-structure-forward-prereg-2026-08-06` — [[analysis/recommendations/entry-structure-forward-prereg-2026-08-06]]
 - `bold-floor-rescue-prereg-2026-08-25` — [[analysis/recommendations/bold-floor-rescue-prereg-2026-08-25]]
 - `EXIT-POLICY-BEATS-NULL-2026-08-23` — [[analysis/recommendations/prereg-exit-policy-beats-null-2026-08-23]]
@@ -36,9 +38,7 @@
 - `STRUCTURE-STOP-ZONE-2026-08-11` — [[analysis/recommendations/prereg-structure-stop-zone-2026-08-11]]
 - `TIGHT-STOP-VWAP-2026-08-11` — [[analysis/recommendations/prereg-tight-stop-vwap-2026-08-11]]
 - `REGIME-CONDITIONAL-EXIT-2026-08-11` — [[analysis/recommendations/prereg-regime-conditional-exit-2026-08-11]]
-- `GIVEBACK-RATCHET-2026-08-10` — [[analysis/recommendations/prereg-giveback-ratchet-2026-08-10]] · does **not** ship on its own evidence
-- `TRIGGER-PARITY-BULL-2026-08-09` — [[analysis/recommendations/prereg-trigger-parity-2026-08-09]] · does **not** ship on its own evidence
-- _+93 older preregs on disk (see `analysis/recommendations/*prereg*.json`)_
+- _+95 older preregs on disk (see `analysis/recommendations/*prereg*.json`)_
 
 ## Frozen preregs — curated (richer write-ups)
 

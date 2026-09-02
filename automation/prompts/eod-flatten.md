@@ -60,6 +60,6 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
 # Constraints
 
 - This task ALWAYS runs, even on a no-trade day. The no-op path is fast.
-- If Alpaca unreachable: create kill-switch with reason "EOD flatten failed - manual intervention required".
+- If Alpaca unreachable: **FIRST** read today's `automation/state/logs/eod-flatten-{today}.jsonl` for the `safe-2` row. If the deterministic Core (`eod_flatten.py`, fires 15:52 ET) already recorded `outcome` NOOP/SUCCESS with `remaining: 0` for `safe-2` at/after 15:52 ET today, log `CORE_VERIFIED_FLAT -- no escalation` and do **NOT** set any kill-switch — this LLM run's own MCP outage is not evidence of an open position when the Core already confirmed flat. Otherwise the flat status is genuinely unconfirmed: set `automation/state/circuit-breaker.json` — `tripped: true`, `tripped_reason: "EOD_FLATTEN_ESCALATION: Alpaca unreachable, Core did not confirm flat"`, `tripped_at: <now ET ISO>`, `escalation_unresolved: true` (preserve every other existing field; atomic write via a `.tmp` + replace). **Never write the bare `automation/state/kill-switch` file for this case** — heartbeat_core.py's entry gate reads the circuit-breaker's `tripped` field for this account, not a bare-name file nothing on the live gate path consumes (W2, 2026-09-01).
 - No new entries.
 - Total runtime: target < 30 seconds.

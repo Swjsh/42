@@ -63,6 +63,6 @@ The PowerShell harness has already validated `automation/state/*.json`. If `curr
 # Constraints
 
 - This task ALWAYS runs on weekdays, even on a no-trade day. The no-op path is fast.
-- If `mcp__alpaca_aggressive__` unreachable: create `automation/state/kill-switch` with reason "AGG EOD flatten failed - manual intervention required".
+- If `mcp__alpaca_aggressive__` unreachable: **FIRST** read today's `automation/state/logs/eod-flatten-{today}.jsonl` for the `bold-2` row. If the deterministic Core (`eod_flatten.py`, fires 15:52 ET) already recorded `outcome` NOOP/SUCCESS with `remaining: 0` for `bold-2` at/after 15:52 ET today, log `CORE_VERIFIED_FLAT -- no escalation` and do **NOT** set any kill-switch — this LLM run's own MCP outage is not evidence of an open position when the Core already confirmed flat. Otherwise the flat status is genuinely unconfirmed: set `automation/state/aggressive/circuit-breaker.json` — `tripped: true`, `trip_reason: "EOD_FLATTEN_ESCALATION: mcp__alpaca_aggressive__ unreachable, Core did not confirm flat"`, `tripped_at_et: <now ET ISO>`, `escalation_unresolved: true` (preserve every other existing field; atomic write via a `.tmp` + replace). **Never write the bare `automation/state/kill-switch` file for this case** — heartbeat_core.py's entry gate reads the circuit-breaker's `tripped` field for this account, not a bare-name file nothing on the live gate path consumes (W2, 2026-09-01).
 - No new entries.
 - Total runtime: target < 30 seconds.

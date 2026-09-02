@@ -1,3 +1,20 @@
+## [2026-09-01T20:55 ET] Fable full audit session (interactive, ultracode): SHIPPED 5 freeze-compatible fixes + the audit itself -- REVOKE surface
+
+**Audit:** `analysis/deep-research/FABLE-FULL-AUDIT-2026-09-01.md` (verdict, edge re-derivation, RIGHT/WRONG/IMPROVE/ADD/BLIND-SPOT map, decisions). Provenance: `analysis/deep-research/2026-09-01-audit/findings.json`. Follow-ups filed under `## Active backlog` -> `### FABLE-FULL-AUDIT-2026-09-01 follow-ups` in queue.md.
+
+**Shipped (verified cold this session; no frozen trading-path file touched -- `git diff --stat` on the 10-file frozen list is empty):**
+- **Dead-man's switch** `setup/scripts/dead_mans_switch.py` + task `Gamma_DeadMansSwitch` (State=Ready, next 09-02 09:32 ET, /2min to 15:58 ET): flattens via broker REST only when an arm's decision ledger is >10 min stale AND the broker read is OK AND it holds an open SPY option; fail-closed on action, fail-open on process; in quiet_mode ESSENTIAL. `go_live_gate.py` operational criterion now **PASS 6/6** (`dead_mans_switch_open_position_on_process_death [PASS] 13 passed`). REVOKE: `Unregister-ScheduledTask -TaskName Gamma_DeadMansSwitch -Confirm:$false`.
+- **Kill-switch wiring**: `eod_flatten.py` escalation trips the per-account `circuit-breaker.json` (`tripped` + `escalation_unresolved`); `daily_loss_guard.rearm()` refuses to clear while unresolved (`REARM_REFUSED_UNRESOLVED_ESCALATION`); `engine_health` new CRITICAL check `escalation_flags`; both LLM flatten prompts consult the Core's 15:52 jsonl before escalating and never write the bare `kill-switch` file. Today's false flag archived: `automation/state/archive/kill-switch.resolved-2026-09-01.json` (bold-2 broker-verified flat by Core at 15:52:01 on 08-31 and 09-01).
+- **Conductor picker**: `task_scorer._active_lines` scans the whole queue (items above `## Active backlog` were invisible); `conductor.md` STAGE-1 tier **2b GATE-BLOCKING** above self-audit gaps; freeze scope stated = the hook's frozen file list only.
+- **Go-live gate**: criterion 5 wired to `automation/state/prod-shadow-designation.json` (arm=safe-3, window 2026-09-01..09-29, min 20 days; reads INSUFFICIENT_DAYS 0/20 tonight); new disclosure blocks FROZEN-CONFIG-WINDOW / EFFECTIVE EVIDENCE / PLAN REACHABILITY; behavioural rule-breaks sub-check reports `PASS_UNVERIFIED` on the stale ledger (last write 2026-05-18). REVOKE designation: delete the json.
+- **Generators**: `obsidian_vault_sync.py` resolves extensionless wikilinks to .json (MAP broken links 58 -> 33, remainder are memory-mirror slugs); `winner_signature.py` era prose is now conditional on sign + `ex-best-2-days net` column.
+- **Preregs filed** (frozen, not run): `prereg-whole-engine-null-2026-09-01.json`, `prereg-time-stop-broker-sweep-2026-09-01.json`.
+- Tests: 6 new files, 57 tests; suite for touched modules 791 passed / 2 skipped (fixture fix for the one stale live-queue assertion applied after the verifier ran); graduated guards 94 passed.
+
+**Decided under Gamma-decides (report for REVOKE):** one governing clock = 2026-10-30 (October arming was unreachable); prod-shadow candidate = safe-3 (runbook safe-2-first superseded; safe-2 retires at window close); CLAUDE.md:65 arming text edit Sat 09-05. **J-only items:** the live accept/decline itself when criterion 5 clears; the OPRA/Algo Trader Plus subscription (~$99/mo).
+
+---
+
 ## [2026-09-01T16:18 ET] conductor: OK -- live-watch REQUIRED_POSITION_FIELDS enforced live (self-audit 08-30 batch closed, 8/8 disposed), commit `e222da9a`
 
 **Picked via STAGE 0 budget gate PROCEED ($3.46/$30, 3/8 fires -> this fire) + market closed (Tuesday 16:12 ET, post-15:55 flatten) + engine-health.json GREEN (20/20). `desk_allocator.py`: SPY 0DTE #1 (30 pts) but no ready non-frozen item (config freeze active to ~09-29); Multi-sector's `+40 BROKEN` flag is its own documented "do not polish a corpse" dead-signal note, not worth chasing (repeat confirmation, same as every prior fire this week). `task_scorer.py --top` returned `TWIN-DOCTRINE-FIRST-DEPLOY`, but live-checked against STATUS.md (not memory): last real re-ping was 2026-08-26, 6 days ago, still inside the 14-day suppression window -- correctly not due, not a re-ping-worthy pick. `active-goal.json` inactive. Fell through to STAGE-1 priority #3: oldest untriaged self-audit batch = 2026-08-30T17:31:18 (8 gap-lines).**
@@ -231,3 +248,41 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ## Kitchen
 Kitchen: alive, queue 36 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: self-check 2026-09-01T16:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-01) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-09-01T20:45:47+00:00
+- task: analyst
+- date_et: 2026-09-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-09-01 21:00:01] gym-session (2026-09-01) → **YELLOW** :: see `automation\state\gym-scorecard-2026-09-01.json`
+### BROKEN: self-check 2026-09-01T17:09:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-01) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-09-01T21:30:35+00:00
+- task: manager
+- date_et: 2026-09-01
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+### BROKEN: self-check 2026-09-01T17:39:56
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- bold=1/2-4
+- TRENDLINE-DRAW STALE: last mark_run was 2026-08-27 (skipped), not today (2026-09-01) -- Step 5c likely didn't fire this morning. Non-load-bearing (visibility only); run the trendline-draw skill by hand to catch up.
+- CHART-DRAWING STALE: last chart_drawing_summary.as_of was 2026-06-29, not today (2026-09-01) -- premarket Step 5 (chart wipe + level draw) likely didn't fire this morning. Non-load-bearing (visibility only); re-run premarket Step 5 by hand to catch up.
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-01.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-kitchen-seeder.ps1 (exit=[1], 2x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (0 session(s) since in the read window); 15 ENTER_REFUSED row(s) across 4/5 recent session(s) ['2026-08-26', '2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 19 row(s), 17 transport-error, 2 broker-rejected; newest 2026-09-01T15:45:17 connect/transport_error

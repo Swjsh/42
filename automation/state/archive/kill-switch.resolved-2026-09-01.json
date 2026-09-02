@@ -1,0 +1,10 @@
+{
+  "reason": "AGG EOD flatten failed - manual intervention required",
+  "detail": "mcp__alpaca_aggressive__ unreachable at 15:55 ET eod-flatten-aggressive fire, 2nd consecutive day (2026-08-31 AND 2026-09-01). Server never resolved after 6 ToolSearch retries over ~5 min today (dropped off the 'connecting' list entirely partway through, same signature as yesterday). Local current-position-bold.json shows flat (status null, last closed 2026-06-18) but this is UNVERIFIED against broker per C11 (broker is source of truth) -- cannot confirm no open Bold position exists. Repeat-failure L-rule: same signature twice = system failure, not model failure -- flagging to STATUS.md Known broken for a durable fix, not just a re-flag.",
+  "account": "aggressive",
+  "set_at_et": "2026-09-01T15:55:07",
+  "set_by": "eod-flatten-aggressive task",
+  "repeat_count": 2,
+  "prior_occurrence_et": "2026-08-31T15:55:07",
+  "resolution": "RESOLVED 2026-09-01 (W2 kill-switch wiring audit): bold-2 was broker-verified flat by the deterministic Core (eod_flatten.py) at 15:52:01 ET on BOTH 2026-08-31 and 2026-09-01 (outcome=NOOP, remaining=0 for arm bold-2 in automation/state/logs/eod-flatten-2026-08-31.jsonl and -2026-09-01.jsonl, both BEFORE this bare kill-switch.json was written by the LLM aggressive flattener at 15:55:07 ET on an MCP-unreachable false alarm). The bare automation/state/kill-switch file has ZERO readers on the live gate path (heartbeat_core.py reads (STATE/'kill-switch').exists() but that predicate is one of two independent kill checks -- ORed with cb.get('tripped'), which stayed false throughout since this file never fed it), so no entry was ever gated by this flag; it is archived (not deleted) as the audit trail for the incident. Root cause fixed in the same pass: eod-flatten prompts now check the Core log before escalating, and any real escalation now trips the per-account circuit-breaker.json directly instead of this unread bare file."
+}

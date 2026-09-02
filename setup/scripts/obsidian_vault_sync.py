@@ -986,6 +986,38 @@ def mirror_memory() -> int:
     return n
 
 
+def _resolve_wikilink_target(
+    target: str, relset: set[str], by_stem: dict[str, list[str]], repo: Path,
+) -> str | None:
+    """Resolve one wikilink target to a repo-relative path, or None if unresolved.
+
+    Wikilink targets are almost always extensionless (Obsidian convention) and point at
+    another markdown note -- but some point at a non-markdown artifact instead, e.g.
+    SHADOW.md -> [[analysis/recommendations/<prereg>]] links a prereg *receipt*, which is
+    written as .json, not .md. `relset`/`by_stem` only index the visible-MARKDOWN set
+    (see _visible_md), so a bare '+.md' probe on a .json target always misses -- that
+    mismatch, not a real dangling link, was the source of most "broken" entries. Try, in
+    order: the target exactly as written (rare, but covers explicit-extension links),
+    target + '.md' against the indexed markdown set (the common case), a stem match in
+    `by_stem` (aliases), then -- only for extensionless targets -- the target as written
+    or with '.json' appended, checked against the filesystem directly, since a linked
+    .json is never itself part of the "visible markdown" set.
+    """
+    if target in relset:
+        return target
+    md_cand = target if target.endswith(".md") else target + ".md"
+    if md_cand in relset:
+        return md_cand
+    stem = target.split("/")[-1].lower()
+    if stem in by_stem:
+        return by_stem[stem][0]
+    if not target.endswith(".md"):
+        for ext_cand in (target, f"{target}.json"):
+            if (repo / ext_cand).is_file():
+                return ext_cand
+    return None
+
+
 def build_link_health(visible: list[Path]) -> dict:
     """Broken wikilinks + orphan census over the visible set. Pure read, fail-open."""
     by_stem: dict[str, list[str]] = {}
@@ -1021,11 +1053,9 @@ def build_link_health(visible: list[Path]) -> dict:
             if not target:
                 continue
             has_outlink.add(rel)
-            cand = target if target.endswith(".md") else target + ".md"
-            if cand in relset:
-                linked.add(cand)
-            elif target.split("/")[-1].lower() in by_stem:
-                linked.add(by_stem[target.split("/")[-1].lower()][0])
+            resolved = _resolve_wikilink_target(target, relset, by_stem, REPO)
+            if resolved:
+                linked.add(resolved)
             else:
                 broken.append((rel, target))
         # Standard markdown links: resolve relative to the note's own folder, then vault root.

@@ -138,6 +138,13 @@ ESSENTIAL = {
     "Gamma_EodFlatten",
     "Gamma_EodFlatten_Aggressive",
     "Gamma_EodFlattenCore",
+    # Independent open-position watchdog (TASK W1, 2026-09-01, queue.md
+    # DEAD-MANS-SWITCH-POSITION-FLATTENER) -- trading-critical in exactly the same sense as
+    # the flatten backstops above: it only ever acts on an ENGINE-STALE arm holding an open
+    # SPY 0DTE position, which is precisely the RTH window quiet mode's LOUD weekday
+    # 08:00-18:00 band already covers, but disabling it here would be the same silent-gap
+    # class of bug the flatten-coverage fix (2026-08-18) exists to prevent.
+    "Gamma_DeadMansSwitch",
 }
 
 # Command-line substrings identifying project-owned CPU hogs to stop in the blackout.

@@ -1,0 +1,18 @@
+{
+  "id": "PREREG-TIME-STOP-BROKER-SWEEP-2026-09-01",
+  "status": "FROZEN -- NOT SHIPPED. Kill-type risk reduction, pre-registered so it can ship at the freeze close (2026-09-29) or earlier if J's live-flip requires it. Deliberately NOT shipped mid-window: changing exit timing would contaminate the frozen-config scoring window.",
+  "filed_by": "FABLE-FULL-AUDIT-2026-09-01 (gap finding G2-alpaca-330pm-forced-liquidation-window, survived 3-lens refutation)",
+  "filed_at_et": "2026-09-01T20:40",
+  "mechanism": "Alpaca's published options policy (us/options-trading-overview, fetched 2026-09-01): starting 3:30pm ET on expiration day Alpaca evaluates every expiring position; a long option that is ITM and cannot be exercised for lack of buying power is liquidated by Alpaca 'while it's still ITM', and 'positions slightly OTM may also be liquidated'. Every Gamma arm (~$5.6-6.5K) cannot cover exercise of one SPY contract. Our exits fire AFTER that window opens: time_stop_et=15:40 (both params files), fleet EOD sweep >=15:50, Gamma_EodFlattenCore 15:52, LLM flatteners 15:55.",
+  "change": {
+    "key": "time_stop_et",
+    "files": ["automation/state/params.json", "automation/state/aggressive/params.json"],
+    "from": "15:40",
+    "to": "15:20",
+    "also": "entry_no_trade_after_et stays 15:00; document that any position still open at 15:25 ET is a broker-liquidation-risk event to be logged and reconciled against Alpaca activities OPEXC/OPASN/OPEXP (none of these activity types are handled anywhere in the repo today)"
+  },
+  "expected_cost_on_history": "15 of 556 historical exits (2.7%) landed at or after 15:25 ET with ordinary P&L; the change forfeits whatever those late-afternoon holds would have earned after 15:20. Measure on the frozen-window fills before shipping: total $ of exits in [15:20, 15:40] and their MFE after 15:20.",
+  "pass_criterion_frozen": "Ship if the historical give-up is < 5% of gross winner dollars over the scoring window OR J's live-flip is imminent (the broker-sweep exposure dominates any give-up on real money). Kill only if the [15:20,15:40] band carries > 10% of gross winner dollars -- then the correct fix is a broker-sweep guard (flatten at 15:25 only when ITM/near-ITM) instead of a blanket earlier stop.",
+  "guards": "existing time-stop tests must be updated to the new value (never weakened); add a test that asserts time_stop_et < 15:30 on both params files with a docstring naming the Alpaca policy.",
+  "revoke": "set time_stop_et back to 15:40 on both files (one-line revert)"
+}

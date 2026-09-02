@@ -166,12 +166,25 @@ def rearm(account: str, dry_run: bool) -> dict:
 
     limit_pct = float(breaker.get(cfg["limit_field"], cfg["limit_default"]))
     prior_date = bdate  # for the audit trail / result payload
+    # W2 (2026-09-01 kill-switch wiring fix): this used to unconditionally set tripped=False
+    # every time a new day crossed -- the exact bug the W2 audit named ("daily_loss_guard.
+    # rearm() unconditionally re-arms each premarket"), which meant an unresolved
+    # eod_flatten.py escalation (partial-fill, physical-assignment risk) got silently
+    # cleared by the very next premarket tick. escalation_unresolved is set only by
+    # eod_flatten.py's _escalate_inner and cleared only by a human resolving the position.
+    escalation_unresolved = bool(breaker.get("escalation_unresolved"))
 
     breaker[cfg["sod_field"]] = round(equity, 2)
     breaker[cfg["cur_field"]] = round(equity, 2)
-    breaker["tripped"] = False
-    breaker[cfg["tripped_at_field"]] = None
-    breaker[cfg["tripped_reason_field"]] = None
+    if escalation_unresolved:
+        # Refuse to clear tripped/reason/at -- equity still refreshes so run()'s
+        # stale-SoD guard doesn't itself misfire, but the halt persists untouched.
+        action_label = "REARM_REFUSED_UNRESOLVED_ESCALATION"
+    else:
+        breaker["tripped"] = False
+        breaker[cfg["tripped_at_field"]] = None
+        breaker[cfg["tripped_reason_field"]] = None
+        action_label = "REARMED"
     if cfg.get("loss_pct_field"):
         breaker[cfg["loss_pct_field"]] = 0.0
     if cfg.get("loss_dollars_field"):
@@ -182,21 +195,30 @@ def rearm(account: str, dry_run: bool) -> dict:
         breaker[cfg["date_field"]] = now_et.isoformat(timespec="seconds")
     else:
         breaker[cfg["date_field"]] = today
-    breaker["_note"] = (
-        f"Re-armed {today} premarket (DETERMINISTIC fallback -- daily_loss_guard.rearm; "
-        f"prior stamped date was {prior_date}). equity=${equity:.2f} confirmed live "
-        f"(Alpaca REST, un-blockable by claude/CCR outages). Kill switch: "
-        f"-{limit_pct:.0%} = -${round(equity * limit_pct, 2)}/day. day_trades_used_5d "
-        f"left untouched (out of this guard's scope)."
-    )
+    if escalation_unresolved:
+        breaker["_note"] = (
+            f"REARM_REFUSED_UNRESOLVED_ESCALATION {today}: equity refreshed to "
+            f"${equity:.2f} (Alpaca REST) but tripped/{cfg['tripped_reason_field']} left "
+            f"untouched because escalation_unresolved=true (set by eod_flatten.py's "
+            f"partial-fill escalation). Resolve the open position manually, then clear "
+            f"escalation_unresolved in this file before a future rearm can restore trading."
+        )
+    else:
+        breaker["_note"] = (
+            f"Re-armed {today} premarket (DETERMINISTIC fallback -- daily_loss_guard.rearm; "
+            f"prior stamped date was {prior_date}). equity=${equity:.2f} confirmed live "
+            f"(Alpaca REST, un-blockable by claude/CCR outages). Kill switch: "
+            f"-{limit_pct:.0%} = -${round(equity * limit_pct, 2)}/day. day_trades_used_5d "
+            f"left untouched (out of this guard's scope)."
+        )
 
     result: dict[str, Any] = {
-        "account": account, "ok": True, "action": "REARMED",
+        "account": account, "ok": True, "action": action_label,
         "date": today, "prior_date": prior_date, "equity": round(equity, 2),
-        "limit_pct": limit_pct,
+        "limit_pct": limit_pct, "escalation_unresolved": escalation_unresolved,
     }
     if dry_run:
-        result["action"] = "WOULD_REARM"
+        result["action"] = "WOULD_REARM" if action_label == "REARMED" else action_label
         return result
 
     _write_atomic(breaker_path, breaker)

@@ -25,10 +25,21 @@ five criteria groups, each with an exact numeric distance to the bar it did not 
   4. BEHAVIOURAL    -- rule breaks, manual-attribution fills, and sizing-up events actually
                        LOGGED in the trailing window (this reads existing ledgers; it does not
                        re-adjudicate every historical trade against a cap).
-  5. PROD-SHADOW    -- a designated shadow arm profitable net of realistic costs over a stated
-                       window. No such arm was identified in this repo as of this build (see
-                       docstring of prod_shadow_criterion) -- reported as a NOT_WIRED gap, not
-                       silently skipped or assumed.
+  5. PROD-SHADOW    -- WIRED 2026-09-01 (TASK W5, queue.md PROD-SHADOW-ARM-DESIGNATION). Reads
+                       its designation (arm/window/min_days) from automation/state/prod-shadow-
+                       designation.json and scores it net of realistic costs via the SAME
+                       statistical_criterion() as criterion 1. Status ladder: NOT_WIRED (no
+                       readable designation file -- never guessed) -> INSUFFICIENT_DAYS (window
+                       hasn't scored min_days yet) -> PASS/FAIL. See prod_shadow_criterion()
+                       docstring for the current designation's rationale.
+
+Also carries three DISCLOSURE-ONLY views (TASK W5, 2026-09-01 -- honesty gaps a Fable audit
+found missing; none of these change any pass/fail bar above): a FROZEN-CONFIG-WINDOW view
+(criterion-1's bootstrap restricted to days on/after the 2026-08-31 config freeze), an
+EFFECTIVE-EVIDENCE block (days actually on the current config vs. post-tight-ladder, and how
+much of each arm's gross winner dollars sit in its best 2 days), and a PLAN-REACHABILITY block
+(the constant $/day, zero-variance best case, that would push CI-lower(2.5%) above 1.0 by the
+config-freeze close and by the tight-ladder's 40-day clock). See report["disclosures"].
 
 THIS IS A REPORTING INSTRUMENT ONLY. It arms nothing, changes no gate, edits no params*.json,
 places no orders, and never touches the live-path files listed in this session's scope fence
@@ -139,6 +150,32 @@ COST_MODEL_EXIT_SLIPPAGE_CENTS = 2.0  # A1's conservative scenario-b exit-slippa
 
 N_BOOT = 20000
 BOOT_SEED = 42
+
+# --------------------------------------------------------------------------------------- #
+# PROD-SHADOW designation + disclosure-view anchors (TASK W5, 2026-09-01).
+# --------------------------------------------------------------------------------------- #
+PROD_SHADOW_DESIGNATION_PATH = REPO / "automation" / "state" / "prod-shadow-designation.json"
+
+# doctrine.py FREEZE_START (2026-08-31) -- the day the trading-path config actually froze.
+# Used ONLY for the disclosure view below; never changes criterion 1's pass bar (full history).
+FROZEN_CONFIG_WINDOW_START = "2026-08-31"
+# The designated PROD-SHADOW window's own start (see prod-shadow-designation.json) -- "days on
+# the current config" for the effective-evidence disclosure.
+CURRENT_CONFIG_WINDOW_START = "2026-09-01"
+# Disclosure anchor per this task's brief (distinct from the tight-ladder prereg's 09-01 window) --
+# a 3-week-earlier cut so a reader can see how much of an arm's evidence predates even that.
+POST_LADDER_WINDOW_START = "2026-08-11"
+
+# Plan-reachability horizons: (end date inclusive, label). 2026-09-29 = the config-freeze scoring
+# window close; 2026-10-30 = PREREG-TIGHT-LADDER-2026-08-28.md's registered 40-day clock close.
+PLAN_REACHABILITY_TARGETS = (
+    ("2026-09-29", "config_freeze_end"),
+    ("2026-10-30", "tight_ladder_clock_end"),
+)
+MARKET_HOLIDAYS_2026 = {"2026-09-07"}  # Labor Day -- the only market holiday inside these horizons
+_REACHABILITY_N_BOOT = 3000   # reduced from N_BOOT for search speed (disclosed in the output)
+_REACHABILITY_UPPER_BOUND = 5000.0
+_REACHABILITY_ITERS = 24
 
 
 # ========================================================================================= #
@@ -276,6 +313,14 @@ GUARD_TESTS = {
     "never_average_down_no_stacked_entry": "backtest/tests/test_never_average_down_2026_07_20.py",
     "killswitch_threshold_parity_rule5": "backtest/tests/test_killswitch_threshold_parity.py",
     "orphan_position_adoption": "backtest/tests/test_orphan_position_adoption_2026_08_10.py",
+    # CLOSED 2026-09-01 (TASK W1, queue.md DEAD-MANS-SWITCH-POSITION-FLATTENER): the
+    # independent watchdog setup/scripts/dead_mans_switch.py now exists (RTH-only, per-arm
+    # engine-liveness check against core-decisions.jsonl / fleet decisions.jsonl, flattens via
+    # fleet_broker.close_all_spy_options on a confirmed-stale + confirmed-open arm), registered
+    # as Gamma_DeadMansSwitch (install-dead-mans-switch.ps1). This key used to be reported via
+    # a hardcoded NO-TEST-FOUND block below `operational_criterion` -- that block is now
+    # removed in favour of a real pytest run, same shape as every other row in this dict.
+    "dead_mans_switch_open_position_on_process_death": "backtest/tests/test_dead_mans_switch_2026_09_01.py",
 }
 
 
@@ -311,31 +356,11 @@ def operational_criterion() -> dict:
         if not passed:
             all_pass = False
 
-    # THE GAP THIS CRITERION MUST NOT PAPER OVER: a dead-man's-switch that flattens an open
-    # position within a bounded time if the heartbeat process itself dies mid-session (distinct
-    # from EOD-flatten, which is a SCHEDULED task requiring Task Scheduler + the box to still be
-    # alive, and distinct from orphan-position adoption, which only self-heals once the SAME
-    # process resumes ticking). Searched this session for any test combining
-    # kill/watchdog/process-death/independent-flatten semantics -- the only hit was
-    # test_graduated_guards.py::test_tv_watchdog_checks_live_heartbeat, which watches TradingView
-    # connectivity, not open-position risk. No such test exists as of this build.
-    dead_mans_switch_test_found = False
-    results["dead_mans_switch_open_position_on_process_death"] = {
-        "test_path": None,
-        "exists": dead_mans_switch_test_found,
-        "pass": False,
-        "note": (
-            "NO TEST FOUND. Searched backtest/tests for kill/watchdog/process-death/"
-            "independent-flatten patterns this run -- only match was "
-            "test_graduated_guards.py::test_tv_watchdog_checks_live_heartbeat (TV connectivity, "
-            "not position risk). heal-engine.ps1 restarts dead processes but does not flatten "
-            "open positions. exit_actuator.py's orphan-position adoption "
-            "(test_orphan_position_adoption_2026_08_10.py) only reconciles once the SAME process "
-            "resumes ticking -- it is not an INDEPENDENT watchdog. This is a real, unclosed gap, "
-            "not a missing test for an existing mechanism."
-        ),
-    }
-    all_pass = False  # this gap alone blocks OPERATIONAL until closed
+    # dead_mans_switch_open_position_on_process_death is now a REGULAR row in GUARD_TESTS
+    # above (CLOSED 2026-09-01, TASK W1) -- scored by the same real-pytest loop as every other
+    # guard. This function used to hardcode a permanent NO-TEST-FOUND FAIL for that key here;
+    # that block is deleted rather than left dead, since a stale copy left behind would
+    # silently overwrite the real result computed above the moment someone re-added it.
 
     return {"guards": results, "pass": all_pass}
 
@@ -539,6 +564,18 @@ def _load_rule_breaks() -> list[dict]:
     return out
 
 
+def _rule_breaks_last_write_et_date():
+    """The file's actual last-modified date, ET -- fresh each run (never hardcoded), fail-open
+    to None on any read error (a broken staleness check must never break this instrument)."""
+    if not RULE_BREAKS_PATH.exists():
+        return None
+    try:
+        ts = RULE_BREAKS_PATH.stat().st_mtime
+    except OSError:
+        return None
+    return datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(ET_TZ).date()
+
+
 def behavioural_criterion(rows: list[dict], recon: dict) -> dict:
     all_rows = rows  # includes non-engine attribution, needed for the manual-override check
     w_start, w_end, window_dates = _trailing_window_dates(
@@ -546,6 +583,31 @@ def behavioural_criterion(rows: list[dict], recon: dict) -> dict:
 
     rb_rows = _load_rule_breaks()
     rb_in_window = [r for r in rb_rows if w_start <= str(r.get("date", "")) <= w_end]
+
+    # STALE-LEDGER HONESTY (TASK W5, 2026-09-01): zero rule breaks in-window is only good news
+    # if someone is actually still writing to this ledger. rule-breaks.jsonl has carried exactly
+    # 1 row (2026-05-18) for months -- "zero violations" from a file nobody has touched since
+    # before this trailing window even started is NOT the same claim as "checked, and clean".
+    # Computed fresh against the file's real mtime every run, never a hardcoded staleness date.
+    rb_last_write = _rule_breaks_last_write_et_date()
+    try:
+        _w_start_date = datetime.strptime(w_start, "%Y-%m-%d").date() if w_start else None
+    except ValueError:
+        _w_start_date = None
+    rb_stale = (rb_last_write is None) or (_w_start_date is not None and rb_last_write < _w_start_date)
+    if len(rb_in_window) == 0 and rb_stale:
+        rb_status = "PASS_UNVERIFIED"
+        rb_status_note = (
+            f"rule-breaks.jsonl last written {rb_last_write.isoformat() if rb_last_write else 'never (file missing)'} "
+            f"-- before this trailing window's start ({w_start or 'n/a'}). Zero rule breaks in-window could mean a "
+            "genuinely clean window OR an abandoned ledger nobody is writing to; this instrument cannot distinguish "
+            "the two from the file alone, so it reports PASS_UNVERIFIED rather than a bare PASS. Overall behavioural "
+            "verdict logic is unaffected (0 breaks + 0 manual fills still passes) -- this is a disclosure, not a gate."
+        )
+    elif len(rb_in_window) == 0:
+        rb_status, rb_status_note = "PASS", None
+    else:
+        rb_status, rb_status_note = "FAIL", None
 
     manual_rows = [r for r in all_rows
                    if r["attribution"] != "engine" and w_start <= r["date"] <= w_end]
@@ -576,7 +638,11 @@ def behavioural_criterion(rows: list[dict], recon: dict) -> dict:
     return {
         "trailing_window": [w_start, w_end],
         "trailing_window_trading_days": len(window_dates),
-        "rule_breaks_in_window": {"count": len(rb_in_window), "rows": rb_in_window, "pass": len(rb_in_window) == 0},
+        "rule_breaks_in_window": {
+            "count": len(rb_in_window), "rows": rb_in_window, "pass": len(rb_in_window) == 0,
+            "status": rb_status, "last_write_et": rb_last_write.isoformat() if rb_last_write else None,
+            "status_note": rb_status_note,
+        },
         "manual_or_mixed_attribution_fills_in_window": {
             "count": len(manual_rows),
             "rows": [{"date": r["date"], "arm": r["arm"], "symbol": r["symbol"],
@@ -595,40 +661,246 @@ def behavioural_criterion(rows: list[dict], recon: dict) -> dict:
 # ========================================================================================= #
 # 5. PROD-SHADOW -- a designated shadow arm profitable net of realistic costs, stated window.
 # ========================================================================================= #
-def prod_shadow_criterion() -> dict:
-    """No SPY-strategy production shadow arm (an arm running live/paper alongside the real
-    arms purely to validate the SAME strategy net of realistic costs before scaling) was
-    identified in this repo as of this build. What DOES exist under a "shadow" label are
-    FEATURE-level shadow ledgers evaluating a single proposed rule change against the live
-    signal (catastrophe-cap-shadow-ledger.jsonl, day-throttle-shadow-*, stop-mode-shadow-*,
-    vix-floor-shadow-*) -- none of these is a standalone P&L track record for the go-live
-    decision itself, and none is independently reported to J as "the shadow arm this gate
-    checks". The multi-symbol lane (per session memory) was STOPPED on a null result and the
-    Kalshi/SSR-futures shadows trade different instruments entirely -- neither substitutes for
-    a SPY 0DTE options shadow. This is reported as a genuine, unresolved gap: this criterion
-    cannot currently be scored PASS or FAIL, only NOT_WIRED."""
-    candidates = [
-        "analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl",
-        "analysis/recommendations/day-throttle-shadow-ledger.jsonl",
-        "analysis/recommendations/stop-mode-shadow-ledger.jsonl",
-        "analysis/recommendations/vix-floor-shadow-ledger.jsonl",
-    ]
-    existing = [c for c in candidates if (REPO / c).exists()]
+def _load_prod_shadow_designation() -> dict | None:
+    """Never guesses: returns None (caller reports NOT_WIRED) if the file is missing, empty,
+    unreadable, or missing a required field -- exactly this criterion's pre-2026-09-01
+    behaviour when no designation existed at all."""
+    if not PROD_SHADOW_DESIGNATION_PATH.exists():
+        return None
+    try:
+        cfg = json.loads(PROD_SHADOW_DESIGNATION_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    required = ("arm", "window_start", "window_end", "min_days")
+    if not isinstance(cfg, dict) or not all(cfg.get(k) for k in required):
+        return None
+    return cfg
+
+
+def prod_shadow_criterion(engine_rows: list[dict]) -> dict:
+    """Criterion 5. Reads its designation from automation/state/prod-shadow-designation.json
+    (arm + window + min_days) -- WIRED 2026-09-01 (TASK W5) per queue.md's own
+    PROD-SHADOW-ARM-DESIGNATION recommendation, executed verbatim: designate one arm as the
+    explicit go-live shadow and score it net of the A1 cost model exactly like criterion 1,
+    reusing statistical_criterion(). Never guesses: if the designation file is missing,
+    unreadable, or missing a required field, this reports NOT_WIRED -- the ORIGINAL behaviour
+    of this function before this build, preserved verbatim below for that path -- rather than
+    fabricating a designation from thin air.
+
+    Status ladder: NOT_WIRED (no designation) -> INSUFFICIENT_DAYS (designated but window
+    hasn't scored min_days yet) -> PASS/FAIL (scored). A 40-day PREREG-TIGHT-LADDER-2026-08-28
+    extended-clock view is reported alongside when the designation carries one, but it is
+    disclosure only -- it never substitutes for the shorter designated pass window."""
+    cfg = _load_prod_shadow_designation()
+    if cfg is None:
+        try:
+            designation_display = str(PROD_SHADOW_DESIGNATION_PATH.relative_to(REPO))
+        except ValueError:  # path isn't under REPO -- e.g. monkeypatched to a tmp path in tests
+            designation_display = str(PROD_SHADOW_DESIGNATION_PATH)
+        candidates = [
+            "analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl",
+            "analysis/recommendations/day-throttle-shadow-ledger.jsonl",
+            "analysis/recommendations/stop-mode-shadow-ledger.jsonl",
+            "analysis/recommendations/vix-floor-shadow-ledger.jsonl",
+        ]
+        existing = [c for c in candidates if (REPO / c).exists()]
+        return {
+            "pass": False,
+            "status": "NOT_WIRED",
+            "note": (
+                f"No readable designation at {designation_display}. "
+                "Existing shadow-labeled ledgers found (feature-level, not a go-live shadow "
+                "track record): " + ", ".join(existing)
+            ),
+            "recommendation": (
+                "Designate ONE arm (or a new dedicated paper arm) as the explicit go-live "
+                "shadow, define its stated evaluation window in writing at "
+                f"{designation_display}, and score it net of the A1 "
+                "realistic cost model exactly like the STATISTICAL criterion above -- reuse "
+                "statistical_criterion() in this file."
+            ),
+        }
+
+    arm = cfg["arm"]
+    window_start, window_end = cfg["window_start"], cfg["window_end"]
+    min_days = int(cfg["min_days"])
+    window_rows = [r for r in engine_rows if r["arm"] == arm and window_start <= r["date"] <= window_end]
+    days_scored = len({r["date"] for r in window_rows})
+
+    interim = statistical_criterion(window_rows, arm) if days_scored >= 2 else None
+    current_ci_lo = (
+        interim["as_traded"]["ci_lower_2.5"]
+        if interim and not interim.get("insufficient_data") and interim.get("as_traded")
+        else None
+    )
+
+    result = {
+        "designation": {
+            "arm": arm, "window_start": window_start, "window_end": window_end,
+            "min_days": min_days, "designated_at": cfg.get("designated_at"),
+            "profile_summary": cfg.get("profile_summary"), "rationale": cfg.get("rationale"),
+            "revoke": cfg.get("revoke", "delete this file"),
+        },
+        "days_scored": days_scored,
+        "days_needed": min_days,
+        "current_ci_lower_2.5": current_ci_lo,
+    }
+
+    if days_scored < min_days:
+        result.update({
+            "pass": False,
+            "status": "INSUFFICIENT_DAYS",
+            "note": (
+                f"{days_scored}/{min_days} scored trading days for arm '{arm}' in "
+                f"{window_start}..{window_end}. Not yet scorable -- reported as INSUFFICIENT_DAYS, "
+                "never PASS or FAIL, on a window that hasn't reached its own registered day-count bar."
+            ),
+            "detail": interim,
+        })
+    else:
+        scored = statistical_criterion(window_rows, arm)
+        result.update({
+            "pass": bool(scored["pass"]),
+            "status": "PASS" if scored["pass"] else "FAIL",
+            "note": (
+                f"{days_scored}/{min_days} scored trading days -- "
+                f"{'CLEARS' if scored['pass'] else 'does NOT clear'} CI-lower(2.5%)>1.0 on "
+                "as-traded AND ex-best-day AND cost-adjusted (same statistical_criterion() as criterion 1)."
+            ),
+            "detail": scored,
+        })
+
+    ext_end, ext_min = cfg.get("extended_clock_end"), cfg.get("extended_clock_min_days")
+    if ext_end and ext_min:
+        ext_rows = [r for r in engine_rows if r["arm"] == arm and window_start <= r["date"] <= ext_end]
+        ext_days = sorted({r["date"] for r in ext_rows})
+        ext_stat = statistical_criterion(ext_rows, arm) if len(ext_days) >= 2 else None
+        result["extended_clock_disclosure"] = {
+            "label": "PREREG-TIGHT-LADDER-2026-08-28.md 40-day clock -- disclosure only, never the pass criterion",
+            "window_end": ext_end, "min_days": int(ext_min), "days_scored": len(ext_days),
+            "detail": ext_stat,
+        }
+    return result
+
+
+# ========================================================================================= #
+# Disclosure views (TASK W5, 2026-09-01) -- (b) frozen-config-window, (c) effective evidence,
+# (d) plan reachability. NONE of these change any pass/fail criterion above; all are
+# additional, backward-compatible reporting only.
+# ========================================================================================= #
+def frozen_config_window_view(engine_rows: list[dict]) -> dict:
+    """(b) Same bootstrap as criterion 1, restricted to days >= the config-freeze start
+    (2026-08-31, setup/hooks/doctrine.py FREEZE_START) -- so a reader can see the book under
+    ONLY the currently-frozen config, without the pre-freeze history mixed in. Disclosure
+    only -- criterion 1's pass bar stays full-history."""
+    windowed = [r for r in engine_rows if r["date"] >= FROZEN_CONFIG_WINDOW_START]
     return {
-        "pass": False,
-        "status": "NOT_WIRED",
-        "note": (
-            "No SPY-strategy production-shadow arm identified. The task brief's \"C1's shadow "
-            "arm\" reference does not resolve to any artifact found in this repo this session "
-            "-- reported as a gap, not guessed at. Existing shadow-labeled ledgers found "
-            "(feature-level, not a go-live shadow track record): " + ", ".join(existing)
-        ),
-        "recommendation": (
-            "Before this criterion can be scored, designate ONE arm (or a new dedicated "
-            "paper arm) as the explicit go-live shadow, define its stated evaluation window in "
-            "writing, and score it net of the A1 realistic cost model exactly like the "
-            "STATISTICAL criterion above -- reuse statistical_criterion() in this file."
-        ),
+        "label": "disclosure only -- pass criterion unchanged (criterion 1 stays full-history)",
+        "window_start": FROZEN_CONFIG_WINDOW_START,
+        "per_arm": {arm: statistical_criterion(windowed, arm) for arm in ACTIVE_ARMS},
+        "book_wide_correlated_rollup": statistical_criterion(windowed, None),
+    }
+
+
+def _best_n_share_of_gross_winners(day_values: dict[str, float], n: int = 2) -> float | None:
+    gains = sum(v for v in day_values.values() if v > 0)
+    if gains <= 0:
+        return None
+    top_n = sorted((v for v in day_values.values() if v > 0), reverse=True)[:n]
+    return round(sum(top_n) / gains, 3)
+
+
+def effective_evidence_block(engine_rows: list[dict], statistical: dict) -> dict:
+    """(c) Disclosure only. Per arm: days actually on the CURRENT config (>=09-01), days
+    post-tight-ladder (>=08-11), and how much of the arm's gross winner dollars sit in just
+    its best 2 days (concentration, design rule 5). Plus the book rollup's own ex-best-day
+    P(PF<=1), pulled from the already-computed criterion-1 bootstrap rather than recomputed."""
+    per_arm = {}
+    for arm in ACTIVE_ARMS:
+        days = _daily_totals([r for r in engine_rows if r["arm"] == arm])
+        per_arm[arm] = {
+            "days_on_current_config": sum(1 for d in days if d >= CURRENT_CONFIG_WINDOW_START),
+            "days_post_ladder": sum(1 for d in days if d >= POST_LADDER_WINDOW_START),
+            "best_2_days_share_of_gross_winner_dollars": _best_n_share_of_gross_winners(days, 2),
+        }
+    book_ex_best = (statistical.get("book_wide_correlated_rollup") or {}).get("ex_best_day") or {}
+    return {
+        "label": "disclosure only",
+        "current_config_window_start": CURRENT_CONFIG_WINDOW_START,
+        "post_ladder_window_start": POST_LADDER_WINDOW_START,
+        "per_arm": per_arm,
+        "book_ex_best_day_p_pf_le_1": book_ex_best.get("p_pf_le_1"),
+    }
+
+
+def _remaining_trading_days(start_exclusive, end_inclusive_str: str) -> int:
+    """Weekday count strictly after start_exclusive through end_inclusive_str, minus the
+    disclosed MARKET_HOLIDAYS_2026 set. Not a full market-calendar (no early closes/other
+    holidays) -- adequate for a disclosure-only reachability estimate, not a trading decision."""
+    import datetime as _dt
+    end = _dt.date.fromisoformat(end_inclusive_str)
+    if end <= start_exclusive:
+        return 0
+    n, d = 0, start_exclusive + _dt.timedelta(days=1)
+    while d <= end:
+        if d.weekday() < 5 and d.isoformat() not in MARKET_HOLIDAYS_2026:
+            n += 1
+        d += _dt.timedelta(days=1)
+    return n
+
+
+def _ci_lower_with_added_days(day_values: list[float], n_added: int, c: float, n_boot: int) -> float | None:
+    ci = bootstrap_pf_ci(day_values + [c] * n_added, n_boot=n_boot, seed=BOOT_SEED)
+    return ci["ci_lower_2.5"] if ci else None
+
+
+def _reachability_constant(day_values: list[float], n_added: int) -> dict:
+    """Binary search for the smallest constant $/day (added to every remaining trading day,
+    ZERO VARIANCE -- the best case) that pushes this gate's own CI-lower(2.5%) above 1.0."""
+    if n_added <= 0:
+        return {"dollars_per_day": None, "already_clears": None, "n_remaining_trading_days": 0,
+                "note": "0 remaining trading days in this horizon -- reachability not computable"}
+    base = _ci_lower_with_added_days(day_values, 0, 0.0, _REACHABILITY_N_BOOT)
+    if base is not None and base > 1.0:
+        return {"dollars_per_day": 0.0, "already_clears": True, "n_remaining_trading_days": n_added,
+                "note": "already clears CI-lower>1.0 on existing history alone -- no added edge needed"}
+    lo, hi = 0.0, _REACHABILITY_UPPER_BOUND
+    hi_ci = _ci_lower_with_added_days(day_values, n_added, hi, _REACHABILITY_N_BOOT)
+    if hi_ci is None or hi_ci <= 1.0:
+        return {"dollars_per_day": None, "already_clears": False, "n_remaining_trading_days": n_added,
+                "note": f"not reachable within the ${_REACHABILITY_UPPER_BOUND:.0f}/day search bound "
+                        f"over {n_added} remaining trading days"}
+    for _ in range(_REACHABILITY_ITERS):
+        mid = (lo + hi) / 2.0
+        mid_ci = _ci_lower_with_added_days(day_values, n_added, mid, _REACHABILITY_N_BOOT)
+        if mid_ci is not None and mid_ci > 1.0:
+            hi = mid
+        else:
+            lo = mid
+    return {
+        "dollars_per_day": round(hi, 2), "already_clears": False, "n_remaining_trading_days": n_added,
+        "note": ("ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant "
+                 "with no variance; the real required edge is higher. Search bootstrap n="
+                 f"{_REACHABILITY_N_BOOT} (reduced from the gate's primary n={N_BOOT} for speed)."),
+    }
+
+
+def plan_reachability_block(engine_rows: list[dict], today) -> dict:
+    """(d) Disclosure only. Per arm, per horizon (2026-09-29 config-freeze close and
+    2026-10-30 tight-ladder clock close): the constant $/day that would push this gate's own
+    CI-lower(2.5%) above 1.0, via binary search, zero-variance best case (labeled)."""
+    per_arm = {}
+    for arm in ACTIVE_ARMS:
+        day_values = list(_daily_totals([r for r in engine_rows if r["arm"] == arm]).values())
+        per_arm[arm] = {
+            label: {"end_date": end_date, **_reachability_constant(day_values, _remaining_trading_days(today, end_date))}
+            for end_date, label in PLAN_REACHABILITY_TARGETS
+        }
+    return {
+        "label": ("disclosure only -- constant $/day needed to push CI-lower(2.5%) above 1.0, "
+                   "binary search under this gate's own bootstrap"),
+        "as_of": today.isoformat(),
+        "per_arm": per_arm,
     }
 
 
@@ -663,7 +935,7 @@ def build_report() -> dict:
     operational = operational_criterion()
     reconciliation = reconciliation_criterion(all_rows)
     behavioural = behavioural_criterion(all_rows, reconciliation)
-    prod_shadow = prod_shadow_criterion()
+    prod_shadow = prod_shadow_criterion(engine_rows)
 
     groups = {
         "statistical": {**statistical, "pass": stat_pass},
@@ -673,6 +945,8 @@ def build_report() -> dict:
         "prod_shadow": prod_shadow,
     }
     overall = all(g["pass"] for g in groups.values())
+
+    today_et = et_now().date()
 
     return {
         "generated_et": et_now().isoformat(timespec="seconds"),
@@ -688,6 +962,13 @@ def build_report() -> dict:
             "fee_rates": FEE_RATES,
             "exit_slippage_cents_per_contract": COST_MODEL_EXIT_SLIPPAGE_CENTS,
             "source": "analysis/recommendations/cost-model.json, A1's conservative scenario-b default",
+        },
+        # ADDITIVE, backward-compatible (TASK W5, 2026-09-01) -- none of the keys above changed
+        # shape. Honesty disclosures the audit found missing; none of these gate the verdict.
+        "disclosures": {
+            "frozen_config_window": frozen_config_window_view(engine_rows),
+            "effective_evidence": effective_evidence_block(engine_rows, statistical),
+            "plan_reachability": plan_reachability_block(engine_rows, today_et),
         },
     }
 
@@ -749,8 +1030,9 @@ def render_human(report: dict) -> str:
     b = c["behavioural"]
     lines.append(f"4. BEHAVIOURAL [{_mark(b['pass'])}] -- window {b['trailing_window'][0]}..{b['trailing_window'][1]} "
                   f"({b['trailing_window_trading_days']} trading days)")
-    lines.append(f"   rule breaks in window: {b['rule_breaks_in_window']['count']} "
-                  f"[{_mark(b['rule_breaks_in_window']['pass'])}]")
+    rb = b["rule_breaks_in_window"]
+    lines.append(f"   rule breaks in window: {rb['count']} [status={rb.get('status', _mark(rb['pass']))}]"
+                  + (f" -- {rb['status_note']}" if rb.get("status_note") else ""))
     lines.append(f"   manual/mixed-attribution fills in window: {b['manual_or_mixed_attribution_fills_in_window']['count']} "
                   f"[{_mark(b['manual_or_mixed_attribution_fills_in_window']['pass'])}]")
     lines.append(f"   sizing-up events: SKIPPED -- {b['sizing_up_events']['note'][:90]}...")
@@ -758,8 +1040,55 @@ def render_human(report: dict) -> str:
 
     ps = c["prod_shadow"]
     lines.append(f"5. PROD-SHADOW [{_mark(ps['pass'])}] status={ps['status']}")
+    if ps["status"] != "NOT_WIRED":
+        d = ps["designation"]
+        lines.append(f"   arm={d['arm']} window={d['window_start']}..{d['window_end']} "
+                      f"days_scored={ps['days_scored']}/{ps['days_needed']} "
+                      f"current_CI_lo={ps.get('current_ci_lower_2.5')}")
+        ext = ps.get("extended_clock_disclosure")
+        if ext:
+            ext_ci = (ext.get("detail") or {}).get("as_traded", {}).get("ci_lower_2.5") if ext.get("detail") else None
+            lines.append(f"   extended clock (disclosure only) ..{ext['window_end']} "
+                          f"days_scored={ext['days_scored']}/{ext['min_days']} as_traded_CI_lo={ext_ci}")
     lines.append(f"   {ps['note']}")
     lines.append("")
+
+    disc = report.get("disclosures", {})
+    fcw = disc.get("frozen_config_window")
+    if fcw:
+        lines.append(f"FROZEN-CONFIG-WINDOW (disclosure only, since {fcw['window_start']})")
+        for arm_id in report["roster"]:
+            s = fcw["per_arm"].get(arm_id, {})
+            if s.get("insufficient_data"):
+                lines.append(f"   {arm_id:<9} INSUFFICIENT DATA")
+                continue
+            at = s.get("as_traded") or {}
+            lines.append(f"   {arm_id:<9} n_days={s.get('n_trading_days')} as_traded CI_lo={at.get('ci_lower_2.5')}")
+        lines.append("")
+
+    ee = disc.get("effective_evidence")
+    if ee:
+        lines.append("EFFECTIVE EVIDENCE (disclosure only)")
+        for arm_id in report["roster"]:
+            a = ee["per_arm"].get(arm_id, {})
+            lines.append(f"   {arm_id:<9} days_current_config={a.get('days_on_current_config')} "
+                          f"days_post_ladder={a.get('days_post_ladder')} "
+                          f"best2_share_of_gross_winners={a.get('best_2_days_share_of_gross_winner_dollars')}")
+        lines.append(f"   book ex-best-day P(PF<=1)={ee.get('book_ex_best_day_p_pf_le_1')}")
+        lines.append("")
+
+    pr = disc.get("plan_reachability")
+    if pr:
+        lines.append(f"PLAN REACHABILITY (disclosure only, zero-variance best case, as of {pr['as_of']})")
+        for arm_id in report["roster"]:
+            horizons = pr["per_arm"].get(arm_id, {})
+            parts = []
+            for label, h in horizons.items():
+                parts.append(f"{label}({h['end_date']})=${h.get('dollars_per_day')}/day"
+                              + (" [already clears]" if h.get("already_clears") else ""))
+            lines.append(f"   {arm_id:<9} " + "  ".join(parts))
+        lines.append("")
+
     return "\n".join(lines)
 
 
@@ -818,11 +1147,84 @@ def render_markdown(report: dict) -> str:
     ]
     for name, g in c["operational"]["guards"].items():
         lines.append(f"| {name} | {_mark(g['pass'])} |")
+    ps = c["prod_shadow"]
+    lines += ["", "## Prod-shadow", ""]
+    if ps["status"] != "NOT_WIRED":
+        d = ps["designation"]
+        lines.append(f"**arm={d['arm']} window={d['window_start']}..{d['window_end']} "
+                      f"days_scored={ps['days_scored']}/{ps['days_needed']} "
+                      f"current CI_lo={ps.get('current_ci_lower_2.5')} status={ps['status']}**")
+        lines.append("")
+        ext = ps.get("extended_clock_disclosure")
+        if ext:
+            ext_ci = (ext.get("detail") or {}).get("as_traded", {}).get("ci_lower_2.5") if ext.get("detail") else None
+            lines.append(f"Extended clock (disclosure only, never the pass bar) through {ext['window_end']}: "
+                          f"{ext['days_scored']}/{ext['min_days']} days scored, as-traded CI_lo={ext_ci}.")
+            lines.append("")
+    lines.append(ps["note"])
+
+    disc = report.get("disclosures", {})
+    fcw = disc.get("frozen_config_window")
+    if fcw:
+        lines += [
+            "",
+            f"## Frozen-config-window disclosure (since {fcw['window_start']})",
+            "",
+            "_disclosure only -- pass criterion unchanged (criterion 1 stays full-history)_",
+            "",
+            "| Arm | n_days | as-traded CI_lo |",
+            "|---|---|---|",
+        ]
+        for arm_id in report["roster"]:
+            s = fcw["per_arm"].get(arm_id, {})
+            if s.get("insufficient_data"):
+                lines.append(f"| {arm_id} | -- | INSUFFICIENT |")
+                continue
+            at = s.get("as_traded") or {}
+            lines.append(f"| {arm_id} | {s.get('n_trading_days')} | {at.get('ci_lower_2.5')} |")
+
+    ee = disc.get("effective_evidence")
+    if ee:
+        lines += [
+            "",
+            "## Effective evidence disclosure",
+            "",
+            "| Arm | Days on current config (>=09-01) | Days post-ladder (>=08-11) | Best-2-days share of gross winners |",
+            "|---|---|---|---|",
+        ]
+        for arm_id in report["roster"]:
+            a = ee["per_arm"].get(arm_id, {})
+            lines.append(f"| {arm_id} | {a.get('days_on_current_config')} | {a.get('days_post_ladder')} | "
+                          f"{a.get('best_2_days_share_of_gross_winner_dollars')} |")
+        lines.append("")
+        lines.append(f"Book rollup ex-best-day P(PF<=1) = {ee.get('book_ex_best_day_p_pf_le_1')}")
+
+    pr = disc.get("plan_reachability")
+    if pr:
+        lines += [
+            "",
+            "## Plan reachability disclosure",
+            "",
+            "_zero-variance best case -- constant $/day over remaining trading days that would push "
+            f"CI-lower(2.5%) above 1.0, as of {pr['as_of']}_",
+            "",
+            "| Arm | Config-freeze close (09-29) | Tight-ladder clock close (10-30) |",
+            "|---|---|---|",
+        ]
+        for arm_id in report["roster"]:
+            horizons = pr["per_arm"].get(arm_id, {})
+            cells = []
+            for label in ("config_freeze_end", "tight_ladder_clock_end"):
+                h = horizons.get(label, {})
+                if h.get("already_clears"):
+                    cells.append("already clears")
+                elif h.get("dollars_per_day") is not None:
+                    cells.append(f"${h['dollars_per_day']}/day")
+                else:
+                    cells.append(h.get("note", "n/a"))
+            lines.append(f"| {arm_id} | {cells[0]} | {cells[1]} |")
+
     lines += [
-        "",
-        "## Prod-shadow",
-        "",
-        c["prod_shadow"]["note"],
         "",
         "Full machine payload: `analysis/go-live-gate.json`. Runbook: "
         "`markdown/planning/LIVE-FLIP-RUNBOOK.md`.",

@@ -20,6 +20,23 @@
 
 ---
 
+> **2026-09-01 audit update (Gamma-decides; revoke = `git revert`).** The full ultracode audit
+> [`FABLE-FULL-AUDIT-2026-09-01.md`](../../analysis/deep-research/FABLE-FULL-AUDIT-2026-09-01.md)
+> changed three things this roadmap must carry: (1) **one governing clock** — the frozen-config
+> window opened 2026-09-01; the first arming *decision* is at the TIGHT-LADDER close **2026-10-30**
+> (≥40 scored days); the 09-29 gate re-run is a checkpoint, not an arming date — "arm in early
+> October" was arithmetically unreachable under the gate as coded (safe-2 needed +$166/day for 19
+> straight sessions vs an actual −$7/day). (2) **What GREEN means for arming** — go-live gate
+> criterion 5 (the designated prod-shadow profile, **safe-3**, scored on the frozen window net of
+> the A1 cost model, all three views) plus criteria 2–4 green; criterion 1 (pooled lifetime per-arm
+> PF) stays as lifetime-robustness disclosure. CLAUDE.md:65 text edit lands Saturday 09-05 (Rule 9).
+> (3) **Base case:** no real money in 2026 unless the 40-day window clears; "before 2027" is alive,
+> not the default. Gate 4's first-live account is **safe-3**, not safe-2 (safe-2 retires at window
+> close per the 08-29 consolidation handoff). Gate 6 gains hard prerequisites the gate itself does
+> not check: dead-man's switch drilled, early-close calendar awareness (2026-11-27 / 12-24 close
+> 13:00 ET), broker-sweep-aware time stop (Alpaca liquidates expiring ITM longs from 15:30 ET),
+> real OPRA data tier, a phone-reachable HALT, a whole-engine null study, an after-tax target.
+
 ## 1. The destination
 
 **SPY 0DTE directional options, trading real money, sized off a compounding equity curve —

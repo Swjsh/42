@@ -33,7 +33,24 @@ Snapshot at time of writing:
 
 ## 1. Account selection
 
-**Recommendation: safe-2 (`PA3POKNV46VG`, CORE-SAFE).** Not risk-free, just the least-bad
+> **⚠️ SUPERSEDED 2026-09-01 (Fable full audit, Gamma-decides; revoke = `git revert`).** The
+> first-live candidate is **safe-3** (FLEET-TIGHT-S, `PA3…T20H`), not safe-2. Why: J's 2026-08-29
+> consolidation directive retires safe-2 at window close and keeps safe-3 + risky-1
+> (`TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29.md`); safe-2 is the only active arm negative on
+> its full sample (−$7.20/day, trade-level Kelly −0.022); safe-3 is full-sample positive
+> (+$32/day) with no live secondary-lane defect. The prod-shadow designation
+> (`automation/state/prod-shadow-designation.json`) scores the safe-3 profile on the frozen
+> window; `go_live_gate.py` criterion 5 reads it. Also stale below until the RUNBOOK-REWRITE
+> queue item lands: §4's "Day 1 = 1 contract" cannot execute (`risk_gate` MIN_CONTRACTS ≥ 3
+> hard-denies) — Day 1 is 3 contracts at ≤ $0.50; §5's −30% abort framing is superseded by the
+> live caps (−$400/day, $1,000/position, 5 contracts → worst trade ≈ $500); the "TASK A2" ruin
+> numbers below have no locatable source (UNVERIFIED). New hard prerequisites the gate does not
+> check: dead-man's switch drilled (task `Gamma_DeadMansSwitch`, shipped 2026-09-01), early-close
+> calendar awareness (2026-11-27 / 12-24 close 13:00 ET), broker-sweep-aware time stop (Alpaca
+> liquidates expiring ITM longs from 15:30 ET), real OPRA data tier, a phone-reachable HALT, the
+> whole-engine null study, an after-tax target. Detail: `analysis/deep-research/FABLE-FULL-AUDIT-2026-09-01.md` §4.
+
+**Recommendation (2026-08-28, superseded above): safe-2 (`PA3POKNV46VG`, CORE-SAFE).** Not risk-free, just the least-bad
 first pick:
 
 - ATM strike selection (`V15_SAFE_TIERS`) is the simplest tier to reason about live — no

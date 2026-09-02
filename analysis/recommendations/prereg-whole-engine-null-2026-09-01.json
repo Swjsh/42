@@ -1,0 +1,37 @@
+{
+  "id": "PREREG-WHOLE-ENGINE-NULL-2026-09-01",
+  "status": "FROZEN -- NOT RUN. Design committed before any outcome was computed. Runner to be built (setup/scripts/whole_engine_null.py); first run on the Friday gate cadence.",
+  "filed_by": "FABLE-FULL-AUDIT-2026-09-01 (finding R10-no-whole-engine-null-beta-shaped-edge, survived 3-lens refutation)",
+  "filed_at_et": "2026-09-01T20:40",
+  "question": "Does the WHOLE engine (as it trades today: ribbon_ride entries, structure/chandelier exits, tight-ladder caps) beat the nulls a long-beta strategy would also beat? Every null in the repo is feature-level; no engine-level null has ever been run. Observed: book day P&L corr +0.232 with SPY open->close return; SPY-up days +$2,473 (n=20) vs down days -$481 (n=20); calls +$3,125 on up days / +$123 on down days; post-08-11 era +$3,562 but -$154 ex 08-27/08-28.",
+  "populations": {
+    "P1_post_ladder": "engine-attributed trading days >= 2026-08-11 (the engine we run), 4 active arms, from analysis/trades-enriched.jsonl / fills-ledger FIFO",
+    "P2_frozen_window": "trading days >= 2026-09-01 (the config under the September freeze); scored as days accrue, adjudicated at >= 20 days and again at the 2026-10-30 TIGHT-LADDER close",
+    "P3_spy_down_days": "subset of P1 with SPY RTH open->close return < 0"
+  },
+  "nulls": {
+    "N_a_random_entry_same_exit": "per traded day, 1000 resamples: same number of entries as the engine took, same side distribution, entry times drawn uniformly from 09:35-15:00 RTH, same strike-selection rule (ATM), walked through backtest/lib/exit_manager_walk.walk_exit_manager with the PRODUCTION exit shape (structure stop, chandelier, pre_tp1_ladder, -50% cap, 15:40 time stop) on real OPRA 1-minute bars; report the null distribution of day P&L and its 95th percentile",
+    "N_b_buy_and_hold_atm": "one ATM call bought at 09:35 and held to 15:40 every traded day, sized to the engine's median entry notional; the put mirror as N_b_put; the direction-agnostic version = whichever side the engine's bias file called that morning",
+    "N_c_opposite_direction": "the engine's exact entries with side flipped (call<->put), same exit machinery -- the regime detector (if the flipped book EARNS, the signal is a coin whose era ended)"
+  },
+  "metrics": [
+    "engine total $ vs N_a distribution percentile (per population)",
+    "engine total $ vs N_b (call, put, bias-directed) as-traded and cost-adjusted (A1 fee model + 2c/contract exit slip)",
+    "engine $ on P3 down days vs N_a percentile on the same days",
+    "sign and magnitude of N_c",
+    "concentration: engine ex-best-2-days vs null ex-best-2-days"
+  ],
+  "pass_criterion_frozen": "PASS only if ALL hold on P1: engine > 95th percentile of N_a; engine > N_b_call by more than N_a's interquartile range; engine on P3 >= 0 or > N_a's 75th percentile on P3; N_c <= 0. Any single failure = FAIL with its nail named.",
+  "kill_nails": {
+    "BETA": "engine <= N_b_call on P1 (long calls in a rising tape did the work)",
+    "NULL_DOMINATED": "engine within N_a's central 90% on P1",
+    "REGIME_BOUND": "N_c > 0 on P1 (opposite direction earns)",
+    "DOWN_DAY_BLIND": "engine on P3 negative AND below N_a's median on P3",
+    "UNPOWERED": "P2 < 20 days at adjudication -- park, do not conclude"
+  },
+  "look_ahead_guards": "entry-time resampling uses only bars already closed at the drawn minute; strike is chosen from the bar at entry; exit walk consumes bars strictly after entry; day range and VIX are never used as filters (LESSONS C6, SIGNATURE section 3 look-ahead warning).",
+  "output": "analysis/recommendations/whole-engine-null-<date>.json + one summary line in the Friday go_live_gate.py re-run and in HOME.md's gate block",
+  "consumer": "setup/scripts/whole_engine_null.py (to build; freeze-compatible -- analysis only, touches no trading-path file)",
+  "does_this_ship_anything": "No. Measurement only. A FAIL freezes any live-arming discussion regardless of gate colour; a PASS is a necessary, not sufficient, condition for the 2026-10-30 arming question.",
+  "revoke": "delete this file"
+}

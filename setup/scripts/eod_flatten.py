@@ -76,6 +76,28 @@ from et_clock import et_now  # noqa: E402 (from setup/scripts)
 # rather than the next time someone remembers to edit this list.
 MAX_RETRIES = 3
 
+# W2 KILL-SWITCH WIRING FIX (2026-09-01 audit): _escalate_inner used to write ONLY
+# kill-switch-{arm}.json -- a file NOTHING on the live gate path reads. heartbeat_core.py's
+# entry gate reads `cb.get('tripped')` off the account's OWN circuit-breaker.json (see that
+# module's ~line 2604), so a 3x partial-fill escalation never actually halted the arm it was
+# escalating. Only the two CORE arms (safe-2, bold-2) run through mcp_heartbeat/
+# heartbeat_core.py and therefore have a circuit-breaker.json on the live gate path; the
+# fleet arms (safe-3, risky-1, risky-3) halt through fleet_executor.py instead, which is
+# FROZEN for the September config window and out of scope here -- they still get the
+# kill-switch-{arm}.json file (unread today, but harmless and possibly wired up later).
+CORE_BREAKER_MAP: dict[str, dict[str, str]] = {
+    "safe-2": {
+        "path": "automation/state/circuit-breaker.json",
+        "reason_field": "tripped_reason",
+        "at_field": "tripped_at",
+    },
+    "bold-2": {
+        "path": "automation/state/aggressive/circuit-breaker.json",
+        "reason_field": "trip_reason",
+        "at_field": "tripped_at_et",
+    },
+}
+
 
 def _active_arms() -> list[str]:
     """Active SPY arms from the fleet registry. Falls back to the two core arms if the
@@ -173,6 +195,26 @@ def _escalate_inner(arm: str, remaining: int, errors: list, log: Path) -> None:
         _log(log, f"EOD_FLATTEN_KILLSWITCH_WRITTEN arm={arm} path={ks.name}")
     except Exception as exc:  # noqa: BLE001
         _log(log, f"EOD_FLATTEN_KILLSWITCH_FAILED arm={arm} err={type(exc).__name__}: {exc}")
+    # 1b. Trip the account's OWN circuit-breaker.json too -- see CORE_BREAKER_MAP docstring
+    # above for why the kill-switch-{arm}.json file alone never actually halted anything.
+    cb_cfg = CORE_BREAKER_MAP.get(arm)
+    if cb_cfg:
+        try:
+            cb_path = _REPO / cb_cfg["path"]
+            cb = json.loads(cb_path.read_text(encoding="utf-8")) if cb_path.exists() else {}
+            cb["tripped"] = True
+            cb[cb_cfg["reason_field"]] = f"EOD_FLATTEN_ESCALATION: {reason}"
+            cb[cb_cfg["at_field"]] = _et_ts()
+            cb["escalation_unresolved"] = True
+            tmp = cb_path.with_suffix(cb_path.suffix + ".tmp")
+            tmp.write_text(json.dumps(cb, indent=2), encoding="utf-8")
+            tmp.replace(cb_path)
+            _log(log, f"EOD_FLATTEN_CIRCUIT_BREAKER_TRIPPED arm={arm} path={cb_path.name}")
+        except Exception as exc:  # noqa: BLE001
+            _log(log, f"EOD_FLATTEN_CIRCUIT_BREAKER_FAILED arm={arm} err={type(exc).__name__}: {exc}")
+    else:
+        _log(log, f"EOD_FLATTEN_CIRCUIT_BREAKER_SKIPPED arm={arm} -- no core breaker mapping "
+                   f"(fleet arm; halt path is fleet_executor.py, frozen/out of scope for W2)")
     # 2. STATUS.md "Known broken" -- the surface J's morning read already looks at.
     try:
         status = _REPO / "automation" / "overnight" / "STATUS.md"
