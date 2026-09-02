@@ -177,6 +177,7 @@ within tolerance) · 4 BEHAVIOURAL **PASS_UNVERIFIED** · 5 PROD-SHADOW **INSUFF
   Goal line (one live account + paper lab; $25K = compounding waypoint), `tp1_qty_fraction 0.8/0.667`
   (shadowed — strategies.py hardcodes 0.667 both), 3× `decisions.jsonl` → `core-decisions.jsonl`,
   Rule 5/6 text gains "tighter of the % cap and the live $ caps ($1,000/position, $400/day)".
+  **+ ADDED 2026-09-02:** `CLAUDE.md:66` says "the 5 active real-fills arms (safe-2, bold-2, safe-3, risky-1, risky-3)" — **risky-3 retired 2026-08-28** (`accounts.json` `status: retired`, `live: false`; last decision row 2026-08-28T15:54, last option fill 2026-08-28T13:29; account repurposed for `weekly-1`). The live roster is **four** arms, so the book-wide figure derived from it ($500–1,000/day) is overstated by one arm. Found while fixing a hardcoded roster in the circuit study that had copied the same stale claim (commit above) — the doctrine text is where it originated, so this is the fix that stops it being copied again.
 - [x] `setup/hooks/doctrine.py` `FREEZE_END = 2026-10-30`; freeze banner text names the 09-29 safety
   checkpoint and the override token for pre-registered kill-type reductions. **DONE 2026-09-02 05:10 ET,
   pulled forward from the Sat 09-05 pass — commit `3f6a1ad9`.** The constant was still `2026-09-29`, so
