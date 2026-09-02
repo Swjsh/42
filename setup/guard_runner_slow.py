@@ -11,7 +11,9 @@ a once-nightly, $0, pure-Python gate fired by the Gamma_GuardsNightly scheduled
 task (after-hours, never during 09:30-15:55 ET market hours - L54 heartbeat).
 
 Behaviour:
-  * Runs `pytest -m slow` over the graduated-guards file with a generous timeout.
+  * Runs `pytest tests/ -m slow` over the WHOLE suite with a generous timeout
+    (widened 2026-09-02 from an enumerated two-file list -- see the comment on the
+    subprocess call for the 10-test blind spot that change closed).
   * ALWAYS writes the verdict to automation/state/guard-watch-slow.json (a SEPARATE
     sentinel from the per-edit guard-watch.json - it must never clobber a pending
     per-edit failure signal).
@@ -25,7 +27,7 @@ Windows spawn = CREATE_NO_WINDOW). Pure regression guard: never edits engine cod
 never places orders.
 
 Manual run (foreground, shows output):
-    cd backtest && python -m pytest tests/test_graduated_guards.py -m slow -q
+    cd backtest && python -m pytest tests/ -m slow -q
 """
 from __future__ import annotations
 
@@ -97,7 +99,7 @@ def _flag_status_md(status: str, summary: str) -> None:
         text = marker + "\n\n" + text
     line = (
         f"- [{_now()}] GRADUATED-GUARDS-SLOW {status.upper()} :: {summary} :: "
-        "re-run: cd backtest && python -m pytest tests/test_graduated_guards.py -m slow -q"
+        "re-run: cd backtest && python -m pytest tests/ -m slow -q"
     )
     # Insert newest-first, immediately after the section header.
     head, _, tail = text.partition(marker + "\n")
@@ -130,15 +132,26 @@ def main() -> int:
     try:
         proc = subprocess.run(
             [sys.executable.replace("pythonw", "python"), "-m", "pytest",
-             "tests/test_graduated_guards.py",
-             # 2026-07-30 (blind-engine repair follow-up): the live scheduled-task drift guard.
-             # SCHEDULED-TASKS.md:39 documented this suite as "runs under Gamma_GuardsNightly"
-             # but nothing actually invoked it -- a false wiring claim the repair's own
-             # adversarial verifier caught (the exact silent-gap class this suite exists to
-             # detect: 49 documented-Active tasks were sitting Disabled for days, including the
-             # level refresher that blinded the engine on 2026-07-30). Wiring it here makes the
-             # doc claim TRUE instead of editing the doc to match the gap.
-             "tests/test_scheduled_task_triggers_live.py",
+             # WHOLE SUITE, not an enumerated file list (widened 2026-09-02).
+             #
+             # This used to name two files explicitly: test_graduated_guards.py, plus
+             # test_scheduled_task_triggers_live.py added 2026-07-30 with the note "wiring it
+             # here makes the doc claim TRUE instead of editing the doc to match the gap".
+             # That reasoning was right and the fix was too small. An enumerated list means
+             # every NEW `@pytest.mark.slow` test lands outside every runner by default:
+             # guard_runner_full.py deselects it with `-m "not slow"`, and this file only
+             # picks it up if a human remembers to add the filename here. Nobody ever does.
+             #
+             # Measured 2026-09-02: 46 slow tests existed; 36 were covered by the two names
+             # above and 10 were covered by NOTHING -- spread across 10 separate files. One
+             # of the ten (test_structure_shift_cascade_ab.py's anchor reproduction) had
+             # already drifted 190 -> 189 trades and no fire on this box would ever have said
+             # so. Same C7 silent-success class as the 2026-08-20 scar in guard_runner_full's
+             # own docstring, one level further out.
+             #
+             # Targeting `tests/` with `-m slow` makes the set self-maintaining: mark a test
+             # slow and it is covered, with no second edit and nothing to forget.
+             "tests/",
              "-m", "slow", "-q", "--no-header"],
             cwd=str(BT), capture_output=True, text=True, timeout=TIMEOUT_S,
             creationflags=CREATE_NO_WINDOW,

@@ -2601,3 +2601,46 @@ family already KILLED twice) -- this proposal MUST explain why it differs or it 
   the guards. Prefer (b) then (a). NOT done now: it is a refactor touching an EOD-safety path
   during market hours, and the false-green is already closed.
   :: depends:none :: status:filed
+
+- [x] SLOW-MARKED TESTS RUN NOWHERE (HIGH, coverage gap, FIXED 2026-09-02) :: Three runners
+  existed and each was individually correct, but between them a MARKER was uncovered.
+  `guard_runner_full.py` runs `tests/ -m "not slow"`; `guard_runner_slow.py` ran `-m slow` over
+  an **enumerated list of two files** (`test_graduated_guards.py` + `test_scheduled_task_
+  triggers_live.py`). So marking a test `@pytest.mark.slow` in any OTHER file put it outside
+  every automated fire, by default, silently. **Measured: 46 slow tests, 36 covered, 10 covered
+  by NOTHING**, across 10 separate files. Found only because the full suite was run by hand with
+  no `-m` filter. Same C7 class as the 2026-08-20 scar in `guard_runner_full.py`'s own docstring
+  ("a FILE nothing runs") one level out ("a MARKER nothing runs"). **Fix:** slow runner now
+  targets `tests/` so the set is self-maintaining -- mark a test slow and it is covered, no
+  second edit, nothing to forget. An enumerated-list fix would have rotted identically. Guard:
+  `backtest/tests/test_slow_suite_is_actually_covered_2026_09_02.py` (4 tests) pins the
+  PARTITION property (the two runners' markers must be exactly {slow, not slow} and both must
+  target the whole tests/ tree) plus a filesystem cross-check that every file containing a slow
+  marker is subsumed by the runner's target, plus a timeout-headroom check (measured full slow
+  run 1156s vs TIMEOUT_S 3000s). RED-proofed by reverting to the two-file list: 3 of 4 fail.
+  **EXPECT `Gamma_GuardsNightly` TO GO RED TONIGHT** -- see the next item. That is the
+  instrument working, NOT a regression from this change; do not narrow the runner to silence it.
+  :: depends:none :: status:done
+
+- [ ] FULLHIST-ANCHOR-DRIFTED-190-TO-189 (MED, stale anchor vs real regression, NOT
+  re-baselined, filed 2026-09-02) :: `test_structure_shift_cascade_ab.py::TestBaselineAnchor
+  Reproduction::test_control_prefix_reproduces_stored_scorecard` asserts the control replay
+  reproduces the stored `engine-fullhist-replay-2026-07-23` scorecard as a strict prefix: 190
+  trades <= 2026-07-22. It now yields **189**, deterministically (reproduced 3x). SPY/VIX source
+  CSVs are untouched since 2026-07-22 and no option CSV in `backtest/data/options/` was modified;
+  no frozen trading-path file has changed. **The diff is not a simple omission:** vs the stored
+  scorecard, three dates are GONE (2025-07-17, 2025-12-11, 2026-01-27) and one is NEW
+  (2025-12-03). A missing OPRA cache file can only REMOVE trades, so an added trade means
+  SELECTION LOGIC moved, not data availability. **Leading hypothesis, NOT proven:** `4249d95e`
+  (deterministic LevelState resolution) + `30e51b9f` (2026-08-23, its adversarial-review
+  follow-ups) changed which levels resolve -- 30e51b9f's own message states a NaN-priced
+  LevelState "was ADMITTED where the old linear scan excluded it" and that this was fixed
+  fail-closed, which is exactly a change in what triggers. If so the anchor is STALE (the engine
+  legitimately moved under a 07-23 snapshot), not broken. **DELIBERATELY NOT RE-BASELINED to
+  189.** Re-pointing an anchor at whatever the code currently produces is the metric-picking this
+  repo's own backtesting playbook exists to prevent -- it converts a regression detector into a
+  tautology. The re-baseline must NAME the commit that moved the number and show the four
+  changed dates are explained by it; until then the test stays RED and honest. Cheapest decisive
+  experiment: re-run the control with the pre-4249d95e resolver in an ISOLATED WORKTREE (never
+  a checkout in the shared tree -- C34) and check whether the prefix returns to 190.
+  :: depends:none :: status:filed
