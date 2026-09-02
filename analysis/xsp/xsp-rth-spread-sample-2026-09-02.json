@@ -1,0 +1,44 @@
+{
+  "id": "XSP-RTH-SPREAD-SAMPLE-2026-09-02",
+  "supersedes_nothing": "This ADDS to analysis/xsp/xsp-feasibility-2026-09-02.json. It does not replace its verdict; it corrects one input to it.",
+  "captured_at_et": "2026-09-02 14:25 ET",
+  "market_state": "OPEN (et_clock market_hours=True; SPY NBBO 765.45/765.48 live)",
+
+  "why_this_sample_exists": "The feasibility doc names ONE measurement that would settle the XSP question -- XSP vs SPY NBBO at matched ATM strikes during RTH -- and explicitly discounts its own data point because it was taken at 06:42 ET with the market CLOSED, 'which is exactly when quotes are least representative, so it is recorded and not relied on'. This is the first sample taken inside a live session.",
+
+  "the_prior_number_it_corrects": {
+    "recorded": "$0.88 (XSP) vs $0.03 (SPY) = 29x wider",
+    "when": "2026-09-02 06:42 ET, market CLOSED",
+    "status_now": "REFUTED as a spread estimate. It measured closed-market quotes, not tradeable ones."
+  },
+
+  "sample": {
+    "underlying_spy_nbbo": {"bid": 765.45, "ask": 765.48},
+    "contracts": "SPY260902C00765000 vs XSP260902C00765000 -- same strike, same 0DTE expiry",
+    "SPY": {"bid": 0.98, "ask": 1.03, "spread": 0.05,
+            "bid_size": 345, "ask_size": 59,
+            "day_volume": 422538, "day_trade_count": 71539},
+    "XSP": {"bid": 2.17, "ask": 2.22, "spread": 0.05,
+            "bid_size": 10, "ask_size": 10,
+            "day_volume": 10000, "day_trade_count": 2011}
+  },
+
+  "what_it_shows": {
+    "absolute_spread": "IDENTICAL at $0.05 on both. The 29x figure was an artifact of the closed market.",
+    "relative_spread": "XSP is TIGHTER as a share of premium: 0.05/2.195 = 2.3% vs SPY 0.05/1.005 = 5.0%.",
+    "depth_is_the_real_difference": "SPY quotes 345x59 at the touch; XSP quotes 10x10. That is 6-35x thinner, and depth -- not spread -- is what the feasibility doc was actually worried about ('the ability to get out').",
+    "volume": "XSP 10,000 vs SPY 422,538 = 2.4% (the feasibility doc's estimate was 8-12%; this session is thinner than that).",
+    "for_THIS_engine_at_THIS_size": "The tight ladder caps entries at 5 contracts (max_contracts_per_entry) with a $1,000 position cap. Both sides quote >= 10 at the touch, so a 3-5 lot clears at the touch on either instrument. The execution penalty the feasibility verdict assumed -- '$0.04 of extra spread on a 3-lot already eats' the ~$10/trade tax edge -- is NOT present in this sample."
+  },
+
+  "caveats_that_bound_this_sample": [
+    "n=1. The feasibility doc asks for every 5 min across 3+ RTH sessions. One quote pair at 14:25 ET is a data point, not the study. It is recorded so the study has a real starting value instead of a closed-market one.",
+    "THE STRIKES MAY NOT BE MONEYNESS-MATCHED, and this is an INFERENCE, not a measurement. The same 765 strike quotes 2.17/2.22 on XSP against 0.98/1.03 on SPY. If time value is comparable, that implies XSP spot sits roughly $1.20 ABOVE SPY -- consistent with XSP tracking SPX/10 while SPY carries a tracking/dividend difference. XSP is an index and is NOT in Alpaca's equity quote feed (get_stock_latest_quote returned SPY only), so its spot could not be read directly to confirm. A properly matched study must resolve XSP spot and select each side's true ATM strike independently rather than reusing one strike number.",
+    "A single mid-afternoon sample says nothing about the open or the close, which is where 0DTE spreads are widest and where this engine actually trades (entries 09:35-15:00).",
+    "Depth at the touch is not depth through the book. 10x10 displayed does not mean only 10 available, and 345x59 does not mean 345 fillable at that price."
+  ],
+
+  "what_this_does_NOT_change": "The feasibility verdict was PROBABLY NOT WORTH A LANE on three legs: cash-settlement (TRUE), a small ~$10/trade tax edge (TRUE), and a FALSE sizing premise. Only the execution-penalty leg is touched here, and only weakened -- the tax edge no longer has to beat a 29x spread, but it still has to beat a genuinely thinner book and a 2.4%-volume instrument. This sample makes the question OPEN again; it does not make the answer yes.",
+
+  "next": "Wire the recurring sampler the feasibility doc actually asked for -- matched TRUE-ATM strikes resolved per side, every 5 min across 3+ RTH sessions including the first and last 30 minutes -- and express the result as $/round-trip on a 3-lot. Until then this stays a single observation."
+}

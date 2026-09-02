@@ -594,6 +594,19 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   3-lot. A single snapshot showed **$0.88 vs $0.03 — 29× wider** — but it was taken at 06:42 ET with the
   market CLOSED, which is exactly when quotes are least representative, so it is **recorded and not
   relied on**.
+  🔔 **FIRST LIVE-SESSION SAMPLE TAKEN 2026-09-02 14:25 ET (market OPEN) — the 29× figure is
+  REFUTED as a spread estimate.** Matched 0DTE 765 strike: **SPY 0.98/1.03 and XSP 2.17/2.22 —
+  spread IDENTICAL at $0.05**, and XSP is *tighter* as a share of premium (2.3% vs 5.0%). The
+  real difference is **depth, not spread**: SPY quotes 345×59 at the touch, XSP **10×10**, on
+  2.4% of SPY's volume — which is precisely the "ability to get out" the verdict worried about,
+  but at this engine's capped 3–5 lot both sides clear at the touch, so the assumed "$0.04 of
+  extra spread eats the tax edge" penalty is **not present in this sample**. ⚠️ **n=1, and the
+  strikes may not be moneyness-matched** — the same strike quoting 2.17 vs 0.98 implies XSP spot
+  sits ~$1.20 above SPY (an INFERENCE; XSP is an index and is not in Alpaca's equity quote feed,
+  so its spot could not be read to confirm). A real study must resolve each side's true ATM
+  strike independently. **This makes the question OPEN again; it does not make the answer yes** —
+  the tax edge still has to beat a thinner book. Sample:
+  `analysis/xsp/xsp-rth-spread-sample-2026-09-02.json`.
   **Data notes for whoever runs it:** XSP historical 1-min bars ARE retrievable (verified 07-31 and
   08-19, three strikes) so the battery can use REAL quotes, not sim. Two traps: `/v2/options/contracts`
   lists only the CURRENT expiry for XSP, so historical symbols must be *constructed*, not enumerated;
