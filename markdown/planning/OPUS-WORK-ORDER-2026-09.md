@@ -70,11 +70,28 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
   statement about the harness, not the engine (02-VALIDATION V9). A 2026-09-01 review pass tried to
   promote this to PASS on the grounds that the frozen JSON did not name V9; Fable reversed it and
   wrote the rule into the prereg as a dated addendum (`addendum_2026_09_01_validator_fidelity`).
-  **Top research item now: walker fidelity** — 94/121 P1 rows carry `stop_mode: structure` but no
-  real chart-level `trigger_level` in `trades-enriched.jsonl` (the enrichment never carried the
-  level through), so structure stops replay on a proxy. Fix the enrichment (read-only on the
-  trading path), re-run V9; if ≥85% the verdict unlocks. Full numbers + deviations:
-  `analysis/whole-engine-null/2026-09-01.{json,md}`, `summary-line.txt`.
+  **RESOLVED 2026-09-02 (Opus): V9 79.3% → 89.3% (n=121, bar 85%), mean bias −$20.76 → −$10.44,
+  `harness_reliable=True`, study verdict WITHHELD → PASS.** ⚠️ **The root cause named above was
+  WRONG, and the way it was wrong is the lesson.** The trigger-level story was a *confounded
+  correlation*: rows with a recorded level agreed 96.3% vs 74.5% for proxy rows, but all 27
+  real-level rows were calls from core arms. The controlled differential — same 25 rows, same
+  cached bars, same production `exit_manager` core, walked twice with **only** the level changed —
+  returned **real 96.0% vs proxy 96.0%, delta +0.0%** (proxy error vs real: median $0.27, max
+  $2.33). The proxy was accurate and never the cause. The real cause was a second hardcode in the
+  same function: `walk_one` passed `structure_stop_enabled=True` for every row while 26.9% of the
+  population resolved to **premium** mode live (`exit_manager.py:268`). Attribution, one variable
+  at a time over 135 rows: base 80.0% · +stop_mode **86.7% (+6.7pp)** · +exit-shape keys 80.0%
+  (**+0.0pp**, i.e. the first fix proposed *after* the falsification was also worthless and also
+  died to the decomposition). Residual `ribbon_flip` blindness (`ribbon_tick_df=None`, 40.0%,
+  concentrated in risky-1 at 29.7% of its exits) closed by reconstructing the series from
+  `core-decisions.jsonl` with a look-ahead-safe backward-as-of merge → 66.7%, 121/121 rows served.
+  Null legs left byte-identical (frozen prereg) with the mismatch disclosed. The enrichment defect
+  was real and fixed on its own merits (structure-mode rows carrying a level 27/186 → **186/186**;
+  puts 0/72 → 51/72; safe-3 0/20 → 20/20) — it just was not the V9 cause. **Note the mechanical
+  sub-checks were already PASS on 09-01; what changed is that a faithful walker now certifies
+  them.** Lesson filed: `automation/overnight/_lesson-inbox/2026-09-01-confounded-root-cause-written-into-a-prereg.md`.
+  Full numbers + deviations: `analysis/whole-engine-null/{latest,2026-09-02}.{json,md}`,
+  `summary-line.txt`.
 - [x] B2 early-close flatten: `calendar.json` gains `early_closes`; `eod_flatten.py --only-if-early-close`;
   task `Gamma_EodFlattenEarlyClose` 12:32 ET. (Entry-cutoff half waits for 09-29 — heartbeat_core is frozen.)
 - [x] B3 monitors: `duplicate_ticks` + `early_close_today` in engine_health; `prereg_hygiene.py` nightly;

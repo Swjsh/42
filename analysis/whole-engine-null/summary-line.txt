@@ -1,1 +1,1 @@
-WHOLE-ENGINE-NULL 2026-09-01: WITHHELD (harness unreliable -- V9 sign agreement 79.3% < 85%). Mechanical sub-checks read PASS on the raw numbers (engine P1 $+3562.00, N_a p95 2545.5375000000004, N_c $-4676.40) but describe the walker, not the engine, until the walker is fixed.
+WHOLE-ENGINE-NULL 2026-09-02: PASS -- engine P1 $+3562.00 beats N_a p95 (2545.5375000000004), N_b call, P3, and N_c <= 0.

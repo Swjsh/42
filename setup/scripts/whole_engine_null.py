@@ -288,24 +288,136 @@ def get_1m_bars(contract: str, date: str, budget: FetchBudget) -> Optional[pd.Da
 # ============================================================================================ #
 RIBBON_SHAPE = fleet_strategies.RIBBON_RIDE.exit.to_dict()
 
+CORE_DECISIONS_FILE = REPO / "automation" / "state" / "core-decisions.jsonl"
+
+_ribbon_series_cache: dict[tuple[str, str], Optional[pd.DataFrame]] = {}
+
+
+def _core_account_for_arm(arm: str) -> str:
+    """The core-decisions.jsonl `account` ("safe"|"bold") whose ribbon perception a given
+    P1 arm actually acted on for its ribbon_flip exit check -- verified this build, not
+    assumed:
+
+    * safe-2 / bold-2 ARE the two core mcp_heartbeat accounts. heartbeat_core.py:1764 calls
+      `_manage_exits(account, ribbon_stack=bc["ribbon_now"].get("stack"), ...)` inside each
+      account's OWN per-account tick, i.e. each manages its exits off its OWN row's ribbon
+      (account="safe" for safe-2, account="bold" for bold-2).
+    * Every fleet_rest arm (safe-3, risky-1, risky-3) instead shares ONE ribbon read
+      regardless of its own risk class: fleet_live.py:926 derives its
+      `ribbon_flip_back_fn` from `usable_signal["ribbon_stack"]`, which is
+      build_shared_signal.build()'s DEFAULT row -- `_latest_today_decision(today,
+      core_tick_id=...)` called with NO `account` override, i.e. `account="safe"`
+      (build_shared_signal.py:238-239's own default) -- independent of the arm's
+      "risky"/"safe" naming or its `config_source: "inherit bold"` field (that field patches
+      SIZING params via fleet_executor._base_params_for, not the ribbon-perception source).
+    Empirically low-stakes either way: a same-day sample (2026-08-12) showed the "safe" and
+    "bold" rows' `ribbon` value agreeing on 385/386 same-minute-paired ticks (both read the
+    same underlying SPY structure), so a wrong account guess for an unlisted arm would
+    almost never change the walked outcome.
+    """
+    return "bold" if arm == "bold-2" else "safe"
+
+
+def _ribbon_series_for(date: str, account: str) -> Optional[pd.DataFrame]:
+    """Real per-tick ribbon reads for one (date, account) off
+    automation/state/core-decisions.jsonl, sorted + deduped to one row per exact timestamp
+    (ties broken by keeping the LAST line, matching the file's append-only write order).
+    Returns None -- an honest null -- when this exact (date, account) has zero logged
+    ticks; NEVER a fabricated series. Cached per (date, account): V9 replays multiple rows
+    over the same 15 trading days, so this is read once per day instead of once per row."""
+    key = (date, account)
+    if key in _ribbon_series_cache:
+        return _ribbon_series_cache[key]
+    by_ts: dict[str, str] = {}
+    if CORE_DECISIONS_FILE.exists():
+        with open(CORE_DECISIONS_FILE, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                ts = row.get("ts_et") or ""
+                if not ts.startswith(date) or row.get("account") != account:
+                    continue
+                stack = row.get("ribbon")
+                if stack is None:
+                    continue
+                by_ts[ts] = stack  # last line wins on an exact-timestamp collision
+    if not by_ts:
+        _ribbon_series_cache[key] = None
+        return None
+    ts_sorted = sorted(by_ts)
+    df = pd.DataFrame({"timestamp_et": pd.to_datetime(ts_sorted),
+                       "stack": [by_ts[t] for t in ts_sorted]})
+    _ribbon_series_cache[key] = df
+    return df
+
+
+def build_ribbon_tick_df(opt_df: pd.DataFrame, date: str, account: str) -> Optional[pd.DataFrame]:
+    """Reindex the REAL per-tick ribbon series (never fabricated) onto opt_df's own 1-minute
+    timestamps via a backward as-of merge -- LOOK-AHEAD SAFE BY CONSTRUCTION
+    (direction='backward': a bar sees only the LATEST ribbon tick at or before its own
+    timestamp, never a later one; Lessons C6). This is the SAME resampling technique
+    last_closed_bar_close_at already uses for the 5-min SPY series against a walk running at
+    a different cadence -- carrying a real observed value forward onto a real (but
+    differently-cadenced) timestamp index, not inventing one. `stack` values pass through
+    UNTRANSLATED ("BULL"/"BEAR"/"MIXED") -- walk_exit_manager's own ribbon_stack_at already
+    treats anything outside {"BULL","BEAR"} as a no-op, so "MIXED" is correctly inert as-is.
+    Returns None when `_ribbon_series_for` has no ticks for this (date, account) at all
+    (honest null); a bar before this day's FIRST tick gets `stack=NaN` (also inert -- not in
+    ("BULL","BEAR")), never a look-ahead value from a later tick."""
+    series = _ribbon_series_for(date, account)
+    if series is None:
+        return None
+    left = opt_df[["timestamp_et"]].reset_index(drop=True).copy()
+    left["__order__"] = range(len(left))
+    merged = pd.merge_asof(
+        left.sort_values("timestamp_et"), series.sort_values("timestamp_et"),
+        on="timestamp_et", direction="backward",
+    ).sort_values("__order__").reset_index(drop=True)
+    assert len(merged) == len(opt_df), "ribbon_tick_df must match opt_df row count"
+    return merged[["stack"]]
+
 
 def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
              entry_premium: float, qty: int, trigger_level: Optional[float],
-             spy5: pd.DataFrame, budget: FetchBudget) -> Optional[dict]:
+             spy5: pd.DataFrame, budget: FetchBudget,
+             stop_mode: Optional[str] = None,
+             ribbon_account: Optional[str] = None) -> Optional[dict]:
     """One position, walked through the REAL exit_manager core with the production
     RIBBON_RIDE ExitShape. Returns None (honest null) when no option bars exist for the
-    contract on this day -- never a fabricated fill."""
+    contract on this day -- never a fabricated fill.
+
+    `stop_mode` (V9 INPUT-FIDELITY FIX, 2026-09-01): the row's REAL live-resolved
+    `stop_mode` ("structure" | "premium" | None), so `structure_stop_enabled` reflects what
+    the engine ACTUALLY ran instead of being hardcoded True for every row. `None` (the
+    default -- used by every N_a/N_c call site, which have no real per-row stop_mode to
+    thread, and by V9 rows whose recorded stop_mode itself is null) preserves TODAY'S EXACT
+    behavior (`structure_stop_enabled=True`) byte-for-byte; this is a backward-compatible
+    default, not a behavior change for anything but V9's stop_mode-carrying rows.
+
+    `ribbon_account` (V9 INPUT-FIDELITY FIX, 2026-09-01): when given ("safe"|"bold"),
+    builds a REAL ribbon_tick_df for this walk via `build_ribbon_tick_df` instead of the
+    permanently-None series that made ribbon_flip exits structurally unreproducible. `None`
+    (the default -- every N_a/N_c call site) preserves today's exact `ribbon_tick_df=None`
+    behavior; only run_v9 passes this."""
     opt_df = get_1m_bars(symbol, date, budget)
     if opt_df is None or opt_df.empty:
         return None
     dspy = day_frame(spy5, date)
     if dspy.empty:
         return None
+    structure_stop_enabled = True if stop_mode is None else (stop_mode == "structure")
+    ribbon_tick_df = (build_ribbon_tick_df(opt_df, date, ribbon_account)
+                      if ribbon_account is not None else None)
     result = walk_exit_manager(
         symbol=symbol, side=side, entry_time_et=entry_time_et, entry_premium=entry_premium,
-        qty=int(qty), exit_shape=RIBBON_SHAPE, structure_stop_enabled=True,
+        qty=int(qty), exit_shape=RIBBON_SHAPE, structure_stop_enabled=structure_stop_enabled,
         trigger_level=trigger_level, strategy=STRATEGY_NAME, time_stop_et=TIME_STOP_ET,
-        opt_df=opt_df, ribbon_tick_df=None, five_min_spy_df=dspy,
+        opt_df=opt_df, ribbon_tick_df=ribbon_tick_df, five_min_spy_df=dspy,
     )
     if not result.resolved and result.exit_reason == "no_bars_after_entry":
         return None
@@ -355,12 +467,33 @@ def _proxy_trigger_level(row: dict) -> Optional[float]:
 
 def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict:
     compared, sign_agree, biases, skipped = [], 0, [], 0
+    n_stop_mode_real, n_stop_mode_defaulted = 0, 0
+    n_ribbon_available, n_ribbon_missing = 0, 0
     for row in p1_rows:
         entry_time = pd.Timestamp(row["entry_ts_et"]).to_pydatetime()
         trig = _proxy_trigger_level(row)
+        # BUG 1 FIX (2026-09-01): thread the row's REAL live-resolved stop_mode so
+        # structure_stop_enabled reflects what the engine actually ran, not a hardcoded True
+        # for every row (7/121 P1 rows really ran premium mode, agreeing only 3/7 walked as
+        # structure). None (null/missing real stop_mode) keeps walk_one's byte-identical
+        # default (structure_stop_enabled=True).
+        real_stop_mode = row.get("stop_mode")
+        if real_stop_mode is not None:
+            n_stop_mode_real += 1
+        else:
+            n_stop_mode_defaulted += 1
+        # BUG 2 FIX (2026-09-01): thread the arm's real ribbon-perception account so
+        # ribbon_flip exits (15/121 P1 rows) are reproducible instead of structurally
+        # impossible under ribbon_tick_df=None. See build_ribbon_tick_df / _core_account_for_arm.
+        ribbon_acct = _core_account_for_arm(row.get("arm", ""))
+        if _ribbon_series_for(row["date"], ribbon_acct) is not None:
+            n_ribbon_available += 1
+        else:
+            n_ribbon_missing += 1
         walked = walk_one(symbol=row["symbol"], side=row["right"], date=row["date"],
                           entry_time_et=entry_time, entry_premium=float(row["entry_px"]),
-                          qty=int(row["qty"]), trigger_level=trig, spy5=spy5, budget=budget)
+                          qty=int(row["qty"]), trigger_level=trig, spy5=spy5, budget=budget,
+                          stop_mode=real_stop_mode, ribbon_account=ribbon_acct)
         if walked is None:
             skipped += 1
             continue
@@ -372,13 +505,79 @@ def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict
 
         agree = sgn(real_pnl) == sgn(walked_pnl)
         sign_agree += int(agree)
-        compared.append({"symbol": row["symbol"], "date": row["date"], "real_pnl": real_pnl,
-                          "walked_pnl": walked_pnl, "sign_agree": agree,
-                          "had_real_trigger_level": row.get("trigger_level") is not None})
+        real_exit_reason = row.get("exit_reason")
+        is_scratch = abs(real_pnl) < 1e-9
+        compared.append({"symbol": row["symbol"], "date": row["date"], "arm": row.get("arm"),
+                          "real_pnl": real_pnl, "walked_pnl": walked_pnl, "sign_agree": agree,
+                          "real_exit_reason": real_exit_reason, "real_stop_mode": real_stop_mode,
+                          "had_real_trigger_level": row.get("trigger_level") is not None,
+                          "is_scratch_row": is_scratch})
         biases.append(walked_pnl - real_pnl)
     n = len(compared)
+    # DENOMINATOR UNCHANGED (2026-09-01 discipline note): `n`/`rate` below still include
+    # scratch rows (real_pnl == 0.00, which can never sign-agree with a non-zero walked
+    # value under sgn(0)==0) -- n_scratch_rows is a disclosed SUB-statistic, not an
+    # exclusion. Whether to exclude scratches from the headline is a human/orchestrator
+    # judgment call, not this builder's to make.
     rate = (sign_agree / n) if n else 0.0
     mean_bias = (sum(biases) / n) if n else 0.0
+    n_scratch_rows = sum(1 for c in compared if c["is_scratch_row"])
+
+    # PER-EXIT_REASON BREAKDOWN -- the diagnostic that surfaced both input-fidelity bugs
+    # (structure_stop hardcoding, ribbon_tick_df=None) in the first place. Standing output,
+    # not ad hoc: every future V9 run carries it so a new fidelity gap shows up the same way.
+    by_reason: dict[str, dict] = {}
+    for c in compared:
+        key = c["real_exit_reason"] or "UNKNOWN"
+        b = by_reason.setdefault(key, {"n": 0, "n_agree": 0})
+        b["n"] += 1
+        b["n_agree"] += int(c["sign_agree"])
+    agreement_by_exit_reason = {
+        k: {"n": v["n"], "n_agree": v["n_agree"],
+            "agreement_rate": round(v["n_agree"] / v["n"], 4) if v["n"] else None}
+        for k, v in sorted(by_reason.items())
+    }
+
+    known_limitations: list[str] = []
+    if n_ribbon_missing:
+        known_limitations.append(
+            f"{n_ribbon_missing}/{len(p1_rows)} P1 rows had no core-decisions.jsonl ribbon "
+            "series for their (date, account) -- those rows walked with ribbon_tick_df=None "
+            "(ribbon_flip structurally unreachable for them, same as before this fix)."
+        )
+    rf_stats = agreement_by_exit_reason.get("ribbon_flip")
+    if rf_stats is not None and rf_stats["agreement_rate"] is not None:
+        known_limitations.append(
+            "ribbon_flip rows are walked against a RECONSTRUCTED ribbon series "
+            "(automation/state/core-decisions.jsonl, backward-as-of onto each contract's "
+            "1-minute option bars -- see build_ribbon_tick_df), not the literal per-position "
+            "ribbon read the live position actually saw -- a disclosed approximation of the "
+            f"real signal, not the recorded value itself. ribbon_flip sign agreement: "
+            f"{rf_stats['n_agree']}/{rf_stats['n']} ({rf_stats['agreement_rate']:.1%})."
+        )
+
+    # The stop_mode fidelity fix is scoped to V9 ON PURPOSE. The null legs (run_null_a,
+    # run_null_c) still walk 100% structure-mode, which no longer matches the engine they are
+    # compared against. Not changed in-window: the prereg is FROZEN and specifies the null
+    # design, and altering a null leg after seeing the study's results is the exact post-hoc
+    # pattern the 2026-09-01 validator-fidelity addendum already had to reverse. Disclosed
+    # here; reconciling it needs a prereg revision, not an edit.
+    _modes: dict[str, int] = {}
+    for _r in p1_rows:
+        _k = str(_r.get("stop_mode") or "none")
+        _modes[_k] = _modes.get(_k, 0) + 1
+    _mode_txt = ", ".join(f"{k} {v}/{len(p1_rows)} ({v / len(p1_rows):.1%})"
+                          for k, v in sorted(_modes.items(), key=lambda kv: -kv[1]))
+    known_limitations.append(
+        "NULL LEGS WALK STRUCTURE-ONLY. V9 now replays each row with the stop_mode the live "
+        "engine actually resolved, but run_null_a and run_null_c still pass "
+        "structure_stop_enabled=True for every walk (deliberately byte-identical to the frozen "
+        f"prereg design). The engine population they are compared against was: {_mode_txt}. So "
+        "the nulls are a structure-only variant of a mixed-mode engine. Reconciling this "
+        "requires a prereg revision, NOT an in-window edit -- changing a null leg after seeing "
+        "the study's results is post-hoc by construction."
+    )
+
     return {
         "n_p1_rows": len(p1_rows), "n_compared": n, "n_skipped_no_bars": skipped,
         "n_sign_agree": sign_agree, "sign_agreement_rate": round(rate, 4),
@@ -386,6 +585,17 @@ def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict
         "harness_reliable": rate >= SIGN_AGREEMENT_MIN,
         "min_bar_for_reliable": SIGN_AGREEMENT_MIN,
         "n_rows_with_real_trigger_level": sum(1 for r in p1_rows if r.get("trigger_level") is not None),
+        "n_scratch_rows": n_scratch_rows,
+        "agreement_by_exit_reason": agreement_by_exit_reason,
+        "stop_mode_fidelity": {"n_real_stop_mode": n_stop_mode_real,
+                              "n_defaulted_structure_true": n_stop_mode_defaulted},
+        "ribbon_reconstruction": {
+            "source": "automation/state/core-decisions.jsonl, backward as-of merge onto "
+                     "each contract's 1-minute option bars (build_ribbon_tick_df)",
+            "n_rows_with_ribbon_series": n_ribbon_available,
+            "n_rows_without_ribbon_series": n_ribbon_missing,
+        },
+        "known_limitations": known_limitations,
         "detail": compared,
     }
 
@@ -651,13 +861,29 @@ def run(date: str, resamples: int, seed: int, fetch_budget_s: float, skip_fetch:
         "true 1-minute-uniform draw -- no SPY 1-minute bar cache exists anywhere in this repo "
         "(only 5-minute); the prereg itself names 'SPY 1m/5m' as an acceptable spot source."
     )
+    # COUNT IT, never hardcode it: this string previously carried a literal "94/121", which
+    # went stale the moment trades_enriched.py was fixed to carry the placement-stage level
+    # through (2026-09-01) and then misdescribed the run it was published in.
+    _n_p1 = len(p1_rows)
+    _n_no_level = sum(1 for r in p1_rows if r.get("trigger_level") is None)
     deviations.append(
         "N_a / N_c structure-stop trigger_level has no chart level to key on for a random "
         "entry, so N_a uses the entry's own ATM strike as the proxy level; N_c (and V9, for "
-        "the 94/121 P1 rows whose recorded trigger_level is null) reconstruct it from "
-        "ctx_extras' nearest_level_{above,below}_dist relative to strike. Both are disclosed "
-        "approximations of the real chart level the live engine actually used, not the "
-        "recorded value itself."
+        f"the {_n_no_level}/{_n_p1} P1 rows whose recorded trigger_level is still null) "
+        "reconstruct it from ctx_extras' nearest_level_{above,below}_dist relative to strike. "
+        "Those reconstructions are disclosed approximations of the real chart level the live "
+        "engine used, not the recorded value itself."
+    )
+    deviations.append(
+        "READING-TO-READING COMPARABILITY (2026-09-01): trades_enriched.py was fixed this day "
+        "to carry the PLACEMENT-stage level (exec.trigger_level / placement.trigger_level -- "
+        "the level exit_manager actually armed) instead of the SIGNAL-stage trigger_level_exact "
+        "(null for every sloped-trendline trigger) and instead of a hardcoded None on the fleet "
+        "path. P1 rows carrying a real level went 27 -> "
+        f"{_n_p1 - _n_no_level} of {_n_p1}. N_c consumes that field, so ITS TOTAL MOVED between "
+        "the 2026-09-01 and 2026-09-02 readings (-$4,676.40 -> -$3,740.60) with NO code change "
+        "to the N_c leg -- the change is better input, not a different method. Engine P1 total, "
+        "N_a and N_b are untouched by the fix and are identical across the two readings."
     )
     deviations.append(
         "N_b bias-directed leg SKIPPED: today-bias.json has no historical archive covering "

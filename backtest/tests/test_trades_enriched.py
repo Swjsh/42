@@ -229,7 +229,7 @@ _real_fills = os.path.join(REAL_REPO_ROOT, "automation", "state", "fills-ledger.
 @pytest.mark.skipif(not os.path.exists(_real_fills), reason="real fills-ledger.jsonl not present")
 def test_real_tape_2026_08_27_and_august_totals():
     from pathlib import Path
-    result = te.rebuild(Path(REAL_REPO_ROOT))
+    result = te.rebuild(Path(REAL_REPO_ROOT), write=False)
     rows = result["rows"]
 
     day_rows = te._engine_rows_for(rows, date="2026-08-27")
@@ -311,7 +311,7 @@ def test_premium_stop_suspect_flags_impossible_positive_pnl(tmp_path):
 @pytest.mark.skipif(not os.path.exists(_real_fills), reason="real fills-ledger.jsonl not present")
 def test_real_tape_verification_passes():
     from pathlib import Path
-    result = te.rebuild(Path(REAL_REPO_ROOT))
+    result = te.rebuild(Path(REAL_REPO_ROOT), write=False)
     assert te.run_verification(result["rows"], quiet=True) is True
 
 
@@ -400,7 +400,7 @@ def test_both_bases_reproduce_august_1744():
     sys.path.insert(0, os.path.join(ROOT, "setup", "scripts"))
     import broker_fills as bf  # noqa: E402
 
-    result = te.rebuild(Path(REAL_REPO_ROOT))
+    result = te.rebuild(Path(REAL_REPO_ROOT), write=False)
     flat_rows = te._engine_rows_for(result["rows"], lo="2026-08-01", hi="2026-08-31")
     flat_pnl = sum(r["pnl_dollars"] for r in flat_rows)
     assert abs(flat_pnl - 1744.0) <= 10, f"flat_to_flat August pnl {flat_pnl} not within $10 of $1744"

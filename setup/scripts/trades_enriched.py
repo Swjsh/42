@@ -388,7 +388,15 @@ def load_context(core_path: Path = CORE_DECISIONS_PATH, fleet_dir: Path = FLEET_
                     "spread_cents": r.get("spread_cents"),
                     "htf_15m": r.get("htf_15m"),
                     "triggers": r.get("triggers"),
-                    "trigger_level": r.get("trigger_level_exact"),
+                    # TRIGGER_LEVEL FIX (2026-09-01): two stages record a level -- SIGNAL stage
+                    # (trigger_level_exact, null whenever the trigger was a sloped trendline, see
+                    # conviction.py:64) and PLACEMENT stage (exec.trigger_level, the level
+                    # exit_manager.py ACTUALLY armed its structure stop with -- proof:
+                    # exit_manager.py:268 resolved_structure requires trigger_level is not None).
+                    # Placement wins because it's the value the live stop was built on; signal
+                    # stage is only a fallback for rows placement never recorded.
+                    "trigger_level": (exec_.get("trigger_level") if exec_.get("trigger_level") is not None
+                                       else r.get("trigger_level_exact")),
                     "stop_mode": exec_.get("stop_mode"),
                     "planned_stop": exec_.get("stop"),
                     "planned_tp": exec_.get("tp"),
@@ -430,7 +438,12 @@ def load_context(core_path: Path = CORE_DECISIONS_PATH, fleet_dir: Path = FLEET_
                     "spread_cents": None,
                     "htf_15m": None,
                     "triggers": None,
-                    "trigger_level": None,
+                    # TRIGGER_LEVEL FIX (2026-09-01): was hardcoded None, discarding the level
+                    # for every fleet-arm row (incl. all of safe-3, the go-live gate's
+                    # prod-shadow arm). placement.trigger_level is the PLACEMENT-stage level
+                    # exit_manager.py actually armed its structure stop with (fleet's analog of
+                    # the core path's exec.trigger_level -- see the core-path comment above).
+                    "trigger_level": pl.get("trigger_level"),
                     "stop_mode": pl.get("stop_mode"),
                     "planned_stop": pl.get("stop"),
                     "planned_tp": pl.get("tp"),
@@ -651,7 +664,17 @@ def enrich(trips: list, ctx_by_order: dict, ctx_by_key: dict, exit_events: dict,
     return rows, matched, unmatched_keys
 
 
-def rebuild(repo: Path = REPO) -> dict:
+def rebuild(repo: Path = REPO, write: bool = True) -> dict:
+    """Rebuild the enriched round-trip ledger.
+
+    `write` (added 2026-09-01): when False, compute and return everything but do NOT touch
+    `analysis/trades-enriched.jsonl` on disk. Tests that verify against the REAL tape must
+    pass write=False -- this function unconditionally overwrote the production artifact as a
+    side effect of merely being called, so a test run against a stashed/old producer silently
+    rewrote the live file with its output (observed 2026-09-01: a baseline run reverted a
+    just-fixed artifact, caught only by re-checking the invariant afterwards). Production
+    callers keep the default and are unaffected.
+    """
     fills_path = repo / "automation" / "state" / "fills-ledger.jsonl"
     core_path = repo / "automation" / "state" / "core-decisions.jsonl"
     fleet_dir = repo / "automation" / "state" / "fleet"
@@ -741,11 +764,12 @@ def rebuild(repo: Path = REPO) -> dict:
         ),
     }
 
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    with out_path.open("w", encoding="utf-8") as fh:
-        fh.write(json.dumps(meta, default=str) + "\n")
-        for row in rows:
-            fh.write(json.dumps(row, default=str) + "\n")
+    if write:
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with out_path.open("w", encoding="utf-8") as fh:
+            fh.write(json.dumps(meta, default=str) + "\n")
+            for row in rows:
+                fh.write(json.dumps(row, default=str) + "\n")
 
     return {"meta": meta, "rows": rows}
 
