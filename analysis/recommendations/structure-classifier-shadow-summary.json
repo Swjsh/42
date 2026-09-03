@@ -1,0 +1,287 @@
+{
+ "prereg": "analysis/recommendations/prereg-structure-classifier-swap-2026-09-03.md",
+ "generated_at_et": "2026-09-03T15:40:58.001444",
+ "account_scope": "safe",
+ "veto_first_fire_et": "2026-07-06T13:11:27",
+ "n_ticks": 843,
+ "n_skip_structure_veto": 237,
+ "n_enter_bull": 279,
+ "n_enter_bear": 327,
+ "agreement_rate_overall": 0.6109,
+ "agreement_rate_by_action": {
+  "SKIP_STRUCTURE_VETO": {
+   "n": 237,
+   "agreement_rate": 0.6456
+  },
+  "ENTER_BULL": {
+   "n": 279,
+   "agreement_rate": 0.6165
+  },
+  "ENTER_BEAR": {
+   "n": 327,
+   "agreement_rate": 0.581
+  }
+ },
+ "reconstruction_fidelity_by_bar_source": {
+  "csv_cache_real": {
+   "n_with_a_logged_value_to_check": 149,
+   "n_exact_byte_match": 92,
+   "exact_match_rate": 0.6174,
+   "n_excluded_error_or_unknown_variant": 38,
+   "n_comparable": 111,
+   "n_comparable_match": 92,
+   "comparable_match_rate": 0.8288
+  },
+  "reconstructed_approx_from_core_decisions": {
+   "n_with_a_logged_value_to_check": 57,
+   "n_exact_byte_match": 25,
+   "exact_match_rate": 0.4386,
+   "n_excluded_error_or_unknown_variant": 15,
+   "n_comparable": 42,
+   "n_comparable_match": 25,
+   "comparable_match_rate": 0.5952
+  }
+ },
+ "live_veto_episodes": {
+  "n": 237,
+  "favorable_rate_30m": {
+   "n": 132,
+   "rate": 0.5833,
+   "ci_lower_2.5": 0.5,
+   "ci_upper_97.5": 0.6591
+  },
+  "favorable_rate_60m": {
+   "n": 127,
+   "rate": 0.5197,
+   "ci_lower_2.5": 0.4331,
+   "ci_upper_97.5": 0.6063
+  },
+  "veto_correct_rate_30m": {
+   "n": 132,
+   "rate": 0.4167,
+   "ci_lower_2.5": 0.3409,
+   "ci_upper_97.5": 0.5
+  },
+  "veto_correct_rate_60m": {
+   "n": 127,
+   "rate": 0.4803,
+   "ci_lower_2.5": 0.3937,
+   "ci_upper_97.5": 0.5669
+  },
+  "split_by_walk_agreement": {
+   "walk_also_would_veto_favorable_rate_30m": {
+    "n": 72,
+    "rate": 0.5556,
+    "ci_lower_2.5": 0.4444,
+    "ci_upper_97.5": 0.6667
+   },
+   "walk_disagreed_favorable_rate_30m": {
+    "n": 60,
+    "rate": 0.6167,
+    "ci_lower_2.5": 0.5,
+    "ci_upper_97.5": 0.7333
+   },
+   "favorable_rate_diff_ci_30m_agree_minus_disagree": {
+    "n_a": 72,
+    "n_b": 60,
+    "rate_a": 0.5556,
+    "rate_b": 0.6167,
+    "diff": -0.0611,
+    "ci_lower_2.5": -0.2278,
+    "ci_upper_97.5": 0.1083
+   },
+   "walk_also_would_veto_favorable_rate_60m": {
+    "n": 72,
+    "rate": 0.3889,
+    "ci_lower_2.5": 0.2778,
+    "ci_upper_97.5": 0.5
+   },
+   "walk_disagreed_favorable_rate_60m": {
+    "n": 55,
+    "rate": 0.6909,
+    "ci_lower_2.5": 0.5636,
+    "ci_upper_97.5": 0.8
+   },
+   "favorable_rate_diff_ci_60m_agree_minus_disagree": {
+    "n_a": 72,
+    "n_b": 55,
+    "rate_a": 0.3889,
+    "rate_b": 0.6909,
+    "diff": -0.302,
+    "ci_lower_2.5": -0.4581,
+    "ci_upper_97.5": -0.1374
+   }
+  }
+ },
+ "walk_only_veto_episodes": {
+  "n": 137,
+  "note": "ENTER_* ticks the LIVE classifier did NOT block but walk_structure's label on the identical bars would have -- the trade was actually taken; favorable_rate here = rate the taken trade would have WON (i.e. a walk_structure veto at that tick would have been WRONG to fire).",
+  "favorable_rate_30m": {
+   "n": 125,
+   "rate": 0.52,
+   "ci_lower_2.5": 0.432,
+   "ci_upper_97.5": 0.608
+  },
+  "favorable_rate_60m": {
+   "n": 111,
+   "rate": 0.6667,
+   "ci_lower_2.5": 0.5766,
+   "ci_upper_97.5": 0.7477
+  },
+  "veto_correct_rate_30m": {
+   "n": 125,
+   "rate": 0.48,
+   "ci_lower_2.5": 0.392,
+   "ci_upper_97.5": 0.568
+  },
+  "veto_correct_rate_60m": {
+   "n": 111,
+   "rate": 0.3333,
+   "ci_lower_2.5": 0.2523,
+   "ci_upper_97.5": 0.4234
+  }
+ },
+ "today_quoted_rows": [
+  {
+   "ts_et": "2026-09-03T11:16:03",
+   "date_et": "2026-09-03",
+   "account": "safe",
+   "action": "SKIP_STRUCTURE_VETO",
+   "execution_action_raw": "SKIP_STRUCTURE_VETO",
+   "side": "C",
+   "spy": 771.5,
+   "setup": null,
+   "trigger_bar_et": "2026-09-03T11:10:00-04:00",
+   "bar_source": "reconstructed_approx_from_core_decisions",
+   "n_bars_fed": 21,
+   "label_live": "range",
+   "label_walk": "uptrend",
+   "n_walk_events": 1,
+   "agree": false,
+   "structure_reason_logged": "downtrend",
+   "live_label_matches_logged": false,
+   "live_would_veto_recomputed": false,
+   "walk_would_veto": false,
+   "fwd_move_30m": 0.965,
+   "fwd_move_60m": 1.045,
+   "favorable_30m": true,
+   "favorable_60m": true
+  },
+  {
+   "ts_et": "2026-09-03T11:21:03",
+   "date_et": "2026-09-03",
+   "account": "safe",
+   "action": "SKIP_STRUCTURE_VETO",
+   "execution_action_raw": "SKIP_STRUCTURE_VETO",
+   "side": "C",
+   "spy": 772.02,
+   "setup": null,
+   "trigger_bar_et": "2026-09-03T11:15:00-04:00",
+   "bar_source": "reconstructed_approx_from_core_decisions",
+   "n_bars_fed": 22,
+   "label_live": "range",
+   "label_walk": "uptrend",
+   "n_walk_events": 1,
+   "agree": false,
+   "structure_reason_logged": "downtrend",
+   "live_label_matches_logged": false,
+   "live_would_veto_recomputed": false,
+   "walk_would_veto": false,
+   "fwd_move_30m": 0.56,
+   "fwd_move_60m": 0.67,
+   "favorable_30m": true,
+   "favorable_60m": true
+  },
+  {
+   "ts_et": "2026-09-03T11:27:03",
+   "date_et": "2026-09-03",
+   "account": "safe",
+   "action": "SKIP_STRUCTURE_VETO",
+   "execution_action_raw": "SKIP_STRUCTURE_VETO",
+   "side": "C",
+   "spy": 772.11,
+   "setup": null,
+   "trigger_bar_et": "2026-09-03T11:20:00-04:00",
+   "bar_source": "reconstructed_approx_from_core_decisions",
+   "n_bars_fed": 23,
+   "label_live": "range",
+   "label_walk": "uptrend",
+   "n_walk_events": 1,
+   "agree": false,
+   "structure_reason_logged": "downtrend",
+   "live_label_matches_logged": false,
+   "live_would_veto_recomputed": false,
+   "walk_would_veto": false,
+   "fwd_move_30m": 0.825,
+   "fwd_move_60m": 0.66,
+   "favorable_30m": true,
+   "favorable_60m": true
+  }
+ ],
+ "winner_day_check": {
+  "2026-08-06": {
+   "n_entries": 5,
+   "n_would_be_vetoed_by_walk": 5,
+   "vetoed_ticks": [
+    "2026-08-06T10:31:03",
+    "2026-08-06T10:32:03",
+    "2026-08-06T10:33:03",
+    "2026-08-06T10:34:03",
+    "2026-08-06T10:35:03"
+   ]
+  },
+  "2026-08-13": {
+   "n_entries": 25,
+   "n_would_be_vetoed_by_walk": 5,
+   "vetoed_ticks": [
+    "2026-08-13T12:41:03",
+    "2026-08-13T12:42:04",
+    "2026-08-13T12:43:04",
+    "2026-08-13T12:44:03",
+    "2026-08-13T12:45:04"
+   ]
+  },
+  "2026-08-27": {
+   "n_entries": 15,
+   "n_would_be_vetoed_by_walk": 0,
+   "vetoed_ticks": []
+  },
+  "2026-08-28": {
+   "n_entries": 28,
+   "n_would_be_vetoed_by_walk": 0,
+   "vetoed_ticks": []
+  }
+ },
+ "any_winner_day_entry_would_be_vetoed_by_walk": true,
+ "forward_decision_clock": {
+  "freeze_date": "2026-09-03",
+  "forward_sessions_accrued": 1,
+  "forward_sessions_to_bar": 19,
+  "forward_disagreement_ticks": 26,
+  "forward_disagreement_ticks_to_bar": 4,
+  "bar_met": false,
+  "live_veto_correct_rate_30m": {
+   "n": 23,
+   "rate": 0.1304,
+   "ci_lower_2.5": 0.0,
+   "ci_upper_97.5": 0.2609
+  },
+  "walk_veto_correct_rate_30m": {
+   "n": 3,
+   "rate": 1.0,
+   "ci_lower_2.5": 1.0,
+   "ci_upper_97.5": 1.0
+  },
+  "decision_rule": "Ships (10-30 swap eligible) only if bar_met AND walk_veto_correct_rate_30m.ci_lower_2.5 > live_veto_correct_rate_30m.ci_lower_2.5 AND zero winning-day entries vetoed by walk (see winner_day_check) -- see analysis/recommendations/prereg-structure-classifier-swap-2026-09-03.md for the frozen, non-softenable full rule + falsifier."
+ },
+ "status": "ACCRUING",
+ "new_this_run": 0,
+ "selfcheck": {
+  "ok": true,
+  "expected": "downtrend",
+  "got": "downtrend",
+  "n_bars": 48,
+  "date_et": "2026-08-21",
+  "cutoff": "2026-08-21T13:25:00"
+ }
+}
