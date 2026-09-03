@@ -193,6 +193,8 @@ within tolerance) · 4 BEHAVIOURAL **PASS_UNVERIFIED** · 5 PROD-SHADOW **INSUFF
   WEEK-ORDER-CADENCE-REVIVAL) — 12 lines for J max, per the 08-10 template.
 
 ### Sat 09-05 — Rule-9 doctrine pass (Opus, one session, one commit)
+> **DRAFT READY (2026-09-03 02:30 ET):** exact old→new text for every box below, evidence and a pre-flight checklist, in
+> `analysis/deep-research/RULE9-DOC-PASS-2026-09-05-DRAFT.md`. Saturday's job is to apply it verbatim, not to re-derive it.
 - [ ] `CLAUDE.md:65` live threshold → *arming = go-live criterion 5 (designated prod-shadow profile on
   the frozen window, PF CI-lower(2.5%) > 1.0 on as-traded, ex-best-day, cost-adjusted, ≥40 scored days)
   + criteria 2–4 green; criterion 1 = lifetime-robustness disclosure; governing clock 2026-10-30.*
