@@ -1,0 +1,315 @@
+{
+  "arm_totals": {
+    "safe-3": {
+      "total_rows": 12601,
+      "enter_action_rows": 91,
+      "enter_rows_with_core_tick_id": 58,
+      "divergence_joins": 13,
+      "matched_no_divergence": 45,
+      "unjoinable_no_ctid_or_no_core_pair": 33
+    },
+    "risky-1": {
+      "total_rows": 12601,
+      "enter_action_rows": 149,
+      "enter_rows_with_core_tick_id": 115,
+      "divergence_joins": 17,
+      "matched_no_divergence": 98,
+      "unjoinable_no_ctid_or_no_core_pair": 34
+    },
+    "risky-3": {
+      "total_rows": 11146,
+      "enter_action_rows": 149,
+      "enter_rows_with_core_tick_id": 101,
+      "divergence_joins": 10,
+      "matched_no_divergence": 91,
+      "unjoinable_no_ctid_or_no_core_pair": 48
+    }
+  },
+  "retirement_check": {
+    "safe-3": {
+      "last_ts_et": "2026-09-03T14:33:06.005107-04:00",
+      "n_rows_on_or_after_2026-08-29": 1455
+    },
+    "risky-1": {
+      "last_ts_et": "2026-09-03T14:33:06.005107-04:00",
+      "n_rows_on_or_after_2026-08-29": 1455
+    },
+    "risky-3": {
+      "last_ts_et": "2026-08-28T15:54:06.143486-04:00",
+      "n_rows_on_or_after_2026-08-29": 0
+    }
+  },
+  "divergence_counts": {
+    "safe-3": {
+      "all_time": 13,
+      "winning_days": 2,
+      "sept_window": 4,
+      "fills_confirmed": 13
+    },
+    "risky-1": {
+      "all_time": 17,
+      "winning_days": 2,
+      "sept_window": 4,
+      "fills_confirmed": 16
+    },
+    "risky-3": {
+      "all_time": 10,
+      "winning_days": 2,
+      "sept_window": 0,
+      "fills_confirmed": 9
+    }
+  },
+  "winning_day_rows": {
+    "safe-3": [
+      {
+        "date": "2026-08-13",
+        "ts_et": "2026-08-13T11:42:05.844944-04:00",
+        "core_tick_id": "2026-08-13T11:41:02.990155",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 3,
+        "premium": 1.15,
+        "strike": 776,
+        "broker_id": "6d38fe1e-1d18-40d8-9388-f776ecd63e85",
+        "fill_found": true,
+        "fill_price": 1.13,
+        "fill_ts": "2026-08-13T11:42:07.338865"
+      },
+      {
+        "date": "2026-08-27",
+        "ts_et": "2026-08-27T11:52:06.010147-04:00",
+        "core_tick_id": "2026-08-27T11:51:02.356914",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 3,
+        "premium": 1.15,
+        "strike": 770,
+        "broker_id": "d0f74d4e-a97b-47db-bcfb-5e29c8b78f74",
+        "fill_found": true,
+        "fill_price": 1.13,
+        "fill_ts": "2026-08-27T11:52:07.215529"
+      }
+    ],
+    "risky-1": [
+      {
+        "date": "2026-08-13",
+        "ts_et": "2026-08-13T11:42:05.844944-04:00",
+        "core_tick_id": "2026-08-13T11:41:02.990155",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 1.12,
+        "strike": 776,
+        "broker_id": "1c348fbb-5b21-4d30-ac23-f1625cdd6c97",
+        "fill_found": true,
+        "fill_price": 1.14,
+        "fill_ts": "2026-08-13T11:42:37.756570"
+      },
+      {
+        "date": "2026-08-27",
+        "ts_et": "2026-08-27T11:52:06.010147-04:00",
+        "core_tick_id": "2026-08-27T11:51:02.356914",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 1.15,
+        "strike": 770,
+        "broker_id": "96eca5d1-faed-4251-a73a-766288310aa5",
+        "fill_found": true,
+        "fill_price": 1.16,
+        "fill_ts": "2026-08-27T11:52:08.716348"
+      }
+    ],
+    "risky-3": [
+      {
+        "date": "2026-08-13",
+        "ts_et": "2026-08-13T11:42:05.844944-04:00",
+        "core_tick_id": "2026-08-13T11:41:02.990155",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 10,
+        "premium": 0.34,
+        "strike": 778,
+        "broker_id": "ddc7fbda-2cfb-43bf-9599-703532c57c7e",
+        "fill_found": true,
+        "fill_price": 0.32,
+        "fill_ts": "2026-08-13T11:42:12.511957"
+      },
+      {
+        "date": "2026-08-27",
+        "ts_et": "2026-08-27T11:53:05.637351-04:00",
+        "core_tick_id": "2026-08-27T11:52:02.413124",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 10,
+        "premium": 0.35,
+        "strike": 772,
+        "broker_id": "1c12f9e3-628d-458d-a9f5-7a00e5fefeb2",
+        "fill_found": true,
+        "fill_price": 0.34,
+        "fill_ts": "2026-08-27T11:53:08.853431"
+      }
+    ]
+  },
+  "sept_window_rows": {
+    "safe-3": [
+      {
+        "date": "2026-09-02",
+        "ts_et": "2026-09-02T11:17:05.648899-04:00",
+        "core_tick_id": "2026-09-02T11:16:02.370383",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 3,
+        "premium": 0.9,
+        "strike": 766,
+        "broker_id": "218c98b4-4b49-40f7-9afa-21d10826a093",
+        "fill_found": true,
+        "fill_price": 0.93,
+        "fill_ts": "2026-09-02T11:17:07.073249"
+      },
+      {
+        "date": "2026-09-02",
+        "ts_et": "2026-09-02T11:57:05.695539-04:00",
+        "core_tick_id": "2026-09-02T11:56:02.455136",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 3,
+        "premium": 1.1,
+        "strike": 765,
+        "broker_id": "b633c94a-85ad-4963-ab71-e02dc374d445",
+        "fill_found": true,
+        "fill_price": 1.11,
+        "fill_ts": "2026-09-02T11:57:07.101869"
+      },
+      {
+        "date": "2026-09-03",
+        "ts_et": "2026-09-03T11:07:05.820991-04:00",
+        "core_tick_id": "2026-09-03T11:06:02.738610",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 1.15,
+        "strike": 770,
+        "broker_id": "8a8c237c-a1ba-4c59-824d-ba3b51f1d8db",
+        "fill_found": true,
+        "fill_price": 1.17,
+        "fill_ts": "2026-09-03T11:07:15.548666"
+      },
+      {
+        "date": "2026-09-03",
+        "ts_et": "2026-09-03T11:22:06.284749-04:00",
+        "core_tick_id": "2026-09-03T11:21:02.576928",
+        "side": "C",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 0.73,
+        "strike": 772,
+        "broker_id": "d6d0b3f8-ccf0-4df2-9d2a-a035c5664f5b",
+        "fill_found": true,
+        "fill_price": 0.74,
+        "fill_ts": "2026-09-03T11:22:07.262113"
+      }
+    ],
+    "risky-1": [
+      {
+        "date": "2026-09-02",
+        "ts_et": "2026-09-02T11:17:05.648899-04:00",
+        "core_tick_id": "2026-09-02T11:16:02.370383",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 0.91,
+        "strike": 766,
+        "broker_id": "ed761761-5f98-4708-934e-220081683a30",
+        "fill_found": true,
+        "fill_price": 0.93,
+        "fill_ts": "2026-09-02T11:17:08.427819"
+      },
+      {
+        "date": "2026-09-02",
+        "ts_et": "2026-09-02T11:57:05.695539-04:00",
+        "core_tick_id": "2026-09-02T11:56:02.455136",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 1.12,
+        "strike": 765,
+        "broker_id": "46f9ccdd-4334-4c64-9702-3404fded9911",
+        "fill_found": true,
+        "fill_price": 1.11,
+        "fill_ts": "2026-09-02T11:57:09.217909"
+      },
+      {
+        "date": "2026-09-03",
+        "ts_et": "2026-09-03T11:07:05.820991-04:00",
+        "core_tick_id": "2026-09-03T11:06:02.738610",
+        "side": "C",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 1.22,
+        "strike": 770,
+        "broker_id": "d7b32fb0-1c8f-4351-a23b-6f6dfb4332d5",
+        "fill_found": true,
+        "fill_price": 1.18,
+        "fill_ts": "2026-09-03T11:07:10.371476"
+      },
+      {
+        "date": "2026-09-03",
+        "ts_et": "2026-09-03T11:22:06.284749-04:00",
+        "core_tick_id": "2026-09-03T11:21:02.576928",
+        "side": "C",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL",
+        "arm_action": "ENTER_BULL",
+        "arm_placed": true,
+        "qty": 5,
+        "premium": 0.78,
+        "strike": 772,
+        "broker_id": "e34345da-7bbb-4635-b4c8-d3dd5ba68b18",
+        "fill_found": true,
+        "fill_price": 0.76,
+        "fill_ts": "2026-09-03T11:22:08.729414"
+      }
+    ],
+    "risky-3": []
+  }
+}

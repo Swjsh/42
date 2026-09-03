@@ -1,0 +1,205 @@
+{
+  "_doc": "G1 CODE TRUTH TABLE -- entry-side gates/filters per arm, source-code-verified 2026-09-03T14:2x ET, 3 ledger rows independently re-verified this session (not carried over from veto-scope-safe-3.md, though findings agree). Full prose: fleet-gates-code-binding-table.md.",
+  "stamp": "2026-09-03T14:30 ET",
+  "slug": "code-binding-table",
+  "engine_cli_scoring_filters": {
+    "_doc": "backtest/lib/filters.py evaluate_bearish_setup / evaluate_bullish_setup, called via engine_cli.decide_payload -> score_bar. Both sides scored every tick; engine_cli._derive_routing picks the winner (bear wins ties).",
+    "bear_BEARISH_REJECTION_RIDE_THE_RIBBON": {
+      "count": 11,
+      "source": "backtest/lib/filters.py:1-18 (module docstring) + evaluate_bearish_setup body ~1535-1930",
+      "filters": [
+        {"n": 1, "name": "time >= 09:35 ET (+ no_trade_before / no_trade_window)"},
+        {"n": 2, "name": "news clear (backtest stub; always pass)"},
+        {"n": 3, "name": "budget > risk (always true in backtest)"},
+        {"n": 4, "name": "day-trades >= 1 (always true in backtest)"},
+        {"n": 5, "name": "ribbon BEAR-stacked (Fast < Pivot < Slow)"},
+        {"n": 6, "name": "spread >= 30 cents"},
+        {"n": 7, "name": "NOT volume_divergence_failed"},
+        {"n": 8, "name": "VIX > 17.30 AND vix_rising (vix_soft_mode: -1 score demerit instead of hard block when flag set, default off)"},
+        {"n": 9, "name": "breakdown_bar_bearish on last closed bar (f9_vol_mult configurable)"},
+        {"n": 10, "name": ">= min_triggers of {level_reject / ribbon_flip / multi_day_confluence / sequence_rejection} + at least one level-tied trigger"},
+        {"n": 11, "name": "SWEEP_BLOCKER: block if a BULLISH_SWEEP (down-sweep, price wicked below rejection_level then closed back above) detected in prior sweep_block_window_bars bars; HARD block, not bypassable by allow_one_blocker; confluence carve-out skips it. sweep_blocker_enabled default False.", "hard_block": true}
+      ]
+    },
+    "bull_BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+      "count": 12,
+      "source": "backtest/lib/filters.py:1279-1296 (evaluate_bullish_setup docstring 'Filters (per heartbeat.md BULLISH (11))') + body ~1310-1420",
+      "filters": [
+        {"n": 1, "name": "time gates (>= 10:00 ET in doc / >=09:35 in code default, NOT in 14:00-15:00 window)"},
+        {"n": 2, "name": "news clear (backtest stub)"},
+        {"n": 3, "name": "budget > risk (always pass)"},
+        {"n": 4, "name": "day-trades >= 1 (always pass)"},
+        {"n": 5, "name": "ribbon BULL-stacked Fast>Pivot>Slow"},
+        {"n": 6, "name": "spread >= 30c"},
+        {"n": 7, "name": "NOT volume_divergence_failed (mirror of bearish)"},
+        {"n": 8, "name": "VIX < 17.20 OR vix_falling (vix_soft_mode_bull: -1 demerit instead of hard block, default False, NOT wired into heartbeat_core.py per that flag's own docstring)"},
+        {"n": 9, "name": "VIX < 22 HARD cap (VIX_BULL_HARD_CAP)"},
+        {"n": 10, "name": "buyer pressure: close>open AND vol >= 0.7x 20-bar avg (f10_vol_mult configurable, RATIFIED v11)"},
+        {"n": 11, "name": ">= min_triggers of {level_reclaim / ribbon_flip / multi_day_confluence / sequence_reclaim} AND htf_15m != BEAR (-1 score modifier if BEAR, not a hard block)"},
+        {"n": 12, "name": "SWEEP_BLOCKER: block if a BEARISH_SWEEP (up-sweep, price wicked above reclaim_level then closed back below) detected in prior sweep_block_window_bars bars; HARD block; confluence carve-out skips it. sweep_blocker_enabled default False.", "hard_block": true}
+      ]
+    }
+  },
+  "gate_keys_heartbeat_core": {
+    "source": "setup/scripts/heartbeat_core.py:184-197 (GATE_KEYS list)",
+    "keys": [
+      "block_level_rejection", "trendline_requires_ribbon_flip", "block_elite_bull",
+      "block_elite_bull_vix_low", "block_elite_bull_vix_high", "block_bull_ribbon_flip",
+      "block_bull_1100_1200", "block_bull_morning_agg", "require_bearish_fill_bar",
+      "min_ribbon_momentum_cents", "max_ribbon_duration_bars", "midday_trendline_gate",
+      "block_conf_lvl_rej_midday_afternoon", "block_conf_lvl_rec_afternoon",
+      "entry_bar_body_pct_min", "entry_bar_body_pct_min_bull", "vix_bear_hard_cap",
+      "structure_veto_enabled", "structure_shift_confirmation_enabled"
+    ],
+    "application": "run_account (heartbeat_core.py:1641+): params = json.loads(cfg['params'].read_text()) [line 1647] -- ACCOUNTS dict maps account->params file directly, no fleet gate_override merge. gate_params = {k: account_params[k] for k in GATE_KEYS if k in account_params} [line 985], passed to engine_cli.decide_payload as payload.gate_params -> gates.evaluate_gates. score_params (bear_kwargs/bull_kwargs incl. filter_9/10 min_triggers, vol_mult, time windows) built at heartbeat_core.py:991-996 from the SAME account_params dict.",
+    "core_account_params_files": {
+      "safe": {"params_file": "automation/state/params.json", "mcp_server": "alpaca", "fleet_arm": "safe-2", "pdt_gate_mode": "cash_settlement (since 2026-07-14)"},
+      "bold": {"params_file": "automation/state/aggressive/params.json", "mcp_server": "alpaca_aggressive", "fleet_arm": "bold-2", "pdt_gate_mode": "cash_settlement (since 2026-08-09)"}
+    },
+    "fact": "ACCOUNTS = {'safe': {...STATE/'params.json'}, 'bold': {...STATE/'aggressive'/'params.json'}} -- heartbeat_core.py:145-148. Confirmed: structure_veto_enabled and block_bull_1100_1200 are present in params.json (safe) and ABSENT from aggressive/params.json (bold) -- grep-confirmed zero matches in aggressive/params.json for block_bull_1100_1200; aggressive/params.json:52-53 sets structure_veto_enabled:false EXPLICITLY."
+  },
+  "build_shared_signal": {
+    "source": "automation/state/fleet/build_shared_signal.py",
+    "flags": {
+      "SCORING_PEAK_LIVE": {"line": 281, "value": true, "doc": "flipped 2026-06-25 J directive: all paper fleet arms live for the DATA; loose arms consume scoring-peak passes."},
+      "EMIT_STRATEGIES": {"line": 293, "value": true, "doc": "FIX2 multi-strategy emit, DEFAULT ON, reversible. Present at this value in the file's FIRST tracked commit (667217a1, 2026-06-26) -- see git_history below."},
+      "RUN_VWAP": {"line": 294, "value": true}
+    },
+    "latest_today_decision_default_account": {"line": 238, "quote": "def _latest_today_decision(today: str, account: str = \"safe\", ...)"},
+    "build_function_construction": {
+      "sig_safe": {"line": 809, "quote": "sig[\"safe\"] = {\"bull\": dict(bull), \"bear\": dict(bear)}", "source_row": "the SAFE core-decisions.jsonl row (account=='safe'), production-faithful: passed = (action == 'ENTER_BEAR'/'ENTER_BULL') literally."},
+      "sig_bold": {"line": 810, "quote": "sig[\"bold\"] = _bold_passed_blocks(today, now, core_tick_id=_core_tick_id)", "source_row": "the BOLD core-decisions.jsonl row (account=='bold'), via _bold_passed_blocks_from_row (lines 583-627): passed = _score_peak_check(side, action, score, trigger, fired) AND action not in _HARD_SKIP_VERDICTS ({'SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY'}). _score_peak_check passes when score >= peak threshold (bull 9/11, bear 8/10, BULL_PEAK_THRESHOLD/BEAR_PEAK_THRESHOLD lines 850-851) with a fired trigger -- NOT a literal action=='ENTER_BULL' string match, and NOT gated on any of safe's GATE_KEYS."},
+      "sig_strategies": {
+        "line": 823,
+        "quote": "sig[\"strategies\"] = _strategies_block(s_bear, s_bull, row.get(\"spy\"), now, do_vwap)",
+        "source_selection_lines": "819-822",
+        "source_selection_quote": "s_bear, s_bull = bear, bull\nif use_peak:\n    bold = sig.get(\"bold\") or {}\n    if (bold.get(\"bear\") or {}).get(\"passed\") or (bold.get(\"bull\") or {}).get(\"passed\"):\n        s_bear, s_bull = bold.get(\"bear\") or bear, bold.get(\"bull\") or bull",
+        "both_pass": "condition true regardless of WHICH side bold passed (only checks .get('passed') is True on either); s_bear AND s_bull are BOTH swapped to bold's dicts together (a non-empty dict is truthy so 'bold.get(x) or y' always takes bold's dict when present) -- there is no per-side split.",
+        "only_bold_passes_one_side": "same as above: BOTH s_bear and s_bull come from bold's blocks even if only bold's bull (say) passed; bold's own bear dict inside that swap still carries passed=False so the bear side stays not-fired, but the SOURCE ledger for both sides is now bold's, not safe's.",
+        "neither_bold_side_passes": "condition false -> s_bear/s_bull remain safe's production-faithful (bear, bull) dicts unchanged.",
+        "safe_passes_bold_does_not": "irrelevant to selection -- only bold's pass state gates the swap; if bold does not pass either side, strategies[] is built off safe regardless of what safe did (which in this scenario is a normal ENTER, so no divergence)."
+      },
+      "ribbon_strategy_entries": "_ribbon_strategy_entries (line 484): one entry per side where blk.get('passed') is True, name='ribbon_ride', quality ELITE if confluence/sequence trigger present else BASE."
+    }
+  },
+  "fleet_executor": {
+    "source": "automation/state/fleet/fleet_executor.py",
+    "plan_all_branch": {
+      "lines": "933-936",
+      "quote": "if signal.get(\"strategies\") is not None:\n    plans = _plan_from_strategies(arm, signal, equity, params, arm_id, tiers, spot)\nelse:\n    src = _perception_for_arm(signal, arm)\n    plans = []\n    for side, blk in ((\"P\", src.get(\"bear\") or {}), (\"C\", src.get(\"bull\") or {})):",
+      "which_branch_runs_live": "the 'if' branch, ALWAYS, on the live signal shape -- EMIT_STRATEGIES=True means build() always sets sig['strategies'] (an empty list [] on no-signal ticks, never absent/None -- see build_shared_signal.py:714/739/1327 'sig[\"strategies\"] = []'). The 'else' branch (which calls _perception_for_arm, the safe/bold role router) is DEAD on the live production path. Confirmed live 2026-09-03 13:18 ET: python read of automation/state/fleet/shared-signal.json shows key 'strategies' present (type list)."
+    },
+    "fix2_self_documented_comment": {
+      "lines": "494-497",
+      "quote": "1. strategies.fired() -- INERT. build_shared_signal always emits a top-level\n   \"strategies\" key (:684), so plan_all always takes the FIX2 branch and fired() is\n   never called in production.",
+      "context": "part of the '⛔ PARAMS DISARM ENFORCED AT THE ORDER CHOKE POINT (2026-08-12)' comment block preceding select_plan(), documenting a self-correction (commit e3a44956) after an earlier disarm mechanism (strategies.fired()) was shipped and found to be dead code for exactly this reason."
+    },
+    "plan_from_strategies": {
+      "lines": "721-774",
+      "mechanism": "iterates signal.get('strategies') or [] directly -- the SAME list for every arm, regardless of arm id/role. Applies ONLY: strategies.by_name(entry.name) lookup (skip unknown), _gate_block_for_entry (synthesizes a passed=True side-block from the entry), _gate_check(arm, blk, signal) (arm's OWN selectivity: min_triggers / require_confluence_or_sequence / min_setup_quality -- reads arm.get('gate_override'), no safe/bold role logic anywhere in this function), per-setup strike routing (STRATEGY_STRIKE_TIERS override for vwap_reclaim_failed_break only), sizing tiers, recency/full-send min-sizing clamps. NEVER reads signal['safe'], signal['bold'], signal['bear'], or signal['bull']; never calls _perception_for_arm."
+    },
+    "gate_check": {
+      "lines": "599-620",
+      "reads": ["arm.gate_override.min_triggers", "arm.gate_override.require_confluence_or_sequence (via _is_elite: confluence flag OR a sequence_* trigger)", "arm.gate_override.min_setup_quality"],
+      "role_aware": false
+    },
+    "finalize_order": {
+      "lines": "1224-1420+",
+      "sequence": [
+        "1. HOLD plans pass through untouched.",
+        "2. min_entry_premium floor (params['min_entry_premium'], per-arm base params file) -- SKIP_MIN_PREMIUM_FLOOR if premium below floor. Runs BEFORE risk_gate, not a risk_gate rule.",
+        "3. _fleet_params['pdt_gate_mode'] forced to 'margin_pdt' regardless of what the arm's base params file says (BLAST-RADIUS GUARD, prevents fleet arms from inheriting core's cash_settlement mode, which they don't compute inputs for).",
+        "4. cheap_contract_qty_boost (risky-3 only, params_patch-driven) -- raises qty if premium < threshold, never shrinks.",
+        "5. tight-ladder per-entry caps: max_contracts_per_entry / max_position_dollars (risk_gate.cap_entry_qty) -- MAX_POSITION_CONFLICT HOLD if a deadlock; else notes the cap in reason string (e.g. safe-3's '8->5' cap seen live 2026-09-03).",
+        "6. _shrink_qty_to_affordable (SHRINK-NOT-DENY, pct-of-equity RISK_CAP-aware shrink, independent of step 5's cap).",
+        "7. FLEET SETTLEMENT GATE (fleet_settlement_gate_enabled=true in BOTH params files as of 2026-08-18): risk_gate.check_settlement directly -- settled cash + max_same_day_roundtrips (=4 since 2026-08-29, was 5) -- independent of pdt_gate_mode; only runs if settled_cash_available is supplied (fleet_live.run() supplies it per-arm; run_dry()/tests do not).",
+        "8. risk_gate.check_order -- kill switch (Rule 5), per-trade risk cap (Rule 6), PDT/legacy margin check (Rule 7, margin_pdt mode per step 3 -- day_trades_used_5d read but FINRA repealed this constraint 2026-06-04 per params.json's own doc), NOT_FLAT/no-add (Rule 4), first_entry_after_stop_blocked.",
+        "9. Rescue lanes if still no ENTER: probe (risky-3 only, arm_id-gated), score ladder (gate_override.score_ladder_floor -- none of the 6 arms currently carry this key live, all disarmed per their score_ladder_doc fields), full_send (gate_override.full_send -- risky-1 only)."
+      ]
+    },
+    "perception_for_arm_dead_on_live_path": {
+      "lines": "108-122",
+      "quote": "role = \"safe\" if str(arm.get(\"id\", \"\")).startswith(\"safe\") else \"bold\"\nblock = signal.get(role)\nif isinstance(block, Mapping) and (\"bull\" in block or \"bear\" in block):\n    return block\nreturn signal",
+      "status": "code exists, is well-formed, and IS still called from the 'else' branch of plan_all (dead on live signal shape) and from a second, distinct call site (fleet_executor.py:1543, inside a different function -- not plan_all's main path; not traced further this session, flagged for a follow-up if load-bearing)."
+    }
+  },
+  "arms": {
+    "safe-2": {
+      "display_name": "CORE-SAFE (46VG)", "cell": "safe x base (CONTROL)", "status": "active",
+      "execution": "mcp_heartbeat", "account_number": "PA3POKNV46VG",
+      "config_source": "automation/state/params.json",
+      "entry_path": "heartbeat_core.run_account('safe') -> engine_cli.decide_payload(gate_params=GATE_KEYS subset of params.json, score_params from params.json) -> risk_gate.check_order (cash_settlement mode) directly inside heartbeat_core._execute. NEVER goes through fleet_executor.plan_all/finalize.",
+      "gate_override": {}, "params_patch": {},
+      "exit_ownership": "heartbeat_core._manage_exits, gated by GAMMA_CORE_MANAGES_EXITS env var (default '0' in code; runtime value not checked this session -- OUT OF SCOPE, no live process/env inspection performed, READ-ONLY constraint)."
+    },
+    "bold-2": {
+      "display_name": "CORE-BOLD (U67N)", "cell": "risky x base (CONTROL)", "status": "active",
+      "execution": "mcp_heartbeat", "account_number": "PA3WEBXJU67N",
+      "config_source": "automation/state/aggressive/params.json",
+      "entry_path": "identical mechanism to safe-2, reading aggressive/params.json. structure_veto_enabled=false EXPLICIT (aggressive/params.json:52-53); block_bull_1100_1200 ABSENT.",
+      "gate_override": {}, "params_patch": {},
+      "exit_ownership": "same GAMMA_CORE_MANAGES_EXITS gate as safe-2."
+    },
+    "safe-3": {
+      "display_name": "FLEET-TIGHT-S (T20H)", "cell": "safe x tight", "status": "active",
+      "execution": "fleet_rest", "account_number": "PA32T7Q1O20H",
+      "config_source": "params.json is safe-3's BASE params file for finalize()'s min_entry_premium/tight-ladder/pdt-forced-margin/settlement reads (per that arm's config_source field elsewhere in accounts.json / fleet_live wiring) -- entries themselves are NOT gated by GATE_KEYS at all (see plan_all_branch above).",
+      "entry_path": "fleet_executor.plan_all -> signal['strategies'] is not None -> _plan_from_strategies -> _gate_check(min_triggers=2, require_confluence_or_sequence=true) -> finalize(). NEVER reads signal['safe'] despite the arm id starting with 'safe'.",
+      "gate_override": {"min_triggers": 2, "require_confluence_or_sequence": true},
+      "params_patch": {"strike_tier_table": "bold_core", "exit_patch": {"stop_mode": "structure", "profit_lock_mode": "trailing"}},
+      "prod_shadow_criterion_5_arm": true,
+      "exit_ownership": "fleet_live.run() unconditionally: ea.register_entry at fill, ea.manage_tick every cycle. exit_patch forces stop_mode=structure + profit_lock_mode=trailing onto every strategy this arm trades (registry default for ribbon_ride, a real change for vwap_continuation).",
+      "ledger_proof_2026_09_03": "core_tick_id 2026-09-03T11:06:02.738610 and 2026-09-03T11:21:02.576928: account=safe core row SKIP_BULL_1100_1200 / SKIP_STRUCTURE_VETO; account=bold same tick ENTER_BULL (score_peak passed, hard_skip check clean); safe-3/decisions.jsonl same two core_tick_ids show action=ENTER_BULL, placed=true, broker fill ids 8a8c237c.../d6d0b3f8..., matching fills-ledger.jsonl rows at 11:07:15 ($1.17 x5) and 11:22:07 ($0.74 x5). Independently re-read this session (not copied from veto-scope-safe-3.md)."
+    },
+    "risky-1": {
+      "display_name": "FLEET-FULLSEND-R (V0A4)", "cell": "risky x FULL-SEND", "status": "active",
+      "execution": "fleet_rest", "account_number": "PA3S9N1IV0A4",
+      "gate_override": {"full_send": true, "min_triggers": 2, "require_confluence_or_sequence": true},
+      "params_patch": {"strike_tier_table": "bold_core", "exit_patch": {"tp1_premium_pct": 0.5, "stop_mode": "structure"}},
+      "entry_path": "same _plan_from_strategies mechanism as safe-3 (min_triggers=2/require_confluence_or_sequence, RESTORED 2026-08-12 per that arm's _gate_restore_2026_08_12 field after an accidental 2026-07-31 deletion), PLUS the full_send rescue lane (_full_send_plan, fires only when the normal lane produces no ENTER) consuming signal['full_send'] off build_shared_signal.FULL_SEND_ALLOWED_VERDICTS -- a 5-verdict allowlist, separate mechanism from strategies[].",
+      "exit_ownership": "fleet_live-managed, exit_profile REACHABLE-TP1 (tp1_premium_pct 0.5 vs registry 1.0)."
+    },
+    "risky-3": {
+      "display_name": "FLEET-LOOSE-R (5H6Z)", "cell": "risky x loose", "status": "retired",
+      "retired_at": "2026-08-28",
+      "execution": "fleet_rest", "account_number": "PA3V7JT25H6Z",
+      "gate_override": {"min_triggers": 1},
+      "params_patch": {"cheap_contract_qty_boost": {"premium_below": 0.5, "qty": 10}, "strike_tier_table": "bold_core_pre_ext", "exit_patch": {"stop_mode": "premium"}},
+      "gate_params": {"hard_skip_verdicts": []},
+      "note": "retired 2026-08-28 per J-approved decision (stop_mode=premium underperformed stop_mode=structure; min_triggers=1 correlated with lower WR/ROI); account being re-tasked to weekly-1 (non-SPY options). probe_arm.arm_id in accounts.json STILL names 'risky-3' (enabled:true) even though the arm itself is status='retired' -- fleet_live/fleet_executor gate dispatch on the ARM's own status='active' check (not the probe_arm block), so this is inert dead config, not a live bypass; NOT independently re-verified this session (FLAG for follow-up if probe-arm dispatch logic is ever audited).",
+      "ledger_proof_2026_09_03": "risky-3/decisions.jsonl last row is core_tick_id 2026-08-28T15:53:01.404946 / ts_et 2026-08-28T15:54:06 -- no rows on or after 2026-09-03 (or any date after 08-28), confirming the retirement is live-enforced, re-read fresh this session."
+    },
+    "safe-1": {
+      "display_name": "RETIRED (=CORE-SAFE acct 46VG)", "cell": "safe x loose", "status": "retired",
+      "retired_at": "2026-07-11",
+      "note": "account PA3POKNV46VG was reassigned to core safe-2 after safe-2's original account was deleted 2026-07-10. gate_override {min_triggers:1} preserved as historical config, inert -- status=retired means fleet_live/fleet_executor.run_dry skip dispatch entirely."
+    }
+  },
+  "git_history": {
+    "build_shared_signal_EMIT_STRATEGIES": {
+      "search": "git log -S\"EMIT_STRATEGIES\" --oneline -- automation/state/fleet/build_shared_signal.py",
+      "result": ["24bc365c 2026-07-20 feat(dojo): wire fleet arms into engine_step via build_from_rows", "667217a1 2026-06-26 feat(engine): EOD 2026-06-26 -- engine repairs + direction-block audit + structure-veto + trendline engine"],
+      "finding": "build_shared_signal.py did NOT EXIST before commit 667217a1 (git cat-file -e 667217a1^:...build_shared_signal.py fails) -- it was created WHOLESALE in that commit, already containing EMIT_STRATEGIES=True and the full 's_bear/s_bull swap to bold's perception' logic verbatim as it reads today. The commit MESSAGE (git log -1 --format=%B 667217a1) covers engine repairs, structure-veto, and trendline tooling -- it does NOT mention build_shared_signal.py, fleet arms, or multi-strategy emission at all, and separately states 'SAVE untracked new engine: heartbeat_core.py + sight_beacon.py (were never git-tracked)' for OTHER files in the same commit -- strong circumstantial evidence this repo bulk-committed already-developed, previously-untracked fleet infrastructure in one snapshot, so git history cannot date the TRUE authorship of the strategies[] design to this commit's stated date/scope."
+    },
+    "fleet_executor_FIX2_always_taken": {
+      "search": "git log --oneline -S\"strategies\" -- automation/state/fleet/fleet_executor.py",
+      "key_commit": "e3a44956 2026-08-12 fix(fleet): move the params disarm to select_plan -- my first two placements were wrong",
+      "commit_message_quote": "SELF-CORRECTION. The disarm I shipped earlier tonight in strategies.fired() was INERT ON THE LIVE PATH. plan_all branches on a top-level 'strategies' key; build_shared_signal ALWAYS emits one (:684) and the live shared-signal.json carries it, so production always takes the FIX2 branch and fired() is never called.",
+      "finding": "the fact that plan_all ALWAYS takes the strategies[] branch (making _perception_for_arm/safe-bold role routing dead code) was discovered as a SIDE EFFECT during an UNRELATED same-night fix attempt (disarming the vwap_continuation strategy after it kept filling on risky-1/risky-3 despite being killed in params.json) -- explicitly labeled 'SELF-CORRECTION' in the commit message, not a planned design review. fleet_executor.py also did not exist before 667217a1 (same creation commit as build_shared_signal.py), so the ORIGINAL decision to default EMIT_STRATEGIES=True (giving plan_all full multi-strategy visibility, per that flag's own doc comment) IS documented as a stated, deliberate intent at the point it was tracked -- but the DOWNSTREAM CONSEQUENCE that this makes GATE_KEYS' safe-only cohort flags a no-op for every fleet arm (not just vwap_continuation's disarm mechanism) was never stated as intent anywhere found this session; it was discovered piecemeal (2026-08-12, narrow: one strategy's disarm) and only fully characterized broad-scope in this session's and the prior session's (veto-scope-safe-3.md) investigations."
+    },
+    "verdict": "SIDE EFFECT, not stated intent, for the specific defect this task's queue item is about (safe-role cohort gates baked into GATE_KEYS being inert for fleet arms). The BROADER strategies[] multi-emission design was stated intent (2026-06-26 doc comment: 'so plan_all sees the FULL set, not just the single ribbon verdict'); its role-blindness consequence was not."
+  },
+  "facts_vs_inference": {
+    "facts": [
+      "engine_cli filter counts (11 bear incl. sweep, 12 bull incl. sweep) are read directly from filters.py docstrings + code, both currently DEFAULT-OFF for the sweep filter (sweep_blocker_enabled=False param default) and for structure_shift_confirmation/vix_soft_mode flags.",
+      "safe reads automation/state/params.json, bold reads automation/state/aggressive/params.json -- heartbeat_core.py ACCOUNTS dict, line-verified.",
+      "plan_all always takes the strategies[] branch on the live signal shape -- verified BOTH by code (EMIT_STRATEGIES=True unconditional default) AND by a fresh read of the live shared-signal.json this session (14:22 ET tick carries a 'strategies' key).",
+      "3 ledger rows independently re-read and quoted verbatim this session: (1) safe/bold same-tick divergence + safe-3 entry on the blocked tick, 2 occurrences 2026-09-03; (2) risky-3's decisions.jsonl has zero rows after 2026-08-28, confirming retirement; (3) shared-signal.json's live 'strategies' key presence."
+    ],
+    "inference": [
+      "the 667217a1 'bulk commit' interpretation (pre-existing untracked development swept into one commit) is inferred from circumstantial evidence (file non-existence before the commit + commit message scope mismatch + an explicit same-commit note about OTHER untracked files) -- not a claim this session can prove with certainty; no earlier ref/reflog/stash was searched for a prior working-tree state.",
+      "fleet_executor.py:1543's second call to _perception_for_arm was located but not traced this session -- whether IT is live-reachable on any code path is UNVERIFIED and flagged for follow-up.",
+      "GAMMA_CORE_MANAGES_EXITS / GAMMA_CORE_ARMED runtime values were NOT checked (no live process/env inspection performed, per this task's read-only/no-live-calls constraint) -- exit ownership for safe-2/bold-2 is described mechanism-only, not confirmed live."
+    ]
+  }
+}

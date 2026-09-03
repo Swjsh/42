@@ -1,0 +1,1031 @@
+{
+  "safe3_cohort_A": {
+    "full": {
+      "n": 13,
+      "total_pnl": 752.0,
+      "wr": 0.3077,
+      "pf": 2.077
+    },
+    "all_trades_sorted_desc": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 303.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00770000",
+        "pnl": 207.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00768000",
+        "pnl": -39.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "pnl": -48.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00769000",
+        "pnl": -66.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00776000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-07",
+        "symbol": "SPY260807C00772000",
+        "pnl": -176.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "removed_top3_winners": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 303.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "after_removing_top3_winners": {
+      "n": 10,
+      "total_pnl": -491.0,
+      "wr": 0.1,
+      "pf": 0.297
+    }
+  },
+  "population_cohort_A": {
+    "full": {
+      "n": 38,
+      "total_pnl": 33.0,
+      "wr": 0.2105,
+      "pf": 1.012
+    },
+    "all_trades_sorted_desc": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 353.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 343.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 314.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 303.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00770000",
+        "pnl": 299.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00770000",
+        "pnl": 207.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00768000",
+        "pnl": -29.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00768000",
+        "pnl": -39.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00772000",
+        "pnl": -40.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "pnl": -48.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00773000",
+        "pnl": -55.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BEAR"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00773000",
+        "pnl": -55.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BEAR"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00768000",
+        "pnl": -65.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00769000",
+        "pnl": -66.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "pnl": -80.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00778000",
+        "pnl": -80.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00776000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00772000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00768000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00768000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00768000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-07",
+        "symbol": "SPY260807C00772000",
+        "pnl": -95.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -100.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -100.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -100.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00769000",
+        "pnl": -110.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00769000",
+        "pnl": -110.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-11",
+        "symbol": "SPY260811P00771000",
+        "pnl": -145.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_DOJI_ENTRY_BAR",
+        "bold_verdict": "ENTER_BEAR"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "pnl": -145.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00776000",
+        "pnl": -155.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-07",
+        "symbol": "SPY260807C00772000",
+        "pnl": -176.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-07",
+        "symbol": "SPY260807C00774000",
+        "pnl": -204.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "removed_top3_winners": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 353.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "after_removing_top3_winners": {
+      "n": 35,
+      "total_pnl": -1260.0,
+      "wr": 0.1429,
+      "pf": 0.538
+    },
+    "removed_top3_abs": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 353.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "after_removing_top3_abs": {
+      "n": 35,
+      "total_pnl": -1260.0,
+      "wr": 0.1429,
+      "pf": 0.538
+    }
+  },
+  "population_cohort_B_top3_losers": {
+    "full": {
+      "n": 60,
+      "total_pnl": -1325.0,
+      "wr": 0.2167,
+      "pf": 0.777
+    },
+    "removed_top3_losers": [
+      {
+        "arm": "risky-3",
+        "date": "2026-08-05",
+        "symbol": "SPY260805P00772000",
+        "pnl": -664.0,
+        "cohort": "B_BOTH_PASSED",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "ENTER_BEAR"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-07",
+        "symbol": "SPY260807C00773000",
+        "pnl": -488.0,
+        "cohort": "B_BOTH_PASSED",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-14",
+        "symbol": "SPY260814C00778000",
+        "pnl": -468.0,
+        "cohort": "B_BOTH_PASSED",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "after_removing_top3_losers": {
+      "n": 57,
+      "total_pnl": 295.0,
+      "wr": 0.2281,
+      "pf": 1.068
+    }
+  },
+  "candidate_a_removed_set": {
+    "full": {
+      "n": 13,
+      "total_pnl": 752.0,
+      "wr": 0.3077,
+      "pf": 2.077
+    },
+    "removed_top3_winners": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 303.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "after_removing_top3_winners": {
+      "n": 10,
+      "total_pnl": -491.0,
+      "wr": 0.1,
+      "pf": 0.297
+    }
+  },
+  "candidate_b_removed_set": {
+    "full": {
+      "n": 29,
+      "total_pnl": 1323.0,
+      "wr": 0.2414,
+      "pf": 1.798
+    },
+    "all_trades_sorted_desc": [
+      {
+        "arm": "risky-3",
+        "date": "2026-08-06",
+        "symbol": "SPY260806P00770000",
+        "pnl": 830.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00777000",
+        "pnl": 405.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "SKIP_CONF_LVL_REC_AFTERNOON"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00770000",
+        "pnl": 303.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-06",
+        "symbol": "SPY260806P00770000",
+        "pnl": 296.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00770000",
+        "pnl": 207.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00770000",
+        "pnl": -20.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-10",
+        "symbol": "SPY260810C00773000",
+        "pnl": -25.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "SKIP_CONF_LVL_REC_AFTERNOON"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00768000",
+        "pnl": -39.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "pnl": -48.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812C00773000",
+        "pnl": -50.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "SKIP_CONF_LVL_REC_AFTERNOON"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00773000",
+        "pnl": -55.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00773000",
+        "pnl": -55.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00773000",
+        "pnl": -55.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "pnl": -63.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-04",
+        "symbol": "SPY260804C00769000",
+        "pnl": -66.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00772000",
+        "pnl": -80.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-12",
+        "symbol": "SPY260812P00772000",
+        "pnl": -80.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-10",
+        "symbol": "SPY260810C00775000",
+        "pnl": -80.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "SKIP_CONF_LVL_REC_AFTERNOON"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-11",
+        "symbol": "SPY260811P00772000",
+        "pnl": -85.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-3",
+        "date": "2026-08-21",
+        "symbol": "SPY260821P00763000",
+        "pnl": -85.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00776000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-08-11",
+        "symbol": "SPY260811P00770000",
+        "pnl": -145.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "risky-1",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "pnl": -145.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BULL",
+        "bold_verdict": "SKIP_CONF_LVL_REC_AFTERNOON"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-08-07",
+        "symbol": "SPY260807C00772000",
+        "pnl": -176.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "removed_top3_winners": [
+      {
+        "arm": "risky-3",
+        "date": "2026-08-06",
+        "symbol": "SPY260806P00770000",
+        "pnl": 830.0,
+        "cohort": "C_OTHER",
+        "safe_verdict": "ENTER_BEAR",
+        "bold_verdict": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "after_removing_top3_winners": {
+      "n": 26,
+      "total_pnl": -447.0,
+      "wr": 0.1538,
+      "pf": 0.73
+    },
+    "after_removing_top3_winners_AND_dropping_0806": {
+      "n": 25,
+      "total_pnl": -743.0,
+      "wr": 0.12,
+      "pf": 0.552
+    }
+  },
+  "safe3_september_cohort_A": {
+    "full": {
+      "n": 4,
+      "total_pnl": 802.0,
+      "wr": 0.5,
+      "pf": 6.812
+    },
+    "all_trades": [
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00770000",
+        "pnl": 507.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-03",
+        "symbol": "SPY260903C00772000",
+        "pnl": 433.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_STRUCTURE_VETO",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "pnl": -48.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      },
+      {
+        "arm": "safe-3",
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "pnl": -90.0,
+        "cohort": "A_BYPASS",
+        "safe_verdict": "SKIP_BULL_1100_1200",
+        "bold_verdict": "ENTER_BULL"
+      }
+    ],
+    "note": "n=4 total -- 'top-3' removes 3 of 4 trades, near-total; reported for completeness but not a meaningful stress test at this n."
+  }
+}

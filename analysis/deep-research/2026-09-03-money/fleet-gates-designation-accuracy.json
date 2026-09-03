@@ -1,0 +1,132 @@
+{
+  "_meta": true,
+  "queue_item": "G4-DESIGNATION-ACCURACY",
+  "generated_et": "2026-09-03T14:30:45-04:00",
+  "market_hours_at_generation": true,
+  "read_only": true,
+  "no_writes_to_automation_state": true,
+  "builds_on": [
+    "analysis/deep-research/2026-09-03-money/veto-scope-safe-3.md",
+    "analysis/deep-research/2026-09-03-money/fleet-gates-ledger-binding-check.md"
+  ],
+  "q1_gate_override_accuracy": {
+    "gate_override_from_accounts_json": {"min_triggers": 2, "require_confluence_or_sequence": true},
+    "gate_override_is_real_and_applied": true,
+    "evidence": "automation/state/fleet/fleet_executor.py _gate_check (lines ~599-620), called from _plan_from_strategies (line 743) on every tick regardless of branch",
+    "safe3_ledger_refusal_counts": {
+      "gate: requires confluence/sequence": 284,
+      "gate: 1 triggers < 2": 218,
+      "total": 502
+    },
+    "sample_refusal_rows": [
+      {"core_tick_id": "2026-09-03T10:24:02.595671", "action": "HOLD", "side": "C", "setup_name": "VWAP_CONTINUATION", "reason": "gate: requires confluence/sequence"},
+      {"core_tick_id": "2026-09-03T10:30:03.934929", "action": "HOLD", "side": "C", "setup_name": "VWAP_CONTINUATION", "reason": "gate: requires confluence/sequence"},
+      {"core_tick_id": "2026-09-03T13:55:02.903251", "action": "HOLD", "side": "P", "setup_name": "BEARISH_REJECTION_RIDE_THE_RIBBON", "reason": "gate: 1 triggers < 2"}
+    ],
+    "implied_but_false_claim": "safe's cohort GATE_KEYS (structure_veto_enabled, block_bull_1100_1200, etc.) independently bind safe-3",
+    "why_implied": "arm name 'safe-3', display_name 'FLEET-TIGHT-S', cell 'safe x tight', profile_summary opens 'safe sizing, tight gate'; CLAUDE.md doctrine states arms differ only by sizing/gates/stop",
+    "why_false": "fleet_executor.plan_all takes the _plan_from_strategies branch whenever signal['strategies'] is not None (true every live tick since build_shared_signal.py EMIT_STRATEGIES=True); that branch reads the single shared strategies[] list, never signal['safe']/signal['bold'] directly",
+    "mechanism_predates_entire_safe3_track_record": {
+      "commit": "667217a129fa2e7cba415a506ac96349aa888979",
+      "commit_date": "2026-06-26",
+      "safe3_first_fill_date": "2026-06-29",
+      "days_before_safe3_existed": 3,
+      "verification": "git log -S'EMIT_STRATEGIES = True' and git log -S'signal.get(\"strategies\") is not None' both land on this same single commit"
+    }
+  },
+  "q2_instrument_gate_identity_assumptions": {
+    "go_live_gate.py_prod_shadow_criterion": {
+      "reads": "trades-enriched.jsonl rows filtered by arm==designation.arm and attribution=='engine'",
+      "assumes_gate_identity": false,
+      "profile_summary_usage": "carried through verbatim into report output (line 826), display-only, never parsed or validated against fleet_executor.py/accounts.json"
+    },
+    "prod_shadow.py": {
+      "touches_safe3": false,
+      "base_arm": "safe-2",
+      "self_disclosed_warning": "not_criterion_5: True, see_instead: automation/state/prod-shadow-designation.json + go_live_gate.prod_shadow_criterion",
+      "grep_safe3_matches": 0
+    },
+    "first_live_day_review.py": {
+      "assumes_gate_identity": false,
+      "grep_gate_cohort_min_triggers_structure_veto_matches": 0
+    },
+    "live_readiness.py": {
+      "assumes_gate_identity": false,
+      "grep_gate_cohort_min_triggers_structure_veto_matches": 0,
+      "self_description": "reporting instrument only -- arms nothing, changes no gate, edits no state"
+    },
+    "walker_full_population_anchor.py": {
+      "assumes_gate_identity": false,
+      "purpose": "exit-side magnitude-fidelity (backtest-vs-live P&L reconciliation), filters rows by arm tag only, unrelated to entry gates",
+      "arms_covered": ["safe-2", "bold-2", "safe-3", "risky-1"]
+    },
+    "conclusion": "no instrument asserts or depends on safe-3's gate identity; all pass/fail math is ledger-derived and already reflects live reality including the leak"
+  },
+  "q3_honest_description": {
+    "summary": "safe-3 trades the fleet's shared strategies[] signal (defaults to safe's block, silently substitutes bold's whenever only bold passes), filtered through one real arm-level selectivity gate (gate_override), safe-tier sizing, bold_core (ATM) strike table, structure-stop/trailing exit patch. Does NOT independently run safe's cohort entry-gate set. True for its entire history.",
+    "suggested_profile_summary_replacement": "FLEET-TIGHT-S (T20H): safe sizing, arm-level selectivity gate only (min_triggers=2, require_confluence_or_sequence:true) -- does NOT independently run safe's cohort entry-gate set (structure_veto_enabled, block_bull_1100_1200, etc.); safe-3 trades the fleet's shared strategies[] signal, which defaults to safe's block but substitutes bold's whenever only bold passes (~8% of entries since 2026-08-06), exit_patch{stop_mode:structure, profit_lock_mode:trailing}, strike_tier_table=bold_core (ATM under $2K). Full-sample (as of 2026-09-01): n_days=26, +$841 total, WR 30.5% -- earned entirely under this shared-signal mechanism, not a clean safe-cohort-gated sample."
+  },
+  "q4_window_arithmetic": {
+    "verified_via_go_live_gate_prod_shadow_criterion_readonly": {
+      "days_scored": 1,
+      "days_needed": 20,
+      "status": "INSUFFICIENT_DAYS",
+      "scored_date": "2026-09-02",
+      "window_day1_2026_09_01_had_zero_safe3_fills": true,
+      "today_2026_09_03_has_fills_not_yet_in_trades_enriched": {
+        "fills_count": 8,
+        "round_trips": 4,
+        "verified_via": "automation/state/fills-ledger.jsonl",
+        "status": "UNVERIFIED as a scored day until EOD trades_enriched.py processing"
+      }
+    },
+    "calendar_trading_days": {
+      "full_window_2026_09_01_to_2026_10_30_ex_labor_day": 43,
+      "elapsed_09_01_to_09_03": 3,
+      "remaining_after_today_09_04_to_10_30": 40,
+      "pre_hypothetical_fix_09_01_to_09_28": 19,
+      "post_hypothetical_fix_09_29_to_10_30": 24,
+      "hypothetical_fix_date_rationale": "2026-09-29 is earliest CLAUDE.md permits a kill-type reduction to ship with a prereg -- no fix is actually planned"
+    },
+    "naive_participation_math": {
+      "historical_baseline_rate": 0.59,
+      "baseline_source": "26/44 trading days filled, 2026-06-29..2026-08-28, per prod-shadow-designation.json's own window-sizing rationale",
+      "baseline_caveat": "this baseline was earned entirely under the same leak mechanism (predates it by 0 days -- see q1), so it is not a clean pre-leak number",
+      "pre_fix_days_expected_scored": 11.2,
+      "post_fix_required_rate_for_20_total": 0.375,
+      "current_worst_arm_floor_bold2": 0.47,
+      "naive_conclusion": "survives with room to spare IF post-fix rate stays anywhere near historical"
+    },
+    "day_level_leak_dependency_check_NEW_THIS_SESSION": {
+      "method": "joined core-decisions.jsonl (account=safe SKIP_* matched to account=bold verdict ENTER_* on same core_tick_id, since 2026-08-06) against safe-3's own fleet decisions.jsonl per date; classified each date's ENTER-type decisions as via-leak-tick vs non-leak",
+      "total_leak_ticks": 133,
+      "distinct_leak_dates": 12,
+      "reproduces_sibling_session_figures": "fleet-gates-ledger-binding-check.md: safe-3 8.3% aggregate, 133 ticks, 12 dates -- independently reproduced exactly",
+      "per_date_breakdown": [
+        {"date": "2026-08-07", "total_entries": 3, "via_leak": 1, "non_leak": 2},
+        {"date": "2026-08-11", "total_entries": 0, "via_leak": 0, "non_leak": 0},
+        {"date": "2026-08-12", "total_entries": 4, "via_leak": 0, "non_leak": 4},
+        {"date": "2026-08-13", "total_entries": 3, "via_leak": 1, "non_leak": 2},
+        {"date": "2026-08-17", "total_entries": 0, "via_leak": 0, "non_leak": 0},
+        {"date": "2026-08-18", "total_entries": 0, "via_leak": 0, "non_leak": 0},
+        {"date": "2026-08-19", "total_entries": 3, "via_leak": 1, "non_leak": 2},
+        {"date": "2026-08-20", "total_entries": 0, "via_leak": 0, "non_leak": 0},
+        {"date": "2026-08-21", "total_entries": 4, "via_leak": 3, "non_leak": 1},
+        {"date": "2026-08-27", "total_entries": 2, "via_leak": 1, "non_leak": 1},
+        {"date": "2026-09-02", "total_entries": 4, "via_leak": 2, "non_leak": 2},
+        {"date": "2026-09-03", "total_entries": 4, "via_leak": 2, "non_leak": 2}
+      ],
+      "dates_where_leak_was_sole_source_of_days_entry": [],
+      "dates_where_leak_was_sole_source_count": 0,
+      "of_dates_checked": 12,
+      "caveats": [
+        "measures ENTER-type decisions (action in ENTER_BULL/ENTER_BEAR/PLACED), a proxy for 'scored day', not the exact trades-enriched.jsonl FIFO-fill criterion prod_shadow_criterion() uses",
+        "sample bounded to 34 trading days since 2026-08-06, not safe-3's full 06-29-start history",
+        "does not test the actual future post-fix regime, which could behave differently",
+        "uses the inclusive SKIP_* superset (all safe-account SKIP_ actions), broader than just params.json GATE_KEYS -- conservative (harder to clear), not lenient"
+      ]
+    },
+    "answer": "on present evidence, the 20-scored-day bar very likely survives a 2026-09-29 gate-inheritance fix -- window has structural slack (43 total vs 20 needed) and zero of 12 historical leak dates depended on the leak alone to score. Not proven for the untested future regime; P&L impact (separate from day-count) is not resolved here."
+  },
+  "revoke": "delete this file and its .md sibling -- no other side effects, no trading-path files touched"
+}

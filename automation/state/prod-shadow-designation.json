@@ -1,6 +1,6 @@
 {
   "arm": "safe-3",
-  "profile_summary": "FLEET-TIGHT-S (T20H): safe sizing, tight gate (min_triggers=2, require_confluence_or_sequence:true), exit_patch{stop_mode:structure, profit_lock_mode:trailing}, strike_tier_table=bold_core (ATM under $2K). Full-sample (as of 2026-09-01): n_days=26, +$841 total, WR 30.5%.",
+  "profile_summary": "FLEET-TIGHT-S (T20H): safe sizing, arm-level selectivity gate only (min_triggers=2, require_confluence_or_sequence:true) -- does NOT independently run safe's cohort entry-gate set (structure_veto_enabled, block_bull_1100_1200, etc.); safe-3 trades the fleet's shared strategies[] signal, which defaults to safe's block but substitutes bold's whenever only bold passes (~8% of safe-gated ticks since 2026-08-06), exit_patch{stop_mode:structure, profit_lock_mode:trailing}, strike_tier_table=bold_core (ATM under $2K). Full-sample (as of 2026-09-01): n_days=26, +$841 total, WR 30.5% -- earned under this shared-signal mechanism, not a clean safe-cohort-gated sample.",
   "window_start": "2026-09-01",
   "window_end": "2026-10-30",
   "min_days": 20,
@@ -21,5 +21,11 @@
     "alignment": "2026-10-30 is already the governing clock for the whole decision (work order S0), so this aligns criterion 5's window with the decision date rather than inventing a new deadline.",
     "revoke": "restore automation/state/prod-shadow-designation.json.pre-2026-09-02 over this file -- one copy, no other side effects."
   },
-  "_min_days_doc": "20 scored days. NOT lowered on 2026-09-02 -- see _superseded_2026_09_02. Any future change to THIS number is a change to the evidence bar itself and needs its own written justification; changing the window is a calendar question, changing min_days is a statistics question, and they must never be traded off against each other silently."
+  "_min_days_doc": "20 scored days. NOT lowered on 2026-09-02 -- see _superseded_2026_09_02. Any future change to THIS number is a change to the evidence bar itself and needs its own written justification; changing the window is a calendar question, changing min_days is a statistics question, and they must never be traded off against each other silently.",
+  "_doc_fix_2026_09_03": {
+    "what_changed": "profile_summary text only; window_end, min_days, arm untouched",
+    "why": "fleet-gate binding audit (analysis/deep-research/2026-09-03-money/fleet-gates-*.md): safe's cohort GATE_KEYS never bound fleet arms (fleet_executor.plan_all strategies branch; _perception_for_arm dead in production); the old text implied a safe-gated sample. No go-live instrument assumed otherwise (all pure ledger scorers), so criterion-5 scoring is unchanged.",
+    "previous_profile_summary": "FLEET-TIGHT-S (T20H): safe sizing, tight gate (min_triggers=2, require_confluence_or_sequence:true), exit_patch{stop_mode:structure, profit_lock_mode:trailing}, strike_tier_table=bold_core (ATM under $2K). Full-sample (as of 2026-09-01): n_days=26, +$841 total, WR 30.5%.",
+    "revoke": "restore previous_profile_summary into profile_summary and delete this key"
+  }
 }

@@ -1,0 +1,82 @@
+{
+  "window_start": "2026-08-06",
+  "paired_ticks": 8013,
+  "leak_eligible_ticks": 133,
+  "leak_eligible_dates": [
+    "2026-08-07",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20",
+    "2026-08-21",
+    "2026-08-27",
+    "2026-09-02",
+    "2026-09-03"
+  ],
+  "gate_breakdown": {
+    "SKIP_BULL_1100_1200": 53,
+    "SKIP_STRUCTURE_VETO": 54,
+    "SKIP_DOJI_ENTRY_BAR": 9,
+    "SKIP_LATE_ENTRY": 16,
+    "SKIP_STALE_SIGHT": 1
+  },
+  "per_date": {
+    "2026-08-07": {
+      "total": 3,
+      "via_leak": 1,
+      "non_leak": 2,
+      "tick_ids": []
+    },
+    "2026-08-12": {
+      "total": 4,
+      "via_leak": 0,
+      "non_leak": 4,
+      "tick_ids": []
+    },
+    "2026-08-13": {
+      "total": 3,
+      "via_leak": 1,
+      "non_leak": 2,
+      "tick_ids": []
+    },
+    "2026-08-19": {
+      "total": 3,
+      "via_leak": 1,
+      "non_leak": 2,
+      "tick_ids": []
+    },
+    "2026-08-21": {
+      "total": 4,
+      "via_leak": 3,
+      "non_leak": 1,
+      "tick_ids": []
+    },
+    "2026-08-27": {
+      "total": 2,
+      "via_leak": 1,
+      "non_leak": 1,
+      "tick_ids": []
+    },
+    "2026-09-02": {
+      "total": 4,
+      "via_leak": 2,
+      "non_leak": 2,
+      "tick_ids": []
+    },
+    "2026-09-03": {
+      "total": 4,
+      "via_leak": 2,
+      "non_leak": 2,
+      "tick_ids": []
+    }
+  },
+  "only_leak_dates": [],
+  "safe3_entered_on_leak_tick": 11,
+  "named_winning_days_overlap": [
+    "2026-08-13",
+    "2026-08-27"
+  ]
+}

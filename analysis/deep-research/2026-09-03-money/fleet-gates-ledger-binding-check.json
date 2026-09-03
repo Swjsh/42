@@ -1,0 +1,1177 @@
+{
+  "windows": {
+    "since_2026-08-06": {
+      "min_date": "2026-08-06",
+      "n_total_core_ticks_with_id": 8002,
+      "n_ticks_both_accounts_present": 8002,
+      "table_a_safe_gated_bold_enter": {
+        "SKIP_STRUCTURE_VETO": {
+          "n_ticks": 54,
+          "sample_core_tick_ids": [
+            "2026-08-07T12:36:02.451616",
+            "2026-08-07T12:37:02.567910",
+            "2026-08-07T12:38:02.455073",
+            "2026-08-07T12:39:02.421646",
+            "2026-08-07T12:40:02.501586"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 54,
+              "n_logged_in_arm_ledger": 52,
+              "n_absent_from_arm_ledger": 2,
+              "n_fleet_entries": 3,
+              "share_of_ticks": 0.05555555555555555,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-07T12:36:02.451616",
+                "2026-08-21T13:34:02.490082",
+                "2026-09-03T11:21:02.576928"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 54,
+              "n_logged_in_arm_ledger": 52,
+              "n_absent_from_arm_ledger": 2,
+              "n_fleet_entries": 5,
+              "share_of_ticks": 0.09259259259259259,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-07T12:36:02.451616",
+                "2026-08-12T13:23:02.131075",
+                "2026-08-12T13:31:02.968949",
+                "2026-08-21T13:34:02.490082",
+                "2026-09-03T11:21:02.576928"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 54,
+              "n_logged_in_arm_ledger": 33,
+              "n_absent_from_arm_ledger": 21,
+              "n_fleet_entries": 1,
+              "share_of_ticks": 0.018518518518518517,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-07T12:39:02.421646"
+              ]
+            }
+          }
+        },
+        "SKIP_DOJI_ENTRY_BAR": {
+          "n_ticks": 9,
+          "sample_core_tick_ids": [
+            "2026-08-11T13:31:03.018725",
+            "2026-08-11T13:32:03.063421",
+            "2026-08-11T13:33:02.962901",
+            "2026-08-11T13:34:02.169629",
+            "2026-08-12T13:56:02.980562"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 9,
+              "n_logged_in_arm_ledger": 9,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 9,
+              "n_logged_in_arm_ledger": 9,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 2,
+              "share_of_ticks": 0.2222222222222222,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": [
+                "2026-08-11T13:31:03.018725",
+                "2026-08-12T13:56:02.980562"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 9,
+              "n_logged_in_arm_ledger": 9,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        },
+        "SKIP_BULL_1100_1200": {
+          "n_ticks": 53,
+          "sample_core_tick_ids": [
+            "2026-08-13T11:41:02.990155",
+            "2026-08-13T11:42:03.159018",
+            "2026-08-13T11:43:04.872422",
+            "2026-08-19T11:49:02.561586",
+            "2026-08-19T11:50:02.925017"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 53,
+              "n_logged_in_arm_ledger": 53,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 8,
+              "share_of_ticks": 0.1509433962264151,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-13T11:41:02.990155",
+                "2026-08-19T11:49:02.561586",
+                "2026-08-21T11:06:02.592949",
+                "2026-08-21T11:36:02.613080",
+                "2026-08-27T11:51:02.356914"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 53,
+              "n_logged_in_arm_ledger": 53,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 8,
+              "share_of_ticks": 0.1509433962264151,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-13T11:41:02.990155",
+                "2026-08-19T11:49:02.561586",
+                "2026-08-21T11:06:02.592949",
+                "2026-08-21T11:36:02.613080",
+                "2026-08-27T11:51:02.356914"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 53,
+              "n_logged_in_arm_ledger": 33,
+              "n_absent_from_arm_ledger": 20,
+              "n_fleet_entries": 7,
+              "share_of_ticks": 0.1320754716981132,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-13T11:41:02.990155",
+                "2026-08-19T11:50:02.925017",
+                "2026-08-21T11:06:02.592949",
+                "2026-08-21T11:36:02.613080",
+                "2026-08-21T11:38:02.557204"
+              ]
+            }
+          }
+        },
+        "SKIP_LATE_ENTRY": {
+          "n_ticks": 16,
+          "sample_core_tick_ids": [
+            "2026-08-17T15:02:02.438566",
+            "2026-08-17T15:03:02.476908",
+            "2026-08-17T15:04:02.437251",
+            "2026-08-17T15:05:02.493019",
+            "2026-08-17T15:08:02.432391"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 16,
+              "n_logged_in_arm_ledger": 16,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 16,
+              "n_logged_in_arm_ledger": 16,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-3": {
+              "n_ticks": 16,
+              "n_logged_in_arm_ledger": 16,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        },
+        "SKIP_STALE_SIGHT": {
+          "n_ticks": 1,
+          "sample_core_tick_ids": [
+            "2026-08-27T09:50:02.730021"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 1,
+              "n_logged_in_arm_ledger": 1,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 1,
+              "n_logged_in_arm_ledger": 1,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-3": {
+              "n_ticks": 1,
+              "n_logged_in_arm_ledger": 1,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        }
+      },
+      "table_b_bold_gated_safe_enter": {
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+          "n_ticks": 87,
+          "sample_core_tick_ids": [
+            "2026-08-06T10:31:02.400016",
+            "2026-08-06T10:35:02.480691",
+            "2026-08-11T11:51:02.965227",
+            "2026-08-11T11:52:03.200957",
+            "2026-08-11T11:59:02.988199"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 87,
+              "n_logged_in_arm_ledger": 80,
+              "n_absent_from_arm_ledger": 7,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 87,
+              "n_logged_in_arm_ledger": 80,
+              "n_absent_from_arm_ledger": 7,
+              "n_fleet_entries": 9,
+              "share_of_ticks": 0.10344827586206896,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-06T10:31:02.400016",
+                "2026-08-11T11:51:02.965227",
+                "2026-08-11T14:34:02.937810",
+                "2026-08-12T11:26:03.024016",
+                "2026-08-12T11:28:03.004621"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 87,
+              "n_logged_in_arm_ledger": 70,
+              "n_absent_from_arm_ledger": 17,
+              "n_fleet_entries": 4,
+              "share_of_ticks": 0.04597701149425287,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-06T10:31:02.400016",
+                "2026-08-12T11:26:03.024016",
+                "2026-08-12T11:28:03.004621",
+                "2026-08-21T09:51:02.726957"
+              ]
+            }
+          }
+        },
+        "SKIP_STALE_TRIGGER": {
+          "n_ticks": 5,
+          "sample_core_tick_ids": [
+            "2026-08-10T09:31:02.870302",
+            "2026-08-10T09:32:02.308690",
+            "2026-08-10T09:33:02.059368",
+            "2026-08-10T09:34:02.151940",
+            "2026-08-10T09:35:03.319600"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 5,
+              "n_logged_in_arm_ledger": 5,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 4,
+              "share_of_ticks": 0.8,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": [
+                "2026-08-10T09:31:02.870302",
+                "2026-08-10T09:32:02.308690",
+                "2026-08-10T09:33:02.059368",
+                "2026-08-10T09:34:02.151940"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 5,
+              "n_logged_in_arm_ledger": 5,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 4,
+              "share_of_ticks": 0.8,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": [
+                "2026-08-10T09:31:02.870302",
+                "2026-08-10T09:32:02.308690",
+                "2026-08-10T09:33:02.059368",
+                "2026-08-10T09:34:02.151940"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 5,
+              "n_logged_in_arm_ledger": 5,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 4,
+              "share_of_ticks": 0.8,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": [
+                "2026-08-10T09:31:02.870302",
+                "2026-08-10T09:32:02.308690",
+                "2026-08-10T09:33:02.059368",
+                "2026-08-10T09:34:02.151940"
+              ]
+            }
+          }
+        },
+        "SKIP_CONF_LVL_REC_AFTERNOON": {
+          "n_ticks": 45,
+          "sample_core_tick_ids": [
+            "2026-08-12T14:16:02.973209",
+            "2026-08-12T14:17:03.124279",
+            "2026-08-12T14:26:02.349884",
+            "2026-08-12T14:27:03.045010",
+            "2026-08-12T14:28:03.012146"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 45,
+              "n_logged_in_arm_ledger": 43,
+              "n_absent_from_arm_ledger": 2,
+              "n_fleet_entries": 7,
+              "share_of_ticks": 0.15555555555555556,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-12T14:16:02.973209",
+                "2026-08-13T14:36:03.023512",
+                "2026-08-26T14:56:02.621899",
+                "2026-08-26T15:51:02.640393",
+                "2026-08-26T15:52:02.665761"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 45,
+              "n_logged_in_arm_ledger": 43,
+              "n_absent_from_arm_ledger": 2,
+              "n_fleet_entries": 24,
+              "share_of_ticks": 0.5333333333333333,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-12T14:16:02.973209",
+                "2026-08-13T14:36:03.023512",
+                "2026-08-13T15:11:02.929340",
+                "2026-08-13T15:12:03.057432",
+                "2026-08-13T15:13:02.914739"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 45,
+              "n_logged_in_arm_ledger": 38,
+              "n_absent_from_arm_ledger": 7,
+              "n_fleet_entries": 18,
+              "share_of_ticks": 0.4,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-26T14:56:02.621899",
+                "2026-08-26T14:57:02.668591",
+                "2026-08-26T14:58:02.616035",
+                "2026-08-26T14:59:02.577271",
+                "2026-08-26T15:00:03.180699"
+              ]
+            }
+          }
+        },
+        "SKIP_LATE_ENTRY": {
+          "n_ticks": 16,
+          "sample_core_tick_ids": [
+            "2026-08-17T15:02:02.438566",
+            "2026-08-17T15:03:02.476908",
+            "2026-08-17T15:04:02.437251",
+            "2026-08-17T15:05:02.493019",
+            "2026-08-17T15:08:02.432391"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 16,
+              "n_logged_in_arm_ledger": 16,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 16,
+              "n_logged_in_arm_ledger": 16,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-3": {
+              "n_ticks": 16,
+              "n_logged_in_arm_ledger": 16,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        },
+        "SKIP_MIN_PREMIUM_FLOOR": {
+          "n_ticks": 32,
+          "sample_core_tick_ids": [
+            "2026-08-20T12:57:02.642649",
+            "2026-08-20T12:58:02.645092",
+            "2026-08-20T13:11:02.609933",
+            "2026-08-20T13:15:03.111623",
+            "2026-08-20T14:01:02.664173"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 32,
+              "n_logged_in_arm_ledger": 31,
+              "n_absent_from_arm_ledger": 1,
+              "n_fleet_entries": 4,
+              "share_of_ticks": 0.125,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-21T12:26:02.604924",
+                "2026-08-25T13:16:02.418909",
+                "2026-09-02T13:06:02.931612",
+                "2026-09-03T09:41:02.550396"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 32,
+              "n_logged_in_arm_ledger": 31,
+              "n_absent_from_arm_ledger": 1,
+              "n_fleet_entries": 4,
+              "share_of_ticks": 0.125,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-21T12:26:02.604924",
+                "2026-08-25T13:16:02.418909",
+                "2026-09-02T13:06:02.931612",
+                "2026-09-03T09:41:02.550396"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 32,
+              "n_logged_in_arm_ledger": 19,
+              "n_absent_from_arm_ledger": 13,
+              "n_fleet_entries": 2,
+              "share_of_ticks": 0.0625,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-08-20T13:15:03.111623",
+                "2026-08-20T14:02:02.698069"
+              ]
+            }
+          }
+        },
+        "SKIP_STALE_SIGHT": {
+          "n_ticks": 2,
+          "sample_core_tick_ids": [
+            "2026-08-27T09:49:02.291322",
+            "2026-08-27T09:50:02.730021"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 2,
+              "n_logged_in_arm_ledger": 2,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 2,
+              "n_logged_in_arm_ledger": 2,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-3": {
+              "n_ticks": 2,
+              "n_logged_in_arm_ledger": 2,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        }
+      },
+      "any_gate_aggregate_table_a": {
+        "n_ticks": 133,
+        "n_distinct_dates": 12,
+        "top_dates": [
+          [
+            "2026-09-03",
+            30
+          ],
+          [
+            "2026-08-17",
+            21
+          ],
+          [
+            "2026-08-21",
+            20
+          ],
+          [
+            "2026-08-27",
+            11
+          ],
+          [
+            "2026-08-07",
+            10
+          ]
+        ],
+        "top3_concentration_share": 0.5338345864661654,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 133,
+            "n_logged": 131,
+            "n_entries": 11,
+            "share_of_all_ticks": 0.08270676691729323,
+            "share_of_logged_ticks": 0.08396946564885496
+          },
+          "risky-1": {
+            "n_ticks": 133,
+            "n_logged": 131,
+            "n_entries": 15,
+            "share_of_all_ticks": 0.11278195488721804,
+            "share_of_logged_ticks": 0.11450381679389313
+          },
+          "risky-3": {
+            "n_ticks": 133,
+            "n_logged": 92,
+            "n_entries": 8,
+            "share_of_all_ticks": 0.06015037593984962,
+            "share_of_logged_ticks": 0.08695652173913043
+          }
+        }
+      },
+      "any_gate_aggregate_table_b": {
+        "n_ticks": 187,
+        "n_distinct_dates": 17,
+        "top_dates": [
+          [
+            "2026-08-20",
+            32
+          ],
+          [
+            "2026-08-12",
+            22
+          ],
+          [
+            "2026-08-26",
+            20
+          ],
+          [
+            "2026-08-11",
+            14
+          ],
+          [
+            "2026-08-13",
+            12
+          ]
+        ],
+        "top3_concentration_share": 0.39572192513368987,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 187,
+            "n_logged": 177,
+            "n_entries": 15,
+            "share_of_all_ticks": 0.08021390374331551,
+            "share_of_logged_ticks": 0.0847457627118644
+          },
+          "risky-1": {
+            "n_ticks": 187,
+            "n_logged": 177,
+            "n_entries": 41,
+            "share_of_all_ticks": 0.2192513368983957,
+            "share_of_logged_ticks": 0.23163841807909605
+          },
+          "risky-3": {
+            "n_ticks": 187,
+            "n_logged": 150,
+            "n_entries": 28,
+            "share_of_all_ticks": 0.1497326203208556,
+            "share_of_logged_ticks": 0.18666666666666668
+          }
+        }
+      },
+      "any_gate_aggregate_table_a_drop_best_day": {
+        "n_ticks": 103,
+        "n_distinct_dates": 11,
+        "top_dates": [
+          [
+            "2026-08-17",
+            21
+          ],
+          [
+            "2026-08-21",
+            20
+          ],
+          [
+            "2026-08-27",
+            11
+          ],
+          [
+            "2026-08-07",
+            10
+          ],
+          [
+            "2026-09-02",
+            10
+          ]
+        ],
+        "top3_concentration_share": 0.5048543689320388,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 103,
+            "n_logged": 102,
+            "n_entries": 9,
+            "share_of_all_ticks": 0.08737864077669903,
+            "share_of_logged_ticks": 0.08823529411764706
+          },
+          "risky-1": {
+            "n_ticks": 103,
+            "n_logged": 102,
+            "n_entries": 13,
+            "share_of_all_ticks": 0.1262135922330097,
+            "share_of_logged_ticks": 0.12745098039215685
+          },
+          "risky-3": {
+            "n_ticks": 103,
+            "n_logged": 92,
+            "n_entries": 8,
+            "share_of_all_ticks": 0.07766990291262135,
+            "share_of_logged_ticks": 0.08695652173913043
+          }
+        }
+      },
+      "any_gate_aggregate_table_b_drop_best_day": {
+        "n_ticks": 155,
+        "n_distinct_dates": 16,
+        "top_dates": [
+          [
+            "2026-08-12",
+            22
+          ],
+          [
+            "2026-08-26",
+            20
+          ],
+          [
+            "2026-08-11",
+            14
+          ],
+          [
+            "2026-08-13",
+            12
+          ],
+          [
+            "2026-08-17",
+            12
+          ]
+        ],
+        "top3_concentration_share": 0.36129032258064514,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 155,
+            "n_logged": 146,
+            "n_entries": 15,
+            "share_of_all_ticks": 0.0967741935483871,
+            "share_of_logged_ticks": 0.10273972602739725
+          },
+          "risky-1": {
+            "n_ticks": 155,
+            "n_logged": 146,
+            "n_entries": 41,
+            "share_of_all_ticks": 0.2645161290322581,
+            "share_of_logged_ticks": 0.2808219178082192
+          },
+          "risky-3": {
+            "n_ticks": 155,
+            "n_logged": 119,
+            "n_entries": 26,
+            "share_of_all_ticks": 0.16774193548387098,
+            "share_of_logged_ticks": 0.2184873949579832
+          }
+        }
+      },
+      "symmetric_gate_check": {
+        "SKIP_STRUCTURE_VETO": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 72,
+          "symmetric": false
+        },
+        "SKIP_BULL_1100_1200": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 53,
+          "symmetric": false
+        },
+        "SKIP_DOJI_ENTRY_BAR": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 15,
+          "symmetric": false
+        },
+        "SKIP_MIN_PREMIUM_FLOOR": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 50,
+          "symmetric": false
+        },
+        "SKIP_CONF_LVL_REC_AFTERNOON": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 48,
+          "symmetric": false
+        },
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 109,
+          "symmetric": false
+        },
+        "SKIP_LATE_ENTRY": {
+          "both_accounts_hit_it_together": 16,
+          "either_account_hit_it": 52,
+          "symmetric": false
+        },
+        "SKIP_STALE_SIGHT": {
+          "both_accounts_hit_it_together": 1,
+          "either_account_hit_it": 3,
+          "symmetric": false
+        },
+        "SKIP_STALE_TRIGGER": {
+          "both_accounts_hit_it_together": 120,
+          "either_account_hit_it": 120,
+          "symmetric": true
+        }
+      }
+    },
+    "since_2026-09-01": {
+      "min_date": "2026-09-01",
+      "n_total_core_ticks_with_id": 1069,
+      "n_ticks_both_accounts_present": 1069,
+      "table_a_safe_gated_bold_enter": {
+        "SKIP_BULL_1100_1200": {
+          "n_ticks": 20,
+          "sample_core_tick_ids": [
+            "2026-09-02T11:16:02.370383",
+            "2026-09-02T11:17:02.403728",
+            "2026-09-02T11:18:02.904857",
+            "2026-09-02T11:19:02.407941",
+            "2026-09-02T11:20:02.838358"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 20,
+              "n_logged_in_arm_ledger": 20,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 3,
+              "share_of_ticks": 0.15,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-09-02T11:16:02.370383",
+                "2026-09-02T11:56:02.455136",
+                "2026-09-03T11:06:02.738610"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 20,
+              "n_logged_in_arm_ledger": 20,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 3,
+              "share_of_ticks": 0.15,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-09-02T11:16:02.370383",
+                "2026-09-02T11:56:02.455136",
+                "2026-09-03T11:06:02.738610"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 20,
+              "n_logged_in_arm_ledger": 0,
+              "n_absent_from_arm_ledger": 20,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        },
+        "SKIP_STRUCTURE_VETO": {
+          "n_ticks": 20,
+          "sample_core_tick_ids": [
+            "2026-09-03T11:11:03.063726",
+            "2026-09-03T11:12:02.914543",
+            "2026-09-03T11:13:02.595801",
+            "2026-09-03T11:16:02.582759",
+            "2026-09-03T11:17:02.656889"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 20,
+              "n_logged_in_arm_ledger": 19,
+              "n_absent_from_arm_ledger": 1,
+              "n_fleet_entries": 1,
+              "share_of_ticks": 0.05,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-09-03T11:21:02.576928"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 20,
+              "n_logged_in_arm_ledger": 19,
+              "n_absent_from_arm_ledger": 1,
+              "n_fleet_entries": 1,
+              "share_of_ticks": 0.05,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-09-03T11:21:02.576928"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 20,
+              "n_logged_in_arm_ledger": 0,
+              "n_absent_from_arm_ledger": 20,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        }
+      },
+      "table_b_bold_gated_safe_enter": {
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+          "n_ticks": 10,
+          "sample_core_tick_ids": [
+            "2026-09-01T13:21:02.399493",
+            "2026-09-01T13:22:02.476430",
+            "2026-09-01T13:23:02.797557",
+            "2026-09-01T14:49:02.791598",
+            "2026-09-01T14:50:03.283801"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 10,
+              "n_logged_in_arm_ledger": 10,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-1": {
+              "n_ticks": 10,
+              "n_logged_in_arm_ledger": 10,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            },
+            "risky-3": {
+              "n_ticks": 10,
+              "n_logged_in_arm_ledger": 0,
+              "n_absent_from_arm_ledger": 10,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        },
+        "SKIP_MIN_PREMIUM_FLOOR": {
+          "n_ticks": 13,
+          "sample_core_tick_ids": [
+            "2026-09-01T14:39:02.802216",
+            "2026-09-01T14:40:02.903354",
+            "2026-09-02T13:06:02.931612",
+            "2026-09-02T13:07:02.540849",
+            "2026-09-02T13:08:02.923247"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 13,
+              "n_logged_in_arm_ledger": 12,
+              "n_absent_from_arm_ledger": 1,
+              "n_fleet_entries": 2,
+              "share_of_ticks": 0.15384615384615385,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-09-02T13:06:02.931612",
+                "2026-09-03T09:41:02.550396"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 13,
+              "n_logged_in_arm_ledger": 12,
+              "n_absent_from_arm_ledger": 1,
+              "n_fleet_entries": 2,
+              "share_of_ticks": 0.15384615384615385,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": [
+                "2026-09-02T13:06:02.931612",
+                "2026-09-03T09:41:02.550396"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 13,
+              "n_logged_in_arm_ledger": 0,
+              "n_absent_from_arm_ledger": 13,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": false,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        },
+        "SKIP_CONF_LVL_REC_AFTERNOON": {
+          "n_ticks": 5,
+          "sample_core_tick_ids": [
+            "2026-09-02T14:21:02.950410",
+            "2026-09-02T14:22:02.716789",
+            "2026-09-02T14:23:02.425012",
+            "2026-09-02T14:24:02.958553",
+            "2026-09-02T14:25:02.726349"
+          ],
+          "arms": {
+            "safe-3": {
+              "n_ticks": 5,
+              "n_logged_in_arm_ledger": 5,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 1,
+              "share_of_ticks": 0.2,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": [
+                "2026-09-02T14:21:02.950410"
+              ]
+            },
+            "risky-1": {
+              "n_ticks": 5,
+              "n_logged_in_arm_ledger": 5,
+              "n_absent_from_arm_ledger": 0,
+              "n_fleet_entries": 1,
+              "share_of_ticks": 0.2,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": [
+                "2026-09-02T14:21:02.950410"
+              ]
+            },
+            "risky-3": {
+              "n_ticks": 5,
+              "n_logged_in_arm_ledger": 0,
+              "n_absent_from_arm_ledger": 5,
+              "n_fleet_entries": 0,
+              "share_of_ticks": 0.0,
+              "underpowered": true,
+              "sample_entry_core_tick_ids": []
+            }
+          }
+        }
+      },
+      "any_gate_aggregate_table_a": {
+        "n_ticks": 40,
+        "n_distinct_dates": 2,
+        "top_dates": [
+          [
+            "2026-09-03",
+            30
+          ],
+          [
+            "2026-09-02",
+            10
+          ]
+        ],
+        "top3_concentration_share": 1.0,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 40,
+            "n_logged": 39,
+            "n_entries": 4,
+            "share_of_all_ticks": 0.1,
+            "share_of_logged_ticks": 0.10256410256410256
+          },
+          "risky-1": {
+            "n_ticks": 40,
+            "n_logged": 39,
+            "n_entries": 4,
+            "share_of_all_ticks": 0.1,
+            "share_of_logged_ticks": 0.10256410256410256
+          },
+          "risky-3": {
+            "n_ticks": 40,
+            "n_logged": 0,
+            "n_entries": 0,
+            "share_of_all_ticks": 0.0,
+            "share_of_logged_ticks": null
+          }
+        }
+      },
+      "any_gate_aggregate_table_b": {
+        "n_ticks": 28,
+        "n_distinct_dates": 3,
+        "top_dates": [
+          [
+            "2026-09-03",
+            11
+          ],
+          [
+            "2026-09-02",
+            10
+          ],
+          [
+            "2026-09-01",
+            7
+          ]
+        ],
+        "top3_concentration_share": 1.0,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 28,
+            "n_logged": 27,
+            "n_entries": 3,
+            "share_of_all_ticks": 0.10714285714285714,
+            "share_of_logged_ticks": 0.1111111111111111
+          },
+          "risky-1": {
+            "n_ticks": 28,
+            "n_logged": 27,
+            "n_entries": 3,
+            "share_of_all_ticks": 0.10714285714285714,
+            "share_of_logged_ticks": 0.1111111111111111
+          },
+          "risky-3": {
+            "n_ticks": 28,
+            "n_logged": 0,
+            "n_entries": 0,
+            "share_of_all_ticks": 0.0,
+            "share_of_logged_ticks": null
+          }
+        }
+      },
+      "any_gate_aggregate_table_a_drop_best_day": {
+        "n_ticks": 10,
+        "n_distinct_dates": 1,
+        "top_dates": [
+          [
+            "2026-09-02",
+            10
+          ]
+        ],
+        "top3_concentration_share": 1.0,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 10,
+            "n_logged": 10,
+            "n_entries": 2,
+            "share_of_all_ticks": 0.2,
+            "share_of_logged_ticks": 0.2
+          },
+          "risky-1": {
+            "n_ticks": 10,
+            "n_logged": 10,
+            "n_entries": 2,
+            "share_of_all_ticks": 0.2,
+            "share_of_logged_ticks": 0.2
+          },
+          "risky-3": {
+            "n_ticks": 10,
+            "n_logged": 0,
+            "n_entries": 0,
+            "share_of_all_ticks": 0.0,
+            "share_of_logged_ticks": null
+          }
+        }
+      },
+      "any_gate_aggregate_table_b_drop_best_day": {
+        "n_ticks": 17,
+        "n_distinct_dates": 2,
+        "top_dates": [
+          [
+            "2026-09-02",
+            10
+          ],
+          [
+            "2026-09-01",
+            7
+          ]
+        ],
+        "top3_concentration_share": 1.0,
+        "arms": {
+          "safe-3": {
+            "n_ticks": 17,
+            "n_logged": 16,
+            "n_entries": 2,
+            "share_of_all_ticks": 0.11764705882352941,
+            "share_of_logged_ticks": 0.125
+          },
+          "risky-1": {
+            "n_ticks": 17,
+            "n_logged": 16,
+            "n_entries": 2,
+            "share_of_all_ticks": 0.11764705882352941,
+            "share_of_logged_ticks": 0.125
+          },
+          "risky-3": {
+            "n_ticks": 17,
+            "n_logged": 0,
+            "n_entries": 0,
+            "share_of_all_ticks": 0.0,
+            "share_of_logged_ticks": null
+          }
+        }
+      },
+      "symmetric_gate_check": {
+        "SKIP_CONF_LVL_REC_AFTERNOON": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 8,
+          "symmetric": false
+        },
+        "SKIP_STRUCTURE_VETO": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 23,
+          "symmetric": false
+        },
+        "SKIP_BULL_1100_1200": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 20,
+          "symmetric": false
+        },
+        "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 10,
+          "symmetric": false
+        },
+        "SKIP_MIN_PREMIUM_FLOOR": {
+          "both_accounts_hit_it_together": 0,
+          "either_account_hit_it": 25,
+          "symmetric": false
+        }
+      }
+    }
+  }
+}

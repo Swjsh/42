@@ -1,0 +1,117 @@
+{
+  "question": "G5 design intent and doctrine -- was role-blind sourcing of sig['strategies'] intended?",
+  "generated_et": "2026-09-03T14:27 ET",
+  "generator": "manual doc-archaeology (git log -S, git blame, grep), read-only",
+  "companion_doc": "analysis/deep-research/2026-09-03-money/fleet-gates-design-intent.md",
+  "related_this_session": "analysis/deep-research/2026-09-03-money/veto-scope-safe-3.md",
+
+  "q1_what_did_08_12_commit_solve": {
+    "commits": [
+      {"sha": "e816178d", "date": "2026-08-12", "msg_short": "a params DISARM must reach the fleet arms, not just core"},
+      {"sha": "e3a44956", "date": "2026-08-12", "msg_short": "move the params disarm to select_plan -- my first two placements were wrong"}
+    ],
+    "problem": "vwap_continuation was disarmed in params.json 2026-07-25 (commit e0356fb1) for cause (0-for-12 live, -$357). params.json governs only core (safe-2/bold-2). Fleet arms never read it and strategies.fired() (the intended fleet-side disarm check) is never called in production because plan_all always takes the FIX2 branch. Disarm half-landed: kept firing on fleet arms, 43 fills / -$1,046, ~3x the loss that motivated the original kill.",
+    "fix": "moved the disarm check to select_plan() (the order choke point), keyed on new params.extra_setup_exec_armed, governing both core and fleet paths.",
+    "is_this_the_introduction_of_EMIT_STRATEGIES_or_FIX2": false,
+    "actual_FIX2_EMIT_STRATEGIES_introduction": {"sha": "667217a1", "date": "2026-06-26", "note": "FIX2 multi-strategy emit architecture, ~6 weeks before the 08-12/08-13 cluster; unrelated origin"}
+  },
+
+  "q2_was_perception_source_a_documented_decision": {
+    "verdict": "split by arm class",
+    "for_loose_arms_bold2_risky1_risky3": {
+      "status": "documented, deliberate, J-directed",
+      "evidence": [
+        "SCORING_PEAK_LIVE = True since 2026-06-25, comment cites J directive",
+        "build_shared_signal.py:1131 -- 'a genuinely-looser arm is NOT representable downstream and must be a producer-side lane'",
+        "J quote in-file, 2026-07-31: 'we're paper trading... we should just be getting in shit and seeing if it works'"
+      ]
+    },
+    "for_safe3_specifically": {
+      "status": "undocumented side effect -- never separately decided; a documented near-miss fix was abandoned",
+      "evidence": [
+        "fleet_executor._perception_for_arm (line 108) exists specifically to route safe arms to signal['safe'] -- docstring calls it a 'perception-source confound fix' -- but is DEAD CODE in production: only reached when signal.get('strategies') is None, which is never (EMIT_STRATEGIES defaults True)",
+        "DEEP-REVIEW-2026-08-13-MULTIAGENT.md section 3 proved the exact symptom 3 weeks before this session, naming safe-3 explicitly: '11:41-11:43 safe returned SKIP_BULL_1100_1200 and took nothing; safe-3, risky-1 and risky-3 all entered at 11:42:05 for -$325'",
+        "build_shared_signal.py docstring was corrected 2026-08-14 (STALE-GUARANTEE CORRECTION) to state the symptom plainly, but this documents the FACT, not a DECISION about whether safe-3 belongs in the bypass",
+        "commit ae6e0059 (2026-08-13, gate x arm matrix) shipped with an EXPLICIT unresolved scope limit on this exact contradiction and proposed an instrument (per-arm gate-id logging) that was never built",
+        "fleet_executor.py:790's sibling stale comment ('apply UNIFORMLY to every arm') was flagged the same day as the THIRD stale-guarantee comment found, and is STILL uncorrected as of this session's read (2026-09-03)"
+      ]
+    }
+  },
+
+  "q3_doctrine_for_a_safe_role_arm": {
+    "standing_doctrine_quote": "arms are RISK PROFILES, not strategies... All arms pick from the SAME validated setup menu; they differ only in expression parameters (sizing, gate-strictness, stop/exit shape, DTE, drawdown)",
+    "sources": [
+      "markdown/audits/FABLE-DECISIONS-2026-07-07.md D7 (labelled J's standing angry repeated correction)",
+      "markdown/audits/GATE-PROVENANCE-AUDIT-2026-07-02.md:121",
+      "markdown/planning/WEEKLY-OPTIONS-PROGRAM.md:299",
+      "MAP.md:121-123",
+      "automation/state/fleet/build_shared_signal.py:1133 (full_send lane comment)"
+    ],
+    "literal_reading": "every arm should see the SAME setup-admission (same source, same tick); differentiation happens only downstream (gate/sizing/exit)",
+    "what_production_actually_does": "admission source itself silently switches between safe's and bold's perception per-tick (whichever passed); safe-3's downstream selectivity (min_triggers=2, require_confluence_or_sequence) and sizing/exit ARE genuinely per-arm and intact -- the gap is specifically the admission SOURCE, not total lack of differentiation"
+  },
+
+  "q4_stale_or_misleading_claims_in_repo": [
+    {
+      "location": "automation/state/fleet/fleet_executor.py:790",
+      "claim": "the cohort/tier gates baked into the shared signal's passed-derivation apply UNIFORMLY to every arm",
+      "status": "still present uncorrected as of 2026-09-03; literally true (arms get an identical list) but invites the false inference of production-perimeter-bound risk; flagged as the third stale-guarantee comment on 2026-08-13, never fixed unlike its build_shared_signal.py sibling"
+    },
+    {
+      "location": "markdown/specs/ARCHITECTURE.md:115 (launch-chain diagram)",
+      "claim": "fleet_live.py -> fleet_executor.py (per-arm sizing/admission, gate/sizing profile)",
+      "status": "misleading as worded -- admission (which setups are candidates) is shared/peak-sourced, not per-arm; the section's otherwise-thorough 2026-09-02 'Known gaps' list omits this gap entirely"
+    },
+    {
+      "location": "automation/state/prod-shadow-designation.json profile_summary (FLEET-TIGHT-S)",
+      "claim": "safe sizing, tight gate (min_triggers=2, require_confluence_or_sequence:true)",
+      "status": "incomplete not strictly false -- true for downstream selectivity, silent on admission-source; load-bearing because this is the go-live criterion-5 arm"
+    },
+    {
+      "location": "markdown/0dte/dual-account-design.md Overlap Resolution",
+      "claim": "When Bold sees a setup Safe doesn't: Bold enters; Safe holds. No cross-contamination.",
+      "status": "accurate for the CORE path it describes (predates fleet, 2026-05-14); risk is generalizing it to the fleet, where it does not hold for safe-3"
+    },
+    {
+      "location": "setup/scripts/gate_arm_matrix.py / automation/state/gate-arm-matrix.json",
+      "claim": "gate x arm coverage",
+      "status": "self-scoped correctly in its own commit message ('necessary but NOT sufficient to prove the arm's code path evaluates it'); easy to over-read as full gate coverage"
+    }
+  ],
+
+  "doc_fix_proposed": [
+    {
+      "file": "automation/state/fleet/fleet_executor.py",
+      "line": 790,
+      "change": "append clause distinguishing 'uniform across arms' from 'bound by production's own gate perimeter', cross-referencing build_shared_signal.py's 2026-08-14 STALE-GUARANTEE CORRECTION"
+    },
+    {
+      "file": "markdown/specs/ARCHITECTURE.md",
+      "section": "3.2a Known gaps",
+      "change": "add bullet: fleet-arm entry admission is not always safe-production-faithful when SCORING_PEAK_LIVE diverges safe/bold; _perception_for_arm exists but is dead code on the strategies[] path; proven 2026-08-13, reconfirmed 2026-09-03, unresolved"
+    }
+  ],
+
+  "decision_for_main_session": {
+    "framing": "judgment call, not a doc fix -- whether to route safe-3 through _perception_for_arm/signal['safe'] so its entry admission becomes production-faithful, or leave it riding the documented 'genuinely looser arm' bypass",
+    "ship_the_fix_arguments": [
+      "restores literal doctrine for the one arm (safe-3) the 2026-10-30 go-live decision is scored on",
+      "carve-out mechanism already exists and is already exercised on the fallback branch -- small, reviewable, RED-proofable diff",
+      "directly resolves the contradiction ae6e0059 left open three weeks ago",
+      "closes a second instance of the L287 class (fix on one surface doesn't reach a second surface that regenerates the same decision)"
+    ],
+    "leave_it_arguments": [
+      "the bypass is explicit J-directed doctrine for the WHOLE fleet (2026-07-31 quote), with no carve-out named for safe-3",
+      "safe-3's designation profile names 'tight gate' (selectivity), not 'tight signal source', as its differentiator -- may be the design as intended",
+      "safe-3 is 1/20 days into its go-live criterion-5 scoring clock (HOME.md) -- a mid-window admission-source change risks resetting/contaminating that bootstrap",
+      "the 08-13 review's own numbers are NOT one-directional: the SAME bypass mechanism cost safe-3 on one event but running the ratified gates everywhere would have been $122 worse fleet-wide that same day"
+    ],
+    "config_freeze_note": "any code change here must go through this session's HARD CONSTRAINT: config freeze until 2026-10-30, kill-type reductions ship 2026-09-29 with a prereg; this would need equivalent treatment"
+  },
+
+  "caveats_unverified": [
+    "whether dashboard/ genuinely contains zero fleet-gate-coverage claims -- first grep attempt timed out on a large tree walk, narrower re-grep returned empty but is weak evidence",
+    "whether any commit between 2026-08-14 and 2026-09-03 touched fleet_executor.py's stale comment and reverted a prior fix -- blame was read against current HEAD only, not walked commit-by-commit across that window",
+    "no trading-path file executed; nothing armed, changed, or ordered"
+  ]
+}

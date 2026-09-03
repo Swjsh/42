@@ -1,0 +1,71 @@
+{
+  "verifies": "analysis/deep-research/2026-09-03-money/fleet-gates-ledger-binding-check.json",
+  "verdict": "REFUTED",
+  "scope": "REFUTES the report's novel/headline claims (mirror-direction asymmetry ~2x worse; SKIP_CONF_LVL_REC_AFTERNOON non-binding at 53% for risky-1). CONFIRMS the report's narrower claim shared with veto-scope-safe-3.md (SKIP_STRUCTURE_VETO / SKIP_BULL_1100_1200 mostly binding, minority leak).",
+  "method": "Cross-checked automation/state/fleet/<arm>/decisions.jsonl 'entered' rows (the original script's only source) against automation/state/fills-ledger.jsonl (real broker fills), matching each qualifying core_tick_id to the nearest same-arm BUY fill within 0-300s, deduped by order_id. The original script never touches fills-ledger.jsonl.",
+  "reproduction_of_original": {
+    "aggregate_table_a_n_ticks": {"report": 133, "rerun": 133, "match": true},
+    "aggregate_table_b_n_ticks": {"report": 187, "rerun": 187, "match": true},
+    "note": "Total core ticks drifted 8006->8002 between report run and this verification run (~10 min apart, market live) but all quoted per-gate/per-arm counts in the report's JSON reproduce exactly."
+  },
+  "real_trade_correction": {
+    "safe-3": {
+      "table_a": {"n_ticks": 133, "raw_entries": 11, "real_trades": 11, "raw_share": 0.083, "real_share": 0.083},
+      "table_b": {"n_ticks": 188, "raw_entries": 15, "real_trades": 9, "raw_share": 0.080, "real_share": 0.048}
+    },
+    "risky-1": {
+      "table_a": {"n_ticks": 133, "raw_entries": 15, "real_trades": 14, "raw_share": 0.113, "real_share": 0.105},
+      "table_b": {"n_ticks": 188, "raw_entries": 41, "real_trades": 16, "raw_share": 0.218, "real_share": 0.085}
+    },
+    "risky-3": {
+      "table_a": {"n_ticks": 133, "raw_entries": 8, "real_trades": 7, "raw_share": 0.060, "real_share": 0.053},
+      "table_b": {"n_ticks": 188, "raw_entries": 28, "real_trades": 6, "raw_share": 0.149, "real_share": 0.032}
+    }
+  },
+  "asymmetry_ratio_table_b_over_table_a": {
+    "safe-3": {"raw_basis": 0.96, "real_trade_basis": 0.58},
+    "risky-1": {"raw_basis": 1.93, "real_trade_basis": 0.81},
+    "risky-3": {"raw_basis": 2.48, "real_trade_basis": 0.61},
+    "conclusion": "Original report claims Table B leaks ~2x MORE than Table A for risky-1/risky-3. Real-trade basis shows the opposite: Table B leaks LESS than Table A for every arm. Direction reverses, not just shrinks."
+  },
+  "skip_conf_lvl_rec_afternoon_gate": {
+    "n_qualifying_ticks": 46,
+    "safe-3": {"report_raw_share": 0.156, "real_share": 0.087},
+    "risky-1": {"report_raw_share": 0.533, "real_share": 0.065, "report_call": "NON-BINDING", "corrected_call": "BINDING (93.5% held)"},
+    "risky-3": {"report_raw_share": 0.400, "real_share": 0.0, "note": "report cited 18/45 (or 47.4% of logged); real fills = 0 out of 46 -- entirely phantom decision-log rows, zero risky-3 fills on the contributing dates checked"},
+    "quoted_example_ticks_checked_against_fills_ledger": [
+      {"core_tick_id": "2026-08-12T14:16:02.973209", "arms_cited": ["safe-3", "risky-1"], "result": "REAL -- both matched to real buy fills within 5s of each other"},
+      {"core_tick_id": "2026-08-13T15:11:02.929340", "arms_cited": ["risky-1"], "result": "PHANTOM -- no risky-1 buy fill anywhere near this time; risky-1's only 08-13 buys were 09:52/11:42/14:37"},
+      {"core_tick_id": "2026-08-26T14:56:02.621899", "arms_cited": ["safe-3", "risky-3"], "result": "MIXED -- safe-3 leg real (buy 14:57:07 $1.50x3), risky-3 leg PHANTOM (zero risky-3 fills on 2026-08-26 at all)"},
+      {"core_tick_id": "2026-08-26T15:51:02.640393", "arms_cited": ["safe-3"], "result": "PHANTOM -- safe-3's only 08-26 buy was already counted at 14:57:07; nothing near 15:51"}
+    ],
+    "example_tick_hit_rate": "1 of 4 quoted examples is fully real; 3 of 4 have at least one phantom leg"
+  },
+  "structure_veto_and_bull_1100_1200_gates_survive": {
+    "SKIP_STRUCTURE_VETO": {"n": 54, "safe-3": [3, 3], "risky-1": [5, 5], "risky-3": [1, 1], "format": "[raw, real]"},
+    "SKIP_BULL_1100_1200": {"n": 53, "safe-3": [8, 8], "risky-1": [8, 8], "risky-3": [7, 6], "format": "[raw, real]"},
+    "conclusion": "Essentially no decision-log inflation on these two gates -- the report's 'mostly binding' framing for the params.json-mapped Table A gates survives unchanged."
+  },
+  "drop_top3_dates_robustness": {
+    "safe-3": {"table_a_full": 0.083, "table_a_drop3": 0.055, "table_b_full": 0.047, "table_b_drop3": 0.033},
+    "risky-1": {"table_a_full": 0.105, "table_a_drop3": 0.074, "table_b_full": 0.084, "table_b_drop3": 0.042},
+    "risky-3": {"table_a_full": 0.053, "table_a_drop3": 0.020, "table_b_full": 0.032, "table_b_drop3": 0.013},
+    "conclusion": "Table B stays below Table A for every arm after dropping each cell's own top-3 contributing dates -- the asymmetry-reversal is not a concentration artifact, though n gets thin (directional only)."
+  },
+  "consequence_lens": {
+    "go_live_gate_criterion_5": "NOT AFFECTED, either by the original finding or this correction. go_live_gate.py:766 prod_shadow_criterion() scores safe-3 from realized fills/reconciliation data (statistical_criterion net of costs), never from decisions.jsonl action counts. The gate already reflects whatever safe-3 actually traded.",
+    "sept_29_kill_type_reduction": "AFFECTED. The report's proposed_change recommends risky-1 get an explicit mirror of block_conf_lvl_rec_afternoon based on a claimed 53% real bleed-through. Corrected real bleed-through is 6.5% -- the gate is already ~93.5% binding for real money on this subset. Using the report's number would misprioritize a 09-29 package toward a gate that is not materially leaking.",
+    "dollar_effect": "Original report explicitly scoped P&L as out-of-scope, so there is no dollar figure to recompute. Trade-count correction (the input a dollar estimate would need): safe-3 26 raw entries -> 20 real trades (1.3x overstatement); risky-1 56 raw -> 30 real (1.9x); risky-3 36 raw -> 13 real (2.8x)."
+  },
+  "what_survives_unchanged": [
+    "Underlying core-decisions.jsonl / per-arm decisions.jsonl data pull and per-gate n-ticks counts (fully reproduced)",
+    "SKIP_STRUCTURE_VETO and SKIP_BULL_1100_1200 'mostly binding, minority leak' framing (raw approx real)",
+    "SKIP_MIN_PREMIUM_FLOOR and SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY numbers (raw approx real)",
+    "SKIP_LATE_ENTRY / SKIP_STALE_TRIGGER symmetric (both-accounts) gate classification -- not disputed, not re-checked against fills (doesn't need to be, since these were already excluded as non-cohort gates)",
+    "The 2026-09-03T11:21:02.576928 example tick from veto-scope-safe-3.md -- confirmed as a genuine real trade (safe-3 buy 11:22:07.262113 $0.74 x5)"
+  ],
+  "fatal_flaw": "The script defines 'entered' as decisions.jsonl action in {ENTER_BULL, ENTER_BEAR, PLACED} without ever cross-checking automation/state/fills-ledger.jsonl. The decision layer logs the identical persisting signal on every ~1-minute tick while a setup condition holds, regardless of whether a trade already filled or a downstream constraint blocked execution -- so a single real trade (or zero trades) can generate many raw 'entries'. This inflation is base-rate present everywhere (1.2x-1.6x window-wide) but is 3-5x worse specifically in the mirror-direction (Table B) subset the report's headline claim rests on, which reverses the reported asymmetry once corrected.",
+  "recomputed_numbers": "See real_trade_correction, skip_conf_lvl_rec_afternoon_gate, and asymmetry_ratio_table_b_over_table_a blocks above -- all independently rerun this session against automation/state/fills-ledger.jsonl (1272 total rows), scripts backtest/tools/fleetgates_realfill_correction.py and backtest/tools/fleetgates_dropbest3_realtrades.py.",
+  "confidence": "high",
+  "et_clock_verified": "2026-09-03 14:29:39 EDT market_hours=True; 2026-09-03 14:39:23 EDT market_hours=True"
+}
