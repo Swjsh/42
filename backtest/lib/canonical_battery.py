@@ -203,3 +203,43 @@ def run_g_battery(
         "bh_fdr_significant": bool(bh_sig[0]) if bh_sig else False,
         "g_battery": battery,
     }
+
+
+# ============================================================ equal-count sub-window buckets --
+# NEW 2026-09-03, queue.md GATE-DESIGN-FIXED-CALENDAR-WINDOWS-STARVE-LOW-FIRE-RATE-KNOBS
+# (FORWARD-ONLY: never applied retroactively to an already-frozen prereg). Doctrine + threshold
+# in markdown/research/BACKTESTING-PLAYBOOK.md #4.5. =============================================
+def equal_count_buckets(
+    deltas_in_time_order: list[float], n_buckets: int = 4
+) -> list[tuple[int, int]]:
+    """Split a chronologically-ordered list of CHANGED-trade deltas into `n_buckets`
+    equal-count buckets. Returns [(start, end), ...] half-open index ranges into
+    `deltas_in_time_order` (deltas_in_time_order[start:end] is one bucket) -- it does not
+    slice the input itself, so the caller can apply the same boundaries to a parallel list
+    of trade-row dicts.
+
+    G4-style FIXED CALENDAR sub-windows (2025H1/H2/2026Q1/Q2...) can starve a low-fire-rate
+    knob permanently: worked example `analysis/recommendations/
+    tp1-r50-readjudication-2026-08-23.json` (R_tp100_f50, 20.4% fire rate) has 2025H1 and
+    2026Q1 stuck at n_changed=4 each in both the original and a forward-extended run, so
+    only 2 of 4 calendar windows can EVER qualify (>=5-changed floor). Equal-count buckets
+    fix this by construction: every bucket gets floor(n/n_buckets) or ceil(n/n_buckets)
+    changed trades, so if the total clears n_buckets * floor, every bucket clears it too --
+    no bucket can be calendar-starved. Any remainder (n % n_buckets) goes to the LAST
+    buckets, so a forward-only data extension only ever grows buckets going forward in
+    time, consistent with the FORWARD-ONLY constraint.
+
+    `deltas_in_time_order` must already be filtered to CHANGED trades only and sorted
+    oldest-first -- this function does not filter or sort."""
+    if n_buckets < 1:
+        raise ValueError("n_buckets must be >= 1")
+    n = len(deltas_in_time_order)
+    base, remainder = divmod(n, n_buckets)
+    boundaries: list[tuple[int, int]] = []
+    start = 0
+    for i in range(n_buckets):
+        size = base + (1 if i >= n_buckets - remainder else 0)
+        end = start + size
+        boundaries.append((start, end))
+        start = end
+    return boundaries

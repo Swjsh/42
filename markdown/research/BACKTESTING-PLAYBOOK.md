@@ -300,6 +300,8 @@ Every evaluator computes: `top5_pct`, `quarter_pnl` dict, `positive_quarters`, `
 ### 4.5 Sub-window stability gate
 EVERY sub-window net-positive. Strictest gate. 0 keepers is informative.
 
+**Window-scheme choice is a PREREG decision, fixed UP FRONT, never revised after data is seen (fold 2026-09-03, queue.md GATE-DESIGN-FIXED-CALENDAR-WINDOWS-STARVE-LOW-FIRE-RATE-KNOBS; FORWARD-ONLY -- never applied retroactively to an already-frozen prereg).** FIXED CALENDAR windows (2025H1/H2/2026Q1/Q2...) starve low-fire-rate knobs: a knob's changed-trade count can land <5 in a past calendar window PERMANENTLY, capping how many windows can ever qualify no matter how much forward data accrues -- worked example `analysis/recommendations/tp1-r50-readjudication-2026-08-23.json` (R_tp100_f50, 20.4% fire rate: 2025H1 and 2026Q1 both stuck at n_changed=4, so only 2 of 4 windows can ever qualify). Rule: if the knob's expected changed-trade fraction is < 33% of the population (below an even 4-window ~25%-per-window share, too little margin against quarter clustering before a window drops under the >=5-changed floor), prereg EQUAL-CHANGED-TRADE-COUNT buckets (`backtest/lib/canonical_battery.py::equal_count_buckets`, `n_buckets=4`) instead of calendar windows; at/above 33%, calendar windows stand. Record the chosen scheme + fraction in the prereg file.
+
 ### 4.6 Walk-forward (OOS)
 - Split: train = T-1 years, test = most recent year(s) held-out
 - Per-month normalized: `test_pnl_per_month / train_pnl_per_month >= 0.5`
@@ -319,6 +321,10 @@ Final gates before ratification:
 - Bridge alive
 - Responder healthy
 - Winner metrics pass all floors
+
+### 4.9 Non-ribbon-family ratification standard
+
+**Decision (Fable adjudication, fold 2026-09-03, queue.md NO-DEEP-POPULATION-FOR-NON-RIBBON-FAMILIES): option (b) -- non-ribbon families are held to a FORWARD-CLOCK standard, not a population standard.** popA (391 trading days, n=191) is ribbon-family ONLY -- `analysis/recommendations/prereg-tp1-reachability-2026-08-06.json` states it directly ("ineligible to ship from this study REGARDLESS of gates" for non-ribbon setups) -- so every non-ribbon family is structurally capped at n=76-153 one-off real-fills evidence and can never clear a population-scale bar; that gap is structural, not a research-effort shortfall. A family without a deep population ratifies ONLY on a pre-registered forward clock: frozen `n_days`/`n_positions` and a frozen decision rule, written BEFORE data accrues (same pattern as `analysis/recommendations/day-throttle-shadow-ledger.jsonl` / `loss-armed-budget-shadow-ledger.jsonl`). Backtest-only evidence for such a family is DISCLOSURE, never a ship bar. Live case: VWAP_RECLAIM_FAILED_BREAK is armed on 4 arms with n=76 backtest / live n=8 -- n=8 needs a FORWARD CLOCK, NOT a disarm; file it under `analysis/recommendations/` in the same shadow-ledger pattern (auto-discovered onto SHADOW.md's Frozen-preregs board; cross-ref worked example `tp1-r50-readjudication-2026-08-23.json` and the window-scheme rule in #4.5 above).
 
 ---
 
