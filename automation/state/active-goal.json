@@ -1,12 +1,1 @@
-{
-  "id": "GOAL-DESK-LEGIBILITY-2026-08-30",
-  "active": false,
-  "opened_at_et": "2026-08-30T15:05:00-04:00",
-  "expires_at_et": "2026-09-06",
-  "file": "automation/state/goals/GOAL-DESK-LEGIBILITY-2026-08-30.md",
-  "queue_id": "GOAL-DESK-LEGIBILITY-2026-08-30",
-  "max_continuations_per_session": 3,
-  "last_next_item": "D1 \u2014 Session jobs: join session_id -> {objective, card, model, status, lastStep}",
-  "closed_at_et": "2026-08-30T15:20:00-04:00",
-  "closed_reason": "D1-D6 shipped+verified at both viewports; org re-tiered per J's mid-goal note"
-}
+{"id": "GOAL-GAMMA-AUTONOMY-2026-09-03", "active": true, "opened_at_et": "2026-09-03T18:05:00-04:00", "expires_at_et": "2026-09-17", "file": "automation/state/goals/GOAL-GAMMA-AUTONOMY-2026-09-03.md", "queue_id": "GOAL-GAMMA-AUTONOMY-2026-09-03", "max_continuations_per_session": 3, "last_next_item": "A5 \u2014 `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no"}

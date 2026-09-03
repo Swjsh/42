@@ -194,6 +194,27 @@ try {
             -ArgList @() -TaskName "twin-gauntlet-conductor-hook" -TimeoutSec 30
     } catch { }
 
+    # --- GOAL-AUTOPILOT PRE-SPAWN (2026-09-03, task A1 GOAL-GAMMA-AUTONOMY-2026-09-03) ---
+    # Ensures active-goal.json is current BEFORE the conductor reads it (STAGE 1 clause
+    # 2a routes each fire to the goal's top open item) -- without this, a fire could read
+    # a goal that expired or went terminal since the LAST 30-min Gamma_GoalAutopilot tick
+    # and fall through to tier-3 janitorial work for up to half an hour longer than it has
+    # to. Pure stdlib Python ($0, no LLM/network/broker) -- same Invoke-PythonHidden
+    # pattern as the calls above, fail-open (any error/timeout logs and falls through to
+    # the normal Claude fire unchanged; goal_autopilot.py itself is also fail-open
+    # internally and always exits 0 unless --strict, which this call never passes).
+    try {
+        $goalAutopilotResult = Invoke-PythonHidden -ScriptPath "setup\scripts\goal_autopilot.py" `
+            -ArgList @("ensure") -TaskName "goal-autopilot-prespawn" -TimeoutSec 30
+        $firstLine = ""
+        if ($goalAutopilotResult -and $goalAutopilotResult.Stdout) {
+            $firstLine = ($goalAutopilotResult.Stdout -split "`r?`n" | Where-Object { $_ -ne "" } | Select-Object -First 1)
+        }
+        Write-TaskLog -TaskName $task -Message ("conductor: goal-autopilot " + $firstLine)
+    } catch {
+        Write-TaskLog -TaskName $task -Message ("conductor: goal-autopilot pre-spawn ERROR (" + $_.Exception.Message + ") -- failing OPEN, proceeding to Claude fire")
+    }
+
     $promptFile = Join-Path $projectRoot "automation\prompts\conductor.md"
     if (-not (Test-Path $promptFile)) {
         Write-TaskLog -TaskName $task -Message "conductor: ERROR conductor.md missing at $promptFile"

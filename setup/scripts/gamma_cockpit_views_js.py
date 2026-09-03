@@ -14,6 +14,7 @@ render a number without its source and its age.
 from __future__ import annotations
 
 from gamma_cockpit_army_js import ARMY_JS
+from gamma_cockpit_autonomy_js import AUTONOMY_JS
 from gamma_cockpit_cards_js import CARDS_JS
 from gamma_cockpit_chat_js import CHAT_JS
 
@@ -48,6 +49,24 @@ function vOverview(h){
     if(br.source)b.appendChild(srcRow([br.source]));
     h.appendChild(b);
   }
+
+  // WORKING ON strip - the goal-autonomy loop at a glance. J, verbatim: "we have
+  // an entire 'goal' dashboard and nothing is driving it ... i need to see it
+  // happening, on the dashboard". One click routes to the full Autonomy view.
+  const g0=D.goal||(D.autonomy&&D.autonomy.goal)||null;
+  const strip=el('div','card click'); spot(strip);
+  strip.onclick=()=>{route('autonomy');try{history.replaceState(null,'','#autonomy')}catch(_){}};
+  if(g0&&g0.active){
+    const wrow=el('div','row wrap');
+    wrow.appendChild(el('span','chip ok live','<i class="dot"></i>WORKING ON'));
+    wrow.appendChild(el('span',null,'<b>'+esc(g0.title||g0.id||'—')+'</b>'));
+    strip.appendChild(wrow);
+    const nextTxt=g0.next_item||(D.autonomy&&D.autonomy.next_move&&D.autonomy.next_move.text)||'';
+    strip.appendChild(el('div','mut','Next: '+esc(nextTxt||'—')));
+  }else{
+    strip.appendChild(el('div','flag bad','<b>NOT DRIVING</b> no active goal'));
+  }
+  h.appendChild(strip);
 
   // WHAT WE ARE HOLDING - J asked for this and it did not exist.
   const pc=positionsCard(); if(pc)h.appendChild(pc);
@@ -534,4 +553,4 @@ function vActivity(h){
   if(!(hq.recent_ships||[]).length)sc.appendChild(el('div','note','no recent ships'));
   h.appendChild(sc);
 }
-""" + ARMY_JS + CARDS_JS + CHAT_JS
+""" + ARMY_JS + AUTONOMY_JS + CARDS_JS + CHAT_JS

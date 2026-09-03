@@ -193,6 +193,7 @@ function positionsCard(){
 /* ============================ views ============================ */
 const VIEWS=[
  {id:'overview',ic:'◎',label:'Overview',key:'o'},
+ {id:'autonomy',ic:'◉',label:'Autonomy',key:'u'},
  {id:'desks',ic:'▦',label:'Desks',key:'d'},
  {id:'orchestration',ic:'⛬',label:'Orchestration',key:'g'},
  {id:'engine',ic:'❥',label:'Engine room',key:'e'},
@@ -225,7 +226,7 @@ function closeDrawer(){
 function navBuild(){
   /* THE BRIDGE: nine sidebar options collapsed to four text tabs + everything via Cmd-K.
      One operator, one primary surface -- the rest is one keystroke away, not a wall. */
-  const PRIMARY=['army','cards','journal','answers'];
+  const PRIMARY=['autonomy','army','cards','journal','answers'];
   const n=$('#nav'); n.innerHTML='';
   VIEWS.filter(v=>PRIMARY.includes(v.id)).forEach(v=>{
     const a=el('a',null,`<span>${v.label}</span>`);
@@ -263,7 +264,7 @@ function navBuild(){
   more.onclick=()=>{ try{palOpen()}catch(_){ const p=$('#pal'); if(p)p.classList.add('open'); const i=$('#palin'); if(i)i.focus(); } };
   n.appendChild(more);
 }
-const RENDER={overview:vOverview,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
+const RENDER={overview:vOverview,autonomy:vAutonomy,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
 let CUR='overview';
 let navCursorSync=null;
 function route(want){

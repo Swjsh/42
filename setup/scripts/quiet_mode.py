@@ -184,6 +184,17 @@ ESSENTIAL = {
     # enables, disables, starts or kills anything, so exempting it cannot affect J's
     # evening. Same self-silencing class as the prereg-hygiene orphan-proxy bug (09-01).
     "Gamma_TaskStaleness",
+    # The evening command-center page (2026-09-03, task A1 GOAL-GAMMA-AUTONOMY-2026-09-03).
+    # J: "i need to see it happening, on the dashboard" -- Gamma_Home regenerates
+    # analysis/home/index.html, exactly the page J opens in the evening, and quiet mode's
+    # 18:00-23:00 ET blackout was disabling it for precisely that window -- the page going
+    # stale during the one part of the day J actually looks at it.
+    "Gamma_Home",
+    # The goal autopilot itself (same directive). Pure stdlib Python, $0, no LLM/network/
+    # broker -- same self-silencing-monitor class as Gamma_TaskStaleness above: a blackout
+    # that could disable the thing whose job is opening/closing Gamma's own goals would
+    # leave active-goal.json dark for up to 5 hours every evening, undoing the point of it.
+    "Gamma_GoalAutopilot",
 }
 
 # Command-line substrings identifying project-owned CPU hogs to stop in the blackout.

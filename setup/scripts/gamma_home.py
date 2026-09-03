@@ -576,13 +576,44 @@ def build(quiet: bool = False) -> dict:
         "glass": None,
         # Standing research lanes, same reasoning as glass.
         "lanes": None,
+        # THE GOAL, surfaced at the top level for convenience -- vAutonomy and the
+        # Overview "Working on" strip both read D.goal rather than reaching through
+        # D.autonomy.goal. Filled below from the same autonomy payload; never
+        # re-derived from the goal file a second time.
+        "goal": None,
+        # WHAT GAMMA LEARNED. J's goal DONE-WHEN (c): a rollup of the existing
+        # ledgers (kitchen, preregs, shadow, candidates, conductor, commits, study,
+        # self-audit) so "constantly testing and learning" has a number attached.
+        # Built by learning_ledger.py (a sibling builder's module on this same
+        # goal) -- absent until that lands, and its absence must render as NO DATA,
+        # never crash this page.
+        "learning": None,
     }
     try:
         sys.path.insert(0, str(REPO / "setup" / "scripts"))
         import gamma_autonomy as _au
         payload["autonomy"] = _au.build()
+        payload["goal"] = payload["autonomy"].get("goal")
     except Exception as e:                       # noqa: BLE001 - status must never 500 the page
         payload["autonomy"] = {"error": str(e)[:160], "awake": None}
+        payload["goal"] = None
+
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        import learning_ledger as _ll
+        payload["learning"] = _ll.build()
+        try:
+            _ll.write(payload["learning"])
+        except Exception:
+            pass   # writing the ledger's own cache file is a bonus, not a dependency
+    except ImportError:
+        # A1's sibling module hasn't landed yet, or landed without ever writing its
+        # cache -- fall back to the file it would have written, then to an honest
+        # NO DATA rather than losing this whole section of the page.
+        led = _load_json(STATE / "learning-ledger.json")[0]
+        payload["learning"] = led or {"error": "NO DATA", "windows": {}, "latest_verdicts": []}
+    except Exception as e:                        # noqa: BLE001 - never lose the page over a feed
+        payload["learning"] = {"error": str(e)[:160], "windows": {}, "latest_verdicts": []}
 
     for _key, _mod in (("glass", "gamma_glass"), ("lanes", "gamma_lanes")):
         try:

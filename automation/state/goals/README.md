@@ -14,6 +14,18 @@ per goal, schema: `## DONE-WHEN` / `## OPERATING RULES` / `## QUEUE` /
   clause) — keeps the current interactive session going up to
   `max_continuations_per_session` extra turns while the goal has open work.
 
+**Who keeps `active-goal.json` filled in (2026-09-03, task A1
+GOAL-GAMMA-AUTONOMY-2026-09-03):** `/gamma-goal` is `disable-model-invocation:
+true`, so only J can open a goal by hand — without a second mechanism the pointer
+just sits `active:false` between J's directives. `LADDER.md` (this directory) is
+the ordered, human/Claude-authored backlog of goals; `setup/scripts/
+goal_autopilot.py ensure` (registered `Gamma_GoalAutopilot`, every 30 min, 24/7,
+pure stdlib, no LLM) walks it deterministically — opens the first eligible
+queued (`[ ]`) entry whenever nothing is active/unexpired/non-terminal, and
+closes a goal whose `## QUEUE` has gone fully terminal or whose expiry has
+passed. The ladder is the only place judgment enters (which goals get queued,
+in what order); the autopilot itself never chooses between entries.
+
 ## Files here
 
 | File | Status |
