@@ -178,10 +178,18 @@ def test_status_token_present_on_nonterminal_rows(fixture_repo):
 def test_status_regexes_are_the_same_object_as_prereg_hygiene(sync, hygiene):
     """Identity check -- proves the board reuses prereg_hygiene's compiled regex objects
     rather than a hand-copied duplicate that could silently drift out of sync."""
-    assert sync.PENDING_STATUS_RE is hygiene.PENDING_STATUS_RE, (
+    # Identity is checked against the module object the generator ACTUALLY imported
+    # (sys.modules["prereg_hygiene"]); the file-loaded `hygiene` fixture is a separate
+    # module object by construction, so it is compared by PATTERN (drift check). In the
+    # full suite another test populates sys.modules["prereg_hygiene"] first, which made
+    # the old `is hygiene.X` form order-dependent (GuardsFull 2026-09-03 05:52 ET).
+    live = sys.modules["prereg_hygiene"]
+    assert sync.PENDING_STATUS_RE is live.PENDING_STATUS_RE, (
         "PENDING_STATUS_RE was copied, not imported from prereg_hygiene")
-    assert sync.TERMINAL_STATUS_RE is hygiene.TERMINAL_STATUS_RE, (
+    assert sync.TERMINAL_STATUS_RE is live.TERMINAL_STATUS_RE, (
         "TERMINAL_STATUS_RE was copied, not imported from prereg_hygiene")
+    assert sync.PENDING_STATUS_RE.pattern == hygiene.PENDING_STATUS_RE.pattern
+    assert sync.TERMINAL_STATUS_RE.pattern == hygiene.TERMINAL_STATUS_RE.pattern
 
 
 def test_source_imports_from_prereg_hygiene():
