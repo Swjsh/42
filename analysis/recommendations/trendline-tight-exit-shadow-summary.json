@@ -1,0 +1,30 @@
+{
+ "prereg": "analysis/recommendations/prereg-trendline-tight-exit-shadow-2026-09-03.md",
+ "generated_at_et": "2026-09-03T05:15:33.903810",
+ "accrual_start": "2026-09-03",
+ "tightened_knobs": {
+  "premium_stop_pct": -0.12,
+  "trail_pct": 0.1
+ },
+ "dollar_caveat": "SIGN-ONLY CAVEAT: recorded_exit is REAL broker-truth P&L; shadow_exit is a RE-SIMULATION over cached OPRA bars. The pair is not apples-to-apples -- treat delta_pnl's SIGN (did tightening help or hurt this trade) as informative and its DOLLAR MAGNITUDE as not sizing-grade. sign_agreement is the safe read; the dollar CI is reported but caveated the same way in the pre-registered decision rule.",
+ "n": 0,
+ "n_scored": 0,
+ "n_skipped": 0,
+ "n_skipped_by_reason": {},
+ "days_to_bar": 20,
+ "trendline_to_bar": 25,
+ "days_accrued": 0,
+ "sum_delta": 0.0,
+ "mean_delta": null,
+ "session_clustered_ci": null,
+ "top3_share": 0.0,
+ "sign_agreement": null,
+ "bar_met": false,
+ "status": "ARMED_AWAITING_FILLS",
+ "note": "No scored trendline-class closed trades on/after the accrual start yet. An empty clock on day 0 is expected, NOT a failure -- but a clock still empty after several trading days means the upstream enriched ledger stopped feeding it, or every trendline fill so far lacks cached OPRA bars (check n_skipped_by_reason).",
+ "new_this_run": 0,
+ "input_ledger_newest_date": "2026-09-02",
+ "input_expected_through": "2026-09-02",
+ "input_stale": false,
+ "input_note": "fed"
+}

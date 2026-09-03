@@ -380,7 +380,7 @@
 
 ### TRENDLINE-TIGHT-EXIT-ACCRETE (MED, watch candidate from the kitchen's best near-miss)
 
-- [ ] TRENDLINE-TIGHT-EXIT-ACCRETE (MED) :: Kitchen cell A6 (class-conditional-exits): tighten
+- [x] TRENDLINE-TIGHT-EXIT-ACCRETE (MED) :: Kitchen cell A6 (class-conditional-exits): tighten
   TRENDLINE-class stops -20%->-12% and trail 15%->10% = the night's ONLY 4/4-gate cell, best
   day-WR of any candidate (67.4%) -- but q=0.31 after the 83-cell portfolio BH correction
   (own-lane q=0.066 was homework-self-grading). NOT a ship; IS the best-evidenced exit lead
@@ -388,6 +388,7 @@
   fill going forward (shadow ledger, zero behavior change) until n clears a pre-registered
   bar; the nightly matrix rerun re-tests it as history grows. Opposite-direction sanity: the
   global trail-width A/B (CONTROL-HOLDS) tested WIDER, not tighter -- no conflict.
+  **SHADOW RUNNING (queue-terminal) 05:17 ET 2026-09-03 (Sonnet, Fable-verified 19 + 14 passed):** `setup/scripts/trendline_tight_exit_shadow.py` -- nightly, every closed engine fill whose canonical setup is a RIDE_THE_RIBBON class with `trigger_level is None` (the faithful real-fills proxy for the backtest TRENDLINE tier, disclosed) is re-walked through `exit_manager_walk` under cell A6's shape (`premium_stop_pct -0.12`, `trail_pct 0.10`, only those two keys differ from `ribbon_ride`, pinned) on cached option bars only (SKIPPED_NO_BARS otherwise); ledger + summary under `analysis/recommendations/trendline-tight-exit-shadow-*`. Prereg `prereg-trendline-tight-exit-shadow-2026-09-03.md`: bar days >= 20 AND n_scored >= 25; rule CI-lower > 0 AND top-3 share < 50% AND sign agreement >= 85%, not softenable, SIGN-ONLY caveat on dollars. `Gamma_TrendlineTightExitShadow` 16:45 ET weekdays PT15M/PT30M, State=Ready, real fire rc=0; registry 159 -> 160. Dry run: `n 0, status ARMED_AWAITING_FILLS`. No knob shipped. :: status:done
 
 ### RIBBON-SESSION-SCOPE-DIVERGENCE (HIGH, discovery from the TV parity oracle 2026-07-23)
 
