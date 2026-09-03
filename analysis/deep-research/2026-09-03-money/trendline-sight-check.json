@@ -1,0 +1,103 @@
+{
+  "meta": {
+    "stamp_et": "2026-09-03T17:40",
+    "question": "would heartbeat_core.py have seen J's 10:55 rising-support line via the LIVE trigger machinery",
+    "rth_filter": ">=09:30:00 ET and <16:00:00 ET, applied to the FULL multi-day df BEFORE the W=150 window slice (heartbeat_core.py lines 902-903, 906-907) -- premarket bars (04:00-09:29:59) are excluded from `df` itself, never reach `win`, `prior_bars`, or any detector call",
+    "per_day_rth_bar_counts": {
+      "2026-09-01": 78,
+      "2026-09-02": 78,
+      "2026-09-03": 78
+    },
+    "window_len_n": 150,
+    "trig_idx": 148,
+    "trig_bar_timestamp": "2026-09-03 10:55:00",
+    "forward_confirmation_bar_timestamp": "2026-09-03 11:00:00",
+    "trig_bar_ohlc": {
+      "o": 768.62,
+      "h": 769.33,
+      "l": 767.45,
+      "c": 769.28
+    },
+    "TRENDLINE_LOOKBACK_BARS": 60,
+    "TRENDLINE_MIN_SWINGS": 3,
+    "min_bar_idx_required": 62,
+    "bar_idx_sufficient": true
+  },
+  "live_function_calls": {
+    "detect_trendline_reclaim_bullish": null,
+    "detect_trendline_rejection_bearish": null,
+    "note": "Both search ONLY descending HIGH pivots (window['high'].values, require_decreasing pivot check) -- the reclaim function is the byte-identical pivot search to the rejection function, terminal check flipped (closes ABOVE + green vs closes BELOW + red). Neither has any code path that fits a line through LOWS. J's line is a rising SUPPORT line (through LOWS) -- a geometry class this function cannot represent, independent of whether the specific numeric fit would have matched."
+  },
+  "pivot_search_replay": {
+    "lookback_window_len": 60,
+    "pivots_found_highs": [
+      [
+        135,
+        770.045
+      ],
+      [
+        147,
+        768.83
+      ]
+    ],
+    "n_pivots": 2,
+    "min_swings_required": 3,
+    "sequential_pivots_strictly_decreasing": true,
+    "conclusion": "insufficient pivots"
+  },
+  "general_detector_support_rising_search": {
+    "note": "backtest/lib/trendline_detector.py::detect_trendlines(kinds=('support',), anchor_mode='wick', require_slope='rising') -- the general library that DOES have a support/rising-line code path (unlike the two live functions above). Zero consumers on the entry OR shadow-ledger path today (only chart-drawing / research scripts import it) -- included here purely to isolate whether the premarket exclusion, independent of the live function's resistance-only geometry, is itself sufficient to make J's specific line unreconstructable.",
+    "rth_only_multiday_no_premarket": {
+      "n_bars_fed": 149,
+      "n_lines_found": 1,
+      "lines": [
+        {
+          "kind": "support",
+          "anchor_mode": "wick",
+          "anchors": [
+            {
+              "bar_index": 103,
+              "price": 764.35,
+              "structure_label": "LL"
+            },
+            {
+              "bar_index": 130,
+              "price": 764.75,
+              "structure_label": "LL"
+            }
+          ],
+          "touch_count": 3,
+          "slope_per_bar": 0.014814814814813972,
+          "current_value": 765.0166666666667,
+          "status": "intact"
+        }
+      ]
+    },
+    "premarket_inclusive_today_only": {
+      "n_bars_fed": 84,
+      "n_lines_found": 1,
+      "lines": [
+        {
+          "kind": "support",
+          "anchor_mode": "wick",
+          "anchors": [
+            {
+              "bar_index": 42,
+              "price": 764.21,
+              "structure_label": "LL"
+            },
+            {
+              "bar_index": 78,
+              "price": 767.83,
+              "structure_label": "HL"
+            }
+          ],
+          "touch_count": 4,
+          "slope_per_bar": 0.10055555555555568,
+          "current_value": 768.3327777777778,
+          "status": "testing"
+        }
+      ]
+    }
+  }
+}

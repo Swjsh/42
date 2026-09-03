@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "task": "T1 WHAT WE HAVE -- trendline capability + shadow-evidence audit",
+    "slug": "capability-and-shadow",
+    "stamp_et": "2026-09-03T17:34:27",
+    "et_clock_source": "setup/scripts/et_clock.py",
+    "market_hours": false,
+    "scope": "code + ledger inventory only -- no new backtest run, no order, no param/file edit outside this deliverable"
+  },
+  "headline_answers_to_j": {
+    "are_we_shadowing_his_pattern": "PARTIALLY. The BREAK half of his pattern (rising support gives way -> decline, his 14:30 exhibit) IS shadowed and is in fact the single largest trade category in the ledger (762 ascending-BREAK events, 686 theoretical trades). The BOUNCE half (price touches rising support and continues up, his 10:55 exhibit) is logged as a raw TOUCH event (1,080 of them) but is structurally excluded from ever becoming a scored/traded event -- it has never once been asked 'did this make money'.",
+    "on_which_timeframes": "5-minute bars, RTH+premarket (04:00 ET onward). The shadow ledger's bar source (backtest/data/spy_5m_*.csv cumulative file) includes premarket; the live engine's own bar diet does not (see finding F4). No 15m/1m/1h shadow lane exists for this pattern -- only the separate, unrelated 2026-08-09 timeframe-matrix research script touched other timeframes, once, for a different question (touch-respect rate, not this pattern).",
+    "is_it_doing_well": "NO GREEN LIGHT. Whole-sample (73 sessions, n=1,451 theoretical trades through 2026-09-02): +0.0386 SPY pts/trade, session-clustered 95% CI [-0.0301, +0.1177] -- straddles zero -- and the top 3 sessions supply 105.4% of all profit (everything else nets negative). The frozen promotion bar (CI-lower>0 AND top-3 share<50% AND n_sessions>=60) is not cleared. This number is ALSO CONTAMINATED for J's specific question: it pools ascending-BREAK, ascending-REJECT and descending-REJECT together, none of which is the bounce-continuation shape J narrated for 10:55."
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "topic": "trendline_detector.py capability",
+      "fact": "backtest/lib/trendline_detector.py (built 2026-08-09, DETECTOR_VERSION 1.0.0) supports kinds=(resistance,support) -- i.e. BOTH descending-highs and ascending-lows fits -- and require_slope in (any|rising|falling), so a rising-support line (kind=support, require_slope=rising) is fully expressible via its public API. Defaults: pivot_window=2 (crypto.lib.market_structure fractal), min_touches=3, min_bars_between_touches=6, min_span_bars=6, touch_tolerance_dollars=0.20, max_lines_per_kind=1.",
+      "source": "backtest/lib/trendline_detector.py lines 104-147, 431-447"
+    },
+    {
+      "id": "F2",
+      "topic": "anchor_mode ALL-body/ALL-wick rule",
+      "fact": "Honored STRUCTURALLY, not just by assertion. `_view_for_mode` transforms the entire bar series to body-extremes (high:=max(open,close), low:=min(open,close)) BEFORE any pivot search runs when anchor_mode='body', so a body-mode line can never see a wick value; a belt-and-suspenders assert re-checks this on every call. Mixed body/wick within one line is not reachable through the public API.",
+      "source": "backtest/lib/trendline_detector.py lines 224-254, 470-492"
+    },
+    {
+      "id": "F3",
+      "topic": "who calls trendline_detector.py, on what timeframe",
+      "fact": "Three consumers, none of them the live decision path: (1) setup/scripts/trendline_chart_draw.py -> setup/scripts/trendline_headless_draw.py (Gamma_TrendlineHeadlessDraw, 08:40 ET + every 30min to 16:10) -- draws wick+body x support+resistance (up to 4 candidates, best-1-per-side by touch_count) onto the live TradingView chart, DISPLAY ONLY, default timeframe 5m, zero decision-path consumer. (2) backtest/autoresearch/trendline_timeframe_matrix_2026_08_09.py -- one-off research comparing 1m/5m/15m/30m/1h touch-respect rates. (3) backtest/autoresearch/trendline_validation_cells_2026_08_09.py -- the 4-cell validation study behind prereg TRENDLINE-ENGINE-VALIDATION-2026-08-09 (see F8). heartbeat_core.py NEVER imports trendline_detector.py.",
+      "source": "repo-wide grep for trendline_detector/detect_trendlines; setup/scripts/trendline_chart_draw.py lines 218-283"
+    },
+    {
+      "id": "F4",
+      "topic": "heartbeat_core.py bar window W=150 and premarket eligibility",
+      "fact": "heartbeat_core.py._build_payload filters df to RTH-only (>=09:30, <16:00 ET) at line 903 BEFORE the W=150 window is sliced at line 907 (`win = df.iloc[-W:]`). W=150 x 5m bars = 750min ~= 1.9 RTH sessions, sized 'enough for trendline(60)/vol(20) lookbacks' -- but premarket bars never reach this window at all, regardless of W's size. `prior_bars` (fed to filters.py's detect_trendline_rejection_bearish/detect_trendline_reclaim_bullish) is sliced from this RTH-only window (line 927/964). CONCLUSION: an 08:20 ET premarket low is structurally INELIGIBLE as an anchor for the live engine at 10:55 (or ever) -- not a data-availability gap, a deliberate RTH-only filter shipped 2026-06-25 to fix a 42%-score-parity backtest/live mismatch (extended-hours bars shift the ribbon EMAs).",
+      "source": "setup/scripts/heartbeat_core.py lines 898-906, 927, 942-943, 964",
+      "corroboration": "Empirically cross-checked by the companion exhibit run analysis/deep-research/2026-09-03-money/trendline-today-exhibit.json (same stamp): its `5m_rth_only_asof_1050` detector run (RTH-only bars, as-of the 10:50 close) finds 0 support lines (only 17 RTH bars exist by then); its `5m_full_day_incl_premarket_asof_1050` run (same as-of point, premarket included) finds 3 candidate support lines. Same detector, same instant -- the only variable is whether premarket bars are in the window, which is exactly what heartbeat_core.py's RTH filter removes."
+    },
+    {
+      "id": "F5",
+      "topic": "trend_cache_producer.py -- correction to the task's framing",
+      "fact": "setup/scripts/trend_cache_producer.py is UNRELATED to intraday trendline detection. It is a $0 daily-bar extender for backtest/tools/regime_classifier.py's multi-day TREND-REGIME classification cache (uptrend/downtrend/sideways over DAILY bars, Gamma_TrendCacheProducer). Zero references to trendline_detector.py or detect_trendlines anywhere in the file (verified by grep). It should not be read as part of the trendline capability stack.",
+      "source": "setup/scripts/trend_cache_producer.py lines 1-40; grep for trendline_detector/detect_trendlines (0 hits)"
+    },
+    {
+      "id": "F6",
+      "topic": "LIVE bear trigger geometry -- pivot HIGHS only",
+      "fact": "detect_trendline_rejection_bearish (backtest/lib/filters.py:758, LIVE, wired as engine trigger name 'trendline_rejection') finds descending pivot HIGHS ONLY via a sequential-highest-then-next-highest search (`highs = window['high'].values`, MIN_BAR_SEPARATION=10 bars), fits a line, and fires on a rejection (bar.high reaches the line, closes below it, red). It never reads a swing LOW. There is no code path by which this function could anchor on, or react to, a rising support line -- confirming the 2026-08-20 lesson is STILL TRUE as of this session (function body unchanged, re-read in full 2026-09-03).",
+      "source": "backtest/lib/filters.py lines 758-868"
+    },
+    {
+      "id": "F7",
+      "topic": "SHADOW bull trigger geometry -- descending-line BREAKOUT, not rising-support bounce",
+      "fact": "detect_trendline_reclaim_bullish (backtest/lib/filters.py:1101, SHADOW-only, engine trigger name 'trendline_reclaim', logged in shadow_triggers_fired, never wired into triggers/scoring per the 2026-07-15 fix-ship task) is byte-identical pivot search to the bear function -- SAME descending pivot-HIGH line -- but fires when price closes ABOVE it and green (a breakout of overhead resistance), not a bounce off rising support. The module's own docstring explains this was an explicit geometry CHOICE (doctrine precedent: playbook.md's TRENDLINE_BREAK_VOLUME pattern, 'PUTS on ascending break / CALLS on descending break') over the alternative (an ascending-support-reclaim line), because the alternative would need new ascending-pivot fitting logic this file didn't have. CONCLUSION: no live or shadow trigger in filters.py implements a rising-support BOUNCE (continuation) read for calls, and no live trigger anywhere implements a rising-support BREAK read for puts.",
+      "source": "backtest/lib/filters.py lines 1101-1147"
+    },
+    {
+      "id": "F8",
+      "topic": "the ONE place rising-support geometry IS scored: Gamma_TrendlineShadow",
+      "fact": "backtest/lib/trendlines.py::detect_trendlines (general scipy find_peaks detector, fits BOTH ascending-from-lows and descending-from-highs lines, wick-only -- no anchor_mode parameter) is wrapped by setup/scripts/trendline_shadow.py (Gamma_TrendlineShadow, daily 16:22 ET) into analysis/trendlines/shadow-ledger.jsonl. Bar source: the cumulative spy_5m_*.csv file, which INCLUDES premarket (verified: 2026-09-02's file starts 04:00:00 ET). Events per line: FORMED(implicit)/TOUCH/BREAK/RETEST/REJECT, refit every 6 bars (30min), min 24 bars (~2h) context before first fit, touch tolerance $0.15. A THEORETICAL TRADE (TP +1.00pt / stop -0.50pt / 60min time-stop, stop checked first within a bar) only opens for THEO_EVENTS = {(ascending,BREAK), (ascending,REJECT), (descending,REJECT)} AND touch_count>=3 AND r_squared>=0.70. Ascending TOUCH (the bounce shape) is explicitly NOT a THEO_EVENT -- it is logged with a bullish bias tag and forward MFE/MAE at 15/30/60m, but NEVER becomes a scored trade.",
+      "source": "backtest/lib/trendlines.py lines 1-40, 207-260; setup/scripts/trendline_shadow.py lines 1-115, 258-301"
+    },
+    {
+      "id": "F9",
+      "topic": "current ledger composition (as read this session, 4,986 rows through 2026-09-03, 74 distinct sessions)",
+      "fact": "By (direction,event): ascending/BREAK 762 rows (686 theo trades) -- the single largest theo-trade category, this IS J's rising-support-break-then-decline pattern, bias=bearish; ascending/REJECT 439 (388 theo); ascending/RETEST 301 (0 theo, not a THEO_EVENT); ascending/TOUCH 1,080 (0 theo -- THIS is J's 10:55 bounce shape, mean forward mfe_30m across 1,066 tagged rows = +0.67 SPY pts, computed ad hoc this session, NOT bootstrap-CI'd, NOT pre-registered, NOT risk-adjusted -- exploratory only); descending/BREAK 752 (0 theo, not a THEO_EVENT); descending/REJECT 436 (387 theo -- mirrors the live bear trigger's shape); descending/RETEST 336 (0 theo); descending/TOUCH 880 (0 theo).",
+      "source": "python read of analysis/trendlines/shadow-ledger.jsonl this session"
+    },
+    {
+      "id": "F10",
+      "topic": "Gamma_TrendlineShadow verdict + method",
+      "fact": "analysis/trendlines/shadow-verdict.json 'latest' entry (dated 2026-09-02, computed by setup/scripts/trendline_shadow_verdict.py): sessions_total=73, n_trades=1451, points_per_trade=+0.0386, win_rate=0.400, sessions_positive=39/73, top3_session_share_of_profit=1.054 (105.4%), session_clustered_ci_95=[-0.0301,0.1177], ci_clears_zero=false. Method: whole-sample stats from trendline_shadow.baseline(), CI via a day-level block-bootstrap (resample SESSIONS with replacement, pool theo_points, take the mean; n_boot=2000, seed=1337, ci_level=0.95) -- the same concept as the repo-canonical setup/scripts/lib/scorecard_guards.py::day_level_bootstrap, applied to trendline theo_points instead of dollar PnL. A frozen promotion bar exists (added 2026-08-29 recompute): CI-lower>0 AND top-3-session share<50% AND n_sessions>=60 AND no new knobs. None of the three numeric gates currently clear (CI straddles zero; concentration is 105%, not <50%; n_sessions=73>=60 does pass). History has exactly 2 entries: the reconstructed 2026-08-20 one-off (65 sessions, n=1332, +0.041pts/tr, CI[-0.039,0.124]) and this 2026-09-02 recompute -- trending the same shape, not resolving.",
+      "source": "analysis/trendlines/shadow-verdict.json; setup/scripts/trendline_shadow_verdict.py lines 15-77, 133-172"
+    },
+    {
+      "id": "F11",
+      "topic": "prereg status -- all 4 SHADOW.md-listed trendline preregs, all resolved, none 'open'",
+      "preregs": [
+        {
+          "id": "TRENDLINE-BREAK-AT-LEVEL-2026-08-13",
+          "verdict": "NULL",
+          "detail": "72 cells (6 proximity bands x 4 wick/body-support/resistance families x 3 horizons), 0 survive BH-FDR q=0.10 on 50,132 breaks/376 days. The naive positive (confluence appears to raise MFE/MAE ratio, up to +26% relative at the loosest band) reproduces 41% of the time under a date-shuffle null -- a distance artifact, not confluence. Result: analysis/recommendations/TRENDLINE-BREAK-AT-LEVEL-2026-08-14.md."
+        },
+        {
+          "id": "TRENDLINE-ENGINE-VALIDATION-2026-08-09",
+          "verdict": "4 cells, mixed",
+          "detail": "Cell A: trendline_rejection AS SOLE TRIGGER is the single strongest cohort in the 391-day real-fills book (n=176, +$2,456.84, $13.96/tr, WR 33.5%) -- already live, nothing to ship. Cell B (PROPOSE-ONLY): the shadow trendline_reclaim trigger fired unconditionally LOSES -$27,378.25 over 2,411 counterfactual real-fills replays (-$11.36/tr), fails 3/5 auto-ratify gates -- explicitly NOT shipped. Cell C: proximity-admissibility KILLED (non-monotonic, fails shuffle-null). Cell D: wick vs body anchor families statistically indistinguishable (47.65% vs 48.70% respect, p=0.96). Result: automation/overnight/STATUS-archive-2026-08.md ~L7401 (ship note), analysis/recommendations/trendline-engine-validation-2026-08-09.json."
+        },
+        {
+          "id": "prereg-trendline-context-conditioning-2026-08-01",
+          "verdict": "NULL",
+          "detail": "16 pre-registered tests over the 66-trade structure-stop level-anchored real-OPRA cohort (+$6,894.85), asking whether multi-day trendline context changes per-trade expectancy. 0/16 survive BH-FDR q*=0.10 (best p=0.13). Result: analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.md."
+        },
+        {
+          "id": "G2-TRENDLINE-BYPASS-INVERTS-PRIORITY-2026-08-01",
+          "verdict": "NULL (both arms)",
+          "detail": "Tests whether the existing bear-side trendline-only filter-5/8/9 relaxation should EXTEND to all level-tied triggers or be REMOVED entirely. ARM_EXTEND: full +$78.15 but recent-25d -$561.55, fails G1-G3; ARM_REMOVE: full -$984.70, recent -$1,498.10, fails G1-G4. FINAL VERDICT: NEITHER_SHIPS_STAYS_TRENDLINE_ONLY -- control default unchanged. Result: analysis/recommendations/g2-trendline-bypass-2026-08-20.md."
+        }
+      ],
+      "note": "SHADOW.md's 'no status field' annotation on all four is accurate for the prereg JSON files themselves (none carries a `status` key) -- but every one of the four has a companion result file recording a final verdict, so 'no status field' does not mean 'never run'."
+    },
+    {
+      "id": "F12",
+      "topic": "2026-08-20 'pivot-highs only; rising support invisible' note -- origin and current truth",
+      "fact": "Origin: J hand-drew an ascending support line 2026-08-20 (08:35 low 764.15, 10:20 low 765.36, 11:30 low 765.83); it broke 11:35, retested 12:40, rejected, ran to 763.04. He asked why the engine never saw it. The answer, still true today (verified by re-reading filters.py in full this session, F6 above): detect_trendline_rejection_bearish is the ONLY trendline detector ever on the live entry path, it reads pivot HIGHS exclusively and hard-rejects any non-decreasing slope, so ascending support/its break/its retest are invisible to the live engine BY CONSTRUCTION -- not a bug, a geometry limit of the one function that is live. This is exactly what motivated building trendline_shadow.py the same day (F8).",
+      "source": "setup/scripts/trendline_shadow.py lines 1-38 (docstring, J's own account); backtest/lib/filters.py lines 758-868 (re-read 2026-09-03, unchanged)"
+    }
+  ],
+  "gaps_and_next_step": {
+    "no_scored_bull_bounce_trigger_anywhere": "Live, shadow, or research: nothing in this codebase currently asks 'does price bouncing off a rising support line and continuing up make money' as a scored trade. The shadow ledger logs the event (ascending TOUCH, 1,080 rows) and its forward MFE/MAE, but by THEO_EVENTS construction never trades it. This is the exact shape of J's 10:55 exhibit.",
+    "premarket_anchor_asymmetry": "The shadow ledger's ascending/descending detector sees premarket bars (bar source includes 04:00 ET onward); the live engine structurally never does (RTH filter precedes the W=150 window). A line anchored partly on a premarket low, as J describes, can only ever be SHADOW-visible, never live-visible, under the current architecture -- regardless of any future tuning of W, lookback_bars, or pivot windows.",
+    "recommended_t2_scope": "A pre-registered study isolating ascending-TOUCH-continuation as its OWN theoretical-trade category (separate from BREAK/REJECT) with its own THEO_EVENTS entry, run over the same 74-session ledger, would directly answer whether J's specific bounce pattern has a measurable edge -- something the current +0.0386 pts/trade headline cannot speak to because it never contains a single bounce trade. A companion exhibit run already exists for today's session (analysis/deep-research/2026-09-03-money/trendline-today-exhibit.json) and empirically confirms the RTH-vs-premarket detector asymmetry in F4 for this exact date."
+  }
+}
