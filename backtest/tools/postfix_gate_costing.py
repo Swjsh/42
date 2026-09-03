@@ -126,6 +126,16 @@ DOORS = {
 FLEET_ARMS = ("safe-3", "risky-1", "risky-3")
 
 
+def sole_blocker_rows(holds: list[dict], bkey: str, filt: int) -> list[dict]:
+    """HOLD rows (already filtered to one account + door) whose blocker list is EXACTLY
+    [filt] -- the honest single-filter binding cohort (C15: multi-blocker rows are cascade
+    cohorts, no single filter may claim them). Extracted 2026-09-03 (GATE-EXPIRY-SOLE-BLOCKER-
+    MINER) so backtest/autoresearch/gate_expiry_check.py's nightly pass can lazy-import and
+    reuse the IDENTICAL selection this file's own Part B uses, rather than a second copy of the
+    filter -- both instruments must always agree on which rows count as sole-blocked."""
+    return [r for r in holds if (r.get(bkey) or []) == [filt]]
+
+
 def mine(start: dt.date, end: dt.date) -> dict:
     print("[postfix] loading SPY+VIX frame ...", flush=True)
     spy_raw, _vix = load_merged_spy_vix()
@@ -177,13 +187,12 @@ def mine(start: dt.date, end: dt.date) -> dict:
             holds = [r for r in rows if r.get("account") == account and r.get("verdict") == "HOLD"]
             for filt in range(1, 12):
                 sub = []
-                for r in holds:
-                    if (r.get(bkey) or []) == [filt]:
-                        ev = dict(r)
-                        ev["side"] = side
-                        if r.get(lvl_key) is not None:
-                            ev["trigger_level_exact"] = r[lvl_key]
-                        sub.append(ev)
+                for r in sole_blocker_rows(holds, bkey, filt):
+                    ev = dict(r)
+                    ev["side"] = side
+                    if r.get(lvl_key) is not None:
+                        ev["trigger_level_exact"] = r[lvl_key]
+                    sub.append(ev)
                 if not sub:
                     continue
                 events = cluster_events(sub, EVENT_CLUSTER_GAP_MINUTES)

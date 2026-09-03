@@ -138,6 +138,7 @@ REGISTRY = ROOT / "automation" / "state" / "gate-registry.json"
 OUT_JSON = ROOT / "automation" / "state" / "gate-registry-status.json"
 STATUS_MD = ROOT / "automation" / "overnight" / "STATUS.md"
 CORE_DECISIONS = ROOT / "automation" / "state" / "core-decisions.jsonl"
+TRADES_ENRICHED = ROOT / "analysis" / "trades-enriched.jsonl"
 
 # sim convention shared with recency_check.py / the harnesses (NEG=ITM, POS=OTM offset; 0=ATM)
 PREMIUM_STOP_PCT = -0.08
@@ -547,6 +548,222 @@ def check_gate(gate: dict, spy: pd.DataFrame, ribbon: pd.DataFrame, spy_ts: pd.S
     }
 
 
+# ============================================================ SOLE-BLOCKER MINER (queue item
+# GATE-EXPIRY-SOLE-BLOCKER-MINER, built 2026-09-03): extends this nightly instrument's
+# refusal-costing clock from the SKIP-verdict gates above to the 11-filter bull/bear checklist,
+# which refuses via HOLD rows carrying per-door blocker lists (bear_blockers/bull_blockers),
+# not a SKIP_* action -- so it had NO clock at all before this (see
+# analysis/recommendations/vix-bear-floor-postfix-quantification-2026-08-04.json's
+# "standing_watch_condition": "queue item filed to extend the nightly gate-expiry instrument
+# with this sole-blocker miner so the watch is mechanical, not remembered").
+#
+# MINING: reuses backtest/tools/postfix_gate_costing.py's DOORS map + sole_blocker_rows()
+# selector byte-for-bit (lazy-imported below via _postfix_module(), mirroring
+# _sound_replay_module()'s pattern -- postfix_gate_costing.py imports FROM this module at ITS
+# OWN load time, so a module-level import here would be circular). A HOLD row counts for filter
+# N iff its door's blocker list is EXACTLY [N] (C15: multi-blocker rows are cascade cohorts, no
+# single filter may claim them).
+#
+# COSTING: this build deliberately does NOT forward-replay through the OPRA option cache /
+# walk_exit_manager tonight (the cache was held by a parallel builder's exit-walk replay work
+# at build time) -- every cell this miner emits is stamped `"costing": "NOT_REPLAYED"`. In place
+# of a dollar EV it reports a cheap DIRECTIONAL proxy: the day's own P1 outcome (the next REAL
+# entry taken that trading day, same door/side, from analysis/trades-enriched.jsonl) --
+#   WIN  -> "cost_money"  (a same-direction real trade won; the refused signal plausibly would
+#                          have too)
+#   LOSS -> "saved_money" (a same-direction real trade lost; the refusal plausibly was correct)
+#   none found that day/side -> "unknown"
+# This is WEAKER evidence than evaluate_gate_pnl's $ replay above (one proxy trade standing in
+# for the refused signal's own counterfactual walk, not a forward simulation of THAT signal) and
+# must never be read as a dollar figure. A full replay (postfix_gate_costing.py --start/--end,
+# or a future extension of this file once the OPRA cache is free) remains the ratifying
+# instrument -- exactly as costing_verdict's RED reason already says for the SKIP gates above.
+# ==============================================================================================
+
+# Flagship watches named by the queue item -- folded into the SAME gate-result shape
+# (id/overall/pnl_check) as every other row in `results` so compute_newly_red/flag_status_md
+# flag them with byte-identical transition-only, no-respam semantics. door, filter id.
+SOLE_BLOCKER_FLAGSHIPS = {
+    "filter-8-bear-sole": ("bear", 8),   # VIX floor -- post-fix count expected 0
+    "filter-10-bull-sole": ("bull", 10),  # buyer pressure -- bull-f10-buyer-pressure-prereg-2026-08-04.json
+}
+
+_POSTFIX_MODULE = None  # lazy-import cache, mirrors _SOUND_REPLAY_MODULE above
+
+
+def _postfix_module():
+    """Lazily import backtest/tools/postfix_gate_costing.py -- DEFERRED ON PURPOSE (function-
+    scope, not module-level): that module imports THIS module's mining layer (CORE_DECISIONS,
+    EVENT_CLUSTER_GAP_MINUTES, cluster_events, load_decision_rows) at ITS OWN module-load time,
+    so a module-level import here would be circular. By the time this function is first
+    CALLED, this module has already finished loading -- Python simply resolves the
+    already-complete module object, no circularity."""
+    global _POSTFIX_MODULE
+    if _POSTFIX_MODULE is None:
+        tools_dir = str(REPO / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        import postfix_gate_costing as _pgc  # noqa: PLC0415 -- intentionally deferred, see above
+        _POSTFIX_MODULE = _pgc
+    return _POSTFIX_MODULE
+
+
+def load_p1_outcomes_by_day(path: Path = TRADES_ENRICHED) -> dict[tuple[str, str], list[dict]]:
+    """(date, side) -> real fills that day on that side, sorted by entry_ts_et. side is 'C'/'P'
+    (trades-enriched.jsonl's own `right` field). Fail-open per line, matches
+    load_decision_rows' own tolerance -- a malformed row must never abort the whole miner."""
+    out: dict[tuple[str, str], list[dict]] = {}
+    if not path.exists():
+        return out
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                r = json.loads(line)
+            except (json.JSONDecodeError, ValueError):
+                continue
+            date, side, ts = r.get("date"), r.get("right"), r.get("entry_ts_et")
+            if not date or side not in ("C", "P") or not ts:
+                continue
+            out.setdefault((date, side), []).append(r)
+    for key, rows in out.items():
+        rows.sort(key=lambda r: r["entry_ts_et"])
+    return out
+
+
+def p1_outcome_for_event(ev: dict, p1_by_day: dict[tuple[str, str], list[dict]], side: str) -> tuple[str, float | None]:
+    """('WIN'|'LOSS'|'NONE', pnl_dollars_or_None) for the day's next real P1 entry (same
+    door/side) at-or-after the refused event's own timestamp; if none fired after it that day,
+    fall back to the day's last same-side fill (still the day's own outcome, just before the
+    refusal instead of after); NONE if no same-side real fill exists that day at all."""
+    ts = ev.get("ts_et", "")
+    date = ts[:10]
+    candidates = p1_by_day.get((date, side), [])
+    if not candidates:
+        return "NONE", None
+    after = [c for c in candidates if c["entry_ts_et"] >= ts]
+    chosen = after[0] if after else candidates[-1]
+    pnl = chosen.get("pnl_dollars")
+    if pnl is None:
+        return "NONE", None
+    return ("WIN" if pnl > 0 else "LOSS"), round(float(pnl), 2)
+
+
+def sole_blocker_events(rows_hold: list[dict], door: str, filt: int) -> list[dict]:
+    """HOLD rows (one account's worth, verdict=='HOLD') exact-sole-blocked on `filt` for
+    `door`, clustered into tradeable events via this module's own cluster_events -- the
+    IDENTICAL 15-min folding the SKIP gates above use."""
+    grab = _postfix_module()
+    bkey, side, lvl_key = grab.DOORS[door]
+    sub = []
+    for r in grab.sole_blocker_rows(rows_hold, bkey, filt):
+        ev = dict(r)
+        ev["side"] = side
+        if r.get(lvl_key) is not None:
+            ev["trigger_level_exact"] = r[lvl_key]
+        sub.append(ev)
+    return cluster_events(sub, EVENT_CLUSTER_GAP_MINUTES)
+
+
+def mine_sole_blockers(recent_start: dt.date, recent_end: dt.date,
+                        p1_by_day: dict | None = None,
+                        filters: range = range(1, 12)) -> dict[str, dict]:
+    """Per door x filter x account, over [recent_start, recent_end]: sole-blocker event counts
+    + the NOT_REPLAYED directional read (see module-section docstring above). Called twice by
+    main() below -- once for the single most-recent session, once for the rolling 20-session
+    window -- by passing recent_start==recent_end for the former."""
+    grab = _postfix_module()
+    if p1_by_day is None:
+        p1_by_day = load_p1_outcomes_by_day()
+    rows = [
+        r for r in load_decision_rows(CORE_DECISIONS, recent_start)
+        if r.get("ts_et", "")[:10] <= recent_end.isoformat() and r.get("armed") is True
+    ]
+    out: dict[str, dict] = {}
+    for door in grab.DOORS:
+        for account in ("safe", "bold"):
+            holds = [r for r in rows if r.get("account") == account and r.get("verdict") == "HOLD"]
+            for filt in filters:
+                events = sole_blocker_events(holds, door, filt)
+                if not events:
+                    continue
+                cost = saved = unknown = 0
+                for ev in events:
+                    read, _pnl = p1_outcome_for_event(ev, p1_by_day, grab.DOORS[door][1])
+                    if read == "WIN":
+                        cost += 1
+                    elif read == "LOSS":
+                        saved += 1
+                    else:
+                        unknown += 1
+                key = f"{door}_filter{filt}_{account}"
+                out[key] = {
+                    "n_events": len(events), "n_cost_money": cost, "n_saved_money": saved,
+                    "n_unknown": unknown, "costing": "NOT_REPLAYED",
+                }
+    return out
+
+
+def sole_blocker_top5(sole_blocker_report: dict[str, dict]) -> dict[str, list[dict]]:
+    """Per door, the top-5 filter ids by summed n_events across both accounts -- the
+    human-readable rollup the queue item's report asks for."""
+    by_door_filter: dict[tuple[str, int], int] = {}
+    for key, cell in sole_blocker_report.items():
+        door, rest = key.split("_filter", 1)
+        filt_str, _account = rest.split("_", 1)
+        dk = (door, int(filt_str))
+        by_door_filter[dk] = by_door_filter.get(dk, 0) + cell["n_events"]
+    out: dict[str, list[dict]] = {}
+    for door in {d for d, _f in by_door_filter}:
+        ranked = sorted(
+            ((f, n) for (d, f), n in by_door_filter.items() if d == door),
+            key=lambda t: -t[1],
+        )[:5]
+        out[door] = [{"filter": f, "n_events": n} for f, n in ranked]
+    return out
+
+
+def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: int) -> dict[str, dict]:
+    """The two named watches (bear sole-[8] VIX floor, bull sole-[10] buyer pressure) folded
+    into a gate-result-shaped dict (id/category/overall/pnl_check) so they can be merged into
+    `results` before compute_newly_red/flag_status_md -- reusing that transition-only, no-respam
+    machinery verbatim rather than building a second alarm surface. verdict is directional
+    (NOT_REPLAYED, see module-section docstring) -- RED here means 'watch fired, go run a full
+    replay', never a proven $ costing."""
+    results: dict[str, dict] = {}
+    for gate_id, (door, filt) in SOLE_BLOCKER_FLAGSHIPS.items():
+        prefix = f"{door}_filter{filt}_"
+        n_events = sum(v["n_events"] for k, v in sole_blocker_report.items() if k.startswith(prefix))
+        n_cost = sum(v["n_cost_money"] for k, v in sole_blocker_report.items() if k.startswith(prefix))
+        n_saved = sum(v["n_saved_money"] for k, v in sole_blocker_report.items() if k.startswith(prefix))
+        if n_events == 0:
+            overall, reason = "GREEN", f"{door} sole-[{filt}]: 0 refusal events in window"
+        elif n_cost >= floor:
+            overall = "RED"
+            reason = (f"{door} sole-[{filt}] refused {n_events} bar-event(s), {n_cost} >= floor "
+                      f"{floor} read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- "
+                      f"directional smoke alarm, not a dollar costing verdict; a full replay via "
+                      f"backtest/tools/postfix_gate_costing.py is the ratifying instrument)")
+        elif n_cost > 0:
+            overall = "YELLOW"
+            reason = (f"{door} sole-[{filt}]: {n_cost} cost_money read(s) of {n_events} events, "
+                      f"under floor {floor} -- watch, not yet actionable")
+        else:
+            overall = "GREEN"
+            reason = (f"{door} sole-[{filt}]: {n_events} refusal event(s), {n_saved} read "
+                      f"saved_money, 0 read cost_money")
+        results[gate_id] = {
+            "id": gate_id, "category": "sole_blocker_watch", "evidence_age_days": None,
+            "revalidation_interval_days": None, "evidence_stale": False,
+            "pnl_check": {"verdict": overall, "reason": reason, "costing": "NOT_REPLAYED",
+                          "n_events": n_events, "n_cost_money": n_cost, "n_saved_money": n_saved},
+            "overall": overall,
+        }
+    return results
+
+
 def compute_newly_red(results: dict[str, dict], prior_gates: dict) -> list[dict]:
     """Gates whose overall verdict is RED THIS run but was NOT RED on the prior run (or had
     no prior run) -- the exact set that should get a fresh STATUS.md line. A persisting RED
@@ -603,13 +820,16 @@ def main() -> int:
     ap.add_argument("--lookback", type=int, default=RECENCY_LOOKBACK_TRADING_DAYS)
     ap.add_argument("--floor", type=int, default=CONFIRM_N_FLOOR)
     ap.add_argument("--gate", type=str, default=None, help="only check this gate id (debug)")
+    ap.add_argument("--sole-blocker-lookback", type=int, default=20,
+                     help="rolling window (trading days) for the filter-checklist sole-blocker miner")
     args = ap.parse_args()
 
     registry = load_registry()
     gates = registry["gates"]
+    run_sole_blockers = args.gate is None or args.gate in SOLE_BLOCKER_FLAGSHIPS
     if args.gate:
         gates = [g for g in gates if g["id"] == args.gate]
-        if not gates:
+        if not gates and not run_sole_blockers:
             print(f"[gate-expiry] unknown gate id {args.gate!r}", flush=True)
             return 1
 
@@ -641,6 +861,33 @@ def main() -> int:
         results[gate["id"]] = r
         print(f"[gate-expiry] {gate['id']:38s} overall={r['overall']:18s} "
               f"evidence_age={r['evidence_age_days']}d pnl={r['pnl_check']['verdict']}", flush=True)
+
+    # ---- SOLE-BLOCKER MINER (GATE-EXPIRY-SOLE-BLOCKER-MINER, 2026-09-03) -----------------
+    sole_blocker_report: dict[str, dict] = {}
+    sole_blocker_session_report: dict[str, dict] = {}
+    sole_blocker_top5_20: dict[str, list[dict]] = {}
+    # defined outside the try so the summary dict below can reference them even on failure
+    # (fail-open, OP-25): session_start/sb_start/sb_end never depend on a risky call.
+    session_start = trading_days[-1] if trading_days else recent_end
+    ns20 = argparse.Namespace(end=None, start=None, lookback=args.sole_blocker_lookback)
+    sb_start, sb_end, _ = resolve_window(ns20, trading_days) if trading_days else (recent_start, recent_end, cache_last)
+    if run_sole_blockers:
+        try:
+            p1_by_day = load_p1_outcomes_by_day()
+            sole_blocker_report = mine_sole_blockers(sb_start, sb_end, p1_by_day=p1_by_day)
+            sole_blocker_session_report = mine_sole_blockers(session_start, session_start, p1_by_day=p1_by_day)
+            sole_blocker_top5_20 = sole_blocker_top5(sole_blocker_report)
+            flagship_results = sole_blocker_flagship_results(sole_blocker_report, args.floor)
+            results.update(flagship_results)
+            for gid, r in flagship_results.items():
+                print(f"[gate-expiry] {gid:38s} overall={r['overall']:18s} pnl={r['pnl_check']['verdict']}", flush=True)
+        except Exception as exc:  # noqa: BLE001 -- OP-25 fail-open: sole-blocker miner failure must never sink the run
+            print(f"[gate-expiry] sole-blocker miner failed: {exc}", flush=True)
+            for gid in SOLE_BLOCKER_FLAGSHIPS:
+                results[gid] = {"id": gid, "category": "sole_blocker_watch", "overall": "ERROR",
+                                "pnl_check": {"verdict": "ERROR", "reason": f"sole-blocker mining failed: {exc}",
+                                              "costing": "NOT_REPLAYED"}}
+
     new_red = compute_newly_red(results, prior_gates)
 
     summary = {
@@ -656,6 +903,19 @@ def main() -> int:
         # docstring): a --gate <id> filtered run must update ONLY that gate's row, not wipe
         # every other gate this file has ever recorded.
         "gates": merge_gate_results(results, prior_gates),
+        # GATE-EXPIRY-SOLE-BLOCKER-MINER (2026-09-03): filter-checklist refusal costing,
+        # additive schema -- see the SOLE-BLOCKER MINER module section for the costing
+        # definition (NOT_REPLAYED directional proxy, never a $ figure).
+        "sole_blocker_miner": {
+            "costing": "NOT_REPLAYED",
+            "rolling_window_trading_days": args.sole_blocker_lookback,
+            "rolling_window": f"{sb_start}..{sb_end}" if run_sole_blockers else None,
+            "session": str(session_start) if run_sole_blockers else None,
+            "cells_rolling_window": sole_blocker_report,
+            "cells_last_session": sole_blocker_session_report,
+            "top5_sole_blockers_by_door_rolling_window": sole_blocker_top5_20,
+            "flagship_watches": list(SOLE_BLOCKER_FLAGSHIPS.keys()),
+        },
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
