@@ -69,11 +69,14 @@ if ($Uninstall) {
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$venvDir      = Join-Path $root "backtest\.venv"
+$venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\state_freshness_remediate.py"
 
 if (-not (Test-Path $pythonwVenv))   { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
 if (-not (Test-Path $sysPythonw))    { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $venvSitePkgs))  { throw "backtest venv site-packages not found at $venvSitePkgs" }
 if (-not (Test-Path $runCmdHidden))  { throw "run_cmd_hidden.py not found at $runCmdHidden" }
 if (-not (Test-Path $script))        { throw "state_freshness_remediate.py not found at $script" }
 
@@ -82,8 +85,18 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 }
 
 # wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
-#   -- backtest-venv pythonw -> state_freshness_remediate.py  (real mode, not --dry-run)
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`""
+#   -- system pythonw (venv activated via --env) -> state_freshness_remediate.py
+#   (real mode, not --dry-run)
+# 2026-09-03 VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe (a): inner target changed
+# from $pythonwVenv to $sysPythonw, venv activated via --env instead -- see
+# install-fee-recalibrate.ps1's WIRING comment for the full root cause. Verified safe for
+# this script specifically: state_freshness_remediate.py's _default_starter() re-invokes
+# allowlisted producers via `sys.executable` + subprocess.run() with no `env=` override,
+# so producer children inherit this process's environment (including the injected
+# VIRTUAL_ENV/PYTHONPATH) and sys.executable now resolves to the non-leaking base
+# pythonw.exe directly -- an improvement over the old recipe, not just a lateral move.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 30 min, every day -- repeat trigger needs a base daily trigger + repetition.

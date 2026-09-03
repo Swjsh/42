@@ -60,6 +60,8 @@ $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$venvDir      = Join-Path $root "backtest\.venv"
+$venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\context_bundle_producer.py"
 $etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
@@ -73,7 +75,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $pythonwVenv, $sysPythonw, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $pythonwVenv, $sysPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -93,9 +95,13 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 }
 
 # wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
-#   -- backtest venv pythonw -> context_bundle_producer.py --once
+#   -- system pythonw (venv activated via --env) -> context_bundle_producer.py --once
 # (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" --once"
+# 2026-09-03 VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe (a): inner target changed
+# from $pythonwVenv to $sysPythonw, venv activated via --env instead -- see
+# install-fee-recalibrate.ps1's WIRING comment for the full root cause.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`" --once"
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

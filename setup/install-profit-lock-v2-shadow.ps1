@@ -84,7 +84,10 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$venvDir      = Join-Path $root "backtest\.venv"
+$venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\profit_lock_v2_shadow.py"
 $taskName     = "Gamma_ProfitLockV2Shadow"
@@ -97,7 +100,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $venvPythonw, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $venvPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -105,7 +108,13 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$wscriptArgs = "//nologo `"$vbs`" `"$venvPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$venvPythonw`" `"$script`""
+# 2026-09-03 VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe (a): BOTH outer and inner
+# target changed from $venvPythonw to $sysPythonw (base install pythonw), venv activated
+# via --env instead -- see install-fee-recalibrate.ps1's WIRING comment for the full root
+# cause. This installer previously used venv pythonw on BOTH hops (the doubly-leaking
+# shape), so both are converted here.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

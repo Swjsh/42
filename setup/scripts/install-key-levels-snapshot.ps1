@@ -70,11 +70,14 @@ if ($Uninstall) {
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$venvDir      = Join-Path $root "backtest\.venv"
+$venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\snapshot_key_levels.py"
 
 if (-not (Test-Path $pythonwVenv))  { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
 if (-not (Test-Path $sysPythonw))   { throw "system pythonw.exe not found at $sysPythonw" }
+if (-not (Test-Path $venvSitePkgs)) { throw "backtest venv site-packages not found at $venvSitePkgs" }
 if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
 if (-not (Test-Path $script))       { throw "snapshot_key_levels.py not found at $script" }
 
@@ -83,9 +86,12 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 }
 
 # wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
-#   -- backtest-venv pythonw -> snapshot_key_levels.py
-# (2026-08-08 VBS-WRAPPER-EXIT-CODE-BLIND-SPOT migration -- was fire-and-forget.)
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`""
+#   -- system pythonw (venv activated via --env) -> snapshot_key_levels.py
+# 2026-09-03 VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe (a): inner target changed
+# from $pythonwVenv to $sysPythonw, venv activated via --env instead -- see
+# install-fee-recalibrate.ps1's WIRING comment for the full root cause.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # 4 weekday fires: 08:35 / 09:30 / 12:00 / 15:50 ET -> 06:35 / 07:30 / 10:00 / 13:50 MT.

@@ -65,6 +65,26 @@ ROLLED_OUT = {
     "install-fee-recalibrate.ps1",  # setup/scripts/ -- original recipe-(a) proof, 2026-09-03
     "install-retest-zone-shadow.ps1",  # setup/ -- rolled + live-verified 2026-09-03
     "install-structure-classifier-shadow.ps1",  # setup/ -- rolled + live-verified 2026-09-03
+    # 2026-09-03 second-pass roll (this session) -- each re-registered, State=Ready,
+    # NextRunTime sane, Export-ScheduledTask diff showed only Enabled/StartBoundary/
+    # Arguments changed (triggers untouched), fired via Start-ScheduledTask (LastTaskResult
+    # =0) or verified via a direct base-pythonw+--env probe, zero new window-leaks.jsonl
+    # rows across the whole batch (2619 before and after).
+    "install-profit-lock-v2-shadow.ps1",  # setup/ -- doubly-leaking (outer+inner venv
+    # pythonw) before this pass; both hops now $sysPythonw. Fired, LastTaskResult=0.
+    "install-entry-location-trend-shadow.ps1",  # setup/ -- fired, LastTaskResult=0,
+    # entry-location-trend-summary.json mtime advanced.
+    "install-trendline-tight-exit-shadow.ps1",  # setup/ -- fired, LastTaskResult=0,
+    # trendline-tight-exit-shadow summary mtime advanced.
+    "install-state-freshness-remediate.ps1",  # setup/scripts/ -- fired via scheduled task
+    # (LastTaskResult=0) AND via a direct probe (verdict=RED n_candidates=0, clean exit,
+    # no crash) -- its _default_starter() re-invokes producers with sys.executable + no
+    # env= override, so producer children inherit the injected VIRTUAL_ENV/PYTHONPATH and
+    # sys.executable now resolves to the non-leaking base pythonw.exe directly.
+    "install-key-levels-snapshot.ps1",  # setup/scripts/ -- fired via scheduled task
+    # (LastTaskResult=0) AND via a direct probe (SKIP-UNCHANGED, clean exit, no crash).
+    "install-context-bundle.ps1",  # setup/scripts/ -- fired, LastTaskResult=0, --once
+    # mode, context-bundle summary mtime advanced.
 }
 
 
