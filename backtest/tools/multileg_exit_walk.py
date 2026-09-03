@@ -46,9 +46,37 @@ import pandas as pd  # noqa: E402
 
 import exit_manager as em  # noqa: E402
 
+# MARKET-STAGE FILL BUG (found + quantified 2026-09-03, WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY).
+# `ExitAction` (automation/state/fleet/exit_manager.py) carries NO `price` field -- so
+# `getattr(a, "price", None)` below is ALWAYS None, and every non-tp1 SELL leg falls back to
+# `state.runner_stop_premium or worst_in`. `runner_stop_premium` is set at ExitState.from_entry
+# to `entry_premium * (1 + stop_pct)` (exit_manager.py:290) and is NEVER None after entry -- so
+# `worst_in` (the bar price `fill_mode` is supposed to control) is DEAD CODE for every stage
+# except tp1: structure_stop, ribbon_flip, and time_stop -- market-style exits that should fill
+# at whatever the option was actually trading at when the live event fired -- instead silently
+# price at the STATIC catastrophe/premium-stop level, every time, regardless of what stage
+# actually triggered them or what fill_mode the caller asked for.
+#
+# MEASURED (backtest/tools/walker_fidelity.py, 132-row safe-2/bold-2 anchor, 2026-09-03): on
+# losing anchor rows the replayed loss % clusters within ~1pt of the static stop level
+# (structure-mode rows: -50.7% to -51.9%, vs a real catastrophe_stop_pct of -50%; premium-mode
+# rows: -20.6% to -21.3%, vs a real premium_stop_pct of -20%) while the ACTUAL realized loss %
+# on the SAME rows ranges from -6% to -55% -- the walker is not modeling WHERE the live exit
+# fired, only pricing every non-tp1 exit as if it were the theoretical worst case. This explains
+# why toggling `fill_mode` (extreme/close/mixed) left the loser-side aggregate ratio BIT-
+# IDENTICAL in that study (1.5900444748546014, every time) -- `worst_in` was never reached.
+#
+# FIX, behind a flag defaulting to OLD (buggy) behavior for every existing caller (same
+# discipline as exit_manager_walk.py's `all_exits_market` kwarg -- a fix here moves every
+# historical cell in every study that has ever called `walk()`, so it does not flip silently):
+# `market_stage_fill_fix=True` prices _MARKET_STAGES legs at the bar's own worst-case price
+# (`worst_in`, already resolved per `fill_mode`) instead of the static stop level.
+_MARKET_STAGES = frozenset({"structure_stop", "ribbon_flip", "time_stop"})
+
 
 def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
-         fill_mode: str = "extreme", spy_closes=None, slippage: float = 0.0) -> dict:
+         fill_mode: str = "extreme", spy_closes=None, slippage: float = 0.0,
+         market_stage_fill_fix: bool = False) -> dict:
     """Walk ONE real fill through the real exit_manager, honouring partial sells.
 
     Returns realized P&L across every leg plus the leg detail. `bars` is the contract's
@@ -113,8 +141,14 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
             # price the leg at whatever level triggered it
             px = getattr(a, "price", None)
             if px is None:
-                px = (entry * (1.0 + state.tp1_premium_pct) if a.stage == "tp1"
-                      else state.runner_stop_premium or worst_in)
+                if market_stage_fill_fix and a.stage in _MARKET_STAGES:
+                    # MARKET-STAGE FILL FIX (see module-level note): a structure/ribbon/time
+                    # exit fills at what the bar's price actually was, not the theoretical
+                    # stop level -- mirrors exit_manager_walk.py's _MARKET_STAGES convention.
+                    px = worst_in
+                else:
+                    px = (entry * (1.0 + state.tp1_premium_pct) if a.stage == "tp1"
+                          else state.runner_stop_premium or worst_in)
             n = min(int(a.qty or open_qty), open_qty)
             if n <= 0:
                 continue

@@ -446,15 +446,22 @@ def test_magnitude_fidelity_reports_aggregate_and_per_side_ratios():
     assert out["aggregate_ratio"] == round(214.0 / 250.0, 4)
 
 
-def test_magnitude_fidelity_is_disclosure_not_a_gate():
-    """The bar is deliberately absent. A threshold picked after seeing this population's
-    values is bar-fitting -- the exact failure the prereg's validator-fidelity addendum
-    already had to reverse once."""
+def test_magnitude_fidelity_criterion_is_pre_registered_not_fitted_here():
+    """SUPERSEDES test_magnitude_fidelity_is_disclosure_not_a_gate (2026-09-03,
+    WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY). That test pinned "no bar exists yet" -- true
+    at the time, and exactly the gap this fold closes: a magnitude criterion NOW exists
+    (backtest/lib/walker_magnitude_fidelity.py), pre-registered from V9's OWN prior run
+    (analysis/whole-engine-null/2026-09-02.json) and the PDT anchor's numbers -- NOT fitted
+    to whatever population this specific call happens to score. The still-load-bearing
+    invariant from the old test survives unchanged: magnitude never feeds
+    `harness_reliable` (see test_sign_agreement_remains_the_only_reliability_gate below) --
+    it is a SECOND, independent read, reported alongside the sign gate, never instead of it."""
     out = wen._magnitude_fidelity(_cmp([10.0, -10.0], [5.0, -20.0]))
-    assert out["bar"] is None
-    assert "pre-registration" in out["bar_note"]
-    assert not any(k.startswith("pass") or k.endswith("_pass") for k in out), (
-        "magnitude must not introduce a pass/fail key -- sign agreement is the only gate")
+    assert "criterion" in out
+    assert out["criterion"]["verdict"] in ("PASS", "FAIL", "INSUFFICIENT")
+    assert "backtest/lib/walker_magnitude_fidelity.py" in out["criterion"]["note"]
+    assert not any(k in ("pass", "harness_reliable") for k in out), (
+        "magnitude must not introduce a key that could be mistaken for the sign-based gate")
 
 
 def test_magnitude_fidelity_never_divides_by_a_zero_denominator():

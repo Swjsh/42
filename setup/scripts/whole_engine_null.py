@@ -59,6 +59,15 @@ import refused_setup_ledger as refusals  # noqa: E402 -- fetch_bars() reuse
 from et_clock import et_now  # noqa: E402
 import go_live_gate as glg  # noqa: E402 -- fee_ex_cat() A1 cost model reuse
 import trades_enriched as te_producer  # noqa: E402 -- TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER refresh
+from walker_magnitude_fidelity import (  # noqa: E402 -- WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY
+    # Bare (not "lib."-qualified) on purpose: BACKTEST/lib is on sys.path directly (see the
+    # loop above), and pdt_blocked_counterfactual.py imports this SAME module bare too -- using
+    # the identical spelling here means both studies resolve to the ONE sys.modules entry
+    # (import identity, not just behavioral equivalence), pinned by
+    # test_whole_engine_null_and_pdt_study_import_the_same_functions.
+    magnitude_fidelity as _shared_magnitude_fidelity,
+    evaluate_magnitude_fidelity,
+)
 
 PREREG = REPO / "analysis" / "recommendations" / "prereg-whole-engine-null-2026-09-01.json"
 TRADES_ENRICHED = REPO / "analysis" / "trades-enriched.jsonl"
@@ -522,42 +531,29 @@ def _proxy_trigger_level(row: dict) -> Optional[float]:
 def _magnitude_fidelity(compared: list[dict]) -> dict:
     """Dollar-level fidelity of the walk, alongside (never instead of) sign agreement.
 
-    `aggregate_ratio` is replay-total / actual-total: 1.00 is faithful, <1 means the walk
-    under-reproduces the engine's net, >1 means it over-reproduces. Split by realised
-    outcome because the two sides fail differently and the aggregate hides which.
-    Returns None for a ratio whose denominator is ~0 rather than dividing by it."""
+    DELEGATES to the shared `backtest/lib/walker_magnitude_fidelity.magnitude_fidelity` (added
+    2026-09-03 under WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY) so this study and
+    `pdt_blocked_counterfactual.py` compute the exact same metric from the exact same code, not
+    two independently-drifting copies. Field shape is UNCHANGED from before that fold except:
+    `bar`/`bar_note` are replaced by a `criterion` sub-dict (below) -- the pre-registered
+    magnitude bar this docstring said did not yet exist now does (derived in
+    `analysis/harness-fidelity/WALKER-MAGNITUDE-2026-09-03.json`, not fitted to THIS
+    population). `run_v9` reports the resulting verdict as `magnitude_fidelity_verdict`,
+    additively -- this function, and the sign-based `harness_reliable` gate above it, are
+    UNCHANGED in what they decide."""
     if not compared:
         return {"n": 0}
     real = [c["real_pnl"] for c in compared]
     walk = [c["walked_pnl"] for c in compared]
-    errs = sorted(abs(w - a) for w, a in zip(walk, real))
-
-    def _ratio(num: float, den: float):
-        return round(num / den, 4) if abs(den) > 1e-9 else None
-
-    wins = [(w, a) for w, a in zip(walk, real) if a > 0]
-    loss = [(w, a) for w, a in zip(walk, real) if a < 0]
-    n = len(errs)
-    return {
-        "n": n,
-        "actual_total_dollars": round(sum(real), 2),
-        "replay_total_dollars": round(sum(walk), 2),
-        "aggregate_ratio": _ratio(sum(walk), sum(real)),
-        "total_error_dollars": round(sum(walk) - sum(real), 2),
-        "median_abs_error_dollars": round(errs[n // 2], 2),
-        "p90_abs_error_dollars": round(errs[min(n - 1, (9 * n) // 10)], 2),
-        "max_abs_error_dollars": round(errs[-1], 2),
-        "winners": {"n": len(wins), "actual": round(sum(a for _, a in wins), 2),
-                    "replay": round(sum(w for w, _ in wins), 2),
-                    "ratio": _ratio(sum(w for w, _ in wins), sum(a for _, a in wins))},
-        "losers": {"n": len(loss), "actual": round(sum(a for _, a in loss), 2),
-                   "replay": round(sum(w for w, _ in loss), 2),
-                   "ratio": _ratio(sum(w for w, _ in loss), sum(a for _, a in loss))},
-        "bar": None,
-        "bar_note": ("NO pass/fail bar is set. Any threshold chosen now would be fitted to "
-                     "values already seen; a magnitude bar needs pre-registration. These are "
-                     "disclosed so no dollar-denominated verdict is read without them."),
+    mag = _shared_magnitude_fidelity(list(zip(real, walk)))
+    mag["criterion"] = {
+        "verdict": evaluate_magnitude_fidelity(mag),
+        "note": ("Pre-registered 2026-09-03 (WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY), derived "
+                 "from this repo's walker population BEFORE this specific V9 run, not fitted "
+                 "to it -- see backtest/lib/walker_magnitude_fidelity.py for the exact bar and "
+                 "its derivation."),
     }
+    return mag
 
 
 def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict:
@@ -718,7 +714,8 @@ def run_v9(p1_rows: list[dict], spy5: pd.DataFrame, budget: FetchBudget) -> dict
         # Read winners_ratio / losers_ratio FIRST -- they localise the bias in a way the
         # aggregate cannot. The engine's net is a small difference between two large numbers,
         # so a modest shortfall on the winning side alone drags the aggregate a long way.
-        "magnitude_fidelity": _magnitude_fidelity(compared),
+        "magnitude_fidelity": _mag,
+        "magnitude_fidelity_verdict": _mag.get("criterion", {}).get("verdict", "INSUFFICIENT"),
         "agreement_by_exit_reason": agreement_by_exit_reason,
         "stop_mode_fidelity": {"n_real_stop_mode": n_stop_mode_real,
                               "n_defaulted_structure_true": n_stop_mode_defaulted},

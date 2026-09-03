@@ -98,6 +98,10 @@ import pandas as pd  # noqa: E402
 import strategies as st  # noqa: E402
 from lib.option_pricing_real import load_contract_bars  # noqa: E402
 from multileg_exit_walk import walk  # noqa: E402
+from walker_magnitude_fidelity import (  # noqa: E402 -- WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY
+    magnitude_fidelity as _shared_magnitude_fidelity,
+    evaluate_magnitude_fidelity,
+)
 
 PREREG_PATH = REPO / "analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11.json"
 CORE_LEDGER = REPO / "automation/state/core-decisions.jsonl"
@@ -394,12 +398,21 @@ def harness_validation() -> dict:
                 "note": "no anchor rows could be replayed"}
     sign_ok = sum(1 for r in results if r["sign_ok"])
     errs = [r["err"] for r in results]
+    # MAGNITUDE FIDELITY (2026-09-03, WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY). This IS the
+    # study whose own anchor run first surfaced the gap: 95.35% sign agreement on this exact
+    # anchor shape while replaying -$2,201.60 against an actual -$538.00 (~4x aggregate-
+    # negative). `magnitude_fidelity_verdict` is a SECOND, INDEPENDENT read reported alongside
+    # `harness_reliable` below -- it does NOT feed that gate. `harness_reliable` stays keyed to
+    # sign_agreement >= HARNESS_SIGN_AGREEMENT_BAR exactly as before this fold.
+    mag = _shared_magnitude_fidelity([(r["actual"], r["replay"]) for r in results])
     return {
         "n": n, "skipped_no_bars": skipped_no_bars,
         "sign_agreement": round(sign_ok / n, 4),
         "actual_total": round(sum(r["actual"] for r in results), 2),
         "replay_total": round(sum(r["replay"] for r in results), 2),
         "median_abs_error": round(stt.median([abs(e) for e in errs]), 2),
+        "magnitude_fidelity": mag,
+        "magnitude_fidelity_verdict": evaluate_magnitude_fidelity(mag),
         "rows": results,
     }
 
@@ -436,6 +449,9 @@ def main() -> int:
         print(f"  sign agreement: {hv['sign_agreement']*100:.1f}%  (bar: {HARNESS_SIGN_AGREEMENT_BAR*100:.0f}%)")
         print(f"  actual total ${hv['actual_total']:+,.0f}  replay total ${hv['replay_total']:+,.0f}  "
               f"median abs err ${hv['median_abs_error']:,.0f}")
+        print(f"  MAGNITUDE fidelity verdict: {hv['magnitude_fidelity_verdict']}  "
+              f"(aggregate_ratio={hv['magnitude_fidelity'].get('aggregate_ratio')}, "
+              f"reported alongside sign agreement, does NOT gate harness_reliable below)")
     else:
         print(f"  COULD NOT VALIDATE: {hv.get('note')}")
     harness_reliable = (hv.get("sign_agreement") is not None
