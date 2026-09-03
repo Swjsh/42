@@ -5,7 +5,7 @@
 **Observed (2026-09-03 00:03 ET):** `Gamma_McpDailyAudit` (LLM prompt `automation/prompts/mcp-weekly-audit.md`) wrote
 `MCP_AUDIT_RED: Alpaca Safe and Bold both 401 Unauthorized ... BLOCKER: Live trading requires valid Alpaca auth` into
 STATUS.md `## Known broken`. The same morning (07:48 ET) it had written `MCP_AUDIT_YELLOW ... 404 (credential/account
-mismatch possible)`. A direct REST `GET /v2/account` with the `.mcp.json` keys at 01:20 ET returned 200 for BOTH accounts
+mismatch possible)`. A direct REST `GET /v2/account` with the `.mcp.json` keys at 00:53 ET returned 200 for BOTH accounts
 (PA3POKNV46VG $5,653.87 ACTIVE; PA3WEBXJU67N $5,593.52 ACTIVE), and the live engine had traded all day on those keys.
 
 **Root cause (one sentence):** the audit probes the broker THROUGH the MCP server inside an LLM session (a process whose
