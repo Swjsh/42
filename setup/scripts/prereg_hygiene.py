@@ -18,14 +18,27 @@ For every `analysis/recommendations/*prereg*.json`:
      else a trailing `-YYYY-MM-DD` date embedded in the filename, else the file's own
      mtime (flagged in the record as `age_source: "mtime_fallback"` since that is a
      weaker signal -- mtime moves on any touch, not just authoring).
-  4. Orphan check: ripgrep (falling back to a pure-Python walk if `rg` is unavailable)
-     for the file's stem across setup/, backtest/, automation/ -- ZERO references means
-     nothing in the live pipeline can act on this prereg's kill/arm criteria.
+  4. Orphan check (INFORMATIONAL ONLY, see FIX below): ripgrep (falling back to a
+     pure-Python walk if `rg` is unavailable) for the file's stem across setup/,
+     backtest/, automation/ -- ZERO references means nothing in the live pipeline can
+     act on this prereg's kill/arm criteria.
 
-Flags a prereg when ALL THREE hold: status text matches FROZEN/NOT RUN/NOT SHIPPED,
-age > 14 days, AND it is an orphan. This is the "committed, went stale, nothing can
-even act on it" triple -- any one alone is normal (a same-day FROZEN prereg with no
-references yet is expected; an old prereg a script still greps for is fine).
+Flags a prereg when status text matches FROZEN/NOT RUN/NOT SHIPPED AND age > 14 days
+(and no matching result file already exists on disk, see `has_results_file`). `orphan`
+is reported per-entry as an INFORMATIONAL column, never a flag requirement.
+
+FIX (2026-09-02, ORPHAN-PROXY-IS-SELF-SILENCING): this used to also require `orphan`
+(nothing anywhere in setup/backtest/automation mentions the prereg's filename) before
+flagging. That makes the monitor self-silencing: WRITING ABOUT a stale prereg --
+adjudicating it in queue.md, discussing it in STATUS.md, naming it in a work order --
+mentions its filename, which clears the orphan bit and turns the flag off with nothing
+resolved. Observed live: the flagged count went 6 -> 0 in one run, purely because the
+adjudication write-up named all six by filename. An item under active discussion is
+exactly the one that should stay on the board until its result actually lands (or
+`has_results_file` proves it did) -- discussion is not resolution. Dropping `orphan`
+from the flag condition fixes this; the column stays in every entry for triage context
+(a flagged prereg with `orphan: true` has nothing left that can even act on it, one with
+`orphan: false` at least has a live reader that could).
 
 Writes analysis/recommendations/prereg-hygiene.json every run (always, for a stable
 read surface). Appends ONE consolidated '### BROKEN: prereg-hygiene <ts>' block to
@@ -409,8 +422,14 @@ def scan() -> dict:
         # the fix for the class caught live 2026-09-02: 3 preregs sat FROZEN-labelled
         # with a completed verdict already on disk, and one (PDT counterfactual) was
         # actually RE-RUN from scratch the same night before the duplication was found.
-        if is_stale_status and age_days > AGE_DAYS_THRESHOLD and orphan and not has_results:
-            flagged.append({**entry, "reason": "FROZEN/NOT RUN + age>14d + orphan"})
+        # ORPHAN-PROXY-IS-SELF-SILENCING FIX (2026-09-02): `orphan` is deliberately NOT
+        # part of this condition -- see module docstring. It stays on `entry` above as
+        # an informational column.
+        if is_stale_status and age_days > AGE_DAYS_THRESHOLD and not has_results:
+            reason = f"FROZEN/NOT RUN + age>{AGE_DAYS_THRESHOLD}d"
+            if orphan:
+                reason += " + orphan"
+            flagged.append({**entry, "reason": reason})
     # Reconciliation candidates: a prereg whose OWN status text still reads as never-run
     # even though a result file matched -- these are exactly the entries whose status
     # field is stale bookkeeping, surfaced so the next adjudication pass doesn't have
@@ -452,14 +471,16 @@ def _append_status_block(report: dict) -> bool:
         named = ", ".join(m["file"] for m in report["malformed"][:6])
         lines.append(f"- {len(report['malformed'])} MALFORMED prereg file(s): {named}")
     if report["flagged"]:
+        n_orphan = sum(1 for row in report["flagged"] if row.get("orphan"))
         lines.append(
-            f"- {report['n_flagged']} prereg(s) FROZEN/NOT RUN + age>{AGE_DAYS_THRESHOLD}d + "
-            f"orphan (nothing references them):"
+            f"- {report['n_flagged']} prereg(s) FROZEN/NOT RUN + age>{AGE_DAYS_THRESHOLD}d "
+            f"({n_orphan} of them orphan -- nothing references the filename; "
+            f"orphan is informational, not a flag requirement):"
         )
         for row in report["flagged"][:10]:
             lines.append(
                 f"  - {row['file']} (age {row['age_days']}d via {row['age_source']}, "
-                f"status={row['status']!r})"
+                f"status={row['status']!r}, orphan={row.get('orphan')})"
             )
     block = "\n".join(lines) + "\n"
     try:

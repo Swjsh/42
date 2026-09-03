@@ -10,7 +10,12 @@ Pins:
   - malformed JSON is reported by name + parse error, never silently skipped
   - status extraction prefers `status`, falls back to the first `*verdict*` key
   - age priority: frozen_at_et/frozen_at field > filename date > mtime fallback
-  - flagging requires ALL THREE: stale-status text, age > 14d, AND orphan
+  - flagging requires stale-status text AND age > 14d. `orphan` is INFORMATIONAL ONLY
+    (ORPHAN-PROXY-IS-SELF-SILENCING FIX, 2026-09-02) -- it no longer gates the flag.
+    A prereg mentioned in queue.md/STATUS.md/a work order (i.e. NOT an orphan) must
+    still flag once frozen+stale+old, because writing ABOUT a stale prereg used to
+    silence its own monitor (observed live: flagged count 6 -> 0 with nothing
+    resolved, purely because the adjudication write-up named all six by filename).
   - the STATUS.md append is DEDUPED -- an unchanged flagged-set across runs writes
     nothing new (OP-25 "compound, don't accumulate")
   - SELF-REFERENCE LOOP GUARD: this monitor's own STATUS.md output must be excluded
@@ -91,8 +96,9 @@ def test_status_field_none_when_absent():
     assert prereg_hygiene._status_field({"foo": "bar"}) is None
 
 
-def test_flag_requires_all_three_conditions(sandbox):
-    # Stale status + old age, but REFERENCED -> must NOT flag.
+def test_flag_requires_stale_status_and_age_orphan_is_informational_only(sandbox):
+    # Stale status + old age, REFERENCED (not orphan) -> MUST still flag (2026-09-02
+    # fix: orphan is no longer a flag requirement -- see module docstring).
     p1 = sandbox["recs"] / "referenced-prereg-2026-08-01.json"
     _write(p1, {"status": "FROZEN -- not run", "frozen_at_et": "2026-08-01T00:00:00"})
     (sandbox["setup"] / "consumer.py").write_text(
@@ -106,13 +112,47 @@ def test_flag_requires_all_three_conditions(sandbox):
     p3 = sandbox["recs"] / "shipped-prereg-2026-08-01.json"
     _write(p3, {"status": "SHIPPED", "frozen_at_et": "2026-08-01T00:00:00"})
 
-    # All three hold -> MUST flag.
+    # Stale + old + orphan -> MUST flag (unchanged case).
     p4 = sandbox["recs"] / "orphan-stale-prereg-2026-08-01.json"
     _write(p4, {"status": "FROZEN -- NOT RUN", "frozen_at_et": "2026-08-01T00:00:00"})
 
     report = prereg_hygiene.scan()
     flagged_names = {f["file"] for f in report["flagged"]}
-    assert flagged_names == {"orphan-stale-prereg-2026-08-01.json"}
+    assert flagged_names == {
+        "referenced-prereg-2026-08-01.json",
+        "orphan-stale-prereg-2026-08-01.json",
+    }
+    by_name = {f["file"]: f for f in report["flagged"]}
+    assert by_name["referenced-prereg-2026-08-01.json"]["orphan"] is False
+    assert by_name["referenced-prereg-2026-08-01.json"]["reason"] == "FROZEN/NOT RUN + age>14d"
+    assert by_name["orphan-stale-prereg-2026-08-01.json"]["orphan"] is True
+    assert by_name["orphan-stale-prereg-2026-08-01.json"]["reason"] == \
+        "FROZEN/NOT RUN + age>14d + orphan"
+
+
+def test_prereg_named_in_queue_md_still_flags(sandbox):
+    """RED-PROOF the ORPHAN-PROXY-IS-SELF-SILENCING fix: a prereg discussed/adjudicated
+    in queue.md (a real file under automation/, a scanned SEARCH_DIRS root -- STATUS.md
+    is the only excluded path) is NOT an orphan, but must still flag once it is
+    frozen+stale+old. Before the fix this exact shape (mention it, watch the flag clear)
+    was the live bug: the flagged count went 6 -> 0 with nothing resolved."""
+    p = sandbox["recs"] / "prereg-adjudicated-in-queue-2026-08-01.json"
+    _write(p, {"status": "FROZEN -- NOT RUN", "frozen_at_et": "2026-08-01T00:00:00"})
+    queue_md = sandbox["automation"] / "queue.md"
+    queue_md.write_text(
+        "- [ ] SOME-ITEM :: prereg-adjudicated-in-queue-2026-08-01 -- RUN, pending execution\n",
+        encoding="utf-8",
+    )
+
+    report = prereg_hygiene.scan()
+    entry = next(e for e in report["entries"] if e["file"] == p.name)
+    assert entry["orphan"] is False, "queue.md mention must clear the orphan bit"
+    flagged_names = {f["file"] for f in report["flagged"]}
+    assert p.name in flagged_names, (
+        "a prereg named in queue.md must still flag -- being adjudicated in prose is "
+        "not the same as being resolved (has_results_file), and must not silence the "
+        "monitor"
+    )
 
 
 def test_age_source_priority_filename_over_mtime(sandbox):
@@ -145,8 +185,14 @@ def test_red_proof_self_reference_loop_guard(sandbox):
     """RED-PROOF: this monitor's own STATUS.md output must be excluded from the
     orphan-reference scan. Simulate a run that has already flagged a prereg (its
     filename now sits in STATUS.md), then confirm that WITHOUT the exclusion the
-    monitor would wrongly clear the flag on the next run -- and WITH the exclusion
-    (the shipped behaviour) it does not."""
+    monitor's own output would wrongly clear the `orphan` bit on the next run -- and
+    WITH the exclusion (the shipped behaviour) it does not.
+
+    UPDATED 2026-09-02 (ORPHAN-PROXY-IS-SELF-SILENCING FIX): `orphan` no longer gates
+    the flag itself (see test_flag_requires_stale_status_and_age_orphan_is_informational_only
+    above), so this guard now checks the INFORMATIONAL `orphan` column rather than the
+    flagged set -- the flag survives either way; what the exclusion protects is whether
+    `orphan` still means what it says."""
     p = sandbox["recs"] / "orphan-stale-prereg-2026-08-01.json"
     _write(p, {"status": "FROZEN -- NOT RUN", "frozen_at_et": "2026-08-01T00:00:00"})
 
@@ -155,22 +201,32 @@ def test_red_proof_self_reference_loop_guard(sandbox):
     status_text = sandbox["status_md"].read_text(encoding="utf-8")
     assert "orphan-stale-prereg-2026-08-01.json" in status_text
 
-    # Guarded behaviour: re-scanning still flags it (STATUS.md mention excluded).
+    # Guarded behaviour: re-scanning still flags it AND still reports it orphan (its own
+    # STATUS.md mention is excluded from the reference scan).
     report_guarded = prereg_hygiene.scan()
-    assert any(f["file"] == p.name for f in report_guarded["flagged"]), (
-        "guarded scan must still flag the prereg -- its own STATUS.md mention is excluded"
+    guarded_entry = next(e for e in report_guarded["entries"] if e["file"] == p.name)
+    assert guarded_entry["orphan"] is True, (
+        "guarded scan must still report orphan=True -- its own STATUS.md mention is excluded"
     )
+    assert any(f["file"] == p.name for f in report_guarded["flagged"])
 
     # RED-PROOF: neuter the exclusion (empty EXCLUDE_PATHS) and confirm the SAME
-    # scenario now wrongly clears the flag -- proving the exclusion is load-bearing.
+    # scenario now wrongly clears the `orphan` bit -- proving the exclusion is load-bearing.
+    # The flag itself still fires (frozen+age no longer depends on orphan), which is the
+    # whole point of the 2026-09-02 fix -- self-mention can no longer silence the flag,
+    # only muddy the informational orphan column, and this guard catches exactly that.
     orig_exclude = prereg_hygiene.EXCLUDE_PATHS
     try:
         prereg_hygiene.EXCLUDE_PATHS = set()
         report_neutered = prereg_hygiene.scan()
-        neutered_flagged = {f["file"] for f in report_neutered["flagged"]}
-        assert p.name not in neutered_flagged, (
+        neutered_entry = next(e for e in report_neutered["entries"] if e["file"] == p.name)
+        assert neutered_entry["orphan"] is False, (
             "removing the STATUS.md exclusion should let its own mention count as a "
-            "reference, wrongly clearing the flag (RED-PROOF the guard is load-bearing)"
+            "reference, wrongly clearing the orphan bit (RED-PROOF the guard is load-bearing)"
+        )
+        neutered_flagged = {f["file"] for f in report_neutered["flagged"]}
+        assert p.name in neutered_flagged, (
+            "the flag itself must survive regardless -- orphan is informational only"
         )
     finally:
         prereg_hygiene.EXCLUDE_PATHS = orig_exclude

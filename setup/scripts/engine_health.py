@@ -29,6 +29,7 @@ redirect so a scheduled spawn never leaks a console window.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
@@ -1403,13 +1404,57 @@ def _atomic_write(path: Path, payload: dict) -> None:
     os.replace(tmp, path)
 
 
-def main() -> int:
+def _maybe_remediate() -> None:
+    """OFF by default (queue item STATE-FRESHNESS-AUTO-REMEDIATOR, 2026-09-03). Guarded
+    behind --remediate so this beacon's own "reads EXISTING state only, adds NO new
+    producers" contract (module docstring) is not silently broken by a default-on flip.
+
+    DELIBERATELY NOT ARMED on the 1-min Gamma_HealthBeacon cadence (2026-09-03 coordinator
+    correction): run-engine-health.ps1 invokes this script via Invoke-PythonHidden with
+    -TimeoutSec 45, once a minute. A remediation pass can shell out to a producer hitting
+    yfinance (refresh_levels_intraday / level_memory_producer / context_bundle_producer /
+    confluence_producer / compute_ema_snapshot), each with its own 180s subprocess budget --
+    one stale entry alone can blow past the beacon's 45s cap, and the OS-level kill on
+    timeout would land mid-write, turning a remediation attempt into a NEW corruption risk
+    instead of a fix. The armed cadence is its own scheduled task,
+    Gamma_StateFreshnessRemediate (every 30 min, all day, generous ExecutionTimeLimit --
+    setup/scripts/install-state-freshness-remediate.ps1), which calls this SAME module
+    standalone. This flag stays available here for manual/ad-hoc use (a human running
+    engine_health.py --remediate by hand knows the timeout risk they're accepting) but must
+    never be added to run-engine-health.ps1's argument list.
+
+    Fails open: any import or runtime failure here must never affect this beacon's own
+    report or return code."""
+    try:
+        _HERE_LOCAL = Path(__file__).resolve().parent
+        if str(_HERE_LOCAL) not in sys.path:
+            sys.path.insert(0, str(_HERE_LOCAL))
+        import state_freshness_remediate as sfr  # noqa: PLC0415
+        out = sfr.run()
+        print(f"[engine_health --remediate] {json.dumps(out)}")
+    except Exception as e:  # noqa: BLE001 -- remediation must never break the health beacon
+        print(f"[engine_health --remediate] failed open: {type(e).__name__}: {e}",
+              file=sys.stderr)
+
+
+def main(argv: Optional[list] = None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0] if __doc__ else "")
+    ap.add_argument("--remediate", action="store_true", default=False,
+                     help="after writing the health report, also invoke "
+                          "state_freshness_remediate.run() for any STALE-BY-SESSION entry "
+                          "(default OFF -- see _maybe_remediate docstring)")
+    args = ap.parse_args(argv)
+
     prior_verdict, prior_reds = _prior_state()
     report = build_report()
     alerted = maybe_alert(report, prior_verdict, prior_reds)
     report["alerted"] = alerted
     _atomic_write(OUT_FILE, report)
     print(json.dumps(report, indent=2))
+
+    if args.remediate:
+        _maybe_remediate()
+
     return 0
 
 
