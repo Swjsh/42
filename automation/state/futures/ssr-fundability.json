@@ -1,0 +1,36 @@
+{
+  "as_of": "2026-09-03T04:32:54.549141",
+  "_doc": "Margin-based fundability check (queue item SSR-FUNDABILITY-MEASURES-NOTIONAL-NOT-MARGIN). Complements, does not replace, ssr_shadow.py's notional/equity _fundability disclosure -- THIS check asks the binding constraint (margin, not notional) and the gauge reads GREEN only when the book can carry the position OVERNIGHT, since SSR holds positions across sessions, not scalps.",
+  "per_symbol": {
+    "MNQ": {
+      "day_margin": null,
+      "overnight_margin": null,
+      "source": "DATA_MISSING -- no margin_report_groups entry for this symbol (account holds 0 qty of it right now, or the GET failed -- see broker_errors)"
+    },
+    "MGC": {
+      "day_margin": null,
+      "overnight_margin": null,
+      "source": "DATA_MISSING -- no margin_report_groups entry for this symbol (account holds 0 qty of it right now, or the GET failed -- see broker_errors)"
+    }
+  },
+  "qty": 3,
+  "equity": 2000.0,
+  "equity_source": "account.json:equity",
+  "combined_day_margin_usd_at_qty": null,
+  "combined_overnight_margin_usd_at_qty": null,
+  "day_ok": false,
+  "overnight_ok": false,
+  "gauge": "UNPROVEN",
+  "any_missing": true,
+  "broker_connected": true,
+  "broker_account_number": "5WW73759",
+  "broker_positions": [],
+  "broker_account_balance": {
+    "futures_intraday_margin_requirement": 17107.2,
+    "futures_overnight_margin_requirement": 17107.2,
+    "net_liquidating_value": 2000.0
+  },
+  "broker_errors": [
+    "get_margin_requirements_failed:TastytradeError:Couldn't parse response: <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n<hr><center>nginx/1.31.0</center>\r\n</body>\r\n</html>\r\n"
+  ]
+}
