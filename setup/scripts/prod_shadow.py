@@ -1,6 +1,16 @@
 """prod_shadow.py -- PROD-1 SHADOW: one production-candidate arm, measured the way real
 money would be (TASK C1, built 2026-08-28).
 
+NAME COLLISION WARNING (PROD-SHADOW-NAME-COLLISION, filed 2026-09-03). This module's
+outputs (analysis/prod-shadow/{ledger.jsonl,summary.json}) are UNRELATED to the go-live
+gate's criterion 5 "prod-shadow" designation (automation/state/prod-shadow-designation.json,
+arm safe-3, read by go_live_gate.prod_shadow_criterion). This module is an
+`equity-rescale-sim` for a DIFFERENT arm (safe-2, see DEFAULT_BASE_ARM below) -- it is NOT
+criterion 5 and carries no vote in the go-live decision. See summary.json's own
+`instrument`/`not_criterion_5`/`see_instead` keys for the machine-readable version of this
+warning. Path rename deferred -- readers (daily_brief.py's EOD chain) and a scheduled task
+point at the current paths; see queue.md PROD-SHADOW-NAME-COLLISION for the rename TODO.
+
 WHAT THIS IS. A measurement instrument, not a new trading account and not a new signal
 source. It derives, from ONE real arm's already-realized fills in the canonical ledger
 (analysis/trades-enriched.jsonl, built by trades_enriched.py), what a single
@@ -396,6 +406,9 @@ def build_summary(ledger: list[dict], daily: dict, config: dict, rates_meta: dic
         "_meta": True,
         "generated_et": datetime.now(timezone.utc).astimezone().isoformat(),
         "purpose": "TASK C1 PROD-1 SHADOW -- one production-candidate arm, measured the way real money would be. See setup/scripts/prod_shadow.py module docstring for full methodology.",
+        "instrument": "equity-rescale-sim",
+        "not_criterion_5": True,
+        "see_instead": "automation/state/prod-shadow-designation.json + go_live_gate.prod_shadow_criterion",
         "base_arm": base_arm,
         "config": config,
         "cost_model_source": {"path": "analysis/recommendations/cost-model.json", "generated_et": rates_meta},
