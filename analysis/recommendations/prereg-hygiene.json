@@ -1,22 +1,17 @@
 {
-  "generated_at_et": "2026-09-02T06:02:55",
-  "n_total": 126,
-  "n_parsed": 126,
+  "generated_at_et": "2026-09-03T00:01:48",
+  "n_total": 128,
+  "n_parsed": 128,
   "n_malformed": 0,
   "malformed": [],
   "n_flagged": 0,
   "flagged": [],
-  "n_has_results_file": 105,
+  "n_has_results_file": 94,
   "stale_status_but_has_results": [
     {
       "file": "block-elite-bull-ssb-preregistration.json",
       "status": "FROZEN_PENDING_RUN",
       "result_file": "block-elite-bull-ssb-revalidation.json"
-    },
-    {
-      "file": "bold-floor-rescue-prereg-2026-08-25.json",
-      "status": "FROZEN_PREREG",
-      "result_file": "findings.json"
     },
     {
       "file": "day-throttle-forward-prereg-2026-08-18.json",
@@ -59,11 +54,6 @@
       "result_file": "bull-vix-soft-mode-2026-08-03.json"
     },
     {
-      "file": "prereg-chasing-filter-2026-08-14.json",
-      "status": "FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.",
-      "result_file": "findings.json"
-    },
-    {
       "file": "prereg-directional-gate-battery-2026-07-15.json",
       "status": "FROZEN_PENDING_RUN",
       "result_file": "directional-gate-battery-2026-07-15.json"
@@ -84,9 +74,9 @@
       "result_file": "ladder-vwap-2026-08-11-results.json"
     },
     {
-      "file": "prereg-ladder-x-premium-2026-08-09.json",
-      "status": "FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.",
-      "result_file": "findings.json"
+      "file": "prereg-level-memory-wire-2026-07-15.json",
+      "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
+      "result_file": "level-memory-wire.json"
     },
     {
       "file": "prereg-morning-gate-2026-07-11.json",
@@ -129,11 +119,6 @@
       "result_file": "regime-standdown-2026-08-02.json"
     },
     {
-      "file": "prereg-runner-finite-tgt-candidate-2026-08-06.json",
-      "status": "CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.",
-      "result_file": "findings.json"
-    },
-    {
       "file": "prereg-spy-production-calibration-2026-08-20.json",
       "status": "FROZEN_BEFORE_ANY_RESULT",
       "result_file": "spy-production-calibration.json"
@@ -167,18 +152,13 @@
       "file": "profit-lock-arm-scope-prereg-2026-08-06.json",
       "status": "FROZEN \u2014 runner NOT yet built. Nothing ships until every gate below is scored.",
       "result_file": "EOD-2026-08-05-REENTRY-SIZING.json"
-    },
-    {
-      "file": "vwap-family-killcheck-prereg-2026-08-18.json",
-      "status": "FROZEN_PREREG_FORWARD",
-      "result_file": "findings.json"
     }
   ],
   "entries": [
     {
       "file": "atm-tier-extension-2k10k-prereg-2026-08-03.json",
       "status": null,
-      "age_days": 29.4,
+      "age_days": 30.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -187,7 +167,7 @@
     {
       "file": "block-elite-bull-ssb-preregistration.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 54.4,
+      "age_days": 55.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -196,16 +176,16 @@
     {
       "file": "bold-floor-rescue-prereg-2026-08-25.json",
       "status": "FROZEN_PREREG",
-      "age_days": 8.4,
+      "age_days": 9.2,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "bull-f10-buyer-pressure-prereg-2026-08-04.json",
       "status": "PREREG ONLY -- runner NOT executed, nothing armed. Committed before any full-population evidence exists (git-provable ordering).",
-      "age_days": 29.4,
+      "age_days": 30.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -214,7 +194,7 @@
     {
       "file": "bull-f7-volume-divergence-prereg-2026-08-07.json",
       "status": "PREREG ONLY -- committed BEFORE the population runner exists or runs (git-provable ordering). Nothing armed.",
-      "age_days": 26.4,
+      "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -223,7 +203,7 @@
     {
       "file": "bull-gate-f5class-requal-prereg-2026-08-01.json",
       "status": "{\"rule\": \"This study produces EVIDENCE for Safe's forward block_elite_bull re-eval trigger (gate-registry.json: 'post-fix distinct tradeable safe events >= 20 OR 10 corrected-feed sessions elapsed (20",
-      "age_days": 32.4,
+      "age_days": 33.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -232,7 +212,7 @@
     {
       "file": "bull-requalification-prereg-2026-07-22.json",
       "status": null,
-      "age_days": 42.4,
+      "age_days": 43.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -241,7 +221,7 @@
     {
       "file": "catastrophe-stop-shakeout-prereg-2026-07-23.json",
       "status": null,
-      "age_days": 41.4,
+      "age_days": 42.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -250,7 +230,7 @@
     {
       "file": "chop-defense-prereg-2026-08-06.json",
       "status": null,
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -259,7 +239,7 @@
     {
       "file": "day-throttle-forward-prereg-2026-08-18.json",
       "status": "FROZEN_PREREG_FORWARD",
-      "age_days": 15.4,
+      "age_days": 16.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -268,7 +248,7 @@
     {
       "file": "dynamic-exits-forward-prereg-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": false,
@@ -277,7 +257,7 @@
     {
       "file": "dynamic-exits-prereg-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -286,7 +266,7 @@
     {
       "file": "elite-bull-requal-prereg-2026-07-31.json",
       "status": "{\"PRIMARY_cell\": \"safe_sequential_hold at qty3, tradeable events only (E1/E2/E3 applied)\", \"FLEET_cell\": \"net realized $ of mapped fleet CALL round trips in window\", \"a_LIFT_GATE_TRIAL\": \"PRIMARY.tota",
-      "age_days": 33.4,
+      "age_days": 34.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -295,7 +275,7 @@
     {
       "file": "engulfing-at-local-cluster-prereg-2026-07-25.json",
       "status": null,
-      "age_days": 39.4,
+      "age_days": 40.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -304,7 +284,7 @@
     {
       "file": "engulfing-at-structure-prereg-2026-07-23.json",
       "status": null,
-      "age_days": 41.4,
+      "age_days": 42.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -313,7 +293,7 @@
     {
       "file": "entry-buffer-reduction-prereg-2026-08-02.json",
       "status": null,
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": false,
@@ -322,7 +302,7 @@
     {
       "file": "entry-exit-matrix-stop-a-preregistration.json",
       "status": "PARKED -- BLOCKED ON J SIGN-OFF (not on a run), 56d",
-      "age_days": 56.4,
+      "age_days": 57.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": false,
@@ -331,7 +311,7 @@
     {
       "file": "entry-improvement-variants-prereg-2026-08-05.json",
       "status": "FROZEN_PREREG",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -340,7 +320,7 @@
     {
       "file": "entry-quality-admissibility-prereg-2026-08-06.json",
       "status": "FROZEN_PREREG",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -349,7 +329,7 @@
     {
       "file": "entry-structure-forward-prereg-2026-08-06.json",
       "status": "FROZEN_PREREG_FORWARD",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -358,16 +338,16 @@
     {
       "file": "feed-consolidated-volume-prereg-2026-08-07.json",
       "status": "PREREG ONLY -- no runner executed, nothing armed, no trading-path file touched (market hours; Rule 9).",
-      "age_days": 26.4,
+      "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "finra-short-volume-preregistration.json",
       "status": "CLOSED_KILL",
-      "age_days": 42.4,
+      "age_days": 43.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -376,7 +356,7 @@
     {
       "file": "fleet-same-bar-cooldown-prereg-2026-08-06.json",
       "status": null,
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -385,7 +365,7 @@
     {
       "file": "fleet-strike-tier-atm-extension-prereg-2026-08-01.json",
       "status": "armed_paper_collecting_evidence",
-      "age_days": 32.4,
+      "age_days": 33.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -394,7 +374,7 @@
     {
       "file": "fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03.json",
       "status": "armed_paper_collecting_evidence",
-      "age_days": 30.4,
+      "age_days": 31.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -403,7 +383,7 @@
     {
       "file": "fleet-vwap-reclaim-extension-prereg-2026-08-04.json",
       "status": null,
-      "age_days": 29.4,
+      "age_days": 30.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": false,
@@ -412,7 +392,7 @@
     {
       "file": "headroom-retest-preregistration.json",
       "status": "RUN_COMPLETE -- FAIL / INCONCLUSIVE_SMALL_N (no candidate advances)",
-      "age_days": 55.4,
+      "age_days": 56.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -421,7 +401,7 @@
     {
       "file": "late-entry-ceiling-realfills-prereg-2026-07-23.json",
       "status": "{\"options\": [\"KEEP\", \"MOVE_TO_X\", \"RETEST_INSUFFICIENT_N\"], \"advisory_evidence_floor\": 15, \"KEEP_if\": \"n >= floor AND aggregate real-fills P&L across all 21 episodes is negative or flat (the ceiling i",
-      "age_days": 41.4,
+      "age_days": 42.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -430,7 +410,7 @@
     {
       "file": "lbfs-shadow-wiring-preregistration.json",
       "status": "RUN_COMPLETE -- STUDY_FAILS_BAR, SHADOW ONLY REGARDLESS",
-      "age_days": 49.4,
+      "age_days": 50.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -439,7 +419,7 @@
     {
       "file": "level-target-exit-prereg-2026-07-31.json",
       "status": "RUN 2026-08-02. VERDICT: KILL (0/144 cells clear all gates; over-determined by G4 runner-cohort no-regression 0/144, G7 level-fired-rate 0/144 best 27.1%, G6 BH-FDR 0/144, independent of the also-failing G8 parity gate). Path A admissibility (the 6-date blocker) was proven ADMISSIBLE first (backtest/lib/reconstruct_levels_asof.py). Full results: analysis/recommendations/level-target-exit-2026-08-02.json + -summary.md. Recorded DEAD in the exit graveyard per kill_criterion.on_kill -- no band value may be moved and re-run.",
-      "age_days": 33.4,
+      "age_days": 34.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -448,7 +428,7 @@
     {
       "file": "lever-entry-count-prereg-2026-08-06.json",
       "status": "FROZEN_PREREG",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -457,7 +437,7 @@
     {
       "file": "loss-armed-budget-forward-prereg-2026-08-28.json",
       "status": "FROZEN_PREREG_FORWARD",
-      "age_days": 5.4,
+      "age_days": 6.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -466,7 +446,7 @@
     {
       "file": "measured-move-preregistration.json",
       "status": "RUN_COMPLETE -- KILL (no information, control stands)",
-      "age_days": 55.4,
+      "age_days": 56.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -475,7 +455,7 @@
     {
       "file": "premarket-touch-credit-preregistration.json",
       "status": "RUN_COMPLETE -- KILL",
-      "age_days": 44.4,
+      "age_days": 45.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -484,7 +464,7 @@
     {
       "file": "prereg-be-floor-2026-07-29.json",
       "status": null,
-      "age_days": 35.4,
+      "age_days": 36.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -493,7 +473,7 @@
     {
       "file": "prereg-bear-side-2026-09-02.json",
       "status": "FROZEN -- NOT RUN as a shipping decision. Adjudicated on the 2026-10-30 menu only.",
-      "age_days": 0.4,
+      "age_days": 1.2,
       "age_source": "filename_date",
       "orphan": true,
       "has_results_file": false,
@@ -502,7 +482,7 @@
     {
       "file": "prereg-bold-adaptive-sizing-2026-08-02.json",
       "status": "PRE-REGISTERED",
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -511,7 +491,7 @@
     {
       "file": "prereg-bold-selective-fallback-2026-08-02.json",
       "status": "PRE-REGISTERED",
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -520,7 +500,7 @@
     {
       "file": "prereg-bold-strike-axis-2026-07-15.json",
       "status": "FROZEN",
-      "age_days": 49.4,
+      "age_days": 50.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -529,7 +509,7 @@
     {
       "file": "prereg-bull-vix-soft-mode-2026-08-03.json",
       "status": "NOT IMPLEMENTED -- this prereg specs a NEW code path (see arms_frozen). Nothing armed. Nothing run. This is ARM_C from the ALREADY-FROZEN prereg-vix-regime-gate-archetype-2026-08-02.json, explicitly deferred there: \"A bull-side soft-mode would require a genuinely NEW code path... If ARM_A/ARM_B's results suggest the bull side specifically is where the value is, a follow-up prereg should scope that new flag on its own, gated by this study's findings, not bundled in blind.\" This IS that follow-up.",
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -538,7 +518,7 @@
     {
       "file": "prereg-catastrophe-cap-decision-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -547,16 +527,16 @@
     {
       "file": "prereg-chasing-filter-2026-08-14.json",
       "status": "FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.",
-      "age_days": 19.4,
+      "age_days": 20.2,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-daytype-gate-2026-07-15.json",
       "status": "RUN_COMPLETE",
-      "age_days": 49.4,
+      "age_days": 50.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -565,7 +545,7 @@
     {
       "file": "prereg-debit-spread-ab-2026-07-14.json",
       "status": "RUN_COMPLETE",
-      "age_days": 50.4,
+      "age_days": 51.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -574,7 +554,7 @@
     {
       "file": "prereg-directional-gate-battery-2026-07-15.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 49.4,
+      "age_days": 50.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -583,7 +563,7 @@
     {
       "file": "prereg-entry-exit-matrix-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -592,25 +572,25 @@
     {
       "file": "prereg-entry-location-gate-2026-08-14.json",
       "status": null,
-      "age_days": 19.4,
+      "age_days": 20.2,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-entry-range-context-2026-08-14.json",
       "status": null,
-      "age_days": 19.4,
+      "age_days": 20.2,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-exit-armpct-2026-07-28.json",
       "status": null,
-      "age_days": 36.4,
+      "age_days": 37.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -619,7 +599,7 @@
     {
       "file": "prereg-exit-armscope-tp1-2026-07-28.json",
       "status": null,
-      "age_days": 36.4,
+      "age_days": 37.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -628,7 +608,7 @@
     {
       "file": "prereg-exit-policy-beats-null-2026-08-23.json",
       "status": null,
-      "age_days": 10.4,
+      "age_days": 11.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -637,7 +617,7 @@
     {
       "file": "prereg-expected-move-gate-2026-07-11.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 53.4,
+      "age_days": 54.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -646,7 +626,7 @@
     {
       "file": "prereg-favorable-extreme-entry-2026-07-17.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 47.4,
+      "age_days": 48.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -655,7 +635,7 @@
     {
       "file": "prereg-fill-model-unification-2026-08-13.json",
       "status": null,
-      "age_days": 20.4,
+      "age_days": 21.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -664,7 +644,7 @@
     {
       "file": "prereg-filter5-ribbon-2026-07-31.json",
       "status": null,
-      "age_days": 33.4,
+      "age_days": 34.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -673,7 +653,7 @@
     {
       "file": "prereg-full-send-arm-2026-07-31.json",
       "status": "PRE-REGISTERED",
-      "age_days": 33.4,
+      "age_days": 34.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -682,7 +662,7 @@
     {
       "file": "prereg-g2-trendline-bypass-2026-08-01.json",
       "status": null,
-      "age_days": 32.4,
+      "age_days": 33.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -691,7 +671,7 @@
     {
       "file": "prereg-gate-revalidation-2026-08-08.json",
       "status": null,
-      "age_days": 25.4,
+      "age_days": 26.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -700,7 +680,7 @@
     {
       "file": "prereg-giveback-ratchet-2026-08-10.json",
       "status": null,
-      "age_days": 23.4,
+      "age_days": 24.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -709,7 +689,7 @@
     {
       "file": "prereg-hold-posture-2026-07-14.json",
       "status": "RUN_COMPLETE",
-      "age_days": 50.4,
+      "age_days": 51.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -718,7 +698,7 @@
     {
       "file": "prereg-hour-gate-12xx-2026-09-02.json",
       "status": "FROZEN -- NOT RUN as a shipping decision. Measurement recorded; the SHIP/KILL adjudication happens on the 2026-10-30 shape-change menu, never in-window (config freeze, work-order \u00a70).",
-      "age_days": 0.4,
+      "age_days": 1.2,
       "age_source": "filename_date",
       "orphan": true,
       "has_results_file": false,
@@ -727,7 +707,7 @@
     {
       "file": "prereg-hygiene.json",
       "status": null,
-      "age_days": 0.0,
+      "age_days": 0.3,
       "age_source": "mtime_fallback",
       "orphan": false,
       "has_results_file": false,
@@ -736,7 +716,7 @@
     {
       "file": "prereg-ladder-vwap-2026-08-11.json",
       "status": "FROZEN_BEFORE_RUNNER",
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -745,16 +725,16 @@
     {
       "file": "prereg-ladder-x-premium-2026-08-09.json",
       "status": "FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.",
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-level-memory-wire-2026-07-15.json",
-      "status": "BLOCKED -- RUNNER BROKEN (bit-rot, not a verdict)",
-      "age_days": 49.4,
+      "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
+      "age_days": 50.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -763,7 +743,7 @@
     {
       "file": "prereg-lever-catcap-2026-08-06.json",
       "status": "{\"SHIP\": \"HG_TUE and G1 and G2 and G3 and G4 and G5 all pass.\", \"PREREG\": \"HG_TUE and G3 pass, and at least one of G1/G2 fails -- promising on the week but not carried by the population.\", \"SHADOW\": \"",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -772,7 +752,7 @@
     {
       "file": "prereg-min-contracts-bold-2026-08-02.json",
       "status": "PRE-REGISTERED",
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -781,7 +761,7 @@
     {
       "file": "prereg-morning-gate-2026-07-11.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 53.4,
+      "age_days": 54.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -790,7 +770,7 @@
     {
       "file": "prereg-multi-intraday-null-2026-08-20.json",
       "status": "FROZEN_BEFORE_ANY_RESULT",
-      "age_days": 13.4,
+      "age_days": 14.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -799,7 +779,7 @@
     {
       "file": "prereg-multi-levels-transplant-2026-08-20.json",
       "status": "FROZEN_BEFORE_ANY_RESULT",
-      "age_days": 13.4,
+      "age_days": 14.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -808,7 +788,7 @@
     {
       "file": "prereg-paired-ribbon-2026-08-01.json",
       "status": null,
-      "age_days": 32.4,
+      "age_days": 33.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -817,7 +797,7 @@
     {
       "file": "prereg-pdt-blocked-counterfactual-2026-08-11.json",
       "status": "FROZEN_BEFORE_RUNNER",
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -826,7 +806,7 @@
     {
       "file": "prereg-pong-resting-limit-2026-07-17.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 47.4,
+      "age_days": 48.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -835,7 +815,7 @@
     {
       "file": "prereg-pre-tp1-ratchet-cost-2026-08-15.json",
       "status": "PARKED -- a runner now exists (see adjudicated_2026_09_02)",
-      "age_days": 18.4,
+      "age_days": 19.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": false,
@@ -844,7 +824,7 @@
     {
       "file": "prereg-pretp1-be-floor-isolated-2026-08-02.json",
       "status": null,
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -853,7 +833,7 @@
     {
       "file": "prereg-profitability-2026-08-08.json",
       "status": "FREEZE-WITH-CLOCK",
-      "age_days": 25.4,
+      "age_days": 26.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -862,7 +842,7 @@
     {
       "file": "prereg-recency-qty-clamp-2026-08-11.json",
       "status": "FROZEN_BEFORE_RUNNER",
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -871,7 +851,7 @@
     {
       "file": "prereg-regime-conditional-exit-2026-08-11.json",
       "status": null,
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -880,7 +860,7 @@
     {
       "file": "prereg-regime-conditioned-validation-2026-07-17.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 47.4,
+      "age_days": 48.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -889,7 +869,7 @@
     {
       "file": "prereg-regime-conditioning-2026-07-28.json",
       "status": null,
-      "age_days": 36.4,
+      "age_days": 37.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -898,25 +878,34 @@
     {
       "file": "prereg-regime-standdown-2026-08-02.json",
       "status": "{\"source\": \"analysis/regime-library/early-classifier-2026-08-02.json, backtest/tools/build_regime_early_classifier.py, commit 76857479 (this session, frozen BEFORE this prereg)\", \"headline\": \"WEAK, on",
-      "age_days": 31.4,
+      "age_days": 32.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
       "result_file": "regime-standdown-2026-08-02.json"
     },
     {
+      "file": "prereg-regime-stress-replay-2026-09-02.json",
+      "status": "FROZEN_QUESTIONS_RUNNER_NOT_YET_BUILT",
+      "age_days": 1.2,
+      "age_source": "frozen_at_et",
+      "orphan": false,
+      "has_results_file": false,
+      "result_file": null
+    },
+    {
       "file": "prereg-ribbon-confirm-2026-08-11.json",
       "status": null,
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-ribbon-flipback-buffer-2026-08-08.json",
       "status": "SHIP (all gates green -> propose shape change via the standard wiring map, kill_criterion: net <= -$300 over first 10 live sessions -> same-day revert) | FREEZE+CLOCK (single near-miss) | CONTROL_HOLDS (default). No bar-softening after the run.",
-      "age_days": 25.4,
+      "age_days": 26.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -925,7 +914,7 @@
     {
       "file": "prereg-ribbon-flipback-buffer-v2-2026-08-08.json",
       "status": "SHIP (kill_criterion: net <= -$300 over first 10 live sessions -> same-day revert) | FREEZE+CLOCK | CONTROL_HOLDS. No bar-softening after the run.",
-      "age_days": 25.4,
+      "age_days": 26.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -934,7 +923,7 @@
     {
       "file": "prereg-runner-be-floor-2026-08-06.json",
       "status": null,
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -943,7 +932,7 @@
     {
       "file": "prereg-runner-count-2026-09-01.json",
       "status": "FROZEN -- not run; measurement only; nothing armed",
-      "age_days": 1.4,
+      "age_days": 2.2,
       "age_source": "frozen_at_et",
       "orphan": true,
       "has_results_file": false,
@@ -952,16 +941,16 @@
     {
       "file": "prereg-runner-finite-tgt-candidate-2026-08-06.json",
       "status": "CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "filename_date",
       "orphan": false,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-score-ladder-v2-2026-08-07.json",
       "status": null,
-      "age_days": 26.4,
+      "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -970,7 +959,7 @@
     {
       "file": "prereg-slippage-rebaseline-2026-08-12.json",
       "status": null,
-      "age_days": 21.4,
+      "age_days": 22.2,
       "age_source": "frozen_at_et",
       "orphan": true,
       "has_results_file": true,
@@ -979,7 +968,7 @@
     {
       "file": "prereg-spy-production-calibration-2026-08-20.json",
       "status": "FROZEN_BEFORE_ANY_RESULT",
-      "age_days": 13.4,
+      "age_days": 14.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -988,7 +977,7 @@
     {
       "file": "prereg-stop-mode-live-arm-risky3-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -997,7 +986,7 @@
     {
       "file": "prereg-stop-mode-structure-vs-premium-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -1006,7 +995,7 @@
     {
       "file": "prereg-structure-shift-cascade-2026-07-28.json",
       "status": null,
-      "age_days": 36.4,
+      "age_days": 37.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1015,7 +1004,7 @@
     {
       "file": "prereg-structure-shift-confirmation-2026-07-28.json",
       "status": null,
-      "age_days": 36.4,
+      "age_days": 37.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1024,7 +1013,7 @@
     {
       "file": "prereg-structure-stop-zone-2026-08-11.json",
       "status": "{\"status\": \"CLOSED by its own G4 -- dead-frequency knob\", \"run\": \"29 structure-stop positions priced, calibrated walker v5 (extreme fills, 1c slip, FULL SPY union feed -- the first run used a feed end",
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": true,
       "has_results_file": false,
@@ -1033,7 +1022,7 @@
     {
       "file": "prereg-tight-stop-vwap-2026-08-11.json",
       "status": "{\"gates_g1_g3\": \"FAIL (run earlier: total -$910, drop-best -$1,631, 2/4 days, n=4 days < 8)\", \"G4_mechanism\": {\"death_causes_all_vwap_positions\": {\"premium_stop\": 17, \"trail\": 11, \"tp1\": 4, \"ribbon_fl",
-      "age_days": 22.4,
+      "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": true,
       "has_results_file": false,
@@ -1042,7 +1031,7 @@
     {
       "file": "prereg-time-stop-broker-sweep-2026-09-01.json",
       "status": "FROZEN -- NOT SHIPPED. Kill-type risk reduction, pre-registered so it can ship at the freeze close (2026-09-29) or earlier if J's live-flip requires it. Deliberately NOT shipped mid-window: changing exit timing would contaminate the frozen-config scoring window.",
-      "age_days": 1.4,
+      "age_days": 2.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -1051,7 +1040,7 @@
     {
       "file": "prereg-tp1-reachability-2026-08-06.json",
       "status": null,
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -1060,7 +1049,7 @@
     {
       "file": "prereg-trend-alignment-correlation-2026-07-14.json",
       "status": "RUN_COMPLETE -- KILL",
-      "age_days": 50.4,
+      "age_days": 51.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1069,16 +1058,16 @@
     {
       "file": "prereg-trendline-break-at-level-2026-08-13.json",
       "status": null,
-      "age_days": 20.4,
+      "age_days": 21.2,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-trendline-break-battery-2026-07-14.json",
       "status": "RUN_COMPLETE -- KILL (0/12)",
-      "age_days": 50.4,
+      "age_days": 51.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1087,7 +1076,7 @@
     {
       "file": "prereg-trendline-context-conditioning-2026-08-01.json",
       "status": null,
-      "age_days": 32.4,
+      "age_days": 33.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1096,7 +1085,7 @@
     {
       "file": "prereg-trendline-engine-validation-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1105,7 +1094,7 @@
     {
       "file": "prereg-trendline-fade-battery-2026-07-14.json",
       "status": "RUN_COMPLETE -- 1/12 SURVIVOR, ROUTED TO SHADOW (not armed)",
-      "age_days": 50.4,
+      "age_days": 51.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1114,16 +1103,16 @@
     {
       "file": "prereg-trigger-parity-2026-08-09.json",
       "status": null,
-      "age_days": 24.4,
+      "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": true,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "prereg-vix-regime-gate-archetype-2026-08-02.json",
       "status": null,
-      "age_days": 32.4,
+      "age_days": 33.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1132,7 +1121,7 @@
     {
       "file": "prereg-vwapcont-htf-precheck-2026-07-16.json",
       "status": "FROZEN_BEFORE_RESULTS",
-      "age_days": 48.4,
+      "age_days": 49.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1141,7 +1130,7 @@
     {
       "file": "prereg-weekly-expiry-comparison-2026-08-18.json",
       "status": "FROZEN_BEFORE_ANY_RESULT",
-      "age_days": 15.4,
+      "age_days": 16.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1150,7 +1139,7 @@
     {
       "file": "prereg-whole-engine-null-2026-09-01.json",
       "status": "FROZEN -- NOT RUN. Design committed before any outcome was computed. Runner to be built (setup/scripts/whole_engine_null.py); first run on the Friday gate cadence.",
-      "age_days": 1.4,
+      "age_days": 2.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -1159,7 +1148,7 @@
     {
       "file": "prereg-wick-lane-2026-07-31.json",
       "status": null,
-      "age_days": 33.4,
+      "age_days": 34.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1168,7 +1157,7 @@
     {
       "file": "prereg-zone-rejection-band-2026-07-17.json",
       "status": "FROZEN_PENDING_RUN",
-      "age_days": 47.4,
+      "age_days": 48.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1177,7 +1166,7 @@
     {
       "file": "profit-lock-arm-scope-prereg-2026-08-06.json",
       "status": "FROZEN \u2014 runner NOT yet built. Nothing ships until every gate below is scored.",
-      "age_days": 27.4,
+      "age_days": 28.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": true,
@@ -1186,7 +1175,7 @@
     {
       "file": "pullback-hold-bull-prereg-2026-07-22.json",
       "status": null,
-      "age_days": 42.4,
+      "age_days": 43.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -1195,7 +1184,7 @@
     {
       "file": "pullback-hold-bull-prereg-v2-2026-07-22.json",
       "status": null,
-      "age_days": 42.4,
+      "age_days": 43.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -1204,7 +1193,7 @@
     {
       "file": "require-bearish-fill-bar-lift-prereg-2026-08-04.json",
       "status": "PARKED -- measurement runnable now, ARMING blocked to 2026-10-30",
-      "age_days": 29.4,
+      "age_days": 30.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -1213,7 +1202,7 @@
     {
       "file": "ribbon-scope-gap-morning-prereg-2026-07-23.json",
       "status": null,
-      "age_days": 41.4,
+      "age_days": 42.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1222,16 +1211,25 @@
     {
       "file": "ribbon-state-entry-gate-prereg-2026-07-21.json",
       "status": null,
-      "age_days": 43.4,
+      "age_days": 44.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
       "result_file": "ribbon-state-entry-gate-2026-07-21.json"
     },
     {
+      "file": "rolling-loss-circuit-core-prereg-2026-09-02.json",
+      "status": "FROZEN_PREREG_FORWARD",
+      "age_days": 1.2,
+      "age_source": "frozen_at_et",
+      "orphan": true,
+      "has_results_file": false,
+      "result_file": null
+    },
+    {
       "file": "safe3-risky1-gate-retest-preregistration.json",
       "status": "ACCRUING -- n=26/30 scored days, clock running correctly",
-      "age_days": 47.4,
+      "age_days": 48.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": false,
@@ -1240,7 +1238,7 @@
     {
       "file": "structure-stop-preregistration.json",
       "status": "RUN_COMPLETE -- SS-B PASSES (confirms the already-live shape)",
-      "age_days": 55.4,
+      "age_days": 56.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1249,7 +1247,7 @@
     {
       "file": "structure-stop-reference-level-preregistration.json",
       "status": "RUN_COMPLETE -- REJECT_ALL_CANDIDATES",
-      "age_days": 44.4,
+      "age_days": 45.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1258,7 +1256,7 @@
     {
       "file": "structure-stop-zone-band-preregistration.json",
       "status": "RUN_COMPLETE -- REJECT_ALL_CANDIDATES",
-      "age_days": 44.4,
+      "age_days": 45.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1267,7 +1265,7 @@
     {
       "file": "structure-veto-lift-prereg-2026-08-04.json",
       "status": "PREREG ONLY -- NOT armed tonight (EOD 2026-08-03 section 7 froze tonight's arming to the staged package; this trial is ready for the next after-hours arming decision).",
-      "age_days": 29.4,
+      "age_days": 30.2,
       "age_source": "frozen_at_et",
       "orphan": false,
       "has_results_file": false,
@@ -1276,7 +1274,7 @@
     {
       "file": "trail-width-exit-prereg-2026-07-21.json",
       "status": null,
-      "age_days": 43.4,
+      "age_days": 44.2,
       "age_source": "filename_date",
       "orphan": false,
       "has_results_file": true,
@@ -1285,7 +1283,7 @@
     {
       "file": "trendline-structure-conviction-preregistration.json",
       "status": "RUN_COMPLETE",
-      "age_days": 50.4,
+      "age_days": 51.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,
@@ -1294,16 +1292,16 @@
     {
       "file": "vwap-family-killcheck-prereg-2026-08-18.json",
       "status": "FROZEN_PREREG_FORWARD",
-      "age_days": 15.4,
+      "age_days": 16.2,
       "age_source": "frozen_at_et",
       "orphan": false,
-      "has_results_file": true,
-      "result_file": "findings.json"
+      "has_results_file": false,
+      "result_file": null
     },
     {
       "file": "vwapcont-matrix-preregistration.json",
       "status": "RUN_COMPLETE -- CONTROL-STANDS (0 candidates pass)",
-      "age_days": 55.4,
+      "age_days": 56.2,
       "age_source": "frozen_at",
       "orphan": false,
       "has_results_file": true,

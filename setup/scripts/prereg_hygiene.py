@@ -73,6 +73,17 @@ EXCLUDE_PATHS = {STATUS_MD.resolve()}
 STALE_STATUS_RE = re.compile(r"FROZEN|NOT RUN|NOT SHIPPED", re.IGNORECASE)
 FILENAME_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})(?:\.json)?$")
 AGE_DAYS_THRESHOLD = 14
+# A genuine per-prereg result mentions at most a small handful of siblings (a related
+# study, a shared re-entry-sizing write-up). A file mentioned as the "result" for MANY
+# distinct preregs is not a result at all -- it is a multi-topic report (an audit
+# findings.json, a work-order doc) that happens to name a lot of prereg filenames in
+# prose. Found live 2026-09-02: analysis/deep-research/2026-09-01-audit/findings.json
+# matched as the "result" for 11 unrelated preregs, three of which carry an explicit
+# "deliberately NOT run" / "CANDIDATE ONLY, nothing armed" status in their own text --
+# i.e. the exact opposite of what a match is supposed to mean. Below this count a
+# shared file is plausible (two preregs genuinely sharing one combined study); at or
+# above it, treat every match through that file as noise, not evidence.
+AGGREGATOR_MENTION_THRESHOLD = 3
 
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 try:
@@ -263,7 +274,29 @@ def _results_index() -> tuple[dict, dict, dict]:
         reg = data.get("registration")
         if isinstance(reg, str) and reg:
             by_registration.setdefault(Path(reg).name, []).append(f.name)
+    by_named_prereg = _drop_aggregator_mentions(by_named_prereg)
     return by_rule_id, by_registration, by_named_prereg
+
+
+def _drop_aggregator_mentions(by_named_prereg: dict) -> dict:
+    """Prune any result filename that was matched as the "result" for
+    AGGREGATOR_MENTION_THRESHOLD or more DISTINCT preregs -- see the constant's
+    docstring. Reverse-counts first (distinct prereg names per candidate filename),
+    then filters, so a genuinely-shared 2-prereg result survives untouched."""
+    mention_counts: dict[str, set] = {}
+    for prereg_name, hits in by_named_prereg.items():
+        for hit in hits:
+            mention_counts.setdefault(hit, set()).add(prereg_name)
+    aggregators = {name for name, mentioners in mention_counts.items()
+                   if len(mentioners) >= AGGREGATOR_MENTION_THRESHOLD}
+    if not aggregators:
+        return by_named_prereg
+    pruned: dict[str, list[str]] = {}
+    for prereg_name, hits in by_named_prereg.items():
+        kept = [h for h in hits if h not in aggregators]
+        if kept:
+            pruned[prereg_name] = kept
+    return pruned
 
 
 def _matching_result_file(prereg_path: Path, data: dict, by_rule_id: dict,
