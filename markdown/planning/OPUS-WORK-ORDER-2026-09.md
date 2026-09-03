@@ -589,6 +589,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   p95 $2,545 → $1,935 and N_c −$3,674 → −$3,917, i.e. in the engine's favour, so the published default is the conservative reading.
   The study now prints `magnitude_fidelity` beside its verdict; read a Friday PASS together with that line, and note the V9 ratio
   0.645 means replayed magnitudes run ~35% small on both engine and null legs alike.
+  **CORRECTION 2026-09-03 03:22 ET (Fable):** the 0.645 PASS is anchor-specific. Ported onto the PDT 43-row engine-attributed anchor, `exit_manager_walk` reads ratio **2.42** (FAIL; multileg 4.09 on the same rows) — replay runs 35% SMALL on the V9 population and 2.4x LARGE on the PDT anchor. Opposite-sign bias on two anchors means neither walker's dollar magnitude is trustworthy independent of the anchor; only sign agreement (~95%) is earned. Read the null study's PASS as SIGN-level evidence with magnitude UNVERIFIED until WALKER-STAGE-DISAGREE-RESIDUAL (queue) clears both anchors. Nothing in this order's gate reading changes (the gate scores real fills, not replays).
 - [x] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
   (the April 2025 tariff week, Aug 2024, any −2%+ day in 2025–26): what do the −50% cap, structure
   stops and the ladder actually do in a −3% day? Pre-register the questions; label sim-only.

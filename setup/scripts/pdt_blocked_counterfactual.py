@@ -93,6 +93,7 @@ for _p in ("backtest", "backtest/lib", "backtest/tools", "automation/state/fleet
     if _full not in sys.path:
         sys.path.insert(0, _full)
 
+import argparse  # noqa: E402
 import pandas as pd  # noqa: E402
 
 import strategies as st  # noqa: E402
@@ -101,13 +102,26 @@ from multileg_exit_walk import walk  # noqa: E402
 from walker_magnitude_fidelity import (  # noqa: E402 -- WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY
     magnitude_fidelity as _shared_magnitude_fidelity,
     evaluate_magnitude_fidelity,
+    stage_decomposition,
 )
+# WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK (2026-09-03): the alternate walker this
+# harness can be pointed at (see --walker below). Bare imports -- backtest/lib and
+# automation/state/fleet are already on sys.path (see loop above).
+from exit_manager_walk import walk_exit_manager  # noqa: E402
+from exit_manager import TIME_STOP_ET  # noqa: E402
 
 PREREG_PATH = REPO / "analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11.json"
 CORE_LEDGER = REPO / "automation/state/core-decisions.jsonl"
 TRADES_ENRICHED = REPO / "analysis/trades-enriched.jsonl"
 OUT_JSON = REPO / "analysis/recommendations/pdt-blocked-counterfactual-2026-09-02.json"
 OUT_MD = REPO / "analysis/recommendations/pdt-blocked-counterfactual-2026-09-02.md"
+# WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK (2026-09-03) RESEARCH variant output -- a
+# SEPARATE path so the published 2026-09-02 (multileg) artifact is never overwritten by a
+# --walker exit_manager run.
+OUT_JSON_EXIT_MGR = REPO / "analysis/recommendations/pdt-blocked-counterfactual-2026-09-03-exit-manager-walk.json"
+OUT_MD_EXIT_MGR = REPO / "analysis/recommendations/pdt-blocked-counterfactual-2026-09-03-exit-manager-walk.md"
+
+WALKERS = ("multileg", "exit_manager")
 
 ACCT2ARM = {"safe": "safe-2", "bold": "bold-2"}
 STOP_B_SHIP_DATE = "2026-07-09"          # commit 933bd651, git-verified (see module docstring)
@@ -150,6 +164,91 @@ def resolve_trigger_level(date: str, trigger_level) -> float:
     except (TypeError, ValueError):
         return 0.0
     return v if v > 0 else 0.0
+
+
+# --- WALKER SWITCH (WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK, 2026-09-03) -----------
+def _five_min_spy_df_for_date(date: str, spy_map: dict) -> pd.DataFrame:
+    """{"HH:MM": close} (spy_by_day()'s per-day shape) -> the timestamp_et/close DataFrame
+    `exit_manager_walk.walk_exit_manager` requires for `five_min_spy_df`. An empty/missing
+    day returns an empty-but-correctly-columned frame (`last_closed_bar_close_at` then
+    returns None -- structure/ribbon exits cannot fire, same disclosed limitation the
+    no-SPY-feed branch in main() already carries for the multileg walker)."""
+    day_map = (spy_map or {}).get(date) or {}
+    rows = sorted(day_map.items())
+    if not rows:
+        return pd.DataFrame({"timestamp_et": pd.Series([], dtype="datetime64[ns]"),
+                             "close": pd.Series([], dtype=float)})
+    return pd.DataFrame({
+        "timestamp_et": [pd.Timestamp(f"{date} {t}") for t, _ in rows],
+        "close": [float(c) for _, c in rows],
+    })
+
+
+def _walk_via_exit_manager(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
+                           spy_map: Optional[dict] = None, exit_slippage: float = 0.01) -> dict:
+    """Adapter: prices ONE fill through `backtest/lib/exit_manager_walk.walk_exit_manager`
+    (ticks the LIVE exit_manager.plan_exit_actions decision core, per bar) instead of
+    `multileg_exit_walk.walk`, returning the SAME {"pnl","legs","n_legs","mfe_pct"} /
+    {"error"} contract `walk()` returns so callers do not need to branch on which walker ran.
+    Filed under WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK: exit_manager_walk clears the
+    magnitude criterion on the V9 anchor (ratio 0.645) where multileg_exit_walk cannot without
+    a 1-min-native rewrite (see WALKER-MARKET-STAGE-FILL-ROOT-FIX's negative result,
+    automation/overnight/queue.md:2550).
+
+    `trigger_level` is passed through UNCONVERTED (0.0 stays 0.0, never coerced to None) and
+    `structure_stop_enabled=bool(trigger_level)` -- the EXACT convention multileg_exit_walk.walk
+    already uses (`em.ExitState.from_entry(..., structure_stop_enabled=bool(trigger_level))`),
+    so both walkers resolve premium-vs-structure mode identically for the same intent.
+
+    KNOWN STRUCTURAL DEVIATION from multileg's calibration v5, disclosed not papered over:
+    multileg applies `slippage` to EVERY leg, limit-style stages included; exit_manager_walk
+    applies `exit_slippage` ONLY to its 3 market-style stages (time_stop/ribbon_flip/
+    structure_stop) -- tp1/premium_stop/profit_lock_floor/trail/be_stop/runner_target fill at
+    the exact triggered level with zero slippage (see that module's FILL-PRICE CONVENTION
+    note -- its own docstring already flags this as unfixed-on-purpose, not something this
+    adapter should silently work around). `ribbon_tick_df` is always None here (no per-tick
+    ribbon series exists for this population) -- ribbon_flip exits are therefore
+    structurally unreachable, same status quo as multileg's walk() (which never modelled
+    ribbon_flip either -- see its hardcoded `ribbon_flip_back` absence).
+
+    `mfe_pct` is reported as None (not fabricated): walk_exit_manager does not expose a
+    per-tick high-water-mark, and this field is non-load-bearing for G1-G4 (fabricating an
+    approximation from leg fill prices alone would be a WORSE number than an honest gap)."""
+    entry = float(fill["entry_premium"])
+    qty = int(fill["qty"])
+    sym = fill["symbol"]
+    side = "P" if "P00" in sym else "C"
+    entry_time_et = pd.Timestamp(f"{fill['date']} {fill['entry_time']}")
+    five_min_spy_df = _five_min_spy_df_for_date(fill["date"], spy_map or {})
+    try:
+        result = walk_exit_manager(
+            symbol=sym, side=side, entry_time_et=entry_time_et, entry_premium=entry, qty=qty,
+            exit_shape=shape, structure_stop_enabled=bool(trigger_level),
+            trigger_level=trigger_level, strategy=str(fill.get("strategy", "RIBBON")),
+            time_stop_et=TIME_STOP_ET, opt_df=bars, ribbon_tick_df=None,
+            five_min_spy_df=five_min_spy_df, exit_slippage=exit_slippage,
+        )
+    except Exception as exc:  # noqa: BLE001 -- mirror walk()'s own error-as-data contract
+        return {"error": f"{type(exc).__name__}: {exc}", "pnl": 0.0, "legs": []}
+    if not result.resolved and result.exit_reason == "no_bars_after_entry":
+        return {"error": "no bars at/after entry", "pnl": 0.0, "legs": []}
+    legs = [{"t": leg.ts_et.strftime("%H:%M"), "stage": leg.stage, "qty": leg.qty,
+            "px": leg.fill_price, "pnl": leg.leg_pnl} for leg in result.legs]
+    return {"pnl": result.dollar_pnl, "legs": legs, "n_legs": len(legs), "mfe_pct": None,
+           "walked_stage": (legs[-1]["stage"] if legs else result.exit_reason)}
+
+
+def _price_via_walker(walker: str, fill: dict, shape: dict, bars, *, trigger_level: float,
+                      spy_map: dict) -> dict:
+    """Dispatch point. `walker="multileg"` (the default everywhere in this file) makes the
+    EXACT SAME call multileg_exit_walk.walk() always got -- byte-identical to the published
+    2026-09-02 run; `walker="exit_manager"` is the WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-
+    WALK research path."""
+    if walker == "exit_manager":
+        return _walk_via_exit_manager(fill, shape, bars, trigger_level=trigger_level,
+                                      spy_map=spy_map)
+    return walk(fill, shape, bars, trigger_level=trigger_level, fill_mode="extreme",
+               spy_closes=spy_map.get(fill["date"]), slippage=0.01)
 
 
 # --- POPULATION (re-derived fresh from the ledger every run) -----------------------------
@@ -238,18 +337,18 @@ def spy_by_day() -> dict:
     return out
 
 
-def price_intent(intent: dict, bars: pd.DataFrame, spy_map: dict) -> dict:
+def price_intent(intent: dict, bars: pd.DataFrame, spy_map: dict,
+                 walker: str = "multileg") -> dict:
     shape = canonical_shape(intent["date"])
     trig = resolve_trigger_level(intent["date"], intent["trigger_level"])
     fill = {"entry_premium": intent["entry_premium"], "qty": intent["qty"],
             "symbol": intent["symbol"], "date": intent["date"],
             "entry_time": intent["entry_time"], "strategy": intent.get("setup") or "RIBBON"}
-    res = walk(fill, shape, bars, trigger_level=trig, fill_mode="extreme",
-               spy_closes=spy_map.get(intent["date"]), slippage=0.01)
-    return res
+    return _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map)
 
 
-def run_counterfactual(intents: list[dict], spy_map: dict) -> tuple[list[dict], list[str]]:
+def run_counterfactual(intents: list[dict], spy_map: dict,
+                       walker: str = "multileg") -> tuple[list[dict], list[str]]:
     priced: list[dict] = []
     deviations: list[str] = []
     for it in intents:
@@ -264,7 +363,7 @@ def run_counterfactual(intents: list[dict], spy_map: dict) -> tuple[list[dict], 
             deviations.append(f"NO CACHED BARS for {it['symbol']} ({it['date']}) -- intent "
                                f"excluded, not estimated/substituted.")
             continue
-        res = price_intent(it, bars, spy_map)
+        res = price_intent(it, bars, spy_map, walker=walker)
         if "error" in res:
             deviations.append(f"walk() error on {it['symbol']} ({it['date']}): {res['error']} "
                                f"-- intent excluded, not estimated/substituted.")
@@ -356,7 +455,13 @@ def anchor_trigger_level(row: dict) -> float:
     return resolve_trigger_level(row["date"], trig)
 
 
-def harness_validation() -> dict:
+def harness_validation(walker: str = "multileg") -> dict:
+    """`walker` (WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK, 2026-09-03): "multileg"
+    (default) is BYTE-IDENTICAL to every prior call of this function -- same `walk()` call,
+    same arguments, same order. "exit_manager" routes the SAME 43-row anchor (same
+    load_anchor_sample/canonical_shape/anchor_trigger_level resolution -- each row's OWN
+    RECORDED stop_mode is honoured identically either way) through
+    `exit_manager_walk.walk_exit_manager` instead."""
     rows = load_anchor_sample()
     spy_map = spy_by_day()
     cache: dict = {}
@@ -381,16 +486,18 @@ def harness_validation() -> dict:
         trig = anchor_trigger_level(r)
         fill = {"entry_premium": r["entry_px"], "qty": int(r["qty"]), "symbol": sym,
                 "date": r["date"], "entry_time": r["entry_ts_et"][11:19], "strategy": "RIBBON"}
-        res = walk(fill, shape, bars, trigger_level=trig, fill_mode="extreme",
-                   spy_closes=spy_map.get(r["date"]), slippage=0.01)
+        res = _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map)
         if "error" in res:
             continue
         actual = float(r["pnl_dollars"])
         replay = res["pnl"]
+        walked_stage = (res.get("walked_stage") if "walked_stage" in res
+                        else (res["legs"][-1]["stage"] if res.get("legs") else None))
         results.append({
             "date": r["date"], "arm": r["arm"], "symbol": sym, "stop_mode": mode,
             "actual": actual, "replay": replay, "err": round(replay - actual, 2),
             "sign_ok": (actual > 0) == (replay > 0) or abs(replay - actual) < 1e-9,
+            "recorded_stage": r.get("exit_reason"), "walked_stage": walked_stage,
         })
     n = len(results)
     if n == 0:
@@ -405,7 +512,15 @@ def harness_validation() -> dict:
     # `harness_reliable` below -- it does NOT feed that gate. `harness_reliable` stays keyed to
     # sign_agreement >= HARNESS_SIGN_AGREEMENT_BAR exactly as before this fold.
     mag = _shared_magnitude_fidelity([(r["actual"], r["replay"]) for r in results])
+    # STAGE DECOMPOSITION (WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK): localizes a
+    # magnitude defect to "picked the wrong event" (stage disagreement) vs "priced the right
+    # event wrong" (stage agreement, pure pricing/fill-convention gap) -- the diagnostic the
+    # queue item asks for when the anchor FAILS the magnitude criterion.
+    stagedecomp = stage_decomposition(results, real_key="actual", walk_key="replay",
+                                      recorded_stage_key="recorded_stage",
+                                      walked_stage_key="walked_stage")
     return {
+        "walker": walker,
         "n": n, "skipped_no_bars": skipped_no_bars,
         "sign_agreement": round(sign_ok / n, 4),
         "actual_total": round(sum(r["actual"] for r in results), 2),
@@ -413,12 +528,37 @@ def harness_validation() -> dict:
         "median_abs_error": round(stt.median([abs(e) for e in errs]), 2),
         "magnitude_fidelity": mag,
         "magnitude_fidelity_verdict": evaluate_magnitude_fidelity(mag),
+        "stage_decomposition": stagedecomp,
         "rows": results,
     }
 
 
+def exit_manager_magnitude_gate(hv: dict) -> bool:
+    """Pure gate: may the exit_manager-walker counterfactual's own G1-G4 verdict be trusted?
+    Only True on an explicit PASS from evaluate_magnitude_fidelity -- FAIL and INSUFFICIENT
+    (below the n floor, or an undivideable ratio) both withhold."""
+    return hv.get("magnitude_fidelity_verdict") == "PASS"
+
+
 # --- ORCHESTRATION --------------------------------------------------------------------
-def main() -> int:
+def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--walker", choices=WALKERS, default="multileg",
+                    help="pricing walker. 'multileg' (default) is BYTE-IDENTICAL to the "
+                         "published 2026-09-02 run (multileg_exit_walk.walk). "
+                         "'exit_manager' is the WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK "
+                         "research variant (backtest/lib/exit_manager_walk.walk_exit_manager) "
+                         "-- gated on its own anchor clearing walker_magnitude_fidelity's "
+                         "PASS criterion before any G1-G4 number is trusted, and writes to "
+                         "*-exit-manager-walk.{json,md} instead of the published artifact.")
+    return ap.parse_args(argv)
+
+
+def main(argv: Optional[list[str]] = None) -> int:
+    args = _parse_args(argv)
+    walker = args.walker
+    out_json = OUT_JSON if walker == "multileg" else OUT_JSON_EXIT_MGR
+    out_md = OUT_MD if walker == "multileg" else OUT_MD_EXIT_MGR
     deviations: list[str] = []
 
     if not PREREG_PATH.exists():
@@ -442,8 +582,8 @@ def main() -> int:
     else:
         print("  MATCHES prereg's original count (68 -> 18) exactly.")
 
-    print("\n=== VALIDATE THE VALIDATOR (harness fidelity vs broker truth) ===")
-    hv = harness_validation()
+    print(f"\n=== VALIDATE THE VALIDATOR (harness fidelity vs broker truth) -- walker={walker} ===")
+    hv = harness_validation(walker=walker)
     if hv.get("sign_agreement") is not None:
         print(f"  n={hv['n']} anchor positions (safe-2/bold-2, {STUDY_WINDOW_START}..{STUDY_WINDOW_END}, engine-attributed)")
         print(f"  sign agreement: {hv['sign_agreement']*100:.1f}%  (bar: {HARNESS_SIGN_AGREEMENT_BAR*100:.0f}%)")
@@ -457,13 +597,33 @@ def main() -> int:
     harness_reliable = (hv.get("sign_agreement") is not None
                         and hv["sign_agreement"] >= HARNESS_SIGN_AGREEMENT_BAR)
 
+    if walker == "exit_manager" and not exit_manager_magnitude_gate(hv):
+        # WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK: "only if the anchor PASSES the
+        # magnitude criterion, re-run the counterfactual's frozen gates ... if the anchor
+        # FAILS, stop there and report why (per-stage decomposition)". No cohort pricing, no
+        # G1-G4, no output file -- the published 2026-09-02 artifact is untouched either way.
+        print(f"\n=== STOPPED: exit_manager anchor did NOT pass the magnitude criterion "
+              f"(verdict={hv['magnitude_fidelity_verdict']}) ===")
+        print("  Per-stage decomposition (stage_agree = walker picked the SAME final exit "
+              "event the broker recorded, so the residual is a pricing/fill-convention gap; "
+              "stage_disagree = the walker picked a DIFFERENT event entirely, a structural "
+              "gap):")
+        sd = hv.get("stage_decomposition") or {}
+        print(f"    stage_agree:    {sd.get('stage_agree')}")
+        print(f"    stage_disagree: {sd.get('stage_disagree')}")
+        print(f"    disagree_share_of_total_abs_error: {sd.get('disagree_share_of_total_abs_error')}")
+        print("  No cohort pricing/gates/output file was produced -- not trustworthy enough "
+              "to compute the counterfactual verdict on. Fix the walker or the anchor before "
+              "re-running.")
+        return 0
+
     print("\n=== PRICING the blocked cohort (calibration v5) ===")
     spy_map = spy_by_day()
     if not spy_map:
         deviations.append("NO SPY union feed cached -- structure/ribbon exits cannot fire for "
                           "ANY intent (silent premium-mode-equivalent walk). Disclosed, not "
                           "hidden.")
-    priced, price_deviations = run_counterfactual(intents, spy_map)
+    priced, price_deviations = run_counterfactual(intents, spy_map, walker=walker)
     deviations.extend(price_deviations)
     print(f"  priced {len(priced)}/{len(intents)} intents "
           f"({len(intents) - len(priced)} excluded -- see deviations)")
@@ -497,6 +657,15 @@ def main() -> int:
         "rule_id": prereg.get("rule_id"),
         "prereg_path": str(PREREG_PATH.relative_to(REPO)),
         "run_at_note": "generated by setup/scripts/pdt_blocked_counterfactual.py",
+        "walker": walker,
+        "harness_deviation_disclosed": (
+            None if walker == "multileg" else
+            "Prereg's contract names multileg_exit_walk by construction (walk_exit_manager did "
+            "not exist when it was frozen). This run used --walker exit_manager instead, per "
+            "WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK (automation/overnight/queue.md) -- "
+            "the anchor cleared walker_magnitude_fidelity's PASS criterion first (see "
+            "harness_validation.magnitude_fidelity_verdict below) before this cohort's gates "
+            "were trusted. The published 2026-09-02 multileg artifact is untouched by this run."),
         "calibration": {"fill_mode": "extreme", "slippage": 0.01, "spy_feed": "union of backtest/data/spy_5m_*.csv"},
         "population": {**counts, "intents": [
             {k: v for k, v in it.items() if k not in ("trigger_level_exact",)} for it in intents]},
@@ -511,21 +680,21 @@ def main() -> int:
         "explicitly_forbidden": prereg.get("explicitly_forbidden"),
         "deviations": deviations,
     }
-    OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    OUT_JSON.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
-    print(f"\nwrote {OUT_JSON}")
+    out_json.parent.mkdir(parents=True, exist_ok=True)
+    out_json.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
+    print(f"\nwrote {out_json}")
 
-    md = _render_md(out)
-    OUT_MD.write_text(md, encoding="utf-8")
-    print(f"wrote {OUT_MD}")
+    md = _render_md(out, out_json_name=out_json.name)
+    out_md.write_text(md, encoding="utf-8")
+    print(f"wrote {out_md}")
     return 0
 
 
-def _render_md(out: dict) -> str:
+def _render_md(out: dict, out_json_name: str = OUT_JSON.name) -> str:
     g = out["gates"]
     hv = out["harness_validation"]
     lines = [
-        f"# PDT-BLOCKED-COUNTERFACTUAL-2026-08-11 -- runner result ({OUT_JSON.name})",
+        f"# PDT-BLOCKED-COUNTERFACTUAL-2026-08-11 -- runner result ({out_json_name})",
         "",
         f"**Verdict: {out['verdict']}**",
         "",
