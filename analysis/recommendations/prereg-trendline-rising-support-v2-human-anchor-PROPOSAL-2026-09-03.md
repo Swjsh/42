@@ -1,5 +1,14 @@
 # PRE-REGISTRATION (PROPOSAL, NOT ARMED) — rising-support human-anchor mode, 2026-09-03
 
+> ⛔ **SUPERSEDED (2026-09-03, same evening).** This proposal was never armed and never
+> built an instrument. It is superseded by the frozen, built, scheduled version:
+> [`prereg-trendline-rising-support-human-anchor-2026-09-03.md`](prereg-trendline-rising-support-human-anchor-2026-09-03.md)
+> (`setup/scripts/trendline_human_anchor_shadow.py` + `Gamma_TrendlineHumanAnchorShadow`).
+> That file freezes the anchor rule this one only sketched (A = running session-low, B =
+> first confirmed higher swing low, no third-touch gate), backfills once over every cached
+> session, and gates any verdict to forward-only data after 2026-10-30. Left in place
+> per append-only history — read the superseding file, not this one, for the live rule.
+
 **Status: proposal only.** This file registers a hypothesis and a measurement plan for a
 FUTURE forward or historical-population study. It does not arm anything, does not modify
 `backtest/lib/trendline_detector.py`, and is not itself evidence of an edge — the finding
