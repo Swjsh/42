@@ -48,7 +48,12 @@ MODEL CLASS (prereg section 3, reused not re-derived):
      class_weight="balanced"), same library + same class of problem already installed
      and used in backtest/tools/build_regime_early_classifier.py (checked installed in
      backtest/.venv THIS build -- sklearn 1.9.0 -- no new dependency risk, nothing
-     installed by this module).
+     installed by this module). SKLEARN-OPTIONALITY-2026-09-03: sklearn is a venv-only dep
+     (the system interpreter lacks it; the nightly suite puts backtest/.venv's site-packages
+     on PYTHONPATH) -- the import is lazy/optional (SKLEARN_AVAILABLE flag) so this module
+     and its 10 single_split candidates always run; when sklearn is missing, tree_depth2
+     alone is never fit and reports verdict "SKIPPED_NO_SKLEARN" (disclosed skip, distinct
+     from a real NOT_SHIPPABLE where gates were evaluated and failed).
 
 MISSING-VALUE POLICY (disclosed, not silent): a session missing the value a candidate
 needs at PREDICT time is always predicted "trade" (never auto-stand-down on missing
@@ -62,7 +67,8 @@ that same fold's train set -- structural by construction (a dict comprehension o
 `week != held_out_week`), not a runtime filter, mirroring the "receives only the
 already-sliced slice" no-look-ahead pattern day_type_labels.py itself uses for ticks.
 
-$0. Pure Python + sklearn (already installed). Read-only on automation/state/** (only via
+$0. Pure Python + sklearn (already installed in backtest/.venv; optional at import time --
+see SKLEARN-OPTIONALITY-2026-09-03 above). Read-only on automation/state/** (only via
 day_type_labels.run(), and only when stale for today). Never places an order, never
 touches params*.json/heartbeat_core.py/strategies.py/accounts.json/CLAUDE.md.
 
@@ -98,12 +104,15 @@ import go_live_gate  # noqa: E402 -- setup/scripts/go_live_gate.py (bootstrap_pf
 
 try:
     from sklearn.tree import DecisionTreeClassifier  # noqa: E402
-except ImportError as _exc:  # pragma: no cover -- verified installed in backtest/.venv 2026-09-03
-    raise RuntimeError(
-        "sklearn not importable -- prereg section 3 requires DecisionTreeClassifier and "
-        "the task brief forbids installing anything new; verify backtest/.venv has it "
-        "(pip show scikit-learn) rather than silently falling back"
-    ) from _exc
+    SKLEARN_AVAILABLE = True
+except ImportError:  # sklearn is a venv-only optional dep (nightly suite puts backtest/.venv's
+    # site-packages on PYTHONPATH; the system interpreter does not have it) -- lazy/optional per
+    # SKLEARN-OPTIONALITY-2026-09-03: the module and its single_split candidates must still run
+    # under the system interpreter. The tree_depth2 candidate alone degrades to
+    # verdict SKIPPED_NO_SKLEARN (disclosed, never silently substituted) instead of crashing --
+    # see _evaluate_candidate's short-circuit and _fit_tree's guard below.
+    DecisionTreeClassifier = None  # type: ignore[assignment,misc]
+    SKLEARN_AVAILABLE = False
 
 OUT_DIR = REPO / "analysis" / "recommendations"
 PREREG_REL = "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md"
@@ -297,6 +306,14 @@ def _predict_single_split(feat_value, fit: dict | None) -> str:
 # 3. depth-2 tree candidate: fit (train fold only) + predict
 # ------------------------------------------------------------------------------------------
 def _fit_tree(train_rows: list[dict], features: list[str]) -> DecisionTreeClassifier | None:
+    if not SKLEARN_AVAILABLE:
+        # loud, not silent: a caller that reaches here directly (bypassing
+        # _evaluate_candidate's SKIPPED_NO_SKLEARN short-circuit) gets a clear error rather
+        # than a NoneType-not-callable on DecisionTreeClassifier(...) below.
+        raise RuntimeError(
+            "_fit_tree called but sklearn is not importable -- callers must check "
+            "SKLEARN_AVAILABLE (see _evaluate_candidate's short-circuit) before calling this"
+        )
     X, y = [], []
     for r in train_rows:
         vals = [r["feat"].get(f) for f in features]
@@ -323,6 +340,29 @@ def _predict_tree(clf: DecisionTreeClassifier | None, feat: dict, features: list
 # 4. per-candidate LOWO evaluation -> WF, pooled OOS PF, tax-removal, sub-window, gates
 # ------------------------------------------------------------------------------------------
 def _evaluate_candidate(kind: str, spec, labeled_rows: list[dict], folds: dict) -> dict:
+    if kind != "single_split" and not SKLEARN_AVAILABLE:
+        # sklearn unavailable (system interpreter, no venv site-packages on PYTHONPATH) --
+        # disclosed skip, never a silent fallback: the tree candidate is never fit/predicted
+        # on any fold, so every downstream number here is None/0/False rather than fabricated.
+        # apply_decision_rule() is deliberately NOT called -- SKIPPED_NO_SKLEARN must never be
+        # confusable with a real NOT_SHIPPABLE (gates evaluated and failed).
+        return {
+            "WF": 0.0,
+            "n_folds": 0,
+            "fold_details": [],
+            "anchor_day_predictions": {d: "NOT_PREDICTED" for d in NAMED_BIG_DAYS},
+            "oos": {
+                "n_trade_predicted_sessions": 0, "bootstrap_pf_ci": None, "ci_lower_2.5": None,
+                "tax_removal_rate": None, "total_tax_entries": 0, "removed_tax_entries": 0,
+                "max_week_pnl_share": None, "sub_window_stable": False,
+            },
+            "gates": {
+                "anchor_days_ok": False, "wf_ge_0_70": False, "ci_lower_gt_1": False,
+                "tax_removal_ge_50pct": False, "sub_window_stable": False,
+            },
+            "verdict": "SKIPPED_NO_SKLEARN",
+        }
+
     predictions: dict[str, str] = {}
     fold_details = []
 

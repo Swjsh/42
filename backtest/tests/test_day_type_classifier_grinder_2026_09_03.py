@@ -29,6 +29,8 @@ import sys
 import types
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parents[2]
 for _p in (REPO, REPO / "backtest" / "tools", REPO / "backtest", REPO / "setup" / "scripts"):
     if str(_p) not in sys.path:
@@ -176,6 +178,7 @@ def test_single_split_predicts_trade_on_missing_feature():
 
 
 def test_tree_predicts_trade_on_missing_feature():
+    pytest.importorskip("sklearn")  # tree candidate only -- single-split tests above run without it
     train_rows = [
         _mk_row(f"2026-07-{2+i:02d}", "paying" if i % 2 == 0 else "tax",
                 feat={**{f: None for f in g.ALL_FEATURES}, "vix_level_0935": 12.0 + i,
@@ -259,8 +262,14 @@ def test_run_end_to_end_dry_run_writes_nothing(monkeypatch, tmp_path):
     out = g.run(dry_run=True)
     assert out["verdict"] in ("SHADOW_CANDIDATE", "NOT_SHIPPABLE")
     assert len(out["candidates"]) == len(g.ALL_FEATURES) + 1  # 10 single-split + 1 tree
+    # tree_depth2 is the ONLY candidate allowed the sklearn-optionality verdict (SKLEARN-
+    # OPTIONALITY-2026-09-03) -- every single_split candidate must still get a real verdict
+    # regardless of sklearn availability (they never touch sklearn).
     for c in out["candidates"]:
-        assert c["verdict"] in ("SHADOW_CANDIDATE", "NOT_SHIPPABLE")
+        if c["candidate_id"] == "tree_depth2__all_features" and not g.SKLEARN_AVAILABLE:
+            assert c["verdict"] == "SKIPPED_NO_SKLEARN"
+        else:
+            assert c["verdict"] in ("SHADOW_CANDIDATE", "NOT_SHIPPABLE")
     assert list(tmp_path.iterdir()) == []  # dry_run must never write
 
 
