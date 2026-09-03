@@ -55,6 +55,29 @@ TRADES_CSV = REPO / "journal" / "trades.csv"
 
 DEFAULT_WINDOW = 20
 
+# --- Zero-enter day grading (AUTONOMY-METRIC-ZERO-ENTERS-08-31, 2026-09-03) --
+# `_trend()` used to label ANY zero-enter day "regressing" without asking
+# whether the zero was a doctrine-sanctioned gate refusal (feedback_
+# sitting_out_is_a_valid_day_2026_08_12) rather than a funnel miss. 2026-08-31
+# replay (analysis/deep-research/BEAR-08-31-NO-TRIGGER-REPLAY.md): all 55
+# bear-score>=9 ticks that day were refused by blocker 8 (the ratified VIX
+# floor gate) -- a sanctioned sit-out, not a defect. The defect was the METRIC.
+#
+# ZERO_ENTER_SCORE_THRESHOLD: what counts as a "high-score tick" worth grading.
+# core-decisions.jsonl rows carry NO per-row threshold field (verified
+# 2026-09-03 via a full key survey of a day's rows -- bear_score/bull_score
+# are the only score fields present, no companion threshold key). So this is
+# hardcoded to 9, matching the ALREADY-RATIFIED convention self_check.py's
+# check_engine_tradeability uses for its identical "ENGINE NOT ENTERING
+# (bear): ... scored bear>=9 but no trigger fired" check -- not invented here.
+ZERO_ENTER_SCORE_THRESHOLD = 9
+# ZERO_ENTER_MIN_RTH_TICKS: minimum ticks recorded that day before a
+# fully-gate-refused zero-enter day is confidently graded SAT_OUT_GATED (a
+# half day / early outage shouldn't be read as a confirmed full-session
+# gated sit-out). Below this, _grade_zero_enter_day returns None (ungraded)
+# and the trend computation leaves that day alone.
+ZERO_ENTER_MIN_RTH_TICKS = 100
+
 # Numeric outcome fields and their defaults (strings default to "").
 _NUMERIC_FIELDS = (
     "cost_usd",
@@ -215,6 +238,143 @@ def trading_function_snapshot(
         # Any surprise -> return whatever was accumulated; never raise.
         pass
     return snap
+
+
+# --- zero-enter day grading --------------------------------------------------
+def _decisions_for_day(day: str, decisions_file: Path) -> list[dict[str, Any]]:
+    """All core-decisions.jsonl rows (both accounts) whose ``date`` field equals
+    ``day``. Best-effort; a missing/unreadable file or empty day yields []."""
+    if not day:
+        return []
+    return [
+        r for r in _iter_jsonl_reversed(decisions_file)
+        if str(r.get("date", "") or "") == day
+    ]
+
+
+def _grade_zero_enter_day(
+    trading_day: str,
+    *,
+    decisions_file: Path | None = None,
+    score_threshold: int = ZERO_ENTER_SCORE_THRESHOLD,
+    min_rth_ticks: int = ZERO_ENTER_MIN_RTH_TICKS,
+) -> dict[str, Any] | None:
+    """Grade a trading day that recorded 0 enters.
+
+    Three possible grades:
+      SAT_OUT_GATED — >= min_rth_ticks RTH ticks, >= 1 high-score tick
+        (bear_score or bull_score >= score_threshold), and EVERY such tick
+        carries at least one blocker id in its side's ``*_blockers`` field.
+        Neutral: a ratified gate refused a real setup — sanctioned sit-out.
+      QUIET — 0 high-score ticks all day. Neutral: no high-conviction setup
+        ever appeared, nothing was refused.
+      regressing — >= 1 high-score tick with NO blocker recorded on its side.
+        A funnel miss: the setup scored, no trigger/gate explains the silence.
+
+    Returns None when there is nothing to grade (no ledger rows for that day)
+    or when a fully-gate-refused day has fewer than min_rth_ticks ticks (too
+    short a session to confidently call a full-session gated sit-out). Callers
+    MUST treat None as "leave this day out of the grading decision" — never as
+    a fourth grade in its own right.
+    """
+    dec_path = decisions_file or DECISIONS_FILE
+    if not trading_day:
+        return None
+    rows = _decisions_for_day(trading_day, dec_path)
+    ticks = len(rows)
+    high: list[tuple[str, dict[str, Any]]] = []
+    for r in rows:
+        if _num(r, "bear_score") >= score_threshold:
+            high.append(("bear", r))
+        if _num(r, "bull_score") >= score_threshold:
+            high.append(("bull", r))
+
+    if not high:
+        if ticks == 0:
+            return None  # no ledger rows for this day at all -- nothing to grade
+        return {
+            "trading_day": trading_day,
+            "grade": "QUIET",
+            "ticks": ticks,
+            "high_score_ticks": 0,
+            "reason": (
+                f"{ticks} RTH ticks, 0 enters, 0 ticks scored >= {score_threshold} "
+                f"-- no high-conviction setup all day"
+            ),
+        }
+
+    unblocked = 0
+    blocker_counts: dict[Any, int] = {}
+    for side, r in high:
+        blockers = r.get(f"{side}_blockers") or []
+        if not blockers:
+            unblocked += 1
+        else:
+            for b in blockers:
+                blocker_counts[b] = blocker_counts.get(b, 0) + 1
+
+    if unblocked:
+        return {
+            "trading_day": trading_day,
+            "grade": "regressing",
+            "ticks": ticks,
+            "high_score_ticks": len(high),
+            "reason": (
+                f"{unblocked} of {len(high)} ticks scored >= {score_threshold} with NO "
+                f"gate blocker recorded (0 enters, {ticks} RTH ticks) -- possible funnel miss"
+            ),
+        }
+
+    if ticks < min_rth_ticks:
+        return None  # every high-score tick was gate-refused, but too few ticks
+        # this session to confidently call it a full-session gated sit-out.
+
+    dominant, cnt = max(blocker_counts.items(), key=lambda kv: kv[1])
+    return {
+        "trading_day": trading_day,
+        "grade": "SAT_OUT_GATED",
+        "ticks": ticks,
+        "high_score_ticks": len(high),
+        "reason": (
+            f"blocker {dominant} refused {cnt}/{len(high)} ticks scored >= {score_threshold} "
+            f"(0 enters, {ticks} RTH ticks) -- a ratified gate, not a funnel miss"
+        ),
+    }
+
+
+def _filtered_for_trend(
+    rows: list[dict[str, Any]], decisions_file: Path | None
+) -> list[dict[str, Any]]:
+    """Drop rows whose snapshot is a graded-NEUTRAL (SAT_OUT_GATED/QUIET)
+    zero-enter day before averaging function score for the trend comparison.
+
+    A doctrine-sanctioned sit-out or a genuinely quiet day carries no function
+    SIGNAL either way (see _grade_zero_enter_day) — it must not drag a half's
+    average down and read as "regressing" (AUTONOMY-METRIC-ZERO-ENTERS-08-31).
+    A zero-enter day that grades "regressing" (funnel miss) or is ungraded
+    (None — no ledger rows for that day, or a fully-gate-refused day too short
+    to confidently call, e.g. in tests with no fixture file) is left in —
+    those ARE real signal (or at least not proven neutral).
+
+    Can return []. A half that ends up EMPTY (every row in it graded neutral)
+    is not backfilled with the raw zero-score rows here — that would silently
+    defeat the whole point of this fix by putting a neutral day's 0.0 straight
+    back into the average. _trend() is responsible for treating an empty
+    result as "no function signal from this half" rather than "score 0".
+    """
+    grade_cache: dict[str, dict[str, Any] | None] = {}
+    keep: list[dict[str, Any]] = []
+    for r in rows:
+        if _num(r, "enters_last_trading_day") == 0:
+            day = str(r.get("trading_day", "") or "")
+            if day:
+                if day not in grade_cache:
+                    grade_cache[day] = _grade_zero_enter_day(day, decisions_file=decisions_file)
+                grade = grade_cache[day]
+                if grade is not None and grade["grade"] in ("SAT_OUT_GATED", "QUIET"):
+                    continue  # neutral -- excluded from the function-score trend comparison
+        keep.append(r)
+    return keep
 
 
 # --- 1) RECORD ---------------------------------------------------------------
@@ -423,7 +583,7 @@ def _reconcile_function_fields(
     return reconciled
 
 
-def _trend(rows: list[dict[str, Any]]) -> str:
+def _trend(rows: list[dict[str, Any]], *, decisions_file: Path | None = None) -> str:
     """Compare the recent half vs the older half of the window — FUNCTION FIRST.
 
     2026-07-01 re-aim: the trend used to compare artifact net_improvement only,
@@ -431,6 +591,18 @@ def _trend(rows: list[dict[str, Any]]) -> str:
     halves are compared on the trading-function score (fills/orders/enters from
     the ledgers) FIRST; artifact net_improvement only breaks a function tie
     (which is also the exact legacy behavior for pre-snapshot rows, all 0.0).
+
+    2026-09-03 (AUTONOMY-METRIC-ZERO-ENTERS-08-31): before averaging each half,
+    rows whose trading_day grades SAT_OUT_GATED or QUIET (see
+    _grade_zero_enter_day) are excluded via _filtered_for_trend — a
+    doctrine-sanctioned sit-out or a genuinely quiet day is neutral, not a
+    regression signal. If excluding those rows empties a half entirely (every
+    row in it was a neutral zero-enter day), that half is NOT scored as 0.0 —
+    doing so would silently readmit the exact bug this fix closes. Instead its
+    function score is tied to the OTHER half's, so a wholly-neutral half never
+    manufactures "improving" or "regressing" on its own; the comparison falls
+    through to the net_improvement tiebreak below (or to "flat" if both halves
+    are wholly neutral).
 
     Returns "improving" | "flat" | "regressing". With fewer than 2 rows there is
     no basis for a trend -> "flat".
@@ -441,8 +613,19 @@ def _trend(rows: list[dict[str, Any]]) -> str:
     mid = n // 2
     older = rows[:mid]
     recent = rows[mid:]
-    older_fn = _avg_function_score(older)
-    recent_fn = _avg_function_score(recent)
+    older_kept = _filtered_for_trend(older, decisions_file)
+    recent_kept = _filtered_for_trend(recent, decisions_file)
+    if not older_kept and not recent_kept:
+        older_fn = recent_fn = 0.0
+    elif not older_kept:
+        recent_fn = _avg_function_score(recent_kept)
+        older_fn = recent_fn  # wholly-neutral half ties, never regresses/improves alone
+    elif not recent_kept:
+        older_fn = _avg_function_score(older_kept)
+        recent_fn = older_fn
+    else:
+        older_fn = _avg_function_score(older_kept)
+        recent_fn = _avg_function_score(recent_kept)
     if recent_fn > older_fn:
         return "improving"
     if recent_fn < older_fn:
@@ -462,12 +645,16 @@ def compute_metric(
     *,
     outcomes_file: Path | None = None,
     metric_file: Path | None = None,
+    decisions_file: Path | None = None,
     write: bool = True,
 ) -> dict[str, Any]:
     """Fold the last `window` outcome rows into a rolling net-improvement metric.
 
     Robust to a missing/empty/torn outcomes file -> all-zero metric, trend "flat".
     Writes the result to autonomy-metric.json (unless write=False) and returns it.
+
+    ``decisions_file`` overrides core-decisions.jsonl for zero-enter day grading
+    (tests / backfill); defaults to the module-level DECISIONS_FILE.
     """
     out_path = outcomes_file or OUTCOMES_FILE
     met_path = metric_file or METRIC_FILE
@@ -487,6 +674,15 @@ def compute_metric(
     cost_per_drained = round(total_cost / max(1, total_drained), 4)
 
     latest_snap = fn_rows[-1] if fn_rows else {}
+    # AUTONOMY-METRIC-ZERO-ENTERS-08-31 (2026-09-03): grade the latest snapshot's
+    # trading day when it recorded 0 enters, so J can see WHY the trend didn't
+    # move without cross-referencing core-decisions.jsonl by hand. None when
+    # enters>0, no ledger rows for that day, or the day is too short to grade.
+    zero_enter_day_grade: dict[str, Any] | None = None
+    if latest_snap and int(_num(latest_snap, "enters_last_trading_day")) == 0:
+        zero_enter_day_grade = _grade_zero_enter_day(
+            str(latest_snap.get("trading_day", "") or ""), decisions_file=decisions_file
+        )
     metric: dict[str, Any] = {
         "computed_at": _utc_now_iso(),
         "window": window,
@@ -508,7 +704,8 @@ def compute_metric(
             "fills": int(_num(latest_snap, "fills")),
             "distinct_setups_traded": int(_num(latest_snap, "distinct_setups_traded")),
         },
-        "trend": _trend(fn_rows),
+        "trend": _trend(fn_rows, decisions_file=decisions_file),
+        "zero_enter_day_grade": zero_enter_day_grade,
     }
 
     if write:
