@@ -1,190 +1,194 @@
 {
-  "generated_et": "2026-09-01T22:17:13",
+  "generated_et": "2026-09-03T03:35:04",
   "instrument": "setup/scripts/go_live_gate.py",
   "note": "REPORTING INSTRUMENT ONLY. Arms nothing. Never edits params*.json/heartbeat_core.py/filters.py/strategies.py/fleet_executor.py/risk_gate.py/exit_manager.py. Live-money arming stays J's decision alone (OP-0 #1). See MEMORY / CLAUDE.md.",
   "overall_verdict": "RED",
+  "trades_enriched_refresh": {
+    "status": "SKIPPED",
+    "reason": "--no-refresh passed"
+  },
   "criteria": {
     "statistical": {
       "book_wide_correlated_rollup": {
         "insufficient_data": false,
-        "n_engine_trades": 266,
-        "n_trading_days": 40,
+        "n_engine_trades": 278,
+        "n_trading_days": 41,
         "as_traded": {
-          "n_days": 40,
+          "n_days": 41,
           "n_boot_valid": 20000,
-          "pf_point": 1.205,
-          "ci_lower_2.5": 0.404,
-          "ci_upper_97.5": 3.262,
-          "p_pf_le_1": 0.367,
-          "total_pnl": 1992.0
+          "pf_point": 1.124,
+          "ci_lower_2.5": 0.383,
+          "ci_upper_97.5": 2.951,
+          "p_pf_le_1": 0.417,
+          "total_pnl": 1293.0
         },
         "ex_best_day": {
-          "n_days": 39,
+          "n_days": 40,
           "n_boot_valid": 20000,
-          "pf_point": 0.915,
-          "ci_lower_2.5": 0.301,
-          "ci_upper_97.5": 2.494,
-          "p_pf_le_1": 0.573,
-          "total_pnl": -827.0,
+          "pf_point": 0.854,
+          "ci_lower_2.5": 0.282,
+          "ci_upper_97.5": 2.221,
+          "p_pf_le_1": 0.634,
+          "total_pnl": -1526.0,
           "dropped_day": "2026-08-04"
         },
         "cost_adjusted_fees_plus_2c_slip": {
-          "n_days": 40,
+          "n_days": 41,
           "n_boot_valid": 20000,
-          "pf_point": 1.191,
-          "ci_lower_2.5": 0.4,
-          "ci_upper_97.5": 3.21,
-          "p_pf_le_1": 0.375,
-          "total_pnl": 1870.18
+          "pf_point": 1.111,
+          "ci_lower_2.5": 0.379,
+          "ci_upper_97.5": 2.908,
+          "p_pf_le_1": 0.426,
+          "total_pnl": 1165.8
         },
         "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
         "pass": false,
-        "distance": 0.699
+        "distance": 0.718
       },
       "per_arm": {
         "safe-3": {
           "insufficient_data": false,
-          "n_engine_trades": 59,
-          "n_trading_days": 26,
+          "n_engine_trades": 63,
+          "n_trading_days": 27,
           "as_traded": {
-            "n_days": 26,
+            "n_days": 27,
             "n_boot_valid": 20000,
-            "pf_point": 1.385,
-            "ci_lower_2.5": 0.356,
-            "ci_upper_97.5": 5.733,
-            "p_pf_le_1": 0.298,
-            "total_pnl": 841.0
+            "pf_point": 1.262,
+            "ci_lower_2.5": 0.335,
+            "ci_upper_97.5": 4.73,
+            "p_pf_le_1": 0.348,
+            "total_pnl": 628.0
           },
           "ex_best_day": {
-            "n_days": 25,
+            "n_days": 26,
             "n_boot_valid": 20000,
-            "pf_point": 1.093,
-            "ci_lower_2.5": 0.259,
-            "ci_upper_97.5": 4.605,
-            "p_pf_le_1": 0.432,
-            "total_pnl": 204.0,
+            "pf_point": 0.996,
+            "ci_lower_2.5": 0.243,
+            "ci_upper_97.5": 3.881,
+            "p_pf_le_1": 0.491,
+            "total_pnl": -9.0,
             "dropped_day": "2026-08-04"
           },
           "cost_adjusted_fees_plus_2c_slip": {
-            "n_days": 26,
+            "n_days": 27,
             "n_boot_valid": 20000,
-            "pf_point": 1.372,
-            "ci_lower_2.5": 0.353,
-            "ci_upper_97.5": 5.638,
-            "p_pf_le_1": 0.302,
-            "total_pnl": 818.12
+            "pf_point": 1.25,
+            "ci_lower_2.5": 0.333,
+            "ci_upper_97.5": 4.647,
+            "p_pf_le_1": 0.353,
+            "total_pnl": 603.75
           },
           "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
           "pass": false,
-          "distance": 0.741
+          "distance": 0.757
         },
         "safe-2": {
           "insufficient_data": false,
-          "n_engine_trades": 88,
-          "n_trading_days": 30,
+          "n_engine_trades": 90,
+          "n_trading_days": 31,
           "as_traded": {
-            "n_days": 30,
+            "n_days": 31,
             "n_boot_valid": 20000,
-            "pf_point": 0.931,
-            "ci_lower_2.5": 0.333,
-            "ci_upper_97.5": 2.29,
-            "p_pf_le_1": 0.566,
-            "total_pnl": -216.0
+            "pf_point": 0.895,
+            "ci_lower_2.5": 0.324,
+            "ci_upper_97.5": 2.138,
+            "p_pf_le_1": 0.603,
+            "total_pnl": -342.0
           },
           "ex_best_day": {
-            "n_days": 29,
+            "n_days": 30,
             "n_boot_valid": 20000,
-            "pf_point": 0.719,
-            "ci_lower_2.5": 0.253,
-            "ci_upper_97.5": 1.74,
-            "p_pf_le_1": 0.774,
-            "total_pnl": -878.0,
+            "pf_point": 0.691,
+            "ci_lower_2.5": 0.245,
+            "ci_upper_97.5": 1.63,
+            "p_pf_le_1": 0.804,
+            "total_pnl": -1004.0,
             "dropped_day": "2026-08-04"
           },
           "cost_adjusted_fees_plus_2c_slip": {
-            "n_days": 30,
+            "n_days": 31,
             "n_boot_valid": 20000,
-            "pf_point": 0.922,
-            "ci_lower_2.5": 0.329,
-            "ci_upper_97.5": 2.263,
-            "p_pf_le_1": 0.575,
-            "total_pnl": -246.61
+            "pf_point": 0.886,
+            "ci_lower_2.5": 0.321,
+            "ci_upper_97.5": 2.116,
+            "p_pf_le_1": 0.612,
+            "total_pnl": -373.3
           },
           "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
           "pass": false,
-          "distance": 0.747
+          "distance": 0.755
         },
         "risky-1": {
           "insufficient_data": false,
-          "n_engine_trades": 79,
-          "n_trading_days": 26,
+          "n_engine_trades": 83,
+          "n_trading_days": 27,
           "as_traded": {
-            "n_days": 26,
+            "n_days": 27,
             "n_boot_valid": 20000,
-            "pf_point": 1.471,
-            "ci_lower_2.5": 0.412,
-            "ci_upper_97.5": 4.317,
-            "p_pf_le_1": 0.259,
-            "total_pnl": 1292.0
+            "pf_point": 1.307,
+            "ci_lower_2.5": 0.371,
+            "ci_upper_97.5": 3.651,
+            "p_pf_le_1": 0.321,
+            "total_pnl": 947.0
           },
           "ex_best_day": {
-            "n_days": 25,
+            "n_days": 26,
             "n_boot_valid": 20000,
-            "pf_point": 1.092,
-            "ci_lower_2.5": 0.285,
-            "ci_upper_97.5": 3.258,
-            "p_pf_le_1": 0.448,
-            "total_pnl": 251.0,
+            "pf_point": 0.97,
+            "ci_lower_2.5": 0.261,
+            "ci_upper_97.5": 2.807,
+            "p_pf_le_1": 0.536,
+            "total_pnl": -94.0,
             "dropped_day": "2026-08-04"
           },
           "cost_adjusted_fees_plus_2c_slip": {
-            "n_days": 26,
+            "n_days": 27,
             "n_boot_valid": 20000,
-            "pf_point": 1.449,
-            "ci_lower_2.5": 0.407,
-            "ci_upper_97.5": 4.216,
-            "p_pf_le_1": 0.266,
-            "total_pnl": 1246.49
+            "pf_point": 1.288,
+            "ci_lower_2.5": 0.366,
+            "ci_upper_97.5": 3.568,
+            "p_pf_le_1": 0.332,
+            "total_pnl": 899.28
           },
           "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
           "pass": false,
-          "distance": 0.715
+          "distance": 0.739
         },
         "bold-2": {
           "insufficient_data": false,
-          "n_engine_trades": 40,
-          "n_trading_days": 20,
+          "n_engine_trades": 42,
+          "n_trading_days": 21,
           "as_traded": {
-            "n_days": 20,
+            "n_days": 21,
             "n_boot_valid": 20000,
-            "pf_point": 1.033,
-            "ci_lower_2.5": 0.347,
-            "ci_upper_97.5": 3.408,
-            "p_pf_le_1": 0.479,
-            "total_pnl": 75.0
+            "pf_point": 1.026,
+            "ci_lower_2.5": 0.346,
+            "ci_upper_97.5": 3.4,
+            "p_pf_le_1": 0.481,
+            "total_pnl": 60.0
           },
           "ex_best_day": {
-            "n_days": 19,
+            "n_days": 20,
             "n_boot_valid": 20000,
-            "pf_point": 0.824,
-            "ci_lower_2.5": 0.272,
-            "ci_upper_97.5": 2.723,
-            "p_pf_le_1": 0.63,
-            "total_pnl": -404.0,
+            "pf_point": 0.819,
+            "ci_lower_2.5": 0.27,
+            "ci_upper_97.5": 2.701,
+            "p_pf_le_1": 0.636,
+            "total_pnl": -419.0,
             "dropped_day": "2026-08-04"
           },
           "cost_adjusted_fees_plus_2c_slip": {
-            "n_days": 20,
+            "n_days": 21,
             "n_boot_valid": 20000,
-            "pf_point": 1.023,
-            "ci_lower_2.5": 0.343,
-            "ci_upper_97.5": 3.37,
-            "p_pf_le_1": 0.486,
-            "total_pnl": 52.18
+            "pf_point": 1.016,
+            "ci_lower_2.5": 0.342,
+            "ci_upper_97.5": 3.356,
+            "p_pf_le_1": 0.488,
+            "total_pnl": 36.07
           },
           "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
           "pass": false,
-          "distance": 0.728
+          "distance": 0.73
         }
       },
       "pass": false
@@ -196,7 +200,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "........                                                                 [100%]\n8 passed in 0.22s",
+          "summary_tail": "........                                                                 [100%]\n8 passed in 0.33s",
           "pass": true
         },
         "eod_flatten_read_failure_fails_open": {
@@ -204,7 +208,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "......                                                                   [100%]\n6 passed in 0.22s",
+          "summary_tail": "......                                                                   [100%]\n6 passed in 0.28s",
           "pass": true
         },
         "never_average_down_no_stacked_entry": {
@@ -212,7 +216,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".........                                                                [100%]\n9 passed in 0.50s",
+          "summary_tail": ".........                                                                [100%]\n9 passed in 0.68s",
           "pass": true
         },
         "killswitch_threshold_parity_rule5": {
@@ -220,7 +224,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".......                                                                  [100%]\n7 passed in 0.16s",
+          "summary_tail": ".......                                                                  [100%]\n7 passed in 0.36s",
           "pass": true
         },
         "orphan_position_adoption": {
@@ -228,7 +232,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "..........                                                               [100%]\n10 passed in 0.22s",
+          "summary_tail": "..........                                                               [100%]\n10 passed in 0.45s",
           "pass": true
         },
         "dead_mans_switch_open_position_on_process_death": {
@@ -236,7 +240,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".............                                                            [100%]\n13 passed in 0.25s",
+          "summary_tail": ".............                                                            [100%]\n13 passed in 0.50s",
           "pass": true
         }
       },
@@ -247,7 +251,7 @@
         "safe-3": {
           "window": [
             "2026-08-03",
-            "2026-08-31"
+            "2026-09-01"
           ],
           "pre_reset_window_dropped": true,
           "pre_reset_ledger_pnl_unreconcilable": -22.0,
@@ -267,19 +271,19 @@
         "safe-2": {
           "window": [
             "2026-08-03",
-            "2026-08-31"
+            "2026-09-01"
           ],
           "pre_reset_window_dropped": true,
           "pre_reset_ledger_pnl_unreconcilable": -1011.0,
           "pre_reset_ledger_trips_unreconcilable": 41,
-          "broker_pnl_sum": 562.85,
-          "ledger_pnl_sum_engine_attributed": 577.0,
-          "estimated_fees_ex_cat_plus_cat": 13.11,
-          "ledger_pnl_fee_adjusted": 563.89,
-          "diff_raw_vs_ledger": -14.15,
-          "diff_vs_fee_adjusted_ledger": -1.04,
-          "tolerance": 11.26,
-          "n_ledger_trips": 45,
+          "broker_pnl_sum": 780.3,
+          "ledger_pnl_sum_engine_attributed": 795.0,
+          "estimated_fees_ex_cat_plus_cat": 13.69,
+          "ledger_pnl_fee_adjusted": 781.31,
+          "diff_raw_vs_ledger": -14.7,
+          "diff_vs_fee_adjusted_ledger": -1.01,
+          "tolerance": 15.61,
+          "n_ledger_trips": 47,
           "base_value_asof": "2026-07-30",
           "account_created_et": "2026-08-03",
           "reconciled": true
@@ -287,7 +291,7 @@
         "risky-1": {
           "window": [
             "2026-08-03",
-            "2026-08-31"
+            "2026-09-01"
           ],
           "pre_reset_window_dropped": true,
           "pre_reset_ledger_pnl_unreconcilable": -228.0,
@@ -307,19 +311,19 @@
         "bold-2": {
           "window": [
             "2026-08-03",
-            "2026-08-31"
+            "2026-09-01"
           ],
           "pre_reset_window_dropped": true,
           "pre_reset_ledger_pnl_unreconcilable": -549.0,
           "pre_reset_ledger_trips_unreconcilable": 7,
-          "broker_pnl_sum": 749.47,
-          "ledger_pnl_sum_engine_attributed": 764.0,
-          "estimated_fees_ex_cat_plus_cat": 15.04,
-          "ledger_pnl_fee_adjusted": 748.96,
-          "diff_raw_vs_ledger": -14.53,
-          "diff_vs_fee_adjusted_ledger": 0.51,
-          "tolerance": 14.99,
-          "n_ledger_trips": 32,
+          "broker_pnl_sum": 609.02,
+          "ledger_pnl_sum_engine_attributed": 624.0,
+          "estimated_fees_ex_cat_plus_cat": 15.5,
+          "ledger_pnl_fee_adjusted": 608.5,
+          "diff_raw_vs_ledger": -14.98,
+          "diff_vs_fee_adjusted_ledger": 0.52,
+          "tolerance": 12.18,
+          "n_ledger_trips": 33,
           "base_value_asof": "2026-07-30",
           "account_created_et": "2026-08-03",
           "reconciled": true
@@ -329,8 +333,8 @@
     },
     "behavioural": {
       "trailing_window": [
-        "2026-08-04",
-        "2026-09-01"
+        "2026-08-05",
+        "2026-09-02"
       ],
       "trailing_window_trading_days": 20,
       "rule_breaks_in_window": {
@@ -339,7 +343,7 @@
         "pass": true,
         "status": "PASS_UNVERIFIED",
         "last_write_et": "2026-05-18",
-        "status_note": "rule-breaks.jsonl last written 2026-05-18 -- before this trailing window's start (2026-08-04). Zero rule breaks in-window could mean a genuinely clean window OR an abandoned ledger nobody is writing to; this instrument cannot distinguish the two from the file alone, so it reports PASS_UNVERIFIED rather than a bare PASS. Overall behavioural verdict logic is unaffected (0 breaks + 0 manual fills still passes) -- this is a disclosure, not a gate."
+        "status_note": "rule-breaks.jsonl last written 2026-05-18 -- before this trailing window's start (2026-08-05). Zero rule breaks in-window could mean a genuinely clean window OR an abandoned ledger nobody is writing to; this instrument cannot distinguish the two from the file alone, so it reports PASS_UNVERIFIED rather than a bare PASS. Overall behavioural verdict logic is unaffected (0 breaks + 0 manual fills still passes) -- this is a disclosure, not a gate."
       },
       "manual_or_mixed_attribution_fills_in_window": {
         "count": 0,
@@ -357,25 +361,25 @@
       "designation": {
         "arm": "safe-3",
         "window_start": "2026-09-01",
-        "window_end": "2026-09-29",
+        "window_end": "2026-10-30",
         "min_days": 20,
         "designated_at": "2026-09-01T20:22:26-04:00",
         "profile_summary": "FLEET-TIGHT-S (T20H): safe sizing, tight gate (min_triggers=2, require_confluence_or_sequence:true), exit_patch{stop_mode:structure, profit_lock_mode:trailing}, strike_tier_table=bold_core (ATM under $2K). Full-sample (as of 2026-09-01): n_days=26, +$841 total, WR 30.5%.",
         "rationale": "Executes queue.md's PROD-SHADOW-ARM-DESIGNATION item verbatim: designate ONE arm as the explicit go-live PROD-SHADOW candidate and score it net of the A1 realistic cost model exactly like go_live_gate.py's STATISTICAL criterion (reuses statistical_criterion()). safe-3 chosen because: (1) it is TWO-ACCOUNT-CONSOLIDATION-HANDOFF-2026-08-29.md section 0.1's explicit best-in-class comparator (n=59, +$841, WR 30.5% on its primary path -- the same shape safe-2's OWN clean primary-path trading matched, once its now-disarmed extra-setup lane is excluded); (2) it is one of J's two named keepers in the consolidation directive ('risky-1 and safe-3'); (3) unlike risky-1, safe-3 has no live secondary-lane defect (handoff section 0.2's FULL_SEND gate_override finding is risky-1-specific). Window 2026-09-01..2026-09-29 matches the config-freeze scoring window (CLAUDE.md / setup/hooks/doctrine.py FREEZE_END, Labor Day 2026-09-07 excluded from trading days) and its >=20 scored-trading-day bar. The PREREG-TIGHT-LADDER-2026-08-28.md 40-day clock (closing 2026-10-30) is tracked as an EXTENDED disclosure view only -- it never substitutes for or lowers this shorter, harder pass window.",
         "revoke": "delete this file -- prod_shadow_criterion() falls back to NOT_WIRED with no other side effects"
       },
-      "days_scored": 0,
+      "days_scored": 1,
       "days_needed": 20,
       "current_ci_lower_2.5": null,
       "pass": false,
       "status": "INSUFFICIENT_DAYS",
-      "note": "0/20 scored trading days for arm 'safe-3' in 2026-09-01..2026-09-29. Not yet scorable -- reported as INSUFFICIENT_DAYS, never PASS or FAIL, on a window that hasn't reached its own registered day-count bar.",
+      "note": "1/20 scored trading days for arm 'safe-3' in 2026-09-01..2026-10-30. Not yet scorable -- reported as INSUFFICIENT_DAYS, never PASS or FAIL, on a window that hasn't reached its own registered day-count bar.",
       "detail": null,
       "extended_clock_disclosure": {
         "label": "PREREG-TIGHT-LADDER-2026-08-28.md 40-day clock -- disclosure only, never the pass criterion",
         "window_end": "2026-10-30",
         "min_days": 40,
-        "days_scored": 0,
+        "days_scored": 1,
         "detail": null
       }
     }
@@ -410,17 +414,12 @@
       "window_start": "2026-08-31",
       "per_arm": {
         "safe-3": {
-          "insufficient_data": true,
-          "pass": false,
-          "note": "zero engine-attributed round trips for this scope"
-        },
-        "safe-2": {
           "insufficient_data": false,
-          "n_engine_trades": 2,
+          "n_engine_trades": 4,
           "n_trading_days": 1,
           "as_traded": null,
           "ex_best_day": {
-            "dropped_day": "2026-09-01",
+            "dropped_day": "2026-09-02",
             "n_days": 0,
             "note": "n<2 after dropping best day -- CI not meaningful"
           },
@@ -429,22 +428,79 @@
           "pass": false,
           "distance": null
         },
-        "risky-1": {
-          "insufficient_data": true,
-          "pass": false,
-          "note": "zero engine-attributed round trips for this scope"
-        },
-        "bold-2": {
+        "safe-2": {
           "insufficient_data": false,
-          "n_engine_trades": 1,
+          "n_engine_trades": 4,
+          "n_trading_days": 2,
+          "as_traded": {
+            "n_days": 2,
+            "n_boot_valid": 15019,
+            "pf_point": 1.73,
+            "ci_lower_2.5": 0.0,
+            "ci_upper_97.5": 1.73,
+            "p_pf_le_1": 0.338,
+            "total_pnl": 92.0
+          },
+          "ex_best_day": {
+            "dropped_day": "2026-09-01",
+            "n_days": 1,
+            "note": "n<2 after dropping best day -- CI not meaningful"
+          },
+          "cost_adjusted_fees_plus_2c_slip": {
+            "n_days": 2,
+            "n_boot_valid": 15019,
+            "pf_point": 1.715,
+            "ci_lower_2.5": 0.0,
+            "ci_upper_97.5": 1.715,
+            "p_pf_le_1": 0.338,
+            "total_pnl": 90.61
+          },
+          "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+          "pass": false,
+          "distance": null
+        },
+        "risky-1": {
+          "insufficient_data": false,
+          "n_engine_trades": 4,
           "n_trading_days": 1,
           "as_traded": null,
           "ex_best_day": {
-            "dropped_day": "2026-09-01",
+            "dropped_day": "2026-09-02",
             "n_days": 0,
             "note": "n<2 after dropping best day -- CI not meaningful"
           },
           "cost_adjusted_fees_plus_2c_slip": null,
+          "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+          "pass": false,
+          "distance": null
+        },
+        "bold-2": {
+          "insufficient_data": false,
+          "n_engine_trades": 3,
+          "n_trading_days": 2,
+          "as_traded": {
+            "n_days": 2,
+            "n_boot_valid": 20000,
+            "pf_point": 0.0,
+            "ci_lower_2.5": 0.0,
+            "ci_upper_97.5": 0.0,
+            "p_pf_le_1": 1.0,
+            "total_pnl": -155.0
+          },
+          "ex_best_day": {
+            "dropped_day": "2026-09-02",
+            "n_days": 1,
+            "note": "n<2 after dropping best day -- CI not meaningful"
+          },
+          "cost_adjusted_fees_plus_2c_slip": {
+            "n_days": 2,
+            "n_boot_valid": 20000,
+            "pf_point": 0.0,
+            "ci_lower_2.5": 0.0,
+            "ci_upper_97.5": 0.0,
+            "p_pf_le_1": 1.0,
+            "total_pnl": -156.67
+          },
           "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
           "pass": false,
           "distance": null
@@ -452,15 +508,31 @@
       },
       "book_wide_correlated_rollup": {
         "insufficient_data": false,
-        "n_engine_trades": 3,
-        "n_trading_days": 1,
-        "as_traded": null,
+        "n_engine_trades": 15,
+        "n_trading_days": 2,
+        "as_traded": {
+          "n_days": 2,
+          "n_boot_valid": 15019,
+          "pf_point": 0.112,
+          "ci_lower_2.5": 0.0,
+          "ci_upper_97.5": 0.112,
+          "p_pf_le_1": 1.0,
+          "total_pnl": -621.0
+        },
         "ex_best_day": {
           "dropped_day": "2026-09-01",
-          "n_days": 0,
+          "n_days": 1,
           "note": "n<2 after dropping best day -- CI not meaningful"
         },
-        "cost_adjusted_fees_plus_2c_slip": null,
+        "cost_adjusted_fees_plus_2c_slip": {
+          "n_days": 2,
+          "n_boot_valid": 15019,
+          "pf_point": 0.109,
+          "ci_lower_2.5": 0.0,
+          "ci_upper_97.5": 0.109,
+          "p_pf_le_1": 1.0,
+          "total_pnl": -627.64
+        },
         "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
         "pass": false,
         "distance": null
@@ -472,94 +544,268 @@
       "post_ladder_window_start": "2026-08-11",
       "per_arm": {
         "safe-3": {
-          "days_on_current_config": 0,
-          "days_post_ladder": 9,
+          "days_on_current_config": 1,
+          "days_post_ladder": 10,
           "best_2_days_share_of_gross_winner_dollars": 0.405
         },
         "safe-2": {
-          "days_on_current_config": 1,
-          "days_post_ladder": 14,
+          "days_on_current_config": 2,
+          "days_post_ladder": 15,
           "best_2_days_share_of_gross_winner_dollars": 0.38
         },
         "risky-1": {
-          "days_on_current_config": 0,
-          "days_post_ladder": 9,
+          "days_on_current_config": 1,
+          "days_post_ladder": 10,
           "best_2_days_share_of_gross_winner_dollars": 0.463
         },
         "bold-2": {
-          "days_on_current_config": 1,
-          "days_post_ladder": 12,
+          "days_on_current_config": 2,
+          "days_post_ladder": 13,
           "best_2_days_share_of_gross_winner_dollars": 0.354
         }
       },
-      "book_ex_best_day_p_pf_le_1": 0.573
+      "book_ex_best_day_p_pf_le_1": 0.634
     },
     "plan_reachability": {
       "label": "disclosure only -- constant $/day needed to push CI-lower(2.5%) above 1.0, binary search under this gate's own bootstrap",
-      "as_of": "2026-09-01",
+      "as_of": "2026-09-03",
       "per_arm": {
         "safe-3": {
           "config_freeze_end": {
             "end_date": "2026-09-29",
-            "dollars_per_day": 136.58,
+            "dollars_per_day": 171.08,
             "already_clears": false,
-            "n_remaining_trading_days": 19,
+            "n_remaining_trading_days": 17,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           },
           "tight_ladder_clock_end": {
             "end_date": "2026-10-30",
-            "dollars_per_day": 59.42,
+            "dollars_per_day": 67.43,
             "already_clears": false,
-            "n_remaining_trading_days": 42,
+            "n_remaining_trading_days": 40,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           }
         },
         "safe-2": {
           "config_freeze_end": {
             "end_date": "2026-09-29",
-            "dollars_per_day": 166.33,
+            "dollars_per_day": 193.35,
             "already_clears": false,
-            "n_remaining_trading_days": 19,
+            "n_remaining_trading_days": 17,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           },
           "tight_ladder_clock_end": {
             "end_date": "2026-10-30",
-            "dollars_per_day": 65.91,
+            "dollars_per_day": 77.11,
             "already_clears": false,
-            "n_remaining_trading_days": 42,
+            "n_remaining_trading_days": 40,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           }
         },
         "risky-1": {
           "config_freeze_end": {
             "end_date": "2026-09-29",
-            "dollars_per_day": 115.39,
+            "dollars_per_day": 162.87,
             "already_clears": false,
-            "n_remaining_trading_days": 19,
+            "n_remaining_trading_days": 17,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           },
           "tight_ladder_clock_end": {
             "end_date": "2026-10-30",
-            "dollars_per_day": 52.45,
+            "dollars_per_day": 66.79,
             "already_clears": false,
-            "n_remaining_trading_days": 42,
+            "n_remaining_trading_days": 40,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           }
         },
         "bold-2": {
           "config_freeze_end": {
             "end_date": "2026-09-29",
-            "dollars_per_day": 137.64,
+            "dollars_per_day": 152.24,
             "already_clears": false,
-            "n_remaining_trading_days": 19,
+            "n_remaining_trading_days": 17,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
           },
           "tight_ladder_clock_end": {
             "end_date": "2026-10-30",
-            "dollars_per_day": 57.18,
+            "dollars_per_day": 63.95,
             "already_clears": false,
-            "n_remaining_trading_days": 42,
+            "n_remaining_trading_days": 40,
             "note": "ZERO-VARIANCE BEST CASE -- assumes every remaining day nets exactly this constant with no variance; the real required edge is higher. Search bootstrap n=3000 (reduced from the gate's primary n=20000 for speed)."
+          }
+        }
+      }
+    },
+    "trailing_20d": {
+      "label": "DISCLOSURE ONLY -- not a bar. The pass criterion is the aggregate, full-history statistical_criterion in criteria.statistical; this view never substitutes for it and is never read by build_report() when computing pass/fail.",
+      "n_days_requested": 20,
+      "per_arm": {
+        "safe-3": {
+          "n_days_requested": 20,
+          "n_days": 20,
+          "window_start": "2026-07-15",
+          "window_end": "2026-09-02",
+          "detail": {
+            "insufficient_data": false,
+            "n_engine_trades": 44,
+            "n_trading_days": 20,
+            "as_traded": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.423,
+              "ci_lower_2.5": 0.377,
+              "ci_upper_97.5": 6.765,
+              "p_pf_le_1": 0.286,
+              "total_pnl": 900.0
+            },
+            "ex_best_day": {
+              "n_days": 19,
+              "n_boot_valid": 20000,
+              "pf_point": 1.124,
+              "ci_lower_2.5": 0.279,
+              "ci_upper_97.5": 5.395,
+              "p_pf_le_1": 0.417,
+              "total_pnl": 263.0,
+              "dropped_day": "2026-08-04"
+            },
+            "cost_adjusted_fees_plus_2c_slip": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.413,
+              "ci_lower_2.5": 0.375,
+              "ci_upper_97.5": 6.694,
+              "p_pf_le_1": 0.29,
+              "total_pnl": 882.78
+            },
+            "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+            "pass": false,
+            "distance": 0.721
+          }
+        },
+        "safe-2": {
+          "n_days_requested": 20,
+          "n_days": 20,
+          "window_start": "2026-08-04",
+          "window_end": "2026-09-02",
+          "detail": {
+            "insufficient_data": false,
+            "n_engine_trades": 48,
+            "n_trading_days": 20,
+            "as_traded": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.287,
+              "ci_lower_2.5": 0.406,
+              "ci_upper_97.5": 3.915,
+              "p_pf_le_1": 0.325,
+              "total_pnl": 601.0
+            },
+            "ex_best_day": {
+              "n_days": 19,
+              "n_boot_valid": 20000,
+              "pf_point": 0.971,
+              "ci_lower_2.5": 0.301,
+              "ci_upper_97.5": 2.983,
+              "p_pf_le_1": 0.527,
+              "total_pnl": -61.0,
+              "dropped_day": "2026-08-04"
+            },
+            "cost_adjusted_fees_plus_2c_slip": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.278,
+              "ci_lower_2.5": 0.403,
+              "ci_upper_97.5": 3.884,
+              "p_pf_le_1": 0.329,
+              "total_pnl": 584.09
+            },
+            "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+            "pass": false,
+            "distance": 0.699
+          }
+        },
+        "risky-1": {
+          "n_days_requested": 20,
+          "n_days": 20,
+          "window_start": "2026-07-15",
+          "window_end": "2026-09-02",
+          "detail": {
+            "insufficient_data": false,
+            "n_engine_trades": 64,
+            "n_trading_days": 20,
+            "as_traded": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.551,
+              "ci_lower_2.5": 0.434,
+              "ci_upper_97.5": 5.195,
+              "p_pf_le_1": 0.233,
+              "total_pnl": 1433.0
+            },
+            "ex_best_day": {
+              "n_days": 19,
+              "n_boot_valid": 20000,
+              "pf_point": 1.151,
+              "ci_lower_2.5": 0.312,
+              "ci_upper_97.5": 3.84,
+              "p_pf_le_1": 0.406,
+              "total_pnl": 392.0,
+              "dropped_day": "2026-08-04"
+            },
+            "cost_adjusted_fees_plus_2c_slip": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.531,
+              "ci_lower_2.5": 0.429,
+              "ci_upper_97.5": 5.084,
+              "p_pf_le_1": 0.239,
+              "total_pnl": 1396.5
+            },
+            "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+            "pass": false,
+            "distance": 0.688
+          }
+        },
+        "bold-2": {
+          "n_days_requested": 20,
+          "n_days": 20,
+          "window_start": "2026-07-02",
+          "window_end": "2026-09-02",
+          "detail": {
+            "insufficient_data": false,
+            "n_engine_trades": 41,
+            "n_trading_days": 20,
+            "as_traded": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.033,
+              "ci_lower_2.5": 0.35,
+              "ci_upper_97.5": 3.368,
+              "p_pf_le_1": 0.469,
+              "total_pnl": 75.0
+            },
+            "ex_best_day": {
+              "n_days": 19,
+              "n_boot_valid": 20000,
+              "pf_point": 0.824,
+              "ci_lower_2.5": 0.274,
+              "ci_upper_97.5": 2.692,
+              "p_pf_le_1": 0.637,
+              "total_pnl": -404.0,
+              "dropped_day": "2026-08-04"
+            },
+            "cost_adjusted_fees_plus_2c_slip": {
+              "n_days": 20,
+              "n_boot_valid": 20000,
+              "pf_point": 1.022,
+              "ci_lower_2.5": 0.346,
+              "ci_upper_97.5": 3.332,
+              "p_pf_le_1": 0.475,
+              "total_pnl": 51.63
+            },
+            "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+            "pass": false,
+            "distance": 0.726
           }
         }
       }
@@ -568,11 +814,11 @@
   "regime_coverage": {
     "label": "disclosure only -- never gates the overall verdict",
     "lifetime": {
-      "n_days": 5,
+      "n_days": 6,
       "vix_daily_max_min": 14.82,
       "vix_daily_max_max": 16.8,
       "days_vix_gt_20": 0,
-      "spy_cumulative_return_pct": -0.634,
+      "spy_cumulative_return_pct": -0.097,
       "worst_day": {
         "date": "2026-09-01",
         "ret_pct": -0.8
@@ -581,11 +827,11 @@
     },
     "frozen_config_window": {
       "window_start": "2026-09-01",
-      "n_days": 1,
-      "vix_daily_max_min": 16.8,
+      "n_days": 2,
+      "vix_daily_max_min": 16.21,
       "vix_daily_max_max": 16.8,
       "days_vix_gt_20": 0,
-      "spy_cumulative_return_pct": -0.8,
+      "spy_cumulative_return_pct": -0.264,
       "worst_day": {
         "date": "2026-09-01",
         "ret_pct": -0.8
@@ -593,5 +839,138 @@
       "days_down_gt_1pct": 0
     },
     "calm_only_window_warning": "calm-only window -- a GREEN here is untested in stress"
+  },
+  "futures": {
+    "generated_et": "2026-09-03T03:35:17",
+    "instrument": "setup/scripts/futures_go_live_gate.py",
+    "note": "ADVISORY, separate ladder for the futures MES lane -- NEVER substitutes for or feeds the SPY criteria/verdict above. Every threshold is PROVISIONAL (first real bar for a lane group that had none before this file -- see queue.md FUTURES-ABSENT-FROM-GO-LIVE-GATE).",
+    "lane_verdict": "RED",
+    "criteria": {
+      "statistical_real_fills": {
+        "status": "INSUFFICIENT",
+        "pass": false,
+        "n_scored_sessions": 2,
+        "min_scored_sessions_required": 20,
+        "criterion": "day-level bootstrap PF, CI-lower(2.5%) > 1.0 on REAL (broker/SANDBOX) fills only -- PROVISIONAL threshold, see module docstring",
+        "note": "only 2 scored session(s) with a closed REAL (broker/SANDBOX) round trip -- needs >= 20 before a bootstrap CI is meaningful. This is the exact gap the queue item named: 'is futures ready for more capital' has no instrument yet because there is not enough real-fill evidence to compute one."
+      },
+      "margin": {
+        "status": "SCORED",
+        "pass": true,
+        "n_trades_checked": 14,
+        "worst_case_single_trade_loss": 90.5,
+        "daily_loss_limit": 200.0,
+        "per_trade_violations": [],
+        "open_position_margin_required_conservative": 0.0,
+        "account_equity": 2000.0,
+        "margin_within_equity": true,
+        "criterion": "PROVISIONAL: no single trade's stop-distance-based worst-case loss (stop_points x point_value x qty) may exceed the account's own daily_loss_limit (account.json); open-position margin at the conservative HIGH-end day-margin estimate (MARGIN-LEVERAGE-RISK.md) must not exceed account equity."
+      },
+      "reconciliation_book_vs_broker": {
+        "status": "SCORED",
+        "pass": false,
+        "n_book_round_trips": 11,
+        "n_broker_round_trips": 3,
+        "n_days_compared": 7,
+        "agreement_rate_direction_and_size": 0.143,
+        "detail": [
+          {
+            "date": "2026-08-10",
+            "book_n": 3,
+            "broker_n": 0,
+            "book_directions": {
+              "short": 3
+            },
+            "broker_directions": {},
+            "agree": false
+          },
+          {
+            "date": "2026-08-11",
+            "book_n": 2,
+            "broker_n": 0,
+            "book_directions": {
+              "short": 2
+            },
+            "broker_directions": {},
+            "agree": false
+          },
+          {
+            "date": "2026-08-12",
+            "book_n": 2,
+            "broker_n": 0,
+            "book_directions": {
+              "short": 2
+            },
+            "broker_directions": {},
+            "agree": false
+          },
+          {
+            "date": "2026-08-13",
+            "book_n": 1,
+            "broker_n": 0,
+            "book_directions": {
+              "short": 1
+            },
+            "broker_directions": {},
+            "agree": false
+          },
+          {
+            "date": "2026-08-31",
+            "book_n": 2,
+            "broker_n": 2,
+            "book_directions": {
+              "short": 2
+            },
+            "broker_directions": {
+              "short": 2
+            },
+            "agree": true
+          },
+          {
+            "date": "2026-09-01",
+            "book_n": 1,
+            "broker_n": 0,
+            "book_directions": {
+              "long": 1
+            },
+            "broker_directions": {},
+            "agree": false
+          },
+          {
+            "date": "2026-09-02",
+            "book_n": 0,
+            "broker_n": 1,
+            "book_directions": {},
+            "broker_directions": {
+              "short": 1
+            },
+            "agree": false
+          }
+        ],
+        "criterion": "PROVISIONAL: >= 80% of overlapping days show matching round-trip COUNT and DIRECTION set between book (fillsim) and broker (SANDBOX real fills) lanes -- structural agreement, not price agreement."
+      },
+      "operational": {
+        "status": "RED",
+        "pass": false,
+        "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\futures\\health.json",
+        "checked_at_et": "2026-09-03 03:30:03",
+        "age_minutes": 5.2,
+        "stale": false,
+        "underlying_verdict": "RED",
+        "connect_failure_rate_pct": 43,
+        "coverage_status": "GREEN",
+        "reasons": [
+          "[RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure)",
+          "[YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 28 row(s), 26 transport-error, 2 broker-rejected; newest 2026-09-02T14:30:37 connect/transport_error",
+          "[RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES"
+        ],
+        "criterion": "fold futures_health.py's own verdict verbatim (never reimplemented); a report older than 240m is treated as INSUFFICIENT, not laundered into a stale GREEN or RED."
+      }
+    },
+    "evidence_counts": {
+      "book_round_trips_simulated": 11,
+      "broker_round_trips_real": 3,
+      "open_real_positions": 0
+    }
   }
 }

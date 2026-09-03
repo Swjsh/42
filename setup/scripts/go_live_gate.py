@@ -144,6 +144,14 @@ RISK_CAP_PCT = {"safe-2": 0.30, "safe-3": 0.30, "bold-2": 0.50, "risky-1": 0.50,
 # expressed in TRADING days present in the ledger, not calendar days.
 TRAILING_WINDOW_TRADING_DAYS = 20
 
+# GO-LIVE-GATE-TRAILING-WINDOW-VIEW (queue.md, filed 2026-08-29 Fable full review): a SEPARATE
+# constant from TRAILING_WINDOW_TRADING_DAYS above -- that one scopes the BEHAVIOURAL
+# criterion's rule-break/manual-override check; this one scopes the STATISTICAL disclosure
+# view added below (trailing_20d_view). Both happen to be 20 by J's recency-over-aggregate
+# doctrine (2026-07-31), but they are independent knobs scoring different things -- do not
+# collapse them into one constant.
+TRAILING_20D_SCORED_WINDOW_DAYS = 20
+
 # A1's own conservative default cost scenario (analysis/recommendations/cost-model.json rates,
 # same constants _scratch_a1_bootstrap.py used and this session's ground truth already verified
 # against the ledger to the dollar).
@@ -841,6 +849,51 @@ def effective_evidence_block(engine_rows: list[dict], statistical: dict) -> dict
     }
 
 
+def trailing_20d_view(engine_rows: list[dict]) -> dict:
+    """GO-LIVE-GATE-TRAILING-WINDOW-VIEW (queue.md, filed 2026-08-29 Fable full review).
+
+    DISCLOSURE ONLY -- NEVER a bar. The pass criterion stays criteria.statistical (full,
+    lifetime trading-day history, 29-42 day windows reaching back into the July regime for
+    the arms that have traded that long). This block adds a SIBLING view, per arm, scored
+    over only that arm's most recent TRAILING_20D_SCORED_WINDOW_DAYS trading days present in
+    the ledger -- the SAME three-view bootstrap statistical_criterion() already uses for
+    criterion 1 (as-traded / ex-best-day / cost-adjusted, PF CI-lower 2.5%). Purpose: the
+    September clean window (2026-08-31..~2026-09-29) must be readable on its own merits each
+    Friday without July ghosts diluting it (J's recency-over-aggregate doctrine, 2026-07-31 --
+    "every armed gate needs a revalidation clock" -- applied here to the gate itself).
+
+    Reuses statistical_criterion() verbatim (no forked math) so this view can never silently
+    drift from criterion 1's own bootstrap methodology. build_report() never reads this
+    function's output when computing `pass` for any criterion -- see the verdict-independence
+    guard in backtest/tests/test_go_live_gate_trailing_20d_2026_09_03.py."""
+    per_arm = {}
+    for arm in ACTIVE_ARMS:
+        arm_rows = [r for r in engine_rows if r["arm"] == arm]
+        dates = sorted({r["date"] for r in arm_rows})
+        window_dates = dates[-TRAILING_20D_SCORED_WINDOW_DAYS:]
+        window_set = set(window_dates)
+        windowed_rows = [r for r in arm_rows if r["date"] in window_set]
+        scored = (
+            statistical_criterion(windowed_rows, arm) if windowed_rows
+            else {"insufficient_data": True, "pass": False,
+                  "note": "zero engine-attributed round trips for this arm"}
+        )
+        per_arm[arm] = {
+            "n_days_requested": TRAILING_20D_SCORED_WINDOW_DAYS,
+            "n_days": len(window_dates),
+            "window_start": window_dates[0] if window_dates else None,
+            "window_end": window_dates[-1] if window_dates else None,
+            "detail": scored,
+        }
+    return {
+        "label": "DISCLOSURE ONLY -- not a bar. The pass criterion is the aggregate, "
+                 "full-history statistical_criterion in criteria.statistical; this view never "
+                 "substitutes for it and is never read by build_report() when computing pass/fail.",
+        "n_days_requested": TRAILING_20D_SCORED_WINDOW_DAYS,
+        "per_arm": per_arm,
+    }
+
+
 def _remaining_trading_days(start_exclusive, end_inclusive_str: str) -> int:
     """Weekday count strictly after start_exclusive through end_inclusive_str, minus the
     disclosed MARKET_HOLIDAYS_2026 set. Not a full market-calendar (no early closes/other
@@ -1129,6 +1182,9 @@ def build_report(trades_enriched_refresh: dict | None = None) -> dict:
             "frozen_config_window": frozen_config_window_view(engine_rows),
             "effective_evidence": effective_evidence_block(engine_rows, statistical),
             "plan_reachability": plan_reachability_block(engine_rows, today_et),
+            # ADDITIVE (queue.md GO-LIVE-GATE-TRAILING-WINDOW-VIEW, filed 2026-08-29) --
+            # disclosure only, never gates overall_verdict. See trailing_20d_view() docstring.
+            "trailing_20d": trailing_20d_view(engine_rows),
         },
         # ADDITIVE, backward-compatible (TASK B3-monitors, 2026-09-01) -- disclosure only,
         # never gates overall_verdict. See regime_coverage_block's own docstring.
@@ -1267,6 +1323,21 @@ def render_human(report: dict) -> str:
                 parts.append(f"{label}({h['end_date']})=${h.get('dollars_per_day')}/day"
                               + (" [already clears]" if h.get("already_clears") else ""))
             lines.append(f"   {arm_id:<9} " + "  ".join(parts))
+        lines.append("")
+
+    t20 = disc.get("trailing_20d")
+    if t20:
+        lines.append(f"TRAILING {t20['n_days_requested']}-TRADING-DAY VIEW (DISCLOSURE ONLY -- not a bar)")
+        for arm_id in report["roster"]:
+            a = t20["per_arm"].get(arm_id, {})
+            det = a.get("detail") or {}
+            if det.get("insufficient_data"):
+                lines.append(f"   {arm_id:<9} INSUFFICIENT DATA")
+                continue
+            at = det.get("as_traded") or {}
+            lines.append(f"   {arm_id:<9} [{_mark(det.get('pass'))}] n_days={a.get('n_days')}/{a.get('n_days_requested')} "
+                          f"window={a.get('window_start')}..{a.get('window_end')} "
+                          f"as_traded CI_lo={at.get('ci_lower_2.5')}")
         lines.append("")
 
     rc = report.get("regime_coverage")
@@ -1432,6 +1503,33 @@ def render_markdown(report: dict) -> str:
                 else:
                     cells.append(h.get("note", "n/a"))
             lines.append(f"| {arm_id} | {cells[0]} | {cells[1]} |")
+
+    t20 = disc.get("trailing_20d")
+    if t20:
+        lines += [
+            "",
+            f"## Trailing {t20['n_days_requested']}-trading-day view (DISCLOSURE ONLY -- not a bar)",
+            "",
+            "_same three-view bootstrap as criterion 1 (as-traded / ex-best-day / cost-adjusted, "
+            "PF CI-lower 2.5%), scored per arm over only its most recent "
+            f"{t20['n_days_requested']} trading days. The pass criterion stays the aggregate, "
+            "full-history statistical_criterion in criteria.statistical -- this view never "
+            "substitutes for it._",
+            "",
+            "| Arm | Window | n_days | as-traded CI_lo | ex-best-day CI_lo | cost-adj CI_lo | Verdict |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for arm_id in report["roster"]:
+            a = t20["per_arm"].get(arm_id, {})
+            det = a.get("detail") or {}
+            if det.get("insufficient_data"):
+                lines.append(f"| {arm_id} | -- | -- | -- | -- | -- | INSUFFICIENT |")
+                continue
+            at, xb, ca = det.get("as_traded") or {}, det.get("ex_best_day") or {}, det.get("cost_adjusted_fees_plus_2c_slip") or {}
+            lines.append(f"| {arm_id} | {a.get('window_start')}..{a.get('window_end')} | "
+                          f"{a.get('n_days')}/{a.get('n_days_requested')} | "
+                          f"{at.get('ci_lower_2.5', 'n/a')} | {xb.get('ci_lower_2.5', 'n/a')} | "
+                          f"{ca.get('ci_lower_2.5', 'n/a')} | {_mark(det.get('pass'))} |")
 
     rc = report.get("regime_coverage")
     if rc:
