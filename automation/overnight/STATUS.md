@@ -1,7 +1,8 @@
 ## Known broken
 
+- [2026-09-03 01:28 ET] FULL-SUITE RED :: 11900 passed, 24 failed, 12 skipped :: tests/test_mcp_audit_registry_sourced_2026_08_18.py::test_plain_audit_expected_accounts_match_registry, tests/test_mcp_daily_audit_budget.py::test_mcp_daily_audit_budget_is_not_the_known_broken_value, tests/test_mcp_daily_audit_budget.py::test_mcp_daily_audit_budget_at_least_60_cents, tests/test_mcp_daily_audit_budget.py::test_mcp_daily_audit_timeout_at_least_300_sec, tests/test_min_contracts_equity_scaling_2026_08_13.py::test_the_live_2026_08_13_clamp_is_restored, tests/test_min_contracts_equity_scaling_2026_08_13.py::test_flag_off_is_byte_identical_to_the_pre_fix_behaviour, tests/test_min_contracts_equity_scaling_2026_08_13.py::test_at_the_baseline_equity_it_reproduces_the_original_floor, tests/test_min_contracts_equity_scaling_2026_08_13.py::test_it_never_scales_the_floor_DOWN, tests/test_min_contracts_equity_scaling_2026_08_13.py::test_scaling_is_monotone_in_equity[2000.0-3], tests/test_min_contracts_equity_scaling_2026_08_13.py::test_scaling_is_monotone_in_equity[3000.0-5], tests/test_min_contracts_equity_scaling_2026_08_13.py::test_scaling_is_monotone_in_equity[4470.48-7], tests/test_min_contracts_equity_scaling_2026_08_13.py::test_scaling_is_monotone_in_equity[5501.0-8] :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-09-03T05:26+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T22:57:10] GRADUATED-GUARDS-SLOW FAIL :: 1 failed, 45 passed, 11866 deselected, 3 warnings in 1625.82s (0:27:05) :: re-run: cd backtest && python -m pytest tests/ -m slow -q
-- [2026-09-03T04:53+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-03T01:14 ET] SCHEDULED-TASKS-DOC-GAP: `backtest/tests/test_scheduled_tasks_doc.py::test_every_installed_task_is_documented` failed pre-commit at ~01:10 ET (58/59) -- `Gamma_StateFreshnessRemediate` registered by `setup\scripts\install-state-freshness-remediate.ps1` is not in `SCHEDULED-TASKS.md`. Not this fire's work (another session's in-flight install script); by ~01:12 ET the gate read 59/59 again (resolved by that other session, not by me) -- flagged here in case it reappears. Not fixed by this fire.
 
 > **This section is the PREAMBLE and must stay above the first `## [` entry.**
@@ -15,6 +16,18 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+- [2026-09-03T04:15 ET] overnight loop cycle 2 -- 10 more commits; GuardsFull heavy catch-up PROVEN end to end; the exit walker's pricing defect is the finding that matters -- REVOKE surface
+
+  ✅ **Heavy-tier catch-up checked cold:** quiet-mode log `01:02:04 CATCH-UP SWEEP (heavy): started Gamma_GuardsFull` (4 hold-attributed misses), scheduler `LastRun 23:02 MT rc=0 Missed=0`, `guard-watch-full.json` 01:28 ET **11,900 passed / 24 failed**. The 24: 12 = `test_min_contracts_equity_scaling` measuring LIVE recency (a real OosCheck flipped recency GREEN at 00:42 ET, the fleet clamp correctly released; guard pinned to its RED scope, `912526f2`); 3 = MCP-audit budget tests mid-edit (pass now); 1 = a foreign uncommitted `mcp_audit.py` rewrite (restored to HEAD, diff kept in the session scratchpad); the rest unlisted because the runner capped names at 12 (fixed `6ab1bc74`). A fresh full run is in flight to close the loop. ⚠️ **Sizing note for today's session:** recency is GREEN, so the ribbon_ride min-sizing clamp is OFF for the fleet arms (ratified mechanism: RED clamps to the floor, GREEN passes through).
+
+  🚨 **Walker pricing defect (`a19b2f1d`, GATE-ADJACENT):** `multileg_exit_walk` priced every market-style exit at the STATIC stop level (`ExitAction` has no price; `worst_in` was dead). Replayed losers 4.09x actual on the PDT anchor; a flagged fix gets 2.84x, still failing the new magnitude criterion (|ratio-1| <= 0.40, median abs err <= $40, n >= 20). **Consequence:** the whole-engine null's replayed legs are biased NEGATIVE, so its PASS is inflated in the engine's favour. `magnitude_fidelity` now prints beside the verdict; Friday's reading must be read as PASS-with-walker-FAIL until WALKER-MARKET-STAGE-FILL-ROOT-FIX (in build) clears both anchors. Work order §2b annotated (`f58b140d`).
+
+  ✅ **Landed:** `3d5a082a` Gamma_FuturesPremarket2 (deterministic; the never-fired corpse task unregistered) · `01563eb7` Gamma_McpDailyAudit is a $0 REST probe (it raised a FALSE 401 BLOCKER at 00:03; live GREEN) · `64af824e` Gamma_StateFreshnessRemediate every 30 min + prereg_hygiene no longer self-silences (0 to 4 flagged) + FULLHIST anchor drift attributed to `4249d95e` (RE-ANCHOR filed for Sunday) · `084c126c` 8 FROZEN_PENDING_RUN preregs adjudicated (3 RUN / 1 RUN-after-walker / 2 PARK / 2 dead) · `8343ea56` futures rule breaks now persist to journal/futures/mistakes.md · `6ab1bc74` regime-conditioned validation reproduced EARNS_RIGHTS (trend cache stale since 07-14: 67% of trades trend=unknown, filed).
+
+  📁 **Open / in build:** walker root fix (holds the OPRA cache), block-elite-bull cohort RUN, instrument hygiene bundle (fill-latency join, watcher grace, setup taxonomy), zone-rejection-band RUN queued behind the cache. **Blocked:** Fri gate/null/WEEK ORDER (date), Sat Rule-9 pass, DMS/HALT drills (J), RE-ANCHOR (Sunday).
+
+  **Revoke:** `git revert <sha>` per commit; each independent.
 
 - [2026-09-03T01:14 ET] conductor AFTERHOURS: real broker-transport evidence closes 2 hypotheses on FUTURES-BROKER-CONNECT-FAILURE-RATE-ROOT-CAUSE + fixes a live misclassification bug -- REVOKE surface
 
@@ -452,3 +465,6 @@ the hang means I cannot verify that. A 0 on an unverified suite is a permanently
   - prereg-ladder-x-premium-2026-08-09.json (age 25.2d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
   - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.2d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
   - vwap-family-killcheck-prereg-2026-08-18.json (age 16.2d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
+
+### BROKEN: trendline-headless-draw 2026-09-03 01:28 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
