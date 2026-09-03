@@ -280,12 +280,28 @@ def test_force_flatten_position_uses_injected_close_fn(tmp_path):
 # ============================================================================
 # detect_stale_feed / drill_stale_feed (drill 3) -- fully offline, raw_bars injected
 # ============================================================================
-def test_detect_stale_feed_flags_a_stale_bar():
+def test_detect_stale_feed_flags_a_stale_bar(tmp_path):
+    # TWIN-TS-UTC-DRIFT-PRODUCER (2026-09-03 root cause): this test used to construct a
+    # BARE ctc.TwinConfig(), whose state_dir defaults to the REAL production TWIN_DIR
+    # (automation/state/crypto-twin/). run_tick(live=False) still calls log_decision on
+    # every tick regardless of `live` -- the old inline comment's "never writes" was
+    # wrong about that -- so every run of this test appended a real HOLD_BAD_BARS row to
+    # the PRODUCTION decisions.jsonl carrying this test's hardcoded now=2026-07-15T04:00
+    # as ts_utc (ts_et stayed fresh via et_now()'s real wall clock), exactly matching the
+    # frozen-ts_utc rows queue.md's TWIN-TS-UTC-DRIFT-PRODUCER tracked from 2026-07-15
+    # through 2026-09-03 -- reproduced live this session (28469 -> 28470 lines, new row
+    # byte-identical to the historical pattern). Fixed by isolating state_dir via
+    # _twin_cfg(tmp_path), matching every other test in this file.
     now = datetime(2026, 7, 15, 4, 0, tzinfo=timezone.utc)
-    cfg = ctc.TwinConfig()  # never writes: run_tick(live=False) only appends decisions.jsonl
+    cfg = _twin_cfg(tmp_path)
     detected, row = tcd.detect_stale_feed(cfg, now_utc=now, stale_hours=3.0)
     assert detected is True
     assert row["action"] == "HOLD_BAD_BARS"
+    # Regression guard: prove the row landed in the ISOLATED decisions.jsonl, never the
+    # real production path (mirrors the isolation assertion drill_stale_feed's own
+    # end-to-end test already makes for resilience-ledger.jsonl below).
+    assert (cfg.state_dir / "decisions.jsonl").exists()
+    assert cfg.state_dir != ctc.TWIN_DIR
 
 
 def test_detect_stale_feed_never_places_an_order(tmp_path):
