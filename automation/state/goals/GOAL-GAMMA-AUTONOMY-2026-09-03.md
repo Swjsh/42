@@ -84,7 +84,7 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
   `_LEADERBOARD.md` PROMISING candidate gets WF+OOS verdict → SHADOW-FILED or KILLED),
   ZERO-ENTER-DAYS (counterfactual table for every zero-enter frozen-window day + $0 daily
   instrument; fix pre-registered for 10-30). DONE-WHEN (b).
-- [ ] A5 — `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no
+- [x] A5 (VERIFIED: clause 2a edited; page regenerated + DOM-grepped + rendered in-app 0 console errors; commit 5322e780; STATUS OPEN line; memory note written) — `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no
   active goal, runs `ensure` itself before falling through. Regenerate the page, quote the
   DOM grep + screenshot, commit with one-line revert, STATUS line, memory note.
 - [ ] A6 — Next-fire verification (following session): quote the 00:10 ET conductor outcome
@@ -103,5 +103,7 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
 
 - 2026-09-03 18:20 ET — OWNERSHIP: session 42-98 (Fable, the goal's opener) owns A1–A5 tonight; four Sonnet builders are in flight on disjoint files (goal_autopilot/task, learning_ledger, Autonomy tab, research goals — A4 DONE). Other sessions reaching this goal via the Stop hook: do NOT start A1–A5; A6 is the next-fire check and needs the 00:10 ET conductor outcome.
 
+- 2026-09-03 ~18:45 ET — A1–A5 DONE, commit 5322e780. Verified cold this session: goal_autopilot 36 tests + real ensure=noop + status shows 1 active/3 eligible; Gamma_GoalAutopilot Ready rc=0; learning_ledger 18 tests + real run (today tasks=64, candidates=50, commits=139; 7d preregs_adjudicated=15); Autonomy tab 86 tests, vAutonomy=2, 0 console errors, Overview strip present; quiet enforce tick left Gamma_Home Ready. Next open item = A6 (00:10 ET conductor fire must record a goal QUEUE item). Not verified: the slow graduated-guards run was still executing at commit time.
+
 ## HONEST STATE
-Nothing shipped yet. Diagnosis verified; build in flight.
+A1–A5 shipped and verified (commit 5322e780). A6 is the only open item: it needs the next scheduled conductor fire (00:10 ET) to prove DONE-WHEN (e). Known soft spots: prereg verdict dates fall back to file mtime (labelled in methods); Gamma_AutofireCards still has never fired because every card is an alarm, not a read-and-report item (separate item, not this goal).
