@@ -756,6 +756,7 @@
   ribbon/baseline depends on it); premarket-anchored patterns belong to Lane-A #5/#6
   (premarket-derived levels) in markdown/doctrine/DOJO-HARVEST-2026-07-21.md.
   depends:none :: status:pending
+  **FROZEN PREREG FILED 05:01 ET 2026-09-03 (Sonnet draft, Fable read):** `analysis/recommendations/prereg-double-bottom-lookback-ab-2026-09-03.md`. Both causes re-verified at today's line numbers (RTH-only filter `heartbeat_core.py:898-903` / `orchestrator.py:819-830`; `chart_patterns.py:102 lookback=20`; the watcher still calls the detector with no override). Cells: CONTROL (20, RTH-only) / A (lookback **26** = J's exact 24-bar gap + one bar of slack -- larger values risk pairing unrelated pivots per the diagnostic's last-two-local-lows mechanism) / B (premarket bars admitted to the DETECTOR frame only via a parallel field, never to `ctx.prior_bars`, ribbon or baselines -- preserves the 06-25 parity fix) / C = A+B / D = the proximity-gate lead frozen separately (fire AND a levels_active zone within the existing $0.50 Gate-6 radius). IS = the 35-day diagnostic scan, disclosed as seen; OOS = >= 30-session forward shadow ledger scored through `price_sole_blocker_cohort` + `walk_exit_manager` (sign-only caveat). Bar = OP-16's four + concentration. `build_step` names `backtest/tools/db_lookback_shadow_recorder.py`. EXPANSION -> nothing before 2026-10-30; never hand-widen. :: status:prereg-filed
 
 ### DB-BASE-QUIET-PROXIMITY-GATE-LEAD (MED, investigate, filed 2026-07-21)
 
