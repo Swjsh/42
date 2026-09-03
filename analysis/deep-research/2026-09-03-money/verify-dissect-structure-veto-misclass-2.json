@@ -1,0 +1,330 @@
+{
+  "total_ledger_rows": 37659,
+  "ts_et_range": [
+    "2026-06-25T13:48:17",
+    "2026-09-03T11:53:04"
+  ],
+  "total_veto_rows_safe_full_history": 228,
+  "veto_rows_by_date": {
+    "2026-07-06": 6,
+    "2026-07-07": 10,
+    "2026-07-08": 1,
+    "2026-07-09": 8,
+    "2026-07-10": 11,
+    "2026-07-11": 1,
+    "2026-07-14": 25,
+    "2026-07-15": 18,
+    "2026-07-16": 7,
+    "2026-07-17": 2,
+    "2026-07-18": 2,
+    "2026-07-20": 18,
+    "2026-07-21": 5,
+    "2026-07-22": 1,
+    "2026-07-27": 17,
+    "2026-07-28": 1,
+    "2026-07-29": 4,
+    "2026-07-30": 12,
+    "2026-08-01": 8,
+    "2026-08-02": 2,
+    "2026-08-04": 2,
+    "2026-08-06": 1,
+    "2026-08-07": 10,
+    "2026-08-12": 20,
+    "2026-08-17": 17,
+    "2026-08-21": 2,
+    "2026-09-03": 17
+  },
+  "winner_day_check": {
+    "2026-08-06": {
+      "total_decision_rows": 388,
+      "veto_rows": 1
+    },
+    "2026-08-13": {
+      "total_decision_rows": 386,
+      "veto_rows": 0
+    },
+    "2026-08-27": {
+      "total_decision_rows": 386,
+      "veto_rows": 0
+    },
+    "2026-08-28": {
+      "total_decision_rows": 386,
+      "veto_rows": 0
+    }
+  },
+  "episodes_all_history": [
+    {
+      "date": "2026-07-06",
+      "side": "C",
+      "first_ts": "2026-07-06T13:11:27",
+      "entry_spy": 751.39,
+      "spy_t30": 750.35,
+      "move30": -1.04,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-07",
+      "side": "P",
+      "first_ts": "2026-07-07T14:31:03",
+      "entry_spy": 748.99,
+      "spy_t30": 747.51,
+      "move30": -1.48,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-07",
+      "side": "P",
+      "first_ts": "2026-07-07T15:21:03",
+      "entry_spy": 746.63,
+      "spy_t30": 746.98,
+      "move30": 0.35,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-14",
+      "side": "P",
+      "first_ts": "2026-07-14T14:36:03",
+      "entry_spy": 752.46,
+      "spy_t30": 751.98,
+      "move30": -0.48,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-15",
+      "side": "C",
+      "first_ts": "2026-07-15T15:31:04",
+      "entry_spy": 753.56,
+      "spy_t30": 751.0,
+      "move30": -2.56,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": false
+    },
+    {
+      "date": "2026-07-15",
+      "side": "C",
+      "first_ts": "2026-07-15T15:46:03",
+      "entry_spy": 754.11,
+      "spy_t30": 751.0,
+      "move30": -3.11,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": false
+    },
+    {
+      "date": "2026-07-20",
+      "side": "P",
+      "first_ts": "2026-07-20T09:31:03",
+      "entry_spy": 743.28,
+      "spy_t30": 745.725,
+      "move30": 2.445,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-20",
+      "side": "P",
+      "first_ts": "2026-07-20T14:46:03",
+      "entry_spy": 742.59,
+      "spy_t30": 741.71,
+      "move30": -0.88,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-21",
+      "side": "C",
+      "first_ts": "2026-07-21T14:46:02",
+      "entry_spy": 748.58,
+      "spy_t30": 748.28,
+      "move30": -0.3,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-27",
+      "side": "P",
+      "first_ts": "2026-07-27T12:57:03",
+      "entry_spy": 737.13,
+      "spy_t30": 736.37,
+      "move30": -0.76,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-27",
+      "side": "P",
+      "first_ts": "2026-07-27T13:01:04",
+      "entry_spy": 737.03,
+      "spy_t30": 736.24,
+      "move30": -0.79,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-27",
+      "side": "P",
+      "first_ts": "2026-07-27T13:24:03",
+      "entry_spy": 736.16,
+      "spy_t30": 736.79,
+      "move30": 0.63,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-28",
+      "side": "C",
+      "first_ts": "2026-07-28T14:04:03",
+      "entry_spy": 741.19,
+      "spy_t30": 740.51,
+      "move30": -0.68,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-07-29",
+      "side": "P",
+      "first_ts": "2026-07-29T15:48:46",
+      "entry_spy": 731.18,
+      "spy_t30": null,
+      "move30": null,
+      "blocked_entry_would_have_won_30m": null,
+      "has_30m_readout": false
+    },
+    {
+      "date": "2026-07-29",
+      "side": "P",
+      "first_ts": "2026-07-29T15:58:46",
+      "entry_spy": 730.775,
+      "spy_t30": null,
+      "move30": null,
+      "blocked_entry_would_have_won_30m": null,
+      "has_30m_readout": false
+    },
+    {
+      "date": "2026-08-07",
+      "side": "C",
+      "first_ts": "2026-08-07T12:36:03",
+      "entry_spy": 771.925,
+      "spy_t30": 772.045,
+      "move30": 0.12,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-08-12",
+      "side": "P",
+      "first_ts": "2026-08-12T13:01:03",
+      "entry_spy": 772.96,
+      "spy_t30": 772.75,
+      "move30": -0.21,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-08-12",
+      "side": "P",
+      "first_ts": "2026-08-12T13:16:04",
+      "entry_spy": 772.945,
+      "spy_t30": 772.875,
+      "move30": -0.07,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-08-12",
+      "side": "P",
+      "first_ts": "2026-08-12T13:31:04",
+      "entry_spy": 772.75,
+      "spy_t30": 772.835,
+      "move30": 0.085,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-08-17",
+      "side": "P",
+      "first_ts": "2026-08-17T13:06:03",
+      "entry_spy": 774.67,
+      "spy_t30": 773.43,
+      "move30": -1.24,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-08-17",
+      "side": "P",
+      "first_ts": "2026-08-17T13:19:03",
+      "entry_spy": 774.3,
+      "spy_t30": 773.78,
+      "move30": -0.52,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-08-21",
+      "side": "C",
+      "first_ts": "2026-08-21T13:34:03",
+      "entry_spy": 765.81,
+      "spy_t30": 765.505,
+      "move30": -0.305,
+      "blocked_entry_would_have_won_30m": false,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-09-03",
+      "side": "C",
+      "first_ts": "2026-09-03T11:11:04",
+      "entry_spy": 770.73,
+      "spy_t30": 772.465,
+      "move30": 1.735,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-09-03",
+      "side": "C",
+      "first_ts": "2026-09-03T11:16:03",
+      "entry_spy": 771.5,
+      "spy_t30": 772.58,
+      "move30": 1.08,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-09-03",
+      "side": "C",
+      "first_ts": "2026-09-03T11:21:03",
+      "entry_spy": 772.02,
+      "spy_t30": 772.935,
+      "move30": 0.915,
+      "blocked_entry_would_have_won_30m": true,
+      "has_30m_readout": true
+    },
+    {
+      "date": "2026-09-03",
+      "side": "C",
+      "first_ts": "2026-09-03T11:26:03",
+      "entry_spy": 772.11,
+      "spy_t30": null,
+      "move30": null,
+      "blocked_entry_would_have_won_30m": null,
+      "has_30m_readout": false
+    },
+    {
+      "date": "2026-09-03",
+      "side": "C",
+      "first_ts": "2026-09-03T11:31:03",
+      "entry_spy": 772.93,
+      "spy_t30": null,
+      "move30": null,
+      "blocked_entry_would_have_won_30m": null,
+      "has_30m_readout": false
+    }
+  ],
+  "n_complete_30m": 23,
+  "wins_30m": 13,
+  "losses_30m": 10
+}

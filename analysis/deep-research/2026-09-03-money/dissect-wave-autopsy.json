@@ -1,0 +1,1538 @@
+{
+  "pop_stats": {
+    "n_bullish_reclaim_calls": 113,
+    "n_winners": 36,
+    "mean_range_position_winners": 0.824,
+    "n_losers": 70,
+    "mean_range_position_losers": 0.8431,
+    "mean_hold_minutes_winners": 38.6111,
+    "mean_hold_minutes_losers": 24.6667
+  },
+  "waves": {
+    "wave1": {
+      "positions": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260903C00770000",
+          "entry": {
+            "ts_et": "2026-09-03T09:41:03",
+            "spy_at_entry": 769.735,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 769.735,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 12,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 10.9,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 10.9,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.02,
+            "spread_cents": 97.58710801218058,
+            "bar_freshness_age_min": 6.06,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 0.375,
+            "distance_zone_widths": 0.469,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 0.966,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 0,
+              "floor_effective": 5,
+              "would_block": false,
+              "shadow_only": true,
+              "structure_reason": "unknown:insufficient_bars",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 0.966,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 0,
+                "floor_effective": 5,
+                "would_block": false,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": null,
+            "entry_fill_price": 0.98,
+            "entry_fill_qty": 3.0,
+            "entry_premium_signal": null
+          },
+          "premium_path": {
+            "hwm": 1.15,
+            "hwm_ts": "2026-09-03T09:48:03",
+            "time_to_hwm_min": 7.0,
+            "mae_worst_premium": 0.47,
+            "mae_ts": "2026-09-03T10:03:03",
+            "n_exit_pass_ticks": 22
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:03:03.923008",
+              "qty": 3.0,
+              "price": 0.5
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:03:03",
+              "stage": "premium_stop",
+              "reason": "premium_stop @ 0.49"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -144.0,
+            "cost_basis_dollars": 294.0,
+            "pnl_pct_of_premium": -48.98,
+            "pnl_pct_of_equity": -2.55
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 769.54,
+            "min_60m": 767.78,
+            "min_ts": "2026-09-03T10:11:03",
+            "max_60m": 769.54,
+            "max_ts": "2026-09-03T10:03:03",
+            "last_60m": 769.265,
+            "last_ts": "2026-09-03T11:03:03",
+            "n_ticks": 61
+          }
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260903C00772000",
+          "entry": {
+            "ts_et": "2026-09-03T09:42:05",
+            "spy_at_entry": 769.735,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 769.735,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 13,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 12.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 12.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.02,
+            "spread_cents": 97.58710801218058,
+            "bar_freshness_age_min": 7.09,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 0.375,
+            "distance_zone_widths": 0.469,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 0.966,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 0,
+              "floor_effective": 5,
+              "would_block": false,
+              "shadow_only": true,
+              "structure_reason": "unknown:insufficient_bars",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 0.966,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 0,
+                "floor_effective": 5,
+                "would_block": false,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": null,
+            "entry_fill_price": 0.37,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": null
+          },
+          "premium_path": {
+            "hwm": 0.38,
+            "hwm_ts": "2026-09-03T09:52:04",
+            "time_to_hwm_min": 10.0,
+            "mae_worst_premium": 0.18,
+            "mae_ts": "2026-09-03T09:58:04",
+            "n_exit_pass_ticks": 16
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T09:58:04.795810",
+              "qty": 5.0,
+              "price": 0.2
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T09:58:04",
+              "stage": "premium_stop",
+              "reason": "premium_stop @ 0.18"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -85.0,
+            "cost_basis_dollars": 185.0,
+            "pnl_pct_of_premium": -45.95,
+            "pnl_pct_of_equity": -1.52
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 769.59,
+            "min_60m": 767.78,
+            "min_ts": "2026-09-03T10:11:03",
+            "max_60m": 769.59,
+            "max_ts": "2026-09-03T09:59:03",
+            "last_60m": 768.62,
+            "last_ts": "2026-09-03T10:58:03",
+            "n_ticks": 60
+          }
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260903C00770000",
+          "entry": {
+            "ts_et": "2026-09-03T09:42:05",
+            "spy_at_entry": 769.735,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 769.735,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 13,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 12.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 12.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.02,
+            "spread_cents": 97.58710801218058,
+            "bar_freshness_age_min": 6.06,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 0.375,
+            "distance_zone_widths": 0.469,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 0.966,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 0,
+              "floor_effective": 5,
+              "would_block": false,
+              "shadow_only": true,
+              "structure_reason": "unknown:insufficient_bars",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 0.966,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 0,
+                "floor_effective": 5,
+                "would_block": false,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": "ELITE",
+            "entry_fill_price": 1.11,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": 1.1
+          },
+          "premium_path": {
+            "hwm": 1.14,
+            "hwm_ts": "2026-09-03T09:52:05.774618-04:00",
+            "time_to_hwm_min": 10.0,
+            "mae_worst_premium": 0.55,
+            "mae_ts": "2026-09-03T10:01:05.937642-04:00",
+            "n_exit_pass_ticks": 19
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:01:06.654081",
+              "qty": 5.0,
+              "price": 0.57
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:01:05.937642-04:00",
+              "stage": "premium_stop",
+              "reason": "premium_stop @ 0.56"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -270.0,
+            "cost_basis_dollars": 555.0,
+            "pnl_pct_of_premium": -48.65,
+            "pnl_pct_of_equity": null
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 769.54,
+            "min_60m": 767.78,
+            "min_ts": "2026-09-03T10:11:03",
+            "max_60m": 769.54,
+            "max_ts": "2026-09-03T10:02:03",
+            "last_60m": 769.265,
+            "last_ts": "2026-09-03T11:01:03",
+            "n_ticks": 60
+          }
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260903C00770000",
+          "entry": {
+            "ts_et": "2026-09-03T09:42:05",
+            "spy_at_entry": 769.735,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 769.735,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 13,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 12.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 12.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.02,
+            "spread_cents": 97.58710801218058,
+            "bar_freshness_age_min": 6.06,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 0.375,
+            "distance_zone_widths": 0.469,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 0.966,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 0,
+              "floor_effective": 5,
+              "would_block": false,
+              "shadow_only": true,
+              "structure_reason": "unknown:insufficient_bars",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 0.966,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 0,
+                "floor_effective": 5,
+                "would_block": false,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": "ELITE",
+            "entry_fill_price": 1.08,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": 1.1
+          },
+          "premium_path": {
+            "hwm": 1.15,
+            "hwm_ts": "2026-09-03T09:52:05.774618-04:00",
+            "time_to_hwm_min": 9.9,
+            "mae_worst_premium": 0.49,
+            "mae_ts": "2026-09-03T10:02:06.077570-04:00",
+            "n_exit_pass_ticks": 20
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:02:07.259753",
+              "qty": 5.0,
+              "price": 0.52
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:02:06.077570-04:00",
+              "stage": "premium_stop",
+              "reason": "premium_stop @ 0.54"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -280.0,
+            "cost_basis_dollars": 540.0,
+            "pnl_pct_of_premium": -51.85,
+            "pnl_pct_of_equity": null
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 769.54,
+            "min_60m": 767.78,
+            "min_ts": "2026-09-03T10:11:03",
+            "max_60m": 769.54,
+            "max_ts": "2026-09-03T10:03:03",
+            "last_60m": 769.265,
+            "last_ts": "2026-09-03T11:02:03",
+            "n_ticks": 60
+          }
+        }
+      ]
+    },
+    "wave2": {
+      "positions": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260903C00768000",
+          "entry": {
+            "ts_et": "2026-09-03T10:16:03",
+            "spy_at_entry": 768.37,
+            "range_position_session_so_far": 0.6953,
+            "session_hi": 769.79,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 47,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 46.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 46.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.0,
+            "spread_cents": 169.2837287992461,
+            "bar_freshness_age_min": 6.07,
+            "trigger_level": 768.0,
+            "zone_width": 0.384,
+            "zone_label": "INTRADAY_PMH_2026-09-03",
+            "distance_dollars": 0.37,
+            "distance_zone_widths": 0.964,
+            "conviction": {
+              "total": 4,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 0,
+                "fresh_test": 1,
+                "range_position": 0.336,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "INTRADAY_PMH_2026-09-03",
+              "matched_level_price": 768.0,
+              "k": 1,
+              "floor_effective": 6,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "unknown:classifier",
+              "variant_tl": {
+                "total": 4,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 0,
+                  "fresh_test": 1,
+                  "range_position": 0.336,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "INTRADAY_PMH_2026-09-03",
+                "matched_level_price": 768.0,
+                "k": 1,
+                "floor_effective": 6,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": null,
+            "entry_fill_price": 1.4,
+            "entry_fill_qty": 3.0,
+            "entry_premium_signal": null
+          },
+          "premium_path": {
+            "hwm": 1.62,
+            "hwm_ts": "2026-09-03T10:21:03",
+            "time_to_hwm_min": 4.6,
+            "mae_worst_premium": 0.97,
+            "mae_ts": "2026-09-03T10:35:04",
+            "n_exit_pass_ticks": 20
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:36:04.043750",
+              "qty": 3.0,
+              "price": 1.18
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:36:03",
+              "stage": "structure_stop",
+              "reason": "structure_stop @ 768.0"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -66.0,
+            "cost_basis_dollars": 420.0,
+            "pnl_pct_of_premium": -15.71,
+            "pnl_pct_of_equity": -1.17
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 767.96,
+            "min_60m": 767.96,
+            "min_ts": "2026-09-03T10:37:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:36:03",
+            "n_ticks": 60
+          }
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260903C00770000",
+          "entry": {
+            "ts_et": "2026-09-03T10:16:08",
+            "spy_at_entry": 768.37,
+            "range_position_session_so_far": 0.6953,
+            "session_hi": 769.79,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 47,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 46.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 46.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.0,
+            "spread_cents": 169.2837287992461,
+            "bar_freshness_age_min": 6.14,
+            "trigger_level": 768.0,
+            "zone_width": 0.384,
+            "zone_label": "INTRADAY_PMH_2026-09-03",
+            "distance_dollars": 0.37,
+            "distance_zone_widths": 0.964,
+            "conviction": {
+              "total": 4,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 0,
+                "fresh_test": 1,
+                "range_position": 0.336,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "INTRADAY_PMH_2026-09-03",
+              "matched_level_price": 768.0,
+              "k": 1,
+              "floor_effective": 6,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "unknown:classifier",
+              "variant_tl": {
+                "total": 4,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 0,
+                  "fresh_test": 1,
+                  "range_position": 0.336,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "INTRADAY_PMH_2026-09-03",
+                "matched_level_price": 768.0,
+                "k": 1,
+                "floor_effective": 6,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": null,
+            "entry_fill_price": 0.48,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": null
+          },
+          "premium_path": {
+            "hwm": 0.56,
+            "hwm_ts": "2026-09-03T10:20:06",
+            "time_to_hwm_min": 4.0,
+            "mae_worst_premium": 0.29,
+            "mae_ts": "2026-09-03T10:35:05",
+            "n_exit_pass_ticks": 20
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:36:05.732831",
+              "qty": 5.0,
+              "price": 0.34
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:36:05",
+              "stage": "structure_stop",
+              "reason": "structure_stop @ 768.0"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -70.0,
+            "cost_basis_dollars": 240.0,
+            "pnl_pct_of_premium": -29.17,
+            "pnl_pct_of_equity": -1.25
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 767.96,
+            "min_60m": 767.96,
+            "min_ts": "2026-09-03T10:37:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:36:03",
+            "n_ticks": 60
+          }
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260903C00768000",
+          "entry": {
+            "ts_et": "2026-09-03T10:17:06",
+            "spy_at_entry": 768.37,
+            "range_position_session_so_far": 0.6953,
+            "session_hi": 769.79,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 48,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 47.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 47.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.0,
+            "spread_cents": 169.2837287992461,
+            "bar_freshness_age_min": 6.07,
+            "trigger_level": 768.0,
+            "zone_width": 0.384,
+            "zone_label": "INTRADAY_PMH_2026-09-03",
+            "distance_dollars": 0.37,
+            "distance_zone_widths": 0.964,
+            "conviction": {
+              "total": 4,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 0,
+                "fresh_test": 1,
+                "range_position": 0.336,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "INTRADAY_PMH_2026-09-03",
+              "matched_level_price": 768.0,
+              "k": 1,
+              "floor_effective": 6,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "unknown:classifier",
+              "variant_tl": {
+                "total": 4,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 0,
+                  "fresh_test": 1,
+                  "range_position": 0.336,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "INTRADAY_PMH_2026-09-03",
+                "matched_level_price": 768.0,
+                "k": 1,
+                "floor_effective": 6,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": "ELITE",
+            "entry_fill_price": 1.31,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": 1.29
+          },
+          "premium_path": {
+            "hwm": 1.6,
+            "hwm_ts": "2026-09-03T10:28:05.753151-04:00",
+            "time_to_hwm_min": 11.0,
+            "mae_worst_premium": 1.02,
+            "mae_ts": "2026-09-03T10:35:07.033617-04:00",
+            "n_exit_pass_ticks": 20
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:37:06.406846",
+              "qty": 5.0,
+              "price": 1.18
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:37:05.819877-04:00",
+              "stage": "structure_stop",
+              "reason": "structure_stop @ 768.0"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -65.0,
+            "cost_basis_dollars": 655.0,
+            "pnl_pct_of_premium": -9.92,
+            "pnl_pct_of_equity": null
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 767.96,
+            "min_60m": 767.96,
+            "min_ts": "2026-09-03T10:38:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:37:03",
+            "n_ticks": 60
+          }
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260903C00768000",
+          "entry": {
+            "ts_et": "2026-09-03T10:17:06",
+            "spy_at_entry": 768.37,
+            "range_position_session_so_far": 0.6953,
+            "session_hi": 769.79,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 48,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 47.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 47.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 15.0,
+            "spread_cents": 169.2837287992461,
+            "bar_freshness_age_min": 6.07,
+            "trigger_level": 768.0,
+            "zone_width": 0.384,
+            "zone_label": "INTRADAY_PMH_2026-09-03",
+            "distance_dollars": 0.37,
+            "distance_zone_widths": 0.964,
+            "conviction": {
+              "total": 4,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 0,
+                "fresh_test": 1,
+                "range_position": 0.336,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "INTRADAY_PMH_2026-09-03",
+              "matched_level_price": 768.0,
+              "k": 1,
+              "floor_effective": 6,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "unknown:classifier",
+              "variant_tl": {
+                "total": 4,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 0,
+                  "fresh_test": 1,
+                  "range_position": 0.336,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "INTRADAY_PMH_2026-09-03",
+                "matched_level_price": 768.0,
+                "k": 1,
+                "floor_effective": 6,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": "ELITE",
+            "entry_fill_price": 1.31,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": 1.31
+          },
+          "premium_path": {
+            "hwm": 1.59,
+            "hwm_ts": "2026-09-03T10:21:05.947797-04:00",
+            "time_to_hwm_min": 3.9,
+            "mae_worst_premium": 0.98,
+            "mae_ts": "2026-09-03T10:35:07.033617-04:00",
+            "n_exit_pass_ticks": 20
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T10:37:07.696250",
+              "qty": 4.0,
+              "price": 1.18
+            },
+            {
+              "ts_et": "2026-09-03T10:37:07.812088",
+              "qty": 1.0,
+              "price": 1.18
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T10:37:05.819877-04:00",
+              "stage": "structure_stop",
+              "reason": "structure_stop @ 768.0"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": -65.0,
+            "cost_basis_dollars": 655.0,
+            "pnl_pct_of_premium": -9.92,
+            "pnl_pct_of_equity": null
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 767.96,
+            "min_60m": 767.96,
+            "min_ts": "2026-09-03T10:38:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:37:03",
+            "n_ticks": 60
+          }
+        }
+      ]
+    },
+    "wave3": {
+      "positions": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260903C00772000",
+          "entry": {
+            "ts_et": "2026-09-03T11:06:04",
+            "spy_at_entry": 770.445,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 770.445,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 97,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 96.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 96.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 14.95,
+            "spread_cents": 162.1889641093162,
+            "bar_freshness_age_min": 6.08,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 1.085,
+            "distance_zone_widths": 1.356,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 1.0,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 2,
+              "floor_effective": 7,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "range",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 1.0,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 2,
+                "floor_effective": 7,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": null,
+            "entry_fill_price": 0.37,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": null
+          },
+          "premium_path": {
+            "hwm": 0.99,
+            "hwm_ts": "2026-09-03T11:20:07",
+            "time_to_hwm_min": 14.0,
+            "mae_worst_premium": 0.32,
+            "mae_ts": "2026-09-03T11:07:04",
+            "n_exit_pass_ticks": 15
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T11:16:04.995506",
+              "qty": 3.0,
+              "price": 0.78
+            },
+            {
+              "ts_et": "2026-09-03T11:21:05.055196",
+              "qty": 2.0,
+              "price": 0.75
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T11:16:04",
+              "stage": "tp1",
+              "reason": "tp1 @ +100%"
+            },
+            {
+              "ts": "2026-09-03T11:21:04",
+              "stage": "trail",
+              "reason": "runner_stop @ 0.84"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": 199.0,
+            "cost_basis_dollars": 185.0,
+            "pnl_pct_of_premium": 107.57,
+            "pnl_pct_of_equity": 3.56
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 772.02,
+            "min_60m": 772.02,
+            "min_ts": "2026-09-03T11:22:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:39:03",
+            "n_ticks": 18
+          }
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260903C00770000",
+          "entry": {
+            "ts_et": "2026-09-03T11:07:05",
+            "spy_at_entry": 770.445,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 770.445,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 98,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 97.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 97.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 14.95,
+            "spread_cents": 162.1889641093162,
+            "bar_freshness_age_min": 6.07,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 1.085,
+            "distance_zone_widths": 1.356,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 1.0,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 2,
+              "floor_effective": 7,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "range",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 1.0,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 2,
+                "floor_effective": 7,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": "ELITE",
+            "entry_fill_price": 1.17,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": 1.15
+          },
+          "premium_path": {
+            "hwm": 2.37,
+            "hwm_ts": "2026-09-03T11:19:05.842170-04:00",
+            "time_to_hwm_min": 11.8,
+            "mae_worst_premium": 1.32,
+            "mae_ts": "2026-09-03T11:08:05.782615-04:00",
+            "n_exit_pass_ticks": 14
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T11:19:06.631407",
+              "qty": 3.0,
+              "price": 2.32
+            },
+            {
+              "ts_et": "2026-09-03T11:21:06.675577",
+              "qty": 2.0,
+              "price": 1.98
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T11:19:05.842170-04:00",
+              "stage": "tp1",
+              "reason": "tp1 @ +100%"
+            },
+            {
+              "ts": "2026-09-03T11:21:05.785775-04:00",
+              "stage": "trail",
+              "reason": "runner_stop @ 2.01"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": 507.0,
+            "cost_basis_dollars": 585.0,
+            "pnl_pct_of_premium": 86.67,
+            "pnl_pct_of_equity": null
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 772.02,
+            "min_60m": 772.02,
+            "min_ts": "2026-09-03T11:22:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:39:03",
+            "n_ticks": 18
+          }
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260903C00770000",
+          "entry": {
+            "ts_et": "2026-09-03T11:07:05",
+            "spy_at_entry": 770.445,
+            "range_position_session_so_far": 1.0,
+            "session_hi": 770.445,
+            "session_lo": 765.13,
+            "n_ticks_in_prefix": 98,
+            "ribbon": "BULL",
+            "ribbon_flip_minutes_before_entry": 97.0,
+            "ribbon_flip_note": "since_session_open(lower_bound)",
+            "htf_15m": "BULL",
+            "htf_15m_flip_minutes_before_entry": 97.0,
+            "htf_15m_flip_note": "since_session_open(lower_bound)",
+            "vix": 14.95,
+            "spread_cents": 162.1889641093162,
+            "bar_freshness_age_min": 6.07,
+            "trigger_level": 769.36,
+            "zone_width": 0.8,
+            "zone_label": "SHELF_768.56_770.16_2026-09-03",
+            "distance_dollars": 1.085,
+            "distance_zone_widths": 1.356,
+            "conviction": {
+              "total": 5,
+              "max": 8,
+              "components": {
+                "named_level": 2,
+                "multi_day_memory": 1,
+                "fresh_test": 1,
+                "range_position": 1.0,
+                "range_extreme": 0,
+                "structure_agreement": 0,
+                "elite_trigger": 1,
+                "zone_stack": 0
+              },
+              "degraded_components": [
+                "structure"
+              ],
+              "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+              "matched_level_price": 769.36,
+              "k": 2,
+              "floor_effective": 7,
+              "would_block": true,
+              "shadow_only": true,
+              "structure_reason": "range",
+              "variant_tl": {
+                "total": 5,
+                "max": 8,
+                "components": {
+                  "named_level": 2,
+                  "trendline_anchor": 0,
+                  "multi_day_memory": 1,
+                  "fresh_test": 1,
+                  "range_position": 1.0,
+                  "range_extreme": 0,
+                  "structure_agreement": 0,
+                  "elite_trigger": 1,
+                  "zone_stack": 0
+                },
+                "degraded_components": [
+                  "structure"
+                ],
+                "matched_level_label": "SHELF_768.56_770.16_2026-09-03",
+                "matched_level_price": 769.36,
+                "k": 2,
+                "floor_effective": 7,
+                "would_block": true,
+                "shadow_only": true
+              }
+            },
+            "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+            "quality": "ELITE",
+            "entry_fill_price": 1.18,
+            "entry_fill_qty": 5.0,
+            "entry_premium_signal": 1.22
+          },
+          "premium_path": {
+            "hwm": 2.38,
+            "hwm_ts": "2026-09-03T11:19:05.842170-04:00",
+            "time_to_hwm_min": 11.9,
+            "mae_worst_premium": 1.31,
+            "mae_ts": "2026-09-03T11:08:05.782615-04:00",
+            "n_exit_pass_ticks": 14
+          },
+          "exits": [
+            {
+              "ts_et": "2026-09-03T11:14:07.561865",
+              "qty": 3.0,
+              "price": 1.81
+            },
+            {
+              "ts_et": "2026-09-03T11:21:07.806170",
+              "qty": 2.0,
+              "price": 1.95
+            }
+          ],
+          "exit_stages": [
+            {
+              "ts": "2026-09-03T11:14:05.846674-04:00",
+              "stage": "tp1",
+              "reason": "tp1 @ +50%"
+            },
+            {
+              "ts": "2026-09-03T11:21:05.785775-04:00",
+              "stage": "trail",
+              "reason": "runner_stop @ 2.02"
+            }
+          ],
+          "pnl": {
+            "realized_pnl_dollars": 343.0,
+            "cost_basis_dollars": 590.0,
+            "pnl_pct_of_premium": 58.14,
+            "pnl_pct_of_equity": null
+          },
+          "spy_after_exit_60min_summary": {
+            "spy_at_exit": 772.02,
+            "min_60m": 772.02,
+            "min_ts": "2026-09-03T11:22:03",
+            "max_60m": 772.93,
+            "max_ts": "2026-09-03T11:31:03",
+            "last_60m": 772.855,
+            "last_ts": "2026-09-03T11:39:03",
+            "n_ticks": 18
+          }
+        }
+      ]
+    }
+  },
+  "safe2_wave3_refusal": [
+    {
+      "ts_et": "2026-09-03T11:06:03",
+      "action": "SKIP_BULL_1100_1200",
+      "spy": 770.445,
+      "reason": "blocked by entry gate block_bull_1100_1200"
+    },
+    {
+      "ts_et": "2026-09-03T11:07:03",
+      "action": "SKIP_BULL_1100_1200",
+      "spy": 770.445,
+      "reason": "blocked by entry gate block_bull_1100_1200"
+    },
+    {
+      "ts_et": "2026-09-03T11:08:03",
+      "action": "SKIP_BULL_1100_1200",
+      "spy": 770.445,
+      "reason": "blocked by entry gate block_bull_1100_1200"
+    },
+    {
+      "ts_et": "2026-09-03T11:09:03",
+      "action": "SKIP_BULL_1100_1200",
+      "spy": 770.445,
+      "reason": "blocked by entry gate block_bull_1100_1200"
+    },
+    {
+      "ts_et": "2026-09-03T11:10:04",
+      "action": "SKIP_BULL_1100_1200",
+      "spy": 770.445,
+      "reason": "blocked by entry gate block_bull_1100_1200"
+    },
+    {
+      "ts_et": "2026-09-03T11:11:04",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 770.73,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:12:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 770.73,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:13:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 770.73,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:16:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 771.5,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:17:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 771.5,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:18:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 771.5,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:21:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 772.02,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    },
+    {
+      "ts_et": "2026-09-03T11:22:03",
+      "action": "SKIP_STRUCTURE_VETO",
+      "spy": 772.02,
+      "reason": "structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)"
+    }
+  ],
+  "q2_spy_points_at_stop": [
+    {
+      "position": "safe-2/770C-w1",
+      "stop_kind": "premium_stop(-50%)",
+      "spy_entry": 769.735,
+      "spy_at_stop": 769.54,
+      "spy_move_dollars": -0.195,
+      "premium_entry": 0.98,
+      "premium_at_stop": 0.5,
+      "premium_move_dollars": -0.48,
+      "implied_realized_delta_1min_resolution": 2.462,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "bold-2/772C-w1",
+      "stop_kind": "premium_stop(-50%)",
+      "spy_entry": 769.735,
+      "spy_at_stop": 769.59,
+      "spy_move_dollars": -0.145,
+      "premium_entry": 0.37,
+      "premium_at_stop": 0.2,
+      "premium_move_dollars": -0.17,
+      "implied_realized_delta_1min_resolution": 1.172,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "safe-3/770C-w1",
+      "stop_kind": "premium_stop(-50%)",
+      "spy_entry": 769.735,
+      "spy_at_stop": 769.54,
+      "spy_move_dollars": -0.195,
+      "premium_entry": 1.11,
+      "premium_at_stop": 0.57,
+      "premium_move_dollars": -0.54,
+      "implied_realized_delta_1min_resolution": 2.769,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "risky-1/770C-w1",
+      "stop_kind": "premium_stop(-50%)",
+      "spy_entry": 769.735,
+      "spy_at_stop": 769.54,
+      "spy_move_dollars": -0.195,
+      "premium_entry": 1.08,
+      "premium_at_stop": 0.52,
+      "premium_move_dollars": -0.56,
+      "implied_realized_delta_1min_resolution": 2.872,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "safe-2/768C-w2",
+      "stop_kind": "structure_stop(768.00)",
+      "spy_entry": 768.37,
+      "spy_at_stop": 767.96,
+      "spy_move_dollars": -0.41,
+      "premium_entry": 1.4,
+      "premium_at_stop": 1.18,
+      "premium_move_dollars": -0.22,
+      "implied_realized_delta_1min_resolution": 0.537,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "bold-2/770C-w2",
+      "stop_kind": "structure_stop(768.00)",
+      "spy_entry": 768.37,
+      "spy_at_stop": 767.96,
+      "spy_move_dollars": -0.41,
+      "premium_entry": 0.48,
+      "premium_at_stop": 0.34,
+      "premium_move_dollars": -0.14,
+      "implied_realized_delta_1min_resolution": 0.341,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "safe-3/768C-w2",
+      "stop_kind": "structure_stop(768.00)",
+      "spy_entry": 768.37,
+      "spy_at_stop": 767.96,
+      "spy_move_dollars": -0.41,
+      "premium_entry": 1.31,
+      "premium_at_stop": 1.18,
+      "premium_move_dollars": -0.13,
+      "implied_realized_delta_1min_resolution": 0.317,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    },
+    {
+      "position": "risky-1/768C-w2",
+      "stop_kind": "structure_stop(768.00)",
+      "spy_entry": 768.37,
+      "spy_at_stop": 767.96,
+      "spy_move_dollars": -0.41,
+      "premium_entry": 1.31,
+      "premium_at_stop": 1.18,
+      "premium_move_dollars": -0.13,
+      "implied_realized_delta_1min_resolution": 0.317,
+      "note": "delta computed from 1-min-cadence SPY snapshots around entry/exit; NOT tick-level, true intraminute move could differ"
+    }
+  ],
+  "q3_wave2_zone_edge_counterfactual": {
+    "trigger_level": 768.0,
+    "zone_width": 0.384,
+    "zone_edge_lower": 767.616,
+    "actual_stop_basis": "last_closed_5m_close",
+    "actual_stop_5m_close": 767.96,
+    "breach_of_raw_level_dollars": 0.04,
+    "breach_of_zone_edge_dollars": -0.344,
+    "zone_edge_breached": false,
+    "spy_60min_after_actual_stop_max": 772.93,
+    "spy_60min_after_actual_stop_max_ts": "2026-09-03T11:31:03",
+    "note": "actual structure_stop fired on a 4-cent breach of the RAW level (768.00), while the 5m close (767.96) never breached the level's own zone_width edge (767.616) -- under a zone-edge-adjusted stop rule this position would not have exited at 10:36"
+  }
+}

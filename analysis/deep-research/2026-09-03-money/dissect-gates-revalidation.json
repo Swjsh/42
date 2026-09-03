@@ -1,0 +1,90 @@
+{
+  "question": "D8 THE TWO GATES THAT REFUSED SAFE-2 -- FULL-POPULATION REVALIDATION",
+  "stamp_et": "2026-09-03T11:40",
+  "generated_at_et": "2026-09-03T11:53:56",
+  "slug": "gates-revalidation",
+  "change_class": "EXPANSION (both gates) -- barred under the 2026-10-30 config freeze regardless of statistical outcome",
+  "runners": [
+    "backtest/tools/dissect_gates_revalidation.py",
+    "backtest/tools/dissect_f10_bull_relax.py"
+  ],
+  "detail_files": [
+    "analysis/deep-research/2026-09-03-money/dissect-gates-revalidation-partA.json",
+    "analysis/deep-research/2026-09-03-money/dissect-gates-revalidation-partB.json"
+  ],
+  "part_a_block_bull_1100_1200": {
+    "gate_id": "block_bull_1100_1200",
+    "params_key": "block_bull_1100_1200",
+    "scope": "safe-only",
+    "ratification_baseline": {"IS_n": 11, "IS_WR_pct": 9.1, "IS_total_dollar": -89, "OOS_n": 1, "OOS_total_dollar": -42},
+    "cohort": {"raw_fires": 60, "distinct_episodes": 11, "window": "2026-06-18..2026-09-03",
+               "extra_cohort_scan_rows": 62, "extra_cohort_scan_conclusion": "all belong to other gates (elite_bull, structure_veto) or are real ENTERs -- the 11 SKIP-tagged episodes are the complete refused cohort"},
+    "sound_replay_walk_exit_manager": {
+      "n_ok": 8, "wr_pct": 50.0, "total_dollar": -3.9, "mean_dollar_per_trade": -0.49,
+      "bootstrap_ci95": [-99.64, 94.2], "drop_top1": -207.3, "drop_top3": -439.5,
+      "costing_verdict": "GREEN", "costing_reason": "refused cohort would have LOST $-0.49/tr, n=8 -- still justified"
+    },
+    "sole_blocker_p1_proxy_cross_check": {"n_readable": 9, "n_win": 4, "n_loss": 5},
+    "real_fill_cross_reference": {
+      "n_episodes_with_match": 10, "n_matched_clips": 40, "total_dollar_per_matched_qty": 574.0, "wr_pct": 35.0,
+      "direction_disagreement_with_sim_episodes": 2,
+      "per_arm": {
+        "safe-3": {"n": 11, "total_dollar": 510.0, "wr_pct": 36.4},
+        "bold-2": {"n": 10, "total_dollar": 249.0, "wr_pct": 50.0},
+        "risky-1": {"n": 10, "total_dollar": 144.0, "wr_pct": 40.0},
+        "risky-3": {"n": 9, "total_dollar": -329.0, "wr_pct": 11.1, "note": "the designated probe arm -- only arm net negative on this cohort"}
+      },
+      "today_2026_09_03_note": "TP1 partials only, +657 across 3 clips -- runners still open at report time, not a closed trade"
+    },
+    "anchor_days": {
+      "2026-08-06": {"episodes": 0, "interaction": "none"},
+      "2026-08-13": {"episodes": 1, "sim_dollar": -93.0, "real_dollar": -410.0, "interaction": "gate correctly avoided a real loser"},
+      "2026-08-27": {"episodes": 1, "sim_dollar": 151.2, "real_dollar": 470.0, "interaction": "gate cost a real winner"},
+      "2026-08-28": {"episodes": 0, "interaction": "none (11:01-11:05 win used a pre-11:00 trigger bar)"}
+    },
+    "verdict": "GREEN / KEEP -- no evidence bar cleared (not RED under costing_verdict, nightly instrument itself reads YELLOW n=7<floor over its own rolling window); not actionable even absent the freeze"
+  },
+  "part_b_filter10_bull_buyer_pressure": {
+    "prereg_file": "analysis/recommendations/bull-f10-buyer-pressure-prereg-2026-08-04.json",
+    "scope_note": "prereg's own population field calls for a full 391-day real-OPRA rebuild -- out of scope for this <5min scratch runner; scored against the live-ledger sole-[10] cohort only, disclosed as narrower",
+    "cohort": {"raw_holds_safe": 526, "raw_holds_bold": 529, "per_account_clustered_episodes": 63,
+               "distinct_episodes_cross_account_deduped": 63, "window": "2026-07-27..2026-09-03"},
+    "data_provenance_caveat": "baseline 0.70 (identical to live) admits 24/63 (38%) live sole-[10]-refused episodes when recomputed on the cached SPY/volume series -- a live-feed-vs-cache volume mismatch, disclosed, not a logic bug; absolute per-cell counts are approximate, added-vs-baseline delta used as primary read",
+    "cells_full_admitted_set": {
+      "baseline": {"f10_vol_mult": 0.7, "admitted": 24, "n_ok": 23, "wr_pct": 47.8, "total_dollar": 1995.1, "drop_top3": 303.2},
+      "relax_50": {"f10_vol_mult": 0.5, "admitted": 32, "n_ok": 30, "wr_pct": 40.0, "total_dollar": 1774.2, "drop_top3": 82.3},
+      "relax_35": {"f10_vol_mult": 0.35, "admitted": 35, "n_ok": 33, "wr_pct": 42.4, "total_dollar": 1840.05, "drop_top3": 148.15},
+      "off": {"f10_vol_mult": 0.0, "admitted": 35, "n_ok": 33, "wr_pct": 42.4, "total_dollar": 1840.05, "drop_top3": 148.15}
+    },
+    "added_vs_baseline_cohort": {
+      "relax_50": {"n_added": 8, "n_ok": 7, "wr_pct": 14.3, "total_dollar": -220.9, "bootstrap_ci95": [-99.0, 68.19], "drop_top3": -468.0},
+      "relax_35": {"n_added": 11, "n_ok": 10, "wr_pct": 30.0, "total_dollar": -155.05, "bootstrap_ci95": [-90.47, 69.88], "drop_top3": -636.0},
+      "off": {"n_added": 11, "n_ok": 10, "wr_pct": 30.0, "total_dollar": -155.05, "bootstrap_ci95": [-90.47, 69.88], "drop_top3": -636.0}
+    },
+    "sole_blocker_p1_proxy": {"n_episodes": 63, "n_cost_money_WIN": 25, "n_saved_money_LOSS": 36, "n_unknown_NONE": 2,
+      "nightly_flagship_cross_check": "gate-registry-status.json filter-10-bull-sole currently reads RED (39 episodes, 14 cost/25 saved, rolling window 2026-08-05..2026-09-01) -- directionally consistent (majority saved_money but the one-sided n_cost>=floor(10) smoke-alarm test is cleared in both windows); the sound-replay ADDED-cohort numbers above are the ratifying instrument the RED's own reason text calls for, and they say NO"},
+    "real_fill_cross_reference": {"n_episodes_with_match": 7, "n_matched_clips": 16, "total_dollar_per_matched_qty": -597.0, "wr_pct": 18.8},
+    "anchor_days": {
+      "2026-08-06": {"episodes": 0},
+      "2026-08-13": {"episodes": 4, "p1_net_dollar": -79.0, "note": "3 losers 1 winner -- refusal net-helped"},
+      "2026-08-27": {"episodes": 3, "p1_net_dollar": 671.0, "note": "all 3 read WIN -- F10 refused 3 real winners; only 1 fixable by relax (other 2 fail on bar-greenness, unfixable by vol_mult)"},
+      "2026-08-28": {"episodes": 5, "note": "mixed, proxy reuses one real trade per side across multiple episodes"}
+    },
+    "prereg_gate_scoring": {
+      "decision_floor_n_ge_20": {"relax_50": "FAIL n=7", "relax_35": "FAIL n=10", "off": "FAIL n=10"},
+      "oos_positive": "NOT_EVALUATED -- population too thin to split",
+      "wf_or_disclosed_null": "NOT_EVALUATED",
+      "sub_window_stable": "NOT_EVALUATED -- n too small to split by month",
+      "anchor_no_regression": "mixed, n=1-4/day, no clean pass or fail",
+      "drop_best": "added cohort still negative after drop-top3 in every cell"
+    },
+    "verdict": "NOT SUPPORTED / KEEP baseline 0.7 -- every cell fails decision_floor outright (prereg's own rule: below floor = no verdict, stays unarmed); added cohort is net negative in every cell even before the floor check; real fills on this exact cohort (n=16) lost -$597 at 18.8% WR. Not actionable even absent the freeze. Separate, unquantified finding: the live-feed-vs-cache volume mismatch is a real cost a threshold change would not fix."
+  },
+  "caveats": [
+    "All $ figures are cached-OPRA sound replay (walk_exit_manager) or real fills-ledger.jsonl rows -- no network/broker calls made this session, consistent with the hard constraint.",
+    "Real-fill cross-reference is a same-signal detector across arms with different qty/strike/exit-shape, not a scaled replica of what safe-2 itself would have made; direction disagreements with sim are disclosed per-episode in the detail JSON.",
+    "Sole-blocker P1 proxy (NOT_REPLAYED) reuses one real same-day/same-side trade as a stand-in for possibly several refused episodes -- directional only, per the instrument's own documented caveat.",
+    "Bootstrap CIs are 5,000-resample percentile CIs on n as small as 7 -- wide by construction, several straddle zero, reported as computed rather than rounded away.",
+    "Today's (2026-09-03) episodes in both parts could not be sim-replayed (no_contract/stale_dropped, same-day OPRA cache lag) -- real fills fill the gap where available; the Part A today-episode real total is TP1-partial only (runner still open)."
+  ]
+}

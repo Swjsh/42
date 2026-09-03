@@ -1,0 +1,748 @@
+{
+  "schema": "dissect-hold-counterfactual/1",
+  "question": "D4 SHOULD WE HAVE HELD -- wave1 770C/772C and wave2 768C/770C, 2026-09-03",
+  "stamp_et": "2026-09-03T11:40",
+  "data_window_et": "09:30-11:39",
+  "script": "backtest/tools/dissect_hold-counterfactual.py",
+  "equities": {
+    "safe-2": 5653.81,
+    "bold-2": 5593.52,
+    "safe-3": 5639.1,
+    "risky-1": 6149.12
+  },
+  "legs_meta": [
+    {
+      "name": "safe-2 wave1 770C",
+      "arm": "safe-2",
+      "symbol": "SPY260903C00770000",
+      "entry_ts": "09:41:04",
+      "entry_px": 0.98,
+      "qty": 3,
+      "real_exit_ts": "10:03:03",
+      "real_exit_px": 0.5,
+      "trigger_level": 769.36
+    },
+    {
+      "name": "safe-3 wave1 770C",
+      "arm": "safe-3",
+      "symbol": "SPY260903C00770000",
+      "entry_ts": "09:42:06",
+      "entry_px": 1.11,
+      "qty": 5,
+      "real_exit_ts": "10:01:06",
+      "real_exit_px": 0.57,
+      "trigger_level": 769.36
+    },
+    {
+      "name": "risky-1 wave1 770C",
+      "arm": "risky-1",
+      "symbol": "SPY260903C00770000",
+      "entry_ts": "09:42:08",
+      "entry_px": 1.08,
+      "qty": 5,
+      "real_exit_ts": "10:02:07",
+      "real_exit_px": 0.52,
+      "trigger_level": 769.36
+    },
+    {
+      "name": "bold-2 wave1 772C",
+      "arm": "bold-2",
+      "symbol": "SPY260903C00772000",
+      "entry_ts": "09:42:06",
+      "entry_px": 0.37,
+      "qty": 5,
+      "real_exit_ts": "09:58:04",
+      "real_exit_px": 0.2,
+      "trigger_level": 769.36
+    },
+    {
+      "name": "safe-2 wave2 768C",
+      "arm": "safe-2",
+      "symbol": "SPY260903C00768000",
+      "entry_ts": "10:16:25",
+      "entry_px": 1.4,
+      "qty": 3,
+      "real_exit_ts": "10:36:04",
+      "real_exit_px": 1.18,
+      "trigger_level": 768.0
+    },
+    {
+      "name": "safe-3 wave2 768C",
+      "arm": "safe-3",
+      "symbol": "SPY260903C00768000",
+      "entry_ts": "10:17:07",
+      "entry_px": 1.31,
+      "qty": 5,
+      "real_exit_ts": "10:37:06",
+      "real_exit_px": 1.18,
+      "trigger_level": 768.0
+    },
+    {
+      "name": "risky-1 wave2 768C",
+      "arm": "risky-1",
+      "symbol": "SPY260903C00768000",
+      "entry_ts": "10:17:09",
+      "entry_px": 1.31,
+      "qty": 5,
+      "real_exit_ts": "10:37:07",
+      "real_exit_px": 1.18,
+      "trigger_level": 768.0
+    },
+    {
+      "name": "bold-2 wave2 770C",
+      "arm": "bold-2",
+      "symbol": "SPY260903C00770000",
+      "entry_ts": "10:16:08",
+      "entry_px": 0.48,
+      "qty": 5,
+      "real_exit_ts": "10:36:05",
+      "real_exit_px": 0.34,
+      "trigger_level": 768.0
+    }
+  ],
+  "wave1_mechanics_answer": {
+    "cap_fire_window_et": "10:01:03-10:03:03",
+    "spy_at_cap_fire": 769.54,
+    "zone_floor_wave1": 768.56,
+    "spy_minus_zone_floor_at_cap_fire": 0.98,
+    "interpretation": "SPY was 0.98pts ABOVE (inside) the zone floor when the cap fired, not below it",
+    "structure_stop_fired_before_cap": false,
+    "min_5m_close_during_wave1_hold": 769.54,
+    "first_5m_close_below_zone_floor": {
+      "value": 768.16,
+      "time_et": "10:06"
+    },
+    "cap_was_binding_stop": true
+  },
+  "wave2_point_vs_zone_finding": {
+    "trigger_level": 768.0,
+    "zone_width": 0.384,
+    "zone_floor": 767.616,
+    "real_structure_stop_fire_5m_close": 767.96,
+    "real_fire_time_et": "10:36",
+    "point_breach_cents": 4,
+    "zone_floor_breach": false,
+    "min_5m_close_observed_in_window": 767.96,
+    "buffer_to_zone_floor_never_used_cents": 34.4
+  },
+  "analysis_output": {
+    "verify_5m_close_formula_against_engine_ground_truth": {
+      "n_ground_truth_points_checked": 100,
+      "mismatches": []
+    },
+    "wave1_mechanics": {
+      "zone_floor_wave1": 768.5600000000001,
+      "zone_width_wave1": 0.8,
+      "spy_at_cap_fires": {
+        "10:01": 769.54,
+        "10:02": 769.54,
+        "10:03": 769.54
+      },
+      "distance_below_zone_floor": {
+        "10:01": 0.98,
+        "10:02": 0.98,
+        "10:03": 0.98
+      },
+      "5m_closes_wave1_holding_period": {
+        "09:41": 769.735,
+        "09:46": 769.79,
+        "09:51": 769.64,
+        "09:56": 769.59,
+        "10:01": 769.54,
+        "10:06": 768.16,
+        "10:11": 767.78,
+        "10:16": 768.37
+      },
+      "did_5m_close_breach_zone_floor_768_56_before_1003": "NO -- never breached (min 5m close in window was 769.540 at 10:01)"
+    },
+    "legs": {
+      "safe-2 wave1 770C": {
+        "zone_floor": 768.5600000000001,
+        "zone_width": 0.8,
+        "real_pnl": -144.0,
+        "zone_edge_break": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.2211,
+          "trigger_5m_close": 768.16,
+          "pnl": -227.68,
+          "mae_dollars": 227.68,
+          "mae_pct_of_premium": 77.44,
+          "source": "APPROX_bs_2pt"
+        },
+        "cap_50": {
+          "resolved": true,
+          "exit_t": "10:01:10",
+          "exit_px": 0.49,
+          "pnl": -147.0,
+          "mae_dollars": 147.0,
+          "mae_pct_of_premium": 50.0,
+          "source": "FACT_quote"
+        },
+        "cap_70": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.2211,
+          "pnl": -227.68,
+          "mae_dollars": 227.68,
+          "mae_pct_of_premium": 77.44,
+          "source": "APPROX_bs_2pt"
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:15:26",
+          "tp1_px": 1.97,
+          "tp1_qty": 2.4,
+          "tp1_pnl": 237.6,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 113.0,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "pnl_realized_plus_mtm": 350.6,
+          "mae_dollars": 229.34,
+          "mae_pct_of_premium": 78.01,
+          "runner_mode": "chandelier"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 565.01,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "mae_dollars": 229.34,
+          "mae_pct_of_premium": 78.01
+        }
+      },
+      "safe-3 wave1 770C": {
+        "zone_floor": 768.5600000000001,
+        "zone_width": 0.8,
+        "real_pnl": -270.0,
+        "zone_edge_break": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.2211,
+          "trigger_5m_close": 768.16,
+          "pnl": -444.46,
+          "mae_dollars": 444.46,
+          "mae_pct_of_premium": 80.08,
+          "source": "APPROX_bs_2pt"
+        },
+        "cap_50": {
+          "resolved": true,
+          "exit_t": "10:01:10",
+          "exit_px": 0.49,
+          "pnl": -310.0,
+          "mae_dollars": 310.0,
+          "mae_pct_of_premium": 55.86,
+          "source": "FACT_quote"
+        },
+        "cap_70": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.2211,
+          "pnl": -444.46,
+          "mae_dollars": 444.46,
+          "mae_pct_of_premium": 80.08,
+          "source": "APPROX_bs_2pt"
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:17:12",
+          "tp1_px": 2.24,
+          "tp1_qty": 4.0,
+          "tp1_pnl": 452.0,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 175.34,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "pnl_realized_plus_mtm": 627.34,
+          "mae_dollars": 447.24,
+          "mae_pct_of_premium": 80.58,
+          "runner_mode": "chandelier"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 876.68,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "mae_dollars": 447.24,
+          "mae_pct_of_premium": 80.58
+        }
+      },
+      "risky-1 wave1 770C": {
+        "zone_floor": 768.5600000000001,
+        "zone_width": 0.8,
+        "real_pnl": -280.0,
+        "zone_edge_break": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.2211,
+          "trigger_5m_close": 768.16,
+          "pnl": -429.46,
+          "mae_dollars": 429.46,
+          "mae_pct_of_premium": 79.53,
+          "source": "APPROX_bs_2pt"
+        },
+        "cap_50": {
+          "resolved": true,
+          "exit_t": "10:01:10",
+          "exit_px": 0.49,
+          "pnl": -295.0,
+          "mae_dollars": 295.0,
+          "mae_pct_of_premium": 54.63,
+          "source": "FACT_quote"
+        },
+        "cap_70": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.2211,
+          "pnl": -429.46,
+          "mae_dollars": 429.46,
+          "mae_pct_of_premium": 79.53,
+          "source": "APPROX_bs_2pt"
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:17:12",
+          "tp1_px": 2.18,
+          "tp1_qty": 3.335,
+          "tp1_pnl": 366.85,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 296.93,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "pnl_realized_plus_mtm": 663.78,
+          "mae_dollars": 432.24,
+          "mae_pct_of_premium": 80.04,
+          "runner_mode": "breakeven"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 891.68,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "mae_dollars": 432.24,
+          "mae_pct_of_premium": 80.04
+        }
+      },
+      "bold-2 wave1 772C": {
+        "zone_floor": 768.5600000000001,
+        "zone_width": 0.8,
+        "real_pnl": -85.0,
+        "zone_edge_break": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.0439,
+          "trigger_5m_close": 768.16,
+          "pnl": -163.06,
+          "mae_dollars": 163.06,
+          "mae_pct_of_premium": 88.14,
+          "source": "APPROX_bs_2pt"
+        },
+        "cap_50": {
+          "resolved": true,
+          "exit_t": "09:57:59",
+          "exit_px": 0.17,
+          "pnl": -100.0,
+          "mae_dollars": 100.0,
+          "mae_pct_of_premium": 54.05,
+          "source": "FACT_quote"
+        },
+        "cap_70": {
+          "resolved": true,
+          "exit_t": "10:06:30",
+          "exit_px": 0.0439,
+          "pnl": -163.06,
+          "mae_dollars": 163.06,
+          "mae_pct_of_premium": 88.14,
+          "source": "APPROX_bs_2pt"
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:15:47",
+          "tp1_px": 0.79,
+          "tp1_qty": 3.335,
+          "tp1_pnl": 140.07,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 187.11,
+          "mtm_t": "11:39:30",
+          "mtm_px": 1.4938,
+          "pnl_realized_plus_mtm": 327.18,
+          "mae_dollars": 171.0,
+          "mae_pct_of_premium": 92.43,
+          "runner_mode": "breakeven"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 561.88,
+          "mtm_t": "11:39:30",
+          "mtm_px": 1.4938,
+          "mae_dollars": 171.0,
+          "mae_pct_of_premium": 92.43
+        }
+      },
+      "safe-2 wave2 768C": {
+        "zone_floor": 767.616,
+        "zone_width": 0.384,
+        "real_pnl": -66.0,
+        "zone_edge_break": {
+          "resolved": false,
+          "note": "no 5m close breached zone floor by cutoff",
+          "mtm_at_cutoff": 1050.74,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 114.0,
+          "mae_pct_of_premium": 27.14
+        },
+        "cap_50": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1050.74,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 114.0,
+          "mae_pct_of_premium": 27.14
+        },
+        "cap_70": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1050.74,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 114.0,
+          "mae_pct_of_premium": 27.14
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:11:30",
+          "tp1_px": 3.0118,
+          "tp1_qty": 2.4,
+          "tp1_pnl": 386.84,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 210.15,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "pnl_realized_plus_mtm": 596.98,
+          "mae_dollars": 114.0,
+          "mae_pct_of_premium": 27.14,
+          "runner_mode": "chandelier"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 1050.74,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 114.0,
+          "mae_pct_of_premium": 27.14
+        }
+      },
+      "safe-3 wave2 768C": {
+        "zone_floor": 767.616,
+        "zone_width": 0.384,
+        "real_pnl": -65.0,
+        "zone_edge_break": {
+          "resolved": false,
+          "note": "no 5m close breached zone floor by cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        },
+        "cap_50": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        },
+        "cap_70": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:06:30",
+          "tp1_px": 2.7903,
+          "tp1_qty": 4.0,
+          "tp1_pnl": 592.11,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 359.25,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "pnl_realized_plus_mtm": 951.36,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14,
+          "runner_mode": "chandelier"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        }
+      },
+      "risky-1 wave2 768C": {
+        "zone_floor": 767.616,
+        "zone_width": 0.384,
+        "real_pnl": -65.0,
+        "zone_edge_break": {
+          "resolved": false,
+          "note": "no 5m close breached zone floor by cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        },
+        "cap_50": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        },
+        "cap_70": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:06:30",
+          "tp1_px": 2.7903,
+          "tp1_qty": 3.335,
+          "tp1_pnl": 493.67,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 598.15,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "pnl_realized_plus_mtm": 1091.82,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14,
+          "runner_mode": "breakeven"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 1796.24,
+          "mtm_t": "11:39:30",
+          "mtm_px": 4.9025,
+          "mae_dollars": 145.0,
+          "mae_pct_of_premium": 22.14
+        }
+      },
+      "bold-2 wave2 770C": {
+        "zone_floor": 767.616,
+        "zone_width": 0.384,
+        "real_pnl": -70.0,
+        "zone_edge_break": {
+          "resolved": false,
+          "note": "no 5m close breached zone floor by cutoff",
+          "mtm_at_cutoff": 1191.68,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "mae_dollars": 132.24,
+          "mae_pct_of_premium": 55.1
+        },
+        "cap_50": {
+          "resolved": true,
+          "exit_t": "10:36:30",
+          "exit_px": 0.2155,
+          "pnl": -132.24,
+          "mae_dollars": 132.24,
+          "mae_pct_of_premium": 55.1,
+          "source": "APPROX_bs_2pt"
+        },
+        "cap_70": {
+          "resolved": false,
+          "note": "cap never touched by cutoff",
+          "mtm_at_cutoff": 1191.68,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "mae_dollars": 132.24,
+          "mae_pct_of_premium": 55.1
+        },
+        "tp1_runner": {
+          "resolved": "partial",
+          "tp1_t": "11:06:30",
+          "tp1_px": 1.1446,
+          "tp1_qty": 3.335,
+          "tp1_pnl": 221.63,
+          "note": "runner still open at cutoff",
+          "runner_mtm": 396.83,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "pnl_realized_plus_mtm": 618.46,
+          "mae_dollars": 132.24,
+          "mae_pct_of_premium": 55.1,
+          "runner_mode": "breakeven"
+        },
+        "hold_1520": {
+          "resolved": false,
+          "note": "PENDING -- 15:20 ET not yet reached; unrealized mark-to-market as of data cutoff",
+          "mtm_at_cutoff": 1191.68,
+          "mtm_t": "11:39:30",
+          "mtm_px": 2.8634,
+          "mae_dollars": 132.24,
+          "mae_pct_of_premium": 55.1
+        }
+      }
+    },
+    "calibration_logs": {
+      "SPY260903C00770000@09:41": [
+        {
+          "gap": "10:03-10:15",
+          "anchor": "TWO-POINT calibration: real quote at 10:02 (mid 0.515, implied_vol 0.0389) .. real quote at 10:16 (mid 0.495, implied_vol 0.0621); sigma linearly time-interpolated between the two -- exact at both boundaries by construction",
+          "proxy_at_gap_end": "N/A (exact at boundary by construction)",
+          "real_at_resume": 0.495,
+          "resume_minute": "10:16",
+          "calibration_error_pct": 0.0,
+          "method": "two-point (bounded) -- used for pricing",
+          "diagnostic_naive_single_point_error_pct": -81.79,
+          "diagnostic_note": "if a naive single-anchor constant-k-vs-VIX extrapolation had been used instead (as in the trailing open-ended gaps), it would have missed the real resumption price by this much -- shows the single-point method's reliability is poor for a near-the-money 0DTE contract several points from spot"
+        },
+        {
+          "gap": "10:36-11:06",
+          "anchor": "TWO-POINT calibration: real quote at 10:35 (mid 0.375, implied_vol 0.0502) .. real quote at 11:07 (mid 1.145, implied_vol 0.0539); sigma linearly time-interpolated between the two -- exact at both boundaries by construction",
+          "proxy_at_gap_end": "N/A (exact at boundary by construction)",
+          "real_at_resume": 1.145,
+          "resume_minute": "11:07",
+          "calibration_error_pct": 0.0,
+          "method": "two-point (bounded) -- used for pricing",
+          "diagnostic_naive_single_point_error_pct": -5.19,
+          "diagnostic_note": "if a naive single-anchor constant-k-vs-VIX extrapolation had been used instead (as in the trailing open-ended gaps), it would have missed the real resumption price by this much -- shows the single-point method's reliability is poor for a near-the-money 0DTE contract several points from spot"
+        },
+        {
+          "gap": "11:22-11:39",
+          "anchor": "SINGLE-POINT (open-ended gap, no later real quote in window): anchored to real quote at 11:21 (mid 2.065), implied_vol 0.0338, VIX 14.84 -> k=0.2277, sigma(t)=k*VIX(t)/100 held forward",
+          "proxy_at_gap_end": null,
+          "real_at_resume": null,
+          "resume_minute": null,
+          "calibration_error_pct": "UNMEASURED (no later real quote in analysis window -- gap still open at data cutoff 11:39 ET)",
+          "method": "single-point forward extrapolation (open-ended)"
+        }
+      ],
+      "SPY260903C00770000@09:42": [
+        {
+          "gap": "10:03-10:15",
+          "anchor": "TWO-POINT calibration: real quote at 10:02 (mid 0.515, implied_vol 0.0389) .. real quote at 10:16 (mid 0.495, implied_vol 0.0621); sigma linearly time-interpolated between the two -- exact at both boundaries by construction",
+          "proxy_at_gap_end": "N/A (exact at boundary by construction)",
+          "real_at_resume": 0.495,
+          "resume_minute": "10:16",
+          "calibration_error_pct": 0.0,
+          "method": "two-point (bounded) -- used for pricing",
+          "diagnostic_naive_single_point_error_pct": -81.79,
+          "diagnostic_note": "if a naive single-anchor constant-k-vs-VIX extrapolation had been used instead (as in the trailing open-ended gaps), it would have missed the real resumption price by this much -- shows the single-point method's reliability is poor for a near-the-money 0DTE contract several points from spot"
+        },
+        {
+          "gap": "10:36-11:06",
+          "anchor": "TWO-POINT calibration: real quote at 10:35 (mid 0.375, implied_vol 0.0502) .. real quote at 11:07 (mid 1.145, implied_vol 0.0539); sigma linearly time-interpolated between the two -- exact at both boundaries by construction",
+          "proxy_at_gap_end": "N/A (exact at boundary by construction)",
+          "real_at_resume": 1.145,
+          "resume_minute": "11:07",
+          "calibration_error_pct": 0.0,
+          "method": "two-point (bounded) -- used for pricing",
+          "diagnostic_naive_single_point_error_pct": -5.19,
+          "diagnostic_note": "if a naive single-anchor constant-k-vs-VIX extrapolation had been used instead (as in the trailing open-ended gaps), it would have missed the real resumption price by this much -- shows the single-point method's reliability is poor for a near-the-money 0DTE contract several points from spot"
+        },
+        {
+          "gap": "11:22-11:39",
+          "anchor": "SINGLE-POINT (open-ended gap, no later real quote in window): anchored to real quote at 11:21 (mid 2.065), implied_vol 0.0338, VIX 14.84 -> k=0.2277, sigma(t)=k*VIX(t)/100 held forward",
+          "proxy_at_gap_end": null,
+          "real_at_resume": null,
+          "resume_minute": null,
+          "calibration_error_pct": "UNMEASURED (no later real quote in analysis window -- gap still open at data cutoff 11:39 ET)",
+          "method": "single-point forward extrapolation (open-ended)"
+        }
+      ],
+      "SPY260903C00772000@09:42": [
+        {
+          "gap": "09:58-11:05",
+          "anchor": "TWO-POINT calibration: real quote at 09:57 (mid 0.175, implied_vol 0.0491) .. real quote at 11:06 (mid 0.305, implied_vol 0.0517); sigma linearly time-interpolated between the two -- exact at both boundaries by construction",
+          "proxy_at_gap_end": "N/A (exact at boundary by construction)",
+          "real_at_resume": 0.305,
+          "resume_minute": "11:06",
+          "calibration_error_pct": 0.0,
+          "method": "two-point (bounded) -- used for pricing",
+          "diagnostic_naive_single_point_error_pct": -70.34,
+          "diagnostic_note": "if a naive single-anchor constant-k-vs-VIX extrapolation had been used instead (as in the trailing open-ended gaps), it would have missed the real resumption price by this much -- shows the single-point method's reliability is poor for a near-the-money 0DTE contract several points from spot"
+        },
+        {
+          "gap": "11:35-11:39",
+          "anchor": "SINGLE-POINT (open-ended gap, no later real quote in window): anchored to real quote at 11:34 (mid 1.55), implied_vol 0.0635, VIX 14.90 -> k=0.4262, sigma(t)=k*VIX(t)/100 held forward",
+          "proxy_at_gap_end": null,
+          "real_at_resume": null,
+          "resume_minute": null,
+          "calibration_error_pct": "UNMEASURED (no later real quote in analysis window -- gap still open at data cutoff 11:39 ET)",
+          "method": "single-point forward extrapolation (open-ended)"
+        }
+      ],
+      "SPY260903C00768000@10:16": [
+        {
+          "gap": "10:37-11:39",
+          "anchor": "SINGLE-POINT (open-ended gap, no later real quote in window): anchored to real quote at 10:36 (mid 1.225), implied_vol 0.0708, VIX 14.94 -> k=0.4737, sigma(t)=k*VIX(t)/100 held forward",
+          "proxy_at_gap_end": null,
+          "real_at_resume": null,
+          "resume_minute": null,
+          "calibration_error_pct": "UNMEASURED (no later real quote in analysis window -- gap still open at data cutoff 11:39 ET)",
+          "method": "single-point forward extrapolation (open-ended)"
+        }
+      ],
+      "SPY260903C00768000@10:17": [
+        {
+          "gap": "10:37-11:39",
+          "anchor": "SINGLE-POINT (open-ended gap, no later real quote in window): anchored to real quote at 10:36 (mid 1.225), implied_vol 0.0708, VIX 14.94 -> k=0.4737, sigma(t)=k*VIX(t)/100 held forward",
+          "proxy_at_gap_end": null,
+          "real_at_resume": null,
+          "resume_minute": null,
+          "calibration_error_pct": "UNMEASURED (no later real quote in analysis window -- gap still open at data cutoff 11:39 ET)",
+          "method": "single-point forward extrapolation (open-ended)"
+        }
+      ],
+      "SPY260903C00770000@10:16": [
+        {
+          "gap": "10:36-11:06",
+          "anchor": "TWO-POINT calibration: real quote at 10:35 (mid 0.375, implied_vol 0.0502) .. real quote at 11:07 (mid 1.145, implied_vol 0.0539); sigma linearly time-interpolated between the two -- exact at both boundaries by construction",
+          "proxy_at_gap_end": "N/A (exact at boundary by construction)",
+          "real_at_resume": 1.145,
+          "resume_minute": "11:07",
+          "calibration_error_pct": 0.0,
+          "method": "two-point (bounded) -- used for pricing",
+          "diagnostic_naive_single_point_error_pct": -5.19,
+          "diagnostic_note": "if a naive single-anchor constant-k-vs-VIX extrapolation had been used instead (as in the trailing open-ended gaps), it would have missed the real resumption price by this much -- shows the single-point method's reliability is poor for a near-the-money 0DTE contract several points from spot"
+        },
+        {
+          "gap": "11:22-11:39",
+          "anchor": "SINGLE-POINT (open-ended gap, no later real quote in window): anchored to real quote at 11:21 (mid 2.065), implied_vol 0.0338, VIX 14.84 -> k=0.2277, sigma(t)=k*VIX(t)/100 held forward",
+          "proxy_at_gap_end": null,
+          "real_at_resume": null,
+          "resume_minute": null,
+          "calibration_error_pct": "UNMEASURED (no later real quote in analysis window -- gap still open at data cutoff 11:39 ET)",
+          "method": "single-point forward extrapolation (open-ended)"
+        }
+      ]
+    },
+    "spy_vix_tape_minutes": 130
+  }
+}

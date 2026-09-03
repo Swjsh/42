@@ -1,0 +1,613 @@
+{
+  "section": {
+    "today_reproduction": [
+      {
+        "target_tick": "2026-09-03T11:16:03",
+        "logged_verdict": "SKIP_STRUCTURE_VETO",
+        "logged_structure_reason": "downtrend",
+        "logged_spy": 771.5,
+        "trigger_bar_et_used": "2026-09-03T11:10:00-04:00",
+        "n_bars_fed": 21,
+        "bar_keys_first_last": [
+          "2026-09-03 09:30:00",
+          "2026-09-03 11:10:00"
+        ],
+        "reconstructed_trend": "range",
+        "matches_logged": false,
+        "swings_detected": [
+          {
+            "bar_idx": 3,
+            "kind": "swing_high",
+            "price": 769.79,
+            "bar_key": "2026-09-03 09:45:00"
+          },
+          {
+            "bar_idx": 8,
+            "kind": "swing_low",
+            "price": 767.78,
+            "bar_key": "2026-09-03 10:10:00"
+          },
+          {
+            "bar_idx": 10,
+            "kind": "swing_high",
+            "price": 768.87,
+            "bar_key": "2026-09-03 10:20:00"
+          },
+          {
+            "bar_idx": 13,
+            "kind": "swing_low",
+            "price": 767.96,
+            "bar_key": "2026-09-03 10:35:00"
+          }
+        ],
+        "labeled_swings": [
+          {
+            "bar_idx": 3,
+            "kind": "swing_high",
+            "price": 769.79,
+            "label": "H"
+          },
+          {
+            "bar_idx": 8,
+            "kind": "swing_low",
+            "price": 767.78,
+            "label": "L"
+          },
+          {
+            "bar_idx": 10,
+            "kind": "swing_high",
+            "price": 768.87,
+            "label": "LH"
+          },
+          {
+            "bar_idx": 13,
+            "kind": "swing_low",
+            "price": 767.96,
+            "label": "HL"
+          }
+        ]
+      },
+      {
+        "target_tick": "2026-09-03T11:21:03",
+        "logged_verdict": "SKIP_STRUCTURE_VETO",
+        "logged_structure_reason": "downtrend",
+        "logged_spy": 772.02,
+        "trigger_bar_et_used": "2026-09-03T11:15:00-04:00",
+        "n_bars_fed": 22,
+        "bar_keys_first_last": [
+          "2026-09-03 09:30:00",
+          "2026-09-03 11:15:00"
+        ],
+        "reconstructed_trend": "range",
+        "matches_logged": false,
+        "swings_detected": [
+          {
+            "bar_idx": 3,
+            "kind": "swing_high",
+            "price": 769.79,
+            "bar_key": "2026-09-03 09:45:00"
+          },
+          {
+            "bar_idx": 8,
+            "kind": "swing_low",
+            "price": 767.78,
+            "bar_key": "2026-09-03 10:10:00"
+          },
+          {
+            "bar_idx": 10,
+            "kind": "swing_high",
+            "price": 768.87,
+            "bar_key": "2026-09-03 10:20:00"
+          },
+          {
+            "bar_idx": 13,
+            "kind": "swing_low",
+            "price": 767.96,
+            "bar_key": "2026-09-03 10:35:00"
+          }
+        ],
+        "labeled_swings": [
+          {
+            "bar_idx": 3,
+            "kind": "swing_high",
+            "price": 769.79,
+            "label": "H"
+          },
+          {
+            "bar_idx": 8,
+            "kind": "swing_low",
+            "price": 767.78,
+            "label": "L"
+          },
+          {
+            "bar_idx": 10,
+            "kind": "swing_high",
+            "price": 768.87,
+            "label": "LH"
+          },
+          {
+            "bar_idx": 13,
+            "kind": "swing_low",
+            "price": 767.96,
+            "label": "HL"
+          }
+        ]
+      },
+      {
+        "target_tick": "2026-09-03T11:27:03",
+        "logged_verdict": "SKIP_STRUCTURE_VETO",
+        "logged_structure_reason": "downtrend",
+        "logged_spy": 772.11,
+        "trigger_bar_et_used": "2026-09-03T11:20:00-04:00",
+        "n_bars_fed": 23,
+        "bar_keys_first_last": [
+          "2026-09-03 09:30:00",
+          "2026-09-03 11:20:00"
+        ],
+        "reconstructed_trend": "range",
+        "matches_logged": false,
+        "swings_detected": [
+          {
+            "bar_idx": 3,
+            "kind": "swing_high",
+            "price": 769.79,
+            "bar_key": "2026-09-03 09:45:00"
+          },
+          {
+            "bar_idx": 8,
+            "kind": "swing_low",
+            "price": 767.78,
+            "bar_key": "2026-09-03 10:10:00"
+          },
+          {
+            "bar_idx": 10,
+            "kind": "swing_high",
+            "price": 768.87,
+            "bar_key": "2026-09-03 10:20:00"
+          },
+          {
+            "bar_idx": 13,
+            "kind": "swing_low",
+            "price": 767.96,
+            "bar_key": "2026-09-03 10:35:00"
+          }
+        ],
+        "labeled_swings": [
+          {
+            "bar_idx": 3,
+            "kind": "swing_high",
+            "price": 769.79,
+            "label": "H"
+          },
+          {
+            "bar_idx": 8,
+            "kind": "swing_low",
+            "price": 767.78,
+            "label": "L"
+          },
+          {
+            "bar_idx": 10,
+            "kind": "swing_high",
+            "price": 768.87,
+            "label": "LH"
+          },
+          {
+            "bar_idx": 13,
+            "kind": "swing_low",
+            "price": 767.96,
+            "label": "HL"
+          }
+        ]
+      }
+    ],
+    "session_bars_0930_1135": [
+      {
+        "bar_start_et": "09:30",
+        "open": 765.23,
+        "high": 765.23,
+        "low": 765.13,
+        "close": 765.13,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "09:35",
+        "open": 765.13,
+        "high": 768.99,
+        "low": 765.13,
+        "close": 768.99,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "09:40",
+        "open": 768.99,
+        "high": 769.735,
+        "low": 768.99,
+        "close": 769.735,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "09:45",
+        "open": 769.735,
+        "high": 769.79,
+        "low": 769.735,
+        "close": 769.79,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "09:50",
+        "open": 769.79,
+        "high": 769.79,
+        "low": 769.64,
+        "close": 769.64,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "09:55",
+        "open": 769.64,
+        "high": 769.64,
+        "low": 769.59,
+        "close": 769.59,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:00",
+        "open": 769.59,
+        "high": 769.59,
+        "low": 769.54,
+        "close": 769.54,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:05",
+        "open": 769.54,
+        "high": 769.54,
+        "low": 768.16,
+        "close": 768.16,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:10",
+        "open": 768.16,
+        "high": 768.16,
+        "low": 767.78,
+        "close": 767.78,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:15",
+        "open": 767.78,
+        "high": 768.37,
+        "low": 767.78,
+        "close": 768.37,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:20",
+        "open": 768.37,
+        "high": 768.87,
+        "low": 768.37,
+        "close": 768.87,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:25",
+        "open": 768.87,
+        "high": 768.87,
+        "low": 768.865,
+        "close": 768.865,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:30",
+        "open": 768.865,
+        "high": 768.865,
+        "low": 768.67,
+        "close": 768.67,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:35",
+        "open": 768.67,
+        "high": 768.67,
+        "low": 767.96,
+        "close": 767.96,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:40",
+        "open": 767.96,
+        "high": 768.2,
+        "low": 767.96,
+        "close": 768.2,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:45",
+        "open": 768.2,
+        "high": 768.2,
+        "low": 768.19,
+        "close": 768.19,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:50",
+        "open": 768.19,
+        "high": 768.75,
+        "low": 768.19,
+        "close": 768.75,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "10:55",
+        "open": 768.75,
+        "high": 768.75,
+        "low": 768.62,
+        "close": 768.62,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:00",
+        "open": 768.62,
+        "high": 769.265,
+        "low": 768.62,
+        "close": 769.265,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:05",
+        "open": 769.265,
+        "high": 770.445,
+        "low": 769.265,
+        "close": 770.445,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:10",
+        "open": 770.445,
+        "high": 770.73,
+        "low": 770.445,
+        "close": 770.73,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:15",
+        "open": 770.73,
+        "high": 771.5,
+        "low": 770.73,
+        "close": 771.5,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:20",
+        "open": 771.5,
+        "high": 772.02,
+        "low": 771.5,
+        "close": 772.02,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:25",
+        "open": 772.02,
+        "high": 772.11,
+        "low": 772.02,
+        "close": 772.11,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:30",
+        "open": 772.11,
+        "high": 772.93,
+        "low": 772.11,
+        "close": 772.93,
+        "volume": 0.0,
+        "n_samples": 5
+      },
+      {
+        "bar_start_et": "11:35",
+        "open": 772.93,
+        "high": 772.93,
+        "low": 772.855,
+        "close": 772.855,
+        "volume": 0.0,
+        "n_samples": 5
+      }
+    ],
+    "episode_count_raw_rows": 17,
+    "episode_count_deduped": 5,
+    "episodes": [
+      {
+        "date": "2026-09-03",
+        "side_blocked": "C",
+        "structure_label": "downtrend",
+        "first_ts": "2026-09-03T11:11:04",
+        "last_ts": "2026-09-03T11:13:03",
+        "n_ticks": 3,
+        "entry_spy": 770.73,
+        "spy_t30": 772.465,
+        "spy_t60": null,
+        "move30": 1.735,
+        "move60": null,
+        "veto_would_have_been_right_30m": false,
+        "veto_would_have_been_right_60m": null,
+        "entry_would_have_won_30m": true,
+        "entry_would_have_won_60m": null
+      },
+      {
+        "date": "2026-09-03",
+        "side_blocked": "C",
+        "structure_label": "downtrend",
+        "first_ts": "2026-09-03T11:16:03",
+        "last_ts": "2026-09-03T11:18:03",
+        "n_ticks": 3,
+        "entry_spy": 771.5,
+        "spy_t30": 772.58,
+        "spy_t60": null,
+        "move30": 1.08,
+        "move60": null,
+        "veto_would_have_been_right_30m": false,
+        "veto_would_have_been_right_60m": null,
+        "entry_would_have_won_30m": true,
+        "entry_would_have_won_60m": null
+      },
+      {
+        "date": "2026-09-03",
+        "side_blocked": "C",
+        "structure_label": "downtrend",
+        "first_ts": "2026-09-03T11:21:03",
+        "last_ts": "2026-09-03T11:23:03",
+        "n_ticks": 3,
+        "entry_spy": 772.02,
+        "spy_t30": null,
+        "spy_t60": null,
+        "move30": null,
+        "move60": null,
+        "veto_would_have_been_right_30m": null,
+        "veto_would_have_been_right_60m": null,
+        "entry_would_have_won_30m": null,
+        "entry_would_have_won_60m": null
+      },
+      {
+        "date": "2026-09-03",
+        "side_blocked": "C",
+        "structure_label": "downtrend",
+        "first_ts": "2026-09-03T11:26:03",
+        "last_ts": "2026-09-03T11:28:03",
+        "n_ticks": 3,
+        "entry_spy": 772.11,
+        "spy_t30": null,
+        "spy_t60": null,
+        "move30": null,
+        "move60": null,
+        "veto_would_have_been_right_30m": null,
+        "veto_would_have_been_right_60m": null,
+        "entry_would_have_won_30m": null,
+        "entry_would_have_won_60m": null
+      },
+      {
+        "date": "2026-09-03",
+        "side_blocked": "C",
+        "structure_label": "downtrend",
+        "first_ts": "2026-09-03T11:31:03",
+        "last_ts": "2026-09-03T11:35:04",
+        "n_ticks": 5,
+        "entry_spy": 772.93,
+        "spy_t30": null,
+        "spy_t60": null,
+        "move30": null,
+        "move60": null,
+        "veto_would_have_been_right_30m": null,
+        "veto_would_have_been_right_60m": null,
+        "entry_would_have_won_30m": null,
+        "entry_would_have_won_60m": null
+      }
+    ],
+    "aggregate_by_side": {
+      "C_veto_would_have_been_right_30m": {
+        "n": 2,
+        "veto_correct": 0,
+        "pct": 0.0
+      },
+      "C_veto_would_have_been_right_60m": {
+        "n": 0,
+        "veto_correct": 0,
+        "pct": null
+      },
+      "P_veto_would_have_been_right_30m": {
+        "n": 0,
+        "veto_correct": 0,
+        "pct": null
+      },
+      "P_veto_would_have_been_right_60m": {
+        "n": 0,
+        "veto_correct": 0,
+        "pct": null
+      }
+    },
+    "bootstrap_ci": {
+      "C_veto_would_have_been_right_30m": {
+        "n": 2,
+        "mean": 0.0,
+        "ci_lo_2.5pct": 0.0,
+        "ci_hi_97.5pct": 0.0
+      },
+      "C_veto_would_have_been_right_60m": null,
+      "P_veto_would_have_been_right_30m": null,
+      "P_veto_would_have_been_right_60m": null
+    },
+    "winner_day_vetoes": [],
+    "winner_days_checked": [
+      "2026-08-06",
+      "2026-08-13",
+      "2026-08-27",
+      "2026-08-28"
+    ],
+    "independent_gate_expiry_instrument": {
+      "source_current": "automation/state/gate-registry-status.json (structure_veto_enabled)",
+      "current_overall": "YELLOW",
+      "current_window": "2026-07-29..2026-09-01",
+      "current_n_events": 5,
+      "current_wr_pct": 40.0,
+      "current_exp_per_trade": 69.7,
+      "current_total_dollar": 348.5,
+      "current_sign": "POSITIVE",
+      "current_reason": "refused cohort positive ($69.7/tr) but n=5 < floor 10 -- watch, not yet actionable",
+      "current_replay_engine": "walk_exit_manager",
+      "current_replay_soundness": "sound",
+      "earlier_source": "analysis/recommendations/structure-veto-lift-prereg-2026-08-04.json",
+      "earlier_window": "2026-06-26..2026-07-31",
+      "earlier_overall": "RED",
+      "earlier_n_events": 11,
+      "earlier_exp_per_trade": 38.97,
+      "lift_trial_prereg_status": "PREREG ONLY, frozen 2026-08-04, never armed",
+      "lift_trial_arming_mechanism": "params.json structure_veto_enabled -> false (single key)",
+      "params_json_current_value_2026_09_03": true,
+      "ratifying_study_source": "analysis/recommendations/structure-veto-ab-2026-06-26.json",
+      "ratifying_study_full_vetoes_raw_ticks": 107,
+      "ratifying_study_actual_trades_affected": 2,
+      "ratifying_study_removed_winners": 0,
+      "ratifying_study_removed_losers": 2,
+      "ratifying_study_oos_delta_pnl_2026": 0.0,
+      "ratifying_study_effect_concentrated_in": "2025Q1 in-sample only"
+    },
+    "ledger_retention_gap": {
+      "core_decisions_jsonl_earliest_date": "2026-08-26",
+      "core_decisions_jsonl_latest_date": "2026-09-03",
+      "veto_shipped": "2026-06-26 (commit 26832c07 / 667217a1)",
+      "implication": "no row-level SKIP_STRUCTURE_VETO history available before 2026-08-26; winner days 2026-08-06 and 2026-08-13 not checkable from this ledger",
+      "winner_days_in_window": [
+        "2026-08-27",
+        "2026-08-28"
+      ],
+      "winner_days_out_of_window": [
+        "2026-08-06",
+        "2026-08-13"
+      ],
+      "fires_on_winner_days_in_window": 0
+    },
+    "classification": "DEFECT"
+  }
+}

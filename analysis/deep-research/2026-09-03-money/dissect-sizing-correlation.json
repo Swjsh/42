@@ -1,0 +1,108 @@
+{
+  "slug": "sizing-correlation",
+  "question_id": "D6",
+  "stamp_et": "2026-09-03T11:40:00",
+  "generated_et": "2026-09-03T11:45:19",
+  "market_status_at_generation": "OPEN (session still live, market_hours=True)",
+  "method": "FIFO buy/sell matching per (arm, symbol) on automation/state/fills-ledger.jsonl, is_option=true AND attribution=='engine' only. Safe globally (0DTE symbols encode expiry date, no cross-day collision). No broker/network calls. Read-only on automation/state/**, journal/**, analysis/quote-tape/**.",
+  "tool": "backtest/tools/dissect_sizing-correlation.py (+ _part2.py, _part3.py)",
+  "data_freshness_note": "fills-ledger.jsonl was re-read at 11:40 ET (35 today rows) vs the task brief's snapshot (through 11:27 ET, ~31 rows). The book moved materially between those reads: today's realized book P&L was -$1,045 (trough) at 10:37:07 ET and +$836 (closed legs) by 11:34 ET. All 'today' numbers below use the 11:40 ET read; state changes after that are NOT captured.",
+
+  "today_book": {
+    "trough_dollars": -1045.00,
+    "trough_ts_et": "2026-09-03T10:37:07.812088",
+    "final_closed_legs_dollars": 836.00,
+    "final_read_ts_et": "2026-09-03T11:34:08.367652",
+    "note": "The '-$1,045' figure quoted in SYNTHESIS.md (J's 11:00 ET trigger context) is this exact book-level trough, reproduced independently from fills-ledger.jsonl. It is a SUM across 4 correlated arms at one moment, not any single account's loss, and not the day's final state -- two subsequent winning waves (11:06-11:34 ET) fully reversed it."
+  },
+
+  "today_per_arm": {
+    "safe-2":  {"final_closed": -210.00, "trough": -210.00, "trough_ts_et": "2026-09-03T10:36:04.043750", "equity": 5653.81, "pct_of_equity_at_trough": -3.71, "pct_of_400_dollar_stop": 52.5, "kill_switch_pct": 30, "kill_switch_dollar_threshold": -1696.14, "pct_of_way_to_kill_switch": 12.4},
+    "bold-2":  {"final_closed": 129.00, "trough": -155.00, "trough_ts_et": "2026-09-03T10:36:05.732831", "equity": 5593.52, "pct_of_equity_at_trough": -2.77, "pct_of_400_dollar_stop": 38.7, "kill_switch_pct": 50, "kill_switch_dollar_threshold": -2796.76, "pct_of_way_to_kill_switch": 5.5},
+    "safe-3":  {"final_closed": 605.00, "trough": -335.00, "trough_ts_et": "2026-09-03T10:37:06.406846", "equity": 5639.10, "pct_of_equity_at_trough": -5.94, "pct_of_400_dollar_stop": 83.8, "kill_switch_pct": 30, "kill_switch_dollar_threshold": -1691.73, "pct_of_way_to_kill_switch": 19.8},
+    "risky-1": {"final_closed": 312.00, "trough": -345.00, "trough_ts_et": "2026-09-03T10:37:07.812088", "equity": 6149.12, "pct_of_equity_at_trough": -5.61, "pct_of_400_dollar_stop": 86.3, "kill_switch_pct": 50, "kill_switch_dollar_threshold": -3074.56, "pct_of_way_to_kill_switch": 11.2},
+    "risky-3": {"note": "did not trade today (0 fills), excluded from today's per-arm figures"}
+  },
+
+  "today_two_waves": {
+    "claim": "100% of today's losing legs (8 of 8, -$1,045 gross across arms, matching the book trough exactly) came from exactly 2 signal events, each replicated near-simultaneously across the 4 active arms.",
+    "wave_1": {"entry_window_et": "09:41-09:42", "stop_window_et": "09:58-10:03", "stop_mode": "premium_stop -50% cap (all 4 legs)", "loss_dollars": -779.00, "legs": ["bold-2 -85", "safe-3 -270", "risky-1 -280", "safe-2 -144"]},
+    "wave_2": {"entry_window_et": "10:16-10:17", "stop_window_et": "10:36-10:37", "stop_mode": "structure_stop, 5m close 767.96 vs trigger 768.00 (4-cent breach, all 4 legs same trigger)", "loss_dollars": -266.00, "legs": ["safe-2 -66", "bold-2 -70", "safe-3 -65", "risky-1 -65"]},
+    "sum": -1045.00
+  },
+
+  "today_position_sizing_vs_caps": [
+    {"ts_et": "09:42:06", "arm": "safe-3", "symbol": "SPY260903C00770000", "qty": 5, "premium": 1.11, "notional": 555.00, "pct_of_equity": 9.84, "pct_of_rule6_cap": 32.81, "pct_of_1000_position_cap": 55.5},
+    {"ts_et": "10:17:07", "arm": "safe-3", "symbol": "SPY260903C00768000", "qty": 5, "premium": 1.31, "notional": 655.00, "pct_of_equity": 11.62, "pct_of_rule6_cap": 38.72, "pct_of_1000_position_cap": 65.5, "note": "largest single position today"},
+    {"ts_et": "10:17:09", "arm": "risky-1", "symbol": "SPY260903C00768000", "qty": 5, "premium": 1.31, "notional": 655.00, "pct_of_equity": 10.65, "pct_of_rule6_cap": 21.30, "pct_of_1000_position_cap": 65.5},
+    {"ts_et": "11:07:10", "arm": "risky-1", "symbol": "SPY260903C00770000", "qty": 5, "premium": 1.18, "notional": 590.00, "pct_of_equity": 9.59, "pct_of_rule6_cap": 19.19, "pct_of_1000_position_cap": 59.0},
+    {"ts_et": "11:07:15", "arm": "safe-3", "symbol": "SPY260903C00770000", "qty": 5, "premium": 1.17, "notional": 585.00, "pct_of_equity": 10.37, "pct_of_rule6_cap": 34.58, "pct_of_1000_position_cap": 58.5}
+  ],
+  "rule6_conclusion": "Worst position today (safe-3, $655, 11.6% of equity) used 38.7% of Rule 6's 30%-of-equity cap and 32-39% headroom remained even before the -50% catastrophe cap is applied (which would halve the at-risk dollars to ~5.8% of equity). Rule 6 was never remotely close to binding on any position today. The binding constraint was the 5-contract max_contracts_per_entry ladder guardrail (ELITE-tier sizing wanted 8 contracts on safe-3/risky-1, clamped to 5) and the 4-cents-past-trigger structure stop -- not position size.",
+
+  "since_2026_08_06": {
+    "n_trading_days": 20,
+    "n_days_excl_today_partial": 19,
+    "per_day_per_arm_pnl_table": "see dissect-sizing-correlation.md Table 1",
+    "book_total_dollars": 1040.00,
+    "correlation_matrix_excl_today": {
+      "arms_order": ["bold-2", "risky-1", "risky-3", "safe-2", "safe-3"],
+      "matrix": [
+        [1.000, 0.638, -0.062, 0.596, 0.482],
+        [0.638, 1.000, 0.140, 0.766, 0.895],
+        [-0.062, 0.140, 1.000, 0.478, 0.227],
+        [0.596, 0.766, 0.478, 1.000, 0.730],
+        [0.482, 0.895, 0.227, 0.730, 1.000]
+      ],
+      "n_days": 19
+    },
+    "average_pairwise_correlation": {"point_estimate": 0.489, "bootstrap_mean": 0.483, "bootstrap_95pct_ci": [0.301, 0.633], "n_resamples": 3000, "resample_unit": "trading day, with replacement"},
+    "effective_n_independent_bets": {
+      "formula_used": "N / (1 + (N-1)*avg_pairwise_rho), N=5 arms",
+      "point_estimate": 1.692,
+      "bootstrap_mean": 1.729,
+      "bootstrap_95pct_ci": [1.416, 2.270],
+      "alt_method_participation_ratio_of_eigenvalues": 2.186,
+      "interpretation": "5 nominal arms behave like roughly 1.4-2.3 independent bets, not 5. The strongest single pair is risky-1/safe-3 at r=+0.895 (both bull-tilted fleet arms sharing the identical trigger); the weakest is bold-2/risky-3 at r=-0.062 (near-zero, close to genuinely independent)."
+    }
+  },
+
+  "flat3_contracts_counterfactual": {
+    "method": "Entry-level (grouped by original buy_ts) linear per-contract P&L scaling: counterfactual_qty = min(actual_qty, 3); counterfactual_pnl = (actual_pnl / actual_qty) * counterfactual_qty. APPROXIMATE -- ignores exit-ladder nonlinearity (TP1 sells 66.7% of position: qty3 sells 2/keeps 1 riding, qty5 sells 3/keeps 2 riding -- runner optionality is NOT the same shape at different qty, so this likely overstates smaller-size benefit on choppy days and understates larger-size benefit on trend days). Uses REAL fills-ledger prices throughout (not a walker/bar-replay simulation), so it does not carry the WALKER-FULL-POPULATION-ANCHOR magnitude-fidelity caveat -- the only approximation here is the linear-scaling assumption itself, disclosed above.",
+    "population": "222 reconstructed entries since 2026-08-06 (matched FIFO legs grouped back to their originating buy fill)",
+    "by_arm": {
+      "safe-2":  {"n_entries": 50, "n_entries_qty_over_3": 0, "actual_dollars": 68.00, "flat3_dollars": 68.00, "delta": 0.00, "note": "already at min_contracts=3 floor essentially every entry -- flat-3 changes nothing"},
+      "bold-2":  {"n_entries": 39, "n_entries_qty_over_3": 36, "actual_dollars": 259.00, "flat3_dollars": 67.40, "delta": -191.60},
+      "risky-1": {"n_entries": 56, "n_entries_qty_over_3": 49, "actual_dollars": 439.00, "flat3_dollars": 286.00, "delta": -153.00},
+      "risky-3": {"n_entries": 44, "n_entries_qty_over_3": 41, "actual_dollars": -199.00, "flat3_dollars": -111.25, "delta": 87.75},
+      "safe-3":  {"n_entries": 33, "n_entries_qty_over_3": 8, "actual_dollars": 473.00, "flat3_dollars": 1050.00, "delta": 577.00}
+    },
+    "book_total": {"actual_dollars": 1040.00, "flat3_dollars": 1360.15, "delta": 320.15},
+    "conclusion": "Small, mixed, sign-uncertain effect (no CI computed on the delta -- flag as a point estimate only). Flat-3 would have cost bold-2 and risky-1 money (their tiered upsizing above 3, mostly to their min_contracts=5 floor, correlates with bigger wins as much as bigger losses in this sample) but helped risky-3 and especially safe-3 (whose few above-3 entries -- ELITE-tier upsizes to 5 -- were disproportionately its losers). Net book effect is a small positive (+$320 of +$1,040, +31%) but this is not a validated result: no bootstrap CI, small n on the qty>3 subset per arm, and the linear-scaling approximation's known bias runs in the direction of UNDERSTATING what bigger size buys on trend days -- so this number should not be read as 'shrink the ladder', only as 'sizing above the floor has not obviously paid for itself yet, arm-by-arm and outside a validated pre-registered test'."
+  },
+
+  "median_winner_loser_by_arm_since_08_06": {
+    "bold-2":  {"n": 39, "median_win": 159.00, "median_loss": -89.00, "median_notional": 330.00},
+    "risky-1": {"n": 56, "median_win": 207.00, "median_loss": -80.00, "median_notional": 470.00},
+    "risky-3": {"n": 44, "median_win": 90.00, "median_loss": -80.00, "median_notional": 372.00},
+    "safe-2":  {"n": 50, "median_win": 184.00, "median_loss": -54.00, "median_notional": 267.00},
+    "safe-3":  {"n": 33, "median_win": 207.00, "median_loss": -65.50, "median_notional": 339.00}
+  },
+
+  "tight_ladder_dollar_stop_context": {
+    "source": "analysis/recommendations/PREREG-TIGHT-LADDER-2026-08-28.md Addendum 1 S1.3 + Addendum 2 S2.1 (frozen 2026-08-28, prereg for the current -09-01..10-30 window)",
+    "config": "-$400/arm/day realized-loss stop, alongside daily_loss_kill_switch_pct (30% Safe / 50% Bold) -- both independently armed",
+    "prior_evidence_382_trades": {"minus_200": {"winners_blocked": 2762, "losers_blocked": 3688, "net": 926}, "minus_400": {"winners_blocked": 347, "losers_blocked": 1948, "net": 1601}, "minus_600": {"winners_blocked": 0, "losers_blocked": 1048, "net": 1048}, "loss_count_throttle_stop_after_2": {"winners_blocked": 589, "losers_blocked": 283, "net": -306}},
+    "today_closest_approach": "risky-1 at 86.3% of the -$400 stop (trough -$345 at 10:37:07 ET), safe-3 at 83.8% (trough -$335). Neither tripped -- both recovered on wave 3/4 before a third losing wave could have pushed them over."
+  },
+
+  "entry_rule_diversification_design_note": {
+    "source": "analysis/deep-research/2026-09-03-money/retest-entry-variant-walked.json and *-zw0.50.json (H10, this morning's fleet)",
+    "method": "Day-summed actual (breakout, walked) vs retest-variant (walked) P&L, 15 comparable trading days 2026-08-06..2026-09-02, same population/exit engine both sides (see H10 report for full methodology and fidelity caveats -- SIGN-ONLY except safe-2)",
+    "correlation_breakout_vs_retest_by_day": {
+      "zone_0.30": 0.736,
+      "zone_0.50": 0.950
+    },
+    "conclusion": "NOT A RESULT -- a design note only. Diversifying arms by entry-TIMING rule (breakout vs wait-for-retest) does NOT meaningfully decorrelate the book: both variants read the identical trigger_level off the identical shared signal, so both are driven by the same underlying day-type (trend vs chop) that SYNTHESIS.md names as the actual mechanism. Correlation between the two entry styles' daily P&L is 0.74-0.95 depending on zone width -- higher than the 0.48-0.90 range measured BETWEEN the current 5 arms themselves (which differ by sizing/gates/stop, not entry rule). A genuine diversification lever would need a different signal source (different setup family, different instrument, different timeframe), not a different entry-timing variant of the same RIDE_THE_RIBBON trigger. This is consistent with C1/MAP.md's standing finding that current arms 'differ only in sizing, gates and exit shape... that is also why they lose together.'"
+  }
+}

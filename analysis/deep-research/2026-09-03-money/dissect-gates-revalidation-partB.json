@@ -1,0 +1,4330 @@
+{
+  "question": "D8(B) first live run of bull-f10-buyer-pressure-prereg-2026-08-04.json",
+  "generated_at": "2026-09-03T09:52:20",
+  "prereg_file": "analysis\\recommendations\\bull-f10-buyer-pressure-prereg-2026-08-04.json",
+  "prereg_cells_frozen": [
+    {
+      "cell": "baseline",
+      "f10_vol_mult": 0.7,
+      "note": "current live behavior (params key absent -> default)"
+    },
+    {
+      "cell": "relax_50",
+      "f10_vol_mult": 0.5
+    },
+    {
+      "cell": "relax_35",
+      "f10_vol_mult": 0.35
+    },
+    {
+      "cell": "off",
+      "f10_vol_mult": 0.0,
+      "note": "filter effectively disabled for bull"
+    }
+  ],
+  "prereg_gates_frozen": {
+    "oos_positive": "added cohort (trades admitted by the relax that baseline refuses) must be OOS-positive",
+    "wf_or_disclosed_null": "WF >= 0.70 or explicit disclosed-null (standing WF-gate escape hatch)",
+    "sub_window_stable": "no single month > 50% of added-cohort P&L (C4)",
+    "anchor_no_regression": "baseline anchor trades must not degrade",
+    "drop_best": "added cohort must survive drop-best-day",
+    "decision_floor": "added-cohort n >= 20; below floor = NO verdict, stays unarmed"
+  },
+  "scope_note": "Full 391-day real-OPRA population via the standing fullhist/orchestrator machinery (same battery as bull-gate-f5class-requal-2026-08-01.json), BOTH core shapes, bull side only. Filter-10-refused cohort delta per cell.",
+  "cohort_window": "2026-07-27..2026-09-02",
+  "raw_holds": {
+    "safe": 10193,
+    "bold": 10201
+  },
+  "per_account_clustered_episodes": {
+    "safe": 63,
+    "bold": 63
+  },
+  "distinct_episodes_cross_account": 63,
+  "sole_blocker_proxy_directional_read": {
+    "costing": "NOT_REPLAYED",
+    "n_episodes": 63,
+    "n_cost_money_WIN": 25,
+    "n_saved_money_LOSS": 36,
+    "n_unknown_NONE": 2
+  },
+  "real_fill_cross_reference": {
+    "n_episodes_with_a_same_signal_fleet_fill": 7,
+    "n_real_pairs": 16,
+    "n_real_pairs_with_closed_exit": 16,
+    "real_pairs_total_pnl_scaled_to_matched_qty": -597.0,
+    "real_pairs_wr_pct": 18.8
+  },
+  "cells": {
+    "baseline": {
+      "f10_vol_mult": 0.7,
+      "n_admitted_episodes": 24,
+      "status_counts": {
+        "ok": 23,
+        "no_contract": 1
+      },
+      "n_ok": 23,
+      "wr_pct": 47.8,
+      "total_dollar": 1995.1,
+      "mean_dollar_per_trade": 86.74,
+      "bootstrap_ci95": {
+        "n": 23,
+        "mean": 86.74,
+        "ci_lo": -17.86,
+        "ci_hi": 203.47,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top1": 1210.7,
+      "drop_top3": 303.2,
+      "window_metrics": {
+        "window": "2025-01-02..2026-09-02",
+        "n": 23,
+        "n_days": 14,
+        "wr_pct": 47.8,
+        "exp_per_trade": 86.74,
+        "total_dollar": 1995.1,
+        "sign": "POSITIVE",
+        "best_day": 1545.4,
+        "worst_day": -335.0,
+        "win_days": 7,
+        "loss_days": 7,
+        "first_fill": "2026-07-28",
+        "last_fill": "2026-08-28"
+      },
+      "sims_detail": [
+        {
+          "ts_et": "2026-07-28T12:57:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -126.0
+        },
+        {
+          "ts_et": "2026-07-31T13:56:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 427.0
+        },
+        {
+          "ts_et": "2026-08-03T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 181.8
+        },
+        {
+          "ts_et": "2026-08-03T10:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 230.7
+        },
+        {
+          "ts_et": "2026-08-03T11:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -33.0
+        },
+        {
+          "ts_et": "2026-08-03T12:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -15.0
+        },
+        {
+          "ts_et": "2026-08-04T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 459.5
+        },
+        {
+          "ts_et": "2026-08-04T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -138.0
+        },
+        {
+          "ts_et": "2026-08-04T10:36:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 784.4
+        },
+        {
+          "ts_et": "2026-08-04T11:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 439.5
+        },
+        {
+          "ts_et": "2026-08-05T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -150.0
+        },
+        {
+          "ts_et": "2026-08-05T10:01:59",
+          "account_source": "bold",
+          "status": "ok",
+          "pnl": -185.0
+        },
+        {
+          "ts_et": "2026-08-07T10:14:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 448.0
+        },
+        {
+          "ts_et": "2026-08-07T11:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 54.0
+        },
+        {
+          "ts_et": "2026-08-10T10:51:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -45.0
+        },
+        {
+          "ts_et": "2026-08-12T10:41:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -144.0
+        },
+        {
+          "ts_et": "2026-08-13T10:21:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -171.0
+        },
+        {
+          "ts_et": "2026-08-19T10:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 3.0
+        },
+        {
+          "ts_et": "2026-08-21T11:34:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 196.2
+        },
+        {
+          "ts_et": "2026-08-26T09:56:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -285.0
+        },
+        {
+          "ts_et": "2026-08-27T13:11:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -87.0
+        },
+        {
+          "ts_et": "2026-08-28T09:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -93.0
+        },
+        {
+          "ts_et": "2026-08-28T10:41:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 243.0
+        },
+        {
+          "ts_et": "2026-09-02T10:16:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        }
+      ]
+    },
+    "relax_50": {
+      "f10_vol_mult": 0.5,
+      "n_admitted_episodes": 32,
+      "status_counts": {
+        "ok": 30,
+        "no_contract": 2
+      },
+      "n_ok": 30,
+      "wr_pct": 40.0,
+      "total_dollar": 1774.2,
+      "mean_dollar_per_trade": 59.14,
+      "bootstrap_ci95": {
+        "n": 30,
+        "mean": 59.14,
+        "ci_lo": -25.01,
+        "ci_hi": 150.59,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top1": 989.8,
+      "drop_top3": 82.3,
+      "window_metrics": {
+        "window": "2025-01-02..2026-09-02",
+        "n": 30,
+        "n_days": 15,
+        "wr_pct": 40.0,
+        "exp_per_trade": 59.14,
+        "total_dollar": 1774.2,
+        "sign": "POSITIVE",
+        "best_day": 1545.4,
+        "worst_day": -417.0,
+        "win_days": 7,
+        "loss_days": 8,
+        "first_fill": "2026-07-28",
+        "last_fill": "2026-08-28"
+      },
+      "sims_detail": [
+        {
+          "ts_et": "2026-07-28T12:57:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -126.0
+        },
+        {
+          "ts_et": "2026-07-31T12:51:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 247.1
+        },
+        {
+          "ts_et": "2026-07-31T13:56:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 427.0
+        },
+        {
+          "ts_et": "2026-08-03T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 181.8
+        },
+        {
+          "ts_et": "2026-08-03T10:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 230.7
+        },
+        {
+          "ts_et": "2026-08-03T11:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -33.0
+        },
+        {
+          "ts_et": "2026-08-03T12:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -15.0
+        },
+        {
+          "ts_et": "2026-08-03T12:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -30.0
+        },
+        {
+          "ts_et": "2026-08-04T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 459.5
+        },
+        {
+          "ts_et": "2026-08-04T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -138.0
+        },
+        {
+          "ts_et": "2026-08-04T10:36:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 784.4
+        },
+        {
+          "ts_et": "2026-08-04T11:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 439.5
+        },
+        {
+          "ts_et": "2026-08-05T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -150.0
+        },
+        {
+          "ts_et": "2026-08-05T10:01:59",
+          "account_source": "bold",
+          "status": "ok",
+          "pnl": -185.0
+        },
+        {
+          "ts_et": "2026-08-07T10:14:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 448.0
+        },
+        {
+          "ts_et": "2026-08-07T11:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 54.0
+        },
+        {
+          "ts_et": "2026-08-07T12:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -102.0
+        },
+        {
+          "ts_et": "2026-08-10T10:51:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -45.0
+        },
+        {
+          "ts_et": "2026-08-10T11:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -51.0
+        },
+        {
+          "ts_et": "2026-08-12T10:41:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -144.0
+        },
+        {
+          "ts_et": "2026-08-13T10:21:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -171.0
+        },
+        {
+          "ts_et": "2026-08-13T11:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -123.0
+        },
+        {
+          "ts_et": "2026-08-13T13:06:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -123.0
+        },
+        {
+          "ts_et": "2026-08-19T10:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 3.0
+        },
+        {
+          "ts_et": "2026-08-21T11:34:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 196.2
+        },
+        {
+          "ts_et": "2026-08-25T12:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -39.0
+        },
+        {
+          "ts_et": "2026-08-26T09:56:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -285.0
+        },
+        {
+          "ts_et": "2026-08-27T13:11:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -87.0
+        },
+        {
+          "ts_et": "2026-08-28T09:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -93.0
+        },
+        {
+          "ts_et": "2026-08-28T10:41:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 243.0
+        },
+        {
+          "ts_et": "2026-09-02T10:16:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        },
+        {
+          "ts_et": "2026-09-02T12:01:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        }
+      ]
+    },
+    "relax_35": {
+      "f10_vol_mult": 0.35,
+      "n_admitted_episodes": 35,
+      "status_counts": {
+        "ok": 33,
+        "no_contract": 2
+      },
+      "n_ok": 33,
+      "wr_pct": 42.4,
+      "total_dollar": 1840.05,
+      "mean_dollar_per_trade": 55.76,
+      "bootstrap_ci95": {
+        "n": 33,
+        "mean": 55.76,
+        "ci_lo": -21.62,
+        "ci_hi": 142.06,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top1": 1055.65,
+      "drop_top3": 148.15,
+      "window_metrics": {
+        "window": "2025-01-02..2026-09-02",
+        "n": 33,
+        "n_days": 15,
+        "wr_pct": 42.4,
+        "exp_per_trade": 55.76,
+        "total_dollar": 1840.05,
+        "sign": "POSITIVE",
+        "best_day": 1545.4,
+        "worst_day": -417.0,
+        "win_days": 8,
+        "loss_days": 7,
+        "first_fill": "2026-07-28",
+        "last_fill": "2026-08-28"
+      },
+      "sims_detail": [
+        {
+          "ts_et": "2026-07-28T11:42:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -168.0
+        },
+        {
+          "ts_et": "2026-07-28T12:57:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -126.0
+        },
+        {
+          "ts_et": "2026-07-31T12:51:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 247.1
+        },
+        {
+          "ts_et": "2026-07-31T13:56:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 427.0
+        },
+        {
+          "ts_et": "2026-08-03T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 181.8
+        },
+        {
+          "ts_et": "2026-08-03T10:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 230.7
+        },
+        {
+          "ts_et": "2026-08-03T11:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -33.0
+        },
+        {
+          "ts_et": "2026-08-03T12:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -15.0
+        },
+        {
+          "ts_et": "2026-08-03T12:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -30.0
+        },
+        {
+          "ts_et": "2026-08-04T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 459.5
+        },
+        {
+          "ts_et": "2026-08-04T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -138.0
+        },
+        {
+          "ts_et": "2026-08-04T10:36:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 784.4
+        },
+        {
+          "ts_et": "2026-08-04T11:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 439.5
+        },
+        {
+          "ts_et": "2026-08-05T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -150.0
+        },
+        {
+          "ts_et": "2026-08-05T10:01:59",
+          "account_source": "bold",
+          "status": "ok",
+          "pnl": -185.0
+        },
+        {
+          "ts_et": "2026-08-07T10:14:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 448.0
+        },
+        {
+          "ts_et": "2026-08-07T11:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 54.0
+        },
+        {
+          "ts_et": "2026-08-07T12:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -102.0
+        },
+        {
+          "ts_et": "2026-08-10T10:51:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -45.0
+        },
+        {
+          "ts_et": "2026-08-10T11:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -51.0
+        },
+        {
+          "ts_et": "2026-08-10T11:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 49.5
+        },
+        {
+          "ts_et": "2026-08-12T10:41:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -144.0
+        },
+        {
+          "ts_et": "2026-08-13T10:21:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -171.0
+        },
+        {
+          "ts_et": "2026-08-13T11:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -123.0
+        },
+        {
+          "ts_et": "2026-08-13T13:06:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -123.0
+        },
+        {
+          "ts_et": "2026-08-19T10:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 3.0
+        },
+        {
+          "ts_et": "2026-08-21T11:34:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 196.2
+        },
+        {
+          "ts_et": "2026-08-25T12:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -39.0
+        },
+        {
+          "ts_et": "2026-08-26T09:56:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -285.0
+        },
+        {
+          "ts_et": "2026-08-27T12:24:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 184.35
+        },
+        {
+          "ts_et": "2026-08-27T13:11:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -87.0
+        },
+        {
+          "ts_et": "2026-08-28T09:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -93.0
+        },
+        {
+          "ts_et": "2026-08-28T10:41:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 243.0
+        },
+        {
+          "ts_et": "2026-09-02T10:16:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        },
+        {
+          "ts_et": "2026-09-02T12:01:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        }
+      ]
+    },
+    "off": {
+      "f10_vol_mult": 0.0,
+      "n_admitted_episodes": 35,
+      "status_counts": {
+        "ok": 33,
+        "no_contract": 2
+      },
+      "n_ok": 33,
+      "wr_pct": 42.4,
+      "total_dollar": 1840.05,
+      "mean_dollar_per_trade": 55.76,
+      "bootstrap_ci95": {
+        "n": 33,
+        "mean": 55.76,
+        "ci_lo": -21.62,
+        "ci_hi": 142.06,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top1": 1055.65,
+      "drop_top3": 148.15,
+      "window_metrics": {
+        "window": "2025-01-02..2026-09-02",
+        "n": 33,
+        "n_days": 15,
+        "wr_pct": 42.4,
+        "exp_per_trade": 55.76,
+        "total_dollar": 1840.05,
+        "sign": "POSITIVE",
+        "best_day": 1545.4,
+        "worst_day": -417.0,
+        "win_days": 8,
+        "loss_days": 7,
+        "first_fill": "2026-07-28",
+        "last_fill": "2026-08-28"
+      },
+      "sims_detail": [
+        {
+          "ts_et": "2026-07-28T11:42:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -168.0
+        },
+        {
+          "ts_et": "2026-07-28T12:57:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -126.0
+        },
+        {
+          "ts_et": "2026-07-31T12:51:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 247.1
+        },
+        {
+          "ts_et": "2026-07-31T13:56:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 427.0
+        },
+        {
+          "ts_et": "2026-08-03T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 181.8
+        },
+        {
+          "ts_et": "2026-08-03T10:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 230.7
+        },
+        {
+          "ts_et": "2026-08-03T11:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -33.0
+        },
+        {
+          "ts_et": "2026-08-03T12:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -15.0
+        },
+        {
+          "ts_et": "2026-08-03T12:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -30.0
+        },
+        {
+          "ts_et": "2026-08-04T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 459.5
+        },
+        {
+          "ts_et": "2026-08-04T10:16:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -138.0
+        },
+        {
+          "ts_et": "2026-08-04T10:36:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 784.4
+        },
+        {
+          "ts_et": "2026-08-04T11:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 439.5
+        },
+        {
+          "ts_et": "2026-08-05T09:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -150.0
+        },
+        {
+          "ts_et": "2026-08-05T10:01:59",
+          "account_source": "bold",
+          "status": "ok",
+          "pnl": -185.0
+        },
+        {
+          "ts_et": "2026-08-07T10:14:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 448.0
+        },
+        {
+          "ts_et": "2026-08-07T11:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 54.0
+        },
+        {
+          "ts_et": "2026-08-07T12:11:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -102.0
+        },
+        {
+          "ts_et": "2026-08-10T10:51:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -45.0
+        },
+        {
+          "ts_et": "2026-08-10T11:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -51.0
+        },
+        {
+          "ts_et": "2026-08-10T11:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 49.5
+        },
+        {
+          "ts_et": "2026-08-12T10:41:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -144.0
+        },
+        {
+          "ts_et": "2026-08-13T10:21:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -171.0
+        },
+        {
+          "ts_et": "2026-08-13T11:21:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -123.0
+        },
+        {
+          "ts_et": "2026-08-13T13:06:04",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -123.0
+        },
+        {
+          "ts_et": "2026-08-19T10:01:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 3.0
+        },
+        {
+          "ts_et": "2026-08-21T11:34:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 196.2
+        },
+        {
+          "ts_et": "2026-08-25T12:41:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -39.0
+        },
+        {
+          "ts_et": "2026-08-26T09:56:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -285.0
+        },
+        {
+          "ts_et": "2026-08-27T12:24:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 184.35
+        },
+        {
+          "ts_et": "2026-08-27T13:11:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -87.0
+        },
+        {
+          "ts_et": "2026-08-28T09:46:03",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": -93.0
+        },
+        {
+          "ts_et": "2026-08-28T10:41:02",
+          "account_source": "safe",
+          "status": "ok",
+          "pnl": 243.0
+        },
+        {
+          "ts_et": "2026-09-02T10:16:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        },
+        {
+          "ts_et": "2026-09-02T12:01:03",
+          "account_source": "safe",
+          "status": "no_contract",
+          "pnl": null
+        }
+      ]
+    }
+  },
+  "added_vs_baseline_episode_ts": {
+    "relax_50": {
+      "episode_ts": [
+        "2026-07-31T12:51:03",
+        "2026-08-03T12:46:03",
+        "2026-08-07T12:11:03",
+        "2026-08-10T11:21:03",
+        "2026-08-13T11:21:03",
+        "2026-08-13T13:06:04",
+        "2026-08-25T12:41:03",
+        "2026-09-02T12:01:03"
+      ],
+      "n_added": 8,
+      "n_ok": 7,
+      "wr_pct": 14.3,
+      "total_dollar": -220.9,
+      "bootstrap_ci95": {
+        "n": 7,
+        "mean": -31.56,
+        "ci_lo": -99.0,
+        "ci_hi": 68.19,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top3": -468.0
+    },
+    "relax_35": {
+      "episode_ts": [
+        "2026-07-28T11:42:03",
+        "2026-07-31T12:51:03",
+        "2026-08-03T12:46:03",
+        "2026-08-07T12:11:03",
+        "2026-08-10T11:21:03",
+        "2026-08-10T11:46:03",
+        "2026-08-13T11:21:03",
+        "2026-08-13T13:06:04",
+        "2026-08-25T12:41:03",
+        "2026-08-27T12:24:03",
+        "2026-09-02T12:01:03"
+      ],
+      "n_added": 11,
+      "n_ok": 10,
+      "wr_pct": 30.0,
+      "total_dollar": -155.05,
+      "bootstrap_ci95": {
+        "n": 10,
+        "mean": -15.51,
+        "ci_lo": -90.47,
+        "ci_hi": 69.88,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top3": -636.0
+    },
+    "off": {
+      "episode_ts": [
+        "2026-07-28T11:42:03",
+        "2026-07-31T12:51:03",
+        "2026-08-03T12:46:03",
+        "2026-08-07T12:11:03",
+        "2026-08-10T11:21:03",
+        "2026-08-10T11:46:03",
+        "2026-08-13T11:21:03",
+        "2026-08-13T13:06:04",
+        "2026-08-25T12:41:03",
+        "2026-08-27T12:24:03",
+        "2026-09-02T12:01:03"
+      ],
+      "n_added": 11,
+      "n_ok": 10,
+      "wr_pct": 30.0,
+      "total_dollar": -155.05,
+      "bootstrap_ci95": {
+        "n": 10,
+        "mean": -15.51,
+        "ci_lo": -90.47,
+        "ci_hi": 69.88,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "drop_top3": -636.0
+    }
+  },
+  "prereg_gate_scoring_on_live_cohort": {
+    "relax_50": {
+      "decision_floor_n_ge_20": {
+        "required": 20,
+        "actual_added_n": 7,
+        "pass": false
+      },
+      "added_cohort_total_dollar": -220.9,
+      "added_cohort_wr_pct": 14.3,
+      "added_cohort_bootstrap_ci95": {
+        "n": 7,
+        "mean": -31.56,
+        "ci_lo": -99.0,
+        "ci_hi": 68.19,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "added_cohort_drop_top3": -468.0,
+      "oos_positive": "NOT EVALUATED -- no IS/OOS split exists for a single-ledger-era cohort this size; see caveats",
+      "wf_or_disclosed_null": "NOT EVALUATED -- same reason",
+      "sub_window_stable": "NOT EVALUATED -- n too small to split by month meaningfully",
+      "anchor_no_regression": "see anchor_days section below",
+      "drop_best": {
+        "drop_top1_full_cell": 989.8
+      }
+    },
+    "relax_35": {
+      "decision_floor_n_ge_20": {
+        "required": 20,
+        "actual_added_n": 10,
+        "pass": false
+      },
+      "added_cohort_total_dollar": -155.05,
+      "added_cohort_wr_pct": 30.0,
+      "added_cohort_bootstrap_ci95": {
+        "n": 10,
+        "mean": -15.51,
+        "ci_lo": -90.47,
+        "ci_hi": 69.88,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "added_cohort_drop_top3": -636.0,
+      "oos_positive": "NOT EVALUATED -- no IS/OOS split exists for a single-ledger-era cohort this size; see caveats",
+      "wf_or_disclosed_null": "NOT EVALUATED -- same reason",
+      "sub_window_stable": "NOT EVALUATED -- n too small to split by month meaningfully",
+      "anchor_no_regression": "see anchor_days section below",
+      "drop_best": {
+        "drop_top1_full_cell": 1055.65
+      }
+    },
+    "off": {
+      "decision_floor_n_ge_20": {
+        "required": 20,
+        "actual_added_n": 10,
+        "pass": false
+      },
+      "added_cohort_total_dollar": -155.05,
+      "added_cohort_wr_pct": 30.0,
+      "added_cohort_bootstrap_ci95": {
+        "n": 10,
+        "mean": -15.51,
+        "ci_lo": -90.47,
+        "ci_hi": 69.88,
+        "method": "bootstrap_percentile_95",
+        "b": 5000
+      },
+      "added_cohort_drop_top3": -636.0,
+      "oos_positive": "NOT EVALUATED -- no IS/OOS split exists for a single-ledger-era cohort this size; see caveats",
+      "wf_or_disclosed_null": "NOT EVALUATED -- same reason",
+      "sub_window_stable": "NOT EVALUATED -- n too small to split by month meaningfully",
+      "anchor_no_regression": "see anchor_days section below",
+      "drop_best": {
+        "drop_top1_full_cell": 1055.65
+      }
+    }
+  },
+  "anchor_days_checked": [
+    "2026-08-06",
+    "2026-08-13",
+    "2026-08-27",
+    "2026-08-28"
+  ],
+  "anchor_day_episodes": {
+    "2026-08-06": 0,
+    "2026-08-13": 4,
+    "2026-08-27": 3,
+    "2026-08-28": 5
+  },
+  "anchor_day_detail": {
+    "2026-08-06": [],
+    "2026-08-13": [
+      {
+        "ts_et": "2026-08-13T10:21:04",
+        "date": "2026-08-13",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-13T10:15:00-04:00",
+        "bar_idx": 40048,
+        "bar_close": 778.53,
+        "bar_open": 778.525,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 1.346,
+        "cells": {
+          "baseline": {
+            "admitted": true,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": true,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "LOSS",
+          "pnl": -90.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-13T11:01:04",
+        "date": "2026-08-13",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-13T10:55:00-04:00",
+        "bar_idx": 40056,
+        "bar_close": 777.76,
+        "bar_open": 777.84,
+        "bar_is_green": false,
+        "vol_ratio_to_20bar_avg": 0.717,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": false,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": false,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": false,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "LOSS",
+          "pnl": -85.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-13T11:21:03",
+        "date": "2026-08-13",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-13T11:15:00-04:00",
+        "bar_idx": 40060,
+        "bar_close": 777.175,
+        "bar_open": 777.125,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 0.607,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": true,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "LOSS",
+          "pnl": -85.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-13T13:06:04",
+        "date": "2026-08-13",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "ribbon_flip",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-13T13:00:00-04:00",
+        "bar_idx": 40081,
+        "bar_close": 776.99,
+        "bar_open": 776.71,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 0.517,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": true,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "WIN",
+          "pnl": 181.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      }
+    ],
+    "2026-08-27": [
+      {
+        "ts_et": "2026-08-27T10:11:02",
+        "date": "2026-08-27",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-27T10:05:00-04:00",
+        "bar_idx": 41484,
+        "bar_close": 768.43,
+        "bar_open": 768.79,
+        "bar_is_green": false,
+        "vol_ratio_to_20bar_avg": 1.036,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": false,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": false,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": false,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "WIN",
+          "pnl": 303.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-27T12:24:03",
+        "date": "2026-08-27",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-27T12:15:00-04:00",
+        "bar_idx": 41510,
+        "bar_close": 770.61,
+        "bar_open": 770.6,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 0.389,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": false,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "WIN",
+          "pnl": 184.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-27T13:11:02",
+        "date": "2026-08-27",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-27T13:05:00-04:00",
+        "bar_idx": 41520,
+        "bar_close": 772.22,
+        "bar_open": 772.04,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 0.929,
+        "cells": {
+          "baseline": {
+            "admitted": true,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": true,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "WIN",
+          "pnl": 184.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      }
+    ],
+    "2026-08-28": [
+      {
+        "ts_et": "2026-08-28T09:46:03",
+        "date": "2026-08-28",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-28T09:40:00-04:00",
+        "bar_idx": 41621,
+        "bar_close": 772.58,
+        "bar_open": 772.26,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 4.322,
+        "cells": {
+          "baseline": {
+            "admitted": true,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": true,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "WIN",
+          "pnl": 527.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-28T10:06:03",
+        "date": "2026-08-28",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-28T10:00:00-04:00",
+        "bar_idx": 41625,
+        "bar_close": 771.7482,
+        "bar_open": 771.79,
+        "bar_is_green": false,
+        "vol_ratio_to_20bar_avg": 7.198,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": false,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": false,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": false,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "WIN",
+          "pnl": 527.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-28T10:41:02",
+        "date": "2026-08-28",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-28T10:35:00-04:00",
+        "bar_idx": 41632,
+        "bar_close": 772.33,
+        "bar_open": 772.145,
+        "bar_is_green": true,
+        "vol_ratio_to_20bar_avg": 0.945,
+        "cells": {
+          "baseline": {
+            "admitted": true,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": true,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": true,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": true,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "LOSS",
+          "pnl": -50.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-28T11:19:02",
+        "date": "2026-08-28",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-28T11:10:00-04:00",
+        "bar_idx": 41639,
+        "bar_close": 774.195,
+        "bar_open": 774.24,
+        "bar_is_green": false,
+        "vol_ratio_to_20bar_avg": 0.71,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": false,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": false,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": false,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "LOSS",
+          "pnl": -50.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      },
+      {
+        "ts_et": "2026-08-28T11:56:03",
+        "date": "2026-08-28",
+        "account_source": "safe",
+        "bull_score": 10,
+        "bull_triggers_raw": [
+          "level_reclaim",
+          "confluence"
+        ],
+        "trigger_bar_et": "2026-08-28T11:50:00-04:00",
+        "bar_idx": 41647,
+        "bar_close": 772.0999,
+        "bar_open": 772.29,
+        "bar_is_green": false,
+        "vol_ratio_to_20bar_avg": 1.04,
+        "cells": {
+          "baseline": {
+            "admitted": false,
+            "f10_vol_mult": 0.7
+          },
+          "relax_50": {
+            "admitted": false,
+            "f10_vol_mult": 0.5
+          },
+          "relax_35": {
+            "admitted": false,
+            "f10_vol_mult": 0.35
+          },
+          "off": {
+            "admitted": false,
+            "f10_vol_mult": 0.0
+          }
+        },
+        "gate_expiry_sole_blocker_proxy": {
+          "read": "LOSS",
+          "pnl": -50.0,
+          "costing": "NOT_REPLAYED"
+        },
+        "real_fill_pairs": []
+      }
+    ]
+  },
+  "episodes": [
+    {
+      "ts_et": "2026-07-28T11:42:03",
+      "date": "2026-07-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-28T11:35:00-04:00",
+      "bar_idx": 38336,
+      "bar_close": 741.62,
+      "bar_open": 741.31,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.47,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -295.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-28T12:57:03",
+      "date": "2026-07-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-28T12:50:00-04:00",
+      "bar_idx": 38351,
+      "bar_close": 742.61,
+      "bar_open": 741.79,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.136,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -295.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-29T14:16:48",
+      "date": "2026-07-29",
+      "account_source": "safe",
+      "bull_score": 9,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-29T14:10:00-04:00",
+      "bar_idx": 38511,
+      "bar_close": 737.39,
+      "bar_open": 738.06,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.409,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 265.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-29T15:01:47",
+      "date": "2026-07-29",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-29T14:55:00-04:00",
+      "bar_idx": 38520,
+      "bar_close": 741.95,
+      "bar_open": 742.61,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.041,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 471.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-31T11:07:03",
+      "date": "2026-07-31",
+      "account_source": "bold",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-31T11:00:00-04:00",
+      "bar_idx": 38761,
+      "bar_close": 742.505,
+      "bar_open": 742.53,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.4,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 126.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-31T11:47:02",
+      "date": "2026-07-31",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-31T11:40:00-04:00",
+      "bar_idx": 38769,
+      "bar_close": 741.82,
+      "bar_open": 742.06,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.412,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 126.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-31T12:13:03",
+      "date": "2026-07-31",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-31T12:05:00-04:00",
+      "bar_idx": 38774,
+      "bar_close": 743.04,
+      "bar_open": 743.24,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.082,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 126.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-31T12:51:03",
+      "date": "2026-07-31",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-31T12:45:00-04:00",
+      "bar_idx": 38782,
+      "bar_close": 744.53,
+      "bar_open": 744.16,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.625,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -80.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-07-31T13:56:02",
+      "date": "2026-07-31",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-07-31T13:50:00-04:00",
+      "bar_idx": 38795,
+      "bar_close": 745.59,
+      "bar_open": 745.27,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.949,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -80.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-03T09:46:03",
+      "date": "2026-08-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-03T09:40:00-04:00",
+      "bar_idx": 38889,
+      "bar_close": 751.58,
+      "bar_open": 751.7,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 4.468,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 68.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-03T10:16:03",
+      "date": "2026-08-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-03T10:10:00-04:00",
+      "bar_idx": 38895,
+      "bar_close": 753.9,
+      "bar_open": 753.5701,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.829,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 68.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-03T10:41:03",
+      "date": "2026-08-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-03T10:35:00-04:00",
+      "bar_idx": 38900,
+      "bar_close": 754.795,
+      "bar_open": 754.52,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.028,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 68.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-03T11:01:03",
+      "date": "2026-08-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-03T10:55:00-04:00",
+      "bar_idx": 38904,
+      "bar_close": 755.3701,
+      "bar_open": 754.915,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.754,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 68.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-03T12:21:03",
+      "date": "2026-08-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-03T12:15:00-04:00",
+      "bar_idx": 38920,
+      "bar_close": 756.235,
+      "bar_open": 755.99,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.983,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 68.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-03T12:46:03",
+      "date": "2026-08-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-03T12:40:00-04:00",
+      "bar_idx": 38925,
+      "bar_close": 756.47,
+      "bar_open": 756.29,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.645,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 68.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-04T09:41:03",
+      "date": "2026-08-04",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-04T09:35:00-04:00",
+      "bar_idx": 39032,
+      "bar_close": 761.95,
+      "bar_open": 761.83,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 8.631,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -75.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260804C00762000",
+          "buy_ts": "2026-08-04T09:46:07.758600",
+          "buy_price": 1.77,
+          "qty": 5.0,
+          "sell_ts": "2026-08-04T09:47:06.490816",
+          "sell_price": 1.62,
+          "approx_real_pnl_per_matched_qty": -75.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260804C00762000",
+          "buy_ts": "2026-08-04T09:46:09.163466",
+          "buy_price": 1.75,
+          "qty": 8.0,
+          "sell_ts": "2026-08-04T09:47:07.353374",
+          "sell_price": 1.62,
+          "approx_real_pnl_per_matched_qty": -65.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-04T10:16:03",
+      "date": "2026-08-04",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-04T10:10:00-04:00",
+      "bar_idx": 39039,
+      "bar_close": 764.855,
+      "bar_open": 764.34,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.39,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -80.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-04T10:36:03",
+      "date": "2026-08-04",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-04T10:30:00-04:00",
+      "bar_idx": 39043,
+      "bar_close": 764.935,
+      "bar_open": 764.47,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.266,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -60.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260804C00765000",
+          "buy_ts": "2026-08-04T10:35:08.074495",
+          "buy_price": 1.33,
+          "qty": 8.0,
+          "sell_ts": "2026-08-04T10:37:06.853354",
+          "sell_price": 1.23,
+          "approx_real_pnl_per_matched_qty": -80.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-04T11:46:03",
+      "date": "2026-08-04",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-04T11:40:00-04:00",
+      "bar_idx": 39057,
+      "bar_close": 768.28,
+      "bar_open": 767.78,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.974,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -75.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260804C00769000",
+          "buy_ts": "2026-08-04T11:51:41.866643",
+          "buy_price": 1.19,
+          "qty": 5.0,
+          "sell_ts": "2026-08-04T11:56:05.265387",
+          "sell_price": 1.04,
+          "approx_real_pnl_per_matched_qty": -75.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-05T09:41:03",
+      "date": "2026-08-05",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-05T09:35:00-04:00",
+      "bar_idx": 39176,
+      "bar_close": 776.51,
+      "bar_open": 776.19,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 22.253,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -85.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-05T10:01:59",
+      "date": "2026-08-05",
+      "account_source": "bold",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-05T09:55:00-04:00",
+      "bar_idx": 39180,
+      "bar_close": 776.7036,
+      "bar_open": 775.88,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 2.136,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -65.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260805C00777000",
+          "buy_ts": "2026-08-05T10:01:58.807481",
+          "buy_price": 1.61,
+          "qty": 3.0,
+          "sell_ts": "2026-08-05T10:20:04.703650",
+          "sell_price": 1.33,
+          "approx_real_pnl_per_matched_qty": -84.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260805C00776000",
+          "buy_ts": "2026-08-05T10:06:05.657021",
+          "buy_price": 2.27,
+          "qty": 5.0,
+          "sell_ts": "2026-08-05T10:08:05.574016",
+          "sell_price": 2.14,
+          "approx_real_pnl_per_matched_qty": -65.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260805C00776000",
+          "buy_ts": "2026-08-05T10:06:13.151414",
+          "buy_price": 2.27,
+          "qty": 8.0,
+          "sell_ts": "2026-08-05T10:09:05.726895",
+          "sell_price": 2.17,
+          "approx_real_pnl_per_matched_qty": -80.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-05T10:36:03",
+      "date": "2026-08-05",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-05T10:30:00-04:00",
+      "bar_idx": 39187,
+      "bar_close": 774.6,
+      "bar_open": 774.78,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.321,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -296.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-07T10:14:03",
+      "date": "2026-08-07",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-07T10:05:00-04:00",
+      "bar_idx": 39470,
+      "bar_close": 770.495,
+      "bar_open": 770.4004,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.293,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -183.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-07T11:11:03",
+      "date": "2026-08-07",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-07T11:05:00-04:00",
+      "bar_idx": 39482,
+      "bar_close": 772.96,
+      "bar_open": 772.78,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 2.168,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -183.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-07T11:46:04",
+      "date": "2026-08-07",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-07T11:40:00-04:00",
+      "bar_idx": 39489,
+      "bar_close": 773.165,
+      "bar_open": 773.4,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.585,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -183.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-07T12:11:03",
+      "date": "2026-08-07",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-07T12:05:00-04:00",
+      "bar_idx": 39494,
+      "bar_close": 773.165,
+      "bar_open": 773.16,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.554,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -384.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-07T12:31:03",
+      "date": "2026-08-07",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-07T12:25:00-04:00",
+      "bar_idx": 39498,
+      "bar_close": 771.725,
+      "bar_open": 772.26,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.243,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -384.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-10T10:51:04",
+      "date": "2026-08-10",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-10T10:45:00-04:00",
+      "bar_idx": 39622,
+      "bar_close": 774.92,
+      "bar_open": 774.605,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 2.021,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 362.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-10T11:21:03",
+      "date": "2026-08-10",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-10T11:15:00-04:00",
+      "bar_idx": 39628,
+      "bar_close": 773.92,
+      "bar_open": 773.82,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.549,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 362.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-10T11:46:03",
+      "date": "2026-08-10",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-10T11:40:00-04:00",
+      "bar_idx": 39633,
+      "bar_close": 773.79,
+      "bar_open": 773.27,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.421,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 362.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-12T10:06:03",
+      "date": "2026-08-12",
+      "account_source": "safe",
+      "bull_score": 9,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-12T10:00:00-04:00",
+      "bar_idx": 39901,
+      "bar_close": 771.94,
+      "bar_open": 772.595,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 2.201,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -75.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260812C00773000",
+          "buy_ts": "2026-08-12T10:04:07.107860",
+          "buy_price": 1.02,
+          "qty": 3.0,
+          "sell_ts": "2026-08-12T10:37:06.515142",
+          "sell_price": 0.84,
+          "approx_real_pnl_per_matched_qty": -54.0
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260812C00773000",
+          "buy_ts": "2026-08-12T10:04:21.331315",
+          "buy_price": 1.01,
+          "qty": 3.0,
+          "sell_ts": "2026-08-12T10:36:04.928398",
+          "sell_price": 0.86,
+          "approx_real_pnl_per_matched_qty": -45.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260812C00773000",
+          "buy_ts": "2026-08-12T10:05:09.766775",
+          "buy_price": 0.92,
+          "qty": 5.0,
+          "sell_ts": "2026-08-12T10:37:07.837869",
+          "sell_price": 0.82,
+          "approx_real_pnl_per_matched_qty": -50.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260812C00775000",
+          "buy_ts": "2026-08-12T10:05:12.525192",
+          "buy_price": 0.35,
+          "qty": 10.0,
+          "sell_ts": "2026-08-12T10:37:09.022686",
+          "sell_price": 0.26,
+          "approx_real_pnl_per_matched_qty": -90.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-12T10:41:04",
+      "date": "2026-08-12",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-12T10:35:00-04:00",
+      "bar_idx": 39908,
+      "bar_close": 772.79,
+      "bar_open": 772.06,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.893,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -75.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-13T10:21:04",
+      "date": "2026-08-13",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-13T10:15:00-04:00",
+      "bar_idx": 40048,
+      "bar_close": 778.53,
+      "bar_open": 778.525,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.346,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -90.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-13T11:01:04",
+      "date": "2026-08-13",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-13T10:55:00-04:00",
+      "bar_idx": 40056,
+      "bar_close": 777.76,
+      "bar_open": 777.84,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.717,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -85.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-13T11:21:03",
+      "date": "2026-08-13",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-13T11:15:00-04:00",
+      "bar_idx": 40060,
+      "bar_close": 777.175,
+      "bar_open": 777.125,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.607,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -85.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-13T13:06:04",
+      "date": "2026-08-13",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-13T13:00:00-04:00",
+      "bar_idx": 40081,
+      "bar_close": 776.99,
+      "bar_open": 776.71,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.517,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 181.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-14T09:51:04",
+      "date": "2026-08-14",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-14T09:45:00-04:00",
+      "bar_idx": 40185,
+      "bar_close": 777.95,
+      "bar_open": 778.39,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 3.361,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -72.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-14T10:21:03",
+      "date": "2026-08-14",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-14T10:15:00-04:00",
+      "bar_idx": 40191,
+      "bar_close": 777.8101,
+      "bar_open": 778.275,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 2.014,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -72.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-19T10:01:03",
+      "date": "2026-08-19",
+      "account_source": "safe",
+      "bull_score": 9,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-19T09:55:00-04:00",
+      "bar_idx": 40618,
+      "bar_close": 769.99,
+      "bar_open": 769.67,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.468,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -69.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-19T10:26:03",
+      "date": "2026-08-19",
+      "account_source": "safe",
+      "bull_score": 9,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-19T10:20:00-04:00",
+      "bar_idx": 40623,
+      "bar_close": 769.58,
+      "bar_open": 769.77,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.712,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -69.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-19T11:56:03",
+      "date": "2026-08-19",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-19T11:50:00-04:00",
+      "bar_idx": 40641,
+      "bar_close": 770.14,
+      "bar_open": 770.4,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.902,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -3.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-21T11:34:03",
+      "date": "2026-08-21",
+      "account_source": "safe",
+      "bull_score": 9,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-21T11:25:00-04:00",
+      "bar_idx": 40924,
+      "bar_close": 765.955,
+      "bar_open": 765.51,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.924,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 159.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:37:06.229834",
+          "buy_price": 0.37,
+          "qty": 5.0,
+          "sell_ts": "2026-08-21T11:54:05.319301",
+          "sell_price": 0.72,
+          "approx_real_pnl_per_matched_qty": 105.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T11:37:06.351653",
+          "buy_price": 1.36,
+          "qty": 3.0,
+          "sell_ts": "2026-08-21T11:57:06.171645",
+          "sell_price": 1.66,
+          "approx_real_pnl_per_matched_qty": 90.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T11:37:08.024405",
+          "buy_price": 1.38,
+          "qty": 5.0,
+          "sell_ts": "2026-08-21T11:53:06.694210",
+          "sell_price": 2.06,
+          "approx_real_pnl_per_matched_qty": 204.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:37:10.215964",
+          "buy_price": 0.39,
+          "qty": 10.0,
+          "sell_ts": "2026-08-21T11:38:09.067034",
+          "sell_price": 0.28,
+          "approx_real_pnl_per_matched_qty": -110.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-21T12:21:03",
+      "date": "2026-08-21",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-21T12:15:00-04:00",
+      "bar_idx": 40934,
+      "bar_close": 766.02,
+      "bar_open": 766.24,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 2.345,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -123.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T12:26:11.227816",
+          "buy_price": 0.96,
+          "qty": 3.0,
+          "sell_ts": "2026-08-21T13:26:05.054873",
+          "sell_price": 0.55,
+          "approx_real_pnl_per_matched_qty": -123.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-21T12:56:03",
+      "date": "2026-08-21",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-21T12:50:00-04:00",
+      "bar_idx": 40941,
+      "bar_close": 766.02,
+      "bar_open": 766.16,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.007,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 15.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-21T13:26:04",
+      "date": "2026-08-21",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-21T13:20:00-04:00",
+      "bar_idx": 40947,
+      "bar_close": 765.84,
+      "bar_open": 766.15,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.413,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 15.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-25T09:46:03",
+      "date": "2026-08-25",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-25T09:40:00-04:00",
+      "bar_idx": 41191,
+      "bar_close": 766.165,
+      "bar_open": 766.18,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 4.265,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -60.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-25T10:06:03",
+      "date": "2026-08-25",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-25T10:00:00-04:00",
+      "bar_idx": 41195,
+      "bar_close": 765.455,
+      "bar_open": 765.69,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 2.669,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -60.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-25T12:41:03",
+      "date": "2026-08-25",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-25T12:35:00-04:00",
+      "bar_idx": 41226,
+      "bar_close": 765.9,
+      "bar_open": 765.74,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.584,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -60.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-26T09:56:03",
+      "date": "2026-08-26",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-26T09:50:00-04:00",
+      "bar_idx": 41337,
+      "bar_close": 766.58,
+      "bar_open": 765.925,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 2.729,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 39.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-26T15:36:03",
+      "date": "2026-08-26",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-26T15:30:00-04:00",
+      "bar_idx": 41405,
+      "bar_close": 766.86,
+      "bar_open": 766.9,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.46,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 39.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-27T10:11:02",
+      "date": "2026-08-27",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-27T10:05:00-04:00",
+      "bar_idx": 41484,
+      "bar_close": 768.43,
+      "bar_open": 768.79,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.036,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 303.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-27T12:24:03",
+      "date": "2026-08-27",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-27T12:15:00-04:00",
+      "bar_idx": 41510,
+      "bar_close": 770.61,
+      "bar_open": 770.6,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.389,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 184.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-27T13:11:02",
+      "date": "2026-08-27",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-27T13:05:00-04:00",
+      "bar_idx": 41520,
+      "bar_close": 772.22,
+      "bar_open": 772.04,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.929,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 184.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-28T09:46:03",
+      "date": "2026-08-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-28T09:40:00-04:00",
+      "bar_idx": 41621,
+      "bar_close": 772.58,
+      "bar_open": 772.26,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 4.322,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 527.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-28T10:06:03",
+      "date": "2026-08-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-28T10:00:00-04:00",
+      "bar_idx": 41625,
+      "bar_close": 771.7482,
+      "bar_open": 771.79,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 7.198,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "WIN",
+        "pnl": 527.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-28T10:41:02",
+      "date": "2026-08-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-28T10:35:00-04:00",
+      "bar_idx": 41632,
+      "bar_close": 772.33,
+      "bar_open": 772.145,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.945,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -50.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-28T11:19:02",
+      "date": "2026-08-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-28T11:10:00-04:00",
+      "bar_idx": 41639,
+      "bar_close": 774.195,
+      "bar_open": 774.24,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.71,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -50.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-28T11:56:03",
+      "date": "2026-08-28",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-08-28T11:50:00-04:00",
+      "bar_idx": 41647,
+      "bar_close": 772.0999,
+      "bar_open": 772.29,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 1.04,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -50.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-09-02T10:16:03",
+      "date": "2026-09-02",
+      "account_source": "safe",
+      "bull_score": 9,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-09-02T10:10:00-04:00",
+      "bar_idx": 42058,
+      "bar_close": 764.25,
+      "bar_open": 763.73,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 1.485,
+      "cells": {
+        "baseline": {
+          "admitted": true,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -90.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-09-02T12:01:03",
+      "date": "2026-09-02",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-09-02T11:55:00-04:00",
+      "bar_idx": 42079,
+      "bar_close": 765.925,
+      "bar_open": 765.265,
+      "bar_is_green": true,
+      "vol_ratio_to_20bar_avg": 0.517,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": true,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": true,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": true,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -93.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-09-02T12:21:03",
+      "date": "2026-09-02",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-09-02T12:15:00-04:00",
+      "bar_idx": 42083,
+      "bar_close": 765.4499,
+      "bar_open": 765.695,
+      "bar_is_green": false,
+      "vol_ratio_to_20bar_avg": 0.523,
+      "cells": {
+        "baseline": {
+          "admitted": false,
+          "f10_vol_mult": 0.7
+        },
+        "relax_50": {
+          "admitted": false,
+          "f10_vol_mult": 0.5
+        },
+        "relax_35": {
+          "admitted": false,
+          "f10_vol_mult": 0.35
+        },
+        "off": {
+          "admitted": false,
+          "f10_vol_mult": 0.0
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "LOSS",
+        "pnl": -93.0,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-09-03T10:01:03",
+      "date": "2026-09-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-09-03T09:55:00-04:00",
+      "bar_idx": null,
+      "bar_close": null,
+      "bar_open": null,
+      "bar_is_green": null,
+      "vol_ratio_to_20bar_avg": null,
+      "cells": {
+        "baseline": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        },
+        "relax_50": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        },
+        "relax_35": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        },
+        "off": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "NONE",
+        "pnl": null,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-09-03T10:41:03",
+      "date": "2026-09-03",
+      "account_source": "safe",
+      "bull_score": 10,
+      "bull_triggers_raw": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "trigger_bar_et": "2026-09-03T10:35:00-04:00",
+      "bar_idx": null,
+      "bar_close": null,
+      "bar_open": null,
+      "bar_is_green": null,
+      "vol_ratio_to_20bar_avg": null,
+      "cells": {
+        "baseline": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        },
+        "relax_50": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        },
+        "relax_35": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        },
+        "off": {
+          "admitted": null,
+          "reason": "no_bar_or_stale"
+        }
+      },
+      "gate_expiry_sole_blocker_proxy": {
+        "read": "NONE",
+        "pnl": null,
+        "costing": "NOT_REPLAYED"
+      },
+      "real_fill_pairs": []
+    }
+  ]
+}

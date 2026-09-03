@@ -1,0 +1,816 @@
+{
+  "gate_id": "block_bull_1100_1200",
+  "question": "D8(A) full-population revalidation of block_bull_1100_1200",
+  "generated_at": "2026-09-03T09:45:17",
+  "cohort_window": "2026-06-18..2026-09-02",
+  "raw_fires": 60,
+  "distinct_episodes": 11,
+  "status_counts": {
+    "ok": 8,
+    "no_contract": 2,
+    "stale_dropped": 1
+  },
+  "extra_cohort_scan_n": 62,
+  "extra_cohort_scan_verdicts": [
+    "ENTER_BULL",
+    "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+    "SKIP_STRUCTURE_VETO"
+  ],
+  "sole_blocker_style_replay": {
+    "replay_engine": "walk_exit_manager",
+    "replay_soundness": "sound",
+    "n_ok": 8,
+    "n": 8,
+    "wr_pct": 50.0,
+    "total_dollar": -3.9,
+    "mean_dollar_per_trade": -0.49,
+    "bootstrap_ci95": {
+      "n": 8,
+      "mean": -0.49,
+      "ci_lo": -99.64,
+      "ci_hi": 94.2,
+      "method": "bootstrap_percentile_95",
+      "b": 5000
+    },
+    "drop_top1": -207.3,
+    "n_dropped_for_drop_top1": 1,
+    "drop_top3": -439.5,
+    "n_dropped_for_drop_top3": 3,
+    "window_metrics": {
+      "window": "2025-01-02..2026-09-02",
+      "n": 8,
+      "n_days": 6,
+      "wr_pct": 50.0,
+      "exp_per_trade": -0.49,
+      "total_dollar": -3.9,
+      "sign": "NEGATIVE",
+      "best_day": 203.4,
+      "worst_day": -280.5,
+      "win_days": 3,
+      "loss_days": 3,
+      "first_fill": "2026-07-10",
+      "last_fill": "2026-08-27"
+    }
+  },
+  "anchor_days_checked": [
+    "2026-08-06",
+    "2026-08-13",
+    "2026-08-27",
+    "2026-08-28"
+  ],
+  "anchor_day_episodes": [
+    {
+      "ts_et": "2026-08-13T11:41:03",
+      "date": "2026-08-13",
+      "trigger_level_exact": 775.73,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": -93.0,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "buy_ts": "2026-08-13T11:41:06.199801",
+          "buy_price": 0.97,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.05,
+          "sell_ts": "2026-08-13T11:56:05.554579",
+          "sell_price": 0.8,
+          "approx_real_pnl_per_matched_qty": -85.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "buy_ts": "2026-08-13T11:42:07.338865",
+          "buy_price": 1.13,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.07,
+          "sell_ts": "2026-08-13T11:57:06.389097",
+          "sell_price": 0.83,
+          "approx_real_pnl_per_matched_qty": -90.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260813C00778000",
+          "buy_ts": "2026-08-13T11:42:12.511957",
+          "buy_price": 0.32,
+          "qty": 10.0,
+          "delta_min_from_episode": 1.16,
+          "sell_ts": "2026-08-13T11:45:10.035393",
+          "sell_price": 0.24,
+          "approx_real_pnl_per_matched_qty": -80.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "buy_ts": "2026-08-13T11:42:37.756570",
+          "buy_price": 1.14,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.58,
+          "sell_ts": "2026-08-13T11:57:07.547876",
+          "sell_price": 0.83,
+          "approx_real_pnl_per_matched_qty": -155.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-27T11:51:03",
+      "date": "2026-08-27",
+      "trigger_level_exact": 769.52,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": 151.2,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260827C00770000",
+          "buy_ts": "2026-08-27T11:52:07.215529",
+          "buy_price": 1.13,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.07,
+          "sell_ts": "2026-08-27T13:00:08.976318",
+          "sell_price": 2.21,
+          "approx_real_pnl_per_matched_qty": 216.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260827C00770000",
+          "buy_ts": "2026-08-27T11:52:08.716348",
+          "buy_price": 1.16,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.1,
+          "sell_ts": "2026-08-27T12:40:08.401778",
+          "sell_price": 1.77,
+          "approx_real_pnl_per_matched_qty": 183.0
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260827C00772000",
+          "buy_ts": "2026-08-27T11:53:05.319084",
+          "buy_price": 0.34,
+          "qty": 5.0,
+          "delta_min_from_episode": 2.04,
+          "sell_ts": "2026-08-27T12:46:04.949612",
+          "sell_price": 0.71,
+          "approx_real_pnl_per_matched_qty": 111.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260827C00772000",
+          "buy_ts": "2026-08-27T11:53:08.853431",
+          "buy_price": 0.34,
+          "qty": 10.0,
+          "delta_min_from_episode": 2.1,
+          "sell_ts": "2026-08-27T12:07:08.590389",
+          "sell_price": 0.3,
+          "approx_real_pnl_per_matched_qty": -40.0
+        }
+      ]
+    }
+  ],
+  "real_fill_cross_reference": {
+    "n_episodes_with_a_same_signal_fleet_fill": 10,
+    "n_real_pairs": 40,
+    "n_real_pairs_with_closed_exit": 40,
+    "real_pairs_total_pnl_scaled_to_matched_qty": 574.0,
+    "real_pairs_wr_pct": 35.0
+  },
+  "ratification_baseline": {
+    "IS_n": 11,
+    "IS_WR_pct": 9.1,
+    "IS_total_dollar": -89,
+    "OOS_n": 1,
+    "OOS_total_dollar": -42
+  },
+  "episodes": [
+    {
+      "ts_et": "2026-07-10T11:21:03",
+      "date": "2026-07-10",
+      "trigger_level_exact": 752.49,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": -132.0,
+      "sim_exit": null,
+      "real_fill_pairs": []
+    },
+    {
+      "ts_et": "2026-08-04T11:26:03",
+      "date": "2026-08-04",
+      "trigger_level_exact": 767.48,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": 66.0,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260804C00768000",
+          "buy_ts": "2026-08-04T11:26:58.877225",
+          "buy_price": 1.11,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.93,
+          "sell_ts": "2026-08-04T11:31:05.164116",
+          "sell_price": 0.99,
+          "approx_real_pnl_per_matched_qty": -60.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260804C00768000",
+          "buy_ts": "2026-08-04T11:27:08.942415",
+          "buy_price": 1.11,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.1,
+          "sell_ts": "2026-08-04T11:32:06.196845",
+          "sell_price": 0.98,
+          "approx_real_pnl_per_matched_qty": -13.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260804C00768000",
+          "buy_ts": "2026-08-04T11:27:10.315800",
+          "buy_price": 1.11,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.12,
+          "sell_ts": "2026-08-04T11:32:07.267591",
+          "sell_price": 0.98,
+          "approx_real_pnl_per_matched_qty": -65.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260804C00768000",
+          "buy_ts": "2026-08-04T11:27:12.192219",
+          "buy_price": 1.04,
+          "qty": 4.0,
+          "delta_min_from_episode": 1.15,
+          "sell_ts": "2026-08-04T11:32:08.049379",
+          "sell_price": 0.98,
+          "approx_real_pnl_per_matched_qty": -24.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260804C00768000",
+          "buy_ts": "2026-08-04T11:27:12.348637",
+          "buy_price": 1.03,
+          "qty": 1.0,
+          "delta_min_from_episode": 1.16,
+          "sell_ts": "2026-08-04T11:32:08.049379",
+          "sell_price": 0.98,
+          "approx_real_pnl_per_matched_qty": -5.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-04T11:51:03",
+      "date": "2026-08-04",
+      "trigger_level_exact": 768.61,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": 81.0,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260804C00769000",
+          "buy_ts": "2026-08-04T11:51:41.866643",
+          "buy_price": 1.19,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.65,
+          "sell_ts": "2026-08-04T11:56:05.265387",
+          "sell_price": 1.04,
+          "approx_real_pnl_per_matched_qty": -75.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260804C00769000",
+          "buy_ts": "2026-08-04T11:52:09.636822",
+          "buy_price": 1.21,
+          "qty": 2.0,
+          "delta_min_from_episode": 1.11,
+          "sell_ts": "2026-08-04T11:57:06.761294",
+          "sell_price": 0.99,
+          "approx_real_pnl_per_matched_qty": -22.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260804C00769000",
+          "buy_ts": "2026-08-04T11:52:09.820162",
+          "buy_price": 1.21,
+          "qty": 1.0,
+          "delta_min_from_episode": 1.11,
+          "sell_ts": "2026-08-04T11:57:06.761294",
+          "sell_price": 0.99,
+          "approx_real_pnl_per_matched_qty": -22.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260804C00769000",
+          "buy_ts": "2026-08-04T11:52:10.883661",
+          "buy_price": 1.21,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.13,
+          "sell_ts": "2026-08-04T11:57:07.535202",
+          "sell_price": 0.99,
+          "approx_real_pnl_per_matched_qty": -110.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260804C00769000",
+          "buy_ts": "2026-08-04T11:52:12.082945",
+          "buy_price": 1.21,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.15,
+          "sell_ts": "2026-08-04T11:57:08.521333",
+          "sell_price": 0.99,
+          "approx_real_pnl_per_matched_qty": -110.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-13T11:41:03",
+      "date": "2026-08-13",
+      "trigger_level_exact": 775.73,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": -93.0,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "buy_ts": "2026-08-13T11:41:06.199801",
+          "buy_price": 0.97,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.05,
+          "sell_ts": "2026-08-13T11:56:05.554579",
+          "sell_price": 0.8,
+          "approx_real_pnl_per_matched_qty": -85.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "buy_ts": "2026-08-13T11:42:07.338865",
+          "buy_price": 1.13,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.07,
+          "sell_ts": "2026-08-13T11:57:06.389097",
+          "sell_price": 0.83,
+          "approx_real_pnl_per_matched_qty": -90.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260813C00778000",
+          "buy_ts": "2026-08-13T11:42:12.511957",
+          "buy_price": 0.32,
+          "qty": 10.0,
+          "delta_min_from_episode": 1.16,
+          "sell_ts": "2026-08-13T11:45:10.035393",
+          "sell_price": 0.24,
+          "approx_real_pnl_per_matched_qty": -80.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "buy_ts": "2026-08-13T11:42:37.756570",
+          "buy_price": 1.14,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.58,
+          "sell_ts": "2026-08-13T11:57:07.547876",
+          "sell_price": 0.83,
+          "approx_real_pnl_per_matched_qty": -155.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-19T11:49:03",
+      "date": "2026-08-19",
+      "trigger_level_exact": 770.1,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": 203.4,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260819C00770000",
+          "buy_ts": "2026-08-19T11:49:05.790703",
+          "buy_price": 1.38,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.05,
+          "sell_ts": "2026-08-19T12:23:05.031439",
+          "sell_price": 1.77,
+          "approx_real_pnl_per_matched_qty": 195.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260819C00770000",
+          "buy_ts": "2026-08-19T11:50:07.805070",
+          "buy_price": 1.14,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.08,
+          "sell_ts": "2026-08-19T12:22:06.576838",
+          "sell_price": 1.83,
+          "approx_real_pnl_per_matched_qty": 207.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260819C00770000",
+          "buy_ts": "2026-08-19T11:50:09.995323",
+          "buy_price": 1.12,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.12,
+          "sell_ts": "2026-08-19T12:05:08.233648",
+          "sell_price": 1.65,
+          "approx_real_pnl_per_matched_qty": 159.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260819C00772000",
+          "buy_ts": "2026-08-19T11:51:08.258440",
+          "buy_price": 0.3,
+          "qty": 10.0,
+          "delta_min_from_episode": 2.09,
+          "sell_ts": "2026-08-19T11:55:12.068369",
+          "sell_price": 0.21,
+          "approx_real_pnl_per_matched_qty": -90.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-21T11:06:04",
+      "date": "2026-08-21",
+      "trigger_level_exact": 766.15,
+      "bull_score": 10,
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": -57.0,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T11:07:06.718170",
+          "buy_price": 1.08,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.05,
+          "sell_ts": "2026-08-21T11:13:06.092648",
+          "sell_price": 0.87,
+          "approx_real_pnl_per_matched_qty": -63.0
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:07:07.265596",
+          "buy_price": 0.3,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.05,
+          "sell_ts": "2026-08-21T11:11:05.468282",
+          "sell_price": 0.2,
+          "approx_real_pnl_per_matched_qty": -50.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T11:07:08.905796",
+          "buy_price": 1.07,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.08,
+          "sell_ts": "2026-08-21T11:13:07.484647",
+          "sell_price": 0.87,
+          "approx_real_pnl_per_matched_qty": -100.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:07:10.456653",
+          "buy_price": 0.3,
+          "qty": 10.0,
+          "delta_min_from_episode": 1.11,
+          "sell_ts": "2026-08-21T11:10:10.241244",
+          "sell_price": 0.21,
+          "approx_real_pnl_per_matched_qty": -90.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-21T11:36:03",
+      "date": "2026-08-21",
+      "trigger_level_exact": 766.01,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": -223.5,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:37:06.229834",
+          "buy_price": 0.37,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.05,
+          "sell_ts": "2026-08-21T11:54:05.319301",
+          "sell_price": 0.72,
+          "approx_real_pnl_per_matched_qty": 105.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T11:37:06.351653",
+          "buy_price": 1.36,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.06,
+          "sell_ts": "2026-08-21T11:57:06.171645",
+          "sell_price": 1.66,
+          "approx_real_pnl_per_matched_qty": 90.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260821C00766000",
+          "buy_ts": "2026-08-21T11:37:08.024405",
+          "buy_price": 1.38,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.08,
+          "sell_ts": "2026-08-21T11:53:06.694210",
+          "sell_price": 2.06,
+          "approx_real_pnl_per_matched_qty": 204.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:37:10.215964",
+          "buy_price": 0.39,
+          "qty": 10.0,
+          "delta_min_from_episode": 1.12,
+          "sell_ts": "2026-08-21T11:38:09.067034",
+          "sell_price": 0.28,
+          "approx_real_pnl_per_matched_qty": -110.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260821C00768000",
+          "buy_ts": "2026-08-21T11:40:11.589618",
+          "buy_price": 0.42,
+          "qty": 10.0,
+          "delta_min_from_episode": 4.14,
+          "sell_ts": "2026-08-21T11:55:11.075413",
+          "sell_price": 0.64,
+          "approx_real_pnl_per_matched_qty": 220.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-08-27T11:51:03",
+      "date": "2026-08-27",
+      "trigger_level_exact": 769.52,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "ok",
+      "sim_pnl": 151.2,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260827C00770000",
+          "buy_ts": "2026-08-27T11:52:07.215529",
+          "buy_price": 1.13,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.07,
+          "sell_ts": "2026-08-27T13:00:08.976318",
+          "sell_price": 2.21,
+          "approx_real_pnl_per_matched_qty": 216.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260827C00770000",
+          "buy_ts": "2026-08-27T11:52:08.716348",
+          "buy_price": 1.16,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.1,
+          "sell_ts": "2026-08-27T12:40:08.401778",
+          "sell_price": 1.77,
+          "approx_real_pnl_per_matched_qty": 183.0
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260827C00772000",
+          "buy_ts": "2026-08-27T11:53:05.319084",
+          "buy_price": 0.34,
+          "qty": 5.0,
+          "delta_min_from_episode": 2.04,
+          "sell_ts": "2026-08-27T12:46:04.949612",
+          "sell_price": 0.71,
+          "approx_real_pnl_per_matched_qty": 111.0
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260827C00772000",
+          "buy_ts": "2026-08-27T11:53:08.853431",
+          "buy_price": 0.34,
+          "qty": 10.0,
+          "delta_min_from_episode": 2.1,
+          "sell_ts": "2026-08-27T12:07:08.590389",
+          "sell_price": 0.3,
+          "approx_real_pnl_per_matched_qty": -40.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-09-02T11:16:03",
+      "date": "2026-09-02",
+      "trigger_level_exact": 765.46,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "no_contract",
+      "sim_pnl": null,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260902C00766000",
+          "buy_ts": "2026-09-02T11:17:07.073249",
+          "buy_price": 0.93,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.07,
+          "sell_ts": "2026-09-02T11:52:07.319551",
+          "sell_price": 0.63,
+          "approx_real_pnl_per_matched_qty": -90.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260902C00766000",
+          "buy_ts": "2026-09-02T11:17:08.427819",
+          "buy_price": 0.93,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.09,
+          "sell_ts": "2026-09-02T11:52:08.552161",
+          "sell_price": 0.64,
+          "approx_real_pnl_per_matched_qty": -145.0
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260902C00768000",
+          "buy_ts": "2026-09-02T11:19:05.795341",
+          "buy_price": 0.3,
+          "qty": 5.0,
+          "delta_min_from_episode": 3.05,
+          "sell_ts": "2026-09-02T11:47:05.230548",
+          "sell_price": 0.16,
+          "approx_real_pnl_per_matched_qty": -70.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-09-02T11:56:03",
+      "date": "2026-09-02",
+      "trigger_level_exact": 765.14,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "no_contract",
+      "sim_pnl": null,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260902C00767000",
+          "buy_ts": "2026-09-02T11:56:05.729836",
+          "buy_price": 0.31,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.05,
+          "sell_ts": "2026-09-02T12:02:05.541997",
+          "sell_price": 0.42,
+          "approx_real_pnl_per_matched_qty": 55.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260902C00765000",
+          "buy_ts": "2026-09-02T11:57:07.101869",
+          "buy_price": 1.11,
+          "qty": 3.0,
+          "delta_min_from_episode": 1.07,
+          "sell_ts": "2026-09-02T12:27:06.922109",
+          "sell_price": 0.95,
+          "approx_real_pnl_per_matched_qty": -48.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260902C00765000",
+          "buy_ts": "2026-09-02T11:57:09.217909",
+          "buy_price": 1.11,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.1,
+          "sell_ts": "2026-09-02T12:27:08.087091",
+          "sell_price": 0.95,
+          "approx_real_pnl_per_matched_qty": -16.0
+        }
+      ]
+    },
+    {
+      "ts_et": "2026-09-03T11:06:03",
+      "date": "2026-09-03",
+      "trigger_level_exact": 769.36,
+      "bull_score": 11,
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+      "sim_status": "stale_dropped",
+      "sim_pnl": null,
+      "sim_exit": null,
+      "real_fill_pairs": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260903C00772000",
+          "buy_ts": "2026-09-03T11:06:05.554817",
+          "buy_price": 0.37,
+          "qty": 5.0,
+          "delta_min_from_episode": 0.04,
+          "sell_ts": "2026-09-03T11:16:04.995506",
+          "sell_price": 0.78,
+          "approx_real_pnl_per_matched_qty": 123.0
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260903C00770000",
+          "buy_ts": "2026-09-03T11:07:10.371476",
+          "buy_price": 1.18,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.12,
+          "sell_ts": "2026-09-03T11:14:07.561865",
+          "sell_price": 1.81,
+          "approx_real_pnl_per_matched_qty": 189.0
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260903C00770000",
+          "buy_ts": "2026-09-03T11:07:15.548666",
+          "buy_price": 1.17,
+          "qty": 5.0,
+          "delta_min_from_episode": 1.21,
+          "sell_ts": "2026-09-03T11:19:06.631407",
+          "sell_price": 2.32,
+          "approx_real_pnl_per_matched_qty": 345.0
+        }
+      ]
+    }
+  ]
+}
