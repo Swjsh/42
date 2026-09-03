@@ -568,6 +568,24 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
         _atomic_write_json(paths["last_tick"], record)
         return record
 
+    # 5b. Cross-lane claim release (FUTURES-LANE-WIRING-2 (b), queue.md
+    #     FUTURES-MIRROR-CROSS-LANE-CLAIM). We only reach here once broker.is_flat()
+    #     confirmed True above -- release any claim THIS lane holds so the other lane
+    #     (futures_mirror_shadow's armed leg) is never blocked longer than this lane
+    #     actually needs the slot. Real-broker backend only: fillsim is a fully isolated
+    #     simulated book and can never collide with the mirror's real sandbox fills.
+    if not is_simulated(broker):
+        try:
+            from futures.futures_claim import release_claim  # noqa: PLC0415
+
+            # claim_dir derived from module-global STATE_DIR (read fresh) -- same
+            # monkeypatch-friendly convention as the crosscheck wiring above, so every
+            # existing test isolating core.STATE_DIR via tmp_path ALSO isolates this.
+            release_claim(inst.symbol, "futures_trader_core", now_et,
+                          claim_dir=STATE_DIR.parent / "claims")
+        except Exception:  # noqa: BLE001 -- claim bookkeeping must never break the tick
+            pass
+
     # 6. SEE -- the validated watcher fleet, fed the LIVE frame.
     from futures.futures_heartbeat_core import compute_latest_signals  # noqa: PLC0415
 
@@ -577,6 +595,27 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
         record["see_error"] = seen["error"]
     if seen.get("snapshot"):
         record["snapshot"] = seen["snapshot"]
+
+    # 6b. Premarket cross-check ONLY (FUTURES-LANE-WIRING-2 (c), queue.md --
+    #     FUTURES-PREMARKET-LEVELS-CONSUMER "DECIDED cross-check only"). Read-only diagnostic
+    #     append to automation/state/futures/premarket-crosscheck.jsonl -- never consulted by
+    #     DECIDE/ACT below, never raises, idempotent per session.
+    try:
+        from futures.futures_premarket_crosscheck import crosscheck_and_log  # noqa: PLC0415
+
+        # Derived from the module-global STATE_DIR (read fresh, same monkeypatch-friendly
+        # convention lane_paths() itself documents above) rather than the crosscheck
+        # module's own defaults -- so every existing test that isolates STATE_DIR via
+        # monkeypatch.setattr(core, "STATE_DIR", tmp_path) ALSO isolates this, with zero
+        # per-test changes: a tmp STATE_DIR has no key-levels.json, so this reads None and
+        # writes nothing, exactly like the real producer's absence would.
+        futures_state_root = STATE_DIR.parent
+        crosscheck_and_log(
+            inst.symbol, bars, now_et,
+            key_levels_path=futures_state_root / "key-levels.json",
+            out_path=futures_state_root / "premarket-crosscheck.jsonl")
+    except Exception:  # noqa: BLE001 -- diagnostic only, must never break the tick
+        pass
 
     # 7. DECIDE -- validated filter first, then the dollar rails.
     from futures.strategy_config_v3 import should_take_v3  # noqa: PLC0415
@@ -623,6 +662,27 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
         _append_ledger(record, paths)
         _atomic_write_json(paths["last_tick"], record)
         return record
+
+    # 7b. Cross-lane claim acquire (FUTURES-LANE-WIRING-2 (b), queue.md
+    #     FUTURES-MIRROR-CROSS-LANE-CLAIM). ATOMICALLY reserve the entry claim BEFORE the
+    #     broker POST -- real-broker backend only (see 5b above for why fillsim is exempt).
+    #     A refusal here means futures_mirror_shadow's armed leg currently holds the claim
+    #     (or won a same-window race for it); this lane backs off rather than racing
+    #     broker.is_flat() a second time.
+    if not is_simulated(broker):
+        try:
+            from futures.futures_claim import acquire_claim  # noqa: PLC0415
+
+            if not acquire_claim(inst.symbol, "futures_trader_core", now_et,
+                                 claim_dir=STATE_DIR.parent / "claims"):
+                record.update(action="ENTER_REFUSED", reason="cross_lane_claim_held")
+                _write_heartbeat(now_et, "ENTER_REFUSED",
+                                 {"rail": "cross_lane_claim"}, paths)
+                _append_ledger(record, paths)
+                _atomic_write_json(paths["last_tick"], record)
+                return record
+        except Exception:  # noqa: BLE001 -- claim bookkeeping must never break the tick
+            pass
 
     # 8. ACT.
     sig = chosen["signal"]

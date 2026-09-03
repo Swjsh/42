@@ -52,6 +52,11 @@ def _isolate_state(monkeypatch, tmp_path):
     monkeypatch.setattr(fms, "BROKER_ORDERS_FILE", state_dir / "mirror-broker-orders.jsonl")
     monkeypatch.delenv("MIRROR_ARMED", raising=False)
     monkeypatch.delenv("FUTURES_ARMED", raising=False)
+    # FUTURES-LANE-WIRING-2 (b): _broker_execute_entry/_broker_maintenance_flatten now call
+    # futures.futures_claim's module-level CLAIM_DIR -- isolate it the same way, or an armed-
+    # execution test leaks a real claim file into automation/state/futures/claims/.
+    import futures.futures_claim as _fc  # noqa: PLC0415
+    monkeypatch.setattr(_fc, "CLAIM_DIR", state_dir / "claims")
 
 
 def _write_decisions(path: Path, rows: list[dict]) -> None:

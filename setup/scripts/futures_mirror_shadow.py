@@ -703,6 +703,16 @@ def _broker_execute_entry(sig: dict, pos: dict, now_et: dt.datetime) -> Optional
         if not broker.is_flat(ARM_INSTRUMENT):
             return {"skipped": "position_open_no_stack", "armed_spec": ARMED_SPEC}
 
+        # FUTURES-LANE-WIRING-2 (b) / FUTURES-MIRROR-CROSS-LANE-CLAIM (queue.md): we just
+        # confirmed the broker reports flat -- release any claim THIS lane still holds
+        # (symmetric to futures_trader_core's own release-on-flat point) before contending
+        # for a fresh one below. Owner-scoped and idempotent; never touches a claim held by
+        # the OTHER lane (futures_trader_core).
+        from futures.futures_claim import acquire_claim, release_claim  # noqa: PLC0415
+
+        release_claim(ARM_INSTRUMENT, "futures_mirror_shadow", now_et,
+                     claim_dir=STATE_DIR / "claims")
+
         equity = broker.get_account_equity() or rails.start_equity
         session_pnl = _session_realized_pnl(broker, now_et)
         verdict = rails.check_entry(
@@ -713,6 +723,18 @@ def _broker_execute_entry(sig: dict, pos: dict, now_et: dt.datetime) -> Optional
             row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
                   "signal_ref": pos["signal_ref"], "placed": False,
                   "skipped": verdict.rail, "reason": verdict.reason, "fills": "BROKER",
+                  "armed_spec": ARMED_SPEC}
+            _append_jsonl(BROKER_ORDERS_FILE, row)
+            return row
+
+        # ATOMICALLY reserve the entry claim BEFORE the broker POST -- a refusal here means
+        # futures_trader_core currently holds the claim (or won a same-window race for it);
+        # this lane backs off rather than racing broker.is_flat() a second time.
+        if not acquire_claim(ARM_INSTRUMENT, "futures_mirror_shadow", now_et,
+                             claim_dir=STATE_DIR / "claims"):
+            row = {"ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
+                  "signal_ref": pos["signal_ref"], "placed": False,
+                  "skipped": "cross_lane_claim_held", "fills": "BROKER",
                   "armed_spec": ARMED_SPEC}
             _append_jsonl(BROKER_ORDERS_FILE, row)
             return row
@@ -801,6 +823,18 @@ def _broker_maintenance_flatten(now_et: dt.datetime, quote_fetcher=None) -> Opti
         cancel_ok = broker.cancel_all(ARM_INSTRUMENT)
         close_ok = (broker.close_position(ARM_INSTRUMENT, qty, side, price)
                    if price is not None else False)
+        if close_ok:
+            # FUTURES-LANE-WIRING-2 (b): the forced flatten just took this leg from open to
+            # flat -- release the cross-lane claim immediately rather than waiting for the
+            # next poll's is_flat() check to do it (frees the slot for futures_trader_core
+            # as soon as this lane is actually done with it).
+            try:
+                from futures.futures_claim import release_claim  # noqa: PLC0415
+
+                release_claim(ARM_INSTRUMENT, "futures_mirror_shadow", now_et,
+                     claim_dir=STATE_DIR / "claims")
+            except Exception:  # noqa: BLE001 -- claim bookkeeping must never break the flatten
+                pass
         row = {
             "ts_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"), "action": "ARMED_MAINTENANCE_FLATTEN",
             "instrument": ARM_INSTRUMENT, "qty": qty, "side": side, "price": price,
