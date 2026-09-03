@@ -25,7 +25,9 @@ effect for the next adjudication pass: PREREG-BACKLOG-ADJUDICATION's "3 RUNs out
 actually 2 (`prereg-runner-finite-tgt-candidate-2026-08-06`,
 `profit-lock-arm-scope-prereg-2026-08-06`) -- recency-qty-clamp was already answered.
 
-**Revoke:** `git revert 29b2ce67 4a14388d`.
+**Revoke:** `git revert 29b2ce67 4a14388d`. **Cost ~$5.50. Autonomy metric: `trend=regressing`**
+(net_improvement 43/20 fires, cost_per_drained $0.74) -- driven by `enters_last_trading_day`
+scoring, not by this fire's own work; next fire should prefer a loop-closing item.
 
 ## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-29..2026-09-01), real OPRA fills, floor n>=10
 
