@@ -227,15 +227,149 @@ CATCHUP_ELIGIBLE = {
 #                                  from re-running an audit.
 #   Gamma_FuturesBrokerProbe    -- broker-touching by name; excluded conservatively even
 #                                  though "probe" suggests read-only.
-#   Gamma_GuardsFull, Gamma_GuardsNightly -- HEAVY-class runtime (the former literally is
-#                                  HEAVY_TASKS; the latter runs ~35 data-heavy backtests and
-#                                  would hit the same "started, then killed mid-run by the
-#                                  next hold" failure -- constraint (b)). Left to
-#                                  Gamma_TaskStaleness + a deliberate manual start.
+#   Gamma_GuardsFull            -- CORRECTED 2026-09-03 (queue item
+#                                  GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING). The comment
+#                                  that used to sit here claimed restarting it "would hit the
+#                                  same 'started, then killed mid-run by the next hold'
+#                                  failure" as the HEAVY_TASKS blackout. That was a PROVENANCE
+#                                  ERROR: read _stop_heavy_processes() (below, ~line 425) --
+#                                  the blackout kills ONLY a process whose CommandLine matches
+#                                  HEAVY_PROCESS_MARKERS (kitchen_daemon.py, autoresearch.,
+#                                  multiprocessing-fork, shotgun_scalper, _grind). A pytest run
+#                                  launched by guard_runner_full.py matches none of those
+#                                  markers, so a later hold DISABLES the scheduled task
+#                                  (blocking its NEXT trigger) but never kills a run already in
+#                                  flight. The real constraint was only "never launch a
+#                                  core-pegger while J is at the machine", which the presence
+#                                  gate already encodes -- so Gamma_GuardsFull is now in
+#                                  HEAVY_CATCHUP_ELIGIBLE below instead of excluded outright,
+#                                  gated by its own narrower band + a live presence check + a
+#                                  live HEAVY_PROCESS_MARKERS check (see _heavy_catchup_pass).
+#   Gamma_GuardsNightly         -- left excluded. It was not this item's subject, runs ~35
+#                                  data-heavy backtests, and needs its own runtime/duration
+#                                  check (the 23:00-06:30 heavy band below was sized for
+#                                  Gamma_GuardsFull's ~25 minutes, not verified against this
+#                                  task) before it can be added on the same reasoning.
 #   Gamma_ConductorWeekend      -- spawns a full autonomous Sonnet session with its own
 #                                  ship/commit authority; a scheduler-level catch-up should
 #                                  not silently multiply conductor fires.
 CATCHUP_MAX_STARTS = 5  # constraint (d): cap started per fire, most-overdue first
+
+# === HEAVY CATCH-UP TIER (GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING, queue.md 2026-09-02)
+# =========================================================================================
+# A second, even narrower, positive allowlist -- deliberately never merged into
+# CATCHUP_ELIGIBLE above, so a future edit to one list cannot silently widen the other's
+# (very different) safety envelope. Only Gamma_GuardsFull for now (see the exclusion note
+# above); Gamma_GuardsNightly/Gamma_GymSession are NOT here and each needs its own runtime
+# check before being added -- do not just copy this set to include them.
+HEAVY_CATCHUP_ELIGIBLE = {"Gamma_GuardsFull"}
+
+# Gamma_GuardsFull takes ~25 minutes end-to-end (measured via guard-watch-full.json
+# durations). Starting it any later than 06:30 risks it still be running at 08:00 ET when
+# Gamma_LaunchTV opens the trading day -- narrower than the general LOUD maintenance band
+# (23:00-08:00) for exactly that reason.
+HEAVY_BAND_END_HOUR = 6
+HEAVY_BAND_END_MINUTE = 30
+
+
+def _in_loud_heavy_band(now: dt.datetime) -> bool:
+    """23:00-06:30 ET -- the heavy tier's own, narrower, slice of the LOUD maintenance band.
+
+    Never the weekday trading band and never the weekend research band -- both checked
+    explicitly per constraint (c) even though the 23:00-06:30 hour range is disjoint from
+    both (08:00-18:00) by construction, so this cannot silently start passing if either of
+    those bands is ever widened to touch midnight.
+    """
+    if _in_trading_band(now) or in_research_band(now):
+        return False
+    hour, minute = now.hour, now.minute
+    if hour >= MAINTENANCE_START_HOUR:
+        return True
+    if hour < HEAVY_BAND_END_HOUR:
+        return True
+    return hour == HEAVY_BAND_END_HOUR and minute < HEAVY_BAND_END_MINUTE
+
+
+def _heavy_process_running() -> bool:
+    """True if a HEAVY_PROCESS_MARKERS process is running right now. Read-only twin of
+    _stop_heavy_processes()'s enumeration -- checks, never kills.
+
+    Deliberately fail-CLOSED (unlike most of this file's fail-open error paths): this gate
+    decides whether to START new heavy work, not whether to restore/protect the trading day,
+    so an unknown process state is a reason to wait, not a reason to pile a second pytest run
+    on top of one that might already be running (constraint (d)'s whole point).
+    """
+    script = (
+        "Get-CimInstance Win32_Process -Filter \"Name like '%python%'\" | "
+        "Select-Object CommandLine | ConvertTo-Json -Depth 3 -Compress"
+    )
+    try:
+        raw = _ps(script).strip()
+    except Exception as exc:  # noqa: BLE001
+        _log(f"WARN heavy-process probe failed ({exc}) -- treating as busy (fail-safe)")
+        return True
+    if not raw:
+        return False
+    try:
+        rows = json.loads(raw)
+    except ValueError as exc:
+        _log(f"WARN heavy-process probe returned unparseable JSON ({exc}) -- treating as busy")
+        return True
+    if isinstance(rows, dict):
+        rows = [rows]
+    for row in rows:
+        cl = row.get("CommandLine") or ""
+        if any(m in cl for m in HEAVY_PROCESS_MARKERS):
+            return True
+    return False
+
+
+def _heavy_catchup_pass(rows: list[dict], holds: list[tuple[dt.datetime, dt.datetime]],
+                        latest_hold_end: dt.datetime, now: dt.datetime) -> list[str]:
+    """The heavy tier: same attribution/idempotency rules as the light tier (constraints
+    (a)/(e)), plus three extra gates the light tier does not need because none of its members
+    are CPU-heavy:
+      (b) no presence hold active now or within the last 15 minutes -- presence_hold()
+          already folds the linger window in via _presence_linger, so this reuses it rather
+          than re-deriving a foreground check.
+      (c) ET inside the narrow 23:00-06:30 heavy-safe band (_in_loud_heavy_band above).
+      (d) no HEAVY_PROCESS_MARKERS process already running (_heavy_process_running above) --
+          a second full pytest run stacked on a running one is the exact core-pegging this
+          file exists to prevent.
+    Called by _catchup_sweep AFTER the light tier and only with whatever budget the light
+    tier left (constraint (f)); the caller enforces the shared CATCHUP_MAX_STARTS cap.
+    """
+    if not _in_loud_heavy_band(now):
+        return []
+    held = presence_hold(now)
+    if held:
+        _log(f"CATCH-UP SWEEP (heavy): held by presence ({held})")
+        return []
+    started: list[str] = []
+    for row in rows:
+        name = row.get("name")
+        if name not in HEAVY_CATCHUP_ELIGIBLE:
+            continue
+        cause = _sts.attribute_quiet_hold(row, holds, now=now)
+        if not cause:
+            continue
+        last_run = _sts._parse_dt(row.get("lastRun"))
+        if _sts.is_never_ran(last_run):
+            last_run = None
+        if last_run is not None and last_run >= latest_hold_end:
+            continue  # constraint (e): already ran since the hold closed
+        if _heavy_process_running():
+            _log(f"CATCH-UP SWEEP (heavy): {name} hold-attributed but a HEAVY_PROCESS_MARKERS "
+                 "process is already running -- deferring rather than stacking")
+            continue
+        try:
+            _ps(f"Start-ScheduledTask -TaskName '{name}' -ErrorAction Stop")
+            started.append(name)
+            _log(f"CATCH-UP SWEEP (heavy): started {name}: {cause}")
+        except Exception as exc:  # noqa: BLE001
+            _log(f"WARN heavy catch-up start failed for {name}: {exc}")
+    return started
+# ========================================================================================
 
 
 def _catchup_sweep(now: dt.datetime) -> list[str]:
@@ -244,11 +378,17 @@ def _catchup_sweep(now: dt.datetime) -> list[str]:
 
     Constraints from the queue item, each enforced here:
       (a) allowlist only -- see CATCHUP_ELIGIBLE above.
-      (b) HEAVY tasks are never in the allowlist, so they are never touched here.
+      (b) HEAVY_TASKS are never in the light allowlist, so they are never touched by the
+          light-tier loop below.
       (c) only DAILY triggers can match -- attribute_quiet_hold() only ever attributes a
           daily trigger; a repeater self-heals on its own next tick and needs no help.
       (d) capped at CATCHUP_MAX_STARTS, most-overdue (highest NumberOfMissedRuns) first,
           and the caller gates this out of the weekday trading band.
+
+    HEAVY TIER (GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING, 2026-09-03): after the light
+    tier above, _heavy_catchup_pass() may start a member of HEAVY_CATCHUP_ELIGIBLE
+    (currently only Gamma_GuardsFull) subject to its own extra gates -- see that function's
+    docstring. Runs last and shares this function's CATCHUP_MAX_STARTS cap.
 
     Idempotency: a candidate is skipped if it has already run since the most recent hold
     closed (real LastRunTime advances past the hold), so a 5-minute enforcer cadence cannot
@@ -276,6 +416,17 @@ def _catchup_sweep(now: dt.datetime) -> list[str]:
         return []  # no attributable hold -- do not guess
 
     latest_hold_end = max(h[1] for h in holds)
+    # OPEN-HOLD GUARD (2026-09-03 00:45 ET live incident): parse_quiet_holds closes an
+    # unterminated trailing hold AT `now`, so while a hold is still open latest_hold_end
+    # advances every enforcer cycle and the idempotency test below ("already ran since the
+    # hold closed") can never be satisfied -- the sweep restarted the same five tasks every
+    # 5 minutes for an hour (McpDailyAudit twelve times an hour). The LOUD-band presence
+    # path routes a fullscreen app to the research band without writing QUIET OFF, which is
+    # exactly this state. Catch-up is for AFTER a hold closes; an open hold defers it.
+    if latest_hold_end >= now - dt.timedelta(seconds=5):
+        _log("CATCH-UP SWEEP deferred: the latest hold is still OPEN (no QUIET OFF after the "
+             "last QUIET HELD) -- catch-up only runs after a hold CLOSES")
+        return []
     candidates: list[tuple[str, str, int]] = []
     for row in rows:
         name = row.get("name")
@@ -291,8 +442,10 @@ def _catchup_sweep(now: dt.datetime) -> list[str]:
             continue  # already ran since the hold closed -- nothing to catch up
         candidates.append((name, cause, int(row.get("missedRuns") or 0)))
 
-    if not candidates:
-        return []
+    # NOTE: deliberately no early "if not candidates: return []" here -- an empty light tier
+    # must still let the heavy tier below get its turn (constraint (f) requires it to run
+    # every fire the clock/presence/process gates allow, independent of whether any
+    # CATCHUP_ELIGIBLE task also happened to miss a fire).
     candidates.sort(key=lambda c: (-c[2], c[0]))
 
     started: list[str] = []
@@ -303,6 +456,12 @@ def _catchup_sweep(now: dt.datetime) -> list[str]:
             _log(f"CATCH-UP started {name}: {cause}")
         except Exception as exc:  # noqa: BLE001
             _log(f"WARN catch-up start failed for {name}: {exc}")
+
+    # Heavy tier -- constraint (f): LAST, and only with whatever budget the light tier above
+    # left in the shared CATCHUP_MAX_STARTS cap. A deliberately separate positive list
+    # (HEAVY_CATCHUP_ELIGIBLE), never merged with CATCHUP_ELIGIBLE.
+    if len(started) < CATCHUP_MAX_STARTS:
+        started.extend(_heavy_catchup_pass(rows, holds, latest_hold_end, now))
     return started
 # ========================================================================================
 
@@ -644,14 +803,14 @@ def go_research() -> int:
     held = _set_tasks(heavy_up, enable=False)
     _log(f"RESEARCH BAND: light_up={enabled}/{len(light)} heavy_held={held}")
     caught_up = _catchup_sweep(dt.datetime.now(ET))
-    if caught_up:
-        _log(f"CATCH-UP SWEEP: started {len(caught_up)} missed task(s): {', '.join(caught_up)}")
+    caught_up_light, caught_up_heavy = _log_and_split_catchup(caught_up)
     _write_status(False, {
         "band": "weekend-research",
         "light_enabled": enabled,
         "light_expected": len(light),
         "heavy_held_down": sorted(HEAVY_TASKS),
-        "caught_up": caught_up,
+        "caught_up": caught_up_light,
+        "caught_up_heavy": caught_up_heavy,
         "note": ("weekend daytime -- headless $0 producers run, core-peggers held. "
                  "A fullscreen app still triggers a full blackout via the presence gate."),
     })
@@ -681,6 +840,20 @@ def go_quiet() -> int:
     return 0
 
 
+def _log_and_split_catchup(caught_up: list[str]) -> tuple[list[str], list[str]]:
+    """Shared by go_loud/go_research: split the flat _catchup_sweep() result into light vs
+    heavy, logging a distinct line for each (heavy tier: GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-
+    EVENING, 2026-09-03) -- _catchup_sweep() itself already logs the per-item start, this is
+    the fire-level summary the caller previously logged for the light tier alone."""
+    heavy = [n for n in caught_up if n in HEAVY_CATCHUP_ELIGIBLE]
+    light = [n for n in caught_up if n not in HEAVY_CATCHUP_ELIGIBLE]
+    if light:
+        _log(f"CATCH-UP SWEEP: started {len(light)} missed task(s): {', '.join(light)}")
+    if heavy:
+        _log(f"CATCH-UP SWEEP (heavy): started {', '.join(heavy)}")
+    return light, heavy
+
+
 def go_loud() -> int:
     names = _load_restore_list()
     if not names:
@@ -689,9 +862,9 @@ def go_loud() -> int:
         # task still hasn't run since -- cheap, fail-open, and idempotent (see
         # _catchup_sweep's last-run check).
         caught_up = _catchup_sweep(dt.datetime.now(ET))
-        if caught_up:
-            _log(f"CATCH-UP SWEEP: started {len(caught_up)} missed task(s): {', '.join(caught_up)}")
-        _write_status(False, {"note": "nothing to restore", "caught_up": caught_up})
+        caught_up_light, caught_up_heavy = _log_and_split_catchup(caught_up)
+        _write_status(False, {"note": "nothing to restore", "caught_up": caught_up_light,
+                              "caught_up_heavy": caught_up_heavy})
         return 0
     enabled = _set_tasks(names, enable=True)
     _log(f"QUIET OFF: re-enabled={enabled}/{len(names)}")
@@ -702,9 +875,9 @@ def go_loud() -> int:
     # Called AFTER the restore, so a bug in the sweep can never block the re-enable above
     # (constraint (d)) -- and fail-open internally, so it can never turn this 0 into non-0.
     caught_up = _catchup_sweep(dt.datetime.now(ET))
-    if caught_up:
-        _log(f"CATCH-UP SWEEP: started {len(caught_up)} missed task(s): {', '.join(caught_up)}")
-    _write_status(False, {"restored_count": enabled, "expected": len(names), "caught_up": caught_up})
+    caught_up_light, caught_up_heavy = _log_and_split_catchup(caught_up)
+    _write_status(False, {"restored_count": enabled, "expected": len(names),
+                          "caught_up": caught_up_light, "caught_up_heavy": caught_up_heavy})
     return 0
 
 
