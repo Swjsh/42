@@ -81,6 +81,8 @@ FLEET_REST_ARMS = ("safe-3", "risky-1", "risky-3")  # see module docstring SCOPE
 STAGE_ORDER = ("bar_close_ts", "core_verdict_ts", "signal_written_ts", "plan_ts", "submit_ts",
               "broker_submitted_ts", "fill_ts")
 MIN_RESOLVABLE_STAGES = 2  # below this a row is excluded-and-counted, never partially reported
+STALE_CORE_ACTION_MARKER = "STALE"  # SKIP_STALE_TRIGGER / SKIP_STALE_SIGHT -- see
+                                     # _core_anchor_is_stale
 
 
 # ---------- pure helpers (unit-tested; no I/O) ----------------------------------------------
@@ -124,19 +126,52 @@ def stage_deltas(stages: dict[str, "str | None"]) -> dict[str, "float | None"]:
     return out
 
 
+def _core_anchor_is_stale(core_row: "dict | None") -> bool:
+    """A core row whose OWN verdict admits its trigger_bar_et is stale (action contains
+    "STALE" -- SKIP_STALE_TRIGGER / SKIP_STALE_SIGHT) is not a valid bar-close/core-verdict
+    anchor for a fleet arm's fill, EVEN when it is the exact core_tick_id match. The fleet
+    arms (FLEET_REST_ARMS) run their own entry engine and only pick up "whichever core tick
+    was last COMPLETE when shared-signal.json was built" (their 3-min read cadence vs core's
+    1-min write cadence) -- their own decision row (action=ENTER_*/placement.trigger_level) is
+    the real trigger, not core's. The join key (core_tick_id) is correct -- exact id, not
+    nearest-time -- but the row it resolves to can be one core's OWN freshness guard already
+    refused to act on.
+
+    CONFIRMED CASE (queue FILL-LATENCY-JOINS-THE-WRONG-CORE-ROW, 2026-08-10 09:35): 3 fleet
+    fills exact-joined by core_tick_id "2026-08-10T09:34:02.151940" to that tick's
+    SKIP_STALE_TRIGGER row, whose trigger_bar_et was 2026-08-07T15:55 (the PRIOR FRIDAY's last
+    bar) -- while the fleet arm's OWN decisions.jsonl row for the same fill shows a real
+    ENTER_BULL at 09:35:05 off Monday's fresh data (setup_name BULLISH_RECLAIM_RIDE_THE_RIBBON,
+    trigger_level 772.86). Using the stale row's trigger_bar_et as this fill's bar-close
+    invented a 236,343s (2.7-day) "latency" that never happened -- core's guard worked; the
+    instrument was reading the wrong row's timestamp as if it were causal."""
+    action = (core_row or {}).get("action") or ""
+    return STALE_CORE_ACTION_MARKER in action
+
+
 def latency_row_from_fill(fill: dict, decision_row: "dict | None",
                           core_row: "dict | None") -> "dict | None":
     """PURE: join one fills-ledger.jsonl row against its matching arm decision row (by
     order_id -- caller resolves the match) and core-decisions.jsonl row (by core_tick_id --
-    caller resolves the match) into one latency-decomposition row. None (excluded, caller
-    counts it) when fewer than MIN_RESOLVABLE_STAGES stages are resolvable -- e.g. any fill
-    from before this session's fix, where decision_row carries no core_tick_id/plan_ts/
-    submit_ts at all."""
+    caller resolves the match, EXACT id, never nearest-time) into one latency-decomposition
+    row. None (excluded, caller counts it) when fewer than MIN_RESOLVABLE_STAGES stages are
+    resolvable -- e.g. any fill from before this session's fix, where decision_row carries no
+    core_tick_id/plan_ts/submit_ts at all.
+
+    STALE-ANCHOR DISCIPLINE (see _core_anchor_is_stale): a core_tick_id match whose own
+    verdict admits its trigger_bar_et is stale is not usable as this fill's bar_close_ts/
+    core_verdict_ts -- those two stages are dropped (None, same as a non-match) and the row
+    carries core_anchor_excluded_stale=True + the excluded action, so the exclusion is
+    DISCLOSED in the row rather than silently invented or silently dropped. The remaining
+    stages (signal/plan/submit/broker/fill) still score normally if MIN_RESOLVABLE_STAGES is
+    met without the anchor."""
     placement = (decision_row or {}).get("placement") or {}
     broker = placement.get("broker") or {}
+    anchor_stale = _core_anchor_is_stale(core_row)
+    usable_core_row = None if anchor_stale else core_row
     stages = {
-        "bar_close_ts": (core_row or {}).get("trigger_bar_et"),
-        "core_verdict_ts": (core_row or {}).get("ts_et"),
+        "bar_close_ts": (usable_core_row or {}).get("trigger_bar_et"),
+        "core_verdict_ts": (usable_core_row or {}).get("ts_et"),
         "signal_written_ts": (decision_row or {}).get("signal_written_at"),
         "plan_ts": placement.get("plan_ts"),
         "submit_ts": placement.get("submit_ts"),
@@ -149,6 +184,8 @@ def latency_row_from_fill(fill: dict, decision_row: "dict | None",
     return {
         "date_et": fill.get("date_et"), "arm": fill.get("arm"), "symbol": fill.get("symbol"),
         "order_id": fill.get("order_id"), "core_tick_id": (decision_row or {}).get("core_tick_id"),
+        "core_anchor_excluded_stale": anchor_stale,
+        "core_anchor_action": (core_row or {}).get("action") if anchor_stale else None,
         "stages": stages, **deltas,
     }
 
@@ -238,6 +275,8 @@ def build_ledger(date_et: "str | None" = None, out_path: Path = LEDGER_OUT) -> d
     rows: list[dict] = []
     n_excluded_missing_instrumentation = 0
     n_excluded_no_decision_row = 0
+    n_core_anchor_stale_excluded = 0  # rows KEPT but with bar_close/core_verdict dropped --
+                                       # see _core_anchor_is_stale; disclosed, not silent.
     for fill in fills:
         decision_row = decisions_by_oid.get(fill.get("order_id"))
         if decision_row is None:
@@ -248,17 +287,24 @@ def build_ledger(date_et: "str | None" = None, out_path: Path = LEDGER_OUT) -> d
         if latency_row is None:
             n_excluded_missing_instrumentation += 1
             continue
+        if latency_row.get("core_anchor_excluded_stale"):
+            n_core_anchor_stale_excluded += 1
         rows.append(latency_row)
 
     ledger = {
         "_doc": "Fill-pipeline latency decomposition (WEEKEND-TWELVE #5). INSTRUMENT ONLY -- "
                 "descriptive, never load-bearing for any trading/gate decision. Rows before "
                 "this session's fix (2026-08-01) carry no core_tick_id/plan_ts/submit_ts and "
-                "are excluded-and-counted, never fabricated.",
+                "are excluded-and-counted, never fabricated. A core_tick_id match whose own "
+                "verdict admits staleness (SKIP_STALE_*) is never used as bar_close/core_verdict "
+                "-- those two stages drop to None and the row is flagged "
+                "core_anchor_excluded_stale=True (2026-09-02 fix, FILL-LATENCY-JOINS-THE-WRONG-"
+                "CORE-ROW) instead of reporting an invented multi-day latency.",
         "date_et": date_et, "generated_at": et_now().isoformat(),
         "n_entry_fills": len(fills),
         "n_excluded_no_decision_row": n_excluded_no_decision_row,
         "n_excluded_missing_instrumentation": n_excluded_missing_instrumentation,
+        "n_core_anchor_stale_excluded": n_core_anchor_stale_excluded,
         "scope_arms": list(FLEET_REST_ARMS),
         "rows": rows,
         "summary": summarize(rows),
@@ -279,7 +325,8 @@ def main() -> int:
         print(f"[fill-latency] {ledger['date_et']}: {len(ledger['rows'])} scored / "
               f"{ledger['n_entry_fills']} entry fills "
               f"(missing_instrumentation={ledger['n_excluded_missing_instrumentation']}, "
-              f"no_decision_row={ledger['n_excluded_no_decision_row']}) -> {out}")
+              f"no_decision_row={ledger['n_excluded_no_decision_row']}, "
+              f"core_anchor_stale_excluded={ledger['n_core_anchor_stale_excluded']}) -> {out}")
     except Exception as e:  # noqa: BLE001 -- notify-only organ: never propagate a failure
         print(f"[fill-latency] ERROR (fail-open): {type(e).__name__}: {e}", file=sys.stderr)
     return 0

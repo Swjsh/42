@@ -23,11 +23,20 @@ import argparse
 import csv
 import json
 import statistics
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 # C9: anchor every path to __file__, never CWD.
 REPO = Path(__file__).resolve().parents[2]
+_BACKTEST_DIR = REPO / "backtest"
+if str(_BACKTEST_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKTEST_DIR))
+from lib.setup_taxonomy import canonical_setup  # noqa: E402 -- SETUP-TAXONOMY-UNNORMALIZED-
+# ACROSS-PNL-SURFACES (2026-09-02): case-variant duplicates (VWAP_CONTINUATION vs
+# vwap_continuation) and legacy/UNKNOWN labels used to split one setup into multiple
+# buckets below -- see setup_taxonomy.py's module docstring for the full accounting.
+
 TRADES_CSV = REPO / "journal" / "trades.csv"
 OUT_PATHS = (
     REPO / "analysis" / "setup-performance.json",
@@ -146,9 +155,12 @@ def main() -> int:
 
     groups: dict[str, list[dict]] = {}
     for r in rows:
-        setup = (r.get("setup") or "").strip()
-        if not setup:
-            continue
+        # R-... SETUP-TAXONOMY-UNNORMALIZED-ACROSS-PNL-SURFACES (2026-09-02): canonicalize
+        # AT READ TIME (upper-case + alias + UNKNOWN/blank -> UNATTRIBUTED) so case-variant
+        # duplicates and the UNKNOWN placeholder no longer split one setup into two buckets.
+        # journal/trades.csv itself is NEVER rewritten (Rule 8) -- only this read-side group
+        # key changes; UNATTRIBUTED trades are still counted, never silently dropped (C7).
+        setup = canonical_setup(r.get("setup"))
         groups.setdefault(setup, []).append(r)
 
     out = {setup: _aggregate(setup, grp) for setup, grp in sorted(groups.items())}

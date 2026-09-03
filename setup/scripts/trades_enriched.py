@@ -371,6 +371,44 @@ def load_context(core_path: Path = CORE_DECISIONS_PATH, fleet_dir: Path = FLEET_
                 row_ts = _parse_ts(r.get("ts_et"))
                 _collect_exit_pass(date, arm, None, row_ts, r.get("exit_pass"))
 
+                # EXTRA-EXEC PLACEMENTS (2026-09-02 fix, SETUP-TAXONOMY-UNNORMALIZED-ACROSS-
+                # PNL-SURFACES): a single tick can PLACE more than one setup -- the top-level
+                # verdict/exec covers only the FIRST; every additional placed setup lands in
+                # extra_exec[] with its own "action": "PLACED" and its own broker order id,
+                # which this join never read before this fix. Confirmed root cause of the 36
+                # trades-enriched.jsonl rows with a blank setup (all attribution="engine", all
+                # traced to an extra_exec PLACED entry the join skipped because the ROW's own
+                # top-level verdict was HOLD -- e.g. 2026-07-02T09:55:03 safe: verdict=HOLD
+                # ("no setup passed scoring" on the MAIN score), but extra_exec[0] PLACED
+                # vwap_continuation, order ea281aa6-bc7a-45a7-83f4-ed3f2cfb594f). Read
+                # unconditionally on the row's own top-level verdict -- extra_exec placements
+                # are independent entries, not gated by it.
+                for e in r.get("extra_exec") or []:
+                    if not isinstance(e, dict) or e.get("action") != "PLACED":
+                        continue
+                    e_exec = e.get("exec") or {}
+                    e_symbol = e_exec.get("symbol")
+                    if not e_symbol:
+                        continue
+                    e_ctx = {
+                        "setup": e.get("setup") or e_exec.get("setup"),
+                        "tier": e_exec.get("quality_tier"),
+                        "bull_score": r.get("bull_score"),
+                        "bear_score": r.get("bear_score"),
+                        "vix": r.get("vix"),
+                        "ribbon": r.get("ribbon"),
+                        "spread_cents": r.get("spread_cents"),
+                        "htf_15m": r.get("htf_15m"),
+                        "triggers": r.get("triggers"),
+                        "trigger_level": e_exec.get("trigger_level"),
+                        "stop_mode": e_exec.get("stop_mode"),
+                        "planned_stop": e_exec.get("stop"),
+                        "planned_tp": e_exec.get("tp"),
+                        "ctx_extras": _ctx_extras_from_bundle(r.get("context_bundle")),
+                    }
+                    e_order_id = (e_exec.get("broker") or {}).get("id")
+                    _note_ctx(ctx_by_key, ctx_by_order, (date, arm, e_symbol), e_ctx, e_order_id)
+
                 if r.get("verdict") not in ("ENTER_BULL", "ENTER_BEAR"):
                     continue
                 exec_ = r.get("exec") or {}

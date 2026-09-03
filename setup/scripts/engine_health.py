@@ -79,7 +79,19 @@ BEACON_STALE_MIN = 8
 # the producer needs a beat to write it -- so watcher_feed must NOT cry "producer dark"
 # in the first minutes after the open. This killed the recurring 09:30:02 false-RED (the
 # canary fired 2s after the bell, before any today-bar could physically exist).
-WATCHER_OPEN_GRACE_MIN = 11
+# RE-MEASURED 2026-09-02 (queue WATCHER-OPEN-GRACE-TOO-SHORT): 11 covered only to ~09:41,
+# but the real first-row time (bar_timestamp_et's earliest row each day, converted from its
+# observed_at) over the last 10 sessions was NOT a stable ~09:41 -- it ranged 5.05-20.08min
+# past the 09:30 open: 08-20=20.07, 08-21=10.09, 08-24=10.08, 08-25=5.05, 08-26=15.06,
+# 08-27=10.06, 08-28=20.06, 08-31=5.10, 09-01=5.09, 09-02=20.08 (source: watcher-observations
+# .jsonl + its automation/state/archive/watcher-observations-autoheal-*.jsonl rotations,
+# first bar_timestamp_et per date + matching observed_at, MT->ET +2h per the box-is-MT scar).
+# p95 of those 10 = 20.08m; +2m margin = 22.08m -> 23 (measurement pinned in
+# test_engine_health_watcher_open_grace_2026_09_02.py so a future re-measure that drifts
+# past it fails loud instead of silently re-opening the false-RED window). This does NOT key
+# on "has the producer written since today's open" (harder producer-side signal, no cheap
+# proxy available from this file alone) -- flagged as a follow-on if the false-RED recurs.
+WATCHER_OPEN_GRACE_MIN = 23
 # Map each heartbeat check to its log basename stem (date is appended per-day).
 HEARTBEAT_LOG_STEM = {
     "heartbeat_safe": "heartbeat",
