@@ -46,9 +46,23 @@ because it can block J's/a session's real commit if it isn't.
 Never runs `git add -A` / `git add .` / a bare `git commit` -- those are
 exactly the footguns this script exists to replace, and are refused outright
 if passed as a "path".
+
+ENV VAR IT SETS (2026-09-03, COMMIT-SCOPED-ENFORCEMENT): before issuing the
+commit, this script sets `GAMMA_COMMIT_PATHSPEC` (colon-separated, the exact
+`paths` given) in its own process environment so any subprocess it spawns
+(git, and the pre-commit hook git invokes) can see it. This is what lets the
+hook's automation-only REFUSE path (`setup/git-hooks/pre-commit`, gated on
+`GAMMA_AUTO_COMMIT=1`) verify an automated fire's staged set matches what it
+declared it meant to commit -- callers of this module never have to set that
+var by hand, which is the whole point of it being "the one-call safe path".
+It does NOT set `GAMMA_AUTO_COMMIT` itself -- interactive sessions call this
+script too, and marking every caller as automation would defeat the REFUSE
+path's fail-open guarantee for J. Automated callers set that marker on
+themselves.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import time
@@ -128,6 +142,12 @@ def commit_scoped(message: str, paths: list[str]) -> int:
     if add.returncode != 0:
         print(f"[commit_scoped] FAIL: git add -- {paths}\n{add.stderr}", file=sys.stderr)
         return add.returncode
+
+    # Declare scope for the pre-commit hook's automation-only REFUSE path
+    # (see module docstring). Harmless no-op for an interactive caller --
+    # the hook only reads this when GAMMA_AUTO_COMMIT=1 is ALSO set, and
+    # this script never sets that marker itself.
+    os.environ["GAMMA_COMMIT_PATHSPEC"] = ":".join(paths)
 
     commit = _git_with_lock_retry(["commit", "-m", message, "--", *paths])
     if commit.returncode != 0:

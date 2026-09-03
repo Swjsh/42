@@ -30,6 +30,7 @@ Exit code: always 0 (fail-open).
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -96,6 +97,14 @@ def main() -> int:
             f"chore: auto-commit {n} strategy/candidates/ changes "
             f"(auto_commit_candidates.py, L242 prevention guard)"
         )
+        # COMMIT-SCOPED-ENFORCEMENT (2026-09-03): declare this fire as
+        # automation + exactly what it means to commit, so the pre-commit
+        # hook's REFUSE path can catch it if the `git add` above absorbed
+        # another concurrent session's staged files outside CANDIDATES_PATH
+        # (this script's own commit is still a bare `git commit`, not
+        # pathspec-scoped -- the hook is what enforces the boundary here).
+        os.environ["GAMMA_AUTO_COMMIT"] = "1"
+        os.environ["GAMMA_COMMIT_PATHSPEC"] = CANDIDATES_PATH
         commit = _run(["git", "commit", "-m", msg])
         if commit.returncode != 0:
             _log({

@@ -36,6 +36,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -727,6 +728,12 @@ def apply_approved(dry_run: bool = False) -> int:
         msg = (f"auto-apply: {pid} {title} ({via})\n\n"
                f"Applied by the autonomy actuator; approval={via}; safety gate green. "
                f"J's role is REVOKE: `autonomy_actuator.py revert {pid}`.\nFiles: {', '.join(files)}")
+        # COMMIT-SCOPED-ENFORCEMENT (2026-09-03): declare automation + exact
+        # scope so the pre-commit hook's REFUSE path catches it if the `git
+        # add` loop above absorbed another session's staged files outside
+        # this proposal's own `files` list.
+        os.environ["GAMMA_AUTO_COMMIT"] = "1"
+        os.environ["GAMMA_COMMIT_PATHSPEC"] = ":".join(files)
         commit = _git("commit", "-m", msg)
         sha = _git("rev-parse", "--short", "HEAD").stdout.strip()
         if commit.returncode != 0:
@@ -772,6 +779,10 @@ def revert(pid: str) -> int:
     for rel in files:
         _git("add", "--", rel)
     title = prop.get("title", "")
+    # COMMIT-SCOPED-ENFORCEMENT (2026-09-03): same declaration as apply()'s
+    # commit above -- this is also an unattended-fire commit path.
+    os.environ["GAMMA_AUTO_COMMIT"] = "1"
+    os.environ["GAMMA_COMMIT_PATHSPEC"] = ":".join(files)
     commit = _git("commit", "-m", f"revert auto-apply: {pid} {title} (J requested)\n\nRestored from pre-apply snapshot.")
     sha = _git("rev-parse", "--short", "HEAD").stdout.strip() if commit.returncode == 0 else ""
     _set_status(rows, pid, status="reverted", reverted_at=_now(), revert_commit=sha)

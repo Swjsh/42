@@ -67,13 +67,26 @@ if [ -n "$STAGED" ]; then
   IFS="$OLDIFS"
 
   if [ "$N_TOPDIRS" -gt 1 ]; then
+    # DOMINANT dir = the top-dir with the most staged files -- files OUTSIDE
+    # it are the ones most likely absorbed from another session's staged
+    # work (not proof, same heuristic-only status as the dir-count check
+    # itself, but concrete enough to name instead of leaving the reader to
+    # go compute it by hand -- 2026-09-03 hardening, COMMIT-SCOPED-ENFORCEMENT).
+    DOMINANT_DIR="$(printf '%s\n' "$STAGED" | awk -F/ '{print (NF>1)?$1:"(root)"}' | sort | uniq -c | sort -rn | head -1 | awk '{print $2}')"
+    LIKELY_FOREIGN="$(printf '%s\n' "$STAGED" | awk -F/ -v dom="$DOMINANT_DIR" '{d=(NF>1)?$1:"(root)"; if (d!=dom) print $0}')"
     echo "" >&2
     echo "[pre-commit] WARN: staged set spans $N_TOPDIRS top-level dirs ($TOPDIRS) across $N files." >&2
-    echo "[pre-commit] WARN: this MAY be shared-index absorption of another session's staged" >&2
-    echo "[pre-commit] WARN: work -- a bare 'git commit' commits the WHOLE shared index. If you" >&2
-    echo "[pre-commit] WARN: only meant to commit specific paths, Ctrl-C now and use:" >&2
+    echo "[pre-commit] WARN: this MAY be shared-index absorption of another session's staged work --" >&2
+    echo "[pre-commit] WARN: a bare 'git commit' commits the WHOLE shared index, not just what you" >&2
+    echo "[pre-commit] WARN: just staged. USE THIS INSTEAD OF a bare commit, right now:" >&2
     echo "[pre-commit] WARN:   python setup/scripts/commit_scoped.py \"<message>\" <path> [<path>...]" >&2
+    echo "[pre-commit] WARN: Outside the dominant dir ($DOMINANT_DIR/) -- most likely absorbed, not yours:" >&2
+    printf '%s\n' "$LIKELY_FOREIGN" | while IFS= read -r f; do
+      [ -n "$f" ] && echo "[pre-commit] WARN:   $f" >&2
+    done
     echo "[pre-commit] WARN: Heuristic only (dir-count), NOT proof -- never blocks this commit." >&2
+    echo "[pre-commit] WARN: Already committed by mistake? git reset --soft HEAD~1, then" >&2
+    echo "[pre-commit] WARN: commit_scoped.py only your own paths -- the rest stays staged for its owner." >&2
     echo "[pre-commit] WARN: Logged to automation/state/commit-scope-warnings.jsonl" >&2
     echo "" >&2
     TS="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
@@ -85,7 +98,70 @@ if [ -n "$STAGED" ]; then
     fi
   fi
 fi
-# --- end tripwire: always falls through, exit code untouched by anything above ---
+# --- end WARN tripwire: always falls through, exit code untouched by anything above ---
+
+# --- automation-only REFUSE (2026-09-03, COMMIT-SCOPED-ENFORCEMENT) ---
+# The WARN above is fail-open by design for INTERACTIVE commits (a human
+# reads it, decides). It already failed once for an AUTOMATED fire's own
+# commit -- no human was there to read it, and one of the absorbed files
+# was setup/scripts/heartbeat_core.py (the live trading engine), briefly
+# reverting a tested fix onto main. Lesson: strategy/candidates/
+# _lesson-inbox/shared-index-absorption-reverted-live-fix-2026-08-21.md
+#
+# This half REFUSES (not warns) an automated fire's commit when its staged
+# set contains anything outside what it explicitly declared it meant to
+# commit. It costs ZERO added python-startup for the overwhelmingly common
+# interactive-commit case, because the marker check below is a shell
+# builtin and the python decision helper is only ever spawned when that
+# marker is already present.
+#
+#   GAMMA_AUTO_COMMIT=1            -- set BY an automated committer on
+#                                      itself; NEVER set for an interactive
+#                                      session. Absence = this block is a
+#                                      no-op, always, for everyone.
+#   GAMMA_COMMIT_PATHSPEC=a:b:c    -- colon-separated pathspecs the
+#                                      automation declares it means to
+#                                      commit. commit_scoped.py sets this
+#                                      itself. No declaration + anything
+#                                      staged = refused (declare or be
+#                                      refused -- silence is not a scope).
+#   GAMMA_COMMIT_SCOPE_OFF=1       -- opt-out for a genuine multi-scope
+#                                      automated commit. Checked BEFORE the
+#                                      python helper ever runs.
+#
+# Fail-open still holds absolutely for J: this entire block is gated on a
+# marker only automation sets on itself.
+if [ "$GAMMA_AUTO_COMMIT" = "1" ] && [ "$GAMMA_COMMIT_SCOPE_OFF" != "1" ]; then
+  GATE_PY="$ROOT/backtest/.venv/Scripts/python.exe"
+  [ -x "$GATE_PY" ] || GATE_PY="$ROOT/backtest/.venv/bin/python"
+  [ -x "$GATE_PY" ] || GATE_PY="python"
+  OFFENDING="$(printf '%s\n' "$STAGED" | "$GATE_PY" "$ROOT/setup/scripts/commit_scope_gate.py" 2>/dev/null)"
+  GATE_RC=$?
+  if [ "$GATE_RC" -ne 0 ]; then
+    echo "" >&2
+    echo "[pre-commit] REFUSE: automated commit (GAMMA_AUTO_COMMIT=1) has staged file(s)" >&2
+    echo "[pre-commit] REFUSE: outside its declared GAMMA_COMMIT_PATHSPEC scope:" >&2
+    printf '%s\n' "$OFFENDING" | while IFS= read -r f; do
+      [ -n "$f" ] && echo "[pre-commit] REFUSE:   $f" >&2
+    done
+    echo "[pre-commit] REFUSE: declare every path this fire means to commit via" >&2
+    echo "[pre-commit] REFUSE: GAMMA_COMMIT_PATHSPEC, or (simplest) use:" >&2
+    echo "[pre-commit] REFUSE:   python setup/scripts/commit_scoped.py \"<message>\" <path> [<path>...]" >&2
+    echo "[pre-commit] REFUSE: which sets that env var for you. Rare genuine multi-scope" >&2
+    echo "[pre-commit] REFUSE: automated commit? Opt out: GAMMA_COMMIT_SCOPE_OFF=1." >&2
+    echo "[pre-commit] REFUSE: This NEVER applies to an interactive commit (J's session)." >&2
+    echo "" >&2
+    TS="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
+    LOGDIR="$ROOT/automation/state"
+    if [ -d "$LOGDIR" ]; then
+      OFFENDING_JOINED="$(printf '%s\n' "$OFFENDING" | tr '\n' ',' | sed 's/,$//')"
+      printf '{"ts":"%s","event":"REFUSE","pathspec":"%s","offending":"%s"}\n' \
+        "$TS" "$GAMMA_COMMIT_PATHSPEC" "$OFFENDING_JOINED" >> "$LOGDIR/commit-scope-warnings.jsonl" 2>/dev/null
+    fi
+    exit 1
+  fi
+fi
+# --- end automation-only REFUSE ---
 
 PY="$ROOT/backtest/.venv/Scripts/python.exe"
 [ -x "$PY" ] || PY="$ROOT/backtest/.venv/bin/python"
