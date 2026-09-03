@@ -1,0 +1,47 @@
+---
+filed: 2026-09-03
+filed_by: lesson-author fire (RULE9-DOC-PASS-2026-09-05-DRAFT.md §8, item 3)
+kind: lesson
+theme: C4 (disclose concentration, normalize OOS) + C14 (dead/translated-but-unapplied knobs)
+status: pending
+---
+
+# A plan whose gate criterion POOLS lifetime history cannot be reached by adding more days — the October arming plan was arithmetically unreachable under its own gate
+
+## Symptom
+
+`FABLE-FULL-AUDIT-2026-09-01.md` line 12: "the plan to arm real money in October is
+arithmetically unreachable under the frozen config." Gate criterion 1 (statistics) was RED
+on all 4 arms (CI-lower 0.33-0.41 vs the 1.0 bar) and re-scoring it every night between
+09-01 and October could not have fixed it — to turn the gate green by 09-29, safe-2 would
+have needed +$166/day for 19 straight sessions against an actual run-rate of -$7/day; the
+best arm (risky-1) needed +$115/day against an actual +$50/day.
+
+## Root cause
+
+Criterion 1 is defined over an arm's ENTIRE lifetime fill history, not a bounded recent
+window. A plan that says "wait N more days and re-check the gate" implicitly assumes the
+gate's denominator is the window you're adding days to — but a lifetime-pooled bootstrap
+CI dilutes new days into an ever-growing history at a rate that new days alone cannot move
+fast enough to cross a fixed CI-lower bar in any realistic calendar. The plan's authors
+treated "more trading days" and "gate criterion improves" as the same lever; they are not,
+once the criterion's scope is lifetime rather than windowed.
+
+## Fix
+
+Commit `04f80c3f` (2026-09-01): `go_live_gate.py` criterion 5 wired to a new
+`automation/state/prod-shadow-designation.json` (currently designating `safe-3`, frozen
+window `2026-09-01..2026-10-30`, `min_days: 20`). Criterion 5 — a bounded prod-shadow
+window on the DESIGNATED profile — becomes the actual arming bar; criterion 1 (lifetime
+robustness) is reframed as a DISCLOSURE, not a bar (see work order §0 decision 1, RULE9-
+DOC-PASS-2026-09-05-DRAFT.md item 1's CLAUDE.md rewrite of the Live-threshold line).
+
+## Generalizable pattern
+
+Before writing "ship if X clears the gate by date D," check what WINDOW the gate's metric
+is actually computed over. A gate scoped to "since inception" or "all fills ever" cannot be
+budged meaningfully by N additional days once the history is large enough — the fix is
+either a rolling/bounded window (what shipped here) or an explicit acknowledgment that the
+plan is waiting on something else (a parameter change, a regime shift) rather than on time
+passing. Sibling to C4 (normalize OOS, disclose concentration) — this is the same failure
+in the other direction: an aggregate metric masking that "more data" cannot move it.

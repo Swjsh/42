@@ -1,0 +1,51 @@
+---
+filed: 2026-09-03
+filed_by: lesson-author fire (RULE9-DOC-PASS-2026-09-05-DRAFT.md §8, item 6)
+kind: lesson
+theme: C7 (audit outputs, not exit codes) + C14 (dead/translated-but-unapplied knobs)
+status: pending
+---
+
+# A guard that measures LIVE state goes RED when the world changes, not when the code breaks — pin guards to the scope they document
+
+## Symptom
+
+12 tests in `backtest/tests/test_min_contracts_equity_scaling_2026_08_13.py` went RED in the
+01:28 ET GuardsFull run with no code change: `fleet_executor.py` and `params.json` were
+untouched, clean tree, last commit 08-29. Floors reported 8/12/99 instead of the expected
+values the test docstrings assumed.
+
+## Root cause
+
+The test module read the LIVE `automation/state/recency-confirmation.json` through
+`fe._recency_verdict` instead of pinning the verdict it was actually testing against. Every
+assertion in the file was scoped to "recency is RED" (the min-contracts clamp's only active
+branch) — it passed for weeks purely because recency happened to be RED in production. At
+2026-09-03 00:42 ET a real `OosCheck` run flipped `recency-confirmation.json`'s
+`headline.any_red` to `False` (bull side became the winner), the clamp correctly released
+per its own design, and the tests — which had never actually pinned their precondition —
+failed. Commit `912526f2`'s own message names it directly: "a test measuring the market,
+not the code (C7 / L298 class)."
+
+## Fix
+
+Commit `912526f2` (2026-09-02 23:32 local / 2026-09-03 cycle-2): added an autouse
+`_pin_recency_red` fixture that `monkeypatch.setattr(fe, "_recency_verdict", lambda *a, **k:
+"RED")` before any assertion runs — pinning the scope the docstrings already assumed instead
+of leaving it to read whatever the live file happened to say that minute. 46 tests passed
+with the sibling recency-sizing suite after the fix. (Same commit also restored an
+uncommitted foreign rewrite of `setup/scripts/mcp_audit.py` that had produced a bogus RED
+with an empty response body — superseded by `mcp_daily_audit.py`, diff preserved in session
+scratchpad rather than silently discarded.)
+
+## Generalizable pattern
+
+Any test whose fixture reads a live, externally-mutable state file (a recency verdict, a
+kill-switch flag, today's calendar, an account balance) rather than constructing a
+controlled input is not testing the code — it is testing "what does the world currently
+say," and will go RED the instant the world's answer changes even though nothing broke.
+Sibling to L298 (a freshness detector that correctly re-flags every fire but nothing
+remediates) and L302 (a producer's log looked healthy but the cadence was wrong): here the
+detector (the test suite) was itself the thing reading unpinned live state. Any test that
+imports a module exposing a live-state accessor needs an explicit pin/monkeypatch for that
+accessor, asserted by a lint or fixture-audit, not left to accident.

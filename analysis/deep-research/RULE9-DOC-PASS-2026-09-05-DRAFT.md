@@ -62,7 +62,8 @@ Three literal replacements of `decisions.jsonl` with `core-decisions.jsonl` (the
 ## 8. CHANGELOG rows + LESSONS index
 
 - One CHANGELOG.md entry: "2026-09-05 Rule-9 doctrine pass: live threshold → criterion 5 / 10-30 clock; Rule 7 PDT repeal; Goal = one live account + paper lab; tp1 0.667 both (shadow); core-decisions.jsonl ×3; Rules 5/6 live $ caps; 4-arm roster. Revoke: git revert <sha>."
-- LESSONS L302/L303 already landed 2026-09-03 (`6629e1b8`). The 09-01 field lessons the work order lists (three-filename kill-switch; parser scope hides items above a heading; a plan whose gate pools history cannot be reached by adding days; broker expiry sweep unmodeled; early-close blind stack) still need their own inbox items → lesson-author on Saturday, L304+.
+- LESSONS L302/L303 landed 2026-09-03 (`6629e1b8`); **L304–L309 landed 2026-09-03 03:50 ET** (the five 09-01 field lessons + the live-state-guard lesson), index rows folded. Nothing left for the lesson-author on Saturday.
+- ⚠️ **Budget: CLAUDE.md reads 8,912 / 9,000 tokens (99%, YELLOW) after the L304–L309 index fold.** Items 1–7 above are net +~120 words, so the pass WILL go RED unless it trims first. Trim candidates, in order: (a) the Rule-7 evidence clause; (b) the Account-context TP1 warning block (now redundant with item 4); (c) shorten item 1's parenthetical rationale pointer to the doc name only. Run `check-context-budget.ps1` after each trim; the pass lands only at ≤ 9,000.
 
 ## Pre-flight checklist (Saturday)
 

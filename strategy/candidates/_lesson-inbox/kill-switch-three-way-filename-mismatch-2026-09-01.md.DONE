@@ -1,0 +1,50 @@
+---
+filed: 2026-09-03
+filed_by: lesson-author fire (RULE9-DOC-PASS-2026-09-05-DRAFT.md §8, item 1)
+kind: lesson
+theme: C7 (audit outputs, not exit codes) + C34 (two writers of the same live state)
+status: pending
+---
+
+# The kill switch was a THREE-WAY filename mismatch — writer, reader, and doc each named a different file
+
+## Symptom
+
+`FABLE-FULL-AUDIT-2026-09-01.md` line 111: the aggressive LLM flattener could not reach
+`mcp__alpaca_aggressive__` at 15:55 ET on both 08-31 and 09-01 and wrote an escalation —
+twice — without halting anything. bold-2 was flat both times only because the deterministic
+Core (`eod_flatten.py`, 15:52 ET) had already broker-verified it first.
+
+## Root cause
+
+Three code paths, three filenames, zero connections:
+
+- `heartbeat_core.py:2646` and `j_intent_executor.py:219` **read** a bare `kill-switch` path
+  (no writer anywhere writes it).
+- `eod_flatten.py:167` **writes** `kill-switch-{arm}.json` (no reader anywhere reads it).
+- The LLM flattener **wrote** `automation/state/kill-switch.json` on 08-31 and 09-01 (no
+  reader anywhere reads it either).
+- The only mechanism actually enforced, `circuit-breaker.json.tripped`, was unaware of all
+  three names and gets re-armed every premarket regardless of any of them firing.
+- The bare-name path is also global (not per-account), which would have broken Rule 5
+  isolation had it ever been wired to anything.
+
+## Fix
+
+Commit `04f80c3f` (2026-09-01): `eod_flatten.py` escalation now trips the per-account
+`circuit-breaker.json` (`tripped` + `escalation_unresolved`); `daily_loss_guard.rearm()`
+refuses to clear while unresolved; `engine_health.py` gains a CRITICAL `escalation_flags`
+check; both LLM flatten prompts consult the Core's 15:52 result first and never write the
+bare/legacy filenames. 15 new tests (`backtest/tests/test_kill_switch_wiring_2026_09_01.py`).
+The false 08-31/09-01 flag was archived to
+`automation/state/archive/kill-switch.resolved-2026-09-01.json`.
+
+## Generalizable pattern
+
+A "the guard fired" claim is worthless without checking that the field it wrote is the SAME
+field something else reads — three independently-plausible filenames existing for the same
+concept is itself the smell (C34: `queue-md-retention-cap-was-prose-not-code`,
+`install-script-copied-wiring-assumed-stdlib-only` are the same class: multiple writers/
+readers of "the same" state disagreeing on shape or location). Any safety mechanism spanning
+more than one process (deterministic engine + LLM flattener here) needs an explicit
+single-source-of-truth filename asserted by a test, not implied by naming convention.

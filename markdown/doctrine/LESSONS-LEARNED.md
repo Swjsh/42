@@ -6094,4 +6094,76 @@ actuator test family). Curated safety gate (31+5) PASS.
 
 **Encoded in:** `setup/scripts/mcp_daily_audit.py` (deterministic REST probe, two-consecutive-failure RED gate, self-clearing GREEN); `status_known_broken.upsert`. "Deterministic > LLM on hot paths" (CLAUDE.md model-routing directive) now applies to any monitor whose RED can BLOCK trading, not just execution.
 
+## L304 -- 2026-09-01: the kill switch was a THREE-WAY filename mismatch -- writer, reader, and doc each named a different file
+
+**Symptom:** the aggressive LLM flattener could not reach `mcp__alpaca_aggressive__` at 15:55 ET on both 08-31 and 09-01 and wrote an escalation twice without halting anything. bold-2 was flat both times only because the deterministic Core (`eod_flatten.py`, 15:52 ET) had already broker-verified it first.
+
+**Root cause:** `heartbeat_core.py:2646` and `j_intent_executor.py:219` **read** a bare `kill-switch` path (zero writers). `eod_flatten.py:167` **writes** `kill-switch-{arm}.json` (zero readers). The LLM flattener **wrote** `automation/state/kill-switch.json` on 08-31 and 09-01 (zero readers). The only mechanism actually enforced, `circuit-breaker.json.tripped`, was unaware of all three names and gets re-armed every premarket regardless. The bare-name path was also global, not per-account -- would have broken Rule 5 isolation had it ever been wired to anything.
+
+**Fix:** commit `04f80c3f` (2026-09-01) -- `eod_flatten.py` escalation now trips the per-account `circuit-breaker.json` (`tripped` + `escalation_unresolved`); `daily_loss_guard.rearm()` refuses to clear while unresolved; `engine_health.py` gains a CRITICAL `escalation_flags` check; both LLM flatten prompts consult the Core's 15:52 result first and never write the legacy filenames. The false flag archived to `automation/state/archive/kill-switch.resolved-2026-09-01.json`.
+
+**Encoded in:** `backtest/tests/test_kill_switch_wiring_2026_09_01.py` (15 tests).
+
+**Detection:** a "the guard fired" claim is worthless without checking the field it wrote is the SAME field something else reads -- three independently-plausible filenames for the same concept is itself the smell. Any safety mechanism spanning more than one process needs a single-source-of-truth filename asserted by a test, not implied by naming convention. Sibling to C34.
+
+## L305 -- 2026-09-01: a queue parser scoped to one heading hid the HIGH items filed above it -- the conductor never saw its own gate blockers
+
+**Symptom:** seven consecutive STATUS entries (08-31..09-01) read "Fell through to STAGE-1 priority #3" instead of picking up the two HIGH-priority go-live-gate blockers filed 08-29.
+
+**Root cause:** two compounding bugs in `setup/scripts/task_scorer.py` (`_active_lines`) and its sibling parsers (`queue_consolidate.py:80` `ACTIVE_BACKLOG_HEADING = "## Active backlog"`, `daily_brief.py`): (1) the active-backlog scan only starts reading from the literal heading onward, so anything filed above it is structurally invisible; (2) even when visible, an unbounded self-audit backlog tier outranked queue HIGH items in the picker's tier order.
+
+**Fix:** commit `04f80c3f` (2026-09-01), task W3 -- `task_scorer._active_lines` now scans the WHOLE queue file; `conductor.md` gained tier 2b `GATE-BLOCKING` ranked above self-audit; freeze scope stated explicitly to stop conflation between "frozen" and "invisible to the picker."
+
+**Encoded in:** `automation/prompts/conductor.md` tier 2b; `setup/scripts/task_scorer.py`.
+
+**Detection:** any parser scoped to "everything after heading X" needs a test that plants a fixture item ABOVE that heading and asserts it is still picked up (or explicitly documented as excluded) -- silent scope truncation reads identically to "there is nothing to do." Sibling to L302 (cadence unwatched); here the SCOPE was unwatched.
+
+## L306 -- 2026-09-01: a plan whose gate criterion POOLS lifetime history cannot be reached by adding more days
+
+**Symptom:** the plan to arm real money in October was arithmetically unreachable under the frozen config. Gate criterion 1 (statistics) was RED on all 4 arms (CI-lower 0.33-0.41 vs the 1.0 bar); to turn it green by 09-29, safe-2 would have needed +$166/day for 19 straight sessions against an actual run-rate of -$7/day.
+
+**Root cause:** criterion 1 is defined over an arm's ENTIRE lifetime fill history, not a bounded recent window. "Wait N more days and re-check the gate" implicitly assumes the gate's denominator is the window being added to -- but a lifetime-pooled bootstrap CI dilutes new days into an ever-growing history at a rate new days alone cannot move fast enough to cross a fixed CI-lower bar in any realistic calendar.
+
+**Fix:** commit `04f80c3f` (2026-09-01) -- `go_live_gate.py` criterion 5 wired to `automation/state/prod-shadow-designation.json` (designating safe-3, frozen window 2026-09-01..2026-10-30, min_days 20). Criterion 5 (a bounded prod-shadow window) becomes the actual arming bar; criterion 1 (lifetime robustness) reframed as a DISCLOSURE, not a bar.
+
+**Encoded in:** `automation/state/prod-shadow-designation.json`; `analysis/go-live-gate.json` criterion 5; work order §0 decision 1.
+
+**Detection:** before writing "ship if X clears the gate by date D," check what WINDOW the gate's metric is computed over. A gate scoped to "since inception" cannot be budged meaningfully by N additional days once history is large -- the fix is a rolling/bounded window or an explicit acknowledgment the plan is waiting on something other than time passing. Sibling to C4 in the opposite direction: an aggregate metric masking that "more data" cannot move it.
+
+## L307 -- 2026-09-01: Alpaca's own 0DTE expiration sweep was unmodeled and invisible in paper -- the broker liquidates ITM longs from 15:30 ET on its own terms
+
+**Symptom:** Alpaca's published options policy (fetched live 2026-09-01): starting 3:30pm ET on expiration day it evaluates every expiring position; a long option that is ITM and cannot be exercised for lack of buying power is liquidated by Alpaca "while it's still ITM," and "positions slightly OTM may also be liquidated." Every Gamma arm (~$5.6-6.5K equity) cannot cover exercise of one SPY contract (~$77K of stock). Zero handling of the broker's `OPEXC`/`OPASN`/`OPEXP` activity types existed anywhere in the repo.
+
+**Root cause:** our own exits (time stop 15:40, Core flatten 15:52, LLM flatten 15:55) all fire AFTER the broker's 15:30 evaluation window opens. Paper trading never exercises this path (no real settlement risk), so the gap was invisible in every backtest and every paper day.
+
+**Fix:** pre-registered, frozen per Rule 9 until the 09-29 checkpoint -- `PREREG-TIME-STOP-BROKER-SWEEP-2026-09-01` (`analysis/recommendations/prereg-time-stop-broker-sweep-2026-09-01.json`) moves `time_stop_et` 15:40 -> 15:20 on both params files. Measured 2026-09-01 21:26 ET (`setup/scripts/measure_time_stop_band.py`): the [15:20,15:40] band carries 0.00% of post-08-11 gross winner dollars (< 5% ship line) -> verdict SHIP.
+
+**Encoded in:** the prereg's stated guard requirement -- a test asserting `time_stop_et < 15:30` on both params files with a docstring naming the Alpaca policy (lands at 09-29 ship).
+
+**Detection:** any broker-side automatic action (auto-exercise, auto-liquidation, margin sweep) with no analog in paper trading is invisible to every backtest and paper validation no matter how thorough -- it can only be found by reading the broker's own policy docs. C11 needs a sub-check: does this broker behavior have any code path modeling it, or does the absence of errors in paper just mean paper never triggers it?
+
+## L308 -- 2026-09-01: every layer of the exit stack assumed a 16:00 close -- holiday early-close days were a blind STACK, not a single missed check
+
+**Symptom:** verified against the live broker calendar, 2026-11-27 and 2026-12-24 close at 13:00 ET. On either date a 0DTE opened before 13:00 has no automated exit before it expires; an ITM contract auto-exercises into ~$77K of stock per contract. Invisible in paper (no physical settlement).
+
+**Root cause:** not one missed check but a stack of independent components each hardcoding 16:00, none calendar-aware: `heartbeat_core._is_rth` = `weekday()<5 and 9.5<=h<=16.0` (no calendar lookup); entry cutoffs (09:35/15:00) and time stop (15:40) are fixed wall-clock values; `Gamma_EodFlattenCore`/aggressive flatten fire at fixed 15:52/15:55; Task Scheduler triggers are plain Mon-Fri; `engine_health.market_is_open()` IS holiday-aware but is never called by the trading engine and its own cache discards the `close` field it fetches.
+
+**Fix:** commit `4683f05e` (2026-09-01), task B2, no frozen file touched -- new `setup/scripts/market_calendar.py`; `calendar.json` gains `early_closes:{date:'HH:MM'}`; `eod_flatten.py --only-if-early-close` + new task `Gamma_EodFlattenEarlyClose` (weekdays 12:32 ET) NOOPs on a normal day, fails CLOSED if calendar state is unknown, sweeps at `close-30min` on a genuine early close. `engine_health.py` gained non-critical `early_close_today`. **Entry-cutoff half still open** (frozen `heartbeat_core.py`) -- tracked as queue item `EARLY-CLOSE-CALENDAR-AWARENESS`, hard deadline before 2026-11-27.
+
+**Encoded in:** `backtest/tests/test_early_close_flatten_2026_09_01.py` (10 tests, RED-proofed).
+
+**Detection:** a time assumption baked independently into N components is N separate bugs, not one -- fixing the flatten side does not fix the entry-cutoff side, and a component that "already knows better" is worthless if nothing calls it or it discards the field the caller needs. Audit every fixed-clock constant against whether a calendar-relative alternative exists and is wired.
+
+## L309 -- 2026-09-03: a guard that measures LIVE state goes RED when the world changes, not when the code breaks -- pin guards to the scope they document
+
+**Symptom:** 12 tests in `test_min_contracts_equity_scaling_2026_08_13.py` went RED in the 01:28 ET GuardsFull run with no code change (`fleet_executor.py`/`params.json` untouched, clean tree, last commit 08-29). Floors reported 8/12/99 instead of the values the docstrings assumed.
+
+**Root cause:** the test module read the LIVE `automation/state/recency-confirmation.json` through `fe._recency_verdict` instead of pinning the verdict under test. Every assertion was scoped to "recency is RED" (the clamp's only active branch) and passed for weeks purely because recency happened to be RED in production. At 2026-09-03 00:42 ET a real `OosCheck` run flipped `headline.any_red` to False (bull side became the winner), the clamp correctly released, and the unpinned tests failed.
+
+**Fix:** commit `912526f2` (2026-09-02/03) -- added an autouse `_pin_recency_red` fixture: `monkeypatch.setattr(fe, "_recency_verdict", lambda *a, **k: "RED")` before any assertion runs. 46 tests passed with the sibling recency-sizing suite after the fix.
+
+**Encoded in:** `backtest/tests/test_min_contracts_equity_scaling_2026_08_13.py` (`_pin_recency_red` autouse fixture).
+
+**Detection:** any test whose fixture reads a live, externally-mutable state file (recency verdict, kill-switch flag, today's calendar, account balance) instead of constructing a controlled input is not testing the code -- it is testing "what does the world currently say," and will go RED the instant the world's answer changes even though nothing broke. Sibling to L298 (freshness detector, nothing remediates) and L302 (cadence unwatched); here the detector itself read unpinned live state. Any test importing a module exposing a live-state accessor needs an explicit pin, asserted by a lint or fixture audit, not left to accident.
+
 **Detection:** a monitor whose RED can block trading must probe the SAME path the engine uses (REST + `.mcp.json` keys), be deterministic, require two consecutive failures before RED, and self-clear on GREEN. An LLM may summarise a probe's output; it must never BE the probe. Sibling to C7 (audit outputs, not exit codes) and C14 (dead/mis-wired instrument).

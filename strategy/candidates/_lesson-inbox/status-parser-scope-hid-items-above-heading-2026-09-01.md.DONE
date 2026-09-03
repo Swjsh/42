@@ -1,0 +1,44 @@
+---
+filed: 2026-09-03
+filed_by: lesson-author fire (RULE9-DOC-PASS-2026-09-05-DRAFT.md §8, item 2)
+kind: lesson
+theme: C7 (audit outputs, not exit codes) + C15 (gates interact multiplicatively -- trace session cascades)
+status: pending
+---
+
+# A queue parser scoped to one heading hid the HIGH items filed above it — the conductor never saw its own gate blockers
+
+## Symptom
+
+Seven consecutive `automation/overnight/queue.md` STATUS entries (08-31..09-01) read "Fell
+through to STAGE-1 priority #3" instead of picking up the two HIGH-priority go-live-gate
+blockers filed on 08-29. `FABLE-FULL-AUDIT-2026-09-01.md` line 113: "Conductor never picked
+the gate blockers."
+
+## Root cause
+
+Two compounding bugs, both in `setup/scripts/task_scorer.py` (`_active_lines`) and its
+sibling parsers (`queue_consolidate.py`, `daily_brief.py`): (1) **parser scope** — the active-
+backlog scan only starts reading from the literal string `## Active backlog` onward
+(`queue_consolidate.py:80` `ACTIVE_BACKLOG_HEADING = "## Active backlog"`), so any item filed
+above that heading in the file is structurally invisible to every consumer that shares the
+convention; (2) **priority order** — even when visible, an unbounded self-audit backlog tier
+outranked queue HIGH items in the picker's tier order, so a HIGH item competing with a large
+self-audit queue would still lose.
+
+## Fix
+
+Commit `04f80c3f` (2026-09-01), task W3: `task_scorer._active_lines` now scans the WHOLE
+queue file, not just the region after `## Active backlog`; `conductor.md` gained a new tier
+2b `GATE-BLOCKING` ranked above the self-audit tier; the freeze scope was stated explicitly
+("freeze = the hook's file list, nothing else") to stop conflation between "frozen" and
+"invisible to the picker."
+
+## Generalizable pattern
+
+Any parser that scopes itself to "everything after heading X" needs an explicit test that
+plants a fixture item ABOVE that heading and asserts it is still picked up (or explicitly and
+intentionally excluded, documented as such) — silent scope truncation reads identically to
+"there is nothing to do" and produces a queue that looks empty while carrying real HIGH
+items. Sibling to L302 (a producer's own log looked healthy line by line; only the CADENCE
+was wrong and nothing watched cadence) — here the SCOPE was wrong and nothing watched scope.

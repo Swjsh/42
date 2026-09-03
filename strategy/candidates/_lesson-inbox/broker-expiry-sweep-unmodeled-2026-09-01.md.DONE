@@ -1,0 +1,47 @@
+---
+filed: 2026-09-03
+filed_by: lesson-author fire (RULE9-DOC-PASS-2026-09-05-DRAFT.md §8, item 4)
+kind: lesson
+theme: C3 (SPY-price edge != option edge) + C11 (broker is source of truth)
+status: pending
+---
+
+# Alpaca's own 0DTE expiration sweep was unmodeled and invisible in paper — the broker liquidates ITM longs from 15:30 ET on its own terms
+
+## Symptom
+
+`FABLE-FULL-AUDIT-2026-09-01.md` §4 item 1 / line 157: Alpaca's published options policy
+(fetched live 2026-09-01, us/options-trading-overview) states that starting 3:30pm ET on
+expiration day it evaluates every expiring position; a long option that is ITM and cannot
+be exercised for lack of buying power is **liquidated by Alpaca "while it's still ITM,"**
+and "positions slightly OTM may also be liquidated." Every Gamma arm (~$5.6-6.5K equity)
+cannot cover exercise of a single SPY contract (~$77K of stock). Zero handling of the
+broker's `OPEXC`/`OPASN`/`OPEXP` activity types existed anywhere in the repo.
+
+## Root cause
+
+Our own exits (time stop 15:40, Core flatten 15:52, LLM flatten 15:55) all fire AFTER the
+broker's 15:30 evaluation window opens. Paper trading never exercises this path (no real
+settlement risk in paper), so the gap was invisible in every backtest and every paper day —
+the exit model assumed our own timers were the only clock that mattered, when the broker
+runs an independent, undocumented-in-our-code sweep starting earlier than our tightest exit.
+
+## Fix
+
+Pre-registered (frozen, not shipped mid-window per Rule 9 — shipping at the 09-29
+checkpoint): `PREREG-TIME-STOP-BROKER-SWEEP-2026-09-01`
+(`analysis/recommendations/prereg-time-stop-broker-sweep-2026-09-01.json`) — move
+`time_stop_et` from 15:40 to 15:20 on both params files; measured 2026-09-01 21:26 ET via
+`setup/scripts/measure_time_stop_band.py`: the [15:20,15:40] band carries **0.00%** of
+post-08-11 gross winner dollars (well under the 5% ship line) → verdict **SHIP**. Guard
+requirement stated in the prereg: a test asserting `time_stop_et < 15:30` on both params
+files with a docstring naming the Alpaca policy.
+
+## Generalizable pattern
+
+Any broker-side automatic action (auto-exercise, auto-liquidation, margin sweep, corporate-
+action handling) that has NO analog in paper trading is invisible to every backtest and
+every paper-only validation, no matter how thorough — it can only be found by reading the
+broker's own policy docs, not by studying fills. C11 (broker is source of truth) needs an
+explicit sub-check: does this broker behavior have any code path modeling it, or does the
+absence of errors in paper just mean paper never triggers it?

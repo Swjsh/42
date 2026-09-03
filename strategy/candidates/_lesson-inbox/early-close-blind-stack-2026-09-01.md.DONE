@@ -1,0 +1,53 @@
+---
+filed: 2026-09-03
+filed_by: lesson-author fire (RULE9-DOC-PASS-2026-09-05-DRAFT.md §8, item 5)
+kind: lesson
+theme: C6 (no look-ahead / verify bar closed) + C11 (broker is source of truth)
+status: pending
+---
+
+# Every layer of the exit stack assumed 16:00 close — holiday early-close days were a blind stack, not a single missed check
+
+## Symptom
+
+`FABLE-FULL-AUDIT-2026-09-01.md` §4 item 2 / line 158: verified against the live broker
+calendar, 2026-11-27 and 2026-12-24 close at 13:00 ET. On either date a 0DTE opened before
+13:00 has no automated exit before it expires; an ITM contract auto-exercises into ~$77K of
+stock per contract. Invisible in paper (no physical settlement in paper trading).
+
+## Root cause
+
+Not one missed check — a STACK of independent components each hardcoding a 16:00 close and
+none of them calendar-aware:
+- `heartbeat_core._is_rth` = `weekday()<5 and 9.5<=h<=16.0` (first line of `main()`, no
+  calendar lookup at all).
+- Entry cutoffs (09:35/15:00) and the time stop (15:40) are fixed wall-clock values.
+- `Gamma_EodFlattenCore`/aggressive flatten fire at fixed 15:52/15:55.
+- Task Scheduler triggers are plain Mon-Fri with no holiday/early-close exception.
+- `engine_health.market_is_open()` IS holiday-aware (built after the 2026-07-03 incident)
+  but is never called by the trading engine itself, and its own cache discards the `close`
+  field it fetches — so even the one component that knew the right answer threw it away
+  before anything could read it.
+
+## Fix
+
+Commit `4683f05e` (2026-09-01), task B2 — flatten half shipped without touching any frozen
+file: `setup/scripts/market_calendar.py` (new shared writer); `calendar.json` now persists
+`early_closes:{date:'HH:MM'}` alongside `holidays[]`; `eod_flatten.py --only-if-early-close`
++ new task `Gamma_EodFlattenEarlyClose` (weekdays 12:32 ET) checks today's close (cached,
+live `/v2/calendar` GET fallback), NOOPs on a normal 16:00 day, **fails CLOSED** (no action)
+if calendar state is unknown either way, and sweeps identically to the Core flatten once
+`now_et >= close-30min` on a genuine early close. `engine_health.py` gained a non-critical
+`early_close_today` visibility check. 10 tests, RED-proofed (threshold 30->5 min fails).
+**Entry-cutoff half still open** — `_is_rth`/09:35 entry gate/15:40 time stop going
+calendar-relative lives inside frozen `heartbeat_core.py`; tracked as queue item
+`EARLY-CLOSE-CALENDAR-AWARENESS`, HARD DEADLINE before 2026-11-27.
+
+## Generalizable pattern
+
+A time-based assumption ("market closes at 16:00") baked independently into N components
+is N separate bugs, not one — fixing the flatten side does not fix the entry-cutoff side,
+and a component that "already knows better" (`market_is_open()`) is worthless if nothing
+calls it or if it discards the field the caller would need. Audit for this pattern: grep
+every fixed-clock constant (`16.0`, `15:40`, `09:35`) against whether it has a calendar-
+relative alternative available and wired.
