@@ -327,14 +327,17 @@ class TestStateSurvivesRestart:
 # ═══════════════════════ cancel_all / close_position ═══════════════════════════
 class TestCancelAndClose:
     def test_cancel_all_cancels_pending(self, tmp_path):
+        # RETURN-SHAPE PARITY (FUTURES-CANCEL-ALL-UNFILTERED-STATUS, 2026-09-03):
+        # cancel_all now returns {attempted, cancelled, failed} to match
+        # TastytradeBroker.cancel_all, not a bare bool.
         broker = FillSimBroker(state_dir=tmp_path, start_equity=2000.0)
         broker.place_bracket("MNQ", "BUY", 4, 21000.0, 21030.0, 20980.0)
-        assert broker.cancel_all("MNQ") is True
+        assert broker.cancel_all("MNQ") == {"attempted": 1, "cancelled": 1, "failed": []}
         assert broker.get_positions_snapshot().get("MNQ") is None
 
     def test_cancel_all_noop_when_flat(self, tmp_path):
         broker = FillSimBroker(state_dir=tmp_path, start_equity=2000.0)
-        assert broker.cancel_all("MNQ") is True
+        assert broker.cancel_all("MNQ") == {"attempted": 0, "cancelled": 0, "failed": []}
 
     def test_close_position_forces_partial_close(self, tmp_path):
         broker = FillSimBroker(state_dir=tmp_path, start_equity=2000.0)

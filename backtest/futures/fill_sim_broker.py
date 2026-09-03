@@ -391,18 +391,24 @@ class FillSimBroker:
             ids.append(f"{oid}-RUNNER")
         return ids
 
-    def cancel_all(self, instrument: str) -> bool:
-        """Cancel a PENDING entry (no fill yet). No-op (True) on an OPEN position or an
+    def cancel_all(self, instrument: str) -> dict:
+        """Cancel a PENDING entry (no fill yet). No-op on an OPEN position or an
         already-flat instrument -- our sim has no separate resting TP/stop/runner broker
         orders to cancel (they are fields of the open-position object, not broker orders);
-        see place_bracket()'s docstring for the same divergence."""
+        see place_bracket()'s docstring for the same divergence.
+
+        RETURN-SHAPE PARITY (2026-09-03, FUTURES-CANCEL-ALL-UNFILTERED-STATUS): matches
+        `TastytradeBroker.cancel_all`'s `{attempted, cancelled, failed}` dict so callers that
+        treat brokers interchangeably (this sim vs. the real broker) see the same contract.
+        This sim path can't fail a cancel (no network), so `failed` is always empty."""
         all_pos = self._load_all_positions()
         p = all_pos.get(instrument)
         if p and p.get("status") == "pending_entry":
             all_pos[instrument] = None
             self._save_all_positions(all_pos)
             self._log_event(instrument, "cancelled", {"order_id": p.get("order_id")})
-        return True
+            return {"attempted": 1, "cancelled": 1, "failed": []}
+        return {"attempted": 0, "cancelled": 0, "failed": []}
 
     def get_working_orders(self, instrument: str) -> list[dict]:
         """Always [] -- this sim has no separate resting TP/stop/runner broker orders (they

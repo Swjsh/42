@@ -76,6 +76,17 @@ WATCH_ONLY = True  # DEFAULT-SAFE, and every caller may still override per insta
 # OP-0 #1 plus a new venue -- double-gated, and not reachable from this file's config.
 POINT_VALUE = {"MNQ": 2, "MES": 5, "NQ": 20, "ES": 50}
 
+# 2026-09-03 (FUTURES-NATIVE-OCO-DRY-RUN pre-check): `Account.get_live_orders` hits
+# /accounts/{id}/orders/live, but its OWN SDK docstring says "Get orders placed today for
+# the account" -- confirmed live tonight it returns EVERY order touching the account's
+# recent history (Filled/Rejected/Cancelled included, spanning multiple prior sessions, not
+# just today), not just currently-open ones. `get_working_orders` (added
+# FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03) and `cancel_all` both read this same
+# endpoint and neither filters by `status` -- so "get_live_orders" is misleadingly named
+# from this SDK version's actual server behavior. This is the terminal set to EXCLUDE so a
+# long-dead order never reads as "currently working" again.
+_TERMINAL_ORDER_STATUSES = frozenset({"filled", "cancelled", "rejected", "expired", "removed"})
+
 
 # ── Async helper ───────────────────────────────────────────────────────────────
 
@@ -851,32 +862,226 @@ class TastytradeBroker:
                 exc=e, detail="exception_before_any_leg_attempted")
             return []
 
-    def cancel_all(self, instrument: str) -> bool:
-        """Cancel all open orders for instrument (EOD flatten step 1)."""
+    def place_otoco(
+        self,
+        instrument:  str,
+        side:        str,        # "BUY" or "SELL"
+        qty:         int,
+        entry_price: float,
+        tp1_price:   float,
+        stop_price:  float,
+    ) -> Optional[dict]:
+        """Places ONE entry-triggered OCO bracket (OTOCO) via the tastytrade SDK's NATIVE
+        complex-order path (`ComplexOrderType.OTOCO`, `NewComplexOrder`, `Account.
+        place_complex_order`) -- added 2026-09-03 for FUTURES-NATIVE-OCO-DRY-RUN to test
+        whether the broker actually links TP1/stop OCO for a FUTURES leg pair before
+        `place_bracket`'s routing is ever touched. **NOT called by place_bracket or any
+        production path tonight** -- this is a standalone construction+placement helper,
+        exercised by `setup/scripts/futures_otoco_dry_run.py`. No retry / duplicate-order
+        safety net (unlike `place_bracket`'s `_place_leg`) -- a production wiring would need
+        that same guard; this helper is scoped to the one-shot dry-run proof.
+
+        Shape: `trigger_order` = the entry LIMIT (DAY); `orders` = [TP1 LIMIT (GTC), stop
+        STOP (GTC)], both full `qty` (no runner leg -- this is a 2-leg OCO test, not a
+        drop-in bracket replacement). Same debit/credit price-sign convention as
+        `place_bracket` (`_signed`).
+
+        Watch-only: logs to WOULD_BE_FILE like `place_bracket`, returns None, no network
+        call. Live: returns {"complex_order_id", "trigger_order_id", "tp_order_id",
+        "stop_order_id"} on success (any id is None if the SDK response omits it -- never
+        guessed), or None on any placement failure (never raises; sets
+        `self.last_failure_detail` with the exact error, same fail-open contract as
+        `place_bracket`)."""
+        now_str = dt.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        record  = {
+            "time": now_str, "instrument": instrument, "side": side, "qty": qty,
+            "entry": entry_price, "tp1": tp1_price, "stop": stop_price,
+            "watch_only": self.watch_only, "broker": "tastytrade", "order_shape": "otoco",
+        }
+
         if self.watch_only:
-            log.info("WATCH-ONLY cancel_all %s", instrument)
+            log.info("WATCH-ONLY otoco: %s", record)
+            with open(WOULD_BE_FILE, "a") as f:
+                f.write(json.dumps(record) + "\n")
+            return None
+
+        if not self.is_connected():
+            log.error("place_otoco: not connected")
+            return None
+
+        try:
+            from tastytrade.order import (
+                NewOrder, NewComplexOrder, ComplexOrderType, OrderType, OrderTimeInForce,
+                OrderAction,
+            )
+
+            contract  = self._front_month(instrument)
+            open_act  = OrderAction.BUY  if side == "BUY" else OrderAction.SELL
+            close_act = OrderAction.SELL if side == "BUY" else OrderAction.BUY
+
+            def _signed(action, magnitude) -> Decimal:
+                mag = Decimal(str(magnitude))
+                return -mag if action == OrderAction.BUY else mag
+
+            entry_order = NewOrder(
+                time_in_force=OrderTimeInForce.DAY, order_type=OrderType.LIMIT,
+                legs=[contract.build_leg(qty, open_act)],
+                price=_signed(open_act, entry_price),
+            )
+            tp_order = NewOrder(
+                time_in_force=OrderTimeInForce.GTC, order_type=OrderType.LIMIT,
+                legs=[contract.build_leg(qty, close_act)],
+                price=_signed(close_act, tp1_price),
+            )
+            stop_order = NewOrder(
+                time_in_force=OrderTimeInForce.GTC, order_type=OrderType.STOP,
+                legs=[contract.build_leg(qty, close_act)],
+                stop_trigger=Decimal(str(stop_price)),
+            )
+            complex_order = NewComplexOrder(
+                trigger_order=entry_order, orders=[tp_order, stop_order],
+                type=ComplexOrderType.OTOCO,
+            )
+
+            async def _place():
+                return await self._account.place_complex_order(
+                    self._session, complex_order, dry_run=False)
+
+            resp = _run(_place())
+            co = resp.complex_order
+            if co is None or co.id in (None, -1):
+                detail = None
+                for attr in ("errors", "warnings"):
+                    val = getattr(resp, attr, None)
+                    if val:
+                        detail = f"{attr}={val!r}"
+                        break
+                self.last_failure_detail = {
+                    "call": "place_otoco", "outcome": "complex_order_rejected",
+                    "detail": detail or repr(resp)[:500],
+                }
+                log.warning("place_otoco rejected: %s", detail or repr(resp))
+                _log_broker_transport("place_otoco", "leg_rejected", detail=detail)
+                return None
+
+            tp_id = stop_id = None
+            for o in (co.orders or []):
+                ot = getattr(o.order_type, "value", str(o.order_type)).lower()
+                if ot == "stop":
+                    stop_id = o.id
+                elif tp_id is None:
+                    tp_id = o.id
+
+            trigger_id = co.trigger_order.id if co.trigger_order is not None else None
+            out = {
+                "complex_order_id": co.id, "trigger_order_id": trigger_id,
+                "tp_order_id": tp_id, "stop_order_id": stop_id,
+            }
+            log.info("OTOCO placed %s %s %d @ %.2f TP=%.2f ST=%.2f -> %s",
+                     side, instrument, qty, entry_price, tp1_price, stop_price, out)
+            self.last_failure_detail = None
+            return out
+
+        except Exception as e:
+            log.error("place_otoco failed: %s: %s", type(e).__name__, e)
+            self.last_failure_detail = {
+                "call": "place_otoco", "error_class": type(e).__name__,
+                "error_repr": repr(e)[:500],
+            }
+            _log_broker_transport(
+                "place_otoco", "transport_error" if _is_transport_error(e) else "leg_rejected",
+                exc=e, detail="exception_before_complex_order_confirmed")
+            return None
+
+    def cancel_complex_order(self, complex_order_id) -> bool:
+        """Cancel ONE complex (OTOCO/OCO) order by its parent id -- the native-OCO analogue
+        of `cancel_order` (2026-09-03, FUTURES-NATIVE-OCO-DRY-RUN). Deletes the PARENT;
+        per the SDK (`Account.delete_complex_order` -> DELETE .../complex-orders/{id}) this
+        is expected to clear every child leg in one call, unlike the sibling-cancel fallback
+        `place_bracket` needs. True on a clean cancel OR watch-only; False on any broker
+        error -- the caller must then poll `get_working_orders` to see whether children
+        actually cleared (the dry-run script's job, not this method's)."""
+        if self.watch_only:
+            log.info("WATCH-ONLY cancel_complex_order %s", complex_order_id)
             return True
         if not self.is_connected():
             return False
         try:
             async def _cancel():
+                await self._account.delete_complex_order(self._session, complex_order_id)
+
+            _run(_cancel())
+            log.info("cancel_complex_order %s: cancelled", complex_order_id)
+            return True
+        except Exception as e:
+            log.error("cancel_complex_order %s failed: %s: %s", complex_order_id,
+                      type(e).__name__, e)
+            if _is_transport_error(e):
+                _log_broker_transport("cancel_complex_order", "transport_error", exc=e)
+            return False
+
+    def cancel_all(self, instrument: str) -> dict:
+        """Cancel all WORKING (non-terminal) orders for instrument (EOD flatten step 1).
+
+        FIX 2026-09-03 (FUTURES-CANCEL-ALL-UNFILTERED-STATUS, filed off
+        FUTURES-NATIVE-OCO-DRY-RUN): `get_live_orders` returns every order touching the
+        account regardless of terminal status (`_TERMINAL_ORDER_STATUSES` comment above --
+        confirmed live, 81 Filled/Rejected/Cancelled rows on a flat account). The old version
+        iterated that unfiltered list with the delete_order call for EVERY order inside ONE
+        try/except wrapping the whole async loop -- a single already-terminal order raising
+        on re-cancel (a real broker 4xx) aborted the sweep for every order still queued after
+        it. `_cancel_and_confirm_clear` (futures_trader_core.py) then logs
+        `flatten_cancel_incomplete` and closes anyway -- the exposure is a STILL-WORKING
+        sibling order (the other bracket leg) that never even got a cancel attempt because an
+        earlier order's exception killed the loop first.
+
+        Now: skip terminal-status orders (nothing to cancel there), wrap each individual
+        cancel in its own try/except so one failure never blocks the rest, and return
+        `{attempted, cancelled, failed}` (failed = order ids whose delete_order call raised)
+        instead of a bare bool. Both existing callers (`_cancel_and_confirm_clear`,
+        `futures_mirror_shadow`'s maintenance flatten) only log or discard this return value
+        -- neither branches on truthiness -- so this is a richer signal, not a behavioural
+        break; a non-empty dict is still truthy everywhere a bool was checked before."""
+        if self.watch_only:
+            log.info("WATCH-ONLY cancel_all %s", instrument)
+            return {"attempted": 0, "cancelled": 0, "failed": []}
+        if not self.is_connected():
+            return {"attempted": 0, "cancelled": 0, "failed": []}
+        try:
+            async def _cancel():
                 orders = await self._account.get_live_orders(self._session)
-                n = 0
+                attempted: list = []
+                cancelled: list = []
+                failed: list = []
                 for order in orders:
+                    status = getattr(order.status, "value", str(order.status))
+                    if status.lower() in _TERMINAL_ORDER_STATUSES:
+                        continue
                     for leg in (order.legs or []):
                         # leg.symbol is full contract e.g. "MNQU6" — match by product code
                         if instrument in (leg.symbol or ""):
-                            await self._account.delete_order(self._session, order.id)
-                            n += 1
+                            attempted.append(order.id)
+                            try:
+                                await self._account.delete_order(self._session, order.id)
+                                cancelled.append(order.id)
+                            except Exception as e:
+                                log.error("cancel_all %s: order %s failed to cancel: %s: %s",
+                                          instrument, order.id, type(e).__name__, e)
+                                if _is_transport_error(e):
+                                    _log_broker_transport("cancel_all", "transport_error",
+                                                           exc=e)
+                                failed.append(order.id)
                             break
-                return n
+                return {"attempted": len(attempted), "cancelled": len(cancelled),
+                         "failed": failed}
 
-            n = _run(_cancel())
-            log.info("cancel_all %s: %d orders cancelled", instrument, n)
-            return True
+            result = _run(_cancel())
+            log.info("cancel_all %s: %d/%d cancelled, %d failed", instrument,
+                      result["cancelled"], result["attempted"], len(result["failed"]))
+            return result
         except Exception as e:
             log.error("cancel_all failed: %s", e)
-            return False
+            return {"attempted": 0, "cancelled": 0, "failed": [], "error": str(e)}
 
     def cancel_order(self, order_id) -> bool:
         """Cancel ONE order by id (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03).
@@ -921,7 +1126,15 @@ class TastytradeBroker:
         that confirmation. Never places, cancels, or replaces anything -- same read-only
         contract as `get_recent_fills`/`get_positions`. [] on watch-only, not-connected, or
         any read failure (fail-open on the READ; the caller's own bounded poll + loud
-        anomaly log is what handles an unconfirmable sweep, not this method pretending)."""
+        anomaly log is what handles an unconfirmable sweep, not this method pretending).
+
+        BUGFIX 2026-09-03 (FUTURES-NATIVE-OCO-DRY-RUN pre-check): `get_live_orders` returns
+        every order touching the account regardless of terminal status (see
+        `_TERMINAL_ORDER_STATUSES` comment above) -- this method now excludes
+        Filled/Cancelled/Rejected/Expired/Removed so a long-settled order from a prior
+        session never reads as "currently working". Confirmed live 2026-09-03T04:46 ET: the
+        unfiltered call returned 81 rows (mostly Filled/Rejected/Cancelled from 08-27..09-02)
+        for an account that was actually flat with zero resting orders."""
         if self.watch_only or not self._connected or not self._account:
             return []
         try:
@@ -931,12 +1144,14 @@ class TastytradeBroker:
             orders = _with_retry(lambda: _run(_get()))
             out: list[dict] = []
             for o in orders:
+                status = getattr(o.status, "value", str(o.status))
+                if status.lower() in _TERMINAL_ORDER_STATUSES:
+                    continue
                 for leg in (o.legs or []):
                     leg_symbol = getattr(leg, "symbol", "") or ""
                     if instrument in leg_symbol:
                         out.append({
-                            "order_id": o.id, "symbol": leg_symbol,
-                            "status": getattr(o.status, "value", str(o.status)),
+                            "order_id": o.id, "symbol": leg_symbol, "status": status,
                         })
                         break
             return out
