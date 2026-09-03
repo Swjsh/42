@@ -33,6 +33,8 @@
 
   **Not re-run this fire (cost/scope, stated so it isn't silently assumed): the real 12,000+ test full suite.** The 04:45 ET FULL-SUITE RED line above is left as-is -- it is `guard_runner_full.py`'s own bookkeeping and the fix ships the mechanism that self-clears it (or narrows it to a genuine regression) the NEXT time that script runs, which is a scheduled, unattended fire, not something this conductor tick should trigger manually mid-fix to "prove" a claim it can make more cheaply by other means. Read the `guard-watch-full.json` `at` timestamp before trusting the top STATUS line stale.
 
+  📊 **`conductor_outcome.py metric` trend reads `regressing`** (20-fire window, net_improvement 46, cost/drained $0.92, 0 regressions) -- driven by `function_score_avg` against 09-02's low `distinct_setups_traded:1`, not by this fire (0 regressions, 1 item drained, 8 tests added). Noted per doctrine rather than left silent; this fire itself was loop-closing (disposed a STATUS-flagged RED) as the trend note prescribes for the next pick.
+
   **Rail (pure CI/tooling fix -- zero trading-path file touched per the frozen-file list, no order placed):** guard = the 8 RED-proofed tests (a); revert = `git revert 38906692` (2 files, fully additive: a retry branch in `main()` + 3 new functions + 1 new test file, no existing function signature changed) (b); this entry is the REVOKE report (c).
 
 - [2026-09-03T03:59 ET] overnight loop cycle 4 -- 22 more commits (cde7bc1b..f668e37c); 08-31 zero-enter day explained; futures FLATTEN cascade fixed; scheduler self-heal class closed; walker verdict: sign-only -- REVOKE surface
