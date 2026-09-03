@@ -48,6 +48,35 @@ REPO = Path(__file__).resolve().parents[2]
 # console on J's desktop without the flag (2026-08-09 popup sweep).
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
+# SHADOW-BOARD-NONTERMINAL (2026-09-03): the frozen-prereg status vocabulary (pending vs
+# terminal) is defined ONCE in prereg_hygiene.py -- enumerated from all 128 real prereg
+# files on disk. build_preregs_board() imports the same regex objects rather than copying
+# them so the two surfaces can never drift out of sync with each other.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from prereg_hygiene import (  # noqa: E402
+        PENDING_STATUS_RE,
+        TERMINAL_STATUS_RE,
+        _age_days as _prereg_age_days,
+        _status_field as _prereg_status_field,
+    )
+except Exception:  # noqa: BLE001 -- a reporting script must never fail to run (C7)
+    PENDING_STATUS_RE = re.compile(r"$^")  # matches nothing
+    TERMINAL_STATUS_RE = re.compile(r"$^")
+
+    def _prereg_status_field(data: dict) -> str | None:  # type: ignore
+        v = data.get("status")
+        return v if isinstance(v, str) else None
+
+    def _prereg_age_days(path: Path, data: dict) -> tuple[float, str]:  # type: ignore
+        try:
+            import datetime as _dt
+            mtime = _dt.datetime.fromtimestamp(path.stat().st_mtime, tz=_dt.timezone.utc)
+            age = (_dt.datetime.now(_dt.timezone.utc) - mtime).total_seconds() / 86400.0
+            return age, "mtime_fallback"
+        except OSError:
+            return 0.0, "unknown"
+
 FLEET_DIR = REPO / "automation" / "state" / "fleet"
 STATE = REPO / "automation" / "state"
 JOURNAL = REPO / "journal"
@@ -734,15 +763,7 @@ def build_preregs_board(stamp: str) -> str:
     # J had to ask whether anything knew about them). Curated entries below keep their rich
     # doc links; anything else on disk is listed automatically so the surface can never fall
     # behind the work again.
-    curated_files = set()
-    L.append("## Frozen preregs — auto-discovered")
-    L.append("")
-    seen_ids: set[str] = set()
-    rows: list[tuple[str, str]] = []
-    # Sort by RECENCY, not filename. Reverse-alphabetical silently dropped preregs frozen the
-    # same evening whose names start with an early letter (catastrophe-cap, ladder-x-premium
-    # fell outside the cap while zone-* survived) -- a board about what is accruing NOW must
-    # rank by when, not by spelling.
+    #
     # 2026-08-25: the glob was "prereg-*.json" -- PREFIX-anchored -- so it only ever saw the
     # 71 files whose names START with "prereg-". The other 48 frozen preregs on disk spell it
     # in the middle or use the long form (entry-structure-forward-prereg-*.json,
@@ -750,6 +771,24 @@ def build_preregs_board(stamp: str) -> str:
     # board whose entire purpose is that a prereg can never go invisible. Same lesson as the
     # hardcoded-list bug above, one layer down: the discovery mechanism itself was narrower
     # than the thing it discovers. Matching "*prereg*" covers every spelling in use.
+    #
+    # 2026-09-03 (SHADOW-BOARD-NONTERMINAL): a SECOND, subtler version of the SAME bug --
+    # sorting by mtime and printing only the first 25 hid
+    # entry-structure-forward-prereg-2026-08-06.json (FROZEN_PREREG_FORWARD, adjudicated
+    # 2026-08-25) once that night's status reconciliations bumped enough OTHER files' mtimes
+    # to push it past the cap. A recency cap on a board whose whole job is "every frozen
+    # prereg at one glance" hides exactly what it exists to show -- same lesson, one layer
+    # up. Fix: classify by STATUS instead of capping by recency. TERMINAL_STATUS_RE /
+    # PENDING_STATUS_RE come from prereg_hygiene.py -- the SAME vocabulary that monitor
+    # already enumerated from all 128 real prereg files on disk, imported here rather than
+    # copied so the two surfaces can never drift apart again. Only a prereg whose status
+    # text carries an EXPLICIT terminal token (RUN_COMPLETE*, KILLED, SUPERSEDED, RETIRED,
+    # etc.) collapses into the terminal summary; everything else -- including files with no
+    # recognizable status text at all -- stays in the always-visible non-terminal list. An
+    # unrecognized status is exactly the case this board must never silently swallow.
+    seen_ids: set[str] = set()
+    nonterminal: list[tuple[float, str, str, str]] = []  # (age_days, pid, status_token, line)
+    terminal: list[tuple[float, str]] = []                # (age_days, pid)
     for p in sorted(REPO.glob("analysis/recommendations/*prereg*.json"),
                     key=lambda q: q.stat().st_mtime, reverse=True):
         try:
@@ -760,20 +799,60 @@ def build_preregs_board(stamp: str) -> str:
         if pid in seen_ids:
             continue
         seen_ids.add(pid)
+        status = _prereg_status_field(d)
+        age_days, _age_src = _prereg_age_days(p, d)
+        if status and TERMINAL_STATUS_RE.search(status):
+            terminal.append((age_days, pid))
+            continue
         ships = d.get("ship_rule")
         state = ""
         if isinstance(ships, dict):
             if ships.get("ships_tonight") is False or ships.get("ships_from_this_document") is False:
                 state = " · does **not** ship on its own evidence"
-        status = d.get("status")
         if isinstance(status, str) and status.upper().startswith("FROZEN HYPOTHESIS"):
             state = " · **blocked**, deliberately unrun"
-        rows.append((pid, f"- `{pid}` — [[{p.relative_to(REPO).as_posix()[:-5]}]]{state}"))
-    for _pid, line in rows[:25]:
-        L.append(line)
-    if len(rows) > 25:
-        L.append(f"- _+{len(rows) - 25} older preregs on disk (see "
-                 f"`analysis/recommendations/*prereg*.json`)_")
+        token = (status or "no status field").strip()
+        if len(token) > 70:
+            token = token[:67] + "..."
+        line = f"- `{pid}` — [[{p.relative_to(REPO).as_posix()[:-5]}]] · `{token}`{state}"
+        nonterminal.append((age_days, pid, token, line))
+
+    # Sort by RECENCY (frozen_at, falling back to mtime -- see prereg_hygiene._age_days),
+    # newest first -- a board about what is accruing NOW must rank by when, not by spelling.
+    nonterminal.sort(key=lambda r: r[0])
+    terminal.sort(key=lambda r: r[0])
+
+    L.append(f"## Frozen preregs — auto-discovered ({len(nonterminal)} non-terminal)")
+    L.append("")
+    if len(nonterminal) > 60:
+        L.append(f"_{len(nonterminal)} non-terminal preregs — grouped by status below; "
+                 "every one is listed, nothing truncated._")
+        L.append("")
+        groups: dict[str, list[tuple[float, str, str]]] = {}
+        for age_days, pid, token, line in nonterminal:
+            groups.setdefault(token, []).append((age_days, pid, line))
+        for token in sorted(groups, key=lambda k: (-len(groups[k]), k)):
+            rows = sorted(groups[token], key=lambda r: r[0])
+            L.append(f"### `{token}` ({len(rows)})")
+            L.append("")
+            for _age, _pid, line in rows:
+                L.append(line)
+            L.append("")
+    else:
+        for _age, _pid, _token, line in nonterminal:
+            L.append(line)
+        L.append("")
+
+    L.append(f"## Frozen preregs — terminal ({len(terminal)}, verdict/lifecycle already closed)")
+    L.append("")
+    if terminal:
+        recent5 = ", ".join(f"`{pid}`" for _age, pid in terminal[:5])
+        tail = f" _(+{len(terminal) - 5} more)_" if len(terminal) > 5 else ""
+        L.append(f"- {len(terminal)} terminal prereg(s) — most recent: {recent5}{tail} "
+                 "(status carries RUN_COMPLETE*/KILLED/SUPERSEDED/RETIRED/etc. -- see "
+                 "`analysis/recommendations/*prereg*.json`)")
+    else:
+        L.append("- none discovered.")
     L.append("")
     L.append("## Frozen preregs — curated (richer write-ups)")
     L.append("")
