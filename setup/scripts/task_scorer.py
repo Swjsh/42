@@ -113,11 +113,49 @@ ITEM_RE = re.compile(
 # Leading priority token inside the parens: HIGH / MED / LOW (case-insensitive).
 PRIORITY_RE = re.compile(r"\b(HIGH|MED|LOW)\b", re.IGNORECASE)
 
-# Statuses that mean "not pickable" even on an unchecked line.
-EXCLUDED_STATUSES = {"done", "blocked", "awaiting-j-ratification"}
-# Statuses we actively allow (anything else unchecked is treated conservatively
-# as not-ready so we never pick something in an unexpected state).
-READY_STATUSES = {"pending", "in_progress"}
+# Statuses that mean the item's OWN scope of work is TERMINAL — done, closed
+# (any CLOSED* variant), killed, parked, superseded, archived. Matched as a
+# PREFIX against the lowercased status so a compound status that merely
+# CONTAINS one of these words mid-string stays non-terminal when its own
+# trailing text says work remains, e.g. "slice1-done-...-remainder-open" or
+# "blocker-B-closed-blocker-A-open" (both start with something else, so they
+# correctly do NOT match here — see TASK-SCORER-STATUS-VOCAB-GAP, fixed
+# 2026-09-03: the queue actually uses 20+ status tokens — pending/in_progress/
+# filed/partial/diagnosed/todo/proposed/research-done/wiring-done-.../etc —
+# and the old fixed READY_STATUSES allowlist silently treated every one of
+# them except "pending"/"in_progress" as not-ready, hiding genuinely
+# actionable items from --top for weeks at a time).
+# No \b after the marker: real compound statuses glue on with "_"/"-" (e.g.
+# "CLOSED_PARTIAL"), and "_"/"-" are NOT word-boundary transitions from a
+# trailing letter in regex terms — a \b here would silently fail to match
+# exactly the compound terminal statuses this fix exists to catch.
+TERMINAL_STATUS_RE = re.compile(r"^(?:done|closed|killed|parked|superseded|archived)")
+
+# Statuses FULLY excluded — never surfaced even under --all (legacy
+# EXCLUDED_STATUSES behavior, preserved 1:1: exact "done" and the Rule-9/
+# doctrine human-reply gates are treated as provably-uninteresting-to-list,
+# not merely not-ready). A terminal-but-not-exact-"done" status (e.g. any
+# CLOSED* variant, "killed-...", "archived-...") is NOT in this set — it
+# stays VISIBLE under --all with ready=False, matching the pre-existing,
+# test-pinned behavior for status:CLOSED-LANE-B-NO-CELL-SHIPS.
+FULLY_EXCLUDED_STATUSES = {
+    "done",
+    "blocked",
+    "awaiting-j-ratification",
+    "awaiting-j-action",
+    "awaiting-j",
+}
+
+# Non-terminal status that still means "not conductor-pickable" but stays
+# VISIBLE under --all (ready=False) — the HARVESTED-FROM-GYM auto-harvest
+# lane's OWN self-exclusion marker (``crypto/benchmarks/gym_harvester.py``).
+# Deliberate, not part of this vocab gap: dozens of raw gym-detector rows
+# land here daily and are NOT reviewed/curated work items until a human (or a
+# future harvest-triage fire) promotes one. Treating "queued" as ready would
+# flood --top with unreviewed harvest noise — pinned by
+# ``test_only_active_section_parsed`` (HARVEST-X must stay ``ready:False`` on
+# ``status:queued`` while remaining present under --all).
+NOT_READY_VISIBLE_STATUSES = {"queued"}
 
 # Priority → base value.
 PRIORITY_BASE = {"HIGH": 3.0, "MED": 2.0, "LOW": 1.0}
@@ -526,7 +564,7 @@ def _active_lines(text: str) -> list[str]:
     by ``EXCLUDED_SECTION_RE``); this keeps the 2026-07-23 EOF-scan fix
     intact for every heading after '## Active backlog' too. 'HARVESTED-FROM-
     GYM' is deliberately NOT excluded: its genuine auto-queued rows carry
-    ``status:queued``, which already self-excludes via READY_STATUSES, so
+    ``status:queued``, which already self-excludes via NOT_READY_VISIBLE_STATUSES, so
     including the section only surfaces the real (non-harvest) items that
     had drifted into it. '### Tier N' sub-headers never toggle exclusion
     (they are content within whatever top-level section they sit under).
@@ -624,10 +662,16 @@ def parse_queue(text: str) -> list[Task]:
 
             # Exclusions: bad status, or a still-open dependency = not ready.
             has_deps = _is_blocked_by_deps(depends, open_ids)
-            status_ok = status in READY_STATUSES or status == ""
-            if status in EXCLUDED_STATUSES:
+            if status in FULLY_EXCLUDED_STATUSES:
                 # Excluded entirely — never surfaced even with --all.
                 continue
+
+            # READY = anything not terminal (done/closed*/killed/parked/
+            # superseded/archived) and not the harvest-queue carve-out above.
+            # Status "" (no field present) counts as ready, same as before
+            # this fix (test_no_status_item_is_ready).
+            is_terminal = bool(status) and bool(TERMINAL_STATUS_RE.match(status))
+            status_ok = not is_terminal and status not in NOT_READY_VISIBLE_STATUSES
 
             ready = bool(status_ok) and not has_deps
 

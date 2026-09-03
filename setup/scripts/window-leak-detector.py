@@ -124,7 +124,7 @@ ShowWindow.argtypes = [wt.HWND, ctypes.c_int]
 ShowWindow.restype = wt.BOOL
 SW_HIDE = 0
 
-# 2026-07-14 AUTO-MITIGATION (J: "stop the fkin popus on my screen"): root-caused down to
+# 2026-07-14 AUTO-MITIGATION (J: "stop the fkin popus on my screen"): originally attributed to
 # `import pandas`/numpy triggering a WindowsTerminal -Embedding console-host window on
 # headless (pythonw.exe) launches of backtest-venv scripts -- confirmed this is NOT an
 # stdio-write trigger (survived Python-level sys.stdout/stderr redirect, OS-level os.dup2
@@ -135,6 +135,25 @@ SW_HIDE = 0
 # (WindowsTerminal.exe/OpenConsole.exe/conhost.exe): hiding it does not touch, kill, or
 # interrupt the underlying pythonw.exe process actually doing the work -- ShowWindow(SW_HIDE)
 # only affects the window's on-screen visibility, so this is safe even mid-leak.
+#
+# ROOT CAUSE CORRECTED 2026-09-03 (PANDAS-CONSOLE-LEAK-ROOT-CAUSE bisection, queue.md): the
+# "pandas/numpy" attribution above was a CONFOUND, not the mechanism. Bisected live under
+# `backtest\.venv\Scripts\pythonw.exe` with CREATE_NO_WINDOW absent (Start-Process): a
+# zero-import control script reproduces the IDENTICAL leak signature as `import pandas` --
+# `backtest\.venv\Scripts\pythonw.exe` (confirmed byte-identical to the legitimate CPython
+# `venvwlauncher.exe` redirector, see test_guard_venv_launcher_integrity_2026_08_31.py) spawns
+# the BASE install's CONSOLE-subsystem `python.exe` (not `pythonw.exe`) as its child on EVERY
+# launch -- verified via live WMI process-tree inspection (Win32_Process ParentProcessId),
+# `python.exe` child's `ExecutablePath` resolves to
+# `...\Programs\Python\Python313\python.exe`, which then spawns a `conhost.exe` grandchild
+# immediately. `pyvenv.cfg` stores only ONE `executable=...\python.exe` key (no GUI-variant
+# path), so the redirector's target resolution reaches the console interpreter regardless of
+# whether it was invoked via the `python.exe` or `pythonw.exe` Scripts-dir stub. Running the
+# BASE INSTALL's OWN `pythonw.exe` directly (bypassing the venv redirector entirely) never
+# leaks, confirming the defect is in this venv's launcher indirection, not in pandas/numpy nor
+# in the base CPython GUI interpreter. Not a one-liner fix (touches the venv launcher binary /
+# scheduler launch chain, both out of scope for a LOW hygiene pass) -- reported, not patched.
+# See backtest/tests/test_pandas_console_leak_root_cause_2026_09_03.py for the reproduction.
 CONSOLE_HOST_IMAGES = {"WindowsTerminal.exe", "OpenConsole.exe", "conhost.exe"}
 
 

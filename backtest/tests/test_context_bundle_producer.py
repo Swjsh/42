@@ -361,6 +361,36 @@ def test_today_context_null_with_reason_when_no_rth_bars_yet():
     assert ctx["rvol_reason"] == "no_intraday_data"
 
 
+def test_position_in_prior_range_surfaces_stale_prior_session_fallback_explicitly():
+    """GAP-REASON-SESSION-OPEN-FALLBACK (queue.md, closed 2026-09-03): confirmed live
+    2026-07-20 ~09:34 ET -- a decision row carried spy=743.28 == prior-session-close
+    with gap_reason='no_rth_bars_for_today_yet', but position_in_prior_range was
+    SILENTLY computed against that same stale carryover price (reason=None). This test
+    reproduces the exact shape: `five_min_df`'s newest row is still YESTERDAY's last
+    bar (fetch hasn't landed today's first bar yet at 09:34 ET) -- the fallback must
+    now be surfaced via position_reason, never a silent default."""
+    prior_day = {"prior_close": 700.0, "prior_high": 705.0, "prior_low": 695.0}
+    # Only yesterday's bars are present -- today's fetch hasn't landed yet.
+    yesterday_only = pd.DataFrame(_rth_day_bars("2026-07-14", base=700.0))
+    now_et = datetime(2026, 7, 15, 9, 34)
+    ctx = cbp.compute_today_context(yesterday_only, prior_day, now_et=now_et)
+    assert ctx["gap_reason"] == "no_rth_bars_for_today_yet"
+    assert ctx["position_in_prior_range"] is None, (
+        "must NOT silently compute a percentile against yesterday's stale close")
+    assert ctx["position_reason"] == "latest_price_is_stale_prior_session_no_today_bars_yet"
+
+
+def test_position_in_prior_range_still_computed_once_todays_bars_land():
+    """Non-vacuous counterpart: once at least one TODAY bar is present, position must
+    compute normally with reason=None (the fallback guard must not over-fire)."""
+    prior_day = {"prior_close": 700.0, "prior_high": 705.0, "prior_low": 695.0}
+    today = pd.DataFrame(_rth_day_bars("2026-07-15", base=702.0))
+    now_et = datetime(2026, 7, 15, 9, 35)
+    ctx = cbp.compute_today_context(today, prior_day, now_et=now_et)
+    assert ctx["position_in_prior_range"] is not None
+    assert ctx["position_reason"] is None
+
+
 # ----- compute_rvol_session_so_far -------------------------------------------
 def test_rvol_session_so_far_matches_hand_computed_ratio():
     """3 historical days at a KNOWN cumulative volume through 09:40 ET (2 bars/day: 09:30+09:35,

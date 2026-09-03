@@ -503,9 +503,28 @@ def compute_today_context(five_min_df: "pd.DataFrame | None", prior_day: dict, *
         else:
             gap_pct, gap_reason = None, "no_prior_close_available"
 
+    # GAP-REASON-SESSION-OPEN-FALLBACK (queue.md, filed 2026-07-20, closed 2026-09-03):
+    # at the very session open (or on any fetch-lag tick before today's first bar has
+    # landed), `five_min_df`'s newest row can still be YESTERDAY's last bar -- so
+    # `_latest_close` silently returns yesterday's close as "latest_price" with no
+    # reason recorded, unlike `gap_reason`/`rvol_reason` above which both already flag
+    # this exact same "no today bars yet" condition explicitly. Confirmed live
+    # 2026-07-20 ~09:34 ET: a decision row carried spy=743.28 == prior-session-close
+    # under gap_reason="no_rth_bars_for_today_yet", while position_in_prior_range was
+    # silently computed against that same stale carryover price with reason=None.
+    # Surface the fallback explicitly instead of a silent default: when the newest row
+    # in the whole (not just today-filtered) frame isn't from today, latest_price is a
+    # stale prior-session carryover, not a real "latest" read.
+    latest_is_stale_prior_session = False
+    if len(d):
+        newest_et_date = d.sort_values("timestamp").iloc[-1]["et_date"]
+        latest_is_stale_prior_session = newest_et_date != today_str
+
     latest_price = _latest_close(five_min_df)
     prior_high, prior_low = prior_day.get("prior_high"), prior_day.get("prior_low")
-    if latest_price is not None and prior_high is not None and prior_low is not None:
+    if latest_price is not None and latest_is_stale_prior_session:
+        position, position_reason = None, "latest_price_is_stale_prior_session_no_today_bars_yet"
+    elif latest_price is not None and prior_high is not None and prior_low is not None:
         rng = prior_high - prior_low
         if rng > 0:
             position, position_reason = round((latest_price - prior_low) / rng, 4), None
