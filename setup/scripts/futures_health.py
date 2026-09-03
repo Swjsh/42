@@ -22,7 +22,7 @@ automation/state/futures/health.json every fire. $0, pure-Python (+ one PowerShe
 trip for task liveness), fail-open throughout.
 
 FOUR-VALUE SUB-VERDICTS (deliberately different from engine_health.py's 3-value GREEN/
-YELLOW/RED-only convention): each of the 5 named checks below reports GREEN / YELLOW / RED
+YELLOW/RED-only convention): each of the 6 named checks below reports GREEN / YELLOW / RED
 / UNKNOWN. UNKNOWN is reserved strictly for "a required input is missing/unreadable/
 unparseable -- we cannot tell" (fail-open, never a crash). YELLOW is reserved for "we have
 real evidence of a non-critical degradation". This distinction matters here specifically
@@ -422,7 +422,110 @@ def check_data_freshness(freshness_path: Optional[Path] = None) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# e. task_liveness -- Disabled-by-quiet-mode must never read as an outage
+# e. broker_exit_pairing -- FUTURES-BROKER-LANE-NEVER-LOGS-EXITS (filed 2026-09-03)
+# ---------------------------------------------------------------------------
+OPEN_ENTRY_STALE_HOURS = 20.0  # a tracked entry surviving past its own session's close
+
+
+def check_broker_exit_pairing(now_et: datetime, decisions_path: Optional[Path] = None,
+                              trades_csv_path: Optional[Path] = None,
+                              open_entry_path: Optional[Path] = None) -> dict:
+    """RED when a real broker ENTER never got a matching journaled EXIT.
+
+    Named the count, not just a boolean -- an ENTER whose order id never appears as an
+    `entry:` id in any BROKER-fills trades.csv row's `notes`, AND is not the currently-
+    tracked `open-entry.json` (a position that is still genuinely open is not a defect),
+    is orphaned: either the writer failed to journal it (the exact bug this check exists
+    to catch a regression of) or the position is stuck open past its own session.
+    """
+    name = "broker_exit_pairing"
+    dpath = decisions_path if decisions_path is not None else (
+        STATE / "futures" / "trader-broker" / "decisions.jsonl")
+    tpath = trades_csv_path if trades_csv_path is not None else (
+        REPO / "journal" / "futures" / "trades.csv")
+    opath = open_entry_path if open_entry_path is not None else (
+        STATE / "futures" / "trader-broker" / "open-entry.json")
+
+    if not dpath.exists():
+        return _chk(name, "UNKNOWN",
+                    "trader-broker/decisions.jsonl missing -- broker lane has not produced "
+                    "any decision rows yet")
+
+    enters = []
+    for row in _tail_jsonl(dpath, DECISIONS_TAIL_BYTES):
+        if row.get("action") == "ENTER" and row.get("order_ids"):
+            enters.append(row)
+    if not enters:
+        return _chk(name, "GREEN", "no real ENTER rows in the read window -- nothing to pair")
+
+    # Every order id that trades.csv's BROKER rows claim as an "entry:" id, from the
+    # free-text `notes` column this writer stamps -- see futures_broker_reconciler.py.
+    journaled_entry_ids: set = set()
+    if tpath.exists():
+        try:
+            import csv as _csv
+
+            with tpath.open(newline="", encoding="utf-8") as fh:
+                for r in _csv.DictReader(fh):
+                    if r.get("fills") != "BROKER":
+                        continue
+                    notes = r.get("notes", "")
+                    m = notes.split("entry:", 1)
+                    if len(m) < 2:
+                        continue
+                    ids_str = m[1].split("],", 1)[0].lstrip("[")
+                    for tok in ids_str.split(","):
+                        tok = tok.strip()
+                        if tok.isdigit():
+                            journaled_entry_ids.add(int(tok))
+        except (OSError, ValueError):
+            return _chk(name, "UNKNOWN", "trades.csv present but unreadable")
+
+    open_entry = None
+    if opath.exists():
+        try:
+            open_entry = json.loads(opath.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            open_entry = None
+    tracked_ids = set(open_entry.get("order_ids") or []) if open_entry else set()
+
+    orphaned = []
+    for row in enters:
+        ids = set(row.get("order_ids") or [])
+        if ids & journaled_entry_ids:
+            continue
+        if ids & tracked_ids:
+            continue  # genuinely still open and tracked -- not a defect
+        orphaned.append(row)
+
+    detail_core = (f"{len(enters)} real ENTER row(s) in window, "
+                   f"{len(journaled_entry_ids)} journaled BROKER entry id(s), "
+                   f"open-entry.json {'present' if open_entry else 'absent'}")
+
+    if orphaned:
+        rows_desc = "; ".join(f"{r['ts_et']} order_ids={r['order_ids']}" for r in orphaned)
+        return _chk(name, "RED",
+                    f"{len(orphaned)} ENTER(s) with NO matching journaled EXIT and not the "
+                    f"currently-tracked open position -- {rows_desc} ({detail_core})")
+
+    if open_entry:
+        try:
+            entry_time = datetime.fromisoformat(open_entry.get("entry_time_et", ""))
+            age_hr = (now_et.replace(tzinfo=None) - entry_time).total_seconds() / 3600.0
+        except (TypeError, ValueError):
+            age_hr = None
+        if age_hr is not None and age_hr > OPEN_ENTRY_STALE_HOURS:
+            return _chk(name, "RED",
+                        f"open-entry.json has tracked entry {open_entry.get('entry_time_et')} "
+                        f"unclosed for {age_hr:.1f}h (> {OPEN_ENTRY_STALE_HOURS:.0f}h) -- "
+                        f"stuck past its own session, the reconciler never closed it out "
+                        f"({detail_core})")
+
+    return _chk(name, "GREEN", f"every ENTER paired to a journaled exit -- {detail_core}")
+
+
+# ---------------------------------------------------------------------------
+# f. task_liveness -- Disabled-by-quiet-mode must never read as an outage
 # ---------------------------------------------------------------------------
 def _default_query_tasks(names: "tuple") -> "list | None":
     """Real Get-ScheduledTask + Get-ScheduledTaskInfo query, one PowerShell round trip for
@@ -545,6 +648,7 @@ def build_report(now_et: Optional[datetime] = None) -> dict:
         check_fills_recency(et),
         check_broker_transport(et),
         check_data_freshness(),
+        check_broker_exit_pairing(et),
         check_task_liveness(),
     ]
     worst = max((_SEVERITY.get(c["status"], 1) for c in checks), default=0)

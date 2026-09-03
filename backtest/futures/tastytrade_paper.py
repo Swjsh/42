@@ -483,6 +483,69 @@ class TastytradeBroker:
                 _log_broker_transport("get_account_equity", "transport_error", exc=e)
             return None
 
+    def get_recent_fills(self, symbol: str, since_et: Optional[dt.datetime] = None,
+                         days_back: int = 3) -> list[dict]:
+        """READ-ONLY: filled order legs touching `symbol` since `since_et` (or `days_back`).
+
+        Added 2026-09-03 (FUTURES-BROKER-LANE-NEVER-LOGS-EXITS) so the journal writer can
+        reconcile what the broker actually did instead of only reacting to fills the engine
+        itself was watching for. Never places, cancels, or replaces an order -- `get_order_
+        history` is the SDK's own read endpoint (GET /accounts/{id}/orders). Every element of
+        every FILLED leg's `fills` list is returned flattened, one dict per fill:
+            {order_id, order_type, action ('BUY'/'SELL'), qty, fill_price, filled_at (aware
+             UTC datetime), fill_id}
+        `fill_price` is None for a MARKET order leg whose own `price` field the SDK leaves
+        unset (fill_id/filled_at are always populated for an actual fill) -- callers must not
+        assume a market close carries a price here.
+        """
+        if self.watch_only or not self._connected or not self._account:
+            return []
+        try:
+            start_date = (since_et or (
+                dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days_back))).date()
+
+            async def _get():
+                return await self._account.get_order_history(
+                    self._session, start_date=start_date, sort="Asc")
+
+            orders = _with_retry(lambda: _run(_get()))
+            out: list[dict] = []
+            for o in orders:
+                status_val = getattr(o.status, "value", str(o.status))
+                if status_val.lower() != "filled":
+                    continue
+                for leg in (o.legs or []):
+                    leg_symbol = getattr(leg, "symbol", "") or ""
+                    if symbol not in leg_symbol:
+                        continue
+                    action_val = getattr(leg.action, "value", str(leg.action)).upper()
+                    for f in (getattr(leg, "fills", None) or []):
+                        ts = getattr(f, "filled_at", None)
+                        if since_et is not None and ts is not None:
+                            # since_et may be naive (ET) or aware; compare on aware UTC only.
+                            cmp_since = since_et if since_et.tzinfo else since_et.replace(
+                                tzinfo=dt.timezone.utc)
+                            if ts < cmp_since:
+                                continue
+                        price = getattr(f, "fill_price", None)
+                        out.append({
+                            "order_id": o.id,
+                            "order_type": status_val,
+                            "symbol": leg_symbol,
+                            "action": action_val,
+                            "qty": float(getattr(f, "quantity", 0) or 0),
+                            "fill_price": float(price) if price is not None else None,
+                            "filled_at": ts.isoformat() if ts is not None else None,
+                            "fill_id": getattr(f, "fill_id", None),
+                        })
+            out.sort(key=lambda r: r["filled_at"] or "")
+            return out
+        except Exception as e:  # noqa: BLE001 -- a reconciliation read must never break the tick
+            log.error("get_recent_fills failed: %s: %s", type(e).__name__, e)
+            if _is_transport_error(e):
+                _log_broker_transport("get_recent_fills", "transport_error", exc=e)
+            return []
+
     # ── Orders ──────────────────────────────────────────────────────────────────
 
     def _front_month(self, instrument: str):

@@ -417,6 +417,23 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
             broker.close_position(inst.symbol, abs(int(float(pos["qty"]))), side, last_price)
             record.update(action="FLATTEN", reason=flat_call.reason)
             _write_heartbeat(now_et, "FLATTEN", {"rail": flat_call.rail}, paths)
+            # FUTURES-BROKER-LANE-NEVER-LOGS-EXITS: this close_position() call used to be
+            # the one exit this lane's own code triggers and STILL never journaled -- the
+            # fill is usually already visible in the broker's own order history by the time
+            # this reconciliation read runs; if not, the very next tick's step 4b call below
+            # picks it up. Never blocks/delays the FLATTEN action above; read-only, best effort.
+            try:
+                from futures.futures_broker_reconciler import (  # noqa: PLC0415
+                    reconcile_broker_exits,
+                )
+
+                exits = reconcile_broker_exits(broker, inst, paths, now_et,
+                                               point_value=inst.point_value,
+                                               backend_name=backend_name(broker))
+                if exits:
+                    record["broker_exits_journaled"] = len(exits)
+            except Exception:  # noqa: BLE001 -- reconciliation never breaks the tick
+                pass
             _append_ledger(record, paths)
             _atomic_write_json(paths["last_tick"], record)
             return record
@@ -432,6 +449,25 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
     reset = _reconcile_broker_reset(broker, inst.symbol, paths, now_et)
     if reset:
         record["broker_reset"] = reset
+
+    # 4c. Broker-side exit reconciliation (FUTURES-BROKER-LANE-NEVER-LOGS-EXITS, 2026-09-03).
+    #     TastytradeBroker has no `process_quote` (step 3 above never runs for it), so a
+    #     TP1/stop fill executed at the broker between ticks is otherwise invisible to this
+    #     engine. Reads the broker's own fill history and journals anything closing-side for
+    #     the entry this lane is tracking that has not been journaled yet. Read-only against
+    #     the broker; writes only to the journal/state files this lane owns. Runs every tick
+    #     (not just on a detected flat transition) so a same-tick TP1 fill that leaves the
+    #     position open (partial) is still caught, not just a full close.
+    try:
+        from futures.futures_broker_reconciler import reconcile_broker_exits  # noqa: PLC0415
+
+        exits = reconcile_broker_exits(broker, inst, paths, now_et,
+                                       point_value=inst.point_value,
+                                       backend_name=backend_name(broker))
+        if exits:
+            record["broker_exits_journaled"] = len(exits)
+    except Exception:  # noqa: BLE001 -- reconciliation never breaks the tick
+        pass
 
     # 5. No stacking. One position per instrument (Rule 4 analogue: adding needs a new
     #    confirmed trigger and a new leg, which this lane does not yet implement).
@@ -519,6 +555,21 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
     _write_heartbeat(now_et, record["action"], {"setup": sig["setup"], "qty": chosen["qty"]}, paths)
     _append_ledger(record, paths)
     _atomic_write_json(paths["last_tick"], record)
+
+    if ids:
+        # FUTURES-BROKER-LANE-NEVER-LOGS-EXITS: the broker has no memory of what a real
+        # position's entry context was (no get_positions_snapshot on TastytradeBroker), so
+        # this lane must remember it itself for the reconciler to attribute closing fills
+        # back to. fillsim's own position object already carries this -- only wire it for a
+        # non-simulated broker so the fillsim book's existing exit path is untouched.
+        if not is_simulated(broker):
+            try:
+                from futures.futures_broker_reconciler import record_open_entry  # noqa: PLC0415
+
+                record_open_entry(paths, symbol=inst.symbol, entry=record["entry"],
+                                  order_ids=ids, now_et=now_et)
+            except Exception:  # noqa: BLE001 -- never breaks the tick
+                pass
 
     try:
         from futures.futures_journal import journal_entry  # noqa: PLC0415
