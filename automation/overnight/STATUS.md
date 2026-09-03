@@ -1,5 +1,6 @@
 ## Known broken
 
+- [2026-09-03T03:37:05 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=ok, mcp_procs=FAIL -- 0 alpaca-mcp-server process(es) found
 - [2026-09-03 02:24 ET] FULL-SUITE RED :: 12015 passed, 4 failed, 16 skipped :: tests/test_queue_md_retention_cap.py::test_queue_md_under_retention_cap, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage, tests/test_shadow_board_discovery_2026_08_25.py::test_generated_board_lists_the_adjudicated_prereg, tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-03T06:21+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-8-bear-sole :: bear sole-[8] refused 106 bar-event(s), 44 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-8-bear-sole
@@ -18,6 +19,18 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+- [2026-09-03T03:53 ET] conductor AFTERHOURS: OK -- writer-side twin of the 2026-09-02 decoy-corruption bug found + fixed in `status_known_broken.py` -- REVOKE surface
+
+  **Picked via STAGE 0 budget gate PROCEED ($25.27/$30, 2/8 fires) + market closed (Thu 03:42 ET) + engine-health.json GREEN (22/22, market_open:false). No active goal, no `GATE-BLOCKING` queue item. `self-check-last.json` BROKEN (FUTURES-HEALTH RED + TASK-STALENESS RED) investigated first: both are ALREADY-known, ALREADY-disposed conditions from earlier tonight's fires (no_stray_exposure RED is 8 anomaly rows dated 00:43 ET, before the 03:23 ET OCO/flatten fix landed -- the check's own design requires a CLEAN session to push that window forward, which needs the next live futures session, not more code tonight; TASK-STALENESS for Gamma_FuturesBrokerProbe/Gamma_ConductorWeekend is the documented quiet-hold-sweep exclusion). Fell through to STAGE-1 priority #3 (self-audit gaps): oldest untriaged batch = 2026-09-01T17:31:48, cross-read against 2026-09-02T17:31:15's fuller-text swarm-consult JSON for the truncated bullets.**
+
+  1. 🔎 **Triaged the 09-02 batch's "Theta cockpit still sqrt_time_decay_model_est" finding -- claim partially REFUTED, no action needed.** The audit worried "Pilot is making time-stop decisions against an unverified model." Read `heartbeat_core.py::_past_entry_ceiling` directly: the "theta kills after 3pm" doctrine is a **hardcoded wall-clock entry ceiling** (`entry_no_trade_after_et`, v15.1), structurally unrelated to `theta_clock.py`'s `theta_component_est` -- there is no code path where the estimated theta value feeds a live decision. `theta_clock.py` is VISIBILITY-ONLY by its own docstring and already discloses `n_broker`/`n_est`/`sources_seen` per row; `greeks-probe-stats.json` (4803 empty / 0 nonempty, confirmed live) already tracks the all-time streak. The audit's proposed action ("Monday verifier should RED, not GREEN, when zero broker rows") was considered and NOT adopted as literally proposed: the Alpaca greeks endpoint has never once returned a value for this account/contract class in 4803 probes, so a hard RED-on-zero rule would manufacture a PERMANENT, un-clearable RED for a disclosed, non-gating estimate -- exactly the class this project already paid for once (`## Known broken` two-month scar, this same file). No fix shipped for this sub-finding; disposition recorded so it stops reading as untriaged.
+  2. 🎯 **Found and fixed a genuinely real, previously-untested bug while cross-checking a DIFFERENT 09-02 finding ("`status_retention` reader-fixed, writer-untouched").** `setup/scripts/status_known_broken.py` (the shared de-duplicating writer for this very section, built 2026-09-03T00:55) locates the section via `text.index(heading)` -- a **plain substring search**, never patched to match `status_retention.py`'s 2026-09-02 reader-side fix (`_is_pinned_heading_line`, exact-line-match only). **Root cause, one sentence:** any prose elsewhere in the file that quotes `"## Known broken"` mid-sentence (this project's own STATUS entries write that shape constantly, discussing this exact bug class) satisfies `.index()`'s substring match before the real heading is reached, so a fresh `upsert()` write lands orphaned above the real section instead of inside it -- reproduced live via a direct repro script before touching any code. **Fix:** `_find_real_heading()` (a compiled `re.MULTILINE` exact-line-match, mirroring the reader's contract) replaces both the naive `.index()` call in `_known_broken_body_bounds` AND the naive `in` substring check that decides whether to recreate the section (which had the mirror-image bug: a decoy-only file with no real heading would wrongly conclude the section already existed, then raise on the same decoy).
+  3. ✅ **Verified, quoted (OP-33):** 2 new tests in `test_status_known_broken_upsert_2026_09_03.py`, RED-proofed live via `git stash push -- setup/scripts/status_known_broken.py` (both fail pre-fix with the exact reproduced symptom -- one shows the new line landing literally above the real heading line by line-number, the other shows the section never recreated). Restored, GREEN: 53/53 across `test_status_known_broken_upsert_2026_09_03.py` + `test_status_known_broken_preamble_2026_09_02.py` + `test_status_known_broken_section_2026_08_20.py` + `test_status_retention.py` (zero regression). Curated safety gate: 59 passed. Sanity round-trip against a REAL copy of this live file (write a probe line, verify it lands under the real heading not a decoy, clear it, diff shows byte-identical) confirmed the fix doesn't misbehave against production shape.
+
+  **Rail (pure tooling fix, observer/writer for a `## Known broken` STATUS section -- zero trading-path file touched, no order placed):** guard = the 2 RED-proofed tests (a); revert = `git revert dc800a5f` (2 files, fully additive/narrowing, no existing function signature changed) (b); this entry is the REVOKE report (c). Frozen-file diff (the 10-file Sept freeze list) empty.
+
+  **Not done this fire, left open (stated so it isn't silently dropped):** the 09-02 batch's WS11 label/expectancy-inversion finding (bear verdict moved RED -> RED_CONCENTRATED while expectancy improved 34x) was READ but not triaged this fire -- it needs a look at whether `RED_CONCENTRATED` is a genuinely separate concentration-risk axis (my working hypothesis, unverified) vs a real label/metric inconsistency; worth a dedicated look at `probe_stats.py`'s verdict ladder before deciding if a guard is warranted. The `TRENDLINE-DRAW-HEADLESS` "fix already written" finding (item 4, call `Gamma_ChartAutoDraw` from `trendline_chart_draw.py` instead of filing more constraint-provenance docs) also remains open, unpicked this fire.
 
 - [2026-09-03T03:05 ET] overnight loop cycle 3 -- 22 commits since 01:36 ET; futures lane has REAL sandbox trades and two routing defects; walker path decided; timestamps corrected -- REVOKE surface
 
@@ -433,97 +446,3 @@ would be post-hoc bar changes on the live-money gate.
 Revoke path for the designation is already documented in the file: delete it and
 `prod_shadow_criterion()` falls back to NOT_WIRED with no other side effects.
 
-## [2026-09-02T09:14 ET] Opus, Phase 0 top box: guards repaired, full re-run HUNG, review made honest -- REVOKE surface
-
-**Correcting my own execution first.** §5.2 says "pick the top open box **in the current
-phase**". Today is Phase 0 (§1, 09-01..09-05); every box I had worked came from §2, Phase 1
-(09-08..09-26). I was executing the wrong phase and had skipped §5.2's read-the-matching-
-judgment-chapter step. Re-running the cadence as written led straight to work I would not
-otherwise have found.
-
-**Phase 0's top box** (09-02 16:30 first-live-day review) cannot close until tonight, but its
-own text names the precondition: the `guards_full` check "must not launder a fresh-looking
-count off a stale state file". Working that under chapter 01:
-
-- The box's premise is **stale**: `Gamma_GuardsFull` ran 02:29 local, `result=0`, state
-  stamped `2026-09-02 04:52 ET`. Not dark.
-- But its 5 failures were **all obsolete by 08:19**: 2 already passed, 3 were the known
-  stale-fixture trio. Repaired (`fb34ca92`) -- asserting the **pre-clamp** qty from the cap
-  note, because post-clamp qty is 5 in every case in that file and the obvious repair would
-  have been vacuous. Ceiling NOT weakened. A 4th test was **passing and equally vacuous**;
-  fixed, plus a non-vacuity guard.
-- **The full re-run HUNG.** 43 min, 1078 CPU-seconds then flat, zero output,
-  `guard-watch-full.json` never rewritten. Confirmed hung by sampling CPU twice (0.3s/20s),
-  verified all 4 PIDs were mine (`guard_runner_full.py` + its pytest), killed. NOT relaunched
-  into RTH -- re-running into the same conditions is the anti-pattern, and it would contend
-  with the heartbeat for CPU. The scheduled task did the same work in ~23 min at 04:29, so
-  the hang is manual-invocation-specific or intermittent. Filed.
-
-**So tonight's review would have reported a false verdict**, and `Gamma_GuardsFull` next runs
-**23:15 ET -- after the 16:30 review**, so it will not self-heal. The check measures staleness
-in DAYS, and 04:52 is the same day, so 5 failures read as current. Day granularity cannot fix
-this and shouldn't try: every same-day verdict is ~12h old by design, so flagging it would
-make the check permanently yellow. Fix is information, not an alarm -- the reason now always
-names the timestamp:
-`YELLOW | failed count deviates from expected 4: got 5 [verdict recorded 2026-09-02 04:52 ET;
-Gamma_GuardsFull next runs 23:15 ET, after this review]`
-
-**Deliberately NOT changed:** `GUARDS_FULL_EXPECTED_FAILED = 4` is a tolerance that has
-outlived its reason -- at 4 it reports GREEN for any four failures, including four new real
-ones, and the four it was sized for are now repaired. It should be 0. I lowered it, saw four
-tests encoding the old baseline go red, and **reverted**: 0 rests on the suite being clean and
-the hang means I cannot verify that. A 0 on an unverified suite is a permanently-yellow check
--- the same disease inverted. Reasoning left in place; queue item
-`GUARDS-EXPECTED-FAILED-BASELINE-IS-STALE` carries the exact follow-up.
-
-**Market opens 09:30; stopping here.** Owed before 16:30: one green full guard run.
-
-
-### BROKEN: prereg-hygiene 2026-09-03T01:07:56
-- 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
-  - prereg-chasing-filter-2026-08-14.json (age 20.2d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
-  - prereg-ladder-x-premium-2026-08-09.json (age 25.2d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.2d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
-  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.2d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
-
-### BROKEN: trendline-headless-draw 2026-09-03 01:28 ET
-- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
-
-### BROKEN: prereg-hygiene 2026-09-03T01:55:21
-- 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
-  - prereg-chasing-filter-2026-08-14.json (age 20.2d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
-  - prereg-ladder-x-premium-2026-08-09.json (age 25.2d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.2d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
-  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.2d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
-- 26 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-02T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
-  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
-  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
-  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-02T21:10:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - prereg-bold-adaptive-sizing-2026-08-02.json -> bold-adaptive-sizing-2026-08-02.json (result mtime=2026-08-02T06:54:11Z, result verdict='NULL', own status='PRE-REGISTERED')
-  - prereg-bold-selective-fallback-2026-08-02.json -> bold-selective-fallback-2026-08-02.json (result mtime=2026-08-02T07:17:56Z, result verdict='NULL', own status='PRE-REGISTERED')
-  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
-  - prereg-bull-vix-soft-mode-2026-08-03.json -> bull-vix-soft-mode-2026-08-03.json (result mtime=2026-08-02T16:35:52Z, result verdict='NULL', own status='NOT IMPLEMENTED -- this prereg specs a NEW code path (see arms_frozen). Nothing armed. Nothing run. This is ARM_C from the ALREADY-FROZEN prereg-vix-regime-gate-archetype-2026-08-02.json, explicitly deferred there: "A bull-side soft-mode would require a genuinely NEW code path... If ARM_A/ARM_B\'s results suggest the bull side specifically is where the value is, a follow-up prereg should scope that new flag on its own, gated by this study\'s findings, not bundled in blind." This IS that follow-up.')
-
-### BROKEN: prereg-hygiene 2026-09-03T02:00:23
-- 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
-  - prereg-chasing-filter-2026-08-14.json (age 20.3d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
-  - prereg-ladder-x-premium-2026-08-09.json (age 25.3d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.3d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
-  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.3d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
-- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-02T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
-  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
-  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
-  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-02T21:10:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
-  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-full-send-arm-2026-07-31.json -> full-send-arm-2026-07-31.json (result mtime=2026-07-31T22:55:06Z, result verdict=None, own status='PRE-REGISTERED')
-
-### BROKEN: trendline-headless-draw 2026-09-03 02:23 ET
-- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
