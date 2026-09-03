@@ -49,6 +49,7 @@ def _detect_project_root() -> Path:
         result = subprocess.run(
             ["git", "rev-parse", "--show-toplevel"],
             capture_output=True, text=True, timeout=10,
+            encoding="utf-8", errors="replace",
             creationflags=_CREATE_NO_WINDOW,
         )
         if result.returncode == 0:
@@ -149,6 +150,7 @@ class Finding:
 def _run(cmd: list[str], timeout: int = 120) -> str:
     result = subprocess.run(
         cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=timeout,
+        encoding="utf-8", errors="replace",
         creationflags=_CREATE_NO_WINDOW,
     )
     return result.stdout
@@ -263,7 +265,8 @@ def _git_show_staged(path: str) -> str | None:
     with an unstage between listing and reading)."""
     result = subprocess.run(
         ["git", "show", f":{path}"],
-        capture_output=True, text=True, errors="replace", cwd=str(PROJECT_ROOT),
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        cwd=str(PROJECT_ROOT),
         timeout=30, creationflags=_CREATE_NO_WINDOW,
     )
     if result.returncode != 0:
@@ -336,6 +339,14 @@ def scan_history() -> list[Finding]:
     findings: list[Finding] = []
     _safe_print("[github-audit] scanning git history (this takes ~30-90s) ...")
     diff_output = _run(["git", "log", "-p", "--all", "--", "."], timeout=300)
+    if not diff_output:
+        raise RuntimeError(
+            "scan_history: `git log -p --all` returned empty/None output -- "
+            "refusing to report a silent-clean history scan. This usually means the "
+            "git subprocess failed (non-utf8 decode, git error, or empty repo). "
+            "A security scanner that no-ops on empty output is worse than one that "
+            "errors -- fix the underlying git/decode failure, don't suppress this."
+        )
     current_file = "<unknown>"
     current_commit = "<unknown>"
     for raw_line in diff_output.splitlines():
@@ -503,7 +514,11 @@ def main() -> int:
     findings.extend(scan_tracked_file_types(files))
     findings.extend(scan_secrets(files))
     if args.history:
-        findings.extend(scan_history())
+        try:
+            findings.extend(scan_history())
+        except Exception as exc:
+            print(f"ERROR: history scan failed: {exc}", file=sys.stderr)
+            return 2
 
     elapsed = time.monotonic() - t0
 

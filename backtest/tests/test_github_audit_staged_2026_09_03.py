@@ -240,3 +240,68 @@ def test_staged_scan_of_50_files_finishes_under_3s(scratch_repo):
 
     assert result.returncode == 1, result.stdout + result.stderr
     assert elapsed < 3.0, f"staged scan of 50 files took {elapsed:.2f}s (budget: 3s)"
+
+
+# ── 10. --history mode: cp1252-crash fix (2026-09-03) ──────────────────────────
+#
+# CONTEXT: `python setup/scripts/github_audit.py --history` crashed on this box
+# BEFORE the fix in two ways: (a) UnicodeDecodeError -- the git subprocess in
+# `_run()` / `_detect_project_root()` / `_git_show_staged()` decoded with the
+# Windows cp1252 default instead of utf-8, and any non-cp1252 byte reachable in
+# `git log -p --all` (e.g. binary-ish content in an old commit) blew up before
+# scanning; (b) AttributeError: 'NoneType' object has no attribute 'splitlines'
+# at the top of scan_history() -- a scanner that silently treats a failed git
+# call as "no output, report clean" is worse than one that errors loudly.
+# FIX: every subprocess.run() git call now passes encoding="utf-8",
+# errors="replace" so a bad byte becomes U+FFFD instead of crashing, and
+# scan_history() now raises RuntimeError if `git log -p` returns falsy output
+# instead of proceeding to scan nothing.
+
+# Built by concatenation (same trick as FAKE_ALPACA_KEY above) so this test file
+# never itself carries a key-shaped literal -- the staged-secret hook we ship in
+# this very file would otherwise block every commit that touches it. Proven: the
+# hook flagged this line on 2026-09-03 before it was split.
+FAKE_ALPACA_KEY_2 = "PK" + "ABCDEFGHIJKLMNOPQRSTUVWX"
+assert len(FAKE_ALPACA_KEY_2) == 26
+
+
+def test_history_scan_survives_non_cp1252_byte_and_finds_key(scratch_repo):
+    """A commit whose diff contains a non-utf8 byte (0x9d, an orphan cp1252/latin1
+    continuation byte that is NOT valid standalone utf-8) must not crash the
+    --history scan, and the fake key committed alongside it must still be found
+    and redacted in the output."""
+    leaky = scratch_repo / "history_leak.py"
+    # Byte 0x9d alone is invalid UTF-8 (a lone continuation byte with no lead byte).
+    # Written as raw bytes so `git log -p` will emit it verbatim in the diff.
+    content = (
+        b"# marker byte follows: \x9d end-marker\n"
+        + f'ALPACA_KEY = "{FAKE_ALPACA_KEY_2}"\n'.encode("utf-8")
+    )
+    leaky.write_bytes(content)
+    _run_git(scratch_repo, "add", "history_leak.py")
+    _run_git(scratch_repo, "commit", "-q", "-m", "oops, key + weird byte in history")
+
+    result = _run_audit(scratch_repo, "--history")
+
+    assert result.returncode == 1, (
+        "history scan should not crash on a non-cp1252 byte -- "
+        f"stdout={result.stdout!r} stderr={result.stderr!r}"
+    )
+    assert "UnicodeDecodeError" not in result.stderr
+    assert "AttributeError" not in result.stderr
+    assert "RED" in result.stdout
+    assert FAKE_ALPACA_KEY_2 not in result.stdout, "raw secret leaked into history output"
+    assert FAKE_ALPACA_KEY_2[:4] + "..." in result.stdout
+
+
+def test_history_scan_none_output_raises_instead_of_reporting_clean(monkeypatch):
+    """scan_history() must fail loudly (raise), never silently report a clean
+    scan, when the underlying `git log -p` output is None/empty -- e.g. because
+    the git subprocess failed. A no-op secret scanner is a false GREEN."""
+    monkeypatch.setattr(github_audit, "_run", lambda *a, **k: None)
+    with pytest.raises(Exception):
+        github_audit.scan_history()
+
+    monkeypatch.setattr(github_audit, "_run", lambda *a, **k: "")
+    with pytest.raises(Exception):
+        github_audit.scan_history()
