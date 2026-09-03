@@ -1,26 +1,21 @@
-"""Guard: mcp-daily-audit's per-fire budget must stay large enough to complete a fire.
+"""Guard: run-mcp-daily-audit.ps1's invocation shape.
 
-Context (2026-08-08 conductor fire, `BUDGET-ROSTER-AUDIT-MAXBUDGETUSD` queue item --
-the roster-wide sweep for the "mis-sized at birth" budget class first found in
-scout-premarket, see `test_scout_premarket_budget.py`).
-
-`setup/scripts/run-mcp-daily-audit.ps1` invoked `claude` with `-MaxBudgetUsd 0.30` from the
-script's creation through at least 2026-08-07. Full classification of every dated log in
-`automation/state/logs/mcp-daily-audit-*.log` (42 fires, 2026-06-21..2026-08-07):
-23 ok (exit=0), 10 `Error: Exceeded USD budget (0.3)` (exit=1), 6 timeout (exit=124),
-3 other exit=1 -- a combined **45% failure rate**. The docstring's own "~$0.10/fire" estimate
-never matched reality: round-tripping Alpaca (Safe + Bold) + TradingView MCP tools regularly
-costs more than 3x that estimate. Not a regression -- mis-sized at birth, same class as
-scout-premarket (0.50, ~7-8wk silent failure) and eod-flatten (1, budget-exceeded 8/10 recent
-dates). This task is read-only and low-criticality (redundant with `Gamma_TvWatchdog` +
-`self_check.py`'s live MCP checks), so the failures were not a trading-safety incident -- but
-a health-check that silently fails ~half the time is the exact C7 "silent success is failure"
-shape and defeats its own purpose (catching "a hung-but-alive MCP bridge that
-Gamma_TvWatchdog cannot see").
-
-Fix: budget 0.30 -> 0.60 (2x, matching the eod-flatten fix's 2x bump), timeout 240s -> 300s
-(the 6 exit=124 timeouts all hit the old 240s ceiling). This test pins both values so a future
-edit can't silently drift back toward the broken 0.30/240 pair.
+RETIRED-AND-REPOINTED 2026-09-03: this guard originally pinned `-MaxBudgetUsd`/
+`-TimeoutSec` on an `Invoke-Claude` LLM fire against
+`automation/prompts/mcp-weekly-audit.md` (full incident: `MaxBudgetUsd` was
+mis-sized at birth at 0.30/240s, producing a 45% combined failure rate across 42
+dated fires 2026-06-21..2026-08-07 -- 10 budget-exceeded, 6 timeout -- fixed to
+0.60/300 on 2026-08-08, see git history for that fix's own commit). That whole
+premise is now moot: `run-mcp-daily-audit.ps1` no longer spawns an LLM at all.
+The free-model prompt wrote TWO false BLOCKERs into STATUS.md in one night
+(2026-09-03, 00:03 ET RED + 07:48 ET YELLOW, both contradicted by a direct REST
+`/v2/account` call using the same `.mcp.json` keys returning 200/ACTIVE
+throughout), so the fire was converted to a deterministic, $0 Python probe
+(`setup/scripts/mcp_daily_audit.py`, guard: `test_mcp_daily_audit_2026_09_03.py`)
+invoked via `Invoke-PythonHidden`. A `-MaxBudgetUsd`/model/effort knob no longer
+applies -- there is no LLM spend to bound. This file is REPOINTED, not deleted,
+to the new invariant: the script must invoke the deterministic Python probe (not
+`Invoke-Claude`) and must not silently regress back to an LLM fire.
 """
 import re
 import sys
@@ -28,12 +23,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "setup" / "scripts" / "run-mcp-daily-audit.ps1"
-
-# The values that produced a 45% (19/42) fire failure rate for ~7 weeks. Never again.
-KNOWN_BROKEN_BUDGET = 0.30
-KNOWN_BROKEN_TIMEOUT = 240
-MIN_SAFE_BUDGET = 0.60
-MIN_SAFE_TIMEOUT = 300
+PY_PROBE = ROOT / "setup" / "scripts" / "mcp_daily_audit.py"
 
 
 def _read_script_text() -> str:
@@ -41,52 +31,38 @@ def _read_script_text() -> str:
     return SCRIPT.read_text(encoding="utf-8")
 
 
-def _read_max_budget_usd() -> float:
+def test_mcp_daily_audit_calls_the_deterministic_python_probe():
     text = _read_script_text()
-    m = re.search(r"-MaxBudgetUsd\s+([0-9.]+)\s*`?", text)
-    assert m, "could not find -MaxBudgetUsd in run-mcp-daily-audit.ps1 -- script shape changed"
-    return float(m.group(1))
+    assert "mcp_daily_audit.py" in text, (
+        "run-mcp-daily-audit.ps1 no longer references mcp_daily_audit.py -- the deterministic "
+        "$0 probe this task was repointed to on 2026-09-03. See module docstring."
+    )
+    assert PY_PROBE.exists(), "mcp_daily_audit.py itself is missing -- the script it invokes"
 
 
-def _read_timeout_sec() -> int:
+def test_mcp_daily_audit_no_longer_invokes_an_llm_fire():
     text = _read_script_text()
-    m = re.search(r"-TimeoutSec\s+([0-9]+)", text)
-    assert m, "could not find -TimeoutSec in run-mcp-daily-audit.ps1 -- script shape changed"
-    return int(m.group(1))
-
-
-def test_mcp_daily_audit_budget_is_not_the_known_broken_value():
-    budget = _read_max_budget_usd()
-    assert budget != KNOWN_BROKEN_BUDGET, (
-        f"run-mcp-daily-audit.ps1 MaxBudgetUsd reverted to the known-broken "
-        f"{KNOWN_BROKEN_BUDGET} -- this value produced 'Error: Exceeded USD budget' -> exit=1 "
-        "on 10/42 dated fires (24%) across 2026-06-21..2026-08-07. See module docstring."
+    # Match the actual PowerShell CALL shape ("$var = Invoke-Claude"), not the word
+    # appearing inside this script's own historical-context docstring/comment prose.
+    call_pattern = re.compile(r"(?m)^\s*\$\w+\s*=\s*Invoke-Claude\b")
+    assert not call_pattern.search(text), (
+        "run-mcp-daily-audit.ps1 has regressed back to an Invoke-Claude LLM fire -- this task "
+        "was converted to a deterministic $0 probe on 2026-09-03 after the free-model prompt "
+        "wrote two false BLOCKERs (401/404) into STATUS.md while direct REST with the same "
+        "keys returned 200/ACTIVE the whole time. See module docstring / "
+        "automation/prompts/mcp-weekly-audit.md's own retirement header."
+    )
+    prompt_ref_pattern = re.compile(r"PromptFile.*mcp-weekly-audit\.md")
+    assert not prompt_ref_pattern.search(text), (
+        "run-mcp-daily-audit.ps1 still wires the retired LLM prompt file as a -PromptFile"
     )
 
 
-def test_mcp_daily_audit_budget_at_least_60_cents():
-    budget = _read_max_budget_usd()
-    assert budget >= MIN_SAFE_BUDGET, (
-        f"run-mcp-daily-audit.ps1 MaxBudgetUsd={budget} is below the {MIN_SAFE_BUDGET} floor "
-        "restored 2026-08-08 -- round-tripping Alpaca (Safe+Bold) + TradingView MCP tools "
-        "regularly exceeds the old 0.30 cap by 2x+."
-    )
-
-
-def test_mcp_daily_audit_timeout_is_not_the_known_broken_value():
-    timeout = _read_timeout_sec()
-    assert timeout != KNOWN_BROKEN_TIMEOUT, (
-        f"run-mcp-daily-audit.ps1 TimeoutSec reverted to the known-broken "
-        f"{KNOWN_BROKEN_TIMEOUT} -- this value produced exit=124 (timeout) on 6/42 dated fires "
-        "(14%) across the same window. See module docstring."
-    )
-
-
-def test_mcp_daily_audit_timeout_at_least_300_sec():
-    timeout = _read_timeout_sec()
-    assert timeout >= MIN_SAFE_TIMEOUT, (
-        f"run-mcp-daily-audit.ps1 TimeoutSec={timeout} is below the {MIN_SAFE_TIMEOUT} floor "
-        "restored 2026-08-08 -- 6/42 dated fires hit the old 240s ceiling before completing."
+def test_mcp_daily_audit_uses_invoke_python_hidden_not_a_bare_spawn():
+    text = _read_script_text()
+    assert "Invoke-PythonHidden" in text, (
+        "must invoke the python probe via the sanctioned hidden-window helper (OP-27 L41) -- "
+        "a bare `python script.py` in a scheduled-task PS1 leaks a conhost window"
     )
 
 

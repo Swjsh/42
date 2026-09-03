@@ -1,3 +1,13 @@
+> **RETIRED 2026-09-03.** This LLM-driven prompt wrote TWO false BLOCKERs into STATUS.md
+> `## Known broken` in one night (00:03 ET `MCP_AUDIT_RED: ... 401 Unauthorized ... BLOCKER`,
+> 07:48 ET `MCP_AUDIT_YELLOW ... 404`) while a direct REST `/v2/account` with the SAME
+> `.mcp.json` keys returned 200/ACTIVE the entire time and the live engine (direct REST, not
+> MCP) never lost a tick. `Gamma_McpDailyAudit` now runs the deterministic, $0
+> `setup/scripts/mcp_daily_audit.py` instead (installed via `setup/install-mcp-daily-audit.ps1`,
+> invoked by `setup/scripts/run-mcp-daily-audit.ps1`) -- a pure network round-trip probe cannot
+> hallucinate a status code. Kept for reference, not deleted; do not re-wire this prompt to any
+> scheduled task.
+
 You are Gamma running the WEEKLY MCP CONNECTION AUDIT. Headless, one-shot. Round-trip every MCP server the live engine depends on, classify health, write a verdict, alert on failure, then emit one line and exit.
 
 > WHY THIS EXISTS: `Gamma_TvWatchdog` checks the TradingView CDP *port* every 5 min, but a port that answers does NOT prove the MCP bridge works -- an Alpaca or TradingView MCP server can be hung-but-alive (process up, port open, tool calls wedge). This audit calls THROUGH the same MCP tools the heartbeat uses. It is the only check that catches a wedged bridge before the trading week depends on it. READ-ONLY -- never places orders, never edits doctrine.
