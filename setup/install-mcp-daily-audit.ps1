@@ -51,6 +51,14 @@ $etZone   = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time
 $etTarget = [System.DateTime]::SpecifyKind([System.DateTime]::Today.AddHours(23).AddMinutes(20), 'Unspecified')
 $localAt  = [System.TimeZoneInfo]::ConvertTime($etTarget, $etZone, [System.TimeZoneInfo]::Local).ToString('HH:mm')
 $trigger  = New-ScheduledTaskTrigger -Daily -At $localAt
+# 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): same self-heal fix already shipped on
+# Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_PremarketReadiness (ac47dd10) -- a
+# correctly-registered -Daily trigger can still silently skip one evening. mcp_daily_audit.py
+# writes a plain overwrite snapshot (output_path.write_text(...)), so an extra fire on a
+# normal day is a safe no-op. Self-heal window: every 15 min for 30 min after the primary fire.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At $localAt `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
     -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""

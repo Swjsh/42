@@ -87,11 +87,18 @@ $wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$roo
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # 21:00 ET weekday-and-weekend daily fire (the SCRIPT decides every-other-day internally --
-# see docstring). MT = ET - 2h during EDT, so 21:00 ET = 19:00 MT. Simple -Daily -At form
-# (no repetition needed for a once-a-day fire) -- matches install-dress-rehearsal.ps1's proven
-# pattern, NOT the one-time-trigger foot-gun (project lesson: a trigger with no recurrence
-# spec goes dark after the install day).
+# see docstring). MT = ET - 2h during EDT, so 21:00 ET = 19:00 MT. Simple -Daily -At form,
+# NOT the one-time-trigger foot-gun (project lesson: a trigger with no recurrence spec goes
+# dark after the install day).
 $trigger = New-ScheduledTaskTrigger -Daily -At "19:00"
+# 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): a correctly-registered -Daily trigger
+# can still silently skip ONE evening's fire (same class as Gamma_MacroCalendar/
+# Gamma_EarningsCalendar/Gamma_PremarketReadiness, ac47dd10). free_model_audit.py's
+# already_graded_ids() dedupes by item_id before appending history, so an extra fire on a
+# normal day is a safe no-op. Self-heal window: every 15 min for 30 min after the primary fire.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "19:00" `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

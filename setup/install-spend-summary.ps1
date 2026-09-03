@@ -51,6 +51,15 @@ $action = New-ScheduledTaskAction `
 # Intended fire time: 23:30 ET = 21:30 MT.  Use MT local time for -At.
 # If the machine moves back to ET, change 21:30 -> 23:30 and update this comment.
 $trigger = New-ScheduledTaskTrigger -Daily -At "21:30"
+# 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): same self-heal fix already shipped on
+# Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_PremarketReadiness (ac47dd10) -- a
+# correctly-registered -Daily trigger can still silently skip one evening. spend_summary.py's
+# _append_jsonl_history() is documented idempotent ("if today's row already exists, replace
+# it"), and its alerting is transition-only, so an extra fire on a normal day is a safe no-op.
+# Self-heal window: every 15 min for 30 min after the primary fire.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "21:30" `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

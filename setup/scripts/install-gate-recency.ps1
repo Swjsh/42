@@ -100,6 +100,17 @@ $action = New-ScheduledTaskAction `
 # Sundays 18:00 LOCAL (Mountain) = 20:00 ET. Weekly, not one-time (a one-time TimeTrigger
 # goes dark after the install day per project_scheduled_task_onetime_trigger_dark).
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "18:00"
+# 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): same self-heal fix already shipped on
+# Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_PremarketReadiness (ac47dd10) -- a
+# correctly-registered -Weekly trigger can still silently skip its one Sunday fire.
+# gate_recency_report.py writes via an atomic tmp-file + replace onto a single snapshot path
+# (no append), so an extra fire on a normal Sunday is a safe no-op. -Weekly triggers come back
+# with a null .Repetition CIM instance -- steal one from a throwaway -Once trigger (direct
+# property assignment throws PropertyNotFound), same idiom as install-premarket-readiness.ps1.
+# Self-heal window: every 15 min for 30 min after the primary fire.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "18:00" `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

@@ -90,6 +90,15 @@ $action = New-ScheduledTaskAction `
 $trigger = New-ScheduledTaskTrigger `
     -Daily `
     -At ([DateTime]"21:24")
+# 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): this task was the LIVE example that
+# filed the queue item (NumberOfMissedRuns=1, 09-01->09-02 gap) -- same class already fixed on
+# Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_PremarketReadiness (ac47dd10).
+# regime_shadow_counter.py's main() reads OUT's existing rows into a `seen` set keyed by date
+# and skips any date already written, so an extra fire on a normal day is a safe no-op.
+# Self-heal window: every 15 min for 30 min after the primary fire.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At ([DateTime]"21:24") `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

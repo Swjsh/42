@@ -68,6 +68,15 @@ $action = New-ScheduledTaskAction `
 # 18:30 LOCAL (Mountain) = 20:30 ET -- nightly, after EOD + contender ranking.
 # DailyTrigger (never a one-time TimeTrigger -- those go dark after install day).
 $trigger = New-ScheduledTaskTrigger -Daily -At "18:30"
+# 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): same self-heal fix already shipped on
+# Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_PremarketReadiness (ac47dd10) -- a
+# correctly-registered -Daily trigger can still silently skip one evening. oos_check_runner.py
+# is idempotent (select_pending() skips already-graded proposal_ids, apply_cleared_scorecard()
+# is an atomic per-row rewrite keyed on eval_bar_cleared), so an extra fire on a normal day is
+# a safe no-op. Self-heal window: every 15 min for 30 min after the primary fire.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "18:30" `
+    -RepetitionInterval (New-TimeSpan -Minutes 15) `
+    -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
