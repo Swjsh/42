@@ -1,0 +1,75 @@
+{
+  "generated_at_note": "sign-only, no option pricing, no walker -- see .md pre-registration",
+  "window": "2026-08-05..2026-09-01",
+  "spy_bar_source": "spy_5m_2026-05-19_2026-09-02.csv",
+  "spy_bar_granularity": "5min (no 1-min SPY file exists in backtest/data/ -- disclosed fallback)",
+  "walk_params": {
+    "n_trips": 46,
+    "n_dropped_unjoined": 24,
+    "median_hold_min": 24.1,
+    "median_mfe_pts": 0.62,
+    "median_mae_pts": 0.42
+  },
+  "population_r": {
+    "label": "refused (sole blocker-8 bear episodes)",
+    "n_raw_episodes": 53,
+    "n_walked": 53,
+    "n": 53,
+    "favourable_pct": 26.4,
+    "adverse_pct": 58.5,
+    "flat_pct": 15.1,
+    "favourable_rate_point": 0.2642,
+    "favourable_rate_ci95": [
+      0.1667,
+      0.3636
+    ]
+  },
+  "population_e": {
+    "label": "entered (actual bear entries, safe-2/bold-2, same window)",
+    "n_raw_trades": 31,
+    "n_dropped_unjoined": 8,
+    "n_walked": 31,
+    "n": 31,
+    "favourable_pct": 41.9,
+    "adverse_pct": 38.7,
+    "flat_pct": 19.4,
+    "favourable_rate_point": 0.4194,
+    "favourable_rate_ci95": [
+      0.1875,
+      0.6563
+    ]
+  },
+  "r_minus_e_favourable_rate": {
+    "point": -0.1552,
+    "ci95": [
+      -0.4357,
+      0.0896
+    ]
+  },
+  "vix_stratification_of_r": {
+    "vix_lt_15.5": {
+      "n": 28,
+      "favourable_pct": 25.0,
+      "adverse_pct": 60.7,
+      "flat_pct": 14.3
+    },
+    "vix_15.5_to_17.3": {
+      "n": 25,
+      "favourable_pct": 28.0,
+      "adverse_pct": 56.0,
+      "flat_pct": 16.0
+    }
+  },
+  "verdict": "F8_EARNS_ITS_KEEP",
+  "verdict_vocab": [
+    "F8_COSTS_EDGE",
+    "F8_EARNS_ITS_KEEP",
+    "INCONCLUSIVE"
+  ],
+  "bootstrap": {
+    "seed": 1337,
+    "n_boot": 2000,
+    "resample_unit": "trading_day_session"
+  },
+  "scope_note": "10-30 shape-menu input, NOT a ship proposal. No option pricing, no walker."
+}
