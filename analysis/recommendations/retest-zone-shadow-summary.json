@@ -1,6 +1,6 @@
 {
  "prereg": "analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
- "generated_at_et": "2026-09-03T11:29:32.316047",
+ "generated_at_et": "2026-09-03T17:58:53.698668",
  "n_scored": 200,
  "days_scored": 26,
  "date_span": "2026-07-13..2026-09-02",
@@ -836,12 +836,77 @@
  "status": "ACCRUING",
  "decision_rule": "Read ONCE, on FORWARD (in_sample=False) data only, at >=20 forward sessions AND >=40 forward signals: ship-candidate only if by_forward_only.in_force.safe2_trusted.session_clustered_ci.ci_lower_2.5 > 0 AND no by_all_time.in_force.big_winner_days entry has sign_flip=true. The grid columns (0.20/0.30/0.40/0.50/0.75) are disclosure-only -- no width may be picked after reading them. Full rule: analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
  "new_this_run": 0,
- "skipped_this_run": [],
+ "skipped_this_run": [
+  {
+   "activity_id": "20260903094104466::042e49ee-ff15-4b16-8510-46db3b59003f",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903094206247::2ee6dfe7-9a08-433d-875e-d01af61f8398",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903094206260::6ab2942b-1c60-4c3e-a472-89e734fa781f",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903094208349::b5fa7916-0490-4a99-867a-46c54c7b49d8",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903094208480::3ce78b4c-76a5-4ab5-8dbe-7bad78ea662a",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903101608966::8acb9ebf-4381-4a50-98f2-8728d0d5261a",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903101625760::b154ca9e-562c-4ba1-afc0-e559db6879c4",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903101707605::8cbaf2a5-5932-4ef0-bd91-a2a8d6cdf9a2",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903101709068::98a50a0a-f956-4ca8-b71f-98f8fa42ec12",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903110605554::66bd2b46-b60c-4546-9545-47460145f71d",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903110710371::ed328354-b8a6-4f70-abe0-0588c617bdc1",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903110715548::5178512d-0208-415c-9fdc-c3f9d49371e2",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903112207262::59a73c78-dd88-459f-8307-81e33ab0e18a",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903112208729::907eea96-3c9c-479c-895a-bbd563f8358a",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903112705998::371bd3de-0e41-4599-b595-3f6372857c14",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  },
+  {
+   "activity_id": "20260903121609315::713923f5-f619-4081-8c13-d3174f6b7384",
+   "reason": "skip_no_spy_5m_for_ribbon"
+  }
+ ],
  "population": {
-  "n_ribbon_events_total": 347,
-  "n_closed": 347,
-  "n_no_trigger_level_excluded": 147,
-  "n_scoreable": 200,
+  "n_ribbon_events_total": 364,
+  "n_closed": 364,
+  "n_no_trigger_level_excluded": 148,
+  "n_scoreable": 216,
   "n_scored_cumulative": 200
  },
  "archive_health": {
@@ -851,7 +916,7 @@
   "n_snapshots_with_any_zone_width": 0,
   "note": "Gamma_ArchiveKeyLevels is not a registered scheduled task; Gamma_DailyReview is registered but State=Disabled (both confirmed this build) -- the archive is not currently advancing."
  },
- "input_ledger_newest_ribbon_date": "2026-09-02",
+ "input_ledger_newest_ribbon_date": "2026-09-03",
  "input_expected_through": "2026-09-02",
  "input_stale": false,
  "input_note": "fed"

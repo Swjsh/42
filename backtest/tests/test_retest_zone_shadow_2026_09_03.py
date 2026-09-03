@@ -189,6 +189,35 @@ def test_score_entry_skips_when_no_option_bars(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------------
+# 2b. REGRESSION 2026-09-03 ROOT CAUSE (RETEST-ZONE-SCORING-KEYERROR): a synthetic entry
+#     that HAS cached SPY 1-minute bars but whose date is missing from mrev's aggregate
+#     5-minute SPY cache (day_slice returns an EMPTY frame for that date -- exactly what
+#     happens for "today" against mrev.SPY_5M_PATH, a stale date-stamped filename one
+#     session behind, confirmed live: spy_5m_2026-05-19_2026-09-02.csv has zero rows for
+#     2026-09-03) must be recorded as a clean, named skip (skip_no_spy_5m_for_ribbon) and
+#     must NEVER raise. Before the fix this path fed pd.merge_asof an empty right frame,
+#     produced an all-NaN merge index, and `day5.loc[<NaN array>]` raised the exact
+#     "None of [Index([nan, nan, ...], length=390)] are in the [index]" KeyError this
+#     build's 16 real 2026-09-03 rows hit.
+# ---------------------------------------------------------------------------------
+def test_score_entry_skips_when_spy_5m_ribbon_slice_is_empty_for_the_date(tmp_path, monkeypatch):
+    monkeypatch.setattr(rzs, "ARCHIVE_DIR", tmp_path)
+    # opt_res == "1min" forces the ribbon-building branch that used to crash.
+    monkeypatch.setattr(rzs.mrev, "load_opt_bars",
+                         lambda symbol, date_str: (pd.DataFrame({"open": [1.0]}), "1min"))
+    # cached SPY 1-minute bars exist for the date (this is the part the original hypothesis
+    # got right) -- the gap is the aggregate 5-minute ribbon frame, not the 1-minute bars.
+    monkeypatch.setattr(rzs.mrev, "load_spy_1m", lambda date_str: pd.DataFrame({"x": [1]}))
+    # day_slice returns an EMPTY frame for this date, mirroring mrev's real stale-cache
+    # behavior on "today" -- must never reach the merge_asof/`.loc[]` code below it.
+    monkeypatch.setattr(rzs.mrev, "day_slice", lambda spy5, ribbon, date_str: (pd.DataFrame(), 0))
+
+    row = rzs.score_entry(_event(date_et="2026-09-03"), pd.DataFrame(), pd.DataFrame(), vix=None)
+
+    assert row == {"activity_id": "a1", "status": "skip_no_spy_5m_for_ribbon"}
+
+
+# ---------------------------------------------------------------------------------
 # 3. _bootstrap_day_clustered_delta -- CI shape
 # ---------------------------------------------------------------------------------
 def test_bootstrap_ci_none_below_two_days():
@@ -337,6 +366,28 @@ def test_run_marks_backfill_rows_in_sample_true(_wired_fixtures):
     assert rows[0]["in_sample"] is True   # date_et 2026-09-03 <= FREEZE_DATE
     assert out["n_in_sample_backfill"] == 1
     assert out["n_forward"] == 0
+
+
+def test_run_counts_skip_no_spy_5m_for_ribbon_by_name(_wired_fixtures, monkeypatch):
+    """End-to-end reproduction of the 2026-09-03 live incident's ACTUAL mechanism (not the
+    originally-hypothesized "no cached option bars" one -- disproven: this build's real 16
+    skipped 2026-09-03 rows all had cached 1-minute highres option bars; the missing input
+    was mrev's own AGGREGATE 5-minute SPY cache having zero rows for "today", a stale
+    date-stamped filename by construction). Force opt_res="1min" (the highres fallback
+    path) and an empty day_slice (mrev's real behavior for a date past its cache's end) and
+    confirm run() completes with zero exceptions, the row is skipped under the named status
+    (not `exception: ...`), and the summary counts it -- never a silent drop."""
+    monkeypatch.setattr(rzs.mrev, "load_opt_bars",
+                         lambda symbol, date_str: (pd.DataFrame({"open": [1.0]}), "1min"))
+    monkeypatch.setattr(rzs.mrev, "day_slice", lambda spy5, ribbon, date_str: (pd.DataFrame(), 0))
+
+    out = rzs.run()
+
+    assert "error" not in out, out
+    assert out["new_this_run"] == 0
+    assert out["skipped_this_run"] == [
+        {"activity_id": "buy1", "reason": "skip_no_spy_5m_for_ribbon"}]
+    assert not any(s["reason"].startswith("exception:") for s in out["skipped_this_run"])
 
 
 # ---------------------------------------------------------------------------------

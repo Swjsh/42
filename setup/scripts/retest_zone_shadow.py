@@ -79,8 +79,10 @@ trigger tick t0 only reads SPY 1-minute bars strictly after t0 (unmodified
 `money_retest_entry_variant.retest_decision`). The zone-width resolution reads only the
 ARCHIVED snapshot dated to the trade's own session (never today's live file, never a future
 snapshot). A trade whose own session's cached bars are not yet available (still-open session)
-is skipped with a reason (`skip_no_option_bars` / `skip_no_spy_1m_for_ribbon`), retried next
-run, never backfilled with an assumption.
+is skipped with a reason (`skip_no_option_bars` / `skip_no_spy_1m_for_ribbon` /
+`skip_no_spy_5m_for_ribbon` -- the last added 2026-09-03, RETEST-ZONE-SCORING-KEYERROR: mrev's
+aggregate 5-minute SPY cache is a stale, date-stamped file that lags "today" by construction),
+retried next run, never backfilled with an assumption.
 
 COST: $0. Pure local computation over cached bars + already-written JSON/JSONL artifacts --
 no bar fetch, no OPRA, no LLM, no network call of any kind, exactly the sibling shadow
@@ -304,6 +306,22 @@ def score_entry(event: dict, spy_5m_rth: pd.DataFrame, ribbon_5m: pd.DataFrame,
         if spy_1m_day_for_ribbon is None:
             return {"activity_id": activity_id, "status": "skip_no_spy_1m_for_ribbon"}
         day5, _n = mrev.day_slice(spy_5m_rth, ribbon_5m, date_str)
+        if day5.empty:
+            # ROOT CAUSE (2026-09-03 fire, RETEST-ZONE-SCORING-KEYERROR): mrev.SPY_5M_PATH is
+            # a hardcoded, date-stamped cache filename (spy_5m_2026-05-19_2026-09-02.csv at
+            # this build) that is one session STALE by construction -- a fresher
+            # spy_5m_2026-05-19_2026-09-03.csv exists on disk but mrev (reused by import,
+            # never modified per this module's own contract) never picks it up. For any date
+            # newer than that cache's own end date (chiefly "today", scored here because
+            # FREEZE_DATE == today at this build), day_slice returns 0 rows. Falling through
+            # unguarded feeds pd.merge_asof an EMPTY right frame: every row of `five_idx`
+            # comes back NaN (length == len(spy_1m_day_for_ribbon), e.g. 390 for a full RTH
+            # session), and `day5.loc[<all-NaN array>]` raises KeyError -- exactly the
+            # "NaN-filled merge_asof index, length=390" signature this build's 16 2026-09-03
+            # rows hit. A missing 5-minute ribbon slice is the same class of "not yet
+            # available" gap as skip_no_spy_1m_for_ribbon -- name it, skip it, retry next run
+            # once mrev's own cache catches up. Never silently proceed into the merge.
+            return {"activity_id": activity_id, "status": "skip_no_spy_5m_for_ribbon"}
         spy_5m_day = spy_5m_rth.loc[
             spy_5m_rth["timestamp_et"].dt.strftime("%Y-%m-%d") == date_str
         ].reset_index(drop=True)
