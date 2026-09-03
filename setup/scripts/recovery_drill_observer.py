@@ -79,6 +79,9 @@ from et_clock import et_now  # noqa: E402 (from setup/scripts)
 
 import importlib.util as _ilu  # noqa: E402
 
+# OP-27 L41: never flash a conhost window on win32
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
+
 _dms_spec = _ilu.spec_from_file_location("dead_mans_switch_recovery", _SCRIPTS / "dead_mans_switch.py")
 _dms = _ilu.module_from_spec(_dms_spec)
 _dms_spec.loader.exec_module(_dms)  # type: ignore[union-attr]
@@ -123,7 +126,7 @@ def _query_task_state(task_name: str) -> dict:
         )
         out = subprocess.run(
             ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", ps_cmd],
-            capture_output=True, text=True, timeout=20,
+            capture_output=True, text=True, timeout=20, creationflags=_CREATE_NO_WINDOW
         )
         if out.returncode != 0:
             return {"error": (out.stderr or "non-zero exit").strip()[:300]}
