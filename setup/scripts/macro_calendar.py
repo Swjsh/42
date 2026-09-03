@@ -726,7 +726,13 @@ def build_news_json(calendar: dict[str, Any], today: str, for_session: str) -> d
             "type": "macro_calendar",
             "name": ev["event"],
             "timing_et": f"{ev['time_et']} ET {ev['date']}",
-            "description": f"{ev['event']} -- severity={ev['severity']}. Source: {ev['source_url']}"
+            # .get() (not ev['source_url']) -- rule-based Consumer Confidence /
+            # UMich entries (generate_rule_based_events()) carry no source_url,
+            # only a self-documenting `rule` string; a plain KeyError here would
+            # crash build_news_json() on exactly the days those events become
+            # primary/secondary catalysts, defeating the B2 wiring for them.
+            "description": f"{ev['event']} -- severity={ev['severity']}. "
+                            f"Source: {ev.get('source_url', ev.get('rule', 'no source cited'))}"
                             + (f" Notes: {ev['notes']}" if ev.get("notes") else ""),
             "direction": "unknown_mechanical -- no chart/VIX read performed by this generator",
             "confidence": "high (date/time sourced + cited)",
@@ -815,7 +821,28 @@ def run(
     else:
         active_fetch_fn = verify_source
 
-    new_calendar, log_entry = refresh_macro_calendar(existing_calendar, today, KNOWN_EVENTS_2026, active_fetch_fn)
+    # RULE-BASED WIRING (B2, 2026-09-03): merge for_session's deterministic,
+    # network-free release(s) (scheduled_releases() -- ISM/Consumer-Confidence/
+    # UMich, see generate_rule_based_events() above) into the SAME known_events
+    # list KNOWN_EVENTS_2026's hand-curated FOMC/BLS entries feed, so
+    # refresh_macro_calendar()'s existing merge/dedupe/prune pipeline (dedupe
+    # by (date, type) against events_30d) treats a rule-based release exactly
+    # like a hand-curated one -- one code path, no drift. Root cause this
+    # closes: today (2026-09-03, ISM Services PMI day) the 08:15 ET daily
+    # fire wrote news.json saying "no scheduled event" because
+    # generate_rule_based_events()/scheduled_releases() existed as pure
+    # functions but were never called from run(). Scope is deliberately
+    # for_session ONLY (not a wider lookahead window) -- scheduled_releases()
+    # returns [] on any day without a rule-based release, so known_events is
+    # byte-for-byte identical to the pre-wiring KNOWN_EVENTS_2026 list on
+    # every such day; only a genuine release day changes events_30d at all.
+    # holidays falls back to the module's hardcoded NYSE_HOLIDAYS_2026 table
+    # (frozenset(holidays) if holidays else None) when the Alpaca calendar
+    # cache is empty/missing, per this file's existing fail-open philosophy.
+    rule_holidays = frozenset(holidays) if holidays else None
+    known_events = list(KNOWN_EVENTS_2026) + scheduled_releases(for_session, rule_holidays)
+
+    new_calendar, log_entry = refresh_macro_calendar(existing_calendar, today, known_events, active_fetch_fn)
     news = build_news_json(new_calendar, today, for_session)
 
     if not dry_run:
@@ -825,6 +852,22 @@ def run(
     events_today = [e for e in new_calendar["events_30d"] if e["date"] == for_session]
     upcoming_10td = next_n_trading_days(today, 10, holidays)
     events_next_10td = [e for e in new_calendar["events_30d"] if e["date"] in upcoming_10td]
+
+    # Lookahead enrichment for the events_next_10_trading_days digest field
+    # ONLY -- does NOT persist into events_30d, so it can't perturb the
+    # hand-curated file's merge/dedupe/idempotency counts on a day with no
+    # rule-based release of its own. Folds in any rule-based release across
+    # the next ~10 trading sessions not already present in events_30d, so
+    # this field (unlike before) actually surfaces ISM/UMich/Consumer-
+    # Confidence dates the hand-curated table has never covered.
+    lookahead_keys = {(e["date"], e["type"]) for e in events_next_10td}
+    for d in upcoming_10td:
+        for ev in scheduled_releases(d, rule_holidays):
+            key = (ev["date"], ev["type"])
+            if key not in lookahead_keys:
+                events_next_10td.append(ev)
+                lookahead_keys.add(key)
+    events_next_10td.sort(key=lambda e: (e["date"], e.get("time_et", "")))
 
     return {
         "today": today,
@@ -837,6 +880,11 @@ def run(
         "events_next_10_trading_days": events_next_10td,
         "no_trade_windows_today": news["no_trade_windows_added_for_today"],
         "total_events_in_file": len(new_calendar["events_30d"]),
+        # Surfaced directly (not just buried in news.json) per OP-33 visibility --
+        # this is the exact field that silently read "no scheduled event" on
+        # ISM days pre-wiring; a --dry-run print now shows the true catalyst.
+        "catalyst_summary": news["catalyst_summary"],
+        "primary_catalyst": news["primary_catalyst"],
     }
 
 
