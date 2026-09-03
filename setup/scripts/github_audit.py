@@ -8,9 +8,13 @@ Usage:
     python setup/scripts/github_audit.py              # scan working tree
     python setup/scripts/github_audit.py --history    # also scan git commit log (slow ~30-90s)
     python setup/scripts/github_audit.py --json       # machine-readable output to stdout
+    python setup/scripts/github_audit.py --staged     # scan only STAGED file content (pre-commit gate)
 
 Allowlist: append  # noqa:secret-ok  to any line that triggers a false positive.
 Exit codes: 0 = GREEN, 1 = RED (findings), 2 = tool error.
+
+All reported snippets REDACT any matched secret to its first 4 characters + '...' --
+this file's own output is safe to paste into a chat/PR/log even when it finds a hit.
 
 Stdlib only -- zero new dependencies.
 """
@@ -28,7 +32,35 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+def _detect_project_root() -> Path:
+    """Resolve the repo root this audit operates on.
+
+    Prefers `git rev-parse --show-toplevel` from the CURRENT working directory, so
+    the CLI operates on whatever repo it's invoked from (e.g. an isolated repo under
+    a test's scratch dir, or a scratch clone) -- falling back to this file's own
+    on-disk location (parents[2]) if that fails (not inside a git repo, git missing).
+
+    In production the pre-commit hook always invokes this script with cwd at the 42
+    repo's top level (git's documented hook cwd), so the two agree byte-for-byte --
+    existing CLI behaviour there is unchanged.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True, text=True, timeout=10,
+            creationflags=_CREATE_NO_WINDOW,
+        )
+        if result.returncode == 0:
+            top = result.stdout.strip()
+            if top:
+                return Path(top).resolve()
+    except Exception:
+        pass
+    return Path(__file__).resolve().parents[2]
+
+
+PROJECT_ROOT = _detect_project_root()
 
 # ── Secret patterns ───────────────────────────────────────────────────────────
 
@@ -148,6 +180,55 @@ def _safe_print(text: str) -> None:
         print(text.encode("ascii", errors="replace").decode("ascii"))
 
 
+def _redact(line: str, matched: str) -> str:
+    """Replace the matched secret substring in `line` with its first 4 chars + '...'.
+
+    Security fix (2026-09-03): both the full-tree scan and the staged pre-commit scan
+    used to print the raw matched secret in the snippet/fix report. Redact in BOTH.
+    """
+    if not matched:
+        return line
+    redacted = matched[:4] + "..."
+    return line.replace(matched, redacted)
+
+
+# ── Scan: secret patterns in one (path, text) pair ────────────────────────────
+# Shared by the full tracked-file scan and the fast --staged pre-commit scan so the
+# pattern list + matching/redaction logic lives in exactly one place.
+
+def scan_text(path: str, text: str, *, is_code: bool = True) -> list[Finding]:
+    """Scan `text` (the content of `path`) for secret patterns. `path` is used only
+    as the Finding.path label -- caller decides what string to pass (a working-tree
+    relative path, or a staged-file path). Snippets are redacted (see _redact)."""
+    findings: list[Finding] = []
+    for lineno, raw_line in enumerate(text.splitlines(), start=1):
+        line = raw_line.strip()
+        if "# noqa:secret-ok" in line:
+            continue
+        for pattern, label, severity in SECRET_PATTERNS:
+            # Low-severity long-string heuristic only on code files
+            if severity == "LOW" and not is_code:
+                continue
+            m = pattern.search(line)
+            if m:
+                matched = m.group(1) if m.groups() else m.group(0)
+                snippet = _redact(line[:120].strip(), matched)
+                findings.append(Finding(
+                    category="SECRET",
+                    severity=severity,
+                    path=path,
+                    line=lineno,
+                    label=label,
+                    snippet=snippet,
+                    fix=(
+                        "Load from .mcp.json at runtime -- see _load_account_keys() in "
+                        "setup/scripts/fast_path_executor.py for the canonical pattern."
+                    ) if severity == "HIGH" else "Verify this is not a live credential.",
+                ))
+                break  # one finding per line is enough
+    return findings
+
+
 # ── Scan: secret patterns in tracked files ───────────────────────────────────
 
 def scan_secrets(files: list[Path]) -> list[Finding]:
@@ -162,29 +243,45 @@ def scan_secrets(files: list[Path]) -> list[Finding]:
         except OSError:
             continue
         rel = str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
-        for lineno, raw_line in enumerate(text.splitlines(), start=1):
-            line = raw_line.strip()
-            if "# noqa:secret-ok" in line:
-                continue
-            for pattern, label, severity in SECRET_PATTERNS:
-                # Low-severity long-string heuristic only on code files
-                if severity == "LOW" and not is_code:
-                    continue
-                if pattern.search(line):
-                    snippet = line[:120].strip()
-                    findings.append(Finding(
-                        category="SECRET",
-                        severity=severity,
-                        path=rel,
-                        line=lineno,
-                        label=label,
-                        snippet=snippet,
-                        fix=(
-                            "Load from .mcp.json at runtime -- see _load_account_keys() in "
-                            "setup/scripts/fast_path_executor.py for the canonical pattern."
-                        ) if severity == "HIGH" else "Verify this is not a live credential.",
-                    ))
-                    break  # one finding per line is enough
+        findings.extend(scan_text(rel, text, is_code=is_code))
+    return findings
+
+
+# ── Scan: secret patterns in STAGED file content (pre-commit gate) ───────────
+
+def _git_staged_files() -> list[str]:
+    """Staged paths (git-style forward slashes) for Added/Copied/Modified changes.
+    Deleted/renamed-away paths are excluded on purpose -- there is no staged blob
+    left to scan for a delete, and `git show :path` would just fail for one."""
+    output = _run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"])
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+def _git_show_staged(path: str) -> str | None:
+    """Read the STAGED content of `path` (the index blob, NOT the working-tree file)
+    via `git show :path`. Returns None if the path has no staged blob (e.g. raced
+    with an unstage between listing and reading)."""
+    result = subprocess.run(
+        ["git", "show", f":{path}"],
+        capture_output=True, text=True, errors="replace", cwd=str(PROJECT_ROOT),
+        timeout=30, creationflags=_CREATE_NO_WINDOW,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout
+
+
+def scan_staged(staged_files: list[str]) -> list[Finding]:
+    findings: list[Finding] = []
+    for rel in staged_files:
+        suffix = Path(rel).suffix.lower()
+        if suffix in SKIP_EXTENSIONS:
+            continue
+        is_code = suffix in CODE_EXTENSIONS
+        text = _git_show_staged(rel)
+        if text is None:
+            continue
+        findings.extend(scan_text(rel, text, is_code=is_code))
     return findings
 
 
@@ -253,14 +350,16 @@ def scan_history() -> list[Finding]:
             for pattern, label, severity in SECRET_PATTERNS:
                 if severity == "LOW":
                     continue
-                if pattern.search(line):
+                m = pattern.search(line)
+                if m:
+                    matched = m.group(1) if m.groups() else m.group(0)
                     findings.append(Finding(
                         category="HISTORY",
                         severity=severity,
                         path=f"{current_file} (commit {current_commit})",
                         line=None,
                         label=f"[HISTORY] {label}",
-                        snippet=line.strip()[:120],
+                        snippet=_redact(line.strip()[:120], matched),
                         fix=(
                             "Secret is in git history -- ROTATE the key immediately. "
                             "Rewrite history with 'git filter-repo' (or BFG Repo Cleaner), "
@@ -286,14 +385,17 @@ SEV_ICON = {"HIGH": "[HIGH]", "MEDIUM": "[MED] ", "LOW": "[LOW] ", "INFO": "[INF
 WIDTH = 62
 
 
-def report_text(findings: list[Finding], file_count: int, elapsed: float) -> int:
+def report_text(
+    findings: list[Finding], file_count: int, elapsed: float,
+    scanned_label: str = "tracked files",
+) -> int:
     """Print human-readable report. Returns exit code (0=GREEN, 1=RED)."""
     now_et = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     _safe_print("=" * WIDTH)
     _safe_print(f"GITHUB SECRETS & PRIVACY AUDIT -- {now_et}")
     _safe_print("Repo: https://github.com/Swjsh/42  (PUBLIC)")
     _safe_print("=" * WIDTH)
-    _safe_print(f"\n[SCAN] {file_count} tracked files in {elapsed:.1f}s\n")
+    _safe_print(f"\n[SCAN] {file_count} {scanned_label} in {elapsed:.1f}s\n")
 
     if not findings:
         _safe_print("  OK  No findings.\n")
@@ -365,10 +467,30 @@ def main() -> int:
                         help="Also scan git commit history (slow, ~30-90s)")
     parser.add_argument("--json", action="store_true",
                         help="Emit JSON output instead of human-readable text")
+    parser.add_argument("--staged", action="store_true",
+                        help=(
+                            "Fast pre-commit mode: scan only the STAGED content of "
+                            "`git diff --cached --name-only --diff-filter=ACM` files "
+                            "(via `git show :path`) for secret patterns. Ignores "
+                            "--history, gitignore checks, and blocked-file-type checks -- "
+                            "those are full-tree concerns, not a per-commit gate's job."
+                        ))
     args = parser.parse_args()
 
     import time
     t0 = time.monotonic()
+
+    if args.staged:
+        try:
+            staged_files = _git_staged_files()
+            findings = scan_staged(staged_files)
+        except Exception as exc:
+            print(f"ERROR: staged scan failed: {exc}", file=sys.stderr)
+            return 2
+        elapsed = time.monotonic() - t0
+        if args.json:
+            return report_json_output(findings, len(staged_files), elapsed)
+        return report_text(findings, len(staged_files), elapsed, scanned_label="staged files")
 
     try:
         files = _git_tracked_files()

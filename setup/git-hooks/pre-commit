@@ -163,9 +163,29 @@ if [ "$GAMMA_AUTO_COMMIT" = "1" ] && [ "$GAMMA_COMMIT_SCOPE_OFF" != "1" ]; then
 fi
 # --- end automation-only REFUSE ---
 
+# --- staged-files secret scan (2026-09-03, STAGED-SECRET-SCAN) ---
+# Runs BEFORE the safety gate below. The curated 59-test gate has never included a
+# secret scan -- a session committed two real paper Alpaca API keys hardcoded in an
+# orphan script straight past it on 2026-09-02, caught only because someone happened
+# to run setup/scripts/github_audit.py by hand afterward. This closes that gap by
+# scanning the STAGED content of every added/modified file (git show :path, not the
+# working tree) with the same SECRET_PATTERNS the full-repo audit uses, before the
+# commit can land in local history at all.
 PY="$ROOT/backtest/.venv/Scripts/python.exe"
 [ -x "$PY" ] || PY="$ROOT/backtest/.venv/bin/python"
 [ -x "$PY" ] || PY="python"
+if ! "$PY" "$ROOT/setup/scripts/github_audit.py" --staged; then
+  echo "" >&2
+  echo "[secret-scan] BLOCKED -- a staged file looks like it contains a hardcoded secret (see above)." >&2
+  echo "[secret-scan] Fix: load the credential from .mcp.json / an env var at runtime instead." >&2
+  echo "[secret-scan] False positive? append  # noqa:secret-ok  to that exact line." >&2
+  echo "[secret-scan] Emergency bypass: git commit --no-verify" >&2
+  echo "" >&2
+  exit 1
+fi
+echo "[secret-scan] OK -- no staged secrets found."
+# --- end staged-files secret scan ---
+
 if ! "$PY" "$ROOT/backtest/tests/run_safety_gate.py"; then
   echo ""
   echo "[pre-commit] SAFETY GATE RED -- commit blocked."
