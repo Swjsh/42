@@ -26,6 +26,7 @@ The PowerShell harness has already validated state files via `Repair-StateFiles`
 10. `journal/mistakes.md` — narrative entries + auto-flag sections
 11. `markdown/0dte/playbook.md` — current setup statuses (DRAFT vs CONFIRMED vs LIVE-ELIGIBLE) — read-only
 12. `markdown/0dte/risk-rules.md` — live-deployment thresholds — read-only
+13. `markdown/doctrine/STUDY-CURRICULUM.md#Study-notes` — read-only; scan for `#### YYYY-MM-DD (ET)` note blocks dated within the last 7 days, for Section 9's "what Gamma studied this week" line (NEW 2026-09-03, GAMMA-STUDY-CURRICULUM)
 
 # Week boundary
 
@@ -550,6 +551,7 @@ One paragraph summarizing what Monday's premarket should know:
 - Worst-performing setup (consider standing down OR scrutinize)
 - Deployment status snapshot
 - Top open recommendation awaiting J
+- **What Gamma studied this week (NEW 2026-09-03, GAMMA-STUDY-CURRICULUM):** one line naming which topic(s) got a `#### YYYY-MM-DD (ET)` note in `markdown/doctrine/STUDY-CURRICULUM.md#Study-notes` in the last 7 days (there may be 0-3 — STUDY MODE fires at most once/night and only when no trading-path work is pickable, so some weeks are quiet; say so plainly rather than padding). If a note also produced a chef-inbox hypothesis, name it. Format: "Studied this week: <topic> (<n> notes) — filed: <hypothesis title, or 'none'>." If zero notes landed, write "Studied this week: nothing — STUDY MODE never had a free slot." Do not editorialize on the note content itself; that lives in the curriculum doc, not the weekly review.
 
 This paragraph also gets written to `automation/state/dashboard-dialogue.json#ticker_speech` (truncated to ≤140 chars) so Monday's premarket reads it as `prior_day_review_hint`.
 

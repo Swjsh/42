@@ -470,7 +470,7 @@
 
 ### GAMMA-STUDY-CURRICULUM (MED, standing conductor mode, filed 2026-07-22 night, J-directed "learn new things -- TA, indicators, risk management... like a person")
 
-- [ ] GAMMA-STUDY-CURRICULUM (MED, conductor AFTERHOURS mode extension) :: Give Gamma a visible
+- [x] GAMMA-STUDY-CURRICULUM (MED, conductor AFTERHOURS mode extension) :: Give Gamma a visible
   study life: a standing rotation where one AFTERHOURS conductor fire per night is a STUDY fire
   -- pick one topic from a curriculum file (markdown/doctrine/STUDY-CURRICULUM.md, seed topics:
   candlestick pattern taxonomies, volume profile, market internals TICK/ADD, options greeks
@@ -482,6 +482,7 @@
   conductor.md MODES as STUDY (1 fire/night max, skip if queue has HIGH trading-path work).
   Purpose: J's "it needs to basically be a person" -- the visible learning loop, feeding the
   same validation machinery, zero new spend. depends:none :: status:pending
+  **CLOSED 05:05 ET 2026-09-03 (Sonnet, Fable-verified 11 passed):** `markdown/doctrine/STUDY-CURRICULUM.md` (7-topic rotation, 3 live-verified free sources each -- Investopedia/CME/StockCharts rejected as 403/SSL and logged so nobody re-adds them; 'last studied' column; Study-notes section, 10-line note format); `setup/scripts/study_curriculum.py` ($0: next-topic / record / verify-sources); conductor.md STAGE-1 tier 7a STUDY MODE (only when tiers 1-7 are empty, max one per night by date check, fetch via http_fetch, note + 0-2 chef-inbox hypotheses in the canonical format, never wired); weekly-review.md Section 9 'what Gamma studied this week'. Cost: one STUDY fire REPLACES one of the existing three AFTERHOURS conductor fires (same $10/fire cap, $30/day governor), fetches $0. First rotation topic: candlestick taxonomies (last studied: never). :: status:done
 
 ### PULLBACK-HOLD-BULL-TRIGGER (HIGH, THE bull-side build, filed 2026-07-22 Fable review -- supersedes the framing of MORNING-BULL-QUALITY-GATE-RECONSIDER)
 
