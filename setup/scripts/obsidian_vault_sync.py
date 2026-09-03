@@ -756,6 +756,37 @@ def build_preregs_board(stamp: str) -> str:
             L.append("- **Direction symmetry** (16:25 fold) — state unreadable")
     else:
         L.append("- **Direction symmetry** (16:25 fold) — no state yet.")
+    tl = REPO / "analysis" / "trendlines" / "shadow-verdict.json"
+    # Trendline shadow lane (trendline_shadow.py, Gamma_TrendlineShadow 14:22 MT): had NO row
+    # here at all until 2026-09-03 (queue.md TRENDLINE-SHADOW-VERDICT-RECOMPUTE) despite
+    # accruing since 2026-08-20 -- the lane's own verdict was quoted stale everywhere it WAS
+    # mentioned because nothing regenerated it. Source: setup/scripts/trendline_shadow_verdict.py.
+    if tl.exists():
+        try:
+            v = (json.loads(tl.read_text(encoding="utf-8")) or {}).get("latest") or {}
+            if v.get("ok"):
+                ci = v.get("session_clustered_ci_95") or [None, None]
+                L.append(
+                    f"- **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — "
+                    f"latest verdict {v.get('date')}: {v['sessions_total']} sessions, "
+                    f"n={v['n_trades']}, {v['points_per_trade']:+.4f} pts/trade, "
+                    f"session-clustered 95% CI [{ci[0]}, {ci[1]}]"
+                    + (" (clears zero)" if v.get("ci_clears_zero") else " (straddles zero)")
+                    + (f", top-3 sessions {v['top3_session_share_of_profit']:.0%} of profit"
+                       if v.get("top3_session_share_of_profit") is not None else "")
+                    + " — NOT a green light; promotion bar: "
+                      "[[analysis/trendlines/shadow-verdict.json]]"
+                )
+            else:
+                L.append("- **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — "
+                         "verdict file present but unreadable/empty.")
+        except Exception:  # noqa: BLE001
+            L.append("- **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — "
+                     "verdict summary unreadable.")
+    else:
+        L.append("- **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — "
+                 "no verdict recomputed yet; run "
+                 "`setup/scripts/trendline_shadow_verdict.py`.")
     L.append("")
 
     # --- AUTO-DISCOVERED frozen preregs. Was a hardcoded 6-item list, which meant every

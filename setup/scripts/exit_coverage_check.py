@@ -44,7 +44,14 @@ FLEET = REPO / "automation" / "state" / "fleet"
 SECRETS = FLEET / "secrets.json"
 OUT = REPO / "automation" / "state" / "exit-coverage.json"
 
-ARMS = ("safe-2", "safe-3", "bold-2", "risky-1", "risky-3")
+sys.path.insert(0, str(FLEET))
+from arm_roster import active_arms  # noqa: E402 -- ONE roster def; queue.md THREE-MODULES-...
+
+
+def __getattr__(name: str):  # PEP 562 -- module.ARMS always reflects the CURRENT roster
+    if name == "ARMS":
+        return tuple(active_arms())
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 # The exit loop ticks every 60s. Three missed ticks is a real stall, not jitter.
 STALE_MIN = 3.0
@@ -145,7 +152,7 @@ def assess() -> dict[str, Any]:
     secrets = _load(SECRETS) or {}
     accounts = secrets.get("accounts") or {}
     now = time.time()
-    rows = [assess_arm(a, accounts[a], now) for a in ARMS if a in accounts]
+    rows = [assess_arm(a, accounts[a], now) for a in active_arms() if a in accounts]
     order = {"UNCOVERED": 3, "QTY_MISMATCH": 3, "BLIND": 2, "STALE": 2, "OK": 0, "FLAT": 0}
     worst = max((order.get(r["status"], 0) for r in rows), default=0)
     verdict = "RED" if worst >= 3 else ("YELLOW" if worst == 2 else "GREEN")

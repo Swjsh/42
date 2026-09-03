@@ -49,7 +49,14 @@ try:
 except Exception:  # noqa: BLE001
     et_now = None
 
-ARMS = ("safe-2", "safe-3", "bold-2", "risky-1", "risky-3")
+sys.path.insert(0, str(STATE / "fleet"))
+from arm_roster import active_arms  # noqa: E402 -- ONE roster def; queue.md THREE-MODULES-...
+
+
+def __getattr__(name: str):  # PEP 562 -- module.ARMS always reflects the CURRENT roster
+    if name == "ARMS":
+        return tuple(active_arms())
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _creds() -> dict:
@@ -151,7 +158,7 @@ def collect(date: str) -> list[dict]:
             prior = pb
             break
     rows = []
-    for arm in ARMS:
+    for arm in active_arms():  # live roster, resolved fresh -- not a value cached at import
         if arm not in creds:
             continue
         try:

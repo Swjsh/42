@@ -1,0 +1,63 @@
+{
+  "_meta": {
+    "promotion_bar": {
+      "ci_clears_zero": "session-clustered 95% CI lower bound (pts/trade) > 0",
+      "concentration_resolved": "top-3-session share of total profit < 0.50 (50%)",
+      "n_sessions_min": 60,
+      "no_new_knobs": "promotion criteria evaluated on the EXISTING shadow ledger/method only -- no new detector parameter, gate, or entry rule may be introduced to clear it"
+    },
+    "original_verdict_note": "the 2026-08-20 verdict is preserved as history[0] for comparison; every later entry is a real recompute on the then-current ledger via compute_verdict() in this file."
+  },
+  "history": [
+    {
+      "ok": true,
+      "date": "2026-08-20",
+      "method": "one-off computation at ship time (commit ed8e78bd) -- never saved as a script; reconstructed here from that commit's own message for the historical record.",
+      "sessions_total": 65,
+      "n_trades": 1332,
+      "points_per_trade": 0.041,
+      "session_clustered_ci_95": [
+        -0.039,
+        0.124
+      ],
+      "ci_clears_zero": false,
+      "top3_session_share_of_profit": null,
+      "top3_gt_100pct_of_profit": true,
+      "above_zero": true
+    },
+    {
+      "ok": true,
+      "date": "2026-09-02",
+      "method": "trendline_shadow.baseline() whole-sample stats + session-clustered (day-level) bootstrap CI on mean pts/trade, seed=1337, n_boot=2000, ci_level=0.95 -- same concept as scorecard_guards.day_level_bootstrap, applied to trendline theo_points.",
+      "sessions_total": 73,
+      "n_trades": 1451,
+      "points_per_trade": 0.0386,
+      "win_rate": 0.4,
+      "sessions_positive": 39,
+      "top3_session_share_of_profit": 1.054,
+      "session_clustered_ci_95": [
+        -0.0301,
+        0.1177
+      ],
+      "ci_clears_zero": false,
+      "above_zero": true
+    }
+  ],
+  "latest": {
+    "ok": true,
+    "date": "2026-09-02",
+    "method": "trendline_shadow.baseline() whole-sample stats + session-clustered (day-level) bootstrap CI on mean pts/trade, seed=1337, n_boot=2000, ci_level=0.95 -- same concept as scorecard_guards.day_level_bootstrap, applied to trendline theo_points.",
+    "sessions_total": 73,
+    "n_trades": 1451,
+    "points_per_trade": 0.0386,
+    "win_rate": 0.4,
+    "sessions_positive": 39,
+    "top3_session_share_of_profit": 1.054,
+    "session_clustered_ci_95": [
+      -0.0301,
+      0.1177
+    ],
+    "ci_clears_zero": false,
+    "above_zero": true
+  }
+}

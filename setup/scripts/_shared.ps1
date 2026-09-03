@@ -359,12 +359,49 @@ function Stop-StaleClaudeProcesses {
         # guard_runner_slow.py / guard_runner_full.py (2026-08-20): both spawn a
         # `python -m pytest` child that runs for MINUTES -- the slow graduated guards
         # load the 16-month master CSV, and the full suite is ~9,895 tests. The reaper
-        # kills project python older than 5 minutes, so without this exemption the
-        # nightly guard runs would be silently truncated and would report whatever
-        # partial result they had reached. Matching on the runner name covers the
-        # parent AND the pytest child, since Stop-ProcessTree walks the subtree.
+        # kills project python older than 5 minutes, so without protection the nightly
+        # guard runs would be silently truncated and would report whatever partial
+        # result they had reached.
+        #
+        # CORRECTED 2026-09-03 (REAPER-EXEMPTION-COMMENT-DOES-NOT-MATCH-MECHANISM):
+        # this comment used to claim that matching the runner name protected the
+        # pytest child too, via Stop-ProcessTree's recursive subtree kill. That was
+        # WRONG about the mechanism, though right about the outcome. Stop-ProcessTree is
+        # never even CALLED against an exempt candidate -- the `if ($isExempt) {
+        # continue }` below skips it before Stop-ProcessTree is reached, so no subtree
+        # walk ever happens for a protected process, parent or child. The parent
+        # (whose own CommandLine literally contains "guard_runner_full.py"/
+        # "guard_runner_slow.py") IS matched here directly. The pytest CHILD is a
+        # SEPARATE Win32_Process entry with its own CommandLine
+        # (`<python> -m pytest tests/ -q -m "not slow" -p no:cacheprovider`, or
+        # `... -m slow -q` for the slow runner) that names neither this repo path nor
+        # either runner script -- it survived every prior 5-minute cutoff purely
+        # because both scheduled tasks launch via SYSTEM Python313 pythonw.exe
+        # (`Get-ScheduledTask Gamma_GuardsFull` / `Gamma_GuardsNightly`, verified live
+        # 2026-09-03: both Actions run
+        # "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"), so
+        # `sys.executable.replace("pythonw","python")` sits under AppData, outside
+        # $WorkDir, and the child's argv never references $WorkDir or an MCP name
+        # either -- it fails $isOurs below and is never even offered to this list.
+        # That is an ACCIDENT of the current launch path, not a guarantee: if either
+        # runner is ever invoked via the backtest venv's own python.exe instead (which
+        # DOES sit under $WorkDir -- install-guards-nightly.ps1's own header already
+        # documents that as the intended mechanism for the slow runner, even though
+        # the live registration currently uses system Python), the child would pass
+        # $isOurs and, with no declared marker of its own, be reaped at the 5-minute
+        # mark exactly like the pre-fix mass_grind incident this same list already
+        # exists to prevent. The '-m pytest tests/' marker two lines below is the
+        # DECLARED backstop for that case -- paired with a widened $isOurs match on
+        # the same literal (both must move together: widening $isOurs alone would
+        # newly expose the child to reaping without this marker's protection).
         'guard_runner_slow.py',
         'guard_runner_full.py',
+        # The pytest CHILD's own signature (see the correction above) -- protects it
+        # by DECLARATION rather than by the accident of today's system-Python launch
+        # path. Scoped to '-m pytest tests/' (both runners' literal argv), which only
+        # matters for candidates that already passed the widened $isOurs check just
+        # below, so this cannot exempt an unrelated pytest run elsewhere on the box.
+        '-m pytest tests/',
         'sniper_pipeline.py',
         'sniper_overnight_grinder.py',
         'sniper_stage2_grinder.py',
@@ -391,7 +428,17 @@ function Stop-StaleClaudeProcesses {
         if (-not $p.CommandLine) { continue }
         # Must reference our project workdir AND --print (the headless flag we use).
         # This refuses to touch interactive Claude sessions or unrelated node/python.
-        $isOurs = ($p.CommandLine -like "*$WorkDir*") -or ($p.CommandLine -like "*tradingview-mcp*") -or ($p.CommandLine -like "*alpaca-mcp*") -or ($p.CommandLine -like "*alpaca_mcp*")
+        # '-m pytest tests/' (2026-09-03, REAPER-EXEMPTION-COMMENT-DOES-NOT-MATCH-
+        # MECHANISM): guard_runner_full.py/guard_runner_slow.py's pytest CHILD process
+        # carries neither $WorkDir nor an MCP name in its own CommandLine (see the
+        # $EXEMPT_DAEMONS comment above) -- without this disjunct it is invisible to
+        # the reaper entirely (protected today only by accident of the launch path),
+        # so it can never reach the exemption check below and would be reaped the
+        # moment either runner's launch path changes to put $WorkDir in the child's
+        # own CommandLine. Paired 1:1 with the '-m pytest tests/' $EXEMPT_DAEMONS
+        # entry -- widening this match without that marker would newly expose the
+        # child to reaping instead of protecting it.
+        $isOurs = ($p.CommandLine -like "*$WorkDir*") -or ($p.CommandLine -like "*tradingview-mcp*") -or ($p.CommandLine -like "*alpaca-mcp*") -or ($p.CommandLine -like "*alpaca_mcp*") -or ($p.CommandLine -like "*-m pytest tests/*")
         if (-not $isOurs) { continue }
         # Daemon exemption: skip persistent long-running scripts (Discord, sniper, etc.).
         $isExempt = $false

@@ -102,15 +102,29 @@ except Exception:  # noqa: BLE001 -- degrade, never go dark for a clock import f
     def et_now() -> dt.datetime:
         return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
+FLEET_DIR = ACCOUNTS_PATH.parent
+sys.path.insert(0, str(FLEET_DIR))
+from arm_roster import active_arms  # noqa: E402 -- ONE roster def; queue.md THREE-MODULES-...
+
 SCHEMA = "quote-tape/1"
 STATUS_SCHEMA = "quote-recorder-status/1"
 OPTIONS_DATA_HOST = "https://data.alpaca.markets"
 DEFAULT_BASE_URL = "https://paper-api.alpaca.markets"
 
-# The 5 active real-fills arms (CLAUDE.md account table). safe-1 is a dead tombstone (retired
-# 2026-07-11) and deliberately excluded -- querying a dead key would only manufacture noise in
-# this script's own error counters.
-ARMS = ("safe-2", "bold-2", "safe-3", "risky-1", "risky-3")
+
+def _default_arms() -> "tuple[str, ...]":
+    """The SPY-options arms this script polls -- read from arm_roster.active_arms() on every
+    call, never cached at import, so a retirement or a new arm needs no edit here (was a
+    hardcoded 5-tuple incl. retired risky-3 -- queue.md
+    THREE-MODULES-SHOULD-READ-THE-ROSTER-DYNAMICALLY, 2026-09-03)."""
+    return tuple(active_arms())
+
+
+def __getattr__(name: str):  # PEP 562 -- qr.ARMS always reflects the CURRENT roster
+    if name == "ARMS":
+        return _default_arms()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 ACTIVE_INTERVAL_S = 20   # cadence while >=1 tracked arm holds an open SPY option position
 IDLE_INTERVAL_S = 60     # cadence while book-wide flat -- just enough to notice a new entry
@@ -123,11 +137,14 @@ RETENTION_DAYS = 90      # OP-22 cap on analysis/quote-tape/*.jsonl
 # get_positions/get_option_quote_hilo on 2026-08-28; zero code or import shared with it.
 # --------------------------------------------------------------------------------------- #
 
-def load_creds(secrets_path: Path = SECRETS_PATH, arms: "tuple[str, ...]" = ARMS
+def load_creds(secrets_path: Path = SECRETS_PATH, arms: "Optional[tuple[str, ...]]" = None
                ) -> "dict[str, dict[str, str]]":
     """{arm: {key, secret, base_url}} for exactly the requested arms. Missing/malformed
     entries are skipped (never raise) -- a missing key shows up as a per-arm status gap,
-    not a crashed process."""
+    not a crashed process. `arms` defaults to the LIVE roster (arm_roster.active_arms()),
+    resolved at call time, not at import."""
+    if arms is None:
+        arms = _default_arms()
     out: "dict[str, dict[str, str]]" = {}
     if not secrets_path.exists():
         return out
@@ -411,8 +428,8 @@ def main(argv: "list[str] | None" = None) -> int:
     ap.add_argument("--rth-only", dest="rth_only", action="store_true", default=True)
     ap.add_argument("--no-rth-only", dest="rth_only", action="store_false")
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--arms", default=",".join(ARMS),
-                     help="comma-separated arm ids to poll (default: all 5 active arms)")
+    ap.add_argument("--arms", default=",".join(_default_arms()),
+                     help="comma-separated arm ids to poll (default: the live roster's active arms)")
     ap.add_argument("--out-dir", default=str(QUOTE_TAPE_DIR))
     ap.add_argument("--status-path", default=str(STATUS_PATH))
     ap.add_argument("--secrets-path", default=str(SECRETS_PATH))
