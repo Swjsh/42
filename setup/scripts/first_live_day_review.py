@@ -553,6 +553,16 @@ def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
 _STATUS_HEADER_RE = re.compile(
     r"^## \[(?P<date>\d{4}-\d{2}-\d{2})T(?P<hh>\d{2}):(?P<mm>\d{2})(?::\d{2})? ET\]"
     r"(?P<rest>.*)$")
+# Conductor fires are written as top-level BULLETS in the live STATUS.md
+# ("- [2026-09-02T06:27 ET] conductor: OK -- ..."), not as "## [" headings. Until
+# 2026-09-02 only the heading form was split, so overnight_fires_checked was 0 on a night
+# with a real in-window fire and the check could only ever say "cannot verify" (C7: an
+# instrument that cannot observe its subject is not an instrument). The bullet must be
+# un-indented and carry the same "T..:.. ET]" stamp -- ROSTER-LIVENESS / FULL-SUITE lines
+# use other stamp shapes and are deliberately NOT entry boundaries.
+_STATUS_BULLET_RE = re.compile(
+    r"^- \[(?P<date>\d{4}-\d{2}-\d{2})T(?P<hh>\d{2}):(?P<mm>\d{2})(?::\d{2})? ET\]"
+    r"(?P<rest>.*)$")
 
 _QUEUE_OPEN_GATE_BLOCKING_RE = re.compile(
     r"^- \[ \] (?P<name>[A-Z0-9][A-Z0-9\-]*)[^\n]*GATE-BLOCKING", re.MULTILINE)
@@ -567,7 +577,7 @@ def _split_status_entries(status_md_text: str) -> list[tuple[Optional[datetime],
     cur_ts: Optional[datetime] = None
     cur_body: list[str] = []
     for line in lines:
-        m = _STATUS_HEADER_RE.match(line)
+        m = _STATUS_HEADER_RE.match(line) or _STATUS_BULLET_RE.match(line)
         if m:
             if cur_header is not None:
                 entries.append((cur_ts, cur_header, "\n".join(cur_body)))

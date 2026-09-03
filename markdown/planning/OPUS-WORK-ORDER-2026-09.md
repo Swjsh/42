@@ -50,7 +50,7 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
 ### Landed tonight (04f80c3f) — verify they behave on their first live day
 - [x] Dead-man's switch (`Gamma_DeadMansSwitch`, /2 min RTH), kill-switch wiring, conductor picker,
   gate criterion 5 + disclosures, generator fixes, preregs, docs. See audit §6.
-- [ ] **09-02 16:30 ET — first-live-day review — MECHANISED 2026-09-02 02:15 ET, box stays OPEN until
+- [x] **09-02 16:30 ET — first-live-day review — MECHANISED 2026-09-02 02:15 ET, box stays OPEN until
   today's fire produces a verdict.** This was a 20-minute checklist a human had to remember to run; §5's own
   cadence rule says recurring work becomes a $0 script, so it is one: `setup/scripts/first_live_day_review.py`
   → `analysis/first-live-day/{date}.json`, fired by `Gamma_FirstLiveDayReview` daily 16:30 ET
@@ -69,6 +69,29 @@ costs (criterion 5). The 20-day plan was easier and still unreachable.
   safe flattener? cold MCP start inside a 2-min window?) and consider retiring the two LLM
   flatteners in favour of the Core alone (`[FABLE-OR-J]`: defense-in-depth vs. noise that writes
   false halts). Conductor fires overnight: did any pick a `GATE-BLOCKING` item first?
+  **CLOSED 2026-09-02 23:55 ET (Fable) — verdict GREEN, 6/6 gating checks GREEN.** The task fired on
+  schedule (`Gamma_FirstLiveDayReview` LastRun 16:30 ET rc=0; `run-cmd-hidden` launch 14:30 MT) and the
+  artifact was regenerated cold this session with the same result. Read in the order the box demanded:
+  `guards_full` GREEN rests on `guard-watch-full.json` **11:09 ET, 11,739 passed / 0 failed** — a FRESH
+  run (`Gamma_GuardsFull` LastRun 10:45 ET), not a stale file. The STATUS `## Known broken` line
+  "FULL-SUITE RED 10:15 ET, 7 failed" is the run *before* the 10:45 ET fix entry; the 7 named tests
+  re-run cold now: **7 passed in 2.17s** (that the RED line outlives the green is filed below).
+  **DMS:** first production fire 09:32:01 ET, 193/194 in-window fires 09:32–15:56, 4 arms × every row
+  `LIVE_NO_ACTION`, zero FLATTENED / ERROR, state file `gated: outside_rth` at 15:58. `engine_health`
+  escalation_flags + duplicate_ticks GREEN (168 core rows, no dupes). **`Gamma_EodFlatten_Aggressive`
+  DID reach the broker on day 3** — log 15:55:26 ET `AGG_EOD_FLATTEN_NOOP … Alpaca cross-check: 0 open
+  positions`, yesterday's MCP-unreachable escalation self-cleared; Core flatten 15:52 all four arms
+  NOOP. So the `[FABLE-OR-J]` retire-the-LLM-flatteners question does not fire — no collision, nothing
+  to retire. **One instrument defect found and fixed while reading it:** `conductor_picks` reported
+  `overnight_fires_checked: 0` on a night with a real in-window conductor fire (06:27 ET). Conductor
+  entries are top-level BULLETS in STATUS.md; the parser split only on `## [` headings, so the advisory
+  could never say anything but "cannot verify". Fixed (`_STATUS_BULLET_RE`), RED-proofed (2 new tests
+  failed before the fix, 68/68 after), and the re-run reads *all 1 overnight fire(s) mention
+  GATE-BLOCKING while 1 item(s) were open*. Safety gate 59 passed. **Stated, not resolved:** the 16:30
+  artifact had been overwritten by a direct invocation at 23:37 ET that did not come through the task
+  wrapper (only two `run-cmd-hidden` launches today: 02:15 and 14:30 MT) — same inputs, same verdict,
+  but a fire's own output is not preserved; filed as FIRST-LIVE-DAY-REVIEW-RUN-LOG. REVERT: `git revert`
+  the closing commit.
 
 - [x] **The safety net itself was dark, and the cause is quiet mode — CLOSED 2026-09-02 05:00 ET.**
   `Gamma_GuardsFull` (the ~11,400-test suite) produced no verdict 08-31 → 09-02 while every surface

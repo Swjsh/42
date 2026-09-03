@@ -902,3 +902,39 @@ def test_an_unparseable_timestamp_counts_as_in_window():
     r = flr.check_dms_verdicts([{"ts": "not-a-timestamp", "arm": "safe-2",
                                  "action": "READ_FAILED"}])
     assert r["status"] == "RED", "an unreadable-broker row must still fail the check"
+
+
+# ============================================================================
+# check 5 (cont.): conductor entries are BULLETS in the live STATUS.md, not headings
+# (found 2026-09-02 23:50 ET closing the first-live-day box: the real file carries
+# "- [2026-09-02T06:27 ET] conductor: OK -- ..." while the parser only split on "## [",
+# so overnight_fires_checked was 0 on a night with a conductor fire in-window and the
+# check could never say anything but "cannot verify")
+# ============================================================================
+
+def test_conductor_picks_finds_bullet_form_conductor_entries():
+    status_md = (
+        "## [2026-09-02T16:15 ET] NOT_EXERCISED -- monday_verify\n"
+        "some body\n"
+        "- [2026-09-02T06:27 ET] conductor: OK -- self-audit organ fixed -- REVOKE surface\n"
+        "  body of the bullet, mentions GATE-BLOCKING tier first\n"
+        "- [2026-09-01T23:59+00:00] ROSTER-LIVENESS: not a conductor line\n"
+    )
+    queue_md = "- [ ] SOME-OPEN-ITEM (HIGH, GATE-BLOCKING, filed) :: status:open\n"
+    result = flr.check_conductor_picks(status_md, queue_md, "2026-09-02")
+    assert result["overnight_fires_checked"] == 1, result
+    assert result["fires_missing_gate_blocking_mention"] == []
+    assert "cannot verify" not in result["reason"]
+
+
+def test_conductor_picks_bullet_form_missing_mention_is_named():
+    status_md = (
+        "- [2026-09-02T06:27 ET] conductor: OK -- did something unrelated\n"
+        "  body with no mention of the tag\n"
+        "- [2026-09-02T16:16 ET] conductor: OK -- after the open, must be excluded\n"
+        "  GATE-BLOCKING mentioned here but outside the overnight window\n"
+    )
+    queue_md = "- [ ] SOME-OPEN-ITEM (HIGH, GATE-BLOCKING, filed) :: status:open\n"
+    result = flr.check_conductor_picks(status_md, queue_md, "2026-09-02")
+    assert result["overnight_fires_checked"] == 1, result
+    assert result["fires_missing_gate_blocking_mention"] == ["2026-09-02T06:27"]

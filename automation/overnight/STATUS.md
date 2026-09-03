@@ -1,45 +1,16 @@
-## [2026-09-02T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-09-02 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-29..2026-09-01), real OPRA fills, floor n>=10
 
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 84 tick(s) showed in_trade>0. 33 real fill(s) dated 2026-09-02: bold-2@11:16, bold-2@11:17, safe-3@11:17, risky-1@11:17, bold-2@11:18, bold-2@11:19, bold-2@11:20, bold-2@11:56, bold-2@11:57, safe-3@11:57, risky-1@11:57, bold-2@11:58, bold-2@1… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-09-02, generated_at_et=2026-09-02T08:40:01-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-09-02, regime_context.stamp_date=2026-09-02 (present=True, dates_match=True). one_liner='Yesterday 2026-09-01 (Tue) = gap-go (range 0.68%, gap -0.64%, clo… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 56 distinct near-price levels. Worst: 762.90 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 48 time(s) across 6 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-09-02 window_end=2026-09-01 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=31 (delta +21 vs baseline n=10) exp=$-1.77/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=38 exp=$49.55/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-09-02T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2']. 211 theta-clock row(s) dated 2026-09-02 across 4 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=211, unavailable=0. still sqrt_tim… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-09-02 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-09-02`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1709.05); Bold_ATM_1+2=CONFIRM ($714.4)
+> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
-**3. `## Known broken` had left the preamble again.** Yesterday's fix moved it to the top; a
-producer prepended a dated entry at line 1 and it was back inside an entry, due to roll off
-to the archive with it -- the 2026-08-20 two-month outage restarting on day one. Pinning by
-POSITION cannot survive a producer that writes above you, so `status_retention` now pins by
-NAME (`PINNED_SECTIONS`) and hoists the newest occurrence from anywhere. The positional guard
-was replaced with the invariant it was a proxy for: does the section survive a real roll?
-
-**Guards:** 14 new + 13 rewritten + 24; 10 mutations RED-proofed, each caught by the intended
-test. Two of my own mutations initially ESCAPED (a fixture that buried the marker in an entry
-that survives anyway; a "reads the live producer" test that asserted the regression's
-spelling rather than its behaviour) -- both guards were strengthened, neither mutation
-dropped. A third caught a real defect in my own hoist: every copy was being lifted, not just
-the newest.
-
-**Still open, split out:** `TRENDLINE-DRAW-HEADLESS` is the one REAL alarm of the three --
-last run 2026-08-27, `reason="budget conservation"`, a string that appears in no code. An LLM
-skipped a step whose work is a $0 deterministic script. Filed with the constraint-provenance
-finding: `trendline_chart_draw.py` justifies its LLM-only design by citing a headless
-constraint that `Gamma_ChartAutoDraw` had disproved **three days before that module was
-written**. Fix path is proven, not speculative.
-
-**Revoke:** `git revert 478dadf2`.
-
 ## Known broken
 
+- [2026-09-02T23:50:00-04:00] MCP_AUDIT_YELLOW: All MCP servers healthy; TradingView required relaunch but recovered successfully.
 - [2026-09-02T16:40+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T15:07+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02 10:15 ET] FULL-SUITE RED :: 11732 passed, 7 failed, 11 skipped :: tests/test_desk_allocator_kalshi_lane_fix_2026_08_21.py::test_live_kalshi_state_currently_healthy, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_measured_move_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_premarket_touch_credit_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_quiet_mode_weekend_research_2026_08_30.py::TestPresenceDowngrade::test_gaming_outside_the_research_band_still_blacks_out, tests/test_structure_stop_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_tw8_headroom_retest.py::test_preregistration_file_exists_and_is_frozen_v1 :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
@@ -60,6 +31,18 @@ written**. Fix path is proven, not speculative.
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+- [2026-09-02T23:56 ET] first-live-day box CLOSED -- verdict GREEN 6/6, one instrument defect fixed on the way -- REVOKE surface
+
+  **Picked via the standing /goal (OPUS-WORK-ORDER §1, top runnable box in Phase 0).** `Gamma_FirstLiveDayReview` fired 16:30 ET rc=0; artifact regenerated cold 23:53 ET, `verdict=GREEN`, no failing checks. Read `guards_full` FIRST as the box demanded: it rests on `guard-watch-full.json` 11:09 ET **11,739 passed / 0 failed**, a fresh run (task LastRun 10:45 ET) -- the "FULL-SUITE RED 10:15 ET, 7 failed" line above is the run BEFORE the 10:45 fix; the 7 tests re-run now: `7 passed in 2.17s`. DMS: first production fire 09:32:01 ET, 193/194 in-window fires, every row `LIVE_NO_ACTION`, zero FLATTENED/ERROR. `Gamma_EodFlatten_Aggressive` reached the broker on day 3 (`AGG_EOD_FLATTEN_NOOP ... Alpaca cross-check: 0 open positions` at 15:55:26 ET) -- the retire-the-LLM-flatteners fork does not fire. engine-health re-run 23:54 ET GREEN (the 23:48 `levels_file_stale` RED was a 37-second race with the refresher's own write).
+
+  🔧 **Fixed:** `check_conductor_picks` could never see a conductor fire -- conductor entries are top-level bullets, the parser split only on `## [` headings, so `overnight_fires_checked` was 0 with a real 06:27 ET fire in-window. `_STATUS_BULLET_RE` added; 2 new tests RED before / 68 passed after; safety gate 59 passed. Re-run reads "all 1 overnight fire(s) mention GATE-BLOCKING while 1 item(s) were open".
+
+  📁 **Filed:** FULL-SUITE-RED-LINE-OUTLIVES-GREEN (guard_runner_full never clears its Known-broken line on a later green) and FIRST-LIVE-DAY-REVIEW-RUN-LOG (a direct 23:37 ET invocation overwrote the task's own 16:30 artifact; no per-run record). **Blocked, stated:** Fri 09-04 cadence and Sat 09-05 Rule-9 pass are date-gated; DMS kill drill + phone HALT drill wait on J's window; Phase 1 opens 09-08.
+
+  🗄️ **Also this fire -- queue.md retention cap (OP-22):** the file was ALREADY over its 450,000-byte cap at HEAD (463,721) before this session's two filings, and `test_queue_md_retention_cap` says whoever touches it next consolidates. Ran the rule-conformant pass: 8 `[x]` items with terminal status (19,483 bytes) moved verbatim to `queue-archive-2026-09-02.md` tranche 2, depends-check clean, pointer left at the top of Active backlog; queue.md 468,289 -> 448,964 bytes. `test_queue_md_retention_cap` + preamble guards + review tests: **79 passed**. ⚠️ Headroom is ~1 KB: the growth driver is sessions writing multi-KB closure prose INTO queue items instead of STATUS; the next filing breaches again unless closures are written short and the prose goes to STATUS/the work order.
+
+  **Revoke:** `git revert` the closing commit (parser fix + tests + work-order tick + this entry).
 
 
 - [2026-09-02T16:16 ET] conductor: OK -- QUOTE-TAPE instrument confirmed alive (closed queue item) + a live STATUS.md self-corruption found and fixed while writing this entry -- REVOKE surface
@@ -112,6 +95,46 @@ written**. Fix path is proven, not speculative.
 - [2026-09-02T05:37+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 
 ---
+
+## [2026-09-02T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-09-02 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 84 tick(s) showed in_trade>0. 33 real fill(s) dated 2026-09-02: bold-2@11:16, bold-2@11:17, safe-3@11:17, risky-1@11:17, bold-2@11:18, bold-2@11:19, bold-2@11:20, bold-2@11:56, bold-2@11:57, safe-3@11:57, risky-1@11:57, bold-2@11:58, bold-2@1… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-09-02, generated_at_et=2026-09-02T08:40:01-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-09-02, regime_context.stamp_date=2026-09-02 (present=True, dates_match=True). one_liner='Yesterday 2026-09-01 (Tue) = gap-go (range 0.68%, gap -0.64%, clo… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 56 distinct near-price levels. Worst: 762.90 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 171 level-refresh run(s) logged (171 ok), hysteresis_held fired 48 time(s) across 6 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-09-02 window_end=2026-09-01 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=31 (delta +21 vs baseline n=10) exp=$-1.77/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=38 exp=$49.55/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-09-02T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2']. 211 theta-clock row(s) dated 2026-09-02 across 4 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=211, unavailable=0. still sqrt_tim… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-09-02 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-09-02`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+**3. `## Known broken` had left the preamble again.** Yesterday's fix moved it to the top; a
+producer prepended a dated entry at line 1 and it was back inside an entry, due to roll off
+to the archive with it -- the 2026-08-20 two-month outage restarting on day one. Pinning by
+POSITION cannot survive a producer that writes above you, so `status_retention` now pins by
+NAME (`PINNED_SECTIONS`) and hoists the newest occurrence from anywhere. The positional guard
+was replaced with the invariant it was a proxy for: does the section survive a real roll?
+
+**Guards:** 14 new + 13 rewritten + 24; 10 mutations RED-proofed, each caught by the intended
+test. Two of my own mutations initially ESCAPED (a fixture that buried the marker in an entry
+that survives anyway; a "reads the live producer" test that asserted the regression's
+spelling rather than its behaviour) -- both guards were strengthened, neither mutation
+dropped. A third caught a real defect in my own hoist: every copy was being lifted, not just
+the newest.
+
+**Still open, split out:** `TRENDLINE-DRAW-HEADLESS` is the one REAL alarm of the three --
+last run 2026-08-27, `reason="budget conservation"`, a string that appears in no code. An LLM
+skipped a step whose work is a $0 deterministic script. Filed with the constraint-provenance
+finding: `trendline_chart_draw.py` justifies its LLM-only design by citing a headless
+constraint that `Gamma_ChartAutoDraw` had disproved **three days before that module was
+written**. Fix path is proven, not speculative.
+
+**Revoke:** `git revert 478dadf2`.
 
 ## [2026-09-02T14:20 ET] The 12th frozen prereg: a live behaviour resting on a run nobody can reproduce
 
@@ -439,135 +462,6 @@ trendline and staleness.
 
 **Revoke:** `git revert 17453843`.
 
-## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — RED-BLOCKED on the freshest 25 trading days (2026-07-27..2026-08-28), real OPRA fills, floor n>=10
 
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-08-28). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1274.05); Bold_ATM_1+2=CONFIRM ($269.4)
-> - **edges_confirmed_on_recent = True** (any RED=True). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
-## [2026-09-02T08:30 ET] Opus, work-order §2d: CANARY-OUT-OF-SAFE-2 closed -- the item's own diagnosis was wrong -- REVOKE surface
-
-Commits `6383274f` (fee residue) + `cc48a29f` (crypto bucket). Paper-only, additive, no
-frozen file touched.
-
-**16 phantom open lots vs a broker that says flat.** The queue item called it "FIFO float
-dust (1e-4..1e-6 vs a 1e-9 threshold)". Measured rather than assumed: all sixteen were
-**exactly 0.2500% of quantity bought**, across 6 arms and 6 symbols, from 4.2e-06 BTC to
-**0.70 UNI (~$2)**. That is Alpaca's crypto taker fee charged IN THE BASE ASSET -- buy 100
-UNI, pay 0.25 UNI, only 99.75 is ever sellable. Not dust: an epsilon big enough to swallow
-0.70 UNI would swallow real positions. `dress_rehearsal.py` already carried the mechanism in
-a comment ("fees can make position qty < order filled_qty"); nothing had connected it.
-
-**Fixed as a classifier, not a matcher change.** My first cut popped fee-sized lots inside
-the FIFO loop and silently destroyed **90 of 790 round-trip rows** -- a popped lot is no
-longer available for a later fill to match against. The round trips and their P&L were never
-wrong; only the leftover report was.
-**VERIFIED COLD:** round trips 790 -> 790, realized P&L $1,283.45 -> $1,283.45 to the cent,
-open lots **16 -> 0**, against a live `/v2/positions` read showing **0 positions on all five
-live arms** (safe-1 401s -- dormant, same dead key as the structure-stop finding).
-
-**Attribution: safe-2 reported n_manual=164.** 157 of those were the nightly $10 BTC canary,
-because every crypto fill is hard-attributed "manual". That reads as J hand-trading 164
-times. Crypto now has its own bucket, split on the SYMBOL (definitive; no state file, no
-order-id registry, no heuristic). **n_manual 164 -> 7**, n_crypto 157, manual_pnl -47.08 ->
--46.00. Money was never the issue: crypto P&L is -$2.57 across the whole book.
-
-**The canary STAYS in safe-2 -- decided, not skipped.** The item asked to move it to the twin.
-Check 2 exists to prove safe-2's OWN auth+POST+fill+position machinery works tonight; moving
-it proves some other account's machinery and silently drops that coverage. The defect was the
-reporting. The go-live gate was never exposed either way -- it reads trades-enriched.jsonl,
-which is options-only.
-
-**Known limitation, pinned in a test:** a genuine position smaller than the fee residue is
-indistinguishable from the fee by quantity alone and gets dropped. The broker's
-`/v2/positions` is the only authority on flat (C11) -- which is exactly what exposed this.
-
-29 guards, 9 mutations RED-proofed. Two escaped on my own weak fixtures and were fixed, not
-dropped.
-
-**Revoke:** `git revert cc48a29f 6383274f`.
-
-## [2026-09-02T07:42 ET] Opus, work-order §2d: WEEKLY-CIRCUIT-BREAKER-CORE answered -- the answer is a NULL -- REVOKE surface
-
-**No ship is proposed at 09-29.** Commits `3401e5fe` (study + prereg + guards), `c1e11540`
-(test hygiene). Nothing armed; no frozen file touched.
-
-**The gap is real.** Rule 5 is per-DAY, and the 08-18 day-throttle prereg already showed it
-unreachable (worst arm-day -24.4% against a -30% floor). Nothing in the core path looks
-ACROSS days. Real 3-day rolling realized losses: safe-2 -$640 · bold-2 -$955 · safe-3
--$1,306 · risky-1 -$1,214 · risky-3 -$1,252, on ~$5,000 accounts -- roughly -26% spread
-across days that no per-day switch can see.
-
-**The obvious fix is refuted.** 8-cell grid (W=3,5 x T=$400..$1000): **every cell cost the
-book money** (-$53..-$1,718) and **6 of 8 made the worst per-arm drawdown DEEPER.** A circuit
-breaker that worsens the drawdown it exists to limit is not a safety device.
-
-**Mechanism, verified on a named case rather than asserted:** safe-3 lost -1048 / -156 / -102
-over three sessions, tripping a 3-day/-$1000 circuit -- and the very next session was
-**+457**. The circuit blocks the rebound. The window table agrees: safe-3's 10-day worst
-(-482) is *shallower* than its 3-day worst (-1306). Drawdowns mean-revert in this record.
-
-**What is frozen, and how weak it is.** W5/T800 and W5/T1000 are the only cells with positive
-drawdown improvement, frozen for FORWARD judgement at 10-30. The caveat is stated up front
-because it is load-bearing: at W5/T1000 the **entire +$133 comes from risky-1 blocking ONE
-day (2026-08-12)**; W5/T800's gain clusters on 08-12..08-14. One mid-August event. The
-correct prior is noise.
-
-**Deliberately NOT logged as a kill.** The record contains no regime in which a drawdown
-failed to recover, so it cannot speak to the case a circuit exists for. Absence of evidence
-FOR these thresholds -- not evidence against multi-day risk control.
-
-**Guards:** 16 tests, 8 mutations RED-proofed. Three initially escaped because MY fixtures
-were too weak (a short-history case that never breached; a blocked day whose real P&L was a
-win, which cannot distinguish carry-forward from zero). Fixtures strengthened, no mutation
-dropped. The null is pinned so a flattering regression cannot become a silent green light.
-
-**Also closed:** `TASK-SCORER-LIVE-QUEUE-TEST-FIXTURE` -- it had already gone RED exactly as
-its filing predicted. The two ids it read from the live queue.md were completed and archived
-by an ordinary consolidation (`b7f777b6`), so a parser guard failed for a reason unrelated to
-the parser. Replaced with a snapshot of the incident's shape plus an id-agnostic liveness
-check on the real file. Archiving a done item must not turn a guard red.
-
-**Revoke:** `git revert 3401e5fe c1e11540`.
-
-## [2026-09-02T07:20 ET] Opus, work-order §2d: STATUS-BROKEN-BLOCKS-DRAIN closed -- three causes, one symptom -- REVOKE surface
-
-**Symptom:** `### BROKEN: self-check` blocks recurring every 30 min on a surface nobody reads.
-Four blocks inside 23 minutes differed ONLY in a counter (13 -> 15 -> 17). Commit `478dadf2`.
-
-**1. The re-append -- and the ping suppression was broken by the same line.** `_alert` wrote
-STATUS.md unconditionally, and the Discord dedupe beside it keyed on `" | ".join(problems)`,
-the FULL text. Half of self_check's messages embed a running count, so the key changed on
-nearly every fire: STATUS.md grew a block per tick AND the 6h ping window never matched. One
-shared `_problem_set_signature()` now gates both, collapsing free-standing numbers only (a
-digit after a word char or hyphen stays -- `safe-2` must never collapse into `safe-3`).
-*The downstream mitigation shipped 09-01 for this same spam (`fold_consecutive_selfcheck_
-blocks`) folded 0 of the 5 live blocks -- they are not byte-identical. Same root cause
-defeated both layers; this one is at the source.*
-**VERIFIED COLD:** 4 consecutive runs 07:0x-07:16 ET, blocks held at 5, zero new Discord
-pings since 06:59 -- while the underlying count really did move 19 -> 22.
-
-**2. CHART-DRAWING was a FALSE ALARM against a retired producer (C14).** It watched
-`key-levels.json -> chart_drawing_summary.as_of`, written by premarket Step 5 (an LLM step).
-`Gamma_ChartAutoDraw` replaced that 2026-08-06 ($0, 08:35-16:05 ET /30m) and stamps
-`chart-autodraw.json`, so the old field froze at 2026-06-29 while the chart was in fact
-being redrawn correctly every day (verified: as_of=2026-09-01T16:05 ET, status=OK,
-dry_run=false, real removals at spot 761.57, task GREEN). Re-pointed, and gated on `status`
-too -- `draw_key_levels.py` write_state()s on its failure paths, so a bare date check reads
-GREEN on a TradingView-down morning with a stale chart.
-
-**3. `## Live watch
-
-- [2026-09-02T14:28:01 ET] THETA STALL :: safe-2 SPY260902C00766000 qty=3 :: est theta burn -5.40 vs est delta gain +0.00 over last 15min (mid=0.415, unrealized=-32.76%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-02T12:14:01 ET] THETA STALL :: risky-1 SPY260902C00765000 qty=5 :: est theta burn -13.55 vs est delta gain -47.50 over last 15min (mid=1.395, unrealized=25.22%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-02T12:14:01 ET] THETA STALL :: safe-3 SPY260902C00765000 qty=3 :: est theta burn -8.13 vs est delta gain -28.50 over last 15min (mid=1.375, unrealized=24.32%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-02T11:37:00 ET] THETA STALL :: safe-3 SPY260902C00766000 qty=3 :: est theta burn -7.08 vs est delta gain +0.00 over last 15min (mid=1.05, unrealized=11.83%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-02T11:25:00 ET] THETA STALL :: risky-1 SPY260902C00766000 qty=5 :: est theta burn -5.80 vs est delta gain +0.00 over last 15min (mid=0.955, unrealized=4.3%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
-
----
-
+## Kitchen
+Kitchen: alive, queue 48 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
