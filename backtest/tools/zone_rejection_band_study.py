@@ -66,6 +66,7 @@ import sys
 import time as _time_mod
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Optional
 
 REPO = Path(__file__).resolve().parents[2]
 for _p in (REPO / "backtest", REPO / "backtest" / "tools", REPO / "automation" / "state" / "fleet"):
@@ -89,13 +90,30 @@ import strike_selection as ssel                                           # noqa
 SMOKE = "--smoke" in sys.argv
 
 PREREG = REPO / "analysis" / "recommendations" / "prereg-zone-rejection-band-2026-07-17.json"
-EXPECTED_PREREG_SHA16 = "0f799f46e5dc7ab3"
+EXPECTED_PREREG_SHA16 = "bea3c7f7597f8b47"  # resynced 2026-09-03 after adding run_2026_09_03 status note (block-elite precedent)
 EXPECTED_PREREG_VERSION = 1
 
-OUT_JSON = REPO / "analysis" / "recommendations" / ("zone-rejection-band-2026-07-17-SMOKE.json" if SMOKE
-                                                     else "zone-rejection-band-2026-07-17.json")
-OUT_MD = REPO / "analysis" / "recommendations" / ("zone-rejection-band-2026-07-17-SMOKE.md" if SMOKE
-                                                   else "zone-rejection-band-2026-07-17.md")
+def _out_tag() -> Optional[str]:
+    """--out-tag <TAG> (added 2026-09-03): writes to zone-rejection-band-results-<TAG>.{json,md}
+    instead of the default 2026-07-17-named files, so a later confirmatory/measurement RUN
+    (this task's run_2026_09_03) does not silently overwrite the original freeze-day output --
+    preserves the audit trail of both runs on disk. Default (no flag) behavior is UNCHANGED."""
+    if "--out-tag" in sys.argv:
+        i = sys.argv.index("--out-tag")
+        if i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+    return None
+
+
+OUT_TAG = _out_tag()
+if OUT_TAG:
+    OUT_JSON = REPO / "analysis" / "recommendations" / f"zone-rejection-band-results-{OUT_TAG}.json"
+    OUT_MD = REPO / "analysis" / "recommendations" / f"zone-rejection-band-results-{OUT_TAG}.md"
+else:
+    OUT_JSON = REPO / "analysis" / "recommendations" / ("zone-rejection-band-2026-07-17-SMOKE.json" if SMOKE
+                                                         else "zone-rejection-band-2026-07-17.json")
+    OUT_MD = REPO / "analysis" / "recommendations" / ("zone-rejection-band-2026-07-17-SMOKE.md" if SMOKE
+                                                       else "zone-rejection-band-2026-07-17.md")
 
 IS_START = dt.date(2025, 1, 1)
 OOS_BOUNDARY = dt.date(2026, 1, 1)
@@ -443,6 +461,64 @@ def cell_metrics(members: list[dict]) -> dict:
     }
 
 
+def compute_cell_gates(c: dict) -> dict:
+    """The frozen 5-gate ratification vector for ONE cell's metrics dict (pure function,
+    extracted from main() 2026-09-03 for direct unit-testability -- identical logic, no
+    behavior change)."""
+    g_ = {
+        "oos_positive": bool(c["oos_positive"]),
+        "wf_ge_070": bool(c["wf_ge_070"]),
+        "sub_window_stable": bool(c["sub_window_stable"]),
+        "anchor_no_regression": bool(c["anchor_no_regression"]),
+        "bh_fdr_survivor": bool(c["bh_fdr_survivor"]),
+    }
+    g_["all_5_pass"] = all(g_.values())
+    return g_
+
+
+def compute_cell_decision(gates: dict, n: int) -> dict:
+    """ship_ready per the frozen decision_rule ('a Z cell is SHIP-READY iff it clears all 5
+    ratification_gates AND survives BH-FDR' -- bh_fdr_survivor is itself gate #5 above, and
+    n>0 guards against a vacuously-true all() over an empty/None-filled metrics dict)."""
+    fails = [k for k, v in gates.items() if k != "all_5_pass" and not v]
+    return {"ship_ready": gates["all_5_pass"] and n > 0, "fails": fails, "n": n, "evidence_thin": n < 15}
+
+
+def select_winner(cells_out: dict, decisions: dict, cell_labels: list[str]) -> Optional[str]:
+    """Per the frozen decision_rule: 'the WINNER is the cell with the highest OOS delta
+    expectancy per trade (tie-break: larger n)', among cells with decisions[...]['ship_ready']."""
+    ship_ready_cells = [lbl for lbl in cell_labels if decisions[lbl]["ship_ready"]]
+    if not ship_ready_cells:
+        return None
+    return max(ship_ready_cells, key=lambda lbl: (cells_out[lbl]["oos_delta_mean"] or -1e18, cells_out[lbl]["n"]))
+
+
+def best_day_concentration(pop: list[dict]) -> dict:
+    """Best-day concentration disclosure (added 2026-09-03 per the run_2026_09_03 task
+    requirement -- NOT part of the frozen prereg's own gate set, reported alongside it).
+    Groups the delta population by calendar date, sums delta per day, and reports what
+    fraction of the population's TOTAL delta and of its GROSS POSITIVE delta the single
+    best day accounts for -- the standard concentration-disclosure shape used across this
+    repo's other A/B studies (CLAUDE.md C4)."""
+    if not pop:
+        return {"n_days": 0, "total_delta": 0.0, "best_day": None, "best_day_delta": None,
+               "best_day_share_of_total": None, "best_day_share_of_gross_positive": None}
+    by_day: dict = {}
+    for e in pop:
+        by_day[e["date"]] = by_day.get(e["date"], 0.0) + e["delta"]
+    total = sum(by_day.values())
+    gross_positive = sum(v for v in by_day.values() if v > 0)
+    best_day = max(by_day, key=lambda d: by_day[d])
+    best_day_delta = by_day[best_day]
+    return {
+        "n_days": len(by_day), "total_delta": round(total, 2),
+        "best_day": best_day, "best_day_delta": round(best_day_delta, 2),
+        "best_day_share_of_total": round(best_day_delta / total, 4) if total != 0 else None,
+        "best_day_share_of_gross_positive": (round(best_day_delta / gross_positive, 4)
+                                             if gross_positive > 0 else None),
+    }
+
+
 def anchor_no_regression(pop: list[dict], j_anchor_dates: set) -> bool:
     """PASS unless a new/shifted episode lands on one of the 7 J-anchor trade dates
     (pierce-preservation guarantees the candidate cannot alter an anchor's OWN entry
@@ -488,6 +564,8 @@ def empirical_p_null(real_per_trade, null_by_seed: list[float]) -> float:
 J_ANCHOR_DATES = {"2026-04-29", "2026-05-01", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07"}
 
 CELLS = [(f"fixed_{z}", z, False) for z in FIXED_Z] + [(f"atr_{m}x", m, True) for m in ATR_MULT_Z]
+CELL_Z = {lbl: z for lbl, z, _atr in CELLS}
+CELL_IS_ATR = {lbl: atr for lbl, _z, atr in CELLS}
 
 
 def main() -> int:
@@ -559,34 +637,23 @@ def main() -> int:
             cells_out[cell_label]["bh_fdr_survivor"] = b["bh_fdr_survivor"]
             cells_out[cell_label]["bh_rank"] = b["bh_rank"]
 
-        gates: dict = {}
-        decisions: dict = {}
-        for cell_label, _z, _atr in CELLS:
-            c = cells_out[cell_label]
-            g_ = {
-                "oos_positive": bool(c["oos_positive"]),
-                "wf_ge_070": bool(c["wf_ge_070"]),
-                "sub_window_stable": bool(c["sub_window_stable"]),
-                "anchor_no_regression": bool(c["anchor_no_regression"]),
-                "bh_fdr_survivor": bool(c["bh_fdr_survivor"]),
-            }
-            g_["all_5_pass"] = all(g_.values())
-            gates[cell_label] = g_
-            fails = [k for k, v in g_.items() if k != "all_5_pass" and not v]
-            decisions[cell_label] = {"ship_ready": g_["all_5_pass"] and c["n"] > 0, "fails": fails,
-                                     "n": c["n"], "evidence_thin": c["n"] < 15}
+        cell_labels = [lbl for lbl, _z, _atr in CELLS]
+        gates = {lbl: compute_cell_gates(cells_out[lbl]) for lbl in cell_labels}
+        decisions = {lbl: compute_cell_decision(gates[lbl], cells_out[lbl]["n"]) for lbl in cell_labels}
 
-        ship_ready_cells = [lbl for lbl, _z, _atr in CELLS if decisions[lbl]["ship_ready"]]
-        winner = None
-        if ship_ready_cells:
-            winner = max(ship_ready_cells, key=lambda lbl: (cells_out[lbl]["oos_delta_mean"] or -1e18,
-                                                            cells_out[lbl]["n"]))
+        ship_ready_cells = [lbl for lbl in cell_labels if decisions[lbl]["ship_ready"]]
+        winner = select_winner(cells_out, decisions, cell_labels)
 
         # Honest "closest cell" for the KILL writeup: most gates passed, tie-break by n.
         n_gates_passed = {lbl: sum(1 for k, v in gates[lbl].items() if k != "all_5_pass" and v)
-                          for lbl, _z, _atr in CELLS}
-        closest_cell = max((lbl for lbl, _z, _atr in CELLS),
-                           key=lambda lbl: (n_gates_passed[lbl], cells_out[lbl]["n"]))
+                          for lbl in cell_labels}
+        closest_cell = max(cell_labels, key=lambda lbl: (n_gates_passed[lbl], cells_out[lbl]["n"]))
+
+        concentration_overall = best_day_concentration(pop)
+        concentration_closest_cell = best_day_concentration(
+            cell_membership(pop, closest_cell, CELL_Z[closest_cell], CELL_IS_ATR[closest_cell]))
+        concentration_winner_cell = (best_day_concentration(
+            cell_membership(pop, winner, CELL_Z[winner], CELL_IS_ATR[winner])) if winner else None)
 
         accounts_out[label] = {
             "mined_summary": {"n_control_bear_trades": len(mined["control_trades"]),
@@ -599,7 +666,11 @@ def main() -> int:
                                     "n_shifted": sum(1 for e in pop if e["kind"] == "shifted"),
                                     "control_only_excess_diagnostic": control_only_excess,
                                     "n_dropped": n_dropped},
+            "delta_population": pop,
             "cells": cells_out, "gates": gates, "decisions": decisions,
+            "concentration": {"overall_delta_population": concentration_overall,
+                              "closest_cell": concentration_closest_cell,
+                              "winner_cell": concentration_winner_cell},
             "verdict": {"any_ship_ready": bool(ship_ready_cells), "ship_ready_cells": ship_ready_cells,
                        "winner": winner, "closest_cell": closest_cell,
                        "closest_cell_gates_passed": n_gates_passed[closest_cell],
@@ -616,6 +687,22 @@ def main() -> int:
         "_doc": "ZONE-REJECTION-BAND -- proximity-band bearish level-rejection trigger study, "
                "2026-07-17 J-directed miss. ANALYSIS ONLY. Source: backtest/tools/zone_rejection_band_study.py.",
         "generated_at": dt.datetime.now().isoformat(),
+        "run_tag": OUT_TAG,
+        "walker_disclosure": {
+            "walker_used": "exit_manager_walk (via structure_stop_study.replay_structure_aware -> "
+                           "exit_manager.plan_exit_actions -- the LIVE decision core, per-bar), NOT "
+                           "multileg_exit_walk.py. This study never imports multileg_exit_walk.",
+            "magnitude_fidelity_caveat": "exit_manager_walk's own magnitude-fidelity anchor (whole_engine_"
+                                         "null.py V9, n=121, 2026-09-02) is aggregate_ratio=0.6452, "
+                                         "median_abs_error=$15.00 -- WITHIN the pre-registered magnitude "
+                                         "criterion (|ratio-1|<=0.4, median<=$40; see analysis/harness-"
+                                         "fidelity/WALKER-MAGNITUDE-2026-09-03.md). This is the OPPOSITE "
+                                         "situation from multileg_exit_walk, which fails that same "
+                                         "criterion even after its 2026-09-03 partial fix -- dollar "
+                                         "magnitudes in THIS study's cells are read as walker-trustworthy, "
+                                         "not merely sign-trustworthy, though the underlying WF-gate "
+                                         "ladder itself only ever required sign/ranking correctness.",
+        },
         "smoke_mode": SMOKE,
         "preflight": pf,
         "prereg_path": str(PREREG.relative_to(REPO)).replace("\\", "/"),
@@ -671,6 +758,15 @@ def render_md(out: dict) -> str:
     L.append("")
     L.append(f"**Motivating incident:** {out['motivating_incident']}")
     L.append("")
+    wd = out["walker_disclosure"]
+    L.append(f"**Walker used:** {wd['walker_used']}")
+    L.append("")
+    L.append(f"**Magnitude-fidelity caveat:** {wd['magnitude_fidelity_caveat']}")
+    L.append("")
+    L.append("**Control cell:** the current, unmodified, already-shipped exact-pierce "
+             "`filters.py#detect_level_rejection` (Z=0 / candidate disabled). Every cell above "
+             "is a delta AGAINST this control, not an absolute P&L -- delta=0 by definition.")
+    L.append("")
     for label in ("safe", "bold"):
         a = out["accounts"][label]
         L.append(f"## {label.upper()}")
@@ -704,6 +800,12 @@ def render_md(out: dict) -> str:
                      f"({v['closest_cell_gates_passed']}/5 gates passed, verdict_ladder="
                      f"{v['closest_cell_verdict_ladder']}, n={ccm['n']}, IS=${ccm['is_delta_mean']}, "
                      f"OOS=${ccm['oos_delta_mean']}) -- fails: {v['closest_cell_fails']}.")
+        L.append("")
+        conc = a["concentration"]["overall_delta_population"]
+        L.append(f"**Best-day concentration** (full new+shifted delta population, {conc['n_days']} "
+                 f"trading days, total delta ${conc['total_delta']}): best day {conc['best_day']} "
+                 f"contributed ${conc['best_day_delta']} ({conc['best_day_share_of_total']} of total, "
+                 f"{conc['best_day_share_of_gross_positive']} of gross-positive-day delta).")
         L.append("")
     L.append("## Overall verdict")
     L.append("")
