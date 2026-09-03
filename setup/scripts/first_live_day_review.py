@@ -80,6 +80,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import datetime, timedelta
@@ -112,6 +113,15 @@ EOD_LOG_DIR = _REPO / "automation" / "state" / "logs"
 STATUS_MD_PATH = _REPO / "automation" / "overnight" / "STATUS.md"
 QUEUE_MD_PATH = _REPO / "automation" / "overnight" / "queue.md"
 OUT_DIR = _REPO / "analysis" / "first-live-day"
+# FIRST-LIVE-DAY-REVIEW-RUN-LOG (queue.md 2026-09-02): write_outputs() below writes ONE
+# artifact per review_date, so a later invocation on the same date silently overwrites an
+# earlier one -- happened live 2026-09-02, where a direct 23:37 ET run overwrote the
+# 16:30 ET scheduled fire's own output with no record either run had happened.
+# append_run_log() (below) writes `<OUT_DIR>/runs.jsonl` -- a permanent, append-only log
+# of EVERY invocation, never touched by write_outputs() -- so "did today's fire produce a
+# verdict" never again has to be answered by inference. Computed from OUT_DIR at call
+# time (not a separate module constant) so it stays redirectable the same way every other
+# path here is, e.g. by tests monkeypatching OUT_DIR.
 
 # ---- config (from dead_mans_switch.py -- kept in sync, not re-derived by guesswork) -------
 RTH_START = (9, 32)
@@ -953,6 +963,94 @@ def _fmt_check_line(name: str, c: dict) -> str:
     return f"- **{name}**: {c.get('status')} -- {c.get('reason', '')}"
 
 
+# ============================================================================
+# run log (FIRST-LIVE-DAY-REVIEW-RUN-LOG, queue.md 2026-09-02)
+# ============================================================================
+
+def _parent_process_image_name() -> Optional[str]:
+    """Best-effort lowercase basename of the IMMEDIATE parent process's executable.
+    Windows-only, stdlib ctypes -- psutil is NOT a dependency here (confirmed absent
+    from both the backtest venv and the system Python313 interpreter the scheduled
+    task itself runs under: a new dependency could silently break under the one
+    launcher this needs to detect). Returns None on any failure (non-Windows, access
+    denied, parent already gone) -- callers treat that as 'unknown', never crash
+    (C7 fail-open)."""
+    if sys.platform != "win32":
+        return None
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+        handle = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, os.getppid())
+        if not handle:
+            return None
+        try:
+            buf = ctypes.create_unicode_buffer(260)
+            size = wintypes.DWORD(260)
+            ok = kernel32.QueryFullProcessImageNameW(handle, 0, buf, ctypes.byref(size))
+            if not ok:
+                return None
+            return Path(buf.value).name.lower()
+        finally:
+            kernel32.CloseHandle(handle)
+    except Exception:  # noqa: BLE001 -- detection is best-effort, never fatal
+        return None
+
+
+def detect_invoker(parent_image_name: Optional[str] = None) -> str:
+    """'task' when launched via the scheduler's hidden pythonw chain
+    (run_exe_hidden.vbs -> pythonw run_cmd_hidden.py -> pythonw
+    first_live_day_review.py -- verified live 2026-09-02 via
+    `Get-ScheduledTask Gamma_FirstLiveDayReview`'s registered Action), 'direct'
+    otherwise, 'unknown' if parent detection itself failed.
+
+    WHY THE PARENT PROCESS IMAGE NAME, NOT AN ENV VAR: the live task Action passes
+    no `--env` at all today (checked live, not assumed) -- an env-var detector would
+    misclassify every task fire as 'direct' until someone remembered to add one, and
+    a scheduled task's Action is not something this repo re-registers lightly. Every
+    scheduled/hidden launch in this codebase already runs its target under
+    `pythonw.exe` (C8 doctrine: headless Windows spawn = system-pythonw +
+    CREATE_NO_WINDOW) while every direct/manual/Claude-session invocation of this
+    script uses the interactive console `python.exe` (see the task instructions for
+    this exact fix: "Run the real script once (`python setup/scripts/
+    first_live_day_review.py --date ...`)"). So the immediate parent's image
+    basename is a fact already true on every past and future task fire, with no
+    second edit needed anywhere else."""
+    img = parent_image_name if parent_image_name is not None else _parent_process_image_name()
+    if img is None:
+        return "unknown"
+    return "task" if img == "pythonw.exe" else "direct"
+
+
+def append_run_log(report: dict, argv: list[str], invoker: str) -> None:
+    """Append ONE row to `analysis/first-live-day/runs.jsonl` for EVERY invocation --
+    see RUNS_LOG_PATH's docstring / FIRST-LIVE-DAY-REVIEW-RUN-LOG. This file is
+    APPEND-ONLY and never touched by write_outputs()'s per-date overwrite, so a
+    later ad-hoc run can no longer erase evidence that an earlier one happened.
+
+    Fail-open (C7): this function only ever APPENDS -- it never reads back or
+    parses the existing file, so a malformed/corrupt runs.jsonl cannot make this
+    function crash. The write itself is still wrapped: a permissions error or a
+    missing/unwritable directory must not take down the review that already ran
+    successfully and already wrote its per-date JSON/MD."""
+    row = {
+        "generated_at_et": report.get("generated_at_et"),
+        "review_date": report.get("review_date"),
+        "verdict": report.get("verdict"),
+        "failing_checks": report.get("failing_checks", []),
+        "argv": list(argv),
+        "invoker": invoker,
+    }
+    try:
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        with (OUT_DIR / "runs.jsonl").open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row) + "\n")
+    except OSError as exc:  # noqa: BLE001 -- never let the log write sink the review
+        print(f"first_live_day_review: FAILED to append runs.jsonl ({exc})", file=sys.stderr)
+
+
 def write_outputs(report: dict) -> tuple[Path, Path]:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     date = report["review_date"]
@@ -1001,9 +1099,11 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--date", type=str, default=None,
                      help="Review date YYYY-MM-DD (default: today's ET date)")
     args = ap.parse_args(argv)
+    real_argv = list(argv) if argv is not None else list(sys.argv[1:])
 
     report = run_review(args.date)
     write_outputs(report)
+    append_run_log(report, real_argv, detect_invoker())
     print_summary(report)
     return 0
 

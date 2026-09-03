@@ -1,3 +1,13 @@
+## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-29..2026-09-01), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1709.05); Bold_ATM_1+2=CONFIRM ($714.4)
+> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
+
 ## [2026-09-03T00:05 ET] conductor AFTERHOURS: prereg_hygiene aggregator-mention bug fixed -- 11 false "already run" matches, 3 of them exact-opposite-of-true
 
 **Found while trying to pick up PREREG-BACKLOG-ADJUDICATION's "3 RUNs outstanding".** Checked
@@ -29,22 +39,11 @@ actually 2 (`prereg-runner-finite-tgt-candidate-2026-08-06`,
 (net_improvement 43/20 fires, cost_per_drained $0.74) -- driven by `enters_last_trading_day`
 scoring, not by this fire's own work; next fire should prefer a loop-closing item.
 
-## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-29..2026-09-01), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1709.05); Bold_ATM_1+2=CONFIRM ($714.4)
-> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## Known broken
 
 - [2026-09-02T23:50:00-04:00] MCP_AUDIT_YELLOW: All MCP servers healthy; TradingView required relaunch but recovered successfully.
 - [2026-09-02T16:40+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T15:07+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02 10:15 ET] FULL-SUITE RED :: 11732 passed, 7 failed, 11 skipped :: tests/test_desk_allocator_kalshi_lane_fix_2026_08_21.py::test_live_kalshi_state_currently_healthy, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_measured_move_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_premarket_touch_credit_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_quiet_mode_weekend_research_2026_08_30.py::TestPresenceDowngrade::test_gaming_outside_the_research_band_still_blacks_out, tests/test_structure_stop_study.py::test_preregistration_file_exists_and_is_frozen, tests/test_tw8_headroom_retest.py::test_preregistration_file_exists_and_is_frozen_v1 :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-02T14:14+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T07:48:41-04:00] MCP_AUDIT_YELLOW: Alpaca Safe (PA3POKNV46VG) + Bold (PA3WEBXJU67N) endpoints returning 404 (credential/account mismatch possible); TradingView CDP reachable; uvx processes active. Investigate key freshness before market open.
 - [2026-09-02T11:00+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): openrouter::nvidia/nemotron-3-super-120b-a12b:free. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
@@ -121,7 +120,6 @@ scoring, not by this fire's own work; next fire should prefer a loop-closing ite
 
 ---
 
-- [2026-09-02 04:52 ET] FULL-SUITE RED :: 11461 passed, 5 failed, 11 skipped :: tests/test_cheap_contract_qty_boost_2026_08_03.py::test_boost_fires_below_threshold, tests/test_cheap_contract_qty_boost_2026_08_03.py::test_threshold_is_strictly_below[0.49-10], tests/test_cheap_contract_qty_boost_2026_08_03.py::test_boost_never_shrinks_a_larger_plan, tests/test_graduated_guards.py::test_free_model_cost_estimate_is_zero, tests/test_queue_md_retention_cap.py::test_queue_md_under_retention_cap :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-02T08:50+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T07:23+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T06:36+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
@@ -497,4 +495,17 @@ trendline and staleness.
 
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 38 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: self-check 2026-09-03T00:09:56
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 28 row(s), 26 transport-error, 2 broker-rejected; newest 2026-09-02T14:30:37 connect/transport_error
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_KalshiAuto, Gamma_ConductorWeekend
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:33 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:34 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:35 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure

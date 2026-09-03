@@ -938,3 +938,110 @@ def test_conductor_picks_bullet_form_missing_mention_is_named():
     result = flr.check_conductor_picks(status_md, queue_md, "2026-09-02")
     assert result["overnight_fires_checked"] == 1, result
     assert result["fires_missing_gate_blocking_mention"] == ["2026-09-02T06:27"]
+
+
+# ============================================================================
+# FIRST-LIVE-DAY-REVIEW-RUN-LOG (queue.md 2026-09-02)
+#
+# write_outputs() writes ONE artifact per review_date, so a later ad-hoc invocation
+# silently overwrites an earlier one -- happened live 2026-09-02, where a direct
+# 23:37 ET run overwrote the 16:30 ET scheduled fire's own output with no record
+# either run had happened. append_run_log() writes a permanent, append-only row to
+# analysis/first-live-day/runs.jsonl on EVERY run instead.
+# ============================================================================
+
+def test_detect_invoker_pythonw_parent_is_task():
+    assert flr.detect_invoker("pythonw.exe") == "task"
+
+
+def test_detect_invoker_console_python_parent_is_direct():
+    assert flr.detect_invoker("python.exe") == "direct"
+    assert flr.detect_invoker("bash.exe") == "direct"
+    assert flr.detect_invoker("cmd.exe") == "direct"
+
+
+def test_detect_invoker_unknown_when_parent_detection_fails(monkeypatch):
+    """Detection itself can fail (non-Windows, access denied, parent already gone) --
+    that must read as 'unknown', never crash and never default to either real answer."""
+    monkeypatch.setattr(flr, "_parent_process_image_name", lambda: None)
+    assert flr.detect_invoker() == "unknown"
+
+
+def test_append_run_log_second_run_appends_not_overwrites(empty_state_env):
+    """THE bug in one assertion: two runs on the same date must leave TWO rows, not
+    one row overwritten by the second (which is exactly what write_outputs() does to
+    the per-date JSON/MD -- this file must behave differently)."""
+    report1 = {"generated_at_et": "2026-09-02 16:30:00 ET", "review_date": "2026-09-02",
+               "verdict": "GREEN", "failing_checks": []}
+    report2 = {"generated_at_et": "2026-09-02 23:37:00 ET", "review_date": "2026-09-02",
+               "verdict": "GREEN", "failing_checks": []}
+    flr.append_run_log(report1, ["--date", "2026-09-02"], "task")
+    flr.append_run_log(report2, ["--date", "2026-09-02"], "direct")
+
+    runs_path = flr.OUT_DIR / "runs.jsonl"
+    lines = runs_path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 2, f"expected 2 rows, got {len(lines)}: {lines}"
+    row1, row2 = (json.loads(l) for l in lines)
+    assert row1["generated_at_et"] == "2026-09-02 16:30:00 ET"
+    assert row1["invoker"] == "task"
+    assert row2["generated_at_et"] == "2026-09-02 23:37:00 ET"
+    assert row2["invoker"] == "direct"
+
+
+def test_append_run_log_row_shape(empty_state_env):
+    report = {"generated_at_et": "2026-09-02 16:30:00 ET", "review_date": "2026-09-02",
+              "verdict": "RED", "failing_checks": ["dms_cadence:RED"]}
+    flr.append_run_log(report, ["--date", "2026-09-02"], "task")
+    row = json.loads((flr.OUT_DIR / "runs.jsonl").read_text(encoding="utf-8").strip())
+    assert row == {
+        "generated_at_et": "2026-09-02 16:30:00 ET",
+        "review_date": "2026-09-02",
+        "verdict": "RED",
+        "failing_checks": ["dms_cadence:RED"],
+        "argv": ["--date", "2026-09-02"],
+        "invoker": "task",
+    }
+
+
+def test_append_run_log_malformed_existing_file_does_not_crash(empty_state_env):
+    """Fail-open (C7): append_run_log() only ever APPENDS, never reads/parses the
+    existing file back -- a malformed prior row must not stop a new one landing."""
+    flr.OUT_DIR.mkdir(parents=True, exist_ok=True)
+    (flr.OUT_DIR / "runs.jsonl").write_text("{not valid json at all\n", encoding="utf-8")
+    report = {"generated_at_et": "2026-09-02 16:30:00 ET", "review_date": "2026-09-02",
+              "verdict": "GREEN", "failing_checks": []}
+    flr.append_run_log(report, [], "task")  # must not raise
+
+    lines = (flr.OUT_DIR / "runs.jsonl").read_text(encoding="utf-8").strip().splitlines()
+    assert lines[0] == "{not valid json at all", "the malformed row was destroyed, not preserved"
+    assert json.loads(lines[1])["verdict"] == "GREEN", "the new row did not land"
+
+
+def test_append_run_log_write_failure_does_not_raise(empty_state_env, monkeypatch):
+    """A permissions/OSError on the write itself must be swallowed (logged to stderr),
+    never propagated into the caller -- the review already ran and already wrote its
+    per-date JSON/MD; this log is best-effort on top of that."""
+    def _boom(*a, **k):
+        raise OSError("simulated disk failure")
+    monkeypatch.setattr(flr.Path, "mkdir", _boom)
+    report = {"generated_at_et": "2026-09-02 16:30:00 ET", "review_date": "2026-09-02",
+              "verdict": "GREEN", "failing_checks": []}
+    flr.append_run_log(report, [], "task")  # must not raise
+
+
+def test_main_appends_a_run_log_row(empty_state_env):
+    """End-to-end: a real main() invocation must leave a runs.jsonl row behind, on top
+    of (never instead of) the existing per-date JSON/MD write."""
+    flr.main(["--date", "2026-09-02"])
+    runs_path = flr.OUT_DIR / "runs.jsonl"
+    assert runs_path.exists(), "main() did not append a run-log row"
+    row = json.loads(runs_path.read_text(encoding="utf-8").strip().splitlines()[-1])
+    assert row["review_date"] == "2026-09-02"
+    assert row["argv"] == ["--date", "2026-09-02"]
+    assert row["invoker"] in ("task", "direct", "unknown")
+    assert (flr.OUT_DIR / "2026-09-02.json").exists(), "write_outputs' own artifact regressed"
+
+    # A second invocation must APPEND, not overwrite -- the whole point of this file.
+    flr.main(["--date", "2026-09-02"])
+    lines = runs_path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 2, f"main() invoked twice must leave 2 run-log rows, got {len(lines)}"

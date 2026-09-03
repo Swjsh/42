@@ -51,6 +51,7 @@ if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
 
 import datetime as dt
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -79,8 +80,60 @@ def _prior_status() -> str | None:
         return None
 
 
+_SLOW_LINE_RE = re.compile(
+    r"^- \[[^\]\n]*\] GRADUATED-GUARDS-SLOW \S+ :: .*\n?", re.MULTILINE)
+
+
+def _known_broken_body_bounds(text: str, marker: str) -> "tuple[int, int]":
+    """(body_start, body_end): body_start sits right after the marker heading's own
+    newline; body_end is the offset of the next top-level '## ' heading, or EOF.
+    Bounds every clear/replace to ONLY the pinned '## Known broken' section -- a
+    GRADUATED-GUARDS-SLOW line that has already rolled into an older dated '## ['
+    entry elsewhere in the file is history and must be left alone (same shape as
+    guard_runner_full.py's fix for FULL-SUITE-RED-LINE-OUTLIVES-GREEN, queue.md
+    2026-09-02)."""
+    idx = text.index(marker)
+    nl = text.find("\n", idx)
+    body_start = nl + 1 if nl != -1 else len(text)
+    m = re.search(r"^## ", text[body_start:], re.MULTILINE)
+    body_end = body_start + m.start() if m else len(text)
+    return body_start, body_end
+
+
+def _strip_slow_lines(text: str, marker: str) -> "tuple[str, bool]":
+    """Remove every GRADUATED-GUARDS-SLOW line from the section body only.
+    Returns (new_text, changed)."""
+    if marker not in text:
+        return text, False
+    body_start, body_end = _known_broken_body_bounds(text, marker)
+    body = text[body_start:body_end]
+    new_body = _SLOW_LINE_RE.sub("", body)
+    if new_body == body:
+        return text, False
+    return text[:body_start] + new_body + text[body_end:], True
+
+
+def _clear_marker_on_recovery() -> None:
+    """FULL-SUITE-RED-LINE-OUTLIVES-GREEN, same bug shape for THIS runner's own
+    marker (queue.md 2026-09-02): the persisting-failure throttle below correctly
+    stops this file from re-adding a line every night a failure continues, but
+    nothing ever REMOVED the line once the suite recovered to 'pass' -- a fixed
+    nightly suite kept reading broken forever. Called on every 'pass' run
+    (idempotent no-op when there is nothing to clear)."""
+    try:
+        text = STATUS.read_text(encoding="utf-8")
+    except OSError:
+        return
+    new_text, changed = _strip_slow_lines(text, "## Known broken")
+    if changed:
+        STATUS.write_text(new_text, encoding="utf-8")
+
+
 def _flag_status_md(status: str, summary: str) -> None:
-    """Append ONE loud line under '## Known broken' on a transition into broken."""
+    """Append ONE loud line under '## Known broken' on a transition into broken.
+    Keeps AT MOST ONE GRADUATED-GUARDS-SLOW line in the section -- strips any prior
+    one first so a re-flag replaces rather than stacks (same 'keep exactly one,
+    newest' fix as guard_runner_full.py)."""
     try:
         text = STATUS.read_text(encoding="utf-8")
     except OSError:
@@ -97,13 +150,15 @@ def _flag_status_md(status: str, summary: str) -> None:
         # A failure report that goes nowhere is worse than no report -- it manufactures
         # the belief that something is watching.
         text = marker + "\n\n" + text
+
+    body_start, body_end = _known_broken_body_bounds(text, marker)
+    body = _SLOW_LINE_RE.sub("", text[body_start:body_end])
     line = (
         f"- [{_now()}] GRADUATED-GUARDS-SLOW {status.upper()} :: {summary} :: "
-        "re-run: cd backtest && python -m pytest tests/ -m slow -q"
+        "re-run: cd backtest && python -m pytest tests/ -m slow -q\n"
     )
-    # Insert newest-first, immediately after the section header.
-    head, _, tail = text.partition(marker + "\n")
-    STATUS.write_text(f"{head}{marker}\n\n{line}\n{tail.lstrip(chr(10))}", encoding="utf-8")
+    new_body = "\n" + line + body.lstrip("\n")
+    STATUS.write_text(text[:body_start] + new_body + text[body_end:], encoding="utf-8")
 
 
 def _run_twin_gauntlet_conductor_hook() -> None:
@@ -183,6 +238,11 @@ def main() -> int:
     # Loud on transition INTO broken; don't re-spam a persisting failure.
     if status != "pass" and prior in ("pass", None):
         _flag_status_md(status, summary)
+    # ...and the other direction: a pass must CLEAR any stale line a prior broken
+    # run left behind (see _clear_marker_on_recovery's docstring). Always safe to
+    # call -- idempotent no-op when there is nothing to clear.
+    if status == "pass":
+        _clear_marker_on_recovery()
 
     # B2b secondary hook -- see _run_twin_gauntlet_conductor_hook's docstring.
     # Independent of this run's pass/fail/timeout outcome above.

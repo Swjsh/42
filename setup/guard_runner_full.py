@@ -83,8 +83,37 @@ def _failed_names(out: str, cap: int = 12) -> list:
     return names[:cap]
 
 
+_FULL_SUITE_LINE_RE = re.compile(r"^- \[[^\]\n]*\] FULL-SUITE \S+ :: .*\n?", re.MULTILINE)
+
+
+def _known_broken_body_bounds(text: str, marker: str) -> "tuple[int, int]":
+    """(body_start, body_end): body_start sits right after the marker heading's own
+    newline; body_end is the offset of the next top-level '## ' heading, or EOF.
+    Bounds every clear/replace to ONLY the pinned '## Known broken' section -- a
+    FULL-SUITE line that has already rolled into an older dated '## [' entry
+    elsewhere in the file is history and must be left alone (FULL-SUITE-RED-LINE-
+    OUTLIVES-GREEN, queue.md 2026-09-02)."""
+    idx = text.index(marker)
+    nl = text.find("\n", idx)
+    body_start = nl + 1 if nl != -1 else len(text)
+    m = re.search(r"^## ", text[body_start:], re.MULTILINE)
+    body_end = body_start + m.start() if m else len(text)
+    return body_start, body_end
+
+
 def _append_status(status: str, summary: str, names: list) -> None:
-    """One loud line under '## Known broken' -- same shape guard_runner_slow uses."""
+    """Keep AT MOST ONE 'FULL-SUITE <STATUS>' line inside '## Known broken', written
+    only while status != green.
+
+    FULL-SUITE-RED-LINE-OUTLIVES-GREEN (queue.md 2026-09-02, filed from the
+    first-live-day box close): this used to only ever APPEND a RED/timeout/notests
+    line and this function was never even called on green -- so a fixed suite kept
+    reading RED to every consumer (humans, the conductor, first_live_day_review's
+    conductor heuristic) with nothing to clear it. Now: prior FULL-SUITE lines are
+    ALWAYS stripped from the section body first (bounded to '## Known broken' only,
+    see _known_broken_body_bounds), then, if status != green, the newest verdict is
+    written back as the section's only FULL-SUITE line -- so red never stacks and
+    green never lingers."""
     try:
         text = STATUS.read_text(encoding="utf-8")
     except OSError:
@@ -101,11 +130,19 @@ def _append_status(status: str, summary: str, names: list) -> None:
         # A failure report that goes nowhere is worse than no report -- it manufactures
         # the belief that something is watching.
         text = marker + "\n\n" + text
-    detail = (" :: " + ", ".join(names)) if names else ""
-    line = (f"- [{_now()}] FULL-SUITE {status.upper()} :: {summary}{detail} :: "
-            "re-run: cd backtest && python -m pytest tests/ -q -m \"not slow\"")
-    head, _, tail = text.partition(marker + "\n")
-    STATUS.write_text(f"{head}{marker}\n\n{line}\n{tail.lstrip(chr(10))}", encoding="utf-8")
+
+    body_start, body_end = _known_broken_body_bounds(text, marker)
+    body = _FULL_SUITE_LINE_RE.sub("", text[body_start:body_end])
+
+    if status == "green":
+        new_body = body
+    else:
+        detail = (" :: " + ", ".join(names)) if names else ""
+        line = (f"- [{_now()}] FULL-SUITE {status.upper()} :: {summary}{detail} :: "
+                "re-run: cd backtest && python -m pytest tests/ -q -m \"not slow\"\n")
+        new_body = "\n" + line + body.lstrip("\n")
+
+    STATUS.write_text(text[:body_start] + new_body + text[body_end:], encoding="utf-8")
 
 
 def main() -> int:
@@ -143,8 +180,10 @@ def main() -> int:
         {"status": status, "at": _now(), "counts": counts,
          "failed_names": names, "returncode": rc}, indent=1), encoding="utf-8")
 
-    if status != "green":
-        _append_status(status, summary, names)
+    # Always call, never gated on status != green: green now CLEARS any stale
+    # FULL-SUITE line from a prior run instead of leaving it to rot (see
+    # _append_status's docstring / FULL-SUITE-RED-LINE-OUTLIVES-GREEN).
+    _append_status(status, summary, names)
     print(f"[guards-full] {status.upper()} :: {summary}"
           + (f" :: {', '.join(names)}" if names else ""))
     return 0 if status == "green" else 1
