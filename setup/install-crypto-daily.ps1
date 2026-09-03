@@ -22,7 +22,9 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$trigger = New-ScheduledTaskTrigger -Daily -At "06:00"
+# 06:00 ET = 04:00 MT on this Mountain-time box (-At is LOCAL, TZ-DRIFT-DORMANT-9 fix
+# 2026-09-03: was hardcoded "06:00", the bare ET value, with no -2h conversion)
+$trigger = New-ScheduledTaskTrigger -Daily -At "04:00"
 # Windowless launch chain (project_mcp_window_leak_fix / audit BARE_CMD_POWERSHELL):
 # a direct powershell.exe action flashes OpenConsole on Win11 -- route via wscript->pythonw.
 $pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"

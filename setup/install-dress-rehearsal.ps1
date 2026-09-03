@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Install Gamma_DressRehearsal scheduled task -- fires 18:45 MT (= 20:45 ET) DAILY.
+  Install Gamma_DressRehearsal scheduled task -- fires 21:44 MT (= 23:44 ET) DAILY.
 
 .DESCRIPTION
   Nightly REAL-broker-boundary dress rehearsal (setup/scripts/dress_rehearsal.py).
@@ -22,9 +22,12 @@
   verbatim broker evidence, overall GREEN/INCONCLUSIVE/RED}. self_check.py reads it
   every 30 min and flags BROKEN when RED or >24h stale on a weekday evening.
 
-  WHY 18:45 MT (= 20:45 ET): after the evening work block starts, well before J's
-  "are we good for tomorrow". -At is LOCAL time (Task Scheduler convention); the rig
-  is Mountain (project_scheduled_task_tz foot-gun -- do NOT relabel as an ET hour).
+  WHY 21:44 MT (= 23:44 ET): re-timed 2026-08-26 out of quiet_mode.py's 16:00-23:00 ET
+  blackout into the 23:00-08:00 ET LOUD maintenance band (TZ-DRIFT-DORMANT-9 fix
+  2026-09-03: this installer still said the pre-08-26 18:45 MT / 20:45 ET value --
+  SCHEDULED-TASKS.md is the live truth, kept in sync here). -At is LOCAL time (Task
+  Scheduler convention); the rig is Mountain (project_scheduled_task_tz foot-gun --
+  do NOT relabel as an ET hour).
   DAILY (not weekday-only): the script computes the NEXT trading day itself, so a
   Sunday fire correctly rehearses Monday. Never a one-shot TimeTrigger (those go
   dark after install day).
@@ -74,8 +77,8 @@ $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
     -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$WorkDir`" -- `"$pythonw`" `"$worker`""
 
-# 18:45 LOCAL (Mountain) = 20:45 ET. DAILY -- the worker computes the next trading day.
-$trigger = New-ScheduledTaskTrigger -Daily -At "18:45"
+# 21:44 LOCAL (Mountain) = 23:44 ET. DAILY -- the worker computes the next trading day.
+$trigger = New-ScheduledTaskTrigger -Daily -At "21:44"
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
@@ -91,9 +94,9 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description "Nightly 20:45 ET (18:45 MT) REAL-broker dress rehearsal: proves tomorrow's order path against the live Alpaca paper API (engine _place_simple_entry probe order accepted+canceled on both accounts, `$10-capped BTC round-trip real fill, clock/keys/approval/beacon sanity). Writes automation/state/dress-rehearsal.json; self_check flags RED/stale. `$0, paper-only, self-cleaning, fail-open." | Out-Null
+    -Description "Nightly 23:44 ET (21:44 MT) REAL-broker dress rehearsal: proves tomorrow's order path against the live Alpaca paper API (engine _place_simple_entry probe order accepted+canceled on both accounts, `$10-capped BTC round-trip real fill, clock/keys/approval/beacon sanity). Writes automation/state/dress-rehearsal.json; self_check flags RED/stale. `$0, paper-only, self-cleaning, fail-open." | Out-Null
 
 $info = Get-ScheduledTask -TaskName $TaskName | Get-ScheduledTaskInfo
-Write-Output "OK: Registered $TaskName daily 20:45 ET (18:45 MT). NextRunTime: $($info.NextRunTime)"
+Write-Output "OK: Registered $TaskName daily 23:44 ET (21:44 MT). NextRunTime: $($info.NextRunTime)"
 Write-Output "    Worker:   setup\scripts\dress_rehearsal.py  (backtest venv pythonw, hidden)"
 Write-Output "    Artifact: automation\state\dress-rehearsal.json"

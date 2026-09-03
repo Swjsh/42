@@ -53,9 +53,10 @@ $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
     -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$runPs1Hidden`" `"$targetPs1`""
 
-# 16:05 ET weekdays -- after Gamma_DailyReview/EOD pipeline. (ET written as -At per
-# the existing fleet convention; all EOD tasks share the same local offset on this box.)
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "16:05"
+# 16:05 ET weekdays = 14:05 MT on this Mountain-time box (-At is LOCAL; TZ-DRIFT-DORMANT-9
+# fix 2026-09-03: the old comment's "ET written as -At per fleet convention" was the bug
+# itself -- the bare ET value has no -2h conversion) -- after Gamma_DailyReview/EOD pipeline.
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "14:05"
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `

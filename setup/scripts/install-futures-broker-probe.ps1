@@ -3,7 +3,10 @@
 .SYNOPSIS
   Register Gamma_FuturesBrokerProbe -- the Tastytrade SANDBOX futures dry-run probe.
 
-  PURPOSE: 18:05 ET daily, just after the CME reopen, futures_broker_probe.py runs ONE
+  PURPOSE: 23:05 ET daily (re-timed 2026-08-26 out of quiet_mode.py's blackout into the
+  LOUD maintenance band; was 18:05 ET just after the CME reopen -- TZ-DRIFT-DORMANT-9 fix
+  2026-09-03: this installer still said the pre-08-26 time, SCHEDULED-TASKS.md is the live
+  truth, kept in sync here), futures_broker_probe.py runs ONE
   broker-side dry_run=True MES order against cert account 5WW73759 -- routes NOTHING,
   fills NOTHING, sandbox only, no live venue -- and appends the verdict to
   automation/state/futures/broker-probe.jsonl.
@@ -59,8 +62,8 @@ $wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$roo
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
-# 16:05 MT = 18:05 ET, five minutes after the CME reopen.
-$trigger = New-ScheduledTaskTrigger -Daily -At "16:05"
+# 21:05 MT = 23:05 ET (re-timed 2026-08-26 into the quiet-mode LOUD maintenance band).
+$trigger = New-ScheduledTaskTrigger -Daily -At "21:05"
 
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries `
     -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Minutes 5) `
@@ -71,7 +74,8 @@ Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Se
     "live venue). Settles whether cert account 5WW73759 is genuinely un-provisioned for futures " + `
     "(H1) or whether the 2026-07-07 Session-offline reject was a market-hours artifact (H2) -- " + `
     "the 2026-08-09 re-probe returned tif.futures_session_not_active with is_futures_enabled=true, " + `
-    "making the July diagnosis UNCONFIRMED. Fires 18:05 ET daily just after the CME reopen; " + `
+    "making the July diagnosis UNCONFIRMED. Fires 23:05 ET daily (re-timed 2026-08-26 into " + `
+    "the quiet-mode LOUD maintenance band; was 18:05 ET just after the CME reopen); " + `
     "appends one row to automation/state/futures/broker-probe.jsonl; verdict surfaces on HOME. " + `
     "Runs on the BACKTEST VENV with tastytrade pinned 12.4.1 (the version the July order-path " + `
     "proof used); the first registration pointed at a system python lacking the SDK and failed " + `

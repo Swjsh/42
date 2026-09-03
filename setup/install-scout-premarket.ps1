@@ -23,7 +23,9 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$trigger = New-ScheduledTaskTrigger -Daily -At "05:30"
+# 05:30 ET = 03:30 MT on this Mountain-time box (-At is LOCAL, TZ-DRIFT-DORMANT-9 fix
+# 2026-09-03: was hardcoded "05:30", the bare ET value, with no -2h conversion)
+$trigger = New-ScheduledTaskTrigger -Daily -At "03:30"
 
 # Use the canonical wscript wrapper per OP-27 (no window flash)
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `

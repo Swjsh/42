@@ -23,8 +23,9 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# Sunday 16:00 ET only (weekly cadence)
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "16:00"
+# Sunday 16:00 ET = 14:00 MT on this Mountain-time box (-At is LOCAL, TZ-DRIFT-DORMANT-9
+# fix 2026-09-03: was hardcoded "16:00", the bare ET value, with no -2h conversion)
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "14:00"
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
     -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""

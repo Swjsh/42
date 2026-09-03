@@ -24,8 +24,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# 16:45 ET weekdays — after EodSummary + EodDeepDive + DailyReview complete (16:30 starts)
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "16:45"
+# 16:45 ET weekdays = 14:45 MT on this Mountain-time box (-At is LOCAL, TZ-DRIFT-DORMANT-9
+# fix 2026-09-03: was hardcoded "16:45", the bare ET value, with no -2h conversion) —
+# after EodSummary + EodDeepDive + DailyReview complete (16:30 starts)
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "14:45"
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
     -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""

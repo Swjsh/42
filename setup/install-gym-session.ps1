@@ -37,8 +37,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# 17:00 ET weekdays -- after Analyst 16:45 + EOD pipeline, before Manager 17:30
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "17:00"
+# 17:00 ET weekdays = 15:00 MT on this Mountain-time box (-At is LOCAL, TZ-DRIFT-DORMANT-9
+# fix 2026-09-03: was hardcoded "17:00", the bare ET value, with no -2h conversion) --
+# after Analyst 16:45 + EOD pipeline, before Manager 17:30
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "15:00"
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
     -Argument "//nologo `"$vbsWrapper`" `"$scriptPath`""

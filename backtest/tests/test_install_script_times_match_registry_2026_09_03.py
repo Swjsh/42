@@ -87,17 +87,12 @@ _ET_RE = re.compile(r"(?<![-–\d:])(\d{1,2}):(\d{2})\s*ET")
 _LOCAL_RE = re.compile(r"(?<![-–\d:])(\d{1,2}):(\d{2})\s*local")
 
 # See "KNOWN PRE-EXISTING MISMATCHES" in the module docstring. (task_name, script_relpath).
-KNOWN_PREEXISTING_MISMATCHES: dict[str, str] = {
-    "Gamma_AnalystEodReview": "install-analyst-eod.ps1",
-    "Gamma_ArchiveKeyLevels": "install-archive-key-levels.ps1",
-    "Gamma_CryptoDaily": "install-crypto-daily.ps1",
-    "Gamma_DressRehearsal": "install-dress-rehearsal.ps1",
-    "Gamma_ManagerDailyVerify": "install-gamma-manager-verify.ps1",
-    "Gamma_GymSession": "install-gym-session.ps1",
-    "Gamma_ScoutPremarket": "install-scout-premarket.ps1",
-    "Gamma_TreasurerWeekly": "install-treasurer-weekly.ps1",
-    "Gamma_FuturesBrokerProbe": "scripts/install-futures-broker-probe.ps1",
-}
+# All 9 entries cleared 2026-09-03 (queue.md INSTALL-SCRIPT-TIME-DRIFT-DORMANT-9): each
+# installer's -At literal re-timed to match its SCHEDULED-TASKS.md registry ET value
+# (verified via Export-ScheduledTask that the live trigger already equalled the registry
+# in all 9 cases -- the drift was installer-only and dormant). Allowlist intentionally
+# left empty rather than deleted so the next drift has a documented place to land.
+KNOWN_PREEXISTING_MISMATCHES: dict[str, str] = {}
 
 
 def _registry_rows() -> dict[str, str]:
