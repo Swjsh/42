@@ -1,0 +1,582 @@
+{
+  "window": [
+    "2026-08-25",
+    "2026-09-02"
+  ],
+  "arms": {
+    "safe-1": {
+      "decisions_path": "automation\\state\\fleet\\safe-1\\decisions.jsonl",
+      "per_day": {},
+      "exception_texts": {},
+      "total_unreadable_ticks": 0,
+      "total_unreadable_with_open_position": 0,
+      "unreadable_open_ticks_detail": [],
+      "structure_stop_exits_in_window": [],
+      "structure_stop_exits_preceded_by_unreadable_tick": [],
+      "structure_stop_exits_with_plausible_real_delay": [],
+      "classification": "NEVER-FIRED"
+    },
+    "safe-3": {
+      "decisions_path": "automation\\state\\fleet\\safe-3\\decisions.jsonl",
+      "per_day": {
+        "2026-08-25": {
+          "total_ticks": 384,
+          "unreadable_ticks": 8,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-26": {
+          "total_ticks": 384,
+          "unreadable_ticks": 3,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-27": {
+          "total_ticks": 384,
+          "unreadable_ticks": 6,
+          "unreadable_with_open_position": 3
+        },
+        "2026-08-28": {
+          "total_ticks": 384,
+          "unreadable_ticks": 6,
+          "unreadable_with_open_position": 1
+        },
+        "2026-08-31": {
+          "total_ticks": 384,
+          "unreadable_ticks": 0,
+          "unreadable_with_open_position": 0
+        },
+        "2026-09-01": {
+          "total_ticks": 384,
+          "unreadable_ticks": 12,
+          "unreadable_with_open_position": 0
+        },
+        "2026-09-02": {
+          "total_ticks": 384,
+          "unreadable_ticks": 3,
+          "unreadable_with_open_position": 2
+        }
+      },
+      "exception_texts": {
+        "signal_unreadable: Expecting value: line 1 column 1 (char 0)": 38
+      },
+      "total_unreadable_ticks": 38,
+      "total_unreadable_with_open_position": 6,
+      "unreadable_open_ticks_detail": [
+        {
+          "date": "2026-08-27",
+          "ts_et": "2026-08-27T10:47:05.512103-04:00",
+          "symbol": "SPY260827C00768000",
+          "stop_mode": "structure",
+          "trigger_level": 767.35,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-27T10:46:05.679378-04:00",
+            "last_closed_5m_close": 769.34
+          },
+          "next_readable": {
+            "ts_et": "2026-08-27T10:48:05.448500-04:00",
+            "last_closed_5m_close": 769.61
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-08-27",
+          "ts_et": "2026-08-27T12:39:05.359034-04:00",
+          "symbol": "SPY260827C00770000",
+          "stop_mode": "structure",
+          "trigger_level": 769.52,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-27T12:38:05.381018-04:00",
+            "last_closed_5m_close": 771.115
+          },
+          "next_readable": {
+            "ts_et": "2026-08-27T12:40:06.404931-04:00",
+            "last_closed_5m_close": 771.115
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-08-27",
+          "ts_et": "2026-08-27T12:58:06.130527-04:00",
+          "symbol": "SPY260827C00770000",
+          "stop_mode": "structure",
+          "trigger_level": 769.52,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-27T12:57:05.478240-04:00",
+            "last_closed_5m_close": 771.915
+          },
+          "next_readable": {
+            "ts_et": "2026-08-27T12:59:05.852336-04:00",
+            "last_closed_5m_close": 771.915
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-08-28",
+          "ts_et": "2026-08-28T10:38:05.641093-04:00",
+          "symbol": "SPY260828C00771000",
+          "stop_mode": "structure",
+          "trigger_level": 770.27,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-28T10:37:05.590103-04:00",
+            "last_closed_5m_close": 772.14
+          },
+          "next_readable": {
+            "ts_et": "2026-08-28T10:39:05.710622-04:00",
+            "last_closed_5m_close": 772.14
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-09-02",
+          "ts_et": "2026-09-02T13:09:06.069298-04:00",
+          "symbol": "SPY260902C00765000",
+          "stop_mode": "structure",
+          "trigger_level": 765.46,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-09-02T13:08:06.017038-04:00",
+            "last_closed_5m_close": 765.465
+          },
+          "next_readable": {
+            "ts_et": "2026-09-02T13:10:07.285446-04:00",
+            "last_closed_5m_close": 765.465
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-09-02",
+          "ts_et": "2026-09-02T13:12:05.987289-04:00",
+          "symbol": "SPY260902C00765000",
+          "stop_mode": "structure",
+          "trigger_level": 765.46,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-09-02T13:11:05.608285-04:00",
+            "last_closed_5m_close": 765.465
+          },
+          "next_readable": {
+            "ts_et": "2026-09-02T13:13:05.609142-04:00",
+            "last_closed_5m_close": 764.63
+          },
+          "lc5_unchanged_vs_next_readable": false
+        }
+      ],
+      "structure_stop_exits_in_window": [
+        {
+          "date": "2026-08-25",
+          "symbol": "SPY260825C00765000",
+          "entry_ts_et": "2026-08-25T13:17:06.906084",
+          "exit_ts_et": "2026-08-25T13:27:06.584802",
+          "pnl_dollars": -60.0,
+          "preceded_by_unreadable_open_tick": false
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T11:57:07.101869",
+          "exit_ts_et": "2026-09-02T12:27:06.922109",
+          "pnl_dollars": -48.0,
+          "preceded_by_unreadable_open_tick": false
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T13:07:07.259614",
+          "exit_ts_et": "2026-09-02T13:13:06.891342",
+          "pnl_dollars": -66.0,
+          "preceded_by_unreadable_open_tick": true,
+          "first_preceding_unreadable_tick": "2026-09-02T13:09:06.069298-04:00",
+          "first_tick_lc5_unchanged_vs_next_readable": false,
+          "n_preceding_unreadable_ticks": 2,
+          "option_1m_bar_at_first_missed_tick": {
+            "timestamp_et": "2026-09-02 13:09:00",
+            "open": "0.77",
+            "high": "0.8",
+            "low": "0.73",
+            "close": "0.76"
+          }
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00766000",
+          "entry_ts_et": "2026-09-02T11:17:07.073249",
+          "exit_ts_et": "2026-09-02T11:52:07.319551",
+          "pnl_dollars": -90.0,
+          "preceded_by_unreadable_open_tick": false
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00766000",
+          "entry_ts_et": "2026-09-02T14:22:07.877435",
+          "exit_ts_et": "2026-09-02T14:32:06.876590",
+          "pnl_dollars": -9.0,
+          "preceded_by_unreadable_open_tick": false
+        }
+      ],
+      "structure_stop_exits_preceded_by_unreadable_tick": [
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T13:07:07.259614",
+          "exit_ts_et": "2026-09-02T13:13:06.891342",
+          "pnl_dollars": -66.0,
+          "preceded_by_unreadable_open_tick": true,
+          "first_preceding_unreadable_tick": "2026-09-02T13:09:06.069298-04:00",
+          "first_tick_lc5_unchanged_vs_next_readable": false,
+          "n_preceding_unreadable_ticks": 2,
+          "option_1m_bar_at_first_missed_tick": {
+            "timestamp_et": "2026-09-02 13:09:00",
+            "open": "0.77",
+            "high": "0.8",
+            "low": "0.73",
+            "close": "0.76"
+          }
+        }
+      ],
+      "structure_stop_exits_with_plausible_real_delay": [
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T13:07:07.259614",
+          "exit_ts_et": "2026-09-02T13:13:06.891342",
+          "pnl_dollars": -66.0,
+          "preceded_by_unreadable_open_tick": true,
+          "first_preceding_unreadable_tick": "2026-09-02T13:09:06.069298-04:00",
+          "first_tick_lc5_unchanged_vs_next_readable": false,
+          "n_preceding_unreadable_ticks": 2,
+          "option_1m_bar_at_first_missed_tick": {
+            "timestamp_et": "2026-09-02 13:09:00",
+            "open": "0.77",
+            "high": "0.8",
+            "low": "0.73",
+            "close": "0.76"
+          }
+        }
+      ],
+      "classification": "REAL-DELAY-CANDIDATE"
+    },
+    "risky-1": {
+      "decisions_path": "automation\\state\\fleet\\risky-1\\decisions.jsonl",
+      "per_day": {
+        "2026-08-25": {
+          "total_ticks": 384,
+          "unreadable_ticks": 8,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-26": {
+          "total_ticks": 384,
+          "unreadable_ticks": 3,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-27": {
+          "total_ticks": 384,
+          "unreadable_ticks": 6,
+          "unreadable_with_open_position": 3
+        },
+        "2026-08-28": {
+          "total_ticks": 384,
+          "unreadable_ticks": 6,
+          "unreadable_with_open_position": 1
+        },
+        "2026-08-31": {
+          "total_ticks": 384,
+          "unreadable_ticks": 0,
+          "unreadable_with_open_position": 0
+        },
+        "2026-09-01": {
+          "total_ticks": 384,
+          "unreadable_ticks": 12,
+          "unreadable_with_open_position": 0
+        },
+        "2026-09-02": {
+          "total_ticks": 384,
+          "unreadable_ticks": 3,
+          "unreadable_with_open_position": 2
+        }
+      },
+      "exception_texts": {
+        "signal_unreadable: Expecting value: line 1 column 1 (char 0)": 38
+      },
+      "total_unreadable_ticks": 38,
+      "total_unreadable_with_open_position": 6,
+      "unreadable_open_ticks_detail": [
+        {
+          "date": "2026-08-27",
+          "ts_et": "2026-08-27T10:47:05.512103-04:00",
+          "symbol": "SPY260827C00768000",
+          "stop_mode": "structure",
+          "trigger_level": 767.35,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-27T10:46:05.679378-04:00",
+            "last_closed_5m_close": 769.34
+          },
+          "next_readable": {
+            "ts_et": "2026-08-27T10:48:05.448500-04:00",
+            "last_closed_5m_close": 769.61
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-08-27",
+          "ts_et": "2026-08-27T12:39:05.359034-04:00",
+          "symbol": "SPY260827C00770000",
+          "stop_mode": "structure",
+          "trigger_level": 769.52,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-27T12:38:05.381018-04:00",
+            "last_closed_5m_close": 771.115
+          },
+          "next_readable": {
+            "ts_et": "2026-08-27T12:40:06.404931-04:00",
+            "last_closed_5m_close": 771.115
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-08-27",
+          "ts_et": "2026-08-27T12:58:06.130527-04:00",
+          "symbol": "SPY260827C00770000",
+          "stop_mode": "structure",
+          "trigger_level": 769.52,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-27T12:57:05.478240-04:00",
+            "last_closed_5m_close": 771.915
+          },
+          "next_readable": {
+            "ts_et": "2026-08-27T12:59:05.852336-04:00",
+            "last_closed_5m_close": 771.915
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-08-28",
+          "ts_et": "2026-08-28T10:38:05.641093-04:00",
+          "symbol": "SPY260828C00771000",
+          "stop_mode": "structure",
+          "trigger_level": 770.27,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-08-28T10:37:05.590103-04:00",
+            "last_closed_5m_close": 772.14
+          },
+          "next_readable": {
+            "ts_et": "2026-08-28T10:39:05.710622-04:00",
+            "last_closed_5m_close": 772.14
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-09-02",
+          "ts_et": "2026-09-02T13:09:06.069298-04:00",
+          "symbol": "SPY260902C00765000",
+          "stop_mode": "structure",
+          "trigger_level": 765.46,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-09-02T13:08:06.017038-04:00",
+            "last_closed_5m_close": 765.465
+          },
+          "next_readable": {
+            "ts_et": "2026-09-02T13:10:07.285446-04:00",
+            "last_closed_5m_close": 765.465
+          },
+          "lc5_unchanged_vs_next_readable": false
+        },
+        {
+          "date": "2026-09-02",
+          "ts_et": "2026-09-02T13:12:05.987289-04:00",
+          "symbol": "SPY260902C00765000",
+          "stop_mode": "structure",
+          "trigger_level": 765.46,
+          "last_closed_5m_close_this_tick": null,
+          "prev_readable": {
+            "ts_et": "2026-09-02T13:11:05.608285-04:00",
+            "last_closed_5m_close": 765.465
+          },
+          "next_readable": {
+            "ts_et": "2026-09-02T13:13:05.609142-04:00",
+            "last_closed_5m_close": 764.63
+          },
+          "lc5_unchanged_vs_next_readable": false
+        }
+      ],
+      "structure_stop_exits_in_window": [
+        {
+          "date": "2026-08-25",
+          "symbol": "SPY260825C00765000",
+          "entry_ts_et": "2026-08-25T13:17:08.384830",
+          "exit_ts_et": "2026-08-25T13:27:07.790721",
+          "pnl_dollars": -100.0,
+          "preceded_by_unreadable_open_tick": false
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T11:57:09.217909",
+          "exit_ts_et": "2026-09-02T12:27:08.213306",
+          "pnl_dollars": -80.0,
+          "preceded_by_unreadable_open_tick": false
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T13:07:08.650124",
+          "exit_ts_et": "2026-09-02T13:13:07.954935",
+          "pnl_dollars": -105.0,
+          "preceded_by_unreadable_open_tick": true,
+          "first_preceding_unreadable_tick": "2026-09-02T13:09:06.069298-04:00",
+          "first_tick_lc5_unchanged_vs_next_readable": false,
+          "n_preceding_unreadable_ticks": 2,
+          "option_1m_bar_at_first_missed_tick": {
+            "timestamp_et": "2026-09-02 13:09:00",
+            "open": "0.77",
+            "high": "0.8",
+            "low": "0.73",
+            "close": "0.76"
+          }
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00766000",
+          "entry_ts_et": "2026-09-02T11:17:08.427819",
+          "exit_ts_et": "2026-09-02T11:52:08.552161",
+          "pnl_dollars": -145.0,
+          "preceded_by_unreadable_open_tick": false
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00766000",
+          "entry_ts_et": "2026-09-02T14:22:09.259704",
+          "exit_ts_et": "2026-09-02T14:32:08.031079",
+          "pnl_dollars": -15.0,
+          "preceded_by_unreadable_open_tick": false
+        }
+      ],
+      "structure_stop_exits_preceded_by_unreadable_tick": [
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T13:07:08.650124",
+          "exit_ts_et": "2026-09-02T13:13:07.954935",
+          "pnl_dollars": -105.0,
+          "preceded_by_unreadable_open_tick": true,
+          "first_preceding_unreadable_tick": "2026-09-02T13:09:06.069298-04:00",
+          "first_tick_lc5_unchanged_vs_next_readable": false,
+          "n_preceding_unreadable_ticks": 2,
+          "option_1m_bar_at_first_missed_tick": {
+            "timestamp_et": "2026-09-02 13:09:00",
+            "open": "0.77",
+            "high": "0.8",
+            "low": "0.73",
+            "close": "0.76"
+          }
+        }
+      ],
+      "structure_stop_exits_with_plausible_real_delay": [
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00765000",
+          "entry_ts_et": "2026-09-02T13:07:08.650124",
+          "exit_ts_et": "2026-09-02T13:13:07.954935",
+          "pnl_dollars": -105.0,
+          "preceded_by_unreadable_open_tick": true,
+          "first_preceding_unreadable_tick": "2026-09-02T13:09:06.069298-04:00",
+          "first_tick_lc5_unchanged_vs_next_readable": false,
+          "n_preceding_unreadable_ticks": 2,
+          "option_1m_bar_at_first_missed_tick": {
+            "timestamp_et": "2026-09-02 13:09:00",
+            "open": "0.77",
+            "high": "0.8",
+            "low": "0.73",
+            "close": "0.76"
+          }
+        }
+      ],
+      "classification": "REAL-DELAY-CANDIDATE"
+    },
+    "risky-3": {
+      "decisions_path": "automation\\state\\fleet\\risky-3\\decisions.jsonl",
+      "per_day": {
+        "2026-08-25": {
+          "total_ticks": 384,
+          "unreadable_ticks": 8,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-26": {
+          "total_ticks": 384,
+          "unreadable_ticks": 3,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-27": {
+          "total_ticks": 384,
+          "unreadable_ticks": 6,
+          "unreadable_with_open_position": 0
+        },
+        "2026-08-28": {
+          "total_ticks": 384,
+          "unreadable_ticks": 6,
+          "unreadable_with_open_position": 0
+        }
+      },
+      "exception_texts": {
+        "signal_unreadable: Expecting value: line 1 column 1 (char 0)": 23
+      },
+      "total_unreadable_ticks": 23,
+      "total_unreadable_with_open_position": 0,
+      "unreadable_open_ticks_detail": [],
+      "structure_stop_exits_in_window": [],
+      "structure_stop_exits_preceded_by_unreadable_tick": [],
+      "structure_stop_exits_with_plausible_real_delay": [],
+      "classification": "NEVER-FIRED"
+    }
+  },
+  "root_cause": {
+    "writer_non_atomic": "automation/state/fleet/build_shared_signal.py -- every sig-emitting branch in build() ends with OUT.write_text(json.dumps(sig, indent=2), encoding=\"utf-8\") (lines ~720,744,835; build_from_rows has its own guarded copies at ~1333,1392) -- Path.write_text opens in \"w\" mode which TRUNCATES the file to 0 bytes before writing the new content, and is not an atomic replace.",
+    "reader_no_retry": "automation/state/fleet/fleet_live.py:112-119 _load_signal() does path.read_text() + json.loads() ONCE, no retry, no lock; on JSONDecodeError/OSError returns (None, f\"signal_unreadable: {e}\").",
+    "two_independent_writers": {
+      "writer_1": "Gamma_FleetExecutor (every 1 min, 09:31-16:01 ET) -- step 1 of setup/scripts/run-fleet-executor.ps1 calls build_shared_signal.py as its own process, THEN (serially, same script) step 2 calls fleet_live.py to read. No race within one fleet-executor invocation; -MultipleInstances IgnoreNew (setup/install-fleet-executor.ps1) prevents overlap with itself.",
+      "writer_2": "Gamma_SightBeacon (every 1 min, 09:00-16:30 ET) -- INDEPENDENT scheduled task. setup/scripts/sight_beacon.py main() calls build_shared_signal.build() unconditionally every fire (\"Drive the fleet's shared-signal off this beacon every minute\" -- sight_beacon.py:185-193), targeting the SAME automation/state/fleet/shared-signal.json. This second writer is NOT phase-locked to Gamma_FleetExecutor -- two independently-scheduled Windows Tasks with no shared mutex."
+    },
+    "mechanism": "Because writer_2 (sight_beacon) can fire at any offset relative to writer_1+reader (fleet-executor), its write_text() truncate-then-write window can land under fleet_live.py's read at any tick, at random phase -- consistent with the observed UNIFORM (non-clustered) distribution of unreadable ticks across minute-of-hour and second-of-minute, and with 09:00-09:30 (sight_beacon running, fleet-executor not yet gated open) showing near-zero unreadable-tick rate since only ONE actor touches the file then.",
+    "exception_text_confirms_truncation": "The recorded exception is UNIFORMLY \"Expecting value: line 1 column 1 (char 0)\" (json.JSONDecodeError on an EMPTY string) across every single occurrence in the dataset -- exactly what json.loads() raises when read_text() lands between write_text's truncate and its content write, never a partial-JSON / mid-object parse error. This is the fingerprint of the truncate-race hypothesis, not e.g. disk contention or encoding issues."
+  },
+  "frequency": {
+    "overall_rate_2026_08_01_to_2026_09_03_risky1_file": "106 unreadable / 9203 total ticks = 1.15% (same shared-signal.json file underlies every fleet arm read, so raw unreadable-tick counts are identical across arms; unreadable-WITH-position differs per arm by that arm's own position state)",
+    "by_hour_of_day_risky1": {
+      "09": "4/681 = 0.59% (mostly 09:31-10:00 -- before 09:31 fleet-executor is not gated open, so ONLY sight_beacon touches the file and there is no reader to race)",
+      "10": "18/1440 = 1.25%",
+      "11": "22/1440 = 1.53%",
+      "12": "16/1440 = 1.11%",
+      "13": "19/1440 = 1.32%",
+      "14": "14/1440 = 0.97%",
+      "15": "13/1320 = 0.98%"
+    },
+    "verdict": "Roughly flat ~1-1.5% rate through the session, no escalating-drift pattern, no single-minute clustering (minute-of-hour unreadable counts are 3-4 spread across ~40 distinct minutes) -- consistent with a phase-random collision between two independently-scheduled 1-min writers, not a scheduled-cadence artifact."
+  },
+  "discrepancy_vs_queue_item": "Queue item FLEET-SIGNAL-UNREADABLE-WITH-POSITION states risky-1 had 18 of 38 unreadable ticks with a position open in 08-25..09-02. VERIFIED against raw automation/state/fleet/risky-1/decisions.jsonl (flat is False AND signal_status startswith \"signal_unreadable\", ts_et date in window): the true count is 6 of 38, IDENTICAL to safe-3's verified 6 of 38 (both arms were in a position at the same shared-signal-read ticks on 2026-08-27 x3, 2026-08-28 x1, 2026-09-02 x2 -- risky-1 and safe-3 trade the same ribbon_ride triggers, just different sizing, so their open-position windows overlap heavily). The 18 figure does not match any grouping tried (per-arm open-position count, total unreadable count, or any other arm's total). UNVERIFIED where the 18 came from; treat it as WRONG until an alternate derivation is shown.",
+  "cost_analysis": {
+    "method": "For each of the 6 unreadable-with-open-position ticks per arm in 08-25..09-02, (a) confirmed every exit_pass entry's stop_mode==\"structure\" and last_closed_5m_close==None (the skip IS occurring exactly as claimed); (b) checked the option's cached 1-min bar (backtest/data/highres) at and around that tick vs. its own recorded runner_stop (premium-based catastrophe/trail stop) -- in ALL 6 cases the option premium was 2-4x the runner_stop level, nowhere close to a catastrophe-stop breach; (c) checked SPY 5m closes (backtest/data/spy_5m_2026-05-19_2026-09-03.csv) vs each tick's trigger_level (the STRUCTURE stop threshold) -- in 4 of 6 cases (08-27 x3, 08-28 x1) SPY was 2-5 points clear of trigger_level with no structure_stop exit ever recorded for those positions (they exited via tp1+trail); in 2 of 6 cases (09-02 13:09 and 13:12, both preceding the SAME risky-1/safe-3 SPY260902C00765000 trade pair) SPY HAD crossed below trigger_level shortly before.",
+    "the_one_real_candidate": {
+      "symbol": "SPY260902C00765000",
+      "trigger_level": 765.46,
+      "unreadable_ticks": [
+        "2026-09-02T13:09:06.069298-04:00",
+        "2026-09-02T13:12:05.987289-04:00"
+      ],
+      "neighbor_check_13_09": "prev readable (13:08:06) last_closed_5m_close=765.465; next readable (13:10:07) last_closed_5m_close=765.465 -- UNCHANGED across the gap. Even fully readable, the 13:09 tick would have seen the identical 765.465 (>= trigger, per exit_manager._structure_stop_hit's strict < comparison) and NOT fired. PROVABLY zero incremental cost.",
+      "neighbor_check_13_12": "prev readable (13:11:05) last_closed_5m_close=765.465; next readable (13:13:05) last_closed_5m_close=764.63 -- the confirmed-bar value DID change somewhere in this bracket, so this ONE tick cannot be proven zero-cost the same way; AMBIGUOUS whether the 764.63 update was already available at 13:12:06 or only arrived by 13:13:05.",
+      "actual_fills": {
+        "safe-3": "3 @ 0.81, 2026-09-02T13:13:06.891342 ET (fills-ledger.jsonl)",
+        "risky-1": "5 @ 0.82, 2026-09-02T13:13:07.954935 ET"
+      },
+      "hypothetical_earlier_exit_price_range": "the 13:12:00-13:13:00 1m option bar (backtest/data/highres/SPY260902C00765000_1m_2026-09-02.csv) traded O=0.81 H=0.86 L=0.77 C=0.86 -- the ACTUAL fills (0.81/0.82) fall INSIDE that range's low end, i.e. a maximally-generous one-tick-earlier exit would have landed in the SAME 0.77-0.86 band the actual fill did, and the following minute's bar (13:13-13:14) printed O=0.86 C=0.88 -- price was RECOVERING through the window, not deteriorating, so there is no basis to claim the 1-tick delay cost money; if anything the delay let the fill land at a comparable-or-marginally-better price than an earlier exit plausibly would have."
+    },
+    "verdict": "$0 QUANTIFIABLE COST in the verified 08-25..09-02 window across both arms. 4 of 6 unreadable-with-position ticks never had SPY within multiple points of trigger_level (structure stop was never live-relevant at that instant). The remaining 2 ticks (both on the single 09-02 SPY260902C00765000 trade) are the only ones where SPY had crossed trigger_level nearby: one is PROVABLY zero-cost (identical bracketing lc5 value), the other is AMBIGUOUS on mechanism but the actual option-price data during the disputed window shows price recovering, not deteriorating, so even the ambiguous case shows no evidence of a costly delay. NOT extrapolated beyond the 12 verified ticks (6/arm) in the given window -- unreadable-with-open-position ticks also occur on other dates (2026-07-17, 08-07, 08-10 x4, 08-13, 08-14, 08-19 x2, 08-21 x2, 09-03 seen in risky-1's full file) that were out of the task's 08-25..09-02 scope and are UNVERIFIED for cost here."
+  }
+}
