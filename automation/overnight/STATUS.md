@@ -1,8 +1,8 @@
 ## Known broken
 
+- [2026-09-03 04:45 ET] FULL-SUITE RED :: 12488 passed, 4 failed, 16 skipped :: tests/test_queue_md_retention_cap.py::test_queue_md_under_retention_cap, tests/test_quiet_mode_starvation.py::test_no_registered_task_is_starved_by_the_quiet_window, tests/test_shadow_board_nonterminal_2026_09_03.py::test_status_regexes_are_the_same_object_as_prereg_hygiene, tests/test_walker_fidelity_2026_09_03.py::test_pdt_harness_validation_output_carries_magnitude_fidelity_shape :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-09-03T08:42+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-03T03:37:05 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=ok, mcp_procs=FAIL -- 0 alpaca-mcp-server process(es) found
-- [2026-09-03 02:24 ET] FULL-SUITE RED :: 12015 passed, 4 failed, 16 skipped :: tests/test_queue_md_retention_cap.py::test_queue_md_under_retention_cap, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage, tests/test_shadow_board_discovery_2026_08_25.py::test_generated_board_lists_the_adjudicated_prereg, tests/test_window_leak_compliance.py::test_no_py_subprocess_missing_creationflags :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
-- [2026-09-03T06:21+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-8-bear-sole :: bear sole-[8] refused 106 bar-event(s), 44 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-8-bear-sole
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-10-bull-sole :: bull sole-[10] refused 78 bar-event(s), 28 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-10-bull-sole
 - [2026-09-02T22:57:10] GRADUATED-GUARDS-SLOW FAIL :: 1 failed, 45 passed, 11866 deselected, 3 warnings in 1625.82s (0:27:05) :: re-run: cd backtest && python -m pytest tests/ -m slow -q
@@ -462,3 +462,24 @@ would be post-hoc bar changes on the live-money gate.
 Revoke path for the designation is already documented in the file: delete it and
 `prod_shadow_criterion()` falls back to NOT_WIRED with no other side effects.
 
+
+### BROKEN: prereg-hygiene 2026-09-03T04:27:17
+- 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
+  - prereg-chasing-filter-2026-08-14.json (age 20.4d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
+  - prereg-ladder-x-premium-2026-08-09.json (age 25.4d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.4d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
+  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.4d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
+- 19 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-02T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-02T21:10:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-full-send-arm-2026-07-31.json -> full-send-arm-2026-07-31.json (result mtime=2026-07-31T22:55:06Z, result verdict=None, own status='PRE-REGISTERED')
+
+### BROKEN: trendline-headless-draw 2026-09-03 04:44 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
