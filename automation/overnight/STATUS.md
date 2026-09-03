@@ -40,6 +40,8 @@
 
   📁 **For J:** DMS/HALT/recovery drills (this afternoon); the OFF-BOX dead-man needs J's service or phone; Kalshi key only if 3 RTH days clear 5c; DAILY-PREMIUM-BUDGET call; **248 unpushed commits** (github-audit before any push, after 16:00 ET). **Date-gated:** Fri gate/null/WEEK ORDER (with the new futures section), Sat Rule-9 pass (draft now 9 items; CLAUDE.md at 8,912/9,000 tokens -- trim first), Sunday: RE-ANCHOR-FULLHIST, 20 stale-status preregs, WALKER-POLL-FAITHFUL-REPLAY.
 
+  ➕ **Addendum 06:09 ET (after the final suite):** the one remaining red was made order-independent (`f11be7ae`); the fleet stale-signal skip verified NEVER fired with a position -> guard-only, but its sibling `signal_unreadable` DOES coincide with open positions (risky-1 18/38, safe-3 6/38) -> FLEET-SIGNAL-UNREADABLE-WITH-POSITION filed for the bundle (`478d2673`); nine dormant installer time drifts corrected without re-registering, DressRehearsal carries two debris triggers inside the blackout (`04faa979`); the crypto twin's frozen-`ts_utc` rows were a TEST writing into production state -- second instance of that class tonight -> TEST-WRITES-TO-PRODUCTION-STATE-GUARD filed (`815c9b0d`). Loop ended 06:09 ET; no builders running; premarket chain untouched.
+
   **Revoke:** `git revert <sha>` per commit; new tasks: `Unregister-ScheduledTask` by name (Gamma_FeeRecalibrate, Gamma_KalshiLiquiditySurvey, Gamma_FuturesTradeAutopsy, Gamma_Tp1R50ForwardShadow, Gamma_TrendlineTightExitShadow, Gamma_PullbackHoldShadow).
 
 - [2026-09-03 05:39 ET] conductor AFTERHOURS: OK -- GUARD-RUNNER-FLAKE-RETRY shipped, disposes the 04:45 ET FULL-SUITE RED as system-load pollution + hardens the runner so the next occurrence self-heals instead of costing an investigation cycle -- REVOKE surface
@@ -530,3 +532,9 @@ Revoke path for the designation is already documented in the file: delete it and
 
 ### BROKEN: trendline-headless-draw 2026-09-03 05:51 ET
 - trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+- [2026-09-03 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
+
+- [2026-09-03 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
+
+[2026-09-03 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-09-03.md
