@@ -55,7 +55,13 @@ only) -- see this script's own report for the exact math reproduced against real
 
 OUTPUT
 ------
-analysis/quote-tape/YYYY-MM-DD.jsonl -- append-only, one row per (arm, symbol) NBBO snapshot.
+analysis/quote-tape/YYYY-MM-DD.jsonl -- append-only. One row per (arm, symbol) NBBO snapshot
+("kind":"option", unchanged shape). PLUS (added 2026-09-03, queue RTH-SPY-PER-MINUTE-TAPE):
+one "kind":"underlying" SPY row per cycle inside literal RTH (09:30-16:00 ET), positions open
+or not -- fixes the gap release_blackout_shadow.py's docstring used to note explicitly
+("quote-tape carries no SPY underlying quote"), and the 5-min-bar-close blind spot in
+core-decisions.jsonl's `spy` field that made a 1-minute 30% option gap at 10:00->10:01 ET
+(2026-09-03 ISM Services release) misread as "flat SPY, pure decay" in same-day analysis.
 automation/state/quote-recorder-status.json -- this script's own health surface (never engine
 state; nothing on the trading path reads this file).
 
@@ -72,7 +78,8 @@ CLI
   python quote_recorder.py --loop --duration-sec 120 --interval-active 5 --interval-idle 10
   python quote_recorder.py --once --dry-run --arms safe-2,bold-2   # no writes, stdout only
 
-Guard: setup/scripts/test_quote_recorder.py (pure-logic tests, no network).
+Guard: setup/scripts/test_quote_recorder.py (pure-logic tests, no network) +
+       backtest/tests/test_quote_recorder_underlying_2026_09_03.py (underlying-row tests).
 """
 from __future__ import annotations
 
@@ -219,6 +226,44 @@ def get_open_spy_option_positions(creds: "dict[str, str]") -> "tuple[list, Optio
     return out, None
 
 
+def get_stock_snapshot(creds: "dict[str, str]", symbol: str = "SPY"
+                       ) -> "tuple[Optional[dict], Optional[str]]":
+    """(snapshot, error) for the underlying's latest quote+trade -- ONE HTTP GET to
+    /v2/stocks/{symbol}/snapshot on Alpaca's stock market-data feed. That single response
+    carries BOTH `latestQuote` (bid/ask, keys bp/ap -- same field names as the options NBBO
+    feed) AND `latestTrade` (last price + timestamp, keys p/t) in one payload, which is why
+    this is "one extra stock latest-quote/trade request per cycle": one call, not two.
+    Endpoint verified against automation/scripts/gex_capture.py#STOCK_SNAPSHOT_URL (same host
+    + path, independently re-implemented here per this module's zero-import-coupling rule --
+    see module docstring #1). Uses the SAME `_get_json` transport and the SAME
+    APCA-API-KEY-ID/APCA-API-SECRET-KEY header pair every option/position call in this file
+    uses -- just pointed at one arm's own creds (any arm's key works identically here since
+    SPY's own quote/trade is not account-scoped; run_cycle picks exactly one).
+    snapshot = {"bid","ask","mid","last","last_ts"} or None if the feed returned nothing
+    usable (not an error -- a genuinely quote-less moment)."""
+    url = f"{OPTIONS_DATA_HOST}/v2/stocks/{symbol}/snapshot"
+    headers = {"APCA-API-KEY-ID": creds["key"], "APCA-API-SECRET-KEY": creds["secret"]}
+    payload, err = _get_json(url, headers, timeout=10.0)
+    if err is not None:
+        return None, err
+    if not isinstance(payload, dict):
+        return None, None
+
+    def _num(v: Any) -> Optional[float]:
+        return float(v) if isinstance(v, (int, float)) and v > 0 else None
+
+    lq = payload.get("latestQuote")
+    lt = payload.get("latestTrade")
+    bid = _num(lq.get("bp")) if isinstance(lq, dict) else None
+    ask = _num(lq.get("ap")) if isinstance(lq, dict) else None
+    last = _num(lt.get("p")) if isinstance(lt, dict) else None
+    last_ts = lt.get("t") if isinstance(lt, dict) else None
+    if bid is None and ask is None and last is None:
+        return None, None
+    mid = round((bid + ask) / 2, 4) if bid is not None and ask is not None else None
+    return {"bid": bid, "ask": ask, "mid": mid, "last": last, "last_ts": last_ts}, None
+
+
 def get_option_nbbo(creds: "dict[str, str]", symbol: str) -> "tuple[Optional[dict], Optional[str]]":
     """(quote, error) for one OCC option symbol from Alpaca's options data feed.
     quote = {"bid","ask","mid","bid_size","ask_size","quote_ts"} or None if the feed
@@ -267,6 +312,7 @@ def build_snapshot_rows(now: dt.datetime, cycle_id: int, arm_positions: "dict[st
                 continue
             rows.append({
                 "schema": SCHEMA,
+                "kind": "option",
                 "ts_et": now.isoformat(),
                 "ts_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
                 "date_et": now.strftime("%Y-%m-%d"),
@@ -286,6 +332,40 @@ def build_snapshot_rows(now: dt.datetime, cycle_id: int, arm_positions: "dict[st
                 "source": "alpaca_options_quotes_latest",
             })
     return rows
+
+
+def build_underlying_row(now: dt.datetime, cycle_id: int, snap: "Optional[dict]"
+                         ) -> "Optional[dict]":
+    """PURE: turn one stock-snapshot dict into ONE underlying row, or None if `snap` is
+    falsy (fetch failed, or the feed had nothing usable this cycle) -- same
+    never-fabricate-a-row contract as build_snapshot_rows above."""
+    if not snap:
+        return None
+    return {
+        "schema": SCHEMA,
+        "kind": "underlying",
+        "symbol": "SPY",
+        "ts_et": now.isoformat(),
+        "ts_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "date_et": now.strftime("%Y-%m-%d"),
+        "cycle_id": cycle_id,
+        "bid": snap.get("bid"),
+        "ask": snap.get("ask"),
+        "mid": snap.get("mid"),
+        "last": snap.get("last"),
+        "last_ts": snap.get("last_ts"),
+        "source": "alpaca_stock_quotes_latest",
+    }
+
+
+def _pick_any_creds(creds_by_arm: "dict[str, dict[str, str]]") -> "Optional[dict[str, str]]":
+    """PURE: one credential set to use for the account-agnostic SPY underlying quote --
+    the arm whose id sorts first, so the choice is deterministic across cycles/tests rather
+    than dict-iteration-order-dependent. Any configured arm's key works identically here
+    (SPY's own NBBO is not account-scoped); None if no arm has usable creds this cycle."""
+    if not creds_by_arm:
+        return None
+    return creds_by_arm[sorted(creds_by_arm)[0]]
 
 
 def prune_old_files(directory: Path, cutoff_date: dt.date,
@@ -317,6 +397,17 @@ def is_rth_window(now: dt.datetime) -> bool:
         return False
     hm = now.strftime("%H:%M")
     return "08:55" <= hm <= "16:05"
+
+
+def is_underlying_rth_window(now: dt.datetime) -> bool:
+    """09:30-16:00 ET weekdays -- literal RTH, deliberately NARROWER than is_rth_window's
+    08:55-16:05 pre/post pad above (that one still gates the OPTION side unchanged). The
+    underlying SPY row is written on every cycle inside this window regardless of whether
+    any arm holds a position; outside it, no underlying row is written this cycle."""
+    if now.weekday() >= 5:
+        return False
+    hm = now.strftime("%H:%M")
+    return "09:30" <= hm <= "16:00"
 
 
 # --------------------------------------------------------------------------------------- #
@@ -384,6 +475,30 @@ def run_cycle(creds_by_arm: "dict[str, dict[str, str]]", account_numbers: "dict[
 
     rows = build_snapshot_rows(now, cycle_id, arm_positions, arm_quotes, account_numbers)
 
+    # Underlying SPY row -- every cycle inside literal RTH (09:30-16:00 ET), positions open
+    # or not. ONE extra request total (not per-arm): get_stock_snapshot is called at most
+    # once, using one arm's own creds (see _pick_any_creds), never blocking the option rows
+    # built above -- any exception/error here is recorded under arm_errors["underlying"] and
+    # the cycle continues with whatever option rows it already has. Mirrors the option side's
+    # own contract: an empty creds_by_arm means nothing configured to check (not an error --
+    # same as zero arms meaning zero positions checked above), so the fetch is only attempted
+    # when at least one arm actually has usable creds this cycle.
+    underlying_rows_written = 0
+    if is_underlying_rth_window(now):
+        u_creds = _pick_any_creds(creds_by_arm)
+        if u_creds is not None:
+            try:
+                snap, err = get_stock_snapshot(u_creds, "SPY")
+            except Exception as exc:  # noqa: BLE001 -- same belt-and-suspenders as options above
+                snap, err = None, f"unexpected: {exc!r}"[:300]
+            if err:
+                arm_errors["underlying"] = err
+            else:
+                u_row = build_underlying_row(now, cycle_id, snap)
+                if u_row:
+                    rows = rows + [u_row]
+                    underlying_rows_written = 1
+
     written = 0
     if rows and not dry_run:
         try:
@@ -407,6 +522,7 @@ def run_cycle(creds_by_arm: "dict[str, dict[str, str]]", account_numbers: "dict[
         "arms_open": sorted(a for a, v in arm_positions.items() if v),
         "positions_open_count": total_open,
         "rows_written": written,
+        "underlying_rows_written": underlying_rows_written,
         "errors": arm_errors,
         "ok": not arm_errors,
         "mode": "active" if total_open > 0 else "idle",
@@ -508,6 +624,7 @@ def main(argv: "list[str] | None" = None) -> int:
             "last_cycle_ok": summary.get("ok"),
             "last_cycle_mode": summary.get("mode"),
             "last_cycle_rows_written": summary.get("rows_written"),
+            "underlying_rows_written": summary.get("underlying_rows_written", 0),
             "last_cycle_errors": summary.get("errors"),
             "last_success_ts_et": last_success_ts,
             "consecutive_cycle_failures": consecutive_failures,
