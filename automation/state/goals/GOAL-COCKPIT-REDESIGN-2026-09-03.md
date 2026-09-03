@@ -50,6 +50,7 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
   open and close; J gets a before/after screenshot pair.
 
 ## OPERATING RULES
+- **J 2026-09-03 19:30 ET: "do not honour any of my previous designs ... maybe the plumbing."** The prior spec's and current page's LOOK are not inputs; plumbing only survives. Design from the research pack's references + the installed design skills.
 - **CONFIG FREEZE 2026-08-31 → 2026-10-30**: presentation + state readers only; no trading-path
   file, no order path, no `params*.json`. Read-only over state.
 - Zero build step stays: one Python generator → one self-contained HTML (`gamma_home.py`).
@@ -67,19 +68,19 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] R1 — RESEARCH PACK (workflow): free design plugins/skills (marketplaces + GitHub), open-source
+- [x] R1 (DONE 19:25 ET: 52 agents, pack at analysis/deep-research/COCKPIT-REDESIGN-RESEARCH-2026-09-03.md, 197 lines; key finds: prior spec markdown/infra/COCKPIT-DESIGN-SPEC.md exists, 0 light-theme CSS, page 77% baked JSON, 20-tile inventory w/ 6 needing new plumbing) — RESEARCH PACK (workflow): free design plugins/skills (marketplaces + GitHub), open-source
   UI kits usable without a build, motion/chart/icon libraries (license, size, UMD, offline), a
   10-item reference gallery with what to borrow from each, the repo inventory of every producer
   that deserves a tile, and an audit of the current page's tokens/constraints. Written to
   `analysis/deep-research/COCKPIT-REDESIGN-RESEARCH-2026-09-03.md`. DONE-WHEN (a) inputs.
-- [ ] R2 — DESIGN DIRECTION (workflow): three independent directions (palette/type/layout/motion/
+- [x] R2 (DONE 19:50 ET: baseline panel 3/2/2 all 'wall of text'; 3 directions, judges 26.9 linear-minimal vs 25.1 mission-control; spec markdown/specs/COCKPIT-DESIGN-SPEC-2026-09-03.md 'Quiet Command' — Radix gray-dark ladder + cyan accent rhyming with the Army stage, 56px <details> rows with a 160px graphic spine, hero rings, choreographed load, light theme net-new) — DESIGN DIRECTION (workflow): three independent directions (palette/type/layout/motion/
   tile system/IA) scored by a judge panel against J's brief; winning spec written to
   `markdown/specs/COCKPIT-DESIGN-SPEC-2026-09-03.md` with the component list and per-tile data
   contracts. Baseline critique score of the current page recorded first. DONE-WHEN (d) baseline.
-- [ ] R3 — INSTALL + VENDOR: install the chosen free skills/plugins; vendor the chosen libraries
+- [x] R3 (VERIFIED by Fable: 3 design skills installed under ~/.claude/skills; vendor_assets.py --check 106 ok / 0 failed; 23 tests green; CSS 57 KB + JS 149 KB + icons 26 KB + fonts 94 KB all MIT/ISC/OFL, GSAP excluded; commit 82184a74; inliner wiring into gamma_cockpit_ui.py is R4's job) — INSTALL + VENDOR: install the chosen free skills/plugins; vendor the chosen libraries
   under `setup/scripts/vendor/` with `MANIFEST.md`; wire an inliner into `gamma_cockpit_ui.py`.
   DONE-WHEN (a).
-- [ ] R4 — BUILD (workflow, parallel builders on disjoint modules): token system + shell/nav,
+- [~] R4 — BUILD (workflow, parallel builders on disjoint modules): token system + shell/nav,
   Command view (Army + Autonomy merged), tile system + expand drawer, per-producer tiles with
   data readers (new payload keys in `gamma_home.py`/`gamma_cockpit_data.py`), charts/motion.
   DONE-WHEN (b)(c).
@@ -95,9 +96,14 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
 - None. Revoke = `git revert <sha>`; the previous page is one revert away.
 
 ## PROGRESS LOG
+- 2026-09-03 19:03 ET — Stop-hook continuation 3/3 reached session b6eea006 (the money-leak/security session, NOT this goal's owner). **R2 SKIPPED, not started, for two independent reasons:** (1) it is blocked on R1, which is `[~]` wip in the owning session (that session committed the goal switch `19d87d7a` at 18:57 ET, four minutes before the hook fired) -- starting R2 here would clobber an in-flight lane; (2) R2 is a design-direction call (palette/type/layout/motion), and doctrine routes aesthetic judgement away from Claude and requires every UI pass to open from FRESH EXTERNAL REFERENCES (J, 8th ask, 2026-08-30) -- which is precisely what R1's research pack is for. Doing R2 before R1 lands would iterate on our own output, the exact anti-pattern. No files in this goal's lane were touched. Owning session continues.
 - 2026-09-03 18:55 ET — Opened by Fable from J's directive (ultracode on). Placed at the top of
   the ladder; GOAL-GAMMA-AUTONOMY closed with its A6 carried here as R7.
 - 2026-09-03 18:55 ET — opened by goal_autopilot (first real close+open of the ladder: GAMMA-AUTONOMY closed as fully terminal)
 - 2026-09-03 18:58 ET — R1 research workflow launched (6 sweeps, 2 refuters per recommended asset, critic, writer); session 42-98 owns R1–R6.
+- 2026-09-03 19:20 ET — J correction mid-run: prior designs not to be honoured (plumbing only). Design workflow stopped, brief corrected, resumed from cache (baseline critics kept).
+
+- 2026-09-03 19:26 ET — Stop-hook continuation 3/3: R4 (build) is blocked on R2 (design spec workflow, running with the corrected brief) and R3 (vendoring agent, running). Build workflow script is drafted (planner -> parallel builders -> integrator -> screenshot critique loop to median >= 7) and launches on the spec. Screenshot instrument committed bbf34333.
+
 ## HONEST STATE
 Queued. Nothing built. Research workflow launching.
