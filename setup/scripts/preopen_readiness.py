@@ -35,6 +35,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import rehearsal_rows  # noqa: E402 -- shared is_rehearsal_row() (queue.md
+# DRILLS-WRITE-INTO-PRODUCTION-LEDGERS, 2026-09-03). Was a private module-level
+# is_rehearsal_row() defined in this file; see rehearsal_rows.py's module docstring.
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FLEET_DIR = REPO_ROOT / "automation" / "state" / "fleet"
 LOG_DIR = REPO_ROOT / "automation" / "state" / "logs"
@@ -85,13 +92,10 @@ EOD_FLATTEN_MAX_AGE_DAYS = 6  # tolerate a long weekend/holiday gap before flagg
 GOOD_EOD_OUTCOMES = {"NOOP", "SUCCESS"}  # eod_flatten.py's per-arm outcome vocabulary
 
 
-def is_rehearsal_row(row: dict) -> bool:
-    """A dry-run/rehearsal row: written by a drill, flattens nothing, proves nothing.
-
-    Shared by the fetch (which must not let a rehearsal DISPLACE the day's real row) and the
-    assessor (which must not grade one). Kept as one predicate so the two seams cannot drift.
-    """
-    return row.get("dry") is True or row.get("outcome") == "DRY_RUN"
+# Was a private module-level predicate here; extracted to rehearsal_rows.py 2026-09-03
+# (queue.md DRILLS-WRITE-INTO-PRODUCTION-LEDGERS) so this file and first_live_day_review.py
+# cannot silently drift apart again. Re-exported under the old name for any external caller.
+is_rehearsal_row = rehearsal_rows.is_rehearsal_row
 
 # --- broker canary (2026-07-11, markdown/planning/TWIN-PROGRAM.md) -----------------------
 # The 24/7 crypto twin observes Alpaca API health (latency/auth/error-rate) hours before

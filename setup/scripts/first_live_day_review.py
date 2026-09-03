@@ -101,6 +101,9 @@ except Exception:
     pass
 
 from et_clock import et_now, et_today_str  # noqa: E402 (from setup/scripts)
+import rehearsal_rows  # noqa: E402 -- shared is_rehearsal_row() (queue.md
+# DRILLS-WRITE-INTO-PRODUCTION-LEDGERS, 2026-09-03). Was a private _is_rehearsal() defined
+# in this file; see rehearsal_rows.py's module docstring for why it was extracted.
 
 # ---- module-level path constants (redirectable by tests, mirrors dms.py's fake_env) ------
 DMS_LOG_DIR = _REPO / "automation" / "state" / "logs"
@@ -576,10 +579,7 @@ def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
     # populated-looking ledger produced no verdict. Silently dropping them would reproduce
     # the original failure in a quieter form: a ledger with four rows in it reading MISSING
     # with no explanation is a report an operator argues with instead of acting on.
-    def _is_rehearsal(r: dict) -> bool:
-        return r.get("dry") is True or r.get("outcome") == "DRY_RUN"
-
-    core_arm_rows = [r for r in all_arm_rows if not _is_rehearsal(r)]
+    core_arm_rows = rehearsal_rows.filter_production_rows(all_arm_rows)
     n_reh = len(all_arm_rows) - len(core_arm_rows)
     if not core_arm_rows:
         core_result = "MISSING_ONLY_REHEARSALS" if n_reh else "MISSING"

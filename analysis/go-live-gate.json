@@ -1,5 +1,5 @@
 {
-  "generated_et": "2026-09-03T03:35:04",
+  "generated_et": "2026-09-03T03:49:47",
   "instrument": "setup/scripts/go_live_gate.py",
   "note": "REPORTING INSTRUMENT ONLY. Arms nothing. Never edits params*.json/heartbeat_core.py/filters.py/strategies.py/fleet_executor.py/risk_gate.py/exit_manager.py. Live-money arming stays J's decision alone (OP-0 #1). See MEMORY / CLAUDE.md.",
   "overall_verdict": "RED",
@@ -200,7 +200,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "........                                                                 [100%]\n8 passed in 0.33s",
+          "summary_tail": "........                                                                 [100%]\n8 passed in 0.22s",
           "pass": true
         },
         "eod_flatten_read_failure_fails_open": {
@@ -208,7 +208,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "......                                                                   [100%]\n6 passed in 0.28s",
+          "summary_tail": "......                                                                   [100%]\n6 passed in 0.21s",
           "pass": true
         },
         "never_average_down_no_stacked_entry": {
@@ -216,7 +216,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".........                                                                [100%]\n9 passed in 0.68s",
+          "summary_tail": ".........                                                                [100%]\n9 passed in 0.52s",
           "pass": true
         },
         "killswitch_threshold_parity_rule5": {
@@ -224,7 +224,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".......                                                                  [100%]\n7 passed in 0.36s",
+          "summary_tail": ".......                                                                  [100%]\n7 passed in 0.18s",
           "pass": true
         },
         "orphan_position_adoption": {
@@ -232,7 +232,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": "..........                                                               [100%]\n10 passed in 0.45s",
+          "summary_tail": "..........                                                               [100%]\n10 passed in 0.27s",
           "pass": true
         },
         "dead_mans_switch_open_position_on_process_death": {
@@ -240,7 +240,7 @@
           "exists": true,
           "ran": true,
           "returncode": 0,
-          "summary_tail": ".............                                                            [100%]\n13 passed in 0.50s",
+          "summary_tail": ".............                                                            [100%]\n13 passed in 0.31s",
           "pass": true
         }
       },
@@ -251,19 +251,19 @@
         "safe-3": {
           "window": [
             "2026-08-03",
-            "2026-09-01"
+            "2026-09-02"
           ],
           "pre_reset_window_dropped": true,
           "pre_reset_ledger_pnl_unreconcilable": -22.0,
           "pre_reset_ledger_trips_unreconcilable": 27,
-          "broker_pnl_sum": 852.7,
-          "ledger_pnl_sum_engine_attributed": 863.0,
-          "estimated_fees_ex_cat_plus_cat": 10.75,
-          "ledger_pnl_fee_adjusted": 852.25,
-          "diff_raw_vs_ledger": -10.3,
-          "diff_vs_fee_adjusted_ledger": 0.45,
-          "tolerance": 17.05,
-          "n_ledger_trips": 32,
+          "broker_pnl_sum": 638.63,
+          "ledger_pnl_sum_engine_attributed": 650.0,
+          "estimated_fees_ex_cat_plus_cat": 11.88,
+          "ledger_pnl_fee_adjusted": 638.12,
+          "diff_raw_vs_ledger": -11.37,
+          "diff_vs_fee_adjusted_ledger": 0.51,
+          "tolerance": 12.77,
+          "n_ledger_trips": 36,
           "base_value_asof": "2026-07-30",
           "account_created_et": "2026-08-03",
           "reconciled": true
@@ -355,7 +355,31 @@
         "note": "SKIPPED (not fabricated): a per-trade sizing-up check needs the prior trading day's broker closing equity per arm, which requires a second live portfolio-history call beyond what reconciliation_criterion already fetches. Not wired this build to avoid doubling the live-REST call count for a sub-check with no dedicated evidence yet; documented rule-break and manual-override checks above are real and complete for the trailing window. See CLAUDE.md rule-6 cap discussion in the runbook."
       },
       "pass": true,
-      "note": "most recent journal/mistakes.md entry on file predates this window (informational only, not parsed structurally -- see mistakes.md)"
+      "note": "most recent journal/mistakes.md entry on file predates this window (informational only, not parsed structurally -- see mistakes.md)",
+      "coverage_preview": {
+        "audited_range": [
+          "2026-06-21",
+          "2026-09-02"
+        ],
+        "covers_window": true,
+        "rules_checked": {
+          "RULE_1_NAMED_SETUP": "entry's setup is a named playbook pattern",
+          "RULE_2_WAIT_FOR_TRIGGER": "entry timestamp is after its own trigger bar closed (anticipation entries are forbidden) -- core arms only",
+          "RULE_3_DEFINED_STOP": "entry carries a stop, and a structure-mode stop carries the chart level it is anchored to",
+          "RULE_4_NO_ADDING": "entry was placed while flat -- fleet arms only",
+          "RULE_5_KILL_SWITCH": "no entry after that arm's daily kill switch tripped -- fleet only",
+          "RULE_6_RISK_CAP": "position cost is within the arm's per-trade risk cap"
+        },
+        "rules_not_checked": {
+          "RULE_7_PDT": "the BREAK condition (pattern_day_trader flips true under the broker's equity threshold) is not checkable: verified live 2026-09-03, Alpaca's account payload carries neither `pattern_day_trader` nor `daytrade_count` on any of the 5 reachable arms any more -- see r7_pdt_observations for what IS read (equity + intraday_adjustments) when run(include_r7_r8=True)",
+          "RULE_8_JOURNAL": "the BREAK condition (a fill with no journal row) is not auto-declared: the fill->trades.csv join is now built and fixture-tested (match_fills_to_journal), but a wrong join would manufacture false breaks on the gate's own ledger, so it ships as an OBSERVATION (match rate + unmatched rows) via r8_journal_join when run(include_r7_r8=True, r8_date=...) rather than an automatic break",
+          "RULE_9_NO_MIDSESSION_RULE_CHANGES": "needs a timestamped hash/snapshot of every frozen trading-path file (params.json, aggressive/params.json, heartbeat_core.py, filters.py, risk_gate.py, exit_manager.py) taken at RTH open (09:30 ET) and close (16:00 ET); no such snapshot exists today, so there is no pair of hashes to diff for a mid-session change",
+          "RULE_10_GAMMA_VETO": "the free-model veto has been disabled since 2026-08-12 (GAMMA_FREE_MODEL_VETO defaults 0) and no ledger records a refused-but-would-have-fired decision -- there is no row shape for a veto event to check against even in principle"
+        },
+        "would_pass_under_prereg": true,
+        "prereg_path": "analysis/recommendations/prereg-criterion-4-coverage-read-2026-09-03.md",
+        "artifact_status": "ok"
+      }
     },
     "prod_shadow": {
       "designation": {
@@ -841,7 +865,7 @@
     "calm_only_window_warning": "calm-only window -- a GREEN here is untested in stress"
   },
   "futures": {
-    "generated_et": "2026-09-03T03:35:17",
+    "generated_et": "2026-09-03T03:49:57",
     "instrument": "setup/scripts/futures_go_live_gate.py",
     "note": "ADVISORY, separate ladder for the futures MES lane -- NEVER substitutes for or feeds the SPY criteria/verdict above. Every threshold is PROVISIONAL (first real bar for a lane group that had none before this file -- see queue.md FUTURES-ABSENT-FROM-GO-LIVE-GATE).",
     "lane_verdict": "RED",
@@ -954,7 +978,7 @@
         "pass": false,
         "source": "C:\\Users\\jackw\\Desktop\\42\\automation\\state\\futures\\health.json",
         "checked_at_et": "2026-09-03 03:30:03",
-        "age_minutes": 5.2,
+        "age_minutes": 19.9,
         "stale": false,
         "underlying_verdict": "RED",
         "connect_failure_rate_pct": 43,

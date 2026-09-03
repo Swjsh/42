@@ -1,6 +1,6 @@
 # Go-Live Gate -- RED
 
-_generated 2026-09-03T03:35:04 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
+_generated 2026-09-03T03:49:47 ET by `setup/scripts/go_live_gate.py`. Reporting instrument only -- arms nothing. Live-money arming stays J's decision (OP-0 #1)._
 
 | Criterion | Verdict |
 |---|---|
@@ -23,7 +23,7 @@ _generated 2026-09-03T03:35:04 ET by `setup/scripts/go_live_gate.py`. Reporting 
 
 | Arm | Window | Broker P&L | Ledger P&L | Est. fees | Diff (fee-adj) | Verdict |
 |---|---|---|---|---|---|---|
-| safe-3 | 2026-08-03..2026-09-01 | $852.70 | $863.00 | $10.75 | $0.45 | PASS |
+| safe-3 | 2026-08-03..2026-09-02 | $638.63 | $650.00 | $11.88 | $0.51 | PASS |
 | safe-2 | 2026-08-03..2026-09-01 | $780.30 | $795.00 | $13.69 | $-1.01 | PASS |
 | risky-1 | 2026-08-03..2026-09-01 | $1,495.12 | $1,520.00 | $25.85 | $0.97 | PASS |
 | bold-2 | 2026-08-03..2026-09-01 | $609.02 | $624.00 | $15.50 | $0.52 | PASS |
@@ -38,6 +38,16 @@ _generated 2026-09-03T03:35:04 ET by `setup/scripts/go_live_gate.py`. Reporting 
 | killswitch_threshold_parity_rule5 | PASS |
 | orphan_position_adoption | PASS |
 | dead_mans_switch_open_position_on_process_death | PASS |
+
+## Criterion 4 coverage preview (DISCLOSURE ONLY -- not the pass bar until 2026-09-29)
+
+_previews `prereg-criterion-4-coverage-read-2026-09-03.md`'s new rule against `rule-break-audit.json`. Real criterion-4 status above is computed unchanged from `rule-breaks.jsonl` mtime until the prereg's effective date._
+
+artifact_status=ok audited_range=['2026-06-21', '2026-09-02'] covers_window=True would_pass_under_prereg=True
+
+rules_checked: RULE_1_NAMED_SETUP, RULE_2_WAIT_FOR_TRIGGER, RULE_3_DEFINED_STOP, RULE_4_NO_ADDING, RULE_5_KILL_SWITCH, RULE_6_RISK_CAP
+
+rules_NOT_checked: RULE_10_GAMMA_VETO, RULE_7_PDT, RULE_8_JOURNAL, RULE_9_NO_MIDSESSION_RULE_CHANGES
 
 ## Prod-shadow
 

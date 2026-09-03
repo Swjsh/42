@@ -91,7 +91,11 @@ CORE_DECISIONS_PATH = REPO / "automation" / "state" / "core-decisions.jsonl"
 ACCOUNTS_PATH = REPO / "automation" / "state" / "fleet" / "accounts.json"
 SECRETS_PATH = REPO / "automation" / "state" / "fleet" / "secrets.json"
 RULE_BREAKS_PATH = REPO / "automation" / "state" / "rule-breaks.jsonl"
+RULE_BREAK_AUDIT_PATH = REPO / "automation" / "state" / "rule-break-audit.json"
 MISTAKES_PATH = REPO / "journal" / "mistakes.md"
+CRITERION_4_PREREG_PATH = (
+    "analysis/recommendations/prereg-criterion-4-coverage-read-2026-09-03.md"
+)
 BACKTEST_DIR = REPO / "backtest"
 BACKTEST_PY = BACKTEST_DIR / ".venv" / "Scripts" / "python.exe"
 
@@ -592,6 +596,66 @@ def _rule_breaks_last_write_et_date():
     return datetime.fromtimestamp(ts, tz=timezone.utc).astimezone(ET_TZ).date()
 
 
+def _load_rule_break_audit_coverage() -> tuple[dict | None, str]:
+    """Reads automation/state/rule-break-audit.json (Gamma_RuleBreakAudit's coverage
+    artifact, shipped 4689dacd 2026-09-02). Returns (payload, status) where status is
+    "ok" / "missing" / "unreadable" -- NEVER raises. Used only by
+    behavioural_coverage_preview() below; this artifact is disclosure-only and must never
+    be able to crash or alter criterion 4's real pass/fail byte."""
+    if not RULE_BREAK_AUDIT_PATH.exists():
+        return None, "missing"
+    try:
+        payload = json.loads(RULE_BREAK_AUDIT_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None, "unreadable"
+    if not isinstance(payload, dict):
+        return None, "unreadable"
+    return payload, "ok"
+
+
+def behavioural_coverage_preview(w_start: str, w_end: str, rb_in_window_count: int) -> dict:
+    """ADDITIVE, disclosure-only (queue.md CRITERION-4-CANNOT-READ-ITS-OWN-AUDITOR, filed
+    2026-09-02; prereg analysis/recommendations/prereg-criterion-4-coverage-read-2026-09-03.md,
+    frozen 2026-09-03). Previews what criterion 4's PASS/PASS_UNVERIFIED status would read
+    under the pre-registered new rule -- reading rule-break-audit.json's audited date-range
+    instead of rule-breaks.jsonl's mtime -- WITHOUT changing the real status computed above.
+    Effective date for the real rule is 2026-09-29 (the same config-freeze checkpoint); until
+    then this key is preview only. Fail-open on any artifact read problem: reports
+    artifact_status "missing"/"unreadable" and would_pass_under_prereg False rather than
+    raising or guessing."""
+    audit, artifact_status = _load_rule_break_audit_coverage()
+
+    audited_range = None
+    covers_window = False
+    rules_checked: dict = {}
+    rules_not_checked: dict = {}
+
+    if audit is not None:
+        rng = audit.get("date_range")
+        if isinstance(rng, (list, tuple)) and len(rng) == 2 and all(rng):
+            audited_range = [rng[0], rng[1]]
+            if w_start and w_end:
+                covers_window = (rng[0] <= w_start) and (rng[1] >= w_end)
+        rc = audit.get("rules_checked")
+        rules_checked = rc if isinstance(rc, dict) else {}
+        rnc = audit.get("rules_NOT_checked")
+        rules_not_checked = rnc if isinstance(rnc, dict) else {}
+
+    would_pass_under_prereg = bool(
+        rb_in_window_count == 0 and covers_window and bool(rules_checked)
+    )
+
+    return {
+        "audited_range": audited_range,
+        "covers_window": covers_window,
+        "rules_checked": rules_checked,
+        "rules_not_checked": rules_not_checked,
+        "would_pass_under_prereg": would_pass_under_prereg,
+        "prereg_path": CRITERION_4_PREREG_PATH,
+        "artifact_status": artifact_status,
+    }
+
+
 def behavioural_criterion(rows: list[dict], recon: dict) -> dict:
     all_rows = rows  # includes non-engine attribution, needed for the manual-override check
     w_start, w_end, window_dates = _trailing_window_dates(
@@ -671,6 +735,11 @@ def behavioural_criterion(rows: list[dict], recon: dict) -> dict:
             f"most recent journal/mistakes.md entry on file predates this window "
             f"(informational only, not parsed structurally -- see {MISTAKES_PATH.name})"
         ),
+        # ADDITIVE, disclosure-only (queue.md CRITERION-4-CANNOT-READ-ITS-OWN-AUDITOR,
+        # 2026-09-02; prereg prereg-criterion-4-coverage-read-2026-09-03.md, effective
+        # 2026-09-29). Never read by anything above `pass` is computed -- see
+        # behavioural_coverage_preview() docstring and the prereg's mutation-proof obligation.
+        "coverage_preview": behavioural_coverage_preview(w_start, w_end, len(rb_in_window)),
     }
 
 
@@ -1427,6 +1496,25 @@ def render_markdown(report: dict) -> str:
     ]
     for name, g in c["operational"]["guards"].items():
         lines.append(f"| {name} | {_mark(g['pass'])} |")
+
+    cp = c["behavioural"].get("coverage_preview")
+    if cp:
+        lines += [
+            "",
+            "## Criterion 4 coverage preview (DISCLOSURE ONLY -- not the pass bar until 2026-09-29)",
+            "",
+            f"_previews `prereg-criterion-4-coverage-read-2026-09-03.md`'s new rule against "
+            f"`rule-break-audit.json`. Real criterion-4 status above is computed unchanged from "
+            f"`rule-breaks.jsonl` mtime until the prereg's effective date._",
+            "",
+            f"artifact_status={cp['artifact_status']} audited_range={cp['audited_range']} "
+            f"covers_window={cp['covers_window']} would_pass_under_prereg={cp['would_pass_under_prereg']}",
+            "",
+            f"rules_checked: {', '.join(sorted(cp['rules_checked'])) or '(none)'}",
+            "",
+            f"rules_NOT_checked: {', '.join(sorted(cp['rules_not_checked'])) or '(none)'}",
+        ]
+
     ps = c["prod_shadow"]
     lines += ["", "## Prod-shadow", ""]
     if ps["status"] != "NOT_WIRED":
