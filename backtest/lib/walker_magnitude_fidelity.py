@@ -117,22 +117,30 @@ def evaluate_magnitude_fidelity(mag: dict) -> str:
 
 def stage_decomposition(rows: Sequence[dict], *, real_key: str, walk_key: str,
                         recorded_stage_key: str, walked_stage_key: str) -> dict:
-    """Splits dollar error by whether the walker's OWN final exit stage matches the RECORDED
-    (broker-truth) exit stage, and reports mean/median error for each bucket. This is the
-    diagnostic that actually localizes a magnitude defect: a walker that agrees on stage should
-    be a pure pricing question (fill convention, slippage); one that disagrees on stage picked a
-    DIFFERENT event entirely (e.g. fired a catastrophe stop on a bar-extreme wick the live 1-
-    minute tick never saw), which is a structural defect, not a pricing one.
+    """Splits dollar error by whether the walker's OWN exit stage SEQUENCE matches the RECORDED
+    (broker-truth) exit stage sequence, and reports mean/median error for each bucket. This is
+    the diagnostic that actually localizes a magnitude defect: a walker that agrees on stage
+    should be a pure pricing question (fill convention, slippage); one that disagrees on stage
+    picked a DIFFERENT event entirely (e.g. fired a catastrophe stop on a bar-extreme wick the
+    live 1-minute tick never saw), which is a structural defect, not a pricing one.
 
-    A recorded stage like "premium_stop+ribbon_flip" (compound label -- see
-    exit_manager_walk.py's EXITMGR-STAGE-LABEL-CONFLATION note) is matched on its FIRST token
-    only, since that is the stage that actually closed the largest tranche in every observed
-    compound case in this repo.
+    WALKER-PDT-ANCHOR-FIDELITY-INPUTS fix #1 (2026-09-03): a recorded stage like
+    "premium_stop+ribbon_flip" (compound label -- see exit_manager_walk.py's
+    EXITMGR-STAGE-LABEL-CONFLATION note) is now compared against the walker's FULL compound
+    leg-stage sequence (e.g. "tp1+trail"), not a first-token truncation on either side.
+    First-token comparison was a measurement artifact (WALKER-STAGE-DISAGREE-RESIDUAL-2026-09-
+    03.md Finding 0): the caller-side `walked_stage` used to carry only the LAST leg's stage
+    (a single token, e.g. "trail"), so a compound recorded label's first token ("tp1") could
+    never match it even when the replay fired the IDENTICAL two-leg sequence the broker
+    recorded -- inflating the PDT anchor's disagree count from a true 6 rows to a mislabeled
+    13. Callers must now build `walked_stage_key`'s value as the FULL "+"-joined leg sequence
+    (see `pdt_blocked_counterfactual._walk_via_exit_manager`'s `walked_stage`), matching
+    `recorded_stage`'s own already-compound convention (trades-enriched.jsonl's `exit_reason`).
     """
     agree, disagree = [], []
     for r in rows:
-        recorded = str(r.get(recorded_stage_key) or "UNKNOWN").split("+")[0]
-        walked = str(r.get(walked_stage_key) or "UNKNOWN").split("+")[0]
+        recorded = str(r.get(recorded_stage_key) or "UNKNOWN")
+        walked = str(r.get(walked_stage_key) or "UNKNOWN")
         err = abs(float(r[walk_key]) - float(r[real_key]))
         bucket = agree if recorded == walked else disagree
         bucket.append(err)

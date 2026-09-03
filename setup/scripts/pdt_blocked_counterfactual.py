@@ -88,7 +88,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
-for _p in ("backtest", "backtest/lib", "backtest/tools", "automation/state/fleet"):
+for _p in ("backtest", "backtest/lib", "backtest/tools", "automation/state/fleet", "setup/scripts"):
     _full = str(REPO / _p)
     if _full not in sys.path:
         sys.path.insert(0, _full)
@@ -107,8 +107,15 @@ from walker_magnitude_fidelity import (  # noqa: E402 -- WALKER-MAGNITUDE-BIAS-V
 # WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK (2026-09-03): the alternate walker this
 # harness can be pointed at (see --walker below). Bare imports -- backtest/lib and
 # automation/state/fleet are already on sys.path (see loop above).
-from exit_manager_walk import walk_exit_manager  # noqa: E402
+from exit_manager_walk import walk_exit_manager, _reframe_series, FRAME_WALL_V1  # noqa: E402
 from exit_manager import TIME_STOP_ET  # noqa: E402
+# WALKER-PDT-ANCHOR-FIDELITY-INPUTS (2026-09-03) step 2: REUSE whole_engine_null's
+# build_ribbon_tick_df instead of forking a copy -- "setup/scripts" is on sys.path (see loop
+# above), same directory this file itself lives in.
+import whole_engine_null as wen  # noqa: E402
+# step 3: the SAME REST/disk-cache path V9's own get_1m_bars ultimately wraps, for fetching
+# 1-minute option bars for this anchor's contracts (network+disk-cache cost, never estimated).
+from _option_bars_1min_cache import fetch_1min_cached  # noqa: E402
 
 PREREG_PATH = REPO / "analysis/recommendations/prereg-pdt-blocked-counterfactual-2026-08-11.json"
 CORE_LEDGER = REPO / "automation/state/core-decisions.jsonl"
@@ -124,6 +131,11 @@ OUT_MD_EXIT_MGR = REPO / "analysis/recommendations/pdt-blocked-counterfactual-20
 WALKERS = ("multileg", "exit_manager")
 
 ACCT2ARM = {"safe": "safe-2", "bold": "bold-2"}
+# WALKER-PDT-ANCHOR-FIDELITY-INPUTS (2026-09-03) step 2: reverse of ACCT2ARM -- maps
+# trades-enriched.jsonl's "arm" field ("safe-2"/"bold-2") back to core-decisions.jsonl's own
+# "account" convention ("safe"/"bold"), the key build_ribbon_tick_df's per-tick ribbon read
+# needs (see whole_engine_null._core_account_for_arm for the same convention).
+ARM2ACCOUNT = {v: k for k, v in ACCT2ARM.items()}
 STOP_B_SHIP_DATE = "2026-07-09"          # commit 933bd651, git-verified (see module docstring)
 STUDY_WINDOW_START = "2026-07-08"
 STUDY_WINDOW_END = "2026-08-07"
@@ -206,26 +218,50 @@ def _walk_via_exit_manager(fill: dict, shape: dict, bars, *, trigger_level: floa
     structure_stop) -- tp1/premium_stop/profit_lock_floor/trail/be_stop/runner_target fill at
     the exact triggered level with zero slippage (see that module's FILL-PRICE CONVENTION
     note -- its own docstring already flags this as unfixed-on-purpose, not something this
-    adapter should silently work around). `ribbon_tick_df` is always None here (no per-tick
-    ribbon series exists for this population) -- ribbon_flip exits are therefore
-    structurally unreachable, same status quo as multileg's walk() (which never modelled
-    ribbon_flip either -- see its hardcoded `ribbon_flip_back` absence).
+    adapter should silently work around).
+
+    `ribbon_tick_df` (WALKER-PDT-ANCHOR-FIDELITY-INPUTS step 2, 2026-09-03): when `fill`
+    carries an "account" key ("safe"|"bold", core-decisions.jsonl's own convention -- see
+    ARM2ACCOUNT), builds a REAL per-tick ribbon series via
+    `whole_engine_null.build_ribbon_tick_df` (imported, not copied) reindexed onto THIS bars
+    frame's own timestamps -- the SAME mechanism V9's `ribbon_account` kwarg already uses, so
+    ribbon_flip exits are reachable here too, not structurally dead. `bars`' timestamp column
+    is frame-normalized to wall-v1 first (`_reframe_series`) so it merges cleanly against the
+    (tz-naive) ribbon series regardless of whether `bars` came from `load_contract_bars`
+    (raw tz-aware) or `_option_bars_1min_cache.fetch_1min_cached` (already tz-naive) --
+    `walk_exit_manager` itself reframes `opt_df` internally the same way (default
+    frame="wall-v1"), so this is the SAME normalization, not a second independent one. A fill
+    with no "account" key (any caller predating this fold, or a caller genuinely lacking one)
+    keeps `ribbon_tick_df=None` -- backward-compatible default, not a silent behavior change
+    for those callers.
 
     `mfe_pct` is reported as None (not fabricated): walk_exit_manager does not expose a
     per-tick high-water-mark, and this field is non-load-bearing for G1-G4 (fabricating an
-    approximation from leg fill prices alone would be a WORSE number than an honest gap)."""
+    approximation from leg fill prices alone would be a WORSE number than an honest gap).
+
+    `walked_stage` (WALKER-PDT-ANCHOR-FIDELITY-INPUTS step 1, 2026-09-03): the FULL
+    "+"-joined leg-stage sequence (e.g. "tp1+trail"), not just the last leg -- matches
+    `recorded_stage`'s own already-compound convention so `stage_decomposition` compares
+    like-for-like (see that function's docstring; the old last-leg-only value inflated the
+    PDT anchor's disagree count via a first-token mismatch that was never a real event
+    disagreement -- WALKER-STAGE-DISAGREE-RESIDUAL-2026-09-03.md Finding 0)."""
     entry = float(fill["entry_premium"])
     qty = int(fill["qty"])
     sym = fill["symbol"]
     side = "P" if "P00" in sym else "C"
     entry_time_et = pd.Timestamp(f"{fill['date']} {fill['entry_time']}")
     five_min_spy_df = _five_min_spy_df_for_date(fill["date"], spy_map or {})
+    account = fill.get("account")
+    ribbon_tick_df = None
+    if account:
+        reframed = bars.assign(timestamp_et=_reframe_series(bars["timestamp_et"], FRAME_WALL_V1))
+        ribbon_tick_df = wen.build_ribbon_tick_df(reframed, fill["date"], account)
     try:
         result = walk_exit_manager(
             symbol=sym, side=side, entry_time_et=entry_time_et, entry_premium=entry, qty=qty,
             exit_shape=shape, structure_stop_enabled=bool(trigger_level),
             trigger_level=trigger_level, strategy=str(fill.get("strategy", "RIBBON")),
-            time_stop_et=TIME_STOP_ET, opt_df=bars, ribbon_tick_df=None,
+            time_stop_et=TIME_STOP_ET, opt_df=bars, ribbon_tick_df=ribbon_tick_df,
             five_min_spy_df=five_min_spy_df, exit_slippage=exit_slippage,
         )
     except Exception as exc:  # noqa: BLE001 -- mirror walk()'s own error-as-data contract
@@ -235,7 +271,7 @@ def _walk_via_exit_manager(fill: dict, shape: dict, bars, *, trigger_level: floa
     legs = [{"t": leg.ts_et.strftime("%H:%M"), "stage": leg.stage, "qty": leg.qty,
             "px": leg.fill_price, "pnl": leg.leg_pnl} for leg in result.legs]
     return {"pnl": result.dollar_pnl, "legs": legs, "n_legs": len(legs), "mfe_pct": None,
-           "walked_stage": (legs[-1]["stage"] if legs else result.exit_reason)}
+           "walked_stage": ("+".join(leg["stage"] for leg in legs) if legs else result.exit_reason)}
 
 
 def _price_via_walker(walker: str, fill: dict, shape: dict, bars, *, trigger_level: float,
@@ -343,7 +379,8 @@ def price_intent(intent: dict, bars: pd.DataFrame, spy_map: dict,
     trig = resolve_trigger_level(intent["date"], intent["trigger_level"])
     fill = {"entry_premium": intent["entry_premium"], "qty": intent["qty"],
             "symbol": intent["symbol"], "date": intent["date"],
-            "entry_time": intent["entry_time"], "strategy": intent.get("setup") or "RIBBON"}
+            "entry_time": intent["entry_time"], "strategy": intent.get("setup") or "RIBBON",
+            "account": intent.get("account")}
     return _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map)
 
 
@@ -455,13 +492,39 @@ def anchor_trigger_level(row: dict) -> float:
     return resolve_trigger_level(row["date"], trig)
 
 
-def harness_validation(walker: str = "multileg") -> dict:
+def _load_anchor_bars(sym: str, date: str, bar_resolution: str, cache: dict):
+    """5-min (default, BYTE-IDENTICAL to every prior call: `load_contract_bars(sym)`, keyed by
+    symbol alone) or 1-min (WALKER-PDT-ANCHOR-FIDELITY-INPUTS step 3, 2026-09-03: REAL Alpaca
+    1-min option bars via `_option_bars_1min_cache.fetch_1min_cached`, a genuine network+disk-
+    cache fetch, keyed by (symbol,date) -- a 0DTE contract trades exactly one date, but the
+    tuple key is the honest cache contract regardless). Returns None on any fetch failure
+    (never estimated/substituted) -- caller counts it in `skipped_no_bars`."""
+    cache_key = sym if bar_resolution == "5min" else (sym, date)
+    if cache_key not in cache:
+        try:
+            if bar_resolution == "1min":
+                bars_1m, _source = fetch_1min_cached(sym, date)
+                cache[cache_key] = bars_1m
+            else:
+                cache[cache_key] = load_contract_bars(sym)
+        except Exception:  # noqa: BLE001
+            cache[cache_key] = None
+    return cache[cache_key]
+
+
+def harness_validation(walker: str = "multileg", bar_resolution: str = "5min") -> dict:
     """`walker` (WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK, 2026-09-03): "multileg"
     (default) is BYTE-IDENTICAL to every prior call of this function -- same `walk()` call,
     same arguments, same order. "exit_manager" routes the SAME 43-row anchor (same
     load_anchor_sample/canonical_shape/anchor_trigger_level resolution -- each row's OWN
     RECORDED stop_mode is honoured identically either way) through
-    `exit_manager_walk.walk_exit_manager` instead."""
+    `exit_manager_walk.walk_exit_manager` instead.
+
+    `bar_resolution` (WALKER-PDT-ANCHOR-FIDELITY-INPUTS step 3, 2026-09-03): "5min" (default,
+    byte-identical -- see `_load_anchor_bars`) or "1min" (real fetch/cache of 1-minute option
+    bars for this anchor's distinct (symbol,date) pairs). Orthogonal to `walker` -- either
+    walker can be asked to walk on either resolution, though only "exit_manager" is what this
+    queue item's own criterion is scored against."""
     rows = load_anchor_sample()
     spy_map = spy_by_day()
     cache: dict = {}
@@ -469,12 +532,7 @@ def harness_validation(walker: str = "multileg") -> dict:
     skipped_no_bars = 0
     for r in rows:
         sym = r["symbol"]
-        if sym not in cache:
-            try:
-                cache[sym] = load_contract_bars(sym)
-            except Exception:  # noqa: BLE001
-                cache[sym] = None
-        bars = cache[sym]
+        bars = _load_anchor_bars(sym, r["date"], bar_resolution, cache)
         if bars is None or bars.empty:
             skipped_no_bars += 1
             continue
@@ -485,14 +543,15 @@ def harness_validation(walker: str = "multileg") -> dict:
             shape["stop_mode"] = mode
         trig = anchor_trigger_level(r)
         fill = {"entry_premium": r["entry_px"], "qty": int(r["qty"]), "symbol": sym,
-                "date": r["date"], "entry_time": r["entry_ts_et"][11:19], "strategy": "RIBBON"}
+                "date": r["date"], "entry_time": r["entry_ts_et"][11:19], "strategy": "RIBBON",
+                "account": ARM2ACCOUNT.get(r["arm"])}
         res = _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map)
         if "error" in res:
             continue
         actual = float(r["pnl_dollars"])
         replay = res["pnl"]
         walked_stage = (res.get("walked_stage") if "walked_stage" in res
-                        else (res["legs"][-1]["stage"] if res.get("legs") else None))
+                        else ("+".join(leg["stage"] for leg in res["legs"]) if res.get("legs") else None))
         results.append({
             "date": r["date"], "arm": r["arm"], "symbol": sym, "stop_mode": mode,
             "actual": actual, "replay": replay, "err": round(replay - actual, 2),
@@ -551,12 +610,21 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
                          "-- gated on its own anchor clearing walker_magnitude_fidelity's "
                          "PASS criterion before any G1-G4 number is trusted, and writes to "
                          "*-exit-manager-walk.{json,md} instead of the published artifact.")
+    ap.add_argument("--bars", choices=("5min", "1min"), default="5min",
+                    help="anchor bar resolution for harness_validation only "
+                         "(WALKER-PDT-ANCHOR-FIDELITY-INPUTS step 3). '5min' (default) is "
+                         "BYTE-IDENTICAL to every prior run (option_pricing_real."
+                         "load_contract_bars). '1min' fetches/caches real Alpaca 1-min option "
+                         "bars for this anchor's contracts -- a genuine network+disk-cache "
+                         "cost, single-reader OPRA cache. Does NOT affect the blocked-cohort "
+                         "pricing pass (run_counterfactual) or G1-G4 -- anchor-only.")
     return ap.parse_args(argv)
 
 
 def main(argv: Optional[list[str]] = None) -> int:
     args = _parse_args(argv)
     walker = args.walker
+    bar_resolution = args.bars
     out_json = OUT_JSON if walker == "multileg" else OUT_JSON_EXIT_MGR
     out_md = OUT_MD if walker == "multileg" else OUT_MD_EXIT_MGR
     deviations: list[str] = []
@@ -582,8 +650,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     else:
         print("  MATCHES prereg's original count (68 -> 18) exactly.")
 
-    print(f"\n=== VALIDATE THE VALIDATOR (harness fidelity vs broker truth) -- walker={walker} ===")
-    hv = harness_validation(walker=walker)
+    print(f"\n=== VALIDATE THE VALIDATOR (harness fidelity vs broker truth) -- "
+          f"walker={walker} bars={bar_resolution} ===")
+    hv = harness_validation(walker=walker, bar_resolution=bar_resolution)
     if hv.get("sign_agreement") is not None:
         print(f"  n={hv['n']} anchor positions (safe-2/bold-2, {STUDY_WINDOW_START}..{STUDY_WINDOW_END}, engine-attributed)")
         print(f"  sign agreement: {hv['sign_agreement']*100:.1f}%  (bar: {HARNESS_SIGN_AGREEMENT_BAR*100:.0f}%)")
@@ -658,6 +727,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         "prereg_path": str(PREREG_PATH.relative_to(REPO)),
         "run_at_note": "generated by setup/scripts/pdt_blocked_counterfactual.py",
         "walker": walker,
+        "anchor_bar_resolution": bar_resolution,
         "harness_deviation_disclosed": (
             None if walker == "multileg" else
             "Prereg's contract names multileg_exit_walk by construction (walk_exit_manager did "

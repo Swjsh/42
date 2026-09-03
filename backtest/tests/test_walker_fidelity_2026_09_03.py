@@ -183,18 +183,39 @@ def test_boundary_n_exactly_at_min_is_sufficient():
 # stage_decomposition() / side_decomposition() -- sums to total, isolates the diagnostic
 # ============================================================================================ #
 def test_stage_decomposition_agree_disagree_partitions_all_rows():
+    """WALKER-PDT-ANCHOR-FIDELITY-INPUTS fix #1 (2026-09-03) changed the comparison from
+    first-token to FULL compound-string equality -- see the module's own docstring and
+    WALKER-STAGE-DISAGREE-RESIDUAL-2026-09-03.md Finding 0 (first-token matching was a
+    measurement artifact that inflated the PDT anchor's true 6-row disagree count to a
+    mislabeled 13). Row 3 ("tp1+trail" vs "tp1") now correctly DISAGREES: a caller reporting
+    only the FIRST leg's stage as `walked_stage` is under-reporting its own replay, not
+    matching the broker's two-leg sequence -- the old first-token comparator hid that."""
     rows = [
         {"real": 10.0, "walk": 12.0, "rec_stage": "premium_stop", "walk_stage": "premium_stop"},
         {"real": -5.0, "walk": -20.0, "rec_stage": "structure_stop", "walk_stage": "premium_stop"},
-        {"real": -1.0, "walk": -1.0, "rec_stage": "tp1+trail", "walk_stage": "tp1"},  # compound
+        {"real": -1.0, "walk": -1.0, "rec_stage": "tp1+trail", "walk_stage": "tp1"},  # compound, partial
         {"real": 3.0, "walk": 3.5, "rec_stage": None, "walk_stage": "time_stop"},
     ]
     d = wmf.stage_decomposition(rows, real_key="real", walk_key="walk",
                                 recorded_stage_key="rec_stage", walked_stage_key="walk_stage")
     assert d["stage_agree"]["n"] + d["stage_disagree"]["n"] == len(rows)
-    # row 3 ("tp1+trail" vs "tp1") must AGREE -- first-token match on a compound label.
-    assert d["stage_agree"]["n"] == 2   # rows 1 and 3
-    assert d["stage_disagree"]["n"] == 2  # rows 2 and 4 (None vs "time_stop" != -> disagree)
+    assert d["stage_agree"]["n"] == 1   # row 1 only -- exact full-string match
+    assert d["stage_disagree"]["n"] == 3  # rows 2, 3 (partial compound != full compound), 4
+
+
+def test_stage_decomposition_full_compound_match_required_not_first_token():
+    """The actual mechanism this fix corrects: a walker that fires the IDENTICAL two-leg
+    sequence the broker recorded (full string match) must AGREE; one that reports only the
+    first leg's stage as a string prefix of the recorded compound must NOT agree merely
+    because the first token happens to match."""
+    rows = [
+        {"real": 105.0, "walk": 273.4, "rec_stage": "tp1+trail", "walk_stage": "tp1+trail"},  # identical sequence
+        {"real": 105.0, "walk": 200.0, "rec_stage": "tp1+trail", "walk_stage": "tp1"},          # first-token-only, WRONG under new rule
+    ]
+    d = wmf.stage_decomposition(rows, real_key="real", walk_key="walk",
+                                recorded_stage_key="rec_stage", walked_stage_key="walk_stage")
+    assert d["stage_agree"]["n"] == 1
+    assert d["stage_disagree"]["n"] == 1
 
 
 def test_stage_decomposition_disagree_share_is_fraction_of_total_abs_error():
