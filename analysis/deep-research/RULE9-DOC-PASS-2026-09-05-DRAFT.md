@@ -65,6 +65,10 @@ Three literal replacements of `decisions.jsonl` with `core-decisions.jsonl` (the
 - LESSONS L302/L303 landed 2026-09-03 (`6629e1b8`); **L304–L309 landed 2026-09-03 03:50 ET** (the five 09-01 field lessons + the live-state-guard lesson), index rows folded. Nothing left for the lesson-author on Saturday.
 - ⚠️ **Budget: CLAUDE.md reads 8,912 / 9,000 tokens (99%, YELLOW) after the L304–L309 index fold.** Items 1–7 above are net +~120 words, so the pass WILL go RED unless it trims first. Trim candidates, in order: (a) the Rule-7 evidence clause; (b) the Account-context TP1 warning block (now redundant with item 4); (c) shorten item 1's parenthetical rationale pointer to the doc name only. Run `check-context-budget.ps1` after each trim; the pass lands only at ≤ 9,000.
 
+## 9. playbook.md — VIX rule prose vs the coded gate
+
+**Finding (2026-09-03, `BEAR-08-31-NO-TRIGGER-REPLAY.md`):** the playbook's BEARISH_REJECTION VIX prose reads 'VIX > 20 OR rising' while the ratified coded gate (blocker 8, `params.json` bear VIX floor) is '> 17.30 AND rising'. The code is the ratified truth (provenance in params); the prose is stale. **NEW prose:** quote the coded rule verbatim with its params key, and add 'the coded gate is the rule; this line is a description'. Locate the exact line with `grep -n "VIX" markdown/0dte/playbook.md` on Saturday and replace only that clause. Budget: playbook.md is not in the CLAUDE.md token count.
+
 ## Pre-flight checklist (Saturday)
 
 1. `python setup/scripts/et_clock.py` → confirm Saturday. 2. `git status` clean on CLAUDE.md (no foreign hunks). 3. Apply 1–7 verbatim. 4. `check-context-budget.ps1` ≤ 9K tokens (the NEW texts are net +~120 words; trim the Rule 7 evidence clause first if RED). 5. `python backtest/tests/run_safety_gate.py`. 6. One commit + CHANGELOG row. 7. Tick the work-order boxes; STATUS entry; revoke line.
