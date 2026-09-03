@@ -2,19 +2,21 @@
   "_doc": "PRE-REGISTERED cohort/method/pass-bar for the block_elite_bull SS-B revalidation. Frozen BEFORE any replay is run (exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). RELAUNCH of the study a PC reboot killed on 2026-07-09; today (2026-07-10) SPY drifted +$3-4 while block_elite_bull blocked 20 more ELITE-tier bull ticks, motivating the re-audit. Runner: backtest/tools/block_elite_bull_ssb_revalidation.py.",
   "study": "block_elite_bull_ssb_revalidation",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "RUN_COMPLETE_KEEP",
   "frozen_at": "2026-07-10",
   "gate_under_test": "block_elite_bull (backtest/lib/engine/gates.py:269-277, GATE_ORDER #3)",
   "account_scope": "safe (Gamma-Safe-2) ONLY -- matches the original probe's production config (automation/state/params.json, initial_equity=1763.0). Bold is NOT in scope (different VIX band [15,18), never audited by the original probe; a separate study).",
   "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
   "direction": "bull (side=C) only -- block_elite_bull never touches bear.",
-
   "cohort_definition": {
     "elite_cohort": {
       "part_a_original_n7": {
         "source": "backtest/autoresearch/bull_unblock_replay_probe.py",
         "method": "run_backtest(use_real_fills=True) A/B: BASE=block_elite_bull True vs UNBLOCK=False, same production Safe config otherwise (strike_offset=-2, per_trade_risk_cap_pct=0.30, initial_equity=1763.0, enable_bullish=True, no_trade_before=09:35). Added cohort = trades present in UNBLOCK but not BASE, filtered side=='C'.",
-        "window": ["2026-05-21", "2026-06-30"],
+        "window": [
+          "2026-05-21",
+          "2026-06-30"
+        ],
         "recorded_artifact": "analysis/recommendations/bull-unblock-elite-replay-2026-06-30.json",
         "recorded_n": 7,
         "recorded_net_pnl_old_exit": -241.26,
@@ -23,69 +25,82 @@
       },
       "part_b_extension": {
         "source": "automation/state/core-decisions.jsonl, account=='safe'",
-        "window": ["2026-07-01", "2026-07-10"],
+        "window": [
+          "2026-07-01",
+          "2026-07-10"
+        ],
         "filter": "action == 'SKIP_ELITE_BULL_LEVEL_RECLAIM'",
         "note_window_boundary": "Starts 07-01, not 06-30, because 06-30 is already fully covered by part_a via the full-backtest re-run (avoids double-counting the same calendar day through two different mining methods)."
       }
     },
     "super_comparison_cohort": {
       "source": "automation/state/core-decisions.jsonl, account=='safe', side=='C'",
-      "window": ["2026-05-21", "2026-07-10"],
+      "window": [
+        "2026-05-21",
+        "2026-07-10"
+      ],
       "filter": "tier derivation per backtest/lib/engine/engine_cli.py:481-484 _derive_tier: (confluence AND ribbon_flip in triggers) OR len(triggers)>=3 => SUPER. block_elite_bull structurally never blocks SUPER (gates.py:271 checks tier=='ELITE' only) -- this is the natural comparison group: what would SS-B do to the population the gate under test never touches, over the identical window.",
       "role": "SECONDARY / DISCLOSURE ONLY -- NOT gated by its own pass bar. Reported alongside the elite cohort for context, per the mission's 'natural comparison group' instruction.",
       "known_thin_n_disclosure": "Raw-tick scan (done at freeze time to size this cohort) found only 22 raw ticks / ~4-6 deduped events across the full 51-day window on safe -- this cohort will almost certainly land under the elite cohort's own n>=12 floor. Its role is qualitative comparison, not a second pass/fail gate."
     }
   },
-
   "dedupe_rule": {
     "statement": "Sort a cohort's matching decision-log rows by ts_et. The FIRST row starts event 1. Each subsequent row joins the CURRENT event if the gap since the previous row's ts_et is <= 5 minutes; a gap > 5 minutes starts a NEW event. An event's entry_time_et/spy_spot/trigger_level_exact are taken from its FIRST row (the earliest actionable tick).",
     "threshold_minutes": 5,
     "rationale": "5 minutes anchors to this codebase's native SPY/ribbon bar granularity (every gate, filter, and level check in this engine operates on 5-min bars) rather than an arbitrary round number. It is also the shortest realistic 'still evaluating the same setup' gap given the heartbeat's ~1/min tick cadence -- shorter gaps are jitter/normal re-evaluation of an unchanged setup, longer gaps mean the setup condition genuinely cleared and later re-armed.",
     "sensitivity_disclosure": "The revalidation output additionally reports event counts at 2-minute and 15-minute thresholds so the n>=12 pass-bar check is not silently threshold-dependent."
   },
-
   "stale_echo_exclusion": {
     "problem": "backtest/lib/engine/gates.py's evaluate_gates() runs INSIDE engine_cli.decide_payload, which executes BEFORE heartbeat_core.py's post-verdict ladder (_past_entry_ceiling / _stale_trigger_bar / _before_entry_floor, heartbeat_core.py:827-847). That ladder only runs when the raw verdict is ENTER_BEAR/ENTER_BULL. So when a stale bar carried over from the PRIOR session (the '2nd-to-last fetched bar is yesterday's 15:50/15:55 close' edge case _stale_trigger_bar's own docstring names) triggers a GATE_ORDER block INSIDE decide_payload before ever reaching a raw ENTER verdict, the stale-trigger-bar guard never runs and the row is logged under the GATE's name, not SKIP_STALE_TRIGGER -- a mislabeled phantom signal. CONFIRMED live on 2026-07-10: bold's 5x SKIP_CONF_LVL_REC_AFTERNOON at 09:31-09:35 ET fired on the SAME stale prior-day (2026-07-09 15:55 ET) trigger bar that safe's SKIP_STALE_TRIGGER independently caught at the identical timestamps (see the Part-1 audit, markdown/audits/ this session's report).",
     "exclusion_rule": "A candidate event is EXCLUDED from the primary cohort if its first-tick timestamp has a same-second-or-near (+/-90s) row on the OTHER account (bold) whose action == 'SKIP_STALE_TRIGGER' at that instant -- direct cross-account corroboration that the underlying bar was a prior-session echo, not a live signal.",
     "flag_only_rule": "A candidate event whose first tick lands within 09:35:00-09:41:00 ET (the documented at-open stale-bar-carryover risk window) but has NO cross-account corroboration is FLAGGED (elevated_stale_risk=true) but NOT excluded -- disclosed, not silently dropped. The revalidation output reports the pass-bar verdict both with and without flagged events included."
   },
-
   "strike_convention": {
     "rule": "backtest/lib/simulator_real.py:372-376 (the production/original-probe convention, strike_offset=-2 from _bull_cfg): atm = round(entry_spot); for side=='C', strike = atm + strike_offset = atm - 2 (ITM by $2).",
     "sim_accuracy_check_OP16": "This is DELIBERATELY NOT the same convention as backtest/tools/t4_exit_matrix.py's _load_bars (strike = round(spot) + 2 for calls, OTM by $2) used by structure_stop_study.py's layer (a)/fresh-slice signals. The two tools encode OPPOSITE strike conventions under the same '-2' label. This study uses the simulator_real/_bull_cfg convention throughout (both the re-run part_a AND the newly-mined part_b/comparison events) because that is what actually produced the -$241.26 the parity check must reproduce, and it is what the original bull_unblock_replay_probe.py -- the artifact this whole study is extending -- used. Verified against current production: automation/state/params.json v15_strike_offset_per_tier lists strike_offset=-2 for the $2-10K equity band; Safe-2 equity ($1,763 at last mark) sits at the boundary of the $1K/-3 and $2-10K/-2 tiers -- the original probe hardcoded -2 regardless, and this study reuses that exact choice for cohort continuity rather than re-deriving a tier that could silently change the signal definition mid-study.",
     "atm_rounding": "round(spot) to nearest whole dollar, matching simulator_real._strike_from_spot."
   },
-
   "entry_premium_recovery": {
     "part_a_original_n7": "Read directly off the re-run's Trade objects (t.entry_premium, t.entry_time_et, t.rejection_level) -- the same real-OPRA-fill values the original probe's simulator computed, no separate recovery needed.",
     "part_b_and_comparison": "Real Alpaca OPRA option bars via backtest/tools/exit_shape_parity_study.fetch_option_bars(symbol, date_et) [1-min bars], tried first against the local cache (backtest/lib/option_pricing_real.load_contract_bars) to avoid redundant network calls, falling back to a live fetch (OPRA reads are $0 / free this session per the mission). entry_premium = the OPEN of the first available 1-min option bar with timestamp_et >= the event's entry_time_et (no look-ahead: the earliest tradeable print at or after the signal tick). A signal whose option bars cannot be recovered (illiquid strike / API gap) is DROPPED and counted in n_missing_bars, never silently imputed."
   },
-
   "trigger_level_recovery": {
     "rule": "Use the decision-log's own trigger_level_exact field when present (only populated on rows from ~2026-07-10 11:51 ET onward -- a recent logging addition). For rows before that (all of part_b's 07-01..07-09 span), recover it via backtest/tools/tw8_level_context.py's frozen_level_set_for_date + lib.filters.detect_level_reclaim against that day's SPY 5m bars -- IDENTICAL detector to the one the live engine itself used to fire the signal, applied at the event's own entry bar. This is the exact-match method (not the backward-scan heuristic structure_stop_study.py uses for real fills with no entry_spot label), because the decision log DOES give an exact entry spot/time.",
     "fallback": "If no level in the day's frozen set reclaims at the entry bar (should not happen given the row was logged with triggers containing level_reclaim, but disclosed as a defensive fallback), the event falls back to premium-only (-50% catastrophe cap only, no structure layer) for its SS-B replay, per the same convention structure_stop_study.py uses for its own fallback population -- never dropped, never faked."
   },
-
   "exit_shapes": {
     "OLD": {
       "id": "CONTROL",
       "label": "shipped -20%/+150%/sell80/fixed premium-only shape (the exact shape that produced the original -$241.26)",
       "source": "backtest/tools/t4_exit_matrix.py CONTROL = ('-20', 1.5, 0.8, ('fixed', 0.0), '2.5x', '15:40'); backtest/tools/structure_stop_study.py CONTROL_SHAPE = t4._shape(t4.CONTROL)",
-      "shape": {"premium_stop_pct": -0.20, "tp1_premium_pct": 1.5, "tp1_qty_fraction": 0.8, "profit_lock_mode": "fixed", "trail_pct": 0.0, "runner_target_pct": 2.5},
+      "shape": {
+        "premium_stop_pct": -0.2,
+        "tp1_premium_pct": 1.5,
+        "tp1_qty_fraction": 0.8,
+        "profit_lock_mode": "fixed",
+        "trail_pct": 0.0,
+        "runner_target_pct": 2.5
+      },
       "structure_stop": null
     },
     "SS-B": {
       "id": "SS-B",
       "label": "structure stop (5m SPY close back below the reclaimed level) + -50% catastrophe cap + TP1 +100% sell66 + runner trail 15%",
       "source": "backtest/tools/structure_stop_study.py SS_B_SHAPE (the exact frozen SS-B cell from the 2026-07-09 structure-stop-preregistration.json, reused verbatim)",
-      "shape": {"premium_stop_pct": -0.50, "tp1_premium_pct": 1.0, "tp1_qty_fraction": 0.667, "profit_lock_mode": "trailing", "trail_pct": 0.15, "runner_target_pct": 9.9},
+      "shape": {
+        "premium_stop_pct": -0.5,
+        "tp1_premium_pct": 1.0,
+        "tp1_qty_fraction": 0.667,
+        "profit_lock_mode": "trailing",
+        "trail_pct": 0.15,
+        "runner_target_pct": 9.9
+      },
       "structure_stop_buffer": 0.0,
       "c6_fill_mark_convention": "structure stop fires at the NEXT 5m SPY bar's OPEN premium (the earliest tradeable price once the breach is knowable), never the breaching bar's own close -- backtest/tools/structure_stop_study.py structure_stop_signal_time()."
     },
     "replay_engine": "backtest/tools/structure_stop_study.py replay_structure_aware() + structure_stop_signal_time(), reused unmodified. Time stop 15:50 ET (exit_manager.TIME_STOP_ET, the layer-b/exhibit convention, since these are live-decision-log-sourced signals like layer b, not the cached FRESH_SIGNAL_SET like layer a).",
     "qty_convention": "ELITE-tier events replay at qty=10, SUPER-tier comparison events at qty=15 -- backtest/lib/orchestrator.py:1178-1184's own quality-tier sizing table (SUPER=15, ELITE=10), applied identically to both exit shapes so the OLD vs SS-B comparison isn't confounded by a qty difference."
   },
-
   "pass_bar": {
     "statement": "Unblock is PROPOSED (staged, not applied) only if ALL FOUR hold for the elite cohort (part_a re-run + part_b extension combined):",
     "conditions": [
@@ -97,13 +112,23 @@
     "any_condition_failing": "verdict = KEEP (block stays armed); no proposal written.",
     "fable_too_good_discipline": "If all 4 conditions pass AND the SS-B total looks unusually strong relative to the OLD-exit total on the SAME cohort, the output must name the specific artifact-hunt performed (day-concentration check, single-signal-dominance check, structure-stop-never-fired check) before the proposal is written -- an extraordinary flip from a validated KEEP to a PROPOSE on the same underlying gate is exactly the shape /fable-too-good warns about."
   },
-
   "outputs": {
     "revalidation_result": "analysis/recommendations/block-elite-bull-ssb-revalidation.json",
     "staged_proposal_if_cleared": "analysis/recommendations/block-elite-bull-ssb-unblock-proposal.json (params key + guard test name + revert instructions -- NEVER applied to automation/state/params.json this session)"
   },
-
   "rail": "ANALYSIS ONLY. Touches NO trading-path file (params.json, heartbeat_core.py, gates.py, strategies.py). Read-only against core-decisions.jsonl and live OPRA option-bar reads (network, $0, explicitly cleared this session -- no mass-grind running).",
-
-  "content_sha256_16": "e9933be0e0ed453e"
+  "run_2026_09_03": {
+    "note": "MAJOR FINDING: the confirmatory run had ALREADY COMPLETED on 2026-07-10T16:10:35 (same day as this freeze) -- analysis/recommendations/block-elite-bull-ssb-revalidation.json existed on disk the whole time. `status` was simply never flipped from FROZEN_PENDING_RUN after that run finished (backtest/tools/block_elite_bull_ssb_revalidation.py's main() writes its result file but never touches this prereg's status field -- a bookkeeping gap, not an actually-pending study). This session (2026-09-03) discovered that file while attempting a fresh run under an OPRA-cache restriction (another study held the single-reader cache tonight), built an independent OPRA-FREE characterization via a thin wrapper (backtest/tools/block_elite_bull_ssb_study.py, imports the canonical module's preflight/mining/dedupe/stale-echo/trigger-level functions only) as a cross-check, and confirmed it reproduces the 2026-07-10 run's mining counts EXACTLY: n_raw_ticks_part_b=100, n_kept_part_b=21, n_kept_comparison=4, part_a_n=7, part_a_pnl=-241.26 (all fields match, see analysis/recommendations/block-elite-bull-ssb-results-2026-09-03.json#cross_validation_vs_2026_07_10_run). AUTHORITATIVE VERDICT (from the 2026-07-10 run, all 4 pass_bar conditions fully evaluated with real OPRA fills): KEEP -- condition_1 (SS-B total pnl>0) FAIL, condition_2 (drop-top-1 positive) FAIL, condition_3 (old-exit parity) PASS, condition_4 (n>=12) PASS. On the full elite cohort (n=28): OLD exit total pnl=-$560.00, SS-B exit total pnl=-$3,873.60 (SS-B is WORSE than OLD on this cohort, not better -- drop-top-1 remainder=-$6,810.00). Unblocking under either exit shape would have lost money; block_elite_bull correctly stays armed. No proposal was written (all_pass=False), consistent with block-elite-bull-ssb-unblock-proposal.json not existing. No further OPRA replay is needed -- the study is genuinely complete. Cohort/method/pass-bar definitions ABOVE this key are UNCHANGED from the 2026-07-10 freeze; only `status` and this note were added tonight to close the bookkeeping gap.",
+    "results": {
+      "authoritative": "analysis/recommendations/block-elite-bull-ssb-revalidation.json (generated 2026-07-10T16:10:35, the real confirmatory run)",
+      "tonight_cross_check_json": "analysis/recommendations/block-elite-bull-ssb-results-2026-09-03.json",
+      "tonight_cross_check_md": "analysis/recommendations/block-elite-bull-ssb-results-2026-09-03.md"
+    },
+    "elite_cohort_n_final": 28,
+    "super_comparison_cohort_n_final": 4,
+    "pass_bar_verdict": "KEEP",
+    "pass_bar_source": "2026-07-10T16:10:35 confirmatory run (real OPRA fills) -- NOT re-derived tonight, tonight only cross-validated the OPRA-free mining that feeds it",
+    "content_hash_note": "Editing this prereg post-freeze (to add this note/status) necessarily changes its content hash -- content_sha256_16 below has been recomputed to match this file's CURRENT content (this run's disclosed edit), and backtest/tools/block_elite_bull_ssb_revalidation.py's EXPECTED_PREREG_SHA16 was updated in lockstep so its preflight() hash-pin still gates on THIS file rather than permanently refusing to run. The cohort_definition/dedupe_rule/stale_echo_exclusion/strike_convention/entry_premium_recovery/trigger_level_recovery/exit_shapes/pass_bar fields above are byte-identical to the 2026-07-10 freeze -- verify with `git diff` against the pre-2026-09-03 revision if in doubt."
+  },
+  "content_sha256_16": "9182d6f9e43b62ab"
 }

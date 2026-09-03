@@ -36,7 +36,12 @@ RESULT = os.path.join(REPO, "analysis", "recommendations",
 def test_prereg_file_exists_and_is_frozen():
     assert os.path.exists(PREREG)
     preg = json.load(open(PREREG, encoding="utf-8"))
-    assert preg["status"] == "FROZEN_PENDING_RUN"
+    # Status transitioned 2026-09-03: the confirmatory run had ALREADY completed
+    # 2026-07-10T16:10:35 (verdict KEEP) but this field was never flipped from
+    # FROZEN_PENDING_RUN afterward -- see preg["run_2026_09_03"] for the full discovery
+    # note. Cohort/method/pass-bar content is unchanged from the 2026-07-10 freeze, only
+    # status + the run_2026_09_03 note were added.
+    assert preg["status"] == "RUN_COMPLETE_KEEP"
     assert preg["version"] == 1
 
 

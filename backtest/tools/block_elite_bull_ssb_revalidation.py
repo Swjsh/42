@@ -83,7 +83,18 @@ TIME_STOP_ET = dt.time(15, 50)   # exit_manager.TIME_STOP_ET convention (live-de
 
 CONTROL_SHAPE = t4._shape(t4.CONTROL)   # -20/+150/sell80/fixed -- the shipped shape
 
-EXPECTED_PREREG_SHA16 = "e9933be0e0ed453e"
+# Bumped 2026-09-03: the prereg's `status` transitioned FROZEN_PENDING_RUN -> RUN_COMPLETE_KEEP
+# and a `run_2026_09_03` disclosure note was appended (see that key's `content_hash_note`) --
+# a disclosed status-lifecycle edit closing a bookkeeping gap (this module's own confirmatory
+# run had ALREADY completed 2026-07-10T16:10:35 with verdict KEEP -- see
+# analysis/recommendations/block-elite-bull-ssb-revalidation.json -- but main() never writes
+# back to the prereg's status field, so it was stuck reading FROZEN_PENDING_RUN for 2 months).
+# NOT a re-pick of cohort_definition/dedupe_rule/stale_echo_exclusion/strike_convention/
+# entry_premium_recovery/trigger_level_recovery/exit_shapes/pass_bar, all of which are
+# byte-identical to the 2026-07-10 freeze. Prior values, oldest first (still valid for any
+# artifact/log referencing an earlier prereg state): "e9933be0e0ed453e" (freeze),
+# "2a05d565370fbf6a" (intermediate 2026-09-03 edit, superseded same session).
+EXPECTED_PREREG_SHA16 = "9182d6f9e43b62ab"
 EXPECTED_PREREG_VERSION = 1
 
 

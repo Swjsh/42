@@ -1,0 +1,1298 @@
+{
+  "study": "block_elite_bull_ssb_revalidation",
+  "run": "run_2026_09_03",
+  "run_generated_at": "2026-09-02T23:35:48.748335",
+  "MAJOR_FINDING": "A COMPLETE confirmatory run already exists: analysis/recommendations/block-elite-bull-ssb-revalidation.json, generated_at=2026-07-10T16:10:35 (same day as the freeze). It was never OPRA-blocked -- OPRA access was available that session. The prereg's `status` field was simply never flipped from FROZEN_PENDING_RUN afterward (a bookkeeping gap, not an actually-pending run). VERDICT (from that run, authoritative): KEEP.",
+  "canonical_runner": "backtest/tools/block_elite_bull_ssb_revalidation.py (NOT re-run this session -- OPRA-blocked, AND unnecessary: see MAJOR_FINDING)",
+  "preflight": {
+    "prereg_version": 1,
+    "prereg_version_ok": true,
+    "prereg_sha256_16_recomputed": "9182d6f9e43b62ab",
+    "prereg_sha256_16_stored": "9182d6f9e43b62ab",
+    "prereg_hash_ok": true
+  },
+  "session_constraint": "OPRA option-bar cache and exit-walk replays were OFF-LIMITS this session (another study holds the single-reader cache). Tonight's own mining reuses the canonical module's OPRA-free functions (preflight, load_core_decisions, mine_elite_extension_events, mine_super_comparison_events, recover_trigger_level) only, as a cross-validation of the 2026-07-10 run's cohort definitions -- see 'cross_validation_vs_2026_07_10_run' below.",
+  "prior_confirmatory_result": {
+    "_doc": "block_elite_bull SS-B revalidation -- RELAUNCH of the 2026-07-09 PC-reboot-killed study, executed against the frozen block-elite-bull-ssb-preregistration.json. ANALYSIS ONLY.",
+    "generated_at": "2026-07-10T16:10:35.014800",
+    "preregistration_file": "analysis/recommendations/block-elite-bull-ssb-preregistration.json",
+    "preflight": {
+      "prereg_version": 1,
+      "prereg_version_ok": true,
+      "prereg_sha256_16_recomputed": "e9933be0e0ed453e",
+      "prereg_sha256_16_stored": "e9933be0e0ed453e",
+      "prereg_hash_ok": true
+    },
+    "part_a_original_rerun": {
+      "n_added_bulls": 7,
+      "n_prepared_for_ssb": 7,
+      "n_missing_bars": 0,
+      "reproduced_net_pnl_old_exit": -241.26,
+      "parity_ok": true
+    },
+    "elite_extension_mining": {
+      "n_events_total": 21,
+      "n_excluded_stale_echo": 0,
+      "n_flagged_open_adjacent": 0,
+      "n_kept": 21,
+      "excluded_detail": [],
+      "flagged_detail": [],
+      "n_raw_ticks": 100,
+      "n_events_at_2min": 21,
+      "n_events_at_15min": 17
+    },
+    "super_comparison_mining": {
+      "n_events_total": 6,
+      "n_excluded_stale_echo": 0,
+      "n_flagged_open_adjacent": 0,
+      "n_kept": 4,
+      "excluded_detail": [],
+      "flagged_detail": [],
+      "n_raw_ticks": 22,
+      "n_further_excluded_mechanical": 2,
+      "further_excluded_detail": [
+        {
+          "first_ts": "2026-07-09T15:46:04",
+          "reason": "past 15:00 entry ceiling -- untradeable regardless of block_elite_bull"
+        },
+        {
+          "first_ts": "2026-07-10T09:31:03",
+          "reason": "own-account SKIP_STALE_TRIGGER"
+        }
+      ]
+    },
+    "elite_cohort": {
+      "n_events_total": 28,
+      "OLD": {
+        "n": 28,
+        "wr": 0.25,
+        "total_pnl": -560.0,
+        "expectancy_per_trade": -20.0,
+        "n_structure_fired": 0,
+        "drop_top1_remainder": -3960.0,
+        "drop_top1_positive": false,
+        "by_day_pnl": {
+          "2026-05-27": -632.0,
+          "2026-05-29": -518.0,
+          "2026-06-01": -344.0,
+          "2026-06-04": -384.0,
+          "2026-06-12": -764.0,
+          "2026-06-16": -520.0,
+          "2026-06-22": -532.0,
+          "2026-07-01": -1058.0,
+          "2026-07-02": -480.0,
+          "2026-07-06": -1596.0,
+          "2026-07-07": -372.0,
+          "2026-07-08": -458.0,
+          "2026-07-09": 3208.0,
+          "2026-07-10": 3890.0
+        },
+        "trades": [
+          {
+            "date": "2026-05-27",
+            "entry_ts_et": "2026-05-27T10:00:00",
+            "strike": 748,
+            "pnl": -632.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-05-29",
+            "entry_ts_et": "2026-05-29T10:55:00",
+            "strike": 754,
+            "pnl": -518.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-01",
+            "entry_ts_et": "2026-06-01T13:30:00",
+            "strike": 757,
+            "pnl": -344.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-04",
+            "entry_ts_et": "2026-06-04T12:25:00",
+            "strike": 755,
+            "pnl": -384.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-12",
+            "entry_ts_et": "2026-06-12T10:55:00",
+            "strike": 740,
+            "pnl": -764.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-16",
+            "entry_ts_et": "2026-06-16T10:10:00",
+            "strike": 753,
+            "pnl": -520.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-22",
+            "entry_ts_et": "2026-06-22T09:40:00",
+            "strike": 748,
+            "pnl": -532.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:21:02",
+            "strike": 746,
+            "pnl": -634.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:31:03",
+            "strike": 747,
+            "pnl": -424.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-02",
+            "entry_ts_et": "2026-07-02T10:16:03",
+            "strike": 749,
+            "pnl": -480.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T11:31:27",
+            "strike": 749,
+            "pnl": -378.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T12:39:27",
+            "strike": 749,
+            "pnl": -370.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T14:56:27",
+            "strike": 750,
+            "pnl": -396.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T15:21:27",
+            "strike": 750,
+            "pnl": -452.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-07",
+            "entry_ts_et": "2026-07-07T09:34:03",
+            "strike": 749,
+            "pnl": -372.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-08",
+            "entry_ts_et": "2026-07-08T14:51:02",
+            "strike": 743,
+            "pnl": -458.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:41:02",
+            "strike": 746,
+            "pnl": -584.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:56:04",
+            "strike": 747,
+            "pnl": -548.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T10:26:03",
+            "strike": 745,
+            "pnl": 3400.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T11:06:03",
+            "strike": 747,
+            "pnl": 1310.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:06:04",
+            "strike": 748,
+            "pnl": 530.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:26:03",
+            "strike": 749,
+            "pnl": 290.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:01:03",
+            "strike": 748,
+            "pnl": 270.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:11:03",
+            "strike": 749,
+            "pnl": -490.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:31:04",
+            "strike": 749,
+            "pnl": -514.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:46:04",
+            "strike": 749,
+            "pnl": -456.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:51:03",
+            "strike": 750,
+            "pnl": 2650.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T12:51:03",
+            "strike": 752,
+            "pnl": 1240.0,
+            "structure_fired": false
+          }
+        ]
+      },
+      "SS_B": {
+        "n": 28,
+        "wr": 0.2857,
+        "total_pnl": -3873.6,
+        "expectancy_per_trade": -138.34,
+        "n_structure_fired": 10,
+        "drop_top1_remainder": -6810.0,
+        "drop_top1_positive": false,
+        "by_day_pnl": {
+          "2026-05-27": -770.0,
+          "2026-05-29": -140.0,
+          "2026-06-01": -520.0,
+          "2026-06-04": -230.0,
+          "2026-06-12": -1910.0,
+          "2026-06-16": -780.0,
+          "2026-06-22": -1330.0,
+          "2026-07-01": -2100.0,
+          "2026-07-02": -1200.0,
+          "2026-07-06": -800.0,
+          "2026-07-07": -40.0,
+          "2026-07-08": -240.0,
+          "2026-07-09": 3756.4,
+          "2026-07-10": 2430.0
+        },
+        "trades": [
+          {
+            "date": "2026-05-27",
+            "entry_ts_et": "2026-05-27T10:00:00",
+            "strike": 748,
+            "pnl": -770.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-05-29",
+            "entry_ts_et": "2026-05-29T10:55:00",
+            "strike": 754,
+            "pnl": -140.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-01",
+            "entry_ts_et": "2026-06-01T13:30:00",
+            "strike": 757,
+            "pnl": -520.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-06-04",
+            "entry_ts_et": "2026-06-04T12:25:00",
+            "strike": 755,
+            "pnl": -230.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-06-12",
+            "entry_ts_et": "2026-06-12T10:55:00",
+            "strike": 740,
+            "pnl": -1910.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-16",
+            "entry_ts_et": "2026-06-16T10:10:00",
+            "strike": 753,
+            "pnl": -780.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-06-22",
+            "entry_ts_et": "2026-06-22T09:40:00",
+            "strike": 748,
+            "pnl": -1330.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:21:02",
+            "strike": 746,
+            "pnl": -1040.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:31:03",
+            "strike": 747,
+            "pnl": -1060.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-02",
+            "entry_ts_et": "2026-07-02T10:16:03",
+            "strike": 749,
+            "pnl": -1200.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T11:31:27",
+            "strike": 749,
+            "pnl": 390.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T12:39:27",
+            "strike": 749,
+            "pnl": 430.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T14:56:27",
+            "strike": 750,
+            "pnl": -670.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T15:21:27",
+            "strike": 750,
+            "pnl": -950.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-07",
+            "entry_ts_et": "2026-07-07T09:34:03",
+            "strike": 749,
+            "pnl": -40.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-08",
+            "entry_ts_et": "2026-07-08T14:51:02",
+            "strike": 743,
+            "pnl": -240.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:41:02",
+            "strike": 746,
+            "pnl": -400.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:56:04",
+            "strike": 747,
+            "pnl": -660.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T10:26:03",
+            "strike": 745,
+            "pnl": 2936.4,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T11:06:03",
+            "strike": 747,
+            "pnl": 1310.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:06:04",
+            "strike": 748,
+            "pnl": 530.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:26:03",
+            "strike": 749,
+            "pnl": 290.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:01:03",
+            "strike": 748,
+            "pnl": 270.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:11:03",
+            "strike": 749,
+            "pnl": -190.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:31:04",
+            "strike": 749,
+            "pnl": -310.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:46:04",
+            "strike": 749,
+            "pnl": -20.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:51:03",
+            "strike": 750,
+            "pnl": 2650.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T12:51:03",
+            "strike": 752,
+            "pnl": -220.0,
+            "structure_fired": true
+          }
+        ]
+      },
+      "SS_B_excluding_open_adjacent_flagged": {
+        "n": 28,
+        "wr": 0.2857,
+        "total_pnl": -3873.6,
+        "expectancy_per_trade": -138.34,
+        "n_structure_fired": 10,
+        "drop_top1_remainder": -6810.0,
+        "drop_top1_positive": false,
+        "by_day_pnl": {
+          "2026-05-27": -770.0,
+          "2026-05-29": -140.0,
+          "2026-06-01": -520.0,
+          "2026-06-04": -230.0,
+          "2026-06-12": -1910.0,
+          "2026-06-16": -780.0,
+          "2026-06-22": -1330.0,
+          "2026-07-01": -2100.0,
+          "2026-07-02": -1200.0,
+          "2026-07-06": -800.0,
+          "2026-07-07": -40.0,
+          "2026-07-08": -240.0,
+          "2026-07-09": 3756.4,
+          "2026-07-10": 2430.0
+        },
+        "trades": [
+          {
+            "date": "2026-05-27",
+            "entry_ts_et": "2026-05-27T10:00:00",
+            "strike": 748,
+            "pnl": -770.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-05-29",
+            "entry_ts_et": "2026-05-29T10:55:00",
+            "strike": 754,
+            "pnl": -140.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-01",
+            "entry_ts_et": "2026-06-01T13:30:00",
+            "strike": 757,
+            "pnl": -520.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-06-04",
+            "entry_ts_et": "2026-06-04T12:25:00",
+            "strike": 755,
+            "pnl": -230.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-06-12",
+            "entry_ts_et": "2026-06-12T10:55:00",
+            "strike": 740,
+            "pnl": -1910.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-06-16",
+            "entry_ts_et": "2026-06-16T10:10:00",
+            "strike": 753,
+            "pnl": -780.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-06-22",
+            "entry_ts_et": "2026-06-22T09:40:00",
+            "strike": 748,
+            "pnl": -1330.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:21:02",
+            "strike": 746,
+            "pnl": -1040.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-01",
+            "entry_ts_et": "2026-07-01T11:31:03",
+            "strike": 747,
+            "pnl": -1060.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-02",
+            "entry_ts_et": "2026-07-02T10:16:03",
+            "strike": 749,
+            "pnl": -1200.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T11:31:27",
+            "strike": 749,
+            "pnl": 390.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T12:39:27",
+            "strike": 749,
+            "pnl": 430.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T14:56:27",
+            "strike": 750,
+            "pnl": -670.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T15:21:27",
+            "strike": 750,
+            "pnl": -950.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-07",
+            "entry_ts_et": "2026-07-07T09:34:03",
+            "strike": 749,
+            "pnl": -40.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-08",
+            "entry_ts_et": "2026-07-08T14:51:02",
+            "strike": 743,
+            "pnl": -240.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:41:02",
+            "strike": 746,
+            "pnl": -400.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T09:56:04",
+            "strike": 747,
+            "pnl": -660.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T10:26:03",
+            "strike": 745,
+            "pnl": 2936.4,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T11:06:03",
+            "strike": 747,
+            "pnl": 1310.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:06:04",
+            "strike": 748,
+            "pnl": 530.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T12:26:03",
+            "strike": 749,
+            "pnl": 290.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:01:03",
+            "strike": 748,
+            "pnl": 270.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T13:11:03",
+            "strike": 749,
+            "pnl": -190.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:31:04",
+            "strike": 749,
+            "pnl": -310.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-09",
+            "entry_ts_et": "2026-07-09T14:46:04",
+            "strike": 749,
+            "pnl": -20.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:51:03",
+            "strike": 750,
+            "pnl": 2650.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T12:51:03",
+            "strike": 752,
+            "pnl": -220.0,
+            "structure_fired": true
+          }
+        ]
+      }
+    },
+    "super_comparison_cohort_DISCLOSURE_ONLY": {
+      "n_events_total": 4,
+      "OLD": {
+        "n": 4,
+        "wr": 0.0,
+        "total_pnl": -2349.0,
+        "expectancy_per_trade": -587.25,
+        "n_structure_fired": 0,
+        "drop_top1_remainder": -2349.0,
+        "drop_top1_positive": false,
+        "by_day_pnl": {
+          "2026-07-06": -330.0,
+          "2026-07-08": -627.0,
+          "2026-07-10": -1392.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T14:21:27",
+            "strike": 749,
+            "pnl": -330.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-08",
+            "entry_ts_et": "2026-07-08T13:31:02",
+            "strike": 744,
+            "pnl": -627.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:21:03",
+            "strike": 751,
+            "pnl": -657.0,
+            "structure_fired": false
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:31:04",
+            "strike": 751,
+            "pnl": -735.0,
+            "structure_fired": false
+          }
+        ]
+      },
+      "SS_B": {
+        "n": 4,
+        "wr": 0.0,
+        "total_pnl": -1920.0,
+        "expectancy_per_trade": -480.0,
+        "n_structure_fired": 4,
+        "drop_top1_remainder": -1920.0,
+        "drop_top1_positive": false,
+        "by_day_pnl": {
+          "2026-07-06": -405.0,
+          "2026-07-08": -345.0,
+          "2026-07-10": -1170.0
+        },
+        "trades": [
+          {
+            "date": "2026-07-06",
+            "entry_ts_et": "2026-07-06T14:21:27",
+            "strike": 749,
+            "pnl": -405.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-08",
+            "entry_ts_et": "2026-07-08T13:31:02",
+            "strike": 744,
+            "pnl": -345.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:21:03",
+            "strike": 751,
+            "pnl": -390.0,
+            "structure_fired": true
+          },
+          {
+            "date": "2026-07-10",
+            "entry_ts_et": "2026-07-10T11:31:04",
+            "strike": 751,
+            "pnl": -780.0,
+            "structure_fired": true
+          }
+        ]
+      },
+      "note": "NOT gated by its own pass bar (preregistration.cohort_definition.super_comparison_cohort.role). Known-thin by design."
+    },
+    "pass_bar": {
+      "condition_1_ssb_total_positive": false,
+      "condition_2_ssb_drop_top1_positive": false,
+      "condition_3_old_exit_parity": true,
+      "condition_4_n_events_floor_12": true,
+      "all_pass": false,
+      "verdict": "KEEP"
+    },
+    "too_good_discipline": null
+  },
+  "cross_validation_vs_2026_07_10_run": {
+    "n_raw_ticks_part_b": {
+      "tonight": 100,
+      "2026_07_10_run": 100
+    },
+    "n_kept_part_b": {
+      "tonight": 21,
+      "2026_07_10_run": 21
+    },
+    "n_kept_comparison": {
+      "tonight": 4,
+      "2026_07_10_run": 4
+    },
+    "part_a_n": {
+      "tonight": 7,
+      "2026_07_10_run": 7
+    },
+    "part_a_pnl": {
+      "tonight": -241.26,
+      "2026_07_10_run": -241.26
+    },
+    "all_match": true
+  },
+  "part_a_original_n7_tonight": {
+    "source": "REUSED_PRIOR_ARTIFACT_NOT_RERUN_OPRA_BLOCKED",
+    "artifact_path": "analysis\\recommendations\\bull-unblock-elite-replay-2026-06-30.json",
+    "artifact_generated_at": "2026-06-30T17:53:50.368082",
+    "n": 7,
+    "old_exit_net_pnl_recorded": -241.26,
+    "trades": [
+      {
+        "date": "2026-05-27",
+        "strike": 748.0,
+        "pnl": -75.84
+      },
+      {
+        "date": "2026-05-29",
+        "strike": 754.0,
+        "pnl": 139.86
+      },
+      {
+        "date": "2026-06-01",
+        "strike": 757.0,
+        "pnl": -41.28
+      },
+      {
+        "date": "2026-06-04",
+        "strike": 755.0,
+        "pnl": -46.08
+      },
+      {
+        "date": "2026-06-12",
+        "strike": 740.0,
+        "pnl": -91.68
+      },
+      {
+        "date": "2026-06-16",
+        "strike": 753.0,
+        "pnl": -62.4
+      },
+      {
+        "date": "2026-06-22",
+        "strike": 748.0,
+        "pnl": -63.84
+      }
+    ]
+  },
+  "elite_extension_mining_tonight": {
+    "n_events_total": 21,
+    "n_excluded_stale_echo": 0,
+    "n_flagged_open_adjacent": 0,
+    "n_kept": 21,
+    "excluded_detail": [],
+    "flagged_detail": [],
+    "n_raw_ticks": 100,
+    "n_events_at_2min": 21,
+    "n_events_at_15min": 17
+  },
+  "elite_extension_events_tonight": [
+    {
+      "entry_time_et": "2026-07-01T11:21:02",
+      "spy_spot": 748.47,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": 747.7,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-01T11:31:03",
+      "spy_spot": 749.29,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-02T10:16:03",
+      "spy_spot": 750.98,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-06T11:31:27",
+      "spy_spot": 750.75,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-06T12:39:27",
+      "spy_spot": 750.64,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 2,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-06T14:56:27",
+      "spy_spot": 751.79,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": 751.3099975585938,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-06T15:21:27",
+      "spy_spot": 752.13,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 8,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-07T09:34:03",
+      "spy_spot": 751.27,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 2,
+      "elevated_stale_risk": false,
+      "trigger_level": 750.15,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-08T14:51:02",
+      "spy_spot": 745.29,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": 745.2100219726562,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-09T09:41:02",
+      "spy_spot": 748.075,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 10,
+      "elevated_stale_risk": false,
+      "trigger_level": 747.55,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-09T09:56:04",
+      "spy_spot": 748.935,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": 748.0,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-09T10:26:03",
+      "spy_spot": 746.93,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 10,
+      "elevated_stale_risk": false,
+      "trigger_level": 746.8,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-09T11:06:03",
+      "spy_spot": 748.83,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": 749.0,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-09T12:06:04",
+      "spy_spot": 750.33,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-09T12:26:03",
+      "spy_spot": 750.8,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-09T13:01:03",
+      "spy_spot": 750.43,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-09T13:11:03",
+      "spy_spot": 751.095,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-09T14:31:04",
+      "spy_spot": 751.395,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-09T14:46:04",
+      "spy_spot": 751.3,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": null,
+      "trigger_level_status": "no_trigger_bar_found"
+    },
+    {
+      "entry_time_et": "2026-07-10T11:51:03",
+      "spy_spot": 752.43,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": 751.89,
+      "trigger_level_status": "logged"
+    },
+    {
+      "entry_time_et": "2026-07-10T12:51:03",
+      "spy_spot": 753.81,
+      "action": "SKIP_ELITE_BULL_LEVEL_RECLAIM",
+      "triggers": [
+        "level_reclaim",
+        "confluence"
+      ],
+      "n_ticks": 5,
+      "elevated_stale_risk": false,
+      "trigger_level": 753.68,
+      "trigger_level_status": "logged"
+    }
+  ],
+  "elite_extension_trigger_level_recovered_n_tonight": 10,
+  "super_comparison_mining_tonight": {
+    "n_events_total": 6,
+    "n_excluded_stale_echo": 0,
+    "n_flagged_open_adjacent": 0,
+    "n_kept": 4,
+    "excluded_detail": [],
+    "flagged_detail": [],
+    "n_raw_ticks": 22,
+    "n_further_excluded_mechanical": 2,
+    "further_excluded_detail": [
+      {
+        "first_ts": "2026-07-09T15:46:04",
+        "reason": "past 15:00 entry ceiling -- untradeable regardless of block_elite_bull"
+      },
+      {
+        "first_ts": "2026-07-10T09:31:03",
+        "reason": "own-account SKIP_STALE_TRIGGER"
+      }
+    ]
+  },
+  "super_comparison_events_tonight": [
+    {
+      "entry_time_et": "2026-07-06T14:21:27",
+      "spy_spot": 751.345,
+      "action": "PLACED",
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": 751.3099975585938,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-08T13:31:02",
+      "spy_spot": 745.7,
+      "action": "RISK_DENY_PDT",
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": 745.2977294921875,
+      "trigger_level_status": "recovered_exact_match"
+    },
+    {
+      "entry_time_et": "2026-07-10T11:21:03",
+      "spy_spot": 752.67,
+      "action": "SKIP_BULL_1100_1200",
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": 752.49,
+      "trigger_level_status": "logged"
+    },
+    {
+      "entry_time_et": "2026-07-10T11:31:04",
+      "spy_spot": 753.23,
+      "action": "SKIP_BULL_1100_1200",
+      "triggers": [
+        "level_reclaim",
+        "ribbon_flip",
+        "confluence"
+      ],
+      "n_ticks": 3,
+      "elevated_stale_risk": false,
+      "trigger_level": 753.1,
+      "trigger_level_status": "logged"
+    }
+  ],
+  "elite_cohort_n_final_tonight": 28,
+  "pass_bar_tonight_own_data_only": {
+    "condition_1_ssb_total_positive": "NOT_RUN",
+    "condition_2_ssb_drop_top1_positive": "NOT_RUN",
+    "condition_3_old_exit_parity": "NOT_RUN",
+    "condition_4_n_events_floor_12": {
+      "result": true,
+      "n": 28,
+      "floor": 12
+    },
+    "all_pass": "NOT_RUN",
+    "verdict": "INDETERMINATE_CONDITIONS_NOT_RUN"
+  },
+  "AUTHORITATIVE_PASS_BAR": {
+    "condition_1_ssb_total_positive": false,
+    "condition_2_ssb_drop_top1_positive": false,
+    "condition_3_old_exit_parity": true,
+    "condition_4_n_events_floor_12": true,
+    "all_pass": false,
+    "verdict": "KEEP"
+  },
+  "opra_replay_still_needed": false,
+  "dollar_impact_on_real_record": {
+    "part_a_old_exit_net_pnl_recorded": -241.26,
+    "elite_cohort_OLD_exit_total_pnl_2026_07_10_run": -560.0,
+    "elite_cohort_SS_B_total_pnl_2026_07_10_run": -3873.6,
+    "interpretation": "From the already-completed 2026-07-10 confirmatory run: on the FULL elite cohort (n=28), the OLD exit shape totals $-560.00 and SS-B totals $-3873.60 -- unblocking under EITHER exit shape would have LOST money on this population; SS-B is worse than OLD here, not better. The gate is correctly KEEPING this cohort blocked; no further OPRA work changes that conclusion."
+  }
+}
