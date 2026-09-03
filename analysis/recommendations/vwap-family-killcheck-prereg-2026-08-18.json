@@ -1,7 +1,9 @@
 {
   "rule_id": "vwap-family-killcheck-2026-08-18",
   "title": "KILL-CHECK pre-registration -- do the VWAP-family entries produce a right tail at all?",
-  "status": "FROZEN_PREREG_FORWARD",
+  "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
+  "parked_reason": "PARKED 2026-09-03 04:31 ET (Sonnet, queue item VWAP-KILLCHECK-PREREG-DEADLOCKED): the forward clock below requires 20 live sessions OR n>=25 forward positions from vwap_continuation, but that strategy was DISARMED 2026-07-25 (commit e0356fb1, automation/state/params.json extra_setup_exec_armed.vwap_continuation=false, and confirmed dark on the fleet path too since the 2026-08-12 structural fix, strategies.py#_disarmed_setups) -- six days before this file was frozen -- and has taken zero fills since. A forward clock with zero incoming evidence cannot tick; this is not a verdict on H-VWAP-NOTAIL, it is a park on an unresolvable measurement. The kill question this file contemplated is moot while the producer stays disarmed: there is no live order path left to kill.",
+  "reopen_condition": "vwap_continuation re-armed on any arm (extra_setup_exec_armed.vwap_continuation flips back to true in automation/state/params.json, or an equivalent fleet-path re-arm) -- at that point either resume this frozen measurement_protocol/forward_gates unchanged (if the re-arm is on the same validated cell) or write a fresh pre-registration (if the re-arm ships a different cell/exit shape, per this file's own no_peeking_rule).",
   "frozen_at_et": "2026-08-18 (market CLOSED -- et_clock.py verified market_hours=False at freeze time)",
   "parent_study": "analysis/winner-autopsies/SIGNATURE.md + analysis/pain-ledger/mae-mfe.json",
   "shadow_only": "MEASUREMENT ONLY -- nothing is disabled by this file. The kill it contemplates is a one-line producer flag, taken only if the forward bar below fails.",
