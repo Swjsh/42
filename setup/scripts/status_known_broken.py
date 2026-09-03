@@ -58,6 +58,31 @@ MARKER_HEADING = "## Known broken"
 # guard_runner_full.py's FULL-SUITE line, twin_gauntlet_conductor_hook.py, etc).
 _BULLET_LINE_RE = re.compile(r"^- \[[^\]\n]*\][ \t]*(.*)$")
 
+# Only a line matching the heading EXACTLY (start-of-line, marker text, then only
+# trailing whitespace) is the real section. `str.index()` is a plain substring
+# search and will happily match "## Known broken" sitting mid-sentence in prose
+# ANYWHERE earlier in the file (this file's own docstring, an old STATUS entry
+# discussing this exact bug, a decoy fragment like the 2026-09-02 scar
+# status_retention.py's _is_pinned_heading_line fixes on the READ side) --
+# reproduced live 2026-09-03: a decoy prose line 3 lines above the real section
+# swallowed a fresh upsert() write, leaving it orphaned above the real heading
+# where it would never be found again on the next lookup and would rolled off
+# with whatever entry happened to precede it. Same bug class, writer side,
+# never fixed when the reader was patched. See status_retention.py's
+# PINNED_SECTIONS / _is_pinned_heading_line docstring for the reader-side twin.
+_HEADING_LINE_RE = re.compile(r"^" + re.escape(MARKER_HEADING) + r"[ \t]*$", re.MULTILINE)
+
+
+def _find_real_heading(text: str, heading: str = MARKER_HEADING) -> int:
+    """Return the character offset of the first line that IS `heading` exactly
+    (start-of-line, optional trailing whitespace only) -- never a substring
+    match. Raises ValueError (same contract as str.index) if no real heading
+    line exists, so callers needing the recreate-at-top fallback still work."""
+    m = _HEADING_LINE_RE.search(text)
+    if m is None:
+        raise ValueError(heading)
+    return m.start()
+
 
 def _known_broken_body_bounds(text: str, heading: str = MARKER_HEADING) -> "tuple[int, int]":
     """(body_start, body_end): body_start sits right after the heading line's own
@@ -67,8 +92,11 @@ def _known_broken_body_bounds(text: str, heading: str = MARKER_HEADING) -> "tupl
     clear/replace to ONLY the pinned '## Known broken' section, so a marker-prefixed
     line that has already rolled into an older dated '## [' entry elsewhere in the
     file (history) is never touched (FULL-SUITE-RED-LINE-OUTLIVES-GREEN, queue.md
-    2026-09-02)."""
-    idx = text.index(heading)
+    2026-09-02).
+
+    Uses `_find_real_heading` (exact line match), NOT a plain substring search --
+    see that function's docstring for the decoy-prose corruption this avoids."""
+    idx = _find_real_heading(text, heading)
     nl = text.find("\n", idx)
     body_start = nl + 1 if nl != -1 else len(text)
     m = re.search(r"^## ", text[body_start:], re.MULTILINE)
@@ -106,10 +134,13 @@ def _upsert_impl(marker: str, line: Optional[str], status_path: Path) -> bool:
     # -agnostic; the file's ORIGINAL convention is restored byte-for-byte on write.
     norm = text.replace("\r\n", "\n")
 
-    if MARKER_HEADING not in norm:
+    if not _HEADING_LINE_RE.search(norm):
         # DO NOT return here -- see module docstring / guard_runner_full.py's own
         # rationale. Position cannot be trusted either (a session can prepend a
         # dated '## [' entry above this at any time), so recreate at the top.
+        # Exact-line check (not `MARKER_HEADING not in norm`, a substring test a
+        # decoy prose line can satisfy while no real heading exists -- see
+        # _find_real_heading's docstring).
         norm = MARKER_HEADING + "\n\n" + norm
 
     body_start, body_end = _known_broken_body_bounds(norm)

@@ -146,6 +146,69 @@ def test_heading_and_preamble_note_survive_byte_identical(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# Decoy prose containing the heading substring must never be mistaken for the
+# real pinned section (writer-side twin of status_retention.py's
+# _is_pinned_heading_line fix -- found live 2026-09-03, self-audit gap #3:
+# "the producer... has no test... regression will return").
+# ---------------------------------------------------------------------------
+
+def test_decoy_prose_line_before_the_real_section_is_not_mistaken_for_it(tmp_path):
+    """A prose line mid-sentence containing the literal substring '## Known
+    broken' (e.g. this project's own STATUS entries discussing the bug) sits
+    BEFORE the real heading. `str.index()` (a plain substring search) matches
+    the decoy first and would insert the new line there, orphaned above the
+    real section where the next lookup can never find it again. Reproduced
+    live: this exact shape wrote a fresh upsert() line above the real heading
+    instead of into it."""
+    decoy = "discussion: the '## Known broken' section had drifted before.\n\n"
+    body = "- [2026-09-02T16:40+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD: p::m.\n"
+    p = tmp_path / "STATUS.md"
+    p.write_text("# heading\n" + decoy + MARKER + "\n\n" + body, encoding="utf-8")
+
+    changed = skb.upsert("NEWMARKER:", "- [ts] NEWMARKER: hello", status_path=p)
+    assert changed is True
+    out = p.read_text(encoding="utf-8")
+
+    # Exact-line match for the REAL heading -- out.index(MARKER) is exactly the
+    # naive substring search under test and would find the DECOY (which also
+    # contains the substring) first, making the ordering assertion tautological.
+    lines = out.splitlines()
+    real_heading_line_no = next(i for i, ln in enumerate(lines) if ln.rstrip() == MARKER)
+    new_line_no = next(i for i, ln in enumerate(lines) if "NEWMARKER: hello" in ln)
+    assert new_line_no > real_heading_line_no, (
+        "the new line must land AFTER the real heading, not orphaned above it "
+        "next to the decoy"
+    )
+    heading_line_count = sum(1 for ln in lines if ln.rstrip() == MARKER)
+    assert heading_line_count == 1, (
+        "decoy substring (mid-sentence, not its own line) must not be treated as "
+        "a second real heading"
+    )
+    assert decoy.strip() in out, "the decoy prose itself must survive untouched"
+
+
+def test_missing_real_heading_with_only_a_decoy_present_is_recreated(tmp_path):
+    """If ONLY a decoy substring exists (no real heading line anywhere), the
+    naive `MARKER_HEADING not in norm` check would wrongly conclude the
+    section already exists (substring match) and skip recreating it --
+    `_known_broken_body_bounds` would then raise on the same decoy. Must
+    detect 'no REAL heading line' and recreate at the top, same as the
+    truly-absent case."""
+    decoy = "note: '## Known broken' was discussed here once.\n"
+    p = tmp_path / "STATUS.md"
+    p.write_text("# heading\n" + decoy, encoding="utf-8")
+
+    changed = skb.upsert("NEWMARKER:", "- [ts] NEWMARKER: hello", status_path=p)
+    assert changed is True
+    out = p.read_text(encoding="utf-8")
+    assert out.startswith(MARKER), "real heading must be recreated at the top"
+    heading_line_count = sum(1 for ln in out.splitlines() if ln.rstrip() == MARKER)
+    assert heading_line_count == 1, "exactly one real (exact-line) heading, the decoy is prose only"
+    assert "NEWMARKER: hello" in out
+    assert decoy.strip() in out, "the decoy prose itself must survive untouched"
+
+
+# ---------------------------------------------------------------------------
 # Missing section recreated at top
 # ---------------------------------------------------------------------------
 
