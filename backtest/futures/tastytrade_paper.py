@@ -345,6 +345,10 @@ class TastytradeBroker:
         # Callers (e.g. futures_mirror_shadow._broker_execute_entry) read this when the
         # returned id list is empty/short, instead of getting a reasonless [].
         self.last_failure_detail: Optional[dict] = None
+        # 2026-09-03 (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL): labeled leg ids from the LAST
+        # place_bracket call -- see that method's own comment for why the plain `ids` list
+        # returned to callers is not enough on its own.
+        self.last_bracket_legs: Optional[dict] = None
 
     # ── Connection ──────────────────────────────────────────────────────────────
 
@@ -794,6 +798,7 @@ class TastytradeBroker:
                 leg_failures.append("stop")
 
             # 4. Runner TP LIMIT (GTC) — optional
+            runner_id = None  # stays None unless the branch below actually places it
             if runner_price and run_q > 0:
                 async def _runner_coro():
                     return await self._account.place_order(
@@ -821,6 +826,15 @@ class TastytradeBroker:
             self.last_failure_detail = (
                 {"instrument": instrument, "placed_ids": list(ids), "leg_failures": leg_failures}
                 if leg_failures else None)
+            # 2026-09-03 (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL): `ids` is a flat, order-of-
+            # attempt list that collapses to ambiguous positions the moment any leg fails to
+            # place -- a caller cannot reliably tell "this id is the stop leg" from it alone.
+            # This labeled map is what the sibling-cancel safety net (no native OCO wired --
+            # see this method's own docstring above) reads to find "the OTHER leg" once one
+            # fills. None for any leg that was never placed/failed -- never guessed.
+            self.last_bracket_legs = {
+                "entry": entry_id, "tp1": tp1_id, "stop": stop_id, "runner": runner_id,
+            }
             return ids
 
         except Exception as e:
@@ -829,6 +843,9 @@ class TastytradeBroker:
                 "call": "place_bracket", "error_class": type(e).__name__,
                 "error_repr": repr(e)[:500],
             }
+            # A failed attempt's leg ids belong to nothing this caller can act on -- never
+            # leave a PRIOR successful call's map looking current for this one.
+            self.last_bracket_legs = None
             _log_broker_transport(
                 "place_bracket", "transport_error" if _is_transport_error(e) else "leg_rejected",
                 exc=e, detail="exception_before_any_leg_attempted")
@@ -860,6 +877,74 @@ class TastytradeBroker:
         except Exception as e:
             log.error("cancel_all failed: %s", e)
             return False
+
+    def cancel_order(self, order_id) -> bool:
+        """Cancel ONE order by id (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03).
+
+        The sibling-cancel safety net: Tastytrade's REST order-write endpoint (`NewOrder` /
+        `Account.place_order`) has no native OCA bracket for a futures leg pair -- TP1 and
+        stop are two independent GTC orders (see `place_bracket`'s own docstring) -- so the
+        moment one fills, the caller (`futures_broker_reconciler.reconcile_broker_exits`)
+        cancels the other via this method instead of waiting for it to also fill and reopen
+        a stray position (the exact 8-anomaly pattern this fix responds to, 09-01/09-02).
+
+        Kill-type by construction: a cancel can only REDUCE working exposure, never add any.
+        True on a clean cancel OR watch-only (nothing to cancel); False on any broker error
+        (already-filled/already-cancelled included -- the caller must not assume the order
+        is still live either way, only that this call did not confirm a fresh cancel)."""
+        if self.watch_only:
+            log.info("WATCH-ONLY cancel_order %s", order_id)
+            return True
+        if not self.is_connected():
+            return False
+        try:
+            async def _cancel():
+                await self._account.delete_order(self._session, order_id)
+
+            _run(_cancel())
+            log.info("cancel_order %s: cancelled", order_id)
+            return True
+        except Exception as e:
+            log.error("cancel_order %s failed: %s: %s", order_id, type(e).__name__, e)
+            if _is_transport_error(e):
+                _log_broker_transport("cancel_order", "transport_error", exc=e)
+            return False
+
+    def get_working_orders(self, instrument: str) -> list[dict]:
+        """READ-ONLY: currently LIVE (open/resting) orders touching `instrument`.
+
+        Added for the flatten-cancel-confirm sweep (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL,
+        2026-09-03): `cancel_all()` submits cancel requests but never confirmed they actually
+        cleared before the old FLATTEN path went straight to `close_position()` -- a resting
+        leg that survived the cancel (or was never cancelled, since cancel_all was never even
+        called from that path) could still fill after the flatten. This is the read side of
+        that confirmation. Never places, cancels, or replaces anything -- same read-only
+        contract as `get_recent_fills`/`get_positions`. [] on watch-only, not-connected, or
+        any read failure (fail-open on the READ; the caller's own bounded poll + loud
+        anomaly log is what handles an unconfirmable sweep, not this method pretending)."""
+        if self.watch_only or not self._connected or not self._account:
+            return []
+        try:
+            async def _get():
+                return await self._account.get_live_orders(self._session)
+
+            orders = _with_retry(lambda: _run(_get()))
+            out: list[dict] = []
+            for o in orders:
+                for leg in (o.legs or []):
+                    leg_symbol = getattr(leg, "symbol", "") or ""
+                    if instrument in leg_symbol:
+                        out.append({
+                            "order_id": o.id, "symbol": leg_symbol,
+                            "status": getattr(o.status, "value", str(o.status)),
+                        })
+                        break
+            return out
+        except Exception as e:
+            log.error("get_working_orders failed: %s: %s", type(e).__name__, e)
+            if _is_transport_error(e):
+                _log_broker_transport("get_working_orders", "transport_error", exc=e)
+            return []
 
     def close_position(self, instrument: str, qty: int, side: str, price: float) -> bool:
         """Market-close an open position (EOD flatten step 2)."""

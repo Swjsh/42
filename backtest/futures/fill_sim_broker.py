@@ -404,6 +404,15 @@ class FillSimBroker:
             self._log_event(instrument, "cancelled", {"order_id": p.get("order_id")})
         return True
 
+    def get_working_orders(self, instrument: str) -> list[dict]:
+        """Always [] -- this sim has no separate resting TP/stop/runner broker orders (they
+        are fields of the open-position object, closed synchronously by process_quote(), not
+        broker orders a flatten sweep could race against). Added 2026-09-03
+        (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL) for duck-typed parity with TastytradeBroker's
+        new method of the same name, so the flatten-cancel-confirm sweep in
+        futures_trader_core can call it unconditionally on either backend."""
+        return []
+
     def close_position(self, instrument: str, qty: int, side: str, price: float) -> bool:
         """Forced/manual close (e.g. an EOD-flatten-equivalent, or a caller-driven exit) --
         realizes qty contracts at `price` immediately, independent of decide_exit()."""

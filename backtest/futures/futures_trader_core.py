@@ -55,6 +55,7 @@ import datetime as dt
 import json
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -112,6 +113,11 @@ DEFAULT_BACKEND = os.environ.get("FUTURES_BROKER", "fillsim")
 # Refresh the bar cache at most this often (Yahoo is delayed anyway; hammering it
 # buys nothing and risks the documented futures-symbol flakiness).
 DATA_REFRESH_MIN_SECONDS = 60
+
+# FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL (2026-09-03): bounded poll for the flatten
+# cancel-confirm sweep below. Never unbounded -- a stuck broker read must not hang the tick.
+FLATTEN_CANCEL_MAX_POLLS = 5
+FLATTEN_CANCEL_POLL_SECONDS = 1.0
 
 
 # ── broker factory ────────────────────────────────────────────────────────────
@@ -280,6 +286,83 @@ def _snap_signal_to_tick(sig: dict, inst) -> dict:
     return out
 
 
+# ── flatten cancel-confirm sweep ────────────────────────────────────────────────
+
+def _cancel_and_confirm_clear(broker, symbol: str, now_et: dt.datetime,
+                              paths: dict) -> Optional[bool]:
+    """Cancel every resting order for `symbol`, then CONFIRM the broker actually cleared
+    them, before the caller market-closes the position (FUTURES-BROKER-OCO-AND-FLATTEN-
+    CANCEL, 2026-09-03).
+
+    Root cause this responds to: `broker.cancel_all()` has existed on TastytradeBroker since
+    the file's original writing (docstring literally says "EOD flatten step 1"), but the old
+    FLATTEN branch below never called it -- it went straight from detecting a non-flat
+    position to `close_position()`. A resting TP1/stop leg left alive through a flatten is
+    exactly how 5 extra contracts cascade-filled on 2026-09-01 and 2026-09-02 (see
+    anomalies.jsonl, 6 of 8 rows timestamped at the 16:00/20:00 UTC flatten windows).
+
+    Bounded poll (FLATTEN_CANCEL_MAX_POLLS attempts, FLATTEN_CANCEL_POLL_SECONDS apart) --
+    never unbounded. Returns:
+      True  -- confirmed no working orders remain after the sweep.
+      False -- orders (or an unreadable broker) still present after every poll -- logged
+               LOUDLY to anomalies.jsonl, never silently. close_position() still runs next
+               regardless: leaving a KNOWN non-flat account further exposed while waiting on
+               an unconfirmed cancel ack is a strictly worse outcome than proceeding to close
+               (a stray resting leg that still fills post-close is caught by the next tick's
+               reconciler and is the SAME class of anomaly this fix already makes visible,
+               not a new blind spot).
+      None  -- the broker exposes no `get_working_orders` (e.g. FillSimBroker, which has no
+               separate resting orders by construction). Nothing to confirm; cancel_all()'s
+               own bool return is the only signal for that backend.
+    """
+    try:
+        broker.cancel_all(symbol)
+    except Exception as e:  # noqa: BLE001 -- a failed cancel call must never block the flatten
+        try:
+            from futures.futures_broker_reconciler import append_anomaly  # noqa: PLC0415
+
+            append_anomaly(paths, {
+                "at_et": now_et.isoformat(timespec="seconds"),
+                "event": "flatten_cancel_error", "symbol": symbol,
+                "error": f"{type(e).__name__}: {e}",
+            })
+        except Exception:  # noqa: BLE001
+            pass
+
+    if not hasattr(broker, "get_working_orders"):
+        return None
+
+    working: Optional[list] = None
+    for attempt in range(FLATTEN_CANCEL_MAX_POLLS):
+        try:
+            working = broker.get_working_orders(symbol)
+        except Exception:  # noqa: BLE001 -- an unreadable broker here reads as NOT confirmed
+            working = None
+        if working == []:
+            return True
+        if attempt < FLATTEN_CANCEL_MAX_POLLS - 1:
+            time.sleep(FLATTEN_CANCEL_POLL_SECONDS)
+
+    try:
+        from futures.futures_broker_reconciler import append_anomaly  # noqa: PLC0415
+
+        append_anomaly(paths, {
+            "at_et": now_et.isoformat(timespec="seconds"),
+            "event": "flatten_cancel_incomplete",
+            "symbol": symbol,
+            "working_orders": working,
+            "interpretation": (
+                f"cancel_all() swept but orders (or an unreadable broker) were still "
+                f"present after {FLATTEN_CANCEL_MAX_POLLS} poll(s) -- closing the position "
+                f"anyway rather than leaving a known-open position further exposed. A "
+                f"resting leg may still fill post-close; the next tick's reconciler will "
+                f"catch and log it."),
+        })
+    except Exception:  # noqa: BLE001
+        pass
+    return False
+
+
 # ── the tick ──────────────────────────────────────────────────────────────────
 
 def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
@@ -414,6 +497,13 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
         pos = next((p for s, p in positions.items() if inst.symbol in s), None)
         if pos and last_price is not None:
             side = "SELL" if float(pos.get("qty", 0)) > 0 else "BUY"
+            # FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL (2026-09-03): cancel resting orders and
+            # CONFIRM they cleared BEFORE market-closing -- the old sequence went straight to
+            # close_position() and left resting TP1/stop legs alive to cascade-fill after the
+            # flatten (5 extra contracts, 2026-09-01/02). See _cancel_and_confirm_clear's own
+            # docstring for the full root-cause trail and the loud-not-silent failure mode.
+            record["flatten_orders_cleared"] = _cancel_and_confirm_clear(
+                broker, inst.symbol, now_et, paths)
             broker.close_position(inst.symbol, abs(int(float(pos["qty"]))), side, last_price)
             record.update(action="FLATTEN", reason=flat_call.reason)
             _write_heartbeat(now_et, "FLATTEN", {"rail": flat_call.rail}, paths)
@@ -566,8 +656,12 @@ def run_tick(instrument: str = DEFAULT_INSTRUMENT, *, broker=None,
             try:
                 from futures.futures_broker_reconciler import record_open_entry  # noqa: PLC0415
 
+                # FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL (2026-09-03): pass the labeled leg-id
+                # map (None for a broker without one) so the reconciler's sibling-cancel
+                # safety net can find "the OTHER leg" the instant one fills.
                 record_open_entry(paths, symbol=inst.symbol, entry=record["entry"],
-                                  order_ids=ids, now_et=now_et)
+                                  order_ids=ids, now_et=now_et,
+                                  leg_ids=getattr(broker, "last_bracket_legs", None))
             except Exception:  # noqa: BLE001 -- never breaks the tick
                 pass
 

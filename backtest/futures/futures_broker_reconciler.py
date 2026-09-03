@@ -25,14 +25,20 @@ lane itself placed (persisted in `open-entry.json` at ENTER time, because (3) ab
 the broker cannot answer "what was the entry" itself). No change to when or whether the
 lane enters or exits.
 
-KNOWN, NOT FIXED HERE (flagged in the queue item's follow-up, both are order-ROUTING
-changes and out of this fix's scope): `place_bracket` places TP1 and STOP as two
-INDEPENDENT GTC orders with no OCO link, so both can fill (observed 2026-09-02, order
-1435172 + 1435173); and the FLATTEN branch never calls `cancel_all()` before
-`close_position()`, so a resting bracket leg can still fill after a flatten and reopen a
-stray position. When either produces a closing-side fill this reconciler cannot attribute
-to the tracked entry, it is logged to `anomalies.jsonl` and EXCLUDED from that entry's
-P&L rather than silently dropped or guessed into a fabricated round trip.
+FOLLOW-UP FIXED 2026-09-03 (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, filed from this module's
+own docstring above): `place_bracket` still places TP1 and STOP as two INDEPENDENT GTC
+orders (the SDK's `ComplexOrderType.OCO/OTOCO` + `Account.place_complex_order` exist, but
+switching the routing path to them needs a supervised daytime dry-run against the cert
+sandbox to confirm futures-leg support -- not done tonight, every broker call was read-only
+by instruction). The mitigation instead: `reconcile_broker_exits` below now cancels the
+OTHER leg the instant the first closing fill is seen (`broker.cancel_order`, via the
+`leg_ids` map `record_open_entry` now persists), and the FLATTEN path in
+`futures_trader_core.run_tick` now calls `cancel_all()` + polls `get_working_orders()` for
+confirmation before `close_position()`. Neither eliminates the race inside a single tick
+interval; both make the STRAY-FILL window one tick wide instead of unbounded. A stray
+closing-side fill this reconciler still cannot attribute to the tracked entry is logged to
+`anomalies.jsonl` and EXCLUDED from that entry's P&L rather than silently dropped or
+guessed into a fabricated round trip.
 """
 from __future__ import annotations
 
@@ -79,17 +85,26 @@ def anomalies_path(paths: dict) -> Path:
 
 
 def record_open_entry(paths: dict, *, symbol: str, entry: dict, order_ids: list,
-                      now_et: dt.datetime) -> None:
+                      now_et: dt.datetime, leg_ids: Optional[dict] = None) -> None:
     """Persist the just-placed bracket's entry context (Rule 8 shape: this is a system
     record of what WAS placed, not a new thesis) so a later tick can attribute closing
     fills back to it -- the broker itself cannot answer "what was the entry" (see module
-    docstring point 3)."""
+    docstring point 3).
+
+    `leg_ids` (added 2026-09-03, FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL) is the optional
+    `{"entry": id, "tp1": id, "stop": id, "runner": id}` map from
+    `TastytradeBroker.last_bracket_legs` -- the sibling-cancel safety net in
+    `reconcile_broker_exits` below reads it to find "the OTHER leg" the instant one fills.
+    Omitted or None (e.g. a broker with no such map) simply disables that safety net; never
+    guessed."""
     data = {
         "symbol": symbol,
         "entry": entry,
         "order_ids": list(order_ids or []),
         "entry_time_et": now_et.isoformat(timespec="seconds"),
         "closed_qty": 0.0,
+        "leg_ids": dict(leg_ids) if leg_ids else {},
+        "sibling_cancelled": False,
     }
     _atomic_write_json(open_entry_path(paths), data)
 
@@ -123,6 +138,14 @@ def _append_anomaly(paths: dict, record: dict) -> None:
             fh.write(json.dumps(record, default=str) + "\n")
     except OSError:
         pass
+
+
+def append_anomaly(paths: dict, record: dict) -> None:
+    """Public: append one row to this lane's anomalies.jsonl (FUTURES-BROKER-OCO-AND-
+    FLATTEN-CANCEL, 2026-09-03). Callers outside this module -- e.g.
+    `futures_trader_core`'s flatten-cancel-confirm sweep -- use this same loud, never-silent
+    anomaly channel rather than duplicating the append logic or reaching into `_append_anomaly`."""
+    _append_anomaly(paths, record)
 
 
 def _entry_time_utc(entry_time_et_naive: dt.datetime) -> dt.datetime:
@@ -211,6 +234,47 @@ def reconcile_broker_exits(broker, inst, paths: dict, now_et: dt.datetime,
     closing.sort(key=lambda pair: pair[0])
     if not closing:
         return []
+
+    # Sibling-cancel (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03): the SDK-level
+    # ComplexOrderType.OCO/OTOCO exists (tastytrade.order.NewComplexOrder /
+    # Account.place_complex_order), but was NOT wired here -- placing a live/dry-run complex
+    # order to confirm it actually behaves correctly for a FUTURES leg on the cert sandbox
+    # needs a supervised daytime session (every broker call tonight is read-only by
+    # instruction), so flipping the routing path on an unverified assumption would be the
+    # opposite of a kill-type risk reduction. This is the fallback the queue item asked for:
+    # the instant the FIRST new closing fill is SEEN for the tracked entry, cancel the
+    # OTHER bracket leg immediately so it cannot also fill (the exact 8-anomaly pattern this
+    # fix responds to). Fires at most once per entry (idempotent via `sibling_cancelled`) --
+    # never re-cancels an already-cancelled/filled sibling on a later tick.
+    leg_ids = open_entry.get("leg_ids") or {}
+    if not open_entry.get("sibling_cancelled") and hasattr(broker, "cancel_order") and leg_ids:
+        first_fill_id = closing[0][1]["order_id"]
+        filled_leg = next((role for role, oid in leg_ids.items()
+                           if oid is not None and oid == first_fill_id), None)
+        sibling_role = {"tp1": "stop", "stop": "tp1"}.get(filled_leg)
+        sibling_id = leg_ids.get(sibling_role) if sibling_role else None
+        if sibling_id is not None and sibling_id != first_fill_id:
+            try:
+                cancelled = broker.cancel_order(sibling_id)
+            except Exception:  # noqa: BLE001 -- a failed cancel must never break journaling
+                cancelled = None
+            _append_anomaly(paths, {
+                "at_et": now_et.isoformat(timespec="seconds"),
+                "event": "sibling_leg_cancelled",
+                "symbol": inst.symbol,
+                "filled_leg": filled_leg, "filled_order_id": first_fill_id,
+                "cancelled_leg": sibling_role, "cancelled_order_id": sibling_id,
+                "cancel_call_ok": cancelled,
+                "interpretation": (f"{filled_leg} leg filled -- cancelled the resting "
+                                   f"{sibling_role} leg immediately (no native OCO wired "
+                                   "yet; see this function's own comment) to prevent it "
+                                   "from also filling and reopening a stray position."),
+            })
+        # Mark fired regardless of whether a sibling id was found -- a bracket with no
+        # resolvable leg_ids (e.g. an entry recorded before this fix shipped) must not
+        # retry every tick forever; that state is logged once via the anomaly above (or
+        # simply has nothing to cancel) and is not retried.
+        open_entry["sibling_cancelled"] = True
 
     already_closed = float(open_entry.get("closed_qty") or 0)
     stop_px = entry.get("stop")
@@ -308,6 +372,33 @@ def reconcile_broker_exits(broker, inst, paths: dict, now_et: dt.datetime,
     open_entry["closed_qty"] = already_closed
     if already_closed >= entry_qty - 1e-9:
         clear_open_entry(paths)
+        # Post-exit assertion (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03): a round
+        # trip journaled as fully closed must actually BE closed at the broker -- flat, with
+        # no working orders left resting for the symbol. Read-only; a broken assertion here
+        # logs LOUDLY (never raises -- the exit that already correctly journaled above must
+        # not be undone by a check running after it).
+        try:
+            broker_not_flat = not broker.is_flat(inst.symbol)
+        except Exception:  # noqa: BLE001
+            broker_not_flat = None
+        working = None
+        if hasattr(broker, "get_working_orders"):
+            try:
+                working = broker.get_working_orders(inst.symbol)
+            except Exception:  # noqa: BLE001
+                working = None
+        if broker_not_flat or working:
+            _append_anomaly(paths, {
+                "at_et": now_et.isoformat(timespec="seconds"),
+                "event": "post_exit_not_flat",
+                "symbol": inst.symbol,
+                "broker_not_flat": bool(broker_not_flat),
+                "working_orders": working,
+                "interpretation": ("journaled this entry as fully closed but the broker "
+                                   "still shows an open position and/or working orders for "
+                                   "the symbol -- a resting sibling leg likely survived. "
+                                   "Investigate before the next entry."),
+            })
     else:
         _atomic_write_json(open_entry_path(paths), open_entry)
 

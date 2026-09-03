@@ -59,6 +59,11 @@ Checks:
                        et_clock.py, NEVER zoneinfo/bash TZ -- this box runs Mountain time).
   data_freshness    -- folds in the EXISTING data-freshness.json verdict verbatim (never
                        reimplemented).
+  no_stray_exposure -- RED on a recent unattributed closing fill / incomplete flatten-cancel
+                       sweep / post-exit not-flat row in trader-broker/anomalies.jsonl
+                       (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03) -- evidence a
+                       no-OCO bracket leg or an unconfirmed flatten left exposure alive past
+                       when this lane believed it was done.
   task_liveness     -- State/LastRunTime/LastTaskResult for the 7 live futures tasks via
                        Get-ScheduledTask/Get-ScheduledTaskInfo. CRITICAL distinction: a task
                        Disabled AND present in quiet-mode-restore.json's restore_to_ready list
@@ -525,7 +530,59 @@ def check_broker_exit_pairing(now_et: datetime, decisions_path: Optional[Path] =
 
 
 # ---------------------------------------------------------------------------
-# f. task_liveness -- Disabled-by-quiet-mode must never read as an outage
+# f. no_stray_exposure -- FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL (filed 2026-09-03)
+# ---------------------------------------------------------------------------
+ANOMALY_TAIL_BYTES = 200_000
+# The two events that mean a resting leg (or an unconfirmed flatten sweep) actually let
+# exposure survive an exit -- NOT `sibling_leg_cancelled`, which is the safety net WORKING
+# as designed and is informational, never a failure.
+STRAY_EXPOSURE_RED_EVENTS = {"unattributed_closing_fill", "flatten_cancel_incomplete",
+                             "post_exit_not_flat"}
+ANOMALY_LOOKBACK_SESSIONS = RECENT_SESSIONS_WINDOW  # reuse fills_recency's own window
+
+
+def check_no_stray_exposure(now_et: datetime, anomalies_path: Optional[Path] = None) -> dict:
+    """RED on any recent unattributed closing fill, incomplete flatten-cancel sweep, or
+    post-exit not-flat assertion -- all three are evidence a bracket leg (no native OCO --
+    see futures_broker_reconciler.py) or a flatten left the account exposed after this lane
+    believed it was done. Read-only against anomalies.jsonl (written by
+    futures_broker_reconciler.py / futures_trader_core.py); this check adds no producer of
+    its own."""
+    name = "no_stray_exposure"
+    path = anomalies_path if anomalies_path is not None else (
+        STATE / "futures" / "trader-broker" / "anomalies.jsonl")
+    if not path.exists():
+        return _chk(name, "GREEN", "anomalies.jsonl absent -- nothing logged yet")
+    rows = _tail_jsonl(path, ANOMALY_TAIL_BYTES)
+    if not rows:
+        return _chk(name, "UNKNOWN", "anomalies.jsonl present but unreadable/empty")
+
+    dated = [r for r in rows if r.get("at_et")]
+    if not dated:
+        return _chk(name, "UNKNOWN",
+                    "anomalies.jsonl present but no parseable dated rows")
+    by_date: dict = {}
+    for r in dated:
+        d = str(r["at_et"])[:10]
+        by_date.setdefault(d, []).append(r)
+    recent_dates = sorted(by_date)[-ANOMALY_LOOKBACK_SESSIONS:]
+
+    hits = [r for d in recent_dates for r in by_date[d]
+           if r.get("event") in STRAY_EXPOSURE_RED_EVENTS]
+    if hits:
+        desc = "; ".join(f"{r.get('at_et')} {r.get('event')} {r.get('symbol', '')}"
+                         for r in hits[-8:])
+        return _chk(name, "RED",
+                    f"{len(hits)} stray-exposure anomaly row(s) in the last "
+                    f"{len(recent_dates)} session(s) with anomaly rows -- {desc}")
+    return _chk(name, "GREEN",
+                f"no unattributed closing fills / incomplete flatten sweeps / post-exit "
+                f"not-flat rows in the last {len(recent_dates)} session(s) with anomaly "
+                f"rows ({len(dated)} total row(s) read)")
+
+
+# ---------------------------------------------------------------------------
+# g. task_liveness -- Disabled-by-quiet-mode must never read as an outage
 # ---------------------------------------------------------------------------
 def _default_query_tasks(names: "tuple") -> "list | None":
     """Real Get-ScheduledTask + Get-ScheduledTaskInfo query, one PowerShell round trip for
@@ -649,6 +706,7 @@ def build_report(now_et: Optional[datetime] = None) -> dict:
         check_broker_transport(et),
         check_data_freshness(),
         check_broker_exit_pairing(et),
+        check_no_stray_exposure(et),
         check_task_liveness(),
     ]
     worst = max((_SEVERITY.get(c["status"], 1) for c in checks), default=0)

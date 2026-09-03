@@ -218,11 +218,16 @@ def test_build_report_end_to_end_with_everything_missing(tmp_path, monkeypatch):
     report = fh.build_report(now_et=NOW)
     assert report["verdict"] in ("GREEN", "YELLOW", "RED")
     assert report["verdict"] == "YELLOW"
-    # 6, not 5: broker_exit_pairing (FUTURES-BROKER-LANE-NEVER-LOGS-EXITS, 2026-09-03) added
-    # a 6th check. It degrades to UNKNOWN here for the same reason every other check does --
-    # STATE is monkeypatched to an empty tmp_path, so trader-broker/decisions.jsonl is missing.
-    assert len(report["checks"]) == 6
-    assert all(c["status"] == "UNKNOWN" for c in report["checks"])
+    # 7, not 6: no_stray_exposure (FUTURES-BROKER-OCO-AND-FLATTEN-CANCEL, 2026-09-03) added
+    # a 7th check. Unlike the others it reads GREEN, not UNKNOWN, on a missing anomalies.jsonl
+    # -- that file is an append-only INCIDENT log (written only when something goes wrong),
+    # so its absence is genuine evidence of "nothing logged", not "we don't know" the way a
+    # missing positions/data-freshness snapshot is. The other 6 checks still degrade to
+    # UNKNOWN for the same reason as before -- STATE is monkeypatched to an empty tmp_path.
+    assert len(report["checks"]) == 7
+    by_name = {c["name"]: c["status"] for c in report["checks"]}
+    assert by_name.pop("no_stray_exposure") == "GREEN"
+    assert all(status == "UNKNOWN" for status in by_name.values())
     assert len(report["reasons"]) == 6
 
 
