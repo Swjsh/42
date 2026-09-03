@@ -1,1 +1,10 @@
-{"id": "GOAL-GAMMA-AUTONOMY-2026-09-03", "active": true, "opened_at_et": "2026-09-03T18:05:00-04:00", "expires_at_et": "2026-09-17", "file": "automation/state/goals/GOAL-GAMMA-AUTONOMY-2026-09-03.md", "queue_id": "GOAL-GAMMA-AUTONOMY-2026-09-03", "max_continuations_per_session": 3, "last_next_item": "A5 \u2014 `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no"}
+{
+  "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
+  "active": true,
+  "opened_at_et": "2026-09-03T18:55:07",
+  "expires_at_et": "2026-09-17",
+  "file": "automation/state/goals/GOAL-COCKPIT-REDESIGN-2026-09-03.md",
+  "queue_id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
+  "max_continuations_per_session": 3,
+  "last_next_item": null
+}

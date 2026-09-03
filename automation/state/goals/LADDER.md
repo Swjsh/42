@@ -23,7 +23,8 @@
 > Author new entries by appending a line (Claude sessions or J). Never delete a
 > `[x]` line -- it is the ladder's own history.
 
-- [~] GOAL-GAMMA-AUTONOMY-2026-09-03 :: Gamma opens and drives its own goals; learning ledger; Autonomy tab :: file: automation/state/goals/GOAL-GAMMA-AUTONOMY-2026-09-03.md :: expires_days:14
+- [~] GOAL-COCKPIT-REDESIGN-2026-09-03 :: Command-center overhaul: real design assets, Army+Autonomy merged, expandable tiles for every producer, judged >=7/10 (J 2026-09-03 18:50 ET) :: file: automation/state/goals/GOAL-COCKPIT-REDESIGN-2026-09-03.md :: expires_days:14
+- [x] GOAL-GAMMA-AUTONOMY-2026-09-03 :: Gamma opens and drives its own goals; learning ledger; Autonomy tab :: file: automation/state/goals/GOAL-GAMMA-AUTONOMY-2026-09-03.md :: expires_days:14
 - [ ] GOAL-PREREG-ADJUDICATION-2026-09-03 :: 49 preregs with no status field -> 0, every frozen/never-run prereg adjudicated RUN/KILL/PARK :: file: automation/state/goals/GOAL-PREREG-ADJUDICATION-2026-09-03.md :: expires_days:14
 - [ ] GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03 :: every kitchen _LEADERBOARD.md PROMISING candidate gets a WF+OOS verdict -> SHADOW-FILED or KILLED :: file: automation/state/goals/GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03.md :: expires_days:14
 - [ ] GOAL-ZERO-ENTER-DAYS-2026-09-03 :: counterfactual table for every zero-enter frozen-window day + a $0 daily instrument, fix pre-registered for 10-30 :: file: automation/state/goals/GOAL-ZERO-ENTER-DAYS-2026-09-03.md :: expires_days:14

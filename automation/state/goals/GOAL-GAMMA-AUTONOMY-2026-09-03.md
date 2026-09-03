@@ -87,7 +87,7 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
 - [x] A5 (VERIFIED: clause 2a edited; page regenerated + DOM-grepped + rendered in-app 0 console errors; commit 5322e780; STATUS OPEN line; memory note written) — `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no
   active goal, runs `ensure` itself before falling through. Regenerate the page, quote the
   DOM grep + screenshot, commit with one-line revert, STATUS line, memory note.
-- [ ] A6 — FIRST GOAL-DRIVEN FIRE (the 00:10 ET conductor or any later fire; not doable interactively before then). Deliverable: run `python setup/scripts/goal_autopilot.py status --json` and quote `active_goal_id` + ladder; confirm this fire's `conductor_outcome.py record` row uses task_id `GOAL-GAMMA-AUTONOMY-2026-09-03-A6`; append the quoted status as the PROGRESS LOG line; then tick this item so the QUEUE is fully terminal and the autopilot opens GOAL-PREREG-ADJUDICATION-2026-09-03 on its next tick (quote that `ensure` output if you run it). That row + the next goal going active IS DONE-WHEN (e).
+- [x] A6 (CARRIED 2026-09-03 18:55 ET to GOAL-COCKPIT-REDESIGN-2026-09-03 item R7 by J's directive to switch goals; the first goal-driven fire will be proven there) — Next-fire verification.
 
 ## J-DECISIONS
 - None required. Revoke = `git revert <sha>` + `Unregister-ScheduledTask Gamma_GoalAutopilot`.
@@ -106,5 +106,8 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
 
 - 2026-09-03 18:41 ET — Stop-hook continuation 2/3 (session 42-98): A6 is time-gated on the next conductor fire (00:10 ET); stated null, no work possible now. Reworded A6 so that fire has a concrete self-verifying deliverable (quote autopilot status, record under the A6 task_id, tick, let the autopilot open the next ladder goal).
 
+- 2026-09-03 18:42 ET — Stop-hook continuation 2/3 reached session b6eea006 again. A6 is a NEXT-FIRE verification (00:10 ET conductor), not doable now; skipped, not ticked. `goal_autopilot.py status --json` at 18:42 ET: {   "checked_at_et": "2026-09-03 18:20 ET",   "action": "noop",   "reason": "active goal has an open item",   "active_goal_id": "GOAL-GAMMA-AUTONOMY-2026-09-03",   "next_item": "A5 \u2014 `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no",   "ladder": [     {       "id": "GOAL-GAMMA-AUTONOMY-2026-09-03",       "state": "active",       "eligible": true,       "why": "
+- 2026-09-03 18:55 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 A1–A5 shipped and verified (commit 5322e780). A6 is the only open item: it needs the next scheduled conductor fire (00:10 ET) to prove DONE-WHEN (e). Known soft spots: prereg verdict dates fall back to file mtime (labelled in methods); Gamma_AutofireCards still has never fired because every card is an alarm, not a read-and-report item (separate item, not this goal).
+AUTOPILOT CLOSE 2026-09-03 18:55 ET: queue fully terminal (no bare '- [ ] ' item left)

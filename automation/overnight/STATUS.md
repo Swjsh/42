@@ -262,6 +262,10 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
+## [2026-09-03T18:58 ET] GOAL SWITCH: GOAL-GAMMA-AUTONOMY closed (A1-A5 shipped 5322e780; A6 carried) -> GOAL-COCKPIT-REDESIGN-2026-09-03 OPENED by goal_autopilot (J: "redesign the whole page ... find the best free web design plugins ... 2/10 to a 7 or 8 ... daily driver", ultracode on)
+
+First real ladder close+open by `goal_autopilot.py ensure` (closed_opened). New goal file: `automation/state/goals/GOAL-COCKPIT-REDESIGN-2026-09-03.md` -- DONE-WHEN: vendored real design assets with a manifest, Army+Autonomy merged into one Command view, expandable tiles for every producer (premarket/standups/EOD/analyst/kitchen/prospector/gym/shadow/futures/multi/guards/tasks/gate/calendar/watchers/budget), blind critique panel median >=7/10, nothing lost, committed. Research workflow running. Revoke: `git revert <sha>`.
+
 ## [2026-09-03T18:20 ET] GOAL OPENED: GOAL-GAMMA-AUTONOMY-2026-09-03 -- Gamma opens and drives its own goals (J: "your /goal is gamma autonomy ... i need to see it happening, on the dashboard")
 
 Root causes verified this session: (1) goal production was J-only (`/gamma-goal` is disable-model-invocation) and `active-goal.json` sat inactive since 08-30, so the conductor's 4 budgeted fires/day drained self-audit triage (last 20 fires: 0 strategy-learning items); (2) the research loop (Kitchen 3,787 done, 47 preregs + 286 candidate files in 7d, 131 commits/24h) never rolls up as "learned X"; (3) `payload["autonomy"]` is computed by `gamma_home.py:583` and rendered by nothing, and `Gamma_Home` is not quiet-mode ESSENTIAL so the page freezes 18:00-23:00 ET. Build in flight: `goal_autopilot.py` + LADDER.md + `Gamma_GoalAutopilot` ($0), `learning_ledger.py`, an `Autonomy` PRIMARY tab on the home page, three queued research goals. Goal file: `automation/state/goals/GOAL-GAMMA-AUTONOMY-2026-09-03.md`. Revoke: `git revert <sha>` + `Unregister-ScheduledTask Gamma_GoalAutopilot`.
