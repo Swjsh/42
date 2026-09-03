@@ -1,3 +1,7 @@
+> **RETIRED 2026-09-03** — this LLM persona backed `Gamma_FuturesPremarket`, which **never fired** (LastResult 267011 `SCHED_S_TASK_HAS_NOT_RUN`, Disabled since 2026-07-08) and read June-era corpse state (`account.json`/`risk.json`/`position.json`, last written 2026-06-17..07-14). Unregistered from Task Scheduler this date (queue item FUTURES-PREMARKET-PRODUCER-MISSING).
+> **Replacement:** `backtest/futures/futures_premarket.py` — deterministic, $0, no LLM — registered as `Gamma_FuturesPremarket2` (`setup/scripts/install-futures-premarket.ps1`), fires 08:35 ET weekdays. Writes the same two target files (`automation/state/futures/key-levels.json` + `today-bias.json`) from the live bar spine `futures_live_data.py` already maintains, with a mechanical bias formula instead of narrative judgment.
+> Kept here verbatim for reference only — do not re-register the task this file backed.
+
 # Futures Premarket — Gamma Futures Edition
 
 > **When:** 08:30–09:30 ET daily

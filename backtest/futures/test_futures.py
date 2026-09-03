@@ -619,13 +619,31 @@ class TestE2ESmokeTest:
         assert "15:55" in content, "EOD flatten prompt must reference 15:55 ET window"
         assert "cancel_all" in content, "EOD flatten prompt must describe cancel_all step"
 
-    def test_futures_premarket_prompt_exists(self):
-        """Guard: futures-premarket.md must exist — needed to populate key-levels.json each morning."""
-        prompt = REPO / "automation" / "prompts" / "futures-premarket.md"
-        assert prompt.exists(), "futures-premarket.md missing — heartbeat reads key-levels.json which premarket writes"
-        content = prompt.read_text()
-        assert "key-levels.json" in content, "Premarket prompt must describe writing key-levels.json"
-        assert "VIX" in content, "Premarket prompt must document VIX gate check"
+    def test_futures_premarket_llm_prompt_retired(self):
+        """Guard (updated 2026-09-03, FUTURES-PREMARKET-PRODUCER-MISSING): the old LLM
+        persona `automation/prompts/futures-premarket.md` never fired a real task
+        (LastResult 267011 SCHED_S_TASK_HAS_NOT_RUN) and is retired, not live. It must
+        NOT exist at its old path (so nothing accidentally re-wires to it) and MUST
+        exist under `_retired/` with a header pointing at the deterministic replacement."""
+        old_path = REPO / "automation" / "prompts" / "futures-premarket.md"
+        assert not old_path.exists(), (
+            "futures-premarket.md should be retired (moved to _retired/), not live at its old path"
+        )
+        retired = REPO / "automation" / "prompts" / "_retired" / "futures-premarket.md"
+        assert retired.exists(), "retired futures-premarket.md missing from _retired/"
+        content = retired.read_text()
+        assert "RETIRED" in content, "retired persona must carry a RETIRED header"
+        assert "futures_premarket.py" in content, "retired header must point at the replacement module"
+
+    def test_futures_premarket_deterministic_producer_exists(self):
+        """Guard: the deterministic ($0, no LLM) replacement producer must exist and
+        describe the two files it writes (schema family with the SPY producer)."""
+        script = REPO / "backtest" / "futures" / "futures_premarket.py"
+        assert script.exists(), "futures_premarket.py missing — no futures premarket producer at all"
+        content = script.read_text()
+        assert "key-levels.json" in content or "KEY_LEVELS_OUT" in content
+        assert "today-bias.json" in content or "TODAY_BIAS_OUT" in content
+        assert "DATA_MISSING" in content, "producer must document its never-fabricate path"
 
 
 if __name__ == "__main__":
