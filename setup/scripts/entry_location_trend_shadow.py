@@ -78,6 +78,58 @@ n toward the prereg's n_chase>=150 floor as fast as honestly possible):
                                                                       available tick that date if
                                                                       fewer than 15 minutes have
                                                                       elapsed -- left-censored, flagged)
+  confirm_bars                                                    -- (B4, 2026-09-03) number of
+                                                                      consecutive CLOSED 5-minute SPY
+                                                                      bars strictly BEFORE the entry
+                                                                      bar whose close already sat
+                                                                      beyond trigger_level in the
+                                                                      trade's own direction; 0 means
+                                                                      the entry fired on the very
+                                                                      first bar to cross. Computed by
+                                                                      collapsing the SAME no-lookahead
+                                                                      `subset` (core-decisions.jsonl's
+                                                                      "spy" field IS the 5-minute
+                                                                      close, repeated across every
+                                                                      faster-cadence heartbeat tick
+                                                                      until the next bar closes) into
+                                                                      its distinct bar-close sequence,
+                                                                      then walking backward from the
+                                                                      bar immediately preceding entry.
+                                                                      None when trigger_level is
+                                                                      unavailable (see below) or the
+                                                                      side can't be parsed.
+  zone_distance                                                    -- (spy_at_entry - trigger_level)
+                                                                      / zone_width in the trade's own
+                                                                      direction (positive = already
+                                                                      beyond trigger), zone_width
+                                                                      resolved per date+level via
+                                                                      retest_zone_shadow.resolve_
+                                                                      zone_width (REUSED BY IMPORT,
+                                                                      never modified) -- flagged
+                                                                      zone_width_defaulted=True when
+                                                                      no archived width was found
+                                                                      (true for the entire current
+                                                                      archive as of this build, see
+                                                                      that module's own Step 1
+                                                                      finding; never silently
+                                                                      assumed).
+  trigger_level                                                    -- joined from
+                                                                      analysis/entry-quality/
+                                                                      entry-quality-ledger.json
+                                                                      (mae-mfe.json itself carries no
+                                                                      trigger_level) by exact
+                                                                      (arm, symbol, entry_ts_utc)
+                                                                      match against that ledger's own
+                                                                      (arm, symbol, ts_utc) -- the
+                                                                      SAME three fields, same values,
+                                                                      both files sourced from the same
+                                                                      fill. None (never fabricated)
+                                                                      when no event carries a
+                                                                      trigger_level for that key --
+                                                                      true for setups that never set
+                                                                      one (VWAP_CONTINUATION, etc.)
+                                                                      and for a real minority of
+                                                                      RIDE_THE_RIBBON fills too.
 
 NO LOOK-AHEAD (verified by test_entry_location_trend_shadow_2026_09_03.py's synthetic-ledger
 test): every one of the fields above is computed from a `subset` that is filtered to
@@ -104,8 +156,20 @@ OUTPUTS:
                                                                  bootstrap CI, the SAME split
                                                                  stratified by each co-signal
                                                                  tercile (or up/down/flat for
-                                                                 vix_dir) -- descriptive, status
-                                                                 ARMED, prereg readiness counter
+                                                                 vix_dir), PLUS (B4) a
+                                                                 confirm_bars==0-vs->=1 split per
+                                                                 setup and across the four named
+                                                                 big winner days -- descriptive,
+                                                                 status ARMED, prereg readiness
+                                                                 counters for BOTH frozen tests
+                                                                 (prereg section 4 and section 9)
+
+B4 (2026-09-03) ADDS two entry-tick features (confirm_bars, zone_distance, both described
+above) and a SECOND frozen test in the prereg (section 9, added same day, section 1-4's own
+frozen test left untouched): BULLISH_RECLAIM_RIDE_THE_RIBBON chase entries split by
+confirm_bars==0 vs confirm_bars>=1, bar n>=100 per cell, decision rule fixed before this
+build ever ran the recomputed ledger. Full text: prereg-entry-location-trend-2026-09-03.md
+section 9.
 
 BACKFILL: this instrument backfills ALL of mae-mfe.json's history once (dates <= 2026-09-02
 are stamped in_sample=true), then accrues forward nightly as mae-mfe.json's own producer
@@ -142,9 +206,11 @@ for _p in (str(REPO), str(REPO / "backtest" / "tools"), str(REPO / "setup" / "sc
 
 import money_entry_location as mel  # noqa: E402 -- reused read-only, never modified
 import money_entry_location_stats as mels  # noqa: E402 -- reused read-only, never modified
+import retest_zone_shadow as rzs  # noqa: E402 -- reused, resolve_zone_width only, never modified
 
 MAE_MFE = REPO / "analysis" / "pain-ledger" / "mae-mfe.json"
 CORE_DECISIONS = REPO / "automation" / "state" / "core-decisions.jsonl"
+ENTRY_QUALITY_LEDGER = REPO / "analysis" / "entry-quality" / "entry-quality-ledger.json"
 
 OUT_DIR = REPO / "analysis" / "recommendations"
 LEDGER = OUT_DIR / "entry-location-trend-ledger.jsonl"
@@ -164,6 +230,9 @@ MIN_CELL_N_FOR_CI = 5              # below this a bootstrap diff CI is not repor
 
 BULL_PUT_SETUP_FOR_PREREG = "BULLISH_RECLAIM_RIDE_THE_RIBBON"
 PREREG_N_CHASE_FLOOR = 150
+
+BIG_WINNER_DAYS = ("2026-08-06", "2026-08-13", "2026-08-27", "2026-08-28")   # per this task's STANDARDS
+CONFIRM_BARS_N_FLOOR = 100         # B4 second frozen test (prereg section 9), PER CELL
 
 
 # ------------------------------------------------------------------------------------------
@@ -190,6 +259,30 @@ def _stamp_now_et() -> str:
         return et_now().isoformat()
     except Exception:  # noqa: BLE001 -- a stamp must never break the clock
         return ""
+
+
+# ------------------------------------------------------------------------------------------
+# trigger_level join (B4) -- mae-mfe.json never carries trigger_level; entry-quality-ledger.json
+# does, on the SAME (arm, symbol, ts_utc==entry_ts_utc) key both files share (same underlying
+# fill). Missing/unreadable ledger -> empty dict, never fabricated: every row's confirm_bars /
+# zone_distance simply goes None, exactly like an unparseable symbol already does upstream.
+# ------------------------------------------------------------------------------------------
+def load_trigger_levels(path: Path) -> dict[tuple[str | None, str | None, str | None], float]:
+    if not path.exists():
+        return {}
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    out: dict[tuple, float] = {}
+    for e in doc.get("events", []):
+        tl = e.get("trigger_level")
+        if tl is None:
+            continue
+        key = (e.get("arm"), e.get("symbol"), e.get("ts_utc"))
+        if key not in out:      # first match wins -- activity_id collisions are not expected
+            out[key] = float(tl)
+    return out
 
 
 # ------------------------------------------------------------------------------------------
@@ -309,12 +402,93 @@ def _vix_dir(subset: list[tuple], entry_et: dt.datetime, vix_at_entry: float | N
     return {"vix_dir": d, "vix_delta": delta, "note": note}
 
 
+def _beyond_trigger(value: float, trigger_level: float, side: str) -> bool:
+    """True when `value` (a SPY close) already sits beyond `trigger_level` in the trade's own
+    direction -- calls: value > trigger_level; puts: value < trigger_level. Same sign
+    convention as _or_extension's `dollars` (positive = beyond)."""
+    dollars = (value - trigger_level) if side == "C" else (trigger_level - value)
+    return dollars > 0
+
+
+def _dedup_bar_closes(subset: list[tuple]) -> list[tuple[dt.datetime, float]]:
+    """Collapse consecutive core-decision ticks that carry the SAME 'spy' value into one bar
+    entry (the ts of the first tick to carry that value, and the close itself). The
+    core-decisions feed samples on a faster (heartbeat) cadence than the 5-minute bar closes
+    it reports (`spy` is the 5-minute close, held constant across every tick until the next
+    bar closes -- see CLAUDE.md task note), so this recovers the true bar-close sequence from
+    the repeated tick tape. `subset` is always the caller's already-filtered
+    (ts_et <= entry_et) no-lookahead prefix -- this function has no access to any later tick."""
+    bars: list[tuple[dt.datetime, float]] = []
+    for tk in subset:
+        ts, spy = tk[0], tk[1]
+        if bars and bars[-1][1] == spy:
+            continue
+        bars.append((ts, spy))
+    return bars
+
+
+def _confirm_bars(subset: list[tuple], side: str | None, trigger_level: float | None) -> dict:
+    """(B4) Count of consecutive CLOSED 5-minute bars STRICTLY BEFORE the entry bar (the last
+    distinct bar in `subset`'s own dedup sequence -- the bar in force at entry) whose close was
+    already beyond `trigger_level` in the trade's own direction, walking BACKWARD from the bar
+    immediately preceding the entry bar and stopping at the first bar that was not yet beyond.
+    0 means either the entry bar was itself the first bar to cross (the immediately preceding
+    bar had not crossed yet) or there is no prior bar in the visible prefix at all -- both
+    read the same way as "0 = the entry fired on the first bar to cross". None when
+    trigger_level is unavailable or the side can't be parsed. `subset` is always the caller's
+    no-lookahead (ts_et <= entry_et) prefix, so this function never sees a bar at or after
+    entry -- a tick added AFTER entry to the caller's own ticks_by_date is filtered out of
+    `subset` before this function is ever invoked and cannot change the count."""
+    if trigger_level is None or side not in ("C", "P"):
+        return {"confirm_bars": None, "n_bars_in_prefix": None,
+                "note": "no trigger_level" if trigger_level is None else "side not C/P"}
+    bars = _dedup_bar_closes(subset)
+    if not bars:
+        return {"confirm_bars": None, "n_bars_in_prefix": 0, "note": "no bars in prefix"}
+    prior = bars[:-1]      # every closed bar strictly before the entry bar
+    count = 0
+    for _, value in reversed(prior):
+        if _beyond_trigger(value, trigger_level, side):
+            count += 1
+        else:
+            break
+    return {"confirm_bars": count, "n_bars_in_prefix": len(bars), "note": "ok"}
+
+
+def _zone_distance(spy_at_entry: float | None, trigger_level: float | None, side: str | None,
+                    date_str: str) -> dict:
+    """(B4) (spy_at_entry - trigger_level) / zone_width in the trade's own direction (calls:
+    above trigger is positive; puts: below trigger is positive) -- same sign convention as
+    _or_extension. zone_width is resolved per (trigger_level, date) via
+    retest_zone_shadow.resolve_zone_width (REUSED BY IMPORT, never modified, never
+    re-implemented) -- zone_width_defaulted=True whenever that resolver fell back to its
+    $0.30 default (no archived snapshot for the date, no matching level, or the matched level
+    carries no zone_width field -- true for the entire current archive as of this build, see
+    that module's own docstring Step 1 finding). Never silently assumed away."""
+    if spy_at_entry is None or trigger_level is None or side not in ("C", "P"):
+        return {"zone_distance": None, "zone_width": None, "zone_width_source": None,
+                "zone_width_defaulted": None, "zone_width_reason": None}
+    zw = rzs.resolve_zone_width(trigger_level, date_str)
+    width = zw["width"]
+    dollars = (spy_at_entry - trigger_level) if side == "C" else (trigger_level - spy_at_entry)
+    zone_distance = round(dollars / width, 4) if width else None
+    return {"zone_distance": zone_distance, "zone_width": width,
+            "zone_width_source": zw["source"], "zone_width_defaulted": zw["source"] == "default",
+            "zone_width_reason": zw["reason"]}
+
+
 # ------------------------------------------------------------------------------------------
 # per-trade row
 # ------------------------------------------------------------------------------------------
-def compute_row(t: dict, ticks_by_date: dict[str, list[tuple]]) -> dict | None:
+def compute_row(t: dict, ticks_by_date: dict[str, list[tuple]],
+                 trigger_levels: dict | None = None) -> dict | None:
     """One row for one mae-mfe.json trade. Returns None only when the symbol cannot be
-    parsed at all (never fabricates a side)."""
+    parsed at all (never fabricates a side). `trigger_levels` (B4) is the
+    (arm, symbol, entry_ts_utc) -> trigger_level lookup from load_trigger_levels(); omitted
+    or missing-key -> confirm_bars/zone_distance simply go None for that row, never
+    fabricated."""
+    if trigger_levels is None:
+        trigger_levels = {}
     sym = t.get("symbol")
     m = mel.OCC_RE.match(sym) if sym else None
     if m is None:
@@ -355,6 +529,10 @@ def compute_row(t: dict, ticks_by_date: dict[str, list[tuple]]) -> dict | None:
     if range_position is not None and side in ("C", "P"):
         chase = mels.classify_chase({"range_position": range_position, "side": side}, CHASE_HI, CHASE_LO)
 
+    trigger_level = trigger_levels.get((arm, sym, t["entry_ts_utc"]))
+    confirm = _confirm_bars(subset, side, trigger_level)
+    zone = _zone_distance(spy_at_entry, trigger_level, side, date)
+
     return {
         "row_id": f"{arm}::{sym}::{t['entry_ts_utc']}",
         "date": date, "arm": arm, "symbol": sym, "setup": t.get("setup"), "side": side,
@@ -376,6 +554,14 @@ def compute_row(t: dict, ticks_by_date: dict[str, list[tuple]]) -> dict | None:
         "or_extension_dollars": or_ext["dollars"], "or_extension_multiples": or_ext["multiples"],
         "vix_dir": vix_dir_info["vix_dir"], "vix_dir_delta": vix_dir_info["vix_delta"],
         "vix_dir_note": vix_dir_info["note"],
+        "trigger_level": trigger_level,
+        "confirm_bars": confirm["confirm_bars"],
+        "confirm_bars_n_bars_in_prefix": confirm["n_bars_in_prefix"],
+        "confirm_bars_note": confirm["note"],
+        "zone_distance": zone["zone_distance"], "zone_width": zone["zone_width"],
+        "zone_width_source": zone["zone_width_source"],
+        "zone_width_defaulted": zone["zone_width_defaulted"],
+        "zone_width_reason": zone["zone_width_reason"],
         "in_sample": date <= BACKFILL_CUTOFF,
     }
 
@@ -450,6 +636,31 @@ def stratify_by_category(rows: list[dict], key: str, categories: list[str]) -> d
     return out
 
 
+def _confirm_bars_cell(rows: list[dict]) -> dict:
+    """(B4) Descriptive confirm_bars==0 vs >=1 split with bootstrap CI -- the SAME shape as
+    _chase_rest_cell, reused for the summary's per-setup + big-day disclosures. Rows with
+    confirm_bars=None (no trigger_level) are counted but excluded from both cells, never
+    dropped silently."""
+    zero_rows = [r for r in rows if r.get("confirm_bars") == 0]
+    ge1_rows = [r for r in rows if isinstance(r.get("confirm_bars"), int) and r["confirm_bars"] >= 1]
+    n_missing = sum(1 for r in rows if r.get("confirm_bars") is None)
+    ci, ci_note = _diff_ci_or_none(zero_rows, ge1_rows)
+    out = {"n": len(rows), "n_missing_confirm_bars": n_missing,
+           "zero": _bucket(zero_rows), "ge1": _bucket(ge1_rows),
+           "mean_diff_zero_minus_ge1_ci95": ci}
+    if ci_note:
+        out["ci_note"] = ci_note
+    return out
+
+
+def _confirm_bars_big_days(usable: list[dict]) -> dict:
+    """(B4) Per this task's STANDARDS clause: disclose the confirm_bars==0 vs >=1 split on
+    each of the four named winning days, across the whole usable population (all setups) --
+    a proposed rule that looks good in aggregate but is carried by one of these four days, or
+    that flips sign on one of them, must be visible here, not just in the aggregate cells."""
+    return {d: _confirm_bars_cell([r for r in usable if r["date"] == d]) for d in BIG_WINNER_DAYS}
+
+
 def _prereg_cut_diagnostic(setup_rows: list[dict]) -> dict:
     """Diagnostic mirror of the ONE frozen prereg test (prereg-entry-location-trend-
     2026-09-03.md section 5): within the chase bucket of BULLISH_RECLAIM_RIDE_THE_RIBBON,
@@ -488,6 +699,35 @@ def _prereg_cut_diagnostic(setup_rows: list[dict]) -> dict:
     return out
 
 
+def _prereg_cut_diagnostic_confirm_bars(setup_rows: list[dict]) -> dict:
+    """(B4) Diagnostic mirror of the SECOND frozen prereg test (prereg-entry-location-trend-
+    2026-09-03.md section 9): within the chase bucket of BULLISH_RECLAIM_RIDE_THE_RIBBON,
+    split by confirm_bars==0 (entered on the very first closed bar to cross the trigger) vs
+    confirm_bars>=1 (price had already sat beyond the trigger for at least one more closed bar
+    before this entry fired). This is NOT the prereg's official read -- it is a descriptive
+    preview so the frozen cut's shape is visible every night, exactly like
+    prereg_cut_diagnostic previews section 1-4's cut. The prereg file itself is the only
+    authority on when/whether this becomes a verdict."""
+    chase_rows = [r for r in setup_rows if r.get("chase_extreme_0.75_0.25") is True]
+    zero = [r for r in chase_rows if r.get("confirm_bars") == 0]
+    ge1 = [r for r in chase_rows if isinstance(r.get("confirm_bars"), int) and r["confirm_bars"] >= 1]
+    unavailable = [r for r in chase_rows if r.get("confirm_bars") is None]
+    ci, ci_note = _diff_ci_or_none(zero, ge1)
+    out = {
+        "n_chase_total": len(chase_rows),
+        "confirm_bars_zero": _bucket(zero),
+        "confirm_bars_ge1": _bucket(ge1),
+        "confirm_bars_unavailable": _bucket(unavailable),
+        "mean_diff_zero_minus_ge1_ci95": ci,
+        "note": ("Diagnostic preview of prereg-entry-location-trend-2026-09-03.md section 9's "
+                 "frozen cut. NOT the prereg's official verdict -- that requires a dedicated "
+                 "future read against the frozen decision rule, never this nightly summary."),
+    }
+    if ci_note:
+        out["ci_note"] = ci_note
+    return out
+
+
 def build_summary(all_rows: list[dict]) -> dict:
     usable = [r for r in all_rows if r.get("range_position") is not None and r.get("side") in ("C", "P")]
     setups = sorted({r.get("setup") for r in usable}, key=lambda s: (s is None, s or ""))
@@ -504,10 +744,15 @@ def build_summary(all_rows: list[dict]) -> dict:
             "vix_at_entry": stratify_by_tercile(srows, "vix_at_entry"),
             "vix_dir": stratify_by_category(srows, "vix_dir", ["up", "down", "flat"]),
         }
+        entry["confirm_bars_split"] = _confirm_bars_cell(srows)   # B4
         by_setup[key] = entry
 
     bull_rows = [r for r in usable if r.get("setup") == BULL_PUT_SETUP_FOR_PREREG]
-    n_bull_chase = sum(1 for r in bull_rows if r.get("chase_extreme_0.75_0.25") is True)
+    bull_chase_rows = [r for r in bull_rows if r.get("chase_extreme_0.75_0.25") is True]
+    n_bull_chase = len(bull_chase_rows)
+    n_bull_confirm_zero = sum(1 for r in bull_chase_rows if r.get("confirm_bars") == 0)
+    n_bull_confirm_ge1 = sum(1 for r in bull_chase_rows
+                              if isinstance(r.get("confirm_bars"), int) and r["confirm_bars"] >= 1)
 
     return {
         "generated_at_et": _stamp_now_et(),
@@ -525,6 +770,7 @@ def build_summary(all_rows: list[dict]) -> dict:
         },
         "overall": _chase_rest_cell(usable),
         "by_setup": by_setup,
+        "confirm_bars_big_days": _confirm_bars_big_days(usable),   # B4, STANDARDS disclosure
         "prereg_cut_diagnostic": _prereg_cut_diagnostic(bull_rows),
         "prereg_readiness": {
             "target_setup": BULL_PUT_SETUP_FOR_PREREG,
@@ -532,8 +778,21 @@ def build_summary(all_rows: list[dict]) -> dict:
             "n_chase_required": PREREG_N_CHASE_FLOOR,
             "ready": n_bull_chase >= PREREG_N_CHASE_FLOOR,
             "note": ("Reaching this floor is permission to READ the prereg's frozen decision "
-                     "rule, never to ship anything -- see " + PREREG_REL + ". Config freeze "
-                     "through 2026-10-30 blocks any live change regardless."),
+                     "rule (section 4), never to ship anything -- see " + PREREG_REL +
+                     ". Config freeze through 2026-10-30 blocks any live change regardless."),
+        },
+        "prereg_cut_diagnostic_confirm_bars": _prereg_cut_diagnostic_confirm_bars(bull_rows),  # B4
+        "prereg_readiness_confirm_bars": {   # B4, prereg section 9 (SECOND frozen test)
+            "target_setup": BULL_PUT_SETUP_FOR_PREREG,
+            "n_confirm_bars_zero_current": n_bull_confirm_zero,
+            "n_confirm_bars_ge1_current": n_bull_confirm_ge1,
+            "n_required_per_cell": CONFIRM_BARS_N_FLOOR,
+            "ready": n_bull_confirm_zero >= CONFIRM_BARS_N_FLOOR
+            and n_bull_confirm_ge1 >= CONFIRM_BARS_N_FLOOR,
+            "note": ("Reaching BOTH per-cell floors is permission to READ the prereg's SECOND "
+                     "frozen decision rule (section 9), never to ship anything -- see " +
+                     PREREG_REL + ". Config freeze through 2026-10-30 blocks any live change "
+                     "regardless."),
         },
     }
 
@@ -548,6 +807,7 @@ def run() -> dict:
         trades = doc.get("trades", [])
 
         ticks_by_date = load_tick_tape(CORE_DECISIONS)
+        trigger_levels = load_trigger_levels(ENTRY_QUALITY_LEDGER)   # B4
 
         OUT_DIR.mkdir(parents=True, exist_ok=True)
         existing = _read_ledger()
@@ -559,7 +819,7 @@ def run() -> dict:
             row_id = f"{t.get('arm')}::{t.get('symbol')}::{t.get('entry_ts_utc')}"
             if row_id in seen_ids:
                 continue
-            row = compute_row(t, ticks_by_date)
+            row = compute_row(t, ticks_by_date, trigger_levels)
             if row is None:
                 skipped.append({"row_id": row_id, "reason": "symbol did not match SPY OCC pattern"})
                 continue

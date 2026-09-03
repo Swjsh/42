@@ -1,5 +1,5 @@
 {
- "generated_at_et": "2026-09-03T11:25:37.508700",
+ "generated_at_et": "2026-09-03T12:53:39.929600",
  "prereg": "analysis/recommendations/prereg-entry-location-trend-2026-09-03.md",
  "status": "ARMED",
  "meta": {
@@ -32,8 +32,8 @@
   },
   "mean_diff_chase_minus_rest_ci95": [
    -20.34,
-   -58.32,
-   16.92
+   -58.16,
+   15.91
   ]
  },
  "by_setup": {
@@ -572,6 +572,30 @@
       "ci_note": "n<5 in one or both buckets -- CI not computed"
      }
     }
+   },
+   "confirm_bars_split": {
+    "n": 35,
+    "n_missing_confirm_bars": 35,
+    "zero": {
+     "n": 0,
+     "total_pnl": 0,
+     "mean_pnl": null,
+     "wr": null,
+     "pf": null,
+     "winners": 0,
+     "losers": 0
+    },
+    "ge1": {
+     "n": 0,
+     "total_pnl": 0,
+     "mean_pnl": null,
+     "wr": null,
+     "pf": null,
+     "winners": 0,
+     "losers": 0
+    },
+    "mean_diff_zero_minus_ge1_ci95": null,
+    "ci_note": "n<5 in one or both buckets -- CI not computed"
    }
   },
   "BEARISH_REJECTION_RIDE_THE_RIBBON": {
@@ -1127,6 +1151,33 @@
       "ci_note": "n<5 in one or both buckets -- CI not computed"
      }
     }
+   },
+   "confirm_bars_split": {
+    "n": 94,
+    "n_missing_confirm_bars": 64,
+    "zero": {
+     "n": 12,
+     "total_pnl": -446.99,
+     "mean_pnl": -37.25,
+     "wr": 0.25,
+     "pf": 0.311,
+     "winners": 3,
+     "losers": 5
+    },
+    "ge1": {
+     "n": 18,
+     "total_pnl": 513.0,
+     "mean_pnl": 28.5,
+     "wr": 0.3889,
+     "pf": 1.28,
+     "winners": 7,
+     "losers": 11
+    },
+    "mean_diff_zero_minus_ge1_ci95": [
+     -65.75,
+     -221.97,
+     91.36
+    ]
    }
   },
   "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
@@ -1151,8 +1202,8 @@
    },
    "mean_diff_chase_minus_rest_ci95": [
     -28.55,
-    -86.99,
-    25.95
+    -86.9,
+    27.19
    ],
    "by_cosignal": {
     "minutes_since_ribbon_flip": {
@@ -1183,8 +1234,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         -55.42,
-        -178.58,
-        55.99
+        -181.99,
+        51.13
        ]
       },
       "mid": {
@@ -1209,8 +1260,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         -67.35,
-        -168.02,
-        24.26
+        -162.84,
+        27.73
        ]
       },
       "high": {
@@ -1235,8 +1286,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         52.22,
-        -14.68,
-        123.59
+        -13.46,
+        126.41
        ]
       },
       "null": {
@@ -1292,8 +1343,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         -177.94,
-        -384.19,
-        18.3
+        -384.3,
+        23.53
        ]
       },
       "mid": {
@@ -1318,8 +1369,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         28.55,
-        -83.33,
-        138.21
+        -85.89,
+        136.95
        ]
       },
       "high": {
@@ -1367,8 +1418,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         -68.36,
-        -132.16,
-        -8.1
+        -130.93,
+        -6.92
        ]
       }
      }
@@ -1401,8 +1452,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         15.65,
-        -77.48,
-        101.12
+        -75.68,
+        102.75
        ]
       },
       "mid": {
@@ -1427,7 +1478,7 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         28.45,
-        -76.59,
+        -73.27,
         135.07
        ]
       },
@@ -1507,8 +1558,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         -56.69,
-        -163.06,
-        47.88
+        -167.42,
+        50.1
        ]
       },
       "mid": {
@@ -1533,8 +1584,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         94.6,
-        34.25,
-        158.58
+        32.33,
+        159.64
        ]
       },
       "high": {
@@ -1559,8 +1610,8 @@
        },
        "mean_diff_chase_minus_rest_ci95": [
         -26.76,
-        -107.49,
-        49.31
+        -107.95,
+        49.38
        ]
       },
       "null": {
@@ -1611,8 +1662,8 @@
       },
       "mean_diff_chase_minus_rest_ci95": [
        -23.13,
-       -119.23,
-       81.82
+       -122.17,
+       85.33
       ]
      },
      "down": {
@@ -1637,8 +1688,8 @@
       },
       "mean_diff_chase_minus_rest_ci95": [
        -10.58,
-       -122.11,
-       84.23
+       -118.98,
+       80.68
       ]
      },
      "flat": {
@@ -1663,8 +1714,8 @@
       },
       "mean_diff_chase_minus_rest_ci95": [
        -37.1,
-       -131.01,
-       50.88
+       -131.58,
+       54.15
       ]
      },
      "null": {
@@ -1691,6 +1742,33 @@
       "ci_note": "n<5 in one or both buckets -- CI not computed"
      }
     }
+   },
+   "confirm_bars_split": {
+    "n": 215,
+    "n_missing_confirm_bars": 74,
+    "zero": {
+     "n": 98,
+     "total_pnl": 6448.0,
+     "mean_pnl": 65.8,
+     "wr": 0.3673,
+     "pf": 2.34,
+     "winners": 36,
+     "losers": 62
+    },
+    "ge1": {
+     "n": 43,
+     "total_pnl": -766.0,
+     "mean_pnl": -17.81,
+     "wr": 0.3721,
+     "pf": 0.801,
+     "winners": 16,
+     "losers": 25
+    },
+    "mean_diff_zero_minus_ge1_ci95": [
+     83.61,
+     8.13,
+     158.85
+    ]
    }
   },
   "VWAP_CONTINUATION": {
@@ -1715,8 +1793,8 @@
    },
    "mean_diff_chase_minus_rest_ci95": [
     -10.74,
-    -110.8,
-    117.49
+    -113.82,
+    118.79
    ],
    "by_cosignal": {
     "minutes_since_ribbon_flip": {
@@ -2165,8 +2243,8 @@
       },
       "mean_diff_chase_minus_rest_ci95": [
        -94.88,
-       -195.25,
-       37.88
+       -197.63,
+       36.76
       ]
      },
      "flat": {
@@ -2216,6 +2294,30 @@
       "ci_note": "n<5 in one or both buckets -- CI not computed"
      }
     }
+   },
+   "confirm_bars_split": {
+    "n": 41,
+    "n_missing_confirm_bars": 33,
+    "zero": {
+     "n": 0,
+     "total_pnl": 0,
+     "mean_pnl": null,
+     "wr": null,
+     "pf": null,
+     "winners": 0,
+     "losers": 0
+    },
+    "ge1": {
+     "n": 8,
+     "total_pnl": -50.0,
+     "mean_pnl": -6.25,
+     "wr": 0.375,
+     "pf": 0.286,
+     "winners": 3,
+     "losers": 4
+    },
+    "mean_diff_zero_minus_ge1_ci95": null,
+    "ci_note": "n<5 in one or both buckets -- CI not computed"
    }
   },
   "VWAP_RECLAIM_FAILED_BREAK": {
@@ -2723,7 +2825,129 @@
       "ci_note": "n<5 in one or both buckets -- CI not computed"
      }
     }
+   },
+   "confirm_bars_split": {
+    "n": 3,
+    "n_missing_confirm_bars": 0,
+    "zero": {
+     "n": 0,
+     "total_pnl": 0,
+     "mean_pnl": null,
+     "wr": null,
+     "pf": null,
+     "winners": 0,
+     "losers": 0
+    },
+    "ge1": {
+     "n": 3,
+     "total_pnl": -200.0,
+     "mean_pnl": -66.67,
+     "wr": 0.0,
+     "pf": 0.0,
+     "winners": 0,
+     "losers": 3
+    },
+    "mean_diff_zero_minus_ge1_ci95": null,
+    "ci_note": "n<5 in one or both buckets -- CI not computed"
    }
+  }
+ },
+ "confirm_bars_big_days": {
+  "2026-08-06": {
+   "n": 4,
+   "n_missing_confirm_bars": 2,
+   "zero": {
+    "n": 0,
+    "total_pnl": 0,
+    "mean_pnl": null,
+    "wr": null,
+    "pf": null,
+    "winners": 0,
+    "losers": 0
+   },
+   "ge1": {
+    "n": 2,
+    "total_pnl": 1126.0,
+    "mean_pnl": 563.0,
+    "wr": 1.0,
+    "pf": Infinity,
+    "winners": 2,
+    "losers": 0
+   },
+   "mean_diff_zero_minus_ge1_ci95": null,
+   "ci_note": "n<5 in one or both buckets -- CI not computed"
+  },
+  "2026-08-13": {
+   "n": 15,
+   "n_missing_confirm_bars": 2,
+   "zero": {
+    "n": 13,
+    "total_pnl": 2017.0,
+    "mean_pnl": 155.15,
+    "wr": 0.6154,
+    "pf": 5.034,
+    "winners": 8,
+    "losers": 5
+   },
+   "ge1": {
+    "n": 0,
+    "total_pnl": 0,
+    "mean_pnl": null,
+    "wr": null,
+    "pf": null,
+    "winners": 0,
+    "losers": 0
+   },
+   "mean_diff_zero_minus_ge1_ci95": null,
+   "ci_note": "n<5 in one or both buckets -- CI not computed"
+  },
+  "2026-08-27": {
+   "n": 12,
+   "n_missing_confirm_bars": 0,
+   "zero": {
+    "n": 3,
+    "total_pnl": 44.0,
+    "mean_pnl": 14.67,
+    "wr": 0.3333,
+    "pf": 1.314,
+    "winners": 1,
+    "losers": 2
+   },
+   "ge1": {
+    "n": 9,
+    "total_pnl": 1853.0,
+    "mean_pnl": 205.89,
+    "wr": 0.8889,
+    "pf": 47.325,
+    "winners": 8,
+    "losers": 1
+   },
+   "mean_diff_zero_minus_ge1_ci95": null,
+   "ci_note": "n<5 in one or both buckets -- CI not computed"
+  },
+  "2026-08-28": {
+   "n": 11,
+   "n_missing_confirm_bars": 2,
+   "zero": {
+    "n": 7,
+    "total_pnl": 2009.0,
+    "mean_pnl": 287.0,
+    "wr": 0.5714,
+    "pf": 9.371,
+    "winners": 4,
+    "losers": 3
+   },
+   "ge1": {
+    "n": 2,
+    "total_pnl": -220.0,
+    "mean_pnl": -110.0,
+    "wr": 0.0,
+    "pf": 0.0,
+    "winners": 0,
+    "losers": 2
+   },
+   "mean_diff_zero_minus_ge1_ci95": null,
+   "ci_note": "n<5 in one or both buckets -- CI not computed"
   }
  },
  "prereg_cut_diagnostic": {
@@ -2766,8 +2990,8 @@
   },
   "mean_diff_fresh_minus_stale_ci95": [
    -14.44,
-   -71.17,
-   43.16
+   -70.08,
+   43.1
   ],
   "note": "Diagnostic preview of prereg-entry-location-trend-2026-09-03.md section 5's frozen cut. NOT the prereg's official verdict -- that requires a dedicated future read against the frozen decision rule, never this nightly summary."
  },
@@ -2776,7 +3000,51 @@
   "n_chase_current": 152,
   "n_chase_required": 150,
   "ready": true,
-  "note": "Reaching this floor is permission to READ the prereg's frozen decision rule, never to ship anything -- see analysis/recommendations/prereg-entry-location-trend-2026-09-03.md. Config freeze through 2026-10-30 blocks any live change regardless."
+  "note": "Reaching this floor is permission to READ the prereg's frozen decision rule (section 4), never to ship anything -- see analysis/recommendations/prereg-entry-location-trend-2026-09-03.md. Config freeze through 2026-10-30 blocks any live change regardless."
+ },
+ "prereg_cut_diagnostic_confirm_bars": {
+  "n_chase_total": 152,
+  "confirm_bars_zero": {
+   "n": 78,
+   "total_pnl": 3207.0,
+   "mean_pnl": 41.12,
+   "wr": 0.3205,
+   "pf": 1.804,
+   "winners": 25,
+   "losers": 53
+  },
+  "confirm_bars_ge1": {
+   "n": 18,
+   "total_pnl": -538.0,
+   "mean_pnl": -29.89,
+   "wr": 0.3889,
+   "pf": 0.738,
+   "winners": 7,
+   "losers": 11
+  },
+  "confirm_bars_unavailable": {
+   "n": 56,
+   "total_pnl": -897.0,
+   "mean_pnl": -16.02,
+   "wr": 0.0179,
+   "pf": 0.009,
+   "winners": 1,
+   "losers": 51
+  },
+  "mean_diff_zero_minus_ge1_ci95": [
+   71.0,
+   -53.54,
+   185.79
+  ],
+  "note": "Diagnostic preview of prereg-entry-location-trend-2026-09-03.md section 9's frozen cut. NOT the prereg's official verdict -- that requires a dedicated future read against the frozen decision rule, never this nightly summary."
+ },
+ "prereg_readiness_confirm_bars": {
+  "target_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+  "n_confirm_bars_zero_current": 78,
+  "n_confirm_bars_ge1_current": 18,
+  "n_required_per_cell": 100,
+  "ready": false,
+  "note": "Reaching BOTH per-cell floors is permission to READ the prereg's SECOND frozen decision rule (section 9), never to ship anything -- see analysis/recommendations/prereg-entry-location-trend-2026-09-03.md. Config freeze through 2026-10-30 blocks any live change regardless."
  },
  "new_this_run": 0,
  "skipped_this_run": []

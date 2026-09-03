@@ -1,0 +1,62 @@
+{
+ "prereg": "analysis/recommendations/prereg-scheduled-release-blackout-2026-09-03.md",
+ "generated_at_et": "2026-09-03T12:53:58.410054",
+ "accrual_start": "2026-09-03",
+ "n_ism_release_days_accrued": 0,
+ "n_days_meeting_15pct_adverse_threshold": 0,
+ "bar": {
+  "min_ism_days": 3,
+  "min_days_ge15pct": 2
+ },
+ "bar_met": false,
+ "status": "ACCRUING",
+ "R1": {
+  "total": 0,
+  "n_days_with_effect": 0,
+  "session_clustered_ci": null,
+  "drop_best_day": {
+   "best_day": null,
+   "best_day_total": 0.0,
+   "total": 0,
+   "ex_best_day_total": 0
+  },
+  "big_win_days_touched": [],
+  "ship_verdict": "BAR_NOT_MET",
+  "note": "ship candidate"
+ },
+ "R2": {
+  "total": 0,
+  "n_days_with_effect": 0,
+  "session_clustered_ci": null,
+  "drop_best_day": {
+   "best_day": null,
+   "best_day_total": 0.0,
+   "total": 0,
+   "ex_best_day_total": 0
+  },
+  "big_win_days_touched": [],
+  "ship_verdict": "NEVER_SHIP_ELIGIBLE",
+  "note": "comparison arm only per the prereg -- never ships regardless of numbers"
+ },
+ "R3": {
+  "total": 0,
+  "n_days_with_effect": 0,
+  "session_clustered_ci": null,
+  "drop_best_day": {
+   "best_day": null,
+   "best_day_total": 0.0,
+   "total": 0,
+   "ex_best_day_total": 0
+  },
+  "big_win_days_touched": [],
+  "ship_verdict": "BAR_NOT_MET",
+  "note": "ship candidate, KILL_TYPE_REDUCTION (bundle-eligible 2026-09-29 if it clears)"
+ },
+ "decision_rule": "Neither R1 nor R3 may ship until bar_met=True AND that rule's drop_best_day.ex_best_day_total >= 0 AND big_win_days_touched is empty AND (per the prereg's falsifier) at least 2 of the first 5 forward ISM days show a >=15% adverse move. See analysis/recommendations/prereg-scheduled-release-blackout-2026-09-03.md -- not softened here.",
+ "new_this_run": 0,
+ "new_dates_this_run": [],
+ "input_fills_ledger_newest_date": "2026-09-03",
+ "input_expected_through": "2026-09-02",
+ "input_stale": false,
+ "input_note": "fed"
+}

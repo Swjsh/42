@@ -154,6 +154,121 @@ KNOWN_EVENTS_2026: list[dict[str, Any]] = [
     },
 ]
 
+# --------------------------------------------------------------------------- #
+# RULE-BASED 10:00 ET release schedule (B1, 2026-09-03) -- deterministic,
+# network-free coverage for the 10:00 ET macro releases KNOWN_EVENTS_2026 above
+# never listed (ISM Manufacturing/Services PMI, Consumer Confidence, UMich
+# sentiment). Root cause this fixes: analysis/deep-research/2026-09-03-money/
+# audits found every held position in today's Wave 1 (09:41 ET entries, four
+# arms) and 2026-08-05's equivalent wave was stopped at the -50% catastrophe
+# cap on a single-minute quote-tape gap spanning 10:00-10:01 ET -- coincident
+# with the ISM Services PMI release BOTH days (analysis/quote-tape/2026-09-03
+# .jsonl: 770C 0.70/0.71 -> 0.49/0.50; 2026-08-05's 776C 1-min bars show the
+# identical 2.61 -> 2.27 -> 2.06 pattern). KNOWN_EVENTS_2026 above is a
+# hand-curated BLS/BEA/FOMC table that has never once included ISM --
+# macro_calendar.py had NO producer for it at all, so premarket's no-trade-
+# window computation (compute_no_trade_windows below) could never have
+# blocked those entries even in principle, because the event was never in the
+# calendar to filter on.
+#
+# ISM's OWN published rule (https://www.ismworld.org/supply-management-news-
+# and-reports/reports/ism-report-on-business/) is deterministic and, unlike
+# BLS/Census releases, does not need a hand-verified per-month table:
+#   - ISM Manufacturing PMI: 1st US-market BUSINESS DAY of the month, 10:00 ET.
+#   - ISM Services PMI:      3rd US-market BUSINESS DAY of the month, 10:00 ET.
+# Cross-checked against the quote-tape gaps this task's briefing named:
+#   2026-08-05 (Services, 3rd business day of Aug 2026)  -- MATCH
+#   2026-09-01 (Manufacturing, 1st business day of Sep 2026) -- MATCH
+#   2026-09-03 (Services, 3rd business day of Sep 2026)  -- MATCH (today)
+#   next Services after today computes to 2026-10-05 (3rd business day of Oct) -- MATCH
+#
+# The remaining four candidate release types are handled per the task's
+# explicit instruction to OMIT rather than guess: JOLTS has no deterministic
+# day-of-month rule (its real-world timing is "first Tuesday-ish", which is
+# not a rule) so it is NOT generated at all -- no JOLTS entries exist anywhere
+# in generate_rule_based_events()'s output. Conference Board Consumer
+# Confidence and the two UMich Consumer Sentiment releases DO have a stateable
+# calendar-position rule, so they ARE generated, but every entry is clearly
+# marked status="RULE_BASED_UNVERIFIED" + verified=False because -- unlike
+# ISM -- none of the three has been cross-checked against a live price gap.
+# --------------------------------------------------------------------------- #
+
+# NYSE 2026 holiday calendar -- source: https://www.nyse.com/markets/hours-calendars
+# (observed dates; Jul 4 2026 falls on a Saturday so Independence Day is observed
+# Fri Jul 3). Cross-checked 2026-09-03 byte-for-byte against the live-fetched
+# automation/state/calendar.json (source=alpaca_v2_calendar, produced by
+# setup/scripts/market_calendar.py) -- both lists agree on all 10 dates. Hard-
+# coded here (rather than reading that cache file) so scheduled_releases() below
+# stays a PURE function with zero I/O -- safe to import and call from any
+# script/test with no dependency on that file's freshness or presence. A caller
+# who wants the live-fetched calendar instead may pass holidays=load_holidays(...)
+# explicitly (this file's existing helper, reused rather than duplicated by the
+# _nth_business_day_of_month() / is_trading_day() calls below).
+NYSE_HOLIDAYS_2026: frozenset[str] = frozenset({
+    "2026-01-01",  # New Year's Day
+    "2026-01-19",  # Martin Luther King Jr. Day
+    "2026-02-16",  # Washington's Birthday (Presidents' Day)
+    "2026-04-03",  # Good Friday
+    "2026-05-25",  # Memorial Day
+    "2026-06-19",  # Juneteenth National Independence Day
+    "2026-07-03",  # Independence Day (observed -- Jul 4 2026 is a Saturday)
+    "2026-09-07",  # Labor Day
+    "2026-11-26",  # Thanksgiving Day
+    "2026-12-25",  # Christmas Day
+})
+
+_ISM_SOURCE_URL = (
+    "https://www.ismworld.org/supply-management-news-and-reports/reports/ism-report-on-business/"
+)
+_ISM_VERIFIED_BY = (
+    "ISM published rule; matched 2026-08-05 and 2026-09-03 quote-tape gaps "
+    "(analysis/quote-tape/2026-08-05.jsonl, analysis/quote-tape/2026-09-03.jsonl; "
+    "see analysis/deep-research/2026-09-03-money/dissect-wave-autopsy.md)"
+)
+_ISM_MANUFACTURING_RULE = (
+    "ISM Manufacturing PMI releases the 1st US-market business day of the month, "
+    "10:00 ET -- ISM's published release schedule."
+)
+_ISM_SERVICES_RULE = (
+    "ISM Services PMI releases the 3rd US-market business day of the month, "
+    "10:00 ET -- ISM's published release schedule."
+)
+_CONSUMER_CONFIDENCE_RULE = (
+    "Conference Board Consumer Confidence Index releases the last Tuesday of the "
+    "month, 10:00 ET -- commonly-published Conference Board release-calendar "
+    "position; NOT cross-checked against a live quote-tape gap."
+)
+_UMICH_PRELIM_RULE = (
+    "University of Michigan Consumer Sentiment (preliminary) releases the 2nd "
+    "Friday of the month, 10:00 ET -- commonly-published UMich release-calendar "
+    "position; NOT cross-checked against a live quote-tape gap."
+)
+_UMICH_FINAL_RULE = (
+    "University of Michigan Consumer Sentiment (final) releases the 4th Friday "
+    "of the month, 10:00 ET -- commonly-published UMich release-calendar "
+    "position; NOT cross-checked against a live quote-tape gap."
+)
+
+_MONTH_ABBR = (
+    "", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+)
+
+
+def _prior_month_label(year: int, month: int) -> str:
+    """'<Mon> <year>' label for the month BEFORE (year, month) -- ISM-style
+    releases report on the PRIOR month's data (e.g. the Sep release covers Aug)."""
+    if month == 1:
+        return f"{_MONTH_ABBR[12]} {year - 1}"
+    return f"{_MONTH_ABBR[month - 1]} {year}"
+
+
+def _month_label(year: int, month: int) -> str:
+    """'<Mon> <year>' label for (year, month) itself -- Consumer Confidence and
+    UMich sentiment report on the SAME month they're released in."""
+    return f"{_MONTH_ABBR[month]} {year}"
+
+
 # Live-verification targets: (label, url, substrings whose presence in the body
 # confirms the fetched page still corroborates our static baseline). A hit does
 # NOT replace the baseline entry (HTML scraping full event tables is brittle and
@@ -241,6 +356,176 @@ def next_n_trading_days(from_date: str, n: int, holidays: set[str]) -> list[str]
         d = candidate
         first = False
     return out
+
+
+# --------------------------------------------------------------------------- #
+# RULE-BASED release-date arithmetic (B1, 2026-09-03) -- pure, zero I/O.
+# --------------------------------------------------------------------------- #
+def _nth_business_day_of_month(year: int, month: int, n: int, holidays: frozenset[str]) -> str:
+    """1-indexed n-th US-market business day of (year, month), as YYYY-MM-DD.
+    Reuses is_trading_day() (this file's existing weekend+holiday helper) rather
+    than duplicating that logic."""
+    if n < 1:
+        raise ValueError(f"n must be >= 1, got {n}")
+    d = datetime(year, month, 1)
+    count = 0
+    while d.month == month:
+        ds = d.strftime("%Y-%m-%d")
+        if is_trading_day(ds, holidays):
+            count += 1
+            if count == n:
+                return ds
+        d += timedelta(days=1)
+    raise ValueError(f"{year}-{month:02d} has fewer than {n} US-market business days")
+
+
+def _nth_weekday_of_month(year: int, month: int, weekday: int, n: int) -> str:
+    """1-indexed n-th occurrence of `weekday` (Mon=0..Sun=6) in (year, month), as
+    YYYY-MM-DD. No holiday-skipping -- Consumer Confidence/UMich are published as
+    calendar-weekday rules (not business-day rules)."""
+    if n < 1:
+        raise ValueError(f"n must be >= 1, got {n}")
+    d = datetime(year, month, 1)
+    count = 0
+    while d.month == month:
+        if d.weekday() == weekday:
+            count += 1
+            if count == n:
+                return d.strftime("%Y-%m-%d")
+        d += timedelta(days=1)
+    raise ValueError(f"{year}-{month:02d} has fewer than {n} occurrences of weekday {weekday}")
+
+
+def _last_weekday_of_month(year: int, month: int, weekday: int) -> str:
+    """Last occurrence of `weekday` (Mon=0..Sun=6) in (year, month), as YYYY-MM-DD."""
+    next_month_first = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
+    d = next_month_first - timedelta(days=1)
+    while d.weekday() != weekday:
+        d -= timedelta(days=1)
+    return d.strftime("%Y-%m-%d")
+
+
+def generate_rule_based_events(
+    year: int, holidays: Optional[frozenset[str]] = None
+) -> list[dict[str, Any]]:
+    """The full RULE-BASED 10:00 ET release schedule for `year`. Deterministic,
+    zero network/file I/O by default -- `holidays` defaults to the hard-coded
+    NYSE_HOLIDAYS_2026 table above; pass a different set to use another year's
+    holidays or a live-fetched calendar (e.g. load_holidays(alpaca_calendar_path)).
+
+    Every entry:
+      - source == "rule_based" (distinguishes it from KNOWN_EVENTS_2026's
+        hand-curated entries, which carry no `source` key at all).
+      - carries its generating `rule` as prose (self-documenting -- no need to
+        cross-reference this docstring to know WHY a date was picked).
+      - ISM Manufacturing / ISM Services: severity="high", verified=True,
+        verified_by=<quote-tape cross-check citation> -- matches
+        KNOWN_EVENTS_2026's severity vocabulary (high/med).
+      - Consumer Confidence / UMich prelim / UMich final: severity="med",
+        verified=False, status="RULE_BASED_UNVERIFIED" -- a stateable
+        calendar-position rule exists but has NOT been cross-checked against a
+        live price gap the way ISM has.
+      - JOLTS is deliberately NOT generated at all: its real-world timing
+        ("first Tuesday-ish") has no deterministic rule to encode, and this
+        generator's instruction is to omit rather than guess.
+
+    Only NYSE_HOLIDAYS_2026 is hard-coded, so years other than 2026 compute
+    correctly for weekday-based rules (Consumer Confidence/UMich) but will not
+    skip any NYSE holiday for the business-day-based ISM rules unless `holidays`
+    is supplied explicitly for that year.
+    """
+    hset = holidays if holidays is not None else NYSE_HOLIDAYS_2026
+    events: list[dict[str, Any]] = []
+    for month in range(1, 13):
+        events.append({
+            "date": _nth_business_day_of_month(year, month, 1, hset),
+            "time_et": "10:00",
+            "event": f"ISM Manufacturing PMI ({_prior_month_label(year, month)} data)",
+            "type": "ism_manufacturing_pmi",
+            "severity": "high",
+            "source": "rule_based",
+            "source_url": _ISM_SOURCE_URL,
+            "rule": _ISM_MANUFACTURING_RULE,
+            "verified": True,
+            "verified_by": _ISM_VERIFIED_BY,
+            "notes": "Generated by macro_calendar.generate_rule_based_events() -- B1 2026-09-03.",
+        })
+        events.append({
+            "date": _nth_business_day_of_month(year, month, 3, hset),
+            "time_et": "10:00",
+            "event": f"ISM Services PMI ({_prior_month_label(year, month)} data)",
+            "type": "ism_services_pmi",
+            "severity": "high",
+            "source": "rule_based",
+            "source_url": _ISM_SOURCE_URL,
+            "rule": _ISM_SERVICES_RULE,
+            "verified": True,
+            "verified_by": _ISM_VERIFIED_BY,
+            "notes": "Generated by macro_calendar.generate_rule_based_events() -- B1 2026-09-03.",
+        })
+        events.append({
+            "date": _last_weekday_of_month(year, month, 1),  # Tuesday = 1
+            "time_et": "10:00",
+            "event": f"Conference Board Consumer Confidence ({_month_label(year, month)})",
+            "type": "consumer_confidence",
+            "severity": "med",
+            "source": "rule_based",
+            "status": "RULE_BASED_UNVERIFIED",
+            "rule": _CONSUMER_CONFIDENCE_RULE,
+            "verified": False,
+            "notes": "Generated by macro_calendar.generate_rule_based_events() -- B1 2026-09-03.",
+        })
+        events.append({
+            "date": _nth_weekday_of_month(year, month, 4, 2),  # Friday = 4, 2nd occurrence
+            "time_et": "10:00",
+            "event": f"University of Michigan Consumer Sentiment, preliminary ({_month_label(year, month)})",
+            "type": "umich_sentiment_prelim",
+            "severity": "med",
+            "source": "rule_based",
+            "status": "RULE_BASED_UNVERIFIED",
+            "rule": _UMICH_PRELIM_RULE,
+            "verified": False,
+            "notes": "Generated by macro_calendar.generate_rule_based_events() -- B1 2026-09-03.",
+        })
+        events.append({
+            "date": _nth_weekday_of_month(year, month, 4, 4),  # Friday = 4, 4th occurrence
+            "time_et": "10:00",
+            "event": f"University of Michigan Consumer Sentiment, final ({_month_label(year, month)})",
+            "type": "umich_sentiment_final",
+            "severity": "med",
+            "source": "rule_based",
+            "status": "RULE_BASED_UNVERIFIED",
+            "rule": _UMICH_FINAL_RULE,
+            "verified": False,
+            "notes": "Generated by macro_calendar.generate_rule_based_events() -- B1 2026-09-03.",
+        })
+    events.sort(key=lambda e: (e["date"], e["time_et"], e["type"]))
+    return events
+
+
+def scheduled_releases(date: str, holidays: Optional[frozenset[str]] = None) -> list[dict[str, Any]]:
+    """PURE, network-free: the RULE_BASED 10:00 ET macro release(s) scheduled for
+    `date` (YYYY-MM-DD). Example:
+        scheduled_releases("2026-09-03") ->
+            [{"date": "2026-09-03", "time_et": "10:00",
+              "event": "ISM Services PMI (Aug 2026 data)",
+              "type": "ism_services_pmi", "severity": "high",
+              "source": "rule_based", "source_url": ..., "rule": ...,
+              "verified": True, "verified_by": ..., "notes": ...}]
+    Returns [] on a day with no rule-based release.
+
+    Importing this module, or calling this function, NEVER touches the network
+    and never reads a file: the holiday table used is the hard-coded
+    NYSE_HOLIDAYS_2026 module constant unless the caller passes `holidays`
+    explicitly (e.g. macro_calendar.load_holidays(alpaca_calendar_path) for a
+    live-fetched calendar instead). Other scripts can therefore `import
+    macro_calendar` and call this function with zero side effects -- the
+    module-level network calls in this file (verify_source, _BLS_PROBE_SOURCES)
+    only ever run inside refresh_macro_calendar()/run(), which this function
+    does not touch.
+    """
+    year = int(date[:4])
+    return [e for e in generate_rule_based_events(year, holidays) if e["date"] == date]
 
 
 def verify_source(url: str, timeout: float = 10.0) -> tuple[int, str]:

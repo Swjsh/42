@@ -191,3 +191,162 @@ Gamma_EntryLocationTrendShadow -Confirm:$false` + delete
 `analysis/recommendations/entry-location-trend-summary.json` + this file. Nothing on the
 trading path depends on this instrument — analysis-only leaf, same class as
 `Gamma_LadderRungShadow` / `Gamma_Tp1R50ForwardShadow`.
+
+---
+
+## 9. SECOND FROZEN TEST — CONFIRM-BAR CHASE SPLIT (added 2026-09-03, task B4)
+
+**Status: FROZEN before this test is ever read as a verdict, same discipline as §1-4.** This
+section is a pure ADDITION — §1-4's own frozen test, bar, and decision rule are unchanged by
+this section, word for word. This section was written, and its bar/decision-rule frozen,
+**before** the B4 build task ever ran the recomputed ledger that adds the two fields this test
+reads (`confirm_bars`, `zone_distance`) — the same "decision rule fixed before looking at
+results" discipline `retest-entry-variant.md`'s own Recommendation item 2 named, applied here
+to a second cut on a different instrument.
+
+### 9.1 What is being judged
+
+A second, independent trend-quality co-signal for the same **chase** bucket §1 already scopes
+(`BULLISH_RECLAIM_RIDE_THE_RIBBON`, `chase_extreme_0.75_0.25 is True`) — this time bar-level
+confirmation count rather than minutes since the ribbon flip:
+
+> **Hypothesis (same freshness-wins direction as §1's own hypothesis, applied to a different
+> co-signal):** a chase entry that fires on the very FIRST closed 5-minute bar to cross the
+> trigger level (`confirm_bars == 0`) is paying a breakout as it happens. A chase entry where
+> price had already sat beyond the trigger for at least one MORE closed bar before the fill
+> (`confirm_bars >= 1`) is structurally closer to a delayed/confirmed entry into a move that
+> already had time to run before the fill — the same "older move, closer to its end" logic §1
+> applies to ribbon-flip age, applied here to bar-close confirmation count instead of minutes.
+
+`confirm_bars` and `zone_distance` are computed by `entry_location_trend_shadow.py` (B4,
+2026-09-03) from the SAME no-lookahead `core-decisions.jsonl` prefix §1-4 already uses,
+`confirm_bars` walking the dedup'd 5-minute bar-close sequence backward from the bar
+immediately preceding entry, `zone_distance` (descriptive context for this section, not
+itself part of the frozen cut below) resolving zone width per
+`retest_zone_shadow.resolve_zone_width` (reused by import).
+
+### 9.2 Population and measurement (frozen)
+
+- **Scope:** `BULLISH_RECLAIM_RIDE_THE_RIBBON` rows in
+  `analysis/recommendations/entry-location-trend-ledger.jsonl` where
+  `chase_extreme_0.75_0.25 is True` — identical scope to §1, different co-signal.
+- **Zero cell:** `confirm_bars == 0`.
+- **Ge1 cell:** `confirm_bars >= 1`.
+- **Excluded from both cells (counted separately, never silently dropped):** `confirm_bars is
+  None` — a chase entry whose fill has no resolvable `trigger_level` in
+  `analysis/entry-quality/entry-quality-ledger.json` (true for a real minority of
+  RIDE_THE_RIBBON fills, disclosed as `confirm_bars_unavailable` in the nightly
+  `prereg_cut_diagnostic_confirm_bars` block).
+- **Metric:** `mean(realized_pnl | confirm_bars==0) - mean(realized_pnl | confirm_bars>=1)`,
+  5,000-resample nonparametric percentile bootstrap
+  (`money_entry_location_stats.bootstrap_diff_ci`, the SAME reused function §1 uses).
+- **No look-ahead:** `confirm_bars` is computed only from bars strictly before the entry bar,
+  from a `subset` filtered to `ts_et <= entry_ts` before the helper ever sees it — verified by
+  `test_entry_location_trend_shadow_2026_09_03.py`'s dedicated synthetic-ledger test (a bar
+  that closes AFTER entry can never change `confirm_bars`, proven on the exact same tick tape
+  two ways: absent vs present makes no difference for one trade, and the SAME bar IS counted
+  once a later trade's own entry moves past it).
+
+### 9.3 Bar (frozen — not softened at read time)
+
+**`n_zero >= 100` AND `n_ge1 >= 100`** — both cells independently, per this task's own
+instruction ("evaluated at n>=100 per cell"). This is a materially higher bar than §1's
+combined `n_chase>=150` floor: it requires 200+ chase-bucket rows with a resolvable
+`trigger_level`, not merely 150 chase rows total. Tracked nightly in the summary's
+`prereg_readiness_confirm_bars` block. No `n_fresh`/`n_stale`-style secondary floor is needed
+here (unlike §3) because the bar is already stated per-cell.
+
+### 9.4 Decision rule (frozen — cannot be softened after data starts arriving)
+
+Once the bar in §9.3 is met, the hypothesis becomes **SUPPORTED** only if ALL THREE hold:
+
+1. **`ci_lower_2.5(mean_diff_zero_minus_ge1) > 0`** — the 2.5th-percentile of the bootstrap CI
+   on `mean(confirm_bars==0) - mean(confirm_bars>=1)` is strictly positive.
+2. **`top3_concentration_share < 0.50`** in BOTH cells independently — the 3 largest-magnitude
+   `|realized_pnl|` trades in each cell explain less than half of that cell's own total
+   `|realized_pnl|` (same guard §4 applies).
+3. **`n_zero >= 100` AND `n_ge1 >= 100`** still holds at read time (re-verified, not assumed
+   from §9.3's gate check).
+
+Any single failure = **the hypothesis is not supported by data as measured**. Not re-opened
+after the fact (no changing the 0-vs->=1 split point, no dropping the concentration or power
+checks).
+
+**A SUPPORTED read is still not a rule** — same §4 closing sentence, unchanged: permission for
+a SEPARATE, later proposal to cite this ledger as evidence, never automatic, never live before
+§6's freeze lifts.
+
+### 9.5 What this cut is not
+
+Descriptive and shadow-only, same as §5. `prereg_cut_diagnostic_confirm_bars` in the nightly
+summary previews this exact cut every night purely for transparency (OP-33) — labeled **not
+the official verdict** in its own `note` field. This file is the sole authority on when/whether
+a read has occurred.
+
+### 9.6 Expansion-class — nothing before 2026-10-30
+
+Identical to §6: no proposal, no gate, no live change of any kind before **2026-10-30**,
+independent of when §9.3's bar is met or what §9.4's rule would say if read today.
+
+### 9.7 Build step (structured, for machine reference)
+
+```json
+{
+  "build_step_2": {
+    "id": "B4-confirm-bars-chase-split",
+    "added": "2026-09-03",
+    "descends_from": "F2-entry-location-trend (section 1-8 of this same file)",
+    "target_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "scope": "chase_extreme_0.75_0.25 is True (same scope as section 1)",
+    "cosignal": "confirm_bars",
+    "cells": {"zero": "confirm_bars == 0", "ge1": "confirm_bars >= 1"},
+    "bar": {"n_zero_min": 100, "n_ge1_min": 100},
+    "decision_rule": {
+      "ci_lower_2p5_gt_zero": true,
+      "top3_concentration_share_lt_both_cells": 0.50,
+      "power_reverified_at_read": true,
+      "all_required": true,
+      "softenable": false
+    },
+    "expansion_class": true,
+    "no_action_before": "2026-10-30",
+    "artifacts": {
+      "ledger": "analysis/recommendations/entry-location-trend-ledger.jsonl",
+      "summary": "analysis/recommendations/entry-location-trend-summary.json",
+      "summary_block": "prereg_cut_diagnostic_confirm_bars / prereg_readiness_confirm_bars",
+      "builder": "setup/scripts/entry_location_trend_shadow.py",
+      "scheduled_task": "Gamma_EntryLocationTrendShadow",
+      "install_script": "setup/install-entry-location-trend-shadow.ps1"
+    },
+    "do_not": [
+      "propose or ship any live gate before 2026-10-30",
+      "change the 0-vs->=1 split point after seeing data",
+      "treat prereg_cut_diagnostic_confirm_bars in the nightly summary as an official read",
+      "soften section 1-8's own frozen test in any way -- this section is additive only"
+    ]
+  }
+}
+```
+
+### 9.8 Disclosure at freeze time (not a read)
+
+At this section's freeze time (same build, same commit as this section itself),
+`entry_location_trend_shadow.py`'s trigger_level join covers roughly half of historical
+RIDE_THE_RIBBON fills (`analysis/entry-quality/entry-quality-ledger.json` carries a
+`trigger_level` for 203 of 438 total events; 187 of those match a `mae-mfe.json` trade by
+`(arm, symbol, entry_ts_utc)`) — §9.3's 200-combined-row bar is materially far from met for
+the `BULLISH_RECLAIM_RIDE_THE_RIBBON` chase bucket specifically; see the summary's own
+`prereg_readiness_confirm_bars.ready` for the live count. This is disclosed, not read — §9.6's
+expansion-class freeze blocks any action regardless of when the bar is eventually met.
+
+For transparency only, the FIRST recomputed run of this build (2026-09-03, 394 rows, 152
+`BULLISH_RECLAIM_RIDE_THE_RIBBON` chase rows total) reads: `confirm_bars_zero` n=**78**, mean
+**+$41.12**/trade; `confirm_bars_ge1` n=**18**, mean **-$29.89**/trade;
+`mean_diff_zero_minus_ge1_ci95 = [+$71.00, -$53.54, +$185.79]`. n=78/18 is far short of §9.3's
+100-per-cell bar (`ready: false`) — not a read under §9.4 regardless of direction. Disclosed
+exactly as observed: the current point estimate happens to sit in the hypothesis's predicted
+direction, and the CI's lower bound is negative (crosses zero) — neither fact changes anything
+before the bar is met, and this paragraph is not itself the read.
+
+Revert for this section only: it ships inside the same file, ledger, and builder script as
+§1-8 — see §8, no separate revert path exists for §9 alone.

@@ -222,12 +222,149 @@ def test_in_sample_flag_splits_on_backfill_cutoff():
 
 
 # ---------------------------------------------------------------------------------
+# 7b. confirm_bars (B4) -- the load-bearing new mechanic
+# ---------------------------------------------------------------------------------
+def test_confirm_bars_zero_when_entry_bar_is_first_to_cross():
+    """Neither prior bar has closed beyond the trigger yet -- the entry bar itself is the
+    first bar to cross -> confirm_bars == 0."""
+    date = "2026-09-03"
+    ticks = {date: [
+        _tick("2026-09-03T09:30:00", 700.0),
+        _tick("2026-09-03T09:35:00", 700.5),   # prior bar, still below trigger 701.0
+        _tick("2026-09-03T09:40:00", 701.5),   # entry bar: crosses trigger for the first time
+    ]}
+    trade = _trade(date=date, entry_ts_utc="2026-09-03T13:40:00.000000Z", symbol="SPY260903C00700000")
+    row = elts.compute_row(trade, ticks, trigger_levels={("test-arm", "SPY260903C00700000",
+                                                            "2026-09-03T13:40:00.000000Z"): 701.0})
+    assert row["trigger_level"] == pytest.approx(701.0)
+    assert row["confirm_bars"] == 0
+
+
+def test_confirm_bars_counts_consecutive_prior_bars_beyond_trigger():
+    """Two consecutive closed bars strictly before the entry bar already sat beyond the
+    trigger -> confirm_bars == 2."""
+    date = "2026-09-03"
+    ticks = {date: [
+        _tick("2026-09-03T09:30:00", 700.0),   # below trigger 701.0
+        _tick("2026-09-03T09:35:00", 701.5),   # beyond -- 2nd bar back
+        _tick("2026-09-03T09:40:00", 702.0),   # beyond -- 1st bar back (immediately prior)
+        _tick("2026-09-03T09:45:00", 703.0),   # entry bar
+    ]}
+    trade = _trade(date=date, entry_ts_utc="2026-09-03T13:45:00.000000Z", symbol="SPY260903C00700000")
+    trigger_levels = {("test-arm", "SPY260903C00700000", "2026-09-03T13:45:00.000000Z"): 701.0}
+    row = elts.compute_row(trade, ticks, trigger_levels)
+    assert row["confirm_bars"] == 2
+
+
+def test_confirm_bars_breaks_streak_at_first_non_beyond_prior_bar():
+    """confirm_bars counts the CONSECUTIVE run adjacent to entry, not the total count of
+    beyond-trigger bars anywhere in the prefix -- an earlier beyond-trigger bar separated by a
+    non-beyond bar must not be counted."""
+    date = "2026-09-03"
+    ticks = {date: [
+        _tick("2026-09-03T09:30:00", 702.0),   # beyond trigger, but NOT adjacent to entry
+        _tick("2026-09-03T09:35:00", 700.5),   # breaks the streak -- below trigger
+        _tick("2026-09-03T09:40:00", 701.8),   # beyond -- immediately prior to entry
+        _tick("2026-09-03T09:45:00", 703.0),   # entry bar
+    ]}
+    trade = _trade(date=date, entry_ts_utc="2026-09-03T13:45:00.000000Z", symbol="SPY260903C00700000")
+    trigger_levels = {("test-arm", "SPY260903C00700000", "2026-09-03T13:45:00.000000Z"): 701.0}
+    row = elts.compute_row(trade, ticks, trigger_levels)
+    assert row["confirm_bars"] == 1, "must stop at the first non-beyond bar, not keep scanning"
+
+
+def test_confirm_bars_none_when_trigger_level_unavailable():
+    date = "2026-09-03"
+    ticks = {date: [
+        _tick("2026-09-03T09:30:00", 700.0),
+        _tick("2026-09-03T09:40:00", 703.0),
+    ]}
+    trade = _trade(date=date, entry_ts_utc="2026-09-03T13:40:00.000000Z", symbol="SPY260903C00700000")
+    row = elts.compute_row(trade, ticks, trigger_levels={})   # no key matches -> None
+    assert row["trigger_level"] is None
+    assert row["confirm_bars"] is None
+    assert "no trigger_level" in row["confirm_bars_note"]
+
+
+def test_confirm_bars_no_lookahead_synthetic_ledger():
+    """The load-bearing proof this task asks for: confirm_bars is computed ONLY from bars
+    strictly before the entry, and a bar that closes AFTER entry can never change it -- proven
+    two ways on the exact same fixed tick tape:
+      (a) a trade entered on the bar at 09:40 gets the SAME confirm_bars whether or not the
+          09:46 bar (which closes AFTER that entry) is present in ticks_by_date at all;
+      (b) the very same 09:46 bar DOES get counted once a later trade's own entry moves past
+          it (09:46 becomes prior, not future) -- proving the boundary is genuinely the
+          trade's own entry_et, not some fixed/incidental cutoff.
+    """
+    date = "2026-09-03"
+    symbol = "SPY260903C00700000"
+    trigger_level_key_a = ("test-arm", symbol, "2026-09-03T13:40:00.000000Z")   # entry @ 09:40
+    trigger_level_key_b = ("test-arm", symbol, "2026-09-03T13:50:00.000000Z")   # entry @ 09:50
+    trigger_levels = {trigger_level_key_a: 701.0, trigger_level_key_b: 701.0}
+
+    without_future_bar = {date: [
+        _tick("2026-09-03T09:30:00", 700.0),
+        _tick("2026-09-03T09:35:00", 700.8),   # prior bar, NOT beyond trigger 701.0
+        _tick("2026-09-03T09:40:00", 701.5),   # trade A's entry bar -- first bar to cross
+    ]}
+    with_future_bar = {date: without_future_bar[date] + [
+        _tick("2026-09-03T09:46:00", 703.0),   # closes AFTER trade A's entry
+    ]}
+
+    trade_a = _trade(date=date, entry_ts_utc="2026-09-03T13:40:00.000000Z", symbol=symbol)
+    row_a_without = elts.compute_row(trade_a, without_future_bar, trigger_levels)
+    row_a_with = elts.compute_row(trade_a, with_future_bar, trigger_levels)
+    assert row_a_without["confirm_bars"] == 0
+    assert row_a_with == row_a_without, "a bar closing AFTER entry changed trade A's row"
+
+    # (b) the SAME 09:46 bar, once it is no longer in the future relative to the entry, is
+    # counted as the (now prior) bar immediately before trade B's own entry.
+    trade_b = _trade(date=date, entry_ts_utc="2026-09-03T13:50:00.000000Z", symbol=symbol)
+    ticks_for_b = {date: with_future_bar[date] + [
+        _tick("2026-09-03T09:50:00", 704.0),   # trade B's own entry bar
+    ]}
+    row_b = elts.compute_row(trade_b, ticks_for_b, trigger_levels)
+    assert row_b["confirm_bars"] == 2, "09:40 and 09:46 are now both prior, consecutive, beyond trigger"
+
+
+# ---------------------------------------------------------------------------------
+# 7c. zone_distance (B4)
+# ---------------------------------------------------------------------------------
+def test_zone_distance_calls_and_puts_direction_and_defaulted_flag():
+    date = "2026-09-03"   # not in journal/key-levels-archive -> resolves to the $0.30 default
+    symbol_c = "SPY260903C00700000"
+    ticks_c = {date: [_tick("2026-09-03T09:30:00", 700.0), _tick("2026-09-03T09:40:00", 700.90)]}
+    trade_c = _trade(date=date, entry_ts_utc="2026-09-03T13:40:00.000000Z", symbol=symbol_c)
+    row_c = elts.compute_row(trade_c, ticks_c,
+                              {("test-arm", symbol_c, "2026-09-03T13:40:00.000000Z"): 700.0})
+    assert row_c["zone_width"] == pytest.approx(0.30)
+    assert row_c["zone_width_defaulted"] is True
+    assert row_c["zone_width_source"] == "default"
+    assert row_c["zone_distance"] == pytest.approx((700.90 - 700.0) / 0.30)
+
+    symbol_p = "SPY260903P00700000"
+    ticks_p = {date: [_tick("2026-09-03T09:30:00", 700.0), _tick("2026-09-03T09:40:00", 699.40)]}
+    trade_p = _trade(date=date, entry_ts_utc="2026-09-03T13:40:00.000000Z", symbol=symbol_p)
+    row_p = elts.compute_row(trade_p, ticks_p,
+                              {("test-arm", symbol_p, "2026-09-03T13:40:00.000000Z"): 700.0})
+    assert row_p["zone_distance"] == pytest.approx((700.0 - 699.40) / 0.30)
+
+
+def test_zone_distance_uses_retest_zone_shadows_resolver_unmodified():
+    """resolve_zone_width is reused BY IMPORT, not re-implemented -- pin the identity, same
+    convention as test_chase_classification_reuses_h1s_own_function below."""
+    import retest_zone_shadow as rzs
+    assert elts.rzs.resolve_zone_width is rzs.resolve_zone_width
+
+
+# ---------------------------------------------------------------------------------
 # 8. run() -- end-to-end idempotent append against fixture artifacts
 # ---------------------------------------------------------------------------------
 @pytest.fixture
 def _wired_fixtures(tmp_path, monkeypatch):
     mae_mfe = tmp_path / "mae-mfe.json"
     core_decisions = tmp_path / "core-decisions.jsonl"
+    entry_quality_ledger = tmp_path / "entry-quality-ledger.json"
     out_dir = tmp_path / "out"
     ledger = out_dir / "entry-location-trend-ledger.jsonl"
     summary = out_dir / "entry-location-trend-summary.json"
@@ -253,8 +390,17 @@ def _wired_fixtures(tmp_path, monkeypatch):
                                  "ribbon": ribbon, "htf_15m": htf}) + "\n")
     core_decisions.write_text("".join(rows), encoding="utf-8")
 
+    # (B4) trigger_level for the FIRST trade only -- the second is left unjoined on purpose so
+    # the fixture also exercises the "no trigger_level found" path through run(), not just the
+    # happy path.
+    entry_quality_ledger.write_text(json.dumps({"events": [
+        {"arm": "safe-2", "symbol": "SPY260901C00700000",
+         "ts_utc": "2026-09-01T14:40:00.000000Z", "trigger_level": 700.0},
+    ]}), encoding="utf-8")
+
     monkeypatch.setattr(elts, "MAE_MFE", mae_mfe)
     monkeypatch.setattr(elts, "CORE_DECISIONS", core_decisions)
+    monkeypatch.setattr(elts, "ENTRY_QUALITY_LEDGER", entry_quality_ledger)
     monkeypatch.setattr(elts, "OUT_DIR", out_dir)
     monkeypatch.setattr(elts, "LEDGER", ledger)
     monkeypatch.setattr(elts, "SUMMARY", summary)
@@ -283,7 +429,9 @@ def test_run_summary_has_expected_shape(_wired_fixtures):
     summary = json.loads(elts.SUMMARY.read_text(encoding="utf-8"))
     assert summary["status"] == "ARMED"
     assert summary["prereg"] == elts.PREREG_REL
-    for key in ("overall", "by_setup", "prereg_readiness", "prereg_cut_diagnostic", "meta"):
+    for key in ("overall", "by_setup", "prereg_readiness", "prereg_cut_diagnostic", "meta",
+                "confirm_bars_big_days", "prereg_cut_diagnostic_confirm_bars",
+                "prereg_readiness_confirm_bars"):
         assert key in summary, key
     assert "BULLISH_RECLAIM_RIDE_THE_RIBBON" in summary["by_setup"]
     bull_setup = summary["by_setup"]["BULLISH_RECLAIM_RIDE_THE_RIBBON"]
@@ -291,11 +439,43 @@ def test_run_summary_has_expected_shape(_wired_fixtures):
     for cosig in ("minutes_since_ribbon_flip", "minutes_since_htf15m_match",
                   "or_extension_multiples", "vix_at_entry", "vix_dir"):
         assert cosig in bull_setup["by_cosignal"], cosig
+    assert "confirm_bars_split" in bull_setup
+    for key in ("n", "n_missing_confirm_bars", "zero", "ge1", "mean_diff_zero_minus_ge1_ci95"):
+        assert key in bull_setup["confirm_bars_split"], key
     assert out["prereg_readiness"]["n_chase_required"] == 150
     diag = summary["prereg_cut_diagnostic"]
     for key in ("n_chase_total", "fresh_leq_15min", "gray_15_45min_excluded_from_primary_comparison",
                 "stale_gt_45min", "mean_diff_fresh_minus_stale_ci95"):
         assert key in diag, key
+    diag2 = summary["prereg_cut_diagnostic_confirm_bars"]
+    for key in ("n_chase_total", "confirm_bars_zero", "confirm_bars_ge1",
+                "confirm_bars_unavailable", "mean_diff_zero_minus_ge1_ci95"):
+        assert key in diag2, key
+    for d in elts.BIG_WINNER_DAYS:
+        assert d in summary["confirm_bars_big_days"], d
+    readiness2 = summary["prereg_readiness_confirm_bars"]
+    assert readiness2["n_required_per_cell"] == elts.CONFIRM_BARS_N_FLOOR == 100
+
+
+def test_run_joins_trigger_level_and_computes_confirm_bars_and_zone_distance(_wired_fixtures):
+    """(B4) End-to-end proof that run() actually joins trigger_level from
+    entry-quality-ledger.json and feeds it through to confirm_bars/zone_distance on the ledger
+    row -- not just that compute_row can do it in isolation."""
+    elts.run()
+    rows = {r["symbol"]: r for r in elts._read_ledger()}
+
+    joined = rows["SPY260901C00700000"]   # trigger_level=700.0 wired in the fixture
+    assert joined["trigger_level"] == pytest.approx(700.0)
+    # subset at entry (10:40): bars 700.0, 701.0, 703.0(entry) -- prior bar 701.0 is beyond
+    # trigger (700.0) for a call, the bar before that (700.0) is not -> confirm_bars == 1
+    assert joined["confirm_bars"] == 1
+    assert joined["zone_width_defaulted"] is True   # 2026-09-01 not in the archive
+    assert joined["zone_distance"] == pytest.approx((703.0 - 700.0) / 0.30)
+
+    unjoined = rows["SPY260901P00695000"]   # no trigger_level wired for this one on purpose
+    assert unjoined["trigger_level"] is None
+    assert unjoined["confirm_bars"] is None
+    assert unjoined["zone_distance"] is None
 
 
 # ---------------------------------------------------------------------------------
