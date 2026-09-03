@@ -69,7 +69,7 @@
     "bar_resolution_sensitivity": {
       "n_common": 72,
       "n_5min_missing": 4,
-      "n_1min_missing": 20,
+      "n_1min_missing": 18,
       "loser_ratio_5min": 1.429685,
       "loser_ratio_1min": 1.429685,
       "winner_ratio_5min": 1.044984,
@@ -309,6 +309,158 @@
     "verdict_after": "FAIL",
     "excess_ratio_reduction_pct": 46.6
   },
+  "premium_stop_poll_model": {
+    "queue_item": "WALKER-MARKET-STAGE-FILL-ROOT-FIX (2026-09-03 02:50 ET PARTIAL note's own NEXT step)",
+    "note": "multileg_exit_walk.walk(premium_stop_poll_model=True): for premium_stop/profit_lock_floor/trail/be_stop legs (numeric threshold crossings of state.runner_stop_premium -- see multileg_exit_walk.py's _POLL_MODEL_STAGES module note), walks the cached 1-min OPRA bars (backtest/data/highres/) inside the firing 5-min bar's window and fires at the CLOSE of the first 1-min bar at/through the threshold -- the closest on-disk proxy to what a live once-a-minute quote poll would have observed. Falls back to the OLD state.runner_stop_premium price, disclosed per-trade as fill_model='5min_fallback', when no 1-min cache exists for the contract/date OR the cache exists but no 1-min close in the window actually reaches the threshold. Both new flags default False; byte-identical for every existing caller until BOTH are opted into together (premium_stop_poll_model requires market_stage_fill_fix=True to matter in practice, since the baseline every believed study already runs on is market_stage_fill_fix=True alone).",
+    "pdt_anchor_n43": {
+      "n_missing_bars_baseline": 0,
+      "n_missing_bars_polled": 0,
+      "n": 43,
+      "n_1min_path": 18,
+      "n_5min_fallback": 12,
+      "n_not_applicable": 13,
+      "before_market_stage_fix_only": {
+        "n": 43,
+        "actual_total_dollars": -538.0,
+        "replay_total_dollars": -1422.1,
+        "aggregate_ratio": 2.6433,
+        "total_error_dollars": -884.1,
+        "mean_signed_bias_dollars": -20.56,
+        "median_abs_error_dollars": 31.55,
+        "p90_abs_error_dollars": 75.0,
+        "max_abs_error_dollars": 167.95,
+        "winners": {
+          "n": 10,
+          "actual": 2385.0,
+          "replay": 2498.6,
+          "ratio": 1.0476
+        },
+        "losers": {
+          "n": 32,
+          "actual": -2923.0,
+          "replay": -3868.2,
+          "ratio": 1.3234
+        }
+      },
+      "after_premium_stop_poll_model": {
+        "n": 43,
+        "actual_total_dollars": -538.0,
+        "replay_total_dollars": -1754.1,
+        "aggregate_ratio": 3.2604,
+        "total_error_dollars": -1216.1,
+        "mean_signed_bias_dollars": -28.28,
+        "median_abs_error_dollars": 36.0,
+        "p90_abs_error_dollars": 97.0,
+        "max_abs_error_dollars": 140.0,
+        "winners": {
+          "n": 10,
+          "actual": 2385.0,
+          "replay": 2376.6,
+          "ratio": 0.9965
+        },
+        "losers": {
+          "n": 32,
+          "actual": -2923.0,
+          "replay": -4076.7,
+          "ratio": 1.3947
+        }
+      },
+      "excess_ratio_reduction_pct": -37.6,
+      "verdict_before": "FAIL",
+      "verdict_after": "FAIL",
+      "stage_decomposition_before": {
+        "premium_stop": {
+          "n": 22,
+          "total_abs_error_dollars": 811.5,
+          "median_abs_error_dollars": 32.1
+        },
+        "structure_stop": {
+          "n": 13,
+          "total_abs_error_dollars": 581.0,
+          "median_abs_error_dollars": 33.0
+        },
+        "trail": {
+          "n": 8,
+          "total_abs_error_dollars": 387.5,
+          "median_abs_error_dollars": 25.5
+        }
+      },
+      "stage_decomposition_after": {
+        "premium_stop": {
+          "n": 22,
+          "total_abs_error_dollars": 1018.5,
+          "median_abs_error_dollars": 42.0
+        },
+        "structure_stop": {
+          "n": 13,
+          "total_abs_error_dollars": 581.0,
+          "median_abs_error_dollars": 33.0
+        },
+        "trail": {
+          "n": 8,
+          "total_abs_error_dollars": 342.4,
+          "median_abs_error_dollars": 24.0
+        }
+      }
+    },
+    "v9_anchor": {
+      "n_rows_loaded": 133,
+      "n_missing_bars_baseline": 12,
+      "n_missing_bars_polled": 12,
+      "n_1min_path": 38,
+      "n_5min_fallback": 20,
+      "n_not_applicable": 63,
+      "before_market_stage_fix_only": {
+        "n": 121,
+        "actual_total_dollars": 3562.0,
+        "replay_total_dollars": -858.4,
+        "aggregate_ratio": -0.241,
+        "total_error_dollars": -4420.4,
+        "mean_signed_bias_dollars": -36.53,
+        "median_abs_error_dollars": 42.0,
+        "p90_abs_error_dollars": 212.0,
+        "max_abs_error_dollars": 612.0,
+        "winners": {
+          "n": 49,
+          "actual": 10181.0,
+          "replay": 8366.1,
+          "ratio": 0.8217
+        },
+        "losers": {
+          "n": 68,
+          "actual": -6619.0,
+          "replay": -8885.5,
+          "ratio": 1.3424
+        }
+      },
+      "after_premium_stop_poll_model": {
+        "n": 121,
+        "actual_total_dollars": 3562.0,
+        "replay_total_dollars": -1570.4,
+        "aggregate_ratio": -0.4409,
+        "total_error_dollars": -5132.4,
+        "mean_signed_bias_dollars": -42.42,
+        "median_abs_error_dollars": 45.0,
+        "p90_abs_error_dollars": 235.0,
+        "max_abs_error_dollars": 612.0,
+        "winners": {
+          "n": 49,
+          "actual": 10181.0,
+          "replay": 7839.1,
+          "ratio": 0.77
+        },
+        "losers": {
+          "n": 68,
+          "actual": -6619.0,
+          "replay": -9070.5,
+          "ratio": 1.3704
+        }
+      },
+      "excess_ratio_reduction_pct": -16.1,
+      "verdict_before": "FAIL",
+      "verdict_after": "FAIL"
+    }
+  },
   "criterion_applied_to_every_variant": {
     "pdt_original_anchor_n43_unfixed": {
       "magnitude_fidelity": {
@@ -441,6 +593,58 @@
       },
       "verdict": "FAIL"
     },
+    "pdt_anchor_n43_premium_stop_poll_model": {
+      "magnitude_fidelity": {
+        "n": 43,
+        "actual_total_dollars": -538.0,
+        "replay_total_dollars": -1754.1,
+        "aggregate_ratio": 3.2604,
+        "total_error_dollars": -1216.1,
+        "mean_signed_bias_dollars": -28.28,
+        "median_abs_error_dollars": 36.0,
+        "p90_abs_error_dollars": 97.0,
+        "max_abs_error_dollars": 140.0,
+        "winners": {
+          "n": 10,
+          "actual": 2385.0,
+          "replay": 2376.6,
+          "ratio": 0.9965
+        },
+        "losers": {
+          "n": 32,
+          "actual": -2923.0,
+          "replay": -4076.7,
+          "ratio": 1.3947
+        }
+      },
+      "verdict": "FAIL"
+    },
+    "v9_anchor_via_multileg_premium_stop_poll_model": {
+      "magnitude_fidelity": {
+        "n": 121,
+        "actual_total_dollars": 3562.0,
+        "replay_total_dollars": -1570.4,
+        "aggregate_ratio": -0.4409,
+        "total_error_dollars": -5132.4,
+        "mean_signed_bias_dollars": -42.42,
+        "median_abs_error_dollars": 45.0,
+        "p90_abs_error_dollars": 235.0,
+        "max_abs_error_dollars": 612.0,
+        "winners": {
+          "n": 49,
+          "actual": 10181.0,
+          "replay": 7839.1,
+          "ratio": 0.77
+        },
+        "losers": {
+          "n": 68,
+          "actual": -6619.0,
+          "replay": -9070.5,
+          "ratio": 1.3704
+        }
+      },
+      "verdict": "FAIL"
+    },
     "v9_exit_manager_walk_reference": {
       "source": "analysis\\whole-engine-null\\2026-09-02.json",
       "n": 121,
@@ -459,7 +663,8 @@
     "big_anchor_population's aggregate_ratio (32.9723) is inflated by a near-zero denominator: actual_total_dollars=-141.0 is a small difference between winners ($7619.0) and losers ($-7760.0) that mostly cancel. The winners_ratio (1.0024) and losers_ratio (1.5542) are the trustworthy read here, not the aggregate ratio alone -- same caveat whole_engine_null.py's own magnitude_fidelity note already carries for exactly this reason.",
     "The market-stage fill fix is NOT a full fix -- aggregate_ratio improved but did not reach the criterion, on either anchor. Stage-level decomposition on the 43-row PDT anchor (post-fix) attributes the LARGEST remaining abs error to premium_stop ($811.50 of ~$1,780 total, n=22 legs) and structure_stop ($581.00, n=13), with trail a distant third ($387.50, n=8) -- premium_stop was NOT touched by this session's fix (see root_cause_and_fix.root_fix_2026_09_03_followup) and its residual error is a TIMING gap (the 5-min bar's own stop-crossing bar may not be the exact minute the live once-a-minute poll actually fired on), not a within-bar PRICING gap this module's fill_mode knob can address -- not diagnosed further by this run per the queue item's 'do not tune anything else to make the number move' instruction.",
     "mechanism_bar_resolution restricts to rows with BOTH a 5-min OPRA cache and a 1-min highres cache (paired comparison) -- a smaller n than the full anchor set; see n_common.",
-    "This study reuses pdt_blocked_counterfactual.py's shape/trigger-level resolution for every variant (canonical_shape / anchor_trigger_level) rather than reimplementing it -- any defect in THAT resolution logic is inherited here too, not independently re-verified."
+    "This study reuses pdt_blocked_counterfactual.py's shape/trigger-level resolution for every variant (canonical_shape / anchor_trigger_level) rather than reimplementing it -- any defect in THAT resolution logic is inherited here too, not independently re-verified.",
+    "premium_stop_poll_model (this run's 'NEXT' step) was IMPLEMENTED, MEASURED, and kept OFF by default: aggregate_ratio moved 2.6433 -> 3.2604 on the PDT anchor and -0.241 -> -0.4409 on the V9 anchor -- WORSE on both, not better. Root reason is provable, not just empirical: the OLD fallback price for these stages already IS the threshold (state.runner_stop_premium), the least-adverse price a downside cross can have; the poll model can only find a 1-min close at-or-through that same threshold, so it can never move a leg's price toward actual on a walker that already replays too negative -- it can only push further away. Full mechanism note: multileg_exit_walk.py's `_POLL_MODEL_STAGES` module comment. The residual this leaves behind is a DECISION-GRANULARITY gap (whether the live 1-min poll would have confirmed the cross the outer 5-min bar's decision already assumed), not a pricing gap -- fixing it would mean walking every position at native 1-min resolution end-to-end, not refining the fill price inside an already-5-min-decided bar. Out of scope for a pricing fix; not attempted here."
   ],
   "deviations": [
     "Reproduction of the PDT study's own anchor numbers did not match exactly -- the ledger/cache may have changed since 2026-09-02. Proceeding with THIS run's numbers, disclosed as found not forced."

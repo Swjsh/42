@@ -74,6 +74,13 @@ import exit_manager as em  # noqa: E402
 #
 # FINISHED 2026-09-03 (WALKER-MARKET-STAGE-FILL-ROOT-FIX, same-day follow-up).
 #
+# PART 2, SAME DAY: the PARTIAL note's own "NEXT" step -- a `premium_stop_poll_model` kwarg
+# that walks cached 1-min bars to fill premium_stop/profit_lock_floor/trail/be_stop at the
+# first 1-min CLOSE through the threshold instead of the static threshold value. IMPLEMENTED,
+# MEASURED, kept OFF by default: it makes both anchors WORSE, for a provable structural reason
+# (the poll price can only equal-or-exceed the old static price in the adverse direction, and
+# the walker is already too negative). Full account: see `_POLL_MODEL_STAGES`'s own note below.
+#
 # FIRST DRAFT OF THIS FOLLOW-UP tried extending _MARKET_STAGES to every non-tp1 SELL stage
 # exit_manager.py emits (also premium_stop, profit_lock_floor, trail, be_stop, runner_target),
 # reasoning that a live market SELL always crosses the bid. MEASURED, then REVERTED: on the
@@ -114,10 +121,87 @@ import exit_manager as em  # noqa: E402
 _MARKET_STAGES = frozenset({"structure_stop", "ribbon_flip", "time_stop"})
 _TIME_STOP_STAGE = "time_stop"
 
+# PREMIUM-STOP POLL MODEL (2026-09-03, WALKER-MARKET-STAGE-FILL-ROOT-FIX "NEXT" step, IMPLE-
+# MENTED + MEASURED + kept OFF by default -- do NOT flip without re-reading this note). The
+# module note above already establishes WHY premium_stop/profit_lock_floor/trail/be_stop stay
+# priced at `state.runner_stop_premium` (the threshold) rather than the bar's worst_in: the
+# live engine polls a QUOTE once a minute and fires the INSTANT a poll crosses, so the true
+# fill sits near the threshold, not the 5-min bar's full wick. `premium_stop_poll_model=True`
+# tests that reasoning literally: where a 1-minute OPRA cache exists for the contract/date
+# (backtest/data/highres/, built by refused_setup_ledger's daily fire), it walks the cached
+# 1-min bars inside the 5-min bar window the outer walk already decided this stage fires in and
+# fires at the CLOSE of the FIRST one at/through the threshold (a live poll reads a quote, not
+# a bar; close-of-minute is the closest on-disk proxy to "the price the poll would have
+# observed", disclosed, never asserted exact) -- falling back to the OLD
+# `state.runner_stop_premium` pricing, disclosed per-leg as `fill_model: "5min_fallback"`, when
+# no 1-min cache exists for that contract/date OR the cache exists but no 1-min close inside the
+# window actually reaches the threshold.
+#
+# MEASURED, then kept OFF (WALKER-MAGNITUDE-2026-09-03.md, 2026-09-03 poll-model follow-up):
+# on the 43-row PDT anchor (market_stage_fill_fix=True baseline), aggregate_ratio moved
+# 2.6433 -> 3.2604 (WORSE, not better); on the V9 anchor, -0.241 -> -0.4409 (also worse in
+# excess-magnitude). Stage-level: premium_stop's abs error grew $811.50 -> $1,018.50 (n=22,
+# by far the largest population); trail's shrank $387.50 -> $342.40 (n=8, but see below --
+# not a reliable counter-signal). PROVABLE ROOT REASON, not just an empirical one: the OLD
+# fallback price for every _POLL_MODEL_STAGES leg IS `state.runner_stop_premium` -- i.e. IS the
+# threshold itself, the LEAST adverse price a downside cross can resolve to. The poll model can
+# only ever find a 1-min CLOSE that is <= that same threshold (that is its whole definition --
+# "first close at/through the threshold"), so poll_price <= old_price on every leg it actually
+# resolves (never the reverse). On a walker whose aggregate replay is ALREADY too negative
+# (ratio > 1 on both anchors, meaning replayed losses already exceed actual losses), moving any
+# subset of legs to an equal-or-MORE-negative price is mathematically guaranteed to move the
+# aggregate further from actual, never closer -- this is not a coincidence of this anchor's
+# rows, it is structural. Trail's small apparent improvement is sampling noise on n=8 (a
+# handful of rows where actual happened to be MORE negative than the old replay, the minority
+# case), not a real counter-mechanism; cherry-picking it back in while dropping premium_stop
+# would be exactly the "tune until a number moves" anti-pattern this repo's own doctrine
+# forbids. CONCLUSION: this poll-model FORMULATION cannot fix the residual, because the
+# residual is not a within-threshold-crossing PRICING question at all -- it is a DECISION-
+# GRANULARITY question (whether the live 1-min poll would have confirmed the cross the outer
+# 5-min-bar decision already assumed happened), which only a full 1-min-native walk (not a
+# sub-resolution price refinement inside an already-5-min-decided bar) could actually answer,
+# and that is a materially larger change than "give the fill a better price" -- explicitly
+# NOT attempted here (out of scope: WALKER-MARKET-STAGE-FILL-ROOT-FIX is a pricing fix, not a
+# decision-timing rewrite). Both new kwargs stay False by default; implementation kept (not
+# reverted/removed) because it is now the disclosed, reproducible EVIDENCE for this finding,
+# same precedent as `market_stage_fill_fix`'s own "tried wider, measured worse, reverted"
+# note above. Stage scope below is the full symmetric set (not narrowed to "just what looked
+# best this run") precisely because the math above applies to all four identically -- narrowing
+# it would itself be overfitting the 43-row sample.
+_POLL_MODEL_STAGES = frozenset({"premium_stop", "profit_lock_floor", "trail", "be_stop"})
+
+
+def _poll_1min_close_cross(highres_bars, bar_start, bar_minutes: int, threshold: float):
+    """First cached 1-min bar (sorted by time) inside [bar_start, bar_start+bar_minutes)
+    whose CLOSE is at/through the adverse threshold (close <= threshold -- every
+    `_POLL_MODEL_STAGES` stage is a downside numeric-threshold cross, mirroring
+    exit_manager.py's own `worst_premium <= runner_stop` / `<= new_runner_stop` checks).
+
+    Returns (price, "HH:MM") on a hit, or (None, None) on ANY miss -- no 1-min cache for this
+    contract/date, or a cache that has bars but none crosses at 1-min CLOSE resolution within
+    this window. Both misses are honest gaps, never estimated; the caller decides the fallback.
+    `bar_start` must already be tz-naive (see the call site's normalization) to compare against
+    the highres cache, which is built tz-naive by construction (walker_fidelity.py#_get_1min_df
+    / setup/scripts/refused_setup_ledger.py#_load_highres).
+    """
+    if highres_bars is None or getattr(highres_bars, "empty", True):
+        return None, None
+    bar_end = bar_start + pd.Timedelta(minutes=bar_minutes)
+    win = highres_bars[(highres_bars["timestamp_et"] >= bar_start) &
+                       (highres_bars["timestamp_et"] < bar_end)]
+    if win.empty:
+        return None, None
+    win = win.sort_values("timestamp_et")
+    for _, r in win.iterrows():
+        if float(r["close"]) <= threshold:
+            return float(r["close"]), r["timestamp_et"].strftime("%H:%M")
+    return None, None
+
 
 def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
          fill_mode: str = "extreme", spy_closes=None, slippage: float = 0.0,
-         market_stage_fill_fix: bool = False) -> dict:
+         market_stage_fill_fix: bool = False, highres_bars=None,
+         premium_stop_poll_model: bool = False, poll_model_bar_minutes: int = 5) -> dict:
     """Walk ONE real fill through the real exit_manager, honouring partial sells.
 
     Returns realized P&L across every leg plus the leg detail. `bars` is the contract's
@@ -181,6 +265,7 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
                 continue
             # price the leg at whatever level triggered it
             px = getattr(a, "price", None)
+            fill_model = None  # only meaningful (non-None) when premium_stop_poll_model=True
             if px is None:
                 if market_stage_fill_fix and a.stage == _TIME_STOP_STAGE:
                     # time_stop is a CLOCK event, not a price cross -- fills at this bar's
@@ -194,6 +279,26 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
                     # (`worst_in`, already resolved per `fill_mode`) is the best available
                     # proxy -- unchanged from the original 2026-09-03 ship.
                     px = worst_in
+                elif premium_stop_poll_model and a.stage in _POLL_MODEL_STAGES:
+                    # POLL MODEL (see module-level note above _POLL_MODEL_STAGES): walk the
+                    # cached 1-min bars inside THIS 5-min bar's window and fire at the first
+                    # 1-min CLOSE at/through the threshold this tick actually used
+                    # (state.runner_stop_premium, already ratcheted for this tick -- the same
+                    # value the static fallback below uses). Falls back honestly on any miss.
+                    threshold = state.runner_stop_premium
+                    _bar_start = pd.Timestamp(bar["timestamp_et"])
+                    if _bar_start.tzinfo is not None:
+                        _bar_start = _bar_start.tz_localize(None)
+                    poll_px, _poll_t = ((None, None) if threshold is None else
+                                        _poll_1min_close_cross(highres_bars, _bar_start,
+                                                               poll_model_bar_minutes,
+                                                               threshold))
+                    if poll_px is not None:
+                        px = poll_px
+                        fill_model = "1min_poll"
+                    else:
+                        px = state.runner_stop_premium or worst_in
+                        fill_model = "5min_fallback"
                 else:
                     px = (entry * (1.0 + state.tp1_premium_pct) if a.stage == "tp1"
                           else state.runner_stop_premium or worst_in)
@@ -206,21 +311,42 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
             px = max(0.01, float(px) - slippage)
             pnl += (float(px) - entry) * n * 100
             open_qty -= n
-            legs.append({"t": bar["timestamp_et"].strftime("%H:%M"), "stage": a.stage,
-                         "qty": n, "px": round(float(px), 4),
-                         "pnl": round((float(px) - entry) * n * 100, 2)})
+            leg = {"t": bar["timestamp_et"].strftime("%H:%M"), "stage": a.stage,
+                  "qty": n, "px": round(float(px), 4),
+                  "pnl": round((float(px) - entry) * n * 100, 2)}
+            if premium_stop_poll_model:
+                # disclosure only added when the caller opted in -- keeps every existing
+                # leg-dict consumer byte-identical when the flag is off (default).
+                leg["fill_model"] = fill_model
+            legs.append(leg)
             if open_qty <= 0:
                 break
 
     if open_qty > 0:   # never fully exited -> mark out at the last close (EOD flatten)
         px = float(sub.iloc[-1]["close"])
         pnl += (px - entry) * open_qty * 100
-        legs.append({"t": "15:50", "stage": "eod", "qty": open_qty, "px": round(px, 4),
-                     "pnl": round((px - entry) * open_qty * 100, 2)})
+        eod_leg = {"t": "15:50", "stage": "eod", "qty": open_qty, "px": round(px, 4),
+                  "pnl": round((px - entry) * open_qty * 100, 2)}
+        if premium_stop_poll_model:
+            eod_leg["fill_model"] = None  # eod-flatten is neither poll nor 5min_fallback
+        legs.append(eod_leg)
         open_qty = 0
 
-    return {"pnl": round(pnl, 2), "legs": legs, "n_legs": len(legs),
-            "mfe_pct": round((hwm / entry - 1) * 100, 1)}
+    out = {"pnl": round(pnl, 2), "legs": legs, "n_legs": len(legs),
+          "mfe_pct": round((hwm / entry - 1) * 100, 1)}
+    if premium_stop_poll_model:
+        # trade-level disclosure: did ANY poll-model-eligible leg actually walk 1-min bars
+        # (highres_bars present + non-empty), or did every such leg fall back to the static
+        # threshold price? Lets a population-level caller count 1-min-path vs fallback trades
+        # without re-deriving it from the per-leg detail.
+        poll_stage_legs = [leg for leg in legs if leg.get("fill_model") is not None]
+        if not poll_stage_legs:
+            out["fill_model"] = "n/a"  # no poll-model-eligible stage fired on this trade
+        elif any(leg["fill_model"] == "1min_poll" for leg in poll_stage_legs):
+            out["fill_model"] = "1min_poll"
+        else:
+            out["fill_model"] = "5min_fallback"
+    return out
 
 
 def self_check() -> int:

@@ -125,9 +125,17 @@ def _get_1min_df(symbol: str, date: str) -> Optional[pd.DataFrame]:
 
 
 def walk_anchor_row(r: dict, bars: pd.DataFrame, spy_map: dict, *, fill_mode: str = "extreme",
-                    slippage: float = 0.01, market_stage_fill_fix: bool = False) -> Optional[dict]:
+                    slippage: float = 0.01, market_stage_fill_fix: bool = False,
+                    premium_stop_poll_model: bool = False,
+                    highres_bars: Optional[pd.DataFrame] = None) -> Optional[dict]:
     """One anchor row through multileg_exit_walk, using the SAME shape/trigger resolution
-    pdt_blocked_counterfactual.py's own harness_validation() uses (reused, not reimplemented)."""
+    pdt_blocked_counterfactual.py's own harness_validation() uses (reused, not reimplemented).
+
+    `highres_bars` (added for the 2026-09-03 poll-model follow-up): the contract's cached
+    1-min frame, loaded ONCE per (symbol, date) by the caller (`run_multileg_variant`) via
+    `_get_1min_df` -- the same loader `mechanism_bar_resolution` already uses -- and threaded
+    through to `multileg_exit_walk.walk()`'s `highres_bars` kwarg. None when
+    `premium_stop_poll_model=False` (byte-identical to before this follow-up)."""
     shape = pdtc.canonical_shape(r["date"])
     mode = r.get("stop_mode")
     if mode in ("structure", "premium"):
@@ -138,7 +146,9 @@ def walk_anchor_row(r: dict, bars: pd.DataFrame, spy_map: dict, *, fill_mode: st
             "date": r["date"], "entry_time": r["entry_ts_et"][11:19], "strategy": "RIBBON"}
     res = walk_multileg(fill, shape, bars, trigger_level=trig, fill_mode=fill_mode,
                         spy_closes=spy_map.get(r["date"]), slippage=slippage,
-                        market_stage_fill_fix=market_stage_fill_fix)
+                        market_stage_fill_fix=market_stage_fill_fix,
+                        premium_stop_poll_model=premium_stop_poll_model,
+                        highres_bars=highres_bars)
     if "error" in res:
         return None
     return {
@@ -147,16 +157,25 @@ def walk_anchor_row(r: dict, bars: pd.DataFrame, spy_map: dict, *, fill_mode: st
         "recorded_exit_reason": r.get("exit_reason"), "recorded_stop_mode": mode,
         "walked_final_stage": (res["legs"][-1]["stage"] if res["legs"] else None),
         "n_legs": res.get("n_legs", 0),
+        "fill_model": res.get("fill_model"),  # None unless premium_stop_poll_model=True
     }
 
 
 def run_multileg_variant(rows: list[dict], spy_map: dict, resolution: str = "5min", *,
                          fill_mode: str = "extreme", slippage: float = 0.01,
-                         market_stage_fill_fix: bool = False) -> tuple[list[dict], int]:
+                         market_stage_fill_fix: bool = False,
+                         premium_stop_poll_model: bool = False) -> tuple[list[dict], int]:
     """Walks every anchor row via multileg_exit_walk. `resolution` picks the bar source:
     "5min" -> load_contract_bars (OPRA cache, matches every prior study); "1min" -> the
-    highres 1-minute cache (cache-only, honest None on a miss -- see _get_1min_df)."""
+    highres 1-minute cache (cache-only, honest None on a miss -- see _get_1min_df).
+
+    `premium_stop_poll_model=True` additionally loads (and caches per symbol+date, one disk
+    read each) the 1-min highres frame for every row and threads it into `walk_anchor_row` --
+    independent of `resolution`, which still controls the PRIMARY bar source the outer 5-min
+    walk decides stages on; the poll model only refines the FILL PRICE of an already-decided
+    stage within that bar's window."""
     cache: dict = {}
+    highres_cache: dict = {}
     out: list[dict] = []
     n_missing = 0
     for r in rows:
@@ -173,8 +192,16 @@ def run_multileg_variant(rows: list[dict], spy_map: dict, resolution: str = "5mi
         if bars is None or bars.empty:
             n_missing += 1
             continue
+        highres = None
+        if premium_stop_poll_model:
+            hkey = (sym, r["date"])
+            if hkey not in highres_cache:
+                highres_cache[hkey] = _get_1min_df(sym, r["date"])
+            highres = highres_cache[hkey]
         row = walk_anchor_row(r, bars, spy_map, fill_mode=fill_mode, slippage=slippage,
-                              market_stage_fill_fix=market_stage_fill_fix)
+                              market_stage_fill_fix=market_stage_fill_fix,
+                              premium_stop_poll_model=premium_stop_poll_model,
+                              highres_bars=highres)
         if row is None:
             n_missing += 1
             continue
@@ -289,6 +316,87 @@ def mechanism_market_stage_fill_bug(anchor_43: list[dict], spy_map: dict) -> dic
     }
 
 
+def _stage_abs_error_decomposition(rows: list[dict]) -> dict:
+    """Per-walked-final-stage abs-error attribution (dollars) -- the lens the 2026-09-03
+    WALKER-MARKET-STAGE-FILL-ROOT-FIX PARTIAL note used (ad hoc, not previously a committed
+    helper) to find premium_stop ($811.50, n=22), structure_stop ($581.00, n=13), and trail
+    ($387.50, n=8) as the largest remaining residuals after the market-stage fill fix. Built
+    as a reusable function here so the poll-model measurement below is reproducible, not
+    eyeballed."""
+    by_stage: dict[str, list[float]] = {}
+    for r in rows:
+        stage = str(r.get("walked_final_stage") or "UNKNOWN")
+        by_stage.setdefault(stage, []).append(abs(r["replay"] - r["actual"]))
+    out = {}
+    for stage, errs in sorted(by_stage.items(), key=lambda kv: -sum(kv[1])):
+        out[stage] = {"n": len(errs), "total_abs_error_dollars": round(sum(errs), 2),
+                      "median_abs_error_dollars": round(stt.median(errs), 2) if errs else None}
+    return out
+
+
+def mechanism_premium_stop_poll_model(anchor_43: list[dict], spy_map: dict) -> dict:
+    """WALKER-MARKET-STAGE-FILL-ROOT-FIX's own NEXT step (queued in the 2026-09-03 02:50 ET
+    PARTIAL note): does walking the cached 1-min bars for the poll-model stages
+    (premium_stop/profit_lock_floor/trail/be_stop -- see multileg_exit_walk.py's
+    _POLL_MODEL_STAGES note) close more of the remaining gap than the market-stage fill fix
+    alone (market_stage_fill_fix=True, premium_stop_poll_model=False -- the current
+    default-off baseline every believed study already applies)?"""
+    baseline, n_missing_base = run_multileg_variant(anchor_43, spy_map, "5min", slippage=0.01,
+                                                     market_stage_fill_fix=True,
+                                                     premium_stop_poll_model=False)
+    polled, n_missing_poll = run_multileg_variant(anchor_43, spy_map, "5min", slippage=0.01,
+                                                   market_stage_fill_fix=True,
+                                                   premium_stop_poll_model=True)
+    mag_before = magnitude_fidelity([(r["actual"], r["replay"]) for r in baseline])
+    mag_after = magnitude_fidelity([(r["actual"], r["replay"]) for r in polled])
+    excess_before = abs((mag_before.get("aggregate_ratio") or 1.0) - 1.0)
+    excess_after = abs((mag_after.get("aggregate_ratio") or 1.0) - 1.0)
+    return {
+        "n_missing_bars_baseline": n_missing_base, "n_missing_bars_polled": n_missing_poll,
+        "n": len(polled),
+        "n_1min_path": sum(1 for r in polled if r.get("fill_model") == "1min_poll"),
+        "n_5min_fallback": sum(1 for r in polled if r.get("fill_model") == "5min_fallback"),
+        "n_not_applicable": sum(1 for r in polled if r.get("fill_model") == "n/a"),
+        "before_market_stage_fix_only": mag_before,
+        "after_premium_stop_poll_model": mag_after,
+        "excess_ratio_reduction_pct": (round((1 - excess_after / excess_before) * 100, 1)
+                                       if excess_before > 1e-9 else None),
+        "verdict_before": evaluate_magnitude_fidelity(mag_before),
+        "verdict_after": evaluate_magnitude_fidelity(mag_after),
+        "stage_decomposition_before": _stage_abs_error_decomposition(baseline),
+        "stage_decomposition_after": _stage_abs_error_decomposition(polled),
+    }
+
+
+def v9_anchor_via_multileg_poll_model(spy_map: dict) -> dict:
+    """Re-validates the poll model on the V9 anchor population -- independent of the 43-row
+    PDT anchor (same population load_v9_anchor_rows() uses, unchanged)."""
+    v9_rows = load_v9_anchor_rows()
+    baseline, n_missing_base = run_multileg_variant(v9_rows, spy_map, "5min", slippage=0.01,
+                                                     market_stage_fill_fix=True,
+                                                     premium_stop_poll_model=False)
+    polled, n_missing_poll = run_multileg_variant(v9_rows, spy_map, "5min", slippage=0.01,
+                                                   market_stage_fill_fix=True,
+                                                   premium_stop_poll_model=True)
+    mag_before = magnitude_fidelity([(r["actual"], r["replay"]) for r in baseline])
+    mag_after = magnitude_fidelity([(r["actual"], r["replay"]) for r in polled])
+    excess_before = abs((mag_before.get("aggregate_ratio") or 1.0) - 1.0)
+    excess_after = abs((mag_after.get("aggregate_ratio") or 1.0) - 1.0)
+    return {
+        "n_rows_loaded": len(v9_rows),
+        "n_missing_bars_baseline": n_missing_base, "n_missing_bars_polled": n_missing_poll,
+        "n_1min_path": sum(1 for r in polled if r.get("fill_model") == "1min_poll"),
+        "n_5min_fallback": sum(1 for r in polled if r.get("fill_model") == "5min_fallback"),
+        "n_not_applicable": sum(1 for r in polled if r.get("fill_model") == "n/a"),
+        "before_market_stage_fix_only": mag_before,
+        "after_premium_stop_poll_model": mag_after,
+        "excess_ratio_reduction_pct": (round((1 - excess_after / excess_before) * 100, 1)
+                                       if excess_before > 1e-9 else None),
+        "verdict_before": evaluate_magnitude_fidelity(mag_before),
+        "verdict_after": evaluate_magnitude_fidelity(mag_after),
+    }
+
+
 def load_v9_anchor_rows() -> list[dict]:
     """The engine's OWN entries -- reuses whole_engine_null.py's own P1 population machinery
     (load_engine_rows + build_populations["P1_post_ladder"]) verbatim rather than
@@ -393,6 +501,28 @@ def main() -> int:
         f"-> {mech_v9['after']['aggregate_ratio']}  "
         f"(verdict {mech_v9['verdict_before']} -> {mech_v9['verdict_after']})")
 
+    log("WALKER-MARKET-STAGE-FILL-ROOT-FIX 'NEXT' step: premium_stop_poll_model (walk cached "
+        "1-min bars for premium_stop/profit_lock_floor/trail/be_stop, fire at the first 1-min "
+        "close through the threshold, fall back to the 5-min static price when uncached) on "
+        "top of market_stage_fill_fix=True (the current believed baseline)...")
+    mech_poll_pdt = mechanism_premium_stop_poll_model(anchor_43, spy_map)
+    log(f"  PDT anchor: aggregate_ratio "
+        f"{mech_poll_pdt['before_market_stage_fix_only']['aggregate_ratio']} -> "
+        f"{mech_poll_pdt['after_premium_stop_poll_model']['aggregate_ratio']}  "
+        f"median $ {mech_poll_pdt['before_market_stage_fix_only']['median_abs_error_dollars']} "
+        f"-> {mech_poll_pdt['after_premium_stop_poll_model']['median_abs_error_dollars']}  "
+        f"(verdict {mech_poll_pdt['verdict_before']} -> {mech_poll_pdt['verdict_after']}, "
+        f"1min_path={mech_poll_pdt['n_1min_path']} fallback={mech_poll_pdt['n_5min_fallback']} "
+        f"n/a={mech_poll_pdt['n_not_applicable']})")
+
+    mech_poll_v9 = v9_anchor_via_multileg_poll_model(spy_map)
+    log(f"  V9 anchor: aggregate_ratio "
+        f"{mech_poll_v9['before_market_stage_fix_only']['aggregate_ratio']} -> "
+        f"{mech_poll_v9['after_premium_stop_poll_model']['aggregate_ratio']}  "
+        f"(verdict {mech_poll_v9['verdict_before']} -> {mech_poll_v9['verdict_after']}, "
+        f"1min_path={mech_poll_v9['n_1min_path']} fallback={mech_poll_v9['n_5min_fallback']} "
+        f"n/a={mech_poll_v9['n_not_applicable']})")
+
     # -- decomposition by side, on the big anchor set (unfixed, matches every prior study) ---
     big_rows, n_missing_big = run_multileg_variant(anchor_big, spy_map, "5min", slippage=0.01)
     mag_big = magnitude_fidelity([(r["actual"], r["replay"]) for r in big_rows])
@@ -423,6 +553,14 @@ def main() -> int:
         "v9_anchor_via_multileg_market_stage_fix": {
             "magnitude_fidelity": mech_v9["after"],
             "verdict": mech_v9["verdict_after"],
+        },
+        "pdt_anchor_n43_premium_stop_poll_model": {
+            "magnitude_fidelity": mech_poll_pdt["after_premium_stop_poll_model"],
+            "verdict": mech_poll_pdt["verdict_after"],
+        },
+        "v9_anchor_via_multileg_premium_stop_poll_model": {
+            "magnitude_fidelity": mech_poll_v9["after_premium_stop_poll_model"],
+            "verdict": mech_poll_v9["verdict_after"],
         },
     }
     v9_ref = None
@@ -529,6 +667,27 @@ def main() -> int:
             "verdict_before": mech_v9["verdict_before"], "verdict_after": mech_v9["verdict_after"],
             "excess_ratio_reduction_pct": mech_v9["excess_ratio_reduction_pct"],
         },
+        "premium_stop_poll_model": {
+            "queue_item": "WALKER-MARKET-STAGE-FILL-ROOT-FIX (2026-09-03 02:50 ET PARTIAL "
+                         "note's own NEXT step)",
+            "note": ("multileg_exit_walk.walk(premium_stop_poll_model=True): for "
+                    "premium_stop/profit_lock_floor/trail/be_stop legs (numeric threshold "
+                    "crossings of state.runner_stop_premium -- see multileg_exit_walk.py's "
+                    "_POLL_MODEL_STAGES module note), walks the cached 1-min OPRA bars "
+                    "(backtest/data/highres/) inside the firing 5-min bar's window and fires "
+                    "at the CLOSE of the first 1-min bar at/through the threshold -- the "
+                    "closest on-disk proxy to what a live once-a-minute quote poll would have "
+                    "observed. Falls back to the OLD state.runner_stop_premium price, "
+                    "disclosed per-trade as fill_model='5min_fallback', when no 1-min cache "
+                    "exists for the contract/date OR the cache exists but no 1-min close in "
+                    "the window actually reaches the threshold. Both new flags default False; "
+                    "byte-identical for every existing caller until BOTH are opted into "
+                    "together (premium_stop_poll_model requires market_stage_fill_fix=True to "
+                    "matter in practice, since the baseline every believed study already runs "
+                    "on is market_stage_fill_fix=True alone)."),
+            "pdt_anchor_n43": mech_poll_pdt,
+            "v9_anchor": mech_poll_v9,
+        },
         "criterion_applied_to_every_variant": criterion_applications,
         "outstanding_prereg_runs_magnitude_readable": {
             "recency-qty-clamp": "NO -- shares multileg_exit_walk with the PDT study; this "
@@ -568,6 +727,24 @@ def main() -> int:
             "for every variant (canonical_shape / anchor_trigger_level) rather than "
             "reimplementing it -- any defect in THAT resolution logic is inherited here too, "
             "not independently re-verified.",
+            f"premium_stop_poll_model (this run's 'NEXT' step) was IMPLEMENTED, MEASURED, and "
+            f"kept OFF by default: aggregate_ratio moved "
+            f"{mech_poll_pdt['before_market_stage_fix_only'].get('aggregate_ratio')} -> "
+            f"{mech_poll_pdt['after_premium_stop_poll_model'].get('aggregate_ratio')} on the "
+            f"PDT anchor and {mech_poll_v9['before_market_stage_fix_only'].get('aggregate_ratio')} "
+            f"-> {mech_poll_v9['after_premium_stop_poll_model'].get('aggregate_ratio')} on the "
+            f"V9 anchor -- WORSE on both, not better. Root reason is provable, not just "
+            f"empirical: the OLD fallback price for these stages already IS the threshold "
+            f"(state.runner_stop_premium), the least-adverse price a downside cross can have; "
+            f"the poll model can only find a 1-min close at-or-through that same threshold, so "
+            f"it can never move a leg's price toward actual on a walker that already replays "
+            f"too negative -- it can only push further away. Full mechanism note: "
+            f"multileg_exit_walk.py's `_POLL_MODEL_STAGES` module comment. The residual this "
+            f"leaves behind is a DECISION-GRANULARITY gap (whether the live 1-min poll would "
+            f"have confirmed the cross the outer 5-min bar's decision already assumed), not a "
+            f"pricing gap -- fixing it would mean walking every position at native 1-min "
+            f"resolution end-to-end, not refining the fill price inside an already-5-min-"
+            f"decided bar. Out of scope for a pricing fix; not attempted here.",
         ],
         "deviations": deviations,
     }
@@ -631,6 +808,47 @@ def _render_md(doc: dict) -> str:
         f"- After:  aggregate_ratio={doc['v9_anchor_validation']['after'].get('aggregate_ratio')}  "
         f"median_abs_error=${doc['v9_anchor_validation']['after'].get('median_abs_error_dollars')}  "
         f"verdict={doc['v9_anchor_validation']['verdict_after']}",
+        "",
+        "## 2026-09-03 follow-up, part 2: premium_stop_poll_model "
+        "(WALKER-MARKET-STAGE-FILL-ROOT-FIX's own NEXT step)",
+        f"- {doc['premium_stop_poll_model']['note']}",
+        "",
+        "### PDT anchor (n=43), market_stage_fill_fix=True baseline vs +premium_stop_poll_model",
+    ]
+    pp = doc["premium_stop_poll_model"]["pdt_anchor_n43"]
+    lines += [
+        f"- Before (market_stage_fill_fix only): aggregate_ratio="
+        f"{pp['before_market_stage_fix_only'].get('aggregate_ratio')}  median_abs_error="
+        f"${pp['before_market_stage_fix_only'].get('median_abs_error_dollars')}  "
+        f"verdict={pp['verdict_before']}",
+        f"- After (+premium_stop_poll_model):  aggregate_ratio="
+        f"{pp['after_premium_stop_poll_model'].get('aggregate_ratio')}  median_abs_error="
+        f"${pp['after_premium_stop_poll_model'].get('median_abs_error_dollars')}  "
+        f"verdict={pp['verdict_after']}",
+        f"- Excess-ratio reduction: {pp['excess_ratio_reduction_pct']}%",
+        f"- 1-min path: {pp['n_1min_path']}  5-min fallback: {pp['n_5min_fallback']}  "
+        f"not-applicable (no poll-model stage fired): {pp['n_not_applicable']}  "
+        f"(n={pp['n']})",
+        "- Stage decomposition BEFORE: " + ", ".join(
+            f"{k} ${v['total_abs_error_dollars']} (n={v['n']})"
+            for k, v in pp["stage_decomposition_before"].items()),
+        "- Stage decomposition AFTER: " + ", ".join(
+            f"{k} ${v['total_abs_error_dollars']} (n={v['n']})"
+            for k, v in pp["stage_decomposition_after"].items()),
+        "",
+        "### V9 anchor, market_stage_fill_fix=True baseline vs +premium_stop_poll_model",
+    ]
+    pv = doc["premium_stop_poll_model"]["v9_anchor"]
+    lines += [
+        f"- n_rows={pv['n_rows_loaded']}",
+        f"- Before: aggregate_ratio={pv['before_market_stage_fix_only'].get('aggregate_ratio')}  "
+        f"median_abs_error=${pv['before_market_stage_fix_only'].get('median_abs_error_dollars')}  "
+        f"verdict={pv['verdict_before']}",
+        f"- After:  aggregate_ratio={pv['after_premium_stop_poll_model'].get('aggregate_ratio')}  "
+        f"median_abs_error=${pv['after_premium_stop_poll_model'].get('median_abs_error_dollars')}  "
+        f"verdict={pv['verdict_after']}",
+        f"- 1-min path: {pv['n_1min_path']}  5-min fallback: {pv['n_5min_fallback']}  "
+        f"not-applicable: {pv['n_not_applicable']}",
         "",
         "## Big anchor population",
         f"- Window {big['window'][0]}..{big['window'][1]}, n_walked={big['n_walked']} "
