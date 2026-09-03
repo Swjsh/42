@@ -362,3 +362,6 @@ def test_kitchen_grind_does_not_block_the_heavy_tier_but_a_pytest_run_does():
     pyt = _json.dumps([{"CommandLine": "python.exe -m pytest tests/ -q"}])
     with patch.object(qm, "_ps", return_value=pyt):
         assert qm._heavy_process_running() is True
+    per_file = _json.dumps([{"CommandLine": "python.exe -m pytest -q -p no:cacheprovider tests/test_x.py"}])
+    with patch.object(qm, "_ps", return_value=per_file):
+        assert qm._heavy_process_running() is False, "a builder's per-file run must not block the tier"

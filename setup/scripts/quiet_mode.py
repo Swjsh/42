@@ -335,7 +335,13 @@ def _heavy_process_running() -> bool:
 GUARD_SUITE_MARKERS = (
     "guard_runner_full",
     "guard_runner_slow",
-    "pytest",
+    # WHOLE-suite runs only ("pytest tests/ ..."): a bare "pytest" marker matched every
+    # builder session's 2-second per-file run, and with Sonnet builders working all night one
+    # is nearly always alive -- observed 2026-09-03 01:35 ET, the tier deferred 7 cycles in a
+    # row behind a single-file test run. A per-file run is not the stacking this gate exists
+    # to prevent.
+    "pytest tests/ ",
+    "pytest tests\ ",
 )
 
 
