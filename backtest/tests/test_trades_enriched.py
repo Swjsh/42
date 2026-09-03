@@ -7,6 +7,7 @@ that unmatched rows are LISTED in _meta.unmatched, never silently dropped (C7).
 import importlib.util
 import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -29,6 +30,40 @@ def _write_jsonl(path, rows):
     with open(path, "w", encoding="utf-8") as fh:
         for r in rows:
             fh.write(json.dumps(r) + "\n")
+
+
+# --------------------------------------------------------------------------- #
+# TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER guard (filed 2026-09-01, fixed 2026-09-02):
+# this module's real-tape tests deliberately read the production ledger via
+# te.rebuild(Path(REAL_REPO_ROOT), write=False). OBSERVED THIS SESSION (before write=False
+# existed): a bare te.rebuild(REAL_REPO_ROOT) -- write defaulting True -- silently reverted
+# a just-fixed production artifact as a side effect of merely running this suite, caught
+# only by re-checking the invariant afterwards. This autouse fixture makes that class of
+# regression fail LOUD and IMMEDIATELY instead of relying on a human noticing later: it
+# snapshots the real artifact's mtime+size before this module's tests run and asserts both
+# are unchanged after, so any test that regresses to a write=True call against the real
+# repo root trips this on the very next run.
+# --------------------------------------------------------------------------- #
+
+_REAL_ARTIFACT_PATH = Path(ROOT) / "analysis" / "trades-enriched.jsonl"
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _real_trades_enriched_artifact_untouched():
+    mtime_before = _REAL_ARTIFACT_PATH.stat().st_mtime if _REAL_ARTIFACT_PATH.exists() else None
+    size_before = _REAL_ARTIFACT_PATH.stat().st_size if _REAL_ARTIFACT_PATH.exists() else None
+    yield
+    mtime_after = _REAL_ARTIFACT_PATH.stat().st_mtime if _REAL_ARTIFACT_PATH.exists() else None
+    size_after = _REAL_ARTIFACT_PATH.stat().st_size if _REAL_ARTIFACT_PATH.exists() else None
+    assert mtime_after == mtime_before, (
+        f"analysis/trades-enriched.jsonl mtime changed while this test module ran "
+        f"({mtime_before} -> {mtime_after}) -- some test wrote to the REAL production "
+        f"artifact as a side effect instead of using write=False / a tmp_path repo."
+    )
+    assert size_after == size_before, (
+        f"analysis/trades-enriched.jsonl size changed while this test module ran "
+        f"({size_before} -> {size_after}) -- same class of regression as the mtime check."
+    )
 
 
 # --------------------------------------------------------------------------- #

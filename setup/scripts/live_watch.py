@@ -66,6 +66,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Optional
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -738,7 +739,7 @@ def run_once(force_open: bool = False) -> int:
         from et_clock import et_now
         now_et = et_now()
     except Exception:  # noqa: BLE001
-        now_et = dt.datetime.utcnow() + dt.timedelta(hours=-4)
+        now_et = dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
     state = "RTH" if force_open else market_state_for(now_et)
     prev = _read_json(OUT_PATH)
 

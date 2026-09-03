@@ -58,6 +58,7 @@ from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
 import refused_setup_ledger as refusals  # noqa: E402 -- fetch_bars() reuse
 from et_clock import et_now  # noqa: E402
 import go_live_gate as glg  # noqa: E402 -- fee_ex_cat() A1 cost model reuse
+import trades_enriched as te_producer  # noqa: E402 -- TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER refresh
 
 PREREG = REPO / "analysis" / "recommendations" / "prereg-whole-engine-null-2026-09-01.json"
 TRADES_ENRICHED = REPO / "analysis" / "trades-enriched.jsonl"
@@ -91,6 +92,59 @@ COST_SLIP_CENTS = glg.COST_MODEL_EXIT_SLIPPAGE_CENTS  # 2c/contract, A1's model,
 
 def log(msg: str) -> None:
     print(f"[whole-engine-null] {msg}", flush=True)
+
+
+# ============================================================================================ #
+# TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER (filed 2026-09-01): nothing regenerates
+# analysis/trades-enriched.jsonl on a schedule, so this Friday study -- "the single most
+# important number on the board" per the work order -- silently scored whatever staleness
+# happened to be on disk. FIX: refresh it here, at the top of the run, unless --no-refresh is
+# passed. trades_enriched.rebuild() is $0 and deterministic (stdlib only, no broker calls), so
+# there is no cost case against doing this every run. FAIL-OPEN, not FAIL-SILENT (C7): if the
+# rebuild itself raises, log it loudly and continue with whatever is already on disk -- a
+# refresh failure must never turn into a null-study failure, but it must never be quiet either.
+# ============================================================================================ #
+def refresh_trades_enriched(skip: bool = False) -> dict:
+    """Regenerate analysis/trades-enriched.jsonl before this study reads it.
+
+    Returns a status dict that gets embedded verbatim in the study's own output doc under
+    `trades_enriched_refresh`, so a reader of the JSON (or go_live_gate, which does the same
+    thing) never has to guess whether the input was fresh.
+    """
+    if skip:
+        log("trades-enriched refresh SKIPPED (--no-refresh)")
+        return {"status": "SKIPPED", "reason": "--no-refresh passed"}
+
+    n_before = None
+    mtime_before = None
+    if TRADES_ENRICHED.exists():
+        mtime_before = TRADES_ENRICHED.stat().st_mtime
+        with open(TRADES_ENRICHED, encoding="utf-8") as fh:
+            n_before = sum(1 for line in fh if line.strip()) - 1  # minus the _meta line
+
+    try:
+        result = te_producer.rebuild(REPO)
+        n_after = result["meta"]["n_rows"]
+        mtime_after = TRADES_ENRICHED.stat().st_mtime
+        log(f"trades-enriched refreshed: rows {n_before} -> {n_after}, "
+            f"mtime {mtime_before} -> {mtime_after}")
+        return {
+            "status": "OK",
+            "n_rows_before": n_before,
+            "n_rows_after": n_after,
+            "mtime_before": mtime_before,
+            "mtime_after": mtime_after,
+        }
+    except Exception as exc:  # noqa: BLE001 -- fail-open: a stale refresh must never block
+        # the study, but it must NEVER be silent either (C7: audit outputs, not exit codes).
+        log(f"trades-enriched refresh FAILED ({type(exc).__name__}: {exc}) -- "
+            f"continuing with the on-disk file as-is (rows={n_before}, mtime={mtime_before})")
+        return {
+            "status": "FAILED",
+            "error": f"{type(exc).__name__}: {exc}",
+            "n_rows_before": n_before,
+            "mtime_before": mtime_before,
+        }
 
 
 # ============================================================================================ #
@@ -919,7 +973,8 @@ def finalize_verdict(mechanical_verdict: str, harness_reliable: bool) -> str:
     return WITHHELD_VERDICT
 
 
-def run(date: str, resamples: int, seed: int, fetch_budget_s: float, skip_fetch: bool) -> dict:
+def run(date: str, resamples: int, seed: int, fetch_budget_s: float, skip_fetch: bool,
+        trades_enriched_refresh: Optional[dict] = None) -> dict:
     t0 = time.monotonic()
     prereg = load_prereg()
     deviations: list[str] = []
@@ -1080,6 +1135,7 @@ def run(date: str, resamples: int, seed: int, fetch_budget_s: float, skip_fetch:
         "overall_verdict": finalize_verdict(pass_eval["verdict"], harness_reliable),
         "deviations": deviations,
         "look_ahead_guards_note": prereg["look_ahead_guards"],
+        "trades_enriched_refresh": trades_enriched_refresh or {"status": "NOT_ATTEMPTED"},
     }
     return doc
 
@@ -1159,9 +1215,13 @@ def main() -> int:
     ap.add_argument("--fetch-budget-s", type=float, default=FETCH_BUDGET_S_DEFAULT)
     ap.add_argument("--skip-fetch", action="store_true",
                     help="cache-only: never hit the network, honest-null any missing contract")
+    ap.add_argument("--no-refresh", action="store_true",
+                    help="skip the trades-enriched.jsonl regeneration at startup and score "
+                         "the on-disk file as-is (default: always refresh first)")
     a = ap.parse_args()
     date = a.date or et_now().date().isoformat()
-    doc = run(date, a.resamples, a.seed, a.fetch_budget_s, a.skip_fetch)
+    refresh_status = refresh_trades_enriched(skip=a.no_refresh)
+    doc = run(date, a.resamples, a.seed, a.fetch_budget_s, a.skip_fetch, refresh_status)
     write_outputs(doc, date)
     return 0
 

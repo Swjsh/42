@@ -97,6 +97,7 @@ import datetime as dt
 import json
 import sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 from typing import Optional
 
 REPO = Path(__file__).resolve().parents[2]
@@ -162,7 +163,7 @@ def _et_today() -> str:
         from et_clock import et_today_str  # noqa: PLC0415 -- optional dep, fail-open below
         return et_today_str()
     except Exception:  # noqa: BLE001
-        return (dt.datetime.utcnow() - dt.timedelta(hours=4)).date().isoformat()
+        return dt.datetime.now(ZoneInfo("America/New_York")).date().isoformat()
 
 
 def load_config(path: Optional[Path] = None) -> dict:

@@ -102,6 +102,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -112,7 +113,7 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001  -- fail-open (rig is on Mountain; never Bash TZ)
     def et_now() -> dt.datetime:
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 # ---------------------------------------------------------------------------
 # arms + sources

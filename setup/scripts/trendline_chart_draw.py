@@ -2,10 +2,13 @@
 """trendline_chart_draw.py -- bull+bear symmetric trendline CHART-DRAWING bridge.
 
 Built 2026-08-09 (Task 2 of the bull-trendline-graduation + chart-drawing session).
-This module owns the "what to draw" computation for both directions; the actual
-draw_shape / draw_remove_one MCP calls happen in a live Claude+CDP session (they
-cannot run from a headless scheduled task -- see ARCHITECTURE NOTE below, verified
-against this repo's OWN prior finding, not re-derived).
+This module owns the "what to draw" computation for both directions. The actual
+drawing can happen either from a live Claude+CDP session (draw_shape / draw_remove_one
+MCP calls) OR headless: `setup/scripts/trendline_headless_draw.py` (2026-09-03,
+TRENDLINE-DRAW-HEADLESS) imports `compute_draw_payload` from this module and draws via
+`tv_cdp.TvChart`, the SAME headless CDP path `Gamma_ChartAutoDraw` (2026-08-06,
+`draw_key_levels.py`) already proved works from a bare pythonw scheduled task -- NOT a
+headless-CDP constraint (see the CORRECTED ARCHITECTURE NOTE below).
 
 WHY A NEW BRIDGE, GIVEN THE EXISTING trendline-draw SKILL ALREADY DRAWS LINES
 -------------------------------------------------------------------------------
@@ -49,20 +52,29 @@ future regression in an untested edge case cannot break chart drawing or -- more
 importantly -- anything else, since this module has zero order/exit/decision side
 effects (read bars in, drawing payloads out).
 
-ARCHITECTURE NOTE -- why this cannot become a new always-on scheduled task
+ARCHITECTURE NOTE -- CORRECTED 2026-09-03 (TRENDLINE-DRAW-HEADLESS)
 ---------------------------------------------------------------------------
-Verified first-hand this session (`mcp__tradingview__tv_health_check` fails until
-TradingView Desktop + CDP is launched via `setup/launch_tv_debug.ps1`; `draw_shape`
-et al. are MCP tools that only exist inside a live Claude+CDP session) and matches
-the trendline-draw skill's own prior finding: "draw_shape only appears in
-automation/prompts/*.md persona instructions, never in a standalone .py script." A
-Windows Scheduled Task launching bare pythonw.exe has no Claude session and therefore
-no MCP tools to call -- there is no code fix for this, it is the shape of the
-integration. DRAWING is therefore always: (a) embedded in an LLM-driven persona fire
-that already runs as a live session (Gamma_Premarket, 08:30 ET -- "fold into the
-existing scheduled task" per the task brief means THIS one, not a new one), or
-(b) on-demand, any time a live session invokes the trendline-draw skill. DETECTION
-(this module's `compute_draw_payload`, no MCP calls) can run standalone/headless.
+The ORIGINAL version of this note (2026-08-09) claimed the draw_shape/draw_remove_one
+calls "cannot run from a headless scheduled task" and cited `mcp__tradingview__
+tv_health_check` failing without a live Claude+CDP session as proof. **That was NEVER
+a headless-CDP constraint -- it was an MCP constraint, and this repo had already
+disproved it THREE DAYS EARLIER.** `Gamma_ChartAutoDraw` (registered 2026-08-06,
+`setup/scripts/draw_key_levels.py` + `tv_cdp.py`) draws on the live TradingView chart
+from a bare `pythonw.exe` Windows Scheduled Task with zero Claude session and zero MCP
+tools involved: `tv_cdp.py` speaks the same CDP protocol on port 9222 and calls the
+same `createShape`/`getAllShapes`/`removeEntity` entry points the MCP's own
+`drawing.js` uses, directly from plain Python. This module's header inherited the
+already-falsified "cannot run headless" claim instead of checking it against that
+prior finding, and cited its own inheritance as the justification (an OP-32 provenance
+failure). `setup/scripts/trendline_headless_draw.py` is the fix: it imports
+`compute_draw_payload` from this module (unchanged, no MCP calls, still headless-
+detection-only as designed) and draws it via `tv_cdp.TvChart.create_trend_line`,
+mirroring `draw_key_levels.py`'s production-proven mechanism. DRAWING is therefore now
+ALSO available headless/always-on (`Gamma_TrendlineHeadlessDraw`), in addition to the
+existing live-session paths: (a) embedded in an LLM-driven persona fire (Gamma_
+Premarket, 08:30 ET), or (b) on-demand via the trendline-draw skill. DETECTION (this
+module's `compute_draw_payload`, no MCP calls) always could run standalone/headless;
+now DRAWING can too.
 
 $0, pure Python (+ pandas for the DataFrame adapter). No MCP calls in this file --
 draw_shape/draw_remove_one/draw_list happen in the calling session. Read-only import

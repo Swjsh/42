@@ -29,6 +29,7 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
@@ -38,7 +39,7 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001
     def et_now() -> dt.datetime:  # fail-open ET fallback (rig is on Mountain; ET=local+2)
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 GREEN = "[GREEN]"
 RED = "[RED]"

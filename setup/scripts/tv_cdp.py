@@ -230,6 +230,40 @@ class TvChart:
         new_ids = [i for i in after if i not in before]
         return new_ids[0] if new_ids else None
 
+    def create_trend_line(self, point: dict, point2: dict, text: str, overrides: dict | None = None) -> str | None:
+        """Draw one two-point `trend_line` shape; returns the new entity_id (or None).
+
+        `point`/`point2` are `{"time": unix, "price": float}` -- SAME shape and same
+        canonical-unix-direct convention documented in
+        `automation/scripts/tv_ops/draw_trendline.md` for `mcp__tradingview__draw_shape`
+        (no manual TZ offset needed; TV's own storage-layer -14400 shift is internal to
+        the chart widget regardless of caller). Added 2026-09-03 (TRENDLINE-DRAW-HEADLESS).
+
+        Uses `createMultipointShape(points, options)`, NOT `createShape` -- verified
+        live this session: `createShape({point}, {..., point2: {...}})` throws
+        "Wrong points count for trend_line. Required 2" (`_createMultipointShape`'s own
+        validation). `create_horizontal_line` above is correctly single-point (`createShape`
+        with `point` only); a `trend_line` is a 2-point shape and needs the sibling API,
+        which (also verified live) returns the new entity_id directly -- no before/after
+        id-diffing needed here, unlike `create_horizontal_line`.
+        """
+        for pt in (point, point2):
+            v = float(pt["price"])
+            if v != v or v in (float("inf"), float("-inf")):
+                raise ValueError(f"non-finite price in point: {pt!r}")
+        p1 = json.dumps({"time": int(point["time"]), "price": float(point["price"])})
+        p2 = json.dumps({"time": int(point2["time"]), "price": float(point2["price"])})
+        ovr = json.dumps(overrides or {})
+        eid = self.evaluate(
+            f"""
+            {CHART_API}.createMultipointShape(
+              [{p1}, {p2}],
+              {{ shape: "trend_line", overrides: {ovr}, text: {json.dumps(text)} }}
+            )
+            """
+        )
+        return eid or None
+
     def remove_entity(self, entity_id: str) -> bool:
         """Remove ONE shape by id. Returns True only if it is verifiably gone."""
         js = f"""

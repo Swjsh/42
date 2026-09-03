@@ -25,6 +25,7 @@ import datetime as dt
 import json
 import sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -34,7 +35,7 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001
     def et_now() -> dt.datetime:  # fail-open (rig is on Mountain; never Bash TZ)
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 
 def derive_ticks(day: str, core_path: Path) -> tuple[int, str | None]:

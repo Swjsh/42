@@ -78,6 +78,7 @@ for _p in (SCRIPTS_DIR,):
         sys.path.insert(0, str(_p))
 
 from et_clock import et_now, ET_TZ  # noqa: E402
+import trades_enriched as te_producer  # noqa: E402 -- TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER refresh
 
 TRADES_ENRICHED = REPO / "analysis" / "trades-enriched.jsonl"
 CORE_DECISIONS_PATH = REPO / "automation" / "state" / "core-decisions.jsonl"
@@ -1013,6 +1014,52 @@ def regime_coverage_block() -> dict:
 # ========================================================================================= #
 # Orchestration
 # ========================================================================================= #
+def refresh_trades_enriched(skip: bool = False) -> dict:
+    """Regenerate analysis/trades-enriched.jsonl before THE GATE reads it.
+
+    TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER (filed 2026-09-01): nothing regenerates this
+    artifact on a schedule, and go_live_gate.py is the highest-stakes reader of it -- a stale
+    input here is exactly the L298 stale-monitor class the whole item is named for. This is
+    an INPUT refresh only: it touches no criterion or threshold below. FAIL-OPEN (C7): a
+    rebuild failure is logged loudly to stderr and the on-disk file is scored as-is, never
+    silently -- the gate must never go dark because its own refresh step broke.
+    """
+    if skip:
+        print("[go_live_gate] trades-enriched refresh SKIPPED (--no-refresh)", file=sys.stderr)
+        return {"status": "SKIPPED", "reason": "--no-refresh passed"}
+
+    n_before = None
+    mtime_before = None
+    if TRADES_ENRICHED.exists():
+        mtime_before = TRADES_ENRICHED.stat().st_mtime
+        with open(TRADES_ENRICHED, encoding="utf-8") as fh:
+            n_before = sum(1 for line in fh if line.strip()) - 1  # minus the _meta line
+
+    try:
+        result = te_producer.rebuild(REPO)
+        n_after = result["meta"]["n_rows"]
+        mtime_after = TRADES_ENRICHED.stat().st_mtime
+        print(f"[go_live_gate] trades-enriched refreshed: rows {n_before} -> {n_after}, "
+              f"mtime {mtime_before} -> {mtime_after}", file=sys.stderr)
+        return {
+            "status": "OK",
+            "n_rows_before": n_before,
+            "n_rows_after": n_after,
+            "mtime_before": mtime_before,
+            "mtime_after": mtime_after,
+        }
+    except Exception as exc:  # noqa: BLE001 -- fail-open, never fail-silent (C7)
+        print(f"[go_live_gate] trades-enriched refresh FAILED "
+              f"({type(exc).__name__}: {exc}) -- continuing with the on-disk file "
+              f"(rows={n_before}, mtime={mtime_before})", file=sys.stderr)
+        return {
+            "status": "FAILED",
+            "error": f"{type(exc).__name__}: {exc}",
+            "n_rows_before": n_before,
+            "mtime_before": mtime_before,
+        }
+
+
 def load_ledger_rows() -> list[dict]:
     rows = []
     for line in TRADES_ENRICHED.read_text(encoding="utf-8").splitlines():
@@ -1028,7 +1075,7 @@ def load_ledger_rows() -> list[dict]:
     return rows
 
 
-def build_report() -> dict:
+def build_report(trades_enriched_refresh: dict | None = None) -> dict:
     all_rows = load_ledger_rows()
     engine_rows = [r for r in all_rows if r["attribution"] == "engine"]
 
@@ -1061,6 +1108,7 @@ def build_report() -> dict:
                 "filters.py/strategies.py/fleet_executor.py/risk_gate.py/exit_manager.py. Live-money "
                 "arming stays J's decision alone (OP-0 #1). See MEMORY / CLAUDE.md.",
         "overall_verdict": "GREEN" if overall else "RED",
+        "trades_enriched_refresh": trades_enriched_refresh or {"status": "NOT_ATTEMPTED"},
         "criteria": groups,
         "roster": ACTIVE_ARMS,
         "risk_cap_pct_assumption": RISK_CAP_PCT,
@@ -1214,6 +1262,8 @@ def render_human(report: dict) -> str:
                       f"worst_day={fw['worst_day']} days_down>1%={fw['days_down_gt_1pct']}")
         if rc.get("calm_only_window_warning"):
             lines.append(f"   *** {rc['calm_only_window_warning']} ***")
+        lines.append("   stress-day study: analysis/regime-stress/REGIME-STRESS-2026-09-02.md "
+                     "(SIM-ONLY, disclosure only)")
         lines.append("")
 
     return "\n".join(lines)
@@ -1385,9 +1435,13 @@ def render_markdown(report: dict) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true", help="print machine JSON instead of the human table")
+    parser.add_argument("--no-refresh", action="store_true",
+                         help="skip the trades-enriched.jsonl regeneration at startup and "
+                              "score the on-disk file as-is (default: always refresh first)")
     args = parser.parse_args(argv)
 
-    report = build_report()
+    refresh_status = refresh_trades_enriched(skip=args.no_refresh)
+    report = build_report(refresh_status)
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     OUT_MD.write_text(render_markdown(report), encoding="utf-8")

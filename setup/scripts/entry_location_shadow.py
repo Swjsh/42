@@ -92,8 +92,9 @@ def round_trips(cred: dict, date: str) -> list[dict]:
 
     def _et_date(iso: str) -> str:
         import datetime as dt
+        from zoneinfo import ZoneInfo
         return (dt.datetime.fromisoformat(iso.replace("Z", "+00:00"))
-                - dt.timedelta(hours=4)).date().isoformat()
+                .astimezone(ZoneInfo("America/New_York")).date().isoformat())
 
     fills = [o for o in _get(url, cred)
              if o["symbol"].startswith("SPY") and float(o.get("filled_qty") or 0) > 0

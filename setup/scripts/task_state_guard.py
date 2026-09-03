@@ -66,6 +66,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Callable, Optional
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -74,7 +75,7 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001 -- fail-open on the clock import too (self_check.py's own pattern)
     def et_now():
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 OUT_PATH = STATE / "task-state-guard.json"
 DISCORD_OUTBOX = STATE / "discord-outbox.jsonl"

@@ -92,6 +92,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -107,7 +108,7 @@ try:
     from et_clock import et_now as _et_now, ET_TZ as _ET_TZ
 except Exception:  # noqa: BLE001 -- fail-open fallback, mirrors conductor_wake_watch.py
     def _et_now():
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
     _ET_TZ = None
 
 # Reuse the SAME proximity-fallback level lookup exit_manager already documents as the

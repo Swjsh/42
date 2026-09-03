@@ -86,6 +86,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any, Optional
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO / "setup" / "scripts"
@@ -99,7 +100,7 @@ try:
     from et_clock import et_now  # DST-aware; see project_tz_systemic_fix -- never naive now()
 except Exception:  # noqa: BLE001 -- degrade, never go dark for a clock import failure
     def et_now() -> dt.datetime:
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 SCHEMA = "quote-tape/1"
 STATUS_SCHEMA = "quote-recorder-status/1"

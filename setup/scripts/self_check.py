@@ -37,6 +37,7 @@ from __future__ import annotations
 import json, re, sys
 import datetime as dt
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
@@ -44,7 +45,7 @@ sys.path.insert(0, str(REPO / "setup" / "scripts"))
 try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001
-    def et_now(): return dt.datetime.utcnow() - dt.timedelta(hours=4)
+    def et_now(): return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 STATUS_MD = REPO / "automation" / "overnight" / "STATUS.md"
 DISCORD_OUTBOX = STATE / "discord-outbox.jsonl"
@@ -892,47 +893,76 @@ def check_prior_trading_day_dark(now, core_path=None, calendar_path=None) -> lis
             f"(engine-health.json position_safe/position_bold) before treating this as cosmetic."]
 
 
-TRENDLINE_DRAW_STATE = STATE / "trendline-draw-state.json"
+TRENDLINE_DRAW_STATE = STATE / "trendline-headless-draw.json"
+
+# Statuses meaning the chart's trendlines were actually (re)drawn this run.
+TRENDLINE_DRAW_OK_STATUSES = ("OK",)
+# The EXPECTED fail-open paths (TradingView/CDP down, or too few bars) -- routine off-hours
+# conditions, not a defect. Still worth a quiet, non-alarming trace (report-only), distinct
+# from a genuine ERROR status.
+TRENDLINE_DRAW_SOFT_SKIP_STATUSES = ("SKIPPED_TV_DOWN", "SKIPPED_NO_DATA")
 
 
 def check_trendline_draw_freshness(now, path=None) -> list:
-    """VISIBILITY instrument for premarket Step 5c (TRENDLINE-FIXES-2026-07-17 item 1: 'PREMARKET
-    DRAW CANNOT SILENTLY SKIP'). Step 5c (automation/prompts/premarket.md) draws the live engine's
-    trendlines on J's chart once daily inside the 08:30 ET Gamma_Premarket fire -- an LLM-driven
-    step with a context-budget ceiling, unlike the pure-Python producers this file mostly watches.
-    Two budget-skips happened in two days (2026-07-16/17) and both went ONLY to journal
-    '## Setups skipped' -- nothing self_check/engine-health/STATUS.md ever surfaced, so J found out
-    only by noticing his chart was bare. trendline_draw_state.mark_run() (called by the skill /
-    Step 5c on both the success and the skip path) is the producer this reads.
+    """VISIBILITY instrument for the daily trendline chart-drawing pass.
 
-    DEGRADED, never BROKEN: Step 5c is explicitly 'additive visibility, never load-bearing for the
-    trading day' (premarket.md's own words) -- a miss does not block or misinform trading decisions
-    the way a stale macro calendar or contradictory key-levels role does, so this must not classify
-    as BROKEN (see _problem_is_broken) even though it is still worth a real, non-silent flag."""
+    RE-POINTED 2026-09-03 AT THE LIVE PRODUCER (TRENDLINE-DRAW-HEADLESS, same shape as
+    CHART-DRAWING's 2026-09-02 re-point -- see check_chart_wipe_redraw_freshness above). This
+    check used to watch premarket Step 5c, an LLM-discretionary step (automation/prompts/
+    premarket.md) that stamped the OLD `trendline-draw-state.json#last_run` -- and which had
+    skipped with reason='budget conservation' (an LLM choosing not to run a $0 deterministic
+    job) while `trendline_chart_draw.py` sat unused, citing a headless-CDP constraint that
+    `Gamma_ChartAutoDraw` (2026-08-06) had already disproved. `setup/scripts/
+    trendline_headless_draw.py` (registered as `Gamma_TrendlineHeadlessDraw`) is the fix: a
+    pure-Python, $0, no-LLM producer that stamps `trendline-headless-draw.json` instead. This
+    check now reads THAT file and never touches the old one -- the old stamp keeps its own
+    meaning ("the LLM skill ran today") for anyone still consulting it by hand.
+
+    Gated on STATUS, not just today's date (same reasoning as CHART-DRAWING): the producer
+    write_state()s on every path, including its own failure/skip paths, so a bare "as_of is
+    today" test would read GREEN on a TradingView-down morning while the chart still carries
+    yesterday's lines. `SKIPPED_TV_DOWN`/`SKIPPED_NO_DATA` are the EXPECTED fail-open route
+    (this repo's rig is often not staring at a live TradingView session off-hours) and get a
+    softer, report-only message than a genuine `ERROR` -- doctrine ordinarily says fail-open
+    is a pass, not a defect, so this must never escalate a routine TV-down skip to the same
+    severity as an actual bug, while still leaving a non-silent trace either way.
+
+    DEGRADED, never BROKEN: chart drawing is explicitly 'additive visibility, never load-
+    bearing for the trading day' -- a miss does not block or misinform trading decisions the
+    way a stale macro calendar or contradictory key-levels role does, so no message here may
+    contain a BROKEN-classifying substring (see _problem_is_broken)."""
     if now.weekday() >= 5:
-        return []  # no premarket fire on weekends -- nothing to check
+        return []  # no weekday draw window on weekends -- nothing to check
     if now.strftime("%H:%M") < "09:00":
-        return []  # give Step 5c (08:30 ET) its slack window before judging today stale
+        return []  # give the premarket window its slack before judging today stale
     p = path or TRENDLINE_DRAW_STATE
     today = now.strftime("%Y-%m-%d")
     try:
-        state = json.loads(p.read_text(encoding="utf-8"))
+        data = json.loads(p.read_text(encoding="utf-8-sig"))
     except Exception:  # noqa: BLE001
-        state = {}
-    last_run = state.get("last_run") if isinstance(state, dict) else None
-    if not isinstance(last_run, dict) or not last_run.get("date_et"):
-        return [f"TRENDLINE-DRAW never marked today ({today}) -- Step 5c may have silently "
-                f"skipped (context-budget or TV-down) with no trace beyond the journal. Non-load-"
-                f"bearing (visibility only); run the trendline-draw skill by hand to catch up."]
-    if last_run["date_et"] != today:
-        return [f"TRENDLINE-DRAW STALE: last mark_run was {last_run['date_et']} ({last_run.get('status')}), "
-                f"not today ({today}) -- Step 5c likely didn't fire this morning. Non-load-bearing "
-                f"(visibility only); run the trendline-draw skill by hand to catch up."]
-    if last_run.get("status") == "skipped":
-        reason = last_run.get("reason") or "no reason recorded"
-        return [f"TRENDLINE-DRAW SKIPPED today ({today}): {reason}. Non-load-bearing (visibility "
-                f"only); run the trendline-draw skill by hand if J wants the chart populated."]
-    return []
+        data = {}
+    if not isinstance(data, dict) or not data.get("as_of"):
+        return [f"TRENDLINE-DRAW never marked today ({today}) -- trendline_headless_draw.py "
+                f"left no stamp in {p.name}, so J's chart may be carrying stale trendlines with "
+                f"no trace. Non-load-bearing (visibility only); run "
+                f"`python setup/scripts/trendline_headless_draw.py` to catch up."]
+    as_of_date = str(data["as_of"])[:10]
+    if as_of_date != today:
+        return [f"TRENDLINE-DRAW STALE: last stamp was {as_of_date}, not today ({today}) -- "
+                f"trendline_headless_draw.py did not complete a run this morning. Non-load-"
+                f"bearing (visibility only); run "
+                f"`python setup/scripts/trendline_headless_draw.py` to catch up."]
+    status = str(data.get("status") or "UNKNOWN")
+    if status in TRENDLINE_DRAW_OK_STATUSES:
+        return []
+    reason = data.get("reason") or "no reason recorded"
+    if status in TRENDLINE_DRAW_SOFT_SKIP_STATUSES:
+        return [f"TRENDLINE-DRAW skipped today ({today}): status={status} ({reason}) -- the "
+                f"expected fail-open path (TradingView/CDP not up), report-only. Non-load-"
+                f"bearing; nothing to do unless this persists across multiple days."]
+    return [f"TRENDLINE-DRAW DID NOT DRAW today ({today}): status={status} ({reason}) -- ran "
+            f"but did not update the chart. Non-load-bearing (visibility only); check "
+            f"TradingView/CDP on 9222, then run `python setup/scripts/trendline_headless_draw.py`."]
 
 
 CHART_AUTODRAW_STATE = STATE / "chart-autodraw.json"

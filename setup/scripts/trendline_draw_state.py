@@ -35,9 +35,10 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001
     import datetime as _dt
+    from zoneinfo import ZoneInfo
 
     def et_now():  # pragma: no cover -- fallback mirrors self_check.py's own fallback
-        return _dt.datetime.utcnow() - _dt.timedelta(hours=4)
+        return _dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 
 def load() -> dict:
@@ -77,8 +78,11 @@ def mark_run(status: str, reason: str = "") -> dict:
     item 1: 'PREMARKET DRAW CANNOT SILENTLY SKIP'. Two budget-skips in two days (2026-07-16/17)
     went to journal '## Setups skipped' only -- nothing self_check/engine-health reads, so J never
     saw it. This is independent of the entity-id bookkeeping above (a 'skipped' run has no
-    entities); self_check.check_trendline_draw_freshness() reads last_run to detect a silent skip
-    or a missed fire entirely (state never touched today)."""
+    entities). NOTE (2026-09-03): self_check.check_trendline_draw_freshness() was RE-POINTED at
+    the new headless producer's stamp (`trendline-headless-draw.json`, written by
+    `setup/scripts/trendline_headless_draw.py`) and no longer reads this file's `last_run` --
+    kept here only for anyone still invoking the LLM skill by hand; see that function's
+    docstring for the full re-point rationale (TRENDLINE-DRAW-HEADLESS)."""
     now = et_now()
     last_run = {
         "status": status,

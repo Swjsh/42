@@ -66,6 +66,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 # automation/state/weekly/participation_cascade.py -> weekly -> state -> automation -> 42/
 REPO = Path(__file__).resolve().parents[3]
@@ -79,7 +80,7 @@ try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001 -- fail-open, mirrors the SPY-side instrument's own precedent
     def et_now() -> dt.datetime:
-        return dt.datetime.utcnow() - dt.timedelta(hours=4)
+        return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 
 # Must equal setup/scripts/weekly_core.py's STAGE_* constants. Duplicated as PLAIN STRINGS
 # (not imported from weekly_core.py) so this instrument reads the LEDGER'S OWN WRITTEN

@@ -13,6 +13,7 @@ from __future__ import annotations
 import json, sys
 import datetime as dt
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 REPO = Path(__file__).resolve().parents[1].parent
 STATE = REPO / "automation" / "state"
@@ -20,7 +21,7 @@ sys.path.insert(0, str(REPO / "setup" / "scripts"))
 try:
     from et_clock import et_now
 except Exception:  # noqa: BLE001
-    def et_now(): return dt.datetime.utcnow() - dt.timedelta(hours=4)
+    def et_now(): return dt.datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
 try:
     from arm_display import display_name_for_arm_id
 except Exception:  # noqa: BLE001

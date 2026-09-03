@@ -296,6 +296,11 @@ journal/gex-archive/*-cboe.json
 # recovery path, so this file is disposable by design.
 automation/state/chart-autodraw.json
 
+# Same C34 reasoning, same live-entity_id shape, for the headless trendline drawer
+# (TRENDLINE-DRAW-HEADLESS 2026-09-03): "[GTL] " TAG sweep in trendline_headless_draw.py
+# is the recovery path.
+automation/state/trendline-headless-draw.json
+
 # --- Obsidian vault (2026-08-09) -------------------------------------------
 # The repo root IS an Obsidian vault (.obsidian created 2026-07-09). This repo is
 # PUBLIC, so the personal/vendored parts of the vault must never be pushed:
