@@ -101,6 +101,27 @@ def test_comment_mentioning_subprocess_run_is_not_flagged(tmp_path, monkeypatch)
     assert flags == [], f"a comment-only mention was wrongly flagged as a call site: {flags}"
 
 
+def test_ps1_comment_mentioning_python_is_not_flagged(tmp_path, monkeypatch):
+    """Regression guard (mirrors the py-side fix, commit 6c9bb2a4, queue item
+    PS1-BARE-PYTHON-COMMENT-SKIP): a PowerShell `#` doc comment that merely
+    prose-mentions a bare `python.exe` invocation must not be flagged as a real
+    call site -- only an actual uncommented bare-python line should flag."""
+    ps1 = tmp_path / "run-example.ps1"
+    ps1.write_text(
+        "# python.exe used to be called bare here -- now routed through the hidden shim.\n"
+        "Invoke-PythonHidden -ScriptPath 'C:/repo/script.py'\n"
+        "python.exe C:/repo/other_script.py\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(AUD, "SCRIPTS_DIR", tmp_path)
+    monkeypatch.setattr(AUD, "REPO", tmp_path)
+    monkeypatch.setattr(AUD, "PS1_BARE_PYTHON_EXEMPT", set())
+    flags = AUD._audit_ps1_bare_python()
+    lines = {f["line"] for f in flags}
+    assert 1 not in lines, f"commented python.exe mention was wrongly flagged: {flags}"
+    assert 3 in lines, f"real uncommented bare-python call site was NOT flagged: {flags}"
+
+
 # --- hook launcher rule (corrected 2026-08-29) -----------------------------------------
 # The rule used to demand a hidden wrapper around EVERY python-ish hook launcher,
 # including pythonw. That flagged 7 compliant hooks, and its prescribed "fix" would have

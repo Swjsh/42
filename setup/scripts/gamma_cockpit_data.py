@@ -192,6 +192,31 @@ def _generic_tick(r: dict) -> dict:
     }
 
 
+def _kalshi_weather_tick(r: dict) -> dict:
+    """Shape one row of kalshi_auto.py's weather lane (weather-predictions.jsonl)
+    for the cockpit tick stream. This lane has no `verdict` field the way other
+    engines' decision rows do -- the "decision" is which contract it picked
+    (`pick_ticker`) and, once the day's high has been observed, whether that pick
+    won (`pick_won`). `_generic_tick` returns "—" for every row here because none
+    of its verdict-ish keys exist on this shape (KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE)."""
+    scored = r.get("observed") is not None
+    verdict = ("WIN" if r.get("pick_won") else "LOSS") if scored else "PICKED"
+    label = r.get("label") or r.get("series") or "?"
+    pick = r.get("pick_ticker") or ""
+    p = r.get("pick_p")
+    ask = r.get("pick_ask")
+    why = "%s -> %s (p=%.2f, ask=%.2f)" % (label, pick, p if isinstance(p, (int, float)) else 0.0,
+                                            ask if isinstance(ask, (int, float)) else 0.0)
+    if scored:
+        why += " observed=%s abs_err=%s" % (r.get("observed"), r.get("abs_err"))
+    return {
+        "ts": r.get("ts_utc"),
+        "verdict": verdict,
+        "why": why[:180],
+        "sym": r.get("series") or "",
+    }
+
+
 def engine_room() -> dict:
     """Per-engine heartbeat. Each engine reports from its OWN ledger."""
     engines = []
@@ -234,16 +259,22 @@ def engine_room() -> dict:
         "total": _count(p), "ticks": list(reversed(ticks)), "verdicts": _tally(ticks),
     })
 
-    # --- kalshi -----------------------------------------------------------
-    p = STATE / "kalshi" / "shadow-ledger.jsonl"
-    lt = STATE / "kalshi" / "last-tick.json"
+    # --- kalshi -------------------------------------------------------------
+    # weather-predictions.jsonl is kalshi_auto.py's ledger -- the live weather
+    # lane (Gamma_KalshiAuto, 18:10 ET daily). shadow-ledger.jsonl / last-tick.json
+    # belong to the RETIRED kalshi_tick.py SPY-directional lane (superseded
+    # 2026-08-09; no scheduled task for it exists) and were frozen since that date
+    # while this block kept reading them as if they were live
+    # (KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE — same bug class already fixed in
+    # desk_allocator.py#assess_prediction_markets()).
+    p = STATE / "kalshi" / "weather-predictions.jsonl"
     raw = _tail_json(p, MAX_TICKS)
-    ticks = [_generic_tick(r) for r in raw]
+    ticks = [_kalshi_weather_tick(r) for r in raw]
     engines.append({
         "id": "kalshi", "name": "Kalshi weather", "desk": "prediction-markets",
         "cadence": "18:10 ET daily",
         "engine": "Gamma_KalshiAuto",
-        "source": p.relative_to(REPO).as_posix(), "last_write": _iso(lt) or _iso(p),
+        "source": p.relative_to(REPO).as_posix(), "last_write": _iso(p),
         "total": _count(p), "ticks": list(reversed(ticks)), "verdicts": _tally(ticks),
     })
 

@@ -200,6 +200,14 @@ def _audit_ps1_bare_python() -> list[dict]:
                           "flag": "READ_ERROR", "detail": str(e)})
             continue
         for m in BARE_PYTHON_RE.finditer(text):
+            start = m.start()
+            # Skip matches inside a full-line PowerShell comment -- a doc comment
+            # mentioning "python.exe" is not a real bare-python call site (mirrors
+            # the same skip in _audit_py_missing_creationflags, 2026-08-20 fix,
+            # commit 6c9bb2a4 -- PowerShell comments also use "#").
+            line_start = text.rfind("\n", 0, start) + 1
+            if text[line_start:start].lstrip().startswith("#"):
+                continue
             line_no = text.count("\n", 0, m.start()) + 1
             line = text.splitlines()[line_no - 1] if line_no <= text.count("\n") + 1 else ""
             flags.append({

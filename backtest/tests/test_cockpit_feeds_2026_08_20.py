@@ -120,6 +120,45 @@ def test_engine_ticks_carry_the_reason_not_just_the_verdict():
         assert "why" in t and "scores" in t and "ctx" in t
 
 
+# --------------------------------------------------- kalshi lane (KALSHI-COCKPIT-ENGINE-TICK-STALE-LANE)
+
+def test_kalshi_engine_reads_the_live_weather_lane_not_the_retired_tick_lane():
+    """The kalshi block used to read shadow-ledger.jsonl / last-tick.json --
+    files belonging to the RETIRED kalshi_tick.py SPY-directional lane
+    (superseded 2026-08-09, no scheduled task exists for it). The live lane is
+    kalshi_auto.py's weather-predictions.jsonl (Gamma_KalshiAuto, 18:10 ET daily)."""
+    er = cd.engine_room()
+    kalshi = [e for e in er["engines"] if e["id"] == "kalshi"][0]
+    assert kalshi["source"] == "automation/state/kalshi/weather-predictions.jsonl", kalshi["source"]
+    assert "shadow-ledger" not in kalshi["source"]
+
+
+def test_kalshi_weather_tick_shapes_a_real_row_with_no_verdict_field():
+    """Weather rows carry no `verdict` key the way other engines' ticks do --
+    _generic_tick would degrade every one of these to '—'. A real unscored row
+    (observed is null) must shape to PICKED; a real scored losing row (pick_won
+    is false) must shape to LOSS."""
+    unscored = {
+        "ts_utc": "2026-09-02T14:28:51.705760+00:00", "day": "2026-09-03",
+        "series": "KXHIGHLAX", "label": "Los Angeles Intl",
+        "pick_ticker": "KXHIGHLAX-26SEP03-B76.5", "pick_p": 0.2706, "pick_ask": 0.49,
+        "observed": None,
+    }
+    t = cd._kalshi_weather_tick(unscored)
+    assert t["verdict"] == "PICKED", t
+    assert t["sym"] == "KXHIGHLAX" and t["ts"] == unscored["ts_utc"]
+    assert "KXHIGHLAX-26SEP03-B76.5" in t["why"]
+
+    scored_loss = {
+        "ts_utc": "2026-08-09T23:42:07.244983+00:00", "day": "2026-08-10",
+        "series": "KXHIGHNY", "label": "NYC Central Park",
+        "pick_ticker": "KXHIGHNY-26AUG10-B91.5", "pick_p": 0.2724, "pick_ask": 0.27,
+        "observed": 85.0, "abs_err": 6.53, "pick_won": False,
+    }
+    t2 = cd._kalshi_weather_tick(scored_loss)
+    assert t2["verdict"] == "LOSS", t2
+
+
 # ----------------------------------------------------------- agents
 
 def test_agent_feed_surfaces_the_fabrication_verdict():
