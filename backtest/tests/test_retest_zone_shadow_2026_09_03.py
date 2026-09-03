@@ -337,3 +337,44 @@ def test_run_marks_backfill_rows_in_sample_true(_wired_fixtures):
     assert rows[0]["in_sample"] is True   # date_et 2026-09-03 <= FREEZE_DATE
     assert out["n_in_sample_backfill"] == 1
     assert out["n_forward"] == 0
+
+
+# ---------------------------------------------------------------------------------
+# 6. REGRESSION 2026-09-03: a single bad row must never abort the whole batch and skip
+#    the summary write. Root cause reproduced live this build: a KeyError from a
+#    NaN-filled merge_asof index on ONE candidate entry killed run()'s top-level try/
+#    except, returning an error dict before SUMMARY.write_text -- so the scheduled task
+#    fired clean (exit=0, run_cmd_hidden.log confirmed) every 15 min for hours while the
+#    summary silently stayed stamped at its 11:29 ET build, 200 already-scored rows'
+#    worth of visibility gone dark with zero signal.
+# ---------------------------------------------------------------------------------
+def test_run_isolates_a_per_entry_exception_and_still_writes_summary(_wired_fixtures, monkeypatch):
+    """_wired_fixtures has exactly one scoreable entry (buy1) -- make score_entry raise for
+    it (the exact shape of the 2026-09-03 live incident: a KeyError from a NaN-filled
+    merge_asof index) and assert the batch does not abort: the row is recorded as skipped
+    with the exception reason, and SUMMARY is still written (0 new rows is a valid,
+    visible outcome -- a silently-stale summary is not)."""
+    def _boom(*a, **k):
+        raise KeyError('None of [Index([nan, nan], dtype="float64")] are in the [index]')
+
+    monkeypatch.setattr(rzs, "score_entry", _boom)
+    out = rzs.run()
+    assert "error" not in out, out
+    assert out["new_this_run"] == 0
+    summary = _wired_fixtures["summary"]
+    assert summary.exists()
+    assert json.loads(summary.read_text(encoding="utf-8"))
+    assert any("exception: KeyError" in s.get("reason", "") for s in out["skipped_this_run"])
+
+
+def test_run_still_writes_summary_when_stdout_stderr_are_none(_wired_fixtures, monkeypatch):
+    """Defensive regression for the headless-pythonw hypothesis: even if sys.stdout/stderr
+    are None during run() (a real condition on some pythonw builds; disproven as THIS
+    build's actual root cause -- run_cmd_hidden.py's capture_output=True gives a real pipe
+    -- but a cheap guarantee to keep), log()'s plain print(..., flush=True) must never
+    raise and prevent the summary write."""
+    monkeypatch.setattr(sys, "stdout", None)
+    monkeypatch.setattr(sys, "stderr", None)
+    out = rzs.run()
+    assert "error" not in out, out
+    assert _wired_fixtures["summary"].exists()

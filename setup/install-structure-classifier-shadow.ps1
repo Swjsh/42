@@ -49,11 +49,28 @@
   self-heal repetition covers a missed single-daily-trigger fire (same remedy already
   shipped for the evening-window task family, EVENING-TASK-MISSED-RUN-SWEEP).
 
-  WIRING (stdlib-only -- no pandas/numpy import anywhere in the worker script, verified this
-  build; cloned from install-tp1-r50-forward-shadow.ps1's base-pythonw recipe, since no venv
-  package is needed):
-    wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
-      -- system pythonw -> structure_classifier_shadow.py
+  ⛔ 2026-09-03 CORRECTION (root-caused this build after every 17:25 ET fire silently
+  died): the claim below this line used to read "stdlib-only -- no pandas/numpy import
+  anywhere in the worker script, verified this build" and wired system pythonw on that
+  basis. That claim was FALSE -- structure_classifier_shadow.py's own
+  `from lib.engine.engine_cli import _classify_sameday_5m, _veto_side` transitively pulls
+  in backtest/lib/engine/gates.py's `import pandas as pd`, which system pythonw does not
+  have installed. Every fire raised ModuleNotFoundError at import time (exit=1, confirmed
+  live in automation/state/logs/run-cmd-hidden-2026-09-03.log) before a single line of the
+  module's own body ran, and the summary/ledger were never touched. Task Scheduler's
+  LastTaskResult still read 0 because run_exe_hidden.vbs's `shell.Run(cmd, 0, False)` is
+  fire-and-forget (bWaitOnReturn=False) -- it reports wscript's own successful LAUNCH, not
+  the eventual child exit code, so the real failure was invisible to LastTaskResult and
+  only showed up as a stale summary mtime. WIRING is now repointed at the backtest venv
+  pythonw (already used by every pandas-dependent sibling shadow, e.g.
+  install-retest-zone-shadow.ps1), which does have pandas:
+    wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> run_cmd_hidden.py --cwd <repo>
+      -- backtest venv pythonw -> structure_classifier_shadow.py
+
+  NOTE: editing this installer file alone does NOT change the currently-registered
+  scheduled task -- Get-ScheduledTask reads the live registration, not this script. Re-run
+  this installer (`powershell -File setup\install-structure-classifier-shadow.ps1`) to
+  actually re-register Gamma_StructureClassifierShadow against the corrected interpreter.
 
   Output:
     analysis/recommendations/structure-classifier-shadow-ledger.jsonl   append-only, dedup
@@ -80,7 +97,10 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+# 2026-09-03 CORRECTION: was $sysPythonw (system Python313, no pandas) -- repointed at the
+# backtest venv pythonw, matching every other pandas-dependent sibling shadow task (e.g.
+# install-retest-zone-shadow.ps1). See the .DESCRIPTION correction note above for why.
+$venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\structure_classifier_shadow.py"
 $taskName     = "Gamma_StructureClassifierShadow"
@@ -93,7 +113,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $sysPythonw, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $venvPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -101,7 +121,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`""
+$wscriptArgs = "//nologo `"$vbs`" `"$venvPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$venvPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

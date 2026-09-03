@@ -379,3 +379,45 @@ def test_run_reports_selfcheck_failure_loudly(tmp_path, monkeypatch):
     monkeypatch.setattr(scs, "SUMMARY", tmp_path / "out" / "summary.json")
     out = scs.run()
     assert out.get("error") == "SELFCHECK_FAILED"
+
+
+# ---------------------------------------------------------------------------------
+# 9. REGRESSION 2026-09-03: the installer once claimed this worker was "stdlib-only --
+#    no pandas/numpy import anywhere" and wired it to SYSTEM pythonw (no pandas) on that
+#    basis. Every 17:25 ET fire since then died with ModuleNotFoundError at IMPORT time
+#    (before a single line of this module's body ran, exit=1, confirmed live this build
+#    via automation/state/logs/run-cmd-hidden-2026-09-03.log), while Task Scheduler's
+#    LastTaskResult stayed 0 because run_exe_hidden.vbs's shell.Run(cmd, 0, False) never
+#    waits for the child, so the summary staleness was the only symptom. The installer is
+#    now repointed at the backtest venv pythonw (setup/install-structure-classifier-
+#    shadow.ps1). This guard pins the TRUE dependency shape so nobody re-claims
+#    stdlib-only and re-wires the installer to a pandas-less interpreter again.
+# ---------------------------------------------------------------------------------
+def test_worker_transitively_requires_pandas_via_engine_cli():
+    """structure_classifier_shadow.py's OWN top-level imports are stdlib-only (csv,
+    datetime, json) -- but its `from lib.engine.engine_cli import ...` pulls in
+    backtest/lib/engine/__init__.py -> .gates -> `import pandas as pd`. This module can
+    therefore only run under an interpreter with pandas installed."""
+    import inspect
+
+    import lib.engine.gates as gates
+    assert "pandas" in sys.modules, (
+        "importing structure_classifier_shadow must have transitively imported pandas "
+        "via lib.engine.engine_cli -> lib.engine.gates -- if this ever goes False, the "
+        "'stdlib-only' installer claim would be true again and system pythonw would be "
+        "safe; until then it is NOT")
+    assert "import pandas" in inspect.getsource(gates)
+
+
+def test_run_still_writes_summary_when_stdout_stderr_are_none(_wired_fixtures, monkeypatch):
+    """Defensive regression for the headless-pythonw hypothesis considered (and ruled out
+    as THIS incident's actual cause -- run_cmd_hidden.py's capture_output=True gives every
+    child a real pipe, and this module's own crash was an import-time ModuleNotFoundError,
+    not a stdio failure) during the 2026-09-03 investigation. Kept cheap and permanent:
+    main()'s print() must never raise and prevent the summary write even if sys.stdout/
+    stderr are None when the run executes."""
+    monkeypatch.setattr(sys, "stdout", None)
+    monkeypatch.setattr(sys, "stderr", None)
+    out = scs.run()
+    assert "error" not in out, out
+    assert _wired_fixtures["summary"].exists()

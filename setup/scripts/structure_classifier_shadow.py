@@ -76,17 +76,46 @@ half of STRUCTURE-VETO-CLASSIFIER-FIX; the classifier swap itself is a separate,
 2026-10-30 decision gated on this ledger's forward accrual (see the prereg).
 
 COST: $0. Pure local computation over an already-written CSV cache + the existing
-core-decisions.jsonl ledger. No pandas/numpy import -- stdlib only (csv, datetime, json).
+core-decisions.jsonl ledger. This module's OWN top-level imports are stdlib only (csv,
+datetime, json) -- but see the 2026-09-03 CORRECTION below: that claim does NOT make the
+process pandas-free end to end, because of what it imports next.
+
+⛔ 2026-09-03 CORRECTION (root-caused after every 17:25 ET fire silently died for days):
+the installer's docstring claimed "no pandas/numpy import anywhere in the worker script"
+and wired this task to SYSTEM pythonw (no pandas installed) on that basis. That claim was
+never actually true: the very next import below --
+`from lib.engine.engine_cli import _classify_sameday_5m, _veto_side` -- pulls in
+`backtest/lib/engine/__init__.py` -> `.gates` -> `import pandas as pd`
+(backtest/lib/engine/gates.py:100). Under system pythonw this raised
+`ModuleNotFoundError: No module named 'pandas'` at import time on EVERY fire, exit code 1,
+before a single line of this module's own body ran -- reproduced live this build. The
+installer has been repointed at the backtest venv pythonw (which does have pandas) --
+see setup/install-structure-classifier-shadow.ps1's own corrected docstring.
 """
 from __future__ import annotations
 
 import csv
 import json
+import os
 import random
 import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+# === HEADLESS STDIO REDIRECT (same idiom as run_cmd_hidden.py's OP-27 L41 layer 3) ======
+# Under the scheduled task's pythonw hop, run_cmd_hidden.py launches this script with
+# capture_output=True -- a real (non-None) pipe, but one nobody ever reads, so this
+# script's own print()/log() diagnostics were previously discarded with no trace.
+# Redirecting to a dedicated log file makes that visible without changing behavior under a
+# normal console run. Defensive guard against sys.stdout/stderr being None outright (some
+# embedded/frozen interpreters) is a side effect of the same branch.
+if os.path.basename(sys.executable).lower().startswith("pythonw") or sys.stdout is None:
+    _log_dir = Path(__file__).resolve().parents[2] / "automation" / "state" / "logs"
+    _log_dir.mkdir(parents=True, exist_ok=True)
+    sys.stdout = open(_log_dir / "structure-classifier-shadow.stdout.log", "a", buffering=1, encoding="utf-8")
+    sys.stderr = open(_log_dir / "structure-classifier-shadow.stderr.log", "a", buffering=1, encoding="utf-8")
+# ==========================================================================================
 
 REPO = Path(__file__).resolve().parents[2]
 for _p in (str(REPO), str(REPO / "backtest"), str(REPO / "setup" / "scripts")):

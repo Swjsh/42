@@ -101,9 +101,25 @@ from __future__ import annotations
 import collections
 import datetime as dt
 import json
+import os
 import random
 import sys
 from pathlib import Path
+
+# === HEADLESS STDIO REDIRECT (same idiom as run_cmd_hidden.py's OP-27 L41 layer 3) ======
+# Under the scheduled task's pythonw hop, run_cmd_hidden.py launches this script with
+# capture_output=True -- a real (non-None) pipe, but one nobody ever reads, so this
+# script's own print()/log() diagnostics (including the run() error-dict on a caught
+# exception) were previously discarded with no trace. Redirecting to a dedicated log file
+# makes that visible without changing behavior under a normal console run. Defensive
+# guard against sys.stdout/stderr being None outright (some embedded/frozen interpreters)
+# is a side effect of the same branch.
+if os.path.basename(sys.executable).lower().startswith("pythonw") or sys.stdout is None:
+    _log_dir = Path(__file__).resolve().parents[2] / "automation" / "state" / "logs"
+    _log_dir.mkdir(parents=True, exist_ok=True)
+    sys.stdout = open(_log_dir / "retest-zone-shadow.stdout.log", "a", buffering=1, encoding="utf-8")
+    sys.stderr = open(_log_dir / "retest-zone-shadow.stderr.log", "a", buffering=1, encoding="utf-8")
+# ==========================================================================================
 
 REPO = Path(__file__).resolve().parents[2]
 BACKTEST = REPO / "backtest"
@@ -583,7 +599,16 @@ def run() -> dict:
             for e in sorted(todo, key=lambda e: e["ts_et"]):
                 tick = order_to_tick.get(e.get("order_id"))
                 vix = vix_by_tick.get(tick) if tick else None
-                result = score_entry(e, spy_5m_rth, ribbon_5m, vix)
+                try:
+                    result = score_entry(e, spy_5m_rth, ribbon_5m, vix)
+                except Exception as row_exc:  # noqa: BLE001 -- one bad row must never
+                    # abort the whole batch and silently skip the summary write for the
+                    # (N-1) already-good rows (2026-09-03 fire: a single KeyError from a
+                    # NaN-filled merge_asof index on one date killed 200 already-scored
+                    # entries' worth of visibility -- see run-cmd-hidden log evidence).
+                    skipped.append({"activity_id": e.get("activity_id"),
+                                     "reason": f"exception: {type(row_exc).__name__}: {row_exc}"[:300]})
+                    continue
                 if result is None:
                     skipped.append({"activity_id": e.get("activity_id"),
                                      "reason": "no trigger_level (defensive -- already filtered upstream)"})
