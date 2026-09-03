@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-09-03T18:57:47.182193",
+  "prereg": "analysis/recommendations/prereg-trendline-j-drawn-lines-2026-09-03.md",
+  "dry_run": false,
+  "symbol": "SPY",
+  "chart_symbol": "BATS:SPY",
+  "original_resolution": "15",
+  "restored_resolution": "15",
+  "resolution_restored_ok": true,
+  "status": "OK",
+  "n_trend_line_candidates": 23,
+  "n_new": 0,
+  "n_already_known": 23,
+  "n_missing_two_points": 0,
+  "n_drift_observations": 23,
+  "new_lines": []
+}

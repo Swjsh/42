@@ -1,0 +1,220 @@
+{
+ "prereg": "analysis/recommendations/prereg-trendline-j-drawn-lines-2026-09-03.md",
+ "generated_at_et": "2026-09-03T18:57:29.798579",
+ "in_sample_cutoff": "2026-09-03",
+ "hard_date_gate": "2026-10-30",
+ "timeframes": {
+  "other": {
+   "timeframe": "other",
+   "n_lines_total": 23,
+   "n_lines_rising": 14,
+   "n_lines_non_rising_excluded": 9,
+   "n_lines_in_sample": 14,
+   "n_lines_forward": 0,
+   "touch_all": {
+    "by_horizon": {
+     "15": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "30": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "60": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     }
+    },
+    "top3_concentration": 0.0,
+    "n_events": 0,
+    "n_sessions": 0,
+    "n_lines": 0
+   },
+   "break_all": {
+    "by_horizon": {
+     "15": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "30": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "60": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     }
+    },
+    "top3_concentration": 0.0,
+    "n_events": 0,
+    "n_sessions": 0,
+    "n_lines": 0
+   },
+   "touch_forward": {
+    "by_horizon": {
+     "15": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "30": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "60": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     }
+    },
+    "top3_concentration": 0.0,
+    "n_events": 0,
+    "n_sessions": 0,
+    "n_lines": 0
+   },
+   "break_forward": {
+    "by_horizon": {
+     "15": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "30": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     },
+     "60": {
+      "n": 0,
+      "n_sessions": 0,
+      "rate": null,
+      "rate_ci": null,
+      "mean_move": null,
+      "mean_move_ci": null,
+      "baseline": {
+       "n": 0,
+       "rate": null,
+       "mean_move": null
+      }
+     }
+    },
+    "top3_concentration": 0.0,
+    "n_events": 0,
+    "n_sessions": 0,
+    "n_lines": 0
+   }
+  }
+ },
+ "decision": {
+  "n_lines_forward": 0,
+  "n_sessions_forward_lines": 0,
+  "n_sessions_forward_events": 0,
+  "bar_met": false,
+  "date_gate_open": false,
+  "baseline_rate": null,
+  "rate_ci_lower": null,
+  "rate_clears_baseline": false,
+  "mean_move_ci_lower": null,
+  "mean_move_positive": false,
+  "top3_concentration": 0.0,
+  "status": "ACCRUING"
+ },
+ "new_events_this_run": 0,
+ "n_lines_ledger": 23
+}
