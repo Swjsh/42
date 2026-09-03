@@ -1,0 +1,816 @@
+{
+  "_doc": "regime_conditioned_validation.py -- RUN + verify the frozen METHOD prereg and produce\nthe go-live-gate regime-coverage disclosure.\n\nPrereg: analysis/recommendations/prereg-regime-conditioned-validation-2026-07-17.json\n(status was FROZEN_PENDING_RUN on disk despite the method having already been run once,\n2026-07-17, commit 693d21af -- EARNS_RIGHTS, 0/5 parked candidates flip to PASS. That run's\nartifacts, analysis/recommendations/regime-conditioned-validation-2026-07-17.{json,md} and\nregime-conditioned-readjudication-2026-07-17.json, were never wrong -- only the prereg's OWN\nstatus field was never advanced. This module (a) reproduces that self-validation fresh,\nconfirming it is not a one-off fluke, WITHOUT overwriting the historical dated artifact, and\n(b) adds a disclosure this repo did not yet have: what regime bucket(s) does the go-live\ngate's OWN evidence window (analysis/go-live-gate.json#regime_coverage) actually sit in,\nnow that a regime-conditioned tool exists and has earned the right to speak.\n\nTwo jobs, sharply separated per the prereg's own standing_doctrine / no_ship_clause:\n\n  1. REPRODUCE the frozen self-validation exactly as pinned (2025-01-02..2026-07-08,\n     same cohorts, same gate ladder) by calling regime_conditioned_self_validation.py's\n     OWN main() with its OUT_JSON path redirected to a throwaway temp file -- zero\n     re-derivation of any math, zero mutation of the frozen 2026-07-17 dated artifact.\n\n  2. DISCLOSURE ONLY (no_ship_clause -- evidence status, never live config): apply the\n     SAME frozen regime classifier (unmodified VIX-band ladder, unmodified trend function\n     call signature) to (a) the real trade record (analysis/trades-enriched.jsonl) and\n     (b) the go-live gate's own lifetime/frozen-config-window evidence dates\n     (automation/state/core-decisions.jsonl, read-only, same file go_live_gate.py reads).\n\n     VIX-band coverage is extended past the frozen window's end (2026-07-08) using\n     additional REAL VIX 5m data (same CSV format, same band ladder, zero re-derivation)\n     through the latest available date on disk.\n\n     TREND coverage is NOT extended past the frozen daily-SPY cache's end (2026-07-14).\n     Extending it would require re-deriving daily bars from intraday SPY data -- the\n     prereg's own regime_classifier spec explicitly forbids that (\"BYTE-IDENTICAL ...\n     zero re-derivation of the math\"). Every date past that boundary is labeled\n     trend=\"unknown\" with an explicit reason (trend_cache_stale_past_<date>), NEVER\n     silently computed from a stale/incomplete bar window. This staleness guard is the\n     one piece of new logic in this module beyond straight reuse -- see\n     guarded_classify_trend_asof() and its RED-proof tests in\n     backtest/tests/test_regime_conditioned_validation.py.\n\nNo automation/state/params.json, aggressive/params.json, or crypto/lib/strike_selection.py\nfile is touched. No orders. No live/heartbeat/params/STATUS/queue file is edited by this\nmodule. Regardless of outcome this produces EVIDENCE-STATUS ONLY (no_ship_clause).\n\nRun: backtest/.venv/Scripts/python.exe backtest/tools/regime_conditioned_validation.py\n",
+  "generated_at": "2026-09-02T23:32:38.381692",
+  "prereg": "analysis\\recommendations\\prereg-regime-conditioned-validation-2026-07-17.json",
+  "reproduction": {
+    "reproduced": true,
+    "self_validation_verdict": "EARNS_RIGHTS",
+    "preflight": {
+      "ok": true,
+      "recomputed_sha16": "f805f32fdb18a935",
+      "stored_sha16": "1b927e10e84e7fa3",
+      "expected_sha16": "1b927e10e84e7fa3",
+      "version": 1,
+      "status": "RUN_COMPLETE_EARNS_RIGHTS",
+      "ok_raw_strict_check": false,
+      "status_lifecycle_override": "raw strict preflight failed only because 'status' + a dated run note were added post-freeze (verified additive-only by _prereg_content_drift() before this override was applied) -- treated as ok per the documented status-lifecycle pattern (commit 084c126c), not a silent bypass of a real hash drift."
+    },
+    "global_tautology_check": {
+      "n_days": 389,
+      "regimes_seen": [
+        "HIGH_downtrend",
+        "HIGH_uptrend",
+        "LOW_uptrend",
+        "MID_downtrend",
+        "MID_uptrend",
+        "UNKNOWN_downtrend"
+      ],
+      "contingency_table": {
+        "HIGH_downtrend": {
+          "2025": 28,
+          "2026": 18
+        },
+        "HIGH_uptrend": {
+          "2025": 14,
+          "2026": 7
+        },
+        "LOW_uptrend": {
+          "2025": 22,
+          "2026": 5
+        },
+        "MID_downtrend": {
+          "2025": 44,
+          "2026": 44
+        },
+        "MID_uptrend": {
+          "2025": 149,
+          "2026": 57
+        },
+        "UNKNOWN_downtrend": {
+          "2025": 1,
+          "2026": 0
+        }
+      },
+      "chi2": 17.725,
+      "cramers_v": 0.2135,
+      "pct_2026_by_regime": {
+        "HIGH_downtrend": 39.1,
+        "HIGH_uptrend": 33.3,
+        "LOW_uptrend": 18.5,
+        "MID_downtrend": 50.0,
+        "MID_uptrend": 27.7,
+        "UNKNOWN_downtrend": 0.0
+      },
+      "note": "Cramer's V close to 0 = regime label is roughly independent of calendar year (good -- not a calendar proxy). Close to 1 = regime label IS essentially a calendar-year proxy (tautology risk) -- any candidate that PASSES only because its target regime happens to concentrate in one year should be treated with the same suspicion as passing on calendar-year alone."
+    },
+    "known_bad_verdicts": {
+      "nlwb_full_real_fills": "FAIL",
+      "confluence_real_fills_fresh95": "FAIL",
+      "double_top_real_fills": "FAIL",
+      "pure_noise_random_entry_placebo": "FAIL"
+    },
+    "known_good_vwap_verdict": "PASS",
+    "op16_anchor_all_labelable": true,
+    "self_validation_fail_reasons": [],
+    "note": "Reproduces regime_conditioned_self_validation.py's OWN main() byte-identically (output redirected to a throwaway temp file) -- confirms the 2026-07-17 EARNS_RIGHTS verdict (commit 693d21af) is not a one-off fluke. Does NOT overwrite analysis/recommendations/regime-conditioned-validation-2026-07-17.json."
+  },
+  "prior_readjudication_reference": {
+    "file": "analysis/recommendations/regime-conditioned-readjudication-2026-07-17.json",
+    "note": "Already run 2026-07-17 under this same EARNS_RIGHTS verdict -- 0/5 parked candidates flip to PASS under regime-conditioning. Not re-run here (no new candidate work is in scope for this task); read, not reproduced."
+  },
+  "disclosure": {
+    "label": "DISCLOSURE ONLY -- per the prereg's no_ship_clause, this changes evidence status, not live config. No params.json/heartbeat/STATUS/queue file touched.",
+    "vix_extension_meta": {
+      "base_file": "backtest\\data\\vix_5m_2025-01-01_2026-07-08.csv",
+      "base_max_date": "2026-07-08",
+      "extension_file": "backtest\\data\\vix_5m_2026-05-19_2026-09-02.csv",
+      "n_added_days": 40,
+      "extension_max_date": "2026-09-02",
+      "extension_min_date": "2026-05-19",
+      "vix_frame_seasonality_check": {
+        "sampled_winter_offset": "-0500",
+        "sampled_summer_offset": "-0400",
+        "fixed_offset_defect_suspected": false,
+        "note": "VIX offset varies by season as expected (real tz-aware writer) -- et-v2 re-parsing is NOT needed for this VIX file. The winter-timestamp defect documented in backtest/lib/et_frame.py applies to the SPY/OPRA wide files (fixed -04:00 year-round), not the VIX master."
+      }
+    },
+    "trend_cache_boundary": {
+      "cache_last_bar_date": "2026-07-14",
+      "staleness_guard_days": 5,
+      "note": "Every date after cache_last_bar_date + staleness_guard_days is labeled trend='unknown' (reason=trend_cache_stale_past_...), never computed from a stale bar window. Extending this would require re-deriving daily bars from intraday SPY data, which the prereg's own classifier spec forbids."
+    },
+    "real_trade_record_regime_coverage": {
+      "n_trades_total": 403,
+      "n_trend_unknown_stale_trades": 269,
+      "by_regime_bucket": {
+        "LOW_unknown": {
+          "n_trades": 60,
+          "n_distinct_dates": 7,
+          "pnl_total": 1470.0,
+          "pnl_mean_per_trade": 24.5
+        },
+        "MID_downtrend": {
+          "n_trades": 112,
+          "n_distinct_dates": 9,
+          "pnl_total": -1425.0,
+          "pnl_mean_per_trade": -12.72
+        },
+        "MID_unknown": {
+          "n_trades": 209,
+          "n_distinct_dates": 24,
+          "pnl_total": 340.0,
+          "pnl_mean_per_trade": 1.63
+        },
+        "MID_uptrend": {
+          "n_trades": 22,
+          "n_distinct_dates": 4,
+          "pnl_total": 202.0,
+          "pnl_mean_per_trade": 9.18
+        }
+      }
+    },
+    "real_trade_record_dates_regime_coverage": {
+      "n_dates": 44,
+      "by_regime_bucket": {
+        "LOW_unknown": 7,
+        "MID_downtrend": 9,
+        "MID_unknown": 24,
+        "MID_uptrend": 4
+      },
+      "n_trend_unknown_stale": 31,
+      "per_date": {
+        "2026-06-26": {
+          "date": "2026-06-26",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 19.149999618530277,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-06-29": {
+          "date": "2026-06-29",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 18.520000457763672,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 128,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-06-30": {
+          "date": "2026-06-30",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 17.600000381469727,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-07-01": {
+          "date": "2026-07-01",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.469999313354492,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-07-02": {
+          "date": "2026-07-02",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.309999465942383,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-07-06": {
+          "date": "2026-07-06",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.8100004196167,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 128,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-07-07": {
+          "date": "2026-07-07",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.59000015258789,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-07-08": {
+          "date": "2026-07-08",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.329999923706055,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.733
+          }
+        },
+        "2026-07-09": {
+          "date": "2026-07-09",
+          "regime": "MID_downtrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.760000228881836,
+          "trend": "downtrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.8
+          }
+        },
+        "2026-07-13": {
+          "date": "2026-07-13",
+          "regime": "MID_uptrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.06999969482422,
+          "trend": "uptrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.733
+          }
+        },
+        "2026-07-15": {
+          "date": "2026-07-15",
+          "regime": "MID_uptrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.40999984741211,
+          "trend": "uptrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 130,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.733
+          }
+        },
+        "2026-07-16": {
+          "date": "2026-07-16",
+          "regime": "MID_uptrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.6899995803833,
+          "trend": "uptrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 129,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.733
+          }
+        },
+        "2026-07-17": {
+          "date": "2026-07-17",
+          "regime": "MID_uptrend",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.579999923706055,
+          "trend": "uptrend",
+          "trend_meta": {
+            "available": true,
+            "n_bars": 128,
+            "trend_basis": "structure_breaks",
+            "confidence": 0.733
+          }
+        },
+        "2026-07-20": {
+          "date": "2026-07-20",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 18.520000457763672,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-21": {
+          "date": "2026-07-21",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 18.559999465942383,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-22": {
+          "date": "2026-07-22",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.90999984741211,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-23": {
+          "date": "2026-07-23",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.850000381469727,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-27": {
+          "date": "2026-07-27",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 18.51000022888184,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-28": {
+          "date": "2026-07-28",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 18.729999542236328,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-29": {
+          "date": "2026-07-29",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 18.270000457763672,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-30": {
+          "date": "2026-07-30",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 20.299999237060547,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-07-31": {
+          "date": "2026-07-31",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 17.34000015258789,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-03": {
+          "date": "2026-08-03",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.049999237060547,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-04": {
+          "date": "2026-08-04",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.760000228881836,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-05": {
+          "date": "2026-08-05",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.420000076293945,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-06": {
+          "date": "2026-08-06",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.710000038146973,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-07": {
+          "date": "2026-08-07",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.289999961853027,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-10": {
+          "date": "2026-08-10",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.869999885559082,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-11": {
+          "date": "2026-08-11",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.40999984741211,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-12": {
+          "date": "2026-08-12",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.329999923706056,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-13": {
+          "date": "2026-08-13",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.4399995803833,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-14": {
+          "date": "2026-08-14",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.56999969482422,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-17": {
+          "date": "2026-08-17",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.270000457763672,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-18": {
+          "date": "2026-08-18",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.170000076293944,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-19": {
+          "date": "2026-08-19",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.84000015258789,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-20": {
+          "date": "2026-08-20",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.90999984741211,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-21": {
+          "date": "2026-08-21",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.049999237060547,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-24": {
+          "date": "2026-08-24",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.170000076293944,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-25": {
+          "date": "2026-08-25",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.850000381469728,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-26": {
+          "date": "2026-08-26",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.449999809265137,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-27": {
+          "date": "2026-08-27",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.390000343322754,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-28": {
+          "date": "2026-08-28",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.489999771118164,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-09-01": {
+          "date": "2026-09-01",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.890000343322754,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-09-02": {
+          "date": "2026-09-02",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.309999465942383,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        }
+      }
+    },
+    "go_live_gate_evidence_regime_coverage": {
+      "source": "automation/state/core-decisions.jsonl (read-only, same file go_live_gate.py#regime_coverage_block reads)",
+      "n_rows_scanned": 37371,
+      "lifetime_dates": [
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-02"
+      ],
+      "n_dates": 6,
+      "by_regime_bucket": {
+        "LOW_unknown": 3,
+        "MID_unknown": 3
+      },
+      "n_trend_unknown_stale": 6,
+      "per_date": {
+        "2026-08-26": {
+          "date": "2026-08-26",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.449999809265137,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-27": {
+          "date": "2026-08-27",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 15.390000343322754,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-28": {
+          "date": "2026-08-28",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.489999771118164,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-08-31": {
+          "date": "2026-08-31",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.390000343322754,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-09-01": {
+          "date": "2026-09-01",
+          "regime": "LOW_unknown",
+          "vix_band": "LOW",
+          "vix_close_prior_trading_day": 14.890000343322754,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        },
+        "2026-09-02": {
+          "date": "2026-09-02",
+          "regime": "MID_unknown",
+          "vix_band": "MID",
+          "vix_close_prior_trading_day": 16.309999465942383,
+          "trend": "unknown",
+          "trend_meta": {
+            "available": false,
+            "reason": "trend_cache_stale_past_2026-07-14",
+            "n_bars": null,
+            "cache_last_bar_date": "2026-07-14"
+          }
+        }
+      }
+    }
+  },
+  "overall_status_for_prereg": "RUN_COMPLETE_EARNS_RIGHTS"
+}

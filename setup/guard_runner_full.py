@@ -166,6 +166,10 @@ def main() -> int:
 
     counts = _parse(out)
     names = _failed_names(out)
+    # The JSON carries EVERY failed nodeid (2026-09-03: the 01:28 ET run reported 24 failed but
+    # listed 12, so half the failures were unidentifiable from the artifact); only the one-line
+    # STATUS.md summary keeps the 12-name cap for readability.
+    names_all = _failed_names(out, cap=10**9)
     if counts["passed"] == 0 and counts["failed"] == 0:
         # Collected nothing -> a WIRING problem, not a pass. Never report success.
         status = "notests"
@@ -178,7 +182,7 @@ def main() -> int:
                f"{counts['skipped']} skipped")
     WATCH.write_text(json.dumps(
         {"status": status, "at": _now(), "counts": counts,
-         "failed_names": names, "returncode": rc}, indent=1), encoding="utf-8")
+         "failed_names": names_all, "returncode": rc}, indent=1), encoding="utf-8")
 
     # Always call, never gated on status != green: green now CLEARS any stale
     # FULL-SUITE line from a prior run instead of leaving it to rot (see

@@ -188,3 +188,15 @@ def test_slow_clear_is_idempotent_noop_when_nothing_to_clear(grs):
     status_path.write_text(clean, encoding="utf-8")
     mod._clear_marker_on_recovery()
     assert status_path.read_text(encoding="utf-8") == clean
+
+
+def test_json_carries_every_failed_name_while_status_line_stays_capped():
+    """2026-09-03 01:28 ET: 24 failed, 12 listed; the artifact hid half the failures."""
+    import importlib.util, sys
+    from pathlib import Path as _P
+    spec = importlib.util.spec_from_file_location("_grf_probe", _P(__file__).resolve().parents[2] / "setup" / "guard_runner_full.py")
+    m = importlib.util.module_from_spec(spec); sys.modules["_grf_probe"] = m; spec.loader.exec_module(m)
+    nl = chr(10)
+    out = nl.join(f"FAILED tests/test_x.py::t{i}" for i in range(30)) + nl + "30 failed in 1.0s" + nl
+    assert len(m._failed_names(out)) == 12
+    assert len(m._failed_names(out, cap=10**9)) == 30
