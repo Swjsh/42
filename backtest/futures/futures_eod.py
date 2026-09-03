@@ -37,8 +37,18 @@ WHAT IT GRADES, and why each one is here rather than "nice to have":
 DISCLOSURE: the digest states its fill class on every P&L line. Simulated fills are
 mechanism evidence, never edge evidence.
 
-Read-only over state and the journal. Writes only its own digest + state file. Never
-places, cancels, or modifies anything.
+Read-only over state and the journal, with ONE exception: `rule_audit()`'s findings are
+persisted into `journal/futures/mistakes.md` via `futures_journal.record_mistake()` --
+the futures analogue of Rule 8's mistakes ledger (queue item
+FUTURES-MISTAKES-LEDGER-IS-DEAD-CODE; `record_mistake()` existed, was fully implemented,
+and had zero call sites anywhere in the repo). Grouped by rule, keyed by (date, rule,
+lane) so a re-run of the same session never duplicates a row (`_mistakes_already_logged`
+dedupes off a marker this module writes into its own bullet text), and fail-open the
+same way every write in futures_journal.py is -- a ledger write error is logged to
+nothing and swallowed, never raised, because a mistakes ledger that can break the EOD
+review is worse than a missing one.
+
+Never places, cancels, or modifies anything else -- no orders, no position state.
 
 CLI:
     python -m futures.futures_eod                 # today's session
@@ -275,6 +285,73 @@ def rule_audit(rows: list[dict], trades: dict) -> list[dict]:
     return breaks
 
 
+MISTAKES_LANE = "futures"
+
+
+def _mistakes_already_logged(date: str, lane: str = MISTAKES_LANE) -> set[str]:
+    """Which rule names are already persisted to mistakes.md for (date, lane).
+
+    Dedupe works by scanning for a marker THIS module writes inline into the bullet
+    text (`<!-- dedupe:{date}:{lane}:{rule} -->`) rather than a separate index file,
+    so the ledger itself stays the single source of truth for what has been logged.
+    Read-only; any parse/read failure returns an empty set -- fail open means "might
+    write one duplicate row", never "crash the EOD build".
+    """
+    try:
+        if not fj.MISTAKES_MD.exists():
+            return set()
+        text = fj.MISTAKES_MD.read_text(encoding="utf-8")
+    except OSError:
+        return set()
+    prefix = f"<!-- dedupe:{date}:{lane}:"
+    seen: set[str] = set()
+    for line in text.splitlines():
+        idx = line.find(prefix)
+        if idx == -1:
+            continue
+        rest = line[idx + len(prefix):]
+        end = rest.find(" -->")
+        if end != -1:
+            seen.add(rest[:end])
+    return seen
+
+
+def persist_mistakes(date: str, breaks: list[dict], lane: str = MISTAKES_LANE) -> int:
+    """Wire rule_audit()'s post-hoc findings into the futures mistakes ledger.
+
+    Same role as `journal/mistakes.md` on the SPY side (Rule 8): "if it's not in the
+    journal, it didn't happen" applies to rule breaks too. Groups by rule so one
+    session with 3 `contract_cap` breaks produces one row, not three -- the idempotency
+    key is (date, rule, lane), so a same-day re-run of `build()` (a manual re-generate,
+    a test, a retry) never appends a second row for a rule already logged that day.
+
+    Returns the number of NEW rows written (0 on a clean day or a fully-deduped re-run).
+    Fail-open: this can never raise into the EOD build.
+    """
+    if not breaks:
+        return 0
+    try:
+        already = _mistakes_already_logged(date, lane)
+        by_rule: dict[str, list[dict]] = {}
+        for b in breaks:
+            by_rule.setdefault(b.get("rule", "?"), []).append(b)
+        written = 0
+        for rule, items in by_rule.items():
+            if rule in already:
+                continue
+            details = "; ".join(str(i.get("detail", "")) for i in items[:5])
+            what = (f"{len(items)} `{rule}` break(s) on {date} (post-hoc rule_audit(), "
+                    f"lane={lane}): {details} "
+                    f"<!-- dedupe:{date}:{lane}:{rule} -->")
+            fj.record_mistake(
+                what=what, rule=rule,
+                fix="reviewed by futures_eod.py -- see analysis/futures-eod digest")
+            written += 1
+        return written
+    except Exception:  # noqa: BLE001 -- ledger write must never break the EOD path
+        return 0
+
+
 def build(date: Optional[str] = None, fills: str = "SIMULATED") -> dict:
     date = date or et_now().strftime("%Y-%m-%d")
     rows = _read_ledger(date)
@@ -282,6 +359,7 @@ def build(date: Optional[str] = None, fills: str = "SIMULATED") -> dict:
     fun = funnel(rows)
     trades = round_trips(date, fills)
     breaks = rule_audit(rows, trades)
+    persist_mistakes(date, breaks)
     refusals = refusal_history(date)
     # "n" and "by_setup" come from decisions.jsonl (the engine's own record of having
     # tried and been refused) -- authoritative even if would-be-trades.jsonl is missing
