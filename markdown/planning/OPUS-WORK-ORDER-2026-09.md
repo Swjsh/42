@@ -577,6 +577,12 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 ### 2b. Research (analysis only, $0, freeze-compatible)
 - [ ] **Null study weekly** (B1) — the single most important number on the board. Opus reads each
   Friday; a FAIL on P1 (post-08-11) ends any 10-30 arming talk before the gate colour matters.
+  ⚠️ **DISCLOSURE FOR EVERY FRIDAY READING (added 2026-09-03 03:35 ET, commit `a19b2f1d`):** the null legs are replayed by
+  `multileg_exit_walk`, which priced every market-style exit at the STATIC stop level (dead `worst_in`) — replayed losers are far
+  too negative (PDT anchor 4.09× before the flagged fix, 2.84× after, criterion |ratio−1|≤0.40 still FAILING). P1 is real fills, so
+  the nulls look worse than they are and the PASS is inflated in the engine's favour by an unknown amount. The study now emits
+  `magnitude_fidelity` beside its verdict; read it as *PASS, walker magnitude FAIL* until WALKER-MARKET-STAGE-FILL-ROOT-FIX closes
+  (in build). A PASS that survives a corrected walker is the number; a PASS that does not is the finding.
 - [x] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
   (the April 2025 tariff week, Aug 2024, any −2%+ day in 2025–26): what do the −50% cap, structure
   stops and the ladder actually do in a −3% day? Pre-register the questions; label sim-only.
