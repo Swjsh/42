@@ -730,6 +730,11 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   ⚠️ heartbeat_core drives safe-2 AND bold-2 in one process: drill only when bold-2 is flat, or accept
   that a bold-2 position gets DMS-flattened and note it in the gate's behavioural window as a drill.
   *Done:* 5/5 flattened, drill log in `analysis/drills/`, runbook §2 box ticked.
+  **TOOLING READY 2026-09-03 02:55 ET (Sonnet, Fable-specced; not run):** `setup/scripts/dms_kill_drill.py` — `--announce` (STATUS text) → `--plan`
+  (read-only state + refusal matrix: confirm token = today's date, weekday + market open per `/v2/clock`, bold-2 flat unless
+  `--accept-bold-flatten`, safe-2 must hold a position) → `--arm --kills 5 --min-gap-min 20` (kills the heartbeat_core tree via the
+  same WMI probe `_shared.ps1` uses, observes read-only until flat or 15 min, AST-guarded: no order verb in the module) → `--report`.
+  Rows to `analysis/drills/dms-kill-drill-<date>.jsonl`. 20 tests, 4 mutations RED-proofed. **Needs J's afternoon.**
 - [ ] **Phone HALT drill** (J, 2 minutes): `HALT safe-2` from the phone → breaker tripped, reply
   received; `RESUME safe-2`. Then once with `FLATTEN` on an open paper position.
 - [x] **Early-close dry run — DONE 2026-09-02 06:16 ET, and made permanent.** All three branches
@@ -753,6 +758,11 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 - [ ] **Recovery drill**: TV CDP dead + Alpaca REST 5xx + Windows restart mid-session, each once,
   read-only observation of what the healers and DMS do. *Done:* a table of failure → first automated
   action → time.
+  **OBSERVER READY 2026-09-03 02:55 ET (not run):** `setup/scripts/recovery_drill_observer.py --watch --scenario
+  {tv_cdp_dead,alpaca_5xx,windows_restart} --minutes 20` samples TV CDP port, heartbeat liveness, engine-health verdict, DMS/healer
+  log tails, scheduler state and broker reachability every 10 s and renders failure → first automated action → time; `--report`
+  writes the combined table. How each failure is induced safely is in the module docstring (the observer never induces it).
+  Runbook §2 items 2 and 18 carry the commands. 14 tests, 3 mutations RED-proofed.
 
 ### 2d. Non-shape builds (Sonnet; freeze-compatible)
 - [x] **CANARY-OUT-OF-SAFE-2 — DONE 2026-09-02**, commits `6383274f` + `cc48a29f`. **The box's own diagnosis was wrong, and that is the finding.** "FIFO dust threshold" assumed 1e-4..1e-6 float residues against a 1e-9 epsilon. Measured instead: all sixteen phantom lots were **exactly 0.2500% of quantity bought**, across 6 arms and 6 symbols, from 4.2e-06 BTC up to **0.70 UNI (~$2)** — Alpaca's crypto taker fee charged *in the base asset*. Buy 100 UNI, pay 0.25 UNI, and only 99.75 is ever sellable, so a fully-closed crypto position permanently leaves an unmatched buy. Raising the epsilon until it absorbed 0.70 UNI would also absorb real positions; `dress_rehearsal.py` already knew the mechanism in a comment and nothing had connected it. Fixed with a post-matching classifier, **not** a matcher change — a first cut popped fee-sized lots inside the FIFO loop and silently destroyed 90 of 790 round-trip rows. VERIFIED COLD: round trips 790→790, realized P&L $1,283.45→$1,283.45 to the cent, open lots **16→0**, against a live `/v2/positions` read returning **0 positions on all five live arms**. **Attribution:** crypto now has its own bucket, split on the symbol (definitive — crypto pairs carry a slash, OCC symbols never do), so no state file, registry or heuristic was needed. safe-2 `n_manual` **164→7**, `n_crypto` 157; `manual` finally means a hand-placed OPTION trade. **The canary deliberately STAYS in safe-2:** check 2 exists to prove safe-2's *own* auth+POST+fill+position machinery works tonight, and moving it would prove a different account's machinery while silently dropping that coverage — the defect was the reporting, and that is what was fixed. The go-live gate was never exposed either way (it reads `trades-enriched.jsonl`, options-only). Known limitation pinned in a test rather than left implicit: a genuine position *smaller* than the fee residue is indistinguishable from the fee by quantity alone; the broker is the only authority on flat (C11). 29 guards, 9 mutations RED-proofed. REVERT: `git revert cc48a29f 6383274f`.
