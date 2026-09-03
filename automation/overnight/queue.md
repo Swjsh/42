@@ -1242,7 +1242,7 @@
 
 ### SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, needs pre-reg accrual, discovered 2026-07-17)
 
-- [ ] SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, this-week/needs-larger-n) :: J audit
+- [x] SAFE3-RISKY1-GATE-RETEST-EXTEND (MED, this-week/needs-larger-n) :: J audit
   ("why didn't safe-3/risky-1 mirror the 13:01 746P +$241 / 13:51 743P +$191 core winners")
   traced BOTH misses to the tight arms' own `gate_override` (min_triggers=2 +
   require_confluence_or_sequence) correctly blocking a lone `trendline_rejection` trigger with
@@ -1260,6 +1260,7 @@
   shared OTM-3 strike table, which applies to safe-3/risky-1 exactly as it does risky-3 -- widen
   that item's scope to all three fleet_rest arms when picked up. :: depends:pre-reg-accrual
   :: status:pending
+  **CLOSED -- FLOOR REACHED, VERDICT: KEEP THE OVERRIDE 04:52 ET 2026-09-03 (Sonnet extraction, Fable read; `analysis/deep-research/SAFE3-RISKY1-GATE-OVERRIDE-COHORT-2026-09-03.md`, extractor `backtest/tools/gate_override_blocked_cohort.py`, 5 tests):** blocked-cohort rebuilt from the tight arms' own decision rows (reason strings `gate: 1 triggers < 2` / `gate: requires confluence/sequence`) matched to core ENTER fills by date + side + +/-2 min + SAME setup_name (a loose time-only match produced a verified false positive and n=36; with setup matching n=**32**, all `1 triggers < 2` on BEARISH_REJECTION puts). Counterfactual P&L (core arm's realised, sizing/exit differences disclosed): **n=32, 12 wins, net -$59, mean -$1.84**, drop-top-1 -$14.00, drop-bottom-1 +$6.81, session-clustered CI [-$70.82, +$64.43] (48% of resamples positive). The prior n=5 +$148 sign was noise. The n>=30 floor is reached under the event-count definition (the prereg's `adjudicated_2026_09_02` note counts scored DAYS 26/30 instead -- discrepancy flagged, not reconciled); either way the pass bar fails. No loosening. UNVERIFIED: not cross-checked against `pnl-statement.json`; risky-1's counterfactual uses bold-2 fills (strike-tier mismatch). :: status:done
 
 ### TV-MCP-GETCHARTAPI-FIX-VERIFY (MED, fix landed, verify pending restart, 2026-07-14)
 
