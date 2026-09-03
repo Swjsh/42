@@ -29,6 +29,7 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ## Known broken
 
+- [2026-09-03 18:06:08 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
 - [2026-09-03 05:52 ET] FULL-SUITE RED :: 12677 passed, 1 failed, 16 skipped :: tests/test_shadow_board_nonterminal_2026_09_03.py::test_status_regexes_are_the_same_object_as_prereg_hygiene :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-03T09:50+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-03T03:37:05 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=ok, mcp_procs=FAIL -- 0 alpaca-mcp-server process(es) found
@@ -591,7 +592,7 @@ Revoke path for the designation is already documented in the file: delete it and
 [2026-09-03 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-09-03.md
 
 ## Kitchen
-Kitchen: alive, queue 52 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 48 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: self-check 2026-09-03T09:39:56
 - RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.

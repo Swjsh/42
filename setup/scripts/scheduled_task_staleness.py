@@ -65,8 +65,15 @@ from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = ROOT / "automation" / "state"
+LOG_DIR = STATE_DIR / "logs"
 QUIET_LOG = STATE_DIR / "quiet-mode.log"
 OUT_FILE = STATE_DIR / "scheduled-task-staleness.json"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:  # pragma: no cover - trivial import shim, mirrors self_check.py's et_clock shim
+    import status_known_broken as skb
+except Exception:  # noqa: BLE001 -- fail-open: STATUS.md posting is best-effort, never fatal
+    skb = None
 
 _CREATE_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
@@ -110,6 +117,7 @@ foreach ($t in (Get-ScheduledTask | Where-Object { $_.TaskName -like 'Gamma*' })
     $dur = $trig.Repetition.Duration
   }
   $kind = if ($trig) { $trig.CimClass.CimClassName } else { 'NONE' }
+  $act = $t.Actions | Select-Object -First 1
   $out += [pscustomobject]@{
     name        = $t.TaskName
     state       = [string]$t.State
@@ -121,6 +129,7 @@ foreach ($t in (Get-ScheduledTask | Where-Object { $_.TaskName -like 'Gamma*' })
     startBound  = if ($trig) { [string]$trig.StartBoundary } else { $null }
     repeat      = [string]$rep
     repeatFor   = [string]$dur
+    argsRaw     = if ($act) { [string]$act.Arguments } else { $null }
   }
 }
 $out | ConvertTo-Json -Depth 4 -Compress
@@ -417,11 +426,367 @@ def classify_task(row: dict, now: Optional[dt.datetime] = None,
     return result
 
 
+# --------------------------------------------------------------------------------------
+# OUTPUT-FRESHNESS GUARD (queue item HIDDEN-CHAIN-OUTPUT-FRESHNESS-GUARD, 2026-09-03).
+#
+# Everything above answers "did the scheduler fire the task on time?". None of it answers
+# "did the SCRIPT the task launched actually finish, and did its output move?" -- a task
+# can show State=Ready / LastRunTime=fresh / 0 missed runs while the wscript hop it fires
+# through (wscript -> run_exe_hidden.vbs -> pythonw -> run_cmd_hidden.py) launches a script
+# that crashes, or never launches at all if an earlier hop in that chain silently died.
+# See markdown/doctrine/_lesson-inbox/hidden-chain-rc0-is-not-evidence-2026-09-03.md.
+#
+# Two additive checks, both report-only (same fail-open contract as everything above):
+#   1. exit codes -- parse run_cmd_hidden.py's own per-fire log (it runs its child
+#      SYNCHRONOUSLY and writes the real exit code Task Scheduler's LastTaskResult can
+#      never see, per self_check.py's check_run_cmd_hidden_masked_exit); also flag a
+#      registered task whose LastRunTime falls inside the parsed window but whose script
+#      never appears on a 'launching:' line at all (a silent failure in an EARLIER hop of
+#      the chain -- the task "ran" per Task Scheduler, the relay never heard about it).
+#   2. output freshness -- for a small explicit table of known task -> output-file
+#      mappings, did the file's own stamp advance at/after the task's last fire?
+# --------------------------------------------------------------------------------------
+
+_LOG_LINE_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s*(.*)$")
+_LOG_PID_RE = re.compile(r"\[pid=(\d+)\]\s*$")
+_SCRIPT_PY_RE = re.compile(r'"([^"]+\.py)"')
+_LAUNCHER_SCRIPT_NAMES = frozenset({"run_cmd_hidden.py"})
+_OUTPUT_STALE_GRACE_MINUTES = 3.0  # clock-skew / write-latency slack -- not a tolerance bar
+
+# BOX_LOCAL_TZ: run_cmd_hidden.py's own log timestamps are dt.datetime.now() with NO
+# tzinfo -- naive LOCAL BOX time. Per CLAUDE.md's TIME doctrine this box runs Mountain,
+# never ET, and Bash `TZ=` reads UTC here (wrong) -- so these stamps are converted via an
+# explicit DST-aware zone, never a bare offset guess or the test-runner's own system tz.
+try:  # pragma: no cover - trivial import shim, mirrors the ET shim above
+    BOX_LOCAL_TZ = ZoneInfo("America/Denver")  # type: ignore[name-defined]
+except Exception:  # noqa: BLE001
+    BOX_LOCAL_TZ = dt.timezone(dt.timedelta(hours=-6))
+
+
+def _log_ts_to_et(ts_str: Optional[str]) -> Optional[dt.datetime]:
+    """'2026-09-03 15:49:57' (naive box-local) -> aware ET. None on anything unparseable."""
+    if not ts_str:
+        return None
+    try:
+        naive = dt.datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return None
+    return naive.replace(tzinfo=BOX_LOCAL_TZ).astimezone(ET)
+
+
+def _parse_et_naive_iso(value) -> Optional[dt.datetime]:
+    """A `generated_at_et` field is wall-clock ET already, un-suffixed. Treat a naive
+    value as ET directly (never BOX_LOCAL_TZ -- that conversion is only for the box-local
+    launcher log); an already-aware value is converted to ET for a uniform comparison."""
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        parsed = dt.datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    return parsed.replace(tzinfo=ET) if parsed.tzinfo is None else parsed.astimezone(ET)
+
+
+def _script_label(cmd: str) -> str:
+    """First '.py' token in a launcher cmd line -- never a trailing CLI arg (e.g.
+    '--subject all'). Mirrors self_check.py's _run_cmd_hidden_script_label."""
+    tokens = cmd.split()
+    for tok in tokens:
+        if tok.lower().endswith(".py"):
+            return Path(tok).name
+    return Path(tokens[-1]).name if tokens else cmd
+
+
+def parse_run_cmd_hidden_log(text: Optional[str]) -> list[dict]:
+    """PID-paired launch/exit records from run_cmd_hidden.py's own per-fire log.
+
+    Each fire writes 'launching: <cmd>  [pid=N]' then, once the child returns, an
+    'exit=<code>  [pid=N]' line (run_cmd_hidden.py's own 2026-08-21 docstring: this relay
+    routinely has 5+ overlapping processes writing the SAME shared per-date log, so pairing
+    by PID -- not line-adjacency -- avoids misattributing one script's exit to a different
+    concurrently-launched one). Falls back to FIFO-of-1 for legacy/pid-less lines, same as
+    self_check.py's `_parse_run_cmd_hidden_log`. [] on empty/unreadable input; never raises.
+    """
+    records: list[dict] = []
+    if not text:
+        return records
+    pending_by_pid: dict[str, dict] = {}
+    pending_fifo: Optional[dict] = None
+    for raw_line in text.splitlines():
+        m = _LOG_LINE_RE.match(raw_line.strip())
+        if not m:
+            continue
+        ts_str, rest = m.group(1), m.group(2)
+        if rest.startswith("launching: "):
+            body = rest[len("launching: "):].strip()
+            pid_m = _LOG_PID_RE.search(body)
+            cmd = _LOG_PID_RE.sub("", body).strip()
+            entry = {"script": _script_label(cmd), "cmd": cmd, "launch_ts": ts_str}
+            if pid_m:
+                pending_by_pid[pid_m.group(1)] = entry
+            else:
+                pending_fifo = entry
+        elif rest.startswith("exit="):
+            pid_m = _LOG_PID_RE.search(rest)
+            after = rest[len("exit="):].strip()
+            code_str = after.split()[0] if after.split() else after
+            try:
+                code = int(code_str)
+            except ValueError:
+                pending_fifo = None
+                continue
+            entry = None
+            if pid_m and pid_m.group(1) in pending_by_pid:
+                entry = pending_by_pid.pop(pid_m.group(1))
+            elif pending_fifo is not None:
+                entry, pending_fifo = pending_fifo, None
+            if entry is not None:
+                entry["exit"] = code
+                entry["exit_ts"] = ts_str
+                records.append(entry)
+    return records
+
+
+def launched_script_names(text: Optional[str]) -> set:
+    """Every script named on a 'launching:' line, independent of exit pairing. Used for the
+    missing-launch check: a launcher that crashed before its exit line still DID launch --
+    that's a different (and separately visible) finding than 'never even started'."""
+    out: set = set()
+    if not text:
+        return out
+    for raw_line in text.splitlines():
+        m = _LOG_LINE_RE.match(raw_line.strip())
+        if not m or not m.group(2).startswith("launching: "):
+            continue
+        body = m.group(2)[len("launching: "):].strip()
+        out.add(_script_label(_LOG_PID_RE.sub("", body).strip()))
+    return out
+
+
+def latest_by_script(records: list[dict]) -> dict[str, dict]:
+    """Last record per script name. The log is append-only/chronological, so a later
+    record for the same script always overwrites an earlier one -- 'latest' is correct
+    without needing to compare timestamps."""
+    out: dict[str, dict] = {}
+    for r in records:
+        out[r["script"]] = r
+    return out
+
+
+def read_run_cmd_hidden_log_text(now: dt.datetime, days: int = 2, log_dir: Path = LOG_DIR) -> str:
+    """Concatenate the last `days` calendar dates' (ET) run-cmd-hidden logs, oldest first.
+    A missing file for a given date is skipped, not an error (fail-open -- log rotation /
+    a fresh box / a date with no fires are all legitimate)."""
+    parts: list[str] = []
+    now_et = now.astimezone(ET)
+    for offset in range(days - 1, -1, -1):
+        d = (now_et - dt.timedelta(days=offset)).date()
+        p = log_dir / f"run-cmd-hidden-{d.isoformat()}.log"
+        try:
+            if p.exists():
+                parts.append(p.read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            continue
+    return "\n".join(parts)
+
+
+def extract_script_from_args(args_raw: Optional[str]) -> Optional[str]:
+    """Pull the actual target .py script from a task Action's Arguments string. Every
+    task on this relay reads wscript -> run_exe_hidden.vbs -> pythonw -> run_cmd_hidden.py
+    -- the real target is the LAST quoted '...\\something.py' token (the file after '--'),
+    never run_cmd_hidden.py itself. None when no real .py token is found."""
+    if not args_raw:
+        return None
+    names = [Path(m).name for m in _SCRIPT_PY_RE.findall(args_raw)]
+    real = [n for n in names if n not in _LAUNCHER_SCRIPT_NAMES]
+    return real[-1] if real else None
+
+
+def uses_run_cmd_hidden_relay(args_raw: Optional[str]) -> bool:
+    """False for tasks NOT on this relay (e.g. Gamma_PullbackHoldShadow routes through
+    run_py_venv_hidden.py instead) -- those get no exit-code/missing-launch verdict here,
+    only the output-freshness check, which does not depend on which launcher was used."""
+    return bool(args_raw) and "run_cmd_hidden.py" in args_raw
+
+
+def script_to_task_map(rows: list[dict]) -> dict[str, str]:
+    """script filename -> owning task name, for rows on the run_cmd_hidden relay."""
+    out: dict[str, str] = {}
+    for row in rows or []:
+        if not isinstance(row, dict) or not uses_run_cmd_hidden_relay(row.get("argsRaw")):
+            continue
+        script = extract_script_from_args(row.get("argsRaw"))
+        name = row.get("name")
+        if script and name and script not in out:
+            out[script] = name
+    return out
+
+
+def check_exit_codes(latest: dict[str, dict], script_to_task: Optional[dict] = None) -> list[dict]:
+    """Any script whose LAST recorded exit in the window was non-zero."""
+    script_to_task = script_to_task or {}
+    out: list[dict] = []
+    for script, rec in sorted(latest.items()):
+        code = rec.get("exit")
+        if code in (0, None):
+            continue
+        ts = _log_ts_to_et(rec.get("exit_ts") or rec.get("launch_ts"))
+        out.append({
+            "kind": "nonzero_exit",
+            "script": script,
+            "task": script_to_task.get(script),
+            "exit": code,
+            "ts": ts.isoformat() if ts else None,
+            "verdict": "RED",
+            "reason": (f"{script} last exited {code} -- Task Scheduler's LastTaskResult "
+                      "can never see this (the outer wscript hop is fire-and-forget); "
+                      "this comes from run_cmd_hidden.py's own synchronously-captured "
+                      "real exit code"),
+        })
+    return out
+
+
+def check_missing_launches(rows: list[dict], launched: set, window_start: dt.datetime,
+                           now: dt.datetime) -> list[dict]:
+    """A registered task on the run_cmd_hidden relay whose LastRunTime falls inside the
+    parsed log window, but whose script never appears on ANY 'launching:' line in that
+    window -- Task Scheduler believes it ran; the relay has no record it ever arrived."""
+    out: list[dict] = []
+    for row in rows or []:
+        if not isinstance(row, dict) or not uses_run_cmd_hidden_relay(row.get("argsRaw")):
+            continue
+        script = extract_script_from_args(row.get("argsRaw"))
+        if not script or script in launched:
+            continue
+        last_run = _parse_dt(row.get("lastRun"))
+        if last_run is None or is_never_ran(last_run):
+            continue
+        if not (window_start <= last_run <= now):
+            continue
+        last_run_et = last_run.astimezone(ET)
+        out.append({
+            "kind": "missing_launch",
+            "task": row.get("name"),
+            "script": script,
+            "last_run": last_run_et.isoformat(),
+            "verdict": "RED",
+            "reason": (f"{row.get('name')}'s LastRunTime ({last_run_et.isoformat()}) falls inside "
+                      f"the logged window ({window_start.date()}..{now.date()}) but no "
+                      f"'launching: ...{script}' line exists in run-cmd-hidden-<date>.log -- "
+                      "an earlier hop in the wscript/vbs chain reported a fire that never "
+                      "reached the relay (silent launch failure)"),
+        })
+    return out
+
+
+# Task name -> (output file path relative to ROOT, stamp field to read from that JSON;
+# falls back to file mtime -- see read_output_stamp -- when the field is absent/unreadable).
+TASK_OUTPUT_MAP: dict = {
+    "Gamma_DayTypeLabels": ("analysis/recommendations/day-type-labels.json", "generated_at_et"),
+    "Gamma_ProfitLockV2Shadow": ("analysis/recommendations/profit-lock-v2-shadow-summary.json", "generated_at_et"),
+    "Gamma_EntryLocationTrendShadow": ("analysis/recommendations/entry-location-trend-summary.json", "generated_at_et"),
+    "Gamma_RetestZoneShadow": ("analysis/recommendations/retest-zone-shadow-summary.json", "generated_at_et"),
+    "Gamma_ConvictionC4Sidecar": ("analysis/recommendations/conviction-c4-sidecar-summary.json", "generated_at_et"),
+    "Gamma_ReleaseBlackoutShadow": ("analysis/recommendations/release-blackout-shadow-summary.json", "generated_at_et"),
+    "Gamma_FleetGateLeakShadow": ("analysis/recommendations/fleet-gate-leak-summary.json", "generated_at_et"),
+    "Gamma_StructureClassifierShadow": ("analysis/recommendations/structure-classifier-shadow-summary.json", "generated_at_et"),
+    "Gamma_Tp1R50ForwardShadow": ("analysis/recommendations/tp1-r50-forward-shadow-summary.json", "generated_at_et"),
+    "Gamma_TrendlineTightExitShadow": ("analysis/recommendations/trendline-tight-exit-shadow-summary.json", "generated_at_et"),
+    "Gamma_PullbackHoldShadow": ("analysis/recommendations/pullback-hold-shadow-summary.json", "generated_at_et"),
+}
+
+
+def read_output_stamp(rel_path: str, stamp_field: str, root: Path = ROOT) -> tuple:
+    """(stamp, basis). `basis` tells the caller WHICH kind of evidence it got -- a summary
+    JSON's own declared generation time, or a file-mtime fallback when that field is
+    missing/unreadable -- never blur the two into one unlabelled number."""
+    p = root / rel_path
+    try:
+        if not p.exists():
+            return None, "missing"
+        data = json.loads(p.read_text(encoding="utf-8"))
+        # Most of the 2026-09-03 shadow summaries carry the field top-level; a few of the
+        # older ones (day-type-labels.json, conviction-c4-sidecar-summary.json,
+        # pullback-hold-shadow-summary.json) nest it under '_meta' instead -- check both
+        # before falling to mtime, so a real stamp isn't discarded for living one level
+        # deeper than the newer producers happen to put it.
+        raw = None
+        if isinstance(data, dict):
+            raw = data.get(stamp_field)
+            if not raw and isinstance(data.get("_meta"), dict):
+                raw = data["_meta"].get(stamp_field)
+        parsed = _parse_et_naive_iso(raw) if raw else None
+        if parsed is not None:
+            return parsed, f"'{stamp_field}' field"
+        mtime = dt.datetime.fromtimestamp(p.stat().st_mtime, tz=dt.timezone.utc).astimezone(ET)
+        return mtime, "file mtime (fallback -- no usable stamp field)"
+    except (OSError, ValueError):
+        return None, "unreadable"
+
+
+def check_output_freshness(rows_by_name: dict, now: dt.datetime,
+                           task_output_map: Optional[dict] = None,
+                           root: Path = ROOT) -> list[dict]:
+    """For each known task -> output mapping: did the output's own stamp advance at/after
+    the task's last fire? A task that ran but left a stale output is exactly the silent
+    failure shape this queue item exists to catch (a script that launches, then errors out
+    or no-ops before writing anything new)."""
+    task_output_map = TASK_OUTPUT_MAP if task_output_map is None else task_output_map
+    out: list[dict] = []
+    for task_name, (rel_path, stamp_field) in sorted(task_output_map.items()):
+        stamp, basis = read_output_stamp(rel_path, stamp_field, root=root)
+        row = rows_by_name.get(task_name)
+        entry = {
+            "task": task_name, "output": rel_path,
+            "stamp": stamp.isoformat() if stamp else None, "basis": basis,
+        }
+        if row is None:
+            entry.update(verdict="UNKNOWN", last_run=None,
+                         reason=f"{task_name} not found in this scheduler query")
+            out.append(entry)
+            continue
+        last_run = _parse_dt(row.get("lastRun"))
+        if is_never_ran(last_run):
+            last_run = None
+        entry["last_run"] = last_run.astimezone(ET).isoformat() if last_run else None
+        if stamp is None:
+            entry.update(verdict="RED", reason=f"output file missing or unreadable: {rel_path}")
+        elif last_run is None:
+            entry.update(verdict="UNKNOWN",
+                         reason="task has never fired -- nothing to compare the output stamp against")
+        elif stamp + dt.timedelta(minutes=_OUTPUT_STALE_GRACE_MINUTES) < last_run:
+            entry.update(verdict="RED",
+                         reason=(f"output stamp {stamp.isoformat()} ({basis}) is OLDER than the "
+                                 f"task's last fire {last_run.astimezone(ET).isoformat()} -- it ran "
+                                 "but its output did not move"))
+        else:
+            entry.update(verdict="GREEN",
+                         reason=f"output stamp {stamp.isoformat()} ({basis}) advanced at/after last fire")
+        out.append(entry)
+    return out
+
+
 def build_report(rows: Optional[list[dict]], now: Optional[dt.datetime] = None,
-                 quiet_log_text: Optional[str] = None) -> dict:
+                 quiet_log_text: Optional[str] = None,
+                 run_cmd_hidden_log_text: Optional[str] = None,
+                 log_window_days: int = 2) -> dict:
     """Full report. `rows is None` (query failure) is UNKNOWN, never GREEN."""
     now = now or dt.datetime.now(ET)
     stamp = now.astimezone(ET).strftime("%Y-%m-%d %H:%M:%S ET")
+
+    # Output-freshness guard: additive, independent of whether the scheduler query
+    # itself succeeded (a query failure still leaves the output files on disk to check;
+    # rows=None just means every row lookup below reports UNKNOWN, not that we skip it).
+    rows_by_name = {r.get("name"): r for r in (rows or []) if isinstance(r, dict) and r.get("name")}
+    log_text = run_cmd_hidden_log_text if run_cmd_hidden_log_text is not None \
+        else read_run_cmd_hidden_log_text(now, days=log_window_days)
+    window_start = now - dt.timedelta(days=log_window_days)
+    records = parse_run_cmd_hidden_log(log_text)
+    latest = latest_by_script(records)
+    launched = launched_script_names(log_text)
+    exit_codes = check_exit_codes(latest, script_to_task_map(rows or []))
+    exit_codes += check_missing_launches(rows or [], launched, window_start, now)
+    output_freshness = check_output_freshness(rows_by_name, now)
 
     if rows is None:
         return {
@@ -429,6 +794,8 @@ def build_report(rows: Optional[list[dict]], now: Optional[dt.datetime] = None,
             "verdict": "UNKNOWN",
             "reason": "the scheduler query itself failed -- no task could be evaluated",
             "counts": {}, "tasks": [], "findings": [],
+            "exit_codes": exit_codes,
+            "output_freshness": output_freshness,
         }
 
     holds = parse_quiet_holds(quiet_log_text, now=now)
@@ -456,6 +823,8 @@ def build_report(rows: Optional[list[dict]], now: Optional[dt.datetime] = None,
         "counts": counts,
         "findings": findings,
         "tasks": sorted(tasks, key=lambda t: t["name"]),
+        "exit_codes": exit_codes,
+        "output_freshness": output_freshness,
     }
 
 
@@ -467,6 +836,34 @@ def write_report(report: dict, out_path: Path = OUT_FILE) -> Path:
     tmp.write_text(payload, encoding="utf-8")
     tmp.replace(out_path)
     return out_path
+
+
+STATUS_MD = ROOT / "automation" / "overnight" / "STATUS.md"
+TASK_OUTPUT_FRESHNESS_MARKER = "TASK-OUTPUT-FRESHNESS:"
+
+
+def post_output_freshness_status(report: dict, status_path: Optional[Path] = None) -> bool:
+    """Push ONE loud, de-duplicating line to STATUS.md '## Known broken' summarizing any
+    RED finding in `exit_codes` / `output_freshness`. Delegates to the shared
+    status_known_broken.upsert() helper (see that module's own docstring for why: several
+    other producers used to append one line per fire and turned the section into an
+    unreadable stack) -- a re-fire that finds the SAME condition REPLACES the marker's
+    single line rather than adding a second one, and a clean run clears the marker
+    entirely. No-op (returns False) if status_known_broken failed to import (fail-open,
+    same contract as every other check in this file)."""
+    if skb is None:
+        return False
+    status_path = STATUS_MD if status_path is None else status_path
+    reds = [f for f in report.get("exit_codes", []) if f.get("verdict") == "RED"]
+    reds += [f for f in report.get("output_freshness", []) if f.get("verdict") == "RED"]
+    if not reds:
+        return skb.upsert(TASK_OUTPUT_FRESHNESS_MARKER, None, status_path=status_path)
+    parts = [f"{f.get('task') or f.get('script') or '?'}[{f.get('kind', 'output_stale')}]"
+             for f in reds]
+    ts = report.get("generated_at_et", "")
+    line = (f"- [{ts}] {TASK_OUTPUT_FRESHNESS_MARKER} {len(reds)} finding(s): "
+            + ", ".join(parts))
+    return skb.upsert(TASK_OUTPUT_FRESHNESS_MARKER, line, status_path=status_path)
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -486,6 +883,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     report = build_report(rows, quiet_log_text=quiet_text)
     if not args.no_write:
         write_report(report)
+        post_output_freshness_status(report)
 
     if args.json:
         print(json.dumps(report, indent=2))
