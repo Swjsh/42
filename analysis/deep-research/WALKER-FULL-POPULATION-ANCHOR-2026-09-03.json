@@ -1,0 +1,422 @@
+{
+  "_meta": {
+    "queue_item": "WALKER-REANCHOR-FULL-ENGINE-POPULATION",
+    "generated_by": "backtest/tools/walker_full_population_anchor.py",
+    "prereg": "analysis/deep-research/WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md",
+    "population_arms": [
+      "safe-2",
+      "bold-2",
+      "safe-3",
+      "risky-1"
+    ],
+    "population_window": [
+      "2026-07-08",
+      "2026-09-02"
+    ],
+    "pdt_subset_arms": [
+      "safe-2",
+      "bold-2"
+    ],
+    "pdt_subset_window": [
+      "2026-07-08",
+      "2026-08-07"
+    ],
+    "criterion": "|aggregate_ratio-1|<=0.40 AND median_abs_error_dollars<=$40 AND n>=20"
+  },
+  "population_composition": {
+    "n_input_rows": 231,
+    "by_arm": {
+      "risky-1": 69,
+      "safe-3": 49,
+      "safe-2": 74,
+      "bold-2": 39
+    },
+    "cache_status": {
+      "n_contracts": 96,
+      "n_cached": 96,
+      "n_missing_pre_run": 0,
+      "missing_pre_run": []
+    }
+  },
+  "full_population": {
+    "default": {
+      "n": 223,
+      "sign_agreement": 0.8834,
+      "aggregate_ratio": 0.6896,
+      "median_abs_error_dollars": 16.0,
+      "verdict": "PASS",
+      "skipped": {
+        "skipped_no_bars_count": 8,
+        "n_input_rows": 231,
+        "n_priced_rows": 223,
+        "n_unpriced_total": 8,
+        "unpriced_rows_sample": [
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805P00772000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805C00777000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805P00772000"
+          }
+        ]
+      },
+      "per_arm": {
+        "bold-2": {
+          "n": 39,
+          "sign_agreement": 0.9231,
+          "aggregate_ratio": 6.4361,
+          "median_abs_error_dollars": 15.0,
+          "verdict": "FAIL"
+        },
+        "risky-1": {
+          "n": 63,
+          "sign_agreement": 0.8095,
+          "aggregate_ratio": 1.7195,
+          "median_abs_error_dollars": 22.5,
+          "verdict": "FAIL"
+        },
+        "safe-2": {
+          "n": 72,
+          "sign_agreement": 0.9583,
+          "aggregate_ratio": 0.9634,
+          "median_abs_error_dollars": 15.0,
+          "verdict": "PASS"
+        },
+        "safe-3": {
+          "n": 49,
+          "sign_agreement": 0.8367,
+          "aggregate_ratio": -0.1241,
+          "median_abs_error_dollars": 14.9,
+          "verdict": "FAIL"
+        }
+      },
+      "per_stage": {
+        "premium_stop": {
+          "n": 72,
+          "sign_agreement": 0.9028,
+          "aggregate_ratio": 0.9597,
+          "median_abs_error_dollars": 19.2,
+          "verdict": "PASS"
+        },
+        "ribbon_flip": {
+          "n": 17,
+          "sign_agreement": 0.7059,
+          "aggregate_ratio": -2.4177,
+          "median_abs_error_dollars": 20.0,
+          "verdict": "INSUFFICIENT"
+        },
+        "structure_stop": {
+          "n": 82,
+          "sign_agreement": 0.9268,
+          "aggregate_ratio": 1.0178,
+          "median_abs_error_dollars": 10.0,
+          "verdict": "PASS"
+        },
+        "time_stop": {
+          "n": 4,
+          "sign_agreement": 0.75,
+          "aggregate_ratio": -3.0,
+          "median_abs_error_dollars": 49.5,
+          "verdict": "INSUFFICIENT"
+        },
+        "tp1+trail": {
+          "n": 44,
+          "sign_agreement": 0.8636,
+          "aggregate_ratio": 0.94,
+          "median_abs_error_dollars": 76.8,
+          "verdict": "FAIL"
+        },
+        "other_rare(UNKNOWN,premium_stop+ribbon_flip,runner_target+tp1)": {
+          "n": 4,
+          "sign_agreement": 0.75,
+          "aggregate_ratio": 2.9147,
+          "median_abs_error_dollars": 57.0,
+          "verdict": "INSUFFICIENT"
+        }
+      },
+      "stage_decomposition": {
+        "stage_agree": {
+          "n": 181,
+          "mean_abs_error_dollars": 33.21,
+          "median_abs_error_dollars": 13.5,
+          "total_abs_error_dollars": 6010.55
+        },
+        "stage_disagree": {
+          "n": 42,
+          "mean_abs_error_dollars": 182.01,
+          "median_abs_error_dollars": 86.25,
+          "total_abs_error_dollars": 7644.4
+        },
+        "disagree_share_of_total_abs_error": 0.5598
+      }
+    },
+    "zero": {
+      "n": 223,
+      "sign_agreement": 0.8924,
+      "aggregate_ratio": 0.9074,
+      "median_abs_error_dollars": 15.0,
+      "verdict": "PASS",
+      "skipped": {
+        "skipped_no_bars_count": 8,
+        "n_input_rows": 231,
+        "n_priced_rows": 223,
+        "n_unpriced_total": 8,
+        "unpriced_rows_sample": [
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805C00776000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "risky-1",
+            "symbol": "SPY260805P00772000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805C00777000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805P00772000"
+          }
+        ]
+      },
+      "per_arm": {
+        "bold-2": {
+          "n": 39,
+          "sign_agreement": 0.8974,
+          "aggregate_ratio": 5.7265,
+          "median_abs_error_dollars": 15.0,
+          "verdict": "FAIL"
+        },
+        "risky-1": {
+          "n": 63,
+          "sign_agreement": 0.8254,
+          "aggregate_ratio": 1.8728,
+          "median_abs_error_dollars": 25.0,
+          "verdict": "FAIL"
+        },
+        "safe-2": {
+          "n": 72,
+          "sign_agreement": 0.9583,
+          "aggregate_ratio": 1.2034,
+          "median_abs_error_dollars": 15.0,
+          "verdict": "PASS"
+        },
+        "safe-3": {
+          "n": 49,
+          "sign_agreement": 0.8776,
+          "aggregate_ratio": 0.0065,
+          "median_abs_error_dollars": 14.5,
+          "verdict": "FAIL"
+        }
+      },
+      "per_stage": {
+        "premium_stop": {
+          "n": 72,
+          "sign_agreement": 0.9028,
+          "aggregate_ratio": 0.9459,
+          "median_abs_error_dollars": 19.2,
+          "verdict": "PASS"
+        },
+        "ribbon_flip": {
+          "n": 17,
+          "sign_agreement": 0.7647,
+          "aggregate_ratio": -1.443,
+          "median_abs_error_dollars": 15.0,
+          "verdict": "INSUFFICIENT"
+        },
+        "structure_stop": {
+          "n": 82,
+          "sign_agreement": 0.939,
+          "aggregate_ratio": 0.973,
+          "median_abs_error_dollars": 9.0,
+          "verdict": "PASS"
+        },
+        "time_stop": {
+          "n": 4,
+          "sign_agreement": 0.75,
+          "aggregate_ratio": -2.5,
+          "median_abs_error_dollars": 49.5,
+          "verdict": "INSUFFICIENT"
+        },
+        "tp1+trail": {
+          "n": 44,
+          "sign_agreement": 0.8636,
+          "aggregate_ratio": 0.9424,
+          "median_abs_error_dollars": 76.8,
+          "verdict": "FAIL"
+        },
+        "other_rare(UNKNOWN,premium_stop+ribbon_flip,runner_target+tp1)": {
+          "n": 4,
+          "sign_agreement": 0.75,
+          "aggregate_ratio": 2.9726,
+          "median_abs_error_dollars": 54.0,
+          "verdict": "INSUFFICIENT"
+        }
+      },
+      "stage_decomposition": {
+        "stage_agree": {
+          "n": 181,
+          "mean_abs_error_dollars": 32.98,
+          "median_abs_error_dollars": 13.6,
+          "total_abs_error_dollars": 5968.55
+        },
+        "stage_disagree": {
+          "n": 42,
+          "mean_abs_error_dollars": 180.75,
+          "median_abs_error_dollars": 83.75,
+          "total_abs_error_dollars": 7591.4
+        },
+        "disagree_share_of_total_abs_error": 0.5598
+      }
+    }
+  },
+  "pdt_subset": {
+    "default": {
+      "n": 41,
+      "sign_agreement": 0.9756,
+      "aggregate_ratio": 2.0128,
+      "median_abs_error_dollars": 15.0,
+      "verdict": "FAIL",
+      "skipped": {
+        "skipped_no_bars_count": 2,
+        "n_input_rows": 43,
+        "n_priced_rows": 41,
+        "n_unpriced_total": 2,
+        "unpriced_rows_sample": [
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805C00777000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805P00772000"
+          }
+        ]
+      }
+    },
+    "zero": {
+      "n": 41,
+      "sign_agreement": 0.9756,
+      "aggregate_ratio": 1.7163,
+      "median_abs_error_dollars": 15.0,
+      "verdict": "FAIL",
+      "skipped": {
+        "skipped_no_bars_count": 2,
+        "n_input_rows": 43,
+        "n_priced_rows": 41,
+        "n_unpriced_total": 2,
+        "unpriced_rows_sample": [
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805C00777000"
+          },
+          {
+            "date": "2026-08-05",
+            "arm": "safe-2",
+            "symbol": "SPY260805P00772000"
+          }
+        ]
+      }
+    }
+  },
+  "v9_continuity": {
+    "available": true,
+    "source": "analysis\\whole-engine-null\\2026-09-02.json",
+    "n": 121,
+    "skipped_no_bars": 0,
+    "sign_agreement": 0.8926,
+    "aggregate_ratio": 0.6452,
+    "median_abs_error_dollars": 15.0,
+    "verdict": true,
+    "magnitude_fidelity_verdict": "PASS",
+    "agreement_by_exit_reason": {
+      "premium_stop": {
+        "n": 31,
+        "n_agree": 30,
+        "agreement_rate": 0.9677
+      },
+      "ribbon_flip": {
+        "n": 15,
+        "n_agree": 10,
+        "agreement_rate": 0.6667
+      },
+      "structure_stop": {
+        "n": 46,
+        "n_agree": 42,
+        "agreement_rate": 0.913
+      },
+      "time_stop": {
+        "n": 2,
+        "n_agree": 2,
+        "agreement_rate": 1.0
+      },
+      "tp1+trail": {
+        "n": 27,
+        "n_agree": 24,
+        "agreement_rate": 0.8889
+      }
+    }
+  },
+  "conclusion": "The pooled full engine-attributed population (n=223) CLEARS the letter of the magnitude-fidelity criterion at default slippage (ratio 0.6896, median $16.0), BUT this is arithmetic cancellation across arms, not per-arm fidelity: 3/4 arms (bold-2, risky-1, safe-3) individually FAIL their own arm-level ratio (only safe-2 pass), with opposite-signed biases netting out in the pooled sum -- the residual is concentrated in stage-disagreement rows (structure_stop firing where the broker recorded premium_stop/tp1+trail) that recur correlated across arms trading the same signal, not evenly spread. Do NOT migrate WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK on the pooled number alone."
+}
