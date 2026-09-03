@@ -41,9 +41,13 @@ Invoke-PythonHidden `
 # Step 2: fan to all fleet_rest arms + log per-arm decisions.
 # 2026-06-22: --live ADDED (J directive -- all his Alpaca accounts trade for real-fills
 # learning). Master-enable; each arm still ALSO needs its own live:true in accounts.json
-# (safe-3 + risky-1 are live; risky-3 stays held = 1DTE/vertical not implemented). Every
-# placement is a bracket (TP + never-null stop) via fleet_broker + the shared risk_gate +
-# per-arm kill-switch + flat-verify. safe-1/bold-2 are skipped here (heartbeat owns them).
+# (safe-3 + risky-1 are live; risky-3 stays held = 1DTE/vertical not implemented).
+# CORRECTED 2026-09-03 (was stale since inception): Alpaca REJECTS option brackets
+# (error 42210000) -- there is no broker-side TP/stop. Every ENTRY is a single
+# marketable LIMIT order (fleet_broker.py); every EXIT (TP1/runner/stop/time-stop) is an
+# unconditional MARKET order placed tick-by-tick by exit_actuator.py, gated by the
+# shared risk_gate + per-arm kill-switch + flat-verify. safe-1/bold-2 are skipped here
+# (heartbeat owns them).
 $result = Invoke-PythonHidden `
     -ScriptPath "automation\state\fleet\fleet_live.py" `
     -ArgList @("--quiet", "--live") `

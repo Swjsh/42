@@ -60,7 +60,11 @@ except Exception:  # noqa: BLE001 -- telemetry must never gate an arm's ability 
             return None
 ACCOUNTS_PATH = FLEET_DIR / "accounts.json"
 DEFAULT_SIGNAL = FLEET_DIR / "shared-signal.json"
-SIGNAL_MAX_AGE_SEC = 420  # 7 min -- a heartbeat tick is every 3 min
+SIGNAL_MAX_AGE_SEC = 420  # 7 min -- CORRECTED 2026-09-03: a heartbeat tick is every 1
+                           # min (Gamma_HeartbeatCore + this arm's own Gamma_FleetExecutor
+                           # both run /1min, per run-fleet-executor.ps1's docstring and
+                           # SCHEDULED-TASKS.md), not 3 min as previously stated here --
+                           # 420s is a ~7x margin over that 1-min cadence, not ~2.3x.
 
 # 6-ACCOUNT UNIFICATION LEVER (2026-06-25, reversible) — which arms this runner processes.
 # DEFAULT (False) = TODAY'S EXACT BEHAVIOR: only the 4 fleet_rest arms (safe-1/3, risky-1/3);

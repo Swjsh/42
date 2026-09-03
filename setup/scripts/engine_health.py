@@ -800,8 +800,11 @@ def check_escalation_flags(name: str) -> dict:
 
     Two independent signals -- either one trips RED:
       * any automation/state/kill-switch*.json file exists (eod_flatten.py's per-arm
-        escalation file -- fleet arms have no circuit-breaker.json, so this glob is
-        their only escalation surface).
+        escalation file -- fleet arms DO have their own circuit-breaker.json under
+        automation/state/fleet/<arm>/ (read every tick by fleet_live.py's entry gate and
+        tripped by halt_command.py), corrected 2026-09-03: this loop below only reads
+        the CORE safe/bold breakers for escalation_unresolved, so kill-switch*.json
+        remains fleet arms' only escalation surface AS SEEN BY THIS CHECK).
       * either core circuit-breaker.json carries escalation_unresolved=true (the flag
         daily_loss_guard.rearm() now refuses to clear -- see that function's 2026-09-01
         docstring).
