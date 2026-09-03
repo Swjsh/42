@@ -1,0 +1,65 @@
+{
+  "label": "RESEARCH -- NOT A RECOMMENDATION",
+  "queue_item": "SIP-VOLMULT-MISMATCH",
+  "queue_source": "automation/overnight/queue.md",
+  "generated_by": "backtest/tools/f10_volume_reproduce.py",
+  "generated_note": "Offline reproduction, real filter functions imported (never reimplemented). Does NOT propose a new f10_vol_mult value.",
+  "baseline_definition_traced": {
+    "backtest_fn": "backtest/lib/filters.py:131-135 vol_baseline_20bar(prior_bars, idx)",
+    "backtest_quote": "def vol_baseline_20bar(prior_bars, idx): \"\"\"20-bar SMA of volume immediately preceding bar `idx` (does NOT include bar idx).\"\"\" if idx < VOL_BASELINE_BARS: return float(prior_bars['volume'].iloc[:idx].mean()) if idx > 0 else 0.0; return float(prior_bars['volume'].iloc[idx - VOL_BASELINE_BARS:idx].mean())",
+    "backtest_input_series": "orchestrator.py:803-824 -- spy_df = spy_df_full.loc[rth_mask].reset_index(drop=True), rth_mask = 09:30<=t<16:00, built ONCE across the FULL multi-day backtest range with index reset only once (not per day). vol_baseline_20bar is called as vol_baseline_20bar(spy_df, idx) at orchestrator.py:943 -- idx indexes into this continuous cross-day series.",
+    "live_fn": "setup/scripts/heartbeat_core.py:928 vol20 = float(win['volume'].iloc[max(0, trig_idx - 20):trig_idx].mean())",
+    "live_input_series": "heartbeat_core.py:897-905 -- df filtered RTH-only (09:30<=t<16:00) across whatever history was fetched (multi-day), then win = df.iloc[-150:].reset_index(drop=True) -- a rolling 150-RTH-bar window with NO per-day reset. trig_idx = n-2.",
+    "conclusion": "Both engines compute the SAME mechanism: a 20-bar trailing SMA of volume over a CONTINUOUS, RTH-only, multi-day bar series with no day-boundary reset. For the first ~20 RTH bars of a trading day (09:35 through ~11:15 ET) this window reaches backward into the PRIOR trading day's RTH tail (15:xx bars). This is present in BOTH the backtest and the live path identically -- it is not a live-only quirk.",
+    "not_recorded_in_decision_row": "core-decisions.jsonl rows for 2026-09-02 (checked: 772 rows, keys enumerated) do NOT include vol_baseline_20 or bar.volume -- only bull_blockers/bull_score/etc. Item's own point (step 6) confirmed: the baseline that decided every blocker-10 verdict that day is not recoverable from the decision log itself; it had to be reconstructed from raw bars."
+  },
+  "reproduction": {
+    "method": "backtest.lib.filters.vol_baseline_20bar + buyer_pressure_bar_v11 (real functions, imported) run over real 5-min bars for 2026-09-02, RTH 09:35-16:00, with 3 prior trading days (2026-08-27, 2026-08-28, 2026-09-01) prepended for a true cross-session 20-bar window.",
+    "data_sources": {
+      "sip": "backtest/data/spy_sip_cache/spy_5m_{date}.json (feed=sip per backtest/tools/backfill_spy_sip_cache_2024.py:131)",
+      "iex": "fetched live via Alpaca REST /v2/stocks/SPY/bars?feed=iex using setup/scripts/alpaca_keys.py (credentials never printed)"
+    },
+    "queue_item_reported": {
+      "ticks_total": 178,
+      "ticks_blocked_by_f10": 144,
+      "pct_blocked_ticks": 0.809,
+      "note": "178/144 are TICK counts (core-decisions.jsonl logs ~1-2/min, multiple ticks can share one closed 5-min bar). Reconciled below against the UNIQUE-BAR count."
+    },
+    "core_decisions_unique_bar_check": {
+      "method": "core-decisions.jsonl rows for account=safe, date=2026-09-02, ts_et in [09:35,16:00), deduped by trigger_bar_et (last occurrence kept)",
+      "n_unique_bars": 77,
+      "n_blocked_by_f10_live": 57,
+      "pct_blocked": 0.740
+    },
+    "sip_cross_session": {"n_bars": 77, "n_blocked_f10": 55, "pct_blocked": 0.714, "ratio_p10": 0.477, "ratio_p50": 0.798, "ratio_p90": 1.728},
+    "iex_cross_session": {"n_bars": 77, "n_blocked_f10": 58, "pct_blocked": 0.753, "ratio_p10": 0.384, "ratio_p50": 0.747, "ratio_p90": 1.492},
+    "ratio_correlation_sip_vs_iex_cross_session": 0.772,
+    "same_day_only_baseline_sensitivity": {
+      "description": "Same script re-run with warmup_dates=[] -- vol_baseline_20bar's own idx<20 fallback (mean of only the bars seen so far TODAY) since no other day's data is loaded. Isolates the session-crossing contribution.",
+      "sip": {"n_bars": 77, "n_blocked_f10": 50, "pct_blocked": 0.649},
+      "iex": {"n_bars": 77, "n_blocked_f10": 50, "pct_blocked": 0.649},
+      "ratio_correlation_sip_vs_iex": 0.750
+    },
+    "delta_vs_queue_item": "Not an exact digit match (55-58/77 unique-bar rate vs the item's 144/178 tick rate), but the unique-bar reproduction (57/77 = 74.0%) landed almost exactly on the LIVE observed unique-bar block rate computed independently from core-decisions.jsonl (57/77), and both SIP (71.4%) and IEX (75.3%) cross-session reproductions bracket it closely. The mechanism traced in step 1 reproduces the day's actual block behavior; residual gap to 144/178 is attributable to the tick-vs-bar counting difference, not an unmodeled mechanism."
+  },
+  "cause_analysis": {
+    "candidate_a_iex_sip_bias": {
+      "evidence": "Same-day-only baseline: SIP and IEX block the IDENTICAL 50/77 bars. Cross-session baseline: SIP 55/77 vs IEX 58/77 (+3 bars). Ratio correlation 0.75-0.77 (positive, not 1.0 -- real per-bar noise exists, but feed choice does not flip the outcome).",
+      "verdict": "NOT the primary driver. Feed choice moves the block count by only ~4-6 percentage points; the block behavior is dominated by the underlying bar-to-bar volume shape of the day, which both feeds largely agree on."
+    },
+    "candidate_b_baseline_spans_sessions": {
+      "evidence": "Cross-session baseline (real production mechanism) blocks 55-58/77 (71-75%). Same-day-only baseline (isolating cross-session contamination) blocks 50/77 (64.9%) on BOTH feeds identically. Session-crossing therefore adds ~6-10 percentage points (5-8 extra blocked bars) on top of an already-high 64.9% same-day base rate.",
+      "verdict": "CONFIRMED PRESENT and measurable, but a SECONDARY contributor, not the primary explanation for the day's high block rate. Even a same-day-only baseline already blocks ~65% of bars on 2026-09-02 -- the 0.7x-of-trailing-20-bar threshold is simply strict relative to this day's own volume distribution (a low-turnover drifting move), independent of session-crossing."
+    },
+    "overall": "Neither candidate alone explains the magnitude of the block rate. The dominant fact is that on 2026-09-02 most individual 5-min bars traded at LESS than 70% of their own trailing 20-bar average volume -- true under SIP, true under IEX, true with or without the prior-day baseline carryover. Blocker 10 firing 144/178 (tick) or 57/77 (bar) times is consistent with applying the RATIFIED threshold correctly to this day's actual volume shape, not evidence of a computation bug. Session-crossing (b) is a real, present, quantified design property (worth flagging on its own) but did not drive the bulk of the blocking."
+  },
+  "files": {
+    "reproduction_script": "backtest/tools/f10_volume_reproduce.py",
+    "iex_bar_cache_used": "scratchpad only (not committed) -- re-fetchable any time via the script's --iex-cache-dir auto-fetch path"
+  },
+  "unverified": [
+    "Exact reconciliation of the queue item's literal 178/144 tick counts was not achieved digit-for-digit -- reported as a delta, not silently rounded away.",
+    "IEX data pulled for only 4 trading days (2026-08-27,08-28,09-01,09-02); correlation (0.75-0.77) is based on n=77 common bars for one target day only, not a multi-day distribution.",
+    "The specific bug in the queue item's own 'approximate 20-bar baseline' crude reconstruction (which showed the condition mostly PASSING) was not identified -- its code was not available to this session; only that it disagrees with both the traced production mechanism and the live core-decisions.jsonl outcome."
+  ]
+}
