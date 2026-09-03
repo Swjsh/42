@@ -14,10 +14,29 @@ always wide and would slander the venue. We measure only the ATM band -- contrac
 priced where genuine uncertainty lives -- because that is the only band we would trade.
 
 Public market-data endpoints only. No auth, no account, no orders, $0.
+
+DECISION RULE (queue.md KALSHI-RTH-LIQUIDITY-RERUN, filed 2026-08-23, re-run
+2026-09-03 -- the blocker reading of 34-36c on KXINXU/KXINX was a SUNDAY,
+quote-starved sample; this script now fires on a schedule during weekday RTH
+so the reading is measured under real conditions before any lane decision is
+made):
+  - If KXINXU and/or KXINX clear the 5c gate (median_spread_cents <= 5) on
+    THREE CONSECUTIVE weekday RTH surveys -> ask J for the Kalshi API key (the
+    only J-step; everything up to that point is $0 and autonomous).
+  - If they do NOT clear 5c after a reasonable run of weekday RTH surveys ->
+    retarget the shadow lane to the BTC daily series (KXBTCD/KXETHD, which
+    read 24/7 and were already the tightest venues in the 2026-08-09 snapshot)
+    or formally park the Kalshi second-monetization thesis (leave `analysis/
+    kalshi/` as a dead-but-documented lane, no new task work).
+  - Gamma_KalshiLiquiditySurvey (setup/scripts/install-kalshi-liquidity-survey.ps1)
+    is the scheduled instrument that accumulates the evidence for this rule --
+    it does NOT decide anything itself, it only measures and writes a dated
+    snapshot every weekday RTH fire.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import statistics
 import sys
@@ -27,7 +46,23 @@ import urllib.request
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+REPO = Path(__file__).resolve().parents[2]
+SCRIPTS_DIR = REPO / "setup" / "scripts"
+sys.path.insert(0, str(SCRIPTS_DIR))
+try:
+    from et_clock import et_today_str  # DST-aware; project_tz_systemic_fix -- never naive now()
+except Exception:  # noqa: BLE001 -- degrade, never go dark for a clock import failure
+    import datetime as _dt
+
+    def et_today_str() -> str:
+        return _dt.datetime.utcnow().strftime("%Y-%m-%d")
+
 BASE = "https://api.elections.kalshi.com/trade-api/v2"
+
+# 5c is the queue item's specific gate (distinct from the module's own TRADEABLE/
+# MARGINAL/BLEED thresholds below) -- "clear the 5c gate" is the literal decision-rule
+# language, so it gets its own explicit constant and summary line.
+FIVE_CENT_GATE = 5.0
 
 # ATM band: contracts priced here carry real uncertainty. Outside it, the market has
 # already decided and the spread is meaningless for our purposes.
@@ -174,6 +209,15 @@ def survey_series(ticker: str, label: str, thesis: str, depth_sample: int = 4) -
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description="Kalshi ATM liquidity survey")
+    parser.add_argument(
+        "--out",
+        type=str,
+        default=None,
+        help="Output JSON path (default: analysis/kalshi/liquidity-survey-<ET date>.json)",
+    )
+    args = parser.parse_args()
+
     print("Kalshi venue reconnaissance -- ATM liquidity survey")
     print(f"ATM band: {ATM_LO:.2f}-{ATM_HI:.2f} | thresholds: <=2c TRADEABLE, <=5c MARGINAL, >5c BLEED")
     print("=" * 108)
@@ -199,10 +243,30 @@ def main() -> int:
     if tradeable:
         print("  -> tradeable: " + ", ".join(f"{r.series}({r.median_spread_cents}c)" for r in tradeable))
 
-    out = Path(__file__).resolve().parent / "liquidity-survey.json"
+    # 5c-gate verdict per series -- the literal decision-rule language in the module
+    # docstring and queue.md KALSHI-RTH-LIQUIDITY-RERUN. One machine-parseable line so
+    # a scheduled fire's log (or a human skimming stdout) never has to re-derive PASS/
+    # FAIL from the table above.
+    def _gate(r: SeriesReport) -> str:
+        if r.median_spread_cents is None:
+            return f"{r.series}=NO-DATA"
+        tag = "PASS" if r.median_spread_cents <= FIVE_CENT_GATE else "FAIL"
+        return f"{r.series}={tag}({r.median_spread_cents}c)"
+
+    gate_line = "5C-GATE: " + " ".join(_gate(r) for r in reports)
+    print(gate_line)
+
+    if args.out:
+        out = Path(args.out)
+    else:
+        out_dir = REPO / "analysis" / "kalshi"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out = out_dir / f"liquidity-survey-{et_today_str()}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(
         {"surveyed_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
          "atm_band": [ATM_LO, ATM_HI],
+         "five_cent_gate": FIVE_CENT_GATE,
          "note": "Snapshot. Weekend/off-hours books are thinner than RTH -- re-run during "
                  "the target session before drawing any conclusion about a series.",
          "reports": [asdict(r) for r in reports]},
