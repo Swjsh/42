@@ -27,8 +27,16 @@ band, and daily SPY bars up to (and excluding) the date itself for the trend rea
 Nothing at or after the target date's own session is ever touched.
 
 Data sources (both already-cached, no new fetch):
-- Daily SPY OHLC: `analysis/backtests/cache/trend-alignment-spy-daily-2024-07-01_2026-07-14.json`
-  (the SAME cache `context_bundle_producer.py`'s live daily fetch populates/reads).
+- Daily SPY OHLC: `DAILY_SPY_CACHE` resolves to whichever cache is freshest --
+  `automation/state/trend-alignment-latest.json`'s pointer target if present (written
+  daily by `setup/scripts/trend_cache_producer.py`, a $0 append-only extension of the
+  file below), else the frozen one-off build artifact
+  `analysis/backtests/cache/trend-alignment-spy-daily-2024-07-01_2026-07-14.json`
+  (produced 2026-07-14 by `backtest/tools/trend_alignment_correlation_study.py`'s
+  `--build-cache` step -- corrected 2026-09-03: this file is untracked/not committed and
+  is NOT populated by `context_bundle_producer.py`, which only fetches a trailing
+  live window and never persists a multi-year cache to disk; the prior line here was
+  aspirational, not verified). TREND-CLASSIFICATION-CACHE-STALE-SINCE-07-14, queue.md.
 - VIX 5m -> daily close: `backtest/data/vix_5m_2025-01-01_2026-07-08.csv`, day's close =
   the LAST bar of that calendar date in the file (file is chronologically ordered).
 
@@ -51,7 +59,29 @@ for p in (str(ROOT), str(REPO)):
 from crypto.lib.bar import Bar  # noqa: E402
 from crypto.lib.market_structure import analyze_structure, DEFAULT_WINDOW  # noqa: E402
 
-DAILY_SPY_CACHE = ROOT / "analysis" / "backtests" / "cache" / "trend-alignment-spy-daily-2024-07-01_2026-07-14.json"
+FROZEN_DAILY_SPY_CACHE = ROOT / "analysis" / "backtests" / "cache" / "trend-alignment-spy-daily-2024-07-01_2026-07-14.json"
+# Pointer written by setup/scripts/trend_cache_producer.py's daily $0 extension of the
+# frozen cache above (TREND-CLASSIFICATION-CACHE-STALE-SINCE-07-14, queue.md). The
+# extension is STRICTLY append-only past the frozen file's own bar range (new bars are
+# only ever added after the existing max timestamp -- see trend_cache_producer.merge_bars),
+# so resolving to it changes NOTHING about any trend label this repo has ever produced for
+# a date within the frozen file's own 2024-07-01..2026-07-14 coverage; it only lets dates
+# AFTER 2026-07-14 stop reading as fabricated/unknown.
+TREND_ALIGNMENT_LATEST_POINTER = ROOT / "automation" / "state" / "trend-alignment-latest.json"
+
+
+def _resolve_daily_spy_cache() -> Path:
+    try:
+        ptr = json.loads(TREND_ALIGNMENT_LATEST_POINTER.read_text(encoding="utf-8"))
+        cand = ROOT / ptr["cache_path"]
+        if cand.exists():
+            return cand
+    except (OSError, json.JSONDecodeError, KeyError):
+        pass
+    return FROZEN_DAILY_SPY_CACHE
+
+
+DAILY_SPY_CACHE = _resolve_daily_spy_cache()
 VIX_5M_CSV = REPO / "data" / "vix_5m_2025-01-01_2026-07-08.csv"
 
 # ---- VIX band ladder, mirrored verbatim from automation/state/params.json#vix_iv_regime_bands ----

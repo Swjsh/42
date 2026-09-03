@@ -1,0 +1,9 @@
+{
+  "cache_path": "analysis/backtests/cache/trend-alignment-spy-daily-2024-07-01_2026-09-02.json",
+  "start": "2024-07-01",
+  "end": "2026-09-02",
+  "n_bars": 546,
+  "updated_at_et": "2026-09-03T02:40:19",
+  "producer": "setup/scripts/trend_cache_producer.py",
+  "frozen_source": "analysis/backtests/cache/trend-alignment-spy-daily-2024-07-01_2026-07-14.json"
+}

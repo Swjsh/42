@@ -74,8 +74,15 @@ VIX_DATA_DIR = REPO / "data"
 OUT_JSON = ROOT / "analysis" / "harness-fidelity" / "REGIME-CONDITIONED-VALIDATION-2026-09-03.json"
 OUT_MD = ROOT / "analysis" / "harness-fidelity" / "REGIME-CONDITIONED-VALIDATION-2026-09-03.md"
 
-# Exact last daily bar in the frozen trend-classification cache (verified on disk: the
+# Exact last daily bar in the FROZEN trend-classification cache (verified on disk: the
 # cache's final row is timestamped 2026-07-14T04:00:00Z, i.e. the 2026-07-14 session).
+# Kept PINNED here (never mutated) so every test that calls guarded_classify_trend_asof()
+# without an explicit cache_last_bar_date= override keeps its exact frozen-cache behavior
+# -- see test_regime_conditioned_validation.py::TestTrendNeverFabricatedPastCacheBoundary.
+# main() below resolves the ACTUAL freshest boundary (frozen, or later if
+# setup/scripts/trend_cache_producer.py has extended the cache) via
+# _resolve_trend_cache_last_bar_date() and threads it through explicitly for the real
+# disclosure run -- TREND-CLASSIFICATION-CACHE-STALE-SINCE-07-14, queue.md.
 TREND_CACHE_LAST_BAR_DATE = dt.date(2026, 7, 14)
 # Generous buffer (weekends/holidays) before we call a target date "close enough" to the
 # cache boundary to still trust classify_trend_asof's own bar-count math unguarded.
@@ -290,7 +297,21 @@ def classify_vix_band_extended(vix_daily: dict[dt.date, float], target_date: dt.
 # ---------------------------------------------------------------------------------------------
 # 2b. Trend classification -- NEVER extended past the frozen cache without a disclosed gap.
 # ---------------------------------------------------------------------------------------------
-def guarded_classify_trend_asof(daily_bars, target_date: dt.date) -> tuple[str, dict]:
+def resolve_trend_cache_last_bar_date(daily_bars) -> dt.date:
+    """The ACTUAL last daily-bar date on disk in whichever cache
+    regime_classifier.DAILY_SPY_CACHE resolved to for this `daily_bars` list -- the frozen
+    2026-07-14 artifact, or a later append-only extension published by
+    setup/scripts/trend_cache_producer.py's pointer. Falls back to the pinned
+    TREND_CACHE_LAST_BAR_DATE constant if `daily_bars` is empty. Used ONLY by main()'s
+    live disclosure run -- guarded_classify_trend_asof's own default argument stays pinned
+    to the frozen constant so every existing test keeps its exact frozen-cache behavior."""
+    if not daily_bars:
+        return TREND_CACHE_LAST_BAR_DATE
+    return max(b.open_time for b in daily_bars).date()
+
+
+def guarded_classify_trend_asof(daily_bars, target_date: dt.date, *,
+                                 cache_last_bar_date: dt.date | None = None) -> tuple[str, dict]:
     """Wraps regime_classifier.classify_trend_asof (unmodified, byte-identical call) with
     an explicit staleness gate. Without this guard, classify_trend_asof would happily
     return a determinate trend for a date far beyond the cache's last bar, because its own
@@ -298,20 +319,30 @@ def guarded_classify_trend_asof(daily_bars, target_date: dt.date) -> tuple[str, 
     (possibly stale) lookback window, not whether the cache actually reaches close to the
     target date. That would be a fabricated trend read for a target date the cache cannot
     see. This guard makes the staleness explicit and never silently degrades to a computed
-    answer once the cache is too old for the target date to trust."""
-    cache_boundary = TREND_CACHE_LAST_BAR_DATE + dt.timedelta(days=TREND_STALENESS_GUARD_DAYS)
+    answer once the cache is too old for the target date to trust.
+
+    `cache_last_bar_date` defaults to the PINNED frozen constant (TREND_CACHE_LAST_BAR_DATE)
+    -- every existing pinned test calls this with no override and keeps its exact
+    frozen-cache behavior. main() passes the ACTUAL resolved boundary (via
+    resolve_trend_cache_last_bar_date()) so the live disclosure run reflects however far
+    setup/scripts/trend_cache_producer.py has extended the cache, instead of staying
+    artificially pinned to 2026-07-14 forever."""
+    boundary_date = cache_last_bar_date if cache_last_bar_date is not None else TREND_CACHE_LAST_BAR_DATE
+    cache_boundary = boundary_date + dt.timedelta(days=TREND_STALENESS_GUARD_DAYS)
     if target_date > cache_boundary:
         return "unknown", {
             "available": False,
-            "reason": f"trend_cache_stale_past_{TREND_CACHE_LAST_BAR_DATE.isoformat()}",
+            "reason": f"trend_cache_stale_past_{boundary_date.isoformat()}",
             "n_bars": None,
-            "cache_last_bar_date": TREND_CACHE_LAST_BAR_DATE.isoformat(),
+            "cache_last_bar_date": boundary_date.isoformat(),
         }
     return rc.classify_trend_asof(daily_bars, target_date)
 
 
-def label_date_extended(daily_bars, extended_vix: dict[dt.date, float], target_date: dt.date) -> dict:
-    trend, trend_meta = guarded_classify_trend_asof(daily_bars, target_date)
+def label_date_extended(daily_bars, extended_vix: dict[dt.date, float], target_date: dt.date, *,
+                         cache_last_bar_date: dt.date | None = None) -> dict:
+    trend, trend_meta = guarded_classify_trend_asof(daily_bars, target_date,
+                                                      cache_last_bar_date=cache_last_bar_date)
     band, vix_val = classify_vix_band_extended(extended_vix, target_date)
     band_label = band or "UNKNOWN"
     return {
@@ -364,8 +395,10 @@ def load_go_live_gate_evidence_dates() -> dict:
     return {"n_rows_scanned": n_scanned, "lifetime_dates": sorted(dates)}
 
 
-def regime_coverage_table(dates: list[str], daily_bars, extended_vix: dict[dt.date, float]) -> dict:
-    labels = {ds: label_date_extended(daily_bars, extended_vix, dt.date.fromisoformat(ds)) for ds in dates}
+def regime_coverage_table(dates: list[str], daily_bars, extended_vix: dict[dt.date, float], *,
+                           cache_last_bar_date: dt.date | None = None) -> dict:
+    labels = {ds: label_date_extended(daily_bars, extended_vix, dt.date.fromisoformat(ds),
+                                       cache_last_bar_date=cache_last_bar_date) for ds in dates}
     by_regime: dict[str, int] = {}
     n_trend_unknown_stale = 0
     for lab in labels.values():
@@ -380,14 +413,16 @@ def regime_coverage_table(dates: list[str], daily_bars, extended_vix: dict[dt.da
     }
 
 
-def trade_regime_coverage(trades: list[dict], daily_bars, extended_vix: dict[dt.date, float]) -> dict:
+def trade_regime_coverage(trades: list[dict], daily_bars, extended_vix: dict[dt.date, float], *,
+                           cache_last_bar_date: dt.date | None = None) -> dict:
     by_regime: dict[str, dict] = {}
     n_trend_unknown_stale = 0
     label_cache: dict[str, dict] = {}
     for t in trades:
         ds = t["date"]
         if ds not in label_cache:
-            label_cache[ds] = label_date_extended(daily_bars, extended_vix, dt.date.fromisoformat(ds))
+            label_cache[ds] = label_date_extended(daily_bars, extended_vix, dt.date.fromisoformat(ds),
+                                                    cache_last_bar_date=cache_last_bar_date)
         lab = label_cache[ds]
         regime = lab["regime"]
         bucket = by_regime.setdefault(regime, {"n_trades": 0, "pnl_total": 0.0, "n_dates": set()})
@@ -485,21 +520,36 @@ def main() -> int:
         log("labeling go-live-gate evidence dates (automation/state/core-decisions.jsonl, read-only)...")
         gate_evidence = load_go_live_gate_evidence_dates()
 
-        trade_coverage = trade_regime_coverage(trades, daily_bars, extended_vix)
-        gate_coverage = regime_coverage_table(gate_evidence["lifetime_dates"], daily_bars, extended_vix)
-        trade_dates_coverage = regime_coverage_table(trade_dates, daily_bars, extended_vix)
+        resolved_cache_last_bar_date = resolve_trend_cache_last_bar_date(daily_bars)
+        log(f"trend cache resolved to {rc.DAILY_SPY_CACHE.name} "
+            f"(last bar date: {resolved_cache_last_bar_date.isoformat()})")
+
+        trade_coverage = trade_regime_coverage(trades, daily_bars, extended_vix,
+                                                cache_last_bar_date=resolved_cache_last_bar_date)
+        gate_coverage = regime_coverage_table(gate_evidence["lifetime_dates"], daily_bars, extended_vix,
+                                               cache_last_bar_date=resolved_cache_last_bar_date)
+        trade_dates_coverage = regime_coverage_table(trade_dates, daily_bars, extended_vix,
+                                                       cache_last_bar_date=resolved_cache_last_bar_date)
 
         out["disclosure"] = {
             "label": "DISCLOSURE ONLY -- per the prereg's no_ship_clause, this changes evidence "
                      "status, not live config. No params.json/heartbeat/STATUS/queue file touched.",
             "vix_extension_meta": vix_meta,
             "trend_cache_boundary": {
-                "cache_last_bar_date": TREND_CACHE_LAST_BAR_DATE.isoformat(),
+                "cache_file": str(rc.DAILY_SPY_CACHE.relative_to(ROOT)),
+                "cache_last_bar_date": resolved_cache_last_bar_date.isoformat(),
+                "frozen_cache_last_bar_date": TREND_CACHE_LAST_BAR_DATE.isoformat(),
                 "staleness_guard_days": TREND_STALENESS_GUARD_DAYS,
                 "note": "Every date after cache_last_bar_date + staleness_guard_days is labeled "
                         "trend='unknown' (reason=trend_cache_stale_past_...), never computed from "
-                        "a stale bar window. Extending this would require re-deriving daily bars "
-                        "from intraday SPY data, which the prereg's own classifier spec forbids.",
+                        "a stale bar window. cache_last_bar_date now reflects whatever "
+                        "setup/scripts/trend_cache_producer.py's daily $0 extension has "
+                        "actually reached on disk (TREND-CLASSIFICATION-CACHE-STALE-SINCE-07-14, "
+                        "queue.md) -- it no longer stays pinned to the frozen "
+                        f"{TREND_CACHE_LAST_BAR_DATE.isoformat()} artifact forever. Re-deriving "
+                        "trend from intraday SPY data remains forbidden by the prereg's own "
+                        "classifier spec; this extension only adds more REAL daily bars fetched "
+                        "the same way the frozen cache was built, never a re-derivation.",
             },
             "real_trade_record_regime_coverage": trade_coverage,
             "real_trade_record_dates_regime_coverage": trade_dates_coverage,
