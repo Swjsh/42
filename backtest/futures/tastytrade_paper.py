@@ -169,7 +169,21 @@ def _is_transport_error(exc: BaseException) -> bool:
         return True
     text = f"{exc!r} {exc}".lower()
     if "couldn't parse response" in text or "could not parse response" in text:
-        return True
+        # 2026-09-03 fix: tastytrade.utils.validate_response wraps EVERY body it can't map
+        # into its typed response object under this SAME generic prefix -- both genuine
+        # gateway noise (an HTML 502 page, an empty body) AND a well-formed JSON error the
+        # SDK's own schema just doesn't recognize (live evidence: broker-transport.jsonl
+        # 2026-09-01/02, "Couldn't parse response: {'error_code': 'invalid_request',
+        # 'error_description': 'User is not a TastyTrade customer'}", 5x). The latter IS a
+        # broker-side ANSWER, not noise: it deterministically re-fails every retry (wasting
+        # ~13s of the 1/3/9s backoff for nothing) and was being logged as transport_error,
+        # burying a genuine account/entitlement message inside the "flaky gateway" bucket
+        # where nobody would ever read it as what it is. A structured `error_code` in the
+        # wrapped text is the signal that the SDK actually reached the broker and got a real
+        # (if unparseable-by-schema) answer back -- classify that as NOT transport so it logs
+        # `auth_or_permission_error` and fails fast instead of retrying blind.
+        if "error_code" not in text:
+            return True
     if any(code in text for code in _TRANSPORT_STATUS_MARKERS):
         return True
     return False
