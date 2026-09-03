@@ -2,13 +2,11 @@
   "_doc": "PRE-REGISTERED candidate list + evaluation contract for the MORNING-SESSION ENTRY GATE test (PROFIT-P3-MORNING-GATE-PREREG). Frozen BEFORE any candidate is run (exploratory != confirmatory -- no re-picks after seeing results; FAIL is publishable). REGISTRATION ONLY: this file specifies the exact hypothesis, gate candidates, population, window, battery, and kill bar. The run is dispatched separately once the OPRA option-bar cache is free (another crew is using it at freeze time -- see scheduling_note). No test was executed to produce this file.",
   "study": "morning_gate_study",
   "version": 1,
-  "status": "FROZEN_PENDING_RUN",
+  "status": "SUPERSEDED",
   "frozen_at": "2026-07-11",
   "runner": "NOT YET BUILT -- proposed path backtest/tools/morning_gate_study.py. This file is the exact contract that runner must satisfy: same population/window/battery/pass-bar as specified here, no substitutions without a new frozen version.",
   "scheduling_note": "The OPRA option-bar cache (backtest/data/options/, 8,669 contract CSVs) is in concurrent use by another crew (FDR-16 real-fills confirmation + P5 top-cell confirm) at freeze time. This study's evaluation window needs the SAME cache for its option-premium math (TP1 distance, ribbon_ride entry premiums) -- queued to run sequentially after that crew finishes, per the project's own 'one grind at a time on the OPRA cache' discipline (queue.md PROFIT-P2 carries the identical dependency note).",
-
   "hypothesis": "0DTE ribbon_ride entries taken before some morning cutoff have structurally worse expectancy than entries taken after it, over the FULL trading history (not just the 9-day sample that generated the hypothesis) -- driven by lower morning liquidity / wider spreads / whipsaw price action reading as premium-stop noise (the SAME noise-floor mechanism already documented for sub-$0.20 entries, journal memory 2026-07-08).",
-
   "hypothesis_provenance": {
     "generated_by": "analysis/deep-research/2026-07-11-ledger-forensics.md section 2: every MORNING-bucket (entry <11:00 ET) engine episode in the 2026-06-26..2026-07-09 window premium-stopped -- n=34/34, 0% win rate, -$1,463.99. Fully contained inside the premium-stop mechanism (not incremental dollars), but the sharpest single predictor found in that report.",
     "secondary_source": "markdown/research/EXTERNAL-0DTE-MECHANISMS-2026-07-11.md mechanism #2 (time-of-day structure): practitioner-converged (thinner than academic) evidence for an 11:00 ET auction / low-activity midday chop window; explicitly flagged there as the cheapest test in the whole external sweep ('costs nothing but a pandas.groupby on trades you already have').",
@@ -16,16 +14,25 @@
     "excluded_from_all_pass_fail_layers": true,
     "exclusion_rationale": "This 9-day window generated the hypothesis (34/34 morning losers). Testing the gate's benefit ON the window that produced it would be circular -- the pre-registered evaluation below runs ONLY on history outside this window (no peeking)."
   },
-
   "population_scope": {
     "primary": {
       "strategy": "ribbon_ride",
-      "directions": ["bull", "bear"],
-      "setups": ["BULLISH_RECLAIM_RIDE_THE_RIBBON", "BEARISH_REJECTION_RIDE_THE_RIBBON"],
+      "directions": [
+        "bull",
+        "bear"
+      ],
+      "setups": [
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+        "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      ],
       "rationale": "The hypothesis-source cohort (34/34 morning losers) is dominated by these two setups in the ledger-forensics report (BULLISH_RECLAIM n=65 / BEARISH_REJECTION n=24 of 109 engine episodes system-wide). This is the population the gate is scoped to PASS/FAIL against."
     },
     "explicit_exclusion": {
-      "setups": ["vwap_continuation", "j_vwap_reclaim_fb (J_VWAP_RECLAIM_FB)", "j_vix_dayside (J_VIX_DAYSIDE)"],
+      "setups": [
+        "vwap_continuation",
+        "j_vwap_reclaim_fb (J_VWAP_RECLAIM_FB)",
+        "j_vix_dayside (J_VIX_DAYSIDE)"
+      ],
       "rationale": "These setups are STRUCTURALLY morning-native by their own validated design -- vwap_continuation requires 'FIRST morning bar (<=10:30 ET) that continues in-trend' (params.json _j_vwap_cont_doc), j_vwap_reclaim_fb requires the break+reclaim sequence to resolve '<=10:30 ET', j_vix_dayside's entry window is literally '09:35-11:30 ET morning window' (params.json docs). A blanket engine-wide morning gate would silently neuter setups that were independently validated (real-fills, C1) to trade THAT exact window. C29 (exit/entry knobs never transfer across setups without independent verification) applies here to entry gates too -- this scoping decision is the P3 equivalent of that rule. These setups are NOT touched by any candidate below regardless of outcome."
     },
     "secondary_disclosure_only": {
@@ -33,12 +40,10 @@
       "role": "reported alongside the primary result for context ONLY -- not gated by its own pass bar. Mirrors the elite/super-cohort disclosure pattern used in analysis/recommendations/block-elite-bull-ssb-preregistration.json."
     }
   },
-
   "gate_mechanics": {
     "statement": "Each candidate is an ENTRY-TIME FLOOR, mechanically identical in kind to the existing v15.3 09:35 ET entry-gate floor already live in the engine (params.json entry window doctrine) -- it simply moves that floor later for the in-scope setups. A signal whose bar timestamp (ET) falls inside [09:35, cutoff) produces SKIP instead of ENTER; the signal is not re-evaluated later (no queued/deferred entry) -- exactly how the existing 09:35 floor behaves today.",
     "applies_to": "signal bar ET timestamp, not fill timestamp (matches every other time-gate in this engine, e.g. no_trade_before/time_stop_et)."
   },
-
   "candidates": {
     "V1_GATE_BEFORE_11": {
       "id": "V1_GATE_BEFORE_11",
@@ -60,8 +65,11 @@
       "rationale": "Deliberately anchored to the SESSION'S entry-window open rather than a round wall-clock number -- distinct in kind from V2 even though the two cutoffs are only 5 minutes apart (10:30 vs 10:35). Disclosed: given the 5-minute gap, expect V2 and V3 to produce near-identical populations on most days; reported as two candidates anyway because the pre-registration was frozen before the run and the task named both explicitly."
     }
   },
-  "candidate_ids_in_multiplicity_correction": ["V1_GATE_BEFORE_11", "V2_GATE_BEFORE_1030", "V3_GATE_FIRST_HOUR"],
-
+  "candidate_ids_in_multiplicity_correction": [
+    "V1_GATE_BEFORE_11",
+    "V2_GATE_BEFORE_1030",
+    "V3_GATE_FIRST_HOUR"
+  ],
   "evaluation_window": {
     "opra_option_cache_coverage_at_freeze": {
       "verified_by": "directory listing of backtest/data/options/*.csv at freeze time -- 8,669 contract files, earliest SPY250102*, latest SPY260708*",
@@ -78,7 +86,6 @@
     },
     "signal_population_source": "the SAME full-history ribbon_ride signal-generation path that originally produced the setup (family_grind.py / the mass-grind funnel per strategies.py's own provenance comment: 'ribbon_ride: the mass-grind funnel winner, 2026-06-25') -- the runner MUST reuse that generator, not a re-derived signal set, so this study's population is consistent with the setup's own validation history. If the exact generator call differs from what ships, the runner discloses the diff before reporting results (no silent population substitution)."
   },
-
   "battery_stages": {
     "1_expectancy": {
       "metric": "per-trade dollar expectancy AND total pnl, gate-ON (candidate applied) vs gate-OFF (baseline, no morning gate) on the primary population/window.",
@@ -107,7 +114,6 @@
       "pass_condition": "candidate's stage-1 p-value/effect survives BH-FDR correction at alpha=0.10 across the 3-way comparison -- guards against one of three candidates looking significant by chance."
     }
   },
-
   "kill_criteria": {
     "statement": "ANY of the following kills the candidate outright, regardless of other stages:",
     "k1": "stage 1 (expectancy) fails on the full net window.",
@@ -116,20 +122,22 @@
     "k4": "stage 6 (BH-FDR) rejects the candidate at alpha=0.10 after multiplicity correction.",
     "k5_scope_violation": "the runner's population accidentally includes any explicitly-excluded setup (vwap_continuation / j_vwap_reclaim_fb / j_vix_dayside) -- a structural bug, not a numeric outcome; must be fixed and re-verified before any candidate is reported, not silently absorbed into the result."
   },
-
   "pass_bar": {
     "aggregation": "AND of stages 1, 2, 3, 4, 5, 6 -- no partial credit, matching this repo's standing pre-registration convention (structure-stop-preregistration.json pass_bar.aggregation).",
     "min_n_disclosure": "a candidate's kept AND removed cohort n must each be reported with the result; n<20 on either side is INSUFFICIENT_N (this project's own live-graduation floor, CLAUDE.md) and the candidate is reported as inconclusive, not passed or failed."
   },
-
   "anchor_context_check": {
     "purpose": "disclosure-only cross-check (not a pass/fail gate) -- verify no candidate would have blocked a source-of-truth J anchor trade, per the same discipline OP-16 already applies to strike/exit changes.",
     "anchors_in_scope": {
       "note": "the 3 winners are dated within the net evaluation window (2025-01-02..2026-06-25) and are pre-fleet (journal/trades.csv, no broker-ledger coverage per ledger-forensics.md section 1) -- their exact intraday ENTRY TIME must be pulled from journal/YYYY-MM-DD.md for this check, not assumed from the summary table.",
-      "winners_claude_md_op16": ["2026-04-29 SPY 710P x6 -> +$342", "2026-05-01 SPY 721P x20 -> +$470", "2026-05-04 SPY 721P x10 -> +$730"]
+      "winners_claude_md_op16": [
+        "2026-04-29 SPY 710P x6 -> +$342",
+        "2026-05-01 SPY 721P x20 -> +$470",
+        "2026-05-04 SPY 721P x10 -> +$730"
+      ]
     },
     "reporting_requirement": "if any candidate's cutoff would have blocked a winner's actual entry time, state it explicitly and flag the candidate MISCALIBRATED regardless of aggregate battery result (mirrors EXTERNAL-0DTE-MECHANISMS-2026-07-11.md mechanism #1's identical anchor-check instruction for the expected-move gate)."
   },
-
-  "no_repick_clause": "Once this file is frozen, no cutoff time, population scope, window, or battery definition may be edited in light of results. A FAIL (or an INSUFFICIENT_N on all 3 candidates) is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run."
+  "no_repick_clause": "Once this file is frozen, no cutoff time, population scope, window, or battery definition may be edited in light of results. A FAIL (or an INSUFFICIENT_N on all 3 candidates) is a publishable, informative outcome, not a reason to adjust the pre-registration and re-run.",
+  "adjudication_2026_09_03": "Adjudicated 2026-09-03 03:05 ET (Fable): superseded by the 2026-09-02 per-hour and bear-side entry study (work order §2b, DONE) which answers the morning-cutoff question on the full history; runner never built. No content changed."
 }
