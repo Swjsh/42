@@ -1,7 +1,7 @@
 {
   "rule_id": "RECENCY-QTY-CLAMP-2026-08-11",
   "frozen_at_et": "2026-08-11T22:20:00-04:00",
-  "status": "FROZEN_BEFORE_RUNNER",
+  "status": "RUN_COMPLETE -- see recency-qty-clamp-2026-08-11-results.json (verdict: FAIL G1/G2/G3, clamp STAYS; ran 2026-08-11T22:45 ET, same night as freeze; this status field was never updated afterward -- reconciled 2026-09-02 by prereg_hygiene's stale_status_but_has_results, do not re-run)",
   "origin": "Chasing the ONE lever the August breakeven math points at (cut average loss). safe-3 is the only negative August arm (-$422) and its entire loss is 2026-08-07, where it traded 8 lots vs 3 lots on every comparable day. The ledger names the cause in plain text: 08-04 reason = 'qty clamped 8->3: recency RED', 08-07 reason = 'ribbon_ride C (ELITE)' with no clamp.",
   "mechanism_under_test": "A backward-looking RECENCY state gates a qty clamp (wanted -> reduced). Because it is backward-looking it mechanically sizes DOWN after losses and UP after wins. On 2026-08-07 the clamp released across safe-3 and risky-3 simultaneously -- 08-07 is the only August day where unclamped entries outnumbered clamped (6 vs 3) and it is the worst day of the month (-$2,687). C22: backward-looking classifiers anti-correlate with recovery periods.",
   "prior_measurement_flagged_as_UNRELIABLE": {

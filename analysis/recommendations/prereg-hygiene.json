@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-03T00:01:48",
+  "generated_at_et": "2026-09-03T00:04:21",
   "n_total": 128,
   "n_parsed": 128,
   "n_malformed": 0,
@@ -94,19 +94,9 @@
       "result_file": "levels-transplant.json"
     },
     {
-      "file": "prereg-pdt-blocked-counterfactual-2026-08-11.json",
-      "status": "FROZEN_BEFORE_RUNNER",
-      "result_file": "pdt-blocked-counterfactual-2026-08-11-results.json"
-    },
-    {
       "file": "prereg-pong-resting-limit-2026-07-17.json",
       "status": "FROZEN_PENDING_RUN",
       "result_file": "pong-resting-limit-2026-07-17.json"
-    },
-    {
-      "file": "prereg-recency-qty-clamp-2026-08-11.json",
-      "status": "FROZEN_BEFORE_RUNNER",
-      "result_file": "recency-qty-clamp-2026-08-11-results.json"
     },
     {
       "file": "prereg-regime-conditioned-validation-2026-07-17.json",
@@ -707,7 +697,7 @@
     {
       "file": "prereg-hygiene.json",
       "status": null,
-      "age_days": 0.3,
+      "age_days": 0.0,
       "age_source": "mtime_fallback",
       "orphan": false,
       "has_results_file": false,
@@ -796,7 +786,7 @@
     },
     {
       "file": "prereg-pdt-blocked-counterfactual-2026-08-11.json",
-      "status": "FROZEN_BEFORE_RUNNER",
+      "status": "RUN_COMPLETE, TWICE, WITH A MAGNITUDE DISCREPANCY -- reconciled 2026-09-02, not resolved. This status field was never updated after the FIRST run (analysis/recommendations/pdt-blocked-counterfactual-2026-08-11-results.json, ran 2026-08-11T21:55 ET, same night as freeze, verdict FAIL all 4 gates, net -$62, drop_best -$607), which is why a SECOND run (pdt-blocked-counterfactual-2026-09-02.{json,md}, ran 2026-09-02 as PREREG-BACKLOG-ADJUDICATION RUN 1 of 4, verdict FAIL_PDT_STAYS_AS_IS, net -$11.20, drop_best -$1,390.50) happened at all -- burning compute on a question already answered. BOTH runs replay the IDENTICAL cohort (68 attempts -> 18 unique intents, 2026-07-08..08-07, 9 days) and AGREE on verdict sign (all 4 gates fail, PDT stays as-is) but DISAGREE on magnitude -- not a rounding difference. Filed as an addendum to WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY (queue.md) rather than silently picking one. Decision stands either way: PDT was NOT demonstrated to be costly.",
       "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -841,7 +831,7 @@
     },
     {
       "file": "prereg-recency-qty-clamp-2026-08-11.json",
-      "status": "FROZEN_BEFORE_RUNNER",
+      "status": "RUN_COMPLETE -- see recency-qty-clamp-2026-08-11-results.json (verdict: FAIL G1/G2/G3, clamp STAYS; ran 2026-08-11T22:45 ET, same night as freeze; this status field was never updated afterward -- reconciled 2026-09-02 by prereg_hygiene's stale_status_but_has_results, do not re-run)",
       "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
