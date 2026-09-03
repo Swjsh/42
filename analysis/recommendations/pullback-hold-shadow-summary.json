@@ -1,0 +1,54 @@
+{
+ "_meta": {
+  "generated_at_et": "2026-09-03T05:19:41.119785",
+  "builder": "setup/scripts/pullback_hold_shadow.py",
+  "detector": "backtest/lib/pullback_hold_detector.py",
+  "prereg": "analysis/recommendations/prereg-pullback-hold-bull-trigger-2026-09-03.md",
+  "shadow_only": "MEASUREMENT ONLY -- zero engine wiring, no live/backtest gate reads this ledger.",
+  "constants": {
+   "zone_band_dollars_default": 0.3,
+   "min_hold_bars_k": 3,
+   "lookback_bars": 12,
+   "median_bull_hold_min": 23.9,
+   "median_bull_mfe": 0.6,
+   "median_bull_mae": 0.58
+  },
+  "bull_baseline_favourable_rate": 0.4545,
+  "bull_baseline_n": 44
+ },
+ "forward_window": {
+  "first_date": "2026-09-03",
+  "sessions_scanned": 0,
+  "sessions_required": 30,
+  "fires_scored": 0,
+  "fires_required": 25,
+  "verdict_ready": false,
+  "scanned_dates": []
+ },
+ "forward": {
+  "sessions": 0,
+  "n_fires_total": 0,
+  "n_scored": 0,
+  "favourable": 0,
+  "adverse": 0,
+  "flat": 0,
+  "unscored_insufficient_bars": 0,
+  "favourable_rate": null,
+  "ci_lower_2p5_bootstrap": null,
+  "bootstrap_seed": 1337,
+  "bootstrap_n": 2000
+ },
+ "in_sample_reference": {
+  "sessions": 49,
+  "n_fires_total": 52,
+  "n_scored": 48,
+  "favourable": 9,
+  "adverse": 13,
+  "flat": 26,
+  "unscored_insufficient_bars": 4,
+  "favourable_rate": 0.1875,
+  "ci_lower_2p5_bootstrap": 0.05405405405405406
+ },
+ "verdict": null,
+ "_reading_note": "`forward` (dated >= 2026-09-03) is the ONLY block that can adjudicate the pre-reg's decision rule -- verdict is null until BOTH forward_window floors clear (30 sessions AND 25 scored fires); a null verdict means MEASURING, not NO_EDGE. `in_sample_reference` covers everything core-decisions.jsonl logged BEFORE the pre-reg's freeze date and is printed for drift-checking only -- it can NEVER clear the verdict (no-peeking, same split day_throttle_shadow.py uses)."
+}
