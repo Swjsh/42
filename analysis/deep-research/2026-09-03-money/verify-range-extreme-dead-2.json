@@ -1,0 +1,149 @@
+{
+  "_meta": {
+    "script": "backtest/tools/money_verify_range_extreme_dead_2.py",
+    "independent_of": [
+      "conviction.py",
+      "conviction_shadow_report.py",
+      "fills_fifo.py"
+    ],
+    "fix_boundary_et_used": "2026-08-14T19:15:22",
+    "n_all_ledger_rows_with_conviction": 614,
+    "n_post_fix_all_dates": 512,
+    "n_post_fix_through_2026_09_02": 482
+  },
+  "n_check": {
+    "claimed_n": 482,
+    "reproduced_n_report_matched": 482,
+    "match": true
+  },
+  "fleet_conviction_row_counts": {
+    "core": 614
+  },
+  "fleet_check": {
+    "claim": "0 conviction rows in all 4 fleet ledgers",
+    "reproduced": {
+      "risky-1": 0,
+      "risky-3": 0,
+      "safe-1": 0,
+      "safe-3": 0
+    },
+    "match": true
+  },
+  "range_extreme_hit_rate": {
+    "claimed_hit_rate_pct": 0.0,
+    "n": 482,
+    "n_range_extreme_true": 0,
+    "n_range_extreme_degraded": 0,
+    "reproduced_hit_rate_pct": 0.0,
+    "match": true
+  },
+  "by_side_distribution": {
+    "C": {
+      "n": 240,
+      "min": 0.445,
+      "max": 1.0,
+      "mean": 0.819,
+      "hits_under_current_rule": 0,
+      "hits_under_flipped_rule": 172,
+      "setups_seen": [
+        "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+      ],
+      "setup_homogeneous": false
+    },
+    "P": {
+      "n": 242,
+      "min": 0.0,
+      "max": 0.445,
+      "mean": 0.138,
+      "hits_under_current_rule": 0,
+      "hits_under_flipped_rule": 186,
+      "setups_seen": [
+        "BEARISH_REJECTION_RIDE_THE_RIBBON"
+      ],
+      "setup_homogeneous": false
+    }
+  },
+  "by_side_claim_check": {
+    "claimed_call_n": 270,
+    "claimed_call_mean": 0.812,
+    "claimed_put_n": 242,
+    "claimed_put_mean": 0.138,
+    "reproduced_call_n": 240,
+    "reproduced_call_mean": 0.819,
+    "reproduced_put_n": 242,
+    "reproduced_put_mean": 0.138
+  },
+  "counterfactual_flip": {
+    "n_joined_to_real_fill_total_population": 35,
+    "would_block_flips_to_allow": 47,
+    "would_allow_flips_to_block": 0,
+    "claimed_flips_block_to_allow": 47,
+    "claimed_flips_other": 0,
+    "match_flip_count": true,
+    "newly_allowed_joined_to_fills": [
+      {
+        "ts_et": "2026-08-19T10:41:03",
+        "account": "safe",
+        "side": "C",
+        "pnl": -69.0,
+        "pos": 0.964,
+        "orig_total": 4,
+        "floor": 5
+      },
+      {
+        "ts_et": "2026-08-19T10:41:06",
+        "account": "bold",
+        "side": "C",
+        "pnl": -105.0,
+        "pos": 0.964,
+        "orig_total": 4,
+        "floor": 5
+      },
+      {
+        "ts_et": "2026-08-21T11:37:04",
+        "account": "bold",
+        "side": "C",
+        "pnl": 159.0,
+        "pos": 1.0,
+        "orig_total": 6,
+        "floor": 7
+      },
+      {
+        "ts_et": "2026-08-27T09:47:05",
+        "account": "bold",
+        "side": "C",
+        "pnl": -40.0,
+        "pos": 1.0,
+        "orig_total": 5,
+        "floor": 6
+      },
+      {
+        "ts_et": "2026-09-02T13:06:03",
+        "account": "safe",
+        "side": "C",
+        "pnl": -93.0,
+        "pos": 0.794,
+        "orig_total": 4,
+        "floor": 5
+      }
+    ],
+    "n_newly_allowed_joined": 5,
+    "sum_pnl": -148.0,
+    "mean_pnl": -29.6,
+    "win_rate_pct": 20.0,
+    "bootstrap_ci_95_mean": [
+      -93.0,
+      66.4
+    ],
+    "claimed": {
+      "n": 5,
+      "sum": -148,
+      "mean": -29.6,
+      "wr_pct": 20,
+      "ci": [
+        -93.0,
+        66.4
+      ]
+    }
+  }
+}

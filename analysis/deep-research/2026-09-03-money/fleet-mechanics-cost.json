@@ -1,0 +1,1055 @@
+{
+  "hypothesis": "H9_FLEET_MECHANICS",
+  "window": [
+    "2026-08-13",
+    "2026-09-02"
+  ],
+  "core_safe_proxy_rows_n": 5775,
+  "part_a_skip_census_and_costing": {
+    "window": [
+      "2026-08-13",
+      "2026-09-02"
+    ],
+    "arms": {
+      "safe-1": {
+        "decisions_path": "automation\\state\\fleet\\safe-1\\decisions.jsonl",
+        "n_days_in_window": 0,
+        "per_day": {},
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position": 0,
+        "total_no_signal_file_with_open_position": 0,
+        "skip_ticks_with_open_structure_leg_n": 0,
+        "would_have_fired_n": 0,
+        "would_have_fired_records": [],
+        "skip_ticks_detail_sample": []
+      },
+      "safe-3": {
+        "decisions_path": "automation\\state\\fleet\\safe-3\\decisions.jsonl",
+        "n_days_in_window": 15,
+        "per_day": {
+          "2026-08-13": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-14": {
+            "total_ticks": 369,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 5,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-17": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-18": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-19": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 7,
+            "unreadable_open": 2,
+            "no_signal_file_open": 0
+          },
+          "2026-08-20": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-21": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 4,
+            "unreadable_open": 2,
+            "no_signal_file_open": 0
+          },
+          "2026-08-24": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 5,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-25": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 8,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-26": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-27": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 6,
+            "unreadable_open": 3,
+            "no_signal_file_open": 0
+          },
+          "2026-08-28": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 6,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-31": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-09-01": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 12,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-09-02": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 2,
+            "no_signal_file_open": 0
+          }
+        },
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position": 12,
+        "total_no_signal_file_with_open_position": 0,
+        "skip_ticks_with_open_structure_leg_n": 12,
+        "would_have_fired_n": 2,
+        "would_have_fired_records": [
+          {
+            "date": "2026-08-21",
+            "ts_et": "2026-08-21T11:12:05.994552-04:00",
+            "symbol": "SPY260821C00766000",
+            "side": "C",
+            "trigger_level": 766.15,
+            "open_qty": 3,
+            "worst_premium": 0.88,
+            "best_premium": 0.89,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 765.825,
+            "proxy_age_min": 0.05,
+            "would_have_fired": true,
+            "actual_next_sell_fill": {
+              "ts_et": "2026-08-21T11:13:06.092648",
+              "price": 0.87,
+              "qty": 3.0
+            },
+            "delay_to_actual_exit_minutes": 1.0,
+            "cost_dollars": 3.0,
+            "cost_method": "fills_ledger_next_sell"
+          },
+          {
+            "date": "2026-09-02",
+            "ts_et": "2026-09-02T13:12:05.987289-04:00",
+            "symbol": "SPY260902C00765000",
+            "side": "C",
+            "trigger_level": 765.46,
+            "open_qty": 3,
+            "worst_premium": 0.84,
+            "best_premium": 0.85,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 764.63,
+            "proxy_age_min": 0.05,
+            "would_have_fired": true,
+            "actual_next_sell_fill": {
+              "ts_et": "2026-09-02T13:13:06.891342",
+              "price": 0.81,
+              "qty": 3.0
+            },
+            "delay_to_actual_exit_minutes": 1.02,
+            "cost_dollars": 9.0,
+            "cost_method": "fills_ledger_next_sell"
+          }
+        ],
+        "skip_ticks_detail_sample": [
+          {
+            "date": "2026-08-13",
+            "ts_et": "2026-08-13T10:04:05.882319-04:00",
+            "symbol": "SPY260813C00777000",
+            "side": "C",
+            "trigger_level": 776.85,
+            "open_qty": 3,
+            "worst_premium": 1.77,
+            "best_premium": 1.78,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 777.595,
+            "proxy_age_min": 0.05,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-14",
+            "ts_et": "2026-08-14T10:19:05.671165-04:00",
+            "symbol": "SPY260814C00778000",
+            "side": "C",
+            "trigger_level": 777.93,
+            "open_qty": 7,
+            "worst_premium": 0.9,
+            "best_premium": 0.91,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 778.29,
+            "proxy_age_min": 0.04,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-19",
+            "ts_et": "2026-08-19T12:04:05.083911-04:00",
+            "symbol": "SPY260819C00770000",
+            "side": "C",
+            "trigger_level": 770.1,
+            "open_qty": 3,
+            "worst_premium": 1.54,
+            "best_premium": 1.56,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 770.62,
+            "proxy_age_min": 0.03,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-19",
+            "ts_et": "2026-08-19T12:09:05.073671-04:00",
+            "symbol": "SPY260819C00770000",
+            "side": "C",
+            "trigger_level": 770.1,
+            "open_qty": 3,
+            "worst_premium": 1.7,
+            "best_premium": 1.76,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 771.29,
+            "proxy_age_min": 0.03,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-21",
+            "ts_et": "2026-08-21T11:12:05.994552-04:00",
+            "symbol": "SPY260821C00766000",
+            "side": "C",
+            "trigger_level": 766.15,
+            "open_qty": 3,
+            "worst_premium": 0.88,
+            "best_premium": 0.89,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 765.825,
+            "proxy_age_min": 0.05,
+            "would_have_fired": true,
+            "actual_next_sell_fill": {
+              "ts_et": "2026-08-21T11:13:06.092648",
+              "price": 0.87,
+              "qty": 3.0
+            },
+            "delay_to_actual_exit_minutes": 1.0,
+            "cost_dollars": 3.0,
+            "cost_method": "fills_ledger_next_sell"
+          }
+        ]
+      },
+      "risky-1": {
+        "decisions_path": "automation\\state\\fleet\\risky-1\\decisions.jsonl",
+        "n_days_in_window": 15,
+        "per_day": {
+          "2026-08-13": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-14": {
+            "total_ticks": 369,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 5,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-17": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-18": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-19": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 7,
+            "unreadable_open": 2,
+            "no_signal_file_open": 0
+          },
+          "2026-08-20": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-21": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 4,
+            "unreadable_open": 2,
+            "no_signal_file_open": 0
+          },
+          "2026-08-24": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 5,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-25": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 8,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-26": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-27": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 6,
+            "unreadable_open": 3,
+            "no_signal_file_open": 0
+          },
+          "2026-08-28": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 6,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-31": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-09-01": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 12,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-09-02": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 2,
+            "no_signal_file_open": 0
+          }
+        },
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position": 12,
+        "total_no_signal_file_with_open_position": 0,
+        "skip_ticks_with_open_structure_leg_n": 12,
+        "would_have_fired_n": 2,
+        "would_have_fired_records": [
+          {
+            "date": "2026-08-21",
+            "ts_et": "2026-08-21T11:12:05.994552-04:00",
+            "symbol": "SPY260821C00766000",
+            "side": "C",
+            "trigger_level": 766.15,
+            "open_qty": 5,
+            "worst_premium": 0.89,
+            "best_premium": 0.94,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 765.825,
+            "proxy_age_min": 0.05,
+            "would_have_fired": true,
+            "actual_next_sell_fill": {
+              "ts_et": "2026-08-21T11:13:07.484647",
+              "price": 0.87,
+              "qty": 5.0
+            },
+            "delay_to_actual_exit_minutes": 1.02,
+            "cost_dollars": 10.0,
+            "cost_method": "fills_ledger_next_sell"
+          },
+          {
+            "date": "2026-09-02",
+            "ts_et": "2026-09-02T13:12:05.987289-04:00",
+            "symbol": "SPY260902C00765000",
+            "side": "C",
+            "trigger_level": 765.46,
+            "open_qty": 5,
+            "worst_premium": 0.84,
+            "best_premium": 0.85,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 764.63,
+            "proxy_age_min": 0.05,
+            "would_have_fired": true,
+            "actual_next_sell_fill": {
+              "ts_et": "2026-09-02T13:13:07.954935",
+              "price": 0.82,
+              "qty": 5.0
+            },
+            "delay_to_actual_exit_minutes": 1.03,
+            "cost_dollars": 10.0,
+            "cost_method": "fills_ledger_next_sell"
+          }
+        ],
+        "skip_ticks_detail_sample": [
+          {
+            "date": "2026-08-13",
+            "ts_et": "2026-08-13T10:04:05.882319-04:00",
+            "symbol": "SPY260813C00777000",
+            "side": "C",
+            "trigger_level": 776.85,
+            "open_qty": 2,
+            "worst_premium": 1.73,
+            "best_premium": 1.75,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 777.595,
+            "proxy_age_min": 0.05,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-14",
+            "ts_et": "2026-08-14T10:19:05.671165-04:00",
+            "symbol": "SPY260814C00778000",
+            "side": "C",
+            "trigger_level": 777.93,
+            "open_qty": 12,
+            "worst_premium": 0.9,
+            "best_premium": 0.91,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 778.29,
+            "proxy_age_min": 0.04,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-19",
+            "ts_et": "2026-08-19T12:04:05.083911-04:00",
+            "symbol": "SPY260819C00770000",
+            "side": "C",
+            "trigger_level": 770.1,
+            "open_qty": 5,
+            "worst_premium": 1.59,
+            "best_premium": 1.6,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 770.62,
+            "proxy_age_min": 0.03,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-19",
+            "ts_et": "2026-08-19T12:09:05.073671-04:00",
+            "symbol": "SPY260819C00770000",
+            "side": "C",
+            "trigger_level": 770.1,
+            "open_qty": 2,
+            "worst_premium": 1.73,
+            "best_premium": 1.75,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 771.29,
+            "proxy_age_min": 0.03,
+            "would_have_fired": false
+          },
+          {
+            "date": "2026-08-21",
+            "ts_et": "2026-08-21T11:12:05.994552-04:00",
+            "symbol": "SPY260821C00766000",
+            "side": "C",
+            "trigger_level": 766.15,
+            "open_qty": 5,
+            "worst_premium": 0.89,
+            "best_premium": 0.94,
+            "skip_kind": "unreadable",
+            "signal_status": "signal_unreadable: Expecting value: line 1 column 1 (char 0)",
+            "proxy_spy": 765.825,
+            "proxy_age_min": 0.05,
+            "would_have_fired": true,
+            "actual_next_sell_fill": {
+              "ts_et": "2026-08-21T11:13:07.484647",
+              "price": 0.87,
+              "qty": 5.0
+            },
+            "delay_to_actual_exit_minutes": 1.02,
+            "cost_dollars": 10.0,
+            "cost_method": "fills_ledger_next_sell"
+          }
+        ]
+      },
+      "risky-3": {
+        "decisions_path": "automation\\state\\fleet\\risky-3\\decisions.jsonl",
+        "n_days_in_window": 12,
+        "per_day": {
+          "2026-08-13": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-14": {
+            "total_ticks": 369,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 5,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-17": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-18": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 0,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-19": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 7,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-20": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 1,
+            "no_signal_file_open": 0
+          },
+          "2026-08-21": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 4,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-24": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 5,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-25": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 8,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-26": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 3,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-27": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 6,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          },
+          "2026-08-28": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_open": 0,
+            "unreadable_ticks": 6,
+            "unreadable_open": 0,
+            "no_signal_file_open": 0
+          }
+        },
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position": 2,
+        "total_no_signal_file_with_open_position": 0,
+        "skip_ticks_with_open_structure_leg_n": 0,
+        "would_have_fired_n": 0,
+        "would_have_fired_records": [],
+        "skip_ticks_detail_sample": []
+      }
+    },
+    "root_cause_message_histogram": {
+      "signal_unreadable: Expecting value: line 1 column 1 (char 0)": 180
+    },
+    "would_fire_costs_pooled": [
+      3.0000000000000027,
+      8.999999999999975,
+      10.000000000000009,
+      10.000000000000009
+    ]
+  },
+  "part_b_cross_arm_exit_lag": {
+    "window": [
+      "2026-08-13",
+      "2026-09-02"
+    ],
+    "n_matched_pairs": 18,
+    "pairs": [
+      {
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00777000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-13T15:13:05.665324",
+        "fleet_last_sell_ts_et": "2026-08-13T15:14:08.960750",
+        "lag_minutes_fleet_minus_core": 1.05,
+        "core_vwap_sell_price": 1.7,
+        "fleet_vwap_sell_price": 1.7817,
+        "price_delta_per_contract_dollars": 8.17,
+        "core_qty": 6.0,
+        "fleet_qty": 6.0
+      },
+      {
+        "date": "2026-08-13",
+        "symbol": "SPY260813C00777000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-13T15:13:05.665324",
+        "fleet_last_sell_ts_et": "2026-08-13T14:59:10.211113",
+        "lag_minutes_fleet_minus_core": -13.92,
+        "core_vwap_sell_price": 1.7,
+        "fleet_vwap_sell_price": 1.422,
+        "price_delta_per_contract_dollars": -27.8,
+        "core_qty": 6.0,
+        "fleet_qty": 10.0
+      },
+      {
+        "date": "2026-08-14",
+        "symbol": "SPY260814C00778000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-14T10:21:04.737760",
+        "fleet_last_sell_ts_et": "2026-08-14T10:22:07.800436",
+        "lag_minutes_fleet_minus_core": 1.05,
+        "core_vwap_sell_price": 0.82,
+        "fleet_vwap_sell_price": 0.73,
+        "price_delta_per_contract_dollars": -9.0,
+        "core_qty": 6.0,
+        "fleet_qty": 7.0
+      },
+      {
+        "date": "2026-08-14",
+        "symbol": "SPY260814C00778000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-14T10:21:04.737760",
+        "fleet_last_sell_ts_et": "2026-08-14T10:22:09.137932",
+        "lag_minutes_fleet_minus_core": 1.07,
+        "core_vwap_sell_price": 0.82,
+        "fleet_vwap_sell_price": 0.73,
+        "price_delta_per_contract_dollars": -9.0,
+        "core_qty": 6.0,
+        "fleet_qty": 12.0
+      },
+      {
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00771000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-19T12:41:04.619508",
+        "fleet_last_sell_ts_et": "2026-08-19T12:42:06.719863",
+        "lag_minutes_fleet_minus_core": 1.04,
+        "core_vwap_sell_price": 0.73,
+        "fleet_vwap_sell_price": 0.76,
+        "price_delta_per_contract_dollars": 3.0,
+        "core_qty": 6.0,
+        "fleet_qty": 6.0
+      },
+      {
+        "date": "2026-08-19",
+        "symbol": "SPY260819C00771000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-19T12:41:04.619508",
+        "fleet_last_sell_ts_et": "2026-08-19T12:42:07.945396",
+        "lag_minutes_fleet_minus_core": 1.06,
+        "core_vwap_sell_price": 0.73,
+        "fleet_vwap_sell_price": 0.76,
+        "price_delta_per_contract_dollars": 3.0,
+        "core_qty": 6.0,
+        "fleet_qty": 10.0
+      },
+      {
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-21T13:26:05.054873",
+        "fleet_last_sell_ts_et": "2026-08-21T13:37:05.682530",
+        "lag_minutes_fleet_minus_core": 11.01,
+        "core_vwap_sell_price": 0.55,
+        "fleet_vwap_sell_price": 0.8825,
+        "price_delta_per_contract_dollars": 33.25,
+        "core_qty": 3.0,
+        "fleet_qty": 12.0
+      },
+      {
+        "date": "2026-08-21",
+        "symbol": "SPY260821C00766000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-21T13:26:05.054873",
+        "fleet_last_sell_ts_et": "2026-08-21T13:37:06.786775",
+        "lag_minutes_fleet_minus_core": 11.03,
+        "core_vwap_sell_price": 0.55,
+        "fleet_vwap_sell_price": 0.9435,
+        "price_delta_per_contract_dollars": 39.35,
+        "core_qty": 3.0,
+        "fleet_qty": 20.0
+      },
+      {
+        "date": "2026-08-25",
+        "symbol": "SPY260825C00765000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-25T13:26:03.988454",
+        "fleet_last_sell_ts_et": "2026-08-25T13:27:06.584802",
+        "lag_minutes_fleet_minus_core": 1.04,
+        "core_vwap_sell_price": 0.5,
+        "fleet_vwap_sell_price": 0.48,
+        "price_delta_per_contract_dollars": -2.0,
+        "core_qty": 3.0,
+        "fleet_qty": 3.0
+      },
+      {
+        "date": "2026-08-25",
+        "symbol": "SPY260825C00765000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-25T13:26:03.988454",
+        "fleet_last_sell_ts_et": "2026-08-25T13:27:07.790721",
+        "lag_minutes_fleet_minus_core": 1.06,
+        "core_vwap_sell_price": 0.5,
+        "fleet_vwap_sell_price": 0.48,
+        "price_delta_per_contract_dollars": -2.0,
+        "core_qty": 3.0,
+        "fleet_qty": 5.0
+      },
+      {
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00768000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-27T10:40:04.725004",
+        "fleet_last_sell_ts_et": "2026-08-27T11:04:07.289944",
+        "lag_minutes_fleet_minus_core": 24.04,
+        "core_vwap_sell_price": 2.04,
+        "fleet_vwap_sell_price": 2.6,
+        "price_delta_per_contract_dollars": 56.0,
+        "core_qty": 3.0,
+        "fleet_qty": 3.0
+      },
+      {
+        "date": "2026-08-27",
+        "symbol": "SPY260827C00768000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-27T10:40:04.725004",
+        "fleet_last_sell_ts_et": "2026-08-27T11:28:07.406773",
+        "lag_minutes_fleet_minus_core": 48.04,
+        "core_vwap_sell_price": 2.04,
+        "fleet_vwap_sell_price": 2.61,
+        "price_delta_per_contract_dollars": 57.0,
+        "core_qty": 3.0,
+        "fleet_qty": 5.0
+      },
+      {
+        "date": "2026-08-28",
+        "symbol": "SPY260828C00771000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-08-28T11:09:03.098873",
+        "fleet_last_sell_ts_et": "2026-08-28T11:09:06.737449",
+        "lag_minutes_fleet_minus_core": 0.06,
+        "core_vwap_sell_price": 3.4967,
+        "fleet_vwap_sell_price": 3.7167,
+        "price_delta_per_contract_dollars": 22.0,
+        "core_qty": 3.0,
+        "fleet_qty": 3.0
+      },
+      {
+        "date": "2026-08-28",
+        "symbol": "SPY260828C00771000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-08-28T11:09:03.098873",
+        "fleet_last_sell_ts_et": "2026-08-28T11:09:07.955449",
+        "lag_minutes_fleet_minus_core": 0.08,
+        "core_vwap_sell_price": 3.4967,
+        "fleet_vwap_sell_price": 3.15,
+        "price_delta_per_contract_dollars": -34.67,
+        "core_qty": 3.0,
+        "fleet_qty": 5.0
+      },
+      {
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-09-02T13:11:04.429332",
+        "fleet_last_sell_ts_et": "2026-09-02T13:13:06.891342",
+        "lag_minutes_fleet_minus_core": 2.04,
+        "core_vwap_sell_price": 0.77,
+        "fleet_vwap_sell_price": 0.88,
+        "price_delta_per_contract_dollars": 11.0,
+        "core_qty": 3.0,
+        "fleet_qty": 6.0
+      },
+      {
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00765000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-09-02T13:11:04.429332",
+        "fleet_last_sell_ts_et": "2026-09-02T13:13:07.954935",
+        "lag_minutes_fleet_minus_core": 2.06,
+        "core_vwap_sell_price": 0.77,
+        "fleet_vwap_sell_price": 0.885,
+        "price_delta_per_contract_dollars": 11.5,
+        "core_qty": 3.0,
+        "fleet_qty": 10.0
+      },
+      {
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "fleet_arm": "safe-3",
+        "core_last_sell_ts_et": "2026-09-02T14:31:04.293267",
+        "fleet_last_sell_ts_et": "2026-09-02T14:32:06.876590",
+        "lag_minutes_fleet_minus_core": 1.04,
+        "core_vwap_sell_price": 0.47,
+        "fleet_vwap_sell_price": 0.535,
+        "price_delta_per_contract_dollars": 6.5,
+        "core_qty": 3.0,
+        "fleet_qty": 6.0
+      },
+      {
+        "date": "2026-09-02",
+        "symbol": "SPY260902C00766000",
+        "fleet_arm": "risky-1",
+        "core_last_sell_ts_et": "2026-09-02T14:31:04.293267",
+        "fleet_last_sell_ts_et": "2026-09-02T14:32:08.031079",
+        "lag_minutes_fleet_minus_core": 1.06,
+        "core_vwap_sell_price": 0.47,
+        "fleet_vwap_sell_price": 0.54,
+        "price_delta_per_contract_dollars": 7.0,
+        "core_qty": 3.0,
+        "fleet_qty": 10.0
+      }
+    ],
+    "lag_minutes_ci": {
+      "n": 18,
+      "mean": 5.22,
+      "ci_2.5": 0.22,
+      "ci_97.5": 11.82,
+      "n_resamples": 5000
+    },
+    "price_delta_per_contract_ci": {
+      "n": 18,
+      "mean": 9.63,
+      "ci_2.5": -1.43,
+      "ci_97.5": 21.18,
+      "n_resamples": 5000
+    }
+  },
+  "part_c_exit_state_save_race_scan": {
+    "window": [
+      "2026-08-13",
+      "2026-09-02"
+    ],
+    "method": "screen only -- flags SELL fills on the same arm+symbol+day within 90s of each other as candidate double-fire patterns consistent with the FLEET-EXIT-STATE-SAVE-PER-SYMBOL theoretical race (per-symbol save happens once after the whole tick's loop, exit_actuator.py ~798-799). This does NOT prove the race fired -- back-to-back sells 90s apart are also the normal TP1-then-runner-stop sequence on a fast-moving tick. Every candidate below needs a manual read of its decisions.jsonl rows before being called a race hit.",
+    "n_candidates": 6,
+    "candidates": [
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260813C00777000",
+        "date": "2026-08-13",
+        "gap_seconds": 0.1,
+        "fill_1": {
+          "ts_et": "2026-08-13T10:01:08.562753",
+          "qty": 1.0,
+          "price": 1.67
+        },
+        "fill_2": {
+          "ts_et": "2026-08-13T10:01:08.702751",
+          "qty": 2.0,
+          "price": 1.68
+        }
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260813C00779000",
+        "date": "2026-08-13",
+        "gap_seconds": 60.2,
+        "fill_1": {
+          "ts_et": "2026-08-13T10:03:09.020997",
+          "qty": 6.0,
+          "price": 0.75
+        },
+        "fill_2": {
+          "ts_et": "2026-08-13T10:04:09.246222",
+          "qty": 4.0,
+          "price": 0.69
+        }
+      },
+      {
+        "arm": "safe-3",
+        "symbol": "SPY260813C00777000",
+        "date": "2026-08-13",
+        "gap_seconds": 0.1,
+        "fill_1": {
+          "ts_et": "2026-08-13T10:22:08.281165",
+          "qty": 1.0,
+          "price": 2.27
+        },
+        "fill_2": {
+          "ts_et": "2026-08-13T10:22:08.403901",
+          "qty": 1.0,
+          "price": 2.27
+        }
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260827C00768000",
+        "date": "2026-08-27",
+        "gap_seconds": 0.2,
+        "fill_1": {
+          "ts_et": "2026-08-27T11:28:07.243430",
+          "qty": 1.0,
+          "price": 2.76
+        },
+        "fill_2": {
+          "ts_et": "2026-08-27T11:28:07.406773",
+          "qty": 1.0,
+          "price": 2.76
+        }
+      },
+      {
+        "arm": "risky-3",
+        "symbol": "SPY260828P00767000",
+        "date": "2026-08-28",
+        "gap_seconds": 0.1,
+        "fill_1": {
+          "ts_et": "2026-08-28T13:29:08.785880",
+          "qty": 5.0,
+          "price": 0.34
+        },
+        "fill_2": {
+          "ts_et": "2026-08-28T13:29:08.918393",
+          "qty": 5.0,
+          "price": 0.34
+        }
+      },
+      {
+        "arm": "risky-1",
+        "symbol": "SPY260902C00765000",
+        "date": "2026-09-02",
+        "gap_seconds": 0.1,
+        "fill_1": {
+          "ts_et": "2026-09-02T12:27:08.087091",
+          "qty": 1.0,
+          "price": 0.95
+        },
+        "fill_2": {
+          "ts_et": "2026-09-02T12:27:08.213306",
+          "qty": 4.0,
+          "price": 0.95
+        }
+      }
+    ]
+  },
+  "winners_check": {
+    "winner_dates_checked": [
+      "2026-08-06",
+      "2026-08-13",
+      "2026-08-27",
+      "2026-08-28"
+    ],
+    "would_have_fired_on_winner_day_n": 0,
+    "hits": [],
+    "verdict": "NO_IMPACT_ON_WINNERS"
+  },
+  "would_fire_cost_ci_pooled": {
+    "n": 4,
+    "mean": 8.0,
+    "ci_2.5": 4.75,
+    "ci_97.5": 10.0,
+    "n_resamples": 5000
+  }
+}

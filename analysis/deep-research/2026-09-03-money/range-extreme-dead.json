@@ -1,0 +1,114 @@
+{
+  "_meta": {
+    "hypothesis_id": "H2",
+    "title": "conviction.py C4 range_extreme -- dead component, 0.0% hit rate across 482 post-fix rows",
+    "generated_at_et_stamp": "2026-09-03T10:24",
+    "generated_at_et_actual": "2026-09-03T10:49 (et_clock.py, market_hours=True)",
+    "probe_script": "backtest/tools/money_range_extreme_probe.py",
+    "sources_read": [
+      "analysis/entry-quality/conviction-shadow-report.json",
+      "setup/scripts/conviction.py",
+      "setup/scripts/conviction_shadow_report.py",
+      "setup/scripts/heartbeat_core.py (_conviction_shadow, _build_payload)",
+      "automation/state/core-decisions.jsonl",
+      "automation/state/fleet/risky-1/decisions.jsonl",
+      "automation/state/fleet/risky-3/decisions.jsonl",
+      "automation/state/fleet/safe-1/decisions.jsonl",
+      "automation/state/fleet/safe-3/decisions.jsonl",
+      "git show 974ca235 (the fix commit the report partitions on)"
+    ],
+    "read_only": true,
+    "no_edits_to_conviction_py_or_heartbeat_core_py": true
+  },
+
+  "root_cause": {
+    "one_sentence": "C4 range_extreme computes correctly (session_high/session_low are populated, range_position spans the full [0,1] range) but was calibrated on a MEAN-REVERSION exhibit (bounce AT the range low/high) while the two live trigger families that use it -- BULLISH_RECLAIM_RIDE_THE_RIBBON and BEARISH_REJECTION_RIDE_THE_RIBBON -- are CONTINUATION triggers that structurally fire near the session extreme IN THEIR OWN TRADE DIRECTION, the mirror-opposite polarity, so the threshold is empirically unreachable for 100% of the current trigger taxonomy.",
+    "classification": "NOT a threshold-unreachable-by-construction bug, NOT a degraded/missing-input path, NOT a key transposition (that defect, bars_prior/prior_bars, was already fixed 2026-08-14 by 974ca235), NOT a wrong-input bug. This is a DESIGN-CALIBRATION MISMATCH: the component's polarity rule was written against one historical exhibit (J's 12:35 bounce, a reversal-style entry) and the live engine's two active setups are continuation-style, so the rule and the population it scores point in opposite directions.",
+    "evidence_chain": [
+      "conviction-shadow-report.json degraded_components for post_fix lists ONLY {'structure': 343} -- range_extreme is absent, i.e. NOT degraded, on all 482 rows.",
+      "money_range_extreme_probe.py Part 1: score_conviction() fed the textbook 'good' case (call at pos=0.05) scores range_extreme=1 correctly; fed the textbook 'bad' case (call at pos=0.95) scores 0 correctly; fed a missing envelope_high, correctly degrades. The function is not buggy.",
+      "money_range_extreme_probe.py Part 2/3: empirical range_position by side (n=512 rows on disk as of probe run, 482 in the exact report-matched population) -- calls (100% BULLISH_RECLAIM_RIDE_THE_RIBBON) span pos 0.336-1.000, mean 0.812; puts (100% BEARISH_REJECTION_RIDE_THE_RIBBON) span pos 0.000-0.445, mean 0.138. The current rule needs calls<=0.30 and puts>=0.70 -- the OPPOSITE side of 0.5 from every observed value.",
+      "Mechanism: heartbeat_core.py's session envelope (session_high/session_low, added by 974ca235) is computed THROUGH the trigger bar inclusive (_sess = win.iloc[:trig_idx+1]), and RIDE_THE_RIBBON is a continuation setup -- by the time it fires, price has already pushed toward the session extreme in the trade's own direction, so trigger_close sits near session_high for calls and near session_low for puts."
+    ]
+  },
+
+  "fleet_ledger_check": {
+    "finding": "0 conviction rows in ALL FOUR fleet ledgers (risky-1, risky-3, safe-1, safe-3), both pre- and post-fix. _conviction_shadow is called only from heartbeat_core.py's core (safe-2/bold-2) path; the fleet arms (build_shared_signal.py / fleet_executor.py) never call it.",
+    "counts": {"core": 482, "risky-1": 0, "risky-3": 0, "safe-1": 0, "safe-3": 0},
+    "reading": "This is a BROADER dead-knob than range_extreme alone: the entire conviction shadow instrument has zero coverage outside the core engine. It matches the shadow report's own 'arms': ['core'] field. Flagged for visibility, not scored as part of H2 (H2 is specifically the range_extreme component, which is undefined for arms with no conviction rows at all)."
+  },
+
+  "vary_and_assert": {
+    "part1_code_correctness_all_pass": true,
+    "cases": [
+      {"case": "call_at_range_low_pos_0.05", "pos": 0.05, "range_extreme": 1, "pass": true},
+      {"case": "put_at_range_high_pos_0.95", "pos": 0.95, "range_extreme": 1, "pass": true},
+      {"case": "call_at_range_high_pos_0.95_BAD_per_design", "pos": 0.95, "range_extreme": 0, "pass": true},
+      {"case": "call_at_exact_threshold_pos_0.30_inclusive", "pos": 0.30, "range_extreme": 1, "pass": true},
+      {"case": "missing_envelope_high_degrades_not_silent_zero", "range_extreme": 0, "degraded": true, "pass": true}
+    ]
+  },
+
+  "empirical_distribution": {
+    "n_post_fix_rows_report_matched": 482,
+    "n_post_fix_rows_live_at_probe_run": 512,
+    "note_on_n_growth": "The shadow report (analysis/entry-quality/conviction-shadow-report.json) was generated 2026-09-02T16:33:44 with n=482. This probe ran 2026-09-03 while the market is open and the live engine is writing ticks, so the same query now returns 512 -- the extra 30 rows are today's (2026-09-03) live session. All counterfactual figures below are reported BOTH ways: 'report_matched_482' (dates <= 2026-09-02, exactly the report's population -- outcome-join n=35 matches the report's post_fix_outcomes.n_joined=35 exactly, confirming an apples-to-apples reproduction) and 'live_as_of_probe_run' (512, includes today).",
+    "range_extreme_degraded_count": 0,
+    "range_extreme_fired_true_count": 0,
+    "by_side": {
+      "C": {
+        "n": 270, "min_pos": 0.336, "max_pos": 1.0, "mean_pos": 0.812, "median_pos": 0.853,
+        "rule": "pos <= 0.30 to score", "hits_current_rule": 0, "hits_if_flipped_rule": 192,
+        "setup_composition": {"BULLISH_RECLAIM_RIDE_THE_RIBBON": 268, "null": 2}
+      },
+      "P": {
+        "n": 242, "min_pos": 0.0, "max_pos": 0.445, "mean_pos": 0.138, "median_pos": 0.08,
+        "rule": "pos >= 0.70 to score", "hits_current_rule": 0, "hits_if_flipped_rule": 186,
+        "setup_composition": {"BEARISH_REJECTION_RIDE_THE_RIBBON": 225, "null": 17}
+      }
+    }
+  },
+
+  "counterfactual_flip_would_change": {
+    "description": "NOT a proposed live change (conviction is fully shadow -- no SKIP_LOW_CONVICTION branch exists in the engine regardless of this component). This answers the task's literal ask: what would re-scoring the 482 rows with a component whose polarity matches the live trigger family (call scores when pos>=0.70, put scores when pos<=0.30) change in the shadow score distribution.",
+    "report_matched_482": {
+      "n_scored": 482,
+      "would_block_flips_to_allow": 47,
+      "would_allow_flips_to_block": 0,
+      "unaffected": 435,
+      "score_delta_histogram": {"+0": 124, "+1": 358},
+      "note": "Score can only move up 0 or +1 per row (the current rule already scores 0 everywhere in this population), so would_block can only flip BLOCK->ALLOW, never the reverse -- structurally cannot have blocked anything that currently gets through."
+    },
+    "outcome_join_on_the_47_flips": {
+      "n_joined_to_real_fill": 5,
+      "n_unjoined": 42,
+      "join_caveat": "Conviction rows join to real fills only within +-120s (most conviction rows are shadow-scored HOLD-adjacent duplicate ticks with no adjacent order) -- 5/47 is expected, not a data-quality problem.",
+      "trades": [
+        {"ts_et": "2026-08-19T10:41:03", "account": "safe", "side": "C", "pnl": -69.0, "range_position": 0.964, "orig_total": 4, "floor": 5},
+        {"ts_et": "2026-08-19T10:41:06", "account": "bold", "side": "C", "pnl": -105.0, "range_position": 0.964, "orig_total": 4, "floor": 5},
+        {"ts_et": "2026-08-21T11:37:04", "account": "bold", "side": "C", "pnl": 159.0, "range_position": 1.0, "orig_total": 6, "floor": 7},
+        {"ts_et": "2026-08-27T09:47:05", "account": "bold", "side": "C", "pnl": -40.0, "range_position": 1.0, "orig_total": 5, "floor": 6},
+        {"ts_et": "2026-09-02T13:06:03", "account": "safe", "side": "C", "pnl": -93.0, "range_position": 0.794, "orig_total": 4, "floor": 5}
+      ],
+      "all_five_are_calls": "Structural, not coincidence: puts' totals in this population tend to sit >1 point below their floor when blocked, while calls cluster at floor-1, so a +1 nudge disproportionately flips calls across the line.",
+      "n": 5,
+      "sum_pnl": -148.0,
+      "mean_pnl": -29.6,
+      "win_rate_pct": 20.0,
+      "bootstrap_ci_mean_pnl": {"n_resamples": 5000, "ci_2.5pct": -93.0, "ci_97.5pct": 66.4,
+        "reading": "n=5, CI straddles zero -- INCONCLUSIVE, not evidence for or against the polarity flip. Reported because the task asked for a dollar effect with a CI; the honest read is that this population is too thin to say anything."}
+    },
+    "big_winning_days_check": {
+      "days": ["2026-08-06", "2026-08-13", "2026-08-27", "2026-08-28"],
+      "2026-08-06_and_2026-08-13": "PRE-FIX (before 2026-08-14T19:15:22) -- not in the post-fix population this analysis scores; C4 was 100% degraded on those dates regardless (see conviction-shadow-report.json pre_fix_DO_NOT_POOL.degraded_components.range_extreme=102).",
+      "2026-08-27_and_2026-08-28": "In the post-fix population. Because the flip can only ADD a point (never subtract), it cannot have blocked any entry that was already allowed on those days -- structurally impossible by construction, not an empirical claim. It DOES newly-allow one row on 2026-08-27 (09:47:05, bold, call, -$40, already listed above) that was previously correctly blocked at total=5 against floor=6 -- i.e. if this fix were ever armed, its only effect on a named winning day is to ADD one additional marginal/losing entry, not to touch the day's winners."
+    }
+  },
+
+  "verdict": {
+    "hypothesis_supported": true,
+    "classification_per_lessons_c14": "DEAD KNOB, translated-but-unapplied subclass: the component is fully wired (not degraded, not a key bug), computes a real value every tick, but that value's population never crosses the applied threshold because the threshold's polarity was calibrated on a different trade shape (mean-reversion) than the live trigger family (continuation). Distinct from the two PRIOR C4 defects on this same component (2026-08-12 startswith('shelf') substring bug on C2, and the 2026-08-14 bars_prior/prior_bars transposed key on C4 itself, per 974ca235) -- this is a THIRD, independent defect on the same axis, and it is a calibration/design defect, not a coding defect.",
+    "would_a_fix_be_a_live_change": false,
+    "reasoning": "Conviction has no SKIP_LOW_CONVICTION branch anywhere in the engine (report _meta.armed=false, shadow_only field confirms). Nothing here is proposed for arming. This report is diagnostic: it explains a 0.0% instrument reading and quantifies what re-scoring would look like IF the component were later redesigned, so a future prereg has the mechanism in hand rather than re-deriving it."
+  }
+}

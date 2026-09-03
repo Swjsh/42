@@ -1,0 +1,1321 @@
+{
+  "meta": {
+    "population": "analysis/pain-ledger/mae-mfe.json trades, date >= 2026-08-06",
+    "n_total_trades": 191,
+    "n_usable_for_location_test": 186,
+    "n_excluded_no_range_position": 5,
+    "excluded_rows": [
+      {
+        "date": "2026-08-14",
+        "arm": "safe-2",
+        "symbol": "SPY260814C00778000",
+        "reason": "session range not yet developed at entry (hi==lo over 2 ticks) -- entry within first few minutes of the session"
+      },
+      {
+        "date": "2026-08-14",
+        "arm": "bold-2",
+        "symbol": "SPY260814C00778000",
+        "reason": "session range not yet developed at entry (hi==lo over 4 ticks) -- entry within first few minutes of the session"
+      },
+      {
+        "date": "2026-08-14",
+        "arm": "safe-3",
+        "symbol": "SPY260814C00778000",
+        "reason": "session range not yet developed at entry (hi==lo over 6 ticks) -- entry within first few minutes of the session"
+      },
+      {
+        "date": "2026-08-14",
+        "arm": "risky-1",
+        "symbol": "SPY260814C00778000",
+        "reason": "session range not yet developed at entry (hi==lo over 6 ticks) -- entry within first few minutes of the session"
+      },
+      {
+        "date": "2026-08-14",
+        "arm": "risky-3",
+        "symbol": "SPY260814C00780000",
+        "reason": "session range not yet developed at entry (hi==lo over 6 ticks) -- entry within first few minutes of the session"
+      }
+    ],
+    "n_boot": 5000
+  },
+  "sanity_check_totals_by_date": {
+    "2026-08-06": 1465.0,
+    "2026-08-07": -2687.0,
+    "2026-08-10": -750.0,
+    "2026-08-11": 43.0,
+    "2026-08-12": -884.0,
+    "2026-08-13": 1748.0,
+    "2026-08-14": -1837.0,
+    "2026-08-17": 124.0,
+    "2026-08-18": 162.0,
+    "2026-08-19": 266.0,
+    "2026-08-20": 811.0,
+    "2026-08-21": -585.0,
+    "2026-08-24": -57.0,
+    "2026-08-25": -220.0,
+    "2026-08-26": 39.0,
+    "2026-08-27": 1897.0,
+    "2026-08-28": 1304.0,
+    "2026-09-01": 78.0,
+    "2026-09-02": -699.0
+  },
+  "overall": {
+    "n": 186,
+    "total_pnl": 1787.0,
+    "mean_pnl": 9.61,
+    "wr": 0.3441,
+    "pf": 1.155,
+    "winners": 64,
+    "losers": 118,
+    "scratch": 4,
+    "first_exit_stage_counts": {
+      "premium_stop": 78,
+      "structure_stop": 73,
+      "tp1": 26,
+      "ribbon_flip": 6,
+      "time_stop": 2,
+      "null": 1
+    }
+  },
+  "threshold_sweep": {
+    "0.75/0.25": {
+      "chase_extreme": {
+        "n": 103,
+        "total_pnl": 218.0,
+        "mean_pnl": 2.12,
+        "wr": 0.3204,
+        "pf": 1.032,
+        "winners": 33,
+        "losers": 70,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 49,
+          "premium_stop": 40,
+          "tp1": 12,
+          "time_stop": 2
+        }
+      },
+      "rest": {
+        "n": 83,
+        "total_pnl": 1569.0,
+        "mean_pnl": 18.9,
+        "wr": 0.3735,
+        "pf": 1.338,
+        "winners": 31,
+        "losers": 48,
+        "scratch": 4,
+        "first_exit_stage_counts": {
+          "premium_stop": 38,
+          "structure_stop": 24,
+          "tp1": 14,
+          "ribbon_flip": 6,
+          "null": 1
+        }
+      },
+      "mean_pnl_chase_ci95": [
+        2.12,
+        -31.71,
+        36.01
+      ],
+      "mean_pnl_rest_ci95": [
+        18.9,
+        -25.46,
+        63.72
+      ],
+      "mean_diff_chase_minus_rest_ci95": [
+        -16.79,
+        -72.84,
+        38.91
+      ]
+    },
+    "0.80/0.20": {
+      "chase_extreme": {
+        "n": 99,
+        "total_pnl": -509.0,
+        "mean_pnl": -5.14,
+        "wr": 0.303,
+        "pf": 0.926,
+        "winners": 30,
+        "losers": 69,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 47,
+          "premium_stop": 39,
+          "tp1": 11,
+          "time_stop": 2
+        }
+      },
+      "rest": {
+        "n": 87,
+        "total_pnl": 2296.0,
+        "mean_pnl": 26.39,
+        "wr": 0.3908,
+        "pf": 1.492,
+        "winners": 34,
+        "losers": 49,
+        "scratch": 4,
+        "first_exit_stage_counts": {
+          "premium_stop": 39,
+          "structure_stop": 26,
+          "tp1": 15,
+          "ribbon_flip": 6,
+          "null": 1
+        }
+      },
+      "mean_pnl_chase_ci95": [
+        -5.14,
+        -37.66,
+        29.64
+      ],
+      "mean_pnl_rest_ci95": [
+        26.39,
+        -14.4,
+        72.46
+      ],
+      "mean_diff_chase_minus_rest_ci95": [
+        -31.53,
+        -85.91,
+        22.4
+      ]
+    },
+    "0.90/0.10": {
+      "chase_extreme": {
+        "n": 69,
+        "total_pnl": 1385.0,
+        "mean_pnl": 20.07,
+        "wr": 0.3333,
+        "pf": 1.317,
+        "winners": 23,
+        "losers": 46,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 31,
+          "structure_stop": 28,
+          "tp1": 9,
+          "time_stop": 1
+        }
+      },
+      "rest": {
+        "n": 117,
+        "total_pnl": 402.0,
+        "mean_pnl": 3.44,
+        "wr": 0.3504,
+        "pf": 1.056,
+        "winners": 41,
+        "losers": 72,
+        "scratch": 4,
+        "first_exit_stage_counts": {
+          "premium_stop": 47,
+          "structure_stop": 45,
+          "tp1": 17,
+          "ribbon_flip": 6,
+          "null": 1,
+          "time_stop": 1
+        }
+      },
+      "mean_pnl_chase_ci95": [
+        20.07,
+        -22.61,
+        66.04
+      ],
+      "mean_pnl_rest_ci95": [
+        3.44,
+        -30.29,
+        38.37
+      ],
+      "mean_diff_chase_minus_rest_ci95": [
+        16.64,
+        -40.38,
+        72.37
+      ]
+    }
+  },
+  "mid_band_literal": {
+    "band": [
+      0.4,
+      0.65
+    ],
+    "mid": {
+      "n": 32,
+      "total_pnl": 1654.0,
+      "mean_pnl": 51.69,
+      "wr": 0.4062,
+      "pf": 2.139,
+      "winners": 13,
+      "losers": 19,
+      "scratch": 0,
+      "first_exit_stage_counts": {
+        "premium_stop": 14,
+        "structure_stop": 10,
+        "tp1": 5,
+        "ribbon_flip": 3
+      }
+    },
+    "outside": {
+      "n": 154,
+      "total_pnl": 133.0,
+      "mean_pnl": 0.86,
+      "wr": 0.3312,
+      "pf": 1.013,
+      "winners": 51,
+      "losers": 99,
+      "scratch": 4,
+      "first_exit_stage_counts": {
+        "premium_stop": 64,
+        "structure_stop": 63,
+        "tp1": 21,
+        "ribbon_flip": 3,
+        "time_stop": 2,
+        "null": 1
+      }
+    },
+    "mean_pnl_mid_ci95": [
+      51.69,
+      -19.35,
+      130.99
+    ],
+    "mean_pnl_outside_ci95": [
+      0.86,
+      -27.14,
+      28.44
+    ],
+    "mean_diff_mid_minus_outside_ci95": [
+      50.82,
+      -25.32,
+      133.99
+    ]
+  },
+  "by_arm": {
+    "bold-2": {
+      "n_total": 31,
+      "chase_extreme_0.75_0.25": {
+        "n": 21,
+        "total_pnl": 330.0,
+        "mean_pnl": 15.71,
+        "wr": 0.4286,
+        "pf": 1.232,
+        "winners": 9,
+        "losers": 12,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 10,
+          "premium_stop": 9,
+          "tp1": 2
+        }
+      },
+      "rest": {
+        "n": 10,
+        "total_pnl": 260.0,
+        "mean_pnl": 26.0,
+        "wr": 0.3,
+        "pf": 1.431,
+        "winners": 3,
+        "losers": 6,
+        "scratch": 1,
+        "first_exit_stage_counts": {
+          "structure_stop": 4,
+          "ribbon_flip": 2,
+          "premium_stop": 2,
+          "tp1": 2
+        }
+      }
+    },
+    "risky-1": {
+      "n_total": 46,
+      "chase_extreme_0.75_0.25": {
+        "n": 19,
+        "total_pnl": 105.0,
+        "mean_pnl": 5.53,
+        "wr": 0.2632,
+        "pf": 1.074,
+        "winners": 5,
+        "losers": 14,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 15,
+          "premium_stop": 2,
+          "tp1": 2
+        }
+      },
+      "rest": {
+        "n": 27,
+        "total_pnl": 490.0,
+        "mean_pnl": 18.15,
+        "wr": 0.4444,
+        "pf": 1.34,
+        "winners": 12,
+        "losers": 12,
+        "scratch": 3,
+        "first_exit_stage_counts": {
+          "premium_stop": 14,
+          "structure_stop": 7,
+          "tp1": 5,
+          "null": 1
+        }
+      }
+    },
+    "risky-3": {
+      "n_total": 40,
+      "chase_extreme_0.75_0.25": {
+        "n": 20,
+        "total_pnl": -14.0,
+        "mean_pnl": -0.7,
+        "wr": 0.3,
+        "pf": 0.99,
+        "winners": 6,
+        "losers": 14,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 18,
+          "structure_stop": 1,
+          "tp1": 1
+        }
+      },
+      "rest": {
+        "n": 20,
+        "total_pnl": -105.0,
+        "mean_pnl": -5.25,
+        "wr": 0.3,
+        "pf": 0.908,
+        "winners": 6,
+        "losers": 14,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 15,
+          "ribbon_flip": 3,
+          "tp1": 1,
+          "structure_stop": 1
+        }
+      }
+    },
+    "safe-2": {
+      "n_total": 41,
+      "chase_extreme_0.75_0.25": {
+        "n": 26,
+        "total_pnl": 203.0,
+        "mean_pnl": 7.81,
+        "wr": 0.3077,
+        "pf": 1.142,
+        "winners": 8,
+        "losers": 18,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 10,
+          "premium_stop": 9,
+          "tp1": 6,
+          "time_stop": 1
+        }
+      },
+      "rest": {
+        "n": 15,
+        "total_pnl": 363.0,
+        "mean_pnl": 24.2,
+        "wr": 0.2667,
+        "pf": 1.494,
+        "winners": 4,
+        "losers": 11,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 6,
+          "structure_stop": 5,
+          "tp1": 3,
+          "ribbon_flip": 1
+        }
+      }
+    },
+    "safe-3": {
+      "n_total": 28,
+      "chase_extreme_0.75_0.25": {
+        "n": 17,
+        "total_pnl": -406.0,
+        "mean_pnl": -23.88,
+        "wr": 0.2941,
+        "pf": 0.665,
+        "winners": 5,
+        "losers": 12,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 13,
+          "premium_stop": 2,
+          "tp1": 1,
+          "time_stop": 1
+        }
+      },
+      "rest": {
+        "n": 11,
+        "total_pnl": 561.0,
+        "mean_pnl": 51.0,
+        "wr": 0.5455,
+        "pf": 1.77,
+        "winners": 6,
+        "losers": 5,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 7,
+          "tp1": 3,
+          "premium_stop": 1
+        }
+      }
+    }
+  },
+  "by_regime": {
+    "vix<15": {
+      "n_total": 79,
+      "chase_extreme_0.75_0.25": {
+        "n": 30,
+        "total_pnl": -422.0,
+        "mean_pnl": -14.07,
+        "wr": 0.2667,
+        "pf": 0.847,
+        "winners": 8,
+        "losers": 22,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 12,
+          "premium_stop": 12,
+          "tp1": 6
+        }
+      },
+      "rest": {
+        "n": 49,
+        "total_pnl": 1390.0,
+        "mean_pnl": 28.37,
+        "wr": 0.3878,
+        "pf": 1.581,
+        "winners": 19,
+        "losers": 28,
+        "scratch": 2,
+        "first_exit_stage_counts": {
+          "premium_stop": 25,
+          "structure_stop": 11,
+          "tp1": 10,
+          "ribbon_flip": 3
+        }
+      }
+    },
+    "vix15-17": {
+      "n_total": 107,
+      "chase_extreme_0.75_0.25": {
+        "n": 73,
+        "total_pnl": 640.0,
+        "mean_pnl": 8.77,
+        "wr": 0.3425,
+        "pf": 1.154,
+        "winners": 25,
+        "losers": 48,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 37,
+          "premium_stop": 28,
+          "tp1": 6,
+          "time_stop": 2
+        }
+      },
+      "rest": {
+        "n": 34,
+        "total_pnl": 179.0,
+        "mean_pnl": 5.26,
+        "wr": 0.3529,
+        "pf": 1.079,
+        "winners": 12,
+        "losers": 20,
+        "scratch": 2,
+        "first_exit_stage_counts": {
+          "structure_stop": 13,
+          "premium_stop": 13,
+          "tp1": 4,
+          "ribbon_flip": 3,
+          "null": 1
+        }
+      }
+    }
+  },
+  "counterfactual": {
+    "0.75/0.25": {
+      "n_would_skip": 103,
+      "pct_of_population_skipped": 0.5538,
+      "dollars_saved_skipping_losers": 6911.0,
+      "n_losers_avoided": 70,
+      "dollars_forgone_skipping_winners": 7129.0,
+      "n_winners_forgone": 33,
+      "net_dollar_effect_of_rule_ci95": [
+        -218.0,
+        -3773.28,
+        3219.37
+      ],
+      "net_dollar_effect_note": "positive = rule would have SAVED money net; CI via 5000x bootstrap resample of the skipped-trade set"
+    },
+    "0.80/0.20": {
+      "n_would_skip": 99,
+      "pct_of_population_skipped": 0.5323,
+      "dollars_saved_skipping_losers": 6884.0,
+      "n_losers_avoided": 69,
+      "dollars_forgone_skipping_winners": 6375.0,
+      "n_winners_forgone": 30,
+      "net_dollar_effect_of_rule_ci95": [
+        509.0,
+        -2860.57,
+        3833.4
+      ],
+      "net_dollar_effect_note": "positive = rule would have SAVED money net; CI via 5000x bootstrap resample of the skipped-trade set"
+    },
+    "0.90/0.10": {
+      "n_would_skip": 69,
+      "pct_of_population_skipped": 0.371,
+      "dollars_saved_skipping_losers": 4372.0,
+      "n_losers_avoided": 46,
+      "dollars_forgone_skipping_winners": 5757.0,
+      "n_winners_forgone": 23,
+      "net_dollar_effect_of_rule_ci95": [
+        -1385.0,
+        -4538.07,
+        1520.07
+      ],
+      "net_dollar_effect_note": "positive = rule would have SAVED money net; CI via 5000x bootstrap resample of the skipped-trade set"
+    }
+  },
+  "big_winning_days": {
+    "2026-08-06": {
+      "day_total_pnl": 1465.0,
+      "n_trades": 4,
+      "n_would_be_blocked": 1,
+      "pnl_from_blocked_trades": -36.0,
+      "day_total_pnl_if_rule_applied": 1501.0,
+      "trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260806P00770000",
+          "side": "P",
+          "range_position": 0.9368,
+          "realized_pnl": 375.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260806P00770000",
+          "side": "P",
+          "range_position": 0.9368,
+          "realized_pnl": 296.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260806P00770000",
+          "side": "P",
+          "range_position": 0.9368,
+          "realized_pnl": 830.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260806C00769000",
+          "side": "C",
+          "range_position": 0.8852,
+          "realized_pnl": -36.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        }
+      ]
+    },
+    "2026-08-13": {
+      "day_total_pnl": 1748.0,
+      "n_trades": 15,
+      "n_would_be_blocked": 6,
+      "pnl_from_blocked_trades": 1895.0,
+      "day_total_pnl_if_rule_applied": -147.0,
+      "trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 332.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 534.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 348.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 405.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260813C00779000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 366.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260813C00781000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": -90.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "side": "C",
+          "range_position": 0.5362,
+          "realized_pnl": -85.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "side": "C",
+          "range_position": 0.5362,
+          "realized_pnl": -90.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260813C00778000",
+          "side": "C",
+          "range_position": 0.5362,
+          "realized_pnl": -80.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "side": "C",
+          "range_position": 0.5362,
+          "realized_pnl": -155.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "side": "P",
+          "range_position": 0.5792,
+          "realized_pnl": -69.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "side": "P",
+          "range_position": 0.5792,
+          "realized_pnl": -200.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 0.714,
+          "realized_pnl": 181.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 0.714,
+          "realized_pnl": 199.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260813C00777000",
+          "side": "C",
+          "range_position": 0.714,
+          "realized_pnl": 152.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        }
+      ]
+    },
+    "2026-08-27": {
+      "day_total_pnl": 1897.0,
+      "n_trades": 12,
+      "n_would_be_blocked": 8,
+      "pnl_from_blocked_trades": 1122.0,
+      "day_total_pnl_if_rule_applied": 775.0,
+      "trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260827C00768000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 138.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260827C00770000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 95.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260827C00768000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 285.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260827C00768000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 475.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260827C00770000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": 85.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260827C00771000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": -40.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260827C00771000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": -100.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260827C00770000",
+          "side": "C",
+          "range_position": 0.748,
+          "realized_pnl": 303.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260827C00770000",
+          "side": "C",
+          "range_position": 0.748,
+          "realized_pnl": 353.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260827C00772000",
+          "side": "C",
+          "range_position": 0.748,
+          "realized_pnl": 159.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260827C00772000",
+          "side": "C",
+          "range_position": 0.748,
+          "realized_pnl": -40.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260827C00771000",
+          "side": "C",
+          "range_position": 0.987,
+          "realized_pnl": 184.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        }
+      ]
+    },
+    "2026-08-28": {
+      "day_total_pnl": 1304.0,
+      "n_trades": 11,
+      "n_would_be_blocked": 5,
+      "pnl_from_blocked_trades": -755.0,
+      "day_total_pnl_if_rule_applied": 2059.0,
+      "trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260828C00771000",
+          "side": "C",
+          "range_position": 0.4979,
+          "realized_pnl": 527.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260828C00773000",
+          "side": "C",
+          "range_position": 0.4979,
+          "realized_pnl": 509.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-3",
+          "symbol": "SPY260828C00771000",
+          "side": "C",
+          "range_position": 0.4979,
+          "realized_pnl": 563.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260828C00771000",
+          "side": "C",
+          "range_position": 0.4979,
+          "realized_pnl": 650.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828C00773000",
+          "side": "C",
+          "range_position": 0.4979,
+          "realized_pnl": -75.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828C00773000",
+          "side": "C",
+          "range_position": 0.4979,
+          "realized_pnl": -115.0,
+          "would_be_blocked_by_0.75_0.25_rule": false,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828C00777000",
+          "side": "C",
+          "range_position": 1.0,
+          "realized_pnl": -50.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260828P00768000",
+          "side": "P",
+          "range_position": 0.0324,
+          "realized_pnl": -215.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260828P00770000",
+          "side": "P",
+          "range_position": 0.0324,
+          "realized_pnl": -270.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828P00768000",
+          "side": "P",
+          "range_position": 0.0324,
+          "realized_pnl": -120.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828P00767000",
+          "side": "P",
+          "range_position": 0.066,
+          "realized_pnl": -100.0,
+          "would_be_blocked_by_0.75_0.25_rule": true,
+          "excluded_from_location_test": false
+        }
+      ]
+    }
+  },
+  "conviction_cross_check": {
+    "n_rows_with_both": 36,
+    "mean_abs_diff": 0.1379,
+    "max_abs_diff": 0.6829,
+    "note": "conviction.py's range_position uses a 'prior-day-union-today' envelope; this study's range_position uses session-so-far only (per harness instruction) -- some divergence is expected, not a bug.",
+    "would_block_rate_in_chase_bucket": null,
+    "sample_rows": [
+      {
+        "date": "2026-08-17",
+        "arm": "bold-2",
+        "symbol": "SPY260817P00775000",
+        "side": "P",
+        "range_position_recomputed": 0.0,
+        "conv_range_position": 0.046,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-18",
+        "arm": "safe-2",
+        "symbol": "SPY260818P00768000",
+        "side": "P",
+        "range_position_recomputed": 0.1454,
+        "conv_range_position": 0.402,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-18",
+        "arm": "bold-2",
+        "symbol": "SPY260818P00768000",
+        "side": "P",
+        "range_position_recomputed": 0.1454,
+        "conv_range_position": 0.402,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-19",
+        "arm": "safe-2",
+        "symbol": "SPY260819C00771000",
+        "side": "C",
+        "range_position_recomputed": 1.0,
+        "conv_range_position": 0.595,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-19",
+        "arm": "bold-2",
+        "symbol": "SPY260819C00771000",
+        "side": "C",
+        "range_position_recomputed": 1.0,
+        "conv_range_position": 0.595,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-19",
+        "arm": "bold-2",
+        "symbol": "SPY260819C00770000",
+        "side": "C",
+        "range_position_recomputed": 0.6497,
+        "conv_range_position": 0.541,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-19",
+        "arm": "safe-2",
+        "symbol": "SPY260819C00771000",
+        "side": "C",
+        "range_position_recomputed": 0.6974,
+        "conv_range_position": 0.595,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-19",
+        "arm": "bold-2",
+        "symbol": "SPY260819C00771000",
+        "side": "C",
+        "range_position_recomputed": 0.6974,
+        "conv_range_position": 0.595,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "safe-2",
+        "symbol": "SPY260820P00766000",
+        "side": "P",
+        "range_position_recomputed": 0.2102,
+        "conv_range_position": 0.317,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "bold-2",
+        "symbol": "SPY260820P00764000",
+        "side": "P",
+        "range_position_recomputed": 0.035,
+        "conv_range_position": 0.091,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "safe-2",
+        "symbol": "SPY260820P00765000",
+        "side": "P",
+        "range_position_recomputed": 0.0,
+        "conv_range_position": 0.08,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "safe-2",
+        "symbol": "SPY260820P00765000",
+        "side": "P",
+        "range_position_recomputed": 0.0215,
+        "conv_range_position": 0.08,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "bold-2",
+        "symbol": "SPY260820P00763000",
+        "side": "P",
+        "range_position_recomputed": 0.0215,
+        "conv_range_position": 0.08,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "safe-2",
+        "symbol": "SPY260820P00764000",
+        "side": "P",
+        "range_position_recomputed": 0.0485,
+        "conv_range_position": 0.079,
+        "conv_range_extreme_awarded": 0
+      },
+      {
+        "date": "2026-08-21",
+        "arm": "safe-2",
+        "symbol": "SPY260821P00765000",
+        "side": "P",
+        "range_position_recomputed": 0.9269,
+        "conv_range_position": 0.244,
+        "conv_range_extreme_awarded": 0
+      }
+    ]
+  },
+  "sanity_check_0827_0828_combined": 3201.0,
+  "by_setup": {
+    "(unattributed)": {
+      "n_total": 8,
+      "chase_extreme_0.75_0.25": {
+        "n": 4,
+        "total_pnl": -129.0,
+        "mean_pnl": -32.25,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 4,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 4
+        }
+      },
+      "rest": {
+        "n": 4,
+        "total_pnl": -165.0,
+        "mean_pnl": -41.25,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 4,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 4
+        }
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+        9.0,
+        0.0,
+        18.75
+      ]
+    },
+    "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+      "n_total": 43,
+      "chase_extreme_0.75_0.25": {
+        "n": 31,
+        "total_pnl": 469.0,
+        "mean_pnl": 15.13,
+        "wr": 0.4194,
+        "pf": 1.228,
+        "winners": 13,
+        "losers": 18,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 16,
+          "structure_stop": 9,
+          "tp1": 5,
+          "time_stop": 1
+        }
+      },
+      "rest": {
+        "n": 12,
+        "total_pnl": 667.0,
+        "mean_pnl": 55.58,
+        "wr": 0.3333,
+        "pf": 1.786,
+        "winners": 4,
+        "losers": 8,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 4,
+          "tp1": 3,
+          "ribbon_flip": 3,
+          "structure_stop": 2
+        }
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+        -40.45,
+        -227.37,
+        118.88
+      ]
+    },
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+      "n_total": 108,
+      "chase_extreme_0.75_0.25": {
+        "n": 67,
+        "total_pnl": -58.0,
+        "mean_pnl": -0.87,
+        "wr": 0.2985,
+        "pf": 0.988,
+        "winners": 20,
+        "losers": 47,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "structure_stop": 40,
+          "premium_stop": 19,
+          "tp1": 7,
+          "time_stop": 1
+        }
+      },
+      "rest": {
+        "n": 41,
+        "total_pnl": 1733.0,
+        "mean_pnl": 42.27,
+        "wr": 0.3902,
+        "pf": 1.665,
+        "winners": 16,
+        "losers": 23,
+        "scratch": 2,
+        "first_exit_stage_counts": {
+          "structure_stop": 22,
+          "tp1": 11,
+          "premium_stop": 8
+        }
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+        -43.13,
+        -128.89,
+        37.97
+      ]
+    },
+    "VWAP_CONTINUATION": {
+      "n_total": 24,
+      "chase_extreme_0.75_0.25": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0,
+        "scratch": 0,
+        "first_exit_stage_counts": {}
+      },
+      "rest": {
+        "n": 24,
+        "total_pnl": -530.0,
+        "mean_pnl": -22.08,
+        "wr": 0.4583,
+        "pf": 0.402,
+        "winners": 11,
+        "losers": 11,
+        "scratch": 2,
+        "first_exit_stage_counts": {
+          "premium_stop": 20,
+          "ribbon_flip": 3,
+          "null": 1
+        }
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "VWAP_RECLAIM_FAILED_BREAK": {
+      "n_total": 3,
+      "chase_extreme_0.75_0.25": {
+        "n": 1,
+        "total_pnl": -64.0,
+        "mean_pnl": -64.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 1
+        }
+      },
+      "rest": {
+        "n": 2,
+        "total_pnl": -136.0,
+        "mean_pnl": -68.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2,
+        "scratch": 0,
+        "first_exit_stage_counts": {
+          "premium_stop": 2
+        }
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+        4.0,
+        0.0,
+        8.0
+      ]
+    }
+  }
+}

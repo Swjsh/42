@@ -1,0 +1,1029 @@
+{
+  "generated_at_et": "2026-09-03T08:48:12.149181",
+  "cutoff_date": "2026-07-01",
+  "pain_ledger_meta": {
+    "generated_at_et": "2026-09-02T16:26:57.188079",
+    "builder": "setup/scripts/pain_ledger.py",
+    "prereg": "analysis/pain-ledger/PREREG-2026-08-01.md",
+    "descriptive_only": "\u26d4 DESCRIPTIVE ONLY \u2014 this ledger VALIDATES NO STOP CHANGE. MAE knowledge is hindsight by definition (C6): a live stop cannot condition on a trade's eventual maximum heat. Any stop-placement change is its own future pre-registered A/B that may cite this ledger only as its evidence base.",
+    "provenance": {
+      "pnl": "broker fills (fills-ledger.jsonl, attribution==engine)",
+      "bars": "real Alpaca OPRA 1-min via exit_shape_parity_study.fetch_option_bars",
+      "synthetic_rows": 0,
+      "synthetic_note": "no synthetic pricing path exists in this machinery; positions without OPRA bars are excluded AND counted"
+    },
+    "conventions": {
+      "window": "exit-eligible holding window (entry+1 .. final-exit bar incl.)",
+      "entry_bar": "excluded per ENTRY-BAR-CONVENTION-RULING-2026-07-25",
+      "stop_inside_mae": "level traded through on bar lows; NOT 'live would have fired'",
+      "dollars": "at full entry qty; see *_before_first_exit validity flags",
+      "recent_split": "most recent 25 distinct ET dates vs older"
+    },
+    "population": {
+      "n_positions": 397,
+      "n_scored": 394,
+      "n_no_bars": 0,
+      "n_no_window": 3,
+      "n_bad_entry": 0,
+      "excluded_no_bars": [],
+      "excluded_no_window": [
+        "2026-07-06 safe-2 SPY260706P00750000",
+        "2026-08-10 risky-3 SPY260810P00771000",
+        "2026-08-12 safe-2 SPY260812P00772000"
+      ],
+      "excluded_bad_entry": [],
+      "n_winners": 100,
+      "n_losers": 279,
+      "n_scratch": 15,
+      "dates": {
+        "n_distinct": 44,
+        "first": "2026-06-26",
+        "last": "2026-09-02",
+        "recent25_first": "2026-07-29"
+      },
+      "arms": [
+        "bold-2",
+        "risky-1",
+        "risky-3",
+        "safe-1",
+        "safe-2",
+        "safe-3"
+      ]
+    }
+  },
+  "bear": {
+    "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+    "n_population_pain_ledger": 94,
+    "n_matched_to_core_decisions": 92,
+    "n_unmatched": 2,
+    "unmatched_trades": [
+      {
+        "date": "2026-08-12",
+        "arm": "safe-2",
+        "symbol": "SPY260812P00773000",
+        "realized_pnl": -81.0,
+        "entry_et": "2026-08-12T09:58:12.634249"
+      },
+      {
+        "date": "2026-08-20",
+        "arm": "safe-2",
+        "symbol": "SPY260820P00765000",
+        "realized_pnl": -18.0,
+        "entry_et": "2026-08-20T13:31:05.578958"
+      }
+    ],
+    "has_level_vs_no_level": {
+      "has_level": {
+        "n": 16,
+        "sum_pnl": -802.99,
+        "mean_pnl": -50.19,
+        "mean_pnl_ci95": [
+          -113.76,
+          4.69
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.277
+      },
+      "no_level": {
+        "n": 76,
+        "sum_pnl": 900.0,
+        "mean_pnl": 11.84,
+        "mean_pnl_ci95": [
+          -32.14,
+          59.11
+        ],
+        "win_rate": 0.316,
+        "profit_factor": 1.172
+      }
+    },
+    "by_range_position_bucket": {
+      "extreme_low_0.00-0.15": {
+        "n": 14,
+        "sum_pnl": 425.0,
+        "mean_pnl": 30.36,
+        "mean_pnl_ci95": [
+          -71.0,
+          131.36
+        ],
+        "win_rate": 0.5,
+        "profit_factor": 1.428
+      },
+      "low_0.15-0.35": {
+        "n": 4,
+        "sum_pnl": -258.0,
+        "mean_pnl": -64.5,
+        "mean_pnl_ci95": [
+          -182.0,
+          99.5
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.425
+      },
+      "mid_0.35-0.65": {
+        "n": 2,
+        "sum_pnl": 162.0,
+        "mean_pnl": 81.0,
+        "mean_pnl_ci95": [
+          80.0,
+          82.0
+        ],
+        "win_rate": 1.0,
+        "profit_factor": Infinity
+      },
+      "missing": {
+        "n": 72,
+        "sum_pnl": -231.99,
+        "mean_pnl": -3.22,
+        "mean_pnl_ci95": [
+          -48.08,
+          45.68
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.953
+      }
+    },
+    "by_level_x_range_bucket": {
+      "level__missing": {
+        "n": 16,
+        "sum_pnl": -802.99,
+        "mean_pnl": -50.19,
+        "mean_pnl_ci95": [
+          -113.76,
+          4.69
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.277
+      },
+      "no_level__extreme_low_0.00-0.15": {
+        "n": 14,
+        "sum_pnl": 425.0,
+        "mean_pnl": 30.36,
+        "mean_pnl_ci95": [
+          -71.0,
+          131.36
+        ],
+        "win_rate": 0.5,
+        "profit_factor": 1.428
+      },
+      "no_level__low_0.15-0.35": {
+        "n": 4,
+        "sum_pnl": -258.0,
+        "mean_pnl": -64.5,
+        "mean_pnl_ci95": [
+          -182.0,
+          99.5
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.425
+      },
+      "no_level__mid_0.35-0.65": {
+        "n": 2,
+        "sum_pnl": 162.0,
+        "mean_pnl": 81.0,
+        "mean_pnl_ci95": [
+          80.0,
+          82.0
+        ],
+        "win_rate": 1.0,
+        "profit_factor": Infinity
+      },
+      "no_level__missing": {
+        "n": 56,
+        "sum_pnl": 571.0,
+        "mean_pnl": 10.2,
+        "mean_pnl_ci95": [
+          -46.49,
+          66.99
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 1.15
+      }
+    },
+    "by_time_of_day": {
+      "0930-1000_open": {
+        "n": 11,
+        "sum_pnl": -983.0,
+        "mean_pnl": -89.36,
+        "mean_pnl_ci95": [
+          -118.82,
+          -65.55
+        ],
+        "win_rate": 0.0,
+        "profit_factor": 0.0
+      },
+      "1000-1130_morning": {
+        "n": 12,
+        "sum_pnl": 1297.01,
+        "mean_pnl": 108.08,
+        "mean_pnl_ci95": [
+          -33.52,
+          274.85
+        ],
+        "win_rate": 0.5,
+        "profit_factor": 4.195
+      },
+      "1130-1330_midday": {
+        "n": 40,
+        "sum_pnl": -825.0,
+        "mean_pnl": -20.62,
+        "mean_pnl_ci95": [
+          -86.4,
+          47.85
+        ],
+        "win_rate": 0.275,
+        "profit_factor": 0.776
+      },
+      "1330-1500_afternoon": {
+        "n": 29,
+        "sum_pnl": 608.0,
+        "mean_pnl": 20.97,
+        "mean_pnl_ci95": [
+          -28.24,
+          72.14
+        ],
+        "win_rate": 0.379,
+        "profit_factor": 1.475
+      }
+    },
+    "by_htf_agreement": {
+      "agrees": {
+        "n": 54,
+        "sum_pnl": 206.01,
+        "mean_pnl": 3.81,
+        "mean_pnl_ci95": [
+          -37.87,
+          47.84
+        ],
+        "win_rate": 0.352,
+        "profit_factor": 1.061
+      },
+      "disagrees": {
+        "n": 13,
+        "sum_pnl": -1515.0,
+        "mean_pnl": -116.54,
+        "mean_pnl_ci95": [
+          -235.47,
+          2.16
+        ],
+        "win_rate": 0.077,
+        "profit_factor": 0.186
+      },
+      "neutral": {
+        "n": 25,
+        "sum_pnl": 1406.0,
+        "mean_pnl": 56.24,
+        "mean_pnl_ci95": [
+          -22.6,
+          151.52
+        ],
+        "win_rate": 0.32,
+        "profit_factor": 2.285
+      }
+    },
+    "by_vix_regime": {
+      "vix15-17": {
+        "n": 51,
+        "sum_pnl": 2312.0,
+        "mean_pnl": 45.33,
+        "mean_pnl_ci95": [
+          -18.9,
+          109.04
+        ],
+        "win_rate": 0.392,
+        "profit_factor": 1.734
+      },
+      "vix<15": {
+        "n": 12,
+        "sum_pnl": -1277.0,
+        "mean_pnl": -106.42,
+        "mean_pnl_ci95": [
+          -155.75,
+          -59.5
+        ],
+        "win_rate": 0.083,
+        "profit_factor": 0.012
+      },
+      "vix>17": {
+        "n": 29,
+        "sum_pnl": -937.99,
+        "mean_pnl": -32.34,
+        "mean_pnl_ci95": [
+          -81.52,
+          15.55
+        ],
+        "win_rate": 0.241,
+        "profit_factor": 0.509
+      }
+    },
+    "by_arm": {
+      "bold-2": {
+        "n": 19,
+        "sum_pnl": -557.0,
+        "mean_pnl": -29.32,
+        "mean_pnl_ci95": [
+          -114.64,
+          60.32
+        ],
+        "win_rate": 0.368,
+        "profit_factor": 0.714
+      },
+      "risky-1": {
+        "n": 10,
+        "sum_pnl": 369.0,
+        "mean_pnl": 36.9,
+        "mean_pnl_ci95": [
+          -69.01,
+          155.1
+        ],
+        "win_rate": 0.3,
+        "profit_factor": 1.683
+      },
+      "risky-3": {
+        "n": 23,
+        "sum_pnl": 275.0,
+        "mean_pnl": 11.96,
+        "mean_pnl_ci95": [
+          -95.44,
+          128.13
+        ],
+        "win_rate": 0.304,
+        "profit_factor": 1.155
+      },
+      "safe-1": {
+        "n": 8,
+        "sum_pnl": 49.0,
+        "mean_pnl": 6.12,
+        "mean_pnl_ci95": [
+          -52.25,
+          97.5
+        ],
+        "win_rate": 0.125,
+        "profit_factor": 1.191
+      },
+      "safe-2": {
+        "n": 27,
+        "sum_pnl": 45.01,
+        "mean_pnl": 1.67,
+        "mean_pnl_ci95": [
+          -56.48,
+          63.49
+        ],
+        "win_rate": 0.333,
+        "profit_factor": 1.027
+      },
+      "safe-3": {
+        "n": 5,
+        "sum_pnl": -84.0,
+        "mean_pnl": -16.8,
+        "mean_pnl_ci95": [
+          -66.0,
+          29.4
+        ],
+        "win_rate": 0.2,
+        "profit_factor": 0.462
+      }
+    },
+    "top3_concentration": {
+      "top3_share_of_total_abs_pnl": 0.155,
+      "top3_trades": [
+        {
+          "date": "2026-08-06",
+          "arm": "risky-3",
+          "symbol": "SPY260806P00770000",
+          "pnl": 830.0,
+          "has_level": false,
+          "range_position": null
+        },
+        {
+          "date": "2026-08-05",
+          "arm": "risky-3",
+          "symbol": "SPY260805P00772000",
+          "pnl": -664.0,
+          "has_level": false,
+          "range_position": null
+        },
+        {
+          "date": "2026-07-02",
+          "arm": "risky-3",
+          "symbol": "SPY260702P00742000",
+          "pnl": 491.0,
+          "has_level": false,
+          "range_position": null
+        }
+      ]
+    },
+    "range_position_coverage_note": "conviction.components.range_position is populated ONLY from the tick where the producer's session_high/session_low bug was fixed (2026-08-14 per heartbeat_core.py comment at _score_conviction_shadow) -- see coverage_by_month below.",
+    "range_position_coverage_by_month": {
+      "2026-07": {
+        "n_with_range_position": 0,
+        "n_total": 48
+      },
+      "2026-08": {
+        "n_with_range_position": 17,
+        "n_total": 41
+      },
+      "2026-09": {
+        "n_with_range_position": 3,
+        "n_total": 3
+      }
+    }
+  },
+  "bull": {
+    "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+    "n_population_pain_ledger": 195,
+    "n_matched_to_core_decisions": 195,
+    "n_unmatched": 0,
+    "unmatched_trades": [],
+    "has_level_vs_no_level": {
+      "has_level": {
+        "n": 146,
+        "sum_pnl": 4113.0,
+        "mean_pnl": 28.17,
+        "mean_pnl_ci95": [
+          -9.22,
+          66.46
+        ],
+        "win_rate": 0.356,
+        "profit_factor": 1.402
+      },
+      "no_level": {
+        "n": 49,
+        "sum_pnl": -853.0,
+        "mean_pnl": -17.41,
+        "mean_pnl_ci95": [
+          -22.02,
+          -13.31
+        ],
+        "win_rate": 0.02,
+        "profit_factor": 0.009
+      }
+    },
+    "by_range_position_bucket": {
+      "extreme_high_0.85-1.00": {
+        "n": 18,
+        "sum_pnl": 9.0,
+        "mean_pnl": 0.5,
+        "mean_pnl_ci95": [
+          -50.56,
+          57.28
+        ],
+        "win_rate": 0.278,
+        "profit_factor": 1.01
+      },
+      "high_0.65-0.85": {
+        "n": 13,
+        "sum_pnl": -660.0,
+        "mean_pnl": -50.77,
+        "mean_pnl_ci95": [
+          -79.77,
+          -20.92
+        ],
+        "win_rate": 0.154,
+        "profit_factor": 0.125
+      },
+      "mid_0.35-0.65": {
+        "n": 31,
+        "sum_pnl": 3849.0,
+        "mean_pnl": 124.16,
+        "mean_pnl_ci95": [
+          45.48,
+          207.0
+        ],
+        "win_rate": 0.581,
+        "profit_factor": 4.712
+      },
+      "missing": {
+        "n": 133,
+        "sum_pnl": 62.0,
+        "mean_pnl": 0.47,
+        "mean_pnl_ci95": [
+          -33.6,
+          35.12
+        ],
+        "win_rate": 0.211,
+        "profit_factor": 1.007
+      }
+    },
+    "by_level_x_range_bucket": {
+      "level__extreme_high_0.85-1.00": {
+        "n": 18,
+        "sum_pnl": 9.0,
+        "mean_pnl": 0.5,
+        "mean_pnl_ci95": [
+          -50.56,
+          57.28
+        ],
+        "win_rate": 0.278,
+        "profit_factor": 1.01
+      },
+      "level__high_0.65-0.85": {
+        "n": 13,
+        "sum_pnl": -660.0,
+        "mean_pnl": -50.77,
+        "mean_pnl_ci95": [
+          -79.77,
+          -20.92
+        ],
+        "win_rate": 0.154,
+        "profit_factor": 0.125
+      },
+      "level__mid_0.35-0.65": {
+        "n": 31,
+        "sum_pnl": 3849.0,
+        "mean_pnl": 124.16,
+        "mean_pnl_ci95": [
+          45.48,
+          207.0
+        ],
+        "win_rate": 0.581,
+        "profit_factor": 4.712
+      },
+      "level__missing": {
+        "n": 84,
+        "sum_pnl": 915.0,
+        "mean_pnl": 10.89,
+        "mean_pnl_ci95": [
+          -43.29,
+          65.68
+        ],
+        "win_rate": 0.321,
+        "profit_factor": 1.122
+      },
+      "no_level__missing": {
+        "n": 49,
+        "sum_pnl": -853.0,
+        "mean_pnl": -17.41,
+        "mean_pnl_ci95": [
+          -22.02,
+          -13.31
+        ],
+        "win_rate": 0.02,
+        "profit_factor": 0.009
+      }
+    },
+    "by_time_of_day": {
+      "0930-1000_open": {
+        "n": 45,
+        "sum_pnl": 1724.0,
+        "mean_pnl": 38.31,
+        "mean_pnl_ci95": [
+          -31.69,
+          108.94
+        ],
+        "win_rate": 0.378,
+        "profit_factor": 1.487
+      },
+      "1000-1130_morning": {
+        "n": 46,
+        "sum_pnl": -293.0,
+        "mean_pnl": -6.37,
+        "mean_pnl_ci95": [
+          -54.35,
+          50.16
+        ],
+        "win_rate": 0.087,
+        "profit_factor": 0.885
+      },
+      "1130-1330_midday": {
+        "n": 70,
+        "sum_pnl": 360.0,
+        "mean_pnl": 5.14,
+        "mean_pnl_ci95": [
+          -41.2,
+          55.19
+        ],
+        "win_rate": 0.3,
+        "profit_factor": 1.079
+      },
+      "1330-1500_afternoon": {
+        "n": 34,
+        "sum_pnl": 1469.0,
+        "mean_pnl": 43.21,
+        "mean_pnl_ci95": [
+          4.35,
+          89.42
+        ],
+        "win_rate": 0.324,
+        "profit_factor": 4.173
+      }
+    },
+    "by_htf_agreement": {
+      "agrees": {
+        "n": 129,
+        "sum_pnl": 4227.0,
+        "mean_pnl": 32.77,
+        "mean_pnl_ci95": [
+          -5.53,
+          72.13
+        ],
+        "win_rate": 0.302,
+        "profit_factor": 1.569
+      },
+      "disagrees": {
+        "n": 25,
+        "sum_pnl": 161.0,
+        "mean_pnl": 6.44,
+        "mean_pnl_ci95": [
+          -43.16,
+          71.61
+        ],
+        "win_rate": 0.12,
+        "profit_factor": 1.162
+      },
+      "neutral": {
+        "n": 41,
+        "sum_pnl": -1128.0,
+        "mean_pnl": -27.51,
+        "mean_pnl_ci95": [
+          -64.15,
+          13.76
+        ],
+        "win_rate": 0.268,
+        "profit_factor": 0.576
+      }
+    },
+    "by_vix_regime": {
+      "vix15-17": {
+        "n": 137,
+        "sum_pnl": 1215.0,
+        "mean_pnl": 8.87,
+        "mean_pnl_ci95": [
+          -16.1,
+          36.92
+        ],
+        "win_rate": 0.219,
+        "profit_factor": 1.208
+      },
+      "vix<15": {
+        "n": 51,
+        "sum_pnl": 1018.0,
+        "mean_pnl": 19.96,
+        "mean_pnl_ci95": [
+          -56.49,
+          93.49
+        ],
+        "win_rate": 0.353,
+        "profit_factor": 1.207
+      },
+      "vix>17": {
+        "n": 7,
+        "sum_pnl": 1027.0,
+        "mean_pnl": 146.71,
+        "mean_pnl_ci95": [
+          -38.87,
+          326.16
+        ],
+        "win_rate": 0.714,
+        "profit_factor": 4.131
+      }
+    },
+    "by_arm": {
+      "bold-2": {
+        "n": 22,
+        "sum_pnl": 632.0,
+        "mean_pnl": 28.73,
+        "mean_pnl_ci95": [
+          -76.19,
+          136.5
+        ],
+        "win_rate": 0.364,
+        "profit_factor": 1.374
+      },
+      "risky-1": {
+        "n": 44,
+        "sum_pnl": 1204.0,
+        "mean_pnl": 27.36,
+        "mean_pnl_ci95": [
+          -39.89,
+          94.39
+        ],
+        "win_rate": 0.273,
+        "profit_factor": 1.437
+      },
+      "risky-3": {
+        "n": 42,
+        "sum_pnl": 214.0,
+        "mean_pnl": 5.1,
+        "mean_pnl_ci95": [
+          -46.07,
+          66.22
+        ],
+        "win_rate": 0.19,
+        "profit_factor": 1.09
+      },
+      "safe-1": {
+        "n": 12,
+        "sum_pnl": -196.0,
+        "mean_pnl": -16.33,
+        "mean_pnl_ci95": [
+          -25.25,
+          -9.0
+        ],
+        "win_rate": 0.083,
+        "profit_factor": 0.039
+      },
+      "safe-2": {
+        "n": 24,
+        "sum_pnl": 614.0,
+        "mean_pnl": 25.58,
+        "mean_pnl_ci95": [
+          -50.92,
+          108.96
+        ],
+        "win_rate": 0.292,
+        "profit_factor": 1.408
+      },
+      "safe-3": {
+        "n": 51,
+        "sum_pnl": 792.0,
+        "mean_pnl": 15.53,
+        "mean_pnl_ci95": [
+          -33.2,
+          67.17
+        ],
+        "win_rate": 0.333,
+        "profit_factor": 1.311
+      }
+    },
+    "top3_concentration": {
+      "top3_share_of_total_abs_pnl": 0.082,
+      "top3_trades": [
+        {
+          "date": "2026-08-04",
+          "arm": "risky-3",
+          "symbol": "SPY260804C00769000",
+          "pnl": 788.0,
+          "has_level": true,
+          "range_position": null
+        },
+        {
+          "date": "2026-08-04",
+          "arm": "risky-1",
+          "symbol": "SPY260804C00769000",
+          "pnl": 651.0,
+          "has_level": true,
+          "range_position": null
+        },
+        {
+          "date": "2026-08-28",
+          "arm": "risky-1",
+          "symbol": "SPY260828C00771000",
+          "pnl": 650.0,
+          "has_level": true,
+          "range_position": 0.482
+        }
+      ]
+    },
+    "range_position_coverage_note": "conviction.components.range_position is populated ONLY from the tick where the producer's session_high/session_low bug was fixed (2026-08-14 per heartbeat_core.py comment at _score_conviction_shadow) -- see coverage_by_month below.",
+    "range_position_coverage_by_month": {
+      "2026-07": {
+        "n_with_range_position": 0,
+        "n_total": 61
+      },
+      "2026-08": {
+        "n_with_range_position": 50,
+        "n_total": 122
+      },
+      "2026-09": {
+        "n_with_range_position": 12,
+        "n_total": 12
+      }
+    }
+  },
+  "bear_rule_costing": {
+    "A_level_only": {
+      "allowed": {
+        "n": 16,
+        "sum_pnl": -802.99,
+        "mean_pnl": -50.19,
+        "mean_pnl_ci95": [
+          -113.76,
+          4.69
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.277
+      },
+      "blocked": {
+        "n": 76,
+        "sum_pnl": 900.0,
+        "mean_pnl": 11.84,
+        "mean_pnl_ci95": [
+          -32.14,
+          59.11
+        ],
+        "win_rate": 0.316,
+        "profit_factor": 1.172
+      },
+      "baseline_all": {
+        "n": 92,
+        "sum_pnl": 97.01,
+        "mean_pnl": 1.05,
+        "mean_pnl_ci95": [
+          -39.82,
+          41.24
+        ],
+        "win_rate": 0.304,
+        "profit_factor": 1.015
+      },
+      "delta_vs_baseline_mean_pnl": -51.24
+    },
+    "B_level_and_range>=0.25": {
+      "allowed": {
+        "n": 16,
+        "sum_pnl": -802.99,
+        "mean_pnl": -50.19,
+        "mean_pnl_ci95": [
+          -113.76,
+          4.69
+        ],
+        "win_rate": 0.25,
+        "profit_factor": 0.277
+      },
+      "blocked": {
+        "n": 76,
+        "sum_pnl": 900.0,
+        "mean_pnl": 11.84,
+        "mean_pnl_ci95": [
+          -32.14,
+          59.11
+        ],
+        "win_rate": 0.316,
+        "profit_factor": 1.172
+      },
+      "baseline_all": {
+        "n": 92,
+        "sum_pnl": 97.01,
+        "mean_pnl": 1.05,
+        "mean_pnl_ci95": [
+          -39.82,
+          41.24
+        ],
+        "win_rate": 0.304,
+        "profit_factor": 1.015
+      },
+      "delta_vs_baseline_mean_pnl": -51.24
+    }
+  },
+  "named_day_checks": {
+    "2026-08-06": {
+      "bear_trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260806P00770000",
+          "realized_pnl": 375.0,
+          "outcome": "winner",
+          "has_level": false,
+          "range_position": null,
+          "tod": "10:31",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "risky-1",
+          "symbol": "SPY260806P00770000",
+          "realized_pnl": 296.0,
+          "outcome": "winner",
+          "has_level": false,
+          "range_position": null,
+          "tod": "10:32",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260806P00770000",
+          "realized_pnl": 830.0,
+          "outcome": "winner",
+          "has_level": false,
+          "range_position": null,
+          "tod": "10:32",
+          "would_block_under_rule_B": true
+        }
+      ],
+      "bear_pnl_sum": 1501.0,
+      "bull_pnl_sum": 0,
+      "rule_B_would_block_any_bear_winner": true
+    },
+    "2026-08-13": {
+      "bear_trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "realized_pnl": -69.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": null,
+          "tod": "12:41",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "realized_pnl": -200.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": null,
+          "tod": "12:41",
+          "would_block_under_rule_B": true
+        }
+      ],
+      "bear_pnl_sum": -269.0,
+      "bull_pnl_sum": 2017.0,
+      "rule_B_would_block_any_bear_winner": false
+    },
+    "2026-08-27": {
+      "bear_trades": [],
+      "bear_pnl_sum": 0,
+      "bull_pnl_sum": 1897.0,
+      "rule_B_would_block_any_bear_winner": false
+    },
+    "2026-08-28": {
+      "bear_trades": [
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260828P00768000",
+          "realized_pnl": -215.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": 0.087,
+          "tod": "13:01",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260828P00770000",
+          "realized_pnl": -270.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": 0.087,
+          "tod": "13:01",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828P00768000",
+          "realized_pnl": -120.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": 0.087,
+          "tod": "13:02",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "risky-3",
+          "symbol": "SPY260828P00767000",
+          "realized_pnl": -100.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": 0.078,
+          "tod": "13:27",
+          "would_block_under_rule_B": true
+        }
+      ],
+      "bear_pnl_sum": -705.0,
+      "bull_pnl_sum": 2009.0,
+      "rule_B_would_block_any_bear_winner": false
+    },
+    "2026-08-07": {
+      "bear_trades": [],
+      "bear_pnl_sum": 0,
+      "bull_pnl_sum": -2648.0,
+      "rule_B_would_block_any_bear_winner": false
+    },
+    "2026-08-14": {
+      "bear_trades": [
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260814P00776000",
+          "realized_pnl": -18.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": null,
+          "tod": "12:14",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "safe-2",
+          "symbol": "SPY260814P00776000",
+          "realized_pnl": -90.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": null,
+          "tod": "12:56",
+          "would_block_under_rule_B": true
+        },
+        {
+          "arm": "bold-2",
+          "symbol": "SPY260814P00776000",
+          "realized_pnl": -160.0,
+          "outcome": "loser",
+          "has_level": false,
+          "range_position": null,
+          "tod": "12:58",
+          "would_block_under_rule_B": true
+        }
+      ],
+      "bear_pnl_sum": -268.0,
+      "bull_pnl_sum": -1569.0,
+      "rule_B_would_block_any_bear_winner": false
+    }
+  }
+}

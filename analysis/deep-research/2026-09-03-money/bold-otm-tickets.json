@@ -1,0 +1,3222 @@
+{
+  "hypothesis": "H3_BOLD_OTM_TICKETS",
+  "n_total_scored_positions_all_arms": 394,
+  "n_matched_to_market_snapshot": 394,
+  "n_unmatched": 0,
+  "unmatched_detail": [],
+  "mae_mfe_meta": {
+    "generated_at_et": "2026-09-02T16:26:57.188079",
+    "builder": "setup/scripts/pain_ledger.py",
+    "prereg": "analysis/pain-ledger/PREREG-2026-08-01.md",
+    "descriptive_only": "\u26d4 DESCRIPTIVE ONLY \u2014 this ledger VALIDATES NO STOP CHANGE. MAE knowledge is hindsight by definition (C6): a live stop cannot condition on a trade's eventual maximum heat. Any stop-placement change is its own future pre-registered A/B that may cite this ledger only as its evidence base.",
+    "provenance": {
+      "pnl": "broker fills (fills-ledger.jsonl, attribution==engine)",
+      "bars": "real Alpaca OPRA 1-min via exit_shape_parity_study.fetch_option_bars",
+      "synthetic_rows": 0,
+      "synthetic_note": "no synthetic pricing path exists in this machinery; positions without OPRA bars are excluded AND counted"
+    },
+    "conventions": {
+      "window": "exit-eligible holding window (entry+1 .. final-exit bar incl.)",
+      "entry_bar": "excluded per ENTRY-BAR-CONVENTION-RULING-2026-07-25",
+      "stop_inside_mae": "level traded through on bar lows; NOT 'live would have fired'",
+      "dollars": "at full entry qty; see *_before_first_exit validity flags",
+      "recent_split": "most recent 25 distinct ET dates vs older"
+    },
+    "population": {
+      "n_positions": 397,
+      "n_scored": 394,
+      "n_no_bars": 0,
+      "n_no_window": 3,
+      "n_bad_entry": 0,
+      "excluded_no_bars": [],
+      "excluded_no_window": [
+        "2026-07-06 safe-2 SPY260706P00750000",
+        "2026-08-10 risky-3 SPY260810P00771000",
+        "2026-08-12 safe-2 SPY260812P00772000"
+      ],
+      "excluded_bad_entry": [],
+      "n_winners": 100,
+      "n_losers": 279,
+      "n_scratch": 15,
+      "dates": {
+        "n_distinct": 44,
+        "first": "2026-06-26",
+        "last": "2026-09-02",
+        "recent25_first": "2026-07-29"
+      },
+      "arms": [
+        "bold-2",
+        "risky-1",
+        "risky-3",
+        "safe-1",
+        "safe-2",
+        "safe-3"
+      ]
+    }
+  },
+  "premium_bucket_all_arms": [
+    {
+      "label": "<0.40",
+      "n": 106,
+      "total_pnl": 45.0,
+      "mean_pnl_per_trade": 0.42,
+      "mean_pnl_ci95": [
+        -13.83,
+        15.01
+      ],
+      "win_rate": 0.1856,
+      "profit_factor": 1.018,
+      "n_losers": 79,
+      "catastrophe_cap_hits": 17,
+      "catastrophe_cap_hit_rate_of_losers": 0.2152,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-13",
+        "2026-07-15",
+        "2026-07-17",
+        "2026-07-21",
+        "2026-07-28",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-07",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "0.40-0.80",
+      "n": 112,
+      "total_pnl": 545.0,
+      "mean_pnl_per_trade": 4.87,
+      "mean_pnl_ci95": [
+        -17.85,
+        30.79
+      ],
+      "win_rate": 0.3364,
+      "profit_factor": 1.118,
+      "n_losers": 71,
+      "catastrophe_cap_hits": 8,
+      "catastrophe_cap_hit_rate_of_losers": 0.1127,
+      "dates": [
+        "2026-06-30",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-09",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-27",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-25",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "0.80-1.50",
+      "n": 143,
+      "total_pnl": -51.0,
+      "mean_pnl_per_trade": -0.36,
+      "mean_pnl_ci95": [
+        -37.89,
+        38.48
+      ],
+      "win_rate": 0.2465,
+      "profit_factor": 0.996,
+      "n_losers": 107,
+      "catastrophe_cap_hits": 14,
+      "catastrophe_cap_hit_rate_of_losers": 0.1308,
+      "dates": [
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-08",
+        "2026-07-15",
+        "2026-07-16",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-08-04",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": ">1.50",
+      "n": 33,
+      "total_pnl": -3.99,
+      "mean_pnl_per_trade": -0.12,
+      "mean_pnl_ci95": [
+        -87.55,
+        89.76
+      ],
+      "win_rate": 0.3333,
+      "profit_factor": 0.999,
+      "n_losers": 22,
+      "catastrophe_cap_hits": 3,
+      "catastrophe_cap_hit_rate_of_losers": 0.1364,
+      "dates": [
+        "2026-07-02",
+        "2026-07-29",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-07",
+        "2026-08-12",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28"
+      ]
+    }
+  ],
+  "premium_bucket_bold2_only": [
+    {
+      "label": "<0.40",
+      "n": 10,
+      "total_pnl": 684.0,
+      "mean_pnl_per_trade": 68.4,
+      "mean_pnl_ci95": [
+        13.9,
+        118.2
+      ],
+      "win_rate": 0.7,
+      "profit_factor": 6.067,
+      "n_losers": 3,
+      "catastrophe_cap_hits": 1,
+      "catastrophe_cap_hit_rate_of_losers": 0.3333,
+      "dates": [
+        "2026-06-26",
+        "2026-07-17",
+        "2026-08-18",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "0.40-0.80",
+      "n": 16,
+      "total_pnl": 506.0,
+      "mean_pnl_per_trade": 31.62,
+      "mean_pnl_ci95": [
+        -57.06,
+        141.12
+      ],
+      "win_rate": 0.3333,
+      "profit_factor": 1.484,
+      "n_losers": 10,
+      "catastrophe_cap_hits": 4,
+      "catastrophe_cap_hit_rate_of_losers": 0.4,
+      "dates": [
+        "2026-07-02",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-19",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01"
+      ]
+    },
+    {
+      "label": "0.80-1.50",
+      "n": 16,
+      "total_pnl": -1130.0,
+      "mean_pnl_per_trade": -70.62,
+      "mean_pnl_ci95": [
+        -199.25,
+        71.25
+      ],
+      "win_rate": 0.1875,
+      "profit_factor": 0.543,
+      "n_losers": 13,
+      "catastrophe_cap_hits": 3,
+      "catastrophe_cap_hit_rate_of_losers": 0.2308,
+      "dates": [
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-08-04",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-19",
+        "2026-08-28"
+      ]
+    },
+    {
+      "label": ">1.50",
+      "n": 0,
+      "total_pnl": 0,
+      "mean_pnl_per_trade": null,
+      "mean_pnl_ci95": null,
+      "win_rate": null,
+      "profit_factor": null,
+      "n_losers": 0,
+      "catastrophe_cap_hits": 0,
+      "catastrophe_cap_hit_rate_of_losers": null,
+      "dates": []
+    }
+  ],
+  "premium_x_vix_all_arms": {
+    "<15": [
+      {
+        "label": "<0.40 / VIX <15",
+        "n": 11,
+        "total_pnl": -213.0,
+        "mean_pnl_per_trade": -19.36,
+        "mean_pnl_ci95": [
+          -93.45,
+          80.18
+        ],
+        "win_rate": 0.1818,
+        "profit_factor": 0.711,
+        "n_losers": 9,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.1111,
+        "dates": [
+          "2026-08-07",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      {
+        "label": "0.40-0.80 / VIX <15",
+        "n": 31,
+        "total_pnl": 279.0,
+        "mean_pnl_per_trade": 9.0,
+        "mean_pnl_ci95": [
+          -34.45,
+          59.29
+        ],
+        "win_rate": 0.4333,
+        "profit_factor": 1.233,
+        "n_losers": 17,
+        "catastrophe_cap_hits": 3,
+        "catastrophe_cap_hit_rate_of_losers": 0.1765,
+        "dates": [
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      {
+        "label": "0.80-1.50 / VIX <15",
+        "n": 35,
+        "total_pnl": -2056.0,
+        "mean_pnl_per_trade": -58.74,
+        "mean_pnl_ci95": [
+          -134.69,
+          25.37
+        ],
+        "win_rate": 0.2353,
+        "profit_factor": 0.53,
+        "n_losers": 26,
+        "catastrophe_cap_hits": 6,
+        "catastrophe_cap_hit_rate_of_losers": 0.2308,
+        "dates": [
+          "2026-08-07",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      {
+        "label": ">1.50 / VIX <15",
+        "n": 7,
+        "total_pnl": 1389.0,
+        "mean_pnl_per_trade": 198.43,
+        "mean_pnl_ci95": [
+          -50.57,
+          451.29
+        ],
+        "win_rate": 0.5714,
+        "profit_factor": 4.421,
+        "n_losers": 3,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.3333,
+        "dates": [
+          "2026-08-12",
+          "2026-08-28"
+        ]
+      }
+    ],
+    "15-17": [
+      {
+        "label": "<0.40 / VIX 15-17",
+        "n": 82,
+        "total_pnl": -183.0,
+        "mean_pnl_per_trade": -2.23,
+        "mean_pnl_ci95": [
+          -14.95,
+          10.71
+        ],
+        "win_rate": 0.1579,
+        "profit_factor": 0.884,
+        "n_losers": 64,
+        "catastrophe_cap_hits": 16,
+        "catastrophe_cap_hit_rate_of_losers": 0.25,
+        "dates": [
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-02",
+          "2026-07-06",
+          "2026-07-07",
+          "2026-07-08",
+          "2026-07-13",
+          "2026-07-15",
+          "2026-08-03",
+          "2026-08-07",
+          "2026-08-11",
+          "2026-08-18",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-09-02"
+        ]
+      },
+      {
+        "label": "0.40-0.80 / VIX 15-17",
+        "n": 66,
+        "total_pnl": 598.0,
+        "mean_pnl_per_trade": 9.06,
+        "mean_pnl_ci95": [
+          -22.36,
+          42.67
+        ],
+        "win_rate": 0.3281,
+        "profit_factor": 1.21,
+        "n_losers": 43,
+        "catastrophe_cap_hits": 4,
+        "catastrophe_cap_hit_rate_of_losers": 0.093,
+        "dates": [
+          "2026-07-02",
+          "2026-07-06",
+          "2026-07-07",
+          "2026-07-09",
+          "2026-07-31",
+          "2026-08-03",
+          "2026-08-07",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-17",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-25",
+          "2026-08-27",
+          "2026-09-01",
+          "2026-09-02"
+        ]
+      },
+      {
+        "label": "0.80-1.50 / VIX 15-17",
+        "n": 82,
+        "total_pnl": 2845.99,
+        "mean_pnl_per_trade": 34.71,
+        "mean_pnl_ci95": [
+          -15.94,
+          89.12
+        ],
+        "win_rate": 0.2561,
+        "profit_factor": 1.57,
+        "n_losers": 61,
+        "catastrophe_cap_hits": 5,
+        "catastrophe_cap_hit_rate_of_losers": 0.082,
+        "dates": [
+          "2026-07-02",
+          "2026-07-06",
+          "2026-07-15",
+          "2026-07-16",
+          "2026-07-22",
+          "2026-08-04",
+          "2026-08-06",
+          "2026-08-07",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-17",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-24",
+          "2026-09-01",
+          "2026-09-02"
+        ]
+      },
+      {
+        "label": ">1.50 / VIX 15-17",
+        "n": 17,
+        "total_pnl": -621.99,
+        "mean_pnl_per_trade": -36.59,
+        "mean_pnl_ci95": [
+          -154.7,
+          83.41
+        ],
+        "win_rate": 0.2941,
+        "profit_factor": 0.674,
+        "n_losers": 12,
+        "catastrophe_cap_hits": 2,
+        "catastrophe_cap_hit_rate_of_losers": 0.1667,
+        "dates": [
+          "2026-07-02",
+          "2026-08-04",
+          "2026-08-05",
+          "2026-08-07",
+          "2026-08-26",
+          "2026-08-27"
+        ]
+      }
+    ],
+    ">17": [
+      {
+        "label": "<0.40 / VIX >17",
+        "n": 13,
+        "total_pnl": 441.0,
+        "mean_pnl_per_trade": 33.92,
+        "mean_pnl_ci95": [
+          -9.08,
+          86.15
+        ],
+        "win_rate": 0.4,
+        "profit_factor": 3.397,
+        "n_losers": 6,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-06-26",
+          "2026-06-29",
+          "2026-07-17",
+          "2026-07-21",
+          "2026-07-28",
+          "2026-07-31"
+        ]
+      },
+      {
+        "label": "0.40-0.80 / VIX >17",
+        "n": 15,
+        "total_pnl": -332.0,
+        "mean_pnl_per_trade": -22.13,
+        "mean_pnl_ci95": [
+          -53.8,
+          19.47
+        ],
+        "win_rate": 0.1538,
+        "profit_factor": 0.435,
+        "n_losers": 11,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.0909,
+        "dates": [
+          "2026-06-30",
+          "2026-07-17",
+          "2026-07-20",
+          "2026-07-27"
+        ]
+      },
+      {
+        "label": "0.80-1.50 / VIX >17",
+        "n": 26,
+        "total_pnl": -840.99,
+        "mean_pnl_per_trade": -32.35,
+        "mean_pnl_ci95": [
+          -94.35,
+          42.96
+        ],
+        "win_rate": 0.2308,
+        "profit_factor": 0.606,
+        "n_losers": 20,
+        "catastrophe_cap_hits": 3,
+        "catastrophe_cap_hit_rate_of_losers": 0.15,
+        "dates": [
+          "2026-07-08",
+          "2026-07-17",
+          "2026-07-20",
+          "2026-07-21",
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-27",
+          "2026-07-28",
+          "2026-07-29",
+          "2026-07-30"
+        ]
+      },
+      {
+        "label": ">1.50 / VIX >17",
+        "n": 9,
+        "total_pnl": -771.0,
+        "mean_pnl_per_trade": -85.67,
+        "mean_pnl_ci95": [
+          -158.22,
+          -9.44
+        ],
+        "win_rate": 0.2222,
+        "profit_factor": 0.195,
+        "n_losers": 7,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-07-29",
+          "2026-08-05"
+        ]
+      }
+    ]
+  },
+  "premium_x_vix_bold2": {
+    "<15": [
+      {
+        "label": "<0.40 / VIX <15",
+        "n": 1,
+        "total_pnl": 159.0,
+        "mean_pnl_per_trade": 159.0,
+        "mean_pnl_ci95": [
+          159.0,
+          159.0
+        ],
+        "win_rate": 1.0,
+        "profit_factor": Infinity,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": [
+          "2026-08-27"
+        ]
+      },
+      {
+        "label": "0.40-0.80 / VIX <15",
+        "n": 6,
+        "total_pnl": 24.0,
+        "mean_pnl_per_trade": 4.0,
+        "mean_pnl_ci95": [
+          -138.33,
+          217.0
+        ],
+        "win_rate": 0.1667,
+        "profit_factor": 1.049,
+        "n_losers": 5,
+        "catastrophe_cap_hits": 2,
+        "catastrophe_cap_hit_rate_of_losers": 0.4,
+        "dates": [
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-28"
+        ]
+      },
+      {
+        "label": "0.80-1.50 / VIX <15",
+        "n": 6,
+        "total_pnl": -329.0,
+        "mean_pnl_per_trade": -54.83,
+        "mean_pnl_ci95": [
+          -269.17,
+          215.33
+        ],
+        "win_rate": 0.1667,
+        "profit_factor": 0.619,
+        "n_losers": 5,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.2,
+        "dates": [
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-28"
+        ]
+      },
+      {
+        "label": ">1.50 / VIX <15",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      }
+    ],
+    "15-17": [
+      {
+        "label": "<0.40 / VIX 15-17",
+        "n": 7,
+        "total_pnl": 349.0,
+        "mean_pnl_per_trade": 49.86,
+        "mean_pnl_ci95": [
+          -8.0,
+          104.0
+        ],
+        "win_rate": 0.7143,
+        "profit_factor": 3.908,
+        "n_losers": 2,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.5,
+        "dates": [
+          "2026-08-18",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-09-02"
+        ]
+      },
+      {
+        "label": "0.40-0.80 / VIX 15-17",
+        "n": 10,
+        "total_pnl": 482.0,
+        "mean_pnl_per_trade": 48.2,
+        "mean_pnl_ci95": [
+          -68.0,
+          166.7
+        ],
+        "win_rate": 0.4444,
+        "profit_factor": 1.861,
+        "n_losers": 5,
+        "catastrophe_cap_hits": 2,
+        "catastrophe_cap_hit_rate_of_losers": 0.4,
+        "dates": [
+          "2026-07-02",
+          "2026-08-11",
+          "2026-08-17",
+          "2026-08-19",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-09-01"
+        ]
+      },
+      {
+        "label": "0.80-1.50 / VIX 15-17",
+        "n": 7,
+        "total_pnl": 154.0,
+        "mean_pnl_per_trade": 22.0,
+        "mean_pnl_ci95": [
+          -147.14,
+          246.71
+        ],
+        "win_rate": 0.2857,
+        "profit_factor": 1.235,
+        "n_losers": 5,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-19"
+        ]
+      },
+      {
+        "label": ">1.50 / VIX 15-17",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      }
+    ],
+    ">17": [
+      {
+        "label": "<0.40 / VIX >17",
+        "n": 2,
+        "total_pnl": 176.0,
+        "mean_pnl_per_trade": 88.0,
+        "mean_pnl_ci95": [
+          -15.0,
+          191.0
+        ],
+        "win_rate": 0.5,
+        "profit_factor": 12.733,
+        "n_losers": 1,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-06-26",
+          "2026-07-17"
+        ]
+      },
+      {
+        "label": "0.40-0.80 / VIX >17",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      },
+      {
+        "label": "0.80-1.50 / VIX >17",
+        "n": 3,
+        "total_pnl": -955.0,
+        "mean_pnl_per_trade": -318.33,
+        "mean_pnl_ci95": [
+          -355.0,
+          -295.0
+        ],
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "n_losers": 3,
+        "catastrophe_cap_hits": 2,
+        "catastrophe_cap_hit_rate_of_losers": 0.6667,
+        "dates": [
+          "2026-07-23",
+          "2026-07-27",
+          "2026-07-28"
+        ]
+      },
+      {
+        "label": ">1.50 / VIX >17",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      }
+    ]
+  },
+  "distance_bucket_all_arms": [
+    {
+      "label": "ATM/ITM (<=0)",
+      "n": 119,
+      "total_pnl": 684.01,
+      "mean_pnl_per_trade": 5.75,
+      "mean_pnl_ci95": [
+        -36.86,
+        51.29
+      ],
+      "win_rate": 0.322,
+      "profit_factor": 1.072,
+      "n_losers": 80,
+      "catastrophe_cap_hits": 14,
+      "catastrophe_cap_hit_rate_of_losers": 0.175,
+      "dates": [
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-15",
+        "2026-07-16",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-28",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "OTM $0-1.5",
+      "n": 104,
+      "total_pnl": -11.0,
+      "mean_pnl_per_trade": -0.11,
+      "mean_pnl_ci95": [
+        -34.19,
+        36.12
+      ],
+      "win_rate": 0.27,
+      "profit_factor": 0.998,
+      "n_losers": 73,
+      "catastrophe_cap_hits": 6,
+      "catastrophe_cap_hit_rate_of_losers": 0.0822,
+      "dates": [
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-16",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "OTM $1.5-3.5 (OTM-2 zone)",
+      "n": 171,
+      "total_pnl": -138.0,
+      "mean_pnl_per_trade": -0.81,
+      "mean_pnl_ci95": [
+        -18.19,
+        17.01
+      ],
+      "win_rate": 0.2174,
+      "profit_factor": 0.979,
+      "n_losers": 126,
+      "catastrophe_cap_hits": 22,
+      "catastrophe_cap_hit_rate_of_losers": 0.1746,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-09",
+        "2026-07-13",
+        "2026-07-15",
+        "2026-07-17",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "OTM $3.5+",
+      "n": 0,
+      "total_pnl": 0,
+      "mean_pnl_per_trade": null,
+      "mean_pnl_ci95": null,
+      "win_rate": null,
+      "profit_factor": null,
+      "n_losers": 0,
+      "catastrophe_cap_hits": 0,
+      "catastrophe_cap_hit_rate_of_losers": null,
+      "dates": []
+    }
+  ],
+  "distance_bucket_bold2_only": [
+    {
+      "label": "ATM/ITM (<=0)",
+      "n": 12,
+      "total_pnl": -391.0,
+      "mean_pnl_per_trade": -32.58,
+      "mean_pnl_ci95": [
+        -175.0,
+        141.0
+      ],
+      "win_rate": 0.25,
+      "profit_factor": 0.749,
+      "n_losers": 9,
+      "catastrophe_cap_hits": 1,
+      "catastrophe_cap_hit_rate_of_losers": 0.1111,
+      "dates": [
+        "2026-07-28",
+        "2026-08-04",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-19"
+      ]
+    },
+    {
+      "label": "OTM $0-1.5",
+      "n": 12,
+      "total_pnl": -112.0,
+      "mean_pnl_per_trade": -9.33,
+      "mean_pnl_ci95": [
+        -124.25,
+        122.83
+      ],
+      "win_rate": 0.2727,
+      "profit_factor": 0.891,
+      "n_losers": 8,
+      "catastrophe_cap_hits": 2,
+      "catastrophe_cap_hit_rate_of_losers": 0.25,
+      "dates": [
+        "2026-07-27",
+        "2026-08-04",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-18",
+        "2026-08-19"
+      ]
+    },
+    {
+      "label": "OTM $1.5-3.5 (OTM-2 zone)",
+      "n": 18,
+      "total_pnl": 563.0,
+      "mean_pnl_per_trade": 31.28,
+      "mean_pnl_ci95": [
+        -56.17,
+        126.5
+      ],
+      "win_rate": 0.5,
+      "profit_factor": 1.526,
+      "n_losers": 9,
+      "catastrophe_cap_hits": 5,
+      "catastrophe_cap_hit_rate_of_losers": 0.5556,
+      "dates": [
+        "2026-06-26",
+        "2026-07-02",
+        "2026-07-17",
+        "2026-07-23",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "OTM $3.5+",
+      "n": 0,
+      "total_pnl": 0,
+      "mean_pnl_per_trade": null,
+      "mean_pnl_ci95": null,
+      "win_rate": null,
+      "profit_factor": null,
+      "n_losers": 0,
+      "catastrophe_cap_hits": 0,
+      "catastrophe_cap_hit_rate_of_losers": null,
+      "dates": []
+    }
+  ],
+  "distance_x_vix_bold2": {
+    "<15": [
+      {
+        "label": "ATM/ITM (<=0) / VIX <15",
+        "n": 5,
+        "total_pnl": -745.0,
+        "mean_pnl_per_trade": -149.0,
+        "mean_pnl_ci95": [
+          -311.0,
+          -35.0
+        ],
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "n_losers": 5,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.2,
+        "dates": [
+          "2026-08-12",
+          "2026-08-14"
+        ]
+      },
+      {
+        "label": "OTM $0-1.5 / VIX <15",
+        "n": 5,
+        "total_pnl": 146.0,
+        "mean_pnl_per_trade": 29.2,
+        "mean_pnl_ci95": [
+          -140.6,
+          284.8
+        ],
+        "win_rate": 0.2,
+        "profit_factor": 1.376,
+        "n_losers": 4,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.25,
+        "dates": [
+          "2026-08-12",
+          "2026-08-13"
+        ]
+      },
+      {
+        "label": "OTM $1.5-3.5 (OTM-2 zone) / VIX <15",
+        "n": 3,
+        "total_pnl": 453.0,
+        "mean_pnl_per_trade": 151.0,
+        "mean_pnl_ci95": [
+          -215.0,
+          509.0
+        ],
+        "win_rate": 0.6667,
+        "profit_factor": 3.107,
+        "n_losers": 1,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 1.0,
+        "dates": [
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      {
+        "label": "OTM $3.5+ / VIX <15",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      }
+    ],
+    "15-17": [
+      {
+        "label": "ATM/ITM (<=0) / VIX 15-17",
+        "n": 6,
+        "total_pnl": 649.0,
+        "mean_pnl_per_trade": 108.17,
+        "mean_pnl_ci95": [
+          -123.33,
+          367.67
+        ],
+        "win_rate": 0.5,
+        "profit_factor": 2.248,
+        "n_losers": 3,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-17",
+          "2026-08-19"
+        ]
+      },
+      {
+        "label": "OTM $0-1.5 / VIX 15-17",
+        "n": 6,
+        "total_pnl": 97.0,
+        "mean_pnl_per_trade": 16.17,
+        "mean_pnl_ci95": [
+          -83.33,
+          139.0
+        ],
+        "win_rate": 0.4,
+        "profit_factor": 1.346,
+        "n_losers": 3,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-08-04",
+          "2026-08-11",
+          "2026-08-18",
+          "2026-08-19"
+        ]
+      },
+      {
+        "label": "OTM $1.5-3.5 (OTM-2 zone) / VIX 15-17",
+        "n": 12,
+        "total_pnl": 239.0,
+        "mean_pnl_per_trade": 19.92,
+        "mean_pnl_ci95": [
+          -50.08,
+          91.58
+        ],
+        "win_rate": 0.5,
+        "profit_factor": 1.447,
+        "n_losers": 6,
+        "catastrophe_cap_hits": 3,
+        "catastrophe_cap_hit_rate_of_losers": 0.5,
+        "dates": [
+          "2026-07-02",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-09-01",
+          "2026-09-02"
+        ]
+      },
+      {
+        "label": "OTM $3.5+ / VIX 15-17",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      }
+    ],
+    ">17": [
+      {
+        "label": "ATM/ITM (<=0) / VIX >17",
+        "n": 1,
+        "total_pnl": -295.0,
+        "mean_pnl_per_trade": -295.0,
+        "mean_pnl_ci95": [
+          -295.0,
+          -295.0
+        ],
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "n_losers": 1,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": 0.0,
+        "dates": [
+          "2026-07-28"
+        ]
+      },
+      {
+        "label": "OTM $0-1.5 / VIX >17",
+        "n": 1,
+        "total_pnl": -355.0,
+        "mean_pnl_per_trade": -355.0,
+        "mean_pnl_ci95": [
+          -355.0,
+          -355.0
+        ],
+        "win_rate": 0.0,
+        "profit_factor": 0.0,
+        "n_losers": 1,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 1.0,
+        "dates": [
+          "2026-07-27"
+        ]
+      },
+      {
+        "label": "OTM $1.5-3.5 (OTM-2 zone) / VIX >17",
+        "n": 3,
+        "total_pnl": -129.0,
+        "mean_pnl_per_trade": -43.0,
+        "mean_pnl_ci95": [
+          -305.0,
+          191.0
+        ],
+        "win_rate": 0.3333,
+        "profit_factor": 0.597,
+        "n_losers": 2,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.5,
+        "dates": [
+          "2026-06-26",
+          "2026-07-17",
+          "2026-07-23"
+        ]
+      },
+      {
+        "label": "OTM $3.5+ / VIX >17",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      }
+    ]
+  },
+  "vix_regime_bold2": [
+    {
+      "label": "<15",
+      "n": 13,
+      "total_pnl": -146.0,
+      "mean_pnl_per_trade": -11.23,
+      "mean_pnl_ci95": [
+        -143.23,
+        150.0
+      ],
+      "win_rate": 0.2308,
+      "profit_factor": 0.892,
+      "n_losers": 10,
+      "catastrophe_cap_hits": 3,
+      "catastrophe_cap_hit_rate_of_losers": 0.3,
+      "dates": [
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-27",
+        "2026-08-28"
+      ]
+    },
+    {
+      "label": "15-17",
+      "n": 24,
+      "total_pnl": 985.0,
+      "mean_pnl_per_trade": 41.04,
+      "mean_pnl_ci95": [
+        -31.5,
+        124.79
+      ],
+      "win_rate": 0.4783,
+      "profit_factor": 1.738,
+      "n_losers": 12,
+      "catastrophe_cap_hits": 3,
+      "catastrophe_cap_hit_rate_of_losers": 0.25,
+      "dates": [
+        "2026-07-02",
+        "2026-08-04",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": ">17",
+      "n": 5,
+      "total_pnl": -779.0,
+      "mean_pnl_per_trade": -155.8,
+      "mean_pnl_ci95": [
+        -323.0,
+        40.6
+      ],
+      "win_rate": 0.2,
+      "profit_factor": 0.197,
+      "n_losers": 4,
+      "catastrophe_cap_hits": 2,
+      "catastrophe_cap_hit_rate_of_losers": 0.5,
+      "dates": [
+        "2026-06-26",
+        "2026-07-17",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28"
+      ]
+    }
+  ],
+  "vix_regime_all_arms": [
+    {
+      "label": "<15",
+      "n": 84,
+      "total_pnl": -601.0,
+      "mean_pnl_per_trade": -7.15,
+      "mean_pnl_ci95": [
+        -52.58,
+        41.75
+      ],
+      "win_rate": 0.3293,
+      "profit_factor": 0.911,
+      "n_losers": 55,
+      "catastrophe_cap_hits": 11,
+      "catastrophe_cap_hit_rate_of_losers": 0.2,
+      "dates": [
+        "2026-08-07",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-27",
+        "2026-08-28"
+      ]
+    },
+    {
+      "label": "15-17",
+      "n": 247,
+      "total_pnl": 2639.0,
+      "mean_pnl_per_trade": 10.68,
+      "mean_pnl_ci95": [
+        -10.07,
+        32.82
+      ],
+      "win_rate": 0.2469,
+      "profit_factor": 1.233,
+      "n_losers": 180,
+      "catastrophe_cap_hits": 27,
+      "catastrophe_cap_hit_rate_of_losers": 0.15,
+      "dates": [
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-09",
+        "2026-07-13",
+        "2026-07-15",
+        "2026-07-16",
+        "2026-07-22",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": ">17",
+      "n": 63,
+      "total_pnl": -1502.99,
+      "mean_pnl_per_trade": -23.86,
+      "mean_pnl_ci95": [
+        -57.81,
+        11.67
+      ],
+      "win_rate": 0.2414,
+      "profit_factor": 0.611,
+      "n_losers": 44,
+      "catastrophe_cap_hits": 4,
+      "catastrophe_cap_hit_rate_of_losers": 0.0909,
+      "dates": [
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-08",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-07-31",
+        "2026-08-05"
+      ]
+    }
+  ],
+  "per_arm_baseline": [
+    {
+      "label": "bold-2",
+      "n": 42,
+      "total_pnl": 60.0,
+      "mean_pnl_per_trade": 1.43,
+      "mean_pnl_ci95": [
+        -66.69,
+        72.81
+      ],
+      "win_rate": 0.3659,
+      "profit_factor": 1.016,
+      "n_losers": 26,
+      "catastrophe_cap_hits": 8,
+      "catastrophe_cap_hit_rate_of_losers": 0.3077,
+      "dates": [
+        "2026-06-26",
+        "2026-07-02",
+        "2026-07-17",
+        "2026-07-23",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-08-04",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "risky-1",
+      "n": 83,
+      "total_pnl": 947.0,
+      "mean_pnl_per_trade": 11.41,
+      "mean_pnl_ci95": [
+        -30.51,
+        55.52
+      ],
+      "win_rate": 0.2895,
+      "profit_factor": 1.201,
+      "n_losers": 54,
+      "catastrophe_cap_hits": 10,
+      "catastrophe_cap_hit_rate_of_losers": 0.1852,
+      "dates": [
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-08",
+        "2026-07-09",
+        "2026-07-15",
+        "2026-07-17",
+        "2026-07-27",
+        "2026-07-29",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-19",
+        "2026-08-21",
+        "2026-08-25",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "risky-3",
+      "n": 94,
+      "total_pnl": -522.0,
+      "mean_pnl_per_trade": -5.55,
+      "mean_pnl_ci95": [
+        -42.66,
+        34.67
+      ],
+      "win_rate": 0.2283,
+      "profit_factor": 0.911,
+      "n_losers": 71,
+      "catastrophe_cap_hits": 6,
+      "catastrophe_cap_hit_rate_of_losers": 0.0845,
+      "dates": [
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-09",
+        "2026-07-13",
+        "2026-07-15",
+        "2026-07-17",
+        "2026-07-27",
+        "2026-07-29",
+        "2026-07-30",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-27",
+        "2026-08-28"
+      ]
+    },
+    {
+      "label": "safe-1",
+      "n": 24,
+      "total_pnl": -242.0,
+      "mean_pnl_per_trade": -10.08,
+      "mean_pnl_ci95": [
+        -30.5,
+        21.54
+      ],
+      "win_rate": 0.087,
+      "profit_factor": 0.565,
+      "n_losers": 21,
+      "catastrophe_cap_hits": 1,
+      "catastrophe_cap_hit_rate_of_losers": 0.0476,
+      "dates": [
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-07",
+        "2026-07-08",
+        "2026-07-09"
+      ]
+    },
+    {
+      "label": "safe-2",
+      "n": 88,
+      "total_pnl": -335.99,
+      "mean_pnl_per_trade": -3.82,
+      "mean_pnl_ci95": [
+        -32.72,
+        26.01
+      ],
+      "win_rate": 0.2529,
+      "profit_factor": 0.922,
+      "n_losers": 65,
+      "catastrophe_cap_hits": 8,
+      "catastrophe_cap_hit_rate_of_losers": 0.1231,
+      "dates": [
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-15",
+        "2026-07-16",
+        "2026-07-17",
+        "2026-07-20",
+        "2026-07-21",
+        "2026-07-22",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-05",
+        "2026-08-06",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-11",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-17",
+        "2026-08-18",
+        "2026-08-19",
+        "2026-08-20",
+        "2026-08-21",
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-01",
+        "2026-09-02"
+      ]
+    },
+    {
+      "label": "safe-3",
+      "n": 63,
+      "total_pnl": 628.0,
+      "mean_pnl_per_trade": 9.97,
+      "mean_pnl_ci95": [
+        -29.1,
+        50.76
+      ],
+      "win_rate": 0.3,
+      "profit_factor": 1.225,
+      "n_losers": 42,
+      "catastrophe_cap_hits": 9,
+      "catastrophe_cap_hit_rate_of_losers": 0.2143,
+      "dates": [
+        "2026-06-29",
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-06",
+        "2026-07-08",
+        "2026-07-09",
+        "2026-07-15",
+        "2026-07-17",
+        "2026-07-27",
+        "2026-07-28",
+        "2026-07-29",
+        "2026-07-31",
+        "2026-08-03",
+        "2026-08-04",
+        "2026-08-07",
+        "2026-08-10",
+        "2026-08-12",
+        "2026-08-13",
+        "2026-08-14",
+        "2026-08-19",
+        "2026-08-21",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27",
+        "2026-08-28",
+        "2026-09-02"
+      ]
+    }
+  ],
+  "counterfactual_min_premium_floor_bold2_vix_lt16": [
+    {
+      "floor": 0.3,
+      "n_vix_lt16_population": 32,
+      "n_blocked": 0,
+      "blocked_total_pnl": 0,
+      "blocked_trades": [],
+      "kept_summary": {
+        "label": "kept (premium>=0.3)",
+        "n": 32,
+        "total_pnl": 884.0,
+        "mean_pnl_per_trade": 27.62,
+        "mean_pnl_ci95": [
+          -51.56,
+          109.31
+        ],
+        "win_rate": 0.4194,
+        "profit_factor": 1.376,
+        "n_losers": 18,
+        "catastrophe_cap_hits": 5,
+        "catastrophe_cap_hit_rate_of_losers": 0.2778,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-18",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-09-02"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": false
+    },
+    {
+      "floor": 0.4,
+      "n_vix_lt16_population": 32,
+      "n_blocked": 8,
+      "blocked_total_pnl": 508.0,
+      "blocked_trades": [
+        {
+          "date": "2026-08-18",
+          "symbol": "SPY260818P00768000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 80.0,
+          "vix": 15.67
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00764000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 90.0,
+          "vix": 15.58
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00763000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 85.0,
+          "vix": 15.84
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -50.0,
+          "vix": 15.34
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.37,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 15.28
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00772000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 14.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -70.0,
+          "vix": 15.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00767000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 55.0,
+          "vix": 15.4
+        }
+      ],
+      "kept_summary": {
+        "label": "kept (premium>=0.4)",
+        "n": 24,
+        "total_pnl": 376.0,
+        "mean_pnl_per_trade": 15.67,
+        "mean_pnl_ci95": [
+          -86.29,
+          122.42
+        ],
+        "win_rate": 0.3043,
+        "profit_factor": 1.169,
+        "n_losers": 16,
+        "catastrophe_cap_hits": 4,
+        "catastrophe_cap_hit_rate_of_losers": 0.25,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-19",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": true
+    },
+    {
+      "floor": 0.5,
+      "n_vix_lt16_population": 32,
+      "n_blocked": 8,
+      "blocked_total_pnl": 508.0,
+      "blocked_trades": [
+        {
+          "date": "2026-08-18",
+          "symbol": "SPY260818P00768000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 80.0,
+          "vix": 15.67
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00764000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 90.0,
+          "vix": 15.58
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00763000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 85.0,
+          "vix": 15.84
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -50.0,
+          "vix": 15.34
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.37,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 15.28
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00772000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 14.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -70.0,
+          "vix": 15.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00767000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 55.0,
+          "vix": 15.4
+        }
+      ],
+      "kept_summary": {
+        "label": "kept (premium>=0.5)",
+        "n": 24,
+        "total_pnl": 376.0,
+        "mean_pnl_per_trade": 15.67,
+        "mean_pnl_ci95": [
+          -85.38,
+          127.46
+        ],
+        "win_rate": 0.3043,
+        "profit_factor": 1.169,
+        "n_losers": 16,
+        "catastrophe_cap_hits": 4,
+        "catastrophe_cap_hit_rate_of_losers": 0.25,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-19",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": true
+    },
+    {
+      "floor": 0.6,
+      "n_vix_lt16_population": 32,
+      "n_blocked": 10,
+      "blocked_total_pnl": 468.0,
+      "blocked_trades": [
+        {
+          "date": "2026-08-18",
+          "symbol": "SPY260818P00768000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 80.0,
+          "vix": 15.67
+        },
+        {
+          "date": "2026-08-19",
+          "symbol": "SPY260819C00771000",
+          "entry_price": 0.54,
+          "outcome": "scratch",
+          "pnl": 0.0,
+          "vix": 15.08
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00764000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 90.0,
+          "vix": 15.58
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00763000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 85.0,
+          "vix": 15.84
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -50.0,
+          "vix": 15.34
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.37,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 15.28
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00771000",
+          "entry_price": 0.58,
+          "outcome": "loser",
+          "pnl": -40.0,
+          "vix": 15.12
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00772000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 14.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -70.0,
+          "vix": 15.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00767000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 55.0,
+          "vix": 15.4
+        }
+      ],
+      "kept_summary": {
+        "label": "kept (premium>=0.6)",
+        "n": 22,
+        "total_pnl": 416.0,
+        "mean_pnl_per_trade": 18.91,
+        "mean_pnl_ci95": [
+          -87.09,
+          134.05
+        ],
+        "win_rate": 0.3182,
+        "profit_factor": 1.19,
+        "n_losers": 15,
+        "catastrophe_cap_hits": 4,
+        "catastrophe_cap_hit_rate_of_losers": 0.2667,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-19",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": true
+    },
+    {
+      "floor": 0.8,
+      "n_vix_lt16_population": 32,
+      "n_blocked": 21,
+      "blocked_total_pnl": 924.0,
+      "blocked_trades": [
+        {
+          "date": "2026-08-11",
+          "symbol": "SPY260811P00771000",
+          "entry_price": 0.79,
+          "outcome": "loser",
+          "pnl": -145.0,
+          "vix": 15.45
+        },
+        {
+          "date": "2026-08-11",
+          "symbol": "SPY260811P00771000",
+          "entry_price": 0.66,
+          "outcome": "winner",
+          "pnl": 297.0,
+          "vix": 15.26
+        },
+        {
+          "date": "2026-08-12",
+          "symbol": "SPY260812C00773000",
+          "entry_price": 0.7,
+          "outcome": "loser",
+          "pnl": -75.0,
+          "vix": 14.67
+        },
+        {
+          "date": "2026-08-12",
+          "symbol": "SPY260812P00773000",
+          "entry_price": 0.67,
+          "outcome": "loser",
+          "pnl": -35.0,
+          "vix": 14.64
+        },
+        {
+          "date": "2026-08-12",
+          "symbol": "SPY260812P00773000",
+          "entry_price": 0.66,
+          "outcome": "loser",
+          "pnl": -15.0,
+          "vix": 14.6
+        },
+        {
+          "date": "2026-08-13",
+          "symbol": "SPY260813P00776000",
+          "entry_price": 0.64,
+          "outcome": "loser",
+          "pnl": -200.0,
+          "vix": 14.7
+        },
+        {
+          "date": "2026-08-14",
+          "symbol": "SPY260814P00776000",
+          "entry_price": 0.68,
+          "outcome": "loser",
+          "pnl": -160.0,
+          "vix": 14.45
+        },
+        {
+          "date": "2026-08-17",
+          "symbol": "SPY260817P00775000",
+          "entry_price": 0.72,
+          "outcome": "winner",
+          "pnl": 360.0,
+          "vix": 15.1
+        },
+        {
+          "date": "2026-08-18",
+          "symbol": "SPY260818P00768000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 80.0,
+          "vix": 15.67
+        },
+        {
+          "date": "2026-08-19",
+          "symbol": "SPY260819C00771000",
+          "entry_price": 0.54,
+          "outcome": "scratch",
+          "pnl": 0.0,
+          "vix": 15.08
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00764000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 90.0,
+          "vix": 15.58
+        },
+        {
+          "date": "2026-08-20",
+          "symbol": "SPY260820P00763000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 85.0,
+          "vix": 15.84
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821P00763000",
+          "entry_price": 0.61,
+          "outcome": "loser",
+          "pnl": -175.0,
+          "vix": 15.48
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -50.0,
+          "vix": 15.34
+        },
+        {
+          "date": "2026-08-21",
+          "symbol": "SPY260821C00768000",
+          "entry_price": 0.37,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 15.28
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00770000",
+          "entry_price": 0.72,
+          "outcome": "winner",
+          "pnl": 95.0,
+          "vix": 15.04
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00771000",
+          "entry_price": 0.58,
+          "outcome": "loser",
+          "pnl": -40.0,
+          "vix": 15.12
+        },
+        {
+          "date": "2026-08-27",
+          "symbol": "SPY260827C00772000",
+          "entry_price": 0.34,
+          "outcome": "winner",
+          "pnl": 159.0,
+          "vix": 14.51
+        },
+        {
+          "date": "2026-08-28",
+          "symbol": "SPY260828C00773000",
+          "entry_price": 0.73,
+          "outcome": "winner",
+          "pnl": 509.0,
+          "vix": 14.59
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00768000",
+          "entry_price": 0.3,
+          "outcome": "loser",
+          "pnl": -70.0,
+          "vix": 15.51
+        },
+        {
+          "date": "2026-09-02",
+          "symbol": "SPY260902C00767000",
+          "entry_price": 0.31,
+          "outcome": "winner",
+          "pnl": 55.0,
+          "vix": 15.4
+        }
+      ],
+      "kept_summary": {
+        "label": "kept (premium>=0.8)",
+        "n": 11,
+        "total_pnl": -40.0,
+        "mean_pnl_per_trade": -3.64,
+        "mean_pnl_ci95": [
+          -169.36,
+          195.91
+        ],
+        "win_rate": 0.2727,
+        "profit_factor": 0.971,
+        "n_losers": 8,
+        "catastrophe_cap_hits": 1,
+        "catastrophe_cap_hit_rate_of_losers": 0.125,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-19",
+          "2026-08-28"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": true
+    }
+  ],
+  "actual_bold2_vix_lt16_baseline": {
+    "label": "actual (no new floor), bold-2 VIX<16",
+    "n": 32,
+    "total_pnl": 884.0,
+    "mean_pnl_per_trade": 27.62,
+    "mean_pnl_ci95": [
+      -46.97,
+      110.84
+    ],
+    "win_rate": 0.4194,
+    "profit_factor": 1.376,
+    "n_losers": 18,
+    "catastrophe_cap_hits": 5,
+    "catastrophe_cap_hit_rate_of_losers": 0.2778,
+    "dates": [
+      "2026-08-04",
+      "2026-08-10",
+      "2026-08-11",
+      "2026-08-12",
+      "2026-08-13",
+      "2026-08-14",
+      "2026-08-17",
+      "2026-08-18",
+      "2026-08-19",
+      "2026-08-20",
+      "2026-08-21",
+      "2026-08-27",
+      "2026-08-28",
+      "2026-09-02"
+    ]
+  },
+  "counterfactual_otm_distance_shift_bold2_vix_lt16": [
+    {
+      "otm_distance_threshold": 1.5,
+      "n_blocked": 12,
+      "blocked_summary": {
+        "label": "blocked (dist>1.5)",
+        "n": 12,
+        "total_pnl": 602.0,
+        "mean_pnl_per_trade": 50.17,
+        "mean_pnl_ci95": [
+          -43.92,
+          163.33
+        ],
+        "win_rate": 0.5833,
+        "profit_factor": 2.095,
+        "n_losers": 5,
+        "catastrophe_cap_hits": 3,
+        "catastrophe_cap_hit_rate_of_losers": 0.6,
+        "dates": [
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-09-02"
+        ]
+      },
+      "kept_summary": {
+        "label": "kept (dist<=1.5)",
+        "n": 20,
+        "total_pnl": 282.0,
+        "mean_pnl_per_trade": 14.1,
+        "mean_pnl_ci95": [
+          -97.3,
+          132.05
+        ],
+        "win_rate": 0.3158,
+        "profit_factor": 1.157,
+        "n_losers": 13,
+        "catastrophe_cap_hits": 2,
+        "catastrophe_cap_hit_rate_of_losers": 0.1538,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-18",
+          "2026-08-19"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": true
+    },
+    {
+      "otm_distance_threshold": 2.5,
+      "n_blocked": 0,
+      "blocked_summary": {
+        "label": "blocked (dist>2.5)",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      },
+      "kept_summary": {
+        "label": "kept (dist<=2.5)",
+        "n": 32,
+        "total_pnl": 884.0,
+        "mean_pnl_per_trade": 27.62,
+        "mean_pnl_ci95": [
+          -47.97,
+          117.16
+        ],
+        "win_rate": 0.4194,
+        "profit_factor": 1.376,
+        "n_losers": 18,
+        "catastrophe_cap_hits": 5,
+        "catastrophe_cap_hit_rate_of_losers": 0.2778,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-18",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-09-02"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": false
+    },
+    {
+      "otm_distance_threshold": 3.5,
+      "n_blocked": 0,
+      "blocked_summary": {
+        "label": "blocked (dist>3.5)",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      },
+      "kept_summary": {
+        "label": "kept (dist<=3.5)",
+        "n": 32,
+        "total_pnl": 884.0,
+        "mean_pnl_per_trade": 27.62,
+        "mean_pnl_ci95": [
+          -48.53,
+          109.06
+        ],
+        "win_rate": 0.4194,
+        "profit_factor": 1.376,
+        "n_losers": 18,
+        "catastrophe_cap_hits": 5,
+        "catastrophe_cap_hit_rate_of_losers": 0.2778,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-18",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-09-02"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": false
+    },
+    {
+      "otm_distance_threshold": 5.0,
+      "n_blocked": 0,
+      "blocked_summary": {
+        "label": "blocked (dist>5.0)",
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl_per_trade": null,
+        "mean_pnl_ci95": null,
+        "win_rate": null,
+        "profit_factor": null,
+        "n_losers": 0,
+        "catastrophe_cap_hits": 0,
+        "catastrophe_cap_hit_rate_of_losers": null,
+        "dates": []
+      },
+      "kept_summary": {
+        "label": "kept (dist<=5.0)",
+        "n": 32,
+        "total_pnl": 884.0,
+        "mean_pnl_per_trade": 27.62,
+        "mean_pnl_ci95": [
+          -47.78,
+          113.12
+        ],
+        "win_rate": 0.4194,
+        "profit_factor": 1.376,
+        "n_losers": 18,
+        "catastrophe_cap_hits": 5,
+        "catastrophe_cap_hit_rate_of_losers": 0.2778,
+        "dates": [
+          "2026-08-04",
+          "2026-08-10",
+          "2026-08-11",
+          "2026-08-12",
+          "2026-08-13",
+          "2026-08-14",
+          "2026-08-17",
+          "2026-08-18",
+          "2026-08-19",
+          "2026-08-20",
+          "2026-08-21",
+          "2026-08-27",
+          "2026-08-28",
+          "2026-09-02"
+        ]
+      },
+      "would_have_blocked_08_27_or_08_28_winner": false
+    }
+  ],
+  "winner_day_trades_all_arms": [
+    {
+      "date": "2026-08-06",
+      "arm": "risky-1",
+      "symbol": "SPY260806P00770000",
+      "entry_price": 1.23,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.43,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 15.56,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 296.0
+    },
+    {
+      "date": "2026-08-06",
+      "arm": "risky-3",
+      "symbol": "SPY260806P00770000",
+      "entry_price": 1.28,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.43,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 15.56,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 830.0
+    },
+    {
+      "date": "2026-08-06",
+      "arm": "safe-2",
+      "symbol": "SPY260806P00770000",
+      "entry_price": 1.28,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.43,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 15.85,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 375.0
+    },
+    {
+      "date": "2026-08-06",
+      "arm": "safe-2",
+      "symbol": "SPY260806C00769000",
+      "entry_price": 1.08,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": -0.36,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 15.26,
+      "vix_regime": "15-17",
+      "outcome": "loser",
+      "pnl": -36.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "bold-2",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 1.01,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.1,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.41,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 534.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "bold-2",
+      "symbol": "SPY260813C00776000",
+      "entry_price": 0.97,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.01,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.57,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -85.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "bold-2",
+      "symbol": "SPY260813P00776000",
+      "entry_price": 0.64,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 0.29,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.7,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -200.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "risky-1",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 1.08,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.1,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.4,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 405.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "risky-1",
+      "symbol": "SPY260813C00776000",
+      "entry_price": 1.14,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.01,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.61,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -155.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "risky-1",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 0.65,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": -0.23,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.7,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 152.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "risky-3",
+      "symbol": "SPY260813C00779000",
+      "entry_price": 0.36,
+      "premium_bucket": "<0.40",
+      "otm_distance": 2.1,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.4,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 366.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "risky-3",
+      "symbol": "SPY260813C00781000",
+      "entry_price": 0.36,
+      "premium_bucket": "<0.40",
+      "otm_distance": 1.99,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.74,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -90.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "risky-3",
+      "symbol": "SPY260813C00778000",
+      "entry_price": 0.32,
+      "premium_bucket": "<0.40",
+      "otm_distance": 2.01,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.58,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -80.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-2",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 1.03,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.1,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.41,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 332.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-2",
+      "symbol": "SPY260813P00776000",
+      "entry_price": 0.63,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 0.29,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.7,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -69.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-2",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 0.66,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": -0.23,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.69,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 181.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-3",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 1.09,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.1,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.4,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 348.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-3",
+      "symbol": "SPY260813C00776000",
+      "entry_price": 1.13,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.01,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.58,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -90.0
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-3",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 0.65,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": -0.23,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.7,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 199.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "bold-2",
+      "symbol": "SPY260827C00770000",
+      "entry_price": 0.72,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.8,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 15.04,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 95.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "bold-2",
+      "symbol": "SPY260827C00771000",
+      "entry_price": 0.58,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.84,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 15.12,
+      "vix_regime": "15-17",
+      "outcome": "loser",
+      "pnl": -40.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "bold-2",
+      "symbol": "SPY260827C00772000",
+      "entry_price": 0.34,
+      "premium_bucket": "<0.40",
+      "otm_distance": 2.32,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.51,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 159.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "risky-1",
+      "symbol": "SPY260827C00768000",
+      "entry_price": 1.66,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.2,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 15.04,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 475.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "risky-1",
+      "symbol": "SPY260827C00770000",
+      "entry_price": 1.16,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.32,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.52,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 353.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "risky-3",
+      "symbol": "SPY260827C00770000",
+      "entry_price": 0.72,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.8,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 15.04,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 85.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "risky-3",
+      "symbol": "SPY260827C00771000",
+      "entry_price": 0.47,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.84,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 15.1,
+      "vix_regime": "15-17",
+      "outcome": "loser",
+      "pnl": -100.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "risky-3",
+      "symbol": "SPY260827C00772000",
+      "entry_price": 0.34,
+      "premium_bucket": "<0.40",
+      "otm_distance": 2.32,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.51,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -40.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "safe-2",
+      "symbol": "SPY260827C00768000",
+      "entry_price": 1.58,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.2,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 15.04,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 138.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "safe-2",
+      "symbol": "SPY260827C00771000",
+      "entry_price": 0.71,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 0.125,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.46,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 184.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "safe-3",
+      "symbol": "SPY260827C00768000",
+      "entry_price": 1.65,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.2,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 15.04,
+      "vix_regime": "15-17",
+      "outcome": "winner",
+      "pnl": 285.0
+    },
+    {
+      "date": "2026-08-27",
+      "arm": "safe-3",
+      "symbol": "SPY260827C00770000",
+      "entry_price": 1.13,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 0.32,
+      "distance_bucket": "OTM $0-1.5",
+      "vix_at_entry": 14.52,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 303.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "bold-2",
+      "symbol": "SPY260828C00773000",
+      "entry_price": 0.73,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.59,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.59,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 509.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "bold-2",
+      "symbol": "SPY260828P00768000",
+      "entry_price": 0.85,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 1.7,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.55,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -215.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "risky-1",
+      "symbol": "SPY260828C00771000",
+      "entry_price": 1.85,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.41,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.59,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 650.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "risky-3",
+      "symbol": "SPY260828C00773000",
+      "entry_price": 0.79,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.59,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.59,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -75.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "risky-3",
+      "symbol": "SPY260828C00773000",
+      "entry_price": 0.68,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.59,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.6,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -115.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "risky-3",
+      "symbol": "SPY260828C00777000",
+      "entry_price": 0.33,
+      "premium_bucket": "<0.40",
+      "otm_distance": 2.16,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.22,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -50.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "risky-3",
+      "symbol": "SPY260828P00768000",
+      "entry_price": 0.9,
+      "premium_bucket": "0.80-1.50",
+      "otm_distance": 1.7,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.53,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -120.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "risky-3",
+      "symbol": "SPY260828P00767000",
+      "entry_price": 0.44,
+      "premium_bucket": "0.40-0.80",
+      "otm_distance": 1.92,
+      "distance_bucket": "OTM $1.5-3.5 (OTM-2 zone)",
+      "vix_at_entry": 14.77,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -100.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "safe-2",
+      "symbol": "SPY260828C00771000",
+      "entry_price": 1.74,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.41,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.59,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 527.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "safe-2",
+      "symbol": "SPY260828P00770000",
+      "entry_price": 1.76,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.3,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.55,
+      "vix_regime": "<15",
+      "outcome": "loser",
+      "pnl": -270.0
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "safe-3",
+      "symbol": "SPY260828C00771000",
+      "entry_price": 1.84,
+      "premium_bucket": ">1.50",
+      "otm_distance": -0.41,
+      "distance_bucket": "ATM/ITM (<=0)",
+      "vix_at_entry": 14.59,
+      "vix_regime": "<15",
+      "outcome": "winner",
+      "pnl": 563.0
+    }
+  ],
+  "winner_day_trades_bold2_only": [
+    {
+      "date": "2026-08-13",
+      "symbol": "SPY260813C00777000",
+      "entry_price": 1.01,
+      "otm_distance": 0.1,
+      "vix_at_entry": 14.41,
+      "outcome": "winner",
+      "pnl": 534.0
+    },
+    {
+      "date": "2026-08-13",
+      "symbol": "SPY260813C00776000",
+      "entry_price": 0.97,
+      "otm_distance": 0.01,
+      "vix_at_entry": 14.57,
+      "outcome": "loser",
+      "pnl": -85.0
+    },
+    {
+      "date": "2026-08-13",
+      "symbol": "SPY260813P00776000",
+      "entry_price": 0.64,
+      "otm_distance": 0.29,
+      "vix_at_entry": 14.7,
+      "outcome": "loser",
+      "pnl": -200.0
+    },
+    {
+      "date": "2026-08-27",
+      "symbol": "SPY260827C00770000",
+      "entry_price": 0.72,
+      "otm_distance": 1.8,
+      "vix_at_entry": 15.04,
+      "outcome": "winner",
+      "pnl": 95.0
+    },
+    {
+      "date": "2026-08-27",
+      "symbol": "SPY260827C00771000",
+      "entry_price": 0.58,
+      "otm_distance": 1.84,
+      "vix_at_entry": 15.12,
+      "outcome": "loser",
+      "pnl": -40.0
+    },
+    {
+      "date": "2026-08-27",
+      "symbol": "SPY260827C00772000",
+      "entry_price": 0.34,
+      "otm_distance": 2.32,
+      "vix_at_entry": 14.51,
+      "outcome": "winner",
+      "pnl": 159.0
+    },
+    {
+      "date": "2026-08-28",
+      "symbol": "SPY260828C00773000",
+      "entry_price": 0.73,
+      "otm_distance": 1.59,
+      "vix_at_entry": 14.59,
+      "outcome": "winner",
+      "pnl": 509.0
+    },
+    {
+      "date": "2026-08-28",
+      "symbol": "SPY260828P00768000",
+      "entry_price": 0.85,
+      "otm_distance": 1.7,
+      "vix_at_entry": 14.55,
+      "outcome": "loser",
+      "pnl": -215.0
+    }
+  ],
+  "concentration_bold2": {
+    "total_gains": 3713.0,
+    "top3_gains": 1657.0,
+    "top3_pct_of_gains": 0.4463,
+    "top3_trades": [
+      614.0,
+      534.0,
+      509.0
+    ]
+  },
+  "concentration_all_arms": {
+    "total_gains": 22437.0,
+    "top3_gains": 2269.0,
+    "top3_pct_of_gains": 0.1011,
+    "top3_trades": [
+      830.0,
+      788.0,
+      651.0
+    ]
+  },
+  "tier_ladder_context": {
+    "bold2_account_equity_2026_08_18_broker_verified": 5048.4,
+    "v15_bold_tiers_live_core_bold_branch_AS_OF_2026_09_03": "heartbeat_core.py (~line 2679, direct read, not the strike_selection.py docstring) currently reads ss.V15_BOLD_TIERS for account=='bold' -- i.e. OTM-2 (strike_offset -2) at $2K-$10K equity, OTM-3 under $2K. This is NOT V15_BOLD_CORE_TIERS (which would be ATM 0-$10K).",
+    "stale_docstring_note": "crypto/lib/strike_selection.py's V15_BOLD_CORE_TIERS docstring says 'STATUS UPDATE 2026-07-18: WIRED' and does NOT mention the 2026-08-20 revert documented directly in heartbeat_core.py's inline comment at the call site. Doc drift, flagged here, NOT fixed (out of scope / read-only per this task's constraints).",
+    "min_entry_premium_floor_aggressive_params_json": 0.3,
+    "min_entry_premium_enforced_against": "mid (option mid quote at plan time), NOT the fill price -- fill price (this report's entry_price) is typically >= mid via marketable-limit ask+buffer pricing, so filtering on entry_price is a conservative (slightly permissive) proxy for the live gate.",
+    "skip_min_premium_floor_events_bold_account_core_decisions": 49
+  },
+  "prior_tier_shift_experiment": {
+    "summary": "The EXACT lever H3 asks about (shift bold-2 toward ATM, i.e. reduce OTM distance to ~0) was ALREADY shipped live 2026-07-18 (commit 718e0809, V15_BOLD_TIERS->V15_BOLD_CORE_TIERS) and REVERTED 2026-08-20 after its own standing falsification rail (setup/scripts/bold_tier_rail.py) triggered negative.",
+    "rail_state_file": "automation/state/bold-tier-rail.json",
+    "rail_verdict": "Bold ATM tier: 38 of 20 fills, -$346 so far (old tier was +$406 on 4) -- rail TRIGGERED.",
+    "rail_status": "TRIGGERED_NEGATIVE",
+    "post_ship_ATM_population": {
+      "n": 38,
+      "net_usd": -346.0,
+      "win_rate": 0.3421,
+      "mean_usd": -9.11,
+      "median_usd": -55.0,
+      "avg_notional_usd": 411.18
+    },
+    "pre_ship_OTM_population": {
+      "n": 4,
+      "net_usd": 406.0,
+      "win_rate": 0.5,
+      "mean_usd": 101.5,
+      "median_usd": 88.0,
+      "avg_notional_usd": 186.25
+    },
+    "delta": {
+      "net_usd_delta": -752.0,
+      "mean_usd_delta": -110.61,
+      "win_rate_delta": -0.1579,
+      "avg_notional_multiplier": 2.2077
+    },
+    "revert_authorization": "J, in-chat, 2026-08-20: \"so #2 is asking if I want to retire a strat that is losing? i guess so yeah\" (quoted in heartbeat_core.py's inline comment at the strike-selection call site).",
+    "relevance_to_H3": "This is DIRECT prior evidence against a tier shift toward ATM for bold-2: n=38 live ATM fills netted -$346 (WR 34.2%) vs the OTM tier's smaller pre-ship sample of n=4 at +$406 (WR 50%). Combined with this report's own distance-bucket finding (OTM-2-zone entries are bold-2's BEST-performing bucket post-revert, section 3/7 below), the tier-shift half of H3 is REFUTED by a real, larger live experiment, not just this report's smaller counterfactual slice."
+  }
+}

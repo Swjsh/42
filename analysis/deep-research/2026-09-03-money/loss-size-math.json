@@ -1,0 +1,986 @@
+{
+  "hypothesis_id": "H8",
+  "hypothesis": "LOSS-SIZE MATH: is the -50%-of-premium catastrophe cap the right loss unit, or would a tighter cap (-30/-35/-40%) be net positive after accounting for winner-kills (MAE breaches on trades that recovered)?",
+  "stamp_et": "2026-09-03T10:24",
+  "n_scored_positions": 394,
+  "data_sources": [
+    "analysis/pain-ledger/mae-mfe.json (n=394 scored, PREREG-2026-08-01.md)",
+    "automation/state/fills-ledger.jsonl (broker truth, read via mae-mfe.json builder)",
+    "automation/state/core-decisions.jsonl (VIX join, account=safe ticks, date-level median)",
+    "automation/state/hypotheses-settled.json (prior stop_inside_noise_floor settlement)"
+  ],
+  "n_dates_missing_vix_join": 0,
+  "prior_settled_hypothesis_cited": {
+    "mechanism": "stop_inside_noise_floor",
+    "hypothesis_ids_seen": [
+      "H-2026-07-08-stop-noise",
+      "H-2026-07-16-stop-noise",
+      "H-2026-07-21-stop-noise",
+      "H-2026-07-29-stop-noise",
+      "H-2026-08-04-stop-noise"
+    ],
+    "emitted_count": 5,
+    "first_emitted": "2026-07-08",
+    "last_emitted": "2026-08-04",
+    "settled_on": "2026-08-06",
+    "verdict": "REGIME_CONDITIONAL_NOT_SHIPPABLE",
+    "verdict_detail": "Widening the stop is regime-conditional, not a book-wide edge. Tue 08-04 cohort -$1,111 -> +$2,097 across -15%..-50%; Wed 08-05 -$1,279 -> -$613 at best (still a loss); the 391-day gap-fade slice is MONOTONE WORSE as the stop widens. A knob that only pays on the days you cannot identify in advance is not shippable.",
+    "evidence": "analysis/deep-research/STOPPED-THEN-PAID-2026-08-04.md (run 2026-08-06)",
+    "artifact_caveat": "The detector's own `stopped_then_paid` tag is partly an artifact of the hold_to_time counterfactual, which was unbounded-upside and near-stopless until it was quarantined as an ORACLE on 2026-08-06 (DIAGNOSTIC_COUNTERFACTUALS). Any re-open must re-measure with the corrected best-counterfactual column.",
+    "graveyard_refs": [
+      "hold-longer book-wide (-$451.50 / 21)",
+      "any stop-width change in EITHER direction"
+    ],
+    "revisit_after": null,
+    "revisit_condition": "Re-open only with a PRE-REGISTERED regime classifier that identifies the paying regime BEFORE the entry, not after. Absent that, widening the stop is curve-fitting to the days that happened to trend."
+  },
+  "overall_summary": {
+    "label": "ALL_394",
+    "n": 394,
+    "n_winners": 100,
+    "n_losers": 279,
+    "n_scratch": 15,
+    "wr_observed": 0.25380710659898476,
+    "wr_ci_2.5_97.5": [
+      0.21065989847715735,
+      0.29441624365482233
+    ],
+    "avg_win_dollars": 224.37,
+    "avg_loss_dollars": -78.50175627240144,
+    "avg_win_pct_of_premium": 0.622074184237505,
+    "avg_loss_pct_of_premium": -0.24631941515365355,
+    "breakeven_wr_at_observed_avg_win_loss": 0.25919140575721866,
+    "wr_edge_over_breakeven_pp": -0.5384299158233907,
+    "profit_factor": 1.0244274607010595,
+    "pf_ci_2.5_97.5": [
+      0.7359263795081724,
+      1.3812801877503895
+    ],
+    "total_pnl": 535.01,
+    "total_pnl_ci_2.5_97.5": [
+      -6635.0,
+      7569.01
+    ],
+    "avg_r_multiple_all": -0.21279103633209087,
+    "avg_r_multiple_winners": 1.7851128223480652,
+    "avg_r_multiple_losers": -0.9403259876331552,
+    "median_r_multiple_losers": -0.7906976744186046
+  },
+  "current_cap_cohort_summary": {
+    "label": "CURRENT_CAP_-50pct_n239",
+    "n": 239,
+    "n_winners": 78,
+    "n_losers": 153,
+    "n_scratch": 8,
+    "wr_observed": 0.3263598326359833,
+    "wr_ci_2.5_97.5": [
+      0.26778242677824265,
+      0.3891213389121339
+    ],
+    "avg_win_dollars": 239.84615384615384,
+    "avg_loss_dollars": -99.189477124183,
+    "avg_win_pct_of_premium": 0.6699162002421012,
+    "avg_loss_pct_of_premium": -0.25600447253374486,
+    "breakeven_wr_at_observed_avg_win_loss": 0.2925635775812052,
+    "wr_edge_over_breakeven_pp": 3.379625505477807,
+    "profit_factor": 1.2327367110811223,
+    "pf_ci_2.5_97.5": [
+      0.8395195325181257,
+      1.7408618994729173
+    ],
+    "total_pnl": 3532.01,
+    "total_pnl_ci_2.5_97.5": [
+      -2638.96,
+      9825.01
+    ],
+    "avg_r_multiple_all": 0.1094960612654471,
+    "avg_r_multiple_winners": 1.3398324004842024,
+    "avg_r_multiple_losers": -0.5120089450674897,
+    "median_r_multiple_losers": -0.375
+  },
+  "legacy_cap_cohort_summary": {
+    "label": "LEGACY_NON-50pct_CAP_n155",
+    "n": 155,
+    "n_winners": 22,
+    "n_losers": 126,
+    "n_scratch": 7,
+    "wr_observed": 0.14193548387096774,
+    "wr_ci_2.5_97.5": [
+      0.08387096774193549,
+      0.2
+    ],
+    "avg_win_dollars": 169.5,
+    "avg_loss_dollars": -53.38095238095238,
+    "avg_win_pct_of_premium": 0.45245249113030084,
+    "avg_loss_pct_of_premium": -0.23455898833497124,
+    "breakeven_wr_at_observed_avg_win_loss": 0.23950432646084818,
+    "wr_edge_over_breakeven_pp": -9.756884258988045,
+    "profit_factor": 0.5544157002676182,
+    "pf_ci_2.5_97.5": [
+      0.23753627011342654,
+      1.0091142124750783
+    ],
+    "total_pnl": -2997.0,
+    "total_pnl_ci_2.5_97.5": [
+      -5723.0,
+      83.0
+    ],
+    "avg_r_multiple_all": -0.7097369481115204,
+    "avg_r_multiple_winners": 3.3638343180472154,
+    "avg_r_multiple_losers": -1.4604252536057492,
+    "median_r_multiple_losers": -1.25
+  },
+  "by_arm_summary": {
+    "bold-2": {
+      "label": "bold-2",
+      "n": 42,
+      "n_winners": 15,
+      "n_losers": 26,
+      "n_scratch": 1,
+      "wr_observed": 0.35714285714285715,
+      "wr_ci_2.5_97.5": [
+        0.21428571428571427,
+        0.5
+      ],
+      "avg_win_dollars": 247.53333333333333,
+      "avg_loss_dollars": -140.5,
+      "avg_win_pct_of_premium": 0.7913098380079531,
+      "avg_loss_pct_of_premium": -0.31719644635538824,
+      "breakeven_wr_at_observed_avg_win_loss": 0.36208229533545233,
+      "wr_edge_over_breakeven_pp": -0.493943819259518,
+      "profit_factor": 1.0164248562825076,
+      "pf_ci_2.5_97.5": [
+        0.4165680473372781,
+        2.2235
+      ],
+      "total_pnl": 60.0,
+      "total_pnl_ci_2.5_97.5": [
+        -2798.0,
+        2986.0
+      ],
+      "avg_r_multiple_all": 0.1725019030894858,
+      "avg_r_multiple_winners": 1.5826196760159061,
+      "avg_r_multiple_losers": -0.6343928927107765,
+      "median_r_multiple_losers": -0.6591760299625469
+    },
+    "risky-1": {
+      "label": "risky-1",
+      "n": 83,
+      "n_winners": 22,
+      "n_losers": 54,
+      "n_scratch": 7,
+      "wr_observed": 0.26506024096385544,
+      "wr_ci_2.5_97.5": [
+        0.1686746987951807,
+        0.3614457831325301
+      ],
+      "avg_win_dollars": 257.3181818181818,
+      "avg_loss_dollars": -87.29629629629629,
+      "avg_win_pct_of_premium": 0.465172116213697,
+      "avg_loss_pct_of_premium": -0.25671315822748997,
+      "breakeven_wr_at_observed_avg_win_loss": 0.25331581184263874,
+      "wr_edge_over_breakeven_pp": 1.1744429121216704,
+      "profit_factor": 1.200890963088672,
+      "pf_ci_2.5_97.5": [
+        0.5499924138977393,
+        2.285882699675803
+      ],
+      "total_pnl": 947.0,
+      "total_pnl_ci_2.5_97.5": [
+        -2447.0,
+        4517.0
+      ],
+      "avg_r_multiple_all": -0.3756663618120064,
+      "avg_r_multiple_winners": 1.7158050348270617,
+      "avg_r_multiple_losers": -1.2764447925294795,
+      "median_r_multiple_losers": -0.9534298300818125
+    },
+    "risky-3": {
+      "label": "risky-3",
+      "n": 94,
+      "n_winners": 21,
+      "n_losers": 71,
+      "n_scratch": 2,
+      "wr_observed": 0.22340425531914893,
+      "wr_ci_2.5_97.5": [
+        0.14893617021276595,
+        0.30851063829787234
+      ],
+      "avg_win_dollars": 255.9047619047619,
+      "avg_loss_dollars": -83.04225352112677,
+      "avg_win_pct_of_premium": 0.6122139025016333,
+      "avg_loss_pct_of_premium": -0.2216819569370971,
+      "breakeven_wr_at_observed_avg_win_loss": 0.2450006925618854,
+      "wr_edge_over_breakeven_pp": -2.1596437242736464,
+      "profit_factor": 0.9114654002713705,
+      "pf_ci_2.5_97.5": [
+        0.4163939092073431,
+        1.68696687165245
+      ],
+      "total_pnl": -522.0,
+      "total_pnl_ci_2.5_97.5": [
+        -3990.0,
+        3217.0
+      ],
+      "avg_r_multiple_all": -0.29903037267735866,
+      "avg_r_multiple_winners": 2.671871030456258,
+      "avg_r_multiple_losers": -1.1861710798768046,
+      "median_r_multiple_losers": -1.096774193548387
+    },
+    "safe-1": {
+      "label": "safe-1",
+      "n": 24,
+      "n_winners": 2,
+      "n_losers": 21,
+      "n_scratch": 1,
+      "wr_observed": 0.08333333333333333,
+      "wr_ci_2.5_97.5": [
+        0.0,
+        0.20833333333333334
+      ],
+      "avg_win_dollars": 157.0,
+      "avg_loss_dollars": -26.476190476190474,
+      "avg_win_pct_of_premium": 1.07,
+      "avg_loss_pct_of_premium": -0.2804077258453539,
+      "breakeven_wr_at_observed_avg_win_loss": 0.14430314041007006,
+      "wr_edge_over_breakeven_pp": -6.096980707673673,
+      "profit_factor": 0.564748201438849,
+      "pf_ci_2.5_97.5": [
+        0.0,
+        2.1435185185185186
+      ],
+      "total_pnl": -242.0,
+      "total_pnl_ci_2.5_97.5": [
+        -739.0,
+        509.0
+      ],
+      "avg_r_multiple_all": -0.7809504672400898,
+      "avg_r_multiple_winners": 5.35,
+      "avg_r_multiple_losers": -1.4020386292267693,
+      "median_r_multiple_losers": -1.3157894736842102
+    },
+    "safe-2": {
+      "label": "safe-2",
+      "n": 88,
+      "n_winners": 22,
+      "n_losers": 65,
+      "n_scratch": 1,
+      "wr_observed": 0.25,
+      "wr_ci_2.5_97.5": [
+        0.1590909090909091,
+        0.3409090909090909
+      ],
+      "avg_win_dollars": 180.04545454545453,
+      "avg_loss_dollars": -66.10753846153847,
+      "avg_win_pct_of_premium": 0.6369483146626073,
+      "avg_loss_pct_of_premium": -0.20102719183961465,
+      "breakeven_wr_at_observed_avg_win_loss": 0.26856280581427017,
+      "wr_edge_over_breakeven_pp": -1.8562805814270167,
+      "profit_factor": 0.9218080563371105,
+      "pf_ci_2.5_97.5": [
+        0.43427040779760623,
+        1.6870645517933502
+      ],
+      "total_pnl": -335.99,
+      "total_pnl_ci_2.5_97.5": [
+        -2723.97,
+        2206.99
+      ],
+      "avg_r_multiple_all": 0.021502169386418333,
+      "avg_r_multiple_winners": 1.2738966293252145,
+      "avg_r_multiple_losers": -0.4020543836792293,
+      "median_r_multiple_losers": -0.297029702970297
+    },
+    "safe-3": {
+      "label": "safe-3",
+      "n": 63,
+      "n_winners": 18,
+      "n_losers": 42,
+      "n_scratch": 3,
+      "wr_observed": 0.2857142857142857,
+      "wr_ci_2.5_97.5": [
+        0.1746031746031746,
+        0.3968253968253968
+      ],
+      "avg_win_dollars": 189.66666666666666,
+      "avg_loss_dollars": -66.33333333333333,
+      "avg_win_pct_of_premium": 0.6163683012121233,
+      "avg_loss_pct_of_premium": -0.283779762463893,
+      "breakeven_wr_at_observed_avg_win_loss": 0.2591145833333333,
+      "wr_edge_over_breakeven_pp": 2.659970238095238,
+      "profit_factor": 1.2254127781765973,
+      "pf_ci_2.5_97.5": [
+        0.5001365001365001,
+        2.7854812398042412
+      ],
+      "total_pnl": 628.0,
+      "total_pnl_ci_2.5_97.5": [
+        -1842.0,
+        3241.0
+      ],
+      "avg_r_multiple_all": -0.237221664678994,
+      "avg_r_multiple_winners": 1.2327366024242465,
+      "avg_r_multiple_losers": -0.8841481837717395,
+      "median_r_multiple_losers": -0.6881720430107527
+    }
+  },
+  "by_regime_summary_all_caps": {
+    "VIX<15": {
+      "label": "VIX<15",
+      "n": 95,
+      "n_winners": 32,
+      "n_losers": 61,
+      "n_scratch": 2,
+      "wr_observed": 0.3368421052631579,
+      "wr_ci_2.5_97.5": [
+        0.24210526315789474,
+        0.43157894736842106
+      ],
+      "avg_win_dollars": 224.875,
+      "avg_loss_dollars": -125.49180327868852,
+      "avg_win_pct_of_premium": 0.5559889946801084,
+      "avg_loss_pct_of_premium": -0.2553918238892703,
+      "breakeven_wr_at_observed_avg_win_loss": 0.35817264108457764,
+      "wr_edge_over_breakeven_pp": -2.133053582141975,
+      "profit_factor": 0.9400391900718484,
+      "pf_ci_2.5_97.5": [
+        0.5039677377390399,
+        1.62576512455516
+      ],
+      "total_pnl": -459.0,
+      "total_pnl_ci_2.5_97.5": [
+        -4630.0,
+        3854.0
+      ],
+      "avg_r_multiple_all": -0.05535925533178375,
+      "avg_r_multiple_winners": 1.3611914027612433,
+      "avg_r_multiple_losers": -0.8002828548340859,
+      "median_r_multiple_losers": -0.7301587301587301
+    },
+    "VIX15-17": {
+      "label": "VIX15-17",
+      "n": 241,
+      "n_winners": 56,
+      "n_losers": 179,
+      "n_scratch": 6,
+      "wr_observed": 0.23236514522821577,
+      "wr_ci_2.5_97.5": [
+        0.1825726141078838,
+        0.2863070539419087
+      ],
+      "avg_win_dollars": 233.60714285714286,
+      "avg_loss_dollars": -64.32960893854748,
+      "avg_win_pct_of_premium": 0.6644697234319555,
+      "avg_loss_pct_of_premium": -0.24001571084032097,
+      "breakeven_wr_at_observed_avg_win_loss": 0.21591699765412428,
+      "wr_edge_over_breakeven_pp": 1.6448147574091494,
+      "profit_factor": 1.13608336951802,
+      "pf_ci_2.5_97.5": [
+        0.728038215529107,
+        1.6929189682064083
+      ],
+      "total_pnl": 1567.0,
+      "total_pnl_ci_2.5_97.5": [
+        -3510.99,
+        6963.98
+      ],
+      "avg_r_multiple_all": -0.24529035748313832,
+      "avg_r_multiple_winners": 2.1525397354080655,
+      "avg_r_multiple_losers": -1.0036715158451843,
+      "median_r_multiple_losers": -0.8103448275862071
+    },
+    "VIX>17": {
+      "label": "VIX>17",
+      "n": 58,
+      "n_winners": 12,
+      "n_losers": 39,
+      "n_scratch": 7,
+      "wr_observed": 0.20689655172413793,
+      "wr_ci_2.5_97.5": [
+        0.10344827586206896,
+        0.3103448275862069
+      ],
+      "avg_win_dollars": 179.91666666666666,
+      "avg_loss_dollars": -70.05102564102565,
+      "avg_win_pct_of_premium": 0.6004555068164609,
+      "avg_loss_pct_of_premium": -0.26106162385144605,
+      "breakeven_wr_at_observed_avg_win_loss": 0.2802403182359977,
+      "wr_edge_over_breakeven_pp": -7.334376651185978,
+      "profit_factor": 0.7902664358215075,
+      "pf_ci_2.5_97.5": [
+        0.26464068680918224,
+        1.7313915857605178
+      ],
+      "total_pnl": -572.99,
+      "total_pnl_ci_2.5_97.5": [
+        -2600.98,
+        1650.02
+      ],
+      "avg_r_multiple_all": -0.335613153532552,
+      "avg_r_multiple_winners": 1.2009110136329217,
+      "avg_r_multiple_losers": -0.8686280786790532,
+      "median_r_multiple_losers": -0.7906976744186046
+    }
+  },
+  "by_regime_summary_current_cap_only": {
+    "VIX<15": {
+      "label": "VIX<15_CURRENT_CAP",
+      "n": 63,
+      "n_winners": 22,
+      "n_losers": 41,
+      "n_scratch": 0,
+      "wr_observed": 0.3492063492063492,
+      "wr_ci_2.5_97.5": [
+        0.23809523809523808,
+        0.47619047619047616
+      ],
+      "avg_win_dollars": 298.8181818181818,
+      "avg_loss_dollars": -153.3170731707317,
+      "avg_win_pct_of_premium": 0.7386991679761074,
+      "avg_loss_pct_of_premium": -0.29856104814462026,
+      "breakeven_wr_at_observed_avg_win_loss": 0.33909559468989225,
+      "wr_edge_over_breakeven_pp": 1.0110754516456932,
+      "profit_factor": 1.045816099268215,
+      "pf_ci_2.5_97.5": [
+        0.5129468232916509,
+        1.9494252873563218
+      ],
+      "total_pnl": 288.0,
+      "total_pnl_ci_2.5_97.5": [
+        -3800.0,
+        4483.0
+      ],
+      "avg_r_multiple_all": 0.1273136102077756,
+      "avg_r_multiple_winners": 1.4773983359522147,
+      "avg_r_multiple_losers": -0.5971220962892405,
+      "median_r_multiple_losers": -0.5309734513274337
+    },
+    "VIX15-17": {
+      "label": "VIX15-17_CURRENT_CAP",
+      "n": 138,
+      "n_winners": 44,
+      "n_losers": 91,
+      "n_scratch": 3,
+      "wr_observed": 0.3188405797101449,
+      "wr_ci_2.5_97.5": [
+        0.2391304347826087,
+        0.39855072463768115
+      ],
+      "avg_win_dollars": 226.70454545454547,
+      "avg_loss_dollars": -76.38461538461539,
+      "avg_win_pct_of_premium": 0.6544685418548182,
+      "avg_loss_pct_of_premium": -0.23352572303535418,
+      "breakeven_wr_at_observed_avg_win_loss": 0.25202028067625326,
+      "wr_edge_over_breakeven_pp": 6.682029903389164,
+      "profit_factor": 1.4350453172205437,
+      "pf_ci_2.5_97.5": [
+        0.8551637279596978,
+        2.2960682089318096
+      ],
+      "total_pnl": 3024.0,
+      "total_pnl_ci_2.5_97.5": [
+        -1440.0,
+        7740.98
+      ],
+      "avg_r_multiple_all": 0.10935905862890967,
+      "avg_r_multiple_winners": 1.3089370837096364,
+      "avg_r_multiple_losers": -0.46705144607070836,
+      "median_r_multiple_losers": -0.36363636363636365
+    },
+    "VIX>17": {
+      "label": "VIX>17_CURRENT_CAP",
+      "n": 38,
+      "n_winners": 12,
+      "n_losers": 21,
+      "n_scratch": 5,
+      "wr_observed": 0.3157894736842105,
+      "wr_ci_2.5_97.5": [
+        0.18421052631578946,
+        0.4473684210526316
+      ],
+      "avg_win_dollars": 179.91666666666666,
+      "avg_loss_dollars": -92.33285714285714,
+      "avg_win_pct_of_premium": 0.6004555068164609,
+      "avg_loss_pct_of_premium": -0.27032573940553817,
+      "breakeven_wr_at_observed_avg_win_loss": 0.33914791053025584,
+      "wr_edge_over_breakeven_pp": -2.3358436846045327,
+      "profit_factor": 1.1134662891505371,
+      "pf_ci_2.5_97.5": [
+        0.3561120543293718,
+        2.9811053894959114
+      ],
+      "total_pnl": 220.01,
+      "total_pnl_ci_2.5_97.5": [
+        -1708.99,
+        2274.02
+      ],
+      "avg_r_multiple_all": 0.08045397654111736,
+      "avg_r_multiple_winners": 1.2009110136329217,
+      "avg_r_multiple_losers": -0.5406514788110763,
+      "median_r_multiple_losers": -0.3130434782608696
+    }
+  },
+  "derived_exit_stage_note": "APPROXIMATE -- no ground-truth exit-reason tag exists in fills-ledger.jsonl or mae-mfe.json. Classified from exit_pct vs configured cap_pct (see script docstring section 5).",
+  "stage_summary": {
+    "structure_or_time_loss": {
+      "n": 133,
+      "pct_of_book": 0.33756345177664976,
+      "avg_r_multiple": -0.3891654594389636,
+      "median_r_multiple": -0.3464566929133858,
+      "total_pnl": -9109.99,
+      "avg_pnl": -68.49616541353383
+    },
+    "cap_hit": {
+      "n": 146,
+      "pct_of_book": 0.37055837563451777,
+      "avg_r_multiple": -1.4424105783853984,
+      "median_r_multiple": -1.2022865649672152,
+      "total_pnl": -12792.0,
+      "avg_pnl": -87.61643835616438
+    },
+    "scratch": {
+      "n": 15,
+      "pct_of_book": 0.03807106598984772,
+      "avg_r_multiple": 0.0,
+      "median_r_multiple": 0.0,
+      "total_pnl": 0.0,
+      "avg_pnl": 0.0
+    },
+    "tp_or_target": {
+      "n": 21,
+      "pct_of_book": 0.0532994923857868,
+      "avg_r_multiple": 3.151126671272085,
+      "median_r_multiple": 2.2375296912114013,
+      "total_pnl": 7692.0,
+      "avg_pnl": 366.2857142857143
+    },
+    "small_win": {
+      "n": 79,
+      "pct_of_book": 0.20050761421319796,
+      "avg_r_multiple": 1.4219952169378827,
+      "median_r_multiple": 1.1153846153846154,
+      "total_pnl": 14745.0,
+      "avg_pnl": 186.64556962025316
+    }
+  },
+  "stage_by_arm_counts": {
+    "bold-2": {
+      "structure_or_time_loss": 18,
+      "tp_or_target": 5,
+      "cap_hit": 8,
+      "small_win": 10,
+      "scratch": 1
+    },
+    "safe-1": {
+      "cap_hit": 20,
+      "tp_or_target": 1,
+      "small_win": 1,
+      "structure_or_time_loss": 1,
+      "scratch": 1
+    },
+    "risky-1": {
+      "cap_hit": 34,
+      "scratch": 7,
+      "structure_or_time_loss": 20,
+      "small_win": 22
+    },
+    "risky-3": {
+      "cap_hit": 58,
+      "structure_or_time_loss": 13,
+      "tp_or_target": 5,
+      "scratch": 2,
+      "small_win": 16
+    },
+    "safe-3": {
+      "structure_or_time_loss": 24,
+      "cap_hit": 18,
+      "scratch": 3,
+      "small_win": 13,
+      "tp_or_target": 5
+    },
+    "safe-2": {
+      "structure_or_time_loss": 57,
+      "small_win": 17,
+      "cap_hit": 8,
+      "tp_or_target": 5,
+      "scratch": 1
+    }
+  },
+  "current_cap_stop_inside_mae_groundtruth": {
+    "n_losers_current_cap": 153,
+    "n_losers_stop_inside_mae_true": 33,
+    "pct_losers_that_touched_cap_level": 0.21568627450980393,
+    "n_winners_current_cap": 78,
+    "n_winners_stop_inside_mae_true": 0,
+    "pct_winners_that_ALSO_touched_cap_level_and_recovered": 0.0,
+    "note": "stop_inside_mae is pain_ledger.py's own field: bar low traded through the AS-CONFIGURED stop_premium for that trade. For the current-cap cohort this literally is -50%."
+  },
+  "cap_sweep_all_population": {
+    "label": "ALL_394_any_configured_cap",
+    "n_total": 394,
+    "n_excluded_mae_after_partial_exit": 174,
+    "sweep": {
+      "cap_30pct": {
+        "candidate_cap_pct": -0.3,
+        "n_eligible": 220,
+        "n_winner_killed": 11,
+        "dollars_winner_killed": -6202.7,
+        "winner_killed_symbols": [
+          "2026-07-31/safe-3/SPY260731C00747000",
+          "2026-08-06/safe-2/SPY260806P00770000",
+          "2026-08-06/risky-1/SPY260806P00770000",
+          "2026-08-06/risky-3/SPY260806P00770000",
+          "2026-08-19/bold-2/SPY260819C00770000",
+          "2026-08-27/bold-2/SPY260827C00772000",
+          "2026-08-28/safe-2/SPY260828C00771000",
+          "2026-08-28/bold-2/SPY260828C00773000",
+          "2026-08-28/safe-3/SPY260828C00771000",
+          "2026-08-28/risky-1/SPY260828C00771000",
+          "2026-09-01/safe-2/SPY260901P00762000"
+        ],
+        "n_loss_saved": 50,
+        "dollars_loss_saved": 1767.1,
+        "n_false_stop_worsened": 22,
+        "dollars_false_stop_worsened": -669.9999999999999,
+        "n_unaffected": 137,
+        "net_dollar_effect": -5105.6,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -9579.0,
+          -1271.6999999999998
+        ],
+        "big_winning_days_hit": [
+          "2026-08-06",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "cap_35pct": {
+        "candidate_cap_pct": -0.35,
+        "n_eligible": 220,
+        "n_winner_killed": 8,
+        "dollars_winner_killed": -5230.95,
+        "winner_killed_symbols": [
+          "2026-08-06/safe-2/SPY260806P00770000",
+          "2026-08-06/risky-1/SPY260806P00770000",
+          "2026-08-06/risky-3/SPY260806P00770000",
+          "2026-08-27/bold-2/SPY260827C00772000",
+          "2026-08-28/bold-2/SPY260828C00773000",
+          "2026-08-28/safe-3/SPY260828C00771000",
+          "2026-08-28/risky-1/SPY260828C00771000",
+          "2026-09-01/safe-2/SPY260901P00762000"
+        ],
+        "n_loss_saved": 40,
+        "dollars_loss_saved": 1174.2500000000002,
+        "n_false_stop_worsened": 19,
+        "dollars_false_stop_worsened": -633.4,
+        "n_unaffected": 153,
+        "net_dollar_effect": -4690.099999999999,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -9034.4,
+          -1174.3999999999996
+        ],
+        "big_winning_days_hit": [
+          "2026-08-06",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "cap_40pct": {
+        "candidate_cap_pct": -0.4,
+        "n_eligible": 220,
+        "n_winner_killed": 4,
+        "dollars_winner_killed": -2650.2,
+        "winner_killed_symbols": [
+          "2026-08-06/safe-2/SPY260806P00770000",
+          "2026-08-06/risky-3/SPY260806P00770000",
+          "2026-08-27/bold-2/SPY260827C00772000",
+          "2026-08-28/bold-2/SPY260828C00773000"
+        ],
+        "n_loss_saved": 31,
+        "dollars_loss_saved": 777.8,
+        "n_false_stop_worsened": 15,
+        "dollars_false_stop_worsened": -697.6000000000001,
+        "n_unaffected": 170,
+        "net_dollar_effect": -2570.0,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -6040.599999999999,
+          -16.800000000000125
+        ],
+        "big_winning_days_hit": [
+          "2026-08-06",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "cap_50pct": {
+        "candidate_cap_pct": -0.5,
+        "n_eligible": 220,
+        "n_winner_killed": 0,
+        "dollars_winner_killed": 0,
+        "winner_killed_symbols": [],
+        "n_loss_saved": 12,
+        "dollars_loss_saved": 282.0,
+        "n_false_stop_worsened": 15,
+        "dollars_false_stop_worsened": -762.0,
+        "n_unaffected": 193,
+        "net_dollar_effect": -479.99999999999994,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -1144.0,
+          151.00000000000006
+        ],
+        "big_winning_days_hit": []
+      }
+    }
+  },
+  "cap_sweep_current_cap_cohort_only": {
+    "label": "CURRENT_CAP_-50pct_cohort_n239",
+    "n_total": 239,
+    "n_excluded_mae_after_partial_exit": 84,
+    "sweep": {
+      "cap_30pct": {
+        "candidate_cap_pct": -0.3,
+        "n_eligible": 155,
+        "n_winner_killed": 11,
+        "dollars_winner_killed": -6202.7,
+        "winner_killed_symbols": [
+          "2026-07-31/safe-3/SPY260731C00747000",
+          "2026-08-06/safe-2/SPY260806P00770000",
+          "2026-08-06/risky-1/SPY260806P00770000",
+          "2026-08-06/risky-3/SPY260806P00770000",
+          "2026-08-19/bold-2/SPY260819C00770000",
+          "2026-08-27/bold-2/SPY260827C00772000",
+          "2026-08-28/safe-2/SPY260828C00771000",
+          "2026-08-28/bold-2/SPY260828C00773000",
+          "2026-08-28/safe-3/SPY260828C00771000",
+          "2026-08-28/risky-1/SPY260828C00771000",
+          "2026-09-01/safe-2/SPY260901P00762000"
+        ],
+        "n_loss_saved": 34,
+        "dollars_loss_saved": 1332.5,
+        "n_false_stop_worsened": 17,
+        "dollars_false_stop_worsened": -626.3,
+        "n_unaffected": 93,
+        "net_dollar_effect": -5496.5,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -9823.0,
+          -1851.3
+        ],
+        "big_winning_days_hit": [
+          "2026-08-06",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "cap_35pct": {
+        "candidate_cap_pct": -0.35,
+        "n_eligible": 155,
+        "n_winner_killed": 8,
+        "dollars_winner_killed": -5230.95,
+        "winner_killed_symbols": [
+          "2026-08-06/safe-2/SPY260806P00770000",
+          "2026-08-06/risky-1/SPY260806P00770000",
+          "2026-08-06/risky-3/SPY260806P00770000",
+          "2026-08-27/bold-2/SPY260827C00772000",
+          "2026-08-28/bold-2/SPY260828C00773000",
+          "2026-08-28/safe-3/SPY260828C00771000",
+          "2026-08-28/risky-1/SPY260828C00771000",
+          "2026-09-01/safe-2/SPY260901P00762000"
+        ],
+        "n_loss_saved": 26,
+        "dollars_loss_saved": 822.3000000000002,
+        "n_false_stop_worsened": 16,
+        "dollars_false_stop_worsened": -594.35,
+        "n_unaffected": 105,
+        "net_dollar_effect": -5003.0,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -9355.05,
+          -1583.3999999999996
+        ],
+        "big_winning_days_hit": [
+          "2026-08-06",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "cap_40pct": {
+        "candidate_cap_pct": -0.4,
+        "n_eligible": 155,
+        "n_winner_killed": 4,
+        "dollars_winner_killed": -2650.2,
+        "winner_killed_symbols": [
+          "2026-08-06/safe-2/SPY260806P00770000",
+          "2026-08-06/risky-3/SPY260806P00770000",
+          "2026-08-27/bold-2/SPY260827C00772000",
+          "2026-08-28/bold-2/SPY260828C00773000"
+        ],
+        "n_loss_saved": 19,
+        "dollars_loss_saved": 494.99999999999994,
+        "n_false_stop_worsened": 14,
+        "dollars_false_stop_worsened": -647.6000000000001,
+        "n_unaffected": 118,
+        "net_dollar_effect": -2802.8,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -6045.2,
+          -322.20000000000016
+        ],
+        "big_winning_days_hit": [
+          "2026-08-06",
+          "2026-08-27",
+          "2026-08-28"
+        ]
+      },
+      "cap_50pct": {
+        "candidate_cap_pct": -0.5,
+        "n_eligible": 155,
+        "n_winner_killed": 0,
+        "dollars_winner_killed": 0,
+        "winner_killed_symbols": [],
+        "n_loss_saved": 5,
+        "dollars_loss_saved": 83.50000000000003,
+        "n_false_stop_worsened": 12,
+        "dollars_false_stop_worsened": -631.5,
+        "n_unaffected": 138,
+        "net_dollar_effect": -548.0,
+        "net_dollar_effect_ci_2.5_97.5": [
+          -1081.0,
+          -122.99999999999987
+        ],
+        "big_winning_days_hit": []
+      }
+    }
+  },
+  "cap_sweep_net_effect_by_regime": {
+    "VIX<15": {
+      "cap_30pct": -2924.2,
+      "cap_35pct": -2639.65,
+      "cap_40pct": -1106.4,
+      "cap_50pct": -387.0,
+      "n": 95
+    },
+    "VIX15-17": {
+      "cap_30pct": -2182.6,
+      "cap_35pct": -2012.35,
+      "cap_40pct": -1365.2,
+      "cap_50pct": 39.00000000000005,
+      "n": 241
+    },
+    "VIX>17": {
+      "cap_30pct": 1.2000000000000064,
+      "cap_35pct": -38.09999999999996,
+      "cap_40pct": -98.4,
+      "cap_50pct": -132.0,
+      "n": 58
+    }
+  },
+  "big_winning_days_check": {
+    "2026-08-06": {
+      "n_trades_in_ledger": 4,
+      "total_realized_pnl": 1465.0,
+      "n_winners": 3,
+      "cap_sweep_impact": [
+        {
+          "cap": -0.3,
+          "n_winners_would_be_killed": 3,
+          "dollars_at_risk": 1501.0
+        },
+        {
+          "cap": -0.35,
+          "n_winners_would_be_killed": 3,
+          "dollars_at_risk": 1501.0
+        },
+        {
+          "cap": -0.4,
+          "n_winners_would_be_killed": 2,
+          "dollars_at_risk": 1205.0
+        },
+        {
+          "cap": -0.5,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        }
+      ]
+    },
+    "2026-08-13": {
+      "n_trades_in_ledger": 15,
+      "total_realized_pnl": 1748.0,
+      "n_winners": 8,
+      "cap_sweep_impact": [
+        {
+          "cap": -0.3,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        },
+        {
+          "cap": -0.35,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        },
+        {
+          "cap": -0.4,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        },
+        {
+          "cap": -0.5,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        }
+      ]
+    },
+    "2026-08-27": {
+      "n_trades_in_ledger": 12,
+      "total_realized_pnl": 1897.0,
+      "n_winners": 9,
+      "cap_sweep_impact": [
+        {
+          "cap": -0.3,
+          "n_winners_would_be_killed": 1,
+          "dollars_at_risk": 159.0
+        },
+        {
+          "cap": -0.35,
+          "n_winners_would_be_killed": 1,
+          "dollars_at_risk": 159.0
+        },
+        {
+          "cap": -0.4,
+          "n_winners_would_be_killed": 1,
+          "dollars_at_risk": 159.0
+        },
+        {
+          "cap": -0.5,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        }
+      ]
+    },
+    "2026-08-28": {
+      "n_trades_in_ledger": 11,
+      "total_realized_pnl": 1304.0,
+      "n_winners": 4,
+      "cap_sweep_impact": [
+        {
+          "cap": -0.3,
+          "n_winners_would_be_killed": 4,
+          "dollars_at_risk": 2249.0
+        },
+        {
+          "cap": -0.35,
+          "n_winners_would_be_killed": 3,
+          "dollars_at_risk": 1722.0
+        },
+        {
+          "cap": -0.4,
+          "n_winners_would_be_killed": 1,
+          "dollars_at_risk": 509.0
+        },
+        {
+          "cap": -0.5,
+          "n_winners_would_be_killed": 0,
+          "dollars_at_risk": 0
+        }
+      ]
+    }
+  },
+  "hindsight_caveat": "MANDATORY (C6 / PREREG-2026-08-01.md): MAE is knowledge of a trade's eventual worst point, available only after the fact. A live stop cannot condition on 'this will recover' -- it can only condition on price crossing a level NOW. Every 'winner_killed' and 'loss_saved' figure in this report is a hindsight counterfactual over the REALIZED population, not a forward-tested rule. The prior settled hypothesis (stop_inside_noise_floor, 2026-08-06) found stop-width changes in EITHER direction are regime-conditional and graveyarded 'any stop-width change in EITHER direction' -- this report's job is to check whether that verdict still holds on the CURRENT (-50%) cap era's population, not to re-open it on a hope."
+}

@@ -1,0 +1,879 @@
+{
+  "_doc": "H5 STRUCTURE-STOP WHIPSAW -- real-ledger structure_stop exit population (core + fleet decisions.jsonl), whipsaw-reclaim diagnostic + 5 candidate buffer/confirm-count variants re-walked against cached SPY 5m + option 5m bars. ANALYSIS ONLY -- no trading-path file touched.",
+  "generated_at_stamp": "2026-09-03T10:24 ET (analysis run later same session)",
+  "hypothesis": "Several losers were structure_stop exits 5-10 minutes after entry (a closed 5m bar back through the trigger level). Does SPY reclaim the trigger level within 15/30/60 minutes (whipsaw), what does the option do afterwards, and would a buffer (fixed $, ATR-scaled, 2-consecutive-close confirm, or 1-bar grace) have saved more than it cost?",
+  "data_sources": [
+    "automation/state/core-decisions.jsonl (38 structure_stop actions, read-only)",
+    "automation/state/fleet/{safe-3,risky-1,risky-3}/decisions.jsonl (55 structure_stop actions, read-only)",
+    "analysis/pain-ledger/mae-mfe.json (394-trade frozen population, entry_price/qty match)",
+    "backtest/data/spy_5m_2026-05-19_2026-09-02.csv (cached SPY 5m bars)",
+    "backtest/data/options/<symbol>.csv (cached 5m option bars, 30/34 symbols covered)",
+    "analysis/regime-library/day-archetypes.json (vix_close by day, VIX regime split)"
+  ],
+  "population": {
+    "n_raw_structure_stop_actions": 93,
+    "n_core": 38,
+    "n_fleet": 55,
+    "n_matched_to_mae_mfe_entry": 89,
+    "n_excluded_today_in_progress": 4,
+    "n_excluded_no_cached_option_bars": 10,
+    "n_usable": 79,
+    "n_distinct_trading_days": 17,
+    "date_span": "2026-07-13..2026-08-27",
+    "arms": [
+      "bold-2",
+      "risky-1",
+      "risky-3",
+      "safe-2",
+      "safe-3"
+    ],
+    "n_by_arm": {
+      "bold-2": 16,
+      "risky-1": 18,
+      "risky-3": 7,
+      "safe-2": 18,
+      "safe-3": 20
+    },
+    "entry_match_ambiguous_reused": 0,
+    "control_bar_close_qc_outliers_gt_10c": 5
+  },
+  "whipsaw_diagnostic": {
+    "definition": "SPY closes back through trigger_level, in the ORIGINAL side's favor (close > trigger for a call's bull-reclaim level, close < trigger for a put's bear-rejection level), within N 5m bars after the bar the structure_stop actually fired on.",
+    "n": 79,
+    "reclaim_within_15m": 44,
+    "reclaim_within_30m": 56,
+    "reclaim_within_60m": 62,
+    "reclaim_rate_15m": 0.557,
+    "reclaim_rate_30m": 0.7089,
+    "reclaim_rate_60m": 0.7848
+  },
+  "winning_days_exposure": {
+    "2026-08-06": {
+      "n_structure_stop_events": 0,
+      "arms_symbols": []
+    },
+    "2026-08-13": {
+      "n_structure_stop_events": 5,
+      "arms_symbols": [
+        "bold-2:SPY260813C00776000",
+        "safe-3:SPY260813C00776000",
+        "risky-1:SPY260813C00776000",
+        "safe-2:SPY260813P00776000",
+        "bold-2:SPY260813P00776000"
+      ]
+    },
+    "2026-08-27": {
+      "n_structure_stop_events": 1,
+      "arms_symbols": [
+        "bold-2:SPY260827C00771000"
+      ]
+    },
+    "2026-08-28": {
+      "n_structure_stop_events": 0,
+      "arms_symbols": []
+    }
+  },
+  "variant_results": {
+    "BUF-0.15": {
+      "overall_ci": {
+        "n": 79,
+        "mean": -6.3,
+        "sum": -498.0,
+        "ci_lower_2.5pct_mean": -27.65,
+        "ci_upper_97.5pct_mean": 21.24,
+        "ci_lower_2.5pct_sum": -2184.0,
+        "ci_upper_97.5pct_sum": 1678.0
+      },
+      "n_helped": 3,
+      "n_hurt": 35,
+      "n_flat": 41,
+      "dollars_saved_sum": 1547.0,
+      "dollars_extra_loss_absorbed_sum": -2045.0,
+      "drop_best_day": {
+        "total": -498.0,
+        "best_day": "2026-08-11",
+        "best_day_delta": 1547.0,
+        "ex_best_day_total": -2045.0
+      },
+      "top3_concentration": {
+        "top3_of_positive_sum": 1547.0,
+        "total_positive_sum": 1547.0,
+        "top3_share_of_positive": 1.0,
+        "net_total_all_positions": -498.0,
+        "net_total_excluding_top3": -2045.0,
+        "top3_share_of_net_total": -3.1064
+      },
+      "exit_kind_counts": {
+        "catastrophe_cap": 14,
+        "structure_stop_variant": 61,
+        "time_stop": 4
+      },
+      "n_fired_same_bar_as_control_unaffected": 38,
+      "by_arm": {
+        "bold-2": {
+          "n": 16,
+          "mean": 10.31,
+          "sum": 165.0,
+          "ci_lower_2.5pct_mean": -44.38,
+          "ci_upper_97.5pct_mean": 97.5,
+          "ci_lower_2.5pct_sum": -710.0,
+          "ci_upper_97.5pct_sum": 1560.0
+        },
+        "risky-1": {
+          "n": 18,
+          "mean": -4.03,
+          "sum": -72.5,
+          "ci_lower_2.5pct_mean": -57.64,
+          "ci_upper_97.5pct_mean": 80.14,
+          "ci_lower_2.5pct_sum": -1037.5,
+          "ci_upper_97.5pct_sum": 1442.5
+        },
+        "risky-3": {
+          "n": 7,
+          "mean": -21.79,
+          "sum": -152.5,
+          "ci_lower_2.5pct_mean": -41.79,
+          "ci_upper_97.5pct_mean": -5.71,
+          "ci_lower_2.5pct_sum": -292.5,
+          "ci_upper_97.5pct_sum": -40.0
+        },
+        "safe-2": {
+          "n": 18,
+          "mean": -1.0,
+          "sum": -18.0,
+          "ci_lower_2.5pct_mean": -32.67,
+          "ci_upper_97.5pct_mean": 48.0,
+          "ci_lower_2.5pct_sum": -588.0,
+          "ci_upper_97.5pct_sum": 864.0
+        },
+        "safe-3": {
+          "n": 20,
+          "mean": -21.0,
+          "sum": -420.0,
+          "ci_lower_2.5pct_mean": -35.25,
+          "ci_upper_97.5pct_mean": -9.15,
+          "ci_lower_2.5pct_sum": -705.0,
+          "ci_upper_97.5pct_sum": -183.0
+        }
+      },
+      "by_vix_regime": {
+        "vix<15": {
+          "n": 29,
+          "mean": -44.22,
+          "sum": -1282.5,
+          "ci_lower_2.5pct_mean": -63.9,
+          "ci_upper_97.5pct_mean": -26.66,
+          "ci_lower_2.5pct_sum": -1853.0,
+          "ci_upper_97.5pct_sum": -773.0
+        },
+        "vix15-17": {
+          "n": 39,
+          "mean": 28.79,
+          "sum": 1123.0,
+          "ci_lower_2.5pct_mean": -11.28,
+          "ci_upper_97.5pct_mean": 80.46,
+          "ci_lower_2.5pct_sum": -440.0,
+          "ci_upper_97.5pct_sum": 3138.0
+        },
+        "vix>17": {
+          "n": 11,
+          "mean": -30.77,
+          "sum": -338.5,
+          "ci_lower_2.5pct_mean": -49.86,
+          "ci_upper_97.5pct_mean": -12.95,
+          "ci_lower_2.5pct_sum": -548.5,
+          "ci_upper_97.5pct_sum": -142.5
+        }
+      },
+      "winning_days_n_events": 6,
+      "winning_days_delta_sum": -162.5,
+      "winning_days_detail": [
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "delta": -55.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "delta": -33.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "delta": -55.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "delta": -19.5,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "delta": 0.0,
+          "fired_same_bar_as_control": true
+        },
+        {
+          "date": "2026-08-27",
+          "arm": "bold-2",
+          "symbol": "SPY260827C00771000",
+          "delta": 0.0,
+          "fired_same_bar_as_control": true
+        }
+      ]
+    },
+    "BUF-0.25": {
+      "overall_ci": {
+        "n": 79,
+        "mean": 56.98,
+        "sum": 4501.5,
+        "ci_lower_2.5pct_mean": -8.89,
+        "ci_upper_97.5pct_mean": 135.11,
+        "ci_lower_2.5pct_sum": -702.0,
+        "ci_upper_97.5pct_sum": 10674.0
+      },
+      "n_helped": 10,
+      "n_hurt": 43,
+      "n_flat": 26,
+      "dollars_saved_sum": 8002.0,
+      "dollars_extra_loss_absorbed_sum": -3500.5,
+      "drop_best_day": {
+        "total": 4501.5,
+        "best_day": "2026-08-04",
+        "best_day_delta": 5085.0,
+        "ex_best_day_total": -583.5
+      },
+      "top3_concentration": {
+        "top3_of_positive_sum": 4350.0,
+        "total_positive_sum": 8002.0,
+        "top3_share_of_positive": 0.5436,
+        "net_total_all_positions": 4501.5,
+        "net_total_excluding_top3": 151.5,
+        "top3_share_of_net_total": 0.9663
+      },
+      "exit_kind_counts": {
+        "catastrophe_cap": 24,
+        "structure_stop_variant": 44,
+        "time_stop": 11
+      },
+      "n_fired_same_bar_as_control_unaffected": 20,
+      "by_arm": {
+        "bold-2": {
+          "n": 16,
+          "mean": 127.5,
+          "sum": 2040.0,
+          "ci_lower_2.5pct_mean": -32.5,
+          "ci_upper_97.5pct_mean": 346.56,
+          "ci_lower_2.5pct_sum": -520.0,
+          "ci_upper_97.5pct_sum": 5545.0
+        },
+        "risky-1": {
+          "n": 18,
+          "mean": 77.92,
+          "sum": 1402.5,
+          "ci_lower_2.5pct_mean": -73.33,
+          "ci_upper_97.5pct_mean": 277.78,
+          "ci_lower_2.5pct_sum": -1320.0,
+          "ci_upper_97.5pct_sum": 5000.0
+        },
+        "risky-3": {
+          "n": 7,
+          "mean": 136.07,
+          "sum": 952.5,
+          "ci_lower_2.5pct_mean": -168.57,
+          "ci_upper_97.5pct_mean": 605.36,
+          "ci_lower_2.5pct_sum": -1180.0,
+          "ci_upper_97.5pct_sum": 4237.5
+        },
+        "safe-2": {
+          "n": 18,
+          "mean": -8.83,
+          "sum": -159.0,
+          "ci_lower_2.5pct_mean": -41.0,
+          "ci_upper_97.5pct_mean": 41.08,
+          "ci_lower_2.5pct_sum": -738.0,
+          "ci_upper_97.5pct_sum": 739.5
+        },
+        "safe-3": {
+          "n": 20,
+          "mean": 13.28,
+          "sum": 265.5,
+          "ci_lower_2.5pct_mean": -61.5,
+          "ci_upper_97.5pct_mean": 120.0,
+          "ci_lower_2.5pct_sum": -1230.0,
+          "ci_upper_97.5pct_sum": 2400.0
+        }
+      },
+      "by_vix_regime": {
+        "vix<15": {
+          "n": 29,
+          "mean": -0.4,
+          "sum": -11.5,
+          "ci_lower_2.5pct_mean": -49.79,
+          "ci_upper_97.5pct_mean": 58.71,
+          "ci_lower_2.5pct_sum": -1444.0,
+          "ci_upper_97.5pct_sum": 1702.5
+        },
+        "vix15-17": {
+          "n": 39,
+          "mean": 142.47,
+          "sum": 5556.5,
+          "ci_lower_2.5pct_mean": 19.96,
+          "ci_upper_97.5pct_mean": 295.23,
+          "ci_lower_2.5pct_sum": 778.5,
+          "ci_upper_97.5pct_sum": 11514.0
+        },
+        "vix>17": {
+          "n": 11,
+          "mean": -94.86,
+          "sum": -1043.5,
+          "ci_lower_2.5pct_mean": -161.55,
+          "ci_upper_97.5pct_mean": -44.82,
+          "ci_lower_2.5pct_sum": -1777.0,
+          "ci_upper_97.5pct_sum": -493.0
+        }
+      },
+      "winning_days_n_events": 6,
+      "winning_days_delta_sum": 1180.5,
+      "winning_days_detail": [
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "delta": 475.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "delta": 285.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "delta": 475.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "delta": -19.5,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "delta": 0.0,
+          "fired_same_bar_as_control": true
+        },
+        {
+          "date": "2026-08-27",
+          "arm": "bold-2",
+          "symbol": "SPY260827C00771000",
+          "delta": -35.0,
+          "fired_same_bar_as_control": false
+        }
+      ]
+    },
+    "BUF-ATR0.5x": {
+      "overall_ci": {
+        "n": 79,
+        "mean": 47.01,
+        "sum": 3714.0,
+        "ci_lower_2.5pct_mean": -22.13,
+        "ci_upper_97.5pct_mean": 125.22,
+        "ci_lower_2.5pct_sum": -1748.0,
+        "ci_upper_97.5pct_sum": 9892.0
+      },
+      "n_helped": 10,
+      "n_hurt": 48,
+      "n_flat": 21,
+      "dollars_saved_sum": 8002.0,
+      "dollars_extra_loss_absorbed_sum": -4288.0,
+      "drop_best_day": {
+        "total": 3714.0,
+        "best_day": "2026-08-04",
+        "best_day_delta": 4917.0,
+        "ex_best_day_total": -1203.0
+      },
+      "top3_concentration": {
+        "top3_of_positive_sum": 4350.0,
+        "total_positive_sum": 8002.0,
+        "top3_share_of_positive": 0.5436,
+        "net_total_all_positions": 3714.0,
+        "net_total_excluding_top3": -636.0,
+        "top3_share_of_net_total": 1.1712
+      },
+      "exit_kind_counts": {
+        "catastrophe_cap": 23,
+        "structure_stop_variant": 45,
+        "time_stop": 11
+      },
+      "n_fired_same_bar_as_control_unaffected": 15,
+      "by_arm": {
+        "bold-2": {
+          "n": 16,
+          "mean": 119.06,
+          "sum": 1905.0,
+          "ci_lower_2.5pct_mean": -36.25,
+          "ci_upper_97.5pct_mean": 344.69,
+          "ci_lower_2.5pct_sum": -580.0,
+          "ci_upper_97.5pct_sum": 5515.0
+        },
+        "risky-1": {
+          "n": 18,
+          "mean": 69.44,
+          "sum": 1250.0,
+          "ci_lower_2.5pct_mean": -83.75,
+          "ci_upper_97.5pct_mean": 280.56,
+          "ci_lower_2.5pct_sum": -1507.5,
+          "ci_upper_97.5pct_sum": 5050.0
+        },
+        "risky-3": {
+          "n": 7,
+          "mean": 125.79,
+          "sum": 880.5,
+          "ci_lower_2.5pct_mean": -174.64,
+          "ci_upper_97.5pct_mean": 597.14,
+          "ci_lower_2.5pct_sum": -1222.5,
+          "ci_upper_97.5pct_sum": 4180.0
+        },
+        "safe-2": {
+          "n": 18,
+          "mean": -18.33,
+          "sum": -330.0,
+          "ci_lower_2.5pct_mean": -53.25,
+          "ci_upper_97.5pct_mean": 31.67,
+          "ci_lower_2.5pct_sum": -958.5,
+          "ci_upper_97.5pct_sum": 570.0
+        },
+        "safe-3": {
+          "n": 20,
+          "mean": 0.42,
+          "sum": 8.5,
+          "ci_lower_2.5pct_mean": -76.78,
+          "ci_upper_97.5pct_mean": 106.62,
+          "ci_lower_2.5pct_sum": -1535.5,
+          "ci_upper_97.5pct_sum": 2132.5
+        }
+      },
+      "by_vix_regime": {
+        "vix<15": {
+          "n": 29,
+          "mean": -24.95,
+          "sum": -723.5,
+          "ci_lower_2.5pct_mean": -76.97,
+          "ci_upper_97.5pct_mean": 36.66,
+          "ci_lower_2.5pct_sum": -2232.0,
+          "ci_upper_97.5pct_sum": 1063.0
+        },
+        "vix15-17": {
+          "n": 39,
+          "mean": 140.54,
+          "sum": 5481.0,
+          "ci_lower_2.5pct_mean": 17.62,
+          "ci_upper_97.5pct_mean": 284.78,
+          "ci_lower_2.5pct_sum": 687.0,
+          "ci_upper_97.5pct_sum": 11106.5
+        },
+        "vix>17": {
+          "n": 11,
+          "mean": -94.86,
+          "sum": -1043.5,
+          "ci_lower_2.5pct_mean": -165.73,
+          "ci_upper_97.5pct_mean": -45.14,
+          "ci_lower_2.5pct_sum": -1823.0,
+          "ci_upper_97.5pct_sum": -496.5
+        }
+      },
+      "winning_days_n_events": 6,
+      "winning_days_delta_sum": 1180.5,
+      "winning_days_detail": [
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "delta": 475.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "delta": 285.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "delta": 475.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "delta": -19.5,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "delta": 0.0,
+          "fired_same_bar_as_control": true
+        },
+        {
+          "date": "2026-08-27",
+          "arm": "bold-2",
+          "symbol": "SPY260827C00771000",
+          "delta": -35.0,
+          "fired_same_bar_as_control": false
+        }
+      ]
+    },
+    "TWO-CLOSES": {
+      "overall_ci": {
+        "n": 79,
+        "mean": -20.63,
+        "sum": -1629.5,
+        "ci_lower_2.5pct_mean": -44.53,
+        "ci_upper_97.5pct_mean": 8.25,
+        "ci_lower_2.5pct_sum": -3518.0,
+        "ci_upper_97.5pct_sum": 651.5
+      },
+      "n_helped": 13,
+      "n_hurt": 57,
+      "n_flat": 9,
+      "dollars_saved_sum": 1748.0,
+      "dollars_extra_loss_absorbed_sum": -3377.5,
+      "drop_best_day": {
+        "total": -1629.5,
+        "best_day": "2026-08-11",
+        "best_day_delta": 1567.0,
+        "ex_best_day_total": -3196.5
+      },
+      "top3_concentration": {
+        "top3_of_positive_sum": 1547.0,
+        "total_positive_sum": 1748.0,
+        "top3_share_of_positive": 0.885,
+        "net_total_all_positions": -1629.5,
+        "net_total_excluding_top3": -3176.5,
+        "top3_share_of_net_total": -0.9494
+      },
+      "exit_kind_counts": {
+        "catastrophe_cap": 18,
+        "structure_stop_variant": 57,
+        "time_stop": 4
+      },
+      "n_fired_same_bar_as_control_unaffected": 1,
+      "by_arm": {
+        "bold-2": {
+          "n": 16,
+          "mean": 10.31,
+          "sum": 165.0,
+          "ci_lower_2.5pct_mean": -46.56,
+          "ci_upper_97.5pct_mean": 96.88,
+          "ci_lower_2.5pct_sum": -745.0,
+          "ci_upper_97.5pct_sum": 1550.0
+        },
+        "risky-1": {
+          "n": 18,
+          "mean": -14.44,
+          "sum": -260.0,
+          "ci_lower_2.5pct_mean": -69.17,
+          "ci_upper_97.5pct_mean": 69.44,
+          "ci_lower_2.5pct_sum": -1245.0,
+          "ci_upper_97.5pct_sum": 1250.0
+        },
+        "risky-3": {
+          "n": 7,
+          "mean": -81.36,
+          "sum": -569.5,
+          "ci_lower_2.5pct_mean": -183.21,
+          "ci_upper_97.5pct_mean": -8.43,
+          "ci_lower_2.5pct_sum": -1282.5,
+          "ci_upper_97.5pct_sum": -59.0
+        },
+        "safe-2": {
+          "n": 18,
+          "mean": -6.17,
+          "sum": -111.0,
+          "ci_lower_2.5pct_mean": -36.08,
+          "ci_upper_97.5pct_mean": 42.83,
+          "ci_lower_2.5pct_sum": -649.5,
+          "ci_upper_97.5pct_sum": 771.0
+        },
+        "safe-3": {
+          "n": 20,
+          "mean": -42.7,
+          "sum": -854.0,
+          "ci_lower_2.5pct_mean": -69.1,
+          "ci_upper_97.5pct_mean": -21.45,
+          "ci_lower_2.5pct_sum": -1382.0,
+          "ci_upper_97.5pct_sum": -429.0
+        }
+      },
+      "by_vix_regime": {
+        "vix<15": {
+          "n": 29,
+          "mean": -48.34,
+          "sum": -1402.0,
+          "ci_lower_2.5pct_mean": -67.57,
+          "ci_upper_97.5pct_mean": -31.19,
+          "ci_lower_2.5pct_sum": -1959.5,
+          "ci_upper_97.5pct_sum": -904.5
+        },
+        "vix15-17": {
+          "n": 39,
+          "mean": 20.59,
+          "sum": 803.0,
+          "ci_lower_2.5pct_mean": -20.46,
+          "ci_upper_97.5pct_mean": 73.87,
+          "ci_lower_2.5pct_sum": -798.0,
+          "ci_upper_97.5pct_sum": 2881.0
+        },
+        "vix>17": {
+          "n": 11,
+          "mean": -93.68,
+          "sum": -1030.5,
+          "ci_lower_2.5pct_mean": -161.64,
+          "ci_upper_97.5pct_mean": -42.5,
+          "ci_lower_2.5pct_sum": -1778.0,
+          "ci_upper_97.5pct_sum": -467.5
+        }
+      },
+      "winning_days_n_events": 6,
+      "winning_days_delta_sum": -197.5,
+      "winning_days_detail": [
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "delta": -55.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "delta": -33.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "delta": -55.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "delta": -19.5,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "delta": 0.0,
+          "fired_same_bar_as_control": true
+        },
+        {
+          "date": "2026-08-27",
+          "arm": "bold-2",
+          "symbol": "SPY260827C00771000",
+          "delta": -35.0,
+          "fired_same_bar_as_control": false
+        }
+      ]
+    },
+    "GRACE-1BAR": {
+      "overall_ci": {
+        "n": 79,
+        "mean": -3.42,
+        "sum": -270.5,
+        "ci_lower_2.5pct_mean": -17.24,
+        "ci_upper_97.5pct_mean": 10.63,
+        "ci_lower_2.5pct_sum": -1362.0,
+        "ci_upper_97.5pct_sum": 840.0
+      },
+      "n_helped": 29,
+      "n_hurt": 41,
+      "n_flat": 9,
+      "dollars_saved_sum": 1620.0,
+      "dollars_extra_loss_absorbed_sum": -1890.5,
+      "drop_best_day": {
+        "total": -270.5,
+        "best_day": "2026-08-19",
+        "best_day_delta": 416.0,
+        "ex_best_day_total": -686.5
+      },
+      "top3_concentration": {
+        "top3_of_positive_sum": 455.0,
+        "total_positive_sum": 1620.0,
+        "top3_share_of_positive": 0.2809,
+        "net_total_all_positions": -270.5,
+        "net_total_excluding_top3": -725.5,
+        "top3_share_of_net_total": -1.6821
+      },
+      "exit_kind_counts": {
+        "structure_stop_variant": 71,
+        "catastrophe_cap": 8
+      },
+      "n_fired_same_bar_as_control_unaffected": 0,
+      "by_arm": {
+        "bold-2": {
+          "n": 16,
+          "mean": 11.88,
+          "sum": 190.0,
+          "ci_lower_2.5pct_mean": -21.88,
+          "ci_upper_97.5pct_mean": 46.56,
+          "ci_lower_2.5pct_sum": -350.0,
+          "ci_upper_97.5pct_sum": 745.0
+        },
+        "risky-1": {
+          "n": 18,
+          "mean": -13.06,
+          "sum": -235.0,
+          "ci_lower_2.5pct_mean": -47.78,
+          "ci_upper_97.5pct_mean": 20.0,
+          "ci_lower_2.5pct_sum": -860.0,
+          "ci_upper_97.5pct_sum": 360.0
+        },
+        "risky-3": {
+          "n": 7,
+          "mean": 28.29,
+          "sum": 198.0,
+          "ci_lower_2.5pct_mean": -17.0,
+          "ci_upper_97.5pct_mean": 76.86,
+          "ci_lower_2.5pct_sum": -119.0,
+          "ci_upper_97.5pct_sum": 538.0
+        },
+        "safe-2": {
+          "n": 18,
+          "mean": -9.58,
+          "sum": -172.5,
+          "ci_lower_2.5pct_mean": -27.5,
+          "ci_upper_97.5pct_mean": 11.17,
+          "ci_lower_2.5pct_sum": -495.0,
+          "ci_upper_97.5pct_sum": 201.0
+        },
+        "safe-3": {
+          "n": 20,
+          "mean": -12.55,
+          "sum": -251.0,
+          "ci_lower_2.5pct_mean": -34.3,
+          "ci_upper_97.5pct_mean": 9.2,
+          "ci_lower_2.5pct_sum": -686.0,
+          "ci_upper_97.5pct_sum": 184.0
+        }
+      },
+      "by_vix_regime": {
+        "vix<15": {
+          "n": 29,
+          "mean": -28.43,
+          "sum": -824.5,
+          "ci_lower_2.5pct_mean": -52.5,
+          "ci_upper_97.5pct_mean": -3.59,
+          "ci_lower_2.5pct_sum": -1522.5,
+          "ci_upper_97.5pct_sum": -104.0
+        },
+        "vix15-17": {
+          "n": 39,
+          "mean": 2.59,
+          "sum": 101.0,
+          "ci_lower_2.5pct_mean": -12.54,
+          "ci_upper_97.5pct_mean": 18.74,
+          "ci_lower_2.5pct_sum": -489.0,
+          "ci_upper_97.5pct_sum": 731.0
+        },
+        "vix>17": {
+          "n": 11,
+          "mean": 41.18,
+          "sum": 453.0,
+          "ci_lower_2.5pct_mean": 7.45,
+          "ci_upper_97.5pct_mean": 76.27,
+          "ci_lower_2.5pct_sum": 82.0,
+          "ci_upper_97.5pct_sum": 839.0
+        }
+      },
+      "winning_days_n_events": 6,
+      "winning_days_delta_sum": -57.0,
+      "winning_days_detail": [
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813C00776000",
+          "delta": -55.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-3",
+          "symbol": "SPY260813C00776000",
+          "delta": -33.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "risky-1",
+          "symbol": "SPY260813C00776000",
+          "delta": -55.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "safe-2",
+          "symbol": "SPY260813P00776000",
+          "delta": -9.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-13",
+          "arm": "bold-2",
+          "symbol": "SPY260813P00776000",
+          "delta": 0.0,
+          "fired_same_bar_as_control": false
+        },
+        {
+          "date": "2026-08-27",
+          "arm": "bold-2",
+          "symbol": "SPY260827C00771000",
+          "delta": 95.0,
+          "fired_same_bar_as_control": false
+        }
+      ]
+    }
+  },
+  "prior_art_cited": {
+    "structure-stop-zone-band (CLOSED 2026-08-11)": "analysis/recommendations/prereg-structure-stop-zone-2026-08-11.json -- SAME family of question (a price band around trigger_level), CLOSED by its own G4: only 3/29 positions ever touched by any band cell, too rare to validate. This study's independent finding (top-3-trade concentration 96.6% of BUF-0.25's positive sum; every one of 5 variants goes net negative excluding its single best day) reproduces that exact dead-frequency pattern on a disjoint, more recent population (2026-07-13..2026-08-27 vs the prior study's 2026-06-29..07-17).",
+    "WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM-2026-09-03": "Filed the SAME day. Documents that a full walker REPLAY of structure_stop (exit_manager_walk re-deriving the closed-5m-bar-close deterministically from a gap-free CSV) disagrees with LIVE's own discrete/tick-gated poll on 14/genuine misfire-classified rows, concentrated on signal-days replicated across arms (11 signal-days covering 26/42 disagree rows). This study deliberately does NOT walk-replay structure_stop -- it anchors every 'control' bar directly off the REAL ledger's own last_closed_5m_close + ts_et (the actual live decision), so it inherits none of that replay-vs-live gap. The correlated-across-arms pattern recurs here too (08-04 C00768000 hit 4 arms; 08-13 C00776000 hit 3 arms) -- consistent with the SAME underlying mechanism (one SPY-level event, replicated by shared signal, not independent per-arm noise)."
+  },
+  "methodology_and_caveats": [
+    "Counterfactual exit premium for a delayed/avoided stop uses the cached 5-min OPTION bar CLOSE minus $0.02 slippage at the variant's own fire bar (or the 15:50 ET hard time-stop close, or the -50% catastrophe-cap floor -- whichever binds first, scanned from the REAL stop bar forward) -- the SAME convention documented and used by backtest/tools/ribbon_flipback_buffer_ab.py for market-style exit stages. The 'actual' baseline uses the identical convention (option bar close at the real stop bar), NOT the raw broker fill -- so the reported quantity is an internally-consistent PAIRED DELTA, not either side's absolute dollar level.",
+    "This study does NOT replay TP1 / chandelier trail / ribbon-flip-back -- only the structure-stop-vs-buffer race with the catastrophe cap and 15:50 time-stop as the sole floor/ceiling. A delayed/avoided structure stop that would, in full production, have instead been caught by a legitimate TP1 or trail exit is credited here as riding to whichever of {catastrophe cap, 15:50 close} binds first -- this is a SIMPLIFICATION disclosed as two-sided: it can overstate the buffer's benefit (crediting a full ride to EOD close that a real TP1 would have locked in earlier, sometimes at a worse level than EOD, sometimes better) and can equally understate it. A full-fidelity re-walk would need backtest/lib/exit_manager_walk.py (read-only per task scope) with the SAME live-poll-cadence gap WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM just documented -- not attempted here for exactly that reason.",
+    "control_idx (the bar the buffer/confirm variants are evaluated forward from) is anchored by TIME (nearest closed 5m bar strictly before the ledger's own stop timestamp), not by matching the ledger's last_closed_5m_close VALUE -- the two differ by a median $0.015 (rounding/live-feed-vs-cached-CSV noise, same provenance gap WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM discloses) and 5/89 events differ by more than $0.10 (flagged control_bar_close_qc_outliers, retained not dropped).",
+    "10/89 matched events excluded for missing cached option bars (backtest/data/options/ covers 30/34 unique symbols); 4/93 raw events are TODAY (2026-09-03, market open, in progress) and excluded because no forward bars exist yet for them -- neither exclusion set was chosen after seeing its effect on the aggregate.",
+    "ATR buffer uses a single a priori multiplier (0.5x trailing 12-bar 5m ATR, computed from CLOSED bars strictly before the evaluation bar only) -- not tuned to this study's own dollar outcome; it happens to land close to BUF-0.25 in aggregate effect, which is itself informative (median trailing-hour SPY 5m ATR on structure-stop days is in the same $0.20-0.30 neighborhood as the fixed-dollar candidates).",
+    "n=79 spans only 17 distinct trading days and several signal-days are hit by 3-4 arms simultaneously off the SAME shared signal (per CLAUDE.md 'arms are risk profiles, NOT strategies' -- they trade the same signal) -- treating n=79 as 79 independent trials overstates statistical power; the day-clustering is visible directly in the top-3-trade concentration and drop-best-day numbers below, which are reported specifically because the naive n=79 bootstrap CI would otherwise look tighter than the true independent-evidence count supports."
+  ]
+}

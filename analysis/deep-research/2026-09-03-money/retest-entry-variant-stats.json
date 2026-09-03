@@ -1,0 +1,354 @@
+{
+ "n_total_raw_entries": 109,
+ "n_excluded_data_gap": 6,
+ "excluded_data_gap_detail": [
+  {
+   "arm": "safe-3",
+   "date": "2026-08-07",
+   "symbol": "SPY260807C00773000",
+   "ts_et": "2026-08-07T12:07:06.437618-04:00",
+   "reason": "no_bars",
+   "actual_walk_pnl": -520.0
+  },
+  {
+   "arm": "risky-1",
+   "date": "2026-08-07",
+   "symbol": "SPY260807C00773000",
+   "ts_et": "2026-08-07T12:07:06.437618-04:00",
+   "reason": "no_bars",
+   "actual_walk_pnl": -320.0
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-07",
+   "symbol": "SPY260807C00775000",
+   "ts_et": "2026-08-07T12:07:06.437618-04:00",
+   "reason": "no_bars",
+   "actual_walk_pnl": -264.0
+  },
+  {
+   "arm": "safe-3",
+   "date": "2026-08-07",
+   "symbol": "SPY260807C00772000",
+   "ts_et": "2026-08-07T12:37:05.281003-04:00",
+   "reason": "no_bars",
+   "actual_walk_pnl": -368.0
+  },
+  {
+   "arm": "risky-1",
+   "date": "2026-08-07",
+   "symbol": "SPY260807C00772000",
+   "ts_et": "2026-08-07T12:37:05.281003-04:00",
+   "reason": "no_bars",
+   "actual_walk_pnl": -227.5
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-07",
+   "symbol": "SPY260807C00774000",
+   "ts_et": "2026-08-07T12:40:05.316850-04:00",
+   "reason": "no_bars",
+   "actual_walk_pnl": -186.0
+  }
+ ],
+ "n_comparable": 103,
+ "n_confirmed_retest_taken": 70,
+ "n_not_taken": 33,
+ "n_invalidated": 11,
+ "n_timeout": 22,
+ "actual_total_pnl": 3619.2,
+ "retest_total_pnl": 768.9,
+ "actual_wr": 0.39805825242718446,
+ "actual_pf": 1.4577210067029216,
+ "retest_wr_of_taken": 0.4,
+ "retest_pf_of_taken": 1.1434514925373134,
+ "retest_taken_total_pnl": 768.9,
+ "actual_pnl_of_taken_subset": -18.4,
+ "actual_pnl_of_not_taken_subset": 3637.6,
+ "bootstrap_mean_actual_pnl_per_trade": [
+  35.1378640776699,
+  -11.539805825242718,
+  82.8373786407767
+ ],
+ "bootstrap_mean_retest_pnl_per_trade": [
+  7.4650485436893215,
+  -25.842718446601943,
+  42.75339805825243
+ ],
+ "bootstrap_mean_diff_per_trade": [
+  -27.672815533980586,
+  -65.38106796116504,
+  7.946601941747573
+ ],
+ "n_missed_winners": 17,
+ "missed_winners_actual_pnl_sum": 5951.6,
+ "missed_winners_detail": [
+  {
+   "arm": "risky-1",
+   "date": "2026-08-28",
+   "symbol": "SPY260828C00771000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 885.4,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "safe-3",
+   "date": "2026-08-28",
+   "symbol": "SPY260828C00771000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 534.2,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "safe-2",
+   "date": "2026-08-28",
+   "symbol": "SPY260828C00771000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 524.2,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-1",
+   "date": "2026-08-27",
+   "symbol": "SPY260827C00770000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 518.9,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-28",
+   "symbol": "SPY260828C00773000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 483.6,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "bold-2",
+   "date": "2026-08-28",
+   "symbol": "SPY260828C00773000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 477.6,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-28",
+   "symbol": "SPY260828C00773000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 472.6,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-27",
+   "symbol": "SPY260827C00772000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 343.4,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-1",
+   "date": "2026-08-11",
+   "symbol": "SPY260811P00771000",
+   "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 342.8,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "safe-3",
+   "date": "2026-08-27",
+   "symbol": "SPY260827C00770000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 314.45,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-10",
+   "symbol": "SPY260810C00775000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 246.0,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "safe-2",
+   "date": "2026-08-27",
+   "symbol": "SPY260827C00771000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 199.35,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "bold-2",
+   "date": "2026-08-27",
+   "symbol": "SPY260827C00772000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 171.7,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-21",
+   "symbol": "SPY260821C00768000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 117.0,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "safe-3",
+   "date": "2026-08-10",
+   "symbol": "SPY260810C00773000",
+   "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 113.4,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-20",
+   "symbol": "SPY260820P00763000",
+   "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 105.0,
+   "retest_outcome": "timeout"
+  },
+  {
+   "arm": "risky-3",
+   "date": "2026-08-20",
+   "symbol": "SPY260820P00764000",
+   "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+   "actual_walk_pnl": 102.0,
+   "retest_outcome": "timeout"
+  }
+ ],
+ "n_saved_losers": 16,
+ "saved_losers_actual_pnl_sum": -2314.0,
+ "n_taken_flip_win_to_loss": 4,
+ "n_taken_flip_loss_to_win": 8,
+ "concentration": {
+  "actual_top3": [
+   {
+    "id": "risky-1|2026-08-28|SPY260828C00771000",
+    "pnl": 885.4
+   },
+   {
+    "id": "risky-1|2026-08-13|SPY260813C00777000",
+    "pnl": 546.6
+   },
+   {
+    "id": "safe-3|2026-08-28|SPY260828C00771000",
+    "pnl": 534.2
+   }
+  ],
+  "actual_top3_frac_of_total": 0.5432692307692307,
+  "retest_top3": [
+   {
+    "id": "risky-1|2026-08-13|SPY260813C00777000",
+    "pnl": 552.6
+   },
+   {
+    "id": "risky-3|2026-08-06|SPY260806P00770000",
+    "pnl": 542.4
+   },
+   {
+    "id": "risky-1|2026-08-27|SPY260827C00768000",
+    "pnl": 480.0
+   }
+  ],
+  "retest_top3_frac_of_total": 2.0483808037456104
+ },
+ "by_arm": {
+  "bold-2": {
+   "n": 6,
+   "n_confirmed": 4,
+   "actual_total": 939.6,
+   "retest_total": 283.8,
+   "actual_wr": 0.6666666666666666,
+   "retest_wr_of_taken": 0.5,
+   "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+  },
+  "risky-1": {
+   "n": 37,
+   "n_confirmed": 28,
+   "actual_total": 708.5,
+   "retest_total": 284.2,
+   "actual_wr": 0.32432432432432434,
+   "retest_wr_of_taken": 0.35714285714285715,
+   "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+  },
+  "risky-3": {
+   "n": 28,
+   "n_confirmed": 17,
+   "actual_total": 910.2,
+   "retest_total": 136.8,
+   "actual_wr": 0.4642857142857143,
+   "retest_wr_of_taken": 0.4117647058823529,
+   "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+  },
+  "safe-2": {
+   "n": 5,
+   "n_confirmed": 2,
+   "actual_total": 884.95,
+   "retest_total": 285.0,
+   "actual_wr": 0.6,
+   "retest_wr_of_taken": 0.5,
+   "fidelity": "safe-2 PASS (magnitude-trusted)"
+  },
+  "safe-3": {
+   "n": 27,
+   "n_confirmed": 19,
+   "actual_total": 175.95,
+   "retest_total": -220.9,
+   "actual_wr": 0.3333333333333333,
+   "retest_wr_of_taken": 0.42105263157894735,
+   "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+  }
+ },
+ "by_vix_regime": {
+  "15-17": {
+   "n": 59,
+   "actual_total": 186.7,
+   "retest_total": 1353.8,
+   "n_confirmed": 41
+  },
+  "<15": {
+   "n": 44,
+   "actual_total": 3432.5,
+   "retest_total": -584.9,
+   "n_confirmed": 29
+  }
+ },
+ "big_winner_days": {
+  "2026-08-06": {
+   "n_entries": 2,
+   "n_comparable": 2,
+   "n_confirmed_by_retest": 2,
+   "actual_total_pnl": 676.2,
+   "retest_total_pnl": 881.4,
+   "would_have_blocked_the_day": false
+  },
+  "2026-08-13": {
+   "n_entries": 9,
+   "n_comparable": 9,
+   "n_confirmed_by_retest": 9,
+   "actual_total_pnl": 994.1,
+   "retest_total_pnl": 1220.1,
+   "would_have_blocked_the_day": false
+  },
+  "2026-08-27": {
+   "n_entries": 12,
+   "n_comparable": 12,
+   "n_confirmed_by_retest": 7,
+   "actual_total_pnl": 3359.8,
+   "retest_total_pnl": 1967.6,
+   "would_have_blocked_the_day": false
+  },
+  "2026-08-28": {
+   "n_entries": 9,
+   "n_comparable": 9,
+   "n_confirmed_by_retest": 2,
+   "actual_total_pnl": 2662.6,
+   "retest_total_pnl": -420.0,
+   "would_have_blocked_the_day": false
+  }
+ }
+}

@@ -1,0 +1,219 @@
+{
+ "hypothesis": "H10 RETEST ENTRY: replace breakout-tick entry with a retest-of-trigger-zone entry (trigger_level +/- zone_width, <=30min, 1m close-back confirmation) for RIDE_THE_RIBBON, on all actual engine entries since 2026-08-06.",
+ "stamp_et": "2026-09-03T10:24 ET",
+ "generated_et": "2026-09-03T11:00 ET",
+ "verdict": "INCONCLUSIVE",
+ "verdict_reason": "Sign of the aggregate dollar effect flips between the two zone-width assumptions tested ($0.30 default: -$2,850.30 net; $0.50 sensitivity: +$954.60 net). Neither point estimate clears a 95% bootstrap CI. No historical key-levels.json zone-width archive exists to resolve which value is realistic.",
+ "n_comparable": 103,
+ "n_total_candidate_orders": 125,
+ "n_matched_engine_fill": 122,
+ "n_excluded_today_live": 8,
+ "n_excluded_no_trigger_level": 5,
+ "n_excluded_data_gap_2026_08_07": 6,
+ "primary_zone_width": 0.3,
+ "primary": {
+  "actual_total_pnl": 3619.2,
+  "retest_total_pnl": 768.9,
+  "net_effect": -2850.3,
+  "n_confirmed_retest_taken": 70,
+  "n_not_taken": 33,
+  "n_invalidated": 11,
+  "n_timeout": 22,
+  "actual_wr": 0.39805825242718446,
+  "actual_pf": 1.4577210067029216,
+  "retest_wr_of_taken": 0.4,
+  "retest_pf_of_taken": 1.1434514925373134,
+  "bootstrap_mean_diff_per_trade_95ci": [
+   -27.672815533980586,
+   -65.38106796116504,
+   7.946601941747573
+  ],
+  "n_missed_winners": 17,
+  "missed_winners_actual_pnl_sum": 5951.6,
+  "n_saved_losers": 16,
+  "saved_losers_actual_pnl_sum": -2314.0,
+  "by_arm": {
+   "bold-2": {
+    "n": 6,
+    "n_confirmed": 4,
+    "actual_total": 939.6,
+    "retest_total": 283.8,
+    "actual_wr": 0.6666666666666666,
+    "retest_wr_of_taken": 0.5,
+    "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+   },
+   "risky-1": {
+    "n": 37,
+    "n_confirmed": 28,
+    "actual_total": 708.5,
+    "retest_total": 284.2,
+    "actual_wr": 0.32432432432432434,
+    "retest_wr_of_taken": 0.35714285714285715,
+    "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+   },
+   "risky-3": {
+    "n": 28,
+    "n_confirmed": 17,
+    "actual_total": 910.2,
+    "retest_total": 136.8,
+    "actual_wr": 0.4642857142857143,
+    "retest_wr_of_taken": 0.4117647058823529,
+    "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+   },
+   "safe-2": {
+    "n": 5,
+    "n_confirmed": 2,
+    "actual_total": 884.95,
+    "retest_total": 285.0,
+    "actual_wr": 0.6,
+    "retest_wr_of_taken": 0.5,
+    "fidelity": "safe-2 PASS (magnitude-trusted)"
+   },
+   "safe-3": {
+    "n": 27,
+    "n_confirmed": 19,
+    "actual_total": 175.95,
+    "retest_total": -220.9,
+    "actual_wr": 0.3333333333333333,
+    "retest_wr_of_taken": 0.42105263157894735,
+    "fidelity": "SIGN-ONLY (walker FAILs magnitude for this arm)"
+   }
+  },
+  "by_vix_regime": {
+   "15-17": {
+    "n": 59,
+    "actual_total": 186.7,
+    "retest_total": 1353.8,
+    "n_confirmed": 41
+   },
+   "<15": {
+    "n": 44,
+    "actual_total": 3432.5,
+    "retest_total": -584.9,
+    "n_confirmed": 29
+   }
+  },
+  "big_winner_days": {
+   "2026-08-06": {
+    "n_entries": 2,
+    "n_comparable": 2,
+    "n_confirmed_by_retest": 2,
+    "actual_total_pnl": 676.2,
+    "retest_total_pnl": 881.4,
+    "would_have_blocked_the_day": false
+   },
+   "2026-08-13": {
+    "n_entries": 9,
+    "n_comparable": 9,
+    "n_confirmed_by_retest": 9,
+    "actual_total_pnl": 994.1,
+    "retest_total_pnl": 1220.1,
+    "would_have_blocked_the_day": false
+   },
+   "2026-08-27": {
+    "n_entries": 12,
+    "n_comparable": 12,
+    "n_confirmed_by_retest": 7,
+    "actual_total_pnl": 3359.8,
+    "retest_total_pnl": 1967.6,
+    "would_have_blocked_the_day": false
+   },
+   "2026-08-28": {
+    "n_entries": 9,
+    "n_comparable": 9,
+    "n_confirmed_by_retest": 2,
+    "actual_total_pnl": 2662.6,
+    "retest_total_pnl": -420.0,
+    "would_have_blocked_the_day": false
+   }
+  },
+  "concentration": {
+   "actual_top3": [
+    {
+     "id": "risky-1|2026-08-28|SPY260828C00771000",
+     "pnl": 885.4
+    },
+    {
+     "id": "risky-1|2026-08-13|SPY260813C00777000",
+     "pnl": 546.6
+    },
+    {
+     "id": "safe-3|2026-08-28|SPY260828C00771000",
+     "pnl": 534.2
+    }
+   ],
+   "actual_top3_frac_of_total": 0.5432692307692307,
+   "retest_top3": [
+    {
+     "id": "risky-1|2026-08-13|SPY260813C00777000",
+     "pnl": 552.6
+    },
+    {
+     "id": "risky-3|2026-08-06|SPY260806P00770000",
+     "pnl": 542.4
+    },
+    {
+     "id": "risky-1|2026-08-27|SPY260827C00768000",
+     "pnl": 480.0
+    }
+   ],
+   "retest_top3_frac_of_total": 2.0483808037456104
+  }
+ },
+ "sensitivity_zone_width_050": {
+  "actual_total_pnl": 3619.2,
+  "retest_total_pnl": 4573.8,
+  "net_effect": 954.6,
+  "n_confirmed_retest_taken": 83,
+  "wr_of_taken": 0.4578313253012048,
+  "pf_of_taken": 1.7286601879878922,
+  "bootstrap_mean_diff_per_trade_95ci": [
+   9.267961165048543,
+   -14.54271844660194,
+   32.355825242718446
+  ],
+  "n_missed_winners": 6,
+  "missed_winners_actual_pnl_sum": 1555.45,
+  "n_saved_losers": 14,
+  "saved_losers_actual_pnl_sum": -1632.0,
+  "day_2026_08_28_delta": 147.0,
+  "day_2026_08_27_delta": -783.8
+ },
+ "kills_winners": {
+  "zone_width_030": "YES, severely -- 08-28 flips +2,662.60 actual to -420.00 retest (only 2/9 signals confirmed a retest within 30min); 08-27 cut -41% (+3,359.80 -> +1,967.60); missed-winners sum ($5,951.60) exceeds the entire actual book total.",
+  "zone_width_050": "Materially mitigated, not eliminated -- 08-28 delta flips to +147.00 (8/9 confirmed); 08-27 still -783.80 (8/12 confirmed)."
+ },
+ "fidelity_caveat": "walk_exit_manager magnitude-fidelity PASSES only for safe-2 (WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md, aggregate_ratio 0.96). bold-2/risky-1/safe-3 dollars are SIGN-ONLY (magnitude FAILs, ratios 1.72-6.44x). risky-3 untested by that anchor -- SIGN-ONLY, unverified. Only 5/103 rows are on the magnitude-trusted arm.",
+ "look_ahead_risk": "None identified. Retest decision walks 1-min SPY bars strictly after the trigger tick; ribbon EMAs are causal; structure-stop uses only already-closed 5-min bars per production code; retest entry price uses only the option bar at/after the confirmation instant. The zone-width VALUE is a disclosed modeling assumption, not a temporal leak.",
+ "change_class": "KILL_TYPE_REDUCTION",
+ "proposed_change": "NONE. Do not ship live or to shadow. Recommend: (1) start persisting historical key-levels.json zone widths (or stamp the in-force zone width onto each decision row at trigger time) so this hypothesis can be replayed on real inputs; (2) if a decision is needed sooner, run a pre-registered zone-width grid (0.20/0.30/0.40/0.50/0.75) with the decision rule fixed before results are read.",
+ "method_summary": "Both the actual breakout entry and the (when confirmed) retest entry are walked through the SAME production exit code (backtest/lib/exit_manager_walk.walk_exit_manager -> automation/state/fleet/exit_manager.py plan_exit_actions), same exit shape (ribbon_ride), same trigger_level/qty/time_stop -- isolating the entry-TIMING change from the exit model. Simulated-vs-simulated, not simulated-vs-real-fill (22/82 (arm,symbol) groups have ambiguous same-day re-entry sell-fill attribution).",
+ "data_sources": [
+  "automation/state/core-decisions.jsonl",
+  "automation/state/fleet/safe-3/decisions.jsonl",
+  "automation/state/fleet/risky-1/decisions.jsonl",
+  "automation/state/fleet/risky-3/decisions.jsonl",
+  "automation/state/fleet/safe-1/decisions.jsonl",
+  "automation/state/fills-ledger.jsonl",
+  "backtest/data/spy_5m_2026-05-19_2026-09-02.csv",
+  "backtest/data/spy_sip_cache/spy_1m_*.json",
+  "backtest/data/options/*.csv",
+  "backtest/data/highres/*.csv",
+  "automation/state/params.json",
+  "automation/state/aggressive/params.json",
+  "automation/state/fleet/strategies.py",
+  "backtest/lib/exit_manager_walk.py",
+  "automation/state/fleet/exit_manager.py",
+  "analysis/deep-research/WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md",
+  "automation/state/key-levels.json (read-only, today only, to characterize plausible zone-width range)"
+ ],
+ "artifacts": {
+  "script_primary": "backtest/tools/money_retest_entry_variant.py",
+  "script_stats": "backtest/tools/money_retest_entry_variant_stats.py",
+  "raw_entries": "analysis/deep-research/2026-09-03-money/retest-entry-variant-raw-entries.json",
+  "walked_primary_030": "analysis/deep-research/2026-09-03-money/retest-entry-variant-walked.json",
+  "walked_sensitivity_050": "analysis/deep-research/2026-09-03-money/retest-entry-variant-walked-zw0.50.json",
+  "stats_primary_030": "analysis/deep-research/2026-09-03-money/retest-entry-variant-stats.json",
+  "report_md": "analysis/deep-research/2026-09-03-money/retest-entry-variant.md"
+ }
+}
