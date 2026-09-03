@@ -1,10 +1,10 @@
 {
-  "generated_at_et": "2026-09-02 03:17:26",
+  "generated_at_et": "2026-09-03 01:36:05",
   "since": null,
-  "entries_audited": 495,
+  "entries_audited": 507,
   "date_range": [
     "2026-06-21",
-    "2026-09-01"
+    "2026-09-02"
   ],
   "arms_seen": [
     "bold-2",
@@ -17,39 +17,39 @@
   "breaks_found": 0,
   "coverage_by_rule": {
     "RULE_1_NAMED_SETUP": {
-      "checked": 495,
+      "checked": 507,
       "not_checked": 0,
       "breaks": 0
     },
     "RULE_2_WAIT_FOR_TRIGGER": {
-      "checked": 76,
-      "not_checked": 419,
+      "checked": 80,
+      "not_checked": 427,
       "breaks": 0
     },
     "RULE_3_DEFINED_STOP": {
-      "checked": 364,
+      "checked": 376,
       "not_checked": 131,
       "breaks": 0
     },
     "RULE_4_NO_ADDING": {
-      "checked": 405,
-      "not_checked": 90,
+      "checked": 413,
+      "not_checked": 94,
       "breaks": 0
     },
     "RULE_5_KILL_SWITCH": {
-      "checked": 405,
-      "not_checked": 90,
+      "checked": 413,
+      "not_checked": 94,
       "breaks": 0
     },
     "RULE_6_RISK_CAP": {
-      "checked": 495,
+      "checked": 507,
       "not_checked": 0,
       "breaks": 0
     }
   },
   "binding_evidence": {
     "RULE_6_RISK_CAP": {
-      "n": 495,
+      "n": 507,
       "max_fraction_of_cap": 0.9894,
       "n_above_80pct_of_cap": 8,
       "informative": true,
@@ -75,10 +75,10 @@
     "RULE_6_RISK_CAP": "position cost is within the arm's per-trade risk cap"
   },
   "rules_NOT_checked": {
-    "RULE_7_PDT": "needs the rolling 5-business-day day-trade count from the broker, not just the per-row `day_trades` field",
-    "RULE_8_JOURNAL": "needs a verified join from each fill to its journal/trades.csv row; the join key has not been established, and a wrong join would manufacture false breaks",
-    "RULE_9_NO_MIDSESSION_RULE_CHANGES": "needs params file history during RTH, which is not retained",
-    "RULE_10_GAMMA_VETO": "not mechanically checkable -- it is about a refusal that, when honoured, leaves no trade to audit"
+    "RULE_7_PDT": "the BREAK condition (pattern_day_trader flips true under the broker's equity threshold) is not checkable: verified live 2026-09-03, Alpaca's account payload carries neither `pattern_day_trader` nor `daytrade_count` on any of the 5 reachable arms any more -- see r7_pdt_observations for what IS read (equity + intraday_adjustments) when run(include_r7_r8=True)",
+    "RULE_8_JOURNAL": "the BREAK condition (a fill with no journal row) is not auto-declared: the fill->trades.csv join is now built and fixture-tested (match_fills_to_journal), but a wrong join would manufacture false breaks on the gate's own ledger, so it ships as an OBSERVATION (match rate + unmatched rows) via r8_journal_join when run(include_r7_r8=True, r8_date=...) rather than an automatic break",
+    "RULE_9_NO_MIDSESSION_RULE_CHANGES": "needs a timestamped hash/snapshot of every frozen trading-path file (params.json, aggressive/params.json, heartbeat_core.py, filters.py, risk_gate.py, exit_manager.py) taken at RTH open (09:30 ET) and close (16:00 ET); no such snapshot exists today, so there is no pair of hashes to diff for a mid-session change",
+    "RULE_10_GAMMA_VETO": "the free-model veto has been disabled since 2026-08-12 (GAMMA_FREE_MODEL_VETO defaults 0) and no ledger records a refused-but-would-have-fired decision -- there is no row shape for a veto event to check against even in principle"
   },
   "honesty_note": "'breaks_found: 0' means zero breaks AMONG THE RULES LISTED IN rules_checked, over entries where that rule's inputs were actually present (see coverage_by_rule.*.checked). It is NOT a statement that the window was clean: the rules in rules_NOT_checked were never evaluated, and any rule whose not_checked count is high was evaluated on very little. See binding_evidence: a zero from a rule tested at 99% of its limit and a zero from a rule that never had an opportunity to fire are the same number and completely different claims.",
   "core_ledger_readable": true,
@@ -87,5 +87,540 @@
     "safe-1": true,
     "risky-1": true,
     "risky-3": true
+  },
+  "r7_pdt_observations": {
+    "generated_at_et": "2026-09-03 01:36:05",
+    "finra_note": "FINRA repealed the $25K margin day-trading floor 2026-06-04 (SR-FINRA-2025-017); these accounts are verified on the new regime (CLAUDE.md Account context). This is awareness, not a break condition, per the queue item's own framing.",
+    "arms": {
+      "safe-2": {
+        "reachable": true,
+        "account_label": "safe",
+        "equity": 5653.81,
+        "pattern_day_trader": null,
+        "pattern_day_trader_field_present": false,
+        "daytrade_count": null,
+        "daytrade_count_field_present": false,
+        "intraday_adjustments": "0",
+        "break_checkable": false,
+        "break": false
+      },
+      "bold-2": {
+        "reachable": true,
+        "account_label": "bold",
+        "equity": 5593.52,
+        "pattern_day_trader": null,
+        "pattern_day_trader_field_present": false,
+        "daytrade_count": null,
+        "daytrade_count_field_present": false,
+        "intraday_adjustments": "0",
+        "break_checkable": false,
+        "break": false
+      },
+      "safe-3": {
+        "reachable": true,
+        "account_label": "safe-3",
+        "equity": 5639.1,
+        "pattern_day_trader": null,
+        "pattern_day_trader_field_present": false,
+        "daytrade_count": null,
+        "daytrade_count_field_present": false,
+        "intraday_adjustments": "0",
+        "break_checkable": false,
+        "break": false
+      },
+      "risky-1": {
+        "reachable": true,
+        "account_label": "risky-1",
+        "equity": 6149.12,
+        "pattern_day_trader": null,
+        "pattern_day_trader_field_present": false,
+        "daytrade_count": null,
+        "daytrade_count_field_present": false,
+        "intraday_adjustments": "0",
+        "break_checkable": false,
+        "break": false
+      },
+      "risky-3": {
+        "reachable": true,
+        "account_label": "risky-3",
+        "equity": 4282.65,
+        "pattern_day_trader": null,
+        "pattern_day_trader_field_present": false,
+        "daytrade_count": null,
+        "daytrade_count_field_present": false,
+        "intraday_adjustments": "0",
+        "break_checkable": false,
+        "break": false
+      }
+    }
+  },
+  "r8_journal_join": {
+    "date": "2026-09-02",
+    "arms": {
+      "safe-2": {
+        "n_fills": 4,
+        "n_journaled": 4,
+        "n_unmatched": 0,
+        "match_rate": 1.0,
+        "journaled": [
+          {
+            "fill": {
+              "account_id": "safe",
+              "arm_id": "safe-2",
+              "symbol": "SPY260902C00765000",
+              "side": "buy",
+              "qty": 3.0,
+              "px": 1.08,
+              "ts_s": 47165,
+              "filled_at_et": "13:06:05",
+              "order_id": "36d8d3d4-3a91-466a-8000-6f3bcddaa32d"
+            },
+            "journal_row": 567,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe",
+              "arm_id": "safe-2",
+              "symbol": "SPY260902C00765000",
+              "side": "sell",
+              "qty": 3.0,
+              "px": 0.77,
+              "ts_s": 47464,
+              "filled_at_et": "13:11:04",
+              "order_id": "9cdf9978-3c9a-4c82-bbfb-febc02d0831c"
+            },
+            "journal_row": 567,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe",
+              "arm_id": "safe-2",
+              "symbol": "SPY260902C00766000",
+              "side": "buy",
+              "qty": 3.0,
+              "px": 0.58,
+              "ts_s": 51665,
+              "filled_at_et": "14:21:05",
+              "order_id": "62db8347-86ad-46e7-8d81-1e07443e9560"
+            },
+            "journal_row": 568,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe",
+              "arm_id": "safe-2",
+              "symbol": "SPY260902C00766000",
+              "side": "sell",
+              "qty": 3.0,
+              "px": 0.47,
+              "ts_s": 52264,
+              "filled_at_et": "14:31:04",
+              "order_id": "31d578a5-a13e-453f-bfd0-095dd7080fb0"
+            },
+            "journal_row": 568,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          }
+        ],
+        "unmatched": []
+      },
+      "bold-2": {
+        "n_fills": 4,
+        "n_journaled": 4,
+        "n_unmatched": 0,
+        "match_rate": 1.0,
+        "journaled": [
+          {
+            "fill": {
+              "account_id": "bold",
+              "arm_id": "bold-2",
+              "symbol": "SPY260902C00768000",
+              "side": "buy",
+              "qty": 5.0,
+              "px": 0.3,
+              "ts_s": 40745,
+              "filled_at_et": "11:19:05",
+              "order_id": "7065e5f8-d25f-47eb-82ec-acada388a5a4"
+            },
+            "journal_row": 556,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "bold",
+              "arm_id": "bold-2",
+              "symbol": "SPY260902C00768000",
+              "side": "sell",
+              "qty": 5.0,
+              "px": 0.16,
+              "ts_s": 42425,
+              "filled_at_et": "11:47:05",
+              "order_id": "8dfc97e0-3dcc-4141-a693-a2abebfacf2a"
+            },
+            "journal_row": 556,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "bold",
+              "arm_id": "bold-2",
+              "symbol": "SPY260902C00767000",
+              "side": "buy",
+              "qty": 5.0,
+              "px": 0.31,
+              "ts_s": 42965,
+              "filled_at_et": "11:56:05",
+              "order_id": "5243b82e-42a2-4b81-8d17-8cba88877264"
+            },
+            "journal_row": 561,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "bold",
+              "arm_id": "bold-2",
+              "symbol": "SPY260902C00767000",
+              "side": "sell",
+              "qty": 5.0,
+              "px": 0.42,
+              "ts_s": 43325,
+              "filled_at_et": "12:02:05",
+              "order_id": "1057f3d2-b3de-48fd-8a53-f24f601df9ae"
+            },
+            "journal_row": 561,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          }
+        ],
+        "unmatched": []
+      },
+      "safe-3": {
+        "n_fills": 8,
+        "n_journaled": 8,
+        "n_unmatched": 0,
+        "match_rate": 1.0,
+        "journaled": [
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00766000",
+              "side": "buy",
+              "qty": 3.0,
+              "px": 0.93,
+              "ts_s": 40627,
+              "filled_at_et": "11:17:07",
+              "order_id": "218c98b4-4b49-40f7-9afa-21d10826a093"
+            },
+            "journal_row": 557,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00766000",
+              "side": "sell",
+              "qty": 3.0,
+              "px": 0.63,
+              "ts_s": 42727,
+              "filled_at_et": "11:52:07",
+              "order_id": "ffef3400-44d8-471b-a316-65c93447f456"
+            },
+            "journal_row": 557,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00765000",
+              "side": "buy",
+              "qty": 3.0,
+              "px": 1.11,
+              "ts_s": 43027,
+              "filled_at_et": "11:57:07",
+              "order_id": "b633c94a-85ad-4963-ab71-e02dc374d445"
+            },
+            "journal_row": 562,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00765000",
+              "side": "sell",
+              "qty": 3.0,
+              "px": 0.95,
+              "ts_s": 44826,
+              "filled_at_et": "12:27:06",
+              "order_id": "d51a0111-9870-4cb7-98d7-5da016760ed1"
+            },
+            "journal_row": 562,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00765000",
+              "side": "buy",
+              "qty": 3.0,
+              "px": 1.03,
+              "ts_s": 47227,
+              "filled_at_et": "13:07:07",
+              "order_id": "e1162603-fdf3-476b-9c06-c639b5aa25e1"
+            },
+            "journal_row": 563,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00765000",
+              "side": "sell",
+              "qty": 3.0,
+              "px": 0.81,
+              "ts_s": 47586,
+              "filled_at_et": "13:13:06",
+              "order_id": "c6595fd5-0d0e-4ff7-8875-688fcaf1d913"
+            },
+            "journal_row": 563,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00766000",
+              "side": "buy",
+              "qty": 3.0,
+              "px": 0.47,
+              "ts_s": 51727,
+              "filled_at_et": "14:22:07",
+              "order_id": "268108d0-bf25-4aef-807f-c857fb27b279"
+            },
+            "journal_row": 558,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "safe-3",
+              "arm_id": "safe-3",
+              "symbol": "SPY260902C00766000",
+              "side": "sell",
+              "qty": 3.0,
+              "px": 0.44,
+              "ts_s": 52326,
+              "filled_at_et": "14:32:06",
+              "order_id": "3197d226-1ee6-4a8a-9cab-103ef40b5d8b"
+            },
+            "journal_row": 558,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          }
+        ],
+        "unmatched": []
+      },
+      "risky-1": {
+        "n_fills": 8,
+        "n_journaled": 8,
+        "n_unmatched": 0,
+        "match_rate": 1.0,
+        "journaled": [
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00766000",
+              "side": "buy",
+              "qty": 5.0,
+              "px": 0.93,
+              "ts_s": 40628,
+              "filled_at_et": "11:17:08",
+              "order_id": "ed761761-5f98-4708-934e-220081683a30"
+            },
+            "journal_row": 559,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00766000",
+              "side": "sell",
+              "qty": 5.0,
+              "px": 0.64,
+              "ts_s": 42728,
+              "filled_at_et": "11:52:08",
+              "order_id": "ef053b31-509f-4208-abd7-9bc72f4953ba"
+            },
+            "journal_row": 559,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00765000",
+              "side": "buy",
+              "qty": 5.0,
+              "px": 1.11,
+              "ts_s": 43029,
+              "filled_at_et": "11:57:09",
+              "order_id": "46f9ccdd-4334-4c64-9702-3404fded9911"
+            },
+            "journal_row": [
+              564,
+              565
+            ],
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "split_fill (journal recorded this one broker fill as multiple same-time/same-price legs summing to its qty)"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00765000",
+              "side": "sell",
+              "qty": 5.0,
+              "px": 0.95,
+              "ts_s": 44828,
+              "filled_at_et": "12:27:08",
+              "order_id": "989bdc7a-4a37-490e-8f10-2c172169f913"
+            },
+            "journal_row": [
+              564,
+              565
+            ],
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "split_fill (journal recorded this one broker fill as multiple same-time/same-price legs summing to its qty)"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00765000",
+              "side": "buy",
+              "qty": 5.0,
+              "px": 1.03,
+              "ts_s": 47228,
+              "filled_at_et": "13:07:08",
+              "order_id": "238bca19-3c93-45d5-8c39-867d8d9c8470"
+            },
+            "journal_row": 566,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00765000",
+              "side": "sell",
+              "qty": 5.0,
+              "px": 0.82,
+              "ts_s": 47587,
+              "filled_at_et": "13:13:07",
+              "order_id": "3a3289fb-a2ba-40a3-88d6-14eacc4c5579"
+            },
+            "journal_row": 566,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00766000",
+              "side": "buy",
+              "qty": 5.0,
+              "px": 0.47,
+              "ts_s": 51729,
+              "filled_at_et": "14:22:09",
+              "order_id": "6b713c02-5358-47e5-86a5-6a9fc580203c"
+            },
+            "journal_row": 560,
+            "leg": "entry",
+            "delta_s": 0,
+            "match_kind": "exact"
+          },
+          {
+            "fill": {
+              "account_id": "risky-1",
+              "arm_id": "risky-1",
+              "symbol": "SPY260902C00766000",
+              "side": "sell",
+              "qty": 5.0,
+              "px": 0.44,
+              "ts_s": 52328,
+              "filled_at_et": "14:32:08",
+              "order_id": "a56ee9a5-e85a-4603-9d9a-9fb3ae46ef74"
+            },
+            "journal_row": 560,
+            "leg": "exit",
+            "delta_s": 0,
+            "match_kind": "exact"
+          }
+        ],
+        "unmatched": []
+      },
+      "risky-3": {
+        "n_fills": 0,
+        "n_journaled": 0,
+        "n_unmatched": 0,
+        "match_rate": null,
+        "journaled": [],
+        "unmatched": []
+      }
+    },
+    "totals": {
+      "n_fills": 24,
+      "n_journaled": 24,
+      "n_unmatched": 0,
+      "match_rate": 1.0
+    }
   }
 }
