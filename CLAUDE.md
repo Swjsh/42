@@ -74,8 +74,8 @@ Account numbers below are **broker-verified live 2026-08-18**; `automation/state
 | Layer | Tool | Status |
 |---|---|---|
 | Chart/levels/indicators | TradingView MCP (`tradesdontlie/tradingview-mcp`) | CDP on port 9222. Launch via `setup\launch_tv_debug.ps1` |
-| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim, key `PKWEWC7N…` → PA3POKNV46VG. Tools: `mcp__alpaca__*` |
-| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, key `PKEZ6OKP…` → PA3WEBXJU67N (bold-2). Both creds live ONLY in project-root `.mcp.json` (mirrors removed 2026-07-09, never re-mirror). Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
+| Account/chain/fills/orders (Gamma-Safe) | Alpaca MCP — `alpaca` server | `uvx alpaca-mcp-server` via pythonw hidden-shim (creds: see Account context above). Tools: `mcp__alpaca__*` |
+| Account/chain/fills/orders (Gamma-Bold) | Alpaca MCP — `alpaca_aggressive` server | Same binary, bold-2 creds (see Account context above). Tools: `mcp__alpaca_aggressive__*`. REST fallback if MCP not connected. |
 | Trade engine | `Gamma_SightBeacon` + `Gamma_HeartbeatCore` (Python) | Never-blind beacon (direct REST) + deterministic `heartbeat_core.py` (engine_cli + structure-veto + risk_gate). **Free-model veto DISABLED since 2026-08-12** (`GAMMA_FREE_MODEL_VETO` defaults 0; guard `test_free_model_veto_disabled_2026_08_12.py`); LLM heartbeats retired. Arch: [`ARCHITECTURE.md`](markdown/specs/ARCHITECTURE.md) §3.2. |
 | Heartbeat scheduler | Windows Task Scheduler (Python) | ~60 registered (counts drift -- registry is truth). Registry: [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md) |
 | Nemotron shadow eval | `shadow_model_eval.py` + `Gamma_ShadowEval` (16:05 ET) | $0. Scores decisions.jsonl daily; grad bar ≥85% DT over ≥15 days. [Scorecard](analysis/shadow-model/PROMOTION-SCORECARD.md). |
@@ -165,7 +165,7 @@ See [`markdown/0dte/TRADING-SYSTEM-OPS.md`](markdown/0dte/TRADING-SYSTEM-OPS.md)
 
 **CLI:** `gh` v2.88.1, authenticated as Swjsh (keyring). Use `gh` for all GitHub ops — PRs, issues, repo queries. Never use the browser when `gh` can do it.
 
-**Secrets rule (non-negotiable):** API keys / Alpaca / Discord / OpenRouter creds NEVER in tracked files. Gitignored homes: `.mcp.json` (MCP creds), `automation/state/fleet/secrets.json` (fleet keys), `**/.discord-config.json`·`.alpaca-keys`·`.openrouter.key`·`.heartbeat-api-key*` (per-service). Runtime: load from `.mcp.json` (pattern: `fast_path_executor.py`); never hardcode. **Never hand-transcribe tokens/JWTs** (paste or read-from-file); **reload a rotated key's MCP server before verifying** (stale key → 401).
+**Secrets rule (non-negotiable):** API keys / Alpaca / Discord / OpenRouter creds NEVER in tracked files — gitignored homes only (`.mcp.json`, `automation/state/fleet/secrets.json`, per-service `.discord-config.json`/`.alpaca-keys`/etc; full list: [`markdown/infra/mcp-install.md`](markdown/infra/mcp-install.md)). Runtime loads from `.mcp.json`, never hardcode. **Never hand-transcribe tokens/JWTs**; **reload a rotated key's MCP server before verifying** (stale key → 401).
 
 **Push discipline:** Never push during 09:30–15:55 ET — shares the same Max pool as the heartbeat. After-hours only.
 
@@ -222,7 +222,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 25. **Autonomous operator — high uptime, J holds the off-switch.** I COMPOUND (curate, prune, ratify), not accumulate. Guards MUST fail open — never kill/block J's interactive session (OP-32 scar: market-hours firewall locked J out 2026-05-22). **Required:** (a) Empty queue → BRAINSTORM from `FUTURE-IMPROVEMENTS.md` + `LESSONS-LEARNED.md` + `mistakes.md` + latest trades → ship 3+ tasks. (b) Market event → write `automation/state/news.json`. (c) New foot-gun → encode in CLAUDE.md/automation → fold L# into Lessons index. **Silent failure is the only true failure** — every fire ships work OR a flagged failure to `STATUS.md ## Known broken`; J always wakes to a SIGNAL.
 
-    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L298). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
+    **Lessons index** (full prose in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md), current through L303). New anti-pattern → add prose there + fold the L# into a row below. Re-violated lesson = missing guardrail → graduate to a code assertion (`backtest/tests/test_graduated_guards.py`).
 
     | # | Theme | Lessons |
     |---|---|---|
@@ -232,7 +232,7 @@ These are non-negotiable, second only to the 10 rules above.
     | C4 | Disclose concentration, normalize OOS, stratify by regime | L01,04,05,10,11,22,46,48,92,104,122,124,128,129,154,166,167,174,175,178,192,259,270,272,281,295 |
     | C5 | VIX *character* > VIX level | L40,44,45,73,93,118,133,134,154,162,167 |
     | C6 | No look-ahead: filter <= current bar, verify bar closed, slice prior_bars | L14,34,57,61,94,161,165,166,191,212,218,235,251,258,269,276 |
-    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236,240,241,242,244,249,260,264,268,273,275,279,285,286,292,293,296,298,299,301 |
+    | C7 | Silent success is failure — audit outputs, not exit codes | L13,16,19,25,26,28,29,31,32,39,53,62,67,79,80,82,83,84,85,86,87,90,91,92,96,97,98,105,106,117,155,160,161,164,169,170,173,179,181,185,186,187,189,190,193,196,197,207,211,216,217,220,224,225,226,232,233,234,236,240,241,242,244,249,260,264,268,273,275,279,285,286,292,293,296,298,299,301,302,303 |
     | C8 | Headless Windows spawn = system-pythonw + CREATE_NO_WINDOW + WMI liveness | L20,27,33,41,81,210,229,277,297 |
     | C9 | Anchor paths to __file__ | L21,42,49,56,60 |
     | C10 | Rate-limit pool: separate prod key | L54,62,68,69 |
@@ -274,9 +274,7 @@ These are non-negotiable, second only to the 10 rules above.
 
 ## Compact instructions
 
-> Anthropic's documented home for these. They were previously in `~/.claude/settings.json` as an
-> `autoCompact.instructions` field, which is **not a real settings key** (the real ones are
-> `autoCompactEnabled` / `autoCompactWindow`) — so they were silently doing nothing. Fixed 2026-08-29.
+> Anthropic's documented home for these (moved off a fake `settings.json` key 2026-08-29 — history: CHANGELOG.md).
 
 When compacting, preserve: the active goal + its next open QUEUE item; what was VERIFIED this
 session and the command output that proved it; open loops and what is blocked on whom; file paths
