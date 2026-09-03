@@ -194,7 +194,7 @@ class TestEachGateBlocksIndependently:
         with patch.object(sts, "attribute_quiet_hold", return_value="fell inside a hold"), \
              patch.object(qm, "_ps") as mock_ps:
             started = qm._heavy_catchup_pass(rows, HOLDS, HOLD_END, NOW)
-        assert started == [], "a HEAVY_PROCESS_MARKERS process already running must defer, not stack"
+        assert started == [], "another guard suite / pytest already running must defer, not stack"
         mock_ps.assert_not_called()
 
     def test_no_hold_attribution_blocks(self, monkeypatch):
@@ -345,3 +345,20 @@ def test_go_loud_writes_caught_up_heavy_separately(tmp_path, monkeypatch):
     status = _json.loads((tmp_path / "status.json").read_text(encoding="utf-8"))
     assert status["caught_up"] == ["Gamma_McpDailyAudit"]
     assert status["caught_up_heavy"] == [GUARDS_FULL]
+
+
+def test_kitchen_grind_does_not_block_the_heavy_tier_but_a_pytest_run_does():
+    """2026-09-03 01:10 ET: gating on HEAVY_PROCESS_MARKERS made the heavy tier dead on
+    arrival (kitchen_daemon.py is always alive; autoresearch grinds run most nights)."""
+    import json as _json
+    kitchen = _json.dumps([{"CommandLine": "pythonw.exe C:/x/setup/scripts/kitchen_daemon.py"},
+                           {"CommandLine": "pythonw.exe -m autoresearch.shotgun_scalper_stage2"},
+                           {"CommandLine": "pythonw.exe -c from multiprocessing.spawn import s"}])
+    with patch.object(qm, "_ps", return_value=kitchen):
+        assert qm._heavy_process_running() is False
+    suite = _json.dumps([{"CommandLine": "python.exe C:/x/setup/guard_runner_full.py"}])
+    with patch.object(qm, "_ps", return_value=suite):
+        assert qm._heavy_process_running() is True
+    pyt = _json.dumps([{"CommandLine": "python.exe -m pytest tests/ -q"}])
+    with patch.object(qm, "_ps", return_value=pyt):
+        assert qm._heavy_process_running() is True

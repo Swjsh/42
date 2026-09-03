@@ -886,6 +886,8 @@ was blocked and why), and stop. Never manufacture work against future-dated boxe
 change past its Rule-9 weekend, never end on a permission question for sanctioned paper work.
 ```
 
+**J's correction 2026-09-03 00:05 ET ("why are you done? ... figure out what to work on all night and loop over and over"):** the phase dates above are a SCHEDULING frame, not a gate. A box is blocked only by a date-bound cadence (Fri/Sun/09-29/10-30), a Rule-9 weekend doctrine change, or J's own hands. Every freeze-compatible §2 box (research, non-shape builds, drills prep, hygiene) is runnable ANY night, and when those run dry the session moves to `queue.md` open items ranked by value to 10-30, then the OP-22 ladder. "Nothing runnable" is a valid null ONLY when the queue is also empty. Sessions loop: build → verify cold → commit → STATUS → next box, until the market opens.
+
 Two properties matter and are deliberate. **Skip-don't-stop:** a blocker moves the pointer, it does
 not end the run, so one date-gated box no longer strands the ones behind it. **The null is a pass:**
 "nothing was runnable and here is why" is stated as a terminal success, which is what the old string

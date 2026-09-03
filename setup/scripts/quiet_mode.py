@@ -291,8 +291,9 @@ def _in_loud_heavy_band(now: dt.datetime) -> bool:
 
 
 def _heavy_process_running() -> bool:
-    """True if a HEAVY_PROCESS_MARKERS process is running right now. Read-only twin of
-    _stop_heavy_processes()'s enumeration -- checks, never kills.
+    """True if another guard suite / pytest run (GUARD_SUITE_MARKERS, below) is alive right
+    now. Read-only: checks, never kills. NOT the blackout's HEAVY_PROCESS_MARKERS -- see the
+    note on GUARD_SUITE_MARKERS for why that made the heavy tier dead on arrival.
 
     Deliberately fail-CLOSED (unlike most of this file's fail-open error paths): this gate
     decides whether to START new heavy work, not whether to restore/protect the trading day,
@@ -319,9 +320,23 @@ def _heavy_process_running() -> bool:
         rows = [rows]
     for row in rows:
         cl = row.get("CommandLine") or ""
-        if any(m in cl for m in HEAVY_PROCESS_MARKERS):
+        if any(m in cl for m in GUARD_SUITE_MARKERS):
             return True
     return False
+
+
+# What the heavy-tier gate (d) actually guards against: a SECOND guard suite / pytest run
+# stacked on one already in flight. It deliberately does NOT use HEAVY_PROCESS_MARKERS
+# (2026-09-03 01:10 ET): kitchen_daemon.py is a permanent resident and the kitchen spawns
+# autoresearch grinds most nights, so gating on those markers made Gamma_GuardsFull
+# uncatchable on exactly the nights it is needed -- dead on arrival, observed live on the
+# first night. A pytest run beside a grind only slows both; the presence gate (b) is what
+# protects J's frame rate, and the blackout's own kill path still only targets the markers.
+GUARD_SUITE_MARKERS = (
+    "guard_runner_full",
+    "guard_runner_slow",
+    "pytest",
+)
 
 
 def _heavy_catchup_pass(rows: list[dict], holds: list[tuple[dt.datetime, dt.datetime]],
@@ -333,9 +348,9 @@ def _heavy_catchup_pass(rows: list[dict], holds: list[tuple[dt.datetime, dt.date
           already folds the linger window in via _presence_linger, so this reuses it rather
           than re-deriving a foreground check.
       (c) ET inside the narrow 23:00-06:30 heavy-safe band (_in_loud_heavy_band above).
-      (d) no HEAVY_PROCESS_MARKERS process already running (_heavy_process_running above) --
-          a second full pytest run stacked on a running one is the exact core-pegging this
-          file exists to prevent.
+      (d) no other guard suite / pytest run already alive (_heavy_process_running,
+          GUARD_SUITE_MARKERS) -- a second full pytest run stacked on a running one is the
+          exact stacking this gate exists to prevent. Kitchen grinds do NOT block it.
     Called by _catchup_sweep AFTER the light tier and only with whatever budget the light
     tier left (constraint (f)); the caller enforces the shared CATCHUP_MAX_STARTS cap.
     """
@@ -359,7 +374,7 @@ def _heavy_catchup_pass(rows: list[dict], holds: list[tuple[dt.datetime, dt.date
         if last_run is not None and last_run >= latest_hold_end:
             continue  # constraint (e): already ran since the hold closed
         if _heavy_process_running():
-            _log(f"CATCH-UP SWEEP (heavy): {name} hold-attributed but a HEAVY_PROCESS_MARKERS "
+            _log(f"CATCH-UP SWEEP (heavy): {name} hold-attributed but a guard-suite/pytest "
                  "process is already running -- deferring rather than stacking")
             continue
         try:

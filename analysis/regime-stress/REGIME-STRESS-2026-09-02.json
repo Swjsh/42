@@ -1,0 +1,1031 @@
+{
+  "id": "REGIME-STRESS-REPLAY-2026-09-02",
+  "measures_prereg": "regime-stress-replay-2026-09-02",
+  "generated_at_et": "2026-09-02T22:47:35",
+  "label": "SIM-ONLY. Measurement only -- arms nothing, gates nothing, changes no params.",
+  "population": {
+    "days_frozen": 24,
+    "read_from_prereg": true,
+    "derived_here": false,
+    "window": "2024-08-01..2026-07-22"
+  },
+  "frame_fix": {
+    "spy": {
+      "method": "et_frame.parse_timestamp_et(frame='et-v2')",
+      "n_frozen_days_shifted": 3,
+      "of_frozen_days": 24,
+      "per_day": {
+        "2024-08-05": {
+          "n_bars_et_v2": 88,
+          "n_bars_naive_label": 88,
+          "first_bar_et_v2": "08:20",
+          "last_bar_et_v2": "16:10",
+          "first_bar_naive_label": "08:20",
+          "shifted_vs_naive_label": false
+        },
+        "2024-09-03": {
+          "n_bars_et_v2": 80,
+          "n_bars_naive_label": 80,
+          "first_bar_et_v2": "08:55",
+          "last_bar_et_v2": "16:00",
+          "first_bar_naive_label": "08:55",
+          "shifted_vs_naive_label": false
+        },
+        "2024-12-18": {
+          "n_bars_et_v2": 81,
+          "n_bars_naive_label": 81,
+          "first_bar_et_v2": "09:30",
+          "last_bar_et_v2": "16:30",
+          "first_bar_naive_label": "09:30",
+          "shifted_vs_naive_label": false
+        },
+        "2025-03-03": {
+          "n_bars_et_v2": 73,
+          "n_bars_naive_label": 73,
+          "first_bar_et_v2": "09:30",
+          "last_bar_et_v2": "15:30",
+          "first_bar_naive_label": "10:30",
+          "shifted_vs_naive_label": true
+        },
+        "2025-03-11": {
+          "n_bars_et_v2": 83,
+          "n_bars_naive_label": 83,
+          "first_bar_et_v2": "08:15",
+          "last_bar_et_v2": "16:20",
+          "first_bar_naive_label": "08:15",
+          "shifted_vs_naive_label": false
+        },
+        "2025-03-28": {
+          "n_bars_et_v2": 81,
+          "n_bars_naive_label": 81,
+          "first_bar_et_v2": "09:30",
+          "last_bar_et_v2": "16:35",
+          "first_bar_naive_label": "09:30",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-03": {
+          "n_bars_et_v2": 81,
+          "n_bars_naive_label": 81,
+          "first_bar_et_v2": "08:40",
+          "last_bar_et_v2": "16:20",
+          "first_bar_naive_label": "08:40",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-04": {
+          "n_bars_et_v2": 81,
+          "n_bars_naive_label": 81,
+          "first_bar_et_v2": "09:30",
+          "last_bar_et_v2": "16:20",
+          "first_bar_naive_label": "09:30",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-07": {
+          "n_bars_et_v2": 95,
+          "n_bars_naive_label": 95,
+          "first_bar_et_v2": "08:05",
+          "last_bar_et_v2": "16:55",
+          "first_bar_naive_label": "08:05",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-08": {
+          "n_bars_et_v2": 88,
+          "n_bars_naive_label": 88,
+          "first_bar_et_v2": "09:05",
+          "last_bar_et_v2": "16:50",
+          "first_bar_naive_label": "09:05",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-09": {
+          "n_bars_et_v2": 92,
+          "n_bars_naive_label": 92,
+          "first_bar_et_v2": "08:15",
+          "last_bar_et_v2": "16:50",
+          "first_bar_naive_label": "08:15",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-10": {
+          "n_bars_et_v2": 84,
+          "n_bars_naive_label": 84,
+          "first_bar_et_v2": "08:30",
+          "last_bar_et_v2": "16:00",
+          "first_bar_naive_label": "08:30",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-11": {
+          "n_bars_et_v2": 83,
+          "n_bars_naive_label": 83,
+          "first_bar_et_v2": "08:05",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "08:05",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-16": {
+          "n_bars_et_v2": 84,
+          "n_bars_naive_label": 84,
+          "first_bar_et_v2": "08:55",
+          "last_bar_et_v2": "16:55",
+          "first_bar_naive_label": "08:55",
+          "shifted_vs_naive_label": false
+        },
+        "2025-04-21": {
+          "n_bars_et_v2": 83,
+          "n_bars_naive_label": 83,
+          "first_bar_et_v2": "08:35",
+          "last_bar_et_v2": "16:10",
+          "first_bar_naive_label": "08:35",
+          "shifted_vs_naive_label": false
+        },
+        "2025-10-10": {
+          "n_bars_et_v2": 79,
+          "n_bars_naive_label": 79,
+          "first_bar_et_v2": "08:10",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "08:10",
+          "shifted_vs_naive_label": false
+        },
+        "2025-11-20": {
+          "n_bars_et_v2": 99,
+          "n_bars_naive_label": 99,
+          "first_bar_et_v2": "08:00",
+          "last_bar_et_v2": "16:55",
+          "first_bar_naive_label": "09:00",
+          "shifted_vs_naive_label": true
+        },
+        "2026-02-05": {
+          "n_bars_et_v2": 99,
+          "n_bars_naive_label": 99,
+          "first_bar_et_v2": "08:05",
+          "last_bar_et_v2": "16:55",
+          "first_bar_naive_label": "09:05",
+          "shifted_vs_naive_label": true
+        },
+        "2026-03-23": {
+          "n_bars_et_v2": 141,
+          "n_bars_naive_label": 141,
+          "first_bar_et_v2": "04:00",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "04:00",
+          "shifted_vs_naive_label": false
+        },
+        "2026-03-31": {
+          "n_bars_et_v2": 141,
+          "n_bars_naive_label": 141,
+          "first_bar_et_v2": "04:00",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "04:00",
+          "shifted_vs_naive_label": false
+        },
+        "2026-04-14": {
+          "n_bars_et_v2": 141,
+          "n_bars_naive_label": 141,
+          "first_bar_et_v2": "04:00",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "04:00",
+          "shifted_vs_naive_label": false
+        },
+        "2026-04-24": {
+          "n_bars_et_v2": 141,
+          "n_bars_naive_label": 141,
+          "first_bar_et_v2": "04:00",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "04:00",
+          "shifted_vs_naive_label": false
+        },
+        "2026-06-05": {
+          "n_bars_et_v2": 144,
+          "n_bars_naive_label": 144,
+          "first_bar_et_v2": "04:00",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "04:00",
+          "shifted_vs_naive_label": false
+        },
+        "2026-06-09": {
+          "n_bars_et_v2": 144,
+          "n_bars_naive_label": 144,
+          "first_bar_et_v2": "04:00",
+          "last_bar_et_v2": "15:55",
+          "first_bar_naive_label": "04:00",
+          "shifted_vs_naive_label": false
+        }
+      }
+    },
+    "vix": {
+      "vix_5m_2024-08-01_2024-12-31.csv": {
+        "method": "et_frame.parse_timestamp_et(frame='et-v2')",
+        "n_frozen_days_shifted": 0,
+        "of_frozen_days": 24,
+        "per_day": {
+          "2024-08-05": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2024-09-03": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2024-12-18": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-03-03": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-03-11": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-03-28": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-03": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-04": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-07": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-08": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-09": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-10": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-11": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-16": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-04-21": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-10-10": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-11-20": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-02-05": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-03-23": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-03-31": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-04-14": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-04-24": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-06-05": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2026-06-09": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          }
+        }
+      },
+      "vix_5m_2025-01-01_2026-07-22.csv": {
+        "method": "et_frame.parse_timestamp_et(frame='et-v2')",
+        "n_frozen_days_shifted": 1,
+        "of_frozen_days": 24,
+        "per_day": {
+          "2024-08-05": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2024-09-03": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2024-12-18": {
+            "n_bars_et_v2": 0,
+            "shifted_vs_naive_label": null
+          },
+          "2025-03-03": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-03-11": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-03-28": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-03": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-04": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-07": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-08": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-09": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-10": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-11": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-16": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-04-21": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-10-10": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2025-11-20": {
+            "n_bars_et_v2": 14,
+            "n_bars_naive_label": 14,
+            "first_bar_et_v2": "03:00",
+            "last_bar_et_v2": "16:00",
+            "first_bar_naive_label": "03:00",
+            "shifted_vs_naive_label": false
+          },
+          "2026-02-05": {
+            "n_bars_et_v2": 99,
+            "n_bars_naive_label": 99,
+            "first_bar_et_v2": "08:05",
+            "last_bar_et_v2": "16:55",
+            "first_bar_naive_label": "09:05",
+            "shifted_vs_naive_label": true
+          },
+          "2026-03-23": {
+            "n_bars_et_v2": 285,
+            "n_bars_naive_label": 285,
+            "first_bar_et_v2": "04:00",
+            "last_bar_et_v2": "15:55",
+            "first_bar_naive_label": "04:00",
+            "shifted_vs_naive_label": false
+          },
+          "2026-03-31": {
+            "n_bars_et_v2": 285,
+            "n_bars_naive_label": 285,
+            "first_bar_et_v2": "04:00",
+            "last_bar_et_v2": "15:55",
+            "first_bar_naive_label": "04:00",
+            "shifted_vs_naive_label": false
+          },
+          "2026-04-14": {
+            "n_bars_et_v2": 285,
+            "n_bars_naive_label": 285,
+            "first_bar_et_v2": "04:00",
+            "last_bar_et_v2": "15:55",
+            "first_bar_naive_label": "04:00",
+            "shifted_vs_naive_label": false
+          },
+          "2026-04-24": {
+            "n_bars_et_v2": 285,
+            "n_bars_naive_label": 285,
+            "first_bar_et_v2": "04:00",
+            "last_bar_et_v2": "15:55",
+            "first_bar_naive_label": "04:00",
+            "shifted_vs_naive_label": false
+          },
+          "2026-06-05": {
+            "n_bars_et_v2": 144,
+            "n_bars_naive_label": 144,
+            "first_bar_et_v2": "04:00",
+            "last_bar_et_v2": "15:55",
+            "first_bar_naive_label": "04:00",
+            "shifted_vs_naive_label": false
+          },
+          "2026-06-09": {
+            "n_bars_et_v2": 144,
+            "n_bars_naive_label": 144,
+            "first_bar_et_v2": "04:00",
+            "last_bar_et_v2": "15:55",
+            "first_bar_naive_label": "04:00",
+            "shifted_vs_naive_label": false
+          }
+        }
+      }
+    }
+  },
+  "day_strata": {
+    "2024-08-05": {
+      "cc_pct": -2.618,
+      "range_pct": 2.537,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2024-09-03": {
+      "cc_pct": -2.023,
+      "range_pct": 2.03,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2024-12-18": {
+      "cc_pct": -2.887,
+      "range_pct": 3.526,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-03-03": {
+      "cc_pct": -2.1,
+      "range_pct": 2.831,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-03-11": {
+      "cc_pct": -3.42,
+      "range_pct": 1.931,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-03-28": {
+      "cc_pct": -2.036,
+      "range_pct": 2.01,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-04-03": {
+      "cc_pct": -4.752,
+      "range_pct": 2.083,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-04-04": {
+      "cc_pct": -5.995,
+      "range_pct": 4.11,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-04-07": {
+      "cc_pct": 0.206,
+      "range_pct": 8.135,
+      "is_drop_day": false,
+      "is_range_day": true
+    },
+    "2025-04-08": {
+      "cc_pct": -1.974,
+      "range_pct": 7.189,
+      "is_drop_day": false,
+      "is_range_day": true
+    },
+    "2025-04-09": {
+      "cc_pct": 9.484,
+      "range_pct": 9.785,
+      "is_drop_day": false,
+      "is_range_day": true
+    },
+    "2025-04-10": {
+      "cc_pct": -3.325,
+      "range_pct": 4.469,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-04-11": {
+      "cc_pct": 1.594,
+      "range_pct": 3.062,
+      "is_drop_day": false,
+      "is_range_day": true
+    },
+    "2025-04-16": {
+      "cc_pct": -2.215,
+      "range_pct": 2.806,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-04-21": {
+      "cc_pct": -2.358,
+      "range_pct": 2.564,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-10-10": {
+      "cc_pct": -2.663,
+      "range_pct": 3.218,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2025-11-20": {
+      "cc_pct": -1.563,
+      "range_pct": 3.625,
+      "is_drop_day": false,
+      "is_range_day": true
+    },
+    "2026-02-05": {
+      "cc_pct": -1.232,
+      "range_pct": 1.157,
+      "is_drop_day": false,
+      "is_range_day": false
+    },
+    "2026-03-23": {
+      "cc_pct": 1.058,
+      "range_pct": 1.324,
+      "is_drop_day": false,
+      "is_range_day": false
+    },
+    "2026-03-31": {
+      "cc_pct": 2.886,
+      "range_pct": 2.085,
+      "is_drop_day": false,
+      "is_range_day": false
+    },
+    "2026-04-14": {
+      "cc_pct": 1.222,
+      "range_pct": 0.997,
+      "is_drop_day": false,
+      "is_range_day": false
+    },
+    "2026-04-24": {
+      "cc_pct": 0.782,
+      "range_pct": 0.765,
+      "is_drop_day": false,
+      "is_range_day": false
+    },
+    "2026-06-05": {
+      "cc_pct": -2.596,
+      "range_pct": 2.345,
+      "is_drop_day": true,
+      "is_range_day": false
+    },
+    "2026-06-09": {
+      "cc_pct": -0.304,
+      "range_pct": 3.298,
+      "is_drop_day": false,
+      "is_range_day": true
+    }
+  },
+  "stratification_caveat": {
+    "n_neither": 5,
+    "days_satisfying_neither_recomputed_threshold": [
+      "2026-02-05",
+      "2026-03-23",
+      "2026-03-31",
+      "2026-04-14",
+      "2026-04-24"
+    ],
+    "recomputed_drop_day_count": 13,
+    "prereg_stated_close_to_close_le_neg2pct": 16,
+    "recomputed_range_day_count_exclusive_of_drop": 6,
+    "prereg_stated_intraday_range_ge_3pct": 15,
+    "verdict": "UNVERIFIED -- this module's stratification does not reproduce the prereg's own subset counts; see this function's docstring for the disclosed gap."
+  },
+  "participation_Q6": {
+    "stress_days_with_at_least_one_ladder_placed_entry": 2,
+    "of_frozen_days": 24,
+    "days_with_zero_entries": [
+      "2024-08-05",
+      "2024-09-03",
+      "2024-12-18",
+      "2025-03-03",
+      "2025-03-11",
+      "2025-03-28",
+      "2025-04-03",
+      "2025-04-04",
+      "2025-04-07",
+      "2025-04-08",
+      "2025-04-09",
+      "2025-04-10",
+      "2025-04-11",
+      "2025-04-16",
+      "2025-04-21",
+      "2025-10-10",
+      "2025-11-20",
+      "2026-03-23",
+      "2026-03-31",
+      "2026-04-14",
+      "2026-04-24",
+      "2026-06-05"
+    ],
+    "days_with_zero_entries_gates_only_(no_DATA_MISSING)": [
+      "2024-08-05",
+      "2024-09-03",
+      "2024-12-18",
+      "2025-03-11",
+      "2025-03-28",
+      "2025-04-03",
+      "2025-04-04",
+      "2025-04-07",
+      "2025-04-08",
+      "2025-04-09",
+      "2025-04-10",
+      "2025-04-11",
+      "2025-04-16",
+      "2025-04-21",
+      "2025-10-10",
+      "2025-11-20",
+      "2026-03-23",
+      "2026-03-31",
+      "2026-04-14",
+      "2026-04-24"
+    ],
+    "days_with_zero_entries_and_a_DATA_MISSING_proposal": [
+      "2025-03-03",
+      "2026-06-05"
+    ],
+    "note": "A stress-day study where the engine mostly sits out is a finding about the GATES, not the exits, and must not be read as an exit result. 'Entry' here means a trade the ladder actually permitted (skip=False) -- a day whose only proposal was a ladder-conflict skip counts as NO entry, honestly, since the live engine would never have placed that order either. A day in the DATA_MISSING sub-list had a real trigger fire but the resulting trade was excluded for a missing OPRA contract or SPY bars, NEVER silently dropped or modelled -- that day's zero is a DATA gap, not a GATES finding, and must not be conflated with the gates-only zeros."
+  },
+  "Q1_mechanism_mix_all_stress_days": {
+    "n": 2,
+    "total_pnl": -75.7,
+    "final_exit_stage_mix": {
+      "trail": 1,
+      "premium_stop": 1
+    },
+    "all_leg_stage_mix": {
+      "tp1": 1,
+      "trail": 1,
+      "premium_stop": 1
+    },
+    "stop_mode_mix": {
+      "premium": 1,
+      "structure": 1
+    },
+    "by_side": {
+      "P": {
+        "n": 2,
+        "pnl": -75.7
+      }
+    },
+    "worst_day": [
+      "2026-06-09",
+      -390.0
+    ],
+    "worst_day_vs_kill_switch": {
+      "Gamma-Safe": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5266.38,
+        "pct_of_equity": -7.41,
+        "kill_switch_threshold_pct": -30.0,
+        "would_have_tripped_kill_switch": false
+      },
+      "Gamma-Bold": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5048.4,
+        "pct_of_equity": -7.73,
+        "kill_switch_threshold_pct": -50.0,
+        "would_have_tripped_kill_switch": false
+      }
+    },
+    "worst_single_trade_pnl": -390.0,
+    "days_with_entries": 2
+  },
+  "Q2_side_split": {
+    "bull_calls": {
+      "n": 0
+    },
+    "bear_puts": {
+      "n": 2,
+      "total_pnl": -75.7,
+      "final_exit_stage_mix": {
+        "trail": 1,
+        "premium_stop": 1
+      },
+      "all_leg_stage_mix": {
+        "tp1": 1,
+        "trail": 1,
+        "premium_stop": 1
+      },
+      "stop_mode_mix": {
+        "premium": 1,
+        "structure": 1
+      },
+      "by_side": {
+        "P": {
+          "n": 2,
+          "pnl": -75.7
+        }
+      },
+      "worst_day": [
+        "2026-06-09",
+        -390.0
+      ],
+      "worst_day_vs_kill_switch": {
+        "Gamma-Safe": {
+          "worst_day_dollars": -390.0,
+          "arm_equivalent_equity": 5266.38,
+          "pct_of_equity": -7.41,
+          "kill_switch_threshold_pct": -30.0,
+          "would_have_tripped_kill_switch": false
+        },
+        "Gamma-Bold": {
+          "worst_day_dollars": -390.0,
+          "arm_equivalent_equity": 5048.4,
+          "pct_of_equity": -7.73,
+          "kill_switch_threshold_pct": -50.0,
+          "would_have_tripped_kill_switch": false
+        }
+      },
+      "worst_single_trade_pnl": -390.0,
+      "days_with_entries": 2
+    }
+  },
+  "Q3_cap_binding_rate": {
+    "n_structure_mode_trades": 1,
+    "n_binding_exits_(cap_or_chart)": 1,
+    "n_catastrophe_cap_fired": 1,
+    "n_chart_structure_stop_fired": 0,
+    "cap_binding_rate": 1.0,
+    "note": "Denominator is exits that were EITHER the -50% catastrophe cap OR the chart stop, restricted to structure-mode trades. tp1/runner/time-stop/profit-lock exits are excluded from this rate by construction -- they are not the invalidation-hierarchy question Q3 asks."
+  },
+  "Q4_ladder_sizing": {
+    "n_trades_placed_under_ladder": 2,
+    "n_capped_by_dollars_(max_position_dollars_binds)": 0,
+    "n_capped_by_contracts_only_(max_contracts_per_entry_binds)": 0,
+    "n_capped_by_both_simultaneously": 0,
+    "n_uncapped_(min_contracts_never_touched_either_cap)": 2,
+    "n_ladder_conflict_skips_(no_legal_qty_>=_min_contracts)": 0,
+    "note": "A trade is counted 'capped_by_dollars' whenever the flat $1,000 cap reduced qty below what max_contracts_per_entry alone would have allowed -- this is the direct answer to whether the dollar cap binds before the contract-count cap on elevated stress-day premiums."
+  },
+  "Q5_worst_case": {
+    "all_stress_days": {
+      "Gamma-Safe": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5266.38,
+        "pct_of_equity": -7.41,
+        "kill_switch_threshold_pct": -30.0,
+        "would_have_tripped_kill_switch": false
+      },
+      "Gamma-Bold": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5048.4,
+        "pct_of_equity": -7.73,
+        "kill_switch_threshold_pct": -50.0,
+        "would_have_tripped_kill_switch": false
+      }
+    },
+    "worst_single_trade_pnl": -390.0
+  },
+  "STRATIFIED_excluding_april_2025_block": {
+    "n": 2,
+    "total_pnl": -75.7,
+    "final_exit_stage_mix": {
+      "trail": 1,
+      "premium_stop": 1
+    },
+    "all_leg_stage_mix": {
+      "tp1": 1,
+      "trail": 1,
+      "premium_stop": 1
+    },
+    "stop_mode_mix": {
+      "premium": 1,
+      "structure": 1
+    },
+    "by_side": {
+      "P": {
+        "n": 2,
+        "pnl": -75.7
+      }
+    },
+    "worst_day": [
+      "2026-06-09",
+      -390.0
+    ],
+    "worst_day_vs_kill_switch": {
+      "Gamma-Safe": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5266.38,
+        "pct_of_equity": -7.41,
+        "kill_switch_threshold_pct": -30.0,
+        "would_have_tripped_kill_switch": false
+      },
+      "Gamma-Bold": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5048.4,
+        "pct_of_equity": -7.73,
+        "kill_switch_threshold_pct": -50.0,
+        "would_have_tripped_kill_switch": false
+      }
+    },
+    "worst_single_trade_pnl": -390.0,
+    "days_with_entries": 2
+  },
+  "STRATIFIED_april_2025_block_only": {
+    "n": 0
+  },
+  "STRATIFIED_drop_days_cc_le_neg2pct": {
+    "n": 0
+  },
+  "STRATIFIED_range_days_ge_3pct_ex_drop": {
+    "n": 1,
+    "total_pnl": -390.0,
+    "final_exit_stage_mix": {
+      "premium_stop": 1
+    },
+    "all_leg_stage_mix": {
+      "premium_stop": 1
+    },
+    "stop_mode_mix": {
+      "structure": 1
+    },
+    "by_side": {
+      "P": {
+        "n": 1,
+        "pnl": -390.0
+      }
+    },
+    "worst_day": [
+      "2026-06-09",
+      -390.0
+    ],
+    "worst_day_vs_kill_switch": {
+      "Gamma-Safe": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5266.38,
+        "pct_of_equity": -7.41,
+        "kill_switch_threshold_pct": -30.0,
+        "would_have_tripped_kill_switch": false
+      },
+      "Gamma-Bold": {
+        "worst_day_dollars": -390.0,
+        "arm_equivalent_equity": 5048.4,
+        "pct_of_equity": -7.73,
+        "kill_switch_threshold_pct": -50.0,
+        "would_have_tripped_kill_switch": false
+      }
+    },
+    "worst_single_trade_pnl": -390.0,
+    "days_with_entries": 1
+  },
+  "exclusions": {
+    "n_no_opra_contract": 15,
+    "n_no_spy_day": 0,
+    "n_data_missing_on_stress_days": 2,
+    "n_ladder_conflict_skips_all_window": 1,
+    "n_ladder_conflict_skips_on_stress_days": 0,
+    "note": "excluded and COUNTED, never silently dropped or modelled"
+  },
+  "data_missing_rows_on_stress_days": [
+    {
+      "date": "2025-03-03",
+      "side": "P",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK",
+      "symbol": "SPY250303P00592000",
+      "reason": "DATA_MISSING_no_opra_contract"
+    },
+    {
+      "date": "2026-06-05",
+      "side": "P",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON::BS_FALLBACK",
+      "symbol": "SPY260605P00748000",
+      "reason": "DATA_MISSING_no_opra_contract"
+    }
+  ],
+  "ladder_skip_rows_on_stress_days": [],
+  "disclosures": [
+    "CONCENTRATION, and it is severe: NINE of the 24 days (37.5%) fall inside a single three-week stretch, 2025-04-03..2025-04-21 -- the April 2025 tariff sequence. This is one macro event, not nine independent observations. Every aggregate MUST be reported both with and without that block, and no headline may be quoted from the pooled number alone. This is C4 (disclose concentration) and it is pre-registered rather than discovered because the day list was enumerated before any P&L existed.",
+    "n=24 IS SMALL and the effective n is smaller still once the April block is treated as one event -- roughly 16 independent episodes. No significance claim survives that; this study is DESCRIPTIVE. It answers 'what does the machinery do' and cannot answer 'is the edge positive in stress'.",
+    "SIM-ONLY, as the work order requires. Entries and exits are simulated against real OPRA bars where the contract is cached; any entry whose contract CSV is absent is EXCLUDED and COUNTED (n_no_opra reported), never silently dropped and never filled at a modelled price. Cache coverage is 2024-01-18..2026-08-28, so it spans the window, but per-day coverage must be reported per day.",
+    "NO SLIPPAGE MODEL beyond the OPRA bar. Real stress-day spreads are wider than the calm-regime record; a bar-derived fill is therefore OPTIMISTIC in exactly the population being studied. The direction of that bias must be stated beside every P&L number in the output.",
+    "THE ENGINE IS FROZEN and this study cannot change it. Config freeze runs to 2026-10-30; nothing here proposes a shape change, and any change this motivates is a 10-30 menu item requiring its own prereg.",
+    "PAST REGIMES ARE NOT THE NEXT ONE. Two of the three largest episodes here (Aug 2024 yen-carry, Apr 2025 tariffs) were single-cause macro shocks. A result that the engine survives these is not a result that it survives an unlike shock."
+  ],
+  "elapsed_s": 111.3,
+  "rows": [
+    {
+      "date": "2026-02-05",
+      "side": "P",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "symbol": "SPY260205P00676000",
+      "qty_proposed": 3,
+      "qty_ladder": 3,
+      "capped_by_contracts": false,
+      "capped_by_dollars": false,
+      "entry_premium": 0.95,
+      "dollar_pnl": 314.3,
+      "exit_reason": "runner_stop @ 2.19",
+      "leg_stages": [
+        "tp1",
+        "trail"
+      ],
+      "final_stage": "trail",
+      "resolved_stop_mode": "premium",
+      "hold_minutes": 30
+    },
+    {
+      "date": "2026-06-09",
+      "side": "P",
+      "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
+      "symbol": "SPY260609P00735000",
+      "qty_proposed": 3,
+      "qty_ladder": 3,
+      "capped_by_contracts": false,
+      "capped_by_dollars": false,
+      "entry_premium": 2.6,
+      "dollar_pnl": -390.0,
+      "exit_reason": "premium_stop @ 1.3",
+      "leg_stages": [
+        "premium_stop"
+      ],
+      "final_stage": "premium_stop",
+      "resolved_stop_mode": "structure",
+      "hold_minutes": 10
+    }
+  ]
+}
