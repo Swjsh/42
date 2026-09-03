@@ -1,10 +1,10 @@
 {
  "prereg": "analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
- "generated_at_et": "2026-09-03T17:58:53.698668",
- "n_scored": 200,
- "days_scored": 26,
- "date_span": "2026-07-13..2026-09-02",
- "n_in_sample_backfill": 200,
+ "generated_at_et": "2026-09-03T18:04:50.972951",
+ "n_scored": 216,
+ "days_scored": 27,
+ "date_span": "2026-07-13..2026-09-03",
+ "n_in_sample_backfill": 216,
  "n_forward": 0,
  "n_forward_days": 0,
  "forward_bar": {
@@ -15,46 +15,46 @@
   "bar_met": false
  },
  "in_force_zone_source_counts": {
-  "default": 200
+  "default": 216
  },
  "in_force_zone_width_counts": {
-  "0.30": 200
+  "0.30": 216
  },
  "by_all_time": {
   "grid": {
    "0.20": {
-    "n_scored": 200,
-    "n_confirmed": 115,
-    "actual_total": 4957.5,
-    "retest_total": 5758.7,
-    "delta_total": 801.2,
+    "n_scored": 216,
+    "n_confirmed": 127,
+    "actual_total": 6326.0,
+    "retest_total": 5229.7,
+    "delta_total": -1096.3,
     "safe2_trusted": {
-     "n": 28,
-     "delta": -630.6,
+     "n": 31,
+     "delta": -552.6,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -96.3739,
-      "ci_upper_97.5": 45.8694
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -79.906,
+      "ci_upper_97.5": 42.9833
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 1431.8,
+     "n": 185,
+     "delta": -543.7,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": -222.4,
-      "delta": 148.95
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 92.6,
+      "delta": -1702.65
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 5162.1,
-      "delta": 1908.0
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 4622.1,
+      "delta": 2025.5
      },
      "gt17": null
     },
@@ -90,38 +90,38 @@
     }
    },
    "0.30": {
-    "n_scored": 200,
-    "n_confirmed": 139,
-    "actual_total": 4957.5,
-    "retest_total": 7522.0,
-    "delta_total": 2564.5,
+    "n_scored": 216,
+    "n_confirmed": 152,
+    "actual_total": 6326.0,
+    "retest_total": 6960.0,
+    "delta_total": 634.0,
     "safe2_trusted": {
-     "n": 28,
-     "delta": -268.1,
+     "n": 31,
+     "delta": -221.6,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -66.3729,
-      "ci_upper_97.5": 30.5577
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -55.3352,
+      "ci_upper_97.5": 29.4333
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 2832.6,
+     "n": 185,
+     "delta": 855.6,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": -443.4,
-      "delta": -72.05
+      "n": 67,
+      "actual": 1795.25,
+      "retest": -128.4,
+      "delta": -1923.65
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 6069.8,
-      "delta": 2815.7
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 5499.8,
+      "delta": 2903.2
      },
      "gt17": null
     },
@@ -157,38 +157,38 @@
     }
    },
    "0.40": {
-    "n_scored": 200,
-    "n_confirmed": 153,
-    "actual_total": 4957.5,
-    "retest_total": 11353.0,
-    "delta_total": 6395.5,
+    "n_scored": 216,
+    "n_confirmed": 166,
+    "actual_total": 6326.0,
+    "retest_total": 10620.0,
+    "delta_total": 4294.0,
     "safe2_trusted": {
-     "n": 28,
-     "delta": 510.35,
+     "n": 31,
+     "delta": 556.85,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -1.7293,
-      "ci_upper_97.5": 44.568
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -0.929,
+      "ci_upper_97.5": 41.3958
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 5885.15,
+     "n": 185,
+     "delta": 3737.15,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": 1776.4,
-      "delta": 2147.75
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 2091.4,
+      "delta": 296.15
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 6512.95,
-      "delta": 3258.85
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 5942.95,
+      "delta": 3346.35
      },
      "gt17": null
     },
@@ -224,38 +224,38 @@
     }
    },
    "0.50": {
-    "n_scored": 200,
-    "n_confirmed": 159,
-    "actual_total": 4957.5,
-    "retest_total": 11133.7,
-    "delta_total": 6176.2,
+    "n_scored": 216,
+    "n_confirmed": 172,
+    "actual_total": 6326.0,
+    "retest_total": 10390.7,
+    "delta_total": 4064.7,
     "safe2_trusted": {
-     "n": 28,
-     "delta": 474.35,
+     "n": 31,
+     "delta": 520.85,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -3.7725,
-      "ci_upper_97.5": 44.2407
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -3.0803,
+      "ci_upper_97.5": 41.09
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 5701.85,
+     "n": 185,
+     "delta": 3543.85,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": 1781.4,
-      "delta": 2152.75
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 2096.4,
+      "delta": 301.15
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 6271.35,
-      "delta": 3017.25
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 5701.35,
+      "delta": 3104.75
      },
      "gt17": null
     },
@@ -291,38 +291,38 @@
     }
    },
    "0.75": {
-    "n_scored": 200,
-    "n_confirmed": 171,
-    "actual_total": 4957.5,
-    "retest_total": 9753.0,
-    "delta_total": 4795.5,
+    "n_scored": 216,
+    "n_confirmed": 184,
+    "actual_total": 6326.0,
+    "retest_total": 9010.0,
+    "delta_total": 2684.0,
     "safe2_trusted": {
-     "n": 28,
-     "delta": 662.15,
+     "n": 31,
+     "delta": 708.65,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -1.606,
-      "ci_upper_97.5": 56.2827
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -0.264,
+      "ci_upper_97.5": 51.8672
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 4133.35,
+     "n": 185,
+     "delta": 1975.35,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": 1833.4,
-      "delta": 2204.75
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 2148.4,
+      "delta": 353.15
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 5019.95,
-      "delta": 1765.85
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 4449.95,
+      "delta": 1853.35
      },
      "gt17": null
     },
@@ -359,38 +359,38 @@
    }
   },
   "in_force": {
-   "n_scored": 200,
-   "n_confirmed": 139,
-   "actual_total": 4957.5,
-   "retest_total": 7522.0,
-   "delta_total": 2564.5,
+   "n_scored": 216,
+   "n_confirmed": 152,
+   "actual_total": 6326.0,
+   "retest_total": 6960.0,
+   "delta_total": 634.0,
    "safe2_trusted": {
-    "n": 28,
-    "delta": -268.1,
+    "n": 31,
+    "delta": -221.6,
     "session_clustered_ci": {
      "n_boot": 2000,
-     "n_days_clustered": 14,
-     "ci_lower_2.5": -66.3729,
-     "ci_upper_97.5": 30.5577
+     "n_days_clustered": 15,
+     "ci_lower_2.5": -55.3352,
+     "ci_upper_97.5": 29.4333
     }
    },
    "other_arms_sign_only": {
-    "n": 172,
-    "delta": 2832.6,
+    "n": 185,
+    "delta": 855.6,
     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
    },
    "vix_band_split": {
     "lt15": {
-     "n": 63,
-     "actual": -371.35,
-     "retest": -443.4,
-     "delta": -72.05
+     "n": 67,
+     "actual": 1795.25,
+     "retest": -128.4,
+     "delta": -1923.65
     },
     "15to17": {
-     "n": 89,
-     "actual": 3254.1,
-     "retest": 6069.8,
-     "delta": 2815.7
+     "n": 94,
+     "actual": 2596.6,
+     "retest": 5499.8,
+     "delta": 2903.2
     },
     "gt17": null
    },
@@ -429,38 +429,38 @@
  "by_backfill_only": {
   "grid": {
    "0.20": {
-    "n_scored": 200,
-    "n_confirmed": 115,
-    "actual_total": 4957.5,
-    "retest_total": 5758.7,
-    "delta_total": 801.2,
+    "n_scored": 216,
+    "n_confirmed": 127,
+    "actual_total": 6326.0,
+    "retest_total": 5229.7,
+    "delta_total": -1096.3,
     "safe2_trusted": {
-     "n": 28,
-     "delta": -630.6,
+     "n": 31,
+     "delta": -552.6,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -96.3739,
-      "ci_upper_97.5": 45.8694
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -79.906,
+      "ci_upper_97.5": 42.9833
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 1431.8,
+     "n": 185,
+     "delta": -543.7,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": -222.4,
-      "delta": 148.95
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 92.6,
+      "delta": -1702.65
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 5162.1,
-      "delta": 1908.0
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 4622.1,
+      "delta": 2025.5
      },
      "gt17": null
     },
@@ -496,38 +496,38 @@
     }
    },
    "0.30": {
-    "n_scored": 200,
-    "n_confirmed": 139,
-    "actual_total": 4957.5,
-    "retest_total": 7522.0,
-    "delta_total": 2564.5,
+    "n_scored": 216,
+    "n_confirmed": 152,
+    "actual_total": 6326.0,
+    "retest_total": 6960.0,
+    "delta_total": 634.0,
     "safe2_trusted": {
-     "n": 28,
-     "delta": -268.1,
+     "n": 31,
+     "delta": -221.6,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -66.3729,
-      "ci_upper_97.5": 30.5577
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -55.3352,
+      "ci_upper_97.5": 29.4333
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 2832.6,
+     "n": 185,
+     "delta": 855.6,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": -443.4,
-      "delta": -72.05
+      "n": 67,
+      "actual": 1795.25,
+      "retest": -128.4,
+      "delta": -1923.65
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 6069.8,
-      "delta": 2815.7
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 5499.8,
+      "delta": 2903.2
      },
      "gt17": null
     },
@@ -563,38 +563,38 @@
     }
    },
    "0.40": {
-    "n_scored": 200,
-    "n_confirmed": 153,
-    "actual_total": 4957.5,
-    "retest_total": 11353.0,
-    "delta_total": 6395.5,
+    "n_scored": 216,
+    "n_confirmed": 166,
+    "actual_total": 6326.0,
+    "retest_total": 10620.0,
+    "delta_total": 4294.0,
     "safe2_trusted": {
-     "n": 28,
-     "delta": 510.35,
+     "n": 31,
+     "delta": 556.85,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -1.7293,
-      "ci_upper_97.5": 44.568
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -0.929,
+      "ci_upper_97.5": 41.3958
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 5885.15,
+     "n": 185,
+     "delta": 3737.15,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": 1776.4,
-      "delta": 2147.75
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 2091.4,
+      "delta": 296.15
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 6512.95,
-      "delta": 3258.85
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 5942.95,
+      "delta": 3346.35
      },
      "gt17": null
     },
@@ -630,38 +630,38 @@
     }
    },
    "0.50": {
-    "n_scored": 200,
-    "n_confirmed": 159,
-    "actual_total": 4957.5,
-    "retest_total": 11133.7,
-    "delta_total": 6176.2,
+    "n_scored": 216,
+    "n_confirmed": 172,
+    "actual_total": 6326.0,
+    "retest_total": 10390.7,
+    "delta_total": 4064.7,
     "safe2_trusted": {
-     "n": 28,
-     "delta": 474.35,
+     "n": 31,
+     "delta": 520.85,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -3.7725,
-      "ci_upper_97.5": 44.2407
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -3.0803,
+      "ci_upper_97.5": 41.09
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 5701.85,
+     "n": 185,
+     "delta": 3543.85,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": 1781.4,
-      "delta": 2152.75
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 2096.4,
+      "delta": 301.15
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 6271.35,
-      "delta": 3017.25
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 5701.35,
+      "delta": 3104.75
      },
      "gt17": null
     },
@@ -697,38 +697,38 @@
     }
    },
    "0.75": {
-    "n_scored": 200,
-    "n_confirmed": 171,
-    "actual_total": 4957.5,
-    "retest_total": 9753.0,
-    "delta_total": 4795.5,
+    "n_scored": 216,
+    "n_confirmed": 184,
+    "actual_total": 6326.0,
+    "retest_total": 9010.0,
+    "delta_total": 2684.0,
     "safe2_trusted": {
-     "n": 28,
-     "delta": 662.15,
+     "n": 31,
+     "delta": 708.65,
      "session_clustered_ci": {
       "n_boot": 2000,
-      "n_days_clustered": 14,
-      "ci_lower_2.5": -1.606,
-      "ci_upper_97.5": 56.2827
+      "n_days_clustered": 15,
+      "ci_lower_2.5": -0.264,
+      "ci_upper_97.5": 51.8672
      }
     },
     "other_arms_sign_only": {
-     "n": 172,
-     "delta": 4133.35,
+     "n": 185,
+     "delta": 1975.35,
      "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
     },
     "vix_band_split": {
      "lt15": {
-      "n": 63,
-      "actual": -371.35,
-      "retest": 1833.4,
-      "delta": 2204.75
+      "n": 67,
+      "actual": 1795.25,
+      "retest": 2148.4,
+      "delta": 353.15
      },
      "15to17": {
-      "n": 89,
-      "actual": 3254.1,
-      "retest": 5019.95,
-      "delta": 1765.85
+      "n": 94,
+      "actual": 2596.6,
+      "retest": 4449.95,
+      "delta": 1853.35
      },
      "gt17": null
     },
@@ -765,38 +765,38 @@
    }
   },
   "in_force": {
-   "n_scored": 200,
-   "n_confirmed": 139,
-   "actual_total": 4957.5,
-   "retest_total": 7522.0,
-   "delta_total": 2564.5,
+   "n_scored": 216,
+   "n_confirmed": 152,
+   "actual_total": 6326.0,
+   "retest_total": 6960.0,
+   "delta_total": 634.0,
    "safe2_trusted": {
-    "n": 28,
-    "delta": -268.1,
+    "n": 31,
+    "delta": -221.6,
     "session_clustered_ci": {
      "n_boot": 2000,
-     "n_days_clustered": 14,
-     "ci_lower_2.5": -66.3729,
-     "ci_upper_97.5": 30.5577
+     "n_days_clustered": 15,
+     "ci_lower_2.5": -55.3352,
+     "ci_upper_97.5": 29.4333
     }
    },
    "other_arms_sign_only": {
-    "n": 172,
-    "delta": 2832.6,
+    "n": 185,
+    "delta": 855.6,
     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
    },
    "vix_band_split": {
     "lt15": {
-     "n": 63,
-     "actual": -371.35,
-     "retest": -443.4,
-     "delta": -72.05
+     "n": 67,
+     "actual": 1795.25,
+     "retest": -128.4,
+     "delta": -1923.65
     },
     "15to17": {
-     "n": 89,
-     "actual": 3254.1,
-     "retest": 6069.8,
-     "delta": 2815.7
+     "n": 94,
+     "actual": 2596.6,
+     "retest": 5499.8,
+     "delta": 2903.2
     },
     "gt17": null
    },
@@ -835,79 +835,14 @@
  "by_forward_only": {},
  "status": "ACCRUING",
  "decision_rule": "Read ONCE, on FORWARD (in_sample=False) data only, at >=20 forward sessions AND >=40 forward signals: ship-candidate only if by_forward_only.in_force.safe2_trusted.session_clustered_ci.ci_lower_2.5 > 0 AND no by_all_time.in_force.big_winner_days entry has sign_flip=true. The grid columns (0.20/0.30/0.40/0.50/0.75) are disclosure-only -- no width may be picked after reading them. Full rule: analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
- "new_this_run": 0,
- "skipped_this_run": [
-  {
-   "activity_id": "20260903094104466::042e49ee-ff15-4b16-8510-46db3b59003f",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903094206247::2ee6dfe7-9a08-433d-875e-d01af61f8398",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903094206260::6ab2942b-1c60-4c3e-a472-89e734fa781f",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903094208349::b5fa7916-0490-4a99-867a-46c54c7b49d8",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903094208480::3ce78b4c-76a5-4ab5-8dbe-7bad78ea662a",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903101608966::8acb9ebf-4381-4a50-98f2-8728d0d5261a",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903101625760::b154ca9e-562c-4ba1-afc0-e559db6879c4",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903101707605::8cbaf2a5-5932-4ef0-bd91-a2a8d6cdf9a2",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903101709068::98a50a0a-f956-4ca8-b71f-98f8fa42ec12",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903110605554::66bd2b46-b60c-4546-9545-47460145f71d",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903110710371::ed328354-b8a6-4f70-abe0-0588c617bdc1",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903110715548::5178512d-0208-415c-9fdc-c3f9d49371e2",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903112207262::59a73c78-dd88-459f-8307-81e33ab0e18a",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903112208729::907eea96-3c9c-479c-895a-bbd563f8358a",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903112705998::371bd3de-0e41-4599-b595-3f6372857c14",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  },
-  {
-   "activity_id": "20260903121609315::713923f5-f619-4081-8c13-d3174f6b7384",
-   "reason": "skip_no_spy_5m_for_ribbon"
-  }
- ],
+ "new_this_run": 16,
+ "skipped_this_run": [],
  "population": {
   "n_ribbon_events_total": 364,
   "n_closed": 364,
   "n_no_trigger_level_excluded": 148,
   "n_scoreable": 216,
-  "n_scored_cumulative": 200
+  "n_scored_cumulative": 216
  },
  "archive_health": {
   "n_dated_snapshots": 18,

@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -54,7 +55,49 @@ from lib.ribbon import compute_ribbon  # noqa: E402
 
 OUT_DIR = REPO / "analysis" / "deep-research" / "2026-09-03-money"
 RAW_ENTRIES_PATH = OUT_DIR / "retest-entry-variant-raw-entries.json"
-SPY_5M_PATH = BACKTEST / "data" / "spy_5m_2026-05-19_2026-09-02.csv"
+
+# --- SPY 5m aggregate cache resolution --------------------------------------------------
+# ROOT CAUSE (RETEST-ZONE-SCORING-KEYERROR, 2026-09-03): this was a hardcoded, date-stamped
+# filename (spy_5m_2026-05-19_2026-09-02.csv) -- one session stale the moment
+# backtest/tools/fetch_data.py writes the next day's file (it never overwrites, it appends
+# a new spy_5m_2026-05-19_<end-date>.csv per run and leaves prior files in place). Every
+# nightly forward consumer importing this module by reuse (setup/scripts/retest_zone_shadow.py,
+# 17:05 ET) skipped every entry dated after the pinned constant's end date, forever --
+# skip_no_spy_5m_for_ribbon on all 16 rows for 2026-09-03. Fixed at the source: resolve the
+# freshest matching cache file BY FILENAME END-DATE at call time (not once at import), so a
+# long-running process still picks up a file written after it started.
+SPY_5M_DIR = BACKTEST / "data"
+SPY_5M_PATTERN = re.compile(r"^spy_5m_2026-05-19_(\d{4}-\d{2}-\d{2})\.csv$")
+
+
+def resolve_spy_5m_path() -> Path:
+    """Return the spy_5m_2026-05-19_*.csv cache with the LATEST end date on disk.
+
+    Ignores anything that doesn't match the exact producer pattern (fetch_data.py's
+    `spy_5m_{start}_{end}.csv`, this series' start pinned to 2026-05-19) -- e.g. the
+    2025-01-01-start master series, `_merged`/`_supplement` variants, or other symbols'
+    files never match and are silently skipped, not treated as candidates.
+
+    Raises FileNotFoundError loudly (never falls back to a stale guess) when no matching
+    file exists at all -- a missing cache is a real precondition failure, not something to
+    paper over.
+    """
+    candidates: list[tuple[str, Path]] = []
+    for p in SPY_5M_DIR.glob("spy_5m_2026-05-19_*.csv"):
+        m = SPY_5M_PATTERN.match(p.name)
+        if not m:
+            continue
+        candidates.append((m.group(1), p))
+    if not candidates:
+        raise FileNotFoundError(
+            f"no spy_5m_2026-05-19_*.csv cache found under {SPY_5M_DIR} -- "
+            "backtest/tools/fetch_data.py must run before this module can load the SPY 5m ribbon"
+        )
+    candidates.sort(key=lambda t: t[0])  # ISO end-date strings sort chronologically
+    return candidates[-1][1]
+
+
+SPY_5M_PATH = resolve_spy_5m_path()  # back-compat module attribute -- resolved once at import
 SIP_1M_DIR = BACKTEST / "data" / "spy_sip_cache"
 OPTIONS_5M_DIR = BACKTEST / "data" / "options"
 HIGHRES_DIR = BACKTEST / "data" / "highres"
@@ -79,7 +122,7 @@ def log(msg: str) -> None:
 # SHARED CONTEXT -- loaded once
 # ---------------------------------------------------------------------------------------------
 def load_spy_5m_and_ribbon():
-    spy = pd.read_csv(SPY_5M_PATH)
+    spy = pd.read_csv(resolve_spy_5m_path())  # resolved at CALL time -- see resolve_spy_5m_path()
     spy["timestamp_et"] = pd.to_datetime(spy["timestamp_et"])
     if spy["timestamp_et"].dt.tz is not None:
         spy["timestamp_et"] = spy["timestamp_et"].dt.tz_localize(None)
@@ -245,7 +288,7 @@ def main() -> int:
     entries = [e for e in entries if e.get("trigger_level") is not None]
     log(f"excluded {n_no_trigger} entries with no trigger_level (can't define a retest zone); {len(entries)} remain")
 
-    log("Loading aggregate SPY 5m + ribbon (2026-05-19..2026-09-02, RTH, causal EMAs)")
+    log(f"Loading aggregate SPY 5m + ribbon (from {resolve_spy_5m_path().name}, RTH, causal EMAs)")
     spy_5m_rth, ribbon_5m = load_spy_5m_and_ribbon()
     vix_by_tick = load_core_tick_vix()
     for e in entries:
