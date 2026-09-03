@@ -298,6 +298,19 @@ GRINDER_REGISTRY: dict[str, dict] = {
         "watcher_name": "shotgun_scalper",
         "description": "SHOTGUN_SCALPER Stage-5 — walk-forward scorecard + auto-promote to WATCH if gates pass",
     },
+    # F5 day-type classifier (paying/tax) — LOWO-CV fit, frozen per prereg-day-type-
+    # classifier-2026-09-03.md sections 3-5. Fast in-process fit ($0, low-single-digit
+    # seconds), never writes progress.json/keepers.jsonl — see the module's own docstring
+    # for why. Its ONLY output is analysis/recommendations/day-type-classifier-cook-<date>.json.
+    "day_type_classifier_grinder": {
+        "module": "autoresearch.day_type_classifier_grinder",
+        "state_dir": _GRINDER_STATE / "day_type_classifier_grinder",
+        "default_hours": 0.1,
+        "cooldown_h": 24.0,
+        "description": "F5 day-type classifier (paying/tax) — LOWO-CV single-split + depth-2 "
+                        "tree candidates vs day-type-labels.json, SHADOW_CANDIDATE/"
+                        "NOT_SHIPPABLE verdict only, never touches the trading path",
+    },
 }
 
 
