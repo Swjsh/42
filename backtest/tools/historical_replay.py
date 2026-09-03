@@ -211,6 +211,10 @@ def load_core_trigger_lookup() -> dict:
 
 def resolve_trigger_level(lookup: dict, date_str: str, side: str,
                            entry_dt: dt.datetime) -> Optional[float]:
+    """RECONSTRUCTION fallback: nearest-in-time core-decisions.jsonl trigger_level_exact
+    within TRIGGER_LEVEL_MATCH_TOL_S. Superseded as the primary source by
+    resolve_trigger_level_for_trade below (HISTORICAL-REPLAY-TRIGGER-LEVEL-SUPERSEDED,
+    2026-09-03) -- kept as the fallback for rows where the exact field is absent."""
     candidates = lookup.get((date_str, side)) or []
     best, best_gap = None, None
     for ts_dt, level in candidates:
@@ -218,6 +222,29 @@ def resolve_trigger_level(lookup: dict, date_str: str, side: str,
         if gap <= TRIGGER_LEVEL_MATCH_TOL_S and (best_gap is None or gap < best_gap):
             best, best_gap = level, gap
     return best
+
+
+def resolve_trigger_level_for_trade(t: dict, lookup: dict) -> tuple[Optional[float], str]:
+    """Exact-first trigger-level resolution for one trades-enriched.jsonl trade row.
+    HISTORICAL-REPLAY-TRIGGER-LEVEL-SUPERSEDED (2026-09-03): every placed row now carries
+    the EXACT level exit_manager.py actually armed (exec.trigger_level / placement.
+    trigger_level, joinable by broker order id) -- trades_enriched.py has stamped that
+    order-id-joined value onto trades-enriched.jsonl's own `trigger_level` field for every
+    row since the 2026-09-01 fix (see test_trades_enriched_trigger_level_2026_09_01.py).
+    This function reads that exact field FIRST and falls back to this module's own
+    nearest-in-time core-decisions.jsonl reconstruction (resolve_trigger_level) ONLY when
+    the exact field is absent/null (older rows, or a row that never armed a structure
+    level). Returns (level, source) where source is 'exact' or 'reconstructed' -- callers
+    must stamp this per-row rather than relying on the old blanket 'trigger_level is
+    RECONSTRUCTED' disclosure, which is no longer true for the exact-field majority."""
+    exact = t.get("trigger_level")
+    if exact is not None:
+        return float(exact), "exact"
+    date_str = t["date"]
+    side = t["right"]
+    entry_dt = dt.datetime.fromisoformat(t["entry_ts_et"])
+    level = resolve_trigger_level(lookup, date_str, side, entry_dt)
+    return level, "reconstructed"
 
 
 # --------------------------------------------------------------------------------------- #
@@ -379,6 +406,10 @@ def main() -> int:
     per_scenario_rows: dict = {c: [] for c in COST_SCENARIOS}
     n_stop_mode_divergent = 0
     n_stop_mode_scored = 0
+    # HISTORICAL-REPLAY-TRIGGER-LEVEL-SUPERSEDED (2026-09-03): per-trade (not per-cost-
+    # scenario-row) counts of which source resolved each walked trade's trigger_level.
+    n_trigger_level_exact = 0
+    n_trigger_level_reconstructed = 0
 
     t0 = _time_mod.time()
     for i, t in enumerate(trades):
@@ -420,7 +451,11 @@ def main() -> int:
         hh, mm = str(time_stop_str).split(":")
         time_stop_et = dt.time(int(hh), int(mm))
 
-        trigger_level = resolve_trigger_level(trigger_lookup, date_str, side, entry_dt)
+        trigger_level, trigger_level_source = resolve_trigger_level_for_trade(t, trigger_lookup)
+        if trigger_level_source == "exact":
+            n_trigger_level_exact += 1
+        else:
+            n_trigger_level_reconstructed += 1
 
         if cache_key not in ribbon_cache:
             ribbon_cache[cache_key] = ribbon_1min_for(opt_df, spy_5m)
@@ -443,7 +478,8 @@ def main() -> int:
                 "date": date_str, "arm": arm, "symbol": symbol, "side": side, "setup": setup,
                 "qty": qty, "entry_ts_et": entry_dt.isoformat(), "entry_premium": entry_px,
                 "cost_per_contract": cost, "option_bar_source": opt_source,
-                "trigger_level": trigger_level, "resolved_stop_mode": res.stop_mode,
+                "trigger_level": trigger_level, "trigger_level_source": trigger_level_source,
+                "resolved_stop_mode": res.stop_mode,
                 "live_stop_mode": live_stop_mode,
                 "exit_reason": res.exit_reason, "live_exit_reason": live_exit_reason,
                 "exit_time_et": res.exit_time_et.isoformat() if res.exit_time_et else None,
@@ -533,6 +569,23 @@ def main() -> int:
         "n_walked_trades": n_walked_trades,
         "n_skipped_no_option_data_or_strategy": n_skipped_no_data,
         "coverage_pct": round(100.0 * n_walked_trades / len(trades), 2) if trades else None,
+        "trigger_level_provenance": {
+            "n_exact": n_trigger_level_exact,
+            "n_reconstructed": n_trigger_level_reconstructed,
+            "pct_exact": (round(100.0 * n_trigger_level_exact / n_walked_trades, 2)
+                          if n_walked_trades else None),
+            "doc": (
+                "HISTORICAL-REPLAY-TRIGGER-LEVEL-SUPERSEDED (2026-09-03): 'exact' = read "
+                "directly from trades-enriched.jsonl's own trigger_level field (the "
+                "order-id join onto exec.trigger_level/placement.trigger_level, stamped "
+                "there by trades_enriched.py since 2026-09-01). 'reconstructed' = the exact "
+                "field was absent for that trade, so this script fell back to its own "
+                f"nearest-in-time core-decisions.jsonl trigger_level_exact match (within "
+                f"{TRIGGER_LEVEL_MATCH_TOL_S:.0f}s). Every ledger row also carries its own "
+                "trigger_level_source label -- see stop_mode_fidelity below for how "
+                "reconstructed rows can diverge."
+            ),
+        },
         "survivorship_check": {
             "skipped_trades_n": len(skipped_rows),
             "skipped_trades_live_pnl_sum": skipped_live_sum,
@@ -552,15 +605,18 @@ def main() -> int:
                                if n_stop_mode_scored else None),
             "doc": (
                 "A trade's replay-resolved stop_mode (structure vs premium) can diverge from "
-                "trades-enriched.jsonl's recorded live stop_mode when this script's "
-                "trigger_level reconstruction (core-decisions.jsonl trigger_level_exact, "
-                f"nearest match within {TRIGGER_LEVEL_MATCH_TOL_S:.0f}s) misses the real level "
-                "that was actually live at entry, or when the CURRENT structure_stop_enabled "
-                "flag read from live params does not match what was armed at that historical "
-                "date (flag toggles are not versioned by date in this replay). A trade that "
-                "resolves to 'premium' in the replay but was 'structure' live uses a DIFFERENT "
-                "stop mechanism than what actually happened -- this count is the direct measure "
-                "of how often that happens."
+                "trades-enriched.jsonl's recorded live stop_mode when a 'reconstructed' "
+                "trigger_level (see trigger_level_provenance above -- this script's own "
+                f"nearest-in-time core-decisions.jsonl match, within "
+                f"{TRIGGER_LEVEL_MATCH_TOL_S:.0f}s) misses the real level that was actually "
+                "live at entry, or when the CURRENT structure_stop_enabled flag read from "
+                "live params does not match what was armed at that historical date (flag "
+                "toggles are not versioned by date in this replay). An 'exact' trigger_level "
+                "(read directly from trades-enriched.jsonl's own order-id-joined field) "
+                "carries no such reconstruction risk. A trade that resolves to 'premium' in "
+                "the replay but was 'structure' live uses a DIFFERENT stop mechanism than "
+                "what actually happened -- this count is the direct measure of how often "
+                "that happens."
             ),
         },
         "cost_scenarios": scenario_summaries,
@@ -593,9 +649,13 @@ def main() -> int:
             "going live' -- N here is the same trades already counted in the forward record. "
             "It may be cited only as: (a) whether the exit_manager_walk mechanism reproduces "
             "real fills at each cost assumption, and (b) how sensitive realized P&L is to "
-            "exit-side slippage. trigger_level and structure_stop_enabled are RECONSTRUCTED "
-            "(not read from a per-trade historical snapshot) -- see stop_mode_fidelity above "
-            "for the measured divergence rate."
+            "exit-side slippage. trigger_level is now read EXACT-FIRST from trades-enriched."
+            "jsonl's order-id-joined field (see trigger_level_provenance above for the "
+            "exact-vs-reconstructed split, and each ledger row's own trigger_level_source) "
+            "-- only the reconstructed minority carries the old nearest-in-time fuzzy-match "
+            "risk. structure_stop_enabled remains read from CURRENT live params, not a "
+            "per-trade historical snapshot -- see stop_mode_fidelity above for the measured "
+            "divergence rate."
         ),
     }
     SUMMARY_PATH.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")

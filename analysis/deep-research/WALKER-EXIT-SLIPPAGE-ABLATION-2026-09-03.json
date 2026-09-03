@@ -1,0 +1,77 @@
+{
+  "label": "RESEARCH -- decides nothing, arms nothing, ships nothing",
+  "queue_item": "WALKER-EXIT-SLIPPAGE-ASYMMETRY-ABLATION",
+  "pre_registration_note": "See this script's module docstring, written before any number below was read.",
+  "settings_run": [
+    "default",
+    "zero"
+  ],
+  "live_setting_skipped_reason": "analysis/pain-ledger/latency.json carries no dollar-denominated exit-slippage field -- it measures pipeline TIME latency in seconds (bar_close_ts_to_core_verdict_ts_s, etc.), scoped to ENTRY fills only, on arms safe-3/risky-1/risky-3 (not safe-2/bold-2, the PDT anchor's own arms). Skipped, not guessed at.",
+  "pdt_default_slippage": 0.01,
+  "v9_default_slippage": 0.02,
+  "results": {
+    "pdt": {
+      "default": {
+        "n": 41,
+        "skipped_no_bars": 2,
+        "sign_agreement": 0.9756,
+        "aggregate_ratio": 2.0128,
+        "median_abs_error_dollars": 15.0,
+        "verdict": "FAIL",
+        "n_agree_rows": 36,
+        "agree_only_aggregate_ratio": 1.9842,
+        "agree_only_median_abs_error_dollars": 15.0
+      },
+      "zero": {
+        "n": 41,
+        "skipped_no_bars": 2,
+        "sign_agreement": 0.9756,
+        "aggregate_ratio": 1.7163,
+        "median_abs_error_dollars": 15.0,
+        "verdict": "FAIL",
+        "n_agree_rows": 36,
+        "agree_only_aggregate_ratio": 1.5277,
+        "agree_only_median_abs_error_dollars": 15.0
+      }
+    },
+    "v9": {
+      "default": {
+        "n_compared": 121,
+        "n_skipped_no_bars": 12,
+        "sign_agreement_rate": 0.8926,
+        "aggregate_ratio": 0.6452,
+        "median_abs_error_dollars": 15.0,
+        "verdict": "PASS",
+        "fetch_budget_n_fetched": 0,
+        "fetch_budget_n_failed": 0
+      },
+      "zero": {
+        "n_compared": 121,
+        "n_skipped_no_bars": 12,
+        "sign_agreement_rate": 0.9008,
+        "aggregate_ratio": 0.8181,
+        "median_abs_error_dollars": 15.0,
+        "verdict": "PASS",
+        "fetch_budget_n_fetched": 0,
+        "fetch_budget_n_failed": 0
+      }
+    }
+  },
+  "pdt_by_stop_mode_at_default_slippage": {
+    "premium": {
+      "n": 20,
+      "aggregate_ratio": 1.6102,
+      "median_abs_error_dollars": 29.4
+    },
+    "structure_or_other": {
+      "n": 21,
+      "aggregate_ratio": 1.1063,
+      "median_abs_error_dollars": 6.0
+    }
+  },
+  "conclusion": "Slippage is a REAL but PARTIAL contributor -- both anchors move toward 1.0 when zeroed (PDT 2.0128->1.7163, V9 0.6452->0.8181), yet the PASS/FAIL verdict does not flip (pdt_still_fails_at_zero=True) because the premium_stop bucket (20/41 rows, ratio 1.6102 -- a stage exit_slippage structurally NEVER touches) is biased on its own: the residual is population composition/small-n (n=41, premium_stop-heavy, loss-skewed), not the slippage asymmetry alone.",
+  "pdt_moved_toward_one_at_zero_slippage": true,
+  "v9_moved_toward_one_at_zero_slippage": true,
+  "pdt_still_fails_at_zero_slippage": true,
+  "premium_stop_bucket_untouched_by_slippage_but_biased": true
+}

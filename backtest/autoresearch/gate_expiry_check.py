@@ -667,13 +667,45 @@ def sole_blocker_events(rows_hold: list[dict], door: str, filt: int) -> list[dic
     return cluster_events(sub, EVENT_CLUSTER_GAP_MINUTES)
 
 
+def sole_blocker_rows_all_accounts(holds_by_account: dict[str, list[dict]], door: str,
+                                    filt: int) -> list[dict]:
+    """Raw (pre-cluster) sole-blocked-on-`filt` HOLD rows for `door`, combined across BOTH
+    accounts (row copies, same shape sole_blocker_events produces per-account) -- feeds the
+    cross-account `episodes_distinct` clustering below. GATE-EXPIRY-SOLE-BLOCKER-DOUBLE-COUNT
+    (2026-09-03): the SAME refused market moment produces one HOLD row per account (identical
+    gate logic, identical market data -- only qty differs), so accounts must be combined and
+    re-clustered TOGETHER, never counted per-account and then summed."""
+    grab = _postfix_module()
+    bkey, side, lvl_key = grab.DOORS[door]
+    sub = []
+    for holds in holds_by_account.values():
+        for r in grab.sole_blocker_rows(holds, bkey, filt):
+            ev = dict(r)
+            ev["side"] = side
+            if r.get(lvl_key) is not None:
+                ev["trigger_level_exact"] = r[lvl_key]
+            sub.append(ev)
+    return sub
+
+
 def mine_sole_blockers(recent_start: dt.date, recent_end: dt.date,
                         p1_by_day: dict | None = None,
                         filters: range = range(1, 12)) -> dict[str, dict]:
     """Per door x filter x account, over [recent_start, recent_end]: sole-blocker event counts
     + the NOT_REPLAYED directional read (see module-section docstring above). Called twice by
     main() below -- once for the single most-recent session, once for the rolling 20-session
-    window -- by passing recent_start==recent_end for the former."""
+    window -- by passing recent_start==recent_end for the former.
+
+    GATE-EXPIRY-SOLE-BLOCKER-DOUBLE-COUNT (2026-09-03, filed from the first live run's bear
+    sole-[8] 106-events/14-sessions read): safe and bold run the IDENTICAL bull/bear checklist
+    against the SAME market data, so a refused moment mechanically produces one HOLD row per
+    account -- verified live: bear_filter8_safe and bear_filter8_bold both read exactly 53
+    events over the same rolling window, byte-identical. Summing the two per-account
+    `n_events` (what the flagship watches used to do) double-counts every such episode. Each
+    emitted cell below now also carries `events_raw` (== the pre-existing per-account
+    `n_events`, unchanged) plus the cross-account-deduped `episodes_distinct` (+ its own
+    cost/saved/unknown split) computed ONCE per door+filter and duplicated onto every matching
+    account cell -- additive, nothing removed."""
     grab = _postfix_module()
     if p1_by_day is None:
         p1_by_day = load_p1_outcomes_by_day()
@@ -683,15 +715,38 @@ def mine_sole_blockers(recent_start: dt.date, recent_end: dt.date,
     ]
     out: dict[str, dict] = {}
     for door in grab.DOORS:
-        for account in ("safe", "bold"):
-            holds = [r for r in rows if r.get("account") == account and r.get("verdict") == "HOLD"]
-            for filt in filters:
-                events = sole_blocker_events(holds, door, filt)
+        side = grab.DOORS[door][1]
+        holds_by_account = {
+            account: [r for r in rows if r.get("account") == account and r.get("verdict") == "HOLD"]
+            for account in ("safe", "bold")
+        }
+        for filt in filters:
+            per_account_events = {
+                account: sole_blocker_events(holds_by_account[account], door, filt)
+                for account in ("safe", "bold")
+            }
+            if not any(per_account_events.values()):
+                continue
+
+            distinct_raw = sole_blocker_rows_all_accounts(holds_by_account, door, filt)
+            distinct_events = cluster_events(distinct_raw, EVENT_CLUSTER_GAP_MINUTES)
+            dcost = dsaved = dunknown = 0
+            for ev in distinct_events:
+                read, _pnl = p1_outcome_for_event(ev, p1_by_day, side)
+                if read == "WIN":
+                    dcost += 1
+                elif read == "LOSS":
+                    dsaved += 1
+                else:
+                    dunknown += 1
+
+            for account in ("safe", "bold"):
+                events = per_account_events[account]
                 if not events:
                     continue
                 cost = saved = unknown = 0
                 for ev in events:
-                    read, _pnl = p1_outcome_for_event(ev, p1_by_day, grab.DOORS[door][1])
+                    read, _pnl = p1_outcome_for_event(ev, p1_by_day, side)
                     if read == "WIN":
                         cost += 1
                     elif read == "LOSS":
@@ -702,6 +757,12 @@ def mine_sole_blockers(recent_start: dt.date, recent_end: dt.date,
                 out[key] = {
                     "n_events": len(events), "n_cost_money": cost, "n_saved_money": saved,
                     "n_unknown": unknown, "costing": "NOT_REPLAYED",
+                    # additive -- GATE-EXPIRY-SOLE-BLOCKER-DOUBLE-COUNT (2026-09-03)
+                    "events_raw": len(events),
+                    "episodes_distinct": len(distinct_events),
+                    "n_cost_money_distinct": dcost,
+                    "n_saved_money_distinct": dsaved,
+                    "n_unknown_distinct": dunknown,
                 }
     return out
 
@@ -731,34 +792,65 @@ def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: i
     `results` before compute_newly_red/flag_status_md -- reusing that transition-only, no-respam
     machinery verbatim rather than building a second alarm surface. verdict is directional
     (NOT_REPLAYED, see module-section docstring) -- RED here means 'watch fired, go run a full
-    replay', never a proven $ costing."""
+    replay', never a proven $ costing.
+
+    GATE-EXPIRY-SOLE-BLOCKER-DOUBLE-COUNT (2026-09-03): the transition-flag/RED threshold now
+    reads the cross-account-deduped `episodes_distinct` count (mine_sole_blockers computes it
+    once per door+filter and duplicates it onto every matching account cell -- take it from any
+    one cell, never sum across cells) instead of naively summing each account's already-
+    clustered `n_events`, which double-counted every episode both accounts refuse together.
+    `events_raw` (the old naive sum) is still disclosed in full for audit. Cells built by hand
+    without the distinct fields (pre-fix callers/fixtures) fall back to the old sum-based
+    behavior so nothing that predates this fix breaks."""
     results: dict[str, dict] = {}
     for gate_id, (door, filt) in SOLE_BLOCKER_FLAGSHIPS.items():
         prefix = f"{door}_filter{filt}_"
-        n_events = sum(v["n_events"] for k, v in sole_blocker_report.items() if k.startswith(prefix))
-        n_cost = sum(v["n_cost_money"] for k, v in sole_blocker_report.items() if k.startswith(prefix))
-        n_saved = sum(v["n_saved_money"] for k, v in sole_blocker_report.items() if k.startswith(prefix))
-        if n_events == 0:
-            overall, reason = "GREEN", f"{door} sole-[{filt}]: 0 refusal events in window"
+        cells = [v for k, v in sole_blocker_report.items() if k.startswith(prefix)]
+        n_events_raw = sum(v.get("events_raw", v["n_events"]) for v in cells)
+        has_distinct = bool(cells) and all("episodes_distinct" in v for v in cells)
+        if has_distinct:
+            # computed once per door+filter, identical on every matching account cell --
+            # read it once, do not sum across accounts.
+            n_episodes = cells[0]["episodes_distinct"]
+            n_cost = cells[0]["n_cost_money_distinct"]
+            n_saved = cells[0]["n_saved_money_distinct"]
+            unit = "distinct episode"
+        else:
+            # legacy fallback: no distinct fields available (hand-built report/fixture) --
+            # old naive cross-account sum, kept so pre-fix callers still get a verdict.
+            n_episodes = n_events_raw
+            n_cost = sum(v["n_cost_money"] for v in cells)
+            n_saved = sum(v["n_saved_money"] for v in cells)
+            unit = "bar-event"
+        if n_episodes == 0:
+            overall, reason = "GREEN", (f"{door} sole-[{filt}]: 0 refusal {unit}s in window "
+                                        f"({n_events_raw} raw account-row(s))")
         elif n_cost >= floor:
             overall = "RED"
-            reason = (f"{door} sole-[{filt}] refused {n_events} bar-event(s), {n_cost} >= floor "
-                      f"{floor} read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- "
-                      f"directional smoke alarm, not a dollar costing verdict; a full replay via "
+            reason = (f"{door} sole-[{filt}] refused {n_episodes} {unit}(s) ({n_events_raw} raw "
+                      f"account-row(s) across safe+bold), {n_cost} >= floor {floor} read "
+                      f"cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional "
+                      f"smoke alarm, not a dollar costing verdict; a full replay via "
                       f"backtest/tools/postfix_gate_costing.py is the ratifying instrument)")
         elif n_cost > 0:
             overall = "YELLOW"
-            reason = (f"{door} sole-[{filt}]: {n_cost} cost_money read(s) of {n_events} events, "
-                      f"under floor {floor} -- watch, not yet actionable")
+            reason = (f"{door} sole-[{filt}]: {n_cost} cost_money read(s) of {n_episodes} "
+                      f"{unit}s ({n_events_raw} raw account-row(s)), under floor {floor} -- "
+                      f"watch, not yet actionable")
         else:
             overall = "GREEN"
-            reason = (f"{door} sole-[{filt}]: {n_events} refusal event(s), {n_saved} read "
-                      f"saved_money, 0 read cost_money")
+            reason = (f"{door} sole-[{filt}]: {n_episodes} refusal {unit}(s) ({n_events_raw} raw "
+                      f"account-row(s)), {n_saved} read saved_money, 0 read cost_money")
         results[gate_id] = {
             "id": gate_id, "category": "sole_blocker_watch", "evidence_age_days": None,
             "revalidation_interval_days": None, "evidence_stale": False,
             "pnl_check": {"verdict": overall, "reason": reason, "costing": "NOT_REPLAYED",
-                          "n_events": n_events, "n_cost_money": n_cost, "n_saved_money": n_saved},
+                          # "n_events" kept for backward compat -- now the value that DRIVES
+                          # the verdict (distinct when available, legacy sum otherwise).
+                          "n_events": n_episodes, "n_cost_money": n_cost, "n_saved_money": n_saved,
+                          # additive disclosure
+                          "n_events_raw": n_events_raw,
+                          "n_episodes_distinct": n_episodes if has_distinct else None},
             "overall": overall,
         }
     return results

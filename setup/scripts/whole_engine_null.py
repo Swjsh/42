@@ -54,7 +54,7 @@ for _p in (str(BACKTEST), str(BACKTEST / "lib"), str(FLEET_DIR), str(SETUP_SCRIP
 import pandas as pd  # noqa: E402
 
 import strategies as fleet_strategies  # noqa: E402 -- automation/state/fleet/strategies.py (READ ONLY)
-from lib.exit_manager_walk import walk_exit_manager  # noqa: E402
+from lib.exit_manager_walk import walk_exit_manager, DEFAULT_EXIT_SLIPPAGE  # noqa: E402
 import refused_setup_ledger as refusals  # noqa: E402 -- fetch_bars() reuse
 from et_clock import et_now  # noqa: E402
 import go_live_gate as glg  # noqa: E402 -- fee_ex_cat() A1 cost model reuse
@@ -450,7 +450,8 @@ def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
              spy5: pd.DataFrame, budget: FetchBudget,
              stop_mode: Optional[str] = None,
              ribbon_account: Optional[str] = None,
-             all_exits_market: bool = False) -> Optional[dict]:
+             all_exits_market: bool = False,
+             exit_slippage: float = DEFAULT_EXIT_SLIPPAGE) -> Optional[dict]:
     """One position, walked through the REAL exit_manager core with the production
     RIBBON_RIDE ExitShape. Returns None (honest null) when no option bars exist for the
     contract on this day -- never a fabricated fill.
@@ -475,7 +476,16 @@ def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
     shipped and tested, untouched by this passthrough). `False` (the default, used by every
     existing call site) is byte-identical to today's behavior. `True` is for a ONE-OFF
     research comparison only (see backtest/tools/whole_engine_null_flagon_research.py) --
-    never wired into `main()`'s own pipeline, never flips the published study's numbers."""
+    never wired into `main()`'s own pipeline, never flips the published study's numbers.
+
+    `exit_slippage` (WALKER-EXIT-SLIPPAGE-ASYMMETRY-ABLATION, 2026-09-03 RESEARCH follow-up):
+    same additive-passthrough pattern as `all_exits_market` -- forwards to
+    `walk_exit_manager`'s own pre-existing `exit_slippage` kwarg. `DEFAULT_EXIT_SLIPPAGE`
+    (0.02, imported from exit_manager_walk.py -- the SAME constant that kwarg already defaults
+    to) is byte-identical to today's behavior for every existing call site, which never passed
+    this argument at all. Only `backtest/tools/exit_slippage_ablation_research.py` overrides
+    it, via a monkeypatch of `walk_one` itself (this function's own signature stays untouched
+    at every call site) -- never wired into `run_v9`/`main()`'s own pipeline."""
     opt_df = get_1m_bars(symbol, date, budget)
     if opt_df is None or opt_df.empty:
         return None
@@ -490,7 +500,7 @@ def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
         qty=int(qty), exit_shape=RIBBON_SHAPE, structure_stop_enabled=structure_stop_enabled,
         trigger_level=trigger_level, strategy=STRATEGY_NAME, time_stop_et=TIME_STOP_ET,
         opt_df=opt_df, ribbon_tick_df=ribbon_tick_df, five_min_spy_df=dspy,
-        all_exits_market=all_exits_market,
+        all_exits_market=all_exits_market, exit_slippage=exit_slippage,
     )
     if not result.resolved and result.exit_reason == "no_bars_after_entry":
         return None

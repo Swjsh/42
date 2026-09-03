@@ -273,7 +273,7 @@ def _fake_anchor_row() -> dict:
 def test_harness_validation_forwards_walker_choice_to_pricer(monkeypatch):
     seen_walkers = []
 
-    def _spy_dispatch(walker, fill, shape, bars, *, trigger_level, spy_map):
+    def _spy_dispatch(walker, fill, shape, bars, *, trigger_level, spy_map, **_kw):
         seen_walkers.append(walker)
         return {"pnl": 60.0, "legs": [{"stage": "tp1"}], "n_legs": 1, "mfe_pct": None}
 
@@ -291,7 +291,7 @@ def test_harness_validation_forwards_walker_choice_to_pricer(monkeypatch):
 
 
 def test_harness_validation_rows_carry_recorded_and_walked_stage(monkeypatch):
-    def _spy_dispatch(walker, fill, shape, bars, *, trigger_level, spy_map):
+    def _spy_dispatch(walker, fill, shape, bars, *, trigger_level, spy_map, **_kw):
         return {"pnl": 60.0, "legs": [{"t": "09:45", "stage": "structure_stop", "qty": 10,
                                        "px": 1.5, "pnl": 60.0}], "n_legs": 1, "mfe_pct": None}
 
@@ -399,7 +399,7 @@ def test_harness_validation_threads_bar_resolution_to_pricer(monkeypatch):
     monkeypatch.setattr(pbc, "spy_by_day", lambda: {})
     monkeypatch.setattr(pbc, "_load_anchor_bars", _spy_load_anchor_bars)
     monkeypatch.setattr(pbc, "_price_via_walker",
-                        lambda walker, fill, shape, bars, *, trigger_level, spy_map:
+                        lambda walker, fill, shape, bars, *, trigger_level, spy_map, **_kw:
                         {"pnl": 50.0, "legs": [], "n_legs": 0, "mfe_pct": None})
 
     pbc.harness_validation(walker="exit_manager", bar_resolution="1min")

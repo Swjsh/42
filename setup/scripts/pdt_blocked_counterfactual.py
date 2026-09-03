@@ -275,14 +275,22 @@ def _walk_via_exit_manager(fill: dict, shape: dict, bars, *, trigger_level: floa
 
 
 def _price_via_walker(walker: str, fill: dict, shape: dict, bars, *, trigger_level: float,
-                      spy_map: dict) -> dict:
+                      spy_map: dict, exit_slippage: Optional[float] = None) -> dict:
     """Dispatch point. `walker="multileg"` (the default everywhere in this file) makes the
     EXACT SAME call multileg_exit_walk.walk() always got -- byte-identical to the published
     2026-09-02 run; `walker="exit_manager"` is the WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-
-    WALK research path."""
+    WALK research path.
+
+    `exit_slippage` (WALKER-EXIT-SLIPPAGE-ASYMMETRY-ABLATION, 2026-09-03): additive override,
+    `None` (default) means "use `_walk_via_exit_manager`'s own default (0.01)" -- byte-identical
+    for every existing caller that never passes this. Only meaningful for `walker="exit_manager"`
+    -- the multileg walker's own `slippage=0.01` kwarg above is untouched by this parameter
+    (multileg already applies slippage to every leg, not just market-style stages; there is no
+    market-stages-only asymmetry to ablate on that walker)."""
     if walker == "exit_manager":
+        kwargs = {} if exit_slippage is None else {"exit_slippage": exit_slippage}
         return _walk_via_exit_manager(fill, shape, bars, trigger_level=trigger_level,
-                                      spy_map=spy_map)
+                                      spy_map=spy_map, **kwargs)
     return walk(fill, shape, bars, trigger_level=trigger_level, fill_mode="extreme",
                spy_closes=spy_map.get(fill["date"]), slippage=0.01)
 
@@ -374,14 +382,15 @@ def spy_by_day() -> dict:
 
 
 def price_intent(intent: dict, bars: pd.DataFrame, spy_map: dict,
-                 walker: str = "multileg") -> dict:
+                 walker: str = "multileg", exit_slippage: Optional[float] = None) -> dict:
     shape = canonical_shape(intent["date"])
     trig = resolve_trigger_level(intent["date"], intent["trigger_level"])
     fill = {"entry_premium": intent["entry_premium"], "qty": intent["qty"],
             "symbol": intent["symbol"], "date": intent["date"],
             "entry_time": intent["entry_time"], "strategy": intent.get("setup") or "RIBBON",
             "account": intent.get("account")}
-    return _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map)
+    return _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map,
+                             exit_slippage=exit_slippage)
 
 
 def run_counterfactual(intents: list[dict], spy_map: dict,
@@ -512,7 +521,8 @@ def _load_anchor_bars(sym: str, date: str, bar_resolution: str, cache: dict):
     return cache[cache_key]
 
 
-def harness_validation(walker: str = "multileg", bar_resolution: str = "5min") -> dict:
+def harness_validation(walker: str = "multileg", bar_resolution: str = "5min",
+                       exit_slippage: Optional[float] = None) -> dict:
     """`walker` (WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK, 2026-09-03): "multileg"
     (default) is BYTE-IDENTICAL to every prior call of this function -- same `walk()` call,
     same arguments, same order. "exit_manager" routes the SAME 43-row anchor (same
@@ -524,7 +534,12 @@ def harness_validation(walker: str = "multileg", bar_resolution: str = "5min") -
     byte-identical -- see `_load_anchor_bars`) or "1min" (real fetch/cache of 1-minute option
     bars for this anchor's distinct (symbol,date) pairs). Orthogonal to `walker` -- either
     walker can be asked to walk on either resolution, though only "exit_manager" is what this
-    queue item's own criterion is scored against."""
+    queue item's own criterion is scored against.
+
+    `exit_slippage` (WALKER-EXIT-SLIPPAGE-ASYMMETRY-ABLATION, 2026-09-03): additive override
+    forwarded to `_price_via_walker`/`_walk_via_exit_manager`. `None` (default) is byte-
+    identical to every prior call (uses that adapter's own 0.01 default); only has an effect
+    when `walker="exit_manager"`."""
     rows = load_anchor_sample()
     spy_map = spy_by_day()
     cache: dict = {}
@@ -545,7 +560,8 @@ def harness_validation(walker: str = "multileg", bar_resolution: str = "5min") -
         fill = {"entry_premium": r["entry_px"], "qty": int(r["qty"]), "symbol": sym,
                 "date": r["date"], "entry_time": r["entry_ts_et"][11:19], "strategy": "RIBBON",
                 "account": ARM2ACCOUNT.get(r["arm"])}
-        res = _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map)
+        res = _price_via_walker(walker, fill, shape, bars, trigger_level=trig, spy_map=spy_map,
+                                exit_slippage=exit_slippage)
         if "error" in res:
             continue
         actual = float(r["pnl_dollars"])
@@ -580,6 +596,7 @@ def harness_validation(walker: str = "multileg", bar_resolution: str = "5min") -
                                       walked_stage_key="walked_stage")
     return {
         "walker": walker,
+        "exit_slippage_requested": exit_slippage,  # None -> adapter's own default (0.01)
         "n": n, "skipped_no_bars": skipped_no_bars,
         "sign_agreement": round(sign_ok / n, 4),
         "actual_total": round(sum(r["actual"] for r in results), 2),
@@ -618,16 +635,64 @@ def _parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
                          "bars for this anchor's contracts -- a genuine network+disk-cache "
                          "cost, single-reader OPRA cache. Does NOT affect the blocked-cohort "
                          "pricing pass (run_counterfactual) or G1-G4 -- anchor-only.")
+    ap.add_argument("--exit-slippage", default=None,
+                    help="WALKER-EXIT-SLIPPAGE-ASYMMETRY-ABLATION (2026-09-03): override the "
+                         "exit_manager walker's exit_slippage $ constant (applied only to its "
+                         "3 market-style stages -- time_stop/ribbon_flip/structure_stop; see "
+                         "exit_manager_walk.py's FILL-PRICE CONVENTION note). Omit (default) "
+                         "for byte-identical behavior (_walk_via_exit_manager's own 0.01 "
+                         "default). A float (e.g. '0' or '0.02') sets it directly. The literal "
+                         "string 'live' resolves it from the exit-side of the fill-latency "
+                         "instrument (analysis/pain-ledger/latency.json) -- FAILS LOUDLY "
+                         "(non-zero exit, no silent fallback) if that instrument carries no "
+                         "dollar-denominated exit-slippage field, rather than guessing. No "
+                         "effect on --walker multileg (disclosed, not silently ignored).")
     return ap.parse_args(argv)
+
+
+def _resolve_exit_slippage_arg(raw: Optional[str]) -> Optional[float]:
+    """CLI value -> float | None. `None`/unset -> None (byte-identical default, see
+    harness_validation's own docstring). `"live"` looks up a dollar-denominated exit-slippage
+    field on the fill-latency instrument (analysis/pain-ledger/latency.json) -- that file (as
+    of 2026-09-03) is a PIPELINE-TIMING instrument (seconds between order stages, entry fills
+    only, scoped to arms safe-3/risky-1/risky-3) with no such field at all, so this raises
+    LOUDLY rather than silently treating 'live' as 0 or as the default -- per OP no-silent-
+    fallback discipline. Anything else parses as a float, letting a bad value fail with
+    Python's own ValueError rather than a swallowed default."""
+    if raw is None:
+        return None
+    if raw.strip().lower() == "live":
+        latency_path = REPO / "analysis" / "pain-ledger" / "latency.json"
+        doc = json.loads(latency_path.read_text(encoding="utf-8")) if latency_path.exists() else {}
+        rows = doc.get("rows") or []
+        candidate_keys = [k for k in (rows[0].keys() if rows else [])
+                          if "exit" in k.lower() and "slip" in k.lower()]
+        if not candidate_keys:
+            raise SystemExit(
+                f"--exit-slippage live: {latency_path.relative_to(REPO)} has no "
+                f"exit-slippage $ field (it measures pipeline TIME latency in seconds, entry "
+                f"fills only, scope_arms={doc.get('scope_arms')} -- not safe-2/bold-2, the PDT "
+                f"anchor's own arms, and not a price/dollar quantity at all). Not resolvable; "
+                f"skip 'live' or supply a numeric override.")
+        raise SystemExit(  # unreachable today (candidate_keys is always empty) -- kept honest
+            f"--exit-slippage live: found candidate field(s) {candidate_keys} but no reader "
+            f"was ever wired for them (none existed when this flag was built) -- refusing to "
+            f"guess at a dollar value from an unread field.")
+    return float(raw)
 
 
 def main(argv: Optional[list[str]] = None) -> int:
     args = _parse_args(argv)
     walker = args.walker
     bar_resolution = args.bars
+    exit_slippage = _resolve_exit_slippage_arg(args.exit_slippage)
     out_json = OUT_JSON if walker == "multileg" else OUT_JSON_EXIT_MGR
     out_md = OUT_MD if walker == "multileg" else OUT_MD_EXIT_MGR
     deviations: list[str] = []
+    if exit_slippage is not None and walker == "multileg":
+        print("  NOTE: --exit-slippage has no effect on --walker multileg (its own "
+              "slippage=0.01 applies to every leg already, not just market-style stages) -- "
+              "disclosed, not silently ignored.")
 
     if not PREREG_PATH.exists():
         print(f"FATAL: prereg not found at {PREREG_PATH}")
@@ -651,8 +716,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         print("  MATCHES prereg's original count (68 -> 18) exactly.")
 
     print(f"\n=== VALIDATE THE VALIDATOR (harness fidelity vs broker truth) -- "
-          f"walker={walker} bars={bar_resolution} ===")
-    hv = harness_validation(walker=walker, bar_resolution=bar_resolution)
+          f"walker={walker} bars={bar_resolution} exit_slippage={exit_slippage} ===")
+    hv = harness_validation(walker=walker, bar_resolution=bar_resolution,
+                            exit_slippage=exit_slippage)
     if hv.get("sign_agreement") is not None:
         print(f"  n={hv['n']} anchor positions (safe-2/bold-2, {STUDY_WINDOW_START}..{STUDY_WINDOW_END}, engine-attributed)")
         print(f"  sign agreement: {hv['sign_agreement']*100:.1f}%  (bar: {HARNESS_SIGN_AGREEMENT_BAR*100:.0f}%)")

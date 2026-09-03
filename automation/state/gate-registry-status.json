@@ -1,8 +1,8 @@
 {
   "checker": "gate-expiry instrument (J directive 2026-07-31)",
-  "run_date": "2026-08-23",
-  "recent_window": "2026-07-20..2026-08-21",
-  "opra_cache_last": "2026-08-21",
+  "run_date": "2026-09-03",
+  "recent_window": "2026-07-29..2026-09-01",
+  "opra_cache_last": "2026-09-01",
   "confirm_n_floor": 10,
   "lookback_trading_days": 25,
   "event_cluster_gap_minutes": 15,
@@ -11,57 +11,27 @@
     "block_level_rejection": {
       "id": "block_level_rejection",
       "category": "core_gate_order",
-      "evidence_age_days": 67,
+      "evidence_age_days": 77,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
         "by_account": {
           "safe": {
-            "n_raw_fires": 1,
-            "n_events": 1,
-            "status_counts": {
-              "ok": 1
-            },
-            "window": "2026-07-20..2026-08-21",
-            "n": 1,
-            "n_days": 1,
-            "wr_pct": 0.0,
-            "exp_per_trade": -297.0,
-            "total_dollar": -297.0,
-            "sign": "NEGATIVE",
-            "best_day": -297.0,
-            "worst_day": -297.0,
-            "win_days": 0,
-            "loss_days": 1,
-            "first_fill": "2026-07-23",
-            "last_fill": "2026-07-23"
+            "n_raw_fires": 0,
+            "n_events": 0,
+            "status_counts": {},
+            "n": 0
           }
         },
         "combined": {
-          "window": "2026-07-20..2026-08-21",
-          "n": 1,
-          "n_days": 1,
-          "wr_pct": 0.0,
-          "exp_per_trade": -297.0,
-          "total_dollar": -297.0,
-          "sign": "NEGATIVE",
-          "best_day": -297.0,
-          "worst_day": -297.0,
-          "win_days": 0,
-          "loss_days": 1,
-          "first_fill": "2026-07-23",
-          "last_fill": "2026-07-23",
-          "drop_top1": -297.0,
-          "n_dropped_for_drop_top1": 0,
-          "drop_top3": -297.0,
-          "n_dropped_for_drop_top3": 0
+          "n": 0
         },
-        "verdict": "GREEN",
-        "reason": "refused cohort would have LOST $-297.0/tr, n=1 -- still justified on recent data",
+        "verdict": "INSUFFICIENT_DATA",
+        "reason": "no refused signals survived mining in the recent window",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
-      "overall": "GREEN"
+      "overall": "STALE_UNVERIFIED"
     },
     "trendline_requires_ribbon_flip": {
       "id": "trendline_requires_ribbon_flip",
@@ -78,7 +48,7 @@
     "block_elite_bull": {
       "id": "block_elite_bull",
       "category": "core_gate_order",
-      "evidence_age_days": 20,
+      "evidence_age_days": 30,
       "revalidation_interval_days": 14,
       "evidence_stale": true,
       "pnl_check": {
@@ -102,62 +72,63 @@
     "block_bull_1100_1200": {
       "id": "block_bull_1100_1200",
       "category": "core_gate_order",
-      "evidence_age_days": 66,
+      "evidence_age_days": 76,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
         "by_account": {
           "safe": {
-            "n_raw_fires": 29,
-            "n_events": 6,
+            "n_raw_fires": 49,
+            "n_events": 9,
             "status_counts": {
-              "ok": 6
+              "ok": 7,
+              "no_contract": 2
             },
-            "window": "2026-07-20..2026-08-21",
-            "n": 6,
-            "n_days": 4,
-            "wr_pct": 50.0,
-            "exp_per_trade": -3.85,
-            "total_dollar": -23.1,
-            "sign": "NEGATIVE",
+            "window": "2026-07-29..2026-09-01",
+            "n": 7,
+            "n_days": 5,
+            "wr_pct": 57.1,
+            "exp_per_trade": 18.3,
+            "total_dollar": 128.1,
+            "sign": "POSITIVE",
             "best_day": 203.4,
             "worst_day": -280.5,
-            "win_days": 2,
+            "win_days": 3,
             "loss_days": 2,
             "first_fill": "2026-08-04",
-            "last_fill": "2026-08-21"
+            "last_fill": "2026-08-27"
           }
         },
         "combined": {
-          "window": "2026-07-20..2026-08-21",
-          "n": 6,
-          "n_days": 4,
-          "wr_pct": 50.0,
-          "exp_per_trade": -3.85,
-          "total_dollar": -23.1,
-          "sign": "NEGATIVE",
+          "window": "2026-07-29..2026-09-01",
+          "n": 7,
+          "n_days": 5,
+          "wr_pct": 57.1,
+          "exp_per_trade": 18.3,
+          "total_dollar": 128.1,
+          "sign": "POSITIVE",
           "best_day": 203.4,
           "worst_day": -280.5,
-          "win_days": 2,
+          "win_days": 3,
           "loss_days": 2,
           "first_fill": "2026-08-04",
-          "last_fill": "2026-08-21",
-          "drop_top1": -226.5,
+          "last_fill": "2026-08-27",
+          "drop_top1": -75.3,
           "n_dropped_for_drop_top1": 1,
-          "drop_top3": -373.5,
+          "drop_top3": -307.5,
           "n_dropped_for_drop_top3": 3
         },
-        "verdict": "GREEN",
-        "reason": "refused cohort would have LOST $-3.85/tr, n=6 -- still justified on recent data",
+        "verdict": "YELLOW",
+        "reason": "refused cohort positive ($18.3/tr) but n=7 < floor 10 -- watch, not yet actionable",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
-      "overall": "GREEN"
+      "overall": "YELLOW"
     },
     "block_bull_morning_agg": {
       "id": "block_bull_morning_agg",
       "category": "core_gate_order",
-      "evidence_age_days": 60,
+      "evidence_age_days": 70,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -169,53 +140,53 @@
     "require_bearish_fill_bar": {
       "id": "require_bearish_fill_bar",
       "category": "core_gate_order",
-      "evidence_age_days": 0,
+      "evidence_age_days": 10,
       "revalidation_interval_days": 21,
       "evidence_stale": false,
       "pnl_check": {
         "by_account": {
           "bold": {
-            "n_raw_fires": 160,
-            "n_events": 34,
+            "n_raw_fires": 121,
+            "n_events": 28,
             "status_counts": {
-              "ok": 34
+              "ok": 28
             },
-            "window": "2026-07-20..2026-08-21",
-            "n": 34,
-            "n_days": 16,
-            "wr_pct": 47.1,
-            "exp_per_trade": 46.15,
-            "total_dollar": 1569.0,
+            "window": "2026-07-29..2026-09-01",
+            "n": 28,
+            "n_days": 14,
+            "wr_pct": 42.9,
+            "exp_per_trade": 33.36,
+            "total_dollar": 934.0,
             "sign": "POSITIVE",
             "best_day": 1405.0,
             "worst_day": -487.5,
-            "win_days": 8,
+            "win_days": 6,
             "loss_days": 8,
-            "first_fill": "2026-07-20",
-            "last_fill": "2026-08-21"
+            "first_fill": "2026-07-29",
+            "last_fill": "2026-09-01"
           }
         },
         "combined": {
-          "window": "2026-07-20..2026-08-21",
-          "n": 34,
-          "n_days": 16,
-          "wr_pct": 47.1,
-          "exp_per_trade": 46.15,
-          "total_dollar": 1569.0,
+          "window": "2026-07-29..2026-09-01",
+          "n": 28,
+          "n_days": 14,
+          "wr_pct": 42.9,
+          "exp_per_trade": 33.36,
+          "total_dollar": 934.0,
           "sign": "POSITIVE",
           "best_day": 1405.0,
           "worst_day": -487.5,
-          "win_days": 8,
+          "win_days": 6,
           "loss_days": 8,
-          "first_fill": "2026-07-20",
-          "last_fill": "2026-08-21",
-          "drop_top1": 669.0,
+          "first_fill": "2026-07-29",
+          "last_fill": "2026-09-01",
+          "drop_top1": 34.0,
           "n_dropped_for_drop_top1": 1,
-          "drop_top3": -242.2,
+          "drop_top3": -877.2,
           "n_dropped_for_drop_top3": 3
         },
         "verdict": "NAIVE_RED_CONCENTRATED",
-        "reason": "NAIVE-RED (battery required): refused cohort reads +$46.15/tr, n=34 >= floor 10, but drop-top3=$-242.2 -- the positive mean does NOT survive dropping its top 3 winning trade(s), so this naive read is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) must ratify before this gate is treated as costing money.",
+        "reason": "NAIVE-RED (battery required): refused cohort reads +$33.36/tr, n=28 >= floor 10, but drop-top3=$-877.2 -- the positive mean does NOT survive dropping its top 3 winning trade(s), so this naive read is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) must ratify before this gate is treated as costing money.",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
@@ -224,7 +195,7 @@
     "min_ribbon_momentum_cents": {
       "id": "min_ribbon_momentum_cents",
       "category": "core_gate_order",
-      "evidence_age_days": 46,
+      "evidence_age_days": 56,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -236,7 +207,7 @@
     "max_ribbon_duration_bars": {
       "id": "max_ribbon_duration_bars",
       "category": "core_gate_order",
-      "evidence_age_days": 68,
+      "evidence_age_days": 78,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -261,7 +232,7 @@
     "midday_trendline_gate": {
       "id": "midday_trendline_gate",
       "category": "core_gate_order",
-      "evidence_age_days": 66,
+      "evidence_age_days": 76,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -273,7 +244,7 @@
     "block_conf_lvl_rej_midday_afternoon": {
       "id": "block_conf_lvl_rej_midday_afternoon",
       "category": "core_gate_order",
-      "evidence_age_days": 66,
+      "evidence_age_days": 76,
       "revalidation_interval_days": null,
       "evidence_stale": false,
       "pnl_check": {
@@ -285,108 +256,109 @@
     "block_conf_lvl_rec_afternoon": {
       "id": "block_conf_lvl_rec_afternoon",
       "category": "core_gate_order",
-      "evidence_age_days": 66,
+      "evidence_age_days": 76,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
         "by_account": {
           "bold": {
-            "n_raw_fires": 56,
-            "n_events": 10,
+            "n_raw_fires": 71,
+            "n_events": 11,
             "status_counts": {
-              "ok": 10
+              "ok": 10,
+              "no_contract": 1
             },
-            "window": "2026-07-20..2026-08-21",
+            "window": "2026-07-29..2026-09-01",
             "n": 10,
             "n_days": 6,
-            "wr_pct": 20.0,
-            "exp_per_trade": -7.2,
-            "total_dollar": -72.0,
-            "sign": "NEGATIVE",
+            "wr_pct": 40.0,
+            "exp_per_trade": 31.8,
+            "total_dollar": 318.0,
+            "sign": "POSITIVE",
             "best_day": 639.2,
             "worst_day": -470.0,
-            "win_days": 2,
-            "loss_days": 4,
-            "first_fill": "2026-07-21",
-            "last_fill": "2026-08-13"
+            "win_days": 3,
+            "loss_days": 3,
+            "first_fill": "2026-07-29",
+            "last_fill": "2026-08-26"
           }
         },
         "combined": {
-          "window": "2026-07-20..2026-08-21",
+          "window": "2026-07-29..2026-09-01",
           "n": 10,
           "n_days": 6,
-          "wr_pct": 20.0,
-          "exp_per_trade": -7.2,
-          "total_dollar": -72.0,
-          "sign": "NEGATIVE",
+          "wr_pct": 40.0,
+          "exp_per_trade": 31.8,
+          "total_dollar": 318.0,
+          "sign": "POSITIVE",
           "best_day": 639.2,
           "worst_day": -470.0,
-          "win_days": 2,
-          "loss_days": 4,
-          "first_fill": "2026-07-21",
-          "last_fill": "2026-08-13",
-          "drop_top1": -1251.2,
+          "win_days": 3,
+          "loss_days": 3,
+          "first_fill": "2026-07-29",
+          "last_fill": "2026-08-26",
+          "drop_top1": -861.2,
           "n_dropped_for_drop_top1": 1,
-          "drop_top3": -1565.0,
-          "n_dropped_for_drop_top3": 2
+          "drop_top3": -1320.0,
+          "n_dropped_for_drop_top3": 3
         },
-        "verdict": "GREEN",
-        "reason": "refused cohort would have LOST $-7.2/tr, n=10 -- still justified on recent data",
+        "verdict": "NAIVE_RED_CONCENTRATED",
+        "reason": "NAIVE-RED (battery required): refused cohort reads +$31.8/tr, n=10 >= floor 10, but drop-top3=$-1320.0 -- the positive mean does NOT survive dropping its top 3 winning trade(s), so this naive read is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) must ratify before this gate is treated as costing money.",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
-      "overall": "GREEN"
+      "overall": "NAIVE_RED_CONCENTRATED"
     },
     "entry_bar_body_pct_min": {
       "id": "entry_bar_body_pct_min",
       "category": "core_gate_order",
-      "evidence_age_days": 66,
+      "evidence_age_days": 76,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
         "by_account": {
           "safe": {
-            "n_raw_fires": 26,
-            "n_events": 6,
+            "n_raw_fires": 15,
+            "n_events": 3,
             "status_counts": {
-              "ok": 6
+              "ok": 3
             },
-            "window": "2026-07-20..2026-08-21",
-            "n": 6,
-            "n_days": 5,
+            "window": "2026-07-29..2026-09-01",
+            "n": 3,
+            "n_days": 3,
             "wr_pct": 33.3,
-            "exp_per_trade": 9.4,
-            "total_dollar": 56.4,
+            "exp_per_trade": 40.8,
+            "total_dollar": 122.4,
             "sign": "POSITIVE",
             "best_day": 206.4,
-            "worst_day": -162.0,
-            "win_days": 2,
-            "loss_days": 3,
-            "first_fill": "2026-07-23",
+            "worst_day": -63.0,
+            "win_days": 1,
+            "loss_days": 2,
+            "first_fill": "2026-08-11",
             "last_fill": "2026-08-18"
           }
         },
         "combined": {
-          "window": "2026-07-20..2026-08-21",
-          "n": 6,
-          "n_days": 5,
+          "window": "2026-07-29..2026-09-01",
+          "n": 3,
+          "n_days": 3,
           "wr_pct": 33.3,
-          "exp_per_trade": 9.4,
-          "total_dollar": 56.4,
+          "exp_per_trade": 40.8,
+          "total_dollar": 122.4,
           "sign": "POSITIVE",
           "best_day": 206.4,
-          "worst_day": -162.0,
-          "win_days": 2,
-          "loss_days": 3,
-          "first_fill": "2026-07-23",
+          "worst_day": -63.0,
+          "win_days": 1,
+          "loss_days": 2,
+          "first_fill": "2026-08-11",
           "last_fill": "2026-08-18",
-          "drop_top1": -150.0,
+          "drop_top1": -84.0,
           "n_dropped_for_drop_top1": 1,
-          "drop_top3": -246.0,
-          "n_dropped_for_drop_top3": 2
+          "drop_top3": -84.0,
+          "n_dropped_for_drop_top3": 1
         },
         "verdict": "YELLOW",
-        "reason": "refused cohort positive ($9.4/tr) but n=6 < floor 10 -- watch, not yet actionable",
+        "reason": "refused cohort positive ($40.8/tr) but n=3 < floor 10 -- watch, not yet actionable",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
@@ -407,7 +379,7 @@
     "vix_bear_hard_cap": {
       "id": "vix_bear_hard_cap",
       "category": "core_gate_order",
-      "evidence_age_days": 66,
+      "evidence_age_days": 76,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -432,62 +404,62 @@
     "structure_veto_enabled": {
       "id": "structure_veto_enabled",
       "category": "non_gate_order_veto",
-      "evidence_age_days": 0,
+      "evidence_age_days": 10,
       "revalidation_interval_days": 21,
       "evidence_stale": false,
       "pnl_check": {
         "by_account": {
           "safe": {
-            "n_raw_fires": 81,
-            "n_events": 10,
+            "n_raw_fires": 53,
+            "n_events": 5,
             "status_counts": {
-              "ok": 10
+              "ok": 5
             },
-            "window": "2026-07-20..2026-08-21",
-            "n": 10,
-            "n_days": 9,
-            "wr_pct": 30.0,
-            "exp_per_trade": 2.15,
-            "total_dollar": 21.5,
+            "window": "2026-07-29..2026-09-01",
+            "n": 5,
+            "n_days": 5,
+            "wr_pct": 40.0,
+            "exp_per_trade": 69.7,
+            "total_dollar": 348.5,
             "sign": "POSITIVE",
             "best_day": 303.0,
-            "worst_day": -174.0,
+            "worst_day": -168.0,
             "win_days": 2,
-            "loss_days": 7,
-            "first_fill": "2026-07-20",
+            "loss_days": 3,
+            "first_fill": "2026-07-29",
             "last_fill": "2026-08-21"
           }
         },
         "combined": {
-          "window": "2026-07-20..2026-08-21",
-          "n": 10,
-          "n_days": 9,
-          "wr_pct": 30.0,
-          "exp_per_trade": 2.15,
-          "total_dollar": 21.5,
+          "window": "2026-07-29..2026-09-01",
+          "n": 5,
+          "n_days": 5,
+          "wr_pct": 40.0,
+          "exp_per_trade": 69.7,
+          "total_dollar": 348.5,
           "sign": "POSITIVE",
           "best_day": 303.0,
-          "worst_day": -174.0,
+          "worst_day": -168.0,
           "win_days": 2,
-          "loss_days": 7,
-          "first_fill": "2026-07-20",
+          "loss_days": 3,
+          "first_fill": "2026-07-29",
           "last_fill": "2026-08-21",
-          "drop_top1": -281.5,
+          "drop_top1": 45.5,
           "n_dropped_for_drop_top1": 1,
-          "drop_top3": -546.0,
-          "n_dropped_for_drop_top3": 3
+          "drop_top3": -189.0,
+          "n_dropped_for_drop_top3": 2
         },
-        "verdict": "NAIVE_RED_CONCENTRATED",
-        "reason": "NAIVE-RED (battery required): refused cohort reads +$2.15/tr, n=10 >= floor 10, but drop-top3=$-546.0 -- the positive mean does NOT survive dropping its top 3 winning trade(s), so this naive read is NOT actionable on its own. A full G-battery (OOS split + BH-FDR + bootstrap null vs random entry -- backtest/tools/gate_revalidation_ab.py) must ratify before this gate is treated as costing money.",
+        "verdict": "YELLOW",
+        "reason": "refused cohort positive ($69.7/tr) but n=5 < floor 10 -- watch, not yet actionable",
         "replay_engine": "walk_exit_manager",
         "replay_soundness": "sound"
       },
-      "overall": "NAIVE_RED_CONCENTRATED"
+      "overall": "YELLOW"
     },
     "free_model_veto": {
       "id": "free_model_veto",
       "category": "non_gate_order_veto",
-      "evidence_age_days": 45,
+      "evidence_age_days": 55,
       "revalidation_interval_days": 30,
       "evidence_stale": true,
       "pnl_check": {
@@ -542,7 +514,7 @@
     "fleet_score_ladder_floor": {
       "id": "fleet_score_ladder_floor",
       "category": "fleet_config",
-      "evidence_age_days": 27,
+      "evidence_age_days": 37,
       "revalidation_interval_days": 14,
       "evidence_stale": true,
       "pnl_check": {
@@ -554,7 +526,7 @@
     "fleet_hard_skip_verdicts_override": {
       "id": "fleet_hard_skip_verdicts_override",
       "category": "fleet_config",
-      "evidence_age_days": 31,
+      "evidence_age_days": 41,
       "revalidation_interval_days": 21,
       "evidence_stale": true,
       "pnl_check": {
@@ -566,67 +538,145 @@
     "core_strategy_bear": {
       "id": "core_strategy_bear",
       "category": "core_strategy",
-      "evidence_age_days": 22,
+      "evidence_age_days": 32,
       "revalidation_interval_days": 14,
       "evidence_stale": true,
       "pnl_check": {
-        "verdict": "RED",
-        "core_strategy_verdict": "RED",
-        "reason": "CORE STRATEGY BEAR recency RED: real-fills exp $-16.71/tr NEGATIVE-or-flat, n=31 >= floor 10 -- the core strategy itself is losing on the freshest window; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=21 exp=$116.89/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
-        "headline": "bear RED n=31",
+        "verdict": "RED_CONCENTRATED",
+        "core_strategy_verdict": "RED_CONCENTRATED",
+        "reason": "CORE STRATEGY BEAR recency RED_CONCENTRATED: NOT A BROAD SIGNAL (concentration-carried): real-fills exp $-1.77/tr, n=31 >= floor 10, but drop-bottom3=$685.0, drop-worst2-days=$794.0 -- sign flips positive once concentration is removed -- read this in context, not as a clean systemic RED; a handful of days/trades are carrying the whole loss.; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=15 exp=$131.11/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
+        "headline": "bear RED_CONCENTRATED n=31",
         "window": {
-          "start": "2026-07-20",
-          "end": "2026-08-21",
+          "start": "2026-07-30",
+          "end": "2026-09-02",
           "n_trading_days": 25,
           "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
         },
         "broker_core": {
           "n": 31,
-          "total_dollar": -518.0,
-          "exp_per_trade": -16.71,
-          "wr_pct": 35.5,
-          "n_days": 14,
-          "first_fill": "2026-07-20",
-          "last_fill": "2026-08-21"
+          "total_dollar": -55.0,
+          "exp_per_trade": -1.77,
+          "wr_pct": 38.7,
+          "n_days": 12,
+          "first_fill": "2026-08-05",
+          "last_fill": "2026-09-01",
+          "drop_top3": -1128.0,
+          "n_dropped_for_drop_top3": 3,
+          "drop_bottom3": 685.0,
+          "n_dropped_for_drop_bottom3": 3,
+          "drop_best2_days": -943.0,
+          "n_days_dropped_for_drop_best2_days": 2,
+          "dropped_best_days": [
+            "2026-08-20",
+            "2026-08-06"
+          ],
+          "drop_worst2_days": 794.0,
+          "n_days_dropped_for_drop_worst2_days": 2,
+          "dropped_worst_days": [
+            "2026-08-28",
+            "2026-08-21"
+          ],
+          "top_day_share": {
+            "total": -55.0,
+            "n_days": 12,
+            "best_day": "2026-08-20",
+            "best_day_pnl": 513.0,
+            "best_day_share_pct": -932.7,
+            "worst_day": "2026-08-28",
+            "worst_day_pnl": -485.0,
+            "worst_day_share_pct": 881.8
+          }
         },
         "replay_supplement": {
-          "n": 21,
-          "total_dollar": 2454.6,
-          "exp_per_trade": 116.89,
-          "wr_pct": 47.6,
-          "n_days": 14,
-          "first_fill": "2026-07-20",
-          "last_fill": "2026-08-20"
+          "n": 15,
+          "total_dollar": 1966.6,
+          "exp_per_trade": 131.11,
+          "wr_pct": 60.0,
+          "n_days": 10,
+          "first_fill": "2026-07-30",
+          "last_fill": "2026-08-28",
+          "drop_top3": 531.3,
+          "n_dropped_for_drop_top3": 3,
+          "drop_bottom3": 2310.2,
+          "n_dropped_for_drop_bottom3": 3,
+          "drop_best2_days": 452.0,
+          "n_days_dropped_for_drop_best2_days": 2,
+          "dropped_best_days": [
+            "2026-08-11",
+            "2026-08-17"
+          ],
+          "drop_worst2_days": 2210.2,
+          "n_days_dropped_for_drop_worst2_days": 2,
+          "dropped_worst_days": [
+            "2026-07-30",
+            "2026-08-19"
+          ],
+          "top_day_share": {
+            "total": 1966.6,
+            "n_days": 10,
+            "best_day": "2026-08-11",
+            "best_day_pnl": 966.1,
+            "best_day_share_pct": 49.1,
+            "worst_day": "2026-07-30",
+            "worst_day_pnl": -186.0,
+            "worst_day_share_pct": -9.5
+          }
         },
         "detail": "automation\\state\\core-strategy-recency.json"
       },
-      "overall": "RED"
+      "overall": "RED_CONCENTRATED"
     },
     "core_strategy_bull": {
       "id": "core_strategy_bull",
       "category": "core_strategy",
-      "evidence_age_days": 22,
+      "evidence_age_days": 32,
       "revalidation_interval_days": 14,
       "evidence_stale": true,
       "pnl_check": {
-        "verdict": "GREEN",
-        "core_strategy_verdict": "GREEN",
-        "reason": "CORE STRATEGY BULL recency GREEN: real-fills exp +$2.45/tr, n=31 >= floor 10; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=3 exp=$-131.33/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
-        "headline": "bull GREEN n=31",
+        "verdict": "GREEN_CONCENTRATED",
+        "core_strategy_verdict": "GREEN_CONCENTRATED",
+        "reason": "CORE STRATEGY BULL recency GREEN_CONCENTRATED: NOT ACTIONABLE (concentration-carried): real-fills exp +$41.48/tr, n=42 >= floor 10, but drop-top3=$67.0, drop-best2-days=$-435.0 -- does NOT survive (sign flips or zeroes out) -- this positive mean is NOT a broad edge; treat as unproven until a fuller sample supports it.; replay supplement (Safe shape, engine-sim, DISCLOSED not blended): n=3 exp=$-131.33/tr recent [semantics: RED here = the strategy ITSELF is losing on recent real fills, not a gate costing money]",
+        "headline": "bull GREEN_CONCENTRATED n=42",
         "window": {
-          "start": "2026-07-20",
-          "end": "2026-08-21",
+          "start": "2026-07-30",
+          "end": "2026-09-02",
           "n_trading_days": 25,
           "basis": "SPY 5m frame calendar (master + newest rolling); broker fills need no OPRA cache so the window ends at the last cached RTH day (differs from recency_check's OPRA-cache-last bound for its SIMULATED edges -- disclosed, deliberate)"
         },
         "broker_core": {
-          "n": 31,
-          "total_dollar": 76.0,
-          "exp_per_trade": 2.45,
-          "wr_pct": 25.8,
-          "n_days": 9,
-          "first_fill": "2026-07-28",
-          "last_fill": "2026-08-21"
+          "n": 42,
+          "total_dollar": 1742.0,
+          "exp_per_trade": 41.48,
+          "wr_pct": 35.7,
+          "n_days": 12,
+          "first_fill": "2026-08-04",
+          "last_fill": "2026-09-02",
+          "drop_top3": 67.0,
+          "n_dropped_for_drop_top3": 3,
+          "drop_bottom3": 2754.0,
+          "n_dropped_for_drop_bottom3": 3,
+          "drop_best2_days": -435.0,
+          "n_days_dropped_for_drop_best2_days": 2,
+          "dropped_best_days": [
+            "2026-08-04",
+            "2026-08-28"
+          ],
+          "drop_worst2_days": 2895.0,
+          "n_days_dropped_for_drop_worst2_days": 2,
+          "dropped_worst_days": [
+            "2026-08-14",
+            "2026-08-10"
+          ],
+          "top_day_share": {
+            "total": 1742.0,
+            "n_days": 12,
+            "best_day": "2026-08-04",
+            "best_day_pnl": 1141.0,
+            "best_day_share_pct": 65.5,
+            "worst_day": "2026-08-14",
+            "worst_day_pnl": -742.0,
+            "worst_day_share_pct": -42.6
+          }
         },
         "replay_supplement": {
           "n": 3,
@@ -635,11 +685,488 @@
           "wr_pct": 33.3,
           "n_days": 3,
           "first_fill": "2026-08-07",
-          "last_fill": "2026-08-13"
+          "last_fill": "2026-08-13",
+          "drop_top3": -436.0,
+          "n_dropped_for_drop_top3": 1,
+          "drop_bottom3": 42.0,
+          "n_dropped_for_drop_bottom3": 2,
+          "drop_best2_days": -436.0,
+          "n_days_dropped_for_drop_best2_days": 1,
+          "dropped_best_days": [
+            "2026-08-13"
+          ],
+          "drop_worst2_days": 42.0,
+          "n_days_dropped_for_drop_worst2_days": 2,
+          "dropped_worst_days": [
+            "2026-08-07",
+            "2026-08-12"
+          ],
+          "top_day_share": {
+            "total": -394.0,
+            "n_days": 3,
+            "best_day": "2026-08-13",
+            "best_day_pnl": 42.0,
+            "best_day_share_pct": -10.7,
+            "worst_day": "2026-08-07",
+            "worst_day_pnl": -228.0,
+            "worst_day_share_pct": 57.9
+          }
         },
         "detail": "automation\\state\\core-strategy-recency.json"
       },
-      "overall": "GREEN"
+      "overall": "GREEN_CONCENTRATED"
+    },
+    "filter-8-bear-sole": {
+      "id": "filter-8-bear-sole",
+      "category": "sole_blocker_watch",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "RED",
+        "reason": "bear sole-[8] refused 53 distinct episode(s) (106 raw account-row(s) across safe+bold), 22 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument)",
+        "costing": "NOT_REPLAYED",
+        "n_events": 53,
+        "n_cost_money": 22,
+        "n_saved_money": 25,
+        "n_events_raw": 106,
+        "n_episodes_distinct": 53
+      },
+      "overall": "RED"
+    },
+    "filter-10-bull-sole": {
+      "id": "filter-10-bull-sole",
+      "category": "sole_blocker_watch",
+      "evidence_age_days": null,
+      "revalidation_interval_days": null,
+      "evidence_stale": false,
+      "pnl_check": {
+        "verdict": "RED",
+        "reason": "bull sole-[10] refused 39 distinct episode(s) (78 raw account-row(s) across safe+bold), 14 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument)",
+        "costing": "NOT_REPLAYED",
+        "n_events": 39,
+        "n_cost_money": 14,
+        "n_saved_money": 25,
+        "n_events_raw": 78,
+        "n_episodes_distinct": 39
+      },
+      "overall": "RED"
     }
+  },
+  "sole_blocker_miner": {
+    "costing": "NOT_REPLAYED",
+    "rolling_window_trading_days": 20,
+    "rolling_window": "2026-08-05..2026-09-01",
+    "session": "2026-09-02",
+    "cells_rolling_window": {
+      "bear_filter5_safe": {
+        "n_events": 1,
+        "n_cost_money": 1,
+        "n_saved_money": 0,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 1,
+        "episodes_distinct": 1,
+        "n_cost_money_distinct": 1,
+        "n_saved_money_distinct": 0,
+        "n_unknown_distinct": 0
+      },
+      "bear_filter5_bold": {
+        "n_events": 1,
+        "n_cost_money": 1,
+        "n_saved_money": 0,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 1,
+        "episodes_distinct": 1,
+        "n_cost_money_distinct": 1,
+        "n_saved_money_distinct": 0,
+        "n_unknown_distinct": 0
+      },
+      "bear_filter6_safe": {
+        "n_events": 22,
+        "n_cost_money": 3,
+        "n_saved_money": 12,
+        "n_unknown": 7,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 22,
+        "episodes_distinct": 22,
+        "n_cost_money_distinct": 3,
+        "n_saved_money_distinct": 12,
+        "n_unknown_distinct": 7
+      },
+      "bear_filter6_bold": {
+        "n_events": 22,
+        "n_cost_money": 3,
+        "n_saved_money": 12,
+        "n_unknown": 7,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 22,
+        "episodes_distinct": 22,
+        "n_cost_money_distinct": 3,
+        "n_saved_money_distinct": 12,
+        "n_unknown_distinct": 7
+      },
+      "bear_filter7_safe": {
+        "n_events": 7,
+        "n_cost_money": 5,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 7,
+        "episodes_distinct": 7,
+        "n_cost_money_distinct": 5,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bear_filter7_bold": {
+        "n_events": 7,
+        "n_cost_money": 5,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 7,
+        "episodes_distinct": 7,
+        "n_cost_money_distinct": 5,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bear_filter8_safe": {
+        "n_events": 53,
+        "n_cost_money": 22,
+        "n_saved_money": 25,
+        "n_unknown": 6,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 53,
+        "episodes_distinct": 53,
+        "n_cost_money_distinct": 22,
+        "n_saved_money_distinct": 25,
+        "n_unknown_distinct": 6
+      },
+      "bear_filter8_bold": {
+        "n_events": 53,
+        "n_cost_money": 22,
+        "n_saved_money": 25,
+        "n_unknown": 6,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 53,
+        "episodes_distinct": 53,
+        "n_cost_money_distinct": 22,
+        "n_saved_money_distinct": 25,
+        "n_unknown_distinct": 6
+      },
+      "bull_filter1_safe": {
+        "n_events": 1,
+        "n_cost_money": 0,
+        "n_saved_money": 1,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 1,
+        "episodes_distinct": 1,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 1,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter1_bold": {
+        "n_events": 1,
+        "n_cost_money": 0,
+        "n_saved_money": 1,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 1,
+        "episodes_distinct": 1,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 1,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter5_safe": {
+        "n_events": 40,
+        "n_cost_money": 2,
+        "n_saved_money": 16,
+        "n_unknown": 22,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 40,
+        "episodes_distinct": 40,
+        "n_cost_money_distinct": 2,
+        "n_saved_money_distinct": 16,
+        "n_unknown_distinct": 22
+      },
+      "bull_filter5_bold": {
+        "n_events": 40,
+        "n_cost_money": 2,
+        "n_saved_money": 16,
+        "n_unknown": 22,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 40,
+        "episodes_distinct": 40,
+        "n_cost_money_distinct": 2,
+        "n_saved_money_distinct": 16,
+        "n_unknown_distinct": 22
+      },
+      "bull_filter6_safe": {
+        "n_events": 11,
+        "n_cost_money": 7,
+        "n_saved_money": 2,
+        "n_unknown": 2,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 11,
+        "episodes_distinct": 11,
+        "n_cost_money_distinct": 7,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 2
+      },
+      "bull_filter6_bold": {
+        "n_events": 11,
+        "n_cost_money": 7,
+        "n_saved_money": 2,
+        "n_unknown": 2,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 11,
+        "episodes_distinct": 11,
+        "n_cost_money_distinct": 7,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 2
+      },
+      "bull_filter7_safe": {
+        "n_events": 4,
+        "n_cost_money": 2,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 4,
+        "episodes_distinct": 4,
+        "n_cost_money_distinct": 2,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter7_bold": {
+        "n_events": 4,
+        "n_cost_money": 2,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 4,
+        "episodes_distinct": 4,
+        "n_cost_money_distinct": 2,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter10_safe": {
+        "n_events": 39,
+        "n_cost_money": 14,
+        "n_saved_money": 25,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 39,
+        "episodes_distinct": 39,
+        "n_cost_money_distinct": 14,
+        "n_saved_money_distinct": 25,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter10_bold": {
+        "n_events": 39,
+        "n_cost_money": 14,
+        "n_saved_money": 25,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 39,
+        "episodes_distinct": 39,
+        "n_cost_money_distinct": 14,
+        "n_saved_money_distinct": 25,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter11_safe": {
+        "n_events": 33,
+        "n_cost_money": 22,
+        "n_saved_money": 11,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 33,
+        "episodes_distinct": 33,
+        "n_cost_money_distinct": 22,
+        "n_saved_money_distinct": 11,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter11_bold": {
+        "n_events": 33,
+        "n_cost_money": 22,
+        "n_saved_money": 11,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 33,
+        "episodes_distinct": 33,
+        "n_cost_money_distinct": 22,
+        "n_saved_money_distinct": 11,
+        "n_unknown_distinct": 0
+      }
+    },
+    "cells_last_session": {
+      "bear_filter6_safe": {
+        "n_events": 2,
+        "n_cost_money": 0,
+        "n_saved_money": 0,
+        "n_unknown": 2,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 2,
+        "episodes_distinct": 2,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 0,
+        "n_unknown_distinct": 2
+      },
+      "bear_filter6_bold": {
+        "n_events": 2,
+        "n_cost_money": 0,
+        "n_saved_money": 0,
+        "n_unknown": 2,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 2,
+        "episodes_distinct": 2,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 0,
+        "n_unknown_distinct": 2
+      },
+      "bull_filter5_safe": {
+        "n_events": 2,
+        "n_cost_money": 0,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 2,
+        "episodes_distinct": 2,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter5_bold": {
+        "n_events": 2,
+        "n_cost_money": 0,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 2,
+        "episodes_distinct": 2,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter6_safe": {
+        "n_events": 1,
+        "n_cost_money": 0,
+        "n_saved_money": 1,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 1,
+        "episodes_distinct": 1,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 1,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter6_bold": {
+        "n_events": 1,
+        "n_cost_money": 0,
+        "n_saved_money": 1,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 1,
+        "episodes_distinct": 1,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 1,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter10_safe": {
+        "n_events": 3,
+        "n_cost_money": 0,
+        "n_saved_money": 3,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 3,
+        "episodes_distinct": 3,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 3,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter10_bold": {
+        "n_events": 3,
+        "n_cost_money": 0,
+        "n_saved_money": 3,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 3,
+        "episodes_distinct": 3,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 3,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter11_safe": {
+        "n_events": 2,
+        "n_cost_money": 0,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 2,
+        "episodes_distinct": 2,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      },
+      "bull_filter11_bold": {
+        "n_events": 2,
+        "n_cost_money": 0,
+        "n_saved_money": 2,
+        "n_unknown": 0,
+        "costing": "NOT_REPLAYED",
+        "events_raw": 2,
+        "episodes_distinct": 2,
+        "n_cost_money_distinct": 0,
+        "n_saved_money_distinct": 2,
+        "n_unknown_distinct": 0
+      }
+    },
+    "top5_sole_blockers_by_door_rolling_window": {
+      "bear": [
+        {
+          "filter": 8,
+          "n_events": 106
+        },
+        {
+          "filter": 6,
+          "n_events": 44
+        },
+        {
+          "filter": 7,
+          "n_events": 14
+        },
+        {
+          "filter": 5,
+          "n_events": 2
+        }
+      ],
+      "bull": [
+        {
+          "filter": 5,
+          "n_events": 80
+        },
+        {
+          "filter": 10,
+          "n_events": 78
+        },
+        {
+          "filter": 11,
+          "n_events": 66
+        },
+        {
+          "filter": 6,
+          "n_events": 22
+        },
+        {
+          "filter": 7,
+          "n_events": 8
+        }
+      ]
+    },
+    "flagship_watches": [
+      "filter-8-bear-sole",
+      "filter-10-bull-sole"
+    ]
   }
 }
