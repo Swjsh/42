@@ -535,6 +535,145 @@ def family_already_covered(idea_text: str, inbox_dir: Path = CHEF_INBOX) -> Opti
     return None
 
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# General title-overlap dedupe -- THIRD layer, above dedupe_key AND
+# FAMILY_KEYWORDS
+#
+# RE-VIOLATION of L240 (PROSPECTOR-SEMANTIC-DEDUP-GAP, filed 2026-08-05 from
+# CHEF-INBOX-BACKLOG-DRAIN's own findings): FAMILY_KEYWORDS above is a
+# hand-curated allowlist -- it only catches a duplicate family AFTER someone
+# manually notices and adds its keywords (it went unmaintained 2026-07-22 ..
+# 2026-08-22, during which 20+ of 61 un-DONE items were semantic restatements
+# of already-researched/REJECTED/KILLED ideas the allowlist had no keywords
+# for yet). This layer needs NO curation: it compares the new idea's title
+# tokens against every EXISTING chef-inbox item's title (open AND .md.DONE --
+# a .DONE item means the concept was already researched, which is the whole
+# point, same rationale as family_already_covered) using Jaccard overlap on
+# stopword-stripped tokens. Calibrated against the REAL 231-item chef-inbox
+# corpus (backtest/tests/test_prospector_semantic_dedup_2026_09_03.py has the
+# full sweep): using idea_family() family membership as ground truth for
+# "same underlying topic" vs "genuinely distinct", Jaccard >= 0.25 on
+# normalized title tokens catches 68% of true within-family duplicate pairs
+# (386/568) while wrongly flagging only 0.14% of cross-family pairs (22/16085)
+# -- and manual inspection of those 22 shows most are themselves defensibly
+# related concepts (e.g. "Market Profile (TPO)" vs "Volume Profile", "VIX1D"
+# vs "VIX futures term structure", "NYSE TRIN" vs "Advance-Decline line" --
+# all breadth/term-structure cousins FAMILY_KEYWORDS itself splits into
+# separate families), not genuine distinct-idea suppressions. 0.25 was chosen
+# over the more aggressive 0.20 (80.6% recall / 0.5% FPR, 81 false hits) to
+# keep the false-suppression risk on a genuinely novel idea as close to zero
+# as this cheap a signal can get -- a missed duplicate just means one more
+# fire re-notices it manually (today's status quo); a wrongly-suppressed
+# novel idea silently loses a real research lead, which is the worse failure
+# mode for a "notify-only, never trades" organ (module docstring).
+SEMANTIC_OVERLAP_THRESHOLD = 0.25
+
+_TITLE_STOPWORDS: frozenset = frozenset({
+    "a", "an", "the", "of", "for", "and", "or", "to", "in", "on", "as", "is",
+    "at", "by", "with", "from", "vs", "via", "its", "it", "this", "that",
+    "using", "based", "use", "new", "data", "spy", "0dte", "mes", "market",
+    "gamma", "signal", "index", "level", "levels", "price", "day", "daily",
+})
+
+_INBOX_TITLE_RE = re.compile(r"^#\s*Chef Inbox\s*[—–-]\s*(.+)$", re.MULTILINE)
+
+_VERDICT_MARKERS: tuple[tuple[str, str], ...] = (
+    ("KILLED", "KILLED"),
+    ("REJECTED", "REJECTED"),
+    ("CLOSED-REDUNDANT", "CLOSED-REDUNDANT"),
+    ("NO_CANDIDATE_CLEARS_BAR_YET", "NEEDS-MORE-DATA"),
+    ("NEEDS-MORE-DATA", "NEEDS-MORE-DATA"),
+    ("CONSOLIDATED", "CONSOLIDATED-OPEN"),
+)
+
+
+def _title_tokens(text: str) -> set:
+    """Lowercase, stopword-stripped, digit-stripped word tokens -- pure."""
+    words = re.findall(r"[a-z0-9]+", (text or "").lower())
+    return {w for w in words if w not in _TITLE_STOPWORDS and not w.isdigit()}
+
+
+def _title_jaccard(a: set, b: set) -> float:
+    if not a or not b:
+        return 0.0
+    inter = len(a & b)
+    union = len(a | b)
+    return inter / union if union else 0.0
+
+
+def extract_inbox_title(text: str, fallback: str) -> str:
+    """Pull the human title out of a rendered `_chef-inbox/*.md` item (the
+    `# Chef Inbox — <title>` header render_chef_inbox_item always writes),
+    falling back to the filename stem for any hand-authored item that doesn't
+    follow the template."""
+    m = _INBOX_TITLE_RE.search(text or "")
+    return m.group(1).strip() if m else fallback
+
+
+def infer_inbox_verdict(text: str, is_done: bool) -> str:
+    """Coarse verdict label scraped from an inbox item's free-text NOTE/DONE
+    HTML-comment appends (see CHEF-INBOX-BACKLOG-DRAIN's fold notes for the
+    exact vocabulary this mirrors). No structured verdict field exists in the
+    corpus -- this is a best-effort label, not authoritative; a missed
+    marker just falls back to DONE/OPEN, never raises and never blocks the
+    dedupe decision itself."""
+    for marker, label in _VERDICT_MARKERS:
+        if marker in (text or ""):
+            return label
+    return "DONE" if is_done else "OPEN"
+
+
+def semantic_duplicate_of(idea_text: str, inbox_dir: Path = CHEF_INBOX) -> Optional[dict]:
+    """General-purpose complement to family_already_covered: does idea_text's
+    TITLE overlap >= SEMANTIC_OVERLAP_THRESHOLD with any existing chef-inbox
+    item's title (open or .md.DONE), independent of FAMILY_KEYWORDS coverage?
+    Returns {"path": Path, "score": float, "verdict": str} for the
+    best-scoring match at or above threshold, else None. Never raises (an
+    unreadable file is skipped, not fatal)."""
+    if not inbox_dir.exists():
+        return None
+    new_tokens = _title_tokens(idea_text)
+    if not new_tokens:
+        return None
+    best: Optional[tuple] = None
+    for path in sorted(inbox_dir.glob("*.md")) + sorted(inbox_dir.glob("*.md.DONE")):
+        if not path.is_file() or path.name == "README.md":
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        title = extract_inbox_title(text, path.stem)
+        score = _title_jaccard(new_tokens, _title_tokens(title))
+        if score >= SEMANTIC_OVERLAP_THRESHOLD and (best is None or score > best[0]):
+            best = (score, path, text)
+    if best is None:
+        return None
+    score, path, text = best
+    verdict = infer_inbox_verdict(text, path.suffix == ".DONE")
+    return {"path": path, "score": score, "verdict": verdict}
+
+
+def log_semantic_duplicate(dedupe_key: str, match: dict, path: Path = LEDGER_FILE) -> dict:
+    """Append-only ledger row recording a suppressed semantic duplicate --
+    NEVER a mutation, same discipline as kill_idea. This is the audit trail
+    the queue item asks for: a future author-inbox pass reads this instead of
+    re-deriving the family grouping by hand."""
+    row = {
+        "kind": "semantic_duplicate",
+        "dedupe_key": dedupe_key,
+        "semantic_duplicate_of": match["path"].name,
+        "verdict": match["verdict"],
+        "overlap_score": round(match["score"], 3),
+        "ts_et": et_now().isoformat(),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    return row
+
+
 def kill_idea(dedupe_key: str, reason: str, path: Path = LEDGER_FILE) -> dict:
     """Append a kill row. Ideas ledger is append-only truth -- a kill is a NEW
     row, never a mutation of the original idea row. Once killed, dedupe_key
@@ -563,6 +702,7 @@ _DEFAULT_STATE: dict = {
     "ideas_total": 0,
     "promoted_total": 0,
     "folded_total": 0,
+    "semantic_duplicates_total": 0,
     "promoted_dedupe_keys": [],
 }
 
@@ -751,8 +891,29 @@ def render_chef_inbox_item(idea_row: dict, *, date: str, hypothesis: str, data: 
     )
 
 
+def _apply_promotion_to_state(state: dict, promoted: dict) -> dict:
+    """Immutable-update helper shared by run() and cmd_seed(): records the
+    dedupe_key as consumed and bumps the ONE correct counter for what
+    actually happened -- a real file write (promoted_total), a
+    FAMILY_KEYWORDS fold (folded_total), or a general title-overlap dedupe
+    (semantic_duplicates_total). Split out so both callers can never drift
+    out of sync on the 3-way branch (they did, briefly, before this: the
+    semantic-duplicate case fell into the `else` promoted_total bump, which
+    would have miscounted a suppressed idea as a real promotion)."""
+    keys = list(state.get("promoted_dedupe_keys", []) or [])
+    keys.append(promoted["dedupe_key"])
+    if promoted.get("_folded_into"):
+        counter = "folded_total"
+    elif promoted.get("_semantic_duplicate_of"):
+        counter = "semantic_duplicates_total"
+    else:
+        counter = "promoted_total"
+    return {**state, "promoted_dedupe_keys": keys,
+            counter: int(state.get(counter, 0) or 0) + 1}
+
+
 def promote_top1(rows: list[dict], state: dict, *, date: str,
-                 inbox_dir: Path = CHEF_INBOX) -> Optional[dict]:
+                 inbox_dir: Path = CHEF_INBOX, ledger_path: Path = LEDGER_FILE) -> Optional[dict]:
     """Pick the single OLDEST not-yet-promoted 'battery-ready' idea (FIFO --
     first surfaced, first studied; simple and fair, no scoring model to game)
     and write it as a pre-registered STUDY SPEC stub into _chef-inbox/. Idempotent:
@@ -780,6 +941,24 @@ def promote_top1(rows: list[dict], state: dict, *, date: str,
         # NO new chef-inbox file -- the existing `covered` file is the canonical
         # answer for this concept family. See family_already_covered docstring.
         return {**pick, "_chef_inbox_file": None, "_folded_into": covered.name}
+    dup = semantic_duplicate_of(pick["idea"], inbox_dir=inbox_dir)
+    if dup is not None:
+        # General title-overlap catch (see semantic_duplicate_of docstring):
+        # no FAMILY_KEYWORDS entry exists for this concept yet, but its TITLE
+        # still overlaps an existing chef-inbox item above threshold. Same
+        # "don't re-promote" outcome as the family-covered branch above, but
+        # logged as its own ledger row (kind:"semantic_duplicate") rather than
+        # a silent fold, so the ledger keeps the overlap score + matched
+        # canonical + inferred verdict as an audit trail (queue item's ask).
+        log_semantic_duplicate(pick["dedupe_key"], dup, path=ledger_path)
+        return {
+            **pick,
+            "_chef_inbox_file": None,
+            "_folded_into": None,
+            "_semantic_duplicate_of": dup["path"].name,
+            "_semantic_duplicate_verdict": dup["verdict"],
+            "_semantic_duplicate_score": round(dup["score"], 3),
+        }
     spec = STUDY_SPECS.get(pick["dedupe_key"]) or {
         "hypothesis": (
             f"{_sentence(pick['idea'])} -- this carries a testable directional/timing "
@@ -1023,6 +1202,7 @@ def write_last_json(*, date: str, beat: str, scan_ok: bool, n_new_ideas: int,
         "promoted_idea": promoted.get("dedupe_key") if promoted else None,
         "promoted_file": promoted.get("_chef_inbox_file") if promoted else None,
         "folded_into": promoted.get("_folded_into") if promoted else None,
+        "semantic_duplicate_of": promoted.get("_semantic_duplicate_of") if promoted else None,
         "error": error,
         "generated_at": et_now().isoformat(),
     }
@@ -1042,6 +1222,11 @@ def queue_ping(date: str, beat: str, n_added: int, promoted: Optional[dict],
     if promoted and promoted.get("_folded_into"):
         promo_s = (f"; folded `{promoted['dedupe_key']}` into existing "
                    f"`{promoted['_folded_into']}` (same concept family, no new file)")
+    elif promoted and promoted.get("_semantic_duplicate_of"):
+        promo_s = (f"; semantic-dup `{promoted['dedupe_key']}` ~= existing "
+                   f"`{promoted['_semantic_duplicate_of']}` (verdict="
+                   f"{promoted.get('_semantic_duplicate_verdict')}, "
+                   f"score={promoted.get('_semantic_duplicate_score')}), no new file")
     elif promoted:
         promo_s = f"; promoted `{promoted['dedupe_key']}` -> _chef-inbox"
     else:
@@ -1102,16 +1287,10 @@ def run(*, beat: Optional[str] = None, dry_run: bool = False,
     if not dry_run:
         n_added = append_ledger_rows(new_rows, ledger_path)
         all_rows = load_ledger(ledger_path)
-        promoted = promote_top1(all_rows, state, date=date, inbox_dir=inbox_dir)
+        promoted = promote_top1(all_rows, state, date=date, inbox_dir=inbox_dir,
+                                 ledger_path=ledger_path)
         if promoted:
-            keys = list(state.get("promoted_dedupe_keys", []) or [])
-            keys.append(promoted["dedupe_key"])
-            if promoted.get("_folded_into"):
-                state = {**state, "promoted_dedupe_keys": keys,
-                         "folded_total": int(state.get("folded_total", 0) or 0) + 1}
-            else:
-                state = {**state, "promoted_dedupe_keys": keys,
-                         "promoted_total": int(state.get("promoted_total", 0) or 0) + 1}
+            state = _apply_promotion_to_state(state, promoted)
         state = advance_beat({
             **state, "last_beat": chosen_beat, "last_run_et": et_now().isoformat(),
             "fires_total": int(state.get("fires_total", 0) or 0) + 1,
@@ -1146,16 +1325,10 @@ def cmd_seed(*, date: Optional[str] = None, ledger_path: Path = LEDGER_FILE,
     rows = seed_ideas(date=date)
     n_added = append_ledger_rows(rows, ledger_path)
     all_rows = load_ledger(ledger_path)
-    promoted = promote_top1(all_rows, state, date=date, inbox_dir=inbox_dir)
+    promoted = promote_top1(all_rows, state, date=date, inbox_dir=inbox_dir,
+                             ledger_path=ledger_path)
     if promoted:
-        keys = list(state.get("promoted_dedupe_keys", []) or [])
-        keys.append(promoted["dedupe_key"])
-        if promoted.get("_folded_into"):
-            state = {**state, "promoted_dedupe_keys": keys,
-                    "folded_total": int(state.get("folded_total", 0) or 0) + 1}
-        else:
-            state = {**state, "promoted_dedupe_keys": keys,
-                    "promoted_total": int(state.get("promoted_total", 0) or 0) + 1}
+        state = _apply_promotion_to_state(state, promoted)
     save_state(state, state_path)
     write_last_json(date=date, beat="seed", scan_ok=True, n_new_ideas=n_added,
                     n_total_ideas=len(load_ledger(ledger_path)), promoted=promoted,
