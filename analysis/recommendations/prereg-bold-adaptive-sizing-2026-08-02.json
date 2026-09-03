@@ -1,6 +1,7 @@
 {
   "rule_id": "bold-adaptive-sizing-2026-08-02",
-  "status": "PRE-REGISTERED",
+  "status": "RUN_COMPLETE -- NULL",
+  "status_reconciled_2026_09_03": "Reconciled 2026-09-03 (queue item PREREG-RESULT-EXISTS-STATUS-STALE): the study this prereg governs already completed -- analysis/recommendations/bold-adaptive-sizing-2026-08-02.json (verdict: NULL). Status field was never written back after the run. No runner under setup/backtest/automation pins this prereg via EXPECTED_PREREG_SHA/content_sha256_16 (grepped before editing), so status is corrected directly rather than left for a hand pass. Detected by setup/scripts/prereg_hygiene.py RESULT_EXISTS_STATUS_STALE. No other content changed.",
   "registered_at_et": "2026-08-02T02:37:25-04:00",
   "registered_by": "overnight lane (Sonnet, J off-shift directive: MAKE THE ENGINE PROFITABLE)",
   "clock_source": "setup/scripts/et_clock.py -> 2026-08-02 02:37:25 Sunday EDT, market_hours=False",

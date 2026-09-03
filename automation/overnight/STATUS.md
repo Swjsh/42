@@ -470,3 +470,39 @@ the hang means I cannot verify that. A 0 on an unverified suite is a permanently
 
 ### BROKEN: trendline-headless-draw 2026-09-03 01:28 ET
 - trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: prereg-hygiene 2026-09-03T01:55:21
+- 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
+  - prereg-chasing-filter-2026-08-14.json (age 20.2d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
+  - prereg-ladder-x-premium-2026-08-09.json (age 25.2d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.2d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
+  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.2d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
+- 26 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-02T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-02T21:10:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-adaptive-sizing-2026-08-02.json -> bold-adaptive-sizing-2026-08-02.json (result mtime=2026-08-02T06:54:11Z, result verdict='NULL', own status='PRE-REGISTERED')
+  - prereg-bold-selective-fallback-2026-08-02.json -> bold-selective-fallback-2026-08-02.json (result mtime=2026-08-02T07:17:56Z, result verdict='NULL', own status='PRE-REGISTERED')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-bull-vix-soft-mode-2026-08-03.json -> bull-vix-soft-mode-2026-08-03.json (result mtime=2026-08-02T16:35:52Z, result verdict='NULL', own status='NOT IMPLEMENTED -- this prereg specs a NEW code path (see arms_frozen). Nothing armed. Nothing run. This is ARM_C from the ALREADY-FROZEN prereg-vix-regime-gate-archetype-2026-08-02.json, explicitly deferred there: "A bull-side soft-mode would require a genuinely NEW code path... If ARM_A/ARM_B\'s results suggest the bull side specifically is where the value is, a follow-up prereg should scope that new flag on its own, gated by this study\'s findings, not bundled in blind." This IS that follow-up.')
+
+### BROKEN: prereg-hygiene 2026-09-03T02:00:23
+- 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
+  - prereg-chasing-filter-2026-08-14.json (age 20.3d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
+  - prereg-ladder-x-premium-2026-08-09.json (age 25.3d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.3d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
+  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.3d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
+- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-02T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-02T21:10:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-full-send-arm-2026-07-31.json -> full-send-arm-2026-07-31.json (result mtime=2026-07-31T22:55:06Z, result verdict=None, own status='PRE-REGISTERED')

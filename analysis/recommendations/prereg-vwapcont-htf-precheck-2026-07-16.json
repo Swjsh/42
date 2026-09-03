@@ -1,7 +1,8 @@
 {
   "prereg_id": "prereg-vwapcont-htf-precheck-2026-07-16",
   "frozen_at_et": "2026-07-16T18:10:00",
-  "status": "FROZEN_BEFORE_RESULTS",
+  "status": "RUN_COMPLETE -- KILL",
+  "status_reconciled_2026_09_03": "Reconciled 2026-09-03 (queue item PREREG-RESULT-EXISTS-STATUS-STALE): the study this prereg governs already completed -- analysis/recommendations/vwapcont-htf-precheck-2026-07-16.json (verdict: KILL). Status field was never written back after the run. No runner under setup/backtest/automation pins this prereg via EXPECTED_PREREG_SHA/content_sha256_16 (grepped before editing), so status is corrected directly rather than left for a hand pass. Detected by setup/scripts/prereg_hygiene.py RESULT_EXISTS_STATUS_STALE. No other content changed.",
   "author": "Gamma (Claude session, delegated by J)",
   "trigger": {
     "date": "2026-07-16",

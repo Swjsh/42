@@ -1,7 +1,8 @@
 {
   "rule_id": "LADDER-VWAP-2026-08-11",
   "frozen_at_et": "2026-08-11T20:55:00-04:00",
-  "status": "FROZEN_BEFORE_RUNNER",
+  "status": "RUN_COMPLETE -- NO-SHIP \u2014 all 4 gates FAIL",
+  "status_reconciled_2026_09_03": "Reconciled 2026-09-03 (queue item PREREG-RESULT-EXISTS-STATUS-STALE): the study this prereg governs already completed -- analysis/recommendations/ladder-vwap-2026-08-11-results.json (verdict: NO-SHIP \u2014 all 4 gates FAIL). Status field was never written back after the run. No runner under setup/backtest/automation pins this prereg via EXPECTED_PREREG_SHA/content_sha256_16 (grepped before editing), so status is corrected directly rather than left for a hand pass. Detected by setup/scripts/prereg_hygiene.py RESULT_EXISTS_STATUS_STALE. No other content changed.",
   "origin": "J challenge 2026-08-11 evening: 'why is the ladder scoped to just one trading strategy? all trades need dynamic exits' — measure before blanket-enabling (C29/L149: exit knobs ratified on one cohort do not transfer).",
   "hypothesis": "The pre-TP1 ladder shipped on ribbon_ride (rungs [[0.50,0.30],[0.75,0.60]], trail arm 0.75, trail 0.20 — EXACT shipped values, zero re-tuning) also improves VWAP_CONTINUATION cohort P&L.",
   "population": "All real-fills fleet positions whose placement config strategy == VWAP_CONTINUATION, every replayable day through 2026-08-11 inclusive. Exact n disclosed in results (expected ~25; advisory bar n>=20).",

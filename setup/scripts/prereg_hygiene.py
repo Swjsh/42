@@ -86,6 +86,52 @@ EXCLUDE_PATHS = {STATUS_MD.resolve()}
 STALE_STATUS_RE = re.compile(r"FROZEN|NOT RUN|NOT SHIPPED", re.IGNORECASE)
 FILENAME_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})(?:\.json)?$")
 AGE_DAYS_THRESHOLD = 14
+
+# RESULT_EXISTS_STATUS_STALE (2026-09-03, PREREG-RESULT-EXISTS-STATUS-STALE): a SEPARATE,
+# broader flag class from STALE_STATUS_RE above -- that one gates the age-based "never ran"
+# flag and deliberately stays narrow. This one answers a different question: "does this
+# prereg's status TEXT still read as pending/frozen even though a matching result file
+# already exists" -- age-independent, because a result written yesterday against a status
+# that still says FROZEN_PENDING_RUN is just as stale as one from 55 days ago.
+#
+# Vocabulary below is ENUMERATED from every distinct `status` string across the 128 real
+# prereg files on disk 2026-09-03 (see the task's own audit), not guessed:
+#   pending/frozen (no verdict committed yet): FROZEN_PREREG_FORWARD, FROZEN_PREREG,
+#   FROZEN_PENDING_RUN, FROZEN_BEFORE_ANY_RESULT, FROZEN_BEFORE_RUNNER,
+#   FROZEN_BEFORE_RESULTS, FROZEN_QUESTIONS_RUNNER_NOT_YET_BUILT, bare FROZEN,
+#   "FROZEN -- NOT RUN...", "FROZEN -- NOT SHIPPED...", "PRE-REGISTERED",
+#   "PREREG ONLY -- ...", "NOT IMPLEMENTED -- ...", "CANDIDATE ONLY. Nothing armed...",
+#   "PARKED -- ..." (parked is still "no verdict", even when parked on a human decision
+#   rather than a runner).
+#   terminal (a verdict already exists in the status text itself, or the prereg's
+#   lifecycle is explicitly over): RUN_COMPLETE* (all variants), RUN_COMPLETE_KEEP,
+#   RUN_COMPLETE_EARNS_RIGHTS, KILLED, CLOSED_KILL, SUPERSEDED,
+#   RETIRED_UNRUNNABLE_AS_FROZEN ("not a verdict on the hypothesis" but explicitly a
+#   closed lifecycle -- note this ONE status contains the substring FROZEN, which is why
+#   TERMINAL_STATUS_RE below must win over PENDING_STATUS_RE, not just add to it),
+#   armed_paper_collecting_evidence (a live shadow-arm status, not "awaiting a run").
+PENDING_STATUS_RE = re.compile(
+    r"FROZEN|PRE-REGISTERED|\bPENDING\b|PARKED|CANDIDATE ONLY|NOT RUN|NOT SHIPPED"
+    r"|NOT IMPLEMENTED|NOT (?:YET )?BUILT",
+    re.IGNORECASE,
+)
+TERMINAL_STATUS_RE = re.compile(
+    r"RUN_COMPLETE|RETIRED|KILLED|CLOSED_KILL|SUPERSEDED|EARNS_RIGHTS"
+    r"|armed_paper_collecting_evidence",
+    re.IGNORECASE,
+)
+
+
+def _is_pending_status(status: Optional[str]) -> bool:
+    """True iff `status` reads as still-awaiting-a-verdict. TERMINAL_STATUS_RE wins over
+    PENDING_STATUS_RE on conflict (see RETIRED_UNRUNNABLE_AS_FROZEN in the vocabulary note
+    above) -- a status carrying an explicit terminal token is never "pending" even if it
+    also happens to contain the substring FROZEN."""
+    if not status:
+        return False
+    if TERMINAL_STATUS_RE.search(status):
+        return False
+    return bool(PENDING_STATUS_RE.search(status))
 # A genuine per-prereg result mentions at most a small handful of siblings (a related
 # study, a shared re-entry-sizing write-up). A file mentioned as the "result" for MANY
 # distinct preregs is not a result at all -- it is a multi-topic report (an audit
@@ -343,6 +389,53 @@ def _matching_result_file(prereg_path: Path, data: dict, by_rule_id: dict,
     return None
 
 
+def _find_result_path(name: str) -> Optional[Path]:
+    """Lazily resolve a matched result FILENAME (as returned by `_matching_result_file`)
+    back to its actual Path. RECS_DIR is checked first (the common case -- nearly every
+    result lives there), falling back to a bounded rglob under ANALYSIS_DIR only when
+    it isn't. Deliberately NOT threaded through `_results_index()`'s return signature --
+    that tuple's 3-map arity is a pinned contract for existing callers/tests, and this
+    lookup is only needed for the informational RESULT_EXISTS_STATUS_STALE enrichment,
+    so a cheap on-demand resolve (called at most once per flagged entry, not once per
+    scanned file) is the smaller-diff choice."""
+    direct = RECS_DIR / name
+    if direct.exists():
+        return direct
+    try:
+        return next(ANALYSIS_DIR.rglob(name), None)
+    except OSError:
+        return None
+
+
+def _result_file_meta(name: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """Informational enrichment for a matched result file: its own mtime (UTC ISO,
+    matching this monitor's other timestamps) and its `verdict`/`status` field if the
+    file parses as a JSON object carrying one. Never raises -- any read/parse failure
+    just yields (None, None), the same fail-open posture as the rest of this monitor."""
+    if not name:
+        return None, None
+    path = _find_result_path(name)
+    if path is None:
+        return None, None
+    mtime_iso: Optional[str] = None
+    try:
+        mtime_iso = datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+    except OSError:
+        pass
+    verdict: Optional[str] = None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8", errors="ignore"))
+        if isinstance(data, dict):
+            v = _status_field(data)  # prefers "status", else first *verdict* key
+            if v is not None:
+                verdict = v
+    except (OSError, json.JSONDecodeError, ValueError):
+        pass
+    return mtime_iso, verdict
+
+
 def _referenced_stems_python(stems: list[str]) -> set:
     """Fallback for when `rg` is unavailable: ONE combined tree walk (not one walk per
     stem -- that was measured at multi-minute runtime against this repo's tree) checking
@@ -396,6 +489,7 @@ def scan() -> dict:
 
     entries = []
     flagged = []
+    result_exists_status_stale = []
     has_results_count = 0
     for f, data in parsed:
         status = _status_field(data)
@@ -430,6 +524,17 @@ def scan() -> dict:
             if orphan:
                 reason += " + orphan"
             flagged.append({**entry, "reason": reason})
+        # RESULT_EXISTS_STATUS_STALE (age-independent, see PENDING_STATUS_RE docstring):
+        # the prereg's own status text still reads pending/frozen, but a result file
+        # already matched. Report the result file's mtime + its own verdict/status field
+        # so a reader never has to open the result file by hand to see what it says.
+        if has_results and _is_pending_status(status):
+            result_mtime, result_verdict = _result_file_meta(result_file)
+            result_exists_status_stale.append({
+                **entry,
+                "result_mtime_utc": result_mtime,
+                "result_verdict": result_verdict,
+            })
     # Reconciliation candidates: a prereg whose OWN status text still reads as never-run
     # even though a result file matched -- these are exactly the entries whose status
     # field is stale bookkeeping, surfaced so the next adjudication pass doesn't have
@@ -449,6 +554,8 @@ def scan() -> dict:
         "flagged": flagged,
         "n_has_results_file": has_results_count,
         "stale_status_but_has_results": stale_status_but_has_results,
+        "n_result_exists_status_stale": len(result_exists_status_stale),
+        "result_exists_status_stale": result_exists_status_stale,
         "entries": entries,
     }
 
@@ -459,6 +566,16 @@ def _prior_flagged_set() -> Optional[set]:
     try:
         prior = json.loads(OUT_FILE.read_text(encoding="utf-8"))
         return {row["file"] for row in prior.get("flagged", [])}
+    except (json.JSONDecodeError, OSError, KeyError, TypeError):
+        return None
+
+
+def _prior_result_exists_set() -> Optional[set]:
+    if not OUT_FILE.exists():
+        return None
+    try:
+        prior = json.loads(OUT_FILE.read_text(encoding="utf-8"))
+        return {row["file"] for row in prior.get("result_exists_status_stale", [])}
     except (json.JSONDecodeError, OSError, KeyError, TypeError):
         return None
 
@@ -482,6 +599,19 @@ def _append_status_block(report: dict) -> bool:
                 f"  - {row['file']} (age {row['age_days']}d via {row['age_source']}, "
                 f"status={row['status']!r}, orphan={row.get('orphan')})"
             )
+    if report["result_exists_status_stale"]:
+        lines.append(
+            f"- {report['n_result_exists_status_stale']} prereg(s) RESULT_EXISTS_STATUS_STALE "
+            f"(status still reads pending/frozen but a matching result file already exists -- "
+            f"age-independent, see PENDING_STATUS_RE):"
+        )
+        for row in report["result_exists_status_stale"][:10]:
+            lines.append(
+                f"  - {row['file']} -> {row['result_file']} "
+                f"(result mtime={row.get('result_mtime_utc')}, "
+                f"result verdict={row.get('result_verdict')!r}, "
+                f"own status={row['status']!r})"
+            )
     block = "\n".join(lines) + "\n"
     try:
         with STATUS_MD.open("a", encoding="utf-8") as fh:
@@ -496,18 +626,22 @@ def main() -> int:
     prior_set = _prior_flagged_set()
     current_set = {row["file"] for row in report["flagged"]}
     changed = prior_set is None or prior_set != current_set
+    prior_res_set = _prior_result_exists_set()
+    current_res_set = {row["file"] for row in report["result_exists_status_stale"]}
+    res_changed = prior_res_set is None or prior_res_set != current_res_set
     try:
         OUT_FILE.write_text(json.dumps(report, indent=2), encoding="utf-8")
     except OSError as e:  # noqa: BLE001 -- never crash on a write failure, just say so
         print(f"WARN: could not write {OUT_FILE}: {e}")
         return 1
-    if (report["flagged"] or report["malformed"]) and changed:
+    any_changed = changed or res_changed
+    if (report["flagged"] or report["malformed"] or report["result_exists_status_stale"]) and any_changed:
         wrote = _append_status_block(report)
         print(f"prereg_hygiene: flagged-set CHANGED, STATUS.md block written={wrote}")
     else:
         print("prereg_hygiene: no change to flagged set (or nothing to flag) -- no STATUS.md append")
     print(f"prereg_hygiene: {report['n_total']} files, {report['n_malformed']} malformed, "
-          f"{report['n_flagged']} flagged")
+          f"{report['n_flagged']} flagged, {report['n_result_exists_status_stale']} result_exists_status_stale")
     return 0
 
 
