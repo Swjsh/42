@@ -41,22 +41,25 @@ Write `automation/state/mcp-weekly-audit-latest.json`:
 Append ONE line to `automation/state/mcp-weekly-audit-log.jsonl`:
 `{"run_at":"<ISO ET>","verdict":"<verdict>","reason":"<one line>"}`
 
-## Step 6 -- Alert (ONLY if verdict != GREEN; silent success is fine because Step 5 logged it)
-Append the alert under STATUS.md `## Known broken` (use this exact snippet, substituting your values -- it inserts without rewriting the file):
+## Step 6 -- STATUS.md (ALWAYS -- GREEN clears, non-GREEN writes)
+Update the `MCP_AUDIT_` marker in STATUS.md `## Known broken` via the shared de-duplicating
+helper (2026-09-03: this used to unconditionally APPEND one line per non-GREEN fire and
+never clear, so 4-5 stale MCP_AUDIT_YELLOW/RED lines stacked in the section at once,
+including old readings already superseded by a newer one. The helper strips every prior
+`MCP_AUDIT_*` line first, so exactly one survives -- the newest reading, or none at all
+on GREEN):
 ```
-python - <<'PY'
-p='automation/overnight/STATUS.md'
-ts='<ISO ET>'; verdict='<VERDICT>'; reason='<reason>'
-s=open(p,encoding='utf-8').read()
-s=s.replace('## Known broken', '## Known broken\n['+ts+'] MCP_AUDIT_'+verdict+': '+reason, 1)
-open(p,'w',encoding='utf-8').write(s)
-PY
+python setup/scripts/status_known_broken.py --marker "MCP_AUDIT_" --clear
 ```
-Append ONE line to `automation/state/discord-outbox.jsonl` (ping J):
+on a GREEN verdict, or, for YELLOW/RED:
+```
+python setup/scripts/status_known_broken.py --marker "MCP_AUDIT_" --line "- [<ISO ET>] MCP_AUDIT_<VERDICT>: <reason>"
+```
+Only on non-GREEN, also append ONE line to `automation/state/discord-outbox.jsonl` (ping J):
 `{"queued_at":"<ISO-Z>","content":"<@207983230618435584> MCP weekly audit <verdict>: <reason>"}`
 
 ## Hard rules
 - READ-ONLY on trading. NEVER place/cancel orders. NEVER edit params*.json, heartbeat*.md, CLAUDE.md, or the playbook.
-- Only writes allowed: the two state files (Step 5), STATUS.md append + discord-outbox append (Step 6, non-GREEN only), and launching TradingView in Step 3.
+- Only writes allowed: the two state files (Step 5), the STATUS.md `MCP_AUDIT_` marker via status_known_broken.py (Step 6, every run -- clear on GREEN, write on non-GREEN), discord-outbox append (Step 6, non-GREEN only), and launching TradingView in Step 3.
 - Final output, exactly one line:
   `MCP-AUDIT <verdict> | safe=<ok|FAIL> bold=<ok|FAIL> tv=<ok|FAIL>(relaunch=<y/n>) | <reason>`

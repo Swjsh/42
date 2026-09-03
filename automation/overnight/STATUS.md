@@ -41,14 +41,7 @@ scoring, not by this fire's own work; next fire should prefer a loop-closing ite
 
 ## Known broken
 
-- [2026-09-02T23:50:00-04:00] MCP_AUDIT_YELLOW: All MCP servers healthy; TradingView required relaunch but recovered successfully.
-- [2026-09-02T16:40+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T15:07+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T14:14+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T07:48:41-04:00] MCP_AUDIT_YELLOW: Alpaca Safe (PA3POKNV46VG) + Bold (PA3WEBXJU67N) endpoints returning 404 (credential/account mismatch possible); TradingView CDP reachable; uvx processes active. Investigate key freshness before market open.
-- [2026-09-02T11:00+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): openrouter::nvidia/nemotron-3-super-120b-a12b:free. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T06:27:06] MCP_AUDIT_YELLOW: TradingView OK, Alpaca Safe/Bold MCP servers still connecting (session start)
-- [2026-09-02T06:23:50.560122-04:00] MCP_AUDIT_YELLOW: Alpaca MCP servers not yet available; TradingView OK
+- [2026-09-03T04:53+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 
 > **This section is the PREAMBLE and must stay above the first `## [` entry.**
 > `status_retention.py::split_entries` splits on `## [` headers and preserves only what
@@ -62,7 +55,20 @@ scoring, not by this fire's own work; next fire should prefer a loop-closing ite
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
 
-- [2026-09-03T00:03:45 ET] MCP_AUDIT_RED: Alpaca Safe and Bold both 401 Unauthorized (credential rejection). TradingView CDP OK. **BLOCKER:** Live trading requires valid Alpaca auth. Check API key freshness or re-run MCP servers before market open.
+- [2026-09-03T01:30 ET] overnight loop cycle 1 (Fable + 9 Sonnet builders) -- 8 commits, 2 live defects found and fixed, 1 false BLOCKER cleared -- REVOKE surface
+
+  **J's directive 00:05 ET: "figure out what to work on all night and loop over and over."** Recorded as doctrine (memory + work-order §5: phase dates are a schedule, not a gate; the null is only valid when queue.md is also empty).
+
+  🚨 **Live defect 1 -- catch-up sweep restart storm (commit `8f69470e`).** From 23:47 ET the quiet-mode sweep re-started the same five tasks every 5 minutes (41 sweeps; McpDailyAudit, an LLM fire, twelve times an hour). Root cause: five quiet_mode test files never redirected LOG_FILE, so every full-suite run planted fixture lines ("QUIET HELD ... r5apex", weekday "research band" lines the real code cannot write) into the PRODUCTION quiet-mode.log; parse_quiet_holds saw a phantom OPEN hold, closed it at now, and the idempotency test could never pass. Fixed structurally (conftest autouse isolation -- 113 tests run, live log 1572->1572 lines) + open-hold deferral + 53 provably-fake lines scrubbed (backup kept). Also GUARDS-FULL-NEVER-RUNS-ON-A-GAMING-EVENING built (heavy-tier catch-up; gate re-scoped in `9939b15e` to guard-suite/pytest markers only after the kitchen's permanent presence made it dead on arrival). GuardsFull start still UNVERIFIED tonight: deferring behind a live `pytest -m slow` run.
+
+  🚨 **False BLOCKER cleared.** 00:03 ET `MCP_AUDIT_RED: Alpaca Safe and Bold both 401` -- direct REST `/v2/account` at 01:20 ET: PA3POKNV46VG $5,653.87 ACTIVE, PA3WEBXJU67N $5,593.52 ACTIVE. The LLM audit was wrong (and was being fired every 5 min by defect 1). Cleared via the new `status_known_broken.upsert`; a $0 REST replacement for Gamma_McpDailyAudit is in build.
+
+  ✅ **Landed:** `806cecbe` first-live-day box GREEN + conductor-picks parser · `10213e78` queue consolidator + 4 done items archived · `61928dfe` FULL-SUITE RED lines clear on green, review run-log, 42 dead branches pruned (19 kept as archive/ tags) · `d45c673f` 225 zero-reference scripts -> backtest/_attic, requirements-lock.txt, SIP-VOLMULT null (filter 10 blocked 74% of 09-02 bars on BOTH feeds -- not a feed bug) · `c362b5b2` Gamma_TrendlineHeadlessDraw (drew 2 real lines live), 15 ET fallbacks off fixed -4h, trades-enriched refreshed by its consumers · `9939b15e` regime-stress study: **2 of 24 frozen stress days produced any entry** -- the protections were never exercised; strata UNVERIFIED (prereg day list came from a different bar source). Known-broken dedupe helper (roster/MCP producers) this commit.
+
+  📁 **Filed / open:** SPY-BAR-FILE two-frame producer (`fetch_missed_days.py`) not fixed; full-history anchor re-stamp is its own reviewed change; queue.md 437 KB with ~13 KB headroom; roster_liveness does not self-clear on a healthy run. **Blocked:** Fri gate/null/WEEK ORDER (date), Sat Rule-9 pass, DMS/HALT drills (J). Futures premarket producer + $0 MCP audit in build.
+
+  **Revoke:** `git revert <sha>` per commit above; each is independent.
+
 
 - [2026-09-02T23:56 ET] first-live-day box CLOSED -- verdict GREEN 6/6, one instrument defect fixed on the way -- REVOKE surface
 
@@ -120,10 +126,6 @@ scoring, not by this fire's own work; next fire should prefer a loop-closing ite
 
 ---
 
-- [2026-09-02T08:50+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T07:23+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T06:36+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-02T05:37+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 
 ---
 
@@ -508,4 +510,22 @@ Kitchen: alive, queue 38 pending, last cook 0 min ago, today $0.00, model=openro
 - trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
 
 ### BROKEN: trendline-headless-draw 2026-09-03 00:35 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:35 ET
+- trendline_headless_draw failed -- TvCdpError: fake: CDP not reachable on 127.0.0.1:9222 -- TradingView Desktop not running?
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:35 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:36 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:40 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:42 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-03 00:46 ET
 - trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure

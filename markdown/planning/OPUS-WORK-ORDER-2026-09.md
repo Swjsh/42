@@ -577,7 +577,7 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 ### 2b. Research (analysis only, $0, freeze-compatible)
 - [ ] **Null study weekly** (B1) — the single most important number on the board. Opus reads each
   Friday; a FAIL on P1 (post-08-11) ends any 10-30 arming talk before the gate colour matters.
-- [~] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
+- [x] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
   (the April 2025 tariff week, Aug 2024, any −2%+ day in 2025–26): what do the −50% cap, structure
   stops and the ladder actually do in a −3% day? Pre-register the questions; label sim-only.
   *Done:* a REGIME-STRESS study + the gate's REGIME COVERAGE block cites it.
@@ -597,6 +597,21 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   timestamps to attribute an exit to a mechanism, and it predates chart-stop-primary, the tight ladder
   and the LevelState work. It is NOT cited as a baseline. **Remaining:** build the runner (it may not
   re-derive the day list) and publish into the gate's REGIME COVERAGE block.
+  **RUNNER BUILT + STUDY PUBLISHED 2026-09-03 01:15 ET (Sonnet, Fable-specced; commit `9939b15e`).** `backtest/tools/regime_stress_replay.py`
+  (extended in place; day list read from the prereg verbatim and pinned by test) → `analysis/regime-stress/REGIME-STRESS-2026-09-02.{json,md}`;
+  `go_live_gate.py` REGIME COVERAGE block now cites it (disclosure only). 15 tests, 3 mutations RED-proofed; full run 111 s.
+  **THE ANSWER IS ABOUT THE GATES, NOT THE EXITS: 2 of 24 frozen stress days produced any ladder-permitted entry** (20 gates-zero,
+  2 DATA_MISSING with a trigger but no cached OPRA contract — 2025-03-03, 2026-06-05). n=2 (both puts): −$75.70, exit mix trail 1 /
+  premium_stop 1, cap-binding rate 1.0 on n=1 (not meaningful), worst day −$390 = −7.4%/−7.7% of arm equity vs −30%/−50% kills.
+  So the −50% cap / structure stops / ladder were essentially never exercised on the stress population — the engine sits out.
+  **Data provenance handled on the way:** the two-frame bar file (SPY-BAR-FILE-MIXES-TWO-TIME-FRAMES) was NOT re-stamped; the runner
+  parses through the existing `backtest/lib/et_frame.py` (frame `et-v2`), which fixed 3/24 days; the SAME defect exists in the
+  VIX 2025+ file (2026 winter rows) and was handled the same way; `fetch_missed_days.py:98/104` still carries the hardcoded-offset
+  anti-pattern (filed, not fixed). ⚠️ **Disclosed, UNVERIFIED:** recomputed cc%/range% on this bar source does NOT reproduce the
+  prereg's own subset counts (13 vs 16 cc≤−2%, 6 vs 15 range≥3%); 5 frozen days satisfy neither threshold here — the day list was
+  produced from a different source (likely daily-bar closes). The list stays frozen and was used verbatim; the strata are labelled
+  UNVERIFIED. Full-history anchor (`engine_fullhist_replay.py`, n=190/191) is now unblocked by `et_frame` but deliberately left
+  alone — re-stamping a published anchor is its own reviewed change with the winter-trade diff in the open.
 - [~] **XSP — FEASIBILITY DONE 2026-09-02, and the battery is deliberately NOT built yet.**
   `analysis/xsp/xsp-feasibility-2026-09-02.json`. The box asked for "prereg + first battery"; checking
   the premises first turned out to be the cheap move, because **two of the three are wrong or

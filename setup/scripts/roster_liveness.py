@@ -18,6 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import swarm_client as sc  # noqa: E402
+import status_known_broken as skb  # noqa: E402
 
 HEALTH_FILE = sc.REPO / "automation" / "state" / "roster-health.json"
 STATUS_MD = sc.REPO / "automation" / "overnight" / "STATUS.md"
@@ -75,12 +76,17 @@ def flag_known_broken(dead: list[dict], status_md: Path = STATUS_MD) -> bool:
 
     Only class=dead_id is flagged: a 429 throttle self-heals, and crying wolf on transient
     throttles is how a Known-broken channel goes back to being ignored.
+
+    DEDUPE (2026-09-03): this used to unconditionally PREPEND a new line every fire, so
+    a recurring dead lane stacked one line per probe -- 8 near-identical ROSTER-LIVENESS
+    lines were live in STATUS.md by 2026-09-03T00:55 ET, all for the same condition.
+    Re-pointed at the shared status_known_broken.upsert() helper: it strips every prior
+    ROSTER-LIVENESS line in the section first, then writes this run's single newest
+    reading -- exactly one line survives, never a stack. Return value and the
+    recreate-section-if-missing behaviour are unchanged (still True on write, False on
+    a genuine no-op).
     """
     if not dead:
-        return False
-    try:
-        text = status_md.read_text(encoding="utf-8")
-    except OSError:
         return False
     ids = ", ".join(d["lane"] for d in dead)
     line = ("- [" + datetime.now(timezone.utc).isoformat(timespec="minutes") + "] "
@@ -88,13 +94,7 @@ def flag_known_broken(dead: list[dict], status_md: Path = STATUS_MD) -> bool:
             "(404/archived): " + ids + ". Roles are falling through to their next lane or "
             "the local floor. Repoint in automation/state/model-roster.json, then re-run "
             "setup/scripts/roster_liveness.py. See automation/state/roster-health.json.")
-    if KNOWN_BROKEN_MARKER not in text:
-        text = KNOWN_BROKEN_MARKER + NL + NL + text
-    head, _, tail = text.partition(KNOWN_BROKEN_MARKER + NL)
-    status_md.write_text(
-        head + KNOWN_BROKEN_MARKER + NL + NL + line + NL + tail.lstrip(NL),
-        encoding="utf-8")
-    return True
+    return skb.upsert("ROSTER-LIVENESS:", line, status_path=status_md)
 
 
 def main() -> int:
