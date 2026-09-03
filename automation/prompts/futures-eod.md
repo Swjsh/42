@@ -9,9 +9,23 @@ DO NOT use ScheduleWakeup, AskUserQuestion, or any prompting tool.
 
 ## Step 0 — pre-flight
 
-1. Read `automation/state/futures/position.json` — must show `"side": "flat"` (EOD flatten already ran).
-2. Read `automation/state/futures/account.json` — end-of-day equity, daily_pnl field.
-3. Read `automation/state/futures/risk.json` — kill switch status.
+> **2026-09-03 stale-path fix (FUTURES-EOD-PERSONA-STALE-PATHS, queue.md):** the three
+> top-level files this step used to read (`automation/state/futures/{position,account,
+> risk}.json`) are VESTIGIAL — frozen at `"last_updated": "2026-06-17..."`, instrument
+> still says `MNQ` (pre-MES-pivot). The lane was rearchitected into two per-lane state
+> dirs since; the paths below are the ones the CURRENT code actually writes.
+
+1. Read `automation/state/futures/health.json` (`futures_health.py`'s build_report output)
+   — overall GREEN/YELLOW/RED verdict + per-check detail (fills recency, broker transport,
+   data freshness, stray exposure, exit pairing). This is the authoritative live gate check.
+2. Read `automation/state/futures/trader-broker/last-tick.json` (armed real-broker lane) AND
+   `automation/state/futures/trader/last-tick.json` (fillsim lane) — each shows the position
+   side/instrument/action as of the most recent tick; "flat" confirms the EOD flatten ran.
+3. Kill-switch status is NOT a state file to read — it is enforced live by
+   `FuturesRiskRails` (`backtest/futures/futures_risk_rails.py`) against equity pulled from
+   the broker each tick. For an after-the-fact check, read `automation/state/futures/
+   trader-broker/decisions.jsonl`'s last row(s) for `equity`/`session_realized_pnl`, or call
+   `TastytradeBroker.get_account_equity()` directly (Step 1 below).
 4. Get today's date in ET (`YYYY-MM-DD`).
 
 ---
@@ -19,17 +33,28 @@ DO NOT use ScheduleWakeup, AskUserQuestion, or any prompting tool.
 ## Step 1 — gather today's activity
 
 **Would-be trades (simulation log):**
-- Read `automation/state/futures/would-be-trades.jsonl`
+- Read `automation/state/futures/trader/would-be-trades.jsonl` (2026-09-03: corrected from
+  the stale `automation/state/futures/would-be-trades.jsonl` path, which no current writer
+  produces — the file lives under the fillsim lane's own `trader/` state dir)
 - Filter rows where `"time"` starts with today's date
 - These are the entries/exits the engine logged, whether WATCH_ONLY or live
 
 **Actual fills (live paper mode):**
-- Connect to Tastytrade via `TastytradeBroker` from `backtest.futures.tastytrade_paper`
+- Connect to Tastytrade via `TastytradeBroker` from `futures.tastytrade_paper` (2026-09-03:
+  corrected import path — every current caller does `sys.path.insert(0, "backtest")` then
+  `from futures.tastytrade_paper import TastytradeBroker`, never `backtest.futures.
+  tastytrade_paper`; see `backtest/futures/futures_trader_core.py` for the live pattern)
 - Call `broker.connect()` then pull account balances for final equity
-- TT sandbox resets fills at EOD — so today's fill data lives in would-be-trades.jsonl + local state
+- TT sandbox resets fills at EOD — so today's fill data lives in would-be-trades.jsonl,
+  `journal/futures/trades.csv` (fills=BROKER rows), and local state
 
 **Tick log:**
-- Read `journal/futures/{today}-heartbeat.jsonl` if it exists — gives a tick-by-tick record of what the heartbeat saw and decided each fire
+- 2026-09-03: `journal/futures/{today}-heartbeat.jsonl` is a stale path — nothing currently
+  writes it (the one file on disk under that name is a 2026-06-17 one-off). The real
+  tick-by-tick record is `automation/state/futures/trader-broker/decisions.jsonl` (armed
+  broker lane) and `automation/state/futures/trader/decisions.jsonl` (fillsim lane) — each
+  row already IS one tick's full decision (action/reason/connected/freshness/price). Filter
+  both to today's date.
 
 ---
 
