@@ -18,11 +18,38 @@
 # shipped for Gamma_EarningsCalendar/Gamma_MacroCalendar after a single-fire trigger
 # silently missed a day) -- cheap insurance since the script is idempotent and fast.
 #
-# WIRING: split-interpreter pattern (system pythonw for the outer wscript relay hop only,
-# backtest-venv pythonw for the actual script -- fee_recalibrate.py imports go_live_gate,
-# which needs the venv per its own docstring):
+# WIRING (2026-09-03 CHANGED -- trial subject for VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON,
+# queue.md, recipe (a), status:recipe-proven): the ENTIRE chain now runs the BASE install's
+# pythonw.exe (system pythonw), never backtest\.venv\Scripts\pythonw.exe. Root cause
+# (PANDAS-CONSOLE-LEAK-ROOT-CAUSE, closed 2026-09-03): backtest\.venv\Scripts\pythonw.exe
+# is CPython's venvwlauncher redirector, but backtest\.venv\pyvenv.cfg records only
+# `executable=...\python.exe` (no GUI-variant path) -- EVERY venv pythonw launch re-execs
+# the base install's CONSOLE python.exe internally, which spawns a console-host window
+# (conhost.exe / WindowsTerminal.exe -Embedding) per fire, and CREATE_NO_WINDOW passed to
+# the OUTER launch does NOT survive that internal re-exec (live-verified 2026-09-03: WMI
+# process-tree showed a python.exe + conhost.exe descendant pair even with the outer
+# subprocess.Popen call passing creationflags=CREATE_NO_WINDOW; the base install's own
+# pythonw.exe launched identically produced zero console-relevant descendants).
+# Fix: launch the BASE pythonw.exe directly and activate the venv via environment instead
+# of via the venv's own launcher stub -- VIRTUAL_ENV + PYTHONPATH=<venv>\Lib\site-packages,
+# injected through run_cmd_hidden.py's existing --env flag. PATH is deliberately NOT
+# touched: fee_recalibrate.py's only go_live_gate usage is module-level constants
+# (TRADES_ENRICHED, SECRETS_PATH, ACTIVE_ARMS) -- it never calls go_live_gate._run_pytest
+# or spawns BACKTEST_PY, so no PATH-relative interpreter lookup is in this script's path.
+# Verified live 2026-09-03 (both the manual recipe AND the registered task via
+# Start-ScheduledTask): `python.__file__`/`pandas.__file__` resolve into
+# backtest\.venv\Lib\site-packages (not the base install, which has no pandas installed at
+# all -- ModuleNotFoundError confirmed, ruling out ambiguous resolution), zero
+# console-host descendants observed via live Win32_Process inspection, rc=0,
+# fee-calibration.json mtime advanced with a correct roster.
 #   wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
-#     -- backtest-venv pythonw -> fee_recalibrate.py
+#     --env VIRTUAL_ENV=<venv> --env PYTHONPATH=<venv>\Lib\site-packages
+#     -- system pythonw -> fee_recalibrate.py
+#
+# NOT rolled to any other install script tonight (queue item explicitly scopes the trial
+# to this ONE non-trading task; a repo-wide roll is a separate future pass with the leak
+# detector as the oracle). Pinned by
+# backtest/tests/test_venv_launch_recipe_2026_09_03.py.
 #
 # Output: automation/state/fee-calibration.json (this script's own health surface; nothing
 # on the trading path reads this file). Guard: backtest/tests/test_fee_recalibrate_2026_09_03.py.
@@ -35,6 +62,8 @@ $repo         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $repo "setup\scripts\run_exe_hidden.vbs"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $pywVenv      = Join-Path $repo "backtest\.venv\Scripts\pythonw.exe"
+$venvDir      = Join-Path $repo "backtest\.venv"
+$venvSitePkgs = Join-Path $repo "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $repo "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $repo "setup\scripts\fee_recalibrate.py"
 $taskName     = "Gamma_FeeRecalibrate"
@@ -47,7 +76,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $sysPythonw, $pywVenv, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $pywVenv, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -55,7 +84,11 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$repo`" -- `"$pywVenv`" `"$script`""
+# 2026-09-03: inner target changed from $pywVenv to $sysPythonw (base install pythonw),
+# venv activated via --env instead -- see WIRING comment above (VENV-PYTHONW-REDIRECTS-
+# TO-CONSOLE-PYTHON recipe (a) trial). PATH is intentionally not injected -- see comment.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$repo`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $repo
 
