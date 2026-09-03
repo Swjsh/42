@@ -653,6 +653,13 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
   strike independently. **This makes the question OPEN again; it does not make the answer yes** —
   the tax edge still has to beat a thinner book. Sample:
   `analysis/xsp/xsp-rth-spread-sample-2026-09-02.json`.
+  🔔 **RECORDER BUILT + REGISTERED 2026-09-03 02:40 ET (Sonnet, Fable-specced).** `setup/scripts/xsp_spread_recorder.py` resolves each
+  side's ATM strike independently every 5 min (SPY equity spot; XSP spot via put-call parity on its own 0DTE chain, labelled per
+  row — TV CDP deliberately not used so J's chart is never switched) and appends to `analysis/xsp/xsp-spread-tape-<date>.jsonl`;
+  `--summarize --days N` reads the study back (median/p90 spread and 3-lot round-trip cost per side, depth medians, % of samples
+  with XSP depth < 3 lots). Registered `Gamma_XspSpreadRecorder` (every 5 min 09:35–15:55 ET; self-gates outside RTH). Real dry
+  run proved auth + both quote endpoints live; market was closed so the row correctly reads `MISSING_*`, never fabricated. 25 tests,
+  3 mutations RED-proofed. **The measurement is now running; the verdict moves after 3+ RTH sessions of tape, not before.**
   **Data notes for whoever runs it:** XSP historical 1-min bars ARE retrievable (verified 07-31 and
   08-19, three strikes) so the battery can use REAL quotes, not sim. Two traps: `/v2/options/contracts`
   lists only the CURRENT expiry for XSP, so historical symbols must be *constructed*, not enumerated;
