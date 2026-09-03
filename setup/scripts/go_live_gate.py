@@ -79,6 +79,12 @@ for _p in (SCRIPTS_DIR,):
 
 from et_clock import et_now, ET_TZ  # noqa: E402
 import trades_enriched as te_producer  # noqa: E402 -- TRADES-ENRICHED-HAS-NO-SCHEDULED-PRODUCER refresh
+import futures_go_live_gate  # noqa: E402 -- ADDITIVE futures block (queue.md
+# FUTURES-ABSENT-FROM-GO-LIVE-GATE, 2026-09-03). Its output attaches under report["futures"],
+# a SIBLING key to report["criteria"] -- never merged into `criteria`/`groups`, so it
+# structurally cannot change `overall_verdict` (see build_report() below and that module's
+# own docstring). The call is wrapped in try/except there too: a bug in the futures module
+# can never crash or alter the SPY gate.
 
 TRADES_ENRICHED = REPO / "analysis" / "trades-enriched.jsonl"
 CORE_DECISIONS_PATH = REPO / "automation" / "state" / "core-decisions.jsonl"
@@ -1127,7 +1133,24 @@ def build_report(trades_enriched_refresh: dict | None = None) -> dict:
         # ADDITIVE, backward-compatible (TASK B3-monitors, 2026-09-01) -- disclosure only,
         # never gates overall_verdict. See regime_coverage_block's own docstring.
         "regime_coverage": regime_coverage_block(),
+        # ADDITIVE, backward-compatible (queue.md FUTURES-ABSENT-FROM-GO-LIVE-GATE,
+        # 2026-09-03) -- a SIBLING key to "criteria" above, never inside it, so it cannot
+        # touch `overall` (computed above from `groups` alone, before this key exists).
+        # Wrapped fail-open: a bug in the futures module must never crash or change the
+        # SPY-only report.
+        "futures": _futures_block_fail_open(),
     }
+
+
+def _futures_block_fail_open() -> dict:
+    try:
+        return futures_go_live_gate.futures_block()
+    except Exception as e:  # noqa: BLE001 -- reporting-only instrument, fail-open always
+        return {
+            "lane_verdict": "INSUFFICIENT",
+            "error": f"{type(e).__name__}: {e}",
+            "note": "futures_go_live_gate.futures_block() raised -- fail-open, SPY verdict unaffected",
+        }
 
 
 # --------------------------------------------------------------------------------------- #
@@ -1266,7 +1289,16 @@ def render_human(report: dict) -> str:
                      "(SIM-ONLY, disclosure only)")
         lines.append("")
 
-    return "\n".join(lines)
+    spy_only = "\n".join(lines)
+
+    # ADDITIVE ONLY (queue.md FUTURES-ABSENT-FROM-GO-LIVE-GATE, 2026-09-03): appended AFTER
+    # the full SPY report is already finalized above -- the SPY section's text is complete
+    # and unchanged by this block's presence or absence (see
+    # test_futures_go_live_gate_2026_09_03.py's byte-identity guard).
+    futures = report.get("futures")
+    if futures and "criteria" in futures:
+        return spy_only + "\n" + futures_go_live_gate.render_futures_human(futures)
+    return spy_only
 
 
 def render_markdown(report: dict) -> str:
