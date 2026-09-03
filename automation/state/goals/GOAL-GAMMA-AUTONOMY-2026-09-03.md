@@ -87,8 +87,7 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
 - [x] A5 (VERIFIED: clause 2a edited; page regenerated + DOM-grepped + rendered in-app 0 console errors; commit 5322e780; STATUS OPEN line; memory note written) — `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no
   active goal, runs `ensure` itself before falling through. Regenerate the page, quote the
   DOM grep + screenshot, commit with one-line revert, STATUS line, memory note.
-- [ ] A6 — Next-fire verification (following session): quote the 00:10 ET conductor outcome
-  row and the page's goal card. DONE-WHEN (e).
+- [ ] A6 — FIRST GOAL-DRIVEN FIRE (the 00:10 ET conductor or any later fire; not doable interactively before then). Deliverable: run `python setup/scripts/goal_autopilot.py status --json` and quote `active_goal_id` + ladder; confirm this fire's `conductor_outcome.py record` row uses task_id `GOAL-GAMMA-AUTONOMY-2026-09-03-A6`; append the quoted status as the PROGRESS LOG line; then tick this item so the QUEUE is fully terminal and the autopilot opens GOAL-PREREG-ADJUDICATION-2026-09-03 on its next tick (quote that `ensure` output if you run it). That row + the next goal going active IS DONE-WHEN (e).
 
 ## J-DECISIONS
 - None required. Revoke = `git revert <sha>` + `Unregister-ScheduledTask Gamma_GoalAutopilot`.
@@ -104,6 +103,8 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
 - 2026-09-03 18:20 ET — OWNERSHIP: session 42-98 (Fable, the goal's opener) owns A1–A5 tonight; four Sonnet builders are in flight on disjoint files (goal_autopilot/task, learning_ledger, Autonomy tab, research goals — A4 DONE). Other sessions reaching this goal via the Stop hook: do NOT start A1–A5; A6 is the next-fire check and needs the 00:10 ET conductor outcome.
 
 - 2026-09-03 ~18:45 ET — A1–A5 DONE, commit 5322e780. Verified cold this session: goal_autopilot 36 tests + real ensure=noop + status shows 1 active/3 eligible; Gamma_GoalAutopilot Ready rc=0; learning_ledger 18 tests + real run (today tasks=64, candidates=50, commits=139; 7d preregs_adjudicated=15); Autonomy tab 86 tests, vAutonomy=2, 0 console errors, Overview strip present; quiet enforce tick left Gamma_Home Ready. Next open item = A6 (00:10 ET conductor fire must record a goal QUEUE item). Not verified: the slow graduated-guards run was still executing at commit time.
+
+- 2026-09-03 18:41 ET — Stop-hook continuation 2/3 (session 42-98): A6 is time-gated on the next conductor fire (00:10 ET); stated null, no work possible now. Reworded A6 so that fire has a concrete self-verifying deliverable (quote autopilot status, record under the A6 task_id, tick, let the autopilot open the next ladder goal).
 
 ## HONEST STATE
 A1–A5 shipped and verified (commit 5322e780). A6 is the only open item: it needs the next scheduled conductor fire (00:10 ET) to prove DONE-WHEN (e). Known soft spots: prereg verdict dates fall back to file mtime (labelled in methods); Gamma_AutofireCards still has never fired because every card is an alarm, not a read-and-report item (separate item, not this goal).
