@@ -48,11 +48,26 @@
   family, EVENING-TASK-MISSED-RUN-SWEEP, and reused verbatim by
   Gamma_Tp1R50ForwardShadow / Gamma_LadderRungShadow).
 
-  WIRING (stdlib + pandas -- pandas IS needed here, unlike tp1_r50_forward_shadow.py, because
-  this script imports backtest/tools/money_retest_entry_variant.py for the walker/retest
-  logic; cloned from a venv-pythonw recipe, not the stdlib-only base-pythonw recipe):
-    wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> run_cmd_hidden.py --cwd <repo>
-      -- backtest venv pythonw -> retest_zone_shadow.py
+  WIRING (2026-09-03 CHANGED -- VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON rollout, recipe (a),
+  proven on Gamma_FeeRecalibrate same night: pandas IS needed here (this script imports
+  backtest/tools/money_retest_entry_variant.py for the walker/retest logic), so this can't use
+  the stdlib-only base-pythonw recipe as-is -- instead it runs the BASE install's pythonw.exe
+  for BOTH hops and activates the venv via environment (VIRTUAL_ENV + PYTHONPATH=<venv>\Lib\
+  site-packages, injected through run_cmd_hidden.py's --env flag) rather than via the venv's
+  own launcher stub. Root cause (PANDAS-CONSOLE-LEAK-ROOT-CAUSE, closed 2026-09-03):
+  backtest\.venv\Scripts\pythonw.exe is CPython's venvwlauncher redirector, but
+  backtest\.venv\pyvenv.cfg records only executable=...\python.exe (no GUI-variant path) --
+  EVERY venv-pythonw launch re-execs the base install's CONSOLE python.exe internally, which
+  spawns a console-host window (conhost.exe / WindowsTerminal.exe -Embedding) per fire, and
+  CREATE_NO_WINDOW on the outer launch does not survive that internal re-exec. Verified live
+  2026-09-03 on Gamma_RetestZoneShadow itself (both hops now $sysPythonw): summary.json
+  generated_at_et advanced, zero new window-leaks.jsonl rows for the fire, pandas resolved
+  into backtest\.venv\Lib\site-packages. Was previously BOTH hops venv pythonw (the leaking
+  recipe); PATH is deliberately not injected -- retest_zone_shadow.py's go_live_gate usage (if
+  any) is module-level constants only, same scope limit as install-fee-recalibrate.ps1.
+    wscript -> run_exe_hidden.vbs -> base pythonw -> run_cmd_hidden.py --cwd <repo>
+      --env VIRTUAL_ENV=<venv> --env PYTHONPATH=<venv>\Lib\site-packages
+      -- base pythonw -> retest_zone_shadow.py
 
   Output:
     analysis/recommendations/retest-zone-shadow-ledger.jsonl   append-only, dedup on
@@ -69,8 +84,8 @@
   this task (analysis-only leaf, same class as Gamma_LadderRungShadow /
   Gamma_Tp1R50ForwardShadow).
 
-  ⛔ NOT RUN BY THE AUTHORING SESSION. Per this build's hard constraints, this installer is
-  written and left for a session with Register-ScheduledTask authority to execute.
+  Originally written and left unrun for a session with Register-ScheduledTask authority; the
+  2026-09-03 recipe-(a) rewrite (this version) was installed and live-verified by that session.
 #>
 
 [CmdletBinding()] param([switch]$Uninstall)
@@ -78,7 +93,9 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$venvDir      = Join-Path $root "backtest\.venv"
+$venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\retest_zone_shadow.py"
 $taskName     = "Gamma_RetestZoneShadow"
@@ -91,7 +108,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $venvPythonw, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -99,7 +116,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$wscriptArgs = "//nologo `"$vbs`" `"$venvPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$venvPythonw`" `"$script`""
+# 2026-09-03: both hops now $sysPythonw (base install pythonw), venv activated via --env --
+# see WIRING comment above (VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe (a) rollout).
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

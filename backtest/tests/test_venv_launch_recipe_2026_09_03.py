@@ -16,7 +16,7 @@ python.exe + conhost.exe descendant pair -- CREATE_NO_WINDOW does not survive th
 internal re-exec. The base install's own pythonw.exe launched identically (same flag,
 same script) produced zero console-relevant descendants.
 
-RECIPE (a), TRIALED on Gamma_FeeRecalibrate ONLY (queue item explicitly scopes the trial
+RECIPE (a), FIRST TRIALED on Gamma_FeeRecalibrate (queue item originally scoped the trial
 to one non-trading task): launch the BASE install's pythonw.exe directly and activate the
 venv via environment (``VIRTUAL_ENV`` + ``PYTHONPATH=<venv>\\Lib\\site-packages``,
 injected through ``run_cmd_hidden.py``'s existing ``--env`` flag) instead of via the
@@ -29,15 +29,30 @@ rc=0 both as a bare probe and as the real scheduled-task fire (``LastTaskResult=
 ``automation/state/fee-calibration.json``'s mtime + ``as_of`` advanced with a correct
 roster and no fetch errors.
 
+ROLLED OUT (same night, same recipe, each independently live-verified) to
+Gamma_RetestZoneShadow and Gamma_StructureClassifierShadow -- both were freshly pointed at
+``backtest\\.venv\\Scripts\\pythonw.exe`` earlier that evening (to fix a pandas
+ModuleNotFoundError under system pythonw) and so were carrying the exact leaking recipe
+this fix targets. Each was re-registered and fired via ``Start-ScheduledTask``: script
+output advanced (summary.json ``generated_at_et``), zero new ``window-leaks.jsonl`` rows,
+pandas resolved into the venv (216 trades / self-check pass respectively), Export-
+ScheduledTask diff showed only the ``Actions`` block changed (triggers untouched). See
+``ROLLED_OUT`` below.
+
 WHAT THIS TEST GUARDS
 ----------------------
-Static content of ``setup/scripts/install-fee-recalibrate.ps1`` -- NOT a live process
-launch (that's the diagnostic probe done by hand this session, not something to
-re-run on every pytest invocation). Pins the recipe so a future edit can't silently
-regress it back to launching ``.venv\\Scripts\\pythonw.exe`` directly. This is the ONLY
-install script this pin applies to -- the queue item explicitly says NOT to roll this
-recipe to other install scripts in the same pass; a repo-wide roll is separate future
-work with the leak detector as the oracle.
+Static content of the install scripts named in ``ROLLED_OUT`` -- NOT a live process
+launch (that's the diagnostic probe done by hand each time this set grows, not something
+to re-run on every pytest invocation). Pins the recipe so a future edit can't silently
+regress any of them back to launching ``.venv\\Scripts\\pythonw.exe`` directly, AND
+catches an install script picking up the same pattern without having been through that
+live verification (and added to ``ROLLED_OUT`` by name). The much larger population of
+pre-existing venv-pythonw install scripts (60+, enumerated via grep in the same pass that
+authored ``ROLLED_OUT``) was deliberately NOT converted -- per-file structure is
+heterogeneous (varying variable names, some multi-hop, several futures/broker-adjacent)
+and converting all of them in one sweep would violate the "smallest diffs, one installer
+at a time, verify each" discipline. That is follow-up work, with the leak detector as the
+oracle, same as this pass.
 """
 from __future__ import annotations
 
@@ -45,6 +60,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 INSTALL_SCRIPT = REPO / "setup" / "scripts" / "install-fee-recalibrate.ps1"
+
+ROLLED_OUT = {
+    "install-fee-recalibrate.ps1",  # setup/scripts/ -- original recipe-(a) proof, 2026-09-03
+    "install-retest-zone-shadow.ps1",  # setup/ -- rolled + live-verified 2026-09-03
+    "install-structure-classifier-shadow.ps1",  # setup/ -- rolled + live-verified 2026-09-03
+}
 
 
 def _text() -> str:
@@ -125,25 +146,37 @@ def test_path_env_var_is_not_injected():
 
 
 def test_not_rolled_to_other_install_scripts():
-    """The queue item explicitly scopes this trial to Gamma_FeeRecalibrate only --
-    a sibling install script picking up the same $sysPythonw-as-inner-target pattern
-    independently (not via a shared helper) would mean the roll happened without the
-    explicit after-hours pass + leak-detector-oracle step the item calls for."""
-    scripts_dir = REPO / "setup" / "scripts"
-    siblings = [
-        p for p in scripts_dir.glob("install-*.ps1")
-        if p.name not in ("install-fee-recalibrate.ps1",)
-    ]
+    """Recipe (a) is scoped to the ROLLED_OUT set above -- each entry was individually
+    live-verified (script ran, zero new window-leaks.jsonl rows, pandas resolved) before
+    being added here. A sibling install script picking up the same $sysPythonw-as-inner-
+    target + --env PYTHONPATH pattern WITHOUT going through that verification (and without
+    being added to ROLLED_OUT by the session that did it) is a silent, unverified roll --
+    catch it here rather than letting it drift in unnoticed."""
     offenders = []
-    for p in siblings:
-        try:
-            t = p.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        if "--env PYTHONPATH=" in t and "venvSitePkgs" in t:
-            offenders.append(p.name)
+    for scripts_dir in (REPO / "setup", REPO / "setup" / "scripts"):
+        for p in scripts_dir.glob("install-*.ps1"):
+            if p.name in ROLLED_OUT:
+                continue
+            try:
+                t = p.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            if "--env PYTHONPATH=" in t and "venvSitePkgs" in t:
+                offenders.append(p.name)
     assert not offenders, (
-        f"recipe (a) appears to have been rolled to other install scripts already: "
-        f"{offenders} -- queue item VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON scoped "
-        f"the trial to Gamma_FeeRecalibrate only for this pass"
+        f"recipe (a) appears to have been rolled to install scripts not in ROLLED_OUT: "
+        f"{offenders} -- either this is a genuine, verified roll (add the name to "
+        f"ROLLED_OUT above, with a comment citing the live verification), or it's an "
+        f"accidental/unverified pickup that should be reverted"
     )
+
+
+def test_rolled_out_scripts_all_exist():
+    """Every name in ROLLED_OUT must correspond to a real install script -- a stale entry
+    (e.g. after a rename) would silently widen the allowlist without protecting anything."""
+    missing = []
+    for name in ROLLED_OUT:
+        found = list((REPO / "setup").glob(name)) + list((REPO / "setup" / "scripts").glob(name))
+        if not found:
+            missing.append(name)
+    assert not missing, f"ROLLED_OUT names with no matching install script: {missing}"

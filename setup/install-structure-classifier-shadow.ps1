@@ -61,11 +61,25 @@
   LastTaskResult still read 0 because run_exe_hidden.vbs's `shell.Run(cmd, 0, False)` is
   fire-and-forget (bWaitOnReturn=False) -- it reports wscript's own successful LAUNCH, not
   the eventual child exit code, so the real failure was invisible to LastTaskResult and
-  only showed up as a stale summary mtime. WIRING is now repointed at the backtest venv
-  pythonw (already used by every pandas-dependent sibling shadow, e.g.
-  install-retest-zone-shadow.ps1), which does have pandas:
-    wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> run_cmd_hidden.py --cwd <repo>
-      -- backtest venv pythonw -> structure_classifier_shadow.py
+  only showed up as a stale summary mtime. WIRING was then repointed at the backtest venv
+  pythonw (matching every other pandas-dependent sibling shadow at the time).
+
+  ⛔ 2026-09-03 SECOND CORRECTION (VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON rollout, recipe
+  (a), proven same night on Gamma_FeeRecalibrate + Gamma_RetestZoneShadow): the venv-pythonw
+  fix above was correct for pandas but wrong for window leaks -- backtest\.venv\Scripts\
+  pythonw.exe is CPython's venvwlauncher redirector, and backtest\.venv\pyvenv.cfg records
+  only executable=...\python.exe (no GUI-variant path), so EVERY venv-pythonw launch re-execs
+  the base install's CONSOLE python.exe internally, spawning a console-host window per fire
+  (CREATE_NO_WINDOW on the outer launch does not survive the internal re-exec). Repointed
+  again: both hops now run the BASE install's pythonw.exe, with the venv activated via
+  environment (VIRTUAL_ENV + PYTHONPATH=<venv>\Lib\site-packages, via run_cmd_hidden.py's
+  --env flag) instead of via the venv's own launcher stub -- same recipe as
+  install-retest-zone-shadow.ps1 / install-fee-recalibrate.ps1. PATH is not injected (same
+  scope limit as those two: this script's go_live_gate-adjacent imports, if any, are
+  module-level constants only).
+    wscript -> run_exe_hidden.vbs -> base pythonw -> run_cmd_hidden.py --cwd <repo>
+      --env VIRTUAL_ENV=<venv> --env PYTHONPATH=<venv>\Lib\site-packages
+      -- base pythonw -> structure_classifier_shadow.py
 
   NOTE: editing this installer file alone does NOT change the currently-registered
   scheduled task -- Get-ScheduledTask reads the live registration, not this script. Re-run
@@ -97,10 +111,12 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-# 2026-09-03 CORRECTION: was $sysPythonw (system Python313, no pandas) -- repointed at the
-# backtest venv pythonw, matching every other pandas-dependent sibling shadow task (e.g.
-# install-retest-zone-shadow.ps1). See the .DESCRIPTION correction note above for why.
-$venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+# 2026-09-03 SECOND CORRECTION: was $venvPythonw (backtest\.venv\Scripts\pythonw.exe) --
+# repointed at base pythonw + venv-via-env, matching install-retest-zone-shadow.ps1 /
+# install-fee-recalibrate.ps1. See the .DESCRIPTION correction note above for why.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$venvDir      = Join-Path $root "backtest\.venv"
+$venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\structure_classifier_shadow.py"
 $taskName     = "Gamma_StructureClassifierShadow"
@@ -113,7 +129,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $venvPythonw, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -121,7 +137,10 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$wscriptArgs = "//nologo `"$vbs`" `"$venvPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$venvPythonw`" `"$script`""
+# 2026-09-03: both hops now $sysPythonw (base install pythonw), venv activated via --env --
+# see .DESCRIPTION SECOND CORRECTION above (VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe (a)).
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" " + `
+    "--env VIRTUAL_ENV=`"$venvDir`" --env PYTHONPATH=`"$venvSitePkgs`" -- `"$sysPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
