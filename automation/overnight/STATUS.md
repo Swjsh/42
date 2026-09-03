@@ -1,3 +1,32 @@
+## [2026-09-03T00:05 ET] conductor AFTERHOURS: prereg_hygiene aggregator-mention bug fixed -- 11 false "already run" matches, 3 of them exact-opposite-of-true
+
+**Found while trying to pick up PREREG-BACKLOG-ADJUDICATION's "3 RUNs outstanding".** Checked
+`prereg-recency-qty-clamp-2026-08-11.json` before spending compute re-running it -- it was
+ALREADY RUN 2026-08-11T22:45 ET (verdict FAIL G1/G2/G3, clamp STAYS, +$876 protective in
+August). Its own `status` field just never said so, and today's adjudication trusted the
+status field over checking for a results file. That near-miss (almost re-ran a study that
+already had an answer, same class as the PDT counterfactual re-run earlier tonight) led to
+the real bug: `setup/scripts/prereg_hygiene.py`'s `by_named_prereg` reconciliation matcher
+treats ANY file mentioning a prereg's filename in prose as that prereg's "result" --
+`analysis/deep-research/2026-09-01-audit/findings.json` (a 633KB multi-topic audit write-up)
+was matched as the "result" for **11 unrelated preregs**, three of which carry an EXPLICIT
+"deliberately NOT run" / "CANDIDATE ONLY, nothing armed" status in their own text. Fixed with
+`_drop_aggregator_mentions`: a candidate result filename mentioned by >=3 distinct preregs is
+a report, not a result, and is pruned; a genuine 2-way shared study survives untouched.
+`n_has_results_file` 105 -> 94, reconciliation candidates 34 -> 27. 6 new guard tests,
+RED-proofed via `git stash` (6/6 fail on the missing function + 2 live regressions; 6/6 pass
+restored). Curated safety gate 59/59 PASS both commits. No frozen trading-path file touched.
+
+**Also reconciled the two status fields directly** (recency-qty-clamp: RUN_COMPLETE, clamp
+STAYS; pdt-blocked-counterfactual: RUN_COMPLETE TWICE with a magnitude discrepancy between
+the 08-11 and 09-02 runs on the identical cohort -- addended to the already-open
+WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY item as a third instance, not silently picked). Net
+effect for the next adjudication pass: PREREG-BACKLOG-ADJUDICATION's "3 RUNs outstanding" is
+actually 2 (`prereg-runner-finite-tgt-candidate-2026-08-06`,
+`profit-lock-arm-scope-prereg-2026-08-06`) -- recency-qty-clamp was already answered.
+
+**Revoke:** `git revert 29b2ce67 4a14388d`.
+
 ## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-29..2026-09-01), real OPRA fills, floor n>=10
 
 > **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
@@ -31,6 +60,8 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+- [2026-09-03T00:03:45 ET] MCP_AUDIT_RED: Alpaca Safe and Bold both 401 Unauthorized (credential rejection). TradingView CDP OK. **BLOCKER:** Live trading requires valid Alpaca auth. Check API key freshness or re-run MCP servers before market open.
 
 - [2026-09-02T23:56 ET] first-live-day box CLOSED -- verdict GREEN 6/6, one instrument defect fixed on the way -- REVOKE surface
 
@@ -464,4 +495,4 @@ trendline and staleness.
 
 
 ## Kitchen
-Kitchen: alive, queue 48 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
