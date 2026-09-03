@@ -233,7 +233,10 @@ class TestFrozenConstantsMatchPrereg:
     def test_prereg_frozen_before_scorecard(self):
         assert PREREG.exists(), "prereg must exist"
         prereg = json.loads(PREREG.read_text(encoding="utf-8"))
-        assert prereg["status"] == "PRE-REGISTERED"
+        # 2026-09-03: prereg_hygiene status write-back moves a prereg to a terminal
+        # RUN_COMPLETE* status once its result file exists (commit a07ae7e3). The
+        # frozen-before-scorecard property is the pinned rule set below, not the label.
+        assert prereg["status"] == "PRE-REGISTERED" or prereg["status"].startswith("RUN_COMPLETE"), prereg["status"]
         assert set(prereg["candidate_rules"].keys()) == {"_doc", "A_tier_bar", "B_time_of_day_cutoff", "C_level_anchored"}
         assert "G10_material_fallback_fires_NEW" in prereg["pre_registered_ship_conditions"]
 
