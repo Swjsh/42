@@ -1,0 +1,335 @@
+{
+  "queue_item": "FLEET-STALE-SIGNAL-SKIPS-STRUCTURE-STOP",
+  "generated_at": "2026-09-03T05:56:39-04:00",
+  "generated_by": "Sonnet, report-only fire",
+  "claim_verified": "automation/state/fleet/fleet_live.py: usable_signal collapses to None (and last_closed_5m_close threaded to exit_actuator.manage_tick / exit_manager.plan_exit_actions becomes None) whenever _load_signal (line ~112-121) finds the shared-signal feed missing or older than SIGNAL_MAX_AGE_SEC=420s (line 63). exit_manager.plan_exit_actions (line ~520-534) consults last_closed_5m_close ONLY inside the `state.stop_mode == \"structure\"` branch -- when None, that ONE branch is skipped (falls through); premium/catastrophe stop (a2, line ~544), time stop (b, line ~575), and ribbon-flip-back (c, line ~589) all still evaluate unconditionally on the same tick. Confirmed TRUE as stated.",
+  "extractor": "backtest/tools/fleet_stale_signal_skip_extract.py",
+  "extractor_test": "backtest/tests/test_fleet_stale_signal_skip_extract.py (7/7 pass, includes an end-to-end assertion against the real repo window)",
+  "window_result": {
+    "window": [
+      "2026-08-25",
+      "2026-09-02"
+    ],
+    "arms": {
+      "safe-1": {
+        "decisions_path": "automation\\state\\fleet\\safe-1\\decisions.jsonl",
+        "per_day": {},
+        "stale_age_sec_all": [],
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position_DISTINCT_MECHANISM": 0,
+        "structure_stop_exits_in_window": [],
+        "structure_stop_exits_delayed_by_stale_skip": [],
+        "classification": "NEVER-FIRED"
+      },
+      "safe-3": {
+        "decisions_path": "automation\\state\\fleet\\safe-3\\decisions.jsonl",
+        "per_day": {
+          "2026-08-25": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 8,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-26": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 3,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-27": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 6,
+            "unreadable_with_open_position": 3
+          },
+          "2026-08-28": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 6,
+            "unreadable_with_open_position": 1
+          },
+          "2026-08-31": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 0,
+            "unreadable_with_open_position": 0
+          },
+          "2026-09-01": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 12,
+            "unreadable_with_open_position": 0
+          },
+          "2026-09-02": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 3,
+            "unreadable_with_open_position": 2
+          }
+        },
+        "stale_age_sec_all": [],
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position_DISTINCT_MECHANISM": 6,
+        "structure_stop_exits_in_window": [
+          {
+            "date": "2026-08-25",
+            "symbol": "SPY260825C00765000",
+            "exit_ts_et": "2026-08-25T13:27:06.584802",
+            "pnl_dollars": -60.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00765000",
+            "exit_ts_et": "2026-09-02T12:27:06.922109",
+            "pnl_dollars": -48.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00765000",
+            "exit_ts_et": "2026-09-02T13:13:06.891342",
+            "pnl_dollars": -66.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00766000",
+            "exit_ts_et": "2026-09-02T11:52:07.319551",
+            "pnl_dollars": -90.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00766000",
+            "exit_ts_et": "2026-09-02T14:32:06.876590",
+            "pnl_dollars": -9.0,
+            "preceded_by_stale_skip": false
+          }
+        ],
+        "structure_stop_exits_delayed_by_stale_skip": [],
+        "classification": "NEVER-FIRED"
+      },
+      "risky-1": {
+        "decisions_path": "automation\\state\\fleet\\risky-1\\decisions.jsonl",
+        "per_day": {
+          "2026-08-25": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 8,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-26": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 3,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-27": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 6,
+            "unreadable_with_open_position": 3
+          },
+          "2026-08-28": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 6,
+            "unreadable_with_open_position": 1
+          },
+          "2026-08-31": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 0,
+            "unreadable_with_open_position": 0
+          },
+          "2026-09-01": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 12,
+            "unreadable_with_open_position": 0
+          },
+          "2026-09-02": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 3,
+            "unreadable_with_open_position": 2
+          }
+        },
+        "stale_age_sec_all": [],
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position_DISTINCT_MECHANISM": 6,
+        "structure_stop_exits_in_window": [
+          {
+            "date": "2026-08-25",
+            "symbol": "SPY260825C00765000",
+            "exit_ts_et": "2026-08-25T13:27:07.790721",
+            "pnl_dollars": -100.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00765000",
+            "exit_ts_et": "2026-09-02T12:27:08.213306",
+            "pnl_dollars": -80.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00765000",
+            "exit_ts_et": "2026-09-02T13:13:07.954935",
+            "pnl_dollars": -105.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00766000",
+            "exit_ts_et": "2026-09-02T11:52:08.552161",
+            "pnl_dollars": -145.0,
+            "preceded_by_stale_skip": false
+          },
+          {
+            "date": "2026-09-02",
+            "symbol": "SPY260902C00766000",
+            "exit_ts_et": "2026-09-02T14:32:08.031079",
+            "pnl_dollars": -15.0,
+            "preceded_by_stale_skip": false
+          }
+        ],
+        "structure_stop_exits_delayed_by_stale_skip": [],
+        "classification": "NEVER-FIRED"
+      },
+      "risky-3": {
+        "decisions_path": "automation\\state\\fleet\\risky-3\\decisions.jsonl",
+        "per_day": {
+          "2026-08-25": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 8,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-26": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 3,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-27": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 6,
+            "unreadable_with_open_position": 0
+          },
+          "2026-08-28": {
+            "total_ticks": 384,
+            "stale_ticks": 0,
+            "stale_with_open_position": 0,
+            "unreadable_ticks": 6,
+            "unreadable_with_open_position": 0
+          }
+        },
+        "stale_age_sec_all": [],
+        "total_stale_with_open_position": 0,
+        "total_unreadable_with_open_position_DISTINCT_MECHANISM": 0,
+        "structure_stop_exits_in_window": [],
+        "structure_stop_exits_delayed_by_stale_skip": [],
+        "classification": "NEVER-FIRED"
+      }
+    }
+  },
+  "full_history_stale_ticks_all_time": {
+    "safe-1": {
+      "decisions_row_count": 1431,
+      "first_ts_et": "2026-06-24T16:53:47.976456-04:00",
+      "last_ts_et": "2026-07-10T15:52:02.719613-04:00",
+      "stale_ticks_ever": [
+        {
+          "ts_et": "2026-06-24T16:53:47.976456-04:00",
+          "signal_status": "signal_stale_1452s",
+          "flat": true
+        },
+        {
+          "ts_et": "2026-06-26T08:14:20.646959-04:00",
+          "signal_status": "signal_stale_30920s",
+          "flat": true
+        }
+      ]
+    },
+    "safe-3": {
+      "decisions_row_count": 12298,
+      "first_ts_et": "2026-06-21T21:53:32.493267-04:00",
+      "last_ts_et": "2026-09-02T15:54:05.243051-04:00",
+      "stale_ticks_ever": [
+        {
+          "ts_et": "2026-06-24T16:53:47.976456-04:00",
+          "signal_status": "signal_stale_1452s",
+          "flat": true
+        },
+        {
+          "ts_et": "2026-06-26T08:14:20.646959-04:00",
+          "signal_status": "signal_stale_30920s",
+          "flat": true
+        }
+      ]
+    },
+    "risky-1": {
+      "decisions_row_count": 12298,
+      "first_ts_et": "2026-06-21T21:53:32.493267-04:00",
+      "last_ts_et": "2026-09-02T15:54:05.243051-04:00",
+      "stale_ticks_ever": [
+        {
+          "ts_et": "2026-06-24T16:53:47.976456-04:00",
+          "signal_status": "signal_stale_1452s",
+          "flat": true
+        },
+        {
+          "ts_et": "2026-06-26T08:14:20.646959-04:00",
+          "signal_status": "signal_stale_30920s",
+          "flat": true
+        }
+      ]
+    },
+    "risky-3": {
+      "decisions_row_count": 11146,
+      "first_ts_et": "2026-06-21T21:53:32.493267-04:00",
+      "last_ts_et": "2026-08-28T15:54:06.143486-04:00",
+      "stale_ticks_ever": [
+        {
+          "ts_et": "2026-06-24T16:53:47.976456-04:00",
+          "signal_status": "signal_stale_1452s",
+          "flat": true
+        },
+        {
+          "ts_et": "2026-06-26T08:14:20.646959-04:00",
+          "signal_status": "signal_stale_30920s",
+          "flat": true
+        }
+      ]
+    }
+  },
+  "classification_summary": {
+    "safe-1": "NEVER-FIRED",
+    "safe-3": "NEVER-FIRED",
+    "risky-1": "NEVER-FIRED",
+    "risky-3": "NEVER-FIRED"
+  },
+  "note_distinct_mechanism_signal_unreadable": "signal_unreadable (missing/corrupt shared-signal.json -- a DIFFERENT root cause than staleness, same downstream effect: usable_signal=None) occurs far more often in-window: risky-1 38 rows/18 with an open position, safe-3 38 rows/17 with an open position (risky-3 23/4, safe-1 not in window). NOT part of this queue item's claim (which names SIGNAL_MAX_AGE_SEC specifically) and NOT joined against trades-enriched.jsonl here -- flagged as a related, separately-scoped finding for a follow-up queue item, not investigated further under this report-only fire.",
+  "queue_closure": "FLEET-STALE-SIGNAL-SKIPS-STRUCTURE-STOP :: status:done (verify-only) -- NEVER-FIRED. Zero signal_stale_* ticks exist in the 2026-08-25..2026-09-02 window across all 4 fleet_rest arms (safe-1/safe-3/risky-1/risky-3); the branch has fired only twice EVER in each arm's full decisions.jsonl history (2026-06-24 16:53 ET, 2026-06-26 08:14 ET), both flat=true (no open position). All 10 structure_stop exits recorded in the window (risky-1 x5, safe-3 x5) had zero preceding stale-with-open-position ticks, so none were delayed by this branch. Recommend downgrading the 09-29 bundle item from a kill-type fix to a guard-only change: log the skip loudly (a WARN-level line + a decisions.jsonl field is already present -- signal_status carries it -- so this is a visibility/alerting gap, not a missing field) so a future occurrence with a position open is never silent. No code change proposed or made; fleet_live.py untouched (frozen, report-only per task scope)."
+}
