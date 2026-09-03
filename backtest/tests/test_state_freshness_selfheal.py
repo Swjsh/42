@@ -84,6 +84,7 @@ def _fake_audit_red(task_field="Gamma_TradeToday (every 2 min)"):
 def test_run_starts_the_mapped_task_for_a_red_entry(monkeypatch, tmp_path):
     monkeypatch.setattr(sfh, "sfa", type("M", (), {"audit": staticmethod(_fake_audit_red())}))
     monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
     monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
 
     calls = []
@@ -103,6 +104,7 @@ def test_run_starts_the_mapped_task_for_a_red_entry(monkeypatch, tmp_path):
 def test_run_skips_green_entries(monkeypatch, tmp_path):
     monkeypatch.setattr(sfh, "sfa", type("M", (), {"audit": staticmethod(_fake_audit_red())}))
     monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
     monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
 
     calls = []
@@ -120,6 +122,7 @@ def test_run_skips_unresolvable_task_never_guesses(monkeypatch, tmp_path):
     monkeypatch.setattr(sfh, "sfa", type(
         "M", (), {"audit": staticmethod(_fake_audit_red(task_field="manual"))}))
     monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
     monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
 
     calls = []
@@ -136,6 +139,7 @@ def test_run_skips_unresolvable_task_never_guesses(monkeypatch, tmp_path):
 def test_run_respects_cooldown(monkeypatch, tmp_path):
     monkeypatch.setattr(sfh, "sfa", type("M", (), {"audit": staticmethod(_fake_audit_red())}))
     monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
     monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
 
     calls = []
@@ -163,6 +167,7 @@ def test_run_dry_run_still_calls_starter_but_flags_dry_run(monkeypatch, tmp_path
     monkeypatch.setattr(sfh, "sfa", type("M", (), {"audit": staticmethod(_fake_audit_red())}))
     cooldown_path = tmp_path / "cooldown.json"
     monkeypatch.setattr(sfh, "COOLDOWN_PATH", cooldown_path)
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
     monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
 
     def fake_starter(task_name, dry_run=False):
@@ -187,6 +192,7 @@ def test_run_fails_open_when_audit_raises(monkeypatch):
 def test_run_logs_real_actions(monkeypatch, tmp_path):
     monkeypatch.setattr(sfh, "sfa", type("M", (), {"audit": staticmethod(_fake_audit_red())}))
     monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
     log_path = tmp_path / "log.jsonl"
     monkeypatch.setattr(sfh, "LOG_PATH", log_path)
 
@@ -195,6 +201,131 @@ def test_run_logs_real_actions(monkeypatch, tmp_path):
     assert log_path.exists()
     row = json.loads(log_path.read_text(encoding="utf-8").splitlines()[-1])
     assert row["n_red"] == 1
+
+
+# ---------------------------------------------------------------------------
+# SELFHEAL-VERIFY-EFFECT-AUDIT (2026-09-03): effect verification
+# ---------------------------------------------------------------------------
+# Before this fix, start_task's `ok = proc.returncode == 0` was the ONLY success signal --
+# the same C7 shape as the pre-c941567c Invoke-TvLaunchSafe blind spot: "Start-ScheduledTask
+# returned 0" was reported as success even when the mapped producer never actually wrote a
+# fresh file. Since Start-ScheduledTask returns almost immediately (long before the real
+# producer finishes), the effect can't be judged synchronously -- these tests prove the
+# deferred re-audit-on-next-pass verification both ways: healed (path left RED on the next
+# run() call) -> effect_verified=True; still RED past the grace window -> effect_verified=False.
+
+def _fake_audit_status(path_status: dict, task_field="Gamma_TradeToday (every 2 min)"):
+    """Build a fake sfa.audit() reporting the given {path: status} map."""
+    def _audit():
+        return {
+            "verdict": "RED" if any(v == "RED" for v in path_status.values()) else "GREEN",
+            "checked_at_et": "2026-07-31 01:00:00",
+            "entries": [
+                {"path": p, "status": s, "task": task_field,
+                 "reasons": [f"{p} STALE" if s == "RED" else ""]}
+                for p, s in path_status.items()
+            ],
+        }
+    return _audit
+
+
+def test_effect_verified_true_when_target_left_red_on_next_pass(monkeypatch, tmp_path):
+    """A self-heal started on pass 1; by pass 2 (a few minutes later, well within the grace
+    window) the target path is GREEN -- the force-start actually worked. Must be reported
+    effect_verified=True and the path must drop out of the pending set (no false alarm on
+    pass 3)."""
+    path = "automation/state/trade-today.json"
+    monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
+    monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
+
+    # Pass 1: RED, force-start attempted and "succeeds" (returncode 0).
+    monkeypatch.setattr(sfh, "sfa", type(
+        "M", (), {"audit": staticmethod(_fake_audit_status({path: "RED"}))}))
+    out1 = sfh.run(now=NOW, starter=lambda t, dry_run=False: {"started": True, "returncode": 0})
+    assert out1["actions"][0]["outcome"] == "start_attempted"
+    assert sfh.PENDING_PATH.exists(), "a successful start must register a pending verification"
+
+    # Pass 2 (3 min later, well within EFFECT_VERIFY_GRACE_MIN): the producer actually ran
+    # and the path is now GREEN.
+    from datetime import timedelta
+    monkeypatch.setattr(sfh, "sfa", type(
+        "M", (), {"audit": staticmethod(_fake_audit_status({path: "GREEN"}))}))
+    out2 = sfh.run(now=NOW + timedelta(minutes=3),
+                    starter=lambda t, dry_run=False: {"started": True, "returncode": 0})
+    assert out2["verify_results"] == [
+        {"path": path, "task": "Gamma_TradeToday", "effect_verified": True, "age_min": 3.0}
+    ]
+
+    # Pass 3: the pending entry must have been cleared -- no repeated verify result for it.
+    out3 = sfh.run(now=NOW + timedelta(minutes=6),
+                    starter=lambda t, dry_run=False: {"started": True, "returncode": 0})
+    assert out3["verify_results"] == []
+
+
+def test_effect_verified_false_when_target_still_red_past_grace(monkeypatch, tmp_path):
+    """The C7 case this audit item exists to catch: Start-ScheduledTask returned 0 (no
+    exception) but the mapped producer's target path is STILL RED after
+    EFFECT_VERIFY_GRACE_MIN minutes -- the self-heal ran but did not heal. Must be
+    reported effect_verified=False, loudly, not silently dropped."""
+    path = "automation/state/trade-today.json"
+    monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
+    monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
+    monkeypatch.setattr(sfh, "sfa", type(
+        "M", (), {"audit": staticmethod(_fake_audit_status({path: "RED"}))}))
+
+    sfh.run(now=NOW, starter=lambda t, dry_run=False: {"started": True, "returncode": 0})
+
+    from datetime import timedelta
+    # 15 min later (> the 10-min default grace) the path is STILL RED -- Start-ScheduledTask
+    # "succeeded" but the producer never actually refreshed the file.
+    out = sfh.run(now=NOW + timedelta(minutes=15),
+                   starter=lambda t, dry_run=False: {"started": True, "returncode": 0},
+                   cooldown_min=0)  # cooldown=0 so this call's OWN start doesn't mask the assertion
+    unresolved = [v for v in out["verify_results"] if v["path"] == path]
+    assert unresolved == [
+        {"path": path, "task": "Gamma_TradeToday", "effect_verified": False,
+         "age_min": 15.0, "reason": "still_red_after_grace"}
+    ]
+
+
+def test_effect_verified_kept_pending_within_grace_window(monkeypatch, tmp_path):
+    """A path still RED only 4 minutes after a force-start (< the 10-min grace) must NOT be
+    reported as failed yet -- it must stay in the pending set for a later pass, since the
+    producer plausibly just hasn't finished running."""
+    path = "automation/state/trade-today.json"
+    monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", tmp_path / "pending.json")
+    monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
+    monkeypatch.setattr(sfh, "sfa", type(
+        "M", (), {"audit": staticmethod(_fake_audit_status({path: "RED"}))}))
+
+    sfh.run(now=NOW, starter=lambda t, dry_run=False: {"started": True, "returncode": 0})
+
+    from datetime import timedelta
+    out = sfh.run(now=NOW + timedelta(minutes=4),
+                   starter=lambda t, dry_run=False: {"started": True, "returncode": 0},
+                   cooldown_min=999)  # long cooldown so pass 2 doesn't re-attempt/re-register
+    assert out["verify_results"] == [], (
+        "still within the grace window -- must not yet be judged a failure")
+    pending = json.loads(sfh.PENDING_PATH.read_text(encoding="utf-8"))
+    assert path in pending, "must still be tracked for a later verification pass"
+
+
+def test_effect_verification_never_touches_cooldown_or_dry_run_path(monkeypatch, tmp_path):
+    """--dry-run must never persist a pending-verification entry (mirrors the existing
+    dry-run/cooldown contract) -- a dry-run preview must have zero side effects."""
+    path = "automation/state/trade-today.json"
+    pending_path = tmp_path / "pending.json"
+    monkeypatch.setattr(sfh, "COOLDOWN_PATH", tmp_path / "cooldown.json")
+    monkeypatch.setattr(sfh, "PENDING_PATH", pending_path)
+    monkeypatch.setattr(sfh, "LOG_PATH", tmp_path / "log.jsonl")
+    monkeypatch.setattr(sfh, "sfa", type(
+        "M", (), {"audit": staticmethod(_fake_audit_status({path: "RED"}))}))
+
+    sfh.run(now=NOW, dry_run=True, starter=lambda t, dry_run=False: {"started": True, "dry_run": True})
+    assert not pending_path.exists()
 
 
 def test_real_start_task_never_raises_on_bad_binary(monkeypatch):

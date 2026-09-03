@@ -39,6 +39,24 @@ SCOPE / SAFETY
 - Every self-heal attempt (success or failure) is appended to
   ``automation/state/state-freshness-selfheal-log.jsonl`` for the audit trail.
 
+EFFECT VERIFICATION (2026-09-03, SELFHEAL-VERIFY-EFFECT-AUDIT)
+----------------------------------------------------------------
+Before this fix, ``start_task``'s ``ok = proc.returncode == 0`` was the ONLY signal of
+success -- identical in shape to the pre-c941567c ``Invoke-TvLaunchSafe`` blind spot
+(lesson ``tv-selfheal-silent-failure-2026-07-31.md``): a self-heal that reports success on
+"the repair action was invoked without throwing" rather than "the repair actually worked".
+``Start-ScheduledTask`` returns almost immediately while the real producer can take minutes
+to run and write, so the effect can't be checked synchronously the way
+``state_freshness_remediate.py`` (direct in-process invocation) does. Instead, every
+force-started task is recorded in ``automation/state/state-freshness-selfheal-pending.json``
+with its target path and start time; the NEXT ``run()`` call (this module fires every 5 min
+via ``Gamma_TvWatchdog``, so the next check is <=5 min later) re-audits that path first --
+if it left RED, ``effect_verified: true`` and it drops off the pending list; if it is still
+RED after ``EFFECT_VERIFY_GRACE_MIN`` minutes, ``effect_verified: false`` is logged loudly
+(``run-tv-watchdog.ps1`` greps for ``"effect_verified": false`` in this module's ``--json``
+output) and the entry is dropped (the normal cooldown/RED-entry loop will naturally retry it
+on the next pass if it's still RED).
+
 USAGE
 -----
     python setup/scripts/state_freshness_selfheal.py            # human summary
@@ -68,8 +86,13 @@ import state_freshness_audit as sfa  # noqa: E402
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 COOLDOWN_PATH = REPO / "automation" / "state" / "state-freshness-selfheal-cooldown.json"
+PENDING_PATH = REPO / "automation" / "state" / "state-freshness-selfheal-pending.json"
 LOG_PATH = REPO / "automation" / "state" / "state-freshness-selfheal-log.jsonl"
 DEFAULT_COOLDOWN_MIN = 20
+# How long to wait after a force-start before judging the target file still-RED as a
+# genuine self-heal failure rather than "the producer just hasn't finished yet". This
+# module runs on a 5-min cadence (Gamma_TvWatchdog), so 10 min = 2 ticks of slack.
+EFFECT_VERIFY_GRACE_MIN = 10
 
 _LEADING_IDENT_RE = re.compile(r"^[A-Za-z0-9_]+")
 
@@ -126,6 +149,51 @@ def _on_cooldown(task_name: str, cooldown: dict, now: datetime, cooldown_min: in
     return (now - last_dt) < timedelta(minutes=cooldown_min)
 
 
+def _load_pending() -> dict:
+    try:
+        return json.loads(PENDING_PATH.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 -- missing/corrupt pending state = nothing to verify, fail open
+        return {}
+
+
+def _save_pending(d: dict) -> None:
+    try:
+        PENDING_PATH.parent.mkdir(parents=True, exist_ok=True)
+        PENDING_PATH.write_text(json.dumps(d, indent=2), encoding="utf-8")
+    except Exception:  # noqa: BLE001 -- best-effort persistence, never fatal
+        pass
+
+
+def _verify_pending(pending: dict, entries_by_path: dict, now: datetime,
+                     grace_min: int) -> tuple[dict, list]:
+    """Re-check every previously force-started task's target path against the CURRENT
+    audit. A path that left RED = the self-heal's effect is confirmed. A path still RED
+    after ``grace_min`` minutes = the force-start ran (returncode 0) but did NOT actually
+    heal the producer -- exactly the C7 shape this audit item was filed to close. Entries
+    still within their grace window are kept for the next pass. Never raises."""
+    remaining: dict = {}
+    results: list = []
+    for path, info in pending.items():
+        try:
+            started_dt = datetime.strptime(str(info.get("started_at"))[:19], "%Y-%m-%dT%H:%M:%S")
+        except (TypeError, ValueError):
+            continue  # corrupt pending entry -- drop it rather than get stuck forever
+        age_min = (now - started_dt).total_seconds() / 60.0
+        cur = entries_by_path.get(path)
+        cur_status = cur.get("status") if cur else None
+        if cur_status is not None and cur_status != "RED":
+            results.append({"path": path, "task": info.get("task"),
+                             "effect_verified": True, "age_min": round(age_min, 1)})
+            continue
+        if age_min >= grace_min:
+            results.append({"path": path, "task": info.get("task"),
+                             "effect_verified": False, "age_min": round(age_min, 1),
+                             "reason": "still_red_after_grace"})
+            continue
+        remaining[path] = info  # still within grace window -- keep watching
+    return remaining, results
+
+
 def start_task(task_name: str, dry_run: bool = False) -> dict:
     """Force-start a Windows scheduled task via ``Start-ScheduledTask``.
 
@@ -149,7 +217,8 @@ def start_task(task_name: str, dry_run: bool = False) -> dict:
 
 
 def run(dry_run: bool = False, cooldown_min: int = DEFAULT_COOLDOWN_MIN,
-        now: Optional[datetime] = None, starter=start_task) -> dict:
+        now: Optional[datetime] = None, starter=start_task,
+        grace_min: int = EFFECT_VERIFY_GRACE_MIN) -> dict:
     """Audit + self-heal in one pass. NEVER raises -- any failure degrades to a
     reported ``UNKNOWN``/empty-actions result, matching ``state_freshness_audit``'s
     own fail-open contract."""
@@ -157,10 +226,20 @@ def run(dry_run: bool = False, cooldown_min: int = DEFAULT_COOLDOWN_MIN,
         rep = sfa.audit()
     except Exception as e:  # noqa: BLE001
         return {"verdict": "UNKNOWN", "reason": f"audit failed: {type(e).__name__}",
-                "n_red": 0, "actions": []}
+                "n_red": 0, "actions": [], "verify_results": []}
 
     now = now or datetime.now()
     cooldown = _load_cooldown()
+    entries_by_path = {e.get("path"): e for e in rep.get("entries", [])}
+
+    # --- effect verification: judge outcomes of self-heals started on a PRIOR pass -----
+    pending = _load_pending()
+    verify_results: list = []
+    if not dry_run:
+        pending, verify_results = _verify_pending(pending, entries_by_path, now, grace_min)
+        if verify_results:
+            _save_pending(pending)
+
     actions = []
     red_entries = [e for e in rep.get("entries", []) if e.get("status") == "RED"]
 
@@ -186,18 +265,28 @@ def run(dry_run: bool = False, cooldown_min: int = DEFAULT_COOLDOWN_MIN,
         actions.append(entry_result)
         if not dry_run:
             cooldown[task_name] = now.strftime("%Y-%m-%dT%H:%M:%S")
+            if result.get("started"):
+                # Register for effect verification on a LATER pass -- Start-ScheduledTask
+                # returns almost immediately, long before the producer has actually run and
+                # written, so the effect cannot be judged in THIS pass (see module docstring).
+                pending[e.get("path")] = {
+                    "task": task_name, "started_at": now.strftime("%Y-%m-%dT%H:%M:%S"),
+                }
 
     if actions and not dry_run:
         _save_cooldown(cooldown)
+    if not dry_run:
+        _save_pending(pending)
 
     out = {
         "verdict": rep.get("verdict"),
         "checked_at_et": rep.get("checked_at_et"),
         "n_red": len(red_entries),
         "actions": actions,
+        "verify_results": verify_results,
     }
 
-    if actions:
+    if actions or verify_results:
         try:
             LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
             with LOG_PATH.open("a", encoding="utf-8") as f:
@@ -220,9 +309,13 @@ def main(argv: Optional[list] = None) -> int:
         print(json.dumps(out, indent=2))
     else:
         print(f"verdict={out.get('verdict')} n_red={out.get('n_red')} "
-              f"actions={len(out.get('actions', []))}")
+              f"actions={len(out.get('actions', []))} "
+              f"verify_results={len(out.get('verify_results', []))}")
         for a in out.get("actions", []):
             print(f"  {a.get('path')}: {a.get('outcome')} -> {a.get('resolved_task')}")
+        for v in out.get("verify_results", []):
+            print(f"  VERIFY {v.get('path')}: effect_verified={v.get('effect_verified')} "
+                  f"task={v.get('task')} age_min={v.get('age_min')}")
     return 0
 
 

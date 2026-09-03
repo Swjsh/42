@@ -195,3 +195,94 @@ def test_bite_concurrent_unrelated_callers_do_not_race_on_isolated_locks(tmp_pat
         assert log_file.exists(), f"lane {i} dummy refresh never ran: {combined!r}"
         assert f"dummy-refresh-ran-{i}" in log_file.read_text(encoding="utf-8")
         assert not lock_file.exists(), f"lane {i} lock not cleaned up"
+
+
+# --- SELFHEAL-VERIFY-EFFECT-AUDIT (2026-09-03) -----------------------------------------
+# Before this fix, `skipped=$false` meant only "the relaunch call ran and exited" --
+# identical shape to the pre-c941567c Invoke-TvLaunchSafe blind spot (lesson
+# tv-selfheal-silent-failure-2026-07-31.md): nothing checked whether key-levels.json's
+# mtime actually advanced. These tests prove the new -TargetFile effect check both ways:
+# a dummy script that touches the target -> effect_verified=True; one that does NOT ->
+# effect_verified=False. Same tmp_path-isolated -LockFile precedent as above, plus a new
+# -TargetFile override so this never touches the real production key-levels.json.
+
+def test_shared_effect_verification_present():
+    """Text-assertion companion to the behavioral tests below -- pins the shape of the
+    fix so a future edit can't silently drop the effect check while leaving the -TargetFile
+    param (which would make the text tests below misleadingly still pass)."""
+    src = SHARED.read_text(encoding="utf-8")
+    fn_body = src.split("function Invoke-LevelRefreshSafe", 1)[1]
+    assert re.search(r"\[string\]\$TargetFile\s*=", fn_body), (
+        "Invoke-LevelRefreshSafe must accept an optional -TargetFile override for effect "
+        "verification (same precedent as -LockFile)")
+    assert '$TargetFile = (Join-Path $WorkDir "automation\\state\\key-levels.json")' in fn_body, (
+        "the -TargetFile default must resolve to the real production key-levels.json path")
+    assert "effect_verified" in fn_body, (
+        "Invoke-LevelRefreshSafe must return an effect_verified field -- returning only "
+        "skipped/killed_pids is the exact silent-success-is-failure shape this audit closed")
+    assert "LastWriteTimeUtc" in fn_body, (
+        "effect check must compare the target file's mtime before vs after the relaunch call")
+
+
+def _run_invoke_level_refresh_safe_with_target(dummy_script: Path, log_file: Path,
+                                                 lock_file: Path, target_file: Path):
+    ps_cmd = (
+        f". '{SHARED}'; "
+        f"$r = Invoke-LevelRefreshSafe -Script '{dummy_script}' -LogFile '{log_file}' "
+        f"-LockFile '{lock_file}' -TargetFile '{target_file}'; "
+        f"Write-Output \"SKIPPED=$($r.skipped)\"; "
+        f"Write-Output \"EFFECT_VERIFIED=$($r.effect_verified)\"; "
+        f"Write-Output \"DELTA=$($r.mtime_delta_sec)\""
+    )
+    proc = subprocess.run(
+        ["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", ps_cmd],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=30,
+    )
+    return proc.stdout + proc.stderr
+
+
+def test_effect_verified_true_when_target_file_actually_refreshed(tmp_path):
+    """MUTATION-1 target: a dummy refresh script that WRITES the target file (the healthy
+    case -- the self-heal actually worked) must report effect_verified=True. If the
+    before/after mtime comparison were deleted or inverted, this would go False instead."""
+    target_file = tmp_path / "key-levels.json"
+    target_file.write_text('{"as_of": "stale"}', encoding="utf-8")
+    import time as _time
+    _time.sleep(0.05)  # ensure the dummy script's write lands at a strictly later mtime
+
+    dummy_script = tmp_path / "dummy_refresh_touches.ps1"
+    dummy_script.write_text(
+        f"Set-Content -Path '{target_file}' -Value '{{\"as_of\": \"fresh\"}}' -Encoding utf8\n"
+        "Write-Output 'dummy-refresh-touched-target'\n",
+        encoding="utf-8",
+    )
+    log_file = tmp_path / "dummy.log"
+    lock_file = tmp_path / "level-refresh-watchdog.lock"
+
+    result = _run_invoke_level_refresh_safe_with_target(dummy_script, log_file, lock_file, target_file)
+    assert "SKIPPED=False" in result, result
+    assert "EFFECT_VERIFIED=True" in result, (
+        f"target file WAS refreshed by the dummy script but effect_verified came back "
+        f"non-True: {result!r}")
+
+
+def test_effect_verified_false_when_target_file_not_touched(tmp_path):
+    """MUTATION-2 target: the C7 case this audit item exists to catch -- the relaunch
+    script runs and exits cleanly (no exception, so the OLD code would have reported
+    success) but never actually refreshes the target file. Must report
+    effect_verified=False, not True/silently-missing."""
+    target_file = tmp_path / "key-levels.json"
+    target_file.write_text('{"as_of": "stale"}', encoding="utf-8")
+    stale_mtime_before = target_file.stat().st_mtime
+
+    dummy_script = tmp_path / "dummy_refresh_noop.ps1"
+    dummy_script.write_text("Write-Output 'dummy-refresh-ran-but-touched-nothing'\n", encoding="utf-8")
+    log_file = tmp_path / "dummy.log"
+    lock_file = tmp_path / "level-refresh-watchdog.lock"
+
+    result = _run_invoke_level_refresh_safe_with_target(dummy_script, log_file, lock_file, target_file)
+    assert "SKIPPED=False" in result, result
+    assert "EFFECT_VERIFIED=False" in result, (
+        f"target file was NOT touched by the dummy script (silent no-op relaunch, the "
+        f"exact incident shape) but effect_verified did not come back False: {result!r}")
+    assert target_file.stat().st_mtime == stale_mtime_before, "sanity: target truly untouched"

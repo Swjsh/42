@@ -1035,16 +1035,28 @@ function Invoke-LevelRefreshSafe {
     # race against ANY other concurrent invocation (a paired/parallel test run, another
     # worktree's pytest, or the live watchdog itself), not a fetch/logic bug. See
     # test_level_refresh_watchdog_2026_07_30.py for the isolated-tmp_path caller.
+    #
+    # EFFECT VERIFICATION (2026-09-03, SELFHEAL-VERIFY-EFFECT-AUDIT): before this fix, a
+    # return of `skipped=$false` meant only "run-level-refresh.ps1 was invoked and the
+    # process exited" -- IDENTICAL to the pre-fix Invoke-TvLaunchSafe shape that let a
+    # 70+min CDP outage look like a working self-heal (commit c941567c, lesson
+    # tv-selfheal-silent-failure-2026-07-31.md). Now captures -TargetFile's mtime before and
+    # after the (synchronous) relaunch call and reports whether it actually advanced --
+    # `effect_verified` is $null when skipped (no attempt was made to check), $true/$false
+    # otherwise. -TargetFile defaults to the real production key-levels.json path but is
+    # overridable so tests can point it at an isolated file (same -LockFile precedent from
+    # WATCHDOG-TEST-LOCK-RACE, 2026-08-01).
     param(
         [Parameter(Mandatory)][string]$Script,
         [Parameter(Mandatory)][string]$LogFile,
-        [string]$LockFile = (Join-Path $WorkDir "automation\state\level-refresh-watchdog.lock")
+        [string]$LockFile = (Join-Path $WorkDir "automation\state\level-refresh-watchdog.lock"),
+        [string]$TargetFile = (Join-Path $WorkDir "automation\state\key-levels.json")
     )
     $lockFile = $LockFile
     if (Test-Path $lockFile) {
         $ageSec = ((Get-Date) - (Get-Item $lockFile).LastWriteTime).TotalSeconds
         if ($ageSec -lt 200) {
-            return @{ skipped = $true; reason = "lock_held age=$([int]$ageSec)s"; killed_pids = @() }
+            return @{ skipped = $true; reason = "lock_held age=$([int]$ageSec)s"; killed_pids = @(); effect_verified = $null }
         }
         Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
     }
@@ -1061,6 +1073,8 @@ function Invoke-LevelRefreshSafe {
             $killedPids += Stop-ProcessTree -ParentId ([int]$p.ProcessId)
         }
     } catch { }
+    $mtimeBefore = $null
+    if (Test-Path $TargetFile) { $mtimeBefore = (Get-Item $TargetFile).LastWriteTimeUtc }
     $prevEAP = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
@@ -1070,7 +1084,20 @@ function Invoke-LevelRefreshSafe {
         $ErrorActionPreference = $prevEAP
         Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
     }
-    return @{ skipped = $false; killed_pids = $killedPids }
+    # Effect check: the relaunch call above is synchronous (Out-File blocks until the
+    # process exits), so the target file's post-call mtime already reflects whatever the
+    # refresh script did -- no polling/waiting needed, unlike the async Start-ScheduledTask
+    # case in state_freshness_selfheal.py.
+    $effectVerified = $false
+    $mtimeDeltaSec = -1
+    if (Test-Path $TargetFile) {
+        $mtimeAfter = (Get-Item $TargetFile).LastWriteTimeUtc
+        if ($null -eq $mtimeBefore -or $mtimeAfter -gt $mtimeBefore) {
+            $effectVerified = $true
+        }
+        $mtimeDeltaSec = [int]((Get-Date).ToUniversalTime() - $mtimeAfter).TotalSeconds
+    }
+    return @{ skipped = $false; killed_pids = $killedPids; effect_verified = $effectVerified; mtime_delta_sec = $mtimeDeltaSec }
 }
 
 function Enter-ConductorFireLock {

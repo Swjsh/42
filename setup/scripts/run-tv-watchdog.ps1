@@ -147,7 +147,17 @@ if ($mins -ge 582 -and $mins -le 955) {
             $lrScript  = Join-Path $WorkDir "setup\scripts\run-level-refresh.ps1"
             Write-TaskLog -TaskName $task -Message "LEVEL_REFRESH_SELF_HEAL key-levels.json stale $([int]$klAgeMin)min - kill+relaunch"
             $lr = Invoke-LevelRefreshSafe -Script $lrScript -LogFile $lrLogFile
-            if ($lr.skipped) { Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($lr.reason)"; $levelsRefreshAction = "lock_held" }
+            if ($lr.skipped) {
+                Write-TaskLog -TaskName $task -Message "SKIP_LOCK_HELD $($lr.reason)"; $levelsRefreshAction = "lock_held"
+            } elseif (-not $lr.effect_verified) {
+                # SELFHEAL-VERIFY-EFFECT-AUDIT (2026-09-03): the relaunch call ran without
+                # throwing but key-levels.json's mtime did NOT advance -- identical shape to
+                # the pre-c941567c TV-CDP blind spot (self-heal LOOKS like it worked, isn't).
+                # Distinct outcome string + loud log line so this can't blend into the
+                # routine "self_heal" success case.
+                $levelsRefreshAction = "self_heal_effect_unverified"
+                Write-TaskLog -TaskName $task -Message "LEVEL_REFRESH_EFFECT_UNVERIFIED key-levels.json mtime did not advance after relaunch (delta=$($lr.mtime_delta_sec)s) -- self-heal ran but did NOT heal"
+            }
         } else {
             $levelsRefreshAction = "fresh"
         }
@@ -178,6 +188,14 @@ if (Test-Path $freshHealScript) {
         if ($fhOut -match '"outcome":\s*"start_attempted"') {
             Write-TaskLog -TaskName $task -Message "STATE_FRESHNESS_HEAL $fhOut"
         }
+        # SELFHEAL-VERIFY-EFFECT-AUDIT (2026-09-03): state_freshness_selfheal.py now tracks
+        # whether a previously-started task's target file actually left RED within a grace
+        # window (see its _verify_pending) -- "effect_verified": false means the task was
+        # force-started, ran without raising, and the producer's own output STILL did not
+        # refresh. Loud, distinct log line so this never blends into routine "ran" noise.
+        if ($fhOut -match '"effect_verified":\s*false') {
+            Write-TaskLog -TaskName $task -Message "STATE_FRESHNESS_EFFECT_UNVERIFIED $fhOut"
+        }
     } catch {
         $freshHealAction = "error"
         Write-TaskLog -TaskName $task -Message "STATE_FRESHNESS_HEAL_ERROR $($_.Exception.Message)"
@@ -197,7 +215,7 @@ $rec = [ordered]@{
 }
 $rec | ConvertTo-Json | Set-Content -Path $statusFile -Encoding utf8
 
-$problem = ($tvAction -like "relaunch*") -or ($hbFlag -like "STALE*") -or ($hbFlag -like "ERR_*") -or ($levelsRefreshAction -eq "self_heal") -or ($fhOut -match '"outcome":\s*"start_attempted"')
+$problem = ($tvAction -like "relaunch*") -or ($hbFlag -like "STALE*") -or ($hbFlag -like "ERR_*") -or ($levelsRefreshAction -eq "self_heal") -or ($levelsRefreshAction -eq "self_heal_effect_unverified") -or ($fhOut -match '"outcome":\s*"start_attempted"') -or ($fhOut -match '"effect_verified":\s*false')
 if ($problem) {
     ($rec | ConvertTo-Json -Compress) | Add-Content -Path $eventLog -Encoding utf8
     $alert = "- [$($et.ToString('MM-dd HH:mm')) ET] TvWatchdog: tv=$tvAction heartbeat=$hbFlag levels_refresh=$levelsRefreshAction fresh_heal=$freshHealAction $tvDetail"

@@ -13,9 +13,19 @@ session yet) gets its producer re-invoked DIRECTLY, right here, in-process.
 
 WHY *DIRECT* INVOCATION, NOT A TASK RESTART (see sibling module state_freshness_selfheal.py)
 --------------------------------------------------------------------------------------------
-A sibling module, ``state_freshness_selfheal.py`` (2026-07-31, currently UNWIRED -- no
-scheduled task references it, confirmed 2026-09-02 via grep of SCHEDULED-TASKS.md), takes a
-DIFFERENT approach: force-start the mapped Windows scheduled task via ``Start-ScheduledTask``.
+CORRECTION (2026-09-03, SELFHEAL-VERIFY-EFFECT-AUDIT): the "UNWIRED" claim below was WRONG.
+``state_freshness_selfheal.py`` IS live -- ``run-tv-watchdog.ps1`` (the real script behind
+the ``Gamma_TvWatchdog`` scheduled task, confirmed cold via
+``Get-ScheduledTask -TaskName Gamma_TvWatchdog`` on 2026-09-03) invokes it every 5 min,
+08:05-16:00 ET weekdays. No Task Scheduler XML action names the .py file directly (that is
+what the 2026-09-02 grep of SCHEDULED-TASKS.md actually checked), but it fires in-process
+from an already-registered task all the same. It is kept as a live fallback rather than
+retired: it covers MISSING/UNKNOWN/STALE-BY-AGE entries and any writer OUTSIDE this module's
+WRITER_ALLOWLIST (including during RTH, when this module refuses to run at all) -- cases
+this module does not cover. It gained its own effect verification the same fire (deferred,
+re-audit-on-next-tick, since ``Start-ScheduledTask`` returns before the producer finishes).
+A sibling module, ``state_freshness_selfheal.py`` (2026-07-31), takes a DIFFERENT approach:
+force-start the mapped Windows scheduled task via ``Start-ScheduledTask``.
 That is the wrong mechanism for THIS lesson's root cause: the very incident that produced the
 lesson-inbox item for this module found that the scheduled fires were completing with
 ``LastTaskResult=0`` and STILL not writing fresh content ("silently no-op'd"), while manually
