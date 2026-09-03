@@ -130,6 +130,21 @@ DMS_CADENCE_MIN = 2
 GAP_THRESHOLD_MIN = 4          # a gap this big or bigger is enumerated by name
 SAME_FIRE_CLUSTER_S = 90       # rows within this many seconds are the SAME fire (multi-arm)
 
+# NOT_YET status config (FIRST-LIVE-DAY-REVIEW-CANNOT-TELL-NOT-YET-FROM-FAILED, queue.md
+# 2026-09-02): each day-scoped check below declares the ET time on the REVIEW DATE after
+# which missing evidence (0 rows / no confirmed flatten) is treated as a real failure. Before
+# that time, missing evidence grades NOT_YET instead of RED -- ranked with NO_DATA/ADVISORY
+# (never GREEN, never RED; see combine_verdict) so a manual mid-morning run, or an early
+# scheduled fire, stops crying "RED" about a session that has not reached that checkpoint
+# yet. `check_fleet_kill_switch_proximity` already had the right idea (its own NO_DATA
+# "before the open this is expected" state) -- this generalizes the same idea, uniformly, to
+# the two checks that were still reporting RED for "too early".
+DMS_CADENCE_NOT_YET_AFTER = (9, 35)     # DMS's first scheduled fire is 09:32 -- one cadence
+                                         # interval (2min) of slack before 0 rows is real.
+DMS_VERDICTS_NOT_YET_AFTER = RTH_START  # (9, 32) -- DMS's own first expected tick.
+EOD_FLATTEN_NOT_YET_AFTER = (15, 56)    # Core sweep (Gamma_EodFlattenCore) fires 15:52; a
+                                         # minute of slack before "no row yet" is real.
+
 DMS_GOOD_ACTIONS = {"LIVE_NO_ACTION", "STALE_BUT_FLAT"}
 DMS_BAD_ACTIONS = {"FLATTENED", "ERROR", "NO_CREDS", "READ_FAILED", "DRY_RUN_WOULD_FLATTEN"}
 # DRY_RUN_WOULD_FLATTEN is in BOTH camps: the underlying condition (stale + open position)
@@ -278,6 +293,29 @@ def cluster_fire_times(timestamps: list[datetime],
     return clusters
 
 
+def _not_yet_before(review_date: Optional[str], after: tuple,
+                     now: "datetime | None" = None) -> Optional[str]:
+    """Returns 'HH:MM ET on <review_date>' when `now` is still before that cutoff time ON
+    review_date (evidence not expected yet), else None (the cutoff has passed -- missing
+    evidence is a real finding, not a timing artifact). Returns None whenever review_date is
+    unknown/malformed (can't judge time without a date to anchor it) -- callers then fall
+    back to the pre-existing RED behavior, never silently invent a NOT_YET.
+
+    `now` follows check_dms_cadence's own established convention (INJECTED for
+    determinism; defaults to the wall clock) rather than a new one."""
+    if review_date is None:
+        return None
+    try:
+        y, m, d = (int(x) for x in review_date.split("-"))
+        cutoff = datetime(y, m, d, after[0], after[1])
+    except (ValueError, TypeError):
+        return None
+    at = now if now is not None else datetime.now()
+    if at < cutoff:
+        return f"{after[0]:02d}:{after[1]:02d} ET on {review_date}"
+    return None
+
+
 def check_dms_cadence(rows: list[dict], review_date: str,
                        rth_start: tuple = RTH_START, rth_end: tuple = RTH_END,
                        cadence_min: int = DMS_CADENCE_MIN,
@@ -289,6 +327,15 @@ def check_dms_cadence(rows: list[dict], review_date: str,
     unless the tail is checked too."""
     expected = expected_dms_fire_count(rth_start, rth_end, cadence_min)
     if not rows:
+        not_yet = _not_yet_before(review_date, DMS_CADENCE_NOT_YET_AFTER, now)
+        if not_yet is not None:
+            return {
+                "status": "NOT_YET",
+                "reason": f"no DMS rows yet -- evidence expected after {not_yet}",
+                "expected_fires": expected,
+                "actual_fires": 0,
+                "gaps": [],
+            }
         return {
             "status": "RED",
             "reason": "never fired -- 0 rows in the dead-man's-switch log for this date",
@@ -391,13 +438,19 @@ def _split_by_window(rows: list[dict], rth_start: tuple = RTH_START,
 
 
 def check_dms_verdicts(rows: list[dict], rth_start: tuple = RTH_START,
-                        rth_end: tuple = RTH_END) -> dict:
+                        rth_end: tuple = RTH_END, review_date: Optional[str] = None,
+                        now: "datetime | None" = None) -> dict:
     """Every row's `action` should be LIVE_NO_ACTION or STALE_BUT_FLAT. Anything in
     DMS_BAD_ACTIONS is a failure (work order text only calls out FLATTENED/ERROR --
     NO_CREDS and READ_FAILED are added here per this task's own instruction: a DMS that
     cannot read the broker is not a DMS). A `dry: true` row (or a DRY_RUN_WOULD_FLATTEN
     action) is flagged separately as 'not actually armed', regardless of whether it also
-    counts as bad."""
+    counts as bad.
+
+    `review_date`/`now` are optional (default None): when both are supplied and `now`
+    precedes DMS_VERDICTS_NOT_YET_AFTER on review_date, a 0-rows-inside-the-window result
+    grades NOT_YET instead of RED (see module NOT_YET config). Omitting review_date keeps
+    the original RED-always behavior -- there is no date to judge "too early" against."""
     # OUT-OF-WINDOW ROWS ARE REHEARSALS, NOT PRODUCTION FIRES (2026-09-02). The DMS gained
     # an out-of-hours DRY rehearsal path the day before this check first ran, precisely so a
     # safety instrument could be exercised before trusting it in production. Counting those
@@ -408,6 +461,14 @@ def check_dms_verdicts(rows: list[dict], rth_start: tuple = RTH_START,
     rows, out_rows = _split_by_window(rows, rth_start, rth_end)
     n_out = len(out_rows)
     if not rows:
+        not_yet = _not_yet_before(review_date, DMS_VERDICTS_NOT_YET_AFTER, now)
+        if not_yet is not None:
+            return {"status": "NOT_YET",
+                    "reason": (f"no DMS rows yet inside the window -- evidence expected "
+                               f"after {not_yet}"
+                               + (f" ({n_out} out-of-window rehearsal row(s) ignored)" if n_out else "")),
+                    "bad_rows": [], "not_armed_rows": [], "per_arm_actions": {},
+                    "out_of_window_rows": n_out}
         return {"status": "RED",
                 "reason": ("never fired inside the window -- 0 rows to verify"
                            + (f" ({n_out} out-of-window rehearsal row(s) ignored)" if n_out else "")),
@@ -496,12 +557,20 @@ def check_engine_health(engine_health: Optional[dict]) -> dict:
 
 def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
                                   agg_log_text: Optional[str],
-                                  arm: str = "bold-2") -> dict:
+                                  arm: str = "bold-2",
+                                  review_date: Optional[str] = None,
+                                  now: "datetime | None" = None) -> dict:
     """Core (eod_flatten.py, Gamma_EodFlattenCore, 15:52 ET) is PRIMARY -- it covers
     bold-2 in the same sweep as every other active arm. Gamma_EodFlatten_Aggressive (the
     LLM defense-in-depth flattener, 15:55 ET) is checked too and reported LOUDLY if it
     failed, but a Core success is what actually protects the account, so it alone drives
-    this check's pass/fail status."""
+    this check's pass/fail status.
+
+    `review_date`/`now` are optional (default None): when both are supplied and `now`
+    precedes EOD_FLATTEN_NOT_YET_AFTER on review_date, a MISSING/MISSING_ONLY_REHEARSALS
+    result (no real Core row yet) grades NOT_YET instead of RED. A real row that FAILED
+    (READ_FAILED, DRY_RUN outcome, etc.) is never reclassified this way -- that is genuine
+    evidence of a problem, not an absence of evidence."""
     all_arm_rows = [r for r in core_rows_for_date if r.get("arm") == arm]
     # Rehearsal rows are excluded from evidence but COUNTED, so the reason can say why a
     # populated-looking ledger produced no verdict. Silently dropping them would reproduce
@@ -539,8 +608,15 @@ def check_eod_flatten_aggressive(core_rows_for_date: list[dict],
     _reh = (f" [{n_reh} DRY-RUN rehearsal row(s) present and IGNORED -- a rehearsal "
             f"flattens nothing]" if n_reh else "")
     if not core_ok:
-        status = "RED"
-        reason = f"Core flatten did not confirm flat for {arm}: outcome={core_result}{_reh}"
+        not_yet = (_not_yet_before(review_date, EOD_FLATTEN_NOT_YET_AFTER, now)
+                   if core_result in ("MISSING", "MISSING_ONLY_REHEARSALS") else None)
+        if not_yet is not None:
+            status = "NOT_YET"
+            reason = (f"no Core flatten evidence yet for {arm} (outcome={core_result}) -- "
+                      f"evidence expected after {not_yet}{_reh}")
+        else:
+            status = "RED"
+            reason = f"Core flatten did not confirm flat for {arm}: outcome={core_result}{_reh}"
     elif agg_status == "FAILED":
         status = "YELLOW"
         reason = (f"Core flatten OK ({core_result}) so {arm} is confirmed flat, but "
@@ -864,7 +940,7 @@ def check_guards_full(state: Optional[dict], review_date: str,
 # GREEN. Reachable, not theoretical: fleet_kill_switch returned NO_DATA in the real
 # analysis/first-live-day/2026-09-02.json. ADVISORY stays at 0 because conductor_picks is
 # excluded from gating by design; absence is not.
-_SEVERITY_ORDER = {"GREEN": 0, "ADVISORY": 0, "NO_DATA": 1, "YELLOW": 1, "RED": 2}
+_SEVERITY_ORDER = {"GREEN": 0, "ADVISORY": 0, "NOT_YET": 0, "NO_DATA": 1, "YELLOW": 1, "RED": 2}
 _GATING_CHECKS = ("dms_cadence", "dms_verdicts", "engine_health", "eod_flatten_aggressive",
                   "fleet_kill_switch", "guards_full")  # conductor_picks is advisory-only
 
@@ -876,18 +952,34 @@ def combine_verdict(checks: dict[str, dict]) -> tuple[str, list[str]]:
     A gating check that is ABSENT from `checks` counts as NO_DATA, never as a skip: if
     run_review failed to produce one, the day was not fully reviewed, and silently omitting
     it from the worst-wins fold is the same GREEN-by-absence bug as ranking NO_DATA at 0.
+
+    NOT_YET (FIRST-LIVE-DAY-REVIEW-CANNOT-TELL-NOT-YET-FROM-FAILED, queue.md 2026-09-02):
+    a check reporting NOT_YET is EXCLUDED from `failing` and never escalates `worst` -- it is
+    not a failure, it is a session that has not reached that check's own checkpoint yet. But
+    it must not be laundered into a silent, indistinguishable GREEN either: when every other
+    gating check is clean (worst would read GREEN) and at least one NOT_YET is outstanding,
+    the returned verdict string becomes 'INCOMPLETE (n not yet)' instead of 'GREEN' -- so a
+    reader never mistakes "nothing has failed so far" for "the day was fully reviewed". A
+    real YELLOW/RED/NO_DATA elsewhere still wins outright (NOT_YET never masks a real
+    problem, and a real problem is never softened to INCOMPLETE).
     """
     worst = "GREEN"
     failing = []
+    not_yet_count = 0
     for name in _GATING_CHECKS:
         c = checks.get(name)
         if c is None:
             c = {"status": "NO_DATA", "reason": "check did not run"}
         st = c.get("status", "RED")
+        if st == "NOT_YET":
+            not_yet_count += 1
+            continue
         if _SEVERITY_ORDER.get(st, 2) > 0:
             failing.append(f"{name}:{st}")
         if _SEVERITY_ORDER.get(st, 2) > _SEVERITY_ORDER.get(worst, 0):
             worst = st
+    if worst == "GREEN" and not_yet_count:
+        worst = f"INCOMPLETE ({not_yet_count} not yet)"
     return worst, failing
 
 
@@ -899,7 +991,14 @@ def run_review(review_date: Optional[str] = None) -> dict:
     if review_date is None:
         review_date = et_today_str()
 
-    generated_at = et_now().strftime("%Y-%m-%d %H:%M:%S ET")
+    # ONE now_et, threaded into every time-aware check below (NOT_YET's `now` param included
+    # -- see DMS_CADENCE_NOT_YET_AFTER / DMS_VERDICTS_NOT_YET_AFTER / EOD_FLATTEN_NOT_YET_
+    # AFTER). Previously each check that consulted a clock fell back to its own default
+    # (bare `datetime.now()`, the box's SYSTEM/Mountain time, not ET -- this box runs 2h
+    # behind ET) rather than sharing this one real ET reading; a single shared value also
+    # guarantees every NOT_YET/RED boundary in one report is judged at the same instant.
+    now_et = et_now()
+    generated_at = now_et.strftime("%Y-%m-%d %H:%M:%S ET")
 
     # ---- load everything (all via the redirectable module-level path constants) ----
     dms_rows_all = read_jsonl(DMS_LOG_DIR / f"dead-mans-switch-{review_date}.jsonl")
@@ -931,10 +1030,11 @@ def run_review(review_date: Optional[str] = None) -> dict:
 
     # ---- run every check ----
     checks = {
-        "dms_cadence": check_dms_cadence(dms_rows, review_date),
-        "dms_verdicts": check_dms_verdicts(dms_rows),
+        "dms_cadence": check_dms_cadence(dms_rows, review_date, now=now_et),
+        "dms_verdicts": check_dms_verdicts(dms_rows, review_date=review_date, now=now_et),
         "engine_health": check_engine_health(engine_health),
-        "eod_flatten_aggressive": check_eod_flatten_aggressive(core_eod_rows, agg_eod_log),
+        "eod_flatten_aggressive": check_eod_flatten_aggressive(
+            core_eod_rows, agg_eod_log, review_date=review_date, now=now_et),
         "conductor_picks": check_conductor_picks(status_md_text, queue_md_text, review_date),
         "fleet_kill_switch": check_fleet_kill_switch_proximity(
             fleet_arms, breaker_by_arm, min_equity_by_arm),
@@ -954,6 +1054,11 @@ def run_review(review_date: Optional[str] = None) -> dict:
             "to the overall verdict above.",
             "fleet_kill_switch NO_DATA is expected before the market opens or on a day "
             "with no fleet-arm ticks yet -- not treated as a failure.",
+            "NOT_YET (dms_cadence/dms_verdicts/eod_flatten_aggressive) means the session "
+            "has not reached that check's own evidence checkpoint yet -- not a failure, "
+            "and never contributes to failing_checks -- but the top-line verdict reads "
+            "INCOMPLETE (n not yet) rather than GREEN while any is outstanding, so a run "
+            "before the close is never mistaken for a fully reviewed day.",
         ],
     }
     return report

@@ -259,19 +259,20 @@ def test_unbalanced_round_trip_emitted_not_dropped(tmp_path):
 
 REAL_REPO_ROOT = ROOT
 
-# AUGUST 2026 ENGINE TOTAL -- one named constant, not a number repeated at N call sites.
-# WHY IT MOVED (2026-09-02): the pin was $1,744, set on 2026-08-27 while August was STILL
-# ACCRUING DAYS -- so it was guaranteed to rot, and it did. The 2026-09-01 journal/trades.csv
-# writer repair (wave 2, task B8: 25 rows repaired) plus the remaining August sessions bring
-# the true total to $3,048.00. Verified as a REPAIR, not a regression, by the strongest check
-# available: two INDEPENDENT groupings of the same fills agree to the cent --
-# flat_to_flat n=221 = $3,048.00 and broker_fills FIFO n=309 = $3,048.00, cross-basis delta
-# $0.00 -- and the untouched 2026-08-27 day anchor still reads n=12 / $1,897.
-# STABLE NOW in a way the old pin never was: August is CLOSED, so day-accrual can no longer
-# move this. Only a further ledger repair can -- and if one does, re-verify cross-basis
-# agreement FIRST (that is what proves a change is a repair rather than a regression), then
-# update this one constant.
-AUG_2026_ENGINE_TOTAL = 3048.0
+# AUGUST 2026 ENGINE TOTAL, THROUGH 2026-08-27 -- mirrors setup/scripts/trades_enriched.py's
+# own AUG_THROUGH_2026_08_27_ENGINE_TOTAL (kept as a separate literal here deliberately, same
+# as before -- this test module pins the number independently rather than importing the
+# module's constant, so a source-side typo can't silently launder itself into the guard).
+#
+# TRADES-ENRICHED-AUGUST-ANCHOR-IS-STALE-BY-CONSTRUCTION (queue.md, filed 2026-08-29, fixed
+# 2026-09-03): this was a WHOLE-CALENDAR-MONTH assertion (lo=08-01, hi=08-31, pinned at
+# $3,048) -- itself a prior hand-bump away from the original $1,744 pin, which is the exact
+# anti-pattern the queue item forbids ("do NOT simply bump the number"). Replaced with a
+# DATE-ANCHORED PREFIX assertion through 2026-08-27 (a closed window: no ordinary trading day
+# can ever add a fill dated <= 08-27), matching the already-passing per-day anchor's style.
+# Verified live 2026-09-03: cumulative 2026-08-01..2026-08-27 = n=210, pnl=+$1,744.00 exactly.
+AUG_THROUGH_2026_08_27_ENGINE_TOTAL = 1744.0
+AUG_PREFIX_HI = "2026-08-27"
 
 _real_fills = os.path.join(REAL_REPO_ROOT, "automation", "state", "fills-ledger.jsonl")
 
@@ -287,10 +288,11 @@ def test_real_tape_2026_08_27_and_august_totals():
     day_pnl = sum(r["pnl_dollars"] for r in day_rows)
     assert abs(day_pnl - 1897.0) <= 5, f"2026-08-27 engine pnl {day_pnl} not within $5 of +$1897"
 
-    mon_rows = te._engine_rows_for(rows, lo="2026-08-01", hi="2026-08-31")
-    mon_pnl = sum(r["pnl_dollars"] for r in mon_rows)
-    assert abs(mon_pnl - AUG_2026_ENGINE_TOTAL) <= 10, (
-        f"August 2026 engine pnl {mon_pnl} not within $10 of +${AUG_2026_ENGINE_TOTAL:.0f}")
+    prefix_rows = te._engine_rows_for(rows, lo="2026-08-01", hi=AUG_PREFIX_HI)
+    prefix_pnl = sum(r["pnl_dollars"] for r in prefix_rows)
+    assert abs(prefix_pnl - AUG_THROUGH_2026_08_27_ENGINE_TOTAL) <= 10, (
+        f"August 2026 engine pnl through {AUG_PREFIX_HI} {prefix_pnl} not within $10 of "
+        f"+${AUG_THROUGH_2026_08_27_ENGINE_TOTAL:.0f}")
 
 
 def test_premium_stop_suspect_flags_impossible_positive_pnl(tmp_path):
@@ -441,33 +443,37 @@ def test_fifo_split_partial_exit_reconciles_to_flat_to_flat_pnl(tmp_path):
 
 @pytest.mark.skipif(not os.path.exists(_real_fills), reason="real fills-ledger.jsonl not present")
 def test_both_bases_reproduce_the_august_total():
-    """Both LEGITIMATE bases -- this module's flat_to_flat (n=210 engine option trips) and
-    broker_fills.fifo_round_trips (n=293 engine option trips) -- must reproduce the SAME
-    August 2026 engine total (+$3,048), because P&L is fill-additive regardless of how fills
-    are grouped into trips. WR/payoff differ by basis (34.8% flat_to_flat vs 44.0% FIFO,
-    payoff ~2.04x vs ~1.38x, verified 2026-08-27) -- P&L does not."""
+    """Both LEGITIMATE bases -- this module's flat_to_flat and broker_fills.fifo_round_trips
+    -- must reproduce the SAME August-2026-THROUGH-08-27 engine total (+$1,744), because P&L
+    is fill-additive regardless of how fills are grouped into trips. Bounded to the same
+    closed prefix window as the primary anchor above (see AUG_THROUGH_2026_08_27_ENGINE_TOTAL's
+    docstring) rather than the whole calendar month, so this stays a real reconciliation check
+    forever instead of rotting as soon as a new August fill (backfill/repair) lands. WR/payoff
+    differ by basis -- P&L does not."""
     import sys
     from pathlib import Path
     sys.path.insert(0, os.path.join(ROOT, "setup", "scripts"))
     import broker_fills as bf  # noqa: E402
 
     result = te.rebuild(Path(REAL_REPO_ROOT), write=False)
-    flat_rows = te._engine_rows_for(result["rows"], lo="2026-08-01", hi="2026-08-31")
+    flat_rows = te._engine_rows_for(result["rows"], lo="2026-08-01", hi=AUG_PREFIX_HI)
     flat_pnl = sum(r["pnl_dollars"] for r in flat_rows)
-    assert abs(flat_pnl - AUG_2026_ENGINE_TOTAL) <= 10, (
-        f"flat_to_flat August pnl {flat_pnl} not within $10 of ${AUG_2026_ENGINE_TOTAL:.0f}")
+    assert abs(flat_pnl - AUG_THROUGH_2026_08_27_ENGINE_TOTAL) <= 10, (
+        f"flat_to_flat August-through-{AUG_PREFIX_HI} pnl {flat_pnl} not within $10 of "
+        f"${AUG_THROUGH_2026_08_27_ENGINE_TOTAL:.0f}")
 
     fills = bf.load_existing_ledger(Path(_real_fills))[0]
     opt_fills = [f for f in fills if f.get("is_option")]
     round_trips, _ = bf.fifo_round_trips(opt_fills)
     fifo_aug = [r for r in round_trips
-                if r["attribution"] == "engine" and r["date_et"].startswith("2026-08")]
+                if r["attribution"] == "engine" and "2026-08-01" <= r["date_et"] <= AUG_PREFIX_HI]
     fifo_pnl = sum(r["pnl"] for r in fifo_aug)
-    assert abs(fifo_pnl - AUG_2026_ENGINE_TOTAL) <= 10, (
-        f"FIFO August pnl {fifo_pnl} not within $10 of ${AUG_2026_ENGINE_TOTAL:.0f}")
+    assert abs(fifo_pnl - AUG_THROUGH_2026_08_27_ENGINE_TOTAL) <= 10, (
+        f"FIFO August-through-{AUG_PREFIX_HI} pnl {fifo_pnl} not within $10 of "
+        f"${AUG_THROUGH_2026_08_27_ENGINE_TOTAL:.0f}")
 
     assert abs(flat_pnl - fifo_pnl) <= 0.5, (
-        f"the two bases must reconcile to the same August total: "
+        f"the two bases must reconcile to the same August-through-{AUG_PREFIX_HI} total: "
         f"flat_to_flat={flat_pnl} vs FIFO={fifo_pnl}"
     )
 

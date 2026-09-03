@@ -830,19 +830,27 @@ def _engine_rows_for(rows: list, date: str = None, lo: str = None, hi: str = Non
     return out
 
 
-# AUGUST 2026 ENGINE TOTAL -- one named constant, not a number repeated at N call sites.
-# WHY IT MOVED (2026-09-02): the pin was $1,744, set on 2026-08-27 while August was STILL
-# ACCRUING DAYS -- so it was guaranteed to rot, and it did. The 2026-09-01 journal/trades.csv
-# writer repair (wave 2, task B8: 25 rows repaired) plus the remaining August sessions bring
-# the true total to $3,048.00. Verified as a REPAIR, not a regression, by the strongest check
-# available: two INDEPENDENT groupings of the same fills agree to the cent --
-# flat_to_flat n=221 = $3,048.00 and broker_fills FIFO n=309 = $3,048.00, cross-basis delta
-# $0.00 -- and the untouched 2026-08-27 day anchor still reads n=12 / $1,897.
-# STABLE NOW in a way the old pin never was: August is CLOSED, so day-accrual can no longer
-# move this. Only a further ledger repair can -- and if one does, re-verify cross-basis
-# agreement FIRST (that is what proves a change is a repair rather than a regression), then
-# update this one constant.
-AUG_2026_ENGINE_TOTAL = 3048.0
+# AUGUST 2026 ENGINE TOTAL, THROUGH 2026-08-27 -- one named constant, not a number repeated
+# at N call sites.
+#
+# TRADES-ENRICHED-AUGUST-ANCHOR-IS-STALE-BY-CONSTRUCTION (queue.md, filed 2026-08-29, fixed
+# 2026-09-03): this was a WHOLE-CALENDAR-MONTH assertion (lo=08-01, hi=08-31) that had already
+# been bumped once, from $1,744 (rotted the moment 08-28 landed) to $3,048 (the 08-01..08-31
+# total once August had fully accrued). That bump is the exact anti-pattern the queue item
+# names and forbids ("do NOT simply bump the number") -- it repeats the SAME failure mode with
+# a bigger number: any future backfill/repair of an August fill still rots this the moment the
+# ledger changes, and there is nothing about "whole calendar month" that is actually stable,
+# it just happened to stop drifting because August ended.
+#
+# THE FIX (option (a) from the queue item): a DATE-ANCHORED PREFIX assertion, matching the
+# style of the already-passing per-day anchor two lines below (which checks 2026-08-27 ALONE,
+# n=12, +$1,897). This checks the CUMULATIVE total from 2026-08-01 THROUGH 2026-08-27
+# inclusive -- a range that is now closed history: no fill with date_et <= 2026-08-27 can ever
+# be added by ordinary trading (only a RESTATEMENT of that already-closed window could move
+# it), so the anchor stays true forever as new days land, exactly like the per-day check does.
+# Verified live 2026-09-03: cumulative 2026-08-01..2026-08-27 = n=210, pnl=+$1,744.00 exactly
+# (re-derived fresh from the real ledger, not copied from the old rotted pin).
+AUG_THROUGH_2026_08_27_ENGINE_TOTAL = 1744.0
 
 
 def run_verification(rows: list, *, quiet: bool = False) -> bool:
@@ -856,12 +864,14 @@ def run_verification(rows: list, *, quiet: bool = False) -> bool:
     print(f"[verify] {d1} engine round trips: n={day_n} (want 12) "
           f"pnl=${day_pnl:.2f} (want +$1897 +/-$5) -> {'PASS' if d1_ok else 'FAIL'}")
 
-    mon_rows = _engine_rows_for(rows, lo="2026-08-01", hi="2026-08-31")
-    mon_pnl = sum(r["pnl_dollars"] for r in mon_rows)
-    mon_ok = abs(mon_pnl - AUG_2026_ENGINE_TOTAL) <= 10
-    ok = ok and mon_ok
-    print(f"[verify] August 2026 engine total: n={len(mon_rows)} pnl=${mon_pnl:.2f} "
-          f"(want +${AUG_2026_ENGINE_TOTAL:.0f} +/-$10) -> {'PASS' if mon_ok else 'FAIL'}")
+    prefix_hi = "2026-08-27"
+    prefix_rows = _engine_rows_for(rows, lo="2026-08-01", hi=prefix_hi)
+    prefix_pnl = sum(r["pnl_dollars"] for r in prefix_rows)
+    prefix_ok = abs(prefix_pnl - AUG_THROUGH_2026_08_27_ENGINE_TOTAL) <= 10
+    ok = ok and prefix_ok
+    print(f"[verify] August 2026 engine total THROUGH {prefix_hi}: n={len(prefix_rows)} "
+          f"pnl=${prefix_pnl:.2f} (want +${AUG_THROUGH_2026_08_27_ENGINE_TOTAL:.0f} +/-$10) "
+          f"-> {'PASS' if prefix_ok else 'FAIL'}")
 
     if not ok and not quiet:
         print("[verify] MISMATCH -- known-good checks failed. Root cause before trusting "

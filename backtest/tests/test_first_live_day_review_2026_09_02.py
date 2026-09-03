@@ -1045,3 +1045,163 @@ def test_main_appends_a_run_log_row(empty_state_env):
     flr.main(["--date", "2026-09-02"])
     lines = runs_path.read_text(encoding="utf-8").strip().splitlines()
     assert len(lines) == 2, f"main() invoked twice must leave 2 run-log rows, got {len(lines)}"
+
+
+# ============================================================================
+# NOT_YET status (FIRST-LIVE-DAY-REVIEW-CANNOT-TELL-NOT-YET-FROM-FAILED, queue.md
+# 2026-09-02): dms_cadence, dms_verdicts, and eod_flatten_aggressive each declare an ET
+# time on the review date after which missing evidence is a real RED. Before that time,
+# missing evidence must grade NOT_YET instead -- never GREEN, never RED, and excluded
+# from failing_checks -- so a manual mid-morning run (or an early scheduled fire) stops
+# reporting a cry-wolf RED about a session that has not reached that checkpoint yet.
+# Frozen-clock coverage: pre-open today, mid-session today, post-close today, and a PAST
+# review date (which must grade exactly as before -- all evidence expected).
+# ============================================================================
+
+_NY_DATE = "2026-09-02"
+_NY_PRE_OPEN = datetime(2026, 9, 2, 6, 0)     # well before 09:32/09:35/15:56
+_NY_MID_SESSION = datetime(2026, 9, 2, 11, 0)  # after 09:35, before 15:56
+_NY_POST_CLOSE = datetime(2026, 9, 2, 16, 30)  # after every cutoff
+
+
+def test_pre_open_today_all_three_checks_are_not_yet():
+    cadence = flr.check_dms_cadence([], _NY_DATE, now=_NY_PRE_OPEN)
+    assert cadence["status"] == "NOT_YET", cadence
+    assert "09:35 ET on 2026-09-02" in cadence["reason"]
+
+    verdicts = flr.check_dms_verdicts([], review_date=_NY_DATE, now=_NY_PRE_OPEN)
+    assert verdicts["status"] == "NOT_YET", verdicts
+    assert "09:32 ET on 2026-09-02" in verdicts["reason"]
+
+    eod = flr.check_eod_flatten_aggressive([], None, review_date=_NY_DATE, now=_NY_PRE_OPEN)
+    assert eod["status"] == "NOT_YET", eod
+    assert "15:56 ET on 2026-09-02" in eod["reason"]
+
+
+def test_mid_session_today_dms_checks_are_red_eod_is_still_not_yet():
+    """By 11:00 ET, DMS should already have real evidence -- 0 rows at this point is a
+    genuine finding (RED), not "too early". The EOD flatten's own checkpoint (15:56) has
+    not arrived yet, so it must still read NOT_YET."""
+    cadence = flr.check_dms_cadence([], _NY_DATE, now=_NY_MID_SESSION)
+    assert cadence["status"] == "RED", cadence
+
+    verdicts = flr.check_dms_verdicts([], review_date=_NY_DATE, now=_NY_MID_SESSION)
+    assert verdicts["status"] == "RED", verdicts
+
+    eod = flr.check_eod_flatten_aggressive([], None, review_date=_NY_DATE, now=_NY_MID_SESSION)
+    assert eod["status"] == "NOT_YET", eod
+
+
+def test_post_close_today_all_three_checks_are_red():
+    cadence = flr.check_dms_cadence([], _NY_DATE, now=_NY_POST_CLOSE)
+    assert cadence["status"] == "RED", cadence
+
+    verdicts = flr.check_dms_verdicts([], review_date=_NY_DATE, now=_NY_POST_CLOSE)
+    assert verdicts["status"] == "RED", verdicts
+
+    eod = flr.check_eod_flatten_aggressive([], None, review_date=_NY_DATE, now=_NY_POST_CLOSE)
+    assert eod["status"] == "RED", eod
+
+
+def test_past_review_date_grades_exactly_as_before_all_evidence_expected():
+    """A PAST date must never grade NOT_YET, no matter what `now` is passed (as long as
+    `now` is itself after that date's own cutoffs, which it always is for a past date being
+    reviewed from the present) -- all evidence for a day that already happened is expected
+    evidence."""
+    past_date = "2026-08-27"
+    now = datetime(2026, 9, 2, 6, 0)  # "today", days after the reviewed date
+
+    cadence = flr.check_dms_cadence([], past_date, now=now)
+    assert cadence["status"] == "RED", cadence
+
+    verdicts = flr.check_dms_verdicts([], review_date=past_date, now=now)
+    assert verdicts["status"] == "RED", verdicts
+
+    eod = flr.check_eod_flatten_aggressive([], None, review_date=past_date, now=now)
+    assert eod["status"] == "RED", eod
+
+
+def test_omitting_review_date_on_verdicts_and_eod_keeps_old_red_always_behavior():
+    """Backward compatibility: check_dms_verdicts/check_eod_flatten_aggressive are called
+    with no date context at all in several places (including every pre-existing test in
+    this file) -- omitting review_date must never invent a NOT_YET, since there is no date
+    to judge "too early" against."""
+    assert flr.check_dms_verdicts([])["status"] == "RED"
+    assert flr.check_eod_flatten_aggressive([], None)["status"] == "RED"
+
+
+def test_a_real_core_failure_is_never_reclassified_as_not_yet():
+    """NOT_YET only ever applies to an ABSENCE of evidence (MISSING outcome). A row that
+    exists and genuinely failed (e.g. READ_FAILED) must stay RED regardless of the clock --
+    that is proof of a problem, not a timing artifact."""
+    core_rows = [{"arm": "bold-2", "outcome": "READ_FAILED", "ts": "2026-09-02 15:52:01 ET"}]
+    result = flr.check_eod_flatten_aggressive(core_rows, None, review_date=_NY_DATE,
+                                              now=_NY_PRE_OPEN)
+    assert result["status"] == "RED", result
+
+
+def test_not_yet_does_not_count_as_a_failure_in_combine_verdict():
+    checks = {
+        "dms_cadence": {"status": "NOT_YET"},
+        "dms_verdicts": {"status": "NOT_YET"},
+        "engine_health": {"status": "GREEN"},
+        "eod_flatten_aggressive": {"status": "NOT_YET"},
+        "fleet_kill_switch": {"status": "GREEN"},
+        "guards_full": {"status": "GREEN"},
+        "conductor_picks": {"status": "ADVISORY"},
+    }
+    verdict, failing = flr.combine_verdict(checks)
+    assert verdict == "INCOMPLETE (3 not yet)", verdict
+    assert failing == [], "NOT_YET checks must never appear in failing_checks"
+
+
+def test_not_yet_never_masks_a_real_failure():
+    checks = {
+        "dms_cadence": {"status": "NOT_YET"},
+        "dms_verdicts": {"status": "RED"},
+        "engine_health": {"status": "GREEN"},
+        "eod_flatten_aggressive": {"status": "NOT_YET"},
+        "fleet_kill_switch": {"status": "GREEN"},
+        "guards_full": {"status": "GREEN"},
+        "conductor_picks": {"status": "ADVISORY"},
+    }
+    verdict, failing = flr.combine_verdict(checks)
+    assert verdict == "RED", verdict
+    assert failing == ["dms_verdicts:RED"]
+
+
+def test_run_review_before_the_open_reports_incomplete_not_red(empty_state_env, monkeypatch):
+    """End-to-end: run_review() must thread now_et into the three time-aware checks, so a
+    fire before the open reports INCOMPLETE, not the old cry-wolf RED -- given every OTHER
+    gating check is otherwise healthy (this test supplies minimal green fixtures for those,
+    same shape as test_run_review_clean_day_end_to_end_is_green, but deliberately leaves the
+    DMS log and Core EOD ledger absent, which is the real pre-open state: neither has fired
+    yet). Monkeypatches et_now (imported into the flr module namespace) rather than trying
+    to control the real wall clock."""
+    tmp_path = empty_state_env
+    fake_now = datetime(2026, 9, 2, 6, 0)
+    monkeypatch.setattr(flr, "et_now", lambda: fake_now)
+
+    eh_path = tmp_path / "automation" / "state" / "engine-health.json"
+    eh_path.parent.mkdir(parents=True, exist_ok=True)
+    eh_path.write_text(json.dumps({"checks": [
+        {"name": "escalation_flags", "status": "GREEN"},
+        {"name": "duplicate_ticks", "status": "GREEN"},
+    ]}), encoding="utf-8")
+
+    gf_path = tmp_path / "automation" / "state" / "guard-watch-full.json"
+    gf_path.write_text(json.dumps({"status": "green", "at": "2026-09-01 23:20 ET",
+                                    "counts": {"passed": 11739, "failed": 0, "skipped": 11},
+                                    "returncode": 0}), encoding="utf-8")
+
+    accounts_path = tmp_path / "automation" / "state" / "fleet" / "accounts.json"
+    accounts_path.parent.mkdir(parents=True, exist_ok=True)
+    accounts_path.write_text(json.dumps({"arms": []}), encoding="utf-8")  # no active fleet arms
+
+    report = flr.run_review("2026-09-02")
+
+    assert report["checks"]["dms_cadence"]["status"] == "NOT_YET", report["checks"]["dms_cadence"]
+    assert report["checks"]["dms_verdicts"]["status"] == "NOT_YET", report["checks"]["dms_verdicts"]
+    assert report["checks"]["eod_flatten_aggressive"]["status"] == "NOT_YET", (
+        report["checks"]["eod_flatten_aggressive"])
+    assert report["verdict"] == "INCOMPLETE (3 not yet)", report["verdict"]
