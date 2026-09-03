@@ -1,0 +1,1609 @@
+{
+ "prereg": "analysis/recommendations/prereg-fleet-gate-inheritance-2026-09-03.md",
+ "generated_at_et": "2026-09-03T15:09:53.885104",
+ "window": {
+  "start_date": "2026-08-06",
+  "in_sample_cutoff": "2026-09-03",
+  "entry_window_sec": 300,
+  "entry_window_basis": "fleet_rest arms read shared-signal.json on a ~3-min cadence vs core's 1-min write cadence (fill_latency.py); real fills resolve in ~0.1-0.2s once submitted (fleet_live.py ENTRY_CLAIM_TTL_SEC comment). 300s = ~1.7x margin over one full fleet read cycle; independently validated for this exact join at 600s with no count change (verify-fleet-gates-ledger-binding-check-2.md)."
+ },
+ "n_ticks_joined_since_start": 481,
+ "gate_arm_cells": [
+  {
+   "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "gate_param_key": "require_bearish_fill_bar",
+   "refused_account": "bold",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 87,
+   "n_real_entries": 7,
+   "share": 0.0805,
+   "pnl": {
+    "n": 7,
+    "sum": 66.0,
+    "mean": 9.4286,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 3,
+     "ci_lower_2.5": -115.0,
+     "ci_upper_97.5": 296.0
+    },
+    "top3_concentration_share": 0.9634
+   }
+  },
+  {
+   "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "gate_param_key": "require_bearish_fill_bar",
+   "refused_account": "bold",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 87,
+   "n_real_entries": 5,
+   "share": 0.0575,
+   "pnl": {
+    "n": 5,
+    "sum": 862.0,
+    "mean": 172.4,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 5,
+     "ci_lower_2.5": -59.2,
+     "ci_upper_97.5": 519.0
+    },
+    "top3_concentration_share": 0.938
+   }
+  },
+  {
+   "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "gate_param_key": "require_bearish_fill_bar",
+   "refused_account": "bold",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 87,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "gate_param_key": "require_bearish_fill_bar",
+   "refused_account": "bold",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 87,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_BULL_1100_1200",
+   "gate_param_key": "block_bull_1100_1200",
+   "refused_account": "safe",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 53,
+   "n_real_entries": 8,
+   "share": 0.1509,
+   "pnl": {
+    "n": 8,
+    "sum": 777.0,
+    "mean": 97.125,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 6,
+     "ci_lower_2.5": -33.2222,
+     "ci_upper_97.5": 266.1429
+    },
+    "top3_concentration_share": 0.5728
+   }
+  },
+  {
+   "gate": "SKIP_BULL_1100_1200",
+   "gate_param_key": "block_bull_1100_1200",
+   "refused_account": "safe",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 53,
+   "n_real_entries": 6,
+   "share": 0.1132,
+   "pnl": {
+    "n": 6,
+    "sum": -190.0,
+    "mean": -31.6667,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 4,
+     "ci_lower_2.5": -85.0,
+     "ci_upper_97.5": 2.0
+    },
+    "top3_concentration_share": 0.6667
+   }
+  },
+  {
+   "gate": "SKIP_BULL_1100_1200",
+   "gate_param_key": "block_bull_1100_1200",
+   "refused_account": "safe",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 53,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_BULL_1100_1200",
+   "gate_param_key": "block_bull_1100_1200",
+   "refused_account": "safe",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 53,
+   "n_real_entries": 8,
+   "share": 0.1509,
+   "pnl": {
+    "n": 8,
+    "sum": 816.0,
+    "mean": 102.0,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 6,
+     "ci_lower_2.5": -24.6667,
+     "ci_upper_97.5": 305.5
+    },
+    "top3_concentration_share": 0.7275
+   }
+  },
+  {
+   "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "gate_param_key": "block_conf_lvl_rec_afternoon",
+   "refused_account": "bold",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 51,
+   "n_real_entries": 3,
+   "share": 0.0588,
+   "pnl": {
+    "n": 3,
+    "sum": 259.0,
+    "mean": 86.3333,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 3,
+     "ci_lower_2.5": -15.0,
+     "ci_upper_97.5": 152.0
+    },
+    "top3_concentration_share": 1.0
+   }
+  },
+  {
+   "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "gate_param_key": "block_conf_lvl_rec_afternoon",
+   "refused_account": "bold",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 51,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "gate_param_key": "block_conf_lvl_rec_afternoon",
+   "refused_account": "bold",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 51,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "gate_param_key": "block_conf_lvl_rec_afternoon",
+   "refused_account": "bold",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 51,
+   "n_real_entries": 4,
+   "share": 0.0784,
+   "pnl": {
+    "n": 4,
+    "sum": 274.0,
+    "mean": 68.5,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 4,
+     "ci_lower_2.5": 3.0,
+     "ci_upper_97.5": 159.0
+    },
+    "top3_concentration_share": 0.9692
+   }
+  },
+  {
+   "gate": "SKIP_DOJI_ENTRY_BAR",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 9,
+   "n_real_entries": 1,
+   "share": 0.1111,
+   "pnl": {
+    "n": 1,
+    "sum": -145.0,
+    "mean": -145.0,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_DOJI_ENTRY_BAR",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 9,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_DOJI_ENTRY_BAR",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 9,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_DOJI_ENTRY_BAR",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 9,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_LATE_ENTRY",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 16,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 32,
+   "n_real_entries": 4,
+   "share": 0.125,
+   "pnl": {
+    "n": 4,
+    "sum": -715.0,
+    "mean": -178.75,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 4,
+     "ci_lower_2.5": -267.5,
+     "ci_upper_97.5": -102.5
+    },
+    "top3_concentration_share": 0.8601
+   }
+  },
+  {
+   "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 32,
+   "n_real_entries": 1,
+   "share": 0.0312,
+   "pnl": {
+    "n": 1,
+    "sum": 180.0,
+    "mean": 180.0,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 32,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 32,
+   "n_real_entries": 4,
+   "share": 0.125,
+   "pnl": {
+    "n": 4,
+    "sum": -537.0,
+    "mean": -134.25,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 4,
+     "ci_lower_2.5": -237.75,
+     "ci_upper_97.5": -63.0
+    },
+    "top3_concentration_share": 0.8883
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 2,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 2,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 2,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 2,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 1,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 1,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 1,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_SIGHT",
+   "gate_param_key": null,
+   "refused_account": "safe",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 1,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_TRIGGER",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 5,
+   "n_real_entries": 1,
+   "share": 0.2,
+   "pnl": {
+    "n": 1,
+    "sum": -25.0,
+    "mean": -25.0,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_TRIGGER",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 5,
+   "n_real_entries": 1,
+   "share": 0.2,
+   "pnl": {
+    "n": 1,
+    "sum": -80.0,
+    "mean": -80.0,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_TRIGGER",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 5,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STALE_TRIGGER",
+   "gate_param_key": null,
+   "refused_account": "bold",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "n_ticks": 5,
+   "n_real_entries": 1,
+   "share": 0.2,
+   "pnl": {
+    "n": 1,
+    "sum": -15.0,
+    "mean": -15.0,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STRUCTURE_VETO",
+   "gate_param_key": "structure_veto_enabled",
+   "refused_account": "safe",
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 54,
+   "n_real_entries": 5,
+   "share": 0.0926,
+   "pnl": {
+    "n": 5,
+    "sum": 59.0,
+    "mean": 11.8,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 4,
+     "ci_lower_2.5": -152.0,
+     "ci_upper_97.5": 241.75
+    },
+    "top3_concentration_share": 0.9354
+   }
+  },
+  {
+   "gate": "SKIP_STRUCTURE_VETO",
+   "gate_param_key": "structure_veto_enabled",
+   "refused_account": "safe",
+   "arm": "risky-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 54,
+   "n_real_entries": 1,
+   "share": 0.0185,
+   "pnl": {
+    "n": 1,
+    "sum": -204.0,
+    "mean": -204.0,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STRUCTURE_VETO",
+   "gate_param_key": "structure_veto_enabled",
+   "refused_account": "safe",
+   "arm": "safe-1",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 54,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "gate": "SKIP_STRUCTURE_VETO",
+   "gate_param_key": "structure_veto_enabled",
+   "refused_account": "safe",
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "n_ticks": 54,
+   "n_real_entries": 3,
+   "share": 0.0556,
+   "pnl": {
+    "n": 3,
+    "sum": 64.0,
+    "mean": 21.3333,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 3,
+     "ci_lower_2.5": -384.0,
+     "ci_upper_97.5": 433.0
+    },
+    "top3_concentration_share": 1.0
+   }
+  }
+ ],
+ "control_cohort_by_arm": [
+  {
+   "arm": "risky-1",
+   "n_ticks": 222,
+   "n_real_entries": 14,
+   "share": 0.0631,
+   "pnl": {
+    "n": 14,
+    "sum": 643.0,
+    "mean": 45.9286,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 9,
+     "ci_lower_2.5": -94.4667,
+     "ci_upper_97.5": 261.9091
+    },
+    "top3_concentration_share": 0.5365
+   }
+  },
+  {
+   "arm": "risky-3",
+   "n_ticks": 222,
+   "n_real_entries": 16,
+   "share": 0.0721,
+   "pnl": {
+    "n": 16,
+    "sum": -559.0,
+    "mean": -34.9375,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 8,
+     "ci_lower_2.5": -104.1333,
+     "ci_upper_97.5": 71.0
+    },
+    "top3_concentration_share": 0.432
+   }
+  },
+  {
+   "arm": "safe-1",
+   "n_ticks": 222,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "arm": "safe-3",
+   "n_ticks": 222,
+   "n_real_entries": 13,
+   "share": 0.0586,
+   "pnl": {
+    "n": 13,
+    "sum": -129.0,
+    "mean": -9.9231,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 9,
+     "ci_lower_2.5": -152.4286,
+     "ci_upper_97.5": 170.1818
+    },
+    "top3_concentration_share": 0.5536
+   }
+  }
+ ],
+ "vix_bands_bypass_only": [
+  {
+   "arm": "risky-1",
+   "band": "15-18",
+   "n_ticks": 206,
+   "n_real_entries": 15,
+   "share": 0.0728,
+   "pnl": {
+    "n": 15,
+    "sum": -548.0,
+    "mean": -36.5333,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 7,
+     "ci_lower_2.5": -112.9412,
+     "ci_upper_97.5": 86.1
+    },
+    "top3_concentration_share": 0.3785
+   }
+  },
+  {
+   "arm": "risky-1",
+   "band": "<15",
+   "n_ticks": 120,
+   "n_real_entries": 14,
+   "share": 0.1167,
+   "pnl": {
+    "n": 14,
+    "sum": 824.0,
+    "mean": 58.8571,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 6,
+     "ci_lower_2.5": -46.0,
+     "ci_upper_97.5": 227.0
+    },
+    "top3_concentration_share": 0.5726
+   }
+  },
+  {
+   "arm": "risky-3",
+   "band": "15-18",
+   "n_ticks": 206,
+   "n_real_entries": 9,
+   "share": 0.0437,
+   "pnl": {
+    "n": 9,
+    "sum": 992.0,
+    "mean": 110.2222,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 5,
+     "ci_lower_2.5": -43.875,
+     "ci_upper_97.5": 461.6667
+    },
+    "top3_concentration_share": 0.671
+   }
+  },
+  {
+   "arm": "risky-3",
+   "band": "<15",
+   "n_ticks": 120,
+   "n_real_entries": 5,
+   "share": 0.0417,
+   "pnl": {
+    "n": 5,
+    "sum": -424.0,
+    "mean": -84.8,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 5,
+     "ci_lower_2.5": -146.4,
+     "ci_upper_97.5": -36.0
+    },
+    "top3_concentration_share": 0.8585
+   }
+  },
+  {
+   "arm": "safe-1",
+   "band": "15-18",
+   "n_ticks": 206,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "arm": "safe-1",
+   "band": "<15",
+   "n_ticks": 120,
+   "n_real_entries": 0,
+   "share": 0.0,
+   "pnl": {
+    "n": 0,
+    "sum": 0.0,
+    "mean": null,
+    "ci": null,
+    "top3_concentration_share": null
+   }
+  },
+  {
+   "arm": "safe-3",
+   "band": "15-18",
+   "n_ticks": 206,
+   "n_real_entries": 12,
+   "share": 0.0583,
+   "pnl": {
+    "n": 12,
+    "sum": -396.0,
+    "mean": -33.0,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 6,
+     "ci_lower_2.5": -111.0,
+     "ci_upper_97.5": 54.0
+    },
+    "top3_concentration_share": 0.5628
+   }
+  },
+  {
+   "arm": "safe-3",
+   "band": "<15",
+   "n_ticks": 120,
+   "n_real_entries": 8,
+   "share": 0.0667,
+   "pnl": {
+    "n": 8,
+    "sum": 998.0,
+    "mean": 124.75,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 6,
+     "ci_lower_2.5": -118.0,
+     "ci_upper_97.5": 328.3333
+    },
+    "top3_concentration_share": 0.67
+   }
+  }
+ ],
+ "named_winning_days": {
+  "2026-08-06": {
+   "risky-1": {
+    "bypass": {
+     "n_ticks": 2,
+     "n_real_entries": 1,
+     "share": 0.5,
+     "pnl": {
+      "n": 1,
+      "sum": 296.0,
+      "mean": 296.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 3,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "risky-3": {
+    "bypass": {
+     "n_ticks": 2,
+     "n_real_entries": 1,
+     "share": 0.5,
+     "pnl": {
+      "n": 1,
+      "sum": 830.0,
+      "mean": 830.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 3,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-1": {
+    "bypass": {
+     "n_ticks": 2,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 3,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-3": {
+    "bypass": {
+     "n_ticks": 2,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 3,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   }
+  },
+  "2026-08-13": {
+   "risky-1": {
+    "bypass": {
+     "n_ticks": 15,
+     "n_real_entries": 2,
+     "share": 0.1333,
+     "pnl": {
+      "n": 2,
+      "sum": -3.0,
+      "mean": -1.5,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 13,
+     "n_real_entries": 1,
+     "share": 0.0769,
+     "pnl": {
+      "n": 1,
+      "sum": 405.0,
+      "mean": 405.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "risky-3": {
+    "bypass": {
+     "n_ticks": 15,
+     "n_real_entries": 1,
+     "share": 0.0667,
+     "pnl": {
+      "n": 1,
+      "sum": -80.0,
+      "mean": -80.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 13,
+     "n_real_entries": 2,
+     "share": 0.1538,
+     "pnl": {
+      "n": 2,
+      "sum": 276.0,
+      "mean": 138.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-1": {
+    "bypass": {
+     "n_ticks": 15,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 13,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-3": {
+    "bypass": {
+     "n_ticks": 15,
+     "n_real_entries": 2,
+     "share": 0.1333,
+     "pnl": {
+      "n": 2,
+      "sum": 109.0,
+      "mean": 54.5,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 13,
+     "n_real_entries": 1,
+     "share": 0.0769,
+     "pnl": {
+      "n": 1,
+      "sum": 348.0,
+      "mean": 348.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   }
+  },
+  "2026-08-27": {
+   "risky-1": {
+    "bypass": {
+     "n_ticks": 13,
+     "n_real_entries": 1,
+     "share": 0.0769,
+     "pnl": {
+      "n": 1,
+      "sum": 353.0,
+      "mean": 353.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 15,
+     "n_real_entries": 1,
+     "share": 0.0667,
+     "pnl": {
+      "n": 1,
+      "sum": 475.0,
+      "mean": 475.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "risky-3": {
+    "bypass": {
+     "n_ticks": 13,
+     "n_real_entries": 1,
+     "share": 0.0769,
+     "pnl": {
+      "n": 1,
+      "sum": -40.0,
+      "mean": -40.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 15,
+     "n_real_entries": 2,
+     "share": 0.1333,
+     "pnl": {
+      "n": 2,
+      "sum": -15.0,
+      "mean": -7.5,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-1": {
+    "bypass": {
+     "n_ticks": 13,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 15,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-3": {
+    "bypass": {
+     "n_ticks": 13,
+     "n_real_entries": 1,
+     "share": 0.0769,
+     "pnl": {
+      "n": 1,
+      "sum": 303.0,
+      "mean": 303.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 15,
+     "n_real_entries": 1,
+     "share": 0.0667,
+     "pnl": {
+      "n": 1,
+      "sum": 285.0,
+      "mean": 285.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   }
+  },
+  "2026-08-28": {
+   "risky-1": {
+    "bypass": {
+     "n_ticks": 6,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 22,
+     "n_real_entries": 1,
+     "share": 0.0455,
+     "pnl": {
+      "n": 1,
+      "sum": 650.0,
+      "mean": 650.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "risky-3": {
+    "bypass": {
+     "n_ticks": 6,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 22,
+     "n_real_entries": 5,
+     "share": 0.2273,
+     "pnl": {
+      "n": 5,
+      "sum": -460.0,
+      "mean": -92.0,
+      "ci": null,
+      "top3_concentration_share": 0.7283
+     }
+    }
+   },
+   "safe-1": {
+    "bypass": {
+     "n_ticks": 6,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 22,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-3": {
+    "bypass": {
+     "n_ticks": 6,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 22,
+     "n_real_entries": 1,
+     "share": 0.0455,
+     "pnl": {
+      "n": 1,
+      "sum": 563.0,
+      "mean": 563.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   }
+  }
+ },
+ "september_window": {
+  "start_date": "2026-09-01",
+  "by_arm": {
+   "risky-1": {
+    "bypass": {
+     "n_ticks": 74,
+     "n_real_entries": 7,
+     "share": 0.0946,
+     "pnl": {
+      "n": 7,
+      "sum": 32.0,
+      "mean": 4.5714,
+      "ci": {
+       "n_boot": 2000,
+       "n_days_clustered": 2,
+       "ci_lower_2.5": -86.25,
+       "ci_upper_97.5": 125.6667
+      },
+      "top3_concentration_share": 0.7309
+     }
+    },
+    "control": {
+     "n_ticks": 29,
+     "n_real_entries": 1,
+     "share": 0.0345,
+     "pnl": {
+      "n": 1,
+      "sum": -65.0,
+      "mean": -65.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "risky-3": {
+    "bypass": {
+     "n_ticks": 74,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 29,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-1": {
+    "bypass": {
+     "n_ticks": 74,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    },
+    "control": {
+     "n_ticks": 29,
+     "n_real_entries": 0,
+     "share": 0.0,
+     "pnl": {
+      "n": 0,
+      "sum": 0.0,
+      "mean": null,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   },
+   "safe-3": {
+    "bypass": {
+     "n_ticks": 74,
+     "n_real_entries": 7,
+     "share": 0.0946,
+     "pnl": {
+      "n": 7,
+      "sum": 457.0,
+      "mean": 65.2857,
+      "ci": {
+       "n_boot": 2000,
+       "n_days_clustered": 2,
+       "ci_lower_2.5": -53.25,
+       "ci_upper_97.5": 223.3333
+      },
+      "top3_concentration_share": 0.8503
+     }
+    },
+    "control": {
+     "n_ticks": 29,
+     "n_real_entries": 1,
+     "share": 0.0345,
+     "pnl": {
+      "n": 1,
+      "sum": -65.0,
+      "mean": -65.0,
+      "ci": null,
+      "top3_concentration_share": null
+     }
+    }
+   }
+  }
+ },
+ "forward_bar": {
+  "start_date": "2026-09-04",
+  "min_forward_sessions": 20,
+  "min_real_bypass_entries": 20,
+  "n_forward_sessions_elapsed": 0,
+  "decision_focus_arms": [
+   "safe-3",
+   "safe-1"
+  ],
+  "by_arm": {
+   "safe-3": {
+    "n_forward_real_bypass_entries": 0,
+    "bar_met": false
+   },
+   "risky-1": {
+    "n_forward_real_bypass_entries": 0,
+    "bar_met": false
+   },
+   "risky-3": {
+    "n_forward_real_bypass_entries": 0,
+    "bar_met": false,
+    "note": "retired 2026-08-28 -- will not accrue new forward entries"
+   },
+   "safe-1": {
+    "n_forward_real_bypass_entries": 0,
+    "bar_met": false,
+    "note": "retired 2026-07-11 -- will not accrue new forward entries"
+   }
+  },
+  "status": "ACCRUING"
+ },
+ "status": "ACCRUING",
+ "decision_rule": "This ledger NEVER ships a trading-path change by itself. Once the forward bar (>= 20 forward sessions AND >= 20 real bypass entries) is met for a decision-focus arm, the FROZEN rule in analysis/recommendations/prereg-fleet-gate-inheritance-2026-09-03.md applies -- reaching the bar is permission to READ the verdict, never to ship regardless of the read.",
+ "new_this_run": 0,
+ "n_rows_total": 2192
+}
