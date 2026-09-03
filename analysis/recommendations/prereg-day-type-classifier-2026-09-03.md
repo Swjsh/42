@@ -328,3 +328,78 @@ up via the wake-protocol conductor loop's Stage-1 priority-5 rail,
 
 **No scheduled task was added for either path** — the daemon's existing keepalive/seeder and
 the conductor's existing wake-protocol cover both without new automation surface.
+
+---
+
+## Forward shadow (2026-09-03)
+
+**Frozen addendum — queue item DAY-TYPE-FORWARD-SHADOW.** The F5 cook
+(`analysis/recommendations/day-type-classifier-cook-2026-09-03.json`) produced verdict
+`SHADOW_CANDIDATE` for `single_split__prior_day_range_dollars` (WF exactly 0.70, n=32,
+marginal — section 4/5's bars cleared, but on a thin sample; the cook's own `caveat` field
+says as much). Section 6 above already froze the rule: reaching the ship-to-SHADOW bar is
+**permission to build the forward clock, never permission to ship live.** This addendum
+freezes that forward clock's own read-out rule, so a future session (or J) reading the
+accruing ledger has a single unambiguous bar to check against, not a judgment call made up
+after the fact.
+
+**Rule frozen, ONCE, by `backtest/tools/day_type_labels.py::_freeze_or_load_forward_rule`**
+into `analysis/recommendations/day-type-forward-rule.json` on its first run after this
+addendum shipped — `feature=prior_day_range_dollars`, `threshold=6.57`,
+`direction=low_is_paying` (sourced from the cook JSON's largest-training-data LOWO fold,
+`2026-W36`, `n_train=31/32` — the closest available proxy to a full-population fit, since
+the cook JSON itself only ever fits per-fold, never a single pooled threshold). **Never
+re-read from the cook JSON again** — a later Kitchen cook regenerates a NEW dated
+`day-type-classifier-cook-<date>.json` file and must not be able to drift this frozen rule
+out from under an already-accruing ledger.
+
+**Forward scoring**: every trading session from `first_forward_session = 2026-09-04`
+onward gets a `trade`/`stand_down` prediction from its OWN `features_0935.
+prior_day_range_dollars` value (never `features_0945` or any later-computed quantity —
+structurally enforced, guarded by
+`test_forward_shadow_prediction_uses_only_0935_feature_of_same_date`), scored against its
+REALIZED `paying`/`tax` label once the session closes. **No backfill** — every session
+dated before 2026-09-04 is recorded with `in_sample: true` and is disclosure-only, never
+counted toward the forward bar (identical convention to `tp1_r50_forward_shadow.py` /
+`day_throttle_shadow.py`'s own forward clocks).
+
+**Ship-to-SHADOW-gate bar on the forward ledger** (this is the bar for the *forward
+clock's own read*, distinct from and in addition to the section-5 bar the LOWO-CV fit
+already cleared to earn this clock in the first place):
+
+> The rule may move to an actual SHADOW gate (still not live) **if and only if**, over
+> **≥ 20 forward trading sessions** counted strictly from 2026-09-04 (never sessions used
+> to freeze the rule):
+> - **forward tax-day stand-down rate ≥ 50%** — of every forward session realized `tax`,
+>   at least half were predicted `stand_down`, AND
+> - **every forward `paying` day was predicted `trade`** — zero forward sessions realized
+>   `paying` were ever predicted `stand_down` (mirrors section 5's own anchor-day
+>   zero-tolerance framing: a rule that would have stood down a single real paying day
+>   forward-out-of-sample does not ship, no matter how good its tax-day removal rate is).
+>
+> Both conditions are read from `analysis/recommendations/day-type-labels.json`'s
+> `forward_shadow.forward_counts` block once `forward_shadow.n_forward_sessions >=
+> forward_shadow.forward_min_sessions` (20) — i.e. once `forward_shadow.status` flips from
+> `ACCRUING` to `BAR_MET_AWAITING_VERDICT`. Reaching `BAR_MET_AWAITING_VERDICT` is
+> permission to READ the verdict, not to ship it automatically — a human/session judgment
+> read against these two numbers, same framing as section 5's own "reaching this bar is
+> permission to build the SHADOW forward clock, not to ship live."
+
+**Never a live gate before 2026-10-30.** This forward clock can, at absolute best, produce
+a SHADOW-gate verdict — it cannot ever produce a live-trading verdict, full stop, and even
+a SHADOW-gate read is subordinate to the project-wide config freeze already in force
+through 2026-09-29 (`project_september_clean_window_plan_2026_08_29`) and this strategy's
+own `WEEKLY-OPTIONS`-style caution: nothing from this instrument reaches
+`params.json`/`heartbeat_core.py` before **2026-10-30** under any circumstance, regardless
+of how the forward numbers land.
+
+**Falsifier — stated up front, per CLAUDE.md's anti-sycophancy discipline.** This rule is
+FALSIFIED (verdict frozen as `NOT_SHIPPABLE_FORWARD`, forward clock closed, no re-freeze
+without a new prereg) if, at `n_forward_sessions >= 20`: the forward tax-day stand-down
+rate is `< 50%`, OR any single forward `paying` day was predicted `stand_down`. Given
+`WF` landed at exactly the 0.70 floor on n=32 (the marginal case the task brief itself
+flags), a forward miss on either bar is the EXPECTED failure mode to watch for, not a
+surprising one — this is a thin-sample candidate being asked to prove itself out-of-sample
+on genuinely unseen data, and the honest prior is that it may well fail that bar. No
+number in `forward_shadow` before `n_forward_sessions == 20` supports any ship/kill
+decision either way; reading it early is not a shortcut, it is noise.

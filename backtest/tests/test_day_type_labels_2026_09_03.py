@@ -19,6 +19,7 @@ Covers:
 """
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -237,3 +238,174 @@ def test_named_anchor_days_are_paying_on_real_ledger():
     for d in dtl.NAMED_BIG_DAYS:
         assert by_date.get(d) == "paying", f"{d} expected paying, got {by_date.get(d)}"
     assert meta["all_four_anchor_days_paying"] is True
+
+
+# ---------------------------------------------------------------------------------
+# 8. DAY-TYPE-FORWARD-SHADOW (queue item, added 2026-09-03) -- freeze/predict/build tests
+# ---------------------------------------------------------------------------------
+def _fake_cook_doc(threshold: float, direction: str = "low_is_paying",
+                    feature: str = "prior_day_range_dollars") -> dict:
+    """Minimal cook JSON shape (day_type_classifier_grinder.py's real output) with exactly
+    the fields _freeze_or_load_forward_rule reads: best_candidate_id, verdict, and one
+    candidate with fold_details (varying n_train, so the largest-n_train-fold selection is
+    exercised the same way it is against the real cook file)."""
+    cid = f"single_split__{feature}"
+    return {
+        "best_candidate_id": cid,
+        "verdict": "SHADOW_CANDIDATE",
+        "candidates": [{
+            "candidate_id": cid, "type": "single_split", "feature": feature,
+            "fold_details": [
+                {"week": "2026-W27", "n_train": 20, "n_test": 3,
+                 "fit_used": {"threshold": threshold - 1.0, "direction": direction,
+                              "train_balanced_acc": 0.6}},
+                {"week": "2026-W28", "n_train": 28, "n_test": 1,  # largest n_train -> wins
+                 "fit_used": {"threshold": threshold, "direction": direction,
+                              "train_balanced_acc": 0.7}},
+            ],
+        }],
+    }
+
+
+def test_forward_rule_frozen_on_first_run_and_not_reread(tmp_path, monkeypatch):
+    cook_path = tmp_path / "cook.json"
+    rule_path = tmp_path / "day-type-forward-rule.json"
+    cook_path.write_text(json.dumps(_fake_cook_doc(threshold=5.0)), encoding="utf-8")
+    monkeypatch.setattr(dtl, "COOK_JSON", cook_path)
+    monkeypatch.setattr(dtl, "FORWARD_RULE_JSON", rule_path)
+
+    first = dtl._freeze_or_load_forward_rule()
+    assert first["rule"]["threshold"] == 5.0
+    assert first["rule"]["feature"] == "prior_day_range_dollars"
+    assert first["rule"]["direction"] == "low_is_paying"
+    assert rule_path.exists()
+
+    # simulate a LATER Kitchen cook overwriting cook.json with a wildly different rule --
+    # the frozen sidecar must NEVER pick this up.
+    cook_path.write_text(json.dumps(_fake_cook_doc(threshold=999.0, direction="high_is_paying",
+                                                     feature="vix_level_0935")),
+                          encoding="utf-8")
+    second = dtl._freeze_or_load_forward_rule()
+    assert second == first, "a later cook must never change the frozen forward rule"
+    assert second["rule"]["threshold"] == 5.0
+
+
+def test_forward_rule_freeze_is_idempotent_no_rewrite(tmp_path, monkeypatch):
+    cook_path = tmp_path / "cook.json"
+    rule_path = tmp_path / "day-type-forward-rule.json"
+    cook_path.write_text(json.dumps(_fake_cook_doc(threshold=6.57)), encoding="utf-8")
+    monkeypatch.setattr(dtl, "COOK_JSON", cook_path)
+    monkeypatch.setattr(dtl, "FORWARD_RULE_JSON", rule_path)
+
+    dtl._freeze_or_load_forward_rule()
+    mtime_1 = rule_path.stat().st_mtime_ns
+    content_1 = rule_path.read_text(encoding="utf-8")
+    dtl._freeze_or_load_forward_rule()
+    dtl._freeze_or_load_forward_rule()
+    assert rule_path.stat().st_mtime_ns == mtime_1, "sidecar must not be rewritten once frozen"
+    assert rule_path.read_text(encoding="utf-8") == content_1
+
+
+def _session(date, label, prior_day_range_dollars, or_width=None):
+    """Synthetic session row shaped like day_type_labels.run()'s per-date session dict --
+    features_0945 carries a DIFFERENT value under the same key name to prove the predictor
+    never reads it (no-look-ahead into the 09:45 bucket)."""
+    return {
+        "date": date, "label": label,
+        "features_0935": {"prior_day_range_dollars": prior_day_range_dollars},
+        "features_0945": {"prior_day_range_dollars": or_width if or_width is not None else -9999.0},
+    }
+
+
+def test_forward_shadow_prediction_uses_only_0935_feature_of_same_date():
+    rule_doc = {"rule": {"feature": "prior_day_range_dollars", "threshold": 6.57,
+                          "direction": "low_is_paying"},
+                "first_forward_session": "2026-09-04"}
+    sessions = [_session("2026-07-01", "tax", prior_day_range_dollars=5.0, or_width=999.0)]
+    fw = dtl.build_forward_shadow(sessions, rule_doc)
+    # 5.0 <= 6.57 -> 'trade' under low_is_paying, using the 0935 value (5.0), NOT the
+    # 0945 bucket's poisoned 999.0 (which would flip nothing here anyway since predict
+    # never even looks at features_0945)
+    assert fw["rows"][0]["predicted"] == "trade"
+
+    # now flip: 0935 value ABOVE threshold -> stand_down, while 0945 bucket is planted with
+    # a value that WOULD predict 'trade' if it were (wrongly) read instead
+    sessions2 = [_session("2026-07-01", "tax", prior_day_range_dollars=10.0, or_width=1.0)]
+    fw2 = dtl.build_forward_shadow(sessions2, rule_doc)
+    assert fw2["rows"][0]["predicted"] == "stand_down"
+
+
+def test_forward_shadow_in_sample_flag_correct():
+    rule_doc = {"rule": {"feature": "prior_day_range_dollars", "threshold": 6.57,
+                          "direction": "low_is_paying"},
+                "first_forward_session": "2026-09-04"}
+    sessions = [
+        _session("2026-09-02", "paying", prior_day_range_dollars=3.0),   # before freeze date
+        _session("2026-09-03", "tax", prior_day_range_dollars=3.0),      # still before
+        _session("2026-09-04", "paying", prior_day_range_dollars=3.0),   # first forward session
+        _session("2026-09-08", "tax", prior_day_range_dollars=3.0),      # clearly forward
+    ]
+    fw = dtl.build_forward_shadow(sessions, rule_doc)
+    by_date = {r["date"]: r["in_sample"] for r in fw["rows"]}
+    assert by_date["2026-09-02"] is True
+    assert by_date["2026-09-03"] is True
+    assert by_date["2026-09-04"] is False, "first_forward_session itself must be forward, not backfill"
+    assert by_date["2026-09-08"] is False
+    assert fw["n_forward_sessions"] == 2
+
+
+def test_forward_shadow_counts_correct_on_synthetic_table():
+    rule_doc = {"rule": {"feature": "prior_day_range_dollars", "threshold": 6.57,
+                          "direction": "low_is_paying"},
+                "first_forward_session": "2026-09-04"}
+    sessions = [
+        # backfill (in_sample) -- must NEVER contribute to forward_counts
+        _session("2026-08-01", "tax", prior_day_range_dollars=10.0),
+        # forward: 2 tax days, one correctly predicted stand_down (12.0 > 6.57), one missed
+        # (3.0 <= 6.57 -> wrongly predicted trade)
+        _session("2026-09-04", "tax", prior_day_range_dollars=12.0),
+        _session("2026-09-08", "tax", prior_day_range_dollars=3.0),
+        # forward: 3 paying days, all correctly predicted trade (<= threshold)
+        _session("2026-09-09", "paying", prior_day_range_dollars=1.0),
+        _session("2026-09-10", "paying", prior_day_range_dollars=2.0),
+        _session("2026-09-11", "paying", prior_day_range_dollars=6.57),  # boundary: <= is trade
+        # forward but unlabeled outcome types -- excluded from rows/counts entirely
+        _session("2026-09-14", "mixed", prior_day_range_dollars=1.0),
+        _session("2026-09-15", "no_trade", prior_day_range_dollars=1.0),
+        _session("2026-09-16", "in_progress", prior_day_range_dollars=1.0),
+    ]
+    fw = dtl.build_forward_shadow(sessions, rule_doc)
+    counts = fw["forward_counts"]
+    assert counts["tax_days_total"] == 2
+    assert counts["tax_days_predicted_stand_down"] == 1
+    assert counts["paying_days_total"] == 3
+    assert counts["paying_days_predicted_trade"] == 3
+    assert fw["n_forward_sessions"] == 5           # 2 tax + 3 paying forward rows
+    assert len(fw["rows"]) == 6                    # + the one backfill tax row; mixed/no_trade/
+                                                    # in_progress never enter rows at all
+    assert fw["status"] == "ACCRUING"              # 5 < FORWARD_SHADOW_MIN_SESSIONS (20)
+
+
+def test_forward_shadow_status_bar_met_at_20_forward_sessions():
+    rule_doc = {"rule": {"feature": "prior_day_range_dollars", "threshold": 6.57,
+                          "direction": "low_is_paying"},
+                "first_forward_session": "2026-09-04"}
+    sessions = [_session(f"2026-10-{d:02d}", "paying" if d % 2 else "tax",
+                          prior_day_range_dollars=3.0)
+                for d in range(1, 21)]  # 20 forward sessions, all after 2026-09-04
+    fw = dtl.build_forward_shadow(sessions, rule_doc)
+    assert fw["n_forward_sessions"] == 20
+    assert fw["status"] == "BAR_MET_AWAITING_VERDICT"
+
+
+def test_forward_shadow_build_is_deterministic_idempotent():
+    rule_doc = {"rule": {"feature": "prior_day_range_dollars", "threshold": 6.57,
+                          "direction": "low_is_paying"},
+                "first_forward_session": "2026-09-04"}
+    sessions = [
+        _session("2026-08-01", "tax", prior_day_range_dollars=10.0),
+        _session("2026-09-05", "paying", prior_day_range_dollars=1.0),
+    ]
+    fw1 = dtl.build_forward_shadow(sessions, rule_doc)
+    fw2 = dtl.build_forward_shadow(sessions, rule_doc)
+    assert fw1 == fw2

@@ -83,6 +83,17 @@ $0. Pure Python stdlib (no pandas/numpy) over two already-written JSONL files on
 Read-only on automation/state/**; writes only its own output JSON. Never places an order,
 never touches params*.json/heartbeat_core.py/strategies.py/accounts.json.
 
+DAY-TYPE-FORWARD-SHADOW (queue item, added 2026-09-03): the F5 cook
+(backtest/autoresearch/day_type_classifier_grinder.py ->
+analysis/recommendations/day-type-classifier-cook-2026-09-03.json) produced a
+SHADOW_CANDIDATE verdict for `single_split__prior_day_range_dollars`. Per prereg section 6
+("reaching the bar is permission to build the SHADOW forward clock, never permission to
+ship live"), this run also freezes that winning rule ONCE into
+analysis/recommendations/day-type-forward-rule.json (never re-read from the cook after
+that) and writes a `forward_shadow` block into this script's own output
+(day-type-labels.json) predicting trade/stand_down from each session's 09:35 features next
+to its realized label. See `_freeze_or_load_forward_rule` / `build_forward_shadow` below.
+
 Run: python backtest/tools/day_type_labels.py
 """
 from __future__ import annotations
@@ -105,6 +116,19 @@ CORE_DECISIONS = REPO / "automation" / "state" / "core-decisions.jsonl"
 OUT_DIR = REPO / "analysis" / "recommendations"
 OUT_JSON = OUT_DIR / "day-type-labels.json"
 PREREG_REL = "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md"
+
+# ------------------------------------------------------------------------------------------
+# DAY-TYPE-FORWARD-SHADOW (queue item, added 2026-09-03) -- the frozen SHADOW_CANDIDATE rule
+# from the F5 cook (backtest/autoresearch/day_type_classifier_grinder.py) gets a forward
+# shadow clock per prereg section 6 ("reaching the ship gate is permission to build the
+# SHADOW forward clock, never permission to ship live"). See _freeze_or_load_forward_rule
+# and build_forward_shadow below.
+# ------------------------------------------------------------------------------------------
+COOK_JSON_REL = "analysis/recommendations/day-type-classifier-cook-2026-09-03.json"
+COOK_JSON = REPO / "analysis" / "recommendations" / "day-type-classifier-cook-2026-09-03.json"
+FORWARD_RULE_JSON = OUT_DIR / "day-type-forward-rule.json"
+FIRST_FORWARD_SESSION = "2026-09-04"   # per task brief, exact -- the freeze happens 2026-09-03
+FORWARD_SHADOW_MIN_SESSIONS = 20       # prereg section 6's "smallest measurement that settles it"
 
 LABEL_TABLE_START_DATE = "2026-07-01"      # per the F5 task brief, exact
 EXIT_MULTIPLE_PAYING_THRESHOLD = 1.3       # "exits >= 1.3x entry premium" -- the engine's
@@ -486,6 +510,170 @@ def build_features(today_str: str) -> list[dict]:
 
 
 # ------------------------------------------------------------------------------------------
+# 3. FORWARD SHADOW -- freeze the F5 cook's winning candidate ONCE, then score every
+#    session's 09:35 features against it, never re-reading the cook after the freeze
+# ------------------------------------------------------------------------------------------
+def _freeze_or_load_forward_rule() -> dict:
+    """Loads the frozen forward-shadow rule sidecar (FORWARD_RULE_JSON), creating it ONCE
+    from the cook JSON's winning candidate if the sidecar does not yet exist. After that
+    first creation, EVERY later call (this run and every future run) reads ONLY this
+    sidecar -- COOK_JSON is never opened again. This is deliberate: a later Kitchen cook
+    fire regenerates a NEW dated `day-type-classifier-cook-<date>.json` (see
+    day_type_classifier_grinder.py's docstring, "Writes ONE file ... date computed
+    in-script"); if this loader re-read a cook file on every run, the frozen forward rule
+    would silently drift every time Kitchen re-cooks, defeating the entire point of a
+    forward-scored shadow clock (prereg section 6: "no backfill", a re-fit classifier is
+    "a distinct future build"). To freeze a DIFFERENT candidate, a future session must
+    explicitly delete or version this sidecar -- this module will never overwrite it on
+    its own once it exists."""
+    if FORWARD_RULE_JSON.exists():
+        try:
+            return json.loads(FORWARD_RULE_JSON.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass  # only a corrupt/unreadable sidecar falls through to a re-freeze -- a
+            # healthy read above always returns without touching the cook JSON at all
+
+    if not COOK_JSON.exists():
+        raise FileNotFoundError(
+            f"forward-rule sidecar {FORWARD_RULE_JSON} does not exist yet AND the one-time "
+            f"source cook JSON {COOK_JSON_REL} is missing -- cannot freeze the F5 forward "
+            "rule. Loud failure, not a silent skip (C7/OP-33)."
+        )
+    cook = json.loads(COOK_JSON.read_text(encoding="utf-8"))
+    best_id = cook.get("best_candidate_id")
+    if cook.get("verdict") != "SHADOW_CANDIDATE" or not best_id:
+        raise ValueError(
+            f"cook JSON {COOK_JSON_REL} has no SHADOW_CANDIDATE winning candidate "
+            f"(verdict={cook.get('verdict')!r}, best_candidate_id={best_id!r}) -- nothing "
+            "to freeze."
+        )
+    cand = next((c for c in cook["candidates"] if c["candidate_id"] == best_id), None)
+    if cand is None or cand.get("type") != "single_split":
+        raise ValueError(
+            f"winning candidate {best_id!r} not found, or not a single_split rule, in "
+            f"{COOK_JSON_REL} -- this sidecar format only holds a single "
+            "feature/threshold/direction triple (section 3's other frozen class, "
+            "tree_depth2, does not fit this shape)."
+        )
+    # The cook JSON only ever fits a threshold PER LOWO FOLD, on that fold's training
+    # weeks only (day_type_classifier_grinder.py's own docstring: "never the pooled/global
+    # population -- that would leak the held-out week's distribution into the fit") -- so
+    # there is no single pooled-population threshold already sitting in the file. The fold
+    # with the LARGEST n_train is the closest available proxy to a full-population fit,
+    # and is used here rather than re-deriving a new statistic that does not already exist
+    # in the cook JSON (staying inside "read ... ONCE").
+    fold_by_train = max(cand["fold_details"], key=lambda f: f["n_train"])
+    fit = fold_by_train["fit_used"]
+    rule = {
+        "feature": cand["feature"],
+        "threshold": fit["threshold"],
+        "direction": fit["direction"],
+        "missing_value_policy": "trade -- never auto-stand-down on data the rule never saw "
+                                 "(same policy as "
+                                 "day_type_classifier_grinder.py._predict_single_split)",
+    }
+    doc = {
+        "_meta": {
+            "frozen_at_et": _stamp_now_et()[0],
+            "frozen_from_cook_json": COOK_JSON_REL,
+            "source_candidate_id": best_id,
+            "source_fold": (
+                f"{fold_by_train['week']} (n_train={fold_by_train['n_train']}/"
+                f"{fold_by_train['n_train'] + fold_by_train['n_test']} -- largest-training-"
+                "data fold in the cook JSON; used as the closest available full-population "
+                "proxy since the cook JSON never fits a single pooled threshold, only "
+                "per-LOWO-fold values)"
+            ),
+            "verdict_at_freeze": cook.get("verdict"),
+            "prereg": PREREG_REL,
+            "never_reread_note": (
+                "FROZEN ONCE, on first creation of this file. Every later "
+                "day_type_labels.py run reads ONLY this sidecar -- it never re-reads any "
+                "day-type-classifier-cook-*.json again, including a later Kitchen cook "
+                "that regenerates a NEW dated cook file. The rule must not drift with "
+                "later cooks (prereg section 6: 'no backfill', a re-fit classifier is 'a "
+                "distinct future build'). To freeze a different candidate, a future "
+                "session must explicitly delete or version this file."
+            ),
+        },
+        "rule": rule,
+        "first_forward_session": FIRST_FORWARD_SESSION,
+    }
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    FORWARD_RULE_JSON.write_text(json.dumps(doc, indent=1), encoding="utf-8")
+    return doc
+
+
+def _predict_day_type(feat_value: float | None, rule: dict) -> str:
+    """'trade' or 'stand_down' from ONE 09:35 feature value + the frozen rule. Missing
+    value -> always 'trade' (the rule's own disclosed missing_value_policy)."""
+    if feat_value is None:
+        return "trade"
+    threshold = rule["threshold"]
+    if rule["direction"] == "high_is_paying":
+        predicted_paying = feat_value > threshold
+    else:
+        predicted_paying = feat_value <= threshold
+    return "trade" if predicted_paying else "stand_down"
+
+
+def build_forward_shadow(sessions: list[dict], rule_doc: dict) -> dict:
+    """Scores every REALIZED (paying/tax) session's `features_0935` value for the frozen
+    rule's feature against the frozen threshold -- mixed/no_trade/in_progress sessions
+    carry no paying/tax ground truth to grade the rule against, so they are excluded from
+    `rows` entirely (same exclusion the LOWO-CV fit itself uses, prereg section 4 point 1).
+    `in_sample` is True for any date before `first_forward_session` (the historical
+    backfill window this rule was frozen from) and False from that date on (a genuine
+    forward, never-seen-at-freeze-time session) -- `forward_counts` is scored on the
+    in_sample=False rows ONLY, per the prereg's own 'no backfill' forward-clock doctrine."""
+    rule = rule_doc["rule"]
+    first_forward = rule_doc.get("first_forward_session", FIRST_FORWARD_SESSION)
+    feature = rule["feature"]
+
+    rows = []
+    tax_days_total = tax_days_predicted_stand_down = 0
+    paying_days_total = paying_days_predicted_trade = 0
+    for s in sessions:
+        label = s["label"]
+        if label not in ("paying", "tax"):
+            continue
+        f0935 = s.get("features_0935") or {}
+        predicted = _predict_day_type(f0935.get(feature), rule)
+        in_sample = s["date"] < first_forward
+        rows.append({
+            "date": s["date"], "predicted": predicted, "realized_label": label,
+            "in_sample": in_sample,
+        })
+        if in_sample:
+            continue
+        if label == "tax":
+            tax_days_total += 1
+            if predicted == "stand_down":
+                tax_days_predicted_stand_down += 1
+        else:  # label == "paying"
+            paying_days_total += 1
+            if predicted == "trade":
+                paying_days_predicted_trade += 1
+
+    n_forward = sum(1 for r in rows if not r["in_sample"])
+    status = "BAR_MET_AWAITING_VERDICT" if n_forward >= FORWARD_SHADOW_MIN_SESSIONS else "ACCRUING"
+    return {
+        "rule": rule,
+        "first_forward_session": first_forward,
+        "rows": rows,
+        "forward_counts": {
+            "tax_days_predicted_stand_down": tax_days_predicted_stand_down,
+            "tax_days_total": tax_days_total,
+            "paying_days_predicted_trade": paying_days_predicted_trade,
+            "paying_days_total": paying_days_total,
+        },
+        "n_forward_sessions": n_forward,
+        "forward_min_sessions": FORWARD_SHADOW_MIN_SESSIONS,
+        "status": status,
+    }
+
+
+# ------------------------------------------------------------------------------------------
 def run() -> dict:
     t_start = time.time()
     stamp_iso, today_str = _stamp_now_et()
@@ -517,6 +705,8 @@ def run() -> dict:
         "label_summary": label_meta,
         "sessions": sessions,
     }
+    rule_doc = _freeze_or_load_forward_rule()
+    doc["forward_shadow"] = build_forward_shadow(sessions, rule_doc)
     doc["_meta"]["build_wall_seconds"] = round(time.time() - t_start, 3)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -532,6 +722,12 @@ def main() -> int:
           f"all_four_anchor_days_paying={summ['all_four_anchor_days_paying']} "
           f"wall_seconds={meta['build_wall_seconds']}")
     print(f"anchor_day_check={json.dumps(summ['anchor_day_check'])}")
+    fw = doc["forward_shadow"]
+    print(f"forward_shadow: rule={fw['rule']['feature']} threshold={fw['rule']['threshold']} "
+          f"direction={fw['rule']['direction']} first_forward_session="
+          f"{fw['first_forward_session']} n_rows={len(fw['rows'])} "
+          f"n_forward_sessions={fw['n_forward_sessions']}/{fw['forward_min_sessions']} "
+          f"status={fw['status']} counts={fw['forward_counts']}")
     print(f"wrote {OUT_JSON.relative_to(REPO)}")
     return 0
 

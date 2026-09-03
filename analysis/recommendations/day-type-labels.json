@@ -1,7 +1,7 @@
 {
  "_meta": {
   "prereg": "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md",
-  "generated_at_et": "2026-09-03T11:30:52.331580",
+  "generated_at_et": "2026-09-03T18:16:47.088852",
   "today_session_et": "2026-09-03",
   "label_table_start_date": "2026-07-01",
   "sources": {
@@ -15,7 +15,7 @@
    "2026-08-27",
    "2026-08-28"
   ],
-  "build_wall_seconds": 0.837
+  "build_wall_seconds": 0.827
  },
  "label_summary": {
   "label_counts": {
@@ -1732,13 +1732,13 @@
   {
    "date": "2026-09-03",
    "day_of_week": "Thursday",
-   "n_activities_total": 15,
-   "n_closed": 13,
-   "n_winners": 4,
-   "n_losers": 9,
+   "n_activities_total": 17,
+   "n_closed": 17,
+   "n_winners": 6,
+   "n_losers": 11,
    "n_scratch": 0,
-   "n_still_open": 3,
-   "book_pnl": 154.0,
+   "n_still_open": 0,
+   "book_pnl": 734.0,
    "had_exit_ge_1_3x": true,
    "label": "in_progress",
    "label_rule": "current_session_never_finalized",
@@ -1771,5 +1771,217 @@
     "first_15min_ribbon_flips_count": 0
    }
   }
- ]
+ ],
+ "forward_shadow": {
+  "rule": {
+   "feature": "prior_day_range_dollars",
+   "threshold": 6.57,
+   "direction": "low_is_paying",
+   "missing_value_policy": "trade -- never auto-stand-down on data the rule never saw (same policy as day_type_classifier_grinder.py._predict_single_split)"
+  },
+  "first_forward_session": "2026-09-04",
+  "rows": [
+   {
+    "date": "2026-07-01",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-02",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-07",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-08",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-09",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-13",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-15",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-16",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-17",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-20",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-22",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-23",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-27",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-29",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-30",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-07-31",
+    "predicted": "stand_down",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-03",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-04",
+    "predicted": "stand_down",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-06",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-07",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-11",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-13",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-14",
+    "predicted": "stand_down",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-17",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-18",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-19",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-20",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-24",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-25",
+    "predicted": "trade",
+    "realized_label": "tax",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-27",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-08-28",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   },
+   {
+    "date": "2026-09-01",
+    "predicted": "trade",
+    "realized_label": "paying",
+    "in_sample": true
+   }
+  ],
+  "forward_counts": {
+   "tax_days_predicted_stand_down": 0,
+   "tax_days_total": 0,
+   "paying_days_predicted_trade": 0,
+   "paying_days_total": 0
+  },
+  "n_forward_sessions": 0,
+  "forward_min_sessions": 20,
+  "status": "ACCRUING"
+ }
 }

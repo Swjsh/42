@@ -1,0 +1,18 @@
+{
+ "_meta": {
+  "frozen_at_et": "2026-09-03T18:14:30.652236",
+  "frozen_from_cook_json": "analysis/recommendations/day-type-classifier-cook-2026-09-03.json",
+  "source_candidate_id": "single_split__prior_day_range_dollars",
+  "source_fold": "2026-W36 (n_train=31/32 -- largest-training-data fold in the cook JSON; used as the closest available full-population proxy since the cook JSON never fits a single pooled threshold, only per-LOWO-fold values)",
+  "verdict_at_freeze": "SHADOW_CANDIDATE",
+  "prereg": "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md",
+  "never_reread_note": "FROZEN ONCE, on first creation of this file. Every later day_type_labels.py run reads ONLY this sidecar -- it never re-reads any day-type-classifier-cook-*.json again, including a later Kitchen cook that regenerates a NEW dated cook file. The rule must not drift with later cooks (prereg section 6: 'no backfill', a re-fit classifier is 'a distinct future build'). To freeze a different candidate, a future session must explicitly delete or version this file."
+ },
+ "rule": {
+  "feature": "prior_day_range_dollars",
+  "threshold": 6.57,
+  "direction": "low_is_paying",
+  "missing_value_policy": "trade -- never auto-stand-down on data the rule never saw (same policy as day_type_classifier_grinder.py._predict_single_split)"
+ },
+ "first_forward_session": "2026-09-04"
+}
