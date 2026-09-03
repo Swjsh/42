@@ -24,7 +24,17 @@
   TZ RULE: this rig is Mountain Time (ET = local + 2h, year-round -- both zones share the same
   DST calendar). 09:00 ET -> 07:00 MT. NEVER pass an ET literal to -At.
   WEEKLY trigger (Mon-Fri), NOT -Once (a one-shot TimeTrigger fires once ever then goes dark --
-  project_scheduled_task_onetime_trigger_dark). A single fire per day, no repetition needed.
+  project_scheduled_task_onetime_trigger_dark).
+
+  2026-09-03 SINGLE-FIRE-TRIGGER-BLANKET-AUDIT fix (queue.md, class hit 3x already on
+  Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_FuturesEod2 -- a correctly-registered
+  -Weekly Mon-Fri trigger can still silently skip ONE day's fire; Windows gives no forensic
+  trail why, StartWhenAvailable does not catch it). This task feeds
+  automation/state/premarket-readiness.json, a date-field-checked freshness consumer
+  (state-freshness-manifest.json) read by premarket_readiness.py's own downstream gate --
+  exactly the consumer class this audit prioritizes. Added the same bounded self-heal window
+  as the other 3 fixes: every 15 min for 30 min after the primary 09:00 ET fire. Read-only/
+  idempotent script, so the extra fires change nothing on a normal day.
 
   To verify after running:
     Get-ScheduledTask -TaskName Gamma_PremarketReadiness | Get-ScheduledTaskInfo
@@ -66,6 +76,12 @@ $trigger = New-ScheduledTaskTrigger `
     -Weekly `
     -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday `
     -At $atMT
+# -Weekly triggers come back with a null .Repetition CIM instance -- steal one from a
+# throwaway -Once trigger built with the repetition params (documented PS workaround, same
+# idiom as install-macro-calendar.ps1 / install-earnings-calendar.ps1 / install-futures-eod.ps1;
+# direct property assignment on the null instance throws PropertyNotFound). Self-heals a single
+# missed fire within 30 min.
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At $atMT -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
 $settings = New-ScheduledTaskSettingsSet `
     -StartWhenAvailable `
