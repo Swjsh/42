@@ -15,6 +15,41 @@ if (Test-HolidayFromAlpaca) {
     exit 0
 }
 
+# DONE-MARKER SKIP (GAMMA-PREMARKET-SELF-HEAL-WINDOW, 2026-09-03). Gamma_Premarket now
+# carries a self-heal Repetition window (every 15 min for 30 min after the 08:30 primary
+# fire -- the same pattern that closed the silent-single-fire class on Gamma_OosCheck /
+# Gamma_GateRecency / Gamma_FuturesEod2) so a missed 08:30 fire retries at 08:45/09:00
+# instead of staying dark all day. But this script is NOT idempotent across separate
+# invocations: Invoke-PremarketAttempt spends a fresh $3 LLM budget call every time it
+# runs, premarket.md Step 4 fully REWRITES today-bias.json (not a merge), and Step 6
+# CREATEs journal/{today}.md (a full overwrite, not an append). An unconditional second
+# fire at 08:45 after a clean 08:30 success would waste budget and could stomp the good
+# bias/journal with a second, possibly different, LLM pass. Guard: if today-bias.json is
+# already dated today AND its file mtime (ET) is >= 08:00 today, premarket already ran
+# this session -- skip the re-run. This only short-circuits a REDUNDANT repeat fire; a
+# fire following a genuine miss (no fresh today-bias.json yet) falls through and runs
+# normally, which is the self-heal window's actual job. Fail-open: any error in this
+# check falls through to a normal run -- it must never be the reason a real miss stays
+# unrecovered.
+try {
+    $biasFileCheck = Join-Path $WorkDir "automation\state\today-bias.json"
+    if (Test-Path $biasFileCheck) {
+        $existingBias = (Get-Content $biasFileCheck -Raw -ErrorAction Stop | ConvertFrom-Json)
+        $todayEtCheck = $et.ToString("yyyy-MM-dd")
+        if ($existingBias.date -eq $todayEtCheck) {
+            $etTz = [TimeZoneInfo]::FindSystemTimeZoneById("Eastern Standard Time")
+            $writtenEt = [TimeZoneInfo]::ConvertTimeFromUtc((Get-Item $biasFileCheck).LastWriteTimeUtc, $etTz)
+            $eightAmEt = [DateTime]::new($et.Year, $et.Month, $et.Day, 8, 0, 0)
+            if ($writtenEt -ge $eightAmEt) {
+                Write-TaskLog -TaskName $task -Message ("SKIP already-done: today-bias.json dated " + $todayEtCheck + ", written " + $writtenEt.ToString("HH:mm:ss") + " ET (>= 08:00) -- self-heal retry window firing again would re-run the LLM step and overwrite the good bias / re-seed the journal. Exiting 0.")
+                exit 0
+            }
+        }
+    }
+} catch {
+    Write-TaskLog -TaskName $task -Message "done-marker check errored (fail-open, continuing with normal run): $($_.Exception.Message)"
+}
+
 # Self-heal: kill any stale claude/MCP processes from a prior crashed run.
 $reaped = Stop-StaleClaudeProcesses -StaleAfterMinutes 5
 if ($reaped.Count -gt 0) {
