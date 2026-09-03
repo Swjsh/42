@@ -48,6 +48,19 @@ def fe():
     return m
 
 
+@pytest.fixture(autouse=True)
+def _pin_recency_red(fe, monkeypatch):
+    """LIVE-STATE DEPENDENCY REMOVED (2026-09-03 03:50 ET). Every assertion below is scoped to
+    'recency is RED' (the clamp's only active branch), but the module read the LIVE
+    automation/state/recency-confirmation.json through fe._recency_verdict. It passed for
+    weeks only because recency happened to be RED; at 2026-09-03 00:42 ET a real OosCheck run
+    flipped headline.any_red -> False / edges_confirmed_on_recent -> True (bull side now the
+    winner), the clamp correctly released, and 12 of these tests went RED in the full suite
+    with floors of 8/12/99 -- a test measuring the market, not the code (C7 / L298 class).
+    Pin the verdict the docstrings already assume."""
+    monkeypatch.setattr(fe, "_recency_verdict", lambda *a, **k: "RED")
+
+
 BASE = {"recency_min_size_enabled": True, "min_contracts": 3,
         "min_contracts_equity_scaled": True, "min_contracts_baseline_equity": 2000.0}
 
