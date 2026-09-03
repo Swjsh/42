@@ -447,3 +447,8 @@ No installer, no scheduled task, no registry row for any of this — spec only, 
   implied for them (§3.1).
 - The VIX-band split (§3.4) is a citation of this morning's verify-1 pass, not re-derived this
   session.
+
+
+## Correction 13:21 ET 2026-09-03 -- scope is safe-2 ONLY (ledger-verified)
+
+The section 1b claim that safe-3 inherits the veto traced a code path that is dead in production: `fleet_executor.plan_all` takes the `strategies` branch (fleet_executor.py:933-935) because `build_shared_signal.py:293` always emits `strategies`, and `sig['strategies']` is built from whichever of (safe, bold) perception passed. Ledger proof: core_tick 2026-09-03T11:21:02 safe=SKIP_STRUCTURE_VETO, bold=ENTER_BULL, safe-3 decisions row ENTER_BULL qty 5 @772, fill 11:22:07 ET. Flipping `params.json:314` therefore binds safe-2's own core placement only; the go-live gate's criterion-5 arm (safe-3) is untouched either way. Full report: `analysis/deep-research/2026-09-03-money/veto-scope-safe-3.md`. The history objection (08-23 replay battery DO NOT FLIP; gate-expiry drop-top3 negative; SPY-proxy WR CI straddles 50%) stands on its own; the Saturday decision remains NOT SHIP, classifier fix at 10-30.
