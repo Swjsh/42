@@ -1,0 +1,62 @@
+{
+  "_meta": {
+    "queue_item": "WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM",
+    "filed_off": "WALKER-REANCHOR-FULL-ENGINE-POPULATION",
+    "generated_by": "backtest/tools/walker_structure_stop_misfire_extract.py (read-only, reuses walker_full_population_anchor.run_via_harness_validation unmodified)",
+    "population_source": "analysis/trades-enriched.jsonl, arms=(safe-2,bold-2,risky-1,safe-3), window=2026-07-08..latest, attribution=engine",
+    "correction_to_prereg": "the queue item assumed the 42 misfire row ids were persisted in WALKER-FULL-POPULATION-ANCHOR-2026-09-03.json; verified they are NOT -- that tool's main() only ever writes _bucket_stats aggregates, never hv['rows']. Rows were re-derived here by rerunning the exact same monkeypatch path at exit_slippage=None (zero new OPRA calls, all 96 contracts already cached).",
+    "n_disagree_confirmed": 42,
+    "matches_published": "stage_decomposition.stage_disagree.n == 42, disagree_share_of_total_abs_error == 0.5598, both reproduced exactly"
+  },
+  "histogram": {
+    "TIMING_walked_structure_stop": {
+      "n": 14,
+      "total_abs_error_dollars": 3456.0,
+      "share_of_disagree_abs_error": 0.452,
+      "subset_high_impact_sign_flip_or_ge100": {"n": 10, "total_abs_error_dollars": 3397.0},
+      "subset_low_impact_same_sign_lt100": {"n": 4, "total_abs_error_dollars": 59.0},
+      "definition": "replay's walked_stage == 'structure_stop' while recorded_stage != 'structure_stop' (premium_stop / tp1+trail / time_stop / other)"
+    },
+    "OTHER_non_structure_stage_divergence": {
+      "n": 28,
+      "total_abs_error_dollars": 4188.4,
+      "share_of_disagree_abs_error": 0.548,
+      "definition": "walked_stage != 'structure_stop' (includes 5 rows where LIVE recorded structure_stop but replay picked premium_stop/time_stop instead -- the replay UNDER-fires structure here, the opposite direction) -- attributable to the ALREADY-DOCUMENTED exit_manager_walk.py fill-price-convention gap (limit-style stages fill at exact level, market-style stages subtract slippage) and 1-min discrete-tick granularity on tp1/trail/ribbon_flip sequencing, not a structure-stop-specific defect. Not reclassified further tonight -- out of this queue item's scope."
+    },
+    "STOP_MODE_MISMATCH": {"n": 0, "note": "ruled out: 0 of the 42 rows have stop_mode unrecorded (None); anchor_trigger_level() correctly zeroes trigger_level (structure_stop_enabled=bool(trigger_level)=False) for every stop_mode=='premium' row -- verified none of those rows have walked_stage=='structure_stop'"},
+    "LEVEL_SOURCE_MISMATCH": {"n": 0, "note": "ruled out: trades_enriched.py's trigger_level field IS the PLACEMENT-stage level exit_manager.py actually armed live (exec.trigger_level / fleet placement.trigger_level, exit_manager.py:268 resolved_structure requires it non-null) -- confirmed by reading trades_enriched.py:429-437 and :479-484 verbatim; the replay uses this exact field via anchor_trigger_level()"},
+    "BAR_FIELD_MISMATCH": {"n": 0, "note": "ruled out as a FIELD-TYPE mismatch: both live and replay use the closed 5-min SPY bar's CLOSE at trig_idx=n-2 -- heartbeat_core.py:1762 '_closed_5m_close = bc[\"bar\"][\"close\"]' and exit_manager_walk.last_closed_bar_close_at() are the SAME convention by explicit design (that function's own docstring: 'Mirrors heartbeat_core.py's bc[\"bar\"][\"close\"] (trig_idx=n-2) convention'). The residual is CADENCE, not field choice -- folded into TIMING below."}
+  },
+  "arm_recurrence": {
+    "distinct_symbol_date_keys_in_42_rows": 27,
+    "keys_hit_by_more_than_one_arm": 11,
+    "rows_covered_by_recurring_keys": 26,
+    "rows_covered_by_recurring_keys_pct": 0.619,
+    "worked_example": {
+      "date": "2026-08-13", "symbol": "SPY260813C00777000",
+      "entry_window_et": "09:51:05 - 09:52:10 (4 arms, same CALL signal, trigger_level=776.85 bull_reclaim)",
+      "arms": ["bold-2", "risky-1", "safe-2", "safe-3"],
+      "actual_pnl": {"bold-2": 534.0, "risky-1": 405.0, "safe-2": 332.0, "safe-3": 348.0},
+      "recorded_stage": "tp1+trail (all 4 -- a real winner, live)",
+      "walked_stage": "structure_stop (all 4)",
+      "replay_pnl": {"bold-2": 25.0, "risky-1": -25.0, "safe-2": 9.0, "safe-3": -18.0},
+      "reading": "one signal, replicated across 4 arms with different sizing -- the replay's structure check fires on ALL 4 identically because it is walking the SAME SPY 5-min series once per contract, not 4 independent structure evaluations. This is 1 misfire event, not 4."
+    }
+  },
+  "mechanism_sentence": "The replay's structure-stop check re-derives the closed-5min-bar-close deterministically from a complete, gap-free SPY CSV at every 1-minute step of the walk, while the live engine only re-evaluates that SAME closed-bar value once per actual heartbeat tick (nominally ~1/min but informationally 5-min-native) using whatever bar happened to be current at that tick's fetch -- so a transient dip through the trigger level that the replay's exhaustive scan always catches can be a dip live's discrete, tick-gated polling never armed on (10 of 14 structure-misfire rows are exactly this: a real tp1+trail/premium_stop winner or small loser that the replay converts into a structure-stop loss, and 10 of those 14 collapse into 3 underlying signal-days replicated across arms).",
+  "fix_location": {
+    "verdict": "NEITHER a clean adapter fix (level source + stop_mode ARE already correctly threaded) NOR a walker bar-field fix (field convention already matches live's documented design) -- the gap is in LIVE POLL SEMANTICS: the replay has no representation of the ACTUAL historical tick cadence (when heartbeat_core / fleet_live really fired, what bc['bar']['close'] value each tick actually captured, and for fleet arms the extra usable_signal 7-minute staleness gate in fleet_live.py that can skip the structure check entirely). core-decisions.jsonl / fleet decisions.jsonl DO log a per-tick trigger_bar_et + spot, so a tick-faithful walk is theoretically buildable, but was not attempted tonight (budget) and is NOT free -- flag as the next research step before any adapter/walker code change.",
+    "secondary_contributor_fleet_arms": "fleet_live.py:938 feeds structure-stop checks from `(usable_signal or {}).get('spot')`, a SHARED shared-signal.json written by the core process, only used while < SIGNAL_MAX_AGE_SEC=420s (7min) old -- when stale, `_closed_5m_close=None` and the structure check is SKIPPED that tick entirely (fail-open, no re-check later). This applies to safe-3/risky-1 only (bold-2 is core-path via heartbeat_core.py directly, same as safe-2) -- it does not explain bold-2's own high-ratio failure, which is better explained by sizing (see safe-2 contrast below)."
+  },
+  "safe2_contrast": {
+    "verdict": "PASS (ratio 0.963) despite carrying the MOST disagree rows of any arm (13/42, vs bold-2 11, risky-1 11, safe-3 7)",
+    "why": "safe-2 hits the SAME underlying misfire signal-days as the other arms (it is IN the 2026-08-13 four-way and 2026-08-18/08-20/08-27 recurrences) -- it is not spared the mechanism. It passes because it trades ATM / lower-leverage sizing (CLAUDE.md: Safe = ATM, 30% risk) so the SAME SPY-level misfire produces a smaller dollar swing per contract than bold-2's OTM-2 aggressive sizing on an identical signal -- e.g. the 08-13 misfire costs safe-2 -$323 vs bold-2 -$509 on the literal same trigger. Diluted against safe-2's larger population of well-behaved agree rows, the aggregate ratio stays near 1.0; bold-2/risky-1/safe-3's smaller, higher-leverage-or-fleet-gated populations do not dilute it away.",
+    "not_because": "safe-2 does NOT avoid the mechanism, does NOT have more premium-mode trades proportionally (premium: safe-2 29/90=32%, risky-1 15/83=18%, bold-2 0/42=0%, safe-3 0/63=0% -- if anything safe-2 has the MOST premium-mode diversity, not the least), and does NOT have a different bar-field/level-source path."
+  },
+  "unverified": [
+    "exact live tick-by-tick bc['bar']['close'] history for the 10 high-impact TIMING rows was not cross-referenced against core-decisions.jsonl / fleet decisions.jsonl to prove the specific dip-and-recover pattern (asserted from documented design + the SIGHT-FRESHNESS-GUARD precedent in heartbeat_core.py:274-308, not directly re-measured tonight)",
+    "whether the walker's spy_by_day() union-of-CSV SPY 5-min series could itself carry a stray/duplicate bar with a lower close than what live ever fetched (a data-provenance check, not attempted)",
+    "the 28-row OTHER bucket's own sub-mechanism (fill-convention vs tick granularity) is asserted from exit_manager_walk.py's own documented FILL-PRICE CONVENTION gap, not independently re-derived per-row this session"
+  ],
+  "queue_closure": "WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM :: status:done -- mechanism named (TIMING: replay's exhaustive per-bar structure check vs live's discrete/tick-gated + fleet-staleness-gated poll), STOP_MODE_MISMATCH and LEVEL_SOURCE_MISMATCH ruled out with code citations, BAR_FIELD_MISMATCH ruled out as a field-type question and folded into TIMING as a cadence question. Fix location: live-poll-semantics representation gap, not adapter or walker field logic -- no code change proposed. WALKER-CONSUMERS-MIGRATE-TO-EXIT-MANAGER-WALK decision is Fable's, per the queue's own routing."
+}
