@@ -454,7 +454,23 @@ def run_anchor_validation() -> dict:
     premium/time/qty (not a re-detected signal -- these are KNOWN real fills, this is purely
     an exit-fidelity + sizing-fidelity check, not an entry-gate check). trigger_level is
     recovered from core-decisions.jsonl when available (best-effort; None -> premium-stop-
-    only fallback, disclosed per-row) since fills-ledger.jsonl itself carries no level."""
+    only fallback, disclosed per-row) since fills-ledger.jsonl itself carries no level.
+
+    DENOMINATOR FIX (BOLD-FULLHIST-ANCHOR-DENOMINATOR-CHECK, queue.md, follow-up from
+    FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT 2026-08-07): the original build divided
+    `n_pass / len(ANCHOR_FILLS)` -- ALL anchors mined, INCLUDING rows with
+    `replay_status != "OK"` (no OPRA contract-bar cache for that symbol/date, or no SPY
+    day). Those rows are never even attempted by `walk_exit_manager` -- they carry no
+    `anchor_pass` verdict at all -- yet the old formula silently counted every one of them
+    as a FAIL. Dormant today only because ANCHOR_FILLS is a small, hand-picked,
+    already-OPRA-covered list (all 7 currently replay_status=="OK" per this module's own
+    prior docstring) -- this fix is a forward guard for the day a new anchor is added
+    before its OPRA cache is backfilled. Mirrors fleet_arm_replay.py::run_anchor_validation's
+    identical fix exactly (same root cause, same shape): `pass_rate`/`all_pass` now divide
+    by `n_evaluable` (rows with replay_status=="OK") so the metric measures EXIT FIDELITY
+    ONLY; `n_skipped_by_reason` is a new, separate field that keeps the data-coverage gap
+    itself visible (C7: audit outputs, don't just hide a bad denominator) instead of
+    silently folding it into an automatic fail."""
     trigger_levels = _load_trigger_levels_from_decisions()
     spy5_path = REPO / "data" / "spy_5m_2026-05-19_2026-07-31.csv"
     spy_df = pd.read_csv(spy5_path)
@@ -508,9 +524,20 @@ def run_anchor_validation() -> dict:
             "tolerance_dollars": round(tol, 2), "within_tolerance": within_tol,
             "anchor_pass": row_pass, "replay_status": "OK",
         })
+    n_anchors = len(ANCHOR_FILLS)
+    n_skipped_by_reason: dict = {}
+    for r in out_rows:
+        status = r.get("replay_status")
+        if status != "OK":
+            n_skipped_by_reason[status] = n_skipped_by_reason.get(status, 0) + 1
+    n_skipped = sum(n_skipped_by_reason.values())
+    n_evaluable = n_anchors - n_skipped
+    pass_rate = (n_pass / n_evaluable) if n_evaluable else 0.0
     return {
-        "n_anchors": len(ANCHOR_FILLS), "n_pass": n_pass,
-        "all_pass": n_pass == len(ANCHOR_FILLS),
+        "n_anchors": n_anchors, "n_evaluable": n_evaluable,
+        "n_skipped_by_reason": n_skipped_by_reason,
+        "n_pass": n_pass, "pass_rate": round(pass_rate, 4),
+        "all_pass": (n_evaluable > 0 and n_pass == n_evaluable),
         "tolerance_note": (f"pass = same win/loss sign AND |replay-real| <= "
                             f"max(${ANCHOR_TOLERANCE_DOLLARS}, {ANCHOR_TOLERANCE_PCT:.0%} of "
                             f"|real|) -- exact-cent parity not expected, see exit_manager_"
@@ -812,7 +839,9 @@ def write_scorecard(gate_results: dict, anchor: dict, first_consumer: dict) -> N
         h = gs["headline"]
         log(f"HEADLINE [{label}]: total_pnl=${h['total_pnl']:+.2f} n_trades={h['n_trades']} "
             f"WR={h.get('win_rate')}")
-    log(f"ANCHOR: {anchor['n_pass']}/{anchor['n_anchors']} pass, all_pass={anchor['all_pass']}")
+    log(f"ANCHOR: {anchor['n_pass']}/{anchor.get('n_evaluable', anchor['n_anchors'])} pass "
+        f"(of {anchor['n_anchors']} mined, {anchor.get('n_skipped_by_reason', {})} skipped), "
+        f"all_pass={anchor['all_pass']}")
     if "delta_vs_friday" in first_consumer:
         log(f"FIRST CONSUMER: {first_consumer['delta_vs_friday']}")
 
@@ -842,8 +871,10 @@ def write_markdown(out: dict) -> None:
         "",
         "## Anchor validation (OP-16 sim-accuracy gate, task step 3)",
         "",
-        f"**{a['n_pass']}/{a['n_anchors']} real bold-2 engine fills reproduce within "
-        f"tolerance. ALL PASS: {a['all_pass']}.**",
+        f"**{a['n_pass']}/{a.get('n_evaluable', a['n_anchors'])} REPLAYABLE real bold-2 "
+        f"engine fills reproduce within tolerance (of {a['n_anchors']} mined, "
+        f"{a.get('n_skipped_by_reason', {})} skipped for missing data). "
+        f"ALL PASS: {a['all_pass']}.**",
         "",
         f"> {a['tolerance_note']}",
         "",

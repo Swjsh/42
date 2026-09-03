@@ -40,7 +40,6 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import math
 import random
 import sys
 import time
@@ -96,48 +95,14 @@ def log(m: str) -> None:
     print(f"[gate-revalidation] {m}", flush=True)
 
 
-# ============================================================ stats (ported verbatim from
-# backtest/tools/bull_gate_f5class_requal_2026_08_01.py:307, itself ported from
-# shelf_hold_reclaim_study.py -- so p-values/BH remain directly comparable to that lineage) ==
-def one_sample_p(pnls: list[float]) -> float:
-    n = len(pnls)
-    if n < 2:
-        return 1.0
-    mean = sum(pnls) / n
-    var = sum((x - mean) ** 2 for x in pnls) / (n - 1)
-    se = (var / n) ** 0.5
-    if se == 0:
-        return 1.0
-    tstat = mean / se
-    return max(0.0, min(1.0, 2.0 * (1.0 - 0.5 * (1.0 + math.erf(abs(tstat) / (2 ** 0.5))))))
-
-
-def bh_fdr(pvals: list[float], q: float = 0.10) -> list[bool]:
-    m = len(pvals)
-    if m == 0:
-        return []
-    order = sorted(range(m), key=lambda i: pvals[i])
-    max_k = -1
-    for rank, i in enumerate(order):
-        if pvals[i] <= (rank + 1) / m * q:
-            max_k = rank
-    sig = [False] * m
-    for rank, i in enumerate(order):
-        sig[i] = rank <= max_k
-    return sig
-
-
-def drop_top_n(pnls: list[float], n_drop: int = 3) -> tuple[float, int]:
-    """Total minus the sum of the (up to n_drop) largest WINNING trades. Only ever drops
-    actual winners (pnl > 0) -- generalizes drop_best (which drops exactly 1 winner,
-    bull_gate_atm_ssb_requalification's drop_top1 semantics) from 1 to N. An all-losing
-    cohort's drop_topN equals its raw total (nothing to drop). Returns (value, n_dropped)."""
-    if not pnls:
-        return 0.0, 0
-    winners = sorted([p for p in pnls if p > 0], reverse=True)
-    k = min(n_drop, len(winners))
-    dropped_sum = sum(winners[:k])
-    return round(sum(pnls) - dropped_sum, 2), k
+# ============================================================ stats -- RELOCATED 2026-09-03
+# (BATTERY-LOGIC-DUPLICATED-ACROSS-TOOLS fold) to backtest/lib/canonical_battery.py, the
+# single source of truth for the G-battery pattern (G_mean/G_oos/G_drop3/G_bhfdr/G_n).
+# Imported here (never reimplemented) so every existing `grab.one_sample_p` / `grab.bh_fdr` /
+# `grab.drop_top_n` caller keeps working unchanged -- see canonical_battery.py's own docstring
+# for what this fold actually found (short version: nothing was diverging; this is an
+# architectural relocation out of a `backtest/tools/` script into `backtest/lib/`, not a bugfix).
+from lib.canonical_battery import one_sample_p, bh_fdr, drop_top_n  # noqa: E402
 
 
 # ============================================================ account config (read live, not
@@ -366,42 +331,9 @@ def bootstrap_null(cohort_ok_rows: list[dict], universe_idx: list[int], *, spy, 
 
 
 # ============================================================ cohort metrics + G-battery ====
-def cohort_metrics(ok_rows: list[dict]) -> dict:
-    pnls = [r["pnl"] for r in ok_rows]
-    n = len(pnls)
-    if n == 0:
-        return {"n": 0}
-    total = round(sum(pnls), 2)
-    mean = round(total / n, 2)
-    wins = sum(1 for p in pnls if p > 0)
-    dtop3, k_dropped = drop_top_n(pnls, 3)
-    return {
-        "n": n, "total": total, "mean": mean, "wr_pct": round(100 * wins / n, 1),
-        "drop_top3": dtop3, "n_dropped_for_drop_top3": k_dropped,
-        "best": round(max(pnls), 2), "worst": round(min(pnls), 2),
-    }
-
-
-def is_oos_split(ok_rows_chrono: list[dict]) -> tuple[list[dict], list[dict]]:
-    mid = len(ok_rows_chrono) // 2
-    return ok_rows_chrono[:mid], ok_rows_chrono[mid:]
-
-
-def g_battery(cohort: dict, oos_metrics: dict, pval: float, bh_pass: bool) -> dict:
-    n = cohort.get("n", 0)
-    g_mean = bool(n) and cohort.get("mean", 0) > 0
-    g_oos = bool(oos_metrics.get("n", 0)) and oos_metrics.get("mean", -1) > 0
-    g_drop3 = bool(n) and cohort.get("drop_top3", -1) > 0
-    g_bhfdr = bool(bh_pass)
-    g_n = n >= 15
-    gates = {"G_mean": g_mean, "G_oos": g_oos, "G_drop3": g_drop3, "G_bhfdr": g_bhfdr, "G_n": g_n}
-    if all(gates.values()):
-        verdict = "UNBLOCK-ELIGIBLE"
-    elif g_mean and g_oos and g_drop3 and g_bhfdr and not g_n:
-        verdict = "UNDERPOWERED"
-    else:
-        verdict = "NOT-UNBLOCK-ELIGIBLE"
-    return {"gates": gates, "verdict": verdict, "pval": round(pval, 4)}
+# cohort_metrics / is_oos_split / g_battery: also RELOCATED 2026-09-03 to
+# backtest/lib/canonical_battery.py -- see the import + note above.
+from lib.canonical_battery import cohort_metrics, is_oos_split, g_battery  # noqa: E402
 
 
 def status_tally(replays: list[dict]) -> dict:

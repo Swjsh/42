@@ -319,5 +319,102 @@ def test_anchor_validation_passes_majority_within_tolerance():
         assert r["same_sign"], f"anchor {r['symbol']} replayed the WRONG direction: {r}"
 
 
+# ---------------------------------------------------------------------------------------- #
+# 7. ANCHOR DENOMINATOR FIX (BOLD-FULLHIST-ANCHOR-DENOMINATOR-CHECK, queue.md follow-up
+#    from FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT 2026-08-07). Fully mocked -- no OPRA cache,
+#    no real replay -- so this runs standalone and never touches the shared OPRA cache.
+# ---------------------------------------------------------------------------------------- #
+class _FakeExitResult:
+    def __init__(self, dollar_pnl):
+        self.dollar_pnl = dollar_pnl
+        self.exit_reason = "TEST"
+        self.hold_minutes = 5
+
+
+def test_anchor_denominator_excludes_data_gap_rows_from_pass_rate(monkeypatch):
+    """The bug this fire fixed: the original build divided n_pass / len(ANCHOR_FILLS), so a
+    NO_OPRA_CACHE or NO_SPY_DAY row (never even attempted by walk_exit_manager) counted as an
+    automatic FAIL. Mirrors fleet_arm_replay.py::run_anchor_validation's identical, already-
+    shipped fix (FLEET-ANCHOR-EXIT-WALK-FIDELITY-DRIFT 2026-08-07): pass_rate/all_pass must
+    be computed over n_evaluable (replay_status=="OK" rows only), and the skipped rows must
+    stay visible via n_skipped_by_reason rather than silently degrading the metric."""
+    fake_anchors = [
+        {"date": "2026-01-01", "symbol": "FAKE_OK_1", "side": "P", "entry_ts_et":
+         "2026-01-01T10:00:00", "entry_premium": 1.0, "qty": 5, "real_pnl": 100.0},
+        {"date": "2026-01-02", "symbol": "FAKE_OK_2", "side": "P", "entry_ts_et":
+         "2026-01-02T10:00:00", "entry_premium": 1.0, "qty": 5, "real_pnl": -100.0},
+        {"date": "2026-01-03", "symbol": "FAKE_NO_CACHE", "side": "P", "entry_ts_et":
+         "2026-01-03T10:00:00", "entry_premium": 1.0, "qty": 5, "real_pnl": 50.0},
+        {"date": "2026-01-04", "symbol": "FAKE_NO_SPY_DAY", "side": "P", "entry_ts_et":
+         "2026-01-04T10:00:00", "entry_premium": 1.0, "qty": 5, "real_pnl": 50.0},
+    ]
+    monkeypatch.setattr(bfr, "ANCHOR_FILLS", fake_anchors)
+    monkeypatch.setattr(bfr, "_load_trigger_levels_from_decisions", lambda: {})
+
+    spy_rows = []
+    for d in ("2026-01-01", "2026-01-02"):  # deliberately NO 2026-01-04 row -> NO_SPY_DAY
+        spy_rows.append({"timestamp_et": pd.Timestamp(f"{d} 09:30:00")})
+    spy_df = pd.DataFrame(spy_rows)
+    monkeypatch.setattr(pd, "read_csv", lambda *a, **k: spy_df, raising=False)
+
+    def fake_load_contract_bars(symbol):
+        if symbol == "FAKE_NO_CACHE":
+            return None
+        return pd.DataFrame({"dummy": [1]})  # any non-None sentinel
+    monkeypatch.setattr(bfr, "load_contract_bars", fake_load_contract_bars)
+    monkeypatch.setattr(bfr.efr, "build_ribbon_lookup", lambda df: None)
+    monkeypatch.setattr(bfr.efr, "ribbon_tick_df_for", lambda opt_df, lookup: None)
+
+    def fake_walk_exit_manager(**kwargs):
+        symbol = kwargs["symbol"]
+        # OK_1 passes tolerance; OK_2 deliberately fails tolerance (real=-100, replay=+100).
+        return _FakeExitResult(100.0 if symbol == "FAKE_OK_1" else 100.0)
+    monkeypatch.setattr(bfr, "walk_exit_manager", fake_walk_exit_manager)
+
+    result = bfr.run_anchor_validation()
+
+    assert result["n_anchors"] == 4
+    assert result["n_skipped_by_reason"] == {"NO_OPRA_CACHE": 1, "NO_SPY_DAY": 1}
+    assert result["n_evaluable"] == 2, "only the 2 OK rows are evaluable -- data gaps excluded"
+    # OK_1: real=+100, replay=+100 -> pass. OK_2: real=-100, replay=+100 -> sign mismatch -> fail.
+    assert result["n_pass"] == 1
+    assert result["pass_rate"] == 0.5, (
+        "THE bug this fire fixed: pass_rate must be n_pass/n_evaluable (1/2=0.5), not "
+        "n_pass/n_anchors (1/4=0.25) -- the old formula would count the 2 data-gap rows "
+        "as automatic fails and silently drag the rate down")
+    assert result["all_pass"] is False
+
+
+def test_anchor_denominator_all_pass_when_all_evaluable_rows_pass(monkeypatch):
+    """Companion to the above: when every EVALUABLE row passes (data-gap rows aside),
+    all_pass must be True -- data gaps must never themselves prevent an otherwise-clean
+    all_pass, matching fleet_arm_replay's identical contract."""
+    fake_anchors = [
+        {"date": "2026-01-01", "symbol": "FAKE_OK_1", "side": "P", "entry_ts_et":
+         "2026-01-01T10:00:00", "entry_premium": 1.0, "qty": 5, "real_pnl": 100.0},
+        {"date": "2026-01-03", "symbol": "FAKE_NO_CACHE", "side": "P", "entry_ts_et":
+         "2026-01-03T10:00:00", "entry_premium": 1.0, "qty": 5, "real_pnl": 50.0},
+    ]
+    monkeypatch.setattr(bfr, "ANCHOR_FILLS", fake_anchors)
+    monkeypatch.setattr(bfr, "_load_trigger_levels_from_decisions", lambda: {})
+    spy_df = pd.DataFrame([{"timestamp_et": pd.Timestamp("2026-01-01 09:30:00")}])
+    monkeypatch.setattr(pd, "read_csv", lambda *a, **k: spy_df, raising=False)
+
+    def fake_load_contract_bars(symbol):
+        return None if symbol == "FAKE_NO_CACHE" else pd.DataFrame({"dummy": [1]})
+    monkeypatch.setattr(bfr, "load_contract_bars", fake_load_contract_bars)
+    monkeypatch.setattr(bfr.efr, "build_ribbon_lookup", lambda df: None)
+    monkeypatch.setattr(bfr.efr, "ribbon_tick_df_for", lambda opt_df, lookup: None)
+    monkeypatch.setattr(bfr, "walk_exit_manager", lambda **kwargs: _FakeExitResult(100.0))
+
+    result = bfr.run_anchor_validation()
+    assert result["n_anchors"] == 2
+    assert result["n_evaluable"] == 1
+    assert result["n_skipped_by_reason"] == {"NO_OPRA_CACHE": 1}
+    assert result["n_pass"] == 1
+    assert result["all_pass"] is True, (
+        "one data-gap row must never block all_pass when the sole evaluable row passes")
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
