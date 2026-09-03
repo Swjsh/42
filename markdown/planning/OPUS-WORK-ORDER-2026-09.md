@@ -844,6 +844,30 @@ weekend, or run a Friday cadence on a Wednesday to make a checklist look fuller.
 to look complete is worth less than one that is honestly partial, because the next session inherits
 the padding as fact.
 
+### The `/goal` string this order should be driven by (added 2026-09-02)
+
+The first goal string was `= Execution order: OPUS-WORK-ORDER-2026-09.md`, which reads as *finish
+this document*. Because the document cannot be finished before 10-30, the Stop hook re-fired on
+every halt and burned a session arguing with a condition that no amount of work could satisfy. The
+fix is not a better argument at halt time — it is a goal whose completion test is a SESSION's
+contract, so a correct halt reads as success instead of as a failure to continue:
+
+```
+Work OPUS-WORK-ORDER-2026-09.md as a standing handoff, indefinitely, one session at a time.
+Each turn: orient (MAP -> HOME -> STATUS -> the order), take the top RUNNABLE box in the current
+phase, and advance it to a verified state. A box is runnable only if its date window has arrived
+and the config freeze permits it. If a box is blocked -- date-gated, freeze-blocked, waiting on J,
+or dependent on something unfinished -- SKIP IT and take the next runnable one; do not stop at the
+first blocker. When no runnable box remains, that is a COMPLETE turn: report the stated null (what
+was blocked and why), and stop. Never manufacture work against future-dated boxes, never pull a
+change past its Rule-9 weekend, never end on a permission question for sanctioned paper work.
+```
+
+Two properties matter and are deliberate. **Skip-don't-stop:** a blocker moves the pointer, it does
+not end the run, so one date-gated box no longer strands the ones behind it. **The null is a pass:**
+"nothing was runnable and here is why" is stated as a terminal success, which is what the old string
+lacked and what made an honest halt look like an incomplete one.
+
 ---
 
 ## 6. J's items (the only things Gamma cannot do)
