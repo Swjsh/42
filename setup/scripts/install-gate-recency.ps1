@@ -3,7 +3,16 @@
 .SYNOPSIS
   Register Gamma_GateRecency -- the WEEKLY gate-recency instrument (J directive 2026-08-08:
   the gate-recency audit that found money-blocking stale gates must become PERMANENT DOCTRINE
-  + a STANDING INSTRUMENT, not a one-off). Fires Sundays 18:00 local.
+  + a STANDING INSTRUMENT, not a one-off). Fires Sundays 21:35 local (= 23:35 ET).
+
+  DRIFT FIX (2026-09-03, quiet-mode starvation regression, commit dceb125e): the LIVE task
+  was re-timed 2026-08-26 to Sundays 23:35 ET (into quiet_mode.py's 23:00-08:00 ET LOUD
+  maintenance band -- the old 20:00 ET slot sits inside the 16:00-08:00 blackout and starves
+  silently, per tests/test_quiet_mode_starvation.py). This installer's own hardcoded "18:00"
+  was never updated to match, so re-running it (as the 2026-09-03 evening self-heal sweep
+  did, to add the PT15M/PT30M repetition) silently dragged the live trigger back to the
+  starved 20:00 ET time. Fixed here so the installer is once again the source of truth
+  SCHEDULED-TASKS.md's row claims it is.
 
 .DESCRIPTION
   THE GAP THIS CLOSES: analysis/recommendations/gate-recency-audit-2026-08-08.{md,json} was a
@@ -52,10 +61,10 @@
   Both hops use SYSTEM pythonw (not the backtest venv) -- this script has no third-party deps.
 
   TZ RULE: this rig is Mountain Time (ET = local + 2h). -At is LOCAL time (Task Scheduler
-  convention) -- 18:00 MT = 20:00 ET, well clear of the 09:30-15:55 ET heartbeat window and
-  clear of Sunday being a non-trading day anyway. A WEEKLY trigger (DaysOfWeek Sunday), never
-  a one-time/interval trigger (goes dark after the install day --
-  project_scheduled_task_onetime_trigger_dark).
+  convention) -- 21:35 MT = 23:35 ET, inside the quiet-mode LOUD maintenance band, well clear
+  of the 09:30-15:55 ET heartbeat window and clear of Sunday being a non-trading day anyway.
+  A WEEKLY trigger (DaysOfWeek Sunday), never a one-time/interval trigger (goes dark after
+  the install day -- project_scheduled_task_onetime_trigger_dark).
 
   Output:
     automation/state/gate-recency-latest.json -- latest weekly report (always written on a
@@ -97,9 +106,10 @@ $action = New-ScheduledTaskAction `
     -Argument $wscriptArgs `
     -WorkingDirectory $root
 
-# Sundays 18:00 LOCAL (Mountain) = 20:00 ET. Weekly, not one-time (a one-time TimeTrigger
-# goes dark after the install day per project_scheduled_task_onetime_trigger_dark).
-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "18:00"
+# Sundays 21:35 LOCAL (Mountain) = 23:35 ET, inside the quiet-mode LOUD band. Weekly, not
+# one-time (a one-time TimeTrigger goes dark after the install day per
+# project_scheduled_task_onetime_trigger_dark).
+$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "21:35"
 # 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): same self-heal fix already shipped on
 # Gamma_MacroCalendar/Gamma_EarningsCalendar/Gamma_PremarketReadiness (ac47dd10) -- a
 # correctly-registered -Weekly trigger can still silently skip its one Sunday fire.
@@ -108,7 +118,7 @@ $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -At "18:00"
 # with a null .Repetition CIM instance -- steal one from a throwaway -Once trigger (direct
 # property assignment throws PropertyNotFound), same idiom as install-premarket-readiness.ps1.
 # Self-heal window: every 15 min for 30 min after the primary fire.
-$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "18:00" `
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "21:35" `
     -RepetitionInterval (New-TimeSpan -Minutes 15) `
     -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
@@ -133,13 +143,13 @@ Register-ScheduledTask `
     "attribution rules) covering the scoring-filter layer, extra-setup lane, and risk_gate " + `
     "config modes that Gamma_GateExpiryCheck's own scope does not reach. Writes " + `
     "automation/state/gate-recency-latest.json. NEVER blocks/kills/auto-disarms/writes " + `
-    "params -- report only. Sundays 18:00 MT (20:00 ET). Pure stdlib Python, `$0, no venv " + `
+    "params -- report only. Sundays 21:35 MT (23:35 ET). Pure stdlib Python, `$0, no venv " + `
     "needed. Guard: backtest/tests/test_gate_recency_report.py. Doctrine: " + `
     "markdown/doctrine/GATE-RECENCY-DOCTRINE.md.") `
     -Force | Out-Null
 
 $info = Get-ScheduledTask -TaskName $taskName | Get-ScheduledTaskInfo
-Write-Output "OK: Registered $taskName for Sundays 18:00 MT (20:00 ET)"
+Write-Output "OK: Registered $taskName for Sundays 21:35 MT (23:35 ET)"
 Write-Output "    Report:   automation\state\gate-recency-latest.json"
 Write-Output "    Test now: Start-ScheduledTask -TaskName $taskName"
 Write-Output "    Next run: $($info.NextRunTime)"

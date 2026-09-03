@@ -1,9 +1,18 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Register Gamma_FreeModelAudit -- daily 21:00 ET (19:00 MT) fire of
+  Register Gamma_FreeModelAudit -- daily 23:48 ET (21:48 MT) fire of
   setup/scripts/free_model_audit.py --subject all (J directive 2026-07-11:
   "audit it every other day until we're confident in it... reusable harness framework").
+
+  DRIFT FIX (2026-09-03, quiet-mode starvation regression, commit dceb125e): the LIVE task
+  was re-timed 2026-08-26 to 23:48 ET (into quiet_mode.py's 23:00-08:00 ET LOUD maintenance
+  band -- the old 21:00 ET slot sits inside the 16:00-08:00 blackout and starves silently,
+  per tests/test_quiet_mode_starvation.py). This installer's own hardcoded "19:00" was never
+  updated to match, so re-running it (as the 2026-09-03 evening self-heal sweep did, to add
+  the PT15M/PT30M repetition) silently dragged the live trigger back to the starved 21:00 ET
+  time. Fixed here so the installer is once again the source of truth SCHEDULED-TASKS.md's
+  row claims it is.
   "all" grades every registered AUDIT_SUBJECTS entry each fire (heartbeat_veto, twin_review,
   future subjects) -- each self-gates its own cadence independently, so adding a new subject
   never requires re-touching this installer again.
@@ -86,17 +95,17 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 $wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" `"--subject`" `"all`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
-# 21:00 ET weekday-and-weekend daily fire (the SCRIPT decides every-other-day internally --
-# see docstring). MT = ET - 2h during EDT, so 21:00 ET = 19:00 MT. Simple -Daily -At form,
-# NOT the one-time-trigger foot-gun (project lesson: a trigger with no recurrence spec goes
-# dark after the install day).
-$trigger = New-ScheduledTaskTrigger -Daily -At "19:00"
+# 23:48 ET weekday-and-weekend daily fire (the SCRIPT decides every-other-day internally --
+# see docstring), inside the quiet-mode LOUD maintenance band. MT = ET - 2h during EDT, so
+# 23:48 ET = 21:48 MT. Simple -Daily -At form, NOT the one-time-trigger foot-gun (project
+# lesson: a trigger with no recurrence spec goes dark after the install day).
+$trigger = New-ScheduledTaskTrigger -Daily -At "21:48"
 # 2026-09-03 EVENING-TASK-MISSED-RUN-SWEEP (queue.md): a correctly-registered -Daily trigger
 # can still silently skip ONE evening's fire (same class as Gamma_MacroCalendar/
 # Gamma_EarningsCalendar/Gamma_PremarketReadiness, ac47dd10). free_model_audit.py's
 # already_graded_ids() dedupes by item_id before appending history, so an extra fire on a
 # normal day is a safe no-op. Self-heal window: every 15 min for 30 min after the primary fire.
-$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "19:00" `
+$trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "21:48" `
     -RepetitionInterval (New-TimeSpan -Minutes 15) `
     -RepetitionDuration (New-TimeSpan -Minutes 30)).Repetition
 
@@ -115,7 +124,7 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description "Grades heartbeat_core.py's free-model veto gate against ground truth (real fills + counterfactual OPRA replay, Sonnet-judgment fallback). Fires daily 21:00 ET, self-gates internally to every-other-day (auto-relaxes to weekly once confident: >=85%% correct-grade rate / >=15 evidence pts / 3 consecutive runs). Writes analysis/free-model-audit/heartbeat-veto/*.md. Read-only on all decisions.jsonl. Built 2026-07-11 (AUDIT-HARNESS-B1)." `
+    -Description "Grades heartbeat_core.py's free-model veto gate against ground truth (real fills + counterfactual OPRA replay, Sonnet-judgment fallback). Fires daily 23:48 ET, self-gates internally to every-other-day (auto-relaxes to weekly once confident: >=85%% correct-grade rate / >=15 evidence pts / 3 consecutive runs). Writes analysis/free-model-audit/heartbeat-veto/*.md. Read-only on all decisions.jsonl. Built 2026-07-11 (AUDIT-HARNESS-B1)." `
     -Force | Out-Null
 
 $info = Get-ScheduledTask -TaskName $taskName | Get-ScheduledTaskInfo
