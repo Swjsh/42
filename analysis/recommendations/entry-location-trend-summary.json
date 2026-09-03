@@ -1,0 +1,2783 @@
+{
+ "generated_at_et": "2026-09-03T11:25:37.508700",
+ "prereg": "analysis/recommendations/prereg-entry-location-trend-2026-09-03.md",
+ "status": "ARMED",
+ "meta": {
+  "population": "analysis/pain-ledger/mae-mfe.json trades, ALL dates (full backfill, no cutoff)",
+  "n_total_rows": 394,
+  "n_usable_for_range_position": 388,
+  "n_excluded_no_range_position_or_side": 6,
+  "backfill_in_sample_cutoff": "2026-09-02",
+  "chase_definition": "side=='C' and range_position>=0.75, OR side=='P' and range_position<=0.25 -- byte-identical to money_entry_location_stats.classify_chase, reused via import"
+ },
+ "overall": {
+  "n": 388,
+  "chase": {
+   "n": 252,
+   "total_pnl": -387.0,
+   "mean_pnl": -1.54,
+   "wr": 0.2183,
+   "pf": 0.973,
+   "winners": 55,
+   "losers": 193
+  },
+  "rest": {
+   "n": 136,
+   "total_pnl": 2557.01,
+   "mean_pnl": 18.8,
+   "wr": 0.3309,
+   "pf": 1.443,
+   "winners": 45,
+   "losers": 80
+  },
+  "mean_diff_chase_minus_rest_ci95": [
+   -20.34,
+   -58.32,
+   16.92
+  ]
+ },
+ "by_setup": {
+  "(unattributed)": {
+   "n": 35,
+   "chase": {
+    "n": 21,
+    "total_pnl": -622.0,
+    "mean_pnl": -29.62,
+    "wr": 0.0476,
+    "pf": 0.099,
+    "winners": 1,
+    "losers": 20
+   },
+   "rest": {
+    "n": 14,
+    "total_pnl": -274.0,
+    "mean_pnl": -19.57,
+    "wr": 0.3571,
+    "pf": 0.172,
+    "winners": 5,
+    "losers": 9
+   },
+   "mean_diff_chase_minus_rest_ci95": [
+    -10.05,
+    -27.88,
+    9.12
+   ],
+   "by_cosignal": {
+    "minutes_since_ribbon_flip": {
+     "tercile_edges": [
+      9.8367,
+      35.9867
+     ],
+     "buckets": {
+      "low": {
+       "n": 7,
+       "chase": {
+        "n": 7,
+        "total_pnl": -230.01,
+        "mean_pnl": -32.86,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 7
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 6,
+       "chase": {
+        "n": 6,
+        "total_pnl": -270.99,
+        "mean_pnl": -45.16,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 6
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 7,
+       "chase": {
+        "n": 6,
+        "total_pnl": -49.0,
+        "mean_pnl": -8.17,
+        "wr": 0.1667,
+        "pf": 0.581,
+        "winners": 1,
+        "losers": 5
+       },
+       "rest": {
+        "n": 1,
+        "total_pnl": -33.0,
+        "mean_pnl": -33.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 15,
+       "chase": {
+        "n": 2,
+        "total_pnl": -72.0,
+        "mean_pnl": -36.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "rest": {
+        "n": 13,
+        "total_pnl": -241.0,
+        "mean_pnl": -18.54,
+        "wr": 0.3846,
+        "pf": 0.191,
+        "winners": 5,
+        "losers": 8
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "minutes_since_htf15m_match": {
+     "tercile_edges": [
+      31.57,
+      45.9867
+     ],
+     "buckets": {
+      "low": {
+       "n": 7,
+       "chase": {
+        "n": 5,
+        "total_pnl": -183.99,
+        "mean_pnl": -36.8,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 5
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -93.0,
+        "mean_pnl": -46.5,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 6,
+       "chase": {
+        "n": 4,
+        "total_pnl": -177.0,
+        "mean_pnl": -44.25,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 4
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -10.0,
+        "mean_pnl": -5.0,
+        "wr": 0.5,
+        "pf": 0.643,
+        "winners": 1,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 7,
+       "chase": {
+        "n": 5,
+        "total_pnl": -34.0,
+        "mean_pnl": -6.8,
+        "wr": 0.2,
+        "pf": 0.667,
+        "winners": 1,
+        "losers": 4
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -63.0,
+        "mean_pnl": -31.5,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 15,
+       "chase": {
+        "n": 7,
+        "total_pnl": -227.01,
+        "mean_pnl": -32.43,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 7
+       },
+       "rest": {
+        "n": 8,
+        "total_pnl": -108.0,
+        "mean_pnl": -13.5,
+        "wr": 0.5,
+        "pf": 0.265,
+        "winners": 4,
+        "losers": 4
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -18.93,
+        -39.04,
+        1.78
+       ]
+      }
+     }
+    },
+    "or_extension_multiples": {
+     "tercile_edges": [
+      -0.1181,
+      0.3443
+     ],
+     "buckets": {
+      "low": {
+       "n": 12,
+       "chase": {
+        "n": 4,
+        "total_pnl": -123.0,
+        "mean_pnl": -30.75,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 4
+       },
+       "rest": {
+        "n": 8,
+        "total_pnl": -223.0,
+        "mean_pnl": -27.88,
+        "wr": 0.25,
+        "pf": 0.129,
+        "winners": 2,
+        "losers": 6
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 9,
+       "chase": {
+        "n": 8,
+        "total_pnl": -296.01,
+        "mean_pnl": -37.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 8
+       },
+       "rest": {
+        "n": 1,
+        "total_pnl": -30.0,
+        "mean_pnl": -30.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 10,
+       "chase": {
+        "n": 9,
+        "total_pnl": -202.99,
+        "mean_pnl": -22.55,
+        "wr": 0.1111,
+        "pf": 0.251,
+        "winners": 1,
+        "losers": 8
+       },
+       "rest": {
+        "n": 1,
+        "total_pnl": -33.0,
+        "mean_pnl": -33.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 4,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 4,
+        "total_pnl": 12.0,
+        "mean_pnl": 3.0,
+        "wr": 0.75,
+        "pf": 2.0,
+        "winners": 3,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_at_entry": {
+     "tercile_edges": [
+      15.87,
+      17.05
+     ],
+     "buckets": {
+      "low": {
+       "n": 13,
+       "chase": {
+        "n": 6,
+        "total_pnl": -76.0,
+        "mean_pnl": -12.67,
+        "wr": 0.1667,
+        "pf": 0.472,
+        "winners": 1,
+        "losers": 5
+       },
+       "rest": {
+        "n": 7,
+        "total_pnl": -99.0,
+        "mean_pnl": -14.14,
+        "wr": 0.4286,
+        "pf": 0.195,
+        "winners": 3,
+        "losers": 4
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        1.48,
+        -26.72,
+        37.79
+       ]
+      },
+      "mid": {
+       "n": 10,
+       "chase": {
+        "n": 9,
+        "total_pnl": -309.0,
+        "mean_pnl": -34.33,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 9
+       },
+       "rest": {
+        "n": 1,
+        "total_pnl": -54.0,
+        "mean_pnl": -54.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 12,
+       "chase": {
+        "n": 6,
+        "total_pnl": -237.0,
+        "mean_pnl": -39.5,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 6
+       },
+       "rest": {
+        "n": 6,
+        "total_pnl": -121.0,
+        "mean_pnl": -20.17,
+        "wr": 0.3333,
+        "pf": 0.214,
+        "winners": 2,
+        "losers": 4
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -19.33,
+        -48.5,
+        9.0
+       ]
+      },
+      "null": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_dir": {
+     "up": {
+      "n": 10,
+      "chase": {
+       "n": 5,
+       "total_pnl": -210.0,
+       "mean_pnl": -42.0,
+       "wr": 0.0,
+       "pf": 0.0,
+       "winners": 0,
+       "losers": 5
+      },
+      "rest": {
+       "n": 5,
+       "total_pnl": -108.0,
+       "mean_pnl": -21.6,
+       "wr": 0.4,
+       "pf": 0.163,
+       "winners": 2,
+       "losers": 3
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -20.4,
+       -53.4,
+       10.2
+      ]
+     },
+     "down": {
+      "n": 12,
+      "chase": {
+       "n": 9,
+       "total_pnl": -336.99,
+       "mean_pnl": -37.44,
+       "wr": 0.0,
+       "pf": 0.0,
+       "winners": 0,
+       "losers": 9
+      },
+      "rest": {
+       "n": 3,
+       "total_pnl": -75.0,
+       "mean_pnl": -25.0,
+       "wr": 0.3333,
+       "pf": 0.194,
+       "winners": 1,
+       "losers": 2
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     },
+     "flat": {
+      "n": 13,
+      "chase": {
+       "n": 7,
+       "total_pnl": -75.01,
+       "mean_pnl": -10.72,
+       "wr": 0.1429,
+       "pf": 0.475,
+       "winners": 1,
+       "losers": 6
+      },
+      "rest": {
+       "n": 6,
+       "total_pnl": -91.0,
+       "mean_pnl": -15.17,
+       "wr": 0.3333,
+       "pf": 0.165,
+       "winners": 2,
+       "losers": 4
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       4.45,
+       -21.5,
+       35.48
+      ]
+     },
+     "null": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     }
+    }
+   }
+  },
+  "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+   "n": 94,
+   "chase": {
+    "n": 61,
+    "total_pnl": -915.0,
+    "mean_pnl": -15.0,
+    "wr": 0.3115,
+    "pf": 0.819,
+    "winners": 19,
+    "losers": 42
+   },
+   "rest": {
+    "n": 33,
+    "total_pnl": 964.01,
+    "mean_pnl": 29.21,
+    "wr": 0.2727,
+    "pf": 1.721,
+    "winners": 9,
+    "losers": 17
+   },
+   "mean_diff_chase_minus_rest_ci95": [
+    -44.21,
+    -133.4,
+    31.86
+   ],
+   "by_cosignal": {
+    "minutes_since_ribbon_flip": {
+     "tercile_edges": [
+      41.36,
+      131.6467
+     ],
+     "buckets": {
+      "low": {
+       "n": 24,
+       "chase": {
+        "n": 18,
+        "total_pnl": -435.0,
+        "mean_pnl": -24.17,
+        "wr": 0.2222,
+        "pf": 0.693,
+        "winners": 4,
+        "losers": 14
+       },
+       "rest": {
+        "n": 6,
+        "total_pnl": -185.0,
+        "mean_pnl": -30.83,
+        "wr": 0.1667,
+        "pf": 0.362,
+        "winners": 1,
+        "losers": 3
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        6.67,
+        -95.11,
+        119.95
+       ]
+      },
+      "mid": {
+       "n": 24,
+       "chase": {
+        "n": 16,
+        "total_pnl": -386.0,
+        "mean_pnl": -24.12,
+        "wr": 0.25,
+        "pf": 0.672,
+        "winners": 4,
+        "losers": 12
+       },
+       "rest": {
+        "n": 8,
+        "total_pnl": 1377.01,
+        "mean_pnl": 172.13,
+        "wr": 0.5,
+        "pf": 10.907,
+        "winners": 4,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -196.25,
+        -433.27,
+        1.94
+       ]
+      },
+      "high": {
+       "n": 24,
+       "chase": {
+        "n": 24,
+        "total_pnl": 478.0,
+        "mean_pnl": 19.92,
+        "wr": 0.4167,
+        "pf": 1.308,
+        "winners": 10,
+        "losers": 14
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 22,
+       "chase": {
+        "n": 3,
+        "total_pnl": -572.0,
+        "mean_pnl": -190.67,
+        "wr": 0.3333,
+        "pf": 0.378,
+        "winners": 1,
+        "losers": 2
+       },
+       "rest": {
+        "n": 19,
+        "total_pnl": -228.0,
+        "mean_pnl": -12.0,
+        "wr": 0.2105,
+        "pf": 0.749,
+        "winners": 4,
+        "losers": 12
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "minutes_since_htf15m_match": {
+     "tercile_edges": [
+      75.8333,
+      217.03
+     ],
+     "buckets": {
+      "low": {
+       "n": 19,
+       "chase": {
+        "n": 12,
+        "total_pnl": -428.0,
+        "mean_pnl": -35.67,
+        "wr": 0.1667,
+        "pf": 0.531,
+        "winners": 2,
+        "losers": 10
+       },
+       "rest": {
+        "n": 7,
+        "total_pnl": -820.0,
+        "mean_pnl": -117.14,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 7
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        81.48,
+        3.84,
+        170.41
+       ]
+      },
+      "mid": {
+       "n": 19,
+       "chase": {
+        "n": 12,
+        "total_pnl": -164.0,
+        "mean_pnl": -13.67,
+        "wr": 0.3333,
+        "pf": 0.872,
+        "winners": 4,
+        "losers": 8
+       },
+       "rest": {
+        "n": 7,
+        "total_pnl": 117.01,
+        "mean_pnl": 16.72,
+        "wr": 0.2857,
+        "pf": 1.842,
+        "winners": 2,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -30.38,
+        -174.85,
+        117.27
+       ]
+      },
+      "high": {
+       "n": 19,
+       "chase": {
+        "n": 13,
+        "total_pnl": 858.0,
+        "mean_pnl": 66.0,
+        "wr": 0.6154,
+        "pf": 3.377,
+        "winners": 8,
+        "losers": 5
+       },
+       "rest": {
+        "n": 6,
+        "total_pnl": 529.0,
+        "mean_pnl": 88.17,
+        "wr": 0.5,
+        "pf": Infinity,
+        "winners": 3,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -22.17,
+        -127.08,
+        79.08
+       ]
+      },
+      "null": {
+       "n": 37,
+       "chase": {
+        "n": 24,
+        "total_pnl": -1181.0,
+        "mean_pnl": -49.21,
+        "wr": 0.2083,
+        "pf": 0.53,
+        "winners": 5,
+        "losers": 19
+       },
+       "rest": {
+        "n": 13,
+        "total_pnl": 1138.0,
+        "mean_pnl": 87.54,
+        "wr": 0.3077,
+        "pf": 4.011,
+        "winners": 4,
+        "losers": 8
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -136.75,
+        -312.86,
+        16.36
+       ]
+      }
+     }
+    },
+    "or_extension_multiples": {
+     "tercile_edges": [
+      -0.1582,
+      0.4118
+     ],
+     "buckets": {
+      "low": {
+       "n": 31,
+       "chase": {
+        "n": 2,
+        "total_pnl": -80.0,
+        "mean_pnl": -40.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "rest": {
+        "n": 29,
+        "total_pnl": 1023.01,
+        "mean_pnl": 35.28,
+        "wr": 0.3103,
+        "pf": 1.8,
+        "winners": 9,
+        "losers": 13
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 28,
+       "chase": {
+        "n": 26,
+        "total_pnl": -1124.0,
+        "mean_pnl": -43.23,
+        "wr": 0.2308,
+        "pf": 0.594,
+        "winners": 6,
+        "losers": 20
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -19.0,
+        "mean_pnl": -9.5,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 30,
+       "chase": {
+        "n": 28,
+        "total_pnl": 370.0,
+        "mean_pnl": 13.21,
+        "wr": 0.3929,
+        "pf": 1.19,
+        "winners": 11,
+        "losers": 17
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -40.0,
+        "mean_pnl": -20.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 5,
+       "chase": {
+        "n": 5,
+        "total_pnl": -81.0,
+        "mean_pnl": -16.2,
+        "wr": 0.4,
+        "pf": 0.698,
+        "winners": 2,
+        "losers": 3
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_at_entry": {
+     "tercile_edges": [
+      15.57,
+      16.96
+     ],
+     "buckets": {
+      "low": {
+       "n": 32,
+       "chase": {
+        "n": 18,
+        "total_pnl": -636.0,
+        "mean_pnl": -35.33,
+        "wr": 0.2222,
+        "pf": 0.637,
+        "winners": 4,
+        "losers": 14
+       },
+       "rest": {
+        "n": 14,
+        "total_pnl": 648.0,
+        "mean_pnl": 46.29,
+        "wr": 0.2857,
+        "pf": 1.747,
+        "winners": 4,
+        "losers": 10
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -81.62,
+        -253.32,
+        73.1
+       ]
+      },
+      "mid": {
+       "n": 32,
+       "chase": {
+        "n": 28,
+        "total_pnl": 1030.0,
+        "mean_pnl": 36.79,
+        "wr": 0.4643,
+        "pf": 1.568,
+        "winners": 13,
+        "losers": 15
+       },
+       "rest": {
+        "n": 4,
+        "total_pnl": -40.0,
+        "mean_pnl": -10.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 30,
+       "chase": {
+        "n": 15,
+        "total_pnl": -1309.0,
+        "mean_pnl": -87.27,
+        "wr": 0.1333,
+        "pf": 0.125,
+        "winners": 2,
+        "losers": 13
+       },
+       "rest": {
+        "n": 15,
+        "total_pnl": 356.01,
+        "mean_pnl": 23.73,
+        "wr": 0.3333,
+        "pf": 1.83,
+        "winners": 5,
+        "losers": 5
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -111.0,
+        -193.74,
+        -29.33
+       ]
+      },
+      "null": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_dir": {
+     "up": {
+      "n": 34,
+      "chase": {
+       "n": 25,
+       "total_pnl": -1135.0,
+       "mean_pnl": -45.4,
+       "wr": 0.16,
+       "pf": 0.418,
+       "winners": 4,
+       "losers": 21
+      },
+      "rest": {
+       "n": 9,
+       "total_pnl": -191.99,
+       "mean_pnl": -21.33,
+       "wr": 0.2222,
+       "pf": 0.385,
+       "winners": 2,
+       "losers": 3
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -24.07,
+       -91.62,
+       49.13
+      ]
+     },
+     "down": {
+      "n": 33,
+      "chase": {
+       "n": 20,
+       "total_pnl": 965.0,
+       "mean_pnl": 48.25,
+       "wr": 0.55,
+       "pf": 1.615,
+       "winners": 11,
+       "losers": 9
+      },
+      "rest": {
+       "n": 13,
+       "total_pnl": 1874.0,
+       "mean_pnl": 144.15,
+       "wr": 0.4615,
+       "pf": 26.324,
+       "winners": 6,
+       "losers": 5
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -95.9,
+       -273.25,
+       62.13
+      ]
+     },
+     "flat": {
+      "n": 27,
+      "chase": {
+       "n": 16,
+       "total_pnl": -745.0,
+       "mean_pnl": -46.56,
+       "wr": 0.25,
+       "pf": 0.517,
+       "winners": 4,
+       "losers": 12
+      },
+      "rest": {
+       "n": 11,
+       "total_pnl": -718.0,
+       "mean_pnl": -65.27,
+       "wr": 0.0909,
+       "pf": 0.245,
+       "winners": 1,
+       "losers": 9
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       18.71,
+       -86.68,
+       127.84
+      ]
+     },
+     "null": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     }
+    }
+   }
+  },
+  "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+   "n": 215,
+   "chase": {
+    "n": 152,
+    "total_pnl": 1772.0,
+    "mean_pnl": 11.66,
+    "wr": 0.2171,
+    "pf": 1.255,
+    "winners": 33,
+    "losers": 115
+   },
+   "rest": {
+    "n": 63,
+    "total_pnl": 2533.0,
+    "mean_pnl": 40.21,
+    "wr": 0.3175,
+    "pf": 1.821,
+    "winners": 20,
+    "losers": 41
+   },
+   "mean_diff_chase_minus_rest_ci95": [
+    -28.55,
+    -86.99,
+    25.95
+   ],
+   "by_cosignal": {
+    "minutes_since_ribbon_flip": {
+     "tercile_edges": [
+      34.0667,
+      142.7267
+     ],
+     "buckets": {
+      "low": {
+       "n": 72,
+       "chase": {
+        "n": 60,
+        "total_pnl": 595.0,
+        "mean_pnl": 9.92,
+        "wr": 0.2333,
+        "pf": 1.181,
+        "winners": 14,
+        "losers": 43
+       },
+       "rest": {
+        "n": 12,
+        "total_pnl": 784.0,
+        "mean_pnl": 65.33,
+        "wr": 0.25,
+        "pf": 3.119,
+        "winners": 3,
+        "losers": 9
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -55.42,
+        -178.58,
+        55.99
+       ]
+      },
+      "mid": {
+       "n": 71,
+       "chase": {
+        "n": 41,
+        "total_pnl": 1064.0,
+        "mean_pnl": 25.95,
+        "wr": 0.2927,
+        "pf": 1.775,
+        "winners": 12,
+        "losers": 29
+       },
+       "rest": {
+        "n": 30,
+        "total_pnl": 2799.0,
+        "mean_pnl": 93.3,
+        "wr": 0.4333,
+        "pf": 2.911,
+        "winners": 13,
+        "losers": 17
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -67.35,
+        -168.02,
+        24.26
+       ]
+      },
+      "high": {
+       "n": 72,
+       "chase": {
+        "n": 51,
+        "total_pnl": 113.0,
+        "mean_pnl": 2.22,
+        "wr": 0.1373,
+        "pf": 1.05,
+        "winners": 7,
+        "losers": 43
+       },
+       "rest": {
+        "n": 21,
+        "total_pnl": -1050.0,
+        "mean_pnl": -50.0,
+        "wr": 0.1905,
+        "pf": 0.161,
+        "winners": 4,
+        "losers": 15
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        52.22,
+        -14.68,
+        123.59
+       ]
+      },
+      "null": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "minutes_since_htf15m_match": {
+     "tercile_edges": [
+      52.8,
+      169.4933
+     ],
+     "buckets": {
+      "low": {
+       "n": 50,
+       "chase": {
+        "n": 41,
+        "total_pnl": 2098.0,
+        "mean_pnl": 51.17,
+        "wr": 0.3659,
+        "pf": 2.145,
+        "winners": 15,
+        "losers": 26
+       },
+       "rest": {
+        "n": 9,
+        "total_pnl": 2062.0,
+        "mean_pnl": 229.11,
+        "wr": 0.4444,
+        "pf": 12.027,
+        "winners": 4,
+        "losers": 5
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -177.94,
+        -384.19,
+        18.3
+       ]
+      },
+      "mid": {
+       "n": 49,
+       "chase": {
+        "n": 33,
+        "total_pnl": -444.0,
+        "mean_pnl": -13.45,
+        "wr": 0.1515,
+        "pf": 0.776,
+        "winners": 5,
+        "losers": 28
+       },
+       "rest": {
+        "n": 16,
+        "total_pnl": -672.0,
+        "mean_pnl": -42.0,
+        "wr": 0.25,
+        "pf": 0.583,
+        "winners": 4,
+        "losers": 12
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        28.55,
+        -83.33,
+        138.21
+       ]
+      },
+      "high": {
+       "n": 50,
+       "chase": {
+        "n": 47,
+        "total_pnl": 1696.0,
+        "mean_pnl": 36.09,
+        "wr": 0.1702,
+        "pf": 3.197,
+        "winners": 8,
+        "losers": 35
+       },
+       "rest": {
+        "n": 3,
+        "total_pnl": 532.0,
+        "mean_pnl": 177.33,
+        "wr": 1.0,
+        "pf": Infinity,
+        "winners": 3,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 66,
+       "chase": {
+        "n": 31,
+        "total_pnl": -1578.0,
+        "mean_pnl": -50.9,
+        "wr": 0.1613,
+        "pf": 0.332,
+        "winners": 5,
+        "losers": 26
+       },
+       "rest": {
+        "n": 35,
+        "total_pnl": 611.0,
+        "mean_pnl": 17.46,
+        "wr": 0.2571,
+        "pf": 1.475,
+        "winners": 9,
+        "losers": 24
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -68.36,
+        -132.16,
+        -8.1
+       ]
+      }
+     }
+    },
+    "or_extension_multiples": {
+     "tercile_edges": [
+      0.0946,
+      0.6046
+     ],
+     "buckets": {
+      "low": {
+       "n": 63,
+       "chase": {
+        "n": 26,
+        "total_pnl": 929.0,
+        "mean_pnl": 35.73,
+        "wr": 0.4615,
+        "pf": 1.762,
+        "winners": 12,
+        "losers": 14
+       },
+       "rest": {
+        "n": 37,
+        "total_pnl": 743.0,
+        "mean_pnl": 20.08,
+        "wr": 0.1351,
+        "pf": 1.455,
+        "winners": 5,
+        "losers": 32
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        15.65,
+        -77.48,
+        101.12
+       ]
+      },
+      "mid": {
+       "n": 64,
+       "chase": {
+        "n": 45,
+        "total_pnl": 951.0,
+        "mean_pnl": 21.13,
+        "wr": 0.2667,
+        "pf": 1.303,
+        "winners": 12,
+        "losers": 33
+       },
+       "rest": {
+        "n": 19,
+        "total_pnl": -139.0,
+        "mean_pnl": -7.32,
+        "wr": 0.4737,
+        "pf": 0.902,
+        "winners": 9,
+        "losers": 8
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        28.45,
+        -76.59,
+        135.07
+       ]
+      },
+      "high": {
+       "n": 62,
+       "chase": {
+        "n": 58,
+        "total_pnl": 121.0,
+        "mean_pnl": 2.09,
+        "wr": 0.1379,
+        "pf": 1.051,
+        "winners": 8,
+        "losers": 49
+       },
+       "rest": {
+        "n": 4,
+        "total_pnl": 775.0,
+        "mean_pnl": 193.75,
+        "wr": 0.75,
+        "pf": 20.375,
+        "winners": 3,
+        "losers": 1
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 26,
+       "chase": {
+        "n": 23,
+        "total_pnl": -229.0,
+        "mean_pnl": -9.96,
+        "wr": 0.0435,
+        "pf": 0.034,
+        "winners": 1,
+        "losers": 19
+       },
+       "rest": {
+        "n": 3,
+        "total_pnl": 1154.0,
+        "mean_pnl": 384.67,
+        "wr": 1.0,
+        "pf": Infinity,
+        "winners": 3,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_at_entry": {
+     "tercile_edges": [
+      15.26,
+      16.1133
+     ],
+     "buckets": {
+      "low": {
+       "n": 73,
+       "chase": {
+        "n": 40,
+        "total_pnl": 650.0,
+        "mean_pnl": 16.25,
+        "wr": 0.35,
+        "pf": 1.208,
+        "winners": 14,
+        "losers": 26
+       },
+       "rest": {
+        "n": 33,
+        "total_pnl": 2407.0,
+        "mean_pnl": 72.94,
+        "wr": 0.4242,
+        "pf": 2.272,
+        "winners": 14,
+        "losers": 17
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -56.69,
+        -163.06,
+        47.88
+       ]
+      },
+      "mid": {
+       "n": 70,
+       "chase": {
+        "n": 62,
+        "total_pnl": 642.0,
+        "mean_pnl": 10.35,
+        "wr": 0.2097,
+        "pf": 1.317,
+        "winners": 13,
+        "losers": 46
+       },
+       "rest": {
+        "n": 8,
+        "total_pnl": -674.0,
+        "mean_pnl": -84.25,
+        "wr": 0.25,
+        "pf": 0.056,
+        "winners": 2,
+        "losers": 6
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        94.6,
+        34.25,
+        158.58
+       ]
+      },
+      "high": {
+       "n": 72,
+       "chase": {
+        "n": 50,
+        "total_pnl": 480.0,
+        "mean_pnl": 9.6,
+        "wr": 0.12,
+        "pf": 1.267,
+        "winners": 6,
+        "losers": 43
+       },
+       "rest": {
+        "n": 22,
+        "total_pnl": 800.0,
+        "mean_pnl": 36.36,
+        "wr": 0.1818,
+        "pf": 2.667,
+        "winners": 4,
+        "losers": 18
+       },
+       "mean_diff_chase_minus_rest_ci95": [
+        -26.76,
+        -107.49,
+        49.31
+       ]
+      },
+      "null": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_dir": {
+     "up": {
+      "n": 41,
+      "chase": {
+       "n": 22,
+       "total_pnl": 311.0,
+       "mean_pnl": 14.14,
+       "wr": 0.1818,
+       "pf": 1.291,
+       "winners": 4,
+       "losers": 18
+      },
+      "rest": {
+       "n": 19,
+       "total_pnl": 708.0,
+       "mean_pnl": 37.26,
+       "wr": 0.2632,
+       "pf": 2.091,
+       "winners": 5,
+       "losers": 14
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -23.13,
+       -119.23,
+       81.82
+      ]
+     },
+     "down": {
+      "n": 60,
+      "chase": {
+       "n": 48,
+       "total_pnl": 424.0,
+       "mean_pnl": 8.83,
+       "wr": 0.1875,
+       "pf": 1.148,
+       "winners": 9,
+       "losers": 36
+      },
+      "rest": {
+       "n": 12,
+       "total_pnl": 233.0,
+       "mean_pnl": 19.42,
+       "wr": 0.1667,
+       "pf": 1.64,
+       "winners": 2,
+       "losers": 10
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -10.58,
+       -122.11,
+       84.23
+      ]
+     },
+     "flat": {
+      "n": 114,
+      "chase": {
+       "n": 82,
+       "total_pnl": 1037.0,
+       "mean_pnl": 12.65,
+       "wr": 0.2439,
+       "pf": 1.343,
+       "winners": 20,
+       "losers": 61
+      },
+      "rest": {
+       "n": 32,
+       "total_pnl": 1592.0,
+       "mean_pnl": 49.75,
+       "wr": 0.4062,
+       "pf": 1.768,
+       "winners": 13,
+       "losers": 17
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -37.1,
+       -131.01,
+       50.88
+      ]
+     },
+     "null": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     }
+    }
+   }
+  },
+  "VWAP_CONTINUATION": {
+   "n": 41,
+   "chase": {
+    "n": 17,
+    "total_pnl": -558.0,
+    "mean_pnl": -32.82,
+    "wr": 0.1176,
+    "pf": 0.676,
+    "winners": 2,
+    "losers": 15
+   },
+   "rest": {
+    "n": 24,
+    "total_pnl": -530.0,
+    "mean_pnl": -22.08,
+    "wr": 0.4583,
+    "pf": 0.402,
+    "winners": 11,
+    "losers": 11
+   },
+   "mean_diff_chase_minus_rest_ci95": [
+    -10.74,
+    -110.8,
+    117.49
+   ],
+   "by_cosignal": {
+    "minutes_since_ribbon_flip": {
+     "tercile_edges": [
+      41.19,
+      47.45
+     ],
+     "buckets": {
+      "low": {
+       "n": 6,
+       "chase": {
+        "n": 6,
+        "total_pnl": -626.0,
+        "mean_pnl": -104.33,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 6
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 5,
+       "chase": {
+        "n": 5,
+        "total_pnl": 259.0,
+        "mean_pnl": 51.8,
+        "wr": 0.2,
+        "pf": 1.68,
+        "winners": 1,
+        "losers": 4
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 6,
+       "chase": {
+        "n": 6,
+        "total_pnl": -191.0,
+        "mean_pnl": -31.83,
+        "wr": 0.1667,
+        "pf": 0.733,
+        "winners": 1,
+        "losers": 5
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 24,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 24,
+        "total_pnl": -530.0,
+        "mean_pnl": -22.08,
+        "wr": 0.4583,
+        "pf": 0.402,
+        "winners": 11,
+        "losers": 11
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "minutes_since_htf15m_match": {
+     "tercile_edges": [
+      30.07,
+      43.6433
+     ],
+     "buckets": {
+      "low": {
+       "n": 9,
+       "chase": {
+        "n": 2,
+        "total_pnl": -221.0,
+        "mean_pnl": -110.5,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "rest": {
+        "n": 7,
+        "total_pnl": -160.0,
+        "mean_pnl": -22.86,
+        "wr": 0.4286,
+        "pf": 0.443,
+        "winners": 3,
+        "losers": 4
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 9,
+       "chase": {
+        "n": 6,
+        "total_pnl": -584.0,
+        "mean_pnl": -97.33,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 6
+       },
+       "rest": {
+        "n": 3,
+        "total_pnl": 24.0,
+        "mean_pnl": 8.0,
+        "wr": 0.6667,
+        "pf": Infinity,
+        "winners": 2,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 9,
+       "chase": {
+        "n": 9,
+        "total_pnl": 247.0,
+        "mean_pnl": 27.44,
+        "wr": 0.2222,
+        "pf": 1.269,
+        "winners": 2,
+        "losers": 7
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 14,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 14,
+        "total_pnl": -394.0,
+        "mean_pnl": -28.14,
+        "wr": 0.4286,
+        "pf": 0.343,
+        "winners": 6,
+        "losers": 7
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "or_extension_multiples": {
+     "tercile_edges": [
+      -0.8014,
+      -0.1528
+     ],
+     "buckets": {
+      "low": {
+       "n": 17,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 17,
+        "total_pnl": -511.0,
+        "mean_pnl": -30.06,
+        "wr": 0.4706,
+        "pf": 0.334,
+        "winners": 8,
+        "losers": 7
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 11,
+       "chase": {
+        "n": 4,
+        "total_pnl": -405.0,
+        "mean_pnl": -101.25,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 4
+       },
+       "rest": {
+        "n": 7,
+        "total_pnl": -19.0,
+        "mean_pnl": -2.71,
+        "wr": 0.4286,
+        "pf": 0.842,
+        "winners": 3,
+        "losers": 4
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 13,
+       "chase": {
+        "n": 13,
+        "total_pnl": -153.0,
+        "mean_pnl": -11.77,
+        "wr": 0.1538,
+        "pf": 0.884,
+        "winners": 2,
+        "losers": 11
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_at_entry": {
+     "tercile_edges": [
+      14.9167,
+      15.65
+     ],
+     "buckets": {
+      "low": {
+       "n": 14,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 14,
+        "total_pnl": -139.0,
+        "mean_pnl": -9.93,
+        "wr": 0.4286,
+        "pf": 0.416,
+        "winners": 6,
+        "losers": 6
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 14,
+       "chase": {
+        "n": 4,
+        "total_pnl": 421.0,
+        "mean_pnl": 105.25,
+        "wr": 0.25,
+        "pf": 2.922,
+        "winners": 1,
+        "losers": 3
+       },
+       "rest": {
+        "n": 10,
+        "total_pnl": -391.0,
+        "mean_pnl": -39.1,
+        "wr": 0.5,
+        "pf": 0.398,
+        "winners": 5,
+        "losers": 5
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 13,
+       "chase": {
+        "n": 13,
+        "total_pnl": -979.0,
+        "mean_pnl": -75.31,
+        "wr": 0.0769,
+        "pf": 0.349,
+        "winners": 1,
+        "losers": 12
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_dir": {
+     "up": {
+      "n": 8,
+      "chase": {
+       "n": 7,
+       "total_pnl": 679.0,
+       "mean_pnl": 97.0,
+       "wr": 0.2857,
+       "pf": 2.4,
+       "winners": 2,
+       "losers": 5
+      },
+      "rest": {
+       "n": 1,
+       "total_pnl": 40.0,
+       "mean_pnl": 40.0,
+       "wr": 1.0,
+       "pf": Infinity,
+       "winners": 1,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     },
+     "down": {
+      "n": 16,
+      "chase": {
+       "n": 8,
+       "total_pnl": -1058.0,
+       "mean_pnl": -132.25,
+       "wr": 0.0,
+       "pf": 0.0,
+       "winners": 0,
+       "losers": 8
+      },
+      "rest": {
+       "n": 8,
+       "total_pnl": -299.0,
+       "mean_pnl": -37.38,
+       "wr": 0.625,
+       "pf": 0.364,
+       "winners": 5,
+       "losers": 3
+      },
+      "mean_diff_chase_minus_rest_ci95": [
+       -94.88,
+       -195.25,
+       37.88
+      ]
+     },
+     "flat": {
+      "n": 17,
+      "chase": {
+       "n": 2,
+       "total_pnl": -179.0,
+       "mean_pnl": -89.5,
+       "wr": 0.0,
+       "pf": 0.0,
+       "winners": 0,
+       "losers": 2
+      },
+      "rest": {
+       "n": 15,
+       "total_pnl": -271.0,
+       "mean_pnl": -18.07,
+       "wr": 0.3333,
+       "pf": 0.35,
+       "winners": 5,
+       "losers": 8
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     },
+     "null": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     }
+    }
+   }
+  },
+  "VWAP_RECLAIM_FAILED_BREAK": {
+   "n": 3,
+   "chase": {
+    "n": 1,
+    "total_pnl": -64.0,
+    "mean_pnl": -64.0,
+    "wr": 0.0,
+    "pf": 0.0,
+    "winners": 0,
+    "losers": 1
+   },
+   "rest": {
+    "n": 2,
+    "total_pnl": -136.0,
+    "mean_pnl": -68.0,
+    "wr": 0.0,
+    "pf": 0.0,
+    "winners": 0,
+    "losers": 2
+   },
+   "mean_diff_chase_minus_rest_ci95": null,
+   "ci_note": "n<5 in one or both buckets -- CI not computed",
+   "by_cosignal": {
+    "minutes_since_ribbon_flip": {
+     "tercile_edges": null,
+     "buckets": {
+      "low": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 3,
+       "chase": {
+        "n": 1,
+        "total_pnl": -64.0,
+        "mean_pnl": -64.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -136.0,
+        "mean_pnl": -68.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "minutes_since_htf15m_match": {
+     "tercile_edges": null,
+     "buckets": {
+      "low": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 3,
+       "chase": {
+        "n": 1,
+        "total_pnl": -64.0,
+        "mean_pnl": -64.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -136.0,
+        "mean_pnl": -68.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "or_extension_multiples": {
+     "tercile_edges": null,
+     "buckets": {
+      "low": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 3,
+       "chase": {
+        "n": 1,
+        "total_pnl": -64.0,
+        "mean_pnl": -64.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -136.0,
+        "mean_pnl": -68.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_at_entry": {
+     "tercile_edges": null,
+     "buckets": {
+      "low": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "mid": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "high": {
+       "n": 0,
+       "chase": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "rest": {
+        "n": 0,
+        "total_pnl": 0,
+        "mean_pnl": null,
+        "wr": null,
+        "pf": null,
+        "winners": 0,
+        "losers": 0
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      },
+      "null": {
+       "n": 3,
+       "chase": {
+        "n": 1,
+        "total_pnl": -64.0,
+        "mean_pnl": -64.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 1
+       },
+       "rest": {
+        "n": 2,
+        "total_pnl": -136.0,
+        "mean_pnl": -68.0,
+        "wr": 0.0,
+        "pf": 0.0,
+        "winners": 0,
+        "losers": 2
+       },
+       "mean_diff_chase_minus_rest_ci95": null,
+       "ci_note": "n<5 in one or both buckets -- CI not computed"
+      }
+     }
+    },
+    "vix_dir": {
+     "up": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     },
+     "down": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     },
+     "flat": {
+      "n": 3,
+      "chase": {
+       "n": 1,
+       "total_pnl": -64.0,
+       "mean_pnl": -64.0,
+       "wr": 0.0,
+       "pf": 0.0,
+       "winners": 0,
+       "losers": 1
+      },
+      "rest": {
+       "n": 2,
+       "total_pnl": -136.0,
+       "mean_pnl": -68.0,
+       "wr": 0.0,
+       "pf": 0.0,
+       "winners": 0,
+       "losers": 2
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     },
+     "null": {
+      "n": 0,
+      "chase": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "rest": {
+       "n": 0,
+       "total_pnl": 0,
+       "mean_pnl": null,
+       "wr": null,
+       "pf": null,
+       "winners": 0,
+       "losers": 0
+      },
+      "mean_diff_chase_minus_rest_ci95": null,
+      "ci_note": "n<5 in one or both buckets -- CI not computed"
+     }
+    }
+   }
+  }
+ },
+ "prereg_cut_diagnostic": {
+  "n_chase_total": 152,
+  "fresh_leq_15min": {
+   "n": 36,
+   "total_pnl": -251.0,
+   "mean_pnl": -6.97,
+   "wr": 0.2222,
+   "pf": 0.86,
+   "winners": 8,
+   "losers": 25
+  },
+  "gray_15_45min_excluded_from_primary_comparison": {
+   "n": 33,
+   "total_pnl": 1403.0,
+   "mean_pnl": 42.52,
+   "wr": 0.303,
+   "pf": 1.838,
+   "winners": 10,
+   "losers": 23
+  },
+  "stale_gt_45min": {
+   "n": 83,
+   "total_pnl": 620.0,
+   "mean_pnl": 7.47,
+   "wr": 0.1807,
+   "pf": 1.178,
+   "winners": 15,
+   "losers": 67
+  },
+  "ribbon_flip_unavailable_or_not_matching_direction": {
+   "n": 0,
+   "total_pnl": 0,
+   "mean_pnl": null,
+   "wr": null,
+   "pf": null,
+   "winners": 0,
+   "losers": 0
+  },
+  "mean_diff_fresh_minus_stale_ci95": [
+   -14.44,
+   -71.17,
+   43.16
+  ],
+  "note": "Diagnostic preview of prereg-entry-location-trend-2026-09-03.md section 5's frozen cut. NOT the prereg's official verdict -- that requires a dedicated future read against the frozen decision rule, never this nightly summary."
+ },
+ "prereg_readiness": {
+  "target_setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+  "n_chase_current": 152,
+  "n_chase_required": 150,
+  "ready": true,
+  "note": "Reaching this floor is permission to READ the prereg's frozen decision rule, never to ship anything -- see analysis/recommendations/prereg-entry-location-trend-2026-09-03.md. Config freeze through 2026-10-30 blocks any live change regardless."
+ },
+ "new_this_run": 0,
+ "skipped_this_run": []
+}

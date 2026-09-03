@@ -1,0 +1,129 @@
+{
+ "prereg": "analysis/recommendations/prereg-profit-lock-v2-forward-shadow-2026-09-03.md",
+ "generated_at_et": "2026-09-03T11:34:14.183769",
+ "forward_start_date": "2026-09-03",
+ "treatment": {
+  "profit_lock_arm_scope": "full",
+  "profit_lock_arm_pct": 0.2,
+  "min_time_in_trade_minutes_wrapper_only": 10.0,
+  "trail_pct": "unchanged (canonical_shape(date)'s own value)",
+  "live_knob_note": "profit_lock_arm_pct IS a real exit_manager.py knob (ExitState.from_entry reads exit_shape['profit_lock_arm_pct']) -- no wrapper needed for that half. The 10-minute minimum-time-in-trade gate has NO live exit_manager.py equivalent (confirmed by grep this build) and is implemented ONLY in this shadow's walker wrapper (_walk_exit_manager_time_gated) by masking profit_lock_arm_scope to 'post_tp1' for bars < entry+10min. A positive forward verdict would still require a genuine live knob to be built before shipping -- that is a 2026-10-30+ item, not part of this shadow."
+ },
+ "n_total_rows": 438,
+ "n_in_sample": 438,
+ "n_forward": 0,
+ "sessions_total": 44,
+ "sessions_forward": 0,
+ "date_span_total": "2026-06-26..2026-09-02",
+ "date_span_forward": null,
+ "per_arm": {
+  "bold-2": {
+   "n": 49,
+   "sum_control_pnl": -299.7,
+   "sum_treatment_pnl": 654.15,
+   "sum_delta": 953.85,
+   "trusted_dollars": false
+  },
+  "risky-1": {
+   "n": 90,
+   "sum_control_pnl": -1115.0,
+   "sum_treatment_pnl": 848.65,
+   "sum_delta": 1963.65,
+   "trusted_dollars": false
+  },
+  "risky-3": {
+   "n": 103,
+   "sum_control_pnl": 7378.7,
+   "sum_treatment_pnl": 4223.6,
+   "sum_delta": -3155.1,
+   "trusted_dollars": false
+  },
+  "safe-1": {
+   "n": 27,
+   "sum_control_pnl": -186.4,
+   "sum_treatment_pnl": -149.8,
+   "sum_delta": 36.6,
+   "trusted_dollars": false
+  },
+  "safe-2": {
+   "n": 103,
+   "sum_control_pnl": -268.6,
+   "sum_treatment_pnl": -852.95,
+   "sum_delta": -584.35,
+   "trusted_dollars": true
+  },
+  "safe-3": {
+   "n": 66,
+   "sum_control_pnl": -206.1,
+   "sum_treatment_pnl": 1447.75,
+   "sum_delta": 1653.85,
+   "trusted_dollars": false
+  }
+ },
+ "safe2_trusted": {
+  "n_all": 103,
+  "n_forward": 0,
+  "sum_delta_all": -584.35,
+  "sum_delta_forward": 0.0,
+  "bootstrap_ci_forward": null
+ },
+ "recent_quarter_delta_safe2_all_time": {
+  "n": 25,
+  "delta": -735.25,
+  "date_span": "2026-08-14..2026-09-02"
+ },
+ "big_days": {
+  "per_date": {
+   "2026-08-06": {
+    "n": 2,
+    "delta": 0.0
+   },
+   "2026-08-13": {
+    "n": 4,
+    "delta": 55.4
+   },
+   "2026-08-27": {
+    "n": 2,
+    "delta": -675.5
+   },
+   "2026-08-28": {
+    "n": 2,
+    "delta": 0.0
+   }
+  },
+  "dates_missing": [],
+  "all_ge_zero": false
+ },
+ "runner_08_04": {
+  "found": true,
+  "delta": 0.0,
+  "n_matches": 1
+ },
+ "bar": {
+  "forward_sessions_required": 20,
+  "forward_sessions_accrued": 0,
+  "forward_sessions_met": false,
+  "forward_safe2_scored_required": 25,
+  "forward_safe2_scored_accrued": 0,
+  "forward_safe2_scored_met": false,
+  "bar_met": false
+ },
+ "decision_conditions": {
+  "safe2_forward_ci_lower_gt_zero": null,
+  "recent_quarter_delta_ge_zero": false,
+  "four_big_days_all_ge_zero": false,
+  "runner_08_04_delta_ge_zero": true
+ },
+ "all_decision_conditions_currently_met": false,
+ "status": "ARMED_AWAITING_FILLS",
+ "no_ship_before": "2026-10-30 (config freeze; see prereg for the fuller reasoning)",
+ "seen_data_disclosure": "The four named big days and the 08-04 runner are all in_sample=True (dated <=2026-09-02) -- they are ALREADY-SEEN facts about this candidate's shape, not forward evidence, and are re-measured here as a disclosed prior every run, never as part of the forward bar count. Only safe2_trusted.bootstrap_ci_forward and the forward session/scored counts are genuinely un-seen at freeze time. This mirrors H4's own explicit warning that its +5%/15%-trail cell was SEEN data by the time it was reported -- the same caveat applies here to this V2 cell's backfill numbers, and remains true even after the forward bar is met: reaching the bar is permission to READ the verdict, never to ship it (prereg \u00a76).",
+ "decision_rule_reminder": "Ship-candidate ONLY if: safe2_forward_ci_lower_gt_zero AND recent_quarter_delta_ge_zero AND four_big_days_all_ge_zero AND runner_08_04_delta_ge_zero -- ALL FOUR, and even then this shadow ships nothing; see prereg \u00a75-6.",
+ "new_this_run": 438,
+ "skipped_this_run_count": 0,
+ "skipped_this_run_sample": [],
+ "input_ledger_newest_date": "2026-09-02",
+ "input_expected_through": "2026-09-02",
+ "input_stale": false,
+ "input_note": "fed"
+}

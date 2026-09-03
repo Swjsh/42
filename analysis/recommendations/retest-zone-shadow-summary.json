@@ -1,0 +1,858 @@
+{
+ "prereg": "analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
+ "generated_at_et": "2026-09-03T11:29:32.316047",
+ "n_scored": 200,
+ "days_scored": 26,
+ "date_span": "2026-07-13..2026-09-02",
+ "n_in_sample_backfill": 200,
+ "n_forward": 0,
+ "n_forward_days": 0,
+ "forward_bar": {
+  "min_forward_sessions": 20,
+  "min_forward_signals": 40,
+  "sessions_to_bar": 20,
+  "signals_to_bar": 40,
+  "bar_met": false
+ },
+ "in_force_zone_source_counts": {
+  "default": 200
+ },
+ "in_force_zone_width_counts": {
+  "0.30": 200
+ },
+ "by_all_time": {
+  "grid": {
+   "0.20": {
+    "n_scored": 200,
+    "n_confirmed": 115,
+    "actual_total": 4957.5,
+    "retest_total": 5758.7,
+    "delta_total": 801.2,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": -630.6,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -96.3739,
+      "ci_upper_97.5": 45.8694
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 1431.8,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": -222.4,
+      "delta": 148.95
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 5162.1,
+      "delta": 1908.0
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 0.0,
+      "delta": -676.2,
+      "sign_flip": true
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2240.6,
+      "delta": 368.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 0.0,
+      "delta": -3359.8,
+      "sign_flip": true
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": -420.0,
+      "delta": -3082.6,
+      "sign_flip": true
+     }
+    }
+   },
+   "0.30": {
+    "n_scored": 200,
+    "n_confirmed": 139,
+    "actual_total": 4957.5,
+    "retest_total": 7522.0,
+    "delta_total": 2564.5,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": -268.1,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -66.3729,
+      "ci_upper_97.5": 30.5577
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 2832.6,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": -443.4,
+      "delta": -72.05
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 6069.8,
+      "delta": 2815.7
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 881.4,
+      "delta": 205.2,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 1967.6,
+      "delta": -1392.2,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": -420.0,
+      "delta": -3082.6,
+      "sign_flip": true
+     }
+    }
+   },
+   "0.40": {
+    "n_scored": 200,
+    "n_confirmed": 153,
+    "actual_total": 4957.5,
+    "retest_total": 11353.0,
+    "delta_total": 6395.5,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": 510.35,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -1.7293,
+      "ci_upper_97.5": 44.568
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 5885.15,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": 1776.4,
+      "delta": 2147.75
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 6512.95,
+      "delta": 3258.85
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 881.4,
+      "delta": 205.2,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 2576.0,
+      "delta": -783.8,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": 2809.6,
+      "delta": 147.0,
+      "sign_flip": false
+     }
+    }
+   },
+   "0.50": {
+    "n_scored": 200,
+    "n_confirmed": 159,
+    "actual_total": 4957.5,
+    "retest_total": 11133.7,
+    "delta_total": 6176.2,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": 474.35,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -3.7725,
+      "ci_upper_97.5": 44.2407
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 5701.85,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": 1781.4,
+      "delta": 2152.75
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 6271.35,
+      "delta": 3017.25
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 1167.0,
+      "delta": 490.8,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 2576.0,
+      "delta": -783.8,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": 2809.6,
+      "delta": 147.0,
+      "sign_flip": false
+     }
+    }
+   },
+   "0.75": {
+    "n_scored": 200,
+    "n_confirmed": 171,
+    "actual_total": 4957.5,
+    "retest_total": 9753.0,
+    "delta_total": 4795.5,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": 662.15,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -1.606,
+      "ci_upper_97.5": 56.2827
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 4133.35,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": 1833.4,
+      "delta": 2204.75
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 5019.95,
+      "delta": 1765.85
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 803.4,
+      "delta": 127.2,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 2567.0,
+      "delta": -792.8,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": 2894.6,
+      "delta": 232.0,
+      "sign_flip": false
+     }
+    }
+   }
+  },
+  "in_force": {
+   "n_scored": 200,
+   "n_confirmed": 139,
+   "actual_total": 4957.5,
+   "retest_total": 7522.0,
+   "delta_total": 2564.5,
+   "safe2_trusted": {
+    "n": 28,
+    "delta": -268.1,
+    "session_clustered_ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 14,
+     "ci_lower_2.5": -66.3729,
+     "ci_upper_97.5": 30.5577
+    }
+   },
+   "other_arms_sign_only": {
+    "n": 172,
+    "delta": 2832.6,
+    "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+   },
+   "vix_band_split": {
+    "lt15": {
+     "n": 63,
+     "actual": -371.35,
+     "retest": -443.4,
+     "delta": -72.05
+    },
+    "15to17": {
+     "n": 89,
+     "actual": 3254.1,
+     "retest": 6069.8,
+     "delta": 2815.7
+    },
+    "gt17": null
+   },
+   "big_winner_days": {
+    "2026-08-06": {
+     "n": 2,
+     "actual": 676.2,
+     "retest": 881.4,
+     "delta": 205.2,
+     "sign_flip": false
+    },
+    "2026-08-13": {
+     "n": 14,
+     "actual": 1872.6,
+     "retest": 2119.6,
+     "delta": 247.0,
+     "sign_flip": false
+    },
+    "2026-08-27": {
+     "n": 13,
+     "actual": 3359.8,
+     "retest": 1967.6,
+     "delta": -1392.2,
+     "sign_flip": false
+    },
+    "2026-08-28": {
+     "n": 9,
+     "actual": 2662.6,
+     "retest": -420.0,
+     "delta": -3082.6,
+     "sign_flip": true
+    }
+   }
+  }
+ },
+ "by_backfill_only": {
+  "grid": {
+   "0.20": {
+    "n_scored": 200,
+    "n_confirmed": 115,
+    "actual_total": 4957.5,
+    "retest_total": 5758.7,
+    "delta_total": 801.2,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": -630.6,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -96.3739,
+      "ci_upper_97.5": 45.8694
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 1431.8,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": -222.4,
+      "delta": 148.95
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 5162.1,
+      "delta": 1908.0
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 0.0,
+      "delta": -676.2,
+      "sign_flip": true
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2240.6,
+      "delta": 368.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 0.0,
+      "delta": -3359.8,
+      "sign_flip": true
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": -420.0,
+      "delta": -3082.6,
+      "sign_flip": true
+     }
+    }
+   },
+   "0.30": {
+    "n_scored": 200,
+    "n_confirmed": 139,
+    "actual_total": 4957.5,
+    "retest_total": 7522.0,
+    "delta_total": 2564.5,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": -268.1,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -66.3729,
+      "ci_upper_97.5": 30.5577
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 2832.6,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": -443.4,
+      "delta": -72.05
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 6069.8,
+      "delta": 2815.7
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 881.4,
+      "delta": 205.2,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 1967.6,
+      "delta": -1392.2,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": -420.0,
+      "delta": -3082.6,
+      "sign_flip": true
+     }
+    }
+   },
+   "0.40": {
+    "n_scored": 200,
+    "n_confirmed": 153,
+    "actual_total": 4957.5,
+    "retest_total": 11353.0,
+    "delta_total": 6395.5,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": 510.35,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -1.7293,
+      "ci_upper_97.5": 44.568
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 5885.15,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": 1776.4,
+      "delta": 2147.75
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 6512.95,
+      "delta": 3258.85
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 881.4,
+      "delta": 205.2,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 2576.0,
+      "delta": -783.8,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": 2809.6,
+      "delta": 147.0,
+      "sign_flip": false
+     }
+    }
+   },
+   "0.50": {
+    "n_scored": 200,
+    "n_confirmed": 159,
+    "actual_total": 4957.5,
+    "retest_total": 11133.7,
+    "delta_total": 6176.2,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": 474.35,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -3.7725,
+      "ci_upper_97.5": 44.2407
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 5701.85,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": 1781.4,
+      "delta": 2152.75
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 6271.35,
+      "delta": 3017.25
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 1167.0,
+      "delta": 490.8,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 2576.0,
+      "delta": -783.8,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": 2809.6,
+      "delta": 147.0,
+      "sign_flip": false
+     }
+    }
+   },
+   "0.75": {
+    "n_scored": 200,
+    "n_confirmed": 171,
+    "actual_total": 4957.5,
+    "retest_total": 9753.0,
+    "delta_total": 4795.5,
+    "safe2_trusted": {
+     "n": 28,
+     "delta": 662.15,
+     "session_clustered_ci": {
+      "n_boot": 2000,
+      "n_days_clustered": 14,
+      "ci_lower_2.5": -1.606,
+      "ci_upper_97.5": 56.2827
+     }
+    },
+    "other_arms_sign_only": {
+     "n": 172,
+     "delta": 4133.35,
+     "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+    },
+    "vix_band_split": {
+     "lt15": {
+      "n": 63,
+      "actual": -371.35,
+      "retest": 1833.4,
+      "delta": 2204.75
+     },
+     "15to17": {
+      "n": 89,
+      "actual": 3254.1,
+      "retest": 5019.95,
+      "delta": 1765.85
+     },
+     "gt17": null
+    },
+    "big_winner_days": {
+     "2026-08-06": {
+      "n": 2,
+      "actual": 676.2,
+      "retest": 803.4,
+      "delta": 127.2,
+      "sign_flip": false
+     },
+     "2026-08-13": {
+      "n": 14,
+      "actual": 1872.6,
+      "retest": 2119.6,
+      "delta": 247.0,
+      "sign_flip": false
+     },
+     "2026-08-27": {
+      "n": 13,
+      "actual": 3359.8,
+      "retest": 2567.0,
+      "delta": -792.8,
+      "sign_flip": false
+     },
+     "2026-08-28": {
+      "n": 9,
+      "actual": 2662.6,
+      "retest": 2894.6,
+      "delta": 232.0,
+      "sign_flip": false
+     }
+    }
+   }
+  },
+  "in_force": {
+   "n_scored": 200,
+   "n_confirmed": 139,
+   "actual_total": 4957.5,
+   "retest_total": 7522.0,
+   "delta_total": 2564.5,
+   "safe2_trusted": {
+    "n": 28,
+    "delta": -268.1,
+    "session_clustered_ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 14,
+     "ci_lower_2.5": -66.3729,
+     "ci_upper_97.5": 30.5577
+    }
+   },
+   "other_arms_sign_only": {
+    "n": 172,
+    "delta": 2832.6,
+    "note": "SIGN-ONLY per WALKER-FULL-POPULATION-ANCHOR-2026-09-03.md -- walk_exit_manager magnitude fidelity passes only for safe-2; direction of this delta is indicative, the dollar figure is not."
+   },
+   "vix_band_split": {
+    "lt15": {
+     "n": 63,
+     "actual": -371.35,
+     "retest": -443.4,
+     "delta": -72.05
+    },
+    "15to17": {
+     "n": 89,
+     "actual": 3254.1,
+     "retest": 6069.8,
+     "delta": 2815.7
+    },
+    "gt17": null
+   },
+   "big_winner_days": {
+    "2026-08-06": {
+     "n": 2,
+     "actual": 676.2,
+     "retest": 881.4,
+     "delta": 205.2,
+     "sign_flip": false
+    },
+    "2026-08-13": {
+     "n": 14,
+     "actual": 1872.6,
+     "retest": 2119.6,
+     "delta": 247.0,
+     "sign_flip": false
+    },
+    "2026-08-27": {
+     "n": 13,
+     "actual": 3359.8,
+     "retest": 1967.6,
+     "delta": -1392.2,
+     "sign_flip": false
+    },
+    "2026-08-28": {
+     "n": 9,
+     "actual": 2662.6,
+     "retest": -420.0,
+     "delta": -3082.6,
+     "sign_flip": true
+    }
+   }
+  }
+ },
+ "by_forward_only": {},
+ "status": "ACCRUING",
+ "decision_rule": "Read ONCE, on FORWARD (in_sample=False) data only, at >=20 forward sessions AND >=40 forward signals: ship-candidate only if by_forward_only.in_force.safe2_trusted.session_clustered_ci.ci_lower_2.5 > 0 AND no by_all_time.in_force.big_winner_days entry has sign_flip=true. The grid columns (0.20/0.30/0.40/0.50/0.75) are disclosure-only -- no width may be picked after reading them. Full rule: analysis/recommendations/prereg-retest-zone-grid-2026-09-03.md",
+ "new_this_run": 0,
+ "skipped_this_run": [],
+ "population": {
+  "n_ribbon_events_total": 347,
+  "n_closed": 347,
+  "n_no_trigger_level_excluded": 147,
+  "n_scoreable": 200,
+  "n_scored_cumulative": 200
+ },
+ "archive_health": {
+  "n_dated_snapshots": 18,
+  "first_snapshot": "2026-05-19",
+  "last_snapshot": "2026-07-02",
+  "n_snapshots_with_any_zone_width": 0,
+  "note": "Gamma_ArchiveKeyLevels is not a registered scheduled task; Gamma_DailyReview is registered but State=Disabled (both confirmed this build) -- the archive is not currently advancing."
+ },
+ "input_ledger_newest_ribbon_date": "2026-09-02",
+ "input_expected_through": "2026-09-02",
+ "input_stale": false,
+ "input_note": "fed"
+}

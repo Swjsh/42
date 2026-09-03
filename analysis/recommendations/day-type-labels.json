@@ -1,0 +1,1775 @@
+{
+ "_meta": {
+  "prereg": "analysis/recommendations/prereg-day-type-classifier-2026-09-03.md",
+  "generated_at_et": "2026-09-03T11:30:52.331580",
+  "today_session_et": "2026-09-03",
+  "label_table_start_date": "2026-07-01",
+  "sources": {
+   "labels": "automation/state/fills-ledger.jsonl",
+   "features": "automation/state/core-decisions.jsonl"
+  },
+  "exit_multiple_paying_threshold": 1.3,
+  "named_big_days": [
+   "2026-08-06",
+   "2026-08-13",
+   "2026-08-27",
+   "2026-08-28"
+  ],
+  "build_wall_seconds": 0.837
+ },
+ "label_summary": {
+  "label_counts": {
+   "tax": 16,
+   "paying": 16,
+   "mixed": 9,
+   "in_progress": 1
+  },
+  "n_sessions": 42,
+  "anchor_day_check": {
+   "2026-08-06": {
+    "label": "paying",
+    "is_paying": true
+   },
+   "2026-08-13": {
+    "label": "paying",
+    "is_paying": true
+   },
+   "2026-08-27": {
+    "label": "paying",
+    "is_paying": true
+   },
+   "2026-08-28": {
+    "label": "paying",
+    "is_paying": true
+   }
+  },
+  "all_four_anchor_days_paying": true
+ },
+ "sessions": [
+  {
+   "date": "2026-07-01",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 0,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -64.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.51,
+    "overnight_gap_pct": 0.0683,
+    "prior_day_range_dollars": 7.43,
+    "vix_level_0935": 16.8,
+    "vix_overnight_change": 0.31,
+    "vix_5d_slope": -0.921,
+    "vix_5d_slope_n": 4,
+    "vix_20d_slope": -0.921,
+    "vix_20d_slope_n": 4,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.71,
+    "opening_range_position_vs_prior_range": 0.6413,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-02",
+   "day_of_week": "Thursday",
+   "n_activities_total": 22,
+   "n_closed": 22,
+   "n_winners": 4,
+   "n_losers": 18,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 244.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.26,
+    "overnight_gap_pct": -0.0348,
+    "prior_day_range_dollars": 6.57,
+    "vix_level_0935": 16.15,
+    "vix_overnight_change": -0.14,
+    "vix_5d_slope": -0.804,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.804,
+    "vix_20d_slope_n": 5,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 3.115,
+    "opening_range_position_vs_prior_range": 0.6853,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-06",
+   "day_of_week": "Monday",
+   "n_activities_total": 35,
+   "n_closed": 35,
+   "n_winners": 5,
+   "n_losers": 23,
+   "n_scratch": 7,
+   "n_still_open": 0,
+   "book_pnl": -217.0,
+   "had_exit_ge_1_3x": false,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": null,
+    "overnight_gap_pct": null,
+    "prior_day_range_dollars": 0.0,
+    "vix_level_0935": null,
+    "vix_overnight_change": null,
+    "vix_5d_slope": -0.353,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.56464,
+    "vix_20d_slope_n": 7,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 3,
+    "opening_range_width_dollars": 0.0,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-07",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 7,
+   "n_closed": 7,
+   "n_winners": 0,
+   "n_losers": 7,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -123.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-3",
+    "safe-1"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.21,
+    "overnight_gap_pct": 0.028,
+    "prior_day_range_dollars": 4.015,
+    "vix_level_0935": 15.87,
+    "vix_overnight_change": -0.13,
+    "vix_5d_slope": -0.146,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.47988,
+    "vix_20d_slope_n": 8,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.795,
+    "opening_range_position_vs_prior_range": 0.5187,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-08",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 15,
+   "n_closed": 15,
+   "n_winners": 0,
+   "n_losers": 12,
+   "n_scratch": 3,
+   "n_still_open": 0,
+   "book_pnl": -382.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.76,
+    "overnight_gap_pct": 0.1017,
+    "prior_day_range_dollars": 5.58,
+    "vix_level_0935": 17.36,
+    "vix_overnight_change": 1.05,
+    "vix_5d_slope": -0.052,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.38767,
+    "vix_20d_slope_n": 9,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.11,
+    "opening_range_position_vs_prior_range": 0.0045,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-09",
+   "day_of_week": "Thursday",
+   "n_activities_total": 10,
+   "n_closed": 10,
+   "n_winners": 0,
+   "n_losers": 10,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -381.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-1",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.0,
+    "overnight_gap_pct": 0.0,
+    "prior_day_range_dollars": 11.03,
+    "vix_level_0935": 16.73,
+    "vix_overnight_change": 0.73,
+    "vix_5d_slope": -0.062,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.33648,
+    "vix_20d_slope_n": 10,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.795,
+    "opening_range_position_vs_prior_range": 0.6081,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-13",
+   "day_of_week": "Monday",
+   "n_activities_total": 1,
+   "n_closed": 1,
+   "n_winners": 0,
+   "n_losers": 1,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -25.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 4.09,
+    "overnight_gap_pct": 0.5446,
+    "prior_day_range_dollars": 0.0,
+    "vix_level_0935": 15.05,
+    "vix_overnight_change": -0.95,
+    "vix_5d_slope": -0.062,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.2267,
+    "vix_20d_slope_n": 13,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.855,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-15",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 0,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -309.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 1.11,
+    "overnight_gap_pct": 0.1478,
+    "prior_day_range_dollars": 3.665,
+    "vix_level_0935": 16.15,
+    "vix_overnight_change": 0.15,
+    "vix_5d_slope": 0.139,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.14971,
+    "vix_20d_slope_n": 15,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 3.24,
+    "opening_range_position_vs_prior_range": 1.2156,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-16",
+   "day_of_week": "Thursday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 0,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -83.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.0,
+    "overnight_gap_pct": 0.0,
+    "prior_day_range_dollars": 4.86,
+    "vix_level_0935": 16.18,
+    "vix_overnight_change": 0.18,
+    "vix_5d_slope": 0.0,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.13857,
+    "vix_20d_slope_n": 16,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 3.1,
+    "opening_range_position_vs_prior_range": 0.5679,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-17",
+   "day_of_week": "Friday",
+   "n_activities_total": 16,
+   "n_closed": 16,
+   "n_winners": 7,
+   "n_losers": 4,
+   "n_scratch": 5,
+   "n_still_open": 0,
+   "book_pnl": 590.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -1.04,
+    "overnight_gap_pct": -0.1385,
+    "prior_day_range_dollars": 6.56,
+    "vix_level_0935": 19.06,
+    "vix_overnight_change": 3.06,
+    "vix_5d_slope": -0.139,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.12821,
+    "vix_20d_slope_n": 17,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 9.81,
+    "opening_range_position_vs_prior_range": -0.3422,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-20",
+   "day_of_week": "Monday",
+   "n_activities_total": 5,
+   "n_closed": 5,
+   "n_winners": 0,
+   "n_losers": 5,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -141.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -7.03,
+    "overnight_gap_pct": -0.9361,
+    "prior_day_range_dollars": 0.0,
+    "vix_level_0935": 18.1,
+    "vix_overnight_change": 2.1,
+    "vix_5d_slope": 0.0,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.11,
+    "vix_20d_slope_n": 19,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.87,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-21",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 1,
+   "n_losers": 2,
+   "n_scratch": 1,
+   "n_still_open": 0,
+   "book_pnl": -76.0,
+   "had_exit_ge_1_3x": false,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -8.83,
+    "overnight_gap_pct": -1.1758,
+    "prior_day_range_dollars": 9.29,
+    "vix_level_0935": 17.78,
+    "vix_overnight_change": 1.78,
+    "vix_5d_slope": 0.0,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.1021,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 3.41,
+    "opening_range_position_vs_prior_range": 0.2309,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-22",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 3,
+   "n_closed": 3,
+   "n_winners": 0,
+   "n_losers": 3,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -108.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.235,
+    "overnight_gap_pct": -0.0314,
+    "prior_day_range_dollars": 6.82,
+    "vix_level_0935": 17.35,
+    "vix_overnight_change": 0.39,
+    "vix_5d_slope": 0.192,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.0538,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.06,
+    "opening_range_position_vs_prior_range": 0.8343,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-23",
+   "day_of_week": "Thursday",
+   "n_activities_total": 1,
+   "n_closed": 1,
+   "n_winners": 0,
+   "n_losers": 1,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -305.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "bold-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -3.18,
+    "overnight_gap_pct": -0.4234,
+    "prior_day_range_dollars": 4.2,
+    "vix_level_0935": 19.32,
+    "vix_overnight_change": 3.32,
+    "vix_5d_slope": 0.096,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.02266,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 6.52,
+    "opening_range_position_vs_prior_range": -0.5333,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-27",
+   "day_of_week": "Monday",
+   "n_activities_total": 7,
+   "n_closed": 7,
+   "n_winners": 0,
+   "n_losers": 7,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -828.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 2.56,
+    "overnight_gap_pct": 0.3479,
+    "prior_day_range_dollars": 11.91,
+    "vix_level_0935": 17.75,
+    "vix_overnight_change": -1.55,
+    "vix_5d_slope": 0.66,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.04175,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 6.475,
+    "opening_range_position_vs_prior_range": 0.4868,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-07-28",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 5,
+   "n_closed": 5,
+   "n_winners": 1,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -346.0,
+   "had_exit_ge_1_3x": false,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "bold-2",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -12.22,
+    "overnight_gap_pct": -1.6272,
+    "prior_day_range_dollars": 14.88,
+    "vix_level_0935": 18.6,
+    "vix_overnight_change": 2.6,
+    "vix_5d_slope": 0.234,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.0388,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.06,
+    "opening_range_position_vs_prior_range": 0.1478,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-29",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 6,
+   "n_closed": 6,
+   "n_winners": 6,
+   "n_losers": 0,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 1341.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": null,
+    "overnight_gap_pct": null,
+    "prior_day_range_dollars": 6.09,
+    "vix_level_0935": null,
+    "vix_overnight_change": null,
+    "vix_5d_slope": 0.26,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.06571,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 0,
+    "opening_range_width_dollars": null,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": null
+   }
+  },
+  {
+   "date": "2026-07-30",
+   "day_of_week": "Thursday",
+   "n_activities_total": 2,
+   "n_closed": 2,
+   "n_winners": 0,
+   "n_losers": 2,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -275.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.0,
+    "overnight_gap_pct": 0.0,
+    "prior_day_range_dollars": 11.845,
+    "vix_level_0935": 18.82,
+    "vix_overnight_change": -1.19,
+    "vix_5d_slope": 0.698,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.11892,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 5.92,
+    "opening_range_position_vs_prior_range": 0.1482,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-07-31",
+   "day_of_week": "Friday",
+   "n_activities_total": 3,
+   "n_closed": 3,
+   "n_winners": 2,
+   "n_losers": 1,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 121.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "risky-3",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -9.595,
+    "overnight_gap_pct": -1.2776,
+    "prior_day_range_dollars": 21.43,
+    "vix_level_0935": 17.03,
+    "vix_overnight_change": 1.03,
+    "vix_5d_slope": -0.259,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.09781,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.625,
+    "opening_range_position_vs_prior_range": 0.6602,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-03",
+   "day_of_week": "Monday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 4,
+   "n_losers": 0,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 534.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -2.43,
+    "overnight_gap_pct": -0.3236,
+    "prior_day_range_dollars": 0.0,
+    "vix_level_0935": 16.0,
+    "vix_overnight_change": 0.0,
+    "vix_5d_slope": -0.802,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.04868,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 5.07,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-04",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 29,
+   "n_closed": 29,
+   "n_winners": 11,
+   "n_losers": 18,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 3624.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -7.14,
+    "overnight_gap_pct": -0.9418,
+    "prior_day_range_dollars": 11.71,
+    "vix_level_0935": 15.58,
+    "vix_overnight_change": -0.21,
+    "vix_5d_slope": -0.048,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.02766,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.24,
+    "opening_range_position_vs_prior_range": 1.1144,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-05",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 14,
+   "n_closed": 14,
+   "n_winners": 1,
+   "n_losers": 13,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -1935.0,
+   "had_exit_ge_1_3x": true,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -1.125,
+    "overnight_gap_pct": -0.1456,
+    "prior_day_range_dollars": 22.25,
+    "vix_level_0935": 16.92,
+    "vix_overnight_change": 0.46,
+    "vix_5d_slope": 0.059,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.01653,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 5.4,
+    "opening_range_position_vs_prior_range": 1.0252,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-06",
+   "day_of_week": "Thursday",
+   "n_activities_total": 4,
+   "n_closed": 4,
+   "n_winners": 3,
+   "n_losers": 1,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 1465.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -20.465,
+    "overnight_gap_pct": -2.6527,
+    "prior_day_range_dollars": 6.44,
+    "vix_level_0935": 15.99,
+    "vix_overnight_change": 0.48,
+    "vix_5d_slope": -0.052,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.00886,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.785,
+    "opening_range_position_vs_prior_range": 0.0555,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-07",
+   "day_of_week": "Friday",
+   "n_activities_total": 14,
+   "n_closed": 14,
+   "n_winners": 0,
+   "n_losers": 14,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -2687.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.19,
+    "overnight_gap_pct": 0.0247,
+    "prior_day_range_dollars": 20.74,
+    "vix_level_0935": 15.29,
+    "vix_overnight_change": 0.02,
+    "vix_5d_slope": -0.174,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.01499,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.82,
+    "opening_range_position_vs_prior_range": 0.9176,
+    "first_15min_ribbon_flips_count": 2
+   }
+  },
+  {
+   "date": "2026-08-10",
+   "day_of_week": "Monday",
+   "n_activities_total": 9,
+   "n_closed": 9,
+   "n_winners": 1,
+   "n_losers": 8,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -758.0,
+   "had_exit_ge_1_3x": true,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.005,
+    "overnight_gap_pct": 0.0006,
+    "prior_day_range_dollars": 5.04,
+    "vix_level_0935": 15.41,
+    "vix_overnight_change": 0.56,
+    "vix_5d_slope": -0.307,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.04589,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 0.485,
+    "opening_range_position_vs_prior_range": 0.8418,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-11",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 17,
+   "n_closed": 17,
+   "n_winners": 7,
+   "n_losers": 10,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 43.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.785,
+    "overnight_gap_pct": -0.1015,
+    "prior_day_range_dollars": 2.76,
+    "vix_level_0935": 15.53,
+    "vix_overnight_change": 0.11,
+    "vix_5d_slope": -0.274,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.06691,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.125,
+    "opening_range_position_vs_prior_range": 0.2889,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-12",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 40,
+   "n_closed": 40,
+   "n_winners": 12,
+   "n_losers": 26,
+   "n_scratch": 2,
+   "n_still_open": 0,
+   "book_pnl": -890.0,
+   "had_exit_ge_1_3x": true,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.01,
+    "overnight_gap_pct": 0.0013,
+    "prior_day_range_dollars": 4.385,
+    "vix_level_0935": 14.96,
+    "vix_overnight_change": -0.29,
+    "vix_5d_slope": -0.037,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.08949,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.77,
+    "opening_range_position_vs_prior_range": 0.5177,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-13",
+   "day_of_week": "Thursday",
+   "n_activities_total": 17,
+   "n_closed": 17,
+   "n_winners": 9,
+   "n_losers": 8,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 1748.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.64,
+    "overnight_gap_pct": -0.0828,
+    "prior_day_range_dollars": 3.14,
+    "vix_level_0935": 14.42,
+    "vix_overnight_change": 0.02,
+    "vix_5d_slope": -0.134,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.12308,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.205,
+    "opening_range_position_vs_prior_range": 1.2588,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-14",
+   "day_of_week": "Friday",
+   "n_activities_total": 12,
+   "n_closed": 12,
+   "n_winners": 0,
+   "n_losers": 12,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -1837.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": null,
+    "overnight_gap_pct": null,
+    "prior_day_range_dollars": 6.975,
+    "vix_level_0935": null,
+    "vix_overnight_change": null,
+    "vix_5d_slope": -0.146,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.15098,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 0,
+    "opening_range_width_dollars": null,
+    "opening_range_position_vs_prior_range": null,
+    "first_15min_ribbon_flips_count": null
+   }
+  },
+  {
+   "date": "2026-08-17",
+   "day_of_week": "Monday",
+   "n_activities_total": 5,
+   "n_closed": 5,
+   "n_winners": 1,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 124.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-3",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.01,
+    "overnight_gap_pct": 0.0013,
+    "prior_day_range_dollars": 3.0,
+    "vix_level_0935": 15.03,
+    "vix_overnight_change": 0.75,
+    "vix_5d_slope": -0.29,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.18183,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": null,
+    "event_calendar_reason": "context_bundle not present on this tick -- v1.1 (events/prior_day/today_context) shipped 2026-07-15; dates before that carry no bundle",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 0.96,
+    "opening_range_position_vs_prior_range": 0.0833,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-18",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 2,
+   "n_closed": 2,
+   "n_winners": 2,
+   "n_losers": 0,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 162.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.575,
+    "overnight_gap_pct": -0.0744,
+    "prior_day_range_dollars": 3.33,
+    "vix_level_0935": 15.82,
+    "vix_overnight_change": 0.57,
+    "vix_5d_slope": -0.012,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.18107,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.185,
+    "opening_range_position_vs_prior_range": -0.6929,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-19",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 14,
+   "n_closed": 14,
+   "n_winners": 4,
+   "n_losers": 8,
+   "n_scratch": 2,
+   "n_still_open": 0,
+   "book_pnl": 266.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.515,
+    "overnight_gap_pct": -0.0671,
+    "prior_day_range_dollars": 5.295,
+    "vix_level_0935": 15.14,
+    "vix_overnight_change": -0.52,
+    "vix_5d_slope": 0.314,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.18704,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.68,
+    "opening_range_position_vs_prior_range": 0.2351,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-20",
+   "day_of_week": "Thursday",
+   "n_activities_total": 9,
+   "n_closed": 9,
+   "n_winners": 6,
+   "n_losers": 3,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 811.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-3",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.0,
+    "overnight_gap_pct": 0.0,
+    "prior_day_range_dollars": 4.825,
+    "vix_level_0935": 15.91,
+    "vix_overnight_change": 0.89,
+    "vix_5d_slope": 0.216,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.14953,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.04,
+    "opening_range_position_vs_prior_range": 0.1461,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-21",
+   "day_of_week": "Friday",
+   "n_activities_total": 18,
+   "n_closed": 18,
+   "n_winners": 6,
+   "n_losers": 12,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -585.0,
+   "had_exit_ge_1_3x": true,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.47,
+    "overnight_gap_pct": -0.0616,
+    "prior_day_range_dollars": 6.05,
+    "vix_level_0935": 15.5,
+    "vix_overnight_change": -0.49,
+    "vix_5d_slope": 0.319,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.14384,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.46,
+    "opening_range_position_vs_prior_range": 0.1339,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-24",
+   "day_of_week": "Monday",
+   "n_activities_total": 3,
+   "n_closed": 3,
+   "n_winners": 0,
+   "n_losers": 3,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -57.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.77,
+    "overnight_gap_pct": -0.1004,
+    "prior_day_range_dollars": 5.06,
+    "vix_level_0935": 15.85,
+    "vix_overnight_change": 0.71,
+    "vix_5d_slope": 0.011,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.11459,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.53,
+    "opening_range_position_vs_prior_range": 0.3962,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-25",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 3,
+   "n_closed": 3,
+   "n_winners": 0,
+   "n_losers": 3,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -220.0,
+   "had_exit_ge_1_3x": false,
+   "label": "tax",
+   "label_rule": "book<0_and_zero_winners",
+   "arms_active": [
+    "risky-1",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.03,
+    "overnight_gap_pct": -0.0039,
+    "prior_day_range_dollars": 3.7,
+    "vix_level_0935": 15.78,
+    "vix_overnight_change": -0.04,
+    "vix_5d_slope": 0.044,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.04331,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 3.2,
+    "opening_range_position_vs_prior_range": 0.7919,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-08-26",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 1,
+   "n_closed": 1,
+   "n_winners": 1,
+   "n_losers": 0,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 39.0,
+   "had_exit_ge_1_3x": false,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.645,
+    "overnight_gap_pct": 0.0843,
+    "prior_day_range_dollars": 3.2,
+    "vix_level_0935": 15.71,
+    "vix_overnight_change": 0.27,
+    "vix_5d_slope": 0.067,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.03447,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 0.54,
+    "opening_range_position_vs_prior_range": 0.7281,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-27",
+   "day_of_week": "Thursday",
+   "n_activities_total": 13,
+   "n_closed": 13,
+   "n_winners": 9,
+   "n_losers": 4,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 1897.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.94,
+    "overnight_gap_pct": -0.1225,
+    "prior_day_range_dollars": 3.265,
+    "vix_level_0935": 15.02,
+    "vix_overnight_change": -0.29,
+    "vix_5d_slope": -0.106,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.02569,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 2.26,
+    "opening_range_position_vs_prior_range": 0.9433,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-08-28",
+   "day_of_week": "Friday",
+   "n_activities_total": 11,
+   "n_closed": 11,
+   "n_winners": 4,
+   "n_losers": 7,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 1304.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "risky-3",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.45,
+    "overnight_gap_pct": 0.0584,
+    "prior_day_range_dollars": 6.29,
+    "vix_level_0935": 14.46,
+    "vix_overnight_change": -0.03,
+    "vix_5d_slope": -0.181,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.02845,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.07,
+    "opening_range_position_vs_prior_range": 0.9181,
+    "first_15min_ribbon_flips_count": 0
+   }
+  },
+  {
+   "date": "2026-09-01",
+   "day_of_week": "Tuesday",
+   "n_activities_total": 3,
+   "n_closed": 3,
+   "n_winners": 1,
+   "n_losers": 2,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": 78.0,
+   "had_exit_ge_1_3x": true,
+   "label": "paying",
+   "label_rule": "book>0_and_exit>=1.3x",
+   "arms_active": [
+    "bold-2",
+    "safe-2"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": 0.53,
+    "overnight_gap_pct": 0.0691,
+    "prior_day_range_dollars": 4.565,
+    "vix_level_0935": 15.98,
+    "vix_overnight_change": 0.99,
+    "vix_5d_slope": -0.177,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": -0.02397,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 5.6,
+    "opening_range_position_vs_prior_range": -0.046,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-09-02",
+   "day_of_week": "Wednesday",
+   "n_activities_total": 12,
+   "n_closed": 12,
+   "n_winners": 1,
+   "n_losers": 11,
+   "n_scratch": 0,
+   "n_still_open": 0,
+   "book_pnl": -699.0,
+   "had_exit_ge_1_3x": true,
+   "label": "mixed",
+   "label_rule": "neither_paying_nor_tax_condition_met",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.33,
+    "overnight_gap_pct": -0.0433,
+    "prior_day_range_dollars": 7.54,
+    "vix_level_0935": 16.17,
+    "vix_overnight_change": -0.24,
+    "vix_5d_slope": 0.27,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.01378,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 1.52,
+    "opening_range_position_vs_prior_range": 0.2427,
+    "first_15min_ribbon_flips_count": 1
+   }
+  },
+  {
+   "date": "2026-09-03",
+   "day_of_week": "Thursday",
+   "n_activities_total": 15,
+   "n_closed": 13,
+   "n_winners": 4,
+   "n_losers": 9,
+   "n_scratch": 0,
+   "n_still_open": 3,
+   "book_pnl": 154.0,
+   "had_exit_ge_1_3x": true,
+   "label": "in_progress",
+   "label_rule": "current_session_never_finalized",
+   "arms_active": [
+    "bold-2",
+    "risky-1",
+    "safe-2",
+    "safe-3"
+   ],
+   "features_0935": {
+    "overnight_gap_dollars": -0.145,
+    "overnight_gap_pct": -0.0189,
+    "prior_day_range_dollars": 5.375,
+    "vix_level_0935": 15.09,
+    "vix_overnight_change": -0.18,
+    "vix_5d_slope": 0.353,
+    "vix_5d_slope_n": 5,
+    "vix_20d_slope": 0.02032,
+    "vix_20d_slope_n": 20,
+    "event_calendar_flag": false,
+    "event_calendar_severity": null,
+    "event_calendar_reason": "from this tick's own context_bundle.events",
+    "es_spy_premarket_trend": null,
+    "es_spy_premarket_trend_reason": "no cached ES/premarket-futures bar series exists in this repo (verified this build) -- frozen NOT_AVAILABLE, never fabricated (C7)"
+   },
+   "features_0945": {
+    "n_ticks_in_window": 15,
+    "opening_range_width_dollars": 4.605,
+    "opening_range_position_vs_prior_range": 1.2098,
+    "first_15min_ribbon_flips_count": 0
+   }
+  }
+ ]
+}
