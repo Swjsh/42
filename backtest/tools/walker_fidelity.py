@@ -79,6 +79,7 @@ for _p in ("backtest", "backtest/lib", "backtest/tools", "automation/state/fleet
 import pandas as pd  # noqa: E402
 
 import pdt_blocked_counterfactual as pdtc  # noqa: E402 -- reuse anchor-row machinery
+import whole_engine_null as wen  # noqa: E402 -- reuse V9's OWN P1 anchor-population machinery
 from multileg_exit_walk import walk as walk_multileg  # noqa: E402
 from lib.option_pricing_real import load_contract_bars  # noqa: E402
 import refused_setup_ledger as refusals  # noqa: E402 -- 1-min highres cache reuse
@@ -288,6 +289,48 @@ def mechanism_market_stage_fill_bug(anchor_43: list[dict], spy_map: dict) -> dic
     }
 
 
+def load_v9_anchor_rows() -> list[dict]:
+    """The engine's OWN entries -- reuses whole_engine_null.py's own P1 population machinery
+    (load_engine_rows + build_populations["P1_post_ladder"]) verbatim rather than
+    reimplementing the date/arm/attribution filter, per WALKER-MARKET-STAGE-FILL-ROOT-FIX's
+    instruction to validate on "the whole-engine V9 anchor". Row schema is IDENTICAL to
+    pdtc.load_anchor_sample()'s rows (both read raw analysis/trades-enriched.jsonl lines) --
+    confirmed by field-for-field comparison against run_v9()'s own row access (symbol, right,
+    date, entry_ts_et, entry_px, qty, stop_mode, trigger_level, pnl_dollars, arm, exit_reason)
+    -- so walk_anchor_row()/run_multileg_variant() below need no adaptation. This population
+    is genuinely INDEPENDENT of the 43-row PDT anchor: different date window (P1_START
+    2026-08-11 onward vs the PDT anchor's 2026-07-08..08-07), different arm set (safe-2/
+    bold-2/safe-3/risky-1 vs safe-2/bold-2 only). whole_engine_null.py itself is NOT edited by
+    this call -- only its pure population-loading functions are reused, read-only."""
+    rows = wen.load_engine_rows()
+    return wen.build_populations(rows)["P1_post_ladder"]
+
+
+def v9_anchor_via_multileg(spy_map: dict) -> dict:
+    """Re-validates the market-stage fill fix on the V9 anchor population, walked through THE
+    SAME multileg_exit_walk.py this session fixed -- independent of exit_manager_walk.py (the
+    walker V9 itself uses, untouched by this session). Answers: does the fix generalize beyond
+    the 43-row PDT anchor, or is it overfit to that specific population?"""
+    v9_rows = load_v9_anchor_rows()
+    before, n_missing_before = run_multileg_variant(v9_rows, spy_map, "5min", slippage=0.01,
+                                                     market_stage_fill_fix=False)
+    after, n_missing_after = run_multileg_variant(v9_rows, spy_map, "5min", slippage=0.01,
+                                                   market_stage_fill_fix=True)
+    mag_before = magnitude_fidelity([(r["actual"], r["replay"]) for r in before])
+    mag_after = magnitude_fidelity([(r["actual"], r["replay"]) for r in after])
+    excess_before = abs((mag_before.get("aggregate_ratio") or 1.0) - 1.0)
+    excess_after = abs((mag_after.get("aggregate_ratio") or 1.0) - 1.0)
+    return {
+        "n_rows_loaded": len(v9_rows), "n_missing_bars_before": n_missing_before,
+        "n_missing_bars_after": n_missing_after,
+        "before": mag_before, "after": mag_after,
+        "excess_ratio_reduction_pct": (round((1 - excess_after / excess_before) * 100, 1)
+                                       if excess_before > 1e-9 else None),
+        "verdict_before": evaluate_magnitude_fidelity(mag_before),
+        "verdict_after": evaluate_magnitude_fidelity(mag_after),
+    }
+
+
 # ============================================================================================ #
 # 3. ORCHESTRATION
 # ============================================================================================ #
@@ -342,6 +385,14 @@ def main() -> int:
         f"(verdict {mech_fix['verdict_before']} -> {mech_fix['verdict_after']}, "
         f"excess-ratio reduced {mech_fix['excess_ratio_reduction_pct']}%)")
 
+    log("re-validating the fix on the WHOLE-ENGINE V9 anchor (whole_engine_null.py's own P1 "
+        "population, walked through multileg_exit_walk -- independent of the 43-row PDT "
+        "anchor and of exit_manager_walk.py, the walker V9 itself uses)...")
+    mech_v9 = v9_anchor_via_multileg(spy_map)
+    log(f"  n={mech_v9['n_rows_loaded']}  aggregate_ratio {mech_v9['before']['aggregate_ratio']} "
+        f"-> {mech_v9['after']['aggregate_ratio']}  "
+        f"(verdict {mech_v9['verdict_before']} -> {mech_v9['verdict_after']})")
+
     # -- decomposition by side, on the big anchor set (unfixed, matches every prior study) ---
     big_rows, n_missing_big = run_multileg_variant(anchor_big, spy_map, "5min", slippage=0.01)
     mag_big = magnitude_fidelity([(r["actual"], r["replay"]) for r in big_rows])
@@ -364,6 +415,14 @@ def main() -> int:
             "n_missing": n_missing_big,
             "magnitude_fidelity": mag_big,
             "verdict": evaluate_magnitude_fidelity(mag_big),
+        },
+        "v9_anchor_via_multileg_unfixed": {
+            "magnitude_fidelity": mech_v9["before"],
+            "verdict": mech_v9["verdict_before"],
+        },
+        "v9_anchor_via_multileg_market_stage_fix": {
+            "magnitude_fidelity": mech_v9["after"],
+            "verdict": mech_v9["verdict_after"],
         },
     }
     v9_ref = None
@@ -422,6 +481,30 @@ def main() -> int:
             "fix": "market_stage_fill_fix=True kwarg on walk(), default False (byte-identical "
                   "for every existing caller until it opts in).",
             "before_after": mech_fix,
+            "root_fix_2026_09_03_followup": {
+                "queue_item": "WALKER-MARKET-STAGE-FILL-ROOT-FIX",
+                "what_changed": ("time_stop ONLY: moved out of the worst_in bucket into its "
+                                 "own bar-CLOSE price (a clock event has no price-cross to "
+                                 "reuse). structure_stop/ribbon_flip unchanged (still worst_in "
+                                 "-- no premium threshold exists for either)."),
+                "what_was_tried_and_reverted": ("Extending _MARKET_STAGES to premium_stop, "
+                                                "profit_lock_floor, trail, be_stop, "
+                                                "runner_target (reasoning: a live market SELL "
+                                                "always crosses the bid). MEASURED WORSE on "
+                                                "the 43-row PDT anchor: aggregate_ratio "
+                                                "4.09 -> 4.88 (not better), driven almost "
+                                                "entirely by premium_stop (stage abs error "
+                                                "$516.90 -> $930.00). These 4 stages are "
+                                                "numeric-threshold crossings of "
+                                                "runner_stop_premium; the live engine polls "
+                                                "once/minute and fires the instant a poll "
+                                                "crosses, so the true fill sits near the "
+                                                "THRESHOLD, not the coarse 5-min bar's full "
+                                                "wick -- state.runner_stop_premium (unchanged, "
+                                                "the OLD/default fallback) already models "
+                                                "that. See multileg_exit_walk.py's own "
+                                                "module-level note for the full account."),
+            },
         },
         "big_anchor_population": {
             "window": [BIG_WINDOW_START, BIG_WINDOW_END], "n_rows_loaded": len(anchor_big),
@@ -430,6 +513,21 @@ def main() -> int:
             "magnitude_fidelity_verdict": evaluate_magnitude_fidelity(mag_big),
             "decomposition_by_side": by_side,
             "decomposition_by_stage_agreement": stage_decomp_big,
+        },
+        "v9_anchor_validation": {
+            "note": ("Re-validates the market-stage fill fix on whole_engine_null.py's OWN P1 "
+                    "population (load_engine_rows + build_populations['P1_post_ladder']), "
+                    "walked through multileg_exit_walk (the walker THIS session fixed) -- "
+                    "independent of exit_manager_walk.py (the walker V9 itself uses, "
+                    "untouched here) and independent of the 43-row PDT anchor (different date "
+                    "window, different arm set: safe-2/bold-2/safe-3/risky-1 vs safe-2/bold-2 "
+                    "only)."),
+            "n_rows_loaded": mech_v9["n_rows_loaded"],
+            "n_missing_bars_before": mech_v9["n_missing_bars_before"],
+            "n_missing_bars_after": mech_v9["n_missing_bars_after"],
+            "before": mech_v9["before"], "after": mech_v9["after"],
+            "verdict_before": mech_v9["verdict_before"], "verdict_after": mech_v9["verdict_after"],
+            "excess_ratio_reduction_pct": mech_v9["excess_ratio_reduction_pct"],
         },
         "criterion_applied_to_every_variant": criterion_applications,
         "outstanding_prereg_runs_magnitude_readable": {
@@ -453,8 +551,16 @@ def main() -> int:
             "not the aggregate ratio alone -- same caveat whole_engine_null.py's own "
             "magnitude_fidelity note already carries for exactly this reason.",
             "The market-stage fill fix is NOT a full fix -- aggregate_ratio improved but did "
-            "not reach the criterion. The remaining gap after the fix is not diagnosed by "
-            "this run.",
+            "not reach the criterion, on either anchor. Stage-level decomposition on the "
+            "43-row PDT anchor (post-fix) attributes the LARGEST remaining abs error to "
+            "premium_stop ($811.50 of ~$1,780 total, n=22 legs) and structure_stop ($581.00, "
+            "n=13), with trail a distant third ($387.50, n=8) -- premium_stop was NOT touched "
+            "by this session's fix (see root_cause_and_fix.root_fix_2026_09_03_followup) and "
+            "its residual error is a TIMING gap (the 5-min bar's own stop-crossing bar may not "
+            "be the exact minute the live once-a-minute poll actually fired on), not a within-"
+            "bar PRICING gap this module's fill_mode knob can address -- not diagnosed further "
+            "by this run per the queue item's 'do not tune anything else to make the number "
+            "move' instruction.",
             "mechanism_bar_resolution restricts to rows with BOTH a 5-min OPRA cache and a "
             "1-min highres cache (paired comparison) -- a smaller n than the full anchor set; "
             "see n_common.",
@@ -509,6 +615,22 @@ def _render_md(doc: dict) -> str:
         f"- After:  aggregate_ratio={bf['after'].get('aggregate_ratio')}  "
         f"median_abs_error=${bf['after'].get('median_abs_error_dollars')}  verdict={bf['verdict_after']}",
         f"- Excess-ratio reduction: {bf['excess_ratio_reduction_pct']}%",
+        "",
+        "## 2026-09-03 follow-up (WALKER-MARKET-STAGE-FILL-ROOT-FIX)",
+        f"- What changed: {rc['root_fix_2026_09_03_followup']['what_changed']}",
+        f"- What was tried and reverted: "
+        f"{rc['root_fix_2026_09_03_followup']['what_was_tried_and_reverted']}",
+        "",
+        "## Whole-engine V9 anchor validation (independent of the PDT anchor)",
+        f"- n_rows={doc['v9_anchor_validation']['n_rows_loaded']} "
+        f"(n_missing_bars before={doc['v9_anchor_validation']['n_missing_bars_before']} "
+        f"after={doc['v9_anchor_validation']['n_missing_bars_after']})",
+        f"- Before: aggregate_ratio={doc['v9_anchor_validation']['before'].get('aggregate_ratio')}  "
+        f"median_abs_error=${doc['v9_anchor_validation']['before'].get('median_abs_error_dollars')}  "
+        f"verdict={doc['v9_anchor_validation']['verdict_before']}",
+        f"- After:  aggregate_ratio={doc['v9_anchor_validation']['after'].get('aggregate_ratio')}  "
+        f"median_abs_error=${doc['v9_anchor_validation']['after'].get('median_abs_error_dollars')}  "
+        f"verdict={doc['v9_anchor_validation']['verdict_after']}",
         "",
         "## Big anchor population",
         f"- Window {big['window'][0]}..{big['window'][1]}, n_walked={big['n_walked']} "

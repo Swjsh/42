@@ -449,7 +449,8 @@ def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
              entry_premium: float, qty: int, trigger_level: Optional[float],
              spy5: pd.DataFrame, budget: FetchBudget,
              stop_mode: Optional[str] = None,
-             ribbon_account: Optional[str] = None) -> Optional[dict]:
+             ribbon_account: Optional[str] = None,
+             all_exits_market: bool = False) -> Optional[dict]:
     """One position, walked through the REAL exit_manager core with the production
     RIBBON_RIDE ExitShape. Returns None (honest null) when no option bars exist for the
     contract on this day -- never a fabricated fill.
@@ -466,7 +467,15 @@ def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
     builds a REAL ribbon_tick_df for this walk via `build_ribbon_tick_df` instead of the
     permanently-None series that made ribbon_flip exits structurally unreproducible. `None`
     (the default -- every N_a/N_c call site) preserves today's exact `ribbon_tick_df=None`
-    behavior; only run_v9 passes this."""
+    behavior; only run_v9 passes this.
+
+    `all_exits_market` (WALKER-MARKET-STAGE-FILL-ROOT-FIX, 2026-09-03 RESEARCH follow-up):
+    additive passthrough to `walk_exit_manager`'s own pre-existing kwarg of the same name
+    (backtest/lib/exit_manager_walk.py, prereg FILL-MODEL-UNIFICATION-2026-08-13, already
+    shipped and tested, untouched by this passthrough). `False` (the default, used by every
+    existing call site) is byte-identical to today's behavior. `True` is for a ONE-OFF
+    research comparison only (see backtest/tools/whole_engine_null_flagon_research.py) --
+    never wired into `main()`'s own pipeline, never flips the published study's numbers."""
     opt_df = get_1m_bars(symbol, date, budget)
     if opt_df is None or opt_df.empty:
         return None
@@ -481,6 +490,7 @@ def walk_one(*, symbol: str, side: str, date: str, entry_time_et: dt.datetime,
         qty=int(qty), exit_shape=RIBBON_SHAPE, structure_stop_enabled=structure_stop_enabled,
         trigger_level=trigger_level, strategy=STRATEGY_NAME, time_stop_et=TIME_STOP_ET,
         opt_df=opt_df, ribbon_tick_df=ribbon_tick_df, five_min_spy_df=dspy,
+        all_exits_market=all_exits_market,
     )
     if not result.resolved and result.exit_reason == "no_bars_after_entry":
         return None

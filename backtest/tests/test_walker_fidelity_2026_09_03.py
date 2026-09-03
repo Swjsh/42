@@ -261,6 +261,18 @@ def _make_synthetic_bars(prices: list[float], date: str = "2026-07-01") -> pd.Da
     return pd.DataFrame(rows)
 
 
+def _custom_bars(rows: list[dict], date: str = "2026-07-01") -> pd.DataFrame:
+    """Explicit per-bar OHLC + timestamp control (HH:MM:SS strings in each row's "t"), for
+    tests that need to steer WHICH stage fires without `_make_synthetic_bars`'s deliberately
+    deep low (prices[i]-5.0) accidentally tripping premium_stop/catastrophe before the stage
+    under test gets a chance to fire."""
+    out = []
+    for r in rows:
+        out.append({"timestamp_et": pd.Timestamp(f"{date} {r['t']}"), "open": r["o"],
+                    "high": r["h"], "low": r["l"], "close": r["c"]})
+    return pd.DataFrame(out)
+
+
 def test_market_stage_fill_fix_default_false_preserves_old_price():
     """Byte-identical-behavior contract: calling walk() WITHOUT the new kwarg (every existing
     caller in the repo) must be indistinguishable from calling it with
@@ -291,10 +303,12 @@ def test_market_stage_fill_fix_default_false_preserves_old_price():
 
 def test_market_stage_fill_fix_true_changes_the_fill_price_when_a_market_stage_fires():
     """The actual mechanism this session found and fixed: a premium_stop leg (a NON-market
-    stage, so both variants agree) is forced by a steep drop to fire at the STATIC stop level
-    under the OLD behavior. This test only asserts the fix kwarg is real plumbing -- that it
-    can produce a DIFFERENT pnl than the default -- not the exact dollar value, since that
-    depends on exit_manager's own internal decision path which this test does not re-derive."""
+    stage) is forced by a steep drop to fire at the STATIC stop level under BOTH flag states.
+    WALKER-MARKET-STAGE-FILL-ROOT-FIX (2026-09-03 follow-up) tried moving premium_stop onto
+    worst_in and MEASURED it worse (43-row PDT anchor aggregate_ratio 4.09 -> 4.88, stage abs
+    error $516.90 -> $930.00) -- reverted, see the module-level note for why (a numeric
+    threshold cross should fill near the threshold on coarse 5-min bars, not the bar's full
+    wick). This test pins that premium_stop is correctly OUT of scope: both variants agree."""
     import multileg_exit_walk as mew
 
     entry = 1.00
@@ -310,17 +324,114 @@ def test_market_stage_fill_fix_true_changes_the_fill_price_when_a_market_stage_f
                      market_stage_fill_fix=False)
     r_new = mew.walk(fill, shape, bars, trigger_level=0.0, fill_mode="extreme", slippage=0.0,
                      market_stage_fill_fix=True)
-    # premium_stop is NOT in _MARKET_STAGES -- both variants must agree here, proving the fix
-    # is correctly SCOPED to structure_stop/ribbon_flip/time_stop only, not a blanket change.
+    assert r_old["legs"][0]["stage"] == "premium_stop"
+    assert r_new["legs"][0]["stage"] == "premium_stop"
+    assert r_old["legs"][0]["px"] == pytest.approx(0.80)   # static level: entry*(1-0.20)
+    assert r_new["legs"][0]["px"] == pytest.approx(0.80)   # unchanged -- premium_stop is out
+    assert r_old["pnl"] == r_new["pnl"] == pytest.approx(-20.0)
+
+
+def test_time_stop_fills_at_bar_close_not_worst_in_under_the_fix():
+    """The specific correction this session added on top of the first ship: time_stop is a
+    CLOCK event, not a price cross, so it must fill at the bar's CLOSE -- never the bar's
+    worst_in. Two bars only: one flat bar well before the 15:50 default time_stop_et (no
+    stage eligible to fire -- premium_stop/catastrophe/tp1/runner_target thresholds are all
+    unreachable by construction), then one bar AT 15:50 with a low far below close so a wrong
+    (worst_in) implementation is trivially distinguishable from a right (close) one."""
+    import multileg_exit_walk as mew
+
+    entry = 1.00
+    bars = _custom_bars([
+        {"t": "09:35:00", "o": 1.00, "h": 1.02, "l": 0.98, "c": 1.00},
+        {"t": "15:50:00", "o": 1.00, "h": 1.05, "l": 0.50, "c": 1.00},
+    ])
+    fill = {"entry_premium": entry, "qty": 1, "symbol": "SPY260701P00700000",
+           "date": "2026-07-01", "entry_time": "09:34:00", "strategy": "RIBBON"}
+    shape = {"premium_stop_pct": -0.90, "tp1_premium_pct": 9.0, "tp1_qty_fraction": 0.8,
+            "profit_lock_mode": "fixed", "stop_mode": "premium",
+            "runner_target_pct": 9.0, "trail_pct": 0.125, "profit_lock_arm_pct": 0.9,
+            "catastrophe_stop_pct": -0.90}
+
+    r_new = mew.walk(fill, shape, bars, trigger_level=0.0, fill_mode="extreme", slippage=0.0,
+                     market_stage_fill_fix=True, spy_closes=None)
+    assert r_new["legs"], "expected the time-stop leg to have fired at the 15:50 bar"
+    last = r_new["legs"][-1]
+    assert last["stage"] == "time_stop"
+    # close (1.00), never worst_in (low=0.50) -- the wrong-implementation value this test
+    # exists to catch.
+    assert last["px"] == pytest.approx(1.00)
+    assert last["px"] != pytest.approx(0.50)
+
+
+def test_runner_target_pricing_is_unaffected_by_the_fix_out_of_scope_by_design():
+    """runner_target (like premium_stop/profit_lock_floor/trail/be_stop) is a numeric
+    threshold cross on `runner_stop_premium`/`tp1_premium_pct`-style levels, not a market/clock
+    event -- deliberately OUT OF SCOPE for this fix (see module-level note). Two bars: bar0
+    clears tp1 cheaply (ratchets runner_stop to breakeven); bar1 is a huge favorable jump whose
+    low (2.50) stays above the breakeven runner_stop (1.00), so runner_target fires on bar1 via
+    HWM without any stop leg preempting it. Both flag states must price it identically at the
+    static level `state.runner_stop_premium or worst_in` falls through to -- here that resolves
+    to the breakeven runner_stop (1.00, ratcheted at tp1), not bar1's high (4.00) or low (2.50)."""
+    import multileg_exit_walk as mew
+
+    entry = 1.00
+    bars = _custom_bars([
+        {"t": "09:35:00", "o": 1.05, "h": 1.10, "l": 1.00, "c": 1.05},
+        {"t": "09:36:00", "o": 3.00, "h": 4.00, "l": 2.50, "c": 3.00},
+    ])
+    fill = {"entry_premium": entry, "qty": 2, "symbol": "SPY260701C00700000",
+           "date": "2026-07-01", "entry_time": "09:34:00", "strategy": "RIBBON"}
+    shape = {"premium_stop_pct": -0.90, "tp1_premium_pct": 0.02, "tp1_qty_fraction": 0.5,
+            "profit_lock_mode": "fixed", "stop_mode": "premium",
+            "runner_target_pct": 1.0, "trail_pct": 0.125, "profit_lock_arm_pct": 0.05,
+            "catastrophe_stop_pct": -0.90}
+
+    r_old = mew.walk(fill, shape, bars, trigger_level=0.0, fill_mode="extreme", slippage=0.0,
+                     market_stage_fill_fix=False)
+    r_new = mew.walk(fill, shape, bars, trigger_level=0.0, fill_mode="extreme", slippage=0.0,
+                     market_stage_fill_fix=True)
+    runner_old = [leg for leg in r_old["legs"] if leg["stage"] == "runner_target"]
+    runner_new = [leg for leg in r_new["legs"] if leg["stage"] == "runner_target"]
+    assert runner_old and runner_new, "expected a runner_target leg in both variants"
+    assert runner_old[0]["px"] == runner_new[0]["px"] == pytest.approx(1.00)
     assert r_old["pnl"] == r_new["pnl"]
 
 
 def test_market_stages_constant_matches_exit_manager_walk_convention():
-    """Pins the exact set -- if multileg_exit_walk's _MARKET_STAGES ever drifts from
-    exit_manager_walk.py's own _MARKET_STAGES (the sibling walker's established convention
-    this fix deliberately mirrors), both should be reviewed together."""
+    """Pins the exact set. WALKER-MARKET-STAGE-FILL-ROOT-FIX (2026-09-03 follow-up)
+    DELIBERATELY did NOT widen this beyond the original 3 -- see the module-level note for the
+    measured regression (43-row PDT anchor aggregate_ratio 4.09 -> 4.88) that led to reverting
+    the wider attempt. Still matches exit_manager_walk.py's OWN `_MARKET_STAGES` (the sibling
+    walker's established convention) -- unchanged scope, only the time_stop PRICE within it
+    changed (bar close, not worst_in; see the price-selection branch in walk())."""
     import multileg_exit_walk as mew
     import exit_manager_walk as emw
 
     assert mew._MARKET_STAGES == emw._MARKET_STAGES == frozenset(
         {"structure_stop", "ribbon_flip", "time_stop"})
+    assert mew._TIME_STOP_STAGE == "time_stop"
+
+
+def test_tp1_pricing_is_unaffected_by_the_fix_out_of_scope_by_design():
+    """tp1 was explicitly OUT OF SCOPE for this fix (the root-cause note names it "every
+    non-tp1 leg") -- must keep pricing at the fixed entry*(1+tp1_premium_pct) level under
+    BOTH flag states, never worst_in/best_in/close."""
+    import multileg_exit_walk as mew
+
+    entry = 1.00
+    bars = _custom_bars([{"t": "09:35:00", "o": 1.60, "h": 1.62, "l": 1.58, "c": 1.60}])
+    fill = {"entry_premium": entry, "qty": 4, "symbol": "SPY260701C00700000",
+           "date": "2026-07-01", "entry_time": "09:34:00", "strategy": "RIBBON"}
+    shape = {"premium_stop_pct": -0.90, "tp1_premium_pct": 0.50, "tp1_qty_fraction": 0.5,
+            "profit_lock_mode": "fixed", "stop_mode": "premium",
+            "runner_target_pct": 9.0, "trail_pct": 0.125, "profit_lock_arm_pct": 0.9,
+            "catastrophe_stop_pct": -0.90}
+
+    r_old = mew.walk(fill, shape, bars, trigger_level=0.0, fill_mode="extreme", slippage=0.0,
+                     market_stage_fill_fix=False)
+    r_new = mew.walk(fill, shape, bars, trigger_level=0.0, fill_mode="extreme", slippage=0.0,
+                     market_stage_fill_fix=True)
+    tp1_old = [leg for leg in r_old["legs"] if leg["stage"] == "tp1"][0]
+    tp1_new = [leg for leg in r_new["legs"] if leg["stage"] == "tp1"][0]
+    assert tp1_old["px"] == pytest.approx(1.50)  # entry*(1+0.50)
+    assert tp1_new["px"] == pytest.approx(1.50)  # unchanged -- tp1 is out of scope

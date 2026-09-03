@@ -86,6 +86,20 @@ All of these are checks, not actions. Every box must be checked before §3.
    dead-man's switch flattens each within 12 minutes (broker-verified, not state-file-verified).
    This drill has not been run as of 2026-09-01; do not treat the built-and-unit-tested switch
    as equivalent to a field-drilled one.
+   **Tooling built 2026-09-03 (prep only — not run tonight):** `setup/scripts/dms_kill_drill.py`.
+   Announce the day before (prints text only, does not write STATUS.md):
+   `backtest/.venv/Scripts/python.exe setup/scripts/dms_kill_drill.py --announce`.
+   On the drill afternoon, check readiness (read-only): `...dms_kill_drill.py --plan`. Then run
+   the actual drill (refuses without a same-day confirm token, outside RTH, with bold-2 not
+   flat unless accepted, or with safe-2 flat — see the script's own docstring for the full
+   refusal matrix):
+   ```
+   $env:GAMMA_DRILL_CONFIRM = "<today's ET date, YYYY-MM-DD>"
+   backtest\.venv\Scripts\python.exe setup\scripts\dms_kill_drill.py --arm --kills 5 --min-gap-min 20
+   ```
+   Then `...dms_kill_drill.py --report` renders the PASS count against the >=5-kill /
+   <=12-min target and tells you when this box can be checked. Rows land in
+   `analysis/drills/dms-kill-drill-YYYY-MM-DD.jsonl` + `.md`.
 3. [ ] safe-3's reconciliation is clean (§0 row 3, PASS) — no gap to root-cause for the
    candidate arm itself. (The 08-28 version of this item referenced a safe-3/risky-3
    reconciliation gap; that gap is closed per the 09-01 reconciliation re-run, and risky-3 is
@@ -170,6 +184,23 @@ All of these are checks, not actions. Every box must be checked before §3.
 17. [ ] J has said, in chat, in this session or a fresh one, that arming is authorized. This
     is the ONLY step in this runbook that is not a technical check — it is OP-0 #1, and no
     quantity of green gates substitutes for it.
+18. [ ] **Recovery drill — TV CDP dead + Alpaca REST 5xx + Windows restart, each once,
+    read-only observation of what the healers and DMS do.** *Done:* a table of
+    failure → first automated action → time.
+    **Tooling built 2026-09-03 (prep only — not run tonight):**
+    `setup/scripts/recovery_drill_observer.py`. This script never induces a failure — it only
+    watches (see the script's own docstring for exactly how to induce each failure safely on
+    paper: kill the TradingView process for `tv_cdp_dead`; a hosts-file entry J adds/removes
+    for `alpaca_5xx`; `shutdown /r` for `windows_restart`). One command per scenario, run
+    right before you induce that scenario:
+    ```
+    backtest\.venv\Scripts\python.exe setup\scripts\recovery_drill_observer.py --watch --scenario tv_cdp_dead --minutes 20
+    backtest\.venv\Scripts\python.exe setup\scripts\recovery_drill_observer.py --watch --scenario alpaca_5xx --minutes 20
+    backtest\.venv\Scripts\python.exe setup\scripts\recovery_drill_observer.py --watch --scenario windows_restart --minutes 20
+    ```
+    Then `...recovery_drill_observer.py --report` renders the combined failure → first
+    automated action → time table to `analysis/drills/recovery-drill-summary.md`. Per-scenario
+    rows land in `analysis/drills/recovery-drill-<scenario>-YYYY-MM-DD.jsonl` + `.md`.
 
 ---
 

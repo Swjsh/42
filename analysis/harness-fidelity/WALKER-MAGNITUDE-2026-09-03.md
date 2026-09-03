@@ -9,7 +9,7 @@ Scope: harness fidelity only -- decides no strategy, places no order, arms nothi
 - Derivation: Anchored to whole_engine_null.py's V9 (n=121, 2026-09-02 run): aggregate_ratio 0.6452, median_abs_error $15.00 -- the best-attested walker application in this repo (it gates a frozen prereg's own verdict). Tolerance set generously ABOVE those numbers so V9 clears with room rather than being fitted flush to it; the PDT anchor's own numbers (ratio 4.09, median $32.40) fail the ratio leg by a wide margin (|4.09-1|=3.09 >> 0.40) even though its median alone would pass -- which is why both conditions are required, not either.
 
 ## Reproduction check
-- Matches queue-item numbers exactly: **True**
+- Matches queue-item numbers exactly: **False**
 - n=43  sign_agreement=95.35%
 
 ## Mechanism tests (ruling candidates in/out)
@@ -22,13 +22,22 @@ Scope: harness fidelity only -- decides no strategy, places no order, arms nothi
 - Location: `backtest/tools/multileg_exit_walk.py#walk (research tool, not trading-path)`
 - Mechanism: ExitAction carries no `price` field, so every non-tp1 SELL leg fell through to `state.runner_stop_premium or worst_in`. runner_stop_premium is set at entry to entry_premium*(1+stop_pct) and is never None afterward, so worst_in (the bar price fill_mode controls) was dead code for structure_stop/ribbon_flip/time_stop -- every one of those market-style exits priced at the STATIC catastrophe/premium-stop level instead of the bar's real price.
 - Fix: market_stage_fill_fix=True kwarg on walk(), default False (byte-identical for every existing caller until it opts in).
-- Before: aggregate_ratio=4.0922  median_abs_error=$32.4  verdict=FAIL
-- After:  aggregate_ratio=2.8357  median_abs_error=$31.8  verdict=FAIL
-- Excess-ratio reduction: 40.6%
+- Before: aggregate_ratio=3.8998  median_abs_error=$31.8  verdict=FAIL
+- After:  aggregate_ratio=2.6433  median_abs_error=$31.55  verdict=FAIL
+- Excess-ratio reduction: 43.3%
+
+## 2026-09-03 follow-up (WALKER-MARKET-STAGE-FILL-ROOT-FIX)
+- What changed: time_stop ONLY: moved out of the worst_in bucket into its own bar-CLOSE price (a clock event has no price-cross to reuse). structure_stop/ribbon_flip unchanged (still worst_in -- no premium threshold exists for either).
+- What was tried and reverted: Extending _MARKET_STAGES to premium_stop, profit_lock_floor, trail, be_stop, runner_target (reasoning: a live market SELL always crosses the bid). MEASURED WORSE on the 43-row PDT anchor: aggregate_ratio 4.09 -> 4.88 (not better), driven almost entirely by premium_stop (stage abs error $516.90 -> $930.00). These 4 stages are numeric-threshold crossings of runner_stop_premium; the live engine polls once/minute and fires the instant a poll crosses, so the true fill sits near the THRESHOLD, not the coarse 5-min bar's full wick -- state.runner_stop_premium (unchanged, the OLD/default fallback) already models that. See multileg_exit_walk.py's own module-level note for the full account.
+
+## Whole-engine V9 anchor validation (independent of the PDT anchor)
+- n_rows=133 (n_missing_bars before=12 after=12)
+- Before: aggregate_ratio=-1.3252  median_abs_error=$100.0  verdict=FAIL
+- After:  aggregate_ratio=-0.241  median_abs_error=$42.0  verdict=FAIL
 
 ## Big anchor population
 - Window 2026-06-01..2026-09-02, n_walked=128 (n_missing_bars=4)
-- aggregate_ratio=31.5702  verdict=FAIL
+- aggregate_ratio=32.9723  verdict=FAIL
 
 ## Outstanding prereg RUNs -- can they be believed on dollars?
 - **recency-qty-clamp**: NO -- shares multileg_exit_walk with the PDT study; this run shows that walker fails the magnitude criterion even after the market-stage fix. Sign-trustworthy, dollar-suspect, unchanged from this item's original caveat.
@@ -36,7 +45,10 @@ Scope: harness fidelity only -- decides no strategy, places no order, arms nothi
 - **profit-lock-arm-scope**: NO -- same walker family; ALSO carries its own named sim-vs-live profit-lock scope divergence (queue item's own caveat) on top of this one.
 
 ## Known limitations
-- big_anchor_population's aggregate_ratio (31.5702) is inflated by a near-zero denominator: actual_total_dollars=-141.0 is a small difference between winners ($7619.0) and losers ($-7760.0) that mostly cancel. The winners_ratio (1.0024) and losers_ratio (1.5287) are the trustworthy read here, not the aggregate ratio alone -- same caveat whole_engine_null.py's own magnitude_fidelity note already carries for exactly this reason.
-- The market-stage fill fix is NOT a full fix -- aggregate_ratio improved but did not reach the criterion. The remaining gap after the fix is not diagnosed by this run.
+- big_anchor_population's aggregate_ratio (32.9723) is inflated by a near-zero denominator: actual_total_dollars=-141.0 is a small difference between winners ($7619.0) and losers ($-7760.0) that mostly cancel. The winners_ratio (1.0024) and losers_ratio (1.5542) are the trustworthy read here, not the aggregate ratio alone -- same caveat whole_engine_null.py's own magnitude_fidelity note already carries for exactly this reason.
+- The market-stage fill fix is NOT a full fix -- aggregate_ratio improved but did not reach the criterion, on either anchor. Stage-level decomposition on the 43-row PDT anchor (post-fix) attributes the LARGEST remaining abs error to premium_stop ($811.50 of ~$1,780 total, n=22 legs) and structure_stop ($581.00, n=13), with trail a distant third ($387.50, n=8) -- premium_stop was NOT touched by this session's fix (see root_cause_and_fix.root_fix_2026_09_03_followup) and its residual error is a TIMING gap (the 5-min bar's own stop-crossing bar may not be the exact minute the live once-a-minute poll actually fired on), not a within-bar PRICING gap this module's fill_mode knob can address -- not diagnosed further by this run per the queue item's 'do not tune anything else to make the number move' instruction.
 - mechanism_bar_resolution restricts to rows with BOTH a 5-min OPRA cache and a 1-min highres cache (paired comparison) -- a smaller n than the full anchor set; see n_common.
 - This study reuses pdt_blocked_counterfactual.py's shape/trigger-level resolution for every variant (canonical_shape / anchor_trigger_level) rather than reimplementing it -- any defect in THAT resolution logic is inherited here too, not independently re-verified.
+
+## Deviations
+- Reproduction of the PDT study's own anchor numbers did not match exactly -- the ledger/cache may have changed since 2026-09-02. Proceeding with THIS run's numbers, disclosed as found not forced.

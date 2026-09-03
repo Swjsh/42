@@ -1,0 +1,102 @@
+{
+  "label": "RESEARCH -- decides nothing, arms nothing, ships nothing",
+  "queue_item": "WALKER-MARKET-STAGE-FILL-ROOT-FIX",
+  "question": "What would exit_manager_walk.py's own all_exits_market=True flag change in whole_engine_null.py's verdict, if wired in (it is NOT wired into the published pipeline by this script -- walk_one's default stays False).",
+  "date": "2026-09-02",
+  "resamples": 300,
+  "seed": 42,
+  "all_exits_market_false": {
+    "overall_verdict": "PASS",
+    "mechanical_verdict": "PASS",
+    "p1_total_pnl": 2863.0,
+    "p1_n_trades": 133,
+    "v9_sign_agreement_rate": 0.8926,
+    "v9_harness_reliable": true,
+    "v9_magnitude_fidelity": {
+      "n": 121,
+      "actual_total_dollars": 3562.0,
+      "replay_total_dollars": 2298.25,
+      "aggregate_ratio": 0.6452,
+      "total_error_dollars": -1263.75,
+      "mean_signed_bias_dollars": -10.44,
+      "median_abs_error_dollars": 15.0,
+      "p90_abs_error_dollars": 132.0,
+      "max_abs_error_dollars": 607.0,
+      "winners": {
+        "n": 49,
+        "actual": 10181.0,
+        "replay": 8957.4,
+        "ratio": 0.8798
+      },
+      "losers": {
+        "n": 68,
+        "actual": -6619.0,
+        "replay": -6724.15,
+        "ratio": 1.0159
+      },
+      "criterion": {
+        "verdict": "PASS",
+        "note": "Pre-registered 2026-09-03 (WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY), derived from this repo's walker population BEFORE this specific V9 run, not fitted to it -- see backtest/lib/walker_magnitude_fidelity.py for the exact bar and its derivation."
+      }
+    },
+    "na_percentiles": {
+      "p5": -2677.9874999999997,
+      "p25": -1133.8624999999997,
+      "p75": 826.3625,
+      "p95": 2545.5375000000004,
+      "iqr": 1960.2249999999997
+    },
+    "n_b_call_total": -2642.0,
+    "n_b_put_total": -198.0,
+    "n_c_total_pnl": -3674.0,
+    "named_fails": []
+  },
+  "all_exits_market_true": {
+    "overall_verdict": "PASS",
+    "mechanical_verdict": "PASS",
+    "p1_total_pnl": 2863.0,
+    "p1_n_trades": 133,
+    "v9_sign_agreement_rate": 0.8926,
+    "v9_harness_reliable": true,
+    "v9_magnitude_fidelity": {
+      "n": 121,
+      "actual_total_dollars": 3562.0,
+      "replay_total_dollars": 1477.0,
+      "aggregate_ratio": 0.4147,
+      "total_error_dollars": -2085.0,
+      "mean_signed_bias_dollars": -17.23,
+      "median_abs_error_dollars": 20.0,
+      "p90_abs_error_dollars": 145.0,
+      "max_abs_error_dollars": 607.0,
+      "winners": {
+        "n": 49,
+        "actual": 10181.0,
+        "replay": 8382.0,
+        "ratio": 0.8233
+      },
+      "losers": {
+        "n": 68,
+        "actual": -6619.0,
+        "replay": -6970.0,
+        "ratio": 1.053
+      },
+      "criterion": {
+        "verdict": "FAIL",
+        "note": "Pre-registered 2026-09-03 (WALKER-MAGNITUDE-BIAS-VS-SIGN-FIDELITY), derived from this repo's walker population BEFORE this specific V9 run, not fitted to it -- see backtest/lib/walker_magnitude_fidelity.py for the exact bar and its derivation."
+      }
+    },
+    "na_percentiles": {
+      "p5": -3021.5499999999997,
+      "p25": -1606.0,
+      "p75": 413.75,
+      "p95": 1935.2000000000003,
+      "iqr": 2019.75
+    },
+    "n_b_call_total": -2642.0,
+    "n_b_put_total": -198.0,
+    "n_c_total_pnl": -3917.0,
+    "named_fails": []
+  },
+  "p1_unchanged": true,
+  "note": "P1 is real fills -- the flag only touches WALKED legs (V9/N_a/N_b/N_c), so p1_total_pnl must be identical across both runs; p1_unchanged=False would indicate a bug in this script, not a real effect."
+}

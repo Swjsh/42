@@ -579,12 +579,16 @@ Ordered by value to the 10-30 decision. Each row: **who** · what "done" means.
 ### 2b. Research (analysis only, $0, freeze-compatible)
 - [ ] **Null study weekly** (B1) — the single most important number on the board. Opus reads each
   Friday; a FAIL on P1 (post-08-11) ends any 10-30 arming talk before the gate colour matters.
-  ⚠️ **DISCLOSURE FOR EVERY FRIDAY READING (added 2026-09-03 01:26 ET, commit `a19b2f1d`):** the null legs are replayed by
-  `multileg_exit_walk`, which priced every market-style exit at the STATIC stop level (dead `worst_in`) — replayed losers are far
-  too negative (PDT anchor 4.09× before the flagged fix, 2.84× after, criterion |ratio−1|≤0.40 still FAILING). P1 is real fills, so
-  the nulls look worse than they are and the PASS is inflated in the engine's favour by an unknown amount. The study now emits
-  `magnitude_fidelity` beside its verdict; read it as *PASS, walker magnitude FAIL* until WALKER-MARKET-STAGE-FILL-ROOT-FIX closes
-  (in build). A PASS that survives a corrected walker is the number; a PASS that does not is the finding.
+  ⚠️ **DISCLOSURE FOR EVERY FRIDAY READING (added 2026-09-03 01:26 ET, commit `a19b2f1d`; CORRECTED 02:50 ET after the root-fix
+  pass):** two walkers exist. The null study's legs (N_a/N_b/N_c, V9) use `backtest/lib/exit_manager_walk`; its own V9 anchor sits at
+  aggregate ratio **0.645** (n=121, median abs err $15) — inside the magnitude criterion |ratio−1| ≤ 0.40, but only just, and the
+  criterion was sized to it. The 4× defect (market-style exits priced at the static stop level) is in `multileg_exit_walk`, which
+  prices the PDT counterfactual, the three outstanding prereg RUNs and the directional battery — those stay NOT believable on dollars
+  (after the partial fix: PDT anchor 3.90 → 2.64, V9-population −1.33 → −0.24, both still FAIL; the residual is a premium-stop
+  TIMING gap, which 5-min bar the live 1-min poll caught). Running the null with that walker's `all_exits_market` flag ON moved N_a
+  p95 $2,545 → $1,935 and N_c −$3,674 → −$3,917, i.e. in the engine's favour, so the published default is the conservative reading.
+  The study now prints `magnitude_fidelity` beside its verdict; read a Friday PASS together with that line, and note the V9 ratio
+  0.645 means replayed magnitudes run ~35% small on both engine and null legs alike.
 - [x] **Stress replay of the current engine** over historical high-VIX windows with real OPRA bars
   (the April 2025 tariff week, Aug 2024, any −2%+ day in 2025–26): what do the −50% cap, structure
   stops and the ladder actually do in a −3% day? Pre-register the questions; label sim-only.

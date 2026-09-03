@@ -10,18 +10,18 @@
     "derivation": "Anchored to whole_engine_null.py's V9 (n=121, 2026-09-02 run): aggregate_ratio 0.6452, median_abs_error $15.00 -- the best-attested walker application in this repo (it gates a frozen prereg's own verdict). Tolerance set generously ABOVE those numbers so V9 clears with room rather than being fitted flush to it; the PDT anchor's own numbers (ratio 4.09, median $32.40) fail the ratio leg by a wide margin (|4.09-1|=3.09 >> 0.40) even though its median alone would pass -- which is why both conditions are required, not either."
   },
   "reproduction_check": {
-    "matches_queue_item_numbers": true,
+    "matches_queue_item_numbers": false,
     "n": 43,
     "sign_agreement": 0.9535,
     "magnitude_fidelity": {
       "n": 43,
       "actual_total_dollars": -538.0,
-      "replay_total_dollars": -2201.6,
-      "aggregate_ratio": 4.0922,
-      "total_error_dollars": -1663.6,
-      "mean_signed_bias_dollars": -38.69,
-      "median_abs_error_dollars": 32.4,
-      "p90_abs_error_dollars": 121.5,
+      "replay_total_dollars": -2098.1,
+      "aggregate_ratio": 3.8998,
+      "total_error_dollars": -1560.1,
+      "mean_signed_bias_dollars": -36.28,
+      "median_abs_error_dollars": 31.8,
+      "p90_abs_error_dollars": 108.65,
       "max_abs_error_dollars": 227.5,
       "winners": {
         "n": 10,
@@ -32,8 +32,8 @@
       "losers": {
         "n": 32,
         "actual": -2923.0,
-        "replay": -4647.7,
-        "ratio": 1.59
+        "replay": -4544.2,
+        "ratio": 1.5546
       }
     }
   },
@@ -41,25 +41,25 @@
     "slippage_contribution": {
       "n": 43,
       "actual_total": -538.0,
-      "replay_total_slip_1c": -2201.6,
-      "replay_total_slip_0c": -2058.6,
+      "replay_total_slip_1c": -2098.1,
+      "replay_total_slip_0c": -1955.1,
       "slippage_contribution_dollars": -143.0,
-      "total_gap_dollars": -1663.6,
-      "slippage_share_of_gap": 0.086,
+      "total_gap_dollars": -1560.1,
+      "slippage_share_of_gap": 0.0917,
       "verdict": "RULED OUT as dominant"
     },
     "fill_mode_sensitivity": {
       "by_fill_mode": {
         "extreme": {
-          "loser_ratio": 1.590044,
+          "loser_ratio": 1.554636,
           "winner_ratio": 1.047631
         },
         "close": {
-          "loser_ratio": 1.590044,
+          "loser_ratio": 1.554636,
           "winner_ratio": 0.871048
         },
         "mixed": {
-          "loser_ratio": 1.590044,
+          "loser_ratio": 1.554636,
           "winner_ratio": 0.833627
         }
       },
@@ -82,9 +82,9 @@
       "decomposition": {
         "stage_agree": {
           "n": 29,
-          "mean_abs_error_dollars": 61.01,
-          "median_abs_error_dollars": 37.8,
-          "total_abs_error_dollars": 1769.2
+          "mean_abs_error_dollars": 57.44,
+          "median_abs_error_dollars": 32.4,
+          "total_abs_error_dollars": 1665.7
         },
         "stage_disagree": {
           "n": 3,
@@ -92,7 +92,7 @@
           "median_abs_error_dollars": 7.5,
           "total_abs_error_dollars": 33.5
         },
-        "disagree_share_of_total_abs_error": 0.0186
+        "disagree_share_of_total_abs_error": 0.0197
       },
       "verdict": "RULED OUT as dominant (stage-mismatch is a small minority of loser error)"
     }
@@ -105,12 +105,12 @@
       "before": {
         "n": 43,
         "actual_total_dollars": -538.0,
-        "replay_total_dollars": -2201.6,
-        "aggregate_ratio": 4.0922,
-        "total_error_dollars": -1663.6,
-        "mean_signed_bias_dollars": -38.69,
-        "median_abs_error_dollars": 32.4,
-        "p90_abs_error_dollars": 121.5,
+        "replay_total_dollars": -2098.1,
+        "aggregate_ratio": 3.8998,
+        "total_error_dollars": -1560.1,
+        "mean_signed_bias_dollars": -36.28,
+        "median_abs_error_dollars": 31.8,
+        "p90_abs_error_dollars": 108.65,
         "max_abs_error_dollars": 227.5,
         "winners": {
           "n": 10,
@@ -121,19 +121,19 @@
         "losers": {
           "n": 32,
           "actual": -2923.0,
-          "replay": -4647.7,
-          "ratio": 1.59
+          "replay": -4544.2,
+          "ratio": 1.5546
         }
       },
       "after": {
         "n": 43,
         "actual_total_dollars": -538.0,
-        "replay_total_dollars": -1525.6,
-        "aggregate_ratio": 2.8357,
-        "total_error_dollars": -987.6,
-        "mean_signed_bias_dollars": -22.97,
-        "median_abs_error_dollars": 31.8,
-        "p90_abs_error_dollars": 97.8,
+        "replay_total_dollars": -1422.1,
+        "aggregate_ratio": 2.6433,
+        "total_error_dollars": -884.1,
+        "mean_signed_bias_dollars": -20.56,
+        "median_abs_error_dollars": 31.55,
+        "p90_abs_error_dollars": 75.0,
         "max_abs_error_dollars": 167.95,
         "winners": {
           "n": 10,
@@ -144,13 +144,18 @@
         "losers": {
           "n": 32,
           "actual": -2923.0,
-          "replay": -3971.7,
-          "ratio": 1.3588
+          "replay": -3868.2,
+          "ratio": 1.3234
         }
       },
-      "excess_ratio_reduction_pct": 40.6,
+      "excess_ratio_reduction_pct": 43.3,
       "verdict_before": "FAIL",
       "verdict_after": "FAIL"
+    },
+    "root_fix_2026_09_03_followup": {
+      "queue_item": "WALKER-MARKET-STAGE-FILL-ROOT-FIX",
+      "what_changed": "time_stop ONLY: moved out of the worst_in bucket into its own bar-CLOSE price (a clock event has no price-cross to reuse). structure_stop/ribbon_flip unchanged (still worst_in -- no premium threshold exists for either).",
+      "what_was_tried_and_reverted": "Extending _MARKET_STAGES to premium_stop, profit_lock_floor, trail, be_stop, runner_target (reasoning: a live market SELL always crosses the bid). MEASURED WORSE on the 43-row PDT anchor: aggregate_ratio 4.09 -> 4.88 (not better), driven almost entirely by premium_stop (stage abs error $516.90 -> $930.00). These 4 stages are numeric-threshold crossings of runner_stop_premium; the live engine polls once/minute and fires the instant a poll crosses, so the true fill sits near the THRESHOLD, not the coarse 5-min bar's full wick -- state.runner_stop_premium (unchanged, the OLD/default fallback) already models that. See multileg_exit_walk.py's own module-level note for the full account."
     }
   },
   "big_anchor_population": {
@@ -164,12 +169,12 @@
     "magnitude_fidelity": {
       "n": 128,
       "actual_total_dollars": -141.0,
-      "replay_total_dollars": -4451.4,
-      "aggregate_ratio": 31.5702,
-      "total_error_dollars": -4310.4,
-      "mean_signed_bias_dollars": -33.67,
-      "median_abs_error_dollars": 36.0,
-      "p90_abs_error_dollars": 167.95,
+      "replay_total_dollars": -4649.1,
+      "aggregate_ratio": 32.9723,
+      "total_error_dollars": -4508.1,
+      "mean_signed_bias_dollars": -35.22,
+      "median_abs_error_dollars": 35.0,
+      "p90_abs_error_dollars": 162.5,
       "max_abs_error_dollars": 545.0,
       "winners": {
         "n": 36,
@@ -180,8 +185,8 @@
       "losers": {
         "n": 89,
         "actual": -7760.0,
-        "replay": -11862.9,
-        "ratio": 1.5287
+        "replay": -12060.6,
+        "ratio": 1.5542
       }
     },
     "magnitude_fidelity_verdict": "FAIL",
@@ -212,13 +217,13 @@
       "P": {
         "n": 70,
         "actual_total_dollars": -1031.0,
-        "replay_total_dollars": -2546.3,
-        "aggregate_ratio": 2.4697,
-        "total_error_dollars": -1515.3,
-        "mean_signed_bias_dollars": -21.65,
-        "median_abs_error_dollars": 31.55,
-        "p90_abs_error_dollars": 136.5,
-        "max_abs_error_dollars": 267.0,
+        "replay_total_dollars": -2744.0,
+        "aggregate_ratio": 2.6615,
+        "total_error_dollars": -1713.0,
+        "mean_signed_bias_dollars": -24.47,
+        "median_abs_error_dollars": 30.0,
+        "p90_abs_error_dollars": 114.0,
+        "max_abs_error_dollars": 177.5,
         "winners": {
           "n": 21,
           "actual": 3166.0,
@@ -228,38 +233,93 @@
         "losers": {
           "n": 47,
           "actual": -4197.0,
-          "replay": -5633.8,
-          "ratio": 1.3423
+          "replay": -5831.5,
+          "ratio": 1.3894
         }
       }
     },
     "decomposition_by_stage_agreement": {
       "stage_agree": {
-        "n": 82,
-        "mean_abs_error_dollars": 58.02,
-        "median_abs_error_dollars": 35.2,
-        "total_abs_error_dollars": 4758.0
+        "n": 83,
+        "mean_abs_error_dollars": 56.49,
+        "median_abs_error_dollars": 34.2,
+        "total_abs_error_dollars": 4688.7
       },
       "stage_disagree": {
-        "n": 46,
-        "mean_abs_error_dollars": 80.13,
-        "median_abs_error_dollars": 41.1,
-        "total_abs_error_dollars": 3685.8
+        "n": 45,
+        "mean_abs_error_dollars": 75.97,
+        "median_abs_error_dollars": 40.2,
+        "total_abs_error_dollars": 3418.8
       },
-      "disagree_share_of_total_abs_error": 0.4365
+      "disagree_share_of_total_abs_error": 0.4217
     }
+  },
+  "v9_anchor_validation": {
+    "note": "Re-validates the market-stage fill fix on whole_engine_null.py's OWN P1 population (load_engine_rows + build_populations['P1_post_ladder']), walked through multileg_exit_walk (the walker THIS session fixed) -- independent of exit_manager_walk.py (the walker V9 itself uses, untouched here) and independent of the 43-row PDT anchor (different date window, different arm set: safe-2/bold-2/safe-3/risky-1 vs safe-2/bold-2 only).",
+    "n_rows_loaded": 133,
+    "n_missing_bars_before": 12,
+    "n_missing_bars_after": 12,
+    "before": {
+      "n": 121,
+      "actual_total_dollars": 3562.0,
+      "replay_total_dollars": -4720.4,
+      "aggregate_ratio": -1.3252,
+      "total_error_dollars": -8282.4,
+      "mean_signed_bias_dollars": -68.45,
+      "median_abs_error_dollars": 100.0,
+      "p90_abs_error_dollars": 232.5,
+      "max_abs_error_dollars": 612.0,
+      "winners": {
+        "n": 49,
+        "actual": 10181.0,
+        "replay": 7738.1,
+        "ratio": 0.7601
+      },
+      "losers": {
+        "n": 68,
+        "actual": -6619.0,
+        "replay": -11894.5,
+        "ratio": 1.797
+      }
+    },
+    "after": {
+      "n": 121,
+      "actual_total_dollars": 3562.0,
+      "replay_total_dollars": -858.4,
+      "aggregate_ratio": -0.241,
+      "total_error_dollars": -4420.4,
+      "mean_signed_bias_dollars": -36.53,
+      "median_abs_error_dollars": 42.0,
+      "p90_abs_error_dollars": 212.0,
+      "max_abs_error_dollars": 612.0,
+      "winners": {
+        "n": 49,
+        "actual": 10181.0,
+        "replay": 8366.1,
+        "ratio": 0.8217
+      },
+      "losers": {
+        "n": 68,
+        "actual": -6619.0,
+        "replay": -8885.5,
+        "ratio": 1.3424
+      }
+    },
+    "verdict_before": "FAIL",
+    "verdict_after": "FAIL",
+    "excess_ratio_reduction_pct": 46.6
   },
   "criterion_applied_to_every_variant": {
     "pdt_original_anchor_n43_unfixed": {
       "magnitude_fidelity": {
         "n": 43,
         "actual_total_dollars": -538.0,
-        "replay_total_dollars": -2201.6,
-        "aggregate_ratio": 4.0922,
-        "total_error_dollars": -1663.6,
-        "mean_signed_bias_dollars": -38.69,
-        "median_abs_error_dollars": 32.4,
-        "p90_abs_error_dollars": 121.5,
+        "replay_total_dollars": -2098.1,
+        "aggregate_ratio": 3.8998,
+        "total_error_dollars": -1560.1,
+        "mean_signed_bias_dollars": -36.28,
+        "median_abs_error_dollars": 31.8,
+        "p90_abs_error_dollars": 108.65,
         "max_abs_error_dollars": 227.5,
         "winners": {
           "n": 10,
@@ -270,8 +330,8 @@
         "losers": {
           "n": 32,
           "actual": -2923.0,
-          "replay": -4647.7,
-          "ratio": 1.59
+          "replay": -4544.2,
+          "ratio": 1.5546
         }
       },
       "verdict": "FAIL"
@@ -280,12 +340,12 @@
       "magnitude_fidelity": {
         "n": 43,
         "actual_total_dollars": -538.0,
-        "replay_total_dollars": -1525.6,
-        "aggregate_ratio": 2.8357,
-        "total_error_dollars": -987.6,
-        "mean_signed_bias_dollars": -22.97,
-        "median_abs_error_dollars": 31.8,
-        "p90_abs_error_dollars": 97.8,
+        "replay_total_dollars": -1422.1,
+        "aggregate_ratio": 2.6433,
+        "total_error_dollars": -884.1,
+        "mean_signed_bias_dollars": -20.56,
+        "median_abs_error_dollars": 31.55,
+        "p90_abs_error_dollars": 75.0,
         "max_abs_error_dollars": 167.95,
         "winners": {
           "n": 10,
@@ -296,8 +356,8 @@
         "losers": {
           "n": 32,
           "actual": -2923.0,
-          "replay": -3971.7,
-          "ratio": 1.3588
+          "replay": -3868.2,
+          "ratio": 1.3234
         }
       },
       "verdict": "FAIL"
@@ -307,12 +367,12 @@
       "magnitude_fidelity": {
         "n": 128,
         "actual_total_dollars": -141.0,
-        "replay_total_dollars": -4451.4,
-        "aggregate_ratio": 31.5702,
-        "total_error_dollars": -4310.4,
-        "mean_signed_bias_dollars": -33.67,
-        "median_abs_error_dollars": 36.0,
-        "p90_abs_error_dollars": 167.95,
+        "replay_total_dollars": -4649.1,
+        "aggregate_ratio": 32.9723,
+        "total_error_dollars": -4508.1,
+        "mean_signed_bias_dollars": -35.22,
+        "median_abs_error_dollars": 35.0,
+        "p90_abs_error_dollars": 162.5,
         "max_abs_error_dollars": 545.0,
         "winners": {
           "n": 36,
@@ -323,8 +383,60 @@
         "losers": {
           "n": 89,
           "actual": -7760.0,
-          "replay": -11862.9,
-          "ratio": 1.5287
+          "replay": -12060.6,
+          "ratio": 1.5542
+        }
+      },
+      "verdict": "FAIL"
+    },
+    "v9_anchor_via_multileg_unfixed": {
+      "magnitude_fidelity": {
+        "n": 121,
+        "actual_total_dollars": 3562.0,
+        "replay_total_dollars": -4720.4,
+        "aggregate_ratio": -1.3252,
+        "total_error_dollars": -8282.4,
+        "mean_signed_bias_dollars": -68.45,
+        "median_abs_error_dollars": 100.0,
+        "p90_abs_error_dollars": 232.5,
+        "max_abs_error_dollars": 612.0,
+        "winners": {
+          "n": 49,
+          "actual": 10181.0,
+          "replay": 7738.1,
+          "ratio": 0.7601
+        },
+        "losers": {
+          "n": 68,
+          "actual": -6619.0,
+          "replay": -11894.5,
+          "ratio": 1.797
+        }
+      },
+      "verdict": "FAIL"
+    },
+    "v9_anchor_via_multileg_market_stage_fix": {
+      "magnitude_fidelity": {
+        "n": 121,
+        "actual_total_dollars": 3562.0,
+        "replay_total_dollars": -858.4,
+        "aggregate_ratio": -0.241,
+        "total_error_dollars": -4420.4,
+        "mean_signed_bias_dollars": -36.53,
+        "median_abs_error_dollars": 42.0,
+        "p90_abs_error_dollars": 212.0,
+        "max_abs_error_dollars": 612.0,
+        "winners": {
+          "n": 49,
+          "actual": 10181.0,
+          "replay": 8366.1,
+          "ratio": 0.8217
+        },
+        "losers": {
+          "n": 68,
+          "actual": -6619.0,
+          "replay": -8885.5,
+          "ratio": 1.3424
         }
       },
       "verdict": "FAIL"
@@ -344,10 +456,12 @@
     "profit-lock-arm-scope": "NO -- same walker family; ALSO carries its own named sim-vs-live profit-lock scope divergence (queue item's own caveat) on top of this one."
   },
   "known_limitations": [
-    "big_anchor_population's aggregate_ratio (31.5702) is inflated by a near-zero denominator: actual_total_dollars=-141.0 is a small difference between winners ($7619.0) and losers ($-7760.0) that mostly cancel. The winners_ratio (1.0024) and losers_ratio (1.5287) are the trustworthy read here, not the aggregate ratio alone -- same caveat whole_engine_null.py's own magnitude_fidelity note already carries for exactly this reason.",
-    "The market-stage fill fix is NOT a full fix -- aggregate_ratio improved but did not reach the criterion. The remaining gap after the fix is not diagnosed by this run.",
+    "big_anchor_population's aggregate_ratio (32.9723) is inflated by a near-zero denominator: actual_total_dollars=-141.0 is a small difference between winners ($7619.0) and losers ($-7760.0) that mostly cancel. The winners_ratio (1.0024) and losers_ratio (1.5542) are the trustworthy read here, not the aggregate ratio alone -- same caveat whole_engine_null.py's own magnitude_fidelity note already carries for exactly this reason.",
+    "The market-stage fill fix is NOT a full fix -- aggregate_ratio improved but did not reach the criterion, on either anchor. Stage-level decomposition on the 43-row PDT anchor (post-fix) attributes the LARGEST remaining abs error to premium_stop ($811.50 of ~$1,780 total, n=22 legs) and structure_stop ($581.00, n=13), with trail a distant third ($387.50, n=8) -- premium_stop was NOT touched by this session's fix (see root_cause_and_fix.root_fix_2026_09_03_followup) and its residual error is a TIMING gap (the 5-min bar's own stop-crossing bar may not be the exact minute the live once-a-minute poll actually fired on), not a within-bar PRICING gap this module's fill_mode knob can address -- not diagnosed further by this run per the queue item's 'do not tune anything else to make the number move' instruction.",
     "mechanism_bar_resolution restricts to rows with BOTH a 5-min OPRA cache and a 1-min highres cache (paired comparison) -- a smaller n than the full anchor set; see n_common.",
     "This study reuses pdt_blocked_counterfactual.py's shape/trigger-level resolution for every variant (canonical_shape / anchor_trigger_level) rather than reimplementing it -- any defect in THAT resolution logic is inherited here too, not independently re-verified."
   ],
-  "deviations": []
+  "deviations": [
+    "Reproduction of the PDT study's own anchor numbers did not match exactly -- the ledger/cache may have changed since 2026-09-02. Proceeding with THIS run's numbers, disclosed as found not forced."
+  ]
 }

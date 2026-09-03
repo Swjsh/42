@@ -71,7 +71,48 @@ import exit_manager as em  # noqa: E402
 # historical cell in every study that has ever called `walk()`, so it does not flip silently):
 # `market_stage_fill_fix=True` prices _MARKET_STAGES legs at the bar's own worst-case price
 # (`worst_in`, already resolved per `fill_mode`) instead of the static stop level.
+#
+# FINISHED 2026-09-03 (WALKER-MARKET-STAGE-FILL-ROOT-FIX, same-day follow-up).
+#
+# FIRST DRAFT OF THIS FOLLOW-UP tried extending _MARKET_STAGES to every non-tp1 SELL stage
+# exit_manager.py emits (also premium_stop, profit_lock_floor, trail, be_stop, runner_target),
+# reasoning that a live market SELL always crosses the bid. MEASURED, then REVERTED: on the
+# 43-row PDT anchor this made aggregate_ratio WORSE (4.0922 -> 4.8773, not better) -- driven
+# almost entirely by premium_stop (stage-level abs error $516.90 -> $930.00; structure_stop and
+# trail moved the other way but by far less). ROOT REASON, found by re-reading this module's OWN
+# disclosure #1 above ("intra-bar high/low ORDER is unknowable... resolves optimistically (arm,
+# then exit at the floor)"): premium_stop/profit_lock_floor/trail/be_stop are NUMERIC-THRESHOLD
+# crossings of `runner_stop_premium` -- the live engine polls a quote once a minute and fires the
+# instant its poll shows a cross, so the true fill sits close to the THRESHOLD, not the coarse
+# 5-min bar's full worst extreme (which can wick far past the threshold on a move the once-a-
+# minute poll never actually observed). `state.runner_stop_premium` (the OLD/default fallback,
+# UNCHANGED here) already IS that threshold -- these 4 stages were never the bug; they only
+# LOOKED implicated because the same generic fallback also caught the genuinely-broken stages
+# below. structure_stop / ribbon_flip are different in kind: neither has a premium THRESHOLD to
+# fall back to at all (a chart-level break / a categorical stack flip), so `worst_in` (this bar's
+# own price, already resolved per `fill_mode`) is the best available proxy -- unchanged from the
+# original 2026-09-03 ship, already measured as an improvement there.
+#
+# THE ACTUAL FIX THIS SESSION: time_stop only. It was folded into the original _MARKET_STAGES
+# (priced at worst_in) alongside structure_stop/ribbon_flip, but time_stop is a CLOCK event, not
+# a price cross -- there is no "worst_premium at the instant it fired" to reuse, because nothing
+# about the option's price caused it to fire. The queue item's own instruction: fills at the
+# bar's CLOSE at the stop minute (the prevailing price when the clock event landed), not the
+# bar's low and not the static stop level. Verified read-only against
+# automation/state/fleet/fleet_broker.py#get_option_quote_hilo (best_premium=ASK,
+# worst_premium=BID -- confirms every live exit is an unconditional MARKET order, never a
+# resting limit, same fact the sibling backtest/lib/exit_manager_walk.py#FILL-PRICE-CONVENTION
+# note already established) and exit_actuator.py#manage_tick (the sole call site for both core
+# and fleet arms) -- neither file edited.
+#
+# "Fills at the cap level only if the bar actually crossed it" (the catastrophe/premium cap) is
+# STRUCTURAL, not an extra condition to add: `exit_manager.plan_exit_actions`'s own
+# `worst_premium <= runner_stop` check (fed this exact bar's `worst_in` as `worst_premium`) is
+# what emits the ExitAction in the first place -- a premium_stop/profit_lock_floor leg can never
+# exist unless that check already fired this bar, and its price (`state.runner_stop_premium`,
+# unchanged) is the cap it is named after.
 _MARKET_STAGES = frozenset({"structure_stop", "ribbon_flip", "time_stop"})
+_TIME_STOP_STAGE = "time_stop"
 
 
 def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
@@ -141,10 +182,17 @@ def walk(fill: dict, shape: dict, bars, *, trigger_level: float = 0.0,
             # price the leg at whatever level triggered it
             px = getattr(a, "price", None)
             if px is None:
-                if market_stage_fill_fix and a.stage in _MARKET_STAGES:
-                    # MARKET-STAGE FILL FIX (see module-level note): a structure/ribbon/time
-                    # exit fills at what the bar's price actually was, not the theoretical
-                    # stop level -- mirrors exit_manager_walk.py's _MARKET_STAGES convention.
+                if market_stage_fill_fix and a.stage == _TIME_STOP_STAGE:
+                    # time_stop is a CLOCK event, not a price cross -- fills at this bar's
+                    # CLOSE (the prevailing price at the stop minute), never an extreme and
+                    # never the static stop level (see module-level note: this is the ONE
+                    # stage this session's follow-up actually changed).
+                    px = _cl
+                elif market_stage_fill_fix and a.stage in _MARKET_STAGES:
+                    # structure_stop / ribbon_flip (see module-level note): no premium
+                    # threshold exists for either, so the bar's own worst-case price
+                    # (`worst_in`, already resolved per `fill_mode`) is the best available
+                    # proxy -- unchanged from the original 2026-09-03 ship.
                     px = worst_in
                 else:
                     px = (entry * (1.0 + state.tp1_premium_pct) if a.stage == "tp1"
