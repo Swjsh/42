@@ -32,6 +32,29 @@ FAIL LOUD, NEVER SILENT: a pytest that cannot even collect ("notests") is
 reported as a WIRING problem, not as success. Exit code 0 from this script never
 means "all green" by itself -- read the STATUS line.
 
+RETRY-ONCE ON A SMALL RED (added 2026-09-03, GUARD-RUNNER-FLAKE-RETRY)
+------------------------------------------------------------------------
+Twice in one overnight marathon (bec56cd9's prereg-label pollution, and the
+02:13-02:45 ET run pinned in guard-watch-full.json: test_queue_md_retention_cap
++ test_quiet_mode_starvation + test_shadow_board_nonterminal_2026_09_03 +
+test_walker_fidelity_2026_09_03 -- four UNRELATED tests, all passing individually
+seconds later) a FULL-SUITE RED was purely system-load pollution from running a
+12,000+ test suite on a box with several other concurrent Claude sessions writing
+to the same shared state files (queue.md's byte count, live PowerShell Task
+Scheduler enumeration, etc) at the exact moment those specific tests read them --
+not a code regression. Each occurrence burned a full investigation cycle to
+re-derive "not reproducible."
+
+The fix: when the first pass goes red with a SMALL number of failures
+(<= RETRY_MAX_FAILURES), re-run ONLY those failing node ids once, scoped, after
+the rest of the suite (and its file contention) has finished. Anything that
+still fails on the scoped retry is a real regression and stays RED, reported
+narrowed to just the still-failing subset. Anything that passes on retry is
+logged to `guard-flaky-tests.jsonl` (never silently dropped -- C7) as
+"flaked_and_recovered" and does NOT hold the whole suite RED. A large first-pass
+failure count skips the retry and reports red immediately -- that shape is a real
+break, not noise, and retrying it just burns another ~40 minutes for nothing.
+
 USAGE
     python setup/guard_runner_full.py [--timeout-sec N]
 """
@@ -58,6 +81,12 @@ WATCH = STATE / "guard-watch-full.json"
 DEFAULT_TIMEOUT_SEC = 3600
 NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)   # OP-27 L41 / C8
 _SUMMARY_RE = re.compile(r"(\d+) (passed|failed|error|errors|skipped|xfailed|xpassed)")
+
+# A handful of red tests under a heavily-loaded overnight box is plausibly
+# system-load pollution (see module docstring); dozens is a real break. Retrying
+# a genuine wide regression just burns another full-suite timeout for nothing.
+RETRY_MAX_FAILURES = 20
+FLAKY_LOG = STATE / "logs" / "guard-flaky-tests.jsonl"
 
 
 def _now() -> str:
@@ -178,11 +207,30 @@ def main() -> int:
     else:
         status = "green"
 
+    retried = False
+    flaked: list = []
+    if status == "red" and 0 < len(names_all) <= RETRY_MAX_FAILURES:
+        retried = True
+        retry_out, timed_out = _retry_failed_out(names_all, a.timeout_sec)
+        if timed_out:
+            # Never read an empty/absent retry output as "nothing failed" -- that
+            # would silently flip a real red to a false green. Keep the original
+            # verdict untouched; just note the retry itself didn't complete.
+            _log_flaky([], names_all)
+        else:
+            status, counts, names_all, flaked = _reconcile_after_retry(counts, names_all, retry_out)
+            names = names_all[:12]
+            rc = 0 if status == "green" else 1
+            _log_flaky(flaked, names_all)
+
     summary = (f"{counts['passed']} passed, {counts['failed']} failed, "
                f"{counts['skipped']} skipped")
+    if retried and flaked:
+        summary += f" (retry recovered {len(flaked)})"
     WATCH.write_text(json.dumps(
         {"status": status, "at": _now(), "counts": counts,
-         "failed_names": names_all, "returncode": rc}, indent=1), encoding="utf-8")
+         "failed_names": names_all, "returncode": rc,
+         "retried": retried, "flaked_and_recovered": flaked}, indent=1), encoding="utf-8")
 
     # Always call, never gated on status != green: green now CLEARS any stale
     # FULL-SUITE line from a prior run instead of leaving it to rot (see
@@ -191,6 +239,62 @@ def main() -> int:
     print(f"[guards-full] {status.upper()} :: {summary}"
           + (f" :: {', '.join(names)}" if names else ""))
     return 0 if status == "green" else 1
+
+
+# ---------------------------------------------------------------------------------------
+# Retry-once helpers (defined AFTER main() deliberately -- see
+# test_slow_suite_is_actually_covered_2026_09_02.py::test_the_two_runners_partition_the_suite,
+# which AST-scans this file for the FIRST list literal containing both "pytest" and "-m" to
+# find the real suite-wide invocation. `_retry_failed_out`'s scoped retry command also
+# contains those two tokens; placing it after `main()` in source order keeps `main()`'s
+# real `cmd` the first match ast.walk (BFS, source order at each level) encounters.
+# ---------------------------------------------------------------------------------------
+
+def _reconcile_after_retry(counts: dict, names_all: list, retry_out: str) -> "tuple[str, dict, list, list]":
+    """Given the initial red counts/failed-names and a retry pytest output covering
+    EXACTLY those failed node ids, return (final_status, final_counts,
+    still_failing, flaked). `still_failing` are node ids that failed on retry too
+    (real regressions, kept RED); `flaked` are node ids that passed on retry
+    (system-load pollution -- never dropped silently, always logged by the caller)."""
+    retry_failed = set(_failed_names(retry_out, cap=10**9))
+    still_failing = [n for n in names_all if n in retry_failed]
+    flaked = [n for n in names_all if n not in retry_failed]
+    final_status = "red" if still_failing else "green"
+    final_counts = dict(counts)
+    final_counts["failed"] = len(still_failing)
+    final_counts["passed"] = counts["passed"] + len(flaked)
+    return final_status, final_counts, still_failing, flaked
+
+
+def _retry_failed_out(failed_ids: list, timeout_sec: int) -> "tuple[str, bool]":
+    """Re-run ONLY the given failed node ids, scoped, after the first pass (and its
+    file/process contention) has finished. Returns (combined stdout+stderr text,
+    timed_out). On timeout the caller MUST treat every id as still-failing --
+    an empty output must never be read as "nothing failed" (that would silently
+    flip a real red to a false green)."""
+    cmd = [sys.executable.replace("pythonw", "python"), "-m", "pytest",
+           *failed_ids, "-q", "-p", "no:cacheprovider"]
+    try:
+        r = subprocess.run(cmd, cwd=str(ROOT / "backtest"), capture_output=True, text=True,
+                           timeout=timeout_sec, errors="replace", creationflags=NO_WINDOW)
+        return (r.stdout or "") + (r.stderr or ""), False
+    except subprocess.TimeoutExpired:
+        return "", True
+
+
+def _log_flaky(flaked: list, still_failing: list) -> None:
+    """Append one row per retry reconciliation -- never silent (C7). Lets a future
+    session notice if the SAME test keeps 'flaking' (that would mean it isn't
+    pollution, it's a real intermittent bug and deserves its own investigation)."""
+    if not flaked and not still_failing:
+        return
+    try:
+        FLAKY_LOG.parent.mkdir(parents=True, exist_ok=True)
+        row = {"ts": _now(), "flaked_and_recovered": flaked, "still_failing_after_retry": still_failing}
+        with FLAKY_LOG.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row) + "\n")
+    except OSError:
+        pass  # best-effort pattern log; must never block the real verdict
 
 
 if __name__ == "__main__":
