@@ -1,0 +1,89 @@
+{
+  "rule_id": "prereg-tickers-lane-production-scorer-2026-09-04",
+  "title": "Does the PRODUCTION SPY scorer carry an edge on non-SPY 0DTE names when it is finally run unmodified, in paper, with real fills?",
+  "status": "FROZEN_BEFORE_ANY_RESULT",
+  "frozen_at_et": "2026-09-04T01:1x",
+  "frozen_by": "Fable session 76844c47 (J-directed 2026-09-04 00:4x ET: 'wire these 3 accounts for all non SPY options trading ... just like how we trade spy 0dte ... they trade tomorrow')",
+
+  "_no_results_seen": "Written before multi/execute.py or multi/lib/scorer_production.py exist and before any tickers account has authenticated. No fill, no decision row, no score from this scorer on these names is known to the author.",
+
+  "provenance": {
+    "why": "Every non-SPY test this shop has run scored a COPY of the engine: multi/lib/filters.py (1,211 lines vs production's 2,342; ~2,700 differing lines; dollar tolerances re-derived as ATR-relative). Weekly lane (684 real fills), multi lane (7,489 signals) and catalysts (7,019 signals) all returned ~49% -- and all three ran the copy. The 58.23% / +4.89 sigma production figure is a LIVE number that has never been replayed under the same method. Whether the original scorer travels off SPY is therefore still an open question, and this lane answers it the way J asked: forward, in paper, with fills.",
+    "prior_nulls_on_the_copy": [
+      "analysis/deep-research/WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md",
+      "analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md",
+      "analysis/deep-research/MULTI-LEVELS-TRANSPLANT-VERDICT-2026-08-21.md",
+      "analysis/deep-research/CATALYST-DIRECTION-VERDICT-2026-09-03.md"
+    ],
+    "not_a_revival": "multi-1's own kill rule says reviving it requires 'a NEW signal and a NEW pre-registration'. The scorer here is different code (backtest/lib/filters.py, not multi/lib/filters.py) with this prereg. The plumbing (funnel, expiry, strike, liquidity gate, sizing, exits, broker) is reused because it was audited faithful and was never the failing part."
+  },
+
+  "prior_working_against_this_hypothesis": [
+    "Three well-powered nulls on the same symbol family, two information classes, one answer: the detector family reads volatility, not direction. The copy differs from the original mainly in tolerance scaling; it is plausible that scaling was never the problem.",
+    "The 58.23% live number reflects live curated levels, trendlines and multi-day level memory that this lane does not have (it reconstructs levels from bars). If the edge lives in that live state, it will not travel here.",
+    "Fresh $100K paper accounts remove the equity-tier sizing pressure the SPY arms operate under; nothing here tests sizing psychology, only the signal and the fill.",
+    "Stated before the first fill so a negative cannot later be framed as a surprise."
+  ],
+
+  "design": {
+    "scorer": "backtest/lib/filters.py evaluate_bearish_setup / evaluate_bullish_setup, production defaults, on a production BarContext (backtest/lib/ribbon.py ribbon; production vol/range 20-bar baselines). Levels from the multi lane's own reconstruction; level_states and htf_15m from multi/lib/context + signal helpers. ONE variable moves vs multi-1: the scoring code. Gating is the tickers lane's own (risk/liquidity/sizing) -- NOT engine_cli's SPY-specific gates -- and that is disclosed on every row.",
+    "plumbing": "multi/core.py tick() unchanged in logic (kwargs threaded for per-arm state); multi/execute.py acts on WOULD_PLACE and exit decisions with armed=True; multi/lib/broker.py place_bracket -> oto -> simple fallback; exits per multi/lib/exits.py.",
+    "accounts": "Three dedicated paper accounts, one arm each, split universes so no contract is ever held twice: tickers-1 NVDA AAPL AMZN; tickers-2 TSLA META AVGO; tickers-3 QQQ IWM GLD. SPY is never in any universe (executor asserts).",
+    "day_one_clamps": "qty EXACTLY 3 (Rule 6 minimum, hard max_contracts=3), 1 concurrent position per arm, daily kill 1% of equity blocks new entries, entries 09:35-14:30 ET, soft time stop 14:45, hard 14:50, EOD flatten safety task 14:52, 2-minute tick.",
+    "feed": "indicative options feed (no OPRA agreement) -- every spread and every fill price carries that label."
+  },
+
+  "measurement": {
+    "primary": "Per-arm expectancy in $/trade NET of realistic costs, and day-level bootstrap profit-factor 95% CI lower bound -- the SAME method setup/scripts/go_live_gate.py applies to the SPY arms, so the number is comparable.",
+    "secondary": "Signed forward return of the production trigger at +10/30/60 min on these names, from the decision ledger, against the random-entry null at its MAX (the Stage-A method) -- the replay control that was never run, now accrued forward.",
+    "diagnostic_only": "Win rate. Never a bar (FABLE-FULL-REVIEW-2026-08-29 s3)."
+  },
+
+  "statistics": {
+    "min_scored_trading_days": 20,
+    "min_fills_per_arm": 30,
+    "_below_the_bar": "Any read before BOTH minimums is INSUFFICIENT_EVIDENCE and is reported as such, never as a weak positive or negative. Daily EOD notes may quote raw P&L; they may not quote a verdict.",
+    "random_entry_null": "N>=40 draws from the same symbol-session-bar population, same direction mix, compare against the MAX of the draws' means.",
+    "multiple_comparison": "Holm across 3 horizons for the secondary; per-arm and per-symbol are DESCRIPTIVE."
+  },
+
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "PASS_per_arm": "After >=20 scored days AND >=30 fills: PF CI-lower(2.5%) > 1.0 on as-traded AND ex-best-day AND cost-adjusted, AND the secondary signed-return control beats the null MAX at +30min.",
+    "FAIL_per_arm": "After the same minimums, any of those fails -> that arm's params flip shadow_only:true (new entries stop; exits and flatten still run). Result written as a verdict.",
+    "LANE_STOP": "All three arms FAIL -> lane stopped with a written verdict; machinery retained.",
+    "EARLY_KILL_per_arm": "Cumulative realized loss >= 3% of the arm's starting equity BEFORE the minimums are met -> that arm to shadow immediately. This is a money stop, not an evidence verdict; it is disclosed as such.",
+    "VOLATILITY_NOT_DIRECTION": "If the secondary abs-move beats its null while signed return does not, inherit the Stage-A clause verbatim: recorded, never acted on.",
+    "what_a_PASS_authorizes": "Continued paper trading and the construction of a promotion instrument for this lane (go_live_gate.py is SPY-only by construction). NEVER live money -- OP-0 #1 is J's and J's alone.",
+    "what_a_FAIL_authorizes": "Writing the verdict and stopping. Per OP-22 a closing verdict is a valid terminal state."
+  },
+
+  "kill_list": {
+    "forbidden_inside_the_window": [
+      "Any change to scorer thresholds, filter numbering, or min_triggers (Rule 9: rules change on weekends, in writing, with reason -- and then it is a NEW prereg).",
+      "Swapping a universe symbol to chase a name that is 'working'.",
+      "Tuning exit knobs (tp1/trail/catastrophe) mid-window -- the exits are COPIED_FROM_SPY_ENGINE_UNVALIDATED and that label is the point: this window measures them.",
+      "Raising max_contracts or max_concurrent (risk EXPANSION) before the minimums are met.",
+      "Reading account equity across arms as if it were one book -- three accounts, three ledgers."
+    ]
+  },
+
+  "known_limitations_stated_upfront": [
+    "Options feed is indicative; fills on paper are Alpaca's paper simulator against that feed. Real-money slippage on single-name 0DTE is unmeasured here.",
+    "Alpaca rejects option brackets (422); the entry falls back to a simple limit and exits are ENGINE-MANAGED on a 2-minute tick. A -50% catastrophe cap checked every 2 minutes can overshoot on a fast name. Disclosed, not hidden.",
+    "Day one runs with the secrets file possibly absent at 09:35 ET; the executor logs NO_CREDS loudly and retries every tick, so the lane starts trading within one tick of the file appearing. Fills therefore begin when the human step is done, not necessarily at the open.",
+    "The 14:45 soft time stop is the multi lane's (Alpaca's expiration-day cutoff for single names); it is earlier than the SPY arms' 15:50 and shortens the hold window."
+  ],
+
+  "freeze_compliance": {
+    "frozen_paths_touched": "none",
+    "_doc": "setup/hooks/doctrine.py FROZEN_TRADING_PATH lists 10 files; this lane creates new files under multi/ and automation/state/tickers/ and edits multi/core.py (kwargs only) and multi/lib/creds.py (allowlist). No SPY params, no accounts.json, no heartbeat_core.py, no filters.py edit -- filters.py is IMPORTED, never modified."
+  },
+
+  "output": {
+    "ledgers": "automation/state/tickers/<arm>/ledger.jsonl (decision rows) + journal/trades-tickers-<arm>.csv (fills)",
+    "verdict": "analysis/deep-research/TICKERS-LANE-VERDICT-2026-10-XX.md",
+    "executor": "multi/execute.py",
+    "scorer": "multi/lib/scorer_production.py"
+  }
+}

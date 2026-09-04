@@ -31,11 +31,21 @@ PARAMS_PATH = REPO_ROOT / "automation" / "state" / "multi" / "params.json"
 
 # Named credential sources. Adding one is a deliberate act, not a string the caller supplies --
 # this dict is the allowlist of files this lane may dereference.
+_TICKERS_SECRETS = REPO_ROOT / "automation" / "state" / "tickers" / "secrets.json"
 _KEY_SOURCES: dict[str, tuple[Path, str]] = {
     "crypto-twin": (
         REPO_ROOT / "automation" / "state" / "crypto-twin" / "secrets.json",
         "twin",
     ),
+    # TICKERS LANE (J 2026-09-04 00:4x ET: "wire these 3 accounts for all non-SPY options
+    # trading ... just like how we trade spy 0dte"). Three DEDICATED paper accounts -- the
+    # first non-SPY accounts in this shop that share nothing with the crypto twin or the SPY
+    # fleet, so their equity IS evidence for their own lane. Secrets live ONLY in the
+    # gitignored file below (.gitignore:388, verified); the tracked template is
+    # secrets.json.example. J pastes the pairs; Claude never transcribes a key.
+    "tickers-1": (_TICKERS_SECRETS, "tickers-1"),
+    "tickers-2": (_TICKERS_SECRETS, "tickers-2"),
+    "tickers-3": (_TICKERS_SECRETS, "tickers-3"),
 }
 
 

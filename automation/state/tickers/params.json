@@ -1,0 +1,176 @@
+{
+  "lane_status": {
+    "state": "ACTIVE_PAPER",
+    "opened_at_et": "2026-09-04",
+    "prereg": "analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04.json",
+    "_doc": "NOT a revival of multi-1's killed signal. multi-1 STOPPED_ON_NULL because ITS scorer (the fork) is a volatility detector. This lane scores with production filters.py -- a different scorer, with its own frozen prereg, as multi-1's own kill rule demands."
+  },
+  "_doc": "TICKERS LANE -- three DEDICATED paper accounts trading non-SPY 0DTE options with the PRODUCTION SPY scoring (backtest/lib/filters.py evaluate_*_setup) on the multi lane's plumbing (funnel, expiry, strike, liquidity gate, sizing, exits, broker). J 2026-09-04 00:4x ET: 'wire these 3 accounts for all non SPY options trading ... just like how we trade spy 0dte'. This is the experiment no prior non-SPY test ran: every off-SPY null (weekly 684 fills, multi 7,489 signals, catalyst 7,019 signals) scored a COPY of the engine (multi/lib/filters.py). Here the scorer is the original. Prereg: analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04.json.",
+  "_status": "ACTIVE_PAPER -- armed for paper fills from 2026-09-04; live:false is permanent here (OP-0 #1)",
+  "_rule_version": "tickers-v1 (production scorer + multi plumbing, 2026-09-04)",
+  "_separation": "This lane NEVER imports, modifies, or shares state with the SPY engine or the crypto twin. Three dedicated accounts; per-arm state under automation/state/tickers/<arm>/; its own journal journal/trades-tickers-<arm>.csv. Its P&L is evidence ONLY for this lane's own prereg.",
+  "arm": "tickers",
+  "live": false,
+  "shadow_only": false,
+  "mode": {
+    "name": "intraday_v1",
+    "_doc": "WHAT BUSINESS THIS LANE IS IN. J directive 2026-08-19/20: replicate the engine that has recent green evidence -- the INTRADAY SPY machine -- on more names. The multi-day model this lane originally carried was inherited from the weekly lane, whose signal died a five-cut null-gate death (WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md). Multi-day is not forbidden forever; it is DORMANT until intraday replication has evidence. See _dormant_multiday below -- kept, not deleted, so reviving it is a config change not an archaeology project.",
+    "same_day_exit": true,
+    "overnight_holds": false,
+    "weekend_holds": false,
+    "time_stop_et": "15:50",
+    "_time_stop_doc": "Mirrors the SPY engine's own hard time-stop. The expiry-day flatten schedule (flatten_schedule_et 14:45/14:50/14:55) still takes precedence when the position's contract expires TODAY -- that is a safety cutoff, not a profit rule, and it fires first.",
+    "_audit": "analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20.md (root cause #3)"
+  },
+  "universe": {
+    "_doc": "Per-arm universes live in arms.<arm>.universe. This block is intentionally empty so no code path can accidentally score the multi lane's 72-name list. SPY is NEVER in any tickers universe (the executor asserts it).",
+    "_excluded_by_screen_2026_09_03": [
+      "MSFT 5.55%",
+      "AMD 7.18%",
+      "GOOGL 7.71%",
+      "SMH 14.9%",
+      "XLF 18.2%"
+    ]
+  },
+  "entry": {
+    "min_dte_at_entry": 0,
+    "expiry_rule": "nearest_listed",
+    "target_delta_min": 0.4,
+    "target_delta_max": 0.7,
+    "structure": "long_premium_only",
+    "max_concurrent_symbols": 1,
+    "liquidity_gate": {
+      "_doc": "Checked LIVE at decision time, per symbol, per contract -- never from a static universe list. This is the fix for the static-screen failure: catalyst days create their own liquidity.",
+      "max_spread_pct_of_premium": 8.0,
+      "min_open_interest": 250,
+      "min_contract_volume_today": 100,
+      "min_underlying_dollar_volume": 20000000,
+      "feed": "indicative",
+      "_feed_note": "No OPRA agreement on this account: every spread number is from the free indicative feed. Permanent disclosure on every row."
+    },
+    "_dormant_multiday": {
+      "min_dte_at_entry": 3,
+      "expiry_rule": "this_friday_if_dte_ge_3_else_next_friday",
+      "_why_dormant": "multi-day hold model; revive only with intraday evidence in hand"
+    },
+    "_expiry_doc": "INTRADAY: take the nearest LISTED expiry (0-3 DTE typical). Still read from the live chain, never a computed calendar -- an expiry can be absent because earnings land that day (verified: NVDA had no 2026-08-26 listing)."
+  },
+  "risk": {
+    "per_trade_risk_cap_pct": 0.02,
+    "_cap_note": "2% of a fresh $100K paper account = $2,000 per trade cap. Irrelevant once qty is clamped (below); kept so size_entry() has a sane bound.",
+    "min_contracts": 3,
+    "max_concurrent_positions": 1,
+    "daily_loss_kill_switch_pct": 0.01,
+    "kill_switch_semantics": "blocks_new_entries_only",
+    "correlation_gate": {
+      "deny_abs_r_gte": 0.75,
+      "lookback_days": 60,
+      "fail_mode": "closed"
+    },
+    "max_positions_per_sector": 1,
+    "weekend_holds": false,
+    "max_contracts": 3,
+    "_max_contracts_doc": "HARD CLAMP enforced by multi/execute.py AFTER size_entry(): a $100K paper account would otherwise size ~90 contracts of a $2 option. Rule 6 minimum is 3 (2 TP + 1 runner); day one trades EXACTLY 3, matching the SPY arms. Raising this is a risk EXPANSION -> waits for evidence, never a tweak.",
+    "_max_concurrent_doc": "One position at a time per arm (SPY doctrine: one at a time). Three arms = at most three open contracts book-wide, never the same contract twice.",
+    "_kill_doc": "1% of equity (~$1,000 on $100K paper) blocks NEW entries for the day. Exits and the flatten always run."
+  },
+  "exits": {
+    "_label": "COPIED_FROM_SPY_ENGINE_UNVALIDATED_ON_THESE_NAMES -- the prereg measures them",
+    "_doc": "Starting values ported from the SPY engine's shapes. They were fitted on SPY 0DTE fills and are NOT validated on these underlyings or these DTEs. Paired shadow-clock logs the ported shape alongside any variant from the first signal.",
+    "tp1_premium_pct": 45.0,
+    "tp1_qty_fraction": 0.5,
+    "runner_target_mult": 1.75,
+    "trail_pct": 20.0,
+    "profit_lock_arm_pct": 15.0,
+    "catastrophe_stop_pct": -50.0,
+    "theta_budget": {
+      "fires_before_catastrophe_cap": true,
+      "max_premium_bleed_pct_without_progress": 30.0,
+      "thesis_progress_definition": "underlying has moved >= 0.5 * ATR(14) in the trade's direction from entry"
+    },
+    "_dormant_multiday": {
+      "days_to_live": 3,
+      "_why_dormant": "same-day exits under intraday_v1; days-to-live is meaningless intraday"
+    },
+    "_mode_note": "Under mode.intraday_v1 the exit ladder is: expiry-day flatten (safety, first) -> theta budget (BEFORE the catastrophe cap) -> same-day time stop -> TP1/runner/trail -> catastrophe cap. days_to_live and the weekend guard are dormant, not deleted."
+  },
+  "flatten_schedule_et": {
+    "_doc": "Expiration-day cutoffs. Alpaca rejects option orders after ~3:15pm ET on expiration day for most names and the do-not-exercise cutoff is 3:00pm ET. A long option left to auto-exercise would deliver shares this account cannot afford.",
+    "soft_time_stop": "14:45",
+    "hard_backstop": "14:50",
+    "last_resort_dne_sweep": "14:55"
+  },
+  "scanners": {
+    "_doc": "Free Alpaca surfaces, all verified working 2026-08-19. These SELECT candidates; they never place or gate a trade on their own.",
+    "movers": {
+      "enabled": true,
+      "endpoint": "/v1beta1/screener/stocks/movers",
+      "min_abs_pct": 8.0
+    },
+    "most_actives": {
+      "enabled": true,
+      "endpoint": "/v1beta1/screener/stocks/most-actives",
+      "top": 25
+    },
+    "news": {
+      "enabled": true,
+      "endpoint": "/v1beta1/news",
+      "lookback_hours": 24
+    },
+    "gap": {
+      "enabled": true,
+      "min_gap_pct": 5.0,
+      "min_rel_volume": 3.0
+    },
+    "_verified": "movers returned MRNA +177.0% on 2026-08-19, matching the independently derived figure exactly."
+  },
+  "promotion": {
+    "min_signals": 20,
+    "min_distinct_sessions": 15,
+    "random_entry_null_gate": "MAX",
+    "real_fills_promotion_gate_n": 30,
+    "_doc": "Same bar as every other arm. No result is described as promising until it beats the randomized-entry null at its MAX."
+  },
+  "_shadow_only_doc": "false = the executor (multi/execute.py) MAY submit paper orders when it passes armed=True. multi/core.py itself still has no order path (AST-guarded). Set true to stop new entries instantly; the EOD flatten still runs.",
+  "scorer": "production",
+  "_scorer_doc": "'production' = backtest/lib/filters.py evaluate_bearish_setup/evaluate_bullish_setup on a production BarContext (backtest/lib/ribbon.py ribbon, production 20-bar baselines). 'fork' = multi/lib/filters.py (multi-1's scorer, killed on its null). Dispatched in multi/core.py tick(); vary-and-assert guarded.",
+  "arms": {
+    "_doc": "One params file, three accounts. The executor builds a per-arm view {**params, 'account': arms[arm]} so multi/lib/creds.resolve() is unchanged. account_number is blank until the first verify_account() discovers it; the executor pins it to automation/state/tickers/<arm>/account.json and REFUSES to run if a later resolve returns a different number (a mispasted or rotated key must never trade the wrong account).",
+    "tickers-1": {
+      "key_source": "tickers-1",
+      "account_number": "",
+      "universe": [
+        "NVDA",
+        "AAPL",
+        "AMZN"
+      ],
+      "_why": "tightest 0DTE spreads measured 2026-09-03 close: AAPL 0.46% NVDA 1.28% AMZN 1.52%"
+    },
+    "tickers-2": {
+      "key_source": "tickers-2",
+      "account_number": "",
+      "universe": [
+        "TSLA",
+        "META",
+        "AVGO"
+      ],
+      "_why": "wider but inside the 8% live gate: TSLA 1.83% META 4.00% AVGO 4.93%"
+    },
+    "tickers-3": {
+      "key_source": "tickers-3",
+      "account_number": "",
+      "universe": [
+        "QQQ",
+        "IWM",
+        "GLD"
+      ],
+      "_why": "daily-expiry ETFs: QQQ 1.06% IWM 4.44% GLD 6.37% (GLD fails a 5% screen, passes the lane's own 8% gate)"
+    }
+  },
+  "tick_cadence": {
+    "minutes": 2,
+    "first_tick_et": "09:35",
+    "last_entry_et": "14:30",
+    "_doc": "0DTE exits (a -50% catastrophe cap) cannot wait 15 minutes; 2-minute ticks keep API use ~20/min across three arms, far under the 200/min limit. Entries stop at 14:30 so nothing is opened into the 14:45 soft time stop."
+  }
+}
