@@ -148,6 +148,23 @@ def update_level_states(symbol: str, levels: list, bars, *, max_bounces: int = 8
     without this history, which is why the lane's filter-10 trigger set was short a member.
 
     Returns {price: LevelState-shaped object} ready to hand to build_signal.
+
+    BUG FIX (2026-09-04, found in the tickers-lane day-one autopsy, T7): `bounce_history` was
+    built as a list of BARE FLOATS (`hist.append(round(extreme, 4))`). Both consumers --
+    `multi/lib/filters.py::detect_sequence_rejection/_reclaim` (the fork) AND
+    `backtest/lib/filters.py::detect_sequence_rejection/_reclaim` (production, FROZEN) -- read
+    `e["high_reached"]`/`e["low_reached"]` off each entry, i.e. they require a DICT (see
+    `backtest/lib/filters.py` LevelState docstring: `bounce_history: list ... # [{"bar_idx",
+    "high_reached"|"low_reached"}]`, and `backtest/lib/orchestrator.py::update_level_state`'s
+    reference implementation, which has always produced dicts). A bare float subscripted with
+    a string key raises `TypeError: 'float' object is not subscriptable`. Measured impact
+    2026-09-04: 144 TICK_ERROR rows across the three tickers-lane arms (32/102/10), each one
+    aborting that tick's ENTIRE remaining symbol-scoring loop (the exception escapes the
+    narrow `except (SignalBuildError, ValueError)` in `multi/core.py::tick` uncaught, all the
+    way to `multi/execute.py`'s outer generic handler) -- any symbol later in `symbols` than
+    the one that hit 3+ bounces at a `broken_to_resistance`/`broken_to_support` level was
+    silently never scored that tick. Fix: append the same two required keys the frozen
+    consumers actually read, never inventing an unread `outcome` field.
     """
     if bars is None or len(bars) < 3 or not levels:
         return {}
@@ -176,6 +193,8 @@ def update_level_states(symbol: str, levels: list, bars, *, max_bounces: int = 8
     # Touch band scales with the symbol, never a fixed dollar amount.
     band = max(abs(last) * 0.0015, 1e-6)
 
+    bar_idx = len(bars) - 1  # positional index of the newest CLOSED bar this tick scored
+
     out: dict = {}
     for lv in levels:
         p = round(float(lv), 4)
@@ -189,11 +208,19 @@ def update_level_states(symbol: str, levels: list, bars, *, max_bounces: int = 8
             crossed_to = above[-1]
             role = "broken_to_support" if crossed_to else "broken_to_resistance"
 
-        # Bounce: the newest closed bar touched the band -> record its extreme.
+        # Bounce: the newest closed bar touched the band -> record its extreme. Entries are
+        # DICTS (never bare floats -- see the docstring's 2026-09-04 bug-fix note): the key
+        # matches the role (`high_reached` while below a broken_to_resistance level,
+        # `low_reached` while above a broken_to_support level), the same vocabulary
+        # `backtest/lib/orchestrator.py::update_level_state` and both consumers' frozen
+        # `detect_sequence_rejection`/`detect_sequence_reclaim` expect.
         if lows[-1] - band <= p <= highs[-1] + band:
-            extreme = highs[-1] if last < p else lows[-1]
-            if not hist or abs(hist[-1] - extreme) > band:
-                hist.append(round(extreme, 4))
+            below = last < p
+            extreme = round(highs[-1] if below else lows[-1], 4)
+            reached_key = "high_reached" if below else "low_reached"
+            last_extreme = (hist[-1].get(reached_key) if hist else None)
+            if last_extreme is None or abs(last_extreme - extreme) > band:
+                hist.append({"bar_idx": bar_idx, reached_key: extreme})
                 hist = hist[-max_bounces:]
 
         out[p] = LevelStateRec(price=p, role=role, bounce_history=hist)
