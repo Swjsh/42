@@ -474,7 +474,8 @@ that decides whether real money gets armed at all. Cost-conscious = the opposite
 2. Lanes compete for **attention**, not capital. Nothing leaves shadow until it clears the same
    `go_live_gate.py` PF CI-lower > 1.0 bar SPY must clear. A parked lane's job is to produce
    evidence on a clock, not to trade.
-3. After the freeze lifts (~09-29) and the gate returns a verdict, **exactly one** lane gets
+3. After the freeze lifts (2026-10-30 -- NOT 09-29, which is the in-freeze safety checkpoint;
+   `setup/hooks/doctrine.py:158` is authoritative) and the gate returns a verdict, **exactly one** lane gets
    promoted — chosen by the scoreboard, not by enthusiasm.
 
 Prereq now satisfied: the freeze is enforced rather than requested — see

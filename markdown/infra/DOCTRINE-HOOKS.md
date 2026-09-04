@@ -62,12 +62,18 @@ no model call anywhere in the layer.
 
 ### The three hard blocks
 
-1. **September freeze** (`2026-08-31 → 2026-09-29`). Edits to `params.json`, `filters.py`,
+1. **Config freeze** (`2026-08-31 → 2026-10-30`). Edits to `params.json`, `filters.py`,
    `risk_gate.py`, `strategies.py`, `exit_manager.py`, `fleet_executor.py`,
    `build_shared_signal.py`, `heartbeat_core.py`, `accounts.json` are denied inside the window.
    A trading-path edit silently invalidates `go_live_gate.py`'s 20-day score — the most
    expensive available mistake between those dates, and previously guarded by prose alone.
-   Pre-registered kill-type risk reductions carry `GAMMA_FREEZE_OVERRIDE`.
+   Pre-registered kill-type risk reductions carry `GAMMA_FREEZE_OVERRIDE`, and may ship only
+   from the **safety checkpoint on `2026-09-29`** — which is a date *inside* the freeze, not
+   its end. Risk EXPANSIONS wait for `2026-10-30` regardless.
+   > ⚠️ This paragraph read `2026-08-31 → 2026-09-29` until 2026-09-03. The code
+   > (`setup/hooks/doctrine.py:150/158/162` — `FREEZE_START` / `FREEZE_END` /
+   > `FREEZE_SAFETY_CHECKPOINT`) is authoritative and was corrected on 2026-09-02; this doc
+   > had kept the pre-correction window, which read as "the freeze is over" a month early.
 2. **Generated surfaces.** `MAP.md`, `HOME.md`, `SHADOW.md`, `*/INDEX.md`, `journal/YYYY-MM-DD.md`
    are written only by `obsidian_vault_sync.py`. A hand-edit reads as "done" and is overwritten
    on the next sync — a silent revert. Denied, with the generator named in the message.
