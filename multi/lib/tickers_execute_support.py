@@ -94,7 +94,7 @@ def re_derive_exit_record(rec, r: dict, bars: Optional[dict], arm_params: dict, 
 
 
 def check_static_invariants(lane_params: dict, arm: str, arm_cfg: Optional[dict], *,
-                            now: dt.datetime) -> None:
+                            now: dt.datetime, ignore_window: bool = False) -> None:
     """Every check raises InvariantFail (never exits the process). `now` is injected (the
     caller's et_clock-derived now_et()) so this stays a pure function of its arguments.
     Creds/paper-only is NOT checked here -- that needs the NO_CREDS self-heal file read and a
@@ -131,6 +131,8 @@ def check_static_invariants(lane_params: dict, arm: str, arm_cfg: Optional[dict]
     if now.weekday() >= 5:
         raise InvariantFail("weekend", f"now_et={now.isoformat()} is a weekend")
     hhmm = now.hour * 100 + now.minute
+    if ignore_window:
+        return  # SHADOW-ONLY E2E probe (execute.py --e2e-probe-root): off-hours dry run, nothing is sent
     if not (930 <= hhmm <= 1500):
         raise InvariantFail("outside_session_window",
                              f"now_et={now.isoformat()} outside the 09:30-15:00 ET self-check "

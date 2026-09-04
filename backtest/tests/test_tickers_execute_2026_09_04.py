@@ -443,3 +443,27 @@ def test_non_paper_base_url_aborts_as_invariant_fail(state_dir, monkeypatch):
     assert len(fails) == 1
     assert fails[0]["code"] == "paper_only"
     assert summary["creds"] == "NO_CREDS"
+
+
+# --- E2E SHADOW PROBE flag (added 2026-09-04 01:5x ET) -------------------------------------
+def test_e2e_probe_root_refused_without_shadow(capsys):
+    """The probe borrows a real paper key and ignores the session window -- it must be
+    structurally impossible to run it armed."""
+    import multi.execute as ex
+    with pytest.raises(SystemExit) as ei:
+        ex.main(["--once", "--e2e-probe-root", "C:/nope"])
+    assert ei.value.code == 2
+    assert "requires --shadow" in capsys.readouterr().err
+
+
+def test_e2e_probe_root_redirects_every_per_arm_path(tmp_path, monkeypatch):
+    """Under the probe no path may point at the REAL automation/state/tickers or journal/."""
+    import multi.execute as ex
+    monkeypatch.setattr(ex, "run_once", lambda arms, p, shadow=False: 0)
+    ex.main(["--once", "--shadow", "--e2e-probe-root", str(tmp_path)])
+    for fn in (ex.arm_dir, ex.arm_state_path, ex.arm_ledger_path, ex.arm_account_pin_path, ex.arm_journal_path):
+        assert str(fn("tickers-1")).startswith(str(tmp_path.resolve())), fn.__name__
+    assert str(ex.first_fill_marker_path()).startswith(str(tmp_path.resolve()))
+    assert ex.effective_key_source({"key_source": "tickers-1"}) == "crypto-twin"
+    # restore module globals so later tests see the real paths
+    monkeypatch.setattr(ex, "E2E_PROBE_ROOT", None)

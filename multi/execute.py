@@ -69,6 +69,20 @@ from multi.lib import tickers_execute_support as tes  # noqa: E402 -- pure helpe
 DEFAULT_PARAMS_PATH = REPO_ROOT / "automation" / "state" / "tickers" / "params.json"
 TICKERS_STATE_DIR = REPO_ROOT / "automation" / "state" / "tickers"
 JOURNAL_DIR = REPO_ROOT / "journal"
+
+# E2E SHADOW PROBE (2026-09-04). The only way to exercise the WHOLE path -- creds, verify,
+# funnel, production scorer, exits, entry construction -- before the first session, when the
+# tickers secrets file may not exist yet and the market is closed. `--e2e-probe-root <dir>`
+# (REQUIRES --shadow; argparse refuses otherwise): every per-arm path is redirected under
+# <dir> (so the real automation/state/tickers/<arm>/ is never touched and the crypto-twin
+# account number is never pinned there), the 09:30-15:00 self-check window is ignored, and
+# every arm resolves the EXISTING crypto-twin paper key by reference (multi/lib/creds.py
+# key_source 'crypto-twin' -> accounts.twin). Orders are constructed with armed=False and
+# logged as SHADOW_*; nothing is ever sent. Never used by the scheduled task.
+E2E_PROBE_ROOT: Optional[Path] = None
+_PROBE_KEY_SOURCE = "crypto-twin"
+_PROBE_SECRETS = REPO_ROOT / "automation" / "state" / "crypto-twin" / "secrets.json"
+_PROBE_SECRETS_ENTRY = "twin"
 STATUS_PATH = REPO_ROOT / "automation" / "overnight" / "STATUS.md"
 
 ARM_NAMES = ("tickers-1", "tickers-2", "tickers-3")
@@ -211,10 +225,23 @@ def _re_derive_exit_record(rec, r: dict, bars: Optional[dict], arm_params: dict,
 
 
 def check_static_invariants(lane_params: dict, arm: str, arm_cfg: Optional[dict]) -> None:
-    tes.check_static_invariants(lane_params, arm, arm_cfg, now=now_et())
+    if E2E_PROBE_ROOT is not None and isinstance(arm_cfg, dict):
+        # the key_source==arm invariant guards real accounts; the probe deliberately borrows one key
+        arm_cfg = {**arm_cfg, "key_source": arm}
+    tes.check_static_invariants(lane_params, arm, arm_cfg, now=now_et(),
+                                ignore_window=E2E_PROBE_ROOT is not None)
+
+
+def effective_key_source(arm_cfg: Optional[dict]) -> Optional[str]:
+    """The key_source creds.resolve() will dereference: the arm's own, or the probe key."""
+    if E2E_PROBE_ROOT is not None:
+        return _PROBE_KEY_SOURCE
+    return (arm_cfg or {}).get("key_source")
 
 
 def precheck_creds(key_source: Optional[str], arm: str) -> Optional[str]:
+    if E2E_PROBE_ROOT is not None:
+        return tes.precheck_creds(_PROBE_SECRETS, _PROBE_SECRETS_ENTRY, arm)
     return tes.precheck_creds(TICKERS_STATE_DIR / "secrets.json", key_source, arm)
 
 
@@ -267,7 +294,7 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
         return summary
 
     # 2. creds self-heal pre-check -------------------------------------------------------
-    key_source = arm_cfg.get("key_source")
+    key_source = effective_key_source(arm_cfg)
     precheck_err = precheck_creds(key_source, arm)
     if precheck_err:
         log({"decision": "NO_CREDS", "reason": precheck_err})
@@ -687,7 +714,7 @@ def run_once(arms: list[str], params_path: Path, *, shadow: bool = False) -> int
     shared_creds = None
     for a in arms:
         cfg = arms_cfg.get(a) or {}
-        key_source = cfg.get("key_source")
+        key_source = effective_key_source(cfg)
         if precheck_creds(key_source, a):
             continue
         pinned = load_pinned_account(a)
@@ -744,10 +771,23 @@ def main(argv: Optional[list[str]] = None) -> int:
                     help="run one pass over all arms and exit (the Task Scheduler install "
                          "always uses this -- the OS trigger provides the 2-minute cadence)")
     ap.add_argument("--params", default=str(DEFAULT_PARAMS_PATH))
+    ap.add_argument("--e2e-probe-root", default=None,
+                    help="SHADOW-ONLY off-hours end-to-end probe: redirect all per-arm state under "
+                         "this dir, ignore the session window, borrow the crypto-twin paper key. "
+                         "Refused without --shadow. Never used by the scheduled task.")
     args = ap.parse_args(argv)
+    if args.e2e_probe_root and not args.shadow:
+        ap.error("--e2e-probe-root requires --shadow (the probe can never arm)")
 
     arms = args.arm or list(ARM_NAMES)
     params_path = Path(args.params)
+    if args.e2e_probe_root:
+        global E2E_PROBE_ROOT, TICKERS_STATE_DIR, JOURNAL_DIR
+        E2E_PROBE_ROOT = Path(args.e2e_probe_root).resolve()
+        TICKERS_STATE_DIR = E2E_PROBE_ROOT / "state"
+        JOURNAL_DIR = E2E_PROBE_ROOT / "journal"
+        print(f"[tickers] E2E SHADOW PROBE: state -> {TICKERS_STATE_DIR}, key -> {_PROBE_KEY_SOURCE}, "
+              f"window ignored, armed=False everywhere", file=sys.stderr)
 
     if args.once:
         return run_once(arms, params_path, shadow=args.shadow)
