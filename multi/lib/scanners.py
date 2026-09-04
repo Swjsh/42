@@ -225,12 +225,23 @@ def fetch_most_actives_raw(key: str, secret: str, by: str = "volume", top: int =
 
 
 def fetch_news_raw(key: str, secret: str, start: Optional[str] = None,
-                    end: Optional[str] = None, limit: int = 50, sort: str = "desc") -> dict:
+                    end: Optional[str] = None, limit: int = 50, sort: str = "desc",
+                    symbols: Optional[str] = None, page_token: Optional[str] = None) -> dict:
+    """`symbols` and `page_token` are optional additions (2026-09-03, for
+    backtest/tools/catalyst_direction_null_harness.py) -- both default to None, so every
+    existing caller (run_news, below) is unaffected. `symbols` passes through verbatim as
+    Alpaca's comma-separated `symbols` query param (news for ANY of the listed symbols, not
+    ANDed); `page_token` continues a prior response's `next_page_token` for a caller that needs
+    to drain a whole multi-month history rather than one page."""
     params = {"limit": limit, "sort": sort}
     if start:
         params["start"] = start
     if end:
         params["end"] = end
+    if symbols:
+        params["symbols"] = symbols
+    if page_token:
+        params["page_token"] = page_token
     url = f"{DATA_BASE}/v1beta1/news?{urllib.parse.urlencode(params)}"
     return _http_get_json(url, key, secret)
 
