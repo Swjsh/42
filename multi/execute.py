@@ -42,6 +42,7 @@ import datetime as dt
 import json
 import sys
 import time
+import traceback
 from pathlib import Path
 from typing import Any, Optional
 
@@ -655,7 +656,12 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
             realized_pnl_today=realized, kill_switch_tripped=kill_tripped,
         )
     except Exception as e:  # noqa: BLE001 -- a tick failure must not crash the process
-        log({"decision": "TICK_ERROR", "reason": f"{type(e).__name__}: {e}"})
+        # 2026-09-04 outage: this row used to carry only str(e) ("TypeError: 'float' object is
+        # not subscriptable") with no traceback, so the actual failing line was unknowable from
+        # the ledger alone. Always carry the traceback now (truncated -- a ledger row must stay
+        # small) so a future TICK_ERROR is diagnosable without a live repro session.
+        log({"decision": "TICK_ERROR", "reason": f"{type(e).__name__}: {e}",
+             "traceback": traceback.format_exc()[-1500:]})
         print(f"[tickers] {arm} TICK_ERROR: {type(e).__name__}: {e}", file=sys.stderr)
         return summary
 

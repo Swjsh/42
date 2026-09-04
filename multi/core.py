@@ -809,8 +809,22 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
                                   level_states=lvl_states,
                                   htf_15m_bars=htf_bars.get(sym),
                                   **vix.as_kwargs())
-        except (ms.SignalBuildError, ValueError) as e:
-            row.update(decision="BLOCKED", gate="signal_scored", reason=f"signal error: {e}")
+        except Exception as e:  # noqa: BLE001 -- ROOT CAUSE (2026-09-04 TICK_ERROR outage):
+            # this used to catch only (ms.SignalBuildError, ValueError). `build_signal_fn` in
+            # "production" mode (the default for this lane, params.scorer="production") calls
+            # scorer_production.build_signal -> backtest/lib/filters.py's FROZEN
+            # evaluate_bearish_setup/evaluate_bullish_setup -- code written and validated only
+            # against the SPY engine's own level/LevelState shapes, never fuzzed against this
+            # lane's symbol-generic inputs. A TypeError (or any exception type other than the
+            # two caught here) raised inside that stack was NOT caught by this narrower except,
+            # escaped core.tick() entirely, and was only caught by execute.py's outer per-arm
+            # try/except as an undiagnosed "TICK_ERROR" -- which blocks EVERY symbol in the arm
+            # for that whole tick, not just the one that actually failed. Matches the "one bad
+            # X must not kill the tick" pattern already used a few lines below for chain/expiry/
+            # strike/quote/sizing failures -- this is the one place in the per-symbol loop that
+            # was narrower than the rest of its own file.
+            row.update(decision="BLOCKED", gate="signal_scored",
+                       reason=f"signal error: {type(e).__name__}: {e}")
             rows.append(row)
             continue
         cascade["signal_scored"] += 1
@@ -842,12 +856,20 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
         side = "P" if "BEAR" in action else "C"
         row["side"] = side
 
-        admission = mr.evaluate_admission(
-            account=account, symbol=sym,
-            start_of_day_equity=equity, realized_pnl_today=realized_pnl_today,
-            kill_switch_tripped=kill_switch_tripped, open_positions=open_opts,
-            correlations=None, params=params,
-        )
+        try:
+            admission = mr.evaluate_admission(
+                account=account, symbol=sym,
+                start_of_day_equity=equity, realized_pnl_today=realized_pnl_today,
+                kill_switch_tripped=kill_switch_tripped, open_positions=open_opts,
+                correlations=None, params=params,
+            )
+        except Exception as e:  # noqa: BLE001 -- same "one bad symbol must not kill the tick"
+            # discipline as every other per-symbol gate in this loop; this call was previously
+            # the only completely unguarded one.
+            row.update(decision="BLOCKED", gate="risk_admitted",
+                       reason=f"admission evaluation failed: {type(e).__name__}: {e}")
+            rows.append(row)
+            continue
         if not getattr(admission, "allowed", False):
             row.update(decision="BLOCKED", gate="risk_admitted",
                        reason=getattr(admission, "reason", "risk denied"),
