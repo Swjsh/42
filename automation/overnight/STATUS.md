@@ -10,6 +10,7 @@
 
 ## Known broken
 
+- [2026-09-04 03:42 ET] FULL-SUITE RED :: 13309 passed, 2 failed, 13 skipped (retry recovered 7) :: tests/test_install_script_times_match_registry_2026_09_03.py::test_install_script_times_match_registry_outside_known_debt, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-04T07:39+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-04T00:57:04 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=FAIL, mcp_procs=FAIL -- port 9222 unreachable -- URLError: <urlopen error [WinError 10061] No connection could be made ; 0 alpaca-mcp-server process(es) found
 - [2026-09-03 19:00 ET] 🚨 SECRETS-ON-PUBLIC-REMOTE (SCOPE CORRECTED 19:17 ET: SIX Alpaca credentials, not two -- the repaired history scanner found four MORE, incl. THREE key+SECRET pairs = full API access, all reachable from origin/main) :: paper-key prefixes PKWEWC/PKEZ6O (safe-2, bold-2, commit b219a8cd) PLUS PK33+secret FxbJ (4 files, commits a1db803e/d0c8ac06, hardcoded as an env fallback default), PKGZ+secret 9Ezm (labelled 'safe' in atomic_bracket_guard.py), PKQM+secret ELWu (its own comment says rotated 2026-05-22, old value still public), PK7WRO (doc example in .claude/skills/github-audit/SKILL.md, real-key-shaped). NO LIVE-MONEY KEYS: every finding is PK-prefixed (paper) and zero AK-shaped (live) ids exist anywhere in history -- verified. All are readable in the PUBLIC repo's history: commit `b219a8cd` (authored 02:27 ET today by another session, file `backtest/_attic/scripts/mcp_audit_debug.py`) was PUSHED to origin/main at 18:38-18:39 ET tonight by the parallel session. The file is deleted at HEAD (`a127fa79`) but the blob remains reachable (`git show b219a8cd:...`). J-ONLY ACTION: rotate EVERY Alpaca paper key that has ever appeared in this repo's history (six, not two) in the Alpaca dashboard and update the gitignored `.mcp.json` + `automation/state/fleet/secrets.json`; optionally make the repo private while rotating. Do NOT force-push/rewrite history without J (276 documented revert SHAs). Guard shipped tonight so this cannot recur: pre-commit now scans STAGED content (`ef7e4aed`). Also found: `github_audit.py --history` CRASHES (UnicodeDecodeError cp1252 + None diff_output) so the history scan has never actually run -- fix filed. :: re-check: python setup/scripts/github_audit.py
@@ -261,6 +262,10 @@
 
 ---
 
+## [2026-09-04 04:40 ET] GOAL DELIVERED: GOAL-COCKPIT-REDESIGN-2026-09-03 -- "Glow Command" live (J's AetherOps reference), blind panel 3/2/2 -> 7/8/8
+
+Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec v2 and the vendored ui-kit (44 licensed snippets from uiverse / 21st.dev / monet recipes). Verified this session: 269 guard tests + 2 xfail; cockpit_dom_check clean dark+light (tiles=26, sankey_ribbons=10, small_text=0, overflow_x=False); cockpit_exercise 13/13 with 0 console errors (headless CDP, no windows); routing map reads the last trading session end to end. Before/after captures sent to J. Round-3 polish in flight (em-dashes, 1440 px grid reflow, journal titles, light-mode ribbon glow). Revert: `git revert 83d580b4 b9c873ce`.
+
 ## [2026-09-04 03:40 ET] AUTONOMY PROVEN END-TO-END + COCKPIT GLOW REBUILD LIVE (session 42-98, Fable)
 
 - **Goal-driven fires, no human:** conductor-outcomes.jsonl 05:09Z `GOAL-COCKPIT-REDESIGN-2026-09-03-R7`, 06:07Z `GOAL-TICKERS-LANE-2026-09-04/T6`, 06:45Z `.../T3+T5`; `goal_autopilot` closed COCKPIT-REDESIGN 01:19 ET and opened TICKERS-LANE from the ladder. DONE-WHEN (e) of GOAL-GAMMA-AUTONOMY met.
@@ -464,7 +469,7 @@ REVOKE: `git revert a2683450`.
 
 
 ## Kitchen
-Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 39 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: prereg-hygiene 2026-09-04T01:02:32
 - 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
@@ -488,4 +493,7 @@ Kitchen: alive, queue 45 pending, last cook 0 min ago, today $0.00, model=openro
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
 
 ### BROKEN: trendline-headless-draw 2026-09-04 01:30 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: trendline-headless-draw 2026-09-04 03:41 ET
 - trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
