@@ -1,35 +1,165 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@custom-variant dark (&:is(.dark *));
 
-/* ============================================================
+@theme {
+  --color-bg-deep: #050810;
+  --color-bg-base: #0a0f1c;
+  --color-bg-elev: #131b2e;
+  --color-bg-card: #161e35;
+  --color-bg-overlay: #1c2540;
+
+  --color-ink-1: #e6edf7;
+  --color-ink-2: #a4afc4;
+  --color-ink-3: #6e7a92;
+  --color-ink-4: #4a5570;
+
+  --color-accent-cyan: #22d3ee;
+  --color-accent-violet: #a78bfa;
+  --color-accent-amber: #f59e0b;
+  --color-accent-up: #22c55e;
+  --color-accent-down: #ef4444;
+  --color-accent-blue: #60a5fa;
+
+  --color-terminal-bg: #0a0e0a;
+  --color-terminal-panel: #0f1f0f;
+  --color-terminal-border: #1f3a1f;
+  --color-terminal-text: #9eff9e;
+  --color-terminal-dim: #4a8a4a;
+  --color-terminal-amber: #ffb000;
+  --color-terminal-red: #ff4040;
+  --color-terminal-blue: #40a0ff;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+  --font-terminal: var(--font-vt323), monospace;
+  --font-pixel: var(--font-press-start), monospace;
+
+  --shadow-tour-card:
+    0 24px 64px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-tour-glow: 0 0 60px rgba(34, 211, 238, 0.15);
+}
+
+@theme inline {
+  @keyframes shine {
+    0% {
+      background-position: 0% 0%;
+    }
+    50% {
+      background-position: 100% 100%;
+    }
+    to {
+      background-position: 0% 0%;
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes shimmer-slide {
+    to {
+      transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes spin-around {
+    0% {
+      transform: translateZ(0) rotate(0);
+    }
+    15%,
+    35% {
+      transform: translateZ(0) rotate(90deg);
+    }
+    65%,
+    85% {
+      transform: translateZ(0) rotate(270deg);
+    }
+    100% {
+      transform: translateZ(0) rotate(360deg);
+    }
+  }
+  @keyframes ripple {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
+  @keyframes shiny-text {
+    0%,
+    90%,
+    100% {
+      background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+    30%,
+    60% {
+      background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@layer utilities {
+  /* ============================================================
    TOUR-PAGE DESIGN TOKENS (root)
    The dashboard chrome uses this palette.
    The Office (Trading Floor) canvas is pixel-art and overrides locally.
    ============================================================ */
-:root {
-  color-scheme: dark;
+  :root {
+    color-scheme: dark;
 
-  /* Surface ladder retuned 2026-08-09 (design-research pass): the old ladder
+    /* Surface ladder retuned 2026-08-09 (design-research pass): the old ladder
      (#050810 -> #161e35) carried a navy-blue cast on every surface -- the
      single most-fingerprinted "AI-generated SaaS dashboard" tell (matches
      the default output of most component-library dark themes). Desaturated
      to a neutral charcoal ladder, matching how Linear/Vercel-class products
      actually build dark surfaces: color comes from content and the one
      signature accent (--cyan), never from the chrome underneath it. */
-  --bg-deep: #060608;
-  --bg-base: #0b0c0f;
-  --bg-elev: #141519;
-  --bg-card: #18191d;
-  --bg-overlay: #1e1f24;
+    --bg-deep: #060608;
+    --bg-base: #0b0c0f;
+    --bg-elev: #141519;
+    --bg-card: #18191d;
+    --bg-overlay: #1e1f24;
 
-  --border: rgba(255, 255, 255, 0.06);
-  --border-mid: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.16);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-mid: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.16);
 
-  --text-1: #e6edf7;
-  --text-2: #a4afc4;
-  /* text-3/text-4 retuned 2026-08-08 for WCAG AA (4.5:1) against --bg-card
+    --text-1: #e6edf7;
+    --text-2: #a4afc4;
+    /* text-3/text-4 retuned 2026-08-08 for WCAG AA (4.5:1) against --bg-card
      #161e35 -- verified via getComputedStyle + WCAG relative-luminance math,
      not eyeballed. Old --text-3 #6e7a92 measured 3.82:1 (fail); old --text-4
      #4a5570 measured 2.22:1 (fail badly). New values clear 4.5:1 against
@@ -37,294 +167,620 @@
      against the darker --bg-deep (6.81:1 / 5.64:1), so every real usage site
      (tile titles, footer sync line, activity subtitles/timestamps, chevron,
      ThisWeekCard meta) passes regardless of which bg token it sits on. */
-  --text-3: #8b97af;
-  --text-4: #7c88a4;
+    --text-3: #8b97af;
+    --text-4: #7c88a4;
 
-  --up: #22c55e;
-  --up-soft: rgba(34, 197, 94, 0.14);
-  --up-glow: rgba(34, 197, 94, 0.4);
-  --down: #ef4444;
-  --down-soft: rgba(239, 68, 68, 0.14);
-  --down-glow: rgba(239, 68, 68, 0.4);
-  --amber: #f59e0b;
-  --amber-soft: rgba(245, 158, 11, 0.14);
+    --up: #22c55e;
+    --up-soft: rgba(34, 197, 94, 0.14);
+    --up-glow: rgba(34, 197, 94, 0.4);
+    --down: #ef4444;
+    --down-soft: rgba(239, 68, 68, 0.14);
+    --down-glow: rgba(239, 68, 68, 0.4);
+    --amber: #f59e0b;
+    --amber-soft: rgba(245, 158, 11, 0.14);
 
-  /* --cyan is the Gamma App's ONE signature chromatic accent (focus ring,
+    /* --cyan is the Gamma App's ONE signature chromatic accent (focus ring,
      presence-orb glow, primary CTA/eyebrow) -- 2026-08-09 design-research
      pass: every reference product studied (Linear, Vercel, Robinhood,
      Hyperliquid) converges on exactly one accent hue, used sparingly,
      everything else demoted to strictly-semantic (up/down/amber above) or
      strictly-dataviz. New gamma-app chrome should reach for --cyan, not
      --violet/--blue, for anything meant to read as "special." */
-  --cyan: #22d3ee;
-  --cyan-soft: rgba(34, 211, 238, 0.16);
-  --cyan-glow: rgba(34, 211, 238, 0.45);
-  /* violet/blue: reserved for data-viz series 2/3 (chart lines) and the
+    --cyan: #22d3ee;
+    --cyan-soft: rgba(34, 211, 238, 0.16);
+    --cyan-glow: rgba(34, 211, 238, 0.45);
+    /* violet/blue: reserved for data-viz series 2/3 (chart lines) and the
      legacy Trade House ("/") chrome -- not for new Gamma App decoration. */
-  --violet: #a78bfa;
-  --violet-soft: rgba(167, 139, 250, 0.16);
-  --blue: #60a5fa;
-  --blue-soft: rgba(96, 165, 250, 0.16);
+    --violet: #a78bfa;
+    --violet-soft: rgba(167, 139, 250, 0.16);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96, 165, 250, 0.16);
 
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
 
-  /* Inset hairline ring + stacked offset (2026-08-09) -- the mechanism
+    /* Inset hairline ring + stacked offset (2026-08-09) -- the mechanism
      Vercel/Geist-class surfaces use instead of a single blurred drop-shadow;
      the inset ring is what makes a card read as "engineered" rather than
      "a div with box-shadow applied." */
-  --shadow-sm: inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.24);
-  --shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.3),
-    0 12px 24px rgba(0, 0, 0, 0.2);
-  --shadow-lg: inset 0 0 0 1px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(0, 0, 0, 0.35),
-    0 24px 64px rgba(0, 0, 0, 0.5);
+    --shadow-sm:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --shadow:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.3),
+      0 12px 24px rgba(0, 0, 0, 0.2);
+    --shadow-lg:
+      inset 0 0 0 1px rgba(0, 0, 0, 0.16), 0 12px 24px rgba(0, 0, 0, 0.35),
+      0 24px 64px rgba(0, 0, 0, 0.5);
 
-  /* Motion tokens (Material M3 duration/easing), Gamma App tiles 2026-08-08 */
-  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
-  --dur-micro: 120ms;
-  --dur-content: 220ms;
-  --dur-content-exit: 180ms;
+    /* Motion tokens (Material M3 duration/easing), Gamma App tiles 2026-08-08 */
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-accelerate: cubic-bezier(0.3, 0, 1, 1);
+    --dur-micro: 120ms;
+    --dur-content: 220ms;
+    --dur-content-exit: 180ms;
 
-  /* Focus ring -- never remove :focus-visible without replacing it (WCAG 2.4.11) */
-  --focus-ring: var(--cyan);
-}
+    /* Focus ring -- never remove :focus-visible without replacing it (WCAG 2.4.11) */
+    --focus-ring: var(--cyan);
+  }
 
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
 
-html {
-  -webkit-text-size-adjust: 100%;
-}
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 
-body {
-  background: var(--bg-deep);
-  color: var(--text-1);
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-feature-settings: "tnum";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
-  position: relative;
-}
+  body {
+    background: var(--bg-deep);
+    color: var(--text-1);
+    font-family:
+      var(--font-inter),
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
+    font-feature-settings: 'tnum';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.5;
+    position: relative;
+  }
 
-/* Single-hue aurora, replacing the old 3-color cyan/violet/green corner-blob
+  /* Single-hue aurora, replacing the old 3-color cyan/violet/green corner-blob
    hero (2026-08-09 design-research pass): a tri-color gradient blob is the
    default output of most AI page generators and reads as a template, not a
    considered choice. One hue, used with intent, top-only, slow drift --
    restraint is the actual signature move every reference product (Linear,
    Vercel, Hyperliquid, Stripe) converges on. Scoped to .gamma-app only so
    the Trade House pixel canvas at "/" is untouched. */
-.gamma-app::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse 70% 40% at 50% -5%, rgba(34, 211, 238, 0.07), transparent 65%);
-  animation: aurora-drift 14s ease-in-out infinite;
-}
-@keyframes aurora-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.85; }
-  50% { transform: translate(1.5%, 1%) scale(1.06); opacity: 1; }
-}
-.gamma-app { position: relative; isolation: isolate; }
-.gamma-app > * { position: relative; z-index: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .gamma-app::before { animation: none; }
-}
+  .gamma-app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 70% 40% at 50% -5%,
+      rgba(34, 211, 238, 0.07),
+      transparent 65%
+    );
+    animation: aurora-drift 14s ease-in-out infinite;
+  }
+  @keyframes aurora-drift {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.85;
+    }
+    50% {
+      transform: translate(1.5%, 1%) scale(1.06);
+      opacity: 1;
+    }
+  }
+  .gamma-app {
+    position: relative;
+    isolation: isolate;
+  }
+  .gamma-app > * {
+    position: relative;
+    z-index: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gamma-app::before {
+      animation: none;
+    }
+  }
 
-::selection {
-  background: rgba(34, 211, 238, 0.35);
-  color: #fff;
-}
+  ::selection {
+    background: rgba(34, 211, 238, 0.35);
+    color: #fff;
+  }
 
-/* ============================================================
+  /* ============================================================
    TYPOGRAPHY HELPERS
    ============================================================ */
-.font-display {
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
-  letter-spacing: -0.02em;
-}
-/* Tighter-at-larger-size tracking (2026-08-09 design-research pass) -- a
+  .font-display {
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+  /* Tighter-at-larger-size tracking (2026-08-09 design-research pass) -- a
    flat letter-spacing value at every size is a component-library default;
    Vercel/Linear-class display type goes tighter as size increases (e.g.
    -5% at 48px+). Use on hero/large numeral text (quote ticker, big P&L). */
-.font-display-hero {
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
-  letter-spacing: -0.035em;
-}
-.font-mono {
-  font-family: var(--font-jetbrains-mono), monospace;
-}
+  .font-display-hero {
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
+    letter-spacing: -0.035em;
+  }
+  .font-mono {
+    font-family: var(--font-jetbrains-mono), monospace;
+  }
 
-/* ============================================================
+  /* ============================================================
    PIXEL CANVAS (only used inside the Office / Trading Floor)
    ============================================================ */
-.pixelated,
-.pixelated img,
-.pixelated canvas,
-.pixelated svg {
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  shape-rendering: crispEdges;
-}
+  .pixelated,
+  .pixelated img,
+  .pixelated canvas,
+  .pixelated svg {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    shape-rendering: crispEdges;
+  }
 
-/* ============================================================
+  /* ============================================================
    TOUR-STYLE CARD PRIMITIVE
    ============================================================ */
-.tour-card {
-  position: relative;
-  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  overflow: hidden;
-}
-.tour-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent, var(--cyan)) 40%, var(--violet) 60%, transparent);
-  opacity: 0.85;
-  pointer-events: none;
-}
+  .tour-card {
+    position: relative;
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 24px 64px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+  }
+  .tour-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--accent, var(--cyan)) 40%,
+      var(--violet) 60%,
+      transparent
+    );
+    opacity: 0.85;
+    pointer-events: none;
+  }
 
-.tour-card[data-accent="cyan"]   { --accent: var(--cyan); }
-.tour-card[data-accent="violet"] { --accent: var(--violet); }
-.tour-card[data-accent="amber"]  { --accent: var(--amber); }
-.tour-card[data-accent="green"]  { --accent: var(--up); }
-.tour-card[data-accent="red"]    { --accent: var(--down); }
+  .tour-card[data-accent='cyan'] {
+    --accent: var(--cyan);
+  }
+  .tour-card[data-accent='violet'] {
+    --accent: var(--violet);
+  }
+  .tour-card[data-accent='amber'] {
+    --accent: var(--amber);
+  }
+  .tour-card[data-accent='green'] {
+    --accent: var(--up);
+  }
+  .tour-card[data-accent='red'] {
+    --accent: var(--down);
+  }
 
-/* ============================================================
+  /* ============================================================
    EYEBROW PILL (label/badge with dot)
    ============================================================ */
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--cyan);
-  background: var(--cyan-soft);
-  border: 1px solid rgba(34, 211, 238, 0.25);
-  padding: 5px 10px;
-  border-radius: 999px;
-}
-.eyebrow::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--cyan);
-  box-shadow: 0 0 8px var(--cyan);
-}
-.eyebrow.violet { color: var(--violet); background: var(--violet-soft); border-color: rgba(167, 139, 250, 0.25); }
-.eyebrow.violet::before { background: var(--violet); box-shadow: 0 0 8px var(--violet); }
-.eyebrow.amber  { color: var(--amber);  background: var(--amber-soft);  border-color: rgba(245, 158, 11, 0.25); }
-.eyebrow.amber::before  { background: var(--amber);  box-shadow: 0 0 8px var(--amber); }
-.eyebrow.green  { color: var(--up);     background: var(--up-soft);     border-color: rgba(34, 197, 94, 0.25); }
-.eyebrow.green::before  { background: var(--up);     box-shadow: 0 0 8px var(--up); }
-.eyebrow.red    { color: var(--down);   background: var(--down-soft);   border-color: rgba(239, 68, 68, 0.25); }
-.eyebrow.red::before    { background: var(--down);   box-shadow: 0 0 8px var(--down); }
-.eyebrow.dim    { color: var(--text-3); background: rgba(255,255,255,0.03); border-color: var(--border); }
-.eyebrow.dim::before    { background: var(--text-3); box-shadow: none; }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-jetbrains-mono), monospace;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cyan);
+    background: var(--cyan-soft);
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    padding: 5px 10px;
+    border-radius: 999px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .eyebrow.violet {
+    color: var(--violet);
+    background: var(--violet-soft);
+    border-color: rgba(167, 139, 250, 0.25);
+  }
+  .eyebrow.violet::before {
+    background: var(--violet);
+    box-shadow: 0 0 8px var(--violet);
+  }
+  .eyebrow.amber {
+    color: var(--amber);
+    background: var(--amber-soft);
+    border-color: rgba(245, 158, 11, 0.25);
+  }
+  .eyebrow.amber::before {
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+  }
+  .eyebrow.green {
+    color: var(--up);
+    background: var(--up-soft);
+    border-color: rgba(34, 197, 94, 0.25);
+  }
+  .eyebrow.green::before {
+    background: var(--up);
+    box-shadow: 0 0 8px var(--up);
+  }
+  .eyebrow.red {
+    color: var(--down);
+    background: var(--down-soft);
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+  .eyebrow.red::before {
+    background: var(--down);
+    box-shadow: 0 0 8px var(--down);
+  }
+  .eyebrow.dim {
+    color: var(--text-3);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--border);
+  }
+  .eyebrow.dim::before {
+    background: var(--text-3);
+    box-shadow: none;
+  }
 
-/* ============================================================
+  /* ============================================================
    LIVE PULSE
    ============================================================ */
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--up);
-  box-shadow: 0 0 10px var(--up);
-  animation: pulse 1.6s ease-in-out infinite;
-  flex-shrink: 0;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.45; }
-}
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--up);
+    box-shadow: 0 0 10px var(--up);
+    animation: pulse 1.6s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
 
-/* ============================================================
+  /* ============================================================
    GAMMA APP -- collapsible tiles (scoped to .gamma-app so this never
    leaks into the Trade House canvas at "/")
    ============================================================ */
-.gamma-app :focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
+  .gamma-app :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
 
-.gamma-app .tile-content[data-state="open"] {
-  animation: tile-open var(--dur-content) var(--ease-standard);
-}
-.gamma-app .tile-content[data-state="closed"] {
-  animation: tile-close var(--dur-content-exit) var(--ease-accelerate);
-  overflow: hidden;
-}
-@keyframes tile-open {
-  from { height: 0; opacity: 0; }
-  to   { height: var(--radix-collapsible-content-height); opacity: 1; }
-}
-@keyframes tile-close {
-  from { height: var(--radix-collapsible-content-height); opacity: 1; }
-  to   { height: 0; opacity: 0; }
-}
-.gamma-app .tile-chevron {
-  transition: transform var(--dur-micro) var(--ease-standard);
-}
-.gamma-app .tile-chevron[data-state="open"] { transform: rotate(180deg); }
+  .gamma-app .tile-content[data-state='open'] {
+    animation: tile-open var(--dur-content) var(--ease-standard);
+  }
+  .gamma-app .tile-content[data-state='closed'] {
+    animation: tile-close var(--dur-content-exit) var(--ease-accelerate);
+    overflow: hidden;
+  }
+  @keyframes tile-open {
+    from {
+      height: 0;
+      opacity: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+  }
+  @keyframes tile-close {
+    from {
+      height: var(--radix-collapsible-content-height);
+      opacity: 1;
+    }
+    to {
+      height: 0;
+      opacity: 0;
+    }
+  }
+  .gamma-app .tile-chevron {
+    transition: transform var(--dur-micro) var(--ease-standard);
+  }
+  .gamma-app .tile-chevron[data-state='open'] {
+    transform: rotate(180deg);
+  }
 
-/* A genuinely new activity row (top of the feed after a poll) gets a brief
+  /* A genuinely new activity row (top of the feed after a poll) gets a brief
    enter animation -- the REST of an unchanged feed never re-animates. */
-.gamma-app .activity-row-in {
-  animation: activity-row-in 300ms var(--ease-standard);
-}
-@keyframes activity-row-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  .gamma-app .activity-row-in {
+    animation: activity-row-in 300ms var(--ease-standard);
+  }
+  @keyframes activity-row-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-/* Skeleton shimmer for the first-load state, before /api/gamma resolves. */
-.gamma-app .skeleton-bar {
-  background: linear-gradient(90deg, var(--bg-overlay) 25%, var(--bg-elev) 50%, var(--bg-overlay) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.6s ease-in-out infinite;
-  border-radius: var(--radius-sm);
-}
-@keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+  /* Skeleton shimmer for the first-load state, before /api/gamma resolves. */
+  .gamma-app .skeleton-bar {
+    background: linear-gradient(
+      90deg,
+      var(--bg-overlay) 25%,
+      var(--bg-elev) 50%,
+      var(--bg-overlay) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+  }
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 
-@media (prefers-reduced-motion: reduce) {
-  .gamma-app *,
-  .gamma-app *::before,
-  .gamma-app *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  @media (prefers-reduced-motion: reduce) {
+    .gamma-app *,
+    .gamma-app *::before,
+    .gamma-app *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ============================================================
+   SCROLLBAR
+   ============================================================ */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.16);
   }
 }
 
+@layer base {
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: var(--font-sans);
+  }
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+  }
+  .dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+  }
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+@theme inline {
+    --animate-shine: shine var(--duration) infinite linear;
+    --animate-marquee: marquee var(--duration) infinite linear;
+    --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+    --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+    --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+    --animate-ripple: ripple var(--duration,2s) ease calc(var(--i, 0)*.2s) infinite;
+    --animate-shiny-text: shiny-text 8s infinite;
+}
+
+/* shadcn/ui v4 token bridge: expose the semantic CSS variables as Tailwind colors. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-heading);
+}
+
 /* ============================================================
-   SCROLLBAR
+   COCKPIT tokens (route /cockpit). Reference family: dark glow command center —
+   deep navy canvas, indigo→violet→cyan accents. Scoped so the rest of the app is untouched.
    ============================================================ */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); }
+.cockpit {
+  --gc-canvas: oklch(0.16 0.035 270);
+  --gc-panel: oklch(0.21 0.04 270 / 0.72);
+  --gc-panel-solid: oklch(0.22 0.04 270);
+  --gc-line: oklch(0.85 0.05 270 / 0.10);
+  --gc-line-strong: oklch(0.85 0.05 270 / 0.22);
+  --gc-text: oklch(0.96 0.01 270);
+  --gc-text-2: oklch(0.78 0.03 270);
+  --gc-text-3: oklch(0.64 0.03 270);
+  --gc-indigo: oklch(0.62 0.22 275);
+  --gc-violet: oklch(0.66 0.24 305);
+  --gc-cyan: oklch(0.80 0.15 205);
+  --gc-good: oklch(0.78 0.18 155);
+  --gc-bad: oklch(0.68 0.21 22);
+  --gc-warn: oklch(0.82 0.16 80);
+  --gc-grad: linear-gradient(135deg, var(--gc-indigo), var(--gc-violet) 55%, var(--gc-cyan));
+  --background: var(--gc-canvas);
+  --foreground: var(--gc-text);
+  --card: var(--gc-panel-solid);
+  --card-foreground: var(--gc-text);
+  --popover: var(--gc-panel-solid);
+  --popover-foreground: var(--gc-text);
+  --muted: oklch(0.28 0.04 270);
+  --muted-foreground: var(--gc-text-3);
+  --accent: oklch(0.30 0.06 275);
+  --accent-foreground: var(--gc-text);
+  --primary: var(--gc-indigo);
+  --primary-foreground: white;
+  --border: var(--gc-line);
+  --input: var(--gc-line-strong);
+  --ring: var(--gc-cyan);
+  --chart-1: var(--gc-indigo);
+  --chart-2: var(--gc-violet);
+  --chart-3: var(--gc-cyan);
+  --chart-4: var(--gc-good);
+  --chart-5: var(--gc-bad);
+  --sidebar: oklch(0.14 0.035 270);
+  --sidebar-foreground: var(--gc-text-2);
+  --sidebar-border: var(--gc-line);
+  --sidebar-accent: oklch(0.26 0.06 275);
+  --sidebar-accent-foreground: var(--gc-text);
+  color: var(--gc-text);
+  background:
+    radial-gradient(900px 500px at 12% -10%, oklch(0.45 0.2 280 / 0.35), transparent 60%),
+    radial-gradient(700px 400px at 95% 10%, oklch(0.6 0.15 205 / 0.22), transparent 60%),
+    var(--gc-canvas);
+}
+.cockpit .gc-glass {
+  background: var(--gc-panel);
+  border: 1px solid var(--gc-line);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 20px 60px -30px oklch(0.4 0.2 280 / 0.6);
+  border-radius: 16px;
+}
+.cockpit .gc-icon-tile {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 12px;
+  background: var(--gc-grad); color: white;
+  box-shadow: 0 8px 24px -8px oklch(0.6 0.22 285 / 0.8);
+}
+.cockpit .gc-grad-text {
+  background: var(--gc-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.cockpit .gc-glow { box-shadow: 0 0 0 1px var(--gc-line-strong), 0 0 40px -10px var(--gc-violet); }

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { VT323, Press_Start_2P, Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { VT323, Press_Start_2P, Inter, Space_Grotesk, JetBrains_Mono, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
 
 // Pixel fonts kept for the Trading Floor canvas / sprite labels.
 const vt323 = VT323({
@@ -52,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${vt323.variable} ${pressStart.variable} ${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={cn(vt323.variable, pressStart.variable, inter.variable, spaceGrotesk.variable, jetbrainsMono.variable, "font-sans dark", geist.variable)}
     >
       <body className="antialiased">{children}</body>
     </html>
