@@ -63,17 +63,17 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
 - [x] T0 -- prereg frozen + lane foundation (creds allowlist, gitignore verified, params derived
   from multi, secrets template). Commit `5062ea52`.
-- [~] T1 -- PRODUCTION SCORER ADAPTER `multi/lib/scorer_production.py` + kwargs threaded through
+- [x] T1 (DONE 01:3x ET, commit `dc862a8a`: 54 tests green incl. both AST guards; live smoke NVDA production=ENTER_BEAR vs fork=HOLD -- the un-ported trendline-chop-zone relaxation named; 2 bugs fixed: dead state_dir knob in context.py, triggers_fired key in core.py) -- PRODUCTION SCORER ADAPTER `multi/lib/scorer_production.py` + kwargs threaded through
   `multi/core.py::tick` (state_path, level_state_dir, realized_pnl_today, kill_switch_tripped) +
   scorer dispatch; tests incl. vary-and-assert; live read-only smoke on NVDA/AAPL/QQQ vs the fork.
-- [~] T2 -- ARMED EXECUTOR `multi/execute.py` (invariants, creds self-heal, account pin, per-arm
+- [x] T2 (DONE 01:4x ET: 13 tests + 316 multi unregressed; found the qty=None core.py bug that would have blocked EVERY entry -- fixed) -- ARMED EXECUTOR `multi/execute.py` (invariants, creds self-heal, account pin, per-arm
   paths, exits-first, qty clamp, kill switch, entry window, first-fill STATUS line) +
   `multi/tickers_verify.py` + `multi/tickers_flatten.py` + two installers + tests.
-- [ ] T3 -- INTEGRATE + REVIEW: Fable reads both builds; full `--shadow` end-to-end tick against a
+- [~] T3 (E2E probe x3 on a real account: sector-bucket + cap blockers found and fixed; last mile reached SHADOW_ENTRY_PREVIEW NVDA260904P00227500 x3 @1.23, nothing sent; adversarial review running) -- INTEGRATE + REVIEW: Fable reads both builds; full `--shadow` end-to-end tick against a
   real account; adversarial reviewer pass; fix; all tests green.
-- [ ] T4 -- REGISTER `Gamma_TickersLane` (07:35 LOCAL = 09:35 ET, PT2M) + `Gamma_TickersEodFlatten`
+- [x] T4 (DONE 01:5x ET: both tasks Ready, next run 07:35 local = 09:35 ET verified by the installer's own ET readback; audit shows no Tickers ORPHAN) -- REGISTER `Gamma_TickersLane` (07:35 LOCAL = 09:35 ET, PT2M) + `Gamma_TickersEodFlatten`
   (12:52 LOCAL = 14:52 ET); SCHEDULED-TASKS rows; verify State=Ready + next-run time in ET.
-- [ ] T5 -- DOCUMENT: `markdown/planning/TICKERS-LANE.md`, ARCHITECTURE s3.2 append, STATUS OPEN
+- [~] T5 (lane doc, ARCHITECTURE 3.2c, README, registry rows, STATUS OPEN line done; morning note pending the review) -- DOCUMENT: `markdown/planning/TICKERS-LANE.md`, ARCHITECTURE s3.2 append, STATUS OPEN
   line, morning note for J (the one paste + `python multi/tickers_verify.py`).
 - [ ] T6 -- FIRST SESSION (2026-09-04): confirm ledger rows at 09:37 ET; on secrets present,
   confirm verify + first fill; quote the first-fill STATUS line; EOD: flat check from broker.
@@ -92,6 +92,8 @@ Falsifiable, each checked by a command or ledger row quoted in the PROGRESS LOG:
   LOCAL 09:35 = 11:35 ET -- `Gamma_MultiCore` fired two hours late for its whole life.
   `install-multi-evaluate.ps1` has the correct convention (07:00 local = 09:00 ET) and a warning
   comment; the tickers installers follow it.
-
+- 2026-09-04 01:19 ET — opened by goal_autopilot
+- 2026-09-04 01:3x ET -- T1 landed `dc862a8a`. The live read-only smoke is the first time production and the fork were scored on the SAME bars side by side: NVDA production=ENTER_BEAR, fork=HOLD. Mechanism: production's default-on TRENDLINE-CHOP-ZONE relaxation (filters.py ~1783-1828; production's own comment says 89% of bear ENTER verdicts come through it) was never ported to the fork. The copy under-fires bear entries lane-wide -- a concrete, named reason the copy and the original scored differently, before a single paper fill.
+- 2026-09-04 02:0x ET -- T2 landed, T4 registered, T3 in progress. The shadow E2E probe (a shadow-only --e2e-probe-root mode that borrows the crypto-twin key, ignores the window, and redirects all state to scratch) ran the WHOLE path on a real account three times and found two day-one blockers a unit test could not: (1) risk.py's sector cap fails closed on a symbol missing from params.universe -- every entry would have been BLOCKED at the open; (2) a 2% cap on the probe account could not afford the Rule-6 minimum of 3 contracts. Both fixed; third probe reached SHADOW_ENTRY_PREVIEW for a real 0DTE NVDA put with qty clamped 39 -> 3, limit ask+0.01, TP +45%, stop -50%, armed=False. Real state dir untouched throughout. STATUS OPEN line written below the pinned preamble (layout guard green).
 ## HONEST STATE
-Building. Nothing registered, nothing trading yet. Secrets file absent (J-only paste).
+Registered and armed for 09:35 ET. Every gate exercised end to end in shadow on a real account. Secrets file absent -- the ONE human step; the lane logs NO_CREDS and self-heals within one tick of the paste. Adversarial review in flight; morning note pending it.

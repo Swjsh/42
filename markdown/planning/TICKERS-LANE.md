@@ -120,3 +120,4 @@ A pass authorizes more paper and a promotion instrument — **never live**.
 - 2026-09-04 ~01:00 ET — opened. Prereg + foundation `5062ea52`. Scorer adapter and executor
   building. Found: `install-multi-core.ps1` registered `Gamma_MultiCore` at local 09:35 = 11:35 ET
   (the 2h scar); the tickers installers use local 07:35.
+- 2026-09-04 ~02:00 ET -- registered (`Gamma_TickersLane` 09:35 ET/PT2M, `Gamma_TickersEodFlatten` 14:52 ET). Shadow E2E probe x3 on a real account found and fixed two day-one blockers (sector buckets fail-closed; 2% cap could not afford 3 contracts) and proved the last mile (NVDA 0DTE put, 39 -> 3, limit ask+0.01, nothing sent). Two core.py bugs fixed on the way: WOULD_PLACE qty=None (would have blocked every entry) and the triggers key. Human step remaining: paste secrets, run `python multi/tickers_verify.py`.
