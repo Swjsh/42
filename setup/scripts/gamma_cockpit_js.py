@@ -72,8 +72,8 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e};
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cls=v=>String(v||'').replace(/[^A-Za-z]/g,'').toUpperCase()||'NODATA';
-const M=v=>(v==null||isNaN(v))?'—':(v>=0?'+$':'−$')+Math.abs(v).toLocaleString(undefined,{maximumFractionDigits:0});
-const M2=v=>(v==null||isNaN(v))?'—':(v>=0?'+$':'−$')+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const M=v=>(v==null||isNaN(v))?'-':(v>=0?'+$':'−$')+Math.abs(v).toLocaleString(undefined,{maximumFractionDigits:0});
+const M2=v=>(v==null||isNaN(v))?'-':(v>=0?'+$':'−$')+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 const sgn=v=>v>0?'pos':v<0?'neg':'';
 const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
 /* HYDRATION: ages are computed at VIEW time, never baked at build time. A static
@@ -433,7 +433,7 @@ function footerPaint(){
   const iso=D.built_at_et||'';
   const m=/T(\d{2}):(\d{2})/.exec(iso);
   const hhmm=m?(m[1]+':'+m[2]):'--:--';
-  let kb='—';
+  let kb='-';
   try{kb=Math.round(JSON.stringify(D).length/1024)}catch(_){}
   const fl=$('#footline');
   if(fl)fl.textContent='Built '+hhmm+' ET, payload '+kb+' KB';

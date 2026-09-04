@@ -352,7 +352,13 @@ _LAYOUT_CSS = r"""
 .gc-grid{display:grid;gap:var(--s5);grid-template-columns:minmax(0,1fr)}
 @media (min-width:900px){.gc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:1400px){.gc-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.gc-grid--kpi{display:grid;gap:var(--s5);grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+/* KPI grid: explicit breakpoints, not auto-fit -- auto-fit's implicit column
+   count broke 6 cards as an asymmetric 5+1 orphan at 1440x900 (round-3 panel
+   finding). A fixed column count per band reflows symmetrically instead:
+   2x3 below 1200px, 3+3 at 1200-1499px, all 6 in one row at >=1500px. */
+.gc-grid--kpi{display:grid;gap:var(--s5);grid-template-columns:repeat(2,minmax(220px,1fr))}
+@media (min-width:1200px){.gc-grid--kpi{grid-template-columns:repeat(3,minmax(220px,1fr))}}
+@media (min-width:1500px){.gc-grid--kpi{grid-template-columns:repeat(6,minmax(220px,1fr))}}
 
 /* ---- KPI stat card ---- */
 .gc-kpi{background:var(--gc-panel);border:1px solid var(--gc-line);border-radius:var(--gc-r);
@@ -371,6 +377,11 @@ _LAYOUT_CSS = r"""
 .gc-delta.up{color:var(--gc-good);background:var(--gc-chip-good)}
 .gc-delta.down{color:var(--gc-bad);background:var(--gc-chip-bad)}
 .gc-delta.flat{color:var(--gc-ink-3);background:rgba(120,130,255,.08)}
+/* ROUND-3 POLISH item 6: a fourth, deliberate tone for a delta chip whose
+   number carries no favourable direction at all (concurrency counts, not a
+   P&L or a pass/fail) -- reuses the existing --gc-info/--gc-chip-info tokens
+   already wired for .gc-chip.info, so it never invents a new hue. */
+.gc-delta.info{color:var(--gc-info);background:var(--gc-chip-info)}
 
 /* ---- status chips (approval queue / alerts / any health state) ---- */
 .gc-chip{display:inline-flex;align-items:center;gap:6px;font:600 12px/1 var(--font);

@@ -375,6 +375,51 @@ def test_gc_eyebrow_and_kpi_label_literals_are_clean():
     assert not offenders, offenders
 
 
+def test_no_em_or_en_dash_outside_payload_blob_or_script_style_comments(html):
+    """ROUND-3 POLISH item 1 (panel finding "EM-DASHES on the glass"): a
+    typographic em dash (U+2014) or en dash (U+2013) anywhere in the rendered
+    page reads as an authored-copy tell. The only two places one may
+    legitimately survive are (a) inside the `const D=...` JSON data payload,
+    where it can arrive as part of REAL DATA some upstream file/J wrote
+    (never authored UI copy this cockpit controls), and (b) inside a
+    <script>/<style> comment, which never renders as visible text. Every
+    other occurrence is authored copy or a JS-code fallback literal (e.g.
+    `s.title||'—'`) and must read as a plain hyphen instead."""
+    text = html
+
+    # (a) excise the data payload. Its own <script> tag is fully
+    # self-contained on one line (gamma_cockpit_shell.py:
+    # "<script>const D=__DATA_JSON__;</script>"), and the JSON serializer
+    # already escapes any literal "</script" inside the blob
+    # (gamma_cockpit_ui.render()), so the very next "</script>" after
+    # "const D=" is unambiguously this tag's own close, never a downstream one.
+    m = re.search(r"<script>const D=.*?</script>", text, re.S)
+    assert m, "no <script>const D=...</script> payload tag found -- page structure changed"
+    text = text[: m.start()] + text[m.end() :]
+
+    # (b) strip /* ... */ block comments -- CSS and JS share this syntax and
+    # it cannot appear inside a JS string literal anywhere in this codebase
+    # without being escaped, so a global strip is safe.
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+
+    # strip whole-line "//" JS comments -- only a line whose first
+    # non-whitespace characters ARE "//", so a "//" appearing later on a
+    # code line (e.g. inside "file://", "http://" as plain rendered text)
+    # is never mistaken for a comment start and never used to hide a real
+    # violation.
+    text = "\n".join(
+        line for line in text.split("\n") if not line.strip().startswith("//")
+    )
+
+    for ch, label in ((chr(0x2014), "em dash"), (chr(0x2013), "en dash")):
+        count = text.count(ch)
+        assert count == 0, (
+            f"{count} literal {label}(s) render on the page outside the data "
+            f"payload and outside script/style comments -- replace with a "
+            f"plain hyphen or restructure the sentence (ROUND-3 POLISH item 1)"
+        )
+
+
 # ======================================================================
 # (6) reduced motion
 # ======================================================================

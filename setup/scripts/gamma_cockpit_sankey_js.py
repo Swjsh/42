@@ -408,6 +408,23 @@ SANKEY_CSS = r"""
   stroke:var(--gc-ink-3,#7581a8);stroke-opacity:.4;stroke-width:1}
 .gc-ribbon--hot{fill-opacity:.95!important;stroke-opacity:.9!important}
 .gc-ribbon--dim{opacity:.22}
+/* ROUND-3 POLISH item 5: #gc-glow (feGaussianBlur stdDeviation 5, merged over
+   SourceGraphic) reads as a premium cyan bloom on the near-black dark canvas
+   but the identical blur diffuses each ribbon's saturated fill into a muddy
+   grey halo against the light theme's near-white surface -- blur softens
+   contrast against a light ground far more than a dark one. stdDeviation
+   is an SVG filter-primitive attribute, not a CSS property browsers let a
+   stylesheet reach into, so it cannot be dialed down per-theme in place;
+   the `filter` property itself CAN be overridden by an author stylesheet
+   (presentation attributes sit below any stylesheet rule in the cascade),
+   so light theme drops the glow entirely and gets a crisper, darker stroke
+   outline instead -- still reads as premium, just via definition rather
+   than bloom. */
+:root[data-theme="light"] .gc-ribbons{filter:none}
+:root[data-theme="light"] .gc-ribbon--flow,:root[data-theme="light"] .gc-ribbon--accepted{
+  stroke:#4338ca;stroke-opacity:.55;stroke-width:1.25}
+:root[data-theme="light"] .gc-ribbon--refused{stroke-opacity:.7;stroke-width:1.25}
+:root[data-theme="light"] .gc-ribbon--quiet{stroke-opacity:.5}
 .gc-flow-dash{stroke:#fff;stroke-opacity:.5;stroke-width:2;fill:none;
   stroke-dasharray:4 14;pointer-events:none}
 @media (prefers-reduced-motion:no-preference){

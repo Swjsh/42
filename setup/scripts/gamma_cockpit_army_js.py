@@ -197,9 +197,10 @@ function armySvg(a){
      the largest, boldest text on the page -- meaningful to nobody. The state
      SENTENCE above the stage is the hero now; this becomes a plain 15px mono
      id + 13px label, same line, same slot. */
-  og.appendChild(lmono(PAD+52,58,orc?orc.name:'—','var(--tx-1)',15,600));
-  og.appendChild(ltxt(PAD+130,58,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',13,600));
-  if(orc&&orc.title)og.appendChild(stxt(W-PAD-20,60,orc.title.slice(0,48),'var(--tx-4)',12,400,'end'));
+  og.appendChild(lmono(PAD+52,58,orc?orc.name:'-','var(--tx-1)',15,600)); // item 4: dynamic title vs fixed label used to collide at narrow widths (slice(0,48) counted chars, not px)
+  const orcTitleBudget=orc&&orc.title?Math.max(70,Math.min(190,OW*0.32)):0, orcLabelBudget=Math.max(90,OW-150-(orcTitleBudget?orcTitleBudget+16:0));
+  og.appendChild(ltxt(PAD+130,58,fitTxt('ORCHESTRATOR - this page. The session you are talking to.',orcLabelBudget,13),'var(--acc)',13,600));
+  if(orc&&orc.title)og.appendChild(stxt(W-PAD-20,60,fitTxt(orc.title,orcTitleBudget,12),'var(--tx-4)',12,400,'end'));
 
   /* THE ORCHESTRATOR'S OWN AGENTS. This strip is the session J is actually talking to,
      and it was the ONE box on the page that showed nothing about its subagents -- so
@@ -210,12 +211,11 @@ function armySvg(a){
     const ow=(byWorkerSession[orc.session_id]||[]).slice()
       .sort((x,y)=>(y.active?1:0)-(x.active?1:0)||String(y.last_write||'').localeCompare(String(x.last_write||'')));
     const oLive=orc.worker_active||0, oEver=orc.worker_count||0;
-    og.appendChild(mk('line',{x1:PAD+22,y1:78,x2:PAD+OW-22,y2:78,
-      stroke:'var(--bd)','stroke-width':1,opacity:.5}));
+    og.appendChild(mk('line',{x1:PAD+22,y1:78,x2:PAD+OW-22,y2:78,stroke:'var(--bd)','stroke-width':1,opacity:.5}));
     const ohead=oLive?(oLive+' agent'+(oLive===1?'':'s')+' running now')
-      :(oEver?'no agents running · '+oEver+' finished earlier':'no agents');
-    og.appendChild(ltxt(PAD+22,98,ohead,oLive?'var(--st-live)':'var(--tx-3)',12.5,oLive?700:500));
-    if(oLive)og.appendChild(stxt(PAD+OW-22,98,'click any row for its full prompt','var(--tx-4)',11,500,'end'));
+      :(oEver?'no agents running · '+oEver+' finished earlier':'no agents'), hintStr='click any row for its full prompt', hintW=oLive?armyTextW(hintStr,11,false):0;
+    og.appendChild(ltxt(PAD+22,98,fitTxt(ohead,Math.max(90,OW-44-(hintW?hintW+16:0)),12.5),oLive?'var(--st-live)':'var(--tx-3)',12.5,oLive?700:500));
+    if(oLive)og.appendChild(stxt(PAD+OW-22,98,hintStr,'var(--tx-4)',11,500,'end'));
     const colW=(OW-52)/2;
     ow.slice(0,4).forEach((w,j)=>{
       const cx0=PAD+22+(j%2)*colW, ry=118+Math.floor(j/2)*19;
@@ -477,7 +477,7 @@ function armySvg(a){
 
   if(hiddenCount){
     svg.appendChild(stxt(W/2,H-18,'+'+hiddenCount+' more session'+(hiddenCount===1?'':'s')+
-      ' not shown — the roster is capped so the boxes stay readable','var(--tx-4)',11,500));
+      ' not shown - the roster is capped so the boxes stay readable','var(--tx-4)',11,500));
   }
 
   /* CONTROLS -- a 28px icon row, top-right of the stage (Quiet Command spec sec 3 band 3).
@@ -742,8 +742,8 @@ function armyAnswerBar(a,live){
   const idle=S.filter(s=>s.activity==='idle').length;
   const closed=S.filter(s=>s.activity==='stale'||s.activity==='unknown').length;
   const orcLive=(a.orchestrator||{}).worker_active||0;
-  const where=!liveAg?'':(orcLive===liveAg?' — <b>all in this window</b>'
-    :' — <b>'+orcLive+' in this window</b>');
+  const where=!liveAg?'':(orcLive===liveAg?' - <b>all in this window</b>'
+    :' - <b>'+orcLive+' in this window</b>');
   const head=liveAg
     ? '<b class="live">'+liveAg+'</b> agent'+(liveAg===1?'':'s')+' running right now'+where
     : '<b>Nothing</b> is running right now';
@@ -757,7 +757,7 @@ function armyAnswerBar(a,live){
   bar.appendChild(el('div','ansbar__key',
     '<span class="k"><i class="ag__dot" data-s="live"></i>running</span>'+
     '<span class="k"><i class="ag__dot" data-s="done"></i>finished</span>'+
-    '<span class="k">boxes are chat windows — agents live <em>inside</em> them</span>'));
+    '<span class="k">boxes are chat windows - agents live <em>inside</em> them</span>'));
   /* FRESHNESS, honestly. A page opened from file:// is a snapshot, and so is a served
      page whose payload has aged out: "running right now" is only supportable while the
      data is fresh. generated_epoch shares worker.last_write's clock; built_at_et is an
@@ -767,7 +767,7 @@ function armyAnswerBar(a,live){
   bar.appendChild(el('span','chip'+(snap?'':' ok'),'<i class="dot"></i>'+
     (snap?'SNAPSHOT '+esc(String(a.generated_at||'').slice(11,16)):'LIVE')));
   if(snap)bar.setAttribute('title','Taken '+esc(String(a.generated_at||'unknown'))+
-    ' — counts describe that moment, not this one.');
+    ' - counts describe that moment, not this one.');
   return bar;
 }
 
@@ -995,9 +995,9 @@ function armySessionDrawer(s,workers){
       `<span class="chip ${s.alive?'ok':'bad'}"><i class="dot"></i>${s.alive?'ALIVE':'NOT RUNNING'}</span>`+
       (s.is_orchestrator?'<span class="chip">ORCHESTRATOR</span>':'')));
     const k=el('div'); k.style.marginTop='var(--s5)';
-    [['Title',s.title||'—'],['Kind',s.kind||'—'],['Entrypoint',s.entrypoint||'—'],
-     ['Version',s.version||'—'],['PID',s.pid||'—'],['Session id',s.session_id],
-     ['CWD',s.cwd||'—']].forEach(([kk,v])=>k.appendChild(el('div','kv',
+    [['Title',s.title||'-'],['Kind',s.kind||'-'],['Entrypoint',s.entrypoint||'-'],
+     ['Version',s.version||'-'],['PID',s.pid||'-'],['Session id',s.session_id],
+     ['CWD',s.cwd||'-']].forEach(([kk,v])=>k.appendChild(el('div','kv',
       `<span class="k">${esc(kk)}</span><span class="v mono">${esc(v)}</span>`)));
     b.appendChild(k);
     if(workers.length){
@@ -1010,7 +1010,7 @@ function armySessionDrawer(s,workers){
         row.appendChild(el('div','row',
           `<span class="chip ${w.active?'ok':''}">${w.active?'ACTIVE':'IDLE'}</span>`+
           `<span class="dim mono">${esc(w.agent_id.slice(0,10))}</span>`));
-        row.appendChild(el('div','mut',esc(w.task||w.agent_type||'—')));
+        row.appendChild(el('div','mut',esc(w.task||w.agent_type||'-')));
         b.appendChild(row);
       });
     }
@@ -1020,11 +1020,11 @@ function armyWorkerDrawer(w){
   openDrawer('Worker '+w.agent_id.slice(0,10),b=>{
     b.appendChild(el('div','row',`<span class="chip ${w.active?'ok':''}">${w.active?'ACTIVE':'IDLE'}</span>`));
     const k=el('div'); k.style.marginTop='var(--s5)';
-    [['Session',w.session_id],['Agent type',w.agent_type||'—'],['Model',w.model||'—'],
-     ['Workflow',w.workflow_id||'—']].forEach(([kk,v])=>k.appendChild(el('div','kv',
+    [['Session',w.session_id],['Agent type',w.agent_type||'-'],['Model',w.model||'-'],
+     ['Workflow',w.workflow_id||'-']].forEach(([kk,v])=>k.appendChild(el('div','kv',
       `<span class="k">${esc(kk)}</span><span class="v mono">${esc(v)}</span>`)));
     b.appendChild(k);
-    b.appendChild(el('div','mut',esc(w.task||'—')));
+    b.appendChild(el('div','mut',esc(w.task||'-')));
   });
 }
 """

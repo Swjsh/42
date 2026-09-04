@@ -69,7 +69,7 @@ function vCards(h){
   const rth=rthNowClient();
   h.appendChild(el('div','shead',
     `<h2>Action cards</h2><span class="dim">${live?'LIVE':'SNAPSHOT'} · deterministic, no LLM`+
-    (c.quiet_active?' · quiet mode active — held-down producers render as quiesced':'')+`</span>`));
+    (c.quiet_active?' · quiet mode active - held-down producers render as quiesced':'')+`</span>`));
   const host=el('div','stack'); host.id='cardsview';
 
   if(!(c.cards||[]).length){
@@ -92,7 +92,7 @@ function vCards(h){
 
     const bar=el('div','row wrap'); bar.style.marginTop='var(--s5)';
     if(!live){
-      bar.appendChild(el('div','micro','Open via the companion (127.0.0.1:4317) to fire — a file:// snapshot cannot reach it.'));
+      bar.appendChild(el('div','micro','Open via the companion (127.0.0.1:4317) to fire - a file:// snapshot cannot reach it.'));
     }else{
       const btn=el('button','fire-btn gc-cta',cardFireLabel(rth));
       btn.disabled=rth;
@@ -114,7 +114,7 @@ function vCards(h){
 }
 
 function fireCard(card,btn,msg){
-  if(rthNowClient()){ msg.textContent='Fire is disabled 09:30–15:55 ET.'; msg.className='micro warnc'; return; }
+  if(rthNowClient()){ msg.textContent='Fire is disabled 09:30-15:55 ET.'; msg.className='micro warnc'; return; }
   btn.disabled=true; btn.dataset.state='pending'; btn.textContent='Firing…'; msg.textContent=''; msg.className='micro';
   fetch('/api/approve',{
     method:'POST',
@@ -131,10 +131,10 @@ function fireCard(card,btn,msg){
       // resolveApproval says this id already won its decision (a double-tap) --
       // exactly the idempotency guard server.js's own comment names (r.already).
       btn.dataset.state='done'; btn.textContent='Already fired';
-      msg.textContent='This card was already actioned — no second session spawned.'; msg.className='micro';
+      msg.textContent='This card was already actioned - no second session spawned.'; msg.className='micro';
       return;
     }
-    btn.dataset.state='done'; btn.textContent='Fired — watching…';
+    btn.dataset.state='done'; btn.textContent='Fired - watching…';
     msg.textContent='ask '+j.escalated.slice(0,12);
     if(j.stream_token)cardsAskDrawer(card.title,'/api/ask-stream?id='+encodeURIComponent(j.escalated)+
       '&tok='+encodeURIComponent(j.stream_token));
@@ -161,7 +161,7 @@ function askFrameLine(d){
 function cardsAskDrawer(title,url){
   let es=null;
   try{ es=new EventSource(url); }catch(e){ /* SSE unsupported/blocked -- drawer still opens, just static */ }
-  openDrawer(title+' — live build',b=>{
+  openDrawer(title+' - live build',b=>{
     const pre=el('div','askstream'); pre.id='askstreambody';
     b.appendChild(pre);
     const append=(line)=>{ if(!line)return; const row=el('div',null,esc(line)); pre.appendChild(row);

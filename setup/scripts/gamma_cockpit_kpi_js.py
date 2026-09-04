@@ -59,8 +59,21 @@ function cmdVitalTile(spec){
   // absence). Every tile now gets a chip: a real one when the caller
   // computed spec.delta, else an explicit 'NO DATA' chip (flat tone) --
   // never a fabricated comparison, never a blank slot either.
-  const deltaSpec=spec.delta&&spec.delta.text?spec.delta:{text:'NO DATA',dir:'flat'};
-  s.appendChild(el('span','gc-delta '+(deltaSpec.dir||'flat'),esc(deltaSpec.text)));
+  // ROUND-3 POLISH item 7: that fallback conflated two different things --
+  // "we could not compute this" (a data/fetch problem, worth flagging with
+  // a chip) and "there is nothing to compare against" (a metric with no
+  // prior-period concept at all, e.g. the journal's first month -- not a
+  // failure of anything). spec.noPrior lets a caller say which one this is;
+  // that case gets quiet muted text instead of a gray chip competing for
+  // attention with the real green/red/info deltas on sibling cards.
+  if(spec.delta&&spec.delta.text){
+    s.appendChild(el('span','gc-delta '+(spec.delta.dir||'flat'),esc(spec.delta.text)));
+  }else if(spec.noPrior){
+    s.appendChild(el('span','vital__no-delta',
+      esc(typeof spec.noPrior==='string'?spec.noPrior:'no prior period')));
+  }else{
+    s.appendChild(el('span','gc-delta flat','NO DATA'));
+  }
   // ROUND-2 FIX (2026-09-04): every KPI card's state line is MUTED METADATA
   // ("7 trading days, 7d", "2 idle", "Fires 0/8, cap $30.00") -- the card's
   // own verdict is already carried by data-verdict (tile background/border
@@ -152,8 +165,15 @@ function cmdVitalAgents(){
   // docstring for what it is and isn't a measurement of), not a
   // fabricated number; null when the ledger can't answer it.
   const peak=a.peak_24h_sessions;
+  // ROUND-3 POLISH item 6: this is a concurrency count against a rolling
+  // peak, not a P&L or a pass/fail -- there is no "good" direction (running
+  // MORE agents than yesterday's peak is not an achievement, and fewer is
+  // not a problem), so it gets the deliberate neutral-but-not-flat 'info'
+  // tone (blue) rather than borrowing 'up' (green, implies favourable) or
+  // 'flat' (gray, implies "nothing to report" when there plainly is a
+  // number to report).
   const delta=(peak!=null)?
-    {text:c.running+' vs 24h peak '+peak, dir:c.running>=peak?'up':'flat'}:null;
+    {text:c.running+' vs 24h peak '+peak, dir:'info'}:null;
   return cmdVitalTile({
     id:'vital-agents', icon:'bot', label:'Agents',
     verdict:c.running>0?'green':'off',

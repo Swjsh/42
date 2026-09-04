@@ -65,10 +65,10 @@ function vOverview(h){
   if(g0&&g0.active){
     const wrow=el('div','row wrap');
     wrow.appendChild(el('span','chip ok live','<i class="dot"></i>WORKING ON'));
-    wrow.appendChild(el('span',null,'<b>'+esc(g0.title||g0.id||'—')+'</b>'));
+    wrow.appendChild(el('span',null,'<b>'+esc(g0.title||g0.id||'-')+'</b>'));
     strip.appendChild(wrow);
     const nextTxt=g0.next_item||(D.autonomy&&D.autonomy.next_move&&D.autonomy.next_move.text)||'';
-    strip.appendChild(el('div','mut','Next: '+esc(nextTxt||'—')));
+    strip.appendChild(el('div','mut','Next: '+esc(nextTxt||'-')));
   }else{
     strip.appendChild(el('div','flag bad','<b>NOT DRIVING</b> no active goal'));
   }
@@ -80,11 +80,11 @@ function vOverview(h){
   // hero
   const hero=el('div','card gborder');
   hero.style.padding='var(--s8)';
-  hero.appendChild(el('div','eyebrow','Book — net of fees, real fills, all arms'));
+  hero.appendChild(el('div','eyebrow','Book - net of fees, real fills, all arms'));
   const rowh=el('div','row wrap'); rowh.style.cssText='align-items:flex-end;gap:var(--s8);margin-top:var(--s4)';
-  const big=el('div','big '+sgn(s.total_pnl_net||0),'—');
+  const big=el('div','big '+sgn(s.total_pnl_net||0),'-');
   const hb=el('div'); hb.appendChild(big);
-  hb.appendChild(el('div','dim',`${s.trading_days??'—'} trading days · ${s.total_trades??'—'} trades · ${s.win_rate_by_day_net!=null?Math.round(s.win_rate_by_day_net*100)+'% day win rate':'—'}`));
+  hb.appendChild(el('div','dim',`${s.trading_days??'-'} trading days · ${s.total_trades??'-'} trades · ${s.win_rate_by_day_net!=null?Math.round(s.win_rate_by_day_net*100)+'% day win rate':'-'}`));
   rowh.appendChild(hb);
   const bd=el('div'); bd.style.cssText='display:flex;gap:var(--s8);flex-wrap:wrap';
   [['Best day',s.best_day_net],['Worst day',s.worst_day_net]].forEach(([k,v])=>{
@@ -171,7 +171,7 @@ function vDesks(h){
     return;
   }
   const desks=D.desks?.desks||[];
-  h.appendChild(el('div','shead','<h2>Trading desks</h2><span class="dim">decomposed by instrument — the context boundary, not by role</span>'));
+  h.appendChild(el('div','shead','<h2>Trading desks</h2><span class="dim">decomposed by instrument - the context boundary, not by role</span>'));
   const g=el('div','grid g2');
   desks.forEach(d=>{
     const c=el('div','card click'); spot(c);
@@ -198,7 +198,7 @@ function deskDrawer(d){
       <span class="dim">${esc(d.instrument)}</span>`));
     const k=el('div'); k.style.marginTop='var(--s5)';
     [['Headline',d.metric],['Detail',d.sub],['Arming bar',d.arming_bar]].forEach(([a,v])=>{
-      k.appendChild(el('div','kv',`<span class="k">${esc(a)}</span><span class="v">${esc(v||'—')}</span>`)); });
+      k.appendChild(el('div','kv',`<span class="k">${esc(a)}</span><span class="v">${esc(v||'-')}</span>`)); });
     b.appendChild(k);
     if((d.arms||[]).length){
       b.appendChild(el('h3',null,'Arms / lanes')); b.querySelector('h3').style.cssText='margin:var(--s6) 0 var(--s3);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3)';
@@ -228,7 +228,7 @@ function vOrch(h){
 
   // allocation ranking — the master's ALLOCATE arm
   const ac=el('div','card');
-  ac.appendChild(el('h3',null,'Next fire — deterministic desk allocation'));
+  ac.appendChild(el('h3',null,'Next fire - deterministic desk allocation'));
   (alloc.desks||[]).forEach((r,i)=>{
     const row=el('div'); row.style.cssText='padding:var(--s4) 0;border-bottom:1px solid var(--bd-subtle)';
     row.appendChild(el('div','row',`<span class="chip ${i===0?'ok':''}">${i+1}</span>
@@ -243,13 +243,13 @@ function vOrch(h){
 
   // org graph
   const gc=el('div','card'); gc.style.marginTop='var(--s5)';
-  gc.appendChild(el('h3',null,'Org — edges are delegation, labelled with what the desk owns'));
+  gc.appendChild(el('h3',null,'Org - edges are delegation, labelled with what the desk owns'));
   gc.appendChild(orgSvg(org));
   h.appendChild(gc);
 
   // shared functions
   const fc=el('div','card'); fc.style.marginTop='var(--s5)';
-  fc.appendChild(el('h3',null,'Shared functions — invoked BY a desk, with that desk’s context'));
+  fc.appendChild(el('h3',null,'Shared functions - invoked BY a desk, with that desk’s context'));
   const tb=el('table');
   tb.innerHTML='<thead><tr><th>Agent</th><th>Model</th><th>Owns</th><th>Verified by</th></tr></thead>';
   const bd=el('tbody');
@@ -264,7 +264,7 @@ function vOrch(h){
   const c=org.contract||{};
   if((c.required_fields||[]).length){
     const cc=el('div','card'); cc.style.marginTop='var(--s5)';
-    cc.appendChild(el('h3',null,'Delegation contract — every fan-out must carry these'));
+    cc.appendChild(el('h3',null,'Delegation contract - every fan-out must carry these'));
     const r=el('div','row wrap');
     c.required_fields.forEach(f=>r.appendChild(el('span','chip',esc(f))));
     if(c.model_pin_required)r.appendChild(el('span','chip warn','<i class="dot"></i>model pin required'));
@@ -296,7 +296,7 @@ function orgSvg(org){
       fill:hs==='ok'?'var(--pos)':hs==='bad'?'var(--neg)':'var(--warn)'}));
     g.appendChild(txt(x+6,y-10,d.name,'var(--tx-1)',12.5,600));
     g.appendChild(txt(x,y+10,(d.status||'').replace(/_/g,' ').toLowerCase().slice(0,26),'var(--tx-4)',9.5,500));
-    g.appendChild(txt(x,y+26,(d.functions||[]).join(' · ').slice(0,30)||'—','var(--tx-4)',9,400));
+    g.appendChild(txt(x,y+26,(d.functions||[]).join(' · ').slice(0,30)||'-','var(--tx-4)',9,400));
     g.style.cursor='pointer';
     g.onclick=()=>{const full=(D.desks?.desks||[]).find(z=>z.id===d.id); if(full)deskDrawer(full)};
     s.appendChild(g);
@@ -433,21 +433,27 @@ function journalSummaryVitals(tot,n,s,basis){
   if(typeof cmdVitalTile!=='function')return null;
   const allTime=basis==='n'?s.total_pnl_net:s.total_pnl_gross;
   const wrap=el('div','vitals');
+  // ROUND-3 POLISH item 7: none of these three has a prior-period figure
+  // computed at all (there is no "last month" / "prior all-time" lookup
+  // wired here) -- noPrior tells cmdVitalTile that's an absence, not a
+  // failed lookup, so it renders quiet muted text instead of a gray "NO
+  // DATA" chip that used to visually compete with a real delta elsewhere
+  // on the page.
   wrap.appendChild(cmdVitalTile({
     id:'vital-journal-month', icon:'dollar-sign', label:'This month',
     verdict:n?(tot>=0?'green':'red'):'off',
-    figure:n?M(tot):'NO DATA', state:n+' trading days',
+    figure:n?M(tot):'NO DATA', state:n+' trading days', noPrior:true,
   }));
   wrap.appendChild(cmdVitalTile({
     id:'vital-journal-days', icon:'timer', label:'Trading days',
     verdict:n?'none':'off',
-    figure:String(n), state:'this month',
+    figure:String(n), state:'this month', noPrior:true,
   }));
   wrap.appendChild(cmdVitalTile({
     id:'vital-journal-alltime', icon:'trending-up', label:'All-time',
     verdict:allTime!=null?(allTime>=0?'green':'red'):'off',
     figure:allTime!=null?M(allTime):'NO DATA',
-    state:(s.trading_days!=null?s.trading_days:'?')+' days',
+    state:(s.trading_days!=null?s.trading_days:'?')+' days', noPrior:true,
   }));
   return wrap;
 }
@@ -533,7 +539,7 @@ function calendarInto(host,arm,mini){
   }
   const foot=el('div','row wrap'); foot.style.marginTop='var(--s5)';
   foot.appendChild(el('div','mut',`<b class="${sgn(tot)}">${M(tot)}</b> this month · ${n} trading days`));
-  foot.appendChild(el('div','dim',`all-time <b class="${sgn(calBasis==='n'?s.total_pnl_net:s.total_pnl_gross)}">${M(calBasis==='n'?s.total_pnl_net:s.total_pnl_gross)}</b> over ${s.trading_days??'—'} days`));
+  foot.appendChild(el('div','dim',`all-time <b class="${sgn(calBasis==='n'?s.total_pnl_net:s.total_pnl_gross)}">${M(calBasis==='n'?s.total_pnl_net:s.total_pnl_gross)}</b> over ${s.trading_days??'-'} days`));
   const lg=el('div','legend'); lg.style.marginLeft='auto';
   lg.innerHTML=`<span>${M(-clamp)}</span><span class="ramp"></span><span>${M(clamp)}</span>
     <span class="micro">scale clamped · true extremes ${M(-(D.calendar_scale?.max_abs||0))} / ${M(D.calendar_scale?.max_abs||0)}</span>`;
@@ -550,7 +556,7 @@ function dayDrawer(iso,arm){
       .forEach(([a,x])=>k.appendChild(el('div','kv',`<span class="k">${esc(a)}</span><span class="v mono">${esc(x)}</span>`)));
     b.appendChild(k);
     const tr=row.trades||[];
-    if(!tr.length){b.appendChild(el('div','note','Day totals only — no per-trade rows.'));return}
+    if(!tr.length){b.appendChild(el('div','note','Day totals only - no per-trade rows.'));return}
     const t=el('table'); t.style.marginTop='var(--s6)';
     t.innerHTML='<thead><tr><th>Time</th><th>Arm</th><th>Contract</th><th>Setup</th><th class="n">Qty</th><th class="n">In</th><th class="n">Out</th><th class="n">Net</th></tr></thead>';
     const tb=el('tbody');
@@ -560,10 +566,10 @@ function dayDrawer(iso,arm){
         `<td class="mono dim">${esc(String(x.entry_ts_et||'').slice(11,16))}</td>
          <td>${esc(x.arm||'')}</td>
          <td class="mono">${esc(String(x.strike||'')+(x.side||''))}</td>
-         <td class="dim">${esc(x.setup||'—')}</td>
+         <td class="dim">${esc(x.setup||'-')}</td>
          <td class="n">${esc(x.qty??'')}</td>
-         <td class="n">${x.entry_premium!=null?x.entry_premium.toFixed(2):'—'}</td>
-         <td class="n">${x.exit_premium!=null?x.exit_premium.toFixed(2):(x.exit_premium_avg!=null?x.exit_premium_avg.toFixed(2):'—')}</td>
+         <td class="n">${x.entry_premium!=null?x.entry_premium.toFixed(2):'-'}</td>
+         <td class="n">${x.exit_premium!=null?x.exit_premium.toFixed(2):(x.exit_premium_avg!=null?x.exit_premium_avg.toFixed(2):'-')}</td>
          <td class="n ${sgn(net)}">${M2(net)}</td>`));
     });
     t.appendChild(tb); b.appendChild(t);

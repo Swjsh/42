@@ -45,19 +45,29 @@ MOTION_CSS = r"""
 .vital__head::-webkit-details-marker{display:none}
 .vital__head::marker{content:""}
 .vital__head:focus-visible{outline:2px solid var(--accent-line);outline-offset:-2px}
-.vital__top{display:flex;align-items:center;gap:6px}
-.vital__ic{color:var(--tx-3);display:flex;flex:none}
+.vital__top{display:flex;align-items:flex-start;gap:6px}
+.vital__ic{color:var(--tx-3);display:flex;flex:none;margin-top:1px}
 .vital__ic svg{width:14px;height:14px}
 /* tracked with letter-spacing only, sentence case (see module docstring
-   for why the CSS keyword this label's spec wording implies is avoided). */
-.vital__label{font:600 12px/1 var(--font);letter-spacing:.06em;color:var(--tx-3);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+   for why the CSS keyword this label's spec wording implies is avoided).
+   ROUND-3 POLISH item 3: nowrap+ellipsis truncated short 2-3 word labels
+   ("This month" -> "This mo...") at 1440px card widths -- these titles are
+   never long enough to need an ellipsis, so let them wrap to a 2nd line
+   instead (align-items:flex-start above keeps the icon pinned to the first
+   line rather than re-centering on a taller 2-line label). */
+.vital__label{font:600 12px/1.3 var(--font);letter-spacing:.06em;color:var(--tx-3);
+  white-space:normal;overflow:hidden;text-overflow:clip;word-break:break-word;min-width:0}
 .vital__gfx{min-height:56px;display:flex;align-items:center;justify-content:center;margin-top:2px}
 .vital__gfx svg{display:block;max-width:100%;height:auto}
 .vital__figure{font:500 22px/26px var(--mono);color:var(--ink-1);font-variant-numeric:tabular-nums;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .vital__state{font:400 12px/16px var(--font);color:var(--tx-3);white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;margin-top:2px}
+/* ROUND-3 POLISH item 7: the "no prior period to compare" case (spec.noPrior
+   in cmdVitalTile) -- plain muted text, deliberately NOT a .gc-delta pill,
+   so it never visually competes with a sibling card's real up/down/info
+   delta chip. 12px is this project's text-size floor, same as .vital__state. */
+.vital__no-delta{font:400 12px/1 var(--font);color:var(--tx-4)}
 .vital__body{padding:0 var(--s4) var(--s4)}
 .vital__more{padding-top:var(--s3);font:400 12px/18px var(--mono);color:var(--tx-3);
   border-top:1px solid var(--line);margin-top:var(--s3)}

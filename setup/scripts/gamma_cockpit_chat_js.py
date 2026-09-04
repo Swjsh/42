@@ -54,7 +54,7 @@ function chatRestoreTurns(){
   for(const t of chatState.saved)chatPush(t.role,t.text,t.model);
   chatState.saved=[];
   const mark=el('div','chatstep dim'); mark.style.padding='2px 0 8px';
-  mark.textContent='— restored · same session continues —';
+  mark.textContent='- restored · same session continues -';
   box.appendChild(mark);
 }
 
@@ -217,7 +217,7 @@ function chatPane(){
   const wrap=el('div','chatpane');
 
   const head=el('div','chathead');
-  const title=el('div',null,'<b>Orchestrator</b> <span class="dim">— a real Claude session, in this page</span>');
+  const title=el('div',null,'<b>Orchestrator</b> <span class="dim">- a real Claude session, in this page</span>');
   head.appendChild(title);
   const sel=document.createElement('select');
   sel.id='chatmodel';
@@ -269,7 +269,7 @@ function chatPane(){
 
   const note=el('div','micro chatnote');
   note.textContent=location.protocol==='file:'
-    ? 'Snapshot mode — open 127.0.0.1:4317/cockpit.html to chat.'
+    ? 'Snapshot mode - open 127.0.0.1:4317/cockpit.html to chat.'
     : 'Its own session, not one of your Desktop windows. It appears above as its own box.';
   wrap.appendChild(note);
   // Deferred one tick: the caller appends `wrap` synchronously right after this returns,
