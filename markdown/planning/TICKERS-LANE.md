@@ -43,9 +43,11 @@ Gamma_TickersLane (07:35 LOCAL = 09:35 ET, PT2M)
        ├─ account PIN: first verify writes <arm>/account.json; a different number later -> REFUSE
        ├─ funnel bars ONCE (daily) + scanners -> attention
        └─ per arm: multi/core.py::tick(scorer=production, state_path=<arm>/exit-state.json, ...)
-            ├─ EXITS FIRST: multi/lib/exits.evaluate_exit -> SELL_ALL/SELL_PARTIAL -> broker.market_sell(armed=True)
+            ├─ EXITS FIRST: open_qty = BROKER positions (never record.qty; a record the broker no longer
+            │             holds -> STALE_STATE row, dropped) · underlying = LIVE last trade (daily close only as a
+            │             disclosed fallback) -> exits.evaluate_exit -> SELL_ALL/SELL_PARTIAL -> broker.market_sell(armed=True)
             └─ ENTRIES: production evaluate_*_setup -> admission (kill switch, 1 concurrent)
-                        -> nearest listed expiry (0DTE) -> ATM strike -> liquidity gate (<=8% spread, indicative)
+                        -> nearest listed expiry (0DTE) -> ATM strike -> liquidity gate (<=8% spread, mid >= $0.20, indicative)
                         -> size_entry -> HARD CLAMP qty=3 -> entry window <=14:30 ET
                         -> broker.place_bracket(simple_fallback=True) [Alpaca rejects option brackets -> simple limit]
                         -> fill readback -> PositionRecord + journal/trades-tickers-<arm>.csv
@@ -73,6 +75,7 @@ sizing), **not** `engine_cli`'s SPY-specific gates — disclosed on every row.
 | exits (0DTE = expiry day) | soft time stop 14:45 · hard 14:50 · DNE sweep 14:55 · flatten task 14:52 | `params.flatten_schedule_et` |
 | exit shape | TP1 +45% / sell 50% · runner 1.75× · trail 20% off HWM · lock arms +15% · catastrophe −50% · theta budget 30% bleed w/o ≥0.5 ATR progress | `params.exits` — **COPIED_FROM_SPY_ENGINE_UNVALIDATED_ON_THESE_NAMES**; this window measures them |
 | feed | indicative (no OPRA) — every spread and fill carries the label | `params.entry.liquidity_gate.feed` |
+| premium floor | mid ≥ **$0.20** (added pre-window from the 2026-09-04 review: a sub-$0.20 0DTE contract × 3 is lottery noise; absent = off, so multi-1 is unchanged) | `params.entry.liquidity_gate.min_premium_dollars` |
 
 ## 5. Separation and safety — the invariants
 
