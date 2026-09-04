@@ -71,14 +71,10 @@ function armySvg(a){
   // last_seen computation; recomputed as pulses arrive via armyDotColour() below.
   const lastSeen={}; (a.pulses||[]).forEach(r=>{if(r.session_id&&r.ts)lastSeen[r.session_id]=r.ts});
 
-  /* LAYOUT -- fixed box size in a GRID, never one scaled row.
-     The first version laid every session out in a single row and sized the viewBox to
-     fit: W = N*200+140. With 10 sessions that is a 2140-wide viewBox rendered into a
-     ~1250px column, so the browser scaled everything to ~58% and 13px labels became
-     7.6px. More sessions made the text SMALLER -- exactly backwards. J, seeing it:
-     "look how tiny it is... i have no idea what im even looking at."
-     Now the viewBox width is FIXED near the real column width and rows wrap, so box
-     size and type size never depend on how many sessions are alive. */
+  /* LAYOUT -- fixed box size in a GRID, never one scaled row. v1 sized the viewBox to
+     N sessions (W=N*200+140): 10 sessions scaled the SVG to ~58%, 13px labels to 7.6px.
+     J: "look how tiny it is". Now the viewBox width is FIXED near the real column width
+     and rows wrap, so box/type size never depend on how many sessions are alive. */
   /* COLUMN COUNT IS MEASURED, NOT FIXED. Adding the 340px cards rail cut the canvas to
      ~622px in a narrow window, and a fixed 3-column (1110px) graph squeezed into that
      scales to 0.56 -- which is the exact tininess this layout was rewritten to kill. So
@@ -92,14 +88,15 @@ function armySvg(a){
      (spec 3) still seats 3 columns at 1:1 scale: 430px boxes need 1422px for
      three, which forced 2 columns + 2 rows and a 760px stage; 398px boxes fit.
      Type size is unaffected (the viewBox stays at the real column width). */
-  const BW_MAX=430, BW_MIN=380, GAPX=32, GAPY=32, PAD=34;
+  const BW_MAX=430, BW_MIN=340, GAPX=32, GAPY=32, PAD=34;   // BW_MIN 340: two columns still fit the Glow 2/3-width stage (~790px) at 1:1
   const fitCols=(avail)=>{
     for(let c=3;c>1;c--){ if(PAD*2+c*BW_MIN+(c-1)*GAPX<=avail) return c; }
     return 1;
   };
   let availW=0;
   try{
-    const host=document.getElementById('view')||document.body;
+    const sh=document.getElementById('stagehost');   // Glow Command seats the stage in a 2/3 column
+    const host=(sh&&sh.clientWidth>200)?sh:(document.getElementById('view')||document.body);
     availW=host.clientWidth-32;                // card padding only -- the cards rail is gone
   }catch(_){}
   const COLS=availW>200?fitCols(availW):3;
@@ -120,14 +117,10 @@ function armySvg(a){
   const peers=armyShowStale?allPeers:allPeers.filter(s=>s.activity!=='stale');
   const shown=peers.slice(0,MAX_BOXES);
   const hiddenCount=Math.max(0,peers.length-shown.length);
-  /* COMPACT MODE (Fable review, 2026-09-03, item 1 "first-viewport density"):
-     a roster this small does not need the full 200px card -- at 1600x950 the
-     stage alone ate ~480px with only 2 sessions live, leaving no goal band or
-     producer rows in the first screen. <=3 live sessions drops the card to a
-     title/status/context-meter-only face (per-agent lines move to the drawer
-     only) and the featured double-width seat is skipped so seating never
-     wraps to a second row purely because of the crown. armyMount toggles
-     .stage--compact (CSS: max-height 300px, was 480) off this same flag. */
+  /* COMPACT MODE (Fable review 2026-09-03, "first-viewport density"): <=3 live sessions
+     drops the card to a title/status/context-meter face (per-agent lines -> drawer) and
+     skips the featured double-width seat so seating never wraps for the crown alone.
+     armyMount toggles .stage--compact (CSS: max-height 300px, was 480) off this flag. */
   const compact=shown.length<=3;
   const BH=compact?112:200;
   const rows=1; // recomputed below once bento seats exist
@@ -165,9 +158,16 @@ function armySvg(a){
   g1.appendChild(mk('stop',{offset:'45%','stop-color':'rgba(255,255,255,0)'}));
   defs.appendChild(g1);
   const g2=mk('linearGradient',{id:'orcGrad',x1:'0',y1:'0',x2:'0',y2:'1'});
-  g2.appendChild(mk('stop',{offset:'0%','stop-color':'color-mix(in oklch,var(--acc-deep) 55%,transparent)'}));
+  g2.appendChild(mk('stop',{offset:'0%','stop-color':'color-mix(in oklch,var(--gc-indigo, var(--acc-deep)) 55%,transparent)'}));
   g2.appendChild(mk('stop',{offset:'70%','stop-color':'rgba(255,255,255,0)'}));
   defs.appendChild(g2);
+  /* Shared beam gradient (objectBoundingBox): every .army-beam and the orchestrator's
+     .army-trace sample it (painted via ARMY_GLOW_CSS); replaces the old per-edge loop. */
+  const g3=mk('linearGradient',{id:'gc-beam-grad',x1:'0',y1:'0',x2:'0',y2:'1'});
+  [['0%','var(--gc-cyan,#22d3ee)','0'],['12%','var(--gc-cyan,#22d3ee)','.9'],
+   ['32.5%','var(--gc-indigo,#6366f1)','.9'],['100%','var(--gc-violet,#8b5cf6)','0']]
+    .forEach(([o,c,op])=>g3.appendChild(mk('stop',{offset:o,'stop-color':c,'stop-opacity':op})));
+  defs.appendChild(g3);
   svg.appendChild(defs);
 
   const centers={}, edges={};
@@ -185,13 +185,12 @@ function armySvg(a){
   const orc=a.orchestrator;
   const og=mk('g',{class:'army-node army-enter',id:'army-orc'});
   const OW=W-PAD*2;
-  [{fill:'var(--bg-2)',stroke:'var(--bd-strong)','stroke-width':1},
-   {fill:'url(#orcGrad)',stroke:'var(--bd-strong)','stroke-width':1,opacity:.9}]
+  [{fill:'var(--gc-panel,var(--bg-2))',stroke:'var(--gc-line,var(--bd-strong))','stroke-width':1,class:'gc-glass'},
+   {fill:'url(#orcGrad)',stroke:'var(--gc-line,var(--bd-strong))','stroke-width':1,opacity:.9}]
     .forEach(o=>og.appendChild(mk('rect',Object.assign({x:PAD,y:16,width:OW,height:ORCH_H,rx:16},o))));
-  /* Tracing border: an accent comet orbits the hero's perimeter -- lit and alive
-     without a static heavy stroke shouting. */
+  /* Tracing border comet on the ORCHESTRATOR only (.army-trace), sampling gc-beam-grad. */
   og.appendChild(mk('rect',{x:PAD,y:16,width:OW,height:ORCH_H,rx:16,fill:'none',
-    stroke:'var(--acc)','stroke-width':2,class:'army-trace','stroke-linecap':'round','pathLength':'1000'}));
+    stroke:'url(#gc-beam-grad)','stroke-width':2,class:'army-trace','stroke-linecap':'round','pathLength':'1000'}));
   og.appendChild(mk('circle',{cx:PAD+30,cy:52,r:9,fill:'none',stroke:'var(--st-live)','stroke-width':1.5,class:'army-ping'}));
   og.appendChild(mk('circle',{cx:PAD+30,cy:52,r:8,fill:'var(--st-live)',class:'army-ring'}));
   /* DEMOTED (Fable review, 2026-09-03, item 2 "hero hierarchy"): "42-98" was
@@ -297,18 +296,9 @@ function armySvg(a){
     edge.id='armyedge-'+s.session_id;
     svg.appendChild(edge);
     edges[s.session_id]=edge;
-    /* Beam comet: per-edge userSpaceOnUse gradient with their exact stops (cyan head,
-       #6344F5 at 32.5%, purple tail to 0) + a slow travelling dash that samples the
-       spatial gradient as it moves. Ambient class -- the rig's own activity, never
-       feedback to a click. */
-    const gid='beam-'+i;
-    const bg=mk('linearGradient',{id:gid,gradientUnits:'userSpaceOnUse',
-      x1:sx,y1:ORCH_H+16,x2:sx,y2:T});
-    [['0%','#18CCFC','0'],['12%','#18CCFC','.9'],['32.5%','#6344F5','.9'],['100%','#AE48FF','0']]
-      .forEach(([o,c,op])=>bg.appendChild(mk('stop',{offset:o,'stop-color':c,'stop-opacity':op})));
-    defs.appendChild(bg);
-    const beam=mk('path',{d:dPath,fill:'none',stroke:'url(#'+gid+')','stroke-width':2.2,
-      class:'army-beam','stroke-linecap':'round'});
+    /* Beam comet: stroke = shared gc-beam-grad via ARMY_GLOW_CSS (.army-beam), themed;
+       a slow travelling dash. Ambient -- the rig's own activity, never click feedback. */
+    const beam=mk('path',{d:dPath,fill:'none','stroke-width':2.2,class:'army-beam','stroke-linecap':'round'});
     // Two comma-separated delays, one per animation in the class: the dash comet keeps
     // its per-edge phase; the power-on waits for this tile's entrance to land first.
     // A single inline delay would clobber both.
@@ -322,7 +312,7 @@ function armySvg(a){
        exactly when the question is being asked, and never otherwise. */
     g.addEventListener('mouseenter',()=>{beam.classList.add('lit');edge.style.opacity=.18;});
     g.addEventListener('mouseleave',()=>{beam.classList.remove('lit');edge.style.opacity=.055;});
-    g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'var(--bg-1)',stroke:'var(--bd)','stroke-width':1}));
+    g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'var(--gc-panel,var(--bg-1))',stroke:'var(--gc-line,var(--bd))','stroke-width':1,class:'gc-glass'}));
     g.appendChild(mk('rect',{x:L,y:T,width:w,height:BH,rx:14,fill:'url(#cardGrad)','pointer-events':'none'}));
     if(seat.span===2){
       // The featured cell earned its area; the crown makes the earning visible.
@@ -601,8 +591,11 @@ function armySvg(a){
 function armyStars(canvas,W,H){
   /* Stage backdrop. Deterministic placement (golden-angle scatter, no RNG), two depth
      layers, slow drift + sine twinkle. Self-terminating like every army loop: stops when
-     the canvas leaves the document. Reduced motion gets one static paint. */
+     the canvas leaves the document. Reduced motion gets one static paint. Colour = the
+     themed --star token (plain colour, so alpha goes via globalAlpha), violet-white fallback. */
   const ctx=canvas.getContext('2d'); if(!ctx)return;
+  let starColor='#c8beff';
+  try{ const v=getComputedStyle(document.documentElement).getPropertyValue('--star').trim(); if(v)starColor=v; }catch(_){}
   const N=90, dots=[];
   for(let k=0;k<N;k++){
     const deep=k%3!==0;
@@ -610,16 +603,16 @@ function armyStars(canvas,W,H){
                v:deep?0.006:0.014, tw:(k%17)/17*6.2832});
   }
   let t=0;
+  ctx.fillStyle=starColor;
   function frame(){
     if(!canvas.isConnected)return;
     ctx.clearRect(0,0,W,H); t+=1;
     for(const d of dots){
       d.x+=d.v; if(d.x>W+2)d.x=-2;
       const a=0.10+0.16*(0.5+0.5*Math.sin(t*0.008+d.tw));
-      ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.2832);
-      ctx.fillStyle='rgba(200,190,255,'+a.toFixed(3)+')'; ctx.fill();
+      ctx.globalAlpha=a; ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.2832); ctx.fill();
     }
-    if(!RM)requestAnimationFrame(frame);
+    ctx.globalAlpha=1; if(!RM)requestAnimationFrame(frame);
   }
   if(RM){ frame(); return; }
   requestAnimationFrame(frame);
@@ -630,8 +623,11 @@ function armyFlicker(canvas){
      12px pitch, max alpha .09. DETERMINISTIC winks -- each cell pulses on its own
      hashed phase/speed (sin^8 gives a short blink in a long dark period), no RNG, so
      two renders of the same second look the same and screenshot diffs stay honest.
-     30fps cap; self-terminating like every army loop; skips hidden tabs. */
+     30fps cap; self-terminating like every army loop; skips hidden tabs. Colour = the
+     themed --beam token, resolved once (alive-cyan fallback). */
   const ctx=canvas.getContext('2d'); if(!ctx)return;
+  let beamColor='#67e8f9';
+  try{ const v=getComputedStyle(document.documentElement).getPropertyValue('--beam').trim(); if(v)beamColor=v; }catch(_){}
   const STEP=12,SQ=3;
   let even=false;
   function frame(){
@@ -641,7 +637,7 @@ function armyFlicker(canvas){
     const W=canvas.width,H=canvas.height,cols=Math.ceil(W/STEP),rows=Math.ceil(H/STEP);
     const t=performance.now()/1000;
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle='rgb(103,232,249)';   // the ALIVE cyan family (--st-live)
+    ctx.fillStyle=beamColor;   // the ALIVE cyan family, themed via --beam
     for(let cx=0;cx<cols;cx++)for(let cy=0;cy<rows;cy++){
       const h=Math.sin(cx*127.1+cy*311.7)*43758.5453;
       const ph=(h-Math.floor(h))*6.2832, sp=.25+((cx*7+cy*13)%10)/22;
@@ -949,8 +945,10 @@ function armyMount(host){
   /* .stage (the host's own parent, cmdStage()) carries the max-height cap --
      toggled here rather than baked into that div, since only armySvg() knows
      the live roster size (spec item 1, first-viewport density). */
-  try{ if(host.parentElement&&host.parentElement.classList)
-    host.parentElement.classList.toggle('stage--compact',!!built.compact); }catch(_){}
+  try{ if(host.parentElement&&host.parentElement.classList){
+    host.parentElement.classList.toggle('stage--compact',!!built.compact);
+    host.parentElement.classList.add('gc-panel');   // Glow panel + dot texture (.stage.gc-panel only)
+  } }catch(_){}
 
   // Diagnostic event ledger -- HIDDEN by default now that chat owns the bottom panel
   // (chat lives in #chatdock, mounted by the runtime, not here). Still populated by
@@ -1003,7 +1001,8 @@ function armySessionDrawer(s,workers){
     b.appendChild(k);
     if(workers.length){
       const h3=el('h3',null,'Workers');
-      h3.style.cssText='margin:var(--s6) 0 var(--s3);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--tx-3)';
+      h3.className='gc-eyebrow';   // the shared Glow Command section-label class
+      h3.style.cssText='margin:var(--s6) 0 var(--s3);color:var(--tx-3)';
       b.appendChild(h3);
       workers.forEach(w=>{
         const row=el('div'); row.style.cssText='padding:var(--s3) 0;border-bottom:1px solid var(--bd-subtle)';

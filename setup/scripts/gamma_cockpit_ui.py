@@ -67,6 +67,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gamma_cockpit_vendor as vendor  # noqa: E402
 import gamma_cockpit_ui_theme  # noqa: E402 -- new rules only; kept out of this file to hold its 800-line ceiling
 import gamma_cockpit_ui_motion  # noqa: E402 -- spec section 10 CSS; same reason, new rules only
+import gamma_cockpit_glow_ui  # noqa: E402 -- Glow Command tokens/shell/kit CSS (2026-09-04, WS-A)
+import gamma_cockpit_shell  # noqa: E402 -- page-frame HTML, split out so this file holds 800 lines
 
 _BASE_CSS = r"""
 /* ============ DARK (default) -- Radix gray-dark / cyan-dark hex values,
@@ -730,70 +732,18 @@ tr:last-child td{border-bottom:none}
 }
 """
 
-CSS = _BASE_CSS + gamma_cockpit_ui_theme.THEME_CSS + gamma_cockpit_ui_motion.MOTION_CSS
+CSS = (
+    _BASE_CSS
+    + gamma_cockpit_ui_theme.THEME_CSS
+    + gamma_cockpit_ui_motion.MOTION_CSS
+    + gamma_cockpit_glow_ui.GLOW_CSS
+)
 
-SHELL = r"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Gamma Cockpit</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<script>(function(){
-  try{
-    var q=new URL(location.href).searchParams.get('theme');
-    var t=q||localStorage.getItem('gamma-theme')||
-      (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
-    document.documentElement.dataset.theme=t;
-  }catch(e){document.documentElement.dataset.theme='dark';}
-  window.gammaSetTheme=function(v){
-    try{document.documentElement.dataset.theme=v;localStorage.setItem('gamma-theme',v);}catch(e){}
-  };
-})();</script>
-<style>__VENDOR_HEAD__</style>
-<style>__CSS__</style>
-</head>
-<body>
-<!-- THE BRIDGE. One operator, one primary surface: a strip of text tabs on a
-     single top bar; everything else is one keystroke away (Cmd-K). -->
-<div class="app">
-  <header class="cmdbar topbar">
-    <div class="mark topbar__mark"></div>
-    <div class="word">Gamma</div>
-    <nav class="tabs topbar__tabs" id="nav"></nav>
-    <div class="sp"></div>
-    <div class="ticker">
-      <span class="chip live" id="statechip"><i class="dot"></i><span id="statetxt"></span></span>
-      <span class="topbar__phase" id="phase"></span>
-      <div class="clock topbar__clock" id="clock"></div>
-      <button class="topbar__theme" id="themebtn" aria-label="Toggle theme" type="button"></button>
-      <span class="kbd-hint"><kbd class="kbd">&#8984;K</kbd></span>
-    </div>
-  </header>
-  <main class="main">
-    <h1 id="vtitle" class="sr">Overview</h1>
-    <div class="view anim" id="view"></div>
-  </main>
-  <span id="footstamp" class="sr"></span>
-  <footer id="footline" class="foot"></footer>
-</div>
-<div id="chatdock" class="chatdock">
-  <div id="chathandle" class="chatdock__handle">Chat</div>
-</div>
-<div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-hidden="true">
-  <header><h2 id="dtitle"></h2><button class="x" id="dclose" aria-label="Close">&times;</button></header>
-  <div class="body" id="dbody"></div>
-</aside>
-<div class="pal" id="pal">
-  <div class="box"><input id="palin" placeholder="Jump to a view, desk, agent or day&hellip;" autocomplete="off">
-  <div class="res" id="palres"></div></div>
-</div>
-<script>const D=__DATA_JSON__;</script>
-<script>__VENDOR_JS__</script>
-<script>__JS__</script>
-</body>
-</html>
-"""
+# Page-frame HTML lives in gamma_cockpit_shell.py (split out to hold this
+# module's 800-line ceiling); re-exported under the same name so
+# gamma_cockpit_ui.SHELL / gamma_cockpit_ui.render() are unchanged for every
+# caller.
+SHELL = gamma_cockpit_shell.SHELL
 
 
 def render(payload: dict, js: str) -> str:

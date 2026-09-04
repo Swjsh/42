@@ -94,11 +94,12 @@ function vCards(h){
     if(!live){
       bar.appendChild(el('div','micro','Open via the companion (127.0.0.1:4317) to fire — a file:// snapshot cannot reach it.'));
     }else{
-      const btn=el('button','fire-btn',cardFireLabel(rth));
+      const btn=el('button','fire-btn gc-cta',cardFireLabel(rth));
       btn.disabled=rth;
       btn.dataset.state='idle';
-      btn.style.cssText='background:var(--acc-dim);color:var(--tx-1);border:1px solid var(--acc);'+
-        'border-radius:var(--r-md);padding:8px 16px;cursor:pointer;font:600 13px var(--font)';
+      // Visual styling now lives in ARMY_GLOW_CSS's .fire-btn.gc-cta rule
+      // (gradient/glow/disabled/done) -- no inline cssText left to fight the
+      // class for the same properties (an inline style always wins).
       const msg=el('span','micro'); msg.style.marginLeft='var(--s4)';
       btn.onclick=()=>fireCard(card,btn,msg);
       bar.append(btn,msg);

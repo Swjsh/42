@@ -1,10 +1,31 @@
-"""gamma_cockpit_command_js.py - the Command view (Quiet Command rebuild, 2026-09-03).
+"""gamma_cockpit_command_js.py - the Command view (Quiet Command rebuild, 2026-09-03;
+relayered for "Glow Command", COCKPIT-DESIGN-SPEC-V2-GLOW-2026-09-04).
 
-WORKSTREAM F_command_view. Owns exactly one export: `COMMAND_JS`, defining
-`vCommand(h)` -- the sentence, the day-line, the Army stage frame, the Goal/
-Budget band, and the four row groups ("Needs you" / Trading / Research / Rig).
-Held as a Python string, same convention as every other gamma_cockpit_*_js.py
-module, so the whole cockpit stays a bundler-free file:// build.
+WORKSTREAM F_command_view (Glow pass: WORKSTREAM B_command_layout). Owns exactly
+one export: `COMMAND_JS`, defining `vCommand(h)` -- the header, the KPI vitals
+grid, the Army stage frame, and the row groups ("Needs you" / Trading /
+Research / Rig). Held as a Python string, same convention as every other
+gamma_cockpit_*_js.py module, so the whole cockpit stays a bundler-free file://
+build.
+
+GLOW PASS (2026-09-04): the layout itself moved to `gcHeader/gcKpis/gcQueue/
+gcHealth/gcAlerts/gcPromo` in the sibling `gamma_cockpit_glow_js.py` (owned by
+the same workstream, split out only to keep both files under the 800-line
+ceiling); `vCommand` below is now a thin composition of that module's panels
+plus the pieces that stay HERE because other code already targets them by id
+or by name: `cmdSentence()` (reused verbatim as the header's subtitle -- its
+existing `[data-verdict]` dot mechanism is what CSS tints, no JS change
+needed), `cmdDayline()` (moved inside the header per spec, not deleted),
+`cmdStage()` (the Army stage, called unchanged), `cmdGoalStrip()` (still the
+ONLY element carrying `id="tile-goal"` -- gamma_cockpit_autonomy_js.py's
+`vAutonomy` calls `tileOpen('tile-goal',...)` and expects a real `<details>`
+there; folded into gcPromo's panel rather than deleted), `cmdVitals()` /
+`cmdVitalTile()` / `cmdVitalBook|Gate|Agents|Kitchen|Shadow|Budget()` (the six
+KPI cards -- gcKpis() is a thin delegate to `cmdVitals()` so the ring math,
+the Kitchen key-mismatch fix, and the new delta-chip/ring-budget changes all
+live in ONE place), and `cmdNeedsYouRows(list, idPrefix)` (now parameterized
+so gcQueue's top-5 panel and its "View all" drawer can both call it against
+different slices without id collisions).
 
 THIS FILE IS WRITTEN AGAINST CONTRACTS BUILT BY PARALLEL SESSIONS THIS SAME
 EVENING -- verified present on disk before writing a line here:
@@ -296,8 +317,12 @@ function cmdNextFireLabel(){
     .sort((a,b)=>a.m-b.m);
   return upcoming.length?(upcoming[0].t.time_et+' ET'):null;
 }
-function cmdStage(){
-  const wrap=el('div','stage');
+function cmdStage(parent,cls){
+  const wrap=el('div','stage'+(cls?' '+cls:''));
+  // Attach BEFORE armyMount: armySvg() measures #stagehost's clientWidth (its real
+  // grid column); a detached stage fell back to #view's width and drew a 3-column
+  // graph that then scaled to a thumbnail inside its column.
+  if(parent)parent.appendChild(wrap);
   const host=el('div'); host.id='stagehost';
   wrap.appendChild(host);
   if(typeof armyMount==='function'){
@@ -357,164 +382,10 @@ function cmdGoalStrip(){
   return d;
 }
 
-/* ---------- 4a. THE VITALS GRID (NEW, spec 10.1 band 3) ---------- */
-/* 6 tiles, each a <details> whose expand affordance JUMPS to the matching
-   producer row (tileOpen) rather than re-rendering that row's body a
-   second time -- one body per fact, so the two can never drift apart. */
-/* ROUND-2 REVIEW FIX (critical): a native <details> hides everything except
-   its <summary> until opened -- gfx/figure/state used to live in a sibling
-   .vital__body div, so every Vitals tile rendered at rest (the ONLY state a
-   settled screenshot ever shows) as icon+label with NO ring/spark/figure at
-   all. That is exactly spec 10.1's "collapsed = glance": the graphic, the
-   big figure and the state line ARE the glance and must be visible with the
-   tile closed. Fix: everything that must be visible at rest now lives
-   inside <summary> (a flex column: icon+label row, then gfx, then figure,
-   then state); ONLY the optional "Full detail below" jump link is the
-   actual collapsible <details> content, since that's genuinely expand-only
-   per spec ("Tiles are <details> too"). vitals_grid_min6_with_svg (which
-   only checks svg PRESENCE in the DOM, not visibility) could not catch this
-   -- see cmdVitalTile geometry note in cockpit_exercise.py if adding a
-   visibility-checking guard later. */
-function cmdVitalTile(spec){
-  const d=document.createElement('details');
-  d.className='vital'+(spec.stale?' vital--stale':''); if(spec.id)d.id=spec.id;
-  d.dataset.verdict=spec.verdict||'none';
-  const s=document.createElement('summary'); s.className='vital__head';
-  const top=el('div','vital__top');
-  top.appendChild(el('span','vital__ic',tilesSafeIcOrEmpty(spec.icon)));
-  top.appendChild(el('span','vital__label',esc(spec.label||'')));
-  s.appendChild(top);
-  const gfx=el('div','vital__gfx'); if(spec.gfx)gfx.innerHTML=spec.gfx; s.appendChild(gfx);
-  s.appendChild(el('div','vital__figure',esc(spec.figure==null?'NO DATA':String(spec.figure))));
-  const state=el('div','vital__state');
-  state.appendChild(el('i','vd'));
-  state.appendChild(el('span',null,spec.state||'NO DATA'));
-  s.appendChild(state);
-  d.appendChild(s);
-  if(spec.jumpTo){
-    const body=document.createElement('div'); body.className='vital__body';
-    const more=el('div','vital__more');
-    const a=document.createElement('a'); a.href='#'+spec.jumpTo; a.textContent='Full detail below';
-    a.addEventListener('click',e=>{e.preventDefault();if(typeof tileOpen==='function')tileOpen(spec.jumpTo,{scroll:true});});
-    more.appendChild(a);
-    body.appendChild(more);
-    d.appendChild(body);
-  }
-  return d;
-}
-function tilesSafeIcOrEmpty(name){ return cmdSafe(()=>(typeof ic==='function')?ic(name):'',''); }
-
-function cmdVitalBook(){
-  const views=(D.calendar&&D.calendar.views)||{}, book=views.BOOK||{days:{}};
-  const dates=Object.keys(book.days||{}).sort().slice(-7);
-  const vals=dates.map(k=>book.days[k].n).filter(v=>v!=null);
-  const net=vals.reduce((a,b)=>a+b,0);
-  return cmdVitalTile({
-    id:'vital-book', icon:'dollar-sign', label:'Book',
-    verdict:vals.length?(net>=0?'green':'red'):'off',
-    gfx:vals.length>=2?cmdGfx('gfxSparkV',vals,{pnl:true}):'',
-    figure:vals.length?cmdUsd(net):'NO DATA',
-    state:vals.length?(dates.length+' trading days, 7d'):'NO DATA',
-    jumpTo:'tile-money',
-  });
-}
-function cmdVitalGate(){
-  const gt=D.gate;
-  if(!gt||gt.ok===false)return cmdVitalTile({id:'vital-gate',icon:'gauge',label:'Gate',verdict:'off',state:'NO DATA, looked for go-live-gate.json',jumpTo:'tile-gate'});
-  const at=(gt.ci&&gt.ci.as_traded)||{};
-  const cl=at.ci_lower;
-  const v=cmdGateVerdict(gt);
-  return cmdVitalTile({
-    id:'vital-gate', icon:'gauge', label:'Gate',
-    verdict:v,
-    gfx:cl!=null?cmdGfx('gfxRingV',Math.max(0,cl),1):'',
-    figure:v==='green'?'LIVE':(v==='none'?'NO DATA':'NOT LIVE'),
-    state:cmdWrapDigits(gt.say||'NO DATA'),
-    jumpTo:'tile-gate',
-  });
-}
-function cmdVitalAgents(){
-  const a=D.army;
-  if(!a)return cmdVitalTile({id:'vital-agents',icon:'bot',label:'Agents',verdict:'off',state:'NO DATA',jumpTo:'tile-agents'});
-  const c=cmdArmyCounts(a);
-  const total=((a.sessions)||[]).length;
-  return cmdVitalTile({
-    id:'vital-agents', icon:'bot', label:'Agents',
-    verdict:c.running>0?'green':'off',
-    gfx:total?cmdGfx('gfxRingV',c.running,total):'',
-    figure:total?(c.running+'/'+total):'0',
-    state:c.waiting+' idle',
-    jumpTo:'tile-agents',
-  });
-}
-function cmdVitalKitchen(){
-  const lane=((D.lanes)||{}).kitchen;
-  if(!lane)return cmdVitalTile({id:'vital-kitchen',icon:'flame',label:'Kitchen',verdict:'off',state:'NO DATA',jumpTo:'tile-kitchen'});
-  const dm=/(\d+)\s*pending/.exec(String(lane.detail||''));
-  const mm=/\$([\d.]+)\s*\/\s*\$([\d.]+)/.exec(String(lane.metric||''));
-  const spend=mm?parseFloat(mm[1]):null, cap=mm?parseFloat(mm[2]):null;
-  const verdict=lane.state==='WORKING'?'green':lane.state==='HELD'?'none':
-    (lane.state==='STALE'||lane.state==='NO DATA')?'amber':(lane.state==='BROKEN'||lane.state==='ERROR')?'red':'none';
-  return cmdVitalTile({
-    id:'vital-kitchen', icon:'flame', label:'Kitchen',
-    verdict:verdict,
-    gfx:(spend!=null&&cap!=null)?cmdGfx('gfxPulseV',spend,cap):'',
-    figure:dm?(dm[1]+' pending'):(lane.state||'NO DATA'),
-    state:cmdWrapDigits(lane.detail||lane.state||'NO DATA'),
-    jumpTo:'tile-kitchen',
-  });
-}
-function cmdVitalShadow(){
-  const sh=D.shadow;
-  if(!sh||sh.ok===false)return cmdVitalTile({id:'vital-shadow',icon:'hourglass',label:'Shadow board',verdict:'off',state:'NO DATA, looked for SHADOW.md',jumpTo:'tile-shadow'});
-  const heat=sh.heat||[];
-  return cmdVitalTile({
-    id:'vital-shadow', icon:'hourglass', label:'Shadow board',
-    verdict:'none',
-    gfx:heat.length?cmdGfx('gfxHeatV',heat):'',
-    figure:(sh.live||[]).length+' clocks',
-    state:cmdWrapDigits(sh.say||'NO DATA'),
-    jumpTo:'tile-shadow',
-  });
-}
-function cmdVitalBudget(){
-  const A=D.autonomy||{}, bud=A.budget||{};
-  const CM=D.cost_meter||{};
-  const vals=cmdCostSeries(CM);
-  const over=(bud.spent_usd!=null&&bud.cap_usd!=null&&Number(bud.spent_usd)>Number(bud.cap_usd));
-  return cmdVitalTile({
-    id:'vital-budget', icon:'target', label:'Budget',
-    verdict:over?'amber':'none',
-    stale:!!CM.as_of_et_date,
-    gfx:vals.length>=2?cmdGfx('gfxSparkV',vals):'',
-    figure:(bud.spent_usd!=null)?cmdUsd(bud.spent_usd):'NO DATA',
-    state:(bud.fires_used!=null&&bud.fires_cap!=null)?('Fires '+bud.fires_used+'/'+bud.fires_cap+', cap '+cmdUsd(bud.cap_usd)):'NO DATA',
-    jumpTo:null,
-  });
-}
-function cmdVitals(){
-  const grid=el('div','vitals');
-  [cmdVitalBook,cmdVitalGate,cmdVitalAgents,cmdVitalKitchen,cmdVitalShadow,cmdVitalBudget]
-    .forEach(fn=>grid.appendChild(cmdSafe(fn,el('div','vital'))));
-  return grid;
-}
-function cmdCostDays(CM){
-  const raw=CM&&CM.days;
-  if(!raw)return[];
-  if(Array.isArray(raw))return raw.slice();
-  return Object.keys(raw).sort().map(k=>Object.assign({date_et:k},raw[k]));
-}
-function cmdCostSeries(CM){
-  return cmdCostDays(CM).map(d=>(d.total_usd&&d.total_usd.usd!=null)?d.total_usd.usd:null).filter(v=>v!=null);
-}
-function cmdUsd(v){
-  if(v==null||isNaN(v))return'NO DATA';
-  return'$'+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-/* cmdBudgetPane/cmdBand (the old 2-column Goal/Budget band) are retired by
-   spec 10.1 -- budget now renders as one of the 6 Vitals tiles (cmdVitalBudget
-   above) and the goal as the one-line cmdGoalStrip above. cmdCostDays/
-   cmdCostSeries/cmdUsd stay: cmdVitalBudget still calls them verbatim. */
+/* ---------- 4a. THE VITALS GRID -> gamma_cockpit_kpi_js.py ---------- */
+/* cmdVitalTile/cmdVitalBook|Gate|Agents|Kitchen|Shadow|Budget/cmdVitals/
+   cmdLaneById/cmdCostDays/cmdCostSeries/cmdUsd moved verbatim to KPI_JS
+   (integration pass 2026-09-04, 800-line ceiling). Same script, hoisted. */
 
 /* ---------- 5. ROW GROUPS ---------- */
 function cmdRowFallback(spec){
@@ -545,15 +416,20 @@ function cmdGroup(id,title,rows){
 
 /* "Needs you" = action cards, one tileRow per card, Fire wired straight to the
    existing fireCard() (unchanged) rather than through tileRow's own `act`,
-   see the module docstring for why. The card sharing the goal band's next
-   item (card-goal-*, cards.py) is filtered out so the same item never shows
-   twice (test_cards_active_goal_picks_first_open_item). */
-function cmdNeedsYouRows(){
-  const cards=((D.cards||{}).cards)||[];
+   see the module docstring for why. Callers are responsible for filtering
+   out the goal-linked card (card-goal-*, cards.py) so the goal strip's own
+   next item never shows twice (test_cards_active_goal_picks_first_open_item)
+   -- gcQueue() in gamma_cockpit_glow_js.py does that filtering once, then
+   calls this twice: the top-5 inline panel (idPrefix 'card-', the original,
+   unprefixed ids) and the "View all" drawer's full list (idPrefix
+   'card-all-', so the two renderings never collide on the same DOM id when
+   both are mounted at once). */
+function cmdNeedsYouRows(list, idPrefix){
+  list = list || [];
+  idPrefix = idPrefix || 'card-';
   const rth=cmdSafe(()=>(typeof rthNowClient==='function')&&rthNowClient(),false);
-  const filtered=cards.filter(c=>!String(c.id||'').startsWith('card-goal-'));
-  const n=filtered.length;
-  return filtered.map((c,i)=>{
+  const n=list.length;
+  return list.map((c,i)=>{
     // spec 10.2: every "Needs you" row gets a severity-bar graphic, never a
     // text-only row. Rank weight = the row's own worst-first position
     // (already how build_cards() orders `cards`); tone buckets that same
@@ -561,7 +437,7 @@ function cmdNeedsYouRows(){
     // verdict dot/tint independently, this is only the bar's colour.
     const tone=n<=1?'red':(i<n/3?'red':(i<2*n/3?'amber':'none'));
     const spec={
-      id:'card-'+String(c.id||c.rank||'').replace(/[^A-Za-z0-9_-]/g,'')||('card-'+(c.rank||0)),
+      id:idPrefix+(String(c.id||c.rank||i).replace(/[^A-Za-z0-9_-]/g,'')||i),
       icon:'target',
       title:c.title||'',
       verdict:c.gated?'amber':'none',
@@ -576,6 +452,22 @@ function cmdNeedsYouRows(){
       },
     };
     const tile=(typeof tileRow==='function')?tileRow(spec):cmdRowFallback(spec);
+    // gc-row (spec V2-GLOW): a styling hook layered onto the SAME tile.tile
+    // DOM tileRow already builds -- '#group-needs-you details.tile summary'
+    // still resolves exactly as before, nothing about the tile contract
+    // changes.
+    tile.classList.add('gc-row');
+    const summary=tile.querySelector('summary');
+    const chev=tile.querySelector('.tile__chev');
+    // Status chip: RED/AMBER/QUEUE/GOAL, derived only from data already
+    // computed above (tone) or already on the card (its id prefix) -- never
+    // a fabricated category.
+    const isGoal=String(c.id||'').indexOf('card-goal-')===0;
+    const chipTone=isGoal?'info':(tone==='red'?'bad':(tone==='amber'?'warn':'queue'));
+    const chipLabel=isGoal?'GOAL':(tone==='red'?'RED':(tone==='amber'?'AMBER':'QUEUE'));
+    const chip=el('span','gc-chip '+chipTone,esc(chipLabel));
+    if(chev&&chev.parentNode)chev.parentNode.insertBefore(chip,chev);
+    else if(summary)summary.appendChild(chip);
     if(typeof fireCard==='function'){
       const btn=document.createElement('button');
       btn.type='button'; btn.className='tile__fire';
@@ -585,9 +477,9 @@ function cmdNeedsYouRows(){
       const bodyHost=tile.querySelector('.tile__body')||tile.querySelector('.row__body');
       if(bodyHost)bodyHost.insertBefore(msg,bodyHost.firstChild);
       btn.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();try{tile.open=true;}catch(_){}fireCard(c,btn,msg);});
-      const chev=tile.querySelector('.tile__chev');
-      if(chev&&chev.parentNode)chev.parentNode.insertBefore(btn,chev);
-      else{const summary=tile.querySelector('summary'); if(summary)summary.appendChild(btn);}
+      const chev2=tile.querySelector('.tile__chev');
+      if(chev2&&chev2.parentNode)chev2.parentNode.insertBefore(btn,chev2);
+      else if(summary)summary.appendChild(btn);
     }
     return tile;
   });
@@ -693,16 +585,62 @@ function cmdChoreograph(host){
 }
 
 /* ---------- vCommand ---------- */
+/* Wraps a 'research' group's rows with a bare id="group-kitchen" anchor
+   around the Kitchen row specifically, so the (separately-owned) nav rail's
+   own "Kitchen" entry can link `#group-kitchen` without needing its own
+   producer row -- if tile-kitchen isn't present (a builder gap, not a data
+   gap) the rows pass through unchanged rather than losing the anchor
+   silently. */
+function cmdWrapKitchenAnchor(rows){
+  const out=(rows||[]).slice();
+  const idx=out.findIndex(r=>r&&r.id==='tile-kitchen');
+  if(idx===-1)return out;
+  const wrap=document.createElement('div');
+  wrap.id='group-kitchen';
+  wrap.appendChild(out[idx]);
+  out.splice(idx,1,wrap);
+  return out;
+}
+
+/* ---------- vCommand ---------- */
+/* Glow Command layout (spec V2-GLOW section 3): header (title, the reused
+   cmdSentence() clauses as subtitle, the day-line, search, Fire-top-card
+   CTA) -> the 6-card KPI grid -> row 1 (routing map + Needs-you queue) ->
+   row 2 (Army stage + Agent health + Cost pulse) -> the promo panel -> the
+   below-fold Trading/Research/Rig groups (unchanged tileRow/producerRows
+   machinery, so >=15 .tile still render on #command) -> System alerts.
+   Every panel function is wrapped in cmdSafe so one missing sibling
+   contract degrades that ONE panel to a designed NO DATA card, never the
+   whole view. */
 function vCommand(h){
-  h.appendChild(cmdSentence());
-  h.appendChild(cmdDayline());
-  h.appendChild(cmdVitals());
-  h.appendChild(cmdStage());
-  h.appendChild(cmdGoalStrip());
-  h.appendChild(cmdGroup('group-needs-you','Needs you',cmdNeedsYouRows()));
+  h.appendChild(cmdSafe(gcHeader, el('div','gc-panel gc-header')));
+  h.appendChild(cmdSafe(gcKpis, el('div','vitals gc-grid--kpi')));
+  h.appendChild(cmdSafe(()=>{
+    const row=el('div','gc-grid');
+    row.appendChild(cmdSafe(
+      ()=>(typeof sankeyPanel==='function')?sankeyPanel(D.funnel):gcNoData('Routing map','fill_funnel'),
+      gcNoData('Routing map','fill_funnel')));
+    row.appendChild(cmdSafe(gcQueue, gcNoData('Needs you','automation/state/action-cards.json')));
+    return row;
+  }, el('div','gc-grid')));
+  // row 2: the Army stage takes two columns (a 1/3 column rendered it as a thumbnail --
+  // J: "how tiny it is") + Agent health; row 3: Cost pulse + the promo panel (two columns).
+  const row2=el('div','gc-grid'); h.appendChild(row2);   // in the DOM before the stage mounts
+  cmdSafe(()=>cmdStage(row2,'gc-span2'), null);
+  if(!row2.querySelector('.stage'))row2.appendChild(el('div','stage gc-span2'));
+  row2.appendChild(cmdSafe(gcHealth, gcNoData('Agent health','automation/state (lanes)')));
+  const row3=el('div','gc-grid');
+  row3.appendChild(cmdSafe(
+    ()=>(typeof costPulsePanel==='function')?costPulsePanel(D.costpulse,(D.autonomy||{}).budget):gcNoData('Cost pulse','automation/state/conductor-outcomes.jsonl'),
+    gcNoData('Cost pulse','automation/state/conductor-outcomes.jsonl')));
+  const promo=cmdSafe(gcPromo, el('div','gc-panel gc-promo'));
+  try{promo.classList.add('gc-span2');}catch(_){}
+  row3.appendChild(promo);
+  h.appendChild(row3);
   h.appendChild(cmdGroup('group-trading','Trading',cmdProducerRows('trading')));
-  h.appendChild(cmdGroup('group-research','Research',cmdProducerRows('research')));
+  h.appendChild(cmdGroup('group-research','Research',cmdWrapKitchenAnchor(cmdProducerRows('research'))));
   h.appendChild(cmdGroup('group-rig','Rig',cmdProducerRows('rig')));
+  h.appendChild(cmdSafe(gcAlerts, gcNoData('System alerts','guards/tasks/answers')));
   if(typeof tilesInit==='function'){try{tilesInit();}catch(_){}}
   cmdConfetti();
   cmdChoreograph(h);

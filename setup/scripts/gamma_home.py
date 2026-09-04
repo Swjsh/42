@@ -682,6 +682,20 @@ def build(quiet: bool = False) -> dict:
             payload[_k] = {"ok": False, "path": None, "stamp_et": None, "verdict": "off",
                            "say": "NO DATA, tiles module failed: %s" % str(e)[:120], "fresh_h": 24}
 
+    # Sankey routing-map + cost-pulse (COCKPIT-DESIGN-SPEC-V2-GLOW-2026-09-04, WS-E
+    # wiring). Same never-lose-the-page pattern as build_tiles above: only the
+    # IMPORT itself is guarded here (ImportError included, since a sibling
+    # workstream's module may not exist on disk yet) -- each builder owns its
+    # own internal NO DATA shape once it lands. Never a raise reaches the page.
+    for _key, _mod in (("funnel", "gamma_cockpit_funnel"), ("costpulse", "gamma_cockpit_costpulse")):
+        try:
+            sys.path.insert(0, str(REPO / "setup" / "scripts"))
+            payload[_key] = __import__(_mod).build()
+        except Exception as e:                    # noqa: BLE001 - ImportError included; never lose the page
+            payload[_key] = {"ok": False, "path": None, "stamp_et": None, "verdict": "off",
+                             "say": "NO DATA, %s failed: %s" % (_mod, str(e)[:120]),
+                             "stages": [], "links": [], "days": [], "source": {}}
+
     if not quiet:
         if not hq_meta["ok"]:
             print("WARN: state librarian unavailable (%s) - presence renders NO DATA"

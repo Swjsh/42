@@ -7,13 +7,20 @@ Chrome/Edge with `?selfcheck=1`, waits for `gamma_cockpit_js.py`'s own
 `<html data-selfcheck='{...}'>` about 500ms after the page settles), then
 parses that attribute and prints one machine-readable summary line:
 
-    SELFCHECK overflow_x=<bool> tiles=<n> small_text=<n> bad_text=<n> theme=<dark|light>
+    SELFCHECK overflow_x=<bool> tiles=<n> small_text=<n> bad_text=<n> theme=<dark|light> gc_panels=<n> sankey_ribbons=<n>
 
 This never fabricates a report. If Chrome/Edge cannot be found at all this
 prints "NO BROWSER" and exits 2 -- never a fake pass (C7: silent success is
 failure). If the page loaded but the selfcheck attribute never appeared
 (a real render failure, not a missing browser), that is reported and treated
 as a failure (exit 1), not silently skipped.
+
+2026-09-04 (Glow Command v2, WS-G): `gc_panels` and `sankey_ribbons` are read
+the same way as the other selfCheck() fields -- `int(report.get(...) or 0)`,
+so a page whose selfCheck() hasn't been updated to emit them yet reports 0
+for both (an honest reflection of "the glow panels genuinely aren't there",
+not a crash). On the default `#command` hash, `gc_panels < 6` is now a real
+failure condition alongside the existing tile-count floor.
 
 Usage:
     python setup/scripts/cockpit_dom_check.py
@@ -53,6 +60,7 @@ _CANDIDATES = [
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 MIN_TILES_ON_COMMAND = 15
+MIN_GC_PANELS_ON_COMMAND = 6
 
 
 def _browser() -> Path | None:
@@ -132,7 +140,24 @@ def parse_selfcheck(dom_text: str) -> dict | None:
         return None
 
 
+def _make_stdio_utf8_safe() -> None:
+    """Windows' default console codepage (cp1252) cannot encode plenty of
+    ordinary DOM text (an offender sample quoting a "⌘K" search hint, an em
+    dash, etc.) -- a bare `print()` of such a sample crashes with
+    UnicodeEncodeError instead of reporting the finding. Reconfigure stdout/
+    stderr to UTF-8 with a replace fallback so an unusual character degrades
+    to a printable substitute rather than crashing this script's own output;
+    best-effort (older interpreters / redirected streams that don't support
+    `reconfigure` are left alone, never raised)."""
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            pass
+
+
 def main() -> int:
+    _make_stdio_utf8_safe()
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--url", default=None,
                      help="page URL to check (default: analysis/home/index.html on disk)")
@@ -172,9 +197,13 @@ def main() -> int:
     tiles = int(report.get("tiles") or 0)
     small_text = int(report.get("small_text") or 0)
     bad_text = int(report.get("bad_text") or 0)
+    gc_panels = int(report.get("gc_panels") or 0)
+    sankey_ribbons = int(report.get("sankey_ribbons") or 0)
+    panels_no_src = int(report.get("panels_no_src") or 0)
 
-    print("SELFCHECK overflow_x=%s tiles=%d small_text=%d bad_text=%d theme=%s"
-          % (overflow_x, tiles, small_text, bad_text, a.theme))
+    print("SELFCHECK overflow_x=%s tiles=%d small_text=%d bad_text=%d theme=%s "
+          "gc_panels=%d sankey_ribbons=%d panels_no_src=%d"
+          % (overflow_x, tiles, small_text, bad_text, a.theme, gc_panels, sankey_ribbons, panels_no_src))
     # Offender samples (selfCheck() collects up to a dozen of each) so a failing
     # rail names its culprits instead of just a count.
     for key in ("overflow_samples", "small_samples", "bad_samples"):
@@ -186,6 +215,11 @@ def main() -> int:
     # #gfx fixture page renders a handful of demo tiles by design and is not
     # meant to clear the same bar.
     if a.hash == "command" and tiles < MIN_TILES_ON_COMMAND:
+        fail = True
+    # Same carve-out for the Glow Command routing-map panel floor (spec
+    # section 3): only #command is expected to render the KPI/queue/routing
+    # panel grid at all.
+    if a.hash == "command" and gc_panels < MIN_GC_PANELS_ON_COMMAND:
         fail = True
     return 1 if fail else 0
 

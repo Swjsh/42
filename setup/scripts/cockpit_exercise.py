@@ -15,6 +15,16 @@ one JSON verdict plus two themed screenshots.
 NEVER clicks a Fire button (`.tile__fire`) -- this is a read-only behavioral
 probe, never a trigger for a real action.
 
+2026-09-04 (Glow Command v2, WS-G): added five read-only checks for the glow
+surfaces -- `sankey_drawn` (the routing-map Sankey rendered ribbons or an
+honest NO DATA state), `costpulse_drawn` (the cost-pulse chart rendered a
+graphic or NO DATA), `rail_active_pill` (the nav rail marks its active row),
+`kpi_hover_lift` (a KPI card's transform changes on hover), and the existing
+`zero_console_errors` now also covers whatever these new modules load. Every
+new check feature-detects its selector (a missing element is a normal FAIL,
+not a crash) so a sibling module still mid-build never makes this script
+throw.
+
 Usage:
     backtest/.venv/Scripts/python.exe setup/scripts/cockpit_exercise.py
     backtest/.venv/Scripts/python.exe setup/scripts/cockpit_exercise.py --url http://localhost:4317/cockpit.html?v=i2#command
@@ -487,6 +497,62 @@ async def check_tile_titles(cdp: CDP) -> dict:
                       f"first_offender_nonascii_codepoints={codepoints} err={err}")
 
 
+async def check_sankey_drawn(cdp: CDP) -> dict:
+    val, err = await cdp.eval_json(
+        "(function(){var s=document.querySelector('.gc-sankey');"
+        "if(!s)return {found:false};"
+        "var links=s.querySelectorAll('path[data-link]').length;"
+        "var nodata=!!s.querySelector('.gc-nodata');"
+        "return {found:true, links:links, nodata:nodata};})()"
+    )
+    if err or not val or not val.get("found"):
+        return _mk_check("sankey_drawn", False, f".gc-sankey not found in DOM: err={err} val={val}")
+    ok = (val.get("links") or 0) >= 1 or bool(val.get("nodata"))
+    return _mk_check("sankey_drawn", ok, str(val))
+
+
+async def check_costpulse_drawn(cdp: CDP) -> dict:
+    val, err = await cdp.eval_json(
+        "(function(){var c=document.querySelector('.gc-costpulse');"
+        "if(!c)return {found:false};"
+        "var graphic=!!c.querySelector('path, svg, canvas');"
+        "var nodata=!!c.querySelector('.gc-nodata');"
+        "return {found:true, has_graphic:graphic, nodata:nodata};})()"
+    )
+    if err or not val or not val.get("found"):
+        return _mk_check("costpulse_drawn", False, f".gc-costpulse not found in DOM: err={err} val={val}")
+    ok = bool(val.get("has_graphic")) or bool(val.get("nodata"))
+    return _mk_check("costpulse_drawn", ok, str(val))
+
+
+async def check_rail_active_pill(cdp: CDP) -> dict:
+    val, err = await cdp.eval_json("!!document.querySelector('.gc-rail__item.on')")
+    ok = bool(val)
+    return _mk_check("rail_active_pill", ok, f"found={val} err={err}")
+
+
+async def check_kpi_hover_lift(cdp: CDP) -> dict:
+    """Runs last, after checks that focus rows (which scrolls the KPI grid out of the
+    viewport) and open overlays -- so it first closes any overlay and scrolls the card
+    back into view; a mouse move to an off-viewport rect can never hover anything."""
+    sel = ".gc-kpi"
+    await cdp.key("Escape", "Escape", key_code=27)
+    await cdp.eval("(function(){var e=document.querySelector('.gc-kpi');if(e)e.scrollIntoView({block:'center'});})()")
+    await asyncio.sleep(0.3)
+    rect = await cdp.rect_of(sel)
+    if not rect:
+        return _mk_check("kpi_hover_lift", False, f"no element matched {sel!r}")
+    x, y = rect["x"], rect["y"]
+    await cdp.mouse_move(2, 2)
+    await asyncio.sleep(0.1)
+    resting, _ = await cdp.eval(f"getComputedStyle(document.querySelector({json.dumps(sel)})).transform")
+    await cdp.mouse_move(x, y)
+    await asyncio.sleep(0.2)
+    hovered, _ = await cdp.eval(f"getComputedStyle(document.querySelector({json.dumps(sel)})).transform")
+    ok = hovered != resting
+    return _mk_check("kpi_hover_lift", ok, f"selector={sel} resting={resting!r} hovered={hovered!r}")
+
+
 async def run(a: argparse.Namespace) -> dict:
     checks: list[dict] = []
     captures: list[str] = []
@@ -582,6 +648,10 @@ async def run(a: argparse.Namespace) -> dict:
         checks.append(await check_palette(cdp))
         checks.append(await check_spend_figure(cdp))
         checks.append(await check_tile_titles(cdp))
+        checks.append(await check_sankey_drawn(cdp))
+        checks.append(await check_costpulse_drawn(cdp))
+        checks.append(await check_rail_active_pill(cdp))
+        checks.append(await check_kpi_hover_lift(cdp))
 
         console_errs = [e for e in cdp.events_of("Runtime.consoleAPICalled")
                          if e.get("params", {}).get("type") == "error"]

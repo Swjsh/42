@@ -413,9 +413,12 @@ function vAgents(h){
 /* ---------- JOURNAL ---------- */
 let calArm='BOOK', calBasis='n', calMonth=null;
 function vJournal(h){
-  // .page: the re-skinned Journal wrapper (spec sec 3 "Journal: calendar grid re-skinned").
-  const page=el('div','page');
-  page.appendChild(el('div','shead','<h2>Journal</h2><span class="dim">per-arm P&amp;L · click a day for its trades</span>'));
+  // .page.gc-panel: the re-skinned Journal wrapper (spec sec 3 "Journal: calendar
+  // grid re-skinned"; glow spec section 4's panel language) -- gc-panel is an
+  // additive class, the underlying .page/.card/.shead classes and calendarInto/
+  // dayDrawer behaviour are unchanged so no existing selector loses its target.
+  const page=el('div','page gc-panel');
+  page.appendChild(el('div','shead gc-eyebrow','<h2>Journal</h2><span class="dim">per-arm P&amp;L, click a day for its trades</span>'));
   const c=el('div','card'); calendarInto(c,calArm,false); page.appendChild(c);
   h.appendChild(page);
 }
@@ -614,7 +617,11 @@ function vAnswers(h){
       // does not read as a single narrow list on a wide viewport; falls
       // back to the plain single column below if cmdVitalTile/cmdVitalGate/
       // cmdVitalBook are not yet wired (feature-detected, never a throw).
-      const wrap=el('div','answerslayout');
+      // gc-panel: additive glow-spec wrapper class (section 4's panel
+      // language) -- .answerslayout stays the layout selector any existing
+      // CSS already targets, gc-panel only ADDS the glass/hairline treatment
+      // once gamma_cockpit_glow_ui.py lands.
+      const wrap=el('div','answerslayout gc-panel');
       wrap.appendChild(groupRows({id:'tile-group-answers',title:'The answers',rows}));
       if(typeof cmdVitalGate==='function'&&typeof cmdVitalBook==='function'){
         const side=el('div','vitals vitals--col');
@@ -627,13 +634,19 @@ function vAnswers(h){
       return;
     }catch(_){ /* tileRow/groupRows not ready for this shape yet -- fall through */ }
   }
-  h.appendChild(el('div','shead','<h2>The answers</h2><span class="dim">you shouldn’t have to ask</span>'));
+  // Fallback path (tileRow/groupRows not yet wired): same gc-panel/gc-eyebrow/
+  // gc-chip additive classes as the primary path above, so the page reads
+  // consistently either way.
+  const fallback=el('div','gc-panel');
+  fallback.appendChild(el('div','shead gc-eyebrow','<h2>The answers</h2><span class="dim">you should not have to ask</span>'));
   const g=el('div','grid g2');
+  const CHIP_TONE={ok:'good',warn:'warn',bad:'bad'};
   (D.answers||[]).forEach(a=>{
     const c=el('div','card click'); spot(c);
     c.appendChild(el('div','micro',esc(a.q)));
     const r=el('div','row'); r.style.margin='var(--s3) 0';
-    r.appendChild(el('span','chip '+health(a.verdict),`<i class="dot"></i>${esc(a.verdict)}`));
+    const tone=CHIP_TONE[health(a.verdict)]||'info';
+    r.appendChild(el('span','chip gc-chip '+tone+' '+health(a.verdict),`<i class="dot"></i>${esc(a.verdict)}`));
     r.appendChild(el('span','mut',esc(a.answer)));
     c.appendChild(r);
     if(a.detail)c.appendChild(el('div','dim',esc(a.detail)));
@@ -644,7 +657,8 @@ function vAnswers(h){
     c.onclick=()=>answerDrawer(a);
     g.appendChild(c);
   });
-  h.appendChild(g); stag(g);
+  fallback.appendChild(g); stag(g);
+  h.appendChild(fallback);
 }
 function answerDrawer(a){
   openDrawer(a.q,b=>{

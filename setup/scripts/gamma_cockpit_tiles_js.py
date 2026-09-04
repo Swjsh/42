@@ -447,7 +447,9 @@ function tilesInit(){
     if(!tilesStaleStarted){
       tilesStaleStarted=true;
       setInterval(tilesRefreshStale,30000);
-      document.addEventListener('keydown',function(e){tilesKey(e);});
+      // keydown is NOT registered here: the runtime's own document listener
+      // (gamma_cockpit_js.py) already delegates to tilesKey(e); a second
+      // listener made j/k move two rows per press (integration pass 2026-09-04).
     }
   }catch(_){}
 }

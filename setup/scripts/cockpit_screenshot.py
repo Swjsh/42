@@ -27,6 +27,17 @@ that failure mode instead of the file-size heuristic alone:
      byte-identical, that's the "N screenshots collapsed to fewer distinct images" tell
      (a dead page renders the same error chrome regardless of theme/route) and is reported
      as a failure, never silently written to disk as if they were distinct captures.
+
+SETTLED SHOTS ARE REAL-TIME CDP CAPTURES (integration pass, 2026-09-04). Under
+`--virtual-time-budget` Chrome barely advances the Web Animations clock: every WAAPI
+animation that starts from opacity 0 (Sankey ribbons, the cost-pulse fill, the first
+two status words of a 30ms stagger) was captured frozen at ~60ms -- ribbons missing,
+panels ghosted at 15-30% -- while the same page in a real-time CDP session was fully
+drawn. So the settled shot now launches headless Chrome with a DevTools port, waits
+for `load`, waits until no finite-duration animation is still running (capped by
+--settle-ms), then Page.captureScreenshot. The virtual-time path stays for the
+--delays-ms mid-animation samples (that clock IS the sampling mechanism) and as
+`--mode virtual` if the websockets client is unavailable.
 """
 from __future__ import annotations
 
@@ -120,6 +131,82 @@ def shoot(browser: Path, url: str, out: Path, size: str, dark: bool, budget_ms: 
     return ok, (r.stderr or "").strip().splitlines()[-1:] and (r.stderr.strip().splitlines()[-1][:120]) or ""
 
 
+CDP_PORT = 9227   # distinct from cockpit_exercise.py's port so the two never collide
+_SETTLE_JS = ("(function(){var a=document.getAnimations();return a.filter(function(x){"
+              "var t=x.effect&&x.effect.getComputedTiming();"
+              "return x.playState==='running'&&t&&isFinite(t.endTime);}).length;})()")
+
+
+def shoot_cdp(browser: Path, url: str, out: Path, size: str, settle_ms: int) -> tuple[bool, str]:
+    """Settled capture over a real-time DevTools session (see module docstring)."""
+    try:
+        import asyncio
+        import base64
+        import json
+        from cockpit_exercise import CDP
+    except Exception as e:  # noqa: BLE001 -- websockets missing, etc.: caller falls back
+        return False, f"cdp mode unavailable: {e}"
+    w, h = size.split("x")
+    profile = OUT_DIR / ".profile-cdp"
+    profile.mkdir(parents=True, exist_ok=True)
+    args = [
+        str(browser), "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check",
+        f"--user-data-dir={profile}", "--hide-scrollbars", f"--remote-debugging-port={CDP_PORT}",
+        f"--window-size={w},{h}", "about:blank",
+    ]
+
+    async def go() -> tuple[bool, str]:
+        proc = subprocess.Popen(args, creationflags=_CREATE_NO_WINDOW,
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            target = None
+            t0 = time.time()
+            while time.time() - t0 < 15 and target is None:
+                try:
+                    with urllib.request.urlopen(f"http://127.0.0.1:{CDP_PORT}/json", timeout=2) as resp:
+                        for tg in json.loads(resp.read()):
+                            if tg.get("type") == "page" and "webSocketDebuggerUrl" in tg:
+                                target = tg
+                                break
+                except (urllib.error.URLError, OSError, json.JSONDecodeError):
+                    pass
+                await asyncio.sleep(0.25)
+            if target is None:
+                return False, f"CDP endpoint on :{CDP_PORT} never surfaced a page target"
+            cdp = CDP(target["webSocketDebuggerUrl"])
+            await cdp.connect()
+            await cdp.send("Page.enable")
+            await cdp.send("Runtime.enable")
+            await cdp.send("Emulation.setDeviceMetricsOverride", {
+                "width": int(w), "height": int(h), "deviceScaleFactor": 1, "mobile": False,
+            })
+            await cdp.send("Page.navigate", {"url": url})
+            try:
+                await cdp.wait_event("Page.loadEventFired", timeout=20)
+            except TimeoutError:
+                pass
+            t1 = time.time()
+            running = None
+            while time.time() - t1 < settle_ms / 1000:
+                running, _ = await cdp.eval(_SETTLE_JS)
+                if running == 0:
+                    break
+                await asyncio.sleep(0.15)
+            await asyncio.sleep(0.25)
+            shot = await cdp.send("Page.captureScreenshot", {"format": "png"})
+            out.write_bytes(base64.b64decode(shot["result"]["data"]))
+            await cdp.close()
+            ok = out.exists() and out.stat().st_size > 2000
+            return ok, f"cdp settled: running_anims={running} after {int((time.time()-t1)*1000)}ms"
+        finally:
+            proc.kill()
+
+    try:
+        return asyncio.run(go())
+    except Exception as e:  # noqa: BLE001 -- reported, never silently swallowed
+        return False, f"cdp capture failed: {e}"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
@@ -135,6 +222,12 @@ def main() -> int:
     ap.add_argument("--sizes", default="1600x950,1440x900")
     ap.add_argument("--themes", default="dark,light")
     ap.add_argument("--budget-ms", type=int, default=6000)
+    ap.add_argument("--mode", choices=("cdp", "virtual"), default="cdp",
+                    help="settled-shot mechanism: 'cdp' (real-time DevTools session, waits for "
+                         "animations to finish -- the default) or 'virtual' (--virtual-time-budget, "
+                         "which freezes WAAPI early; kept for comparison)")
+    ap.add_argument("--settle-ms", type=int, default=4000,
+                    help="cdp mode: max wait for running animations to finish before capture")
     # MID-ANIMATION STILLS (R5b, 2026-09-03). A settled screenshot cannot show a
     # choreography -- stars -> orchestrator rise -> bento settle -> beams power-up ->
     # rings fill -> figures count up all finish before --budget-ms 6000 draws. The
@@ -192,8 +285,14 @@ def main() -> int:
                     suffix = "" if delay is None else f"@{delay}ms"
                     out = OUT_DIR / f"{a.tag}-{view}-{size}-{theme}{suffix}.png"
                     t0 = time.time()
-                    ok, shot_note = shoot(browser, url, out, size, dark,
-                                     a.budget_ms if delay is None else delay)
+                    if delay is None and a.mode == "cdp":
+                        ok, shot_note = shoot_cdp(browser, url, out, size, a.settle_ms)
+                        if not ok and "unavailable" in shot_note:
+                            ok, shot_note = shoot(browser, url, out, size, dark, a.budget_ms)
+                            shot_note = "virtual-time fallback: " + shot_note
+                    else:
+                        ok, shot_note = shoot(browser, url, out, size, dark,
+                                         a.budget_ms if delay is None else delay)
                     fails += 0 if ok else 1
                     rel = out.relative_to(REPO).as_posix()
                     if ok:

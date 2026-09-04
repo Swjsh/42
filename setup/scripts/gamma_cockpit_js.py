@@ -36,6 +36,35 @@ from gamma_cockpit_views_js import VIEWS_JS
 from gamma_cockpit_tiles_js import TILES_JS
 from gamma_cockpit_producers_js import PRODUCERS_JS
 from gamma_cockpit_command_js import COMMAND_JS
+from gamma_cockpit_kpi_js import KPI_JS
+
+# COCKPIT-DESIGN-SPEC-V2-GLOW-2026-09-04: the Sankey routing map, the cost-pulse
+# chart and the glow layout land as separate sibling modules this same evening.
+# Each import is guarded independently (ImportError only -- a real bug inside a
+# landed module should still surface loudly) so this file never fails to import
+# just because one sibling hasn't shipped yet; MISSING_JS names exactly which
+# ones are still absent so an integration test can assert it empty once all
+# three exist. An empty string in the concat is a no-op, never a placeholder
+# left in the page.
+MISSING_JS: list[str] = []
+
+try:
+    from gamma_cockpit_sankey_js import SANKEY_JS
+except ImportError:
+    SANKEY_JS = ""
+    MISSING_JS.append("gamma_cockpit_sankey_js")
+
+try:
+    from gamma_cockpit_costpulse_js import COSTPULSE_JS
+except ImportError:
+    COSTPULSE_JS = ""
+    MISSING_JS.append("gamma_cockpit_costpulse_js")
+
+try:
+    from gamma_cockpit_glow_js import GLOW_JS
+except ImportError:
+    GLOW_JS = ""
+    MISSING_JS.append("gamma_cockpit_glow_js")
 
 _RUNTIME = r"""
 /* ============================ helpers ============================ */
@@ -210,25 +239,51 @@ function positionsCard(){
 __VIEWS_SLOT__
 
 /* ============================ nav registry ============================ */
+/* Glow spec (COCKPIT-DESIGN-SPEC-V2-GLOW-2026-09-04) §4: the nav rail grows
+   three anchors (Kitchen/Research/Rig) into the SAME row groups the Command
+   view already renders (group-trading/group-research/group-rig from
+   gamma_cockpit_command_js.py) so nothing here recomputes what those groups
+   already show -- a rail row just scrolls+opens the matching group. `icon`
+   is a vendor.py ICONS name (gamma_cockpit_vendor.ICONS), looked up at nav-
+   paint time via the global `ic()` helper; the legacy `ic:` glyph field on
+   the older entries is left untouched (dead since navBuild never read it,
+   but not this file's job to remove). */
 const VIEWS=[
- {id:'command',ic:'',label:'Command',key:'h'},
+ {id:'command',ic:'',label:'Command',key:'h',icon:'layout-grid'},
  {id:'overview',ic:'◎',label:'Overview',key:'o'},
- {id:'autonomy',ic:'◉',label:'Autonomy',key:'u'},
+ {id:'autonomy',ic:'◉',label:'Autonomy',key:'u',icon:'activity'},
  {id:'desks',ic:'▦',label:'Desks',key:'d'},
  {id:'orchestration',ic:'⛬',label:'Orchestration',key:'g'},
  {id:'engine',ic:'❥',label:'Engine room',key:'e'},
  {id:'agents',ic:'✦',label:'Agents',key:'w'},
- {id:'army',ic:'⌁',label:'Army',key:'m'},
+ {id:'army',ic:'⌁',label:'Army',key:'m',icon:'bot'},
  {id:'cards',ic:'⚑',label:'Cards',key:'c'},
- {id:'journal',ic:'▤',label:'Journal',key:'j'},
- {id:'answers',ic:'✔',label:'Answers',key:'a'},
+ {id:'journal',ic:'▤',label:'Journal',key:'j',icon:'book-open'},
+ {id:'answers',ic:'✔',label:'Answers',key:'a',icon:'check-circle-2'},
  {id:'activity',ic:'⟡',label:'Activity',key:'v'},
+ {id:'kitchen',label:'Kitchen',key:'k',anchor:'group-kitchen',icon:'flame'},
+ {id:'research',label:'Research',key:'r',anchor:'group-research',icon:'radar'},
+ {id:'rig',label:'Rig',key:'i',anchor:'group-rig',icon:'shield'},
 ];
-/* Quiet Command spec §3: four tabs on the bar. 'autonomy' stays a registered
-   PRIMARY entry (test_view_wired_into_render_and_nav asserts it literally) but
-   renders visually hidden — a scrolled-and-opened alias into Command, not a
-   second surface. */
-const PRIMARY=['command','autonomy','journal','answers'];
+/* Glow spec §3/§4: the rail's primary row grows from four tabs to eight --
+   Command, Journal, Answers, Army, then the three new anchors, with
+   'autonomy' kept LAST and still a registered PRIMARY entry
+   (test_view_wired_into_render_and_nav asserts it literally) — a scrolled-
+   and-opened alias into Command, not a second surface. */
+const PRIMARY=['command','journal','answers','army','kitchen','research','rig','autonomy'];
+
+/* vAnchor(id): render the one Command screen, then jump+expand the named
+   row group -- used for the Kitchen/Research/Rig rail rows so none of them
+   duplicate vCommand's own row-group data. tileOpen is feature-detected
+   (gamma_cockpit_tiles_js.py) and a no-op on a missing id (getElementById
+   returns null), so a rail row for a group that does not exist yet degrades
+   to "renders Command, jumps nowhere" rather than throwing. */
+function vAnchor(anchorId){
+  return function(h){
+    if(typeof vCommand==='function')vCommand(h);
+    if(typeof tileOpen==='function')tileOpen(anchorId,{scroll:true});
+  };
+}
 
 function bookSummary(){
   return ((D.calendar?.views||{}).BOOK||{}).summary||{};
@@ -246,16 +301,23 @@ function closeDrawer(){
 }
 
 /* ============================ nav + palette ============================ */
+function navIc(name){
+  if(!name)return '';
+  try{ return (typeof ic==='function')?ic(name):''; }catch(_){ return ''; }
+}
 function navBuild(){
-  /* THE BRIDGE: four sentence-case tabs; everything else is one keystroke away
-     via Cmd-K. No gliding-cursor animation and no "···" overflow button — Quiet
-     Command spec §3/§8 removed both; Cmd-K and the '?' shortcuts drawer replace
-     the overflow affordance. */
+  /* THE RAIL: nav-rail-active-pill.html kit shape (icon + label, active row =
+     gradient pill via '.on') — eight rows now, everything else is one keystroke
+     away via Cmd-K. No gliding-cursor animation and no "···" overflow button —
+     Cmd-K and the '?' shortcuts drawer replace the overflow affordance. */
   const n=$('#nav'); if(!n)return;
   n.innerHTML='';
   VIEWS.filter(v=>PRIMARY.includes(v.id)).forEach(v=>{
-    const a=el('a',null,`<span>${esc(v.label)}</span>`);
+    const a=el('a','gc-rail__item');
     a.href='#'+v.id; a.dataset.v=v.id;
+    const icHtml=navIc(v.icon);
+    if(icHtml){const icSpan=el('span','gc-rail__ic'); icSpan.innerHTML=icHtml; a.appendChild(icSpan);}
+    a.appendChild(el('span','gc-rail__label',esc(v.label)));
     if(v.id==='autonomy')a.dataset.alias='1'; // CSS hides this tab; Command IS Autonomy now
     // Route EXPLICITLY, then sync the hash for deep-linking. Routing must not
     // depend on the hash actually changing: some hosts serve this file from a
@@ -268,7 +330,7 @@ function navBuild(){
     n.appendChild(a);
   });
 }
-const RENDER={command:vCommand,overview:vOverview,autonomy:vAutonomy,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
+const RENDER={command:vCommand,overview:vOverview,autonomy:vAutonomy,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity,kitchen:vAnchor('group-kitchen'),research:vAnchor('group-research'),rig:vAnchor('group-rig')};
 let CUR='command';
 function route(want){
   const id=want||(location.hash||'#command').slice(1).split('?')[0];
@@ -415,7 +477,12 @@ function selfCheck(){
           if(r.right>innerWidth+1&&r.width>0)overflow_samples.push(tag(e)+' right='+Math.round(r.right));
         });
       }
-      report={overflow_x,tiles,small_text,bad_text,small_samples,bad_samples,overflow_samples};
+      const gc_panels=$$('.gc-panel').length;
+      const sankey_ribbons=$$('.gc-sankey path[data-link]').length;
+      /* spec V2-GLOW section 6: every figure keeps source + age (on hover/expand) -- panels
+         and KPI cards with neither a .src row nor a [title]/jump link are counted here */
+      const panels_no_src=$$('.gc-panel,.gc-kpi').filter(p=>!p.querySelector('.src,[title],.vital__more a')).length;
+      report={overflow_x,tiles,small_text,bad_text,small_samples,bad_samples,overflow_samples,gc_panels,sankey_ribbons,panels_no_src};
     }catch(err){
       report={error:String(err&&err.message||err)};
     }
@@ -483,4 +550,7 @@ function selfCheck(){
 # marks that seam. Order matters only for readability: function declarations
 # hoist across the whole inline <script>, so VIEWS/RENDER/route below can
 # reference vCommand, vOverview, tileRow, etc. regardless of textual order.
-JS = _RUNTIME.replace("__VIEWS_SLOT__", TILES_JS + VIEWS_JS + PRODUCERS_JS + COMMAND_JS)
+JS = _RUNTIME.replace(
+    "__VIEWS_SLOT__",
+    TILES_JS + VIEWS_JS + PRODUCERS_JS + SANKEY_JS + COSTPULSE_JS + GLOW_JS + KPI_JS + COMMAND_JS,
+)
