@@ -65,8 +65,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gamma_cockpit_vendor as vendor  # noqa: E402
+import gamma_cockpit_ui_theme  # noqa: E402 -- new rules only; kept out of this file to hold its 800-line ceiling
 
-CSS = r"""
+_BASE_CSS = r"""
 /* ============ DARK (default) -- Radix gray-dark / cyan-dark hex values,
    copied by hand so the page never depends on a --cyan-9-style name; the
    Radix CSS files stay on disk purely for provenance. ============ */
@@ -265,24 +266,19 @@ a:hover{text-decoration:underline}
 /* every view sits in the same centred column; .page is the same box for views that wrap themselves */
 .view,.page{max-width:var(--content-max);width:100%;margin:0 auto}
 .page{display:flex;flex-direction:column;gap:var(--s6)}
-.sentence{font:500 20px/28px var(--font);letter-spacing:-.01em;color:var(--ink-1);max-width:78ch}
+.sentence{font:600 20px/28px var(--font);letter-spacing:-.01em;color:var(--ink-1);max-width:78ch}
 .sentence b{font-variant-numeric:tabular-nums}
 /* THE SENTENCE, as discrete chips (round-1 review: a run-on prose sentence
-   fails a 5-second read, and a plain-ink "RED" does not read as severity).
-   Each .statusitem is a verdict dot + its own clause, divided by a hairline
-   -- never a filled pill (ban list: "border-radius > 8px on any container" is
-   a pill, this is <= var(--r-sm)), colour on the TEXT stays banned too (the
-   gate's CI-lower number is not a P&L series, so it never takes --pos/--neg
-   per the tokens' own gain/loss rule above). Round-2 review (major, 2x): the
-   dot alone read as equal-weight to routine status text -- "the single most
-   important fact on the page carries no more visual weight than a note".
-   red/amber now also get the SAME soft-tint background already used for an
-   expanded tile's red/amber body (`--neg-soft`/`--warn-soft` two rules below)
-   -- a low-saturation fill, not a saturated "pill" -- so severity reads before
-   the word does, without breaking the dot-only-colour rule on the text. */
+   fails a 5-second read). Each .statusitem is a verdict dot + its own clause,
+   divided by a hairline -- never a filled pill. Round-2 review (major, 2x):
+   the dot alone read as equal-weight to routine status text; red/amber now
+   also get the SAME soft-tint background an expanded tile's red/amber body
+   uses (`--neg-soft`/`--warn-soft` below). Sizing is 20px/28px/600 to match
+   `.sentence` -- see gamma_cockpit_ui_theme.py for the verdict-text-colour
+   rules layered on top of this base. */
 .statusrow{display:flex;flex-wrap:wrap;align-items:baseline;row-gap:var(--s3)}
 .statusitem{display:inline-flex;align-items:baseline;gap:8px;padding:0 var(--s5);
-  font:500 15px/20px var(--font);color:var(--ink-2);border-radius:var(--r-sm)}
+  font:600 20px/28px var(--font);color:var(--ink-2);border-radius:var(--r-sm)}
 .statusitem:first-child{padding-left:0}
 .statusitem+.statusitem{border-left:1px solid var(--line)}
 .statusitem[data-verdict="red"]{background:var(--neg-soft);padding:4px var(--s4);margin:-4px 0}
@@ -290,7 +286,7 @@ a:hover{text-decoration:underline}
 .statusitem[data-verdict="red"]+.statusitem,.statusitem[data-verdict="amber"]+.statusitem,
 .statusitem+.statusitem[data-verdict="red"],.statusitem+.statusitem[data-verdict="amber"]{border-left:0}
 .statusitem .vd{position:relative;top:-1px}
-.statusitem__t b{color:var(--ink-1);font-weight:600;font-variant-numeric:tabular-nums}
+.statusitem__t b{color:var(--ink-1);font-weight:700;font-variant-numeric:tabular-nums}
 .dayline{height:56px;margin-top:var(--s2);display:flex;align-items:center;position:relative}
 .dayline__track{position:relative;flex:1;height:1px;background:var(--line)}
 .dayline__tick{position:absolute;top:-3px;width:6px;height:6px;border-radius:50%;transform:translateX(-50%);
@@ -336,16 +332,18 @@ a:hover{text-decoration:underline}
    align-items, so the shorter column read as a slab of dead space inside its own
    box. Two independent cards -- each sized to ITS OWN content -- gives the row the
    same tile-like weight as its neighbours without that mismatch. */
-.band{display:grid;grid-template-columns:2fr 1fr;gap:var(--s6);align-items:start}
-.band__goal,.band__budget{display:flex;flex-direction:column;gap:var(--s3);min-width:0;
-  background:var(--bg-1);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s5) var(--s6)}
+.band{display:grid;grid-template-columns:2fr 1fr;gap:var(--s6);align-items:stretch}
+.band__goal,.band__budget{display:flex;flex-direction:column;justify-content:center;min-width:0;
+  background:var(--bg-1);border:1px solid var(--line);border-radius:var(--r-md);padding:0 var(--s6);
+  min-height:64px}
 .band__goal .tile__head{padding:0;grid-template-columns:24px 12px 200px 24px 48px 16px minmax(0,1fr) 16px auto 12px auto 12px 20px}
 .band__goal .tile__src{max-width:150px}
 .band__goal .tile__body{padding-left:0}
 .band__goal .tile__body{padding-left:236px}
-.band__budget .figure{margin-top:var(--s2)}
-.band__budget .src{margin-top:auto}
 .ring-big{width:40px;height:40px}
+/* .band__budget's own inline-row rules ("ONE 64-72px row") live in
+   gamma_cockpit_ui_theme.THEME_CSS, appended to CSS below this module's
+   own string -- new selectors only, so append order never matters. */
 
 /* ---------------- tiles / rows / groups ---------------- */
 :root{interpolate-size:allow-keywords}
@@ -730,6 +728,8 @@ tr:last-child td{border-bottom:none}
   .stagger>*{opacity:1;transform:none}
 }
 """
+
+CSS = _BASE_CSS + gamma_cockpit_ui_theme.THEME_CSS
 
 SHELL = r"""<!doctype html>
 <html lang="en">

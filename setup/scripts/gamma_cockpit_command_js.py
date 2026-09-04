@@ -317,14 +317,21 @@ function cmdUsd(v){
   return'$'+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function cmdBudgetPane(){
+  /* ONE 64-72px row (Fable review, 2026-09-03, item 1): fires meter, spend
+     figure, an inline sparkline, source+age -- all in one flex row beside the
+     goal row, not stacked into their own ~240px column. See module docstring
+     for the contract this reuses (cmdGfx/cmdUsd/cmdCostSeries unchanged). */
   const A=D.autonomy||{}, bud=A.budget||{};
   const pane=el('div','band__budget');
-  const firesTxt=(bud.fires_used!=null&&bud.fires_cap!=null)?('Tonight, fires <b>'+bud.fires_used+'</b> of <b>'+bud.fires_cap+'</b>'):'Tonight, fires NO DATA';
-  pane.appendChild(el('div','meta',firesTxt));
+  const row=el('div','band__budget-row');
+
+  const firesWrap=el('div','band__budget-fires');
+  const firesTxt=(bud.fires_used!=null&&bud.fires_cap!=null)?('Fires <b>'+bud.fires_used+'</b>/<b>'+bud.fires_cap+'</b>'):'Fires NO DATA';
+  firesWrap.appendChild(el('span','meta',firesTxt));
   const meterS=cmdGfx('gfxMeter',bud.fires_used,bud.fires_cap);
-  if(meterS)pane.innerHTML+=meterS;
-  const spendLbl='Spend '+(bud.verdict?esc(String(bud.verdict).toLowerCase()):'');
-  pane.appendChild(el('div','meta',spendLbl));
+  if(meterS){const g=el('span','band__budget-meter');g.innerHTML=meterS;firesWrap.appendChild(g);}
+  row.appendChild(firesWrap);
+
   /* round-2 review (major): "$34.56 / $30.00" is 115% of budget but rendered in the
      same neutral ink as every on-budget figure -- the one number most likely to
      matter to J at a glance carried zero visual alarm. Over cap now gets the figure's
@@ -333,16 +340,31 @@ function cmdBudgetPane(){
      problem in the first second, not the tenth. */
   const over=(bud.spent_usd!=null&&bud.cap_usd!=null&&Number(bud.spent_usd)>Number(bud.cap_usd))
     ?Number(bud.spent_usd)-Number(bud.cap_usd):0;
-  const figure=el('div','figure mono'+(over>0?' over':''),cmdUsd(bud.spent_usd)+' / '+cmdUsd(bud.cap_usd));
-  pane.appendChild(figure);
-  if(over>0)pane.appendChild(el('div','meta over','+'+cmdUsd(over)+' over'));
   const CM=D.cost_meter||{};
+  const figure=el('span','figure mono band__budget-figure'+(over>0?' over':''),cmdUsd(bud.spent_usd)+' / '+cmdUsd(bud.cap_usd));
+  if(CM.as_of_et_date)figure.title='cost-meter '+CM.as_of_et_date;
+  row.appendChild(figure);
+  if(over>0)row.appendChild(el('span','meta over','+'+cmdUsd(over)));
+
   const vals=cmdCostSeries(CM);
   const sparkS=vals.length>=2?cmdGfx('gfxSpark',vals):'';
-  if(sparkS)pane.innerHTML+=sparkS;
-  if(CM.as_of_et_date)pane.appendChild(el('span','meta mono','cost-meter '+esc(CM.as_of_et_date)));
+  if(sparkS){const sw=el('span','band__budget-spark');sw.innerHTML=sparkS;row.appendChild(sw);}
+
+  /* basename, not srcRow()'s usual full path -- "automation/state/cost-meter.json"
+     alone is wider than the fires block and the figure combined, which is what
+     kept forcing a 3rd wrapped line here even after the rest of the row was
+     already compact. srcRow's own last_write/age_h fallback stays intact by
+     routing through it with a shortened path, rather than re-deriving the
+     age here. */
+  const srcWrap=el('div','band__budget-src');
   const src=D.cost_meter_source;
-  if(src)pane.appendChild(srcRow([src]));
+  if(src&&src.path){
+    const base=_fnOf('tilesBaseName');
+    srcWrap.appendChild(srcRow([Object.assign({},src,{path:base?base(src.path):src.path})]));
+  }
+  row.appendChild(srcWrap);
+
+  pane.appendChild(row);
   return pane;
 }
 function cmdBand(){

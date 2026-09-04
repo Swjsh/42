@@ -58,6 +58,10 @@ function armySvg(a){
     'font-family':'var(--font)','font-weight':w||500,'text-anchor':anchor||'middle'});e.textContent=str;return e};
   /* Left-aligned label -- reading a box is scanning a short list, not centring a poster. */
   const ltxt=(x,y,str,c,sz,w)=>stxt(x,y,str,c,sz,w,'start');
+  /* Mono variant -- the orchestrator id (42-98) reads as an identifier, not a
+     headline; a monospace face says so at a glance the way it does everywhere
+     else an id/path appears on this page. */
+  const lmono=(x,y,str,c,sz,w)=>{const e=ltxt(x,y,str,c,sz,w);e.setAttribute('font-family','var(--mono)');return e;};
 
   const sessions=(a.sessions||[]).slice(0,12), workers=a.workers||[];
   const byWorkerSession={};
@@ -88,7 +92,7 @@ function armySvg(a){
      (spec 3) still seats 3 columns at 1:1 scale: 430px boxes need 1422px for
      three, which forced 2 columns + 2 rows and a 760px stage; 398px boxes fit.
      Type size is unaffected (the viewBox stays at the real column width). */
-  const BW_MAX=430, BW_MIN=380, BH=200, GAPX=32, GAPY=32, PAD=34;
+  const BW_MAX=430, BW_MIN=380, GAPX=32, GAPY=32, PAD=34;
   const fitCols=(avail)=>{
     for(let c=3;c>1;c--){ if(PAD*2+c*BW_MIN+(c-1)*GAPX<=avail) return c; }
     return 1;
@@ -116,6 +120,16 @@ function armySvg(a){
   const peers=armyShowStale?allPeers:allPeers.filter(s=>s.activity!=='stale');
   const shown=peers.slice(0,MAX_BOXES);
   const hiddenCount=Math.max(0,peers.length-shown.length);
+  /* COMPACT MODE (Fable review, 2026-09-03, item 1 "first-viewport density"):
+     a roster this small does not need the full 200px card -- at 1600x950 the
+     stage alone ate ~480px with only 2 sessions live, leaving no goal band or
+     producer rows in the first screen. <=3 live sessions drops the card to a
+     title/status/context-meter-only face (per-agent lines move to the drawer
+     only) and the featured double-width seat is skipped so seating never
+     wraps to a second row purely because of the crown. armyMount toggles
+     .stage--compact (CSS: max-height 300px, was 480) off this same flag. */
+  const compact=shown.length<=3;
+  const BH=compact?112:200;
   const rows=1; // recomputed below once bento seats exist
   const W=PAD*2+COLS*BW+(COLS-1)*GAPX;
   const ocy=52, ORCH_H=146, SESS_TOP=218;
@@ -180,8 +194,12 @@ function armySvg(a){
     stroke:'var(--acc)','stroke-width':2,class:'army-trace','stroke-linecap':'round','pathLength':'1000'}));
   og.appendChild(mk('circle',{cx:PAD+30,cy:52,r:9,fill:'none',stroke:'var(--st-live)','stroke-width':1.5,class:'army-ping'}));
   og.appendChild(mk('circle',{cx:PAD+30,cy:52,r:8,fill:'var(--st-live)',class:'army-ring'}));
-  og.appendChild(ltxt(PAD+52,60,orc?orc.name:'—','var(--tx-1)',26,700));
-  og.appendChild(ltxt(PAD+170,60,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',12.5,600));
+  /* DEMOTED (Fable review, 2026-09-03, item 2 "hero hierarchy"): "42-98" was
+     the largest, boldest text on the page -- meaningful to nobody. The state
+     SENTENCE above the stage is the hero now; this becomes a plain 15px mono
+     id + 13px label, same line, same slot. */
+  og.appendChild(lmono(PAD+52,58,orc?orc.name:'—','var(--tx-1)',15,600));
+  og.appendChild(ltxt(PAD+130,58,'ORCHESTRATOR — this page. The session you are talking to.','var(--acc)',13,600));
   if(orc&&orc.title)og.appendChild(stxt(W-PAD-20,60,orc.title.slice(0,48),'var(--tx-4)',12,400,'end'));
 
   /* THE ORCHESTRATOR'S OWN AGENTS. This strip is the session J is actually talking to,
@@ -239,7 +257,10 @@ function armySvg(a){
   const seats=[];
   {
     let fi=-1;
-    if(shown.length>=2&&COLS>=2){
+    /* compact skips the featured double-width crown entirely: with <=3 cards
+       a 2-col seat was the one thing that could still push a card onto a
+       second row even when every card would otherwise fit in one. */
+    if(!compact&&shown.length>=2&&COLS>=2){
       let best=-1;
       shown.forEach((s,k)=>{const sc=(s.worker_count||0)*1000+(s.context_pct||0);
         if(sc>best){best=sc;fi=k;}});
@@ -325,7 +346,11 @@ function armySvg(a){
        id -- reproducing the exact "wtf is 42-dd" unreadability this view was fixed for. Say
        what it IS instead until it names itself. */
     const untitled=!s.title;
-    const bigLabel=untitled?'Untitled chat':fitTxt(s.title,CW-96,19);
+    /* "Untitled chat" was a lie of omission -- it read as a broken/empty window
+       rather than what it actually is (Fable review, 2026-09-03). The id+kind
+       line below already answers "which one, what kind" honestly; say the same
+       true thing here instead of a placeholder. */
+    const bigLabel=untitled?fitTxt(s.name+' · '+armyKindWord(s),CW-96,19):fitTxt(s.title,CW-96,19);
     g.appendChild(ltxt(L+42,T+34,bigLabel,untitled?'var(--tx-3)':'var(--tx-1)',19,untitled?500:700));
     /* HANDLE + KIND, always in the same slot. The heading used to mean two different
        things -- a window title when one existed, the id-name when it didn't -- so
@@ -358,7 +383,11 @@ function armySvg(a){
        MAX_WORKERS_PER_SESSION -- the display cap, not a quantity -- so it read
        cap+overflow and implied a standing army. 42-c9 showed it while all 51 of its
        agents had been finished for 9.3 hours. Present tense comes from worker_active
-       ONLY; worker_count is spoken of strictly in the past. */
+       ONLY; worker_count is spoken of strictly in the past.
+       COMPACT (<=3 live sessions) drops this whole block from the card face --
+       title/status/context-meter only, per-agent lines live in the drawer only
+       (armySessionDrawer already lists every worker on click). */
+    if(!compact){
     const headline=liveN?(liveN+' agent'+(liveN===1?'':'s')+' running now')
       :(everN?'no agents running':'no agents');
     g.appendChild(ltxt(L+22,T+119,headline,liveN?'var(--st-live)':'var(--tx-3)',12.5,liveN?700:500));
@@ -397,6 +426,7 @@ function armySvg(a){
     if(wl.length>rows.length||s.worker_overflow)
       g.appendChild(ltxt(L+38,T+175,
         '+'+(everN-rows.length)+' more not shown','var(--tx-4)',11,500));
+    }
     const actEl=ltxt(L+22,T+97,'','var(--tx-4)',11.5,400); actEl.id='armyact-'+s.session_id;
     actEl.setAttribute('data-humanize','1');   // armyApplyRow reads this and trims shell noise
     g.appendChild(actEl);
@@ -565,7 +595,7 @@ function armySvg(a){
     spotC.setAttribute('opacity','1');
   });
   svg.addEventListener('pointerleave',()=>spotC.setAttribute('opacity','0'));
-  return {wrap,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
+  return {wrap,compact,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
 }
 
 function armyStars(canvas,W,H){
@@ -916,6 +946,11 @@ function armyMount(host){
   built.wrap.id='armystage';
   built.wrap.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column;position:relative';
   host.appendChild(built.wrap);
+  /* .stage (the host's own parent, cmdStage()) carries the max-height cap --
+     toggled here rather than baked into that div, since only armySvg() knows
+     the live roster size (spec item 1, first-viewport density). */
+  try{ if(host.parentElement&&host.parentElement.classList)
+    host.parentElement.classList.toggle('stage--compact',!!built.compact); }catch(_){}
 
   // Diagnostic event ledger -- HIDDEN by default now that chat owns the bottom panel
   // (chat lives in #chatdock, mounted by the runtime, not here). Still populated by

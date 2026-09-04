@@ -173,6 +173,39 @@ function _gfx(kind,...args){
   const f=_fnOf(names[kind]); if(!f)return null;
   try{ return f(...args) }catch(_){ return null }
 }
+/* A single time-of-day marker on a 24h track -- Standup fires once a day, so
+   the only useful graphic is WHEN on the clock it landed, not a series. Local
+   to this file (not a shared gfx*, spec section 4's registry) since nothing
+   else on the page needs a one-tick day strip. */
+function _gfxDayStrip(iso){
+  const m=/T(\d{2}):(\d{2})/.exec(String(iso||'')); if(!m)return'';
+  const mins=parseInt(m[1],10)*60+parseInt(m[2],10);
+  const w=160,h=24,pad=3,y=h/2;
+  const x=pad+Math.max(0,Math.min(1,mins/1440))*(w-2*pad);
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-daystrip">';
+  s+='<line x1="'+pad+'" y1="'+y+'" x2="'+(w-pad)+'" y2="'+y+'" stroke="var(--ink-2)" stroke-width="2" stroke-linecap="round"/>';
+  s+='<circle cx="'+x.toFixed(1)+'" cy="'+y+'" r="4" fill="var(--accent-fill)"/>';
+  s+='</svg>';
+  return s;
+}
+/* N small verdict dots plus one short mono label at the row edge -- for a
+   lane whose sentence already names an event ("last ENTER 2026-09-01") that
+   is worth a scannable mark alongside the health dots, not only prose. */
+function _gfxDotsMarker(states,label){
+  if(!states||!states.length)return'';
+  const list=states.slice(0,9);
+  const w=160,h=24,r=3.5,gap=4;
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-dots">';
+  const dotColor=_fnOf('tilesDotColor');
+  list.forEach(function(st,i){
+    const cx=r+i*(r*2+gap), cy=h/2;
+    s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy+'" r="'+r+'" fill="'+(dotColor?dotColor(st):'var(--dot-off)')+'"/>';
+  });
+  if(label)s+='<text x="'+w+'" y="'+(h/2+4)+'" text-anchor="end" font-family="var(--mono)" '+
+    'font-size="12" fill="var(--ink-3)">'+esc(label)+'</text>';
+  s+='</svg>';
+  return s;
+}
 
 /* ========================= TRADING ========================= */
 
@@ -269,8 +302,11 @@ function buildEnginesRow(){
   const er=D.engine_room||{engines:[]};
   const engines=er.engines||[];
   let live=0, newest=null;
-  engines.forEach(e=>{ const a=agoOf(e.last_write); if(a!=null&&a<=24)live++;
+  const states=[];
+  engines.forEach(e=>{ const a=agoOf(e.last_write); const ticking=(a!=null&&a<=24);
+    if(ticking)live++; states.push(ticking?'green':'off');
     if(e.last_write&&(!newest||e.last_write>newest))newest=e.last_write; });
+  const graphic=states.length?_gfx('dots',states):null;
   const say=engines.length?'<i class="vd"></i><b>'+live+'</b> of <b>'+engines.length+'</b> engines ticking':
     '<i class="vd"></i>NO DATA, no engines reported';
   const body=el('div');
@@ -282,7 +318,7 @@ function buildEnginesRow(){
     w.appendChild(lk); body.appendChild(w);
   });
   return _row({id:'tile-engines',icon:'heart-pulse',title:'Engines',verdict:engines.length?(live===engines.length?'green':live===0?'red':'amber'):'off',
-    graphic:null, say, src:{path:'engine ledgers', last_write:newest, freshH:24}, body});
+    graphic, say, src:{path:'engine ledgers', last_write:newest, freshH:24}, body});
 }
 
 function buildPrepRow(){
@@ -325,6 +361,7 @@ function buildEodRow(){
 
 function buildStandupRow(){
   const d=_newKey('standup');
+  const graphic=(d&&d.ok!==false)?_gfxDayStrip(d.generated_et):null;
   const body=el('div');
   if(!d||d.ok===false)body.appendChild(el('div','note','NO DATA, looked for '+esc((d&&d.path)||'automation/state/gamma-standup-latest.json')));
   else{
@@ -333,7 +370,7 @@ function buildStandupRow(){
   }
   body.appendChild(srcRow([{path:(d&&d.path)||'automation/state/gamma-standup-latest.json', last_write:d&&(d.stamp_et||d.generated_et)}]));
   return _row({id:'tile-standup',icon:'radio',title:'Standup',verdict:_newKeyVerdict(d),
-    graphic:null, say:_newKeySay(d,'automation/state/gamma-standup-latest.json'),
+    graphic, say:_newKeySay(d,'automation/state/gamma-standup-latest.json'),
     src:{path:(d&&d.path)||'automation/state/gamma-standup-latest.json', last_write:d&&(d.stamp_et||d.generated_et), freshH:(d&&d.fresh_h)||24}, body});
 }
 
@@ -370,8 +407,10 @@ function buildMultiRow(){
 }
 function buildFuturesRow(){
   return buildLaneTileRow('futures','trending-up','Futures',lane=>{
-    const checks=_pick(D,['gate','futures','checks']); if(!checks)return null;
-    return _gfx('dots',checks.map(c=>c.status));
+    const checks=lane&&lane.checks; if(!checks||!checks.length)return null;
+    const le=lane.last_enter_et;
+    const label=le?('ENTER '+String(le).slice(5)):'';
+    return _gfxDotsMarker(checks.map(c=>c.status),label);
   });
 }
 

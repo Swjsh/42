@@ -447,6 +447,22 @@ def _cards_engine_health() -> list[dict]:
 
 # ------------------------------------------------------------ source 2: STATUS.md
 
+_LEADING_BRACKET_TS_RE = re.compile(r"^\[[^\]]*\]\s*")
+
+
+def _row_title(text: str) -> str:
+    """The row's TITLE column, not its sentence. STATUS.md's own bullet format
+    is "[2026-09-03 19:00 ET] <the actual finding>" -- the bracket is already
+    carried separately as this card's source_age_h, so repeating it as the
+    title left nothing readable in a fixed-width column (Fable review,
+    2026-09-03: "titles like '[timestamp] ...' (a timestamp truncated to
+    nothing)"). Strip a leading bracket, then keep only the first meaningful
+    clause at a word boundary -- the row's sentence (why[0]) still carries the
+    untouched original text, bracket included."""
+    stripped = _LEADING_BRACKET_TS_RE.sub("", text or "").strip()
+    return _clip(stripped or (text or ""), 34)
+
+
 def _parse_ts(s: str):
     m = _TS_RE.search(s or "")
     if not m:
@@ -513,7 +529,7 @@ def _cards_status_md() -> list[dict]:
         # 16:19:48 ET entry read as -0.08h "in the future" against a Mountain-time
         # now()). et_clock.et_now() is the one DST-aware ET source; never datetime.now() here.
         age = (et_clock.et_now() - e["ts"]).total_seconds() / 3600.0 if e["ts"] else file_age
-        title = _clip(e["text"].split(" -- ", 1)[0].split(" :: ", 1)[0], 120)
+        title = _row_title(e["text"].split(" -- ", 1)[0].split(" :: ", 1)[0])
         c = _card(
             card_id="card-broken-%d-%s" % (i, re.sub(r"[^a-z0-9]+", "-", title.lower())[:40].strip("-")),
             title=title,

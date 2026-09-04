@@ -24,6 +24,7 @@ READ-ONLY. Decides nothing, fires nothing, writes nothing.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 import datetime as dt
@@ -178,14 +179,30 @@ def lane_kitchen() -> dict:
     }
 
 
+_LAST_ENTER_RE = re.compile(r"last ENTER (\d{4}-\d{2}-\d{2})")
+
+
 def lane_futures() -> dict:
     h = STATE / "futures" / "health.json"
     d = _read(h) or {}
     dec = STATE / "futures" / "decisions.jsonl"
     newest, age = _newest([h, dec])
     verdict = d.get("verdict")
-    reds = [c for c in (d.get("checks") or []) if c.get("status") == "RED"]
+    checks = [c for c in (d.get("checks") or []) if isinstance(c, dict)]
+    reds = [c for c in checks if c.get("status") == "RED"]
     tasks = _task_states(("Futures",))
+    # A row-level graphic needs the checks' own verdicts, not just the worst
+    # one -- the health file already carries this, it was simply never
+    # forwarded past this builder (the rail's own row read a dead payload
+    # path for it, gfx always None). last_enter_et is parsed from whichever
+    # check's own detail string already spells it out (fills_recency, today)
+    # -- never a second computation of the same fact from decisions.jsonl.
+    last_enter_et = None
+    for c in checks:
+        m = _LAST_ENTER_RE.search(str(c.get("detail") or ""))
+        if m:
+            last_enter_et = m.group(1)
+            break
     return {
         "id": "futures", "label": "Futures", "kind": "MNQ/MES",
         "state": ("HELD" if _held(tasks)
@@ -198,6 +215,8 @@ def lane_futures() -> dict:
         "metric": verdict or "?",
         "metric_label": "health",
         "tasks": tasks,
+        "checks": [{"name": c.get("name"), "status": c.get("status")} for c in checks],
+        "last_enter_et": last_enter_et,
     }
 
 
