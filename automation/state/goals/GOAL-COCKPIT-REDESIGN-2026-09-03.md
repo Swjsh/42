@@ -96,6 +96,7 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
 - None. Revoke = `git revert <sha>`; the previous page is one revert away.
 
 ## PROGRESS LOG
+- 2026-09-03 22:17 ET — Stop-hook continuation 1/3 reached session 76844c47 (the non-SPY expansion session, NOT this goal's owner). **R5 NOT STARTED, and it is not a judgement call: R4 is being written to disk right now by the owning session.** Verified cold, not assumed: `git status` shows 12 cockpit files dirty and ZERO committed (6 modified — army_js, autonomy_js, cards_js, cockpit_js, ui, views_js, gamma_home; 5 untracked — command_js, producers_js, tiles, tiles_js, vendor), and the newest write is `gamma_cockpit_ui.py` at 2026-09-03 20:07:55 -0600 = **22:07 ET, ten minutes before this fire**. The last cockpit commit is still `3eda8574` (the spec). R5 is screenshot -> blind critique -> fix -> re-shoot; running it against a half-integrated build critiques a state that will never exist, and any fix would collide with the owning session's integrator on the same files (C34). Same call, same reason, as the 19:03 ET entry above. No file in this goal's lane was touched. Owning session continues; R5 unblocks when R4 commits.
 - 2026-09-03 19:03 ET — Stop-hook continuation 3/3 reached session b6eea006 (the money-leak/security session, NOT this goal's owner). **R2 SKIPPED, not started, for two independent reasons:** (1) it is blocked on R1, which is `[~]` wip in the owning session (that session committed the goal switch `19d87d7a` at 18:57 ET, four minutes before the hook fired) -- starting R2 here would clobber an in-flight lane; (2) R2 is a design-direction call (palette/type/layout/motion), and doctrine routes aesthetic judgement away from Claude and requires every UI pass to open from FRESH EXTERNAL REFERENCES (J, 8th ask, 2026-08-30) -- which is precisely what R1's research pack is for. Doing R2 before R1 lands would iterate on our own output, the exact anti-pattern. No files in this goal's lane were touched. Owning session continues.
 - 2026-09-03 18:55 ET — Opened by Fable from J's directive (ultracode on). Placed at the top of
   the ladder; GOAL-GAMMA-AUTONOMY closed with its A6 carried here as R7.
@@ -104,6 +105,8 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
 - 2026-09-03 19:20 ET — J correction mid-run: prior designs not to be honoured (plumbing only). Design workflow stopped, brief corrected, resumed from cache (baseline critics kept).
 
 - 2026-09-03 19:26 ET — Stop-hook continuation 3/3: R4 (build) is blocked on R2 (design spec workflow, running with the corrected brief) and R3 (vendoring agent, running). Build workflow script is drafted (planner -> parallel builders -> integrator -> screenshot critique loop to median >= 7) and launches on the spec. Screenshot instrument committed bbf34333.
+
+- 2026-09-03 19:52 ET — R4 build workflow launched (planner -> parallel Sonnet builders on disjoint files -> integrator -> screenshot critique loop, target median >= 7). Deviation from spec §9: NO feature branch — this is a shared checkout with peer sessions committing to main (C34 scar); work lands as scoped commits on main, revert = `git revert <sha>` per commit. Spec + research pack committed 3eda8574.
 
 ## HONEST STATE
 Queued. Nothing built. Research workflow launching.
