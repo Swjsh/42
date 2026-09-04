@@ -83,7 +83,8 @@ sizing), **not** `engine_cli`'s SPY-specific gates — disclosed on every row.
 
 | Knob | Value | Where |
 |---|---|---|
-| qty per entry | **exactly 3** (Rule 6 min; `risk.max_contracts` hard clamp in the executor — a $100K paper account would otherwise size ~90) | `params.risk` |
+| qty per entry | **exactly 3** (Rule 6 min; `risk.max_contracts` hard clamp in the executor) | `params.risk` |
+| affordability cap | **30%** of equity (Rule 6 Safe value) — NOT the risk control, only what lets `size_entry` afford a 3-lot; the accounts are **$5,000 each** (verified 2026-09-04, not the $100K the prereg assumed), so a 3-lot is affordable up to a ~$5 premium and a pricier name (TSLA ~$5.5) is refused, never rounded up | `params.risk.per_trade_risk_cap_pct` |
 | concurrent positions | 1 per arm | `params.risk.max_concurrent_positions` |
 | daily kill | 1% of equity → blocks NEW entries; exits + flatten always run | `params.risk.daily_loss_kill_switch_pct` |
 | entry window | 09:35–14:30 ET | `params.tick_cadence.last_entry_et` |
@@ -132,7 +133,7 @@ A pass authorizes more paper and a promotion instrument — **never live**.
 - A −50% catastrophe cap checked every 2 minutes can overshoot on a fast single name.
 - Alpaca's expiration-day cutoff for single-name options (~15:15 ET) forces a 14:45 soft stop —
   earlier than the SPY arms' 15:50, so the hold window is shorter.
-- Day one may start with the secrets file absent; fills begin one tick after it appears.
+- The prereg assumed fresh $100K accounts; they are $5,000 each (verified 03:5x ET 2026-09-04). Sizing pressure therefore exists here too, and the frozen 1% daily kill ($50) means one losing 3-lot ends an arm's day.
 
 ## 9. Log
 
@@ -141,3 +142,4 @@ A pass authorizes more paper and a promotion instrument — **never live**.
   (the 2h scar); the tickers installers use local 07:35.
 - 2026-09-04 ~02:00 ET -- registered (`Gamma_TickersLane` 09:35 ET/PT2M, `Gamma_TickersEodFlatten` 14:52 ET). Shadow E2E probe x3 on a real account found and fixed two day-one blockers (sector buckets fail-closed; 2% cap could not afford 3 contracts) and proved the last mile (NVDA 0DTE put, 39 -> 3, limit ask+0.01, nothing sent). Two core.py bugs fixed on the way: WOULD_PLACE qty=None (would have blocked every entry) and the triggers key. Human step remaining: paste secrets, run `python multi/tickers_verify.py`.
 - 2026-09-04 02:42 ET -- adversarial review of the executor: 2 BLOCKERs (exit qty was the ORIGINAL entry qty, never broker truth -- after TP1 every SELL_ALL would have been rejected; unconfirmed/partial orders were left resting with the id discarded, so the next tick could stack a second entry), 1 HIGH (theta budget compared an intraday entry against YESTERDAY's close), 2 MED (no lane/flatten lock; no premium floor), 2 LOW. All fixed on two builders with disjoint files + a market-clock gate for Monday's Labor Day holiday, then a fourth shadow E2E probe on the merged build: NVDA WOULD_PLACE qty 3 -> SHADOW_ENTRY_PREVIEW, 14s. T6 instrumented (`Gamma_TickersDayCheck`). Follow-up named, not done: split execute.py's pure helpers into multi/lib/tickers_order_lifecycle.py (1,2xx lines > 800 guideline).
+- 2026-09-04 08:35 ET -- creds loaded + verified (tickers_verify.py 03:5x ET: tickers-1 PA39FKBSPLPR / tickers-2 PA3K6MNSXGE6 / tickers-3 PA3RBOSIUBTR -- equity $5,000 each, buying_power 20,000, options_approved_level 3, ACTIVE; account pins written). J: use the pasted paper keys as-is. $5K accounts -> affordability cap 0.30. Per-arm runtime dirs gitignored.

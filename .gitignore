@@ -386,3 +386,11 @@ analysis/home/screens/
 # Same pattern as fleet/ and crypto-twin/. The tracked template is secrets.json.example.
 automation/state/tickers/secrets.json
 **/tickers/secrets.json
+
+# tickers lane per-arm RUNTIME state (ledger.jsonl, exit-state.json, day-*.json, account pin, level-states) --
+# decision-gating state must never be tracked (C34: a tree-wide git op would revert live state backward).
+# secrets.json is ignored separately above (line ~388). Added 2026-09-04.
+automation/state/tickers/tickers-*/
+automation/state/tickers/day-check-*.json
+automation/state/tickers/*-last-run.log
+automation/state/tickers/.lane.lock

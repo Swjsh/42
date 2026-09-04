@@ -60,7 +60,7 @@
       "min_open_interest": 250,
       "min_contract_volume_today": 100,
       "min_underlying_dollar_volume": 20000000,
-      "min_premium_dollars": 0.20,
+      "min_premium_dollars": 0.2,
       "_min_premium_note": "Added pre-window on the 2026-09-04 review: a sub-$0.20 0DTE contract x3 is lottery noise, not a trade.",
       "feed": "indicative",
       "_feed_note": "No OPRA agreement on this account: every spread number is from the free indicative feed. Permanent disclosure on every row."
@@ -73,7 +73,7 @@
     "_expiry_doc": "INTRADAY: take the nearest LISTED expiry (0-3 DTE typical). Still read from the live chain, never a computed calendar -- an expiry can be absent because earnings land that day (verified: NVDA had no 2026-08-26 listing)."
   },
   "risk": {
-    "per_trade_risk_cap_pct": 0.05,
+    "per_trade_risk_cap_pct": 0.3,
     "_cap_note": "5% of equity. The executor HARD-CLAMPS qty to risk.max_contracts (3), so this pct is not the risk control -- it only has to be large enough that size_entry() can AFFORD the Rule-6 minimum of 3 contracts. At 2% a $9.4K account could afford 1 contract of a $1.19 NVDA option (E2E probe 2026-09-04 01:5x ET: BLOCKED sized_ok, 'max affordable 1 < min_contracts 3'); on a $100K paper account 5% = $5,000 covers 3 contracts up to a $16 premium, and on a $10K account still covers NVDA/AAPL/AMZN-class premiums. A name whose 3-lot exceeds the cap is SIZE_BELOW_MIN -- refused, never rounded up.",
     "min_contracts": 3,
     "max_concurrent_positions": 1,
@@ -89,7 +89,8 @@
     "max_contracts": 3,
     "_max_contracts_doc": "HARD CLAMP enforced by multi/execute.py AFTER size_entry(): a $100K paper account would otherwise size ~90 contracts of a $2 option. Rule 6 minimum is 3 (2 TP + 1 runner); day one trades EXACTLY 3, matching the SPY arms. Raising this is a risk EXPANSION -> waits for evidence, never a tweak.",
     "_max_concurrent_doc": "One position at a time per arm (SPY doctrine: one at a time). Three arms = at most three open contracts book-wide, never the same contract twice.",
-    "_kill_doc": "1% of equity (~$1,000 on $100K paper) blocks NEW entries for the day. Exits and the flatten always run."
+    "_kill_doc": "1% of equity (~$1,000 on $100K paper) blocks NEW entries for the day. Exits and the flatten always run.",
+    "_per_trade_risk_cap_doc": "AFFORDABILITY knob, not the risk control -- the executor hard-clamps qty to max_contracts (3). 0.30 = Rule 6's Safe value. Set 2026-09-04 03:5x ET when tickers_verify.py showed the three accounts are $5,000 each, not the $100K the prereg assumed: at 0.05 a $5K account could only afford a 3-lot up to a $0.83 premium and most of the universe (NVDA ~$1.2, AAPL ~$2.2, QQQ ~$3.2) would have been SIZE_BELOW_MIN at the open. At 0.30 ($1,500) a 3-lot is affordable up to a $5.00 premium; a name whose 3-lot exceeds it (TSLA ~$5.5) is refused, never rounded up. daily_loss_kill_switch_pct stays 0.01 ($50 on $5K = one losing 3-lot ends the arm's day) -- the prereg froze it and raising it is a risk expansion; revisit on a weekend, in writing, if the window shows it binding."
   },
   "exits": {
     "_label": "COPIED_FROM_SPY_ENGINE_UNVALIDATED_ON_THESE_NAMES -- the prereg measures them",
