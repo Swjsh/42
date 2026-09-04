@@ -1,20 +1,21 @@
 {
-  "computed_at": "2026-08-26T05:07:07+00:00",
+  "computed_at": "2026-09-04T05:04:01+00:00",
   "window": 20,
-  "net_improvement": 5,
-  "total_drained": 5,
+  "net_improvement": 13,
+  "total_drained": 13,
   "total_regressions": 0,
-  "total_cost_usd": 11.26,
-  "cost_per_drained_usd": 2.252,
+  "total_cost_usd": 38.61,
+  "cost_per_drained_usd": 2.97,
   "fires_counted": 20,
-  "function_score_avg": 125.15,
+  "function_score_avg": 126.75,
   "function_latest": {
-    "trading_day": "2026-08-25",
-    "enters_last_trading_day": 12,
-    "orders_accepted": 3,
+    "trading_day": "2026-09-03",
+    "enters_last_trading_day": 89,
+    "orders_accepted": 16,
     "extra_exec_orders_accepted": 0,
-    "fills": 1,
+    "fills": 23,
     "distinct_setups_traded": 2
   },
-  "trend": "regressing"
+  "trend": "improving",
+  "zero_enter_day_grade": null
 }

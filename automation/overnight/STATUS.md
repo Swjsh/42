@@ -1,39 +1,20 @@
-## [2026-09-03T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-09-03 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+## [2026-09-03] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-30..2026-09-02), real OPRA fills, floor n>=10
 
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 81 tick(s) showed in_trade>0. 89 real fill(s) dated 2026-09-03: safe-2@09:41, bold-2@09:41, safe-2@09:42, bold-2@09:42, safe-3@09:42, risky-1@09:42, safe-2@09:43, bold-2@09:43, safe-2@09:44, bold-2@09:44, safe-2@09:45, bold-2@09:45, safe-2@09… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-09-03, generated_at_et=2026-09-03T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-09-03, regime_context.stamp_date=2026-09-03 (present=True, dates_match=True). one_liner='Yesterday 2026-09-02 (Wed) = range-chop (range 0.62%, gap +0.10%,… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 80 distinct near-price levels. Worst: 761.32 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 172 level-refresh run(s) logged (172 ok), hysteresis_held fired 101 time(s) across 16 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-09-03 window_end=2026-09-02 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=31 (delta +21 vs baseline n=10) exp=$-1.77/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=42 exp=$41.48/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-09-03T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2']. 242 theta-clock row(s) dated 2026-09-03 across 6 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=242, unavailable=0. still sqrt_tim… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-09-03 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-09-03`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## Live watch
-
-- [2026-09-03T10:35:01 ET] THETA STALL :: risky-1 SPY260903C00768000 qty=5 :: est theta burn -9.45 vs est delta gain -325.00 over last 15min (mid=1.005, unrealized=-24.43%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T10:35:01 ET] THETA STALL :: safe-2 SPY260903C00768000 qty=3 :: est theta burn -5.40 vs est delta gain -195.00 over last 15min (mid=1.005, unrealized=-28.57%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T10:35:01 ET] THETA STALL :: safe-3 SPY260903C00768000 qty=5 :: est theta burn -9.45 vs est delta gain -325.00 over last 15min (mid=1.005, unrealized=-23.66%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T09:55:00 ET] THETA STALL :: safe-2 SPY260903C00770000 qty=3 :: est theta burn -5.10 vs est delta gain +0.00 over last 15min (mid=0.945, unrealized=-5.1%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T09:50:01 ET] THETA STALL :: risky-1 SPY260903C00770000 qty=5 :: est theta burn -5.05 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=-8.33%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T09:50:01 ET] THETA STALL :: safe-3 SPY260903C00770000 qty=5 :: est theta burn -5.20 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=-11.71%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-02). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($2326.25); Bold_ATM_1+2=CONFIRM ($1474.0)
+> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
 
 ---
 
 ## Known broken
 
+- [2026-09-04T00:57:04 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=FAIL, mcp_procs=FAIL -- port 9222 unreachable -- URLError: <urlopen error [WinError 10061] No connection could be made ; 0 alpaca-mcp-server process(es) found
+- [2026-09-04 00:36 ET] FULL-SUITE RED :: 13199 passed, 6 failed, 13 skipped (retry recovered 2) :: tests/test_arm_roster_sweep_2026_09_02.py::test_every_hardcoded_roster_is_declared_with_a_reason, tests/test_arm_roster_sweep_2026_09_02.py::test_the_retirement_hazard_is_enumerated_not_hidden, tests/test_pre_commit_scope_enforcement_2026_09_03.py::test_case_a_interactive_absorbed_file_commits, tests/test_pre_commit_scope_enforcement_2026_09_03.py::test_case_c_automation_with_opt_out_commits, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage, tests/test_setup_taxonomy_2026_09_02.py::test_real_trades_csv_before_after_bucket_reconciliation :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-09-04T04:33+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-03 19:00 ET] 🚨 SECRETS-ON-PUBLIC-REMOTE (SCOPE CORRECTED 19:17 ET: SIX Alpaca credentials, not two -- the repaired history scanner found four MORE, incl. THREE key+SECRET pairs = full API access, all reachable from origin/main) :: paper-key prefixes PKWEWC/PKEZ6O (safe-2, bold-2, commit b219a8cd) PLUS PK33+secret FxbJ (4 files, commits a1db803e/d0c8ac06, hardcoded as an env fallback default), PKGZ+secret 9Ezm (labelled 'safe' in atomic_bracket_guard.py), PKQM+secret ELWu (its own comment says rotated 2026-05-22, old value still public), PK7WRO (doc example in .claude/skills/github-audit/SKILL.md, real-key-shaped). NO LIVE-MONEY KEYS: every finding is PK-prefixed (paper) and zero AK-shaped (live) ids exist anywhere in history -- verified. All are readable in the PUBLIC repo's history: commit `b219a8cd` (authored 02:27 ET today by another session, file `backtest/_attic/scripts/mcp_audit_debug.py`) was PUSHED to origin/main at 18:38-18:39 ET tonight by the parallel session. The file is deleted at HEAD (`a127fa79`) but the blob remains reachable (`git show b219a8cd:...`). J-ONLY ACTION: rotate EVERY Alpaca paper key that has ever appeared in this repo's history (six, not two) in the Alpaca dashboard and update the gitignored `.mcp.json` + `automation/state/fleet/secrets.json`; optionally make the repo private while rotating. Do NOT force-push/rewrite history without J (276 documented revert SHAs). Guard shipped tonight so this cannot recur: pre-commit now scans STAGED content (`ef7e4aed`). Also found: `github_audit.py --history` CRASHES (UnicodeDecodeError cp1252 + None diff_output) so the history scan has never actually run -- fix filed. :: re-check: python setup/scripts/github_audit.py
 - [2026-09-03 18:06:08 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
-- [2026-09-03 05:52 ET] FULL-SUITE RED :: 12677 passed, 1 failed, 16 skipped :: tests/test_shadow_board_nonterminal_2026_09_03.py::test_status_regexes_are_the_same_object_as_prereg_hygiene :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
-- [2026-09-03T09:50+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
-- [2026-09-03T03:37:05 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=ok, mcp_procs=FAIL -- 0 alpaca-mcp-server process(es) found
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-8-bear-sole :: bear sole-[8] refused 106 bar-event(s), 44 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-8-bear-sole
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-10-bull-sole :: bull sole-[10] refused 78 bar-event(s), 28 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-10-bull-sole
 - [2026-09-02T22:57:10] GRADUATED-GUARDS-SLOW FAIL :: 1 failed, 45 passed, 11866 deselected, 3 warnings in 1625.82s (0:27:05) :: re-run: cd backtest && python -m pytest tests/ -m slow -q
@@ -50,6 +31,22 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+- [2026-09-04T01:03 ET] conductor AFTERHOURS: OK -- disposes the 00:36 ET FULL-SUITE RED (5 of 6 failures fixed, 1 was already flaky/self-resolved) -- REVOKE surface
+
+  **Picked via STAGE 0 budget gate PROCEED ($30 cap, first fire tonight) + market closed (Fri 00:57 ET) + engine-health.json GREEN (22/22, market_open:false). STAGE-1 priority #2 (Engine RED / STATUS BROKEN flags): the freshest untriaged `## Known broken` entry, 00:36 ET `FULL-SUITE RED :: 6 failed` -- outranks active goal GOAL-COCKPIT-REDESIGN-2026-09-03 (2a) per priority order.**
+
+  🔎 **Re-ran all 6 named tests: 5 failed, 1 passed** (`test_build_regime_early_classifier_walk_forward_no_leakage` already green -- not reproduced, left as-is per debugging discipline: don't re-diagnose a test that no longer fails). Diagnosed each of the 5 to a one-sentence root cause before touching anything:
+
+  1. 🎯 **`test_arm_roster_sweep_2026_09_02.py` x2** -- two files shipped by tonight's parallel J-directed session (`conviction_c4_sidecar.py`, `fleet_gate_leak_shadow.py`) hardcode arm rosters, incl. retired `risky-3`/`safe-1` in the sidecar, without a `DECLARED_HARDCODED` entry -- exactly the undeclared-retirement class the guard exists to catch. **Fix:** added both with reasons sourced from each module's own docstring (both HISTORICAL: re-scoring/auditing past PLACED rows, retired arms deliberately included not silently dropped).
+  2. 🎯 **`test_pre_commit_scope_enforcement_2026_09_03.py` x2 (case A + case C)** -- root cause: the STAGED-SECRET-SCAN step shipped THIS SAME NIGHT (`ef7e4aed`, in response to the SECRETS-ON-PUBLIC-REMOTE incident) runs `"$PY" "$ROOT/setup/scripts/github_audit.py" --staged` and treats ANY nonzero exit as "secret found -- BLOCKED". The test's `tmp_repo` fixture is a bare `git init` with no `setup/scripts/` tree, so python's own `can't open file ... No such file or directory` (script missing) was being read as "secret detected" -- a real OP-25 rail-2 fail-open hazard: if `github_audit.py` were ever missing/broken in the REAL repo (bad merge, mid-refactor, permissions), every commit -- including J's interactive ones -- would incorrectly BLOCK with a misleading secret-found message. **Fix (`setup/git-hooks/pre-commit`, synced to the locally-installed `.git/hooks/pre-commit`, untracked):** check the scanner file exists first; if missing, SKIP with a visible warning and let the commit through; only a REAL nonzero exit from a scanner that actually ran still blocks. Behavior when the scanner is present (the real repo, always) is byte-identical to before -- confirmed no regression to actual secret detection (no test in this file exercises the block path with the scanner present; that path's logic is untouched, only gated by the new existence check).
+  3. 🎯 **`test_setup_taxonomy_2026_09_02.py`** -- `after["BULLISH_RECLAIM_RIDE_THE_RIBBON"]["n"] == 316` hardcoded a literal against `journal/trades.csv`, which is a live, Rule-8-append-only, daily-growing file for the engine's core live signal -- 338 rows two days after the 316 baseline was authored, zero code change in between. **Fix:** replaced the literal with a self-consistent merge-invariant check computed from TODAY's own raw counts (floor >= 316 as a "was the file rewritten, not just grown" sanity check, exact match against the recomputed sum) -- catches a real `canonical_setup()` regression without breaking on a predictable daily cadence.
+
+  **Verified, quoted (OP-33):** all 3 originally-failing test files green: `tests/test_arm_roster_sweep_2026_09_02.py tests/test_pre_commit_scope_enforcement_2026_09_03.py tests/test_setup_taxonomy_2026_09_02.py tests/test_regime_early_classifier_guards.py` -> **37 passed, 3 warnings in 10.12s**. Curated safety gate: `python backtest/tests/run_safety_gate.py` -> **59 passed, PASS**. Frozen-file diff (the 10-file Sept freeze list) empty -- none of the 3 touched files (a test-declaration dict, a test assertion, a git hook) is on the trading path.
+
+  **Rail (pure CI/tooling + guard-declaration fix -- zero trading-path file touched, no order placed):** guard = the 37 passing tests above, including 2 new coverage points on the pre-commit fix's own scope (case A + case C now exercise the fail-open branch); revert = `git revert 9d3ea38d` (3 files, additive/narrowing, no existing function signature changed) (b); this entry is the REVOKE report (c).
+
+  📊 `conductor_outcome.py metric` recorded below.
 
 - [2026-09-03T13:03 ET] J-directed daytime session (money-leak audit -> dissection -> forward instruments) -- 6 commits, 6 new $0 shadow tasks, one decision REVERSED on evidence -- REVOKE surface
 
@@ -263,6 +260,35 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
+## [2026-09-03T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-09-03 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
+
+**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
+
+| Item | Verdict | Expected | Observed |
+|---|---|---|---|
+| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 81 tick(s) showed in_trade>0. 89 real fill(s) dated 2026-09-03: safe-2@09:41, bold-2@09:41, safe-2@09:42, bold-2@09:42, safe-3@09:42, risky-1@09:42, safe-2@09:43, bold-2@09:43, safe-2@09:44, bold-2@09:44, safe-2@09:45, bold-2@09:45, safe-2@09… |
+| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-09-03, generated_at_et=2026-09-03T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-09-03, regime_context.stamp_date=2026-09-03 (present=True, dates_match=True). one_liner='Yesterday 2026-09-02 (Wed) = range-chop (range 0.62%, gap +0.10%,… |
+| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 80 distinct near-price levels. Worst: 761.32 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 172 level-refresh run(s) logged (172 ok), hysteresis_held fired 101 time(s) across 16 distinct level(s). |
+| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-09-03 window_end=2026-09-02 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=31 (delta +21 vs baseline n=10) exp=$-1.77/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=42 exp=$41.48/tr. live refresh attempted=True ok=True. |
+| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-09-03T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2']. 242 theta-clock row(s) dated 2026-09-03 across 6 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=242, unavailable=0. still sqrt_tim… |
+| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-09-03 -- diff not applicable. |
+
+Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-09-03`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
+
+---
+
+## Live watch
+
+- [2026-09-03T10:35:01 ET] THETA STALL :: risky-1 SPY260903C00768000 qty=5 :: est theta burn -9.45 vs est delta gain -325.00 over last 15min (mid=1.005, unrealized=-24.43%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-09-03T10:35:01 ET] THETA STALL :: safe-2 SPY260903C00768000 qty=3 :: est theta burn -5.40 vs est delta gain -195.00 over last 15min (mid=1.005, unrealized=-28.57%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-09-03T10:35:01 ET] THETA STALL :: safe-3 SPY260903C00768000 qty=5 :: est theta burn -9.45 vs est delta gain -325.00 over last 15min (mid=1.005, unrealized=-23.66%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-09-03T09:55:00 ET] THETA STALL :: safe-2 SPY260903C00770000 qty=3 :: est theta burn -5.10 vs est delta gain +0.00 over last 15min (mid=0.945, unrealized=-5.1%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-09-03T09:50:01 ET] THETA STALL :: risky-1 SPY260903C00770000 qty=5 :: est theta burn -5.05 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=-8.33%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+- [2026-09-03T09:50:01 ET] THETA STALL :: safe-3 SPY260903C00770000 qty=5 :: est theta burn -5.20 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=-11.71%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
+
+---
+
 ## [2026-09-03T18:58 ET] GOAL SWITCH: GOAL-GAMMA-AUTONOMY closed (A1-A5 shipped 5322e780; A6 carried) -> GOAL-COCKPIT-REDESIGN-2026-09-03 OPENED by goal_autopilot (J: "redesign the whole page ... find the best free web design plugins ... 2/10 to a 7 or 8 ... daily driver", ultracode on)
 
 First real ladder close+open by `goal_autopilot.py ensure` (closed_opened). New goal file: `automation/state/goals/GOAL-COCKPIT-REDESIGN-2026-09-03.md` -- DONE-WHEN: vendored real design assets with a manifest, Army+Autonomy merged into one Command view, expandable tiles for every producer (premarket/standups/EOD/analyst/kitchen/prospector/gym/shadow/futures/multi/guards/tasks/gate/calendar/watchers/budget), blind critique panel median >=7/10, nothing lost, committed. Research workflow running. Revoke: `git revert <sha>`.
@@ -270,16 +296,6 @@ First real ladder close+open by `goal_autopilot.py ensure` (closed_opened). New 
 ## [2026-09-03T18:20 ET] GOAL OPENED: GOAL-GAMMA-AUTONOMY-2026-09-03 -- Gamma opens and drives its own goals (J: "your /goal is gamma autonomy ... i need to see it happening, on the dashboard")
 
 Root causes verified this session: (1) goal production was J-only (`/gamma-goal` is disable-model-invocation) and `active-goal.json` sat inactive since 08-30, so the conductor's 4 budgeted fires/day drained self-audit triage (last 20 fires: 0 strategy-learning items); (2) the research loop (Kitchen 3,787 done, 47 preregs + 286 candidate files in 7d, 131 commits/24h) never rolls up as "learned X"; (3) `payload["autonomy"]` is computed by `gamma_home.py:583` and rendered by nothing, and `Gamma_Home` is not quiet-mode ESSENTIAL so the page freezes 18:00-23:00 ET. Build in flight: `goal_autopilot.py` + LADDER.md + `Gamma_GoalAutopilot` ($0), `learning_ledger.py`, an `Autonomy` PRIMARY tab on the home page, three queued research goals. Goal file: `automation/state/goals/GOAL-GAMMA-AUTONOMY-2026-09-03.md`. Revoke: `git revert <sha>` + `Unregister-ScheduledTask Gamma_GoalAutopilot`.
-
-## [2026-09-02] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-29..2026-09-01), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-01). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($1709.05); Bold_ATM_1+2=CONFIRM ($714.4)
-> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
 
 ## [2026-09-03T00:05 ET] conductor AFTERHOURS: prereg_hygiene aggregator-mention bug fixed -- 11 false "already run" matches, 3 of them exact-opposite-of-true
 
@@ -438,303 +454,24 @@ closed. That is the shape that is supposed to trigger suspicion, so I hunted the
 Commit `a2683450` (7 files, no frozen trading-path file touched, safety gate 59 passed).
 REVOKE: `git revert a2683450`.
 
-## [2026-09-02T10:45 ET] All 7 guard failures fixed; clean run in flight -- REVOKE surface
 
-The 10:15 ET full run came back **11,732 passed / 7 failed** (and the three cheap-contract
-fixtures repaired this morning were GONE -- that fix held). All seven are now addressed, and
-**not one was a real product defect**. Every one was a test or a schedule that ordinary
-correct operation turns red.
+## Kitchen
+Kitchen: alive, queue 44 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
-- **4x prereg `is_frozen`** -- asserted `status == FROZEN_PENDING_RUN`; the preregs had been
-  legitimately RUN and their verdicts recorded. A prereg's STATUS is a state machine correct
-  operation advances; its CONTENT is what must never move. Replaced with a legal-state check
-  that ALSO requires a `RUN_COMPLETE` claim to carry a `closed_*` run record -- something the
-  old equality never checked. RED-proofed: an unfrozen DRAFT fails, RUN_COMPLETE with the
-  record deleted fails, and editing a frozen population hash still fails the sibling
-  anti-repick test. Commit `9e87eec8`.
-- **quiet-mode gaming blackout** -- TIME-DEPENDENT. `presence_hold()` short-circuits inside
-  the trading band (correctly -- the engine owns 09:30-15:55), so the test only ever passed
-  outside market hours. Surfaced today because **this is the first full guard run ever
-  executed during RTH** (the nightly fires ~04:29 ET). Now patches `_in_trading_band`.
-- **Kalshi weather 49h stale** -- the test offered two explanations and **both were wrong**
-  ("either the weather lane genuinely stopped, or the fix regressed"). The lane ran 08-31 with
-  rc=0. Its 23:08 ET trigger clears the CLOCK blackout -- which is why the 2026-08-26 re-time
-  looked sufficient -- but not the presence LINGER, which holds past 23:00 whenever the
-  machine is in use. Caught the lane up (48.9h -> 0.0h, guard 6/6) THEN re-timed 21:08 ->
-  23:40 MT; re-timing alone would not have gone green today. Registry updated.
-- **`free_model_cost_estimate_is_zero` "flaky"** -- **not flaky, deterministic**. It failed in
-  both full runs, passed alone (1 passed) and passed with its own whole file (129 passed,
-  17.5 min). `test_eod_quant_guard.py` plants a fake `run_minimax` into `sys.modules` at
-  IMPORT time and never removed it; alphabetically it collects BEFORE
-  `test_graduated_guards`, which then imported the stub. Fixed with save/restore in a
-  `finally` -- safe because `eod_fallback.py` binds `call_minimax` at module level and never
-  re-consults `sys.modules`. RED-proofed on the reproducing order: leak restored -> 1 failed;
-  fix in -> 9 passed.
-
-**Clean run fired 10:45 ET** with all fixes in (the 10:31 run was killed -- it predated the
-last fix, and a killed run writes nothing, so the 10:15 verdict was preserved; also backed up
-to `guard-watch-full.json.good-1015`).
-
-**The pattern worth naming:** 6 of 7 were guards that go red when the system behaves
-CORRECTLY -- a prereg gets run, a study completes, the market opens, a task is caught up.
-That is the "monitor that stays RED on known-correct behaviour" disease, and a suite carrying
-seven of them is a suite nobody reads.
-
-## [2026-09-02T09:33 ET] Criterion 5 FIXED -- window widened, evidence bar untouched -- REVOKE surface
-
-Follows the 09:16 ET entry, which filed this as blocked-on-J. **J released it the same hour:**
-*"THE HARD CODED 20 day logic was not my idea so it definitely can change depending on the
-engines performance."* The original was written by an automated session executing
-`PROD-SHADOW-ARM-DESIGNATION`, never ratified by J -- so it was mine to correct. Commit
-`85e44e5f`.
-
-**Changed:** `window_end` 2026-09-29 -> **2026-10-30**. **`min_days` UNCHANGED at 20.**
-
-**Why that split matters.** Widening a window is a CALENDAR question; lowering `min_days` is a
-STATISTICS question. Trading one off against the other silently is how a bar gets hollowed
-out while still looking rigorous. The evidence content of criterion 5 is identical to what was
-registered on 09-01; only the time allowed to accumulate it moved, and it was sized from
-MEASURED PARTICIPATION -- knowable on 09-01, independent of any P&L. safe-3 filled 26 of 44
-trading days (59%), so 20 scored days needs ~34 trading days; the old window gave 20, the new
-gives 43 and clears the bar even at the worst arm's rate (bold-2, 47% -> exactly 20).
-**safe-3's returns were deliberately not consulted in choosing the window.** 10-30 was already
-the governing clock for the whole decision (work order S0), so this aligns criterion 5 with
-the decision date rather than inventing one.
-
-**The class fix is the real deliverable.** A bar that cannot be reached is a broken
-instrument, not a strict one, and it fails in the most expensive direction -- it looks like
-rigour, and the gate's honest-sounding `days_scored=0/20 INSUFFICIENT_DAYS` reads as "not yet"
-rather than "never".
-`backtest/tests/test_prod_shadow_designation_reachable_2026_09_02.py` now fails any
-designation that: is unsatisfiable at a **47% participation floor** (the WORST arm, so a bar
-cannot be tuned to whichever arm trades most); sets `min_days` equal to the window's trading
-days (the literal 09-01 mistake); lets that floor drift above 50%; or lowers `min_days` under
-cover of a calendar change. **RED-proofed: restoring the original 09-29 values fires it -- the
-guard would have caught this on 2026-09-01.**
-
-**Still true and unchanged:** the extended 40-day disclosure clock needs ~68 trading days at
-59% and will not be met by 10-30. It is disclosure-only and gates nothing, but it will read as
-unmet for the rest of the window -- worth a decision later, not a silent edit now.
-
-**Revoke:** restore `prod-shadow-designation.json.pre-2026-09-02` over the live file (one
-copy, no side effects); `git revert 85e44e5f` for the guard.
-
-## [2026-09-02T09:16 ET] 🚨 J-DECISION: go-live criterion 5 is now UNREACHABLE ON BOTH CLOCKS -- arithmetic, not opinion
-
-**This is the criterion the whole 2026-10-30 decision rests on, and it cannot be met as
-frozen. It needs J, because fixing it means changing a bar that was registered before
-results -- which I must not do (OP-11), and which gates live money (OP-0 #1).**
-
-**The frozen bar** (`automation/state/prod-shadow-designation.json`, designated
-2026-09-01T20:22, BEFORE any result -- legitimate, not gameable):
-arm `safe-3`, window `2026-09-01..2026-09-29`, `min_days: 20`; extended clock `..2026-10-30`,
-`extended_clock_min_days: 40`.
-
-**A "scored day" requires a FILL.** `go_live_gate.py:729`:
-`days_scored = len({r["date"] for r in window_rows})` over trade rows. An arm that correctly
-sits out scores nothing.
-
-**Primary window -- arithmetically impossible:**
-- 2026-09-01..2026-09-29 contains **exactly 20 trading days** (Labor Day 09-07 excluded).
-- The bar is **20**, so it requires a fill on **every single one**.
-- 2 have elapsed (09-01, 09-02) with **0 scored** -- safe-3's last fill was 2026-08-28.
-- Ceiling is now **18/20**. No performance can recover it.
-
-**Extended clock -- not plausible either:**
-- 41 trading days remain to 10-30; bar is 40 -> requires **98% participation**.
-- safe-3's **measured** participation is **59%** (26 fills / 44 trading days, 06-29..08-28).
-- Peers: safe-2 68%, risky-1 59%, bold-2 47%. None is near 98%.
-- At 59%, expected scored days over 41 is ~24, not 40.
-
-**The mechanism, in one sentence:** the bar was written as "20 scored days in a
-20-trading-day window", which silently assumes **100% daily participation**, while the engine
-sits out ~40% of days BY DESIGN -- "sitting out is a valid day" (J 2026-08-12). The bar and
-the strategy are incompatible as written, and nothing checked that at designation time.
-
-**What I did NOT do:** change the bar, widen the window, or redefine a scored day. All three
-would be post-hoc bar changes on the live-money gate.
-
-**J's fork (no doctrine default exists):**
-1. Accept that criterion 5 cannot be met -> the 10-30 decision is made on criteria 1-4 with
-   criterion 5 recorded as UNREACHABLE, or the decision moves.
-2. Re-register the designation with a definition that counts a no-trade day as a scored day
-   (defensible on "sitting out is a valid day", but it IS a bar change and must be J's, in
-   writing, with the old one revoked explicitly).
-3. Lower `min_days` to something reachable at 59% participation (e.g. ~24 of 41 on the
-   extended clock) -- same caveat.
-
-Revoke path for the designation is already documented in the file: delete it and
-`prod_shadow_criterion()` falls back to NOT_WIRED with no other side effects.
-
-
-### BROKEN: prereg-hygiene 2026-09-03T04:27:17
+### BROKEN: prereg-hygiene 2026-09-04T01:02:32
 - 4 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
-  - prereg-chasing-filter-2026-08-14.json (age 20.4d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
-  - prereg-ladder-x-premium-2026-08-09.json (age 25.4d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 28.4d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
-  - vwap-family-killcheck-prereg-2026-08-18.json (age 16.4d via frozen_at_et, status='FROZEN_PREREG_FORWARD', orphan=False)
-- 19 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-02T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-chasing-filter-2026-08-14.json (age 21.2d via frozen_at_et, status='FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.', orphan=False)
+  - prereg-ladder-x-premium-2026-08-09.json (age 26.2d via frozen_at_et, status='FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.', orphan=False)
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 29.2d via filename_date, status='CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.', orphan=False)
+  - vwap-family-killcheck-prereg-2026-08-18.json (age 17.2d via frozen_at_et, status='RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis', orphan=False)
+- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-03T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
   - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
   - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
   - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
   - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-02T21:10:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-03T21:10:02Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
   - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
   - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
   - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-full-send-arm-2026-07-31.json -> full-send-arm-2026-07-31.json (result mtime=2026-07-31T22:55:06Z, result verdict=None, own status='PRE-REGISTERED')
-
-### BROKEN: trendline-headless-draw 2026-09-03 04:44 ET
-- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
-
-### BROKEN: self-check 2026-09-03T05:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 28 row(s), 26 transport-error, 2 broker-rejected; newest 2026-09-02T14:30:37 connect/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: trendline-headless-draw 2026-09-03 05:51 ET
-- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
-
-- [2026-09-03 04:00:01] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-09-03 04:00:01] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-09-03 04:00:01] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-09-03.md
-
-## Kitchen
-Kitchen: alive, queue 48 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: self-check 2026-09-03T09:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (1 session(s) since in the read window); 9 ENTER_REFUSED row(s) across 3/5 recent session(s) ['2026-08-27', '2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 28 row(s), 26 transport-error, 2 broker-rejected; newest 2026-09-02T14:30:37 connect/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T10:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 30 row(s), 26 transport-error, 4 broker-rejected; newest 2026-09-03T09:45:17 stop/leg_rejected; [YELLOW] data_freshness: folded from data-freshness.json (never reimplemented) verdict=YELLOW written_at_et=2026-09-03T09:55:03 feeds: MES=YELLOW(15.1m); [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T10:39:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 31 row(s), 26 transport-error, 4 broker-rejected; newest 2026-09-03T10:00:29 connect/auth_or_permission_error; [YELLOW] data_freshness: folded from data-freshness.json (never reimplemented) verdict=YELLOW written_at_et=2026-09-03T10:25:03 feeds: MES=YELLOW(15.1m); [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T11:09:56
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 34 row(s), 29 transport-error, 4 broker-rejected; newest 2026-09-03T10:30:47 get_account_equity/transport_error; [YELLOW] data_freshness: folded from data-freshness.json (never reimplemented) verdict=YELLOW written_at_et=2026-09-03T10:55:03 feeds: MES=YELLOW(15.1m); [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T11:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 2 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 2x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 34 row(s), 29 transport-error, 4 broker-rejected; newest 2026-09-03T10:30:47 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T12:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 35 row(s), 30 transport-error, 4 broker-rejected; newest 2026-09-03T11:40:39 connect/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T12:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 39 row(s), 33 transport-error, 4 broker-rejected; newest 2026-09-03T12:05:17 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T13:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 43 row(s), 36 transport-error, 4 broker-rejected; newest 2026-09-03T12:55:28 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T13:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 44 row(s), 37 transport-error, 4 broker-rejected; newest 2026-09-03T13:05:36 connect/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T14:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 4 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 4x safe: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[safe]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,653.57, $4,537.57 remaining, 4 entries placed today).
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T15:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 7 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 7x safe: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[safe]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,653.57, $4,537.57 remaining, 4 entries placed today).
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [YELLOW] data_freshness: folded from data-freshness.json (never reimplemented) verdict=YELLOW written_at_et=2026-09-03T14:55:02 feeds: MES=YELLOW(15.0m); [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### BROKEN: self-check 2026-09-03T15:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 7 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 7x safe: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[safe]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,653.57, $4,537.57 remaining, 4 entries placed today).
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### INFO: eod-analytics eod-summary used free-tier model (free-tier-primary)
-- ts: 2026-09-03T20:00:34+00:00
-- task: eod-summary
-- date_et: 2026-09-03
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### BROKEN: self-check 2026-09-03T16:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 7 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 7x safe: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[safe]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,653.57, $4,537.57 remaining, 4 entries placed today).
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
-- ts: 2026-09-03T20:45:38+00:00
-- task: analyst
-- date_et: 2026-09-03
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-- [2026-09-03 21:00:01] gym-session (2026-09-03) → **YELLOW** :: see `automation\state\gym-scorecard-2026-09-03.json`
-### BROKEN: self-check 2026-09-03T17:09:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 7 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 7x safe: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[safe]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,653.57, $4,537.57 remaining, 4 entries placed today).
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
-
-### INFO: eod-analytics manager used free-tier model (free-tier-primary)
-- ts: 2026-09-03T21:30:19+00:00
-- task: manager
-- date_et: 2026-09-03
-- route: free-tier-primary
-- ok: True
-- cost_usd: 0.0000
-
-### BROKEN: self-check 2026-09-03T17:39:56
-- FILL-FUNNEL RULE-BLOCKED[core:bold]: 5 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 5x bold: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- FILL-FUNNEL RULE-BLOCKED[core:safe]: 7 ENTER refused by the risk gate (rule enforcement working, NOT a placement fault): 7x safe: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)
-- SETTLEMENT-BLOCKED[safe]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,653.57, $4,537.57 remaining, 4 entries placed today).
-- SETTLEMENT-BLOCKED[bold]: 4/4 same-day entries used (sanity cap reached) -- pdt_gate_mode=cash_settlement would refuse the next entry (SOD settled $5,593.15, $4,713.15 remaining, 4 entries placed today).
-- RUN-CMD-HIDDEN MASKED EXIT: run-cmd-hidden-2026-09-03.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- guard_runner_full.py (exit=[1], 2x), structure_classifier_shadow.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] fills_recency: SIGNALS SEEN BUT ENTRY REFUSED repeatedly -- last ENTER 2026-09-01 (2 session(s) since in the read window); 6 ENTER_REFUSED row(s) across 2/5 recent session(s) ['2026-08-28', '2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03'] (the engine is seeing setups and failing to fill them -- not the same thing as a quiet no-signal day, which is never a failure); [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 47 row(s), 40 transport-error, 4 broker-rejected; newest 2026-09-03T13:30:56 get_account_equity/transport_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_ConductorWeekend
