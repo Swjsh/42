@@ -543,6 +543,22 @@ def _money(v) -> str:
     return ("+$" if v >= 0 else "-$") + format(abs(v), ",.0f")
 
 
+
+def _refresh_autonomy_report() -> bool:
+    """Regenerate automation/state/autonomy-report.json on every page build.
+
+    Nothing scheduled autonomy_report.py -- no task, no caller -- so the file
+    sat at 2026-08-16 for 19 days while gamma_standup.py kept reading it
+    (found 2026-09-04). This page build IS the cadence (Gamma_Home, 30 min).
+    Fail-open: a report failure never costs the page. Returns True on write.
+    """
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        import autonomy_report as _ar
+        return _ar.main([]) == 0
+    except Exception:                            # noqa: BLE001 - feed refresh is a bonus, not a dependency
+        return False
+
 def build(quiet: bool = False) -> dict:
     hq, hq_meta = _hq_json()
     cal, cal_meta = _load_json(CALENDAR_JSON)
@@ -641,6 +657,8 @@ def build(quiet: bool = False) -> dict:
             payload[_key] = __import__(_mod).build()
         except Exception as e:                   # noqa: BLE001 - never lose the page over a slice
             payload[_key] = {"error": str(e)[:160]}
+
+    _refresh_autonomy_report()
 
     try:
         sys.path.insert(0, str(REPO / "setup" / "scripts"))
