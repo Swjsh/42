@@ -23,7 +23,22 @@
     "_audit": "analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20.md (root cause #3)"
   },
   "universe": {
-    "_doc": "Per-arm universes live in arms.<arm>.universe. This block is intentionally empty so no code path can accidentally score the multi lane's 72-name list. SPY is NEVER in any tickers universe (the executor asserts it).",
+    "_doc": "The SAME nine names as arms.*.universe, in their sector buckets. Two consumers need the buckets even though scoring uses the per-arm lists: multi/lib/risk.py's sector cap looks a symbol's sector up here and FAILS CLOSED on an unknown one (E2E probe 2026-09-04 01:44 ET: NVDA BLOCKED at risk_admitted -- 'not found in any params.universe sector bucket'), and multi/lib/broker.py::universe_roots() scopes which option roots the flatten may touch. SPY is NEVER here (the executor asserts it on every arm universe).",
+    "mega_tech": [
+      "NVDA",
+      "AAPL",
+      "AMZN",
+      "TSLA",
+      "META",
+      "AVGO"
+    ],
+    "index_etf": [
+      "QQQ",
+      "IWM"
+    ],
+    "sector_etf": [
+      "GLD"
+    ],
     "_excluded_by_screen_2026_09_03": [
       "MSFT 5.55%",
       "AMD 7.18%",
@@ -56,8 +71,8 @@
     "_expiry_doc": "INTRADAY: take the nearest LISTED expiry (0-3 DTE typical). Still read from the live chain, never a computed calendar -- an expiry can be absent because earnings land that day (verified: NVDA had no 2026-08-26 listing)."
   },
   "risk": {
-    "per_trade_risk_cap_pct": 0.02,
-    "_cap_note": "2% of a fresh $100K paper account = $2,000 per trade cap. Irrelevant once qty is clamped (below); kept so size_entry() has a sane bound.",
+    "per_trade_risk_cap_pct": 0.05,
+    "_cap_note": "5% of equity. The executor HARD-CLAMPS qty to risk.max_contracts (3), so this pct is not the risk control -- it only has to be large enough that size_entry() can AFFORD the Rule-6 minimum of 3 contracts. At 2% a $9.4K account could afford 1 contract of a $1.19 NVDA option (E2E probe 2026-09-04 01:5x ET: BLOCKED sized_ok, 'max affordable 1 < min_contracts 3'); on a $100K paper account 5% = $5,000 covers 3 contracts up to a $16 premium, and on a $10K account still covers NVDA/AAPL/AMZN-class premiums. A name whose 3-lot exceeds the cap is SIZE_BELOW_MIN -- refused, never rounded up.",
     "min_contracts": 3,
     "max_concurrent_positions": 1,
     "daily_loss_kill_switch_pct": 0.01,
