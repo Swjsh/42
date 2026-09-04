@@ -798,8 +798,13 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
             continue
         cascade["sized_ok"] += 1
         cascade["would_place"] += 1
+        # SizingResult's field is `contracts` (multi/lib/sizing.py). This read `qty`/`notional`
+        # for the lane's whole life, so every WOULD_PLACE row carried qty=None -- and the tickers
+        # executor's clamp turns None into SIZE_BELOW_MIN, i.e. NO ENTRY EVER FIRES. Found
+        # 2026-09-04 by the executor build; pinned by test_tickers_would_place_carries_int_qty.
         row.update(decision="WOULD_PLACE", gate="would_place",
-                   qty=getattr(sz, "qty", None), notional=getattr(sz, "notional", None),
+                   qty=int(getattr(sz, "contracts", 0) or 0),
+                   notional=round(float(facts["mid"]) * int(getattr(sz, "contracts", 0) or 0) * 100.0, 2),
                    reason="all gates cleared - SHADOW, no order sent")
         rows.append(row)
 
