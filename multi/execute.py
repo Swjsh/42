@@ -1033,6 +1033,25 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
 
 
 # --- process-level driver ---------------------------------------------------------------------
+def market_is_open(creds) -> tuple:
+    """(is_open | None, reason). None = the clock could not be read (BrokerAPIError or a
+    malformed payload) -- the caller proceeds under the weekday/window invariants and
+    discloses it, because a clock outage must not silently halt the lane (fail-open here is
+    bounded by tickers_execute_support.check_static_invariants' own weekday + 09:30-15:00
+    window) and must equally not be mistaken for "closed".
+
+    WHY THIS EXISTS (2026-09-04): the static invariants check weekday() only. Monday 2026-09-07
+    is Labor Day -- without the broker's own clock the lane would fire into a closed market
+    every 2 minutes (funnel bars stale, entries rejected, 480 rows of noise per arm)."""
+    try:
+        c = mb.get_clock(creds)
+    except Exception as e:  # noqa: BLE001 -- classified, not swallowed: the caller logs it per arm
+        return None, f"{type(e).__name__}: {e}"[:200]
+    is_open = bool(c.get("is_open"))
+    return is_open, (f"broker clock is_open={is_open} next_open={c.get('next_open')} "
+                     f"next_close={c.get('next_close')}")
+
+
 def run_once(arms: list[str], params_path: Path, *, shadow: bool = False) -> int:
     """One pass over `arms`: shared bar fetch, then each arm run independently. Never raises;
     returns 1 only when params.json itself cannot be loaded at all (nothing per-arm to run).
@@ -1090,6 +1109,37 @@ def _run_once_locked(arms: list[str], params_path: Path, *, shadow: bool = False
             break
         except mc.CredError:
             continue
+
+    # MARKET-CLOCK GATE (2026-09-04): the broker's own is_open, not our weekday() -- holidays
+    # and early closes exist. Closed -> one MARKET_CLOSED row per arm (so the ledger shows the
+    # task fired and why nothing happened; the day-check treats MARKET_CLOSED-only as SKIP) and
+    # the pass ends. Unreadable -> proceed under the static invariants, disclosed per arm.
+    # The E2E probe bypasses the gate (it runs off-hours by design) and says so.
+    if shared_creds is not None:
+        if E2E_PROBE_ROOT is not None:
+            print("[tickers] E2E SHADOW PROBE: market-clock gate BYPASSED (probe runs off-hours)",
+                  file=sys.stderr)
+        else:
+            is_open, clock_why = market_is_open(shared_creds)
+            if is_open is False:
+                for a in arms:
+                    append_jsonl(arm_ledger_path(a), {
+                        "ts_et": now_et().isoformat(timespec="seconds"), "arm": a,
+                        "decision": "MARKET_CLOSED", "reason": clock_why,
+                        "armed": not shadow, "shadow": shadow, "scorer": lane_params.get("scorer"),
+                    })
+                print(f"[tickers] MARKET_CLOSED -- {clock_why}; pass ends, nothing evaluated",
+                      file=sys.stderr)
+                return 0
+            if is_open is None:
+                for a in arms:
+                    append_jsonl(arm_ledger_path(a), {
+                        "ts_et": now_et().isoformat(timespec="seconds"), "arm": a,
+                        "decision": "CLOCK_READ_ERROR", "reason": clock_why,
+                        "armed": not shadow, "shadow": shadow, "scorer": lane_params.get("scorer"),
+                    })
+                print(f"[tickers] WARN: broker clock unreadable ({clock_why}) -- proceeding under "
+                      f"the weekday/window invariants", file=sys.stderr)
 
     bars: dict = {}
     attention: dict = {}

@@ -153,6 +153,19 @@ def get_account(creds: creds_mod.MultiCreds) -> dict:
     return res
 
 
+def get_clock(creds: creds_mod.MultiCreds) -> dict:
+    """GET /v2/clock -> {timestamp, is_open, next_open, next_close}. Raises BrokerAPIError on
+    failure -- never coerces a broken read into "closed" (which would silently halt a lane) or
+    "open" (which would silently trade a holiday). The CALLER decides what an unreadable clock
+    means (execute.py: proceed under the weekday/window invariants, disclosed as
+    CLOCK_READ_ERROR)."""
+    res = _request(creds, "clock")
+    _raise_if_error(res, "GET /v2/clock")
+    if not isinstance(res, dict) or "is_open" not in res:
+        raise BrokerAPIError(f"GET /v2/clock returned unexpected shape: {res!r}"[:300])
+    return res
+
+
 def get_positions(creds: creds_mod.MultiCreds) -> list[dict]:
     """RAW positions across every asset class held in this account (equities, crypto,
     options -- everything, including the crypto twin's BTC). Almost never what a caller
