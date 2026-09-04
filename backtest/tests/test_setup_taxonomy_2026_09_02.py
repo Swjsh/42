@@ -140,7 +140,25 @@ def test_real_trades_csv_before_after_bucket_reconciliation():
     assert "vwap_continuation" not in after and "VWAP_continuation" not in after
     assert after["VWAP_CONTINUATION"]["n"] == 52  # 45 + 7
     assert after["VWAP_RECLAIM_FAILED_BREAK"]["n"] == 12  # 3 + 9
-    assert after["BULLISH_RECLAIM_RIDE_THE_RIBBON"]["n"] == 316  # 315 + 1 legacy alias
+
+    # BULLISH_RECLAIM_RIDE_THE_RIBBON is the live core signal, journaled every trading day
+    # (Rule 8) -- pinning its exact n as a literal breaks on a predictable daily cadence for
+    # a reason that has nothing to do with canonical_setup() regressing (2026-09-04 finding:
+    # 316 at authoring time, 338 two days later, zero code change in between). Assert the
+    # MERGE is complete and correct against TODAY's own raw counts instead of a stale
+    # snapshot: every raw bucket that canonicalizes to this name must sum to exactly the
+    # after-bucket, and the total must never be BELOW the 2026-09-02 baseline (a drop would
+    # mean trades.csv was rewritten, not just grown -- Rule 8 forbids that).
+    bullish_variants_n = sum(
+        b["n"] for s, b in raw_before.items()
+        if canonical_setup(s) == "BULLISH_RECLAIM_RIDE_THE_RIBBON"
+    )
+    assert bullish_variants_n >= 316, (
+        "fewer BULLISH_RECLAIM_RIDE_THE_RIBBON-canonicalizing rows than the 2026-09-02 "
+        "baseline (315 + 1 legacy alias) -- trades.csv may have been rewritten, not just "
+        "grown"
+    )
+    assert after["BULLISH_RECLAIM_RIDE_THE_RIBBON"]["n"] == bullish_variants_n
 
     # accounting invariant: canonicalizing changes ATTRIBUTION, never the total pnl or n
     assert sum(b["n"] for b in after.values()) == len(rows)

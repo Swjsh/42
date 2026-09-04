@@ -74,6 +74,15 @@ DECLARED_HARDCODED = {
     # registry edit. Declared (not converted) here because converting the live engine's roster
     # is a trading-path change that belongs in the reviewed bundle merge, not in a guard.
     "heartbeat_core.py": "CORE ENGINE: hardcodes (safe-2, bold-2); retirement needs a CODE change, see queue.md SAFE-2-RETIREMENT-IS-NOT-A-REGISTRY-EDIT",
+    "conviction_c4_sidecar.py": "HISTORICAL: re-scores past fleet PLACED rows for all four fleet "
+        "arms (risky-1, risky-3, safe-1, safe-3), including retired risky-3/safe-1, as a "
+        "forward-shadow study over conviction.py's C4 polarity fix; their historical PLACED "
+        "rows are real data, not a live-roster read (see module docstring 2026-09-03).",
+    "fleet_gate_leak_shadow.py": "HISTORICAL: fleet-gate-leak audit named directly in queue.md "
+        "FLEET-GATE-LEAK-SHADOW's own mechanism description (safe-3, risky-1, risky-3, safe-1). "
+        "retired risky-3 (2026-08-28) and safe-1 (2026-07-11) are deliberately included, not "
+        "silently dropped -- their rows are expected near-zero and that absence is part of the "
+        "disclosed record (module docstring lines 93-97, 2026-09-03).",
 }
 
 

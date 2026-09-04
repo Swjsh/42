@@ -174,7 +174,19 @@ fi
 PY="$ROOT/backtest/.venv/Scripts/python.exe"
 [ -x "$PY" ] || PY="$ROOT/backtest/.venv/bin/python"
 [ -x "$PY" ] || PY="python"
-if ! "$PY" "$ROOT/setup/scripts/github_audit.py" --staged; then
+SCANNER="$ROOT/setup/scripts/github_audit.py"
+# Fail OPEN if the scanner itself is missing/unreachable (2026-09-04 fix): a bare
+# `"$PY" "$SCANNER" --staged` on a repo that lacks this file exits nonzero for "can't open
+# file ... No such file or directory" -- indistinguishable, before this check, from the
+# scanner having RUN and FOUND a secret. That conflation is an OP-25 rail-2 hazard: a guard
+# must fail open, never block a commit (interactive OR automated) for a reason that has
+# nothing to do with what it's supposed to guard. Caught live by
+# tests/test_pre_commit_scope_enforcement_2026_09_03.py's tmp_repo fixture, which
+# legitimately has no setup/scripts/ tree -- the same shape a corrupted/mid-refactor real
+# checkout could hit.
+if [ ! -f "$SCANNER" ]; then
+  echo "[secret-scan] SKIP -- scanner not found at $SCANNER (fail-open, never block on a missing scanner)." >&2
+elif ! "$PY" "$SCANNER" --staged; then
   echo "" >&2
   echo "[secret-scan] BLOCKED -- a staged file looks like it contains a hardcoded secret (see above)." >&2
   echo "[secret-scan] Fix: load the credential from .mcp.json / an env var at runtime instead." >&2
@@ -182,8 +194,9 @@ if ! "$PY" "$ROOT/setup/scripts/github_audit.py" --staged; then
   echo "[secret-scan] Emergency bypass: git commit --no-verify" >&2
   echo "" >&2
   exit 1
+else
+  echo "[secret-scan] OK -- no staged secrets found."
 fi
-echo "[secret-scan] OK -- no staged secrets found."
 # --- end staged-files secret scan ---
 
 if ! "$PY" "$ROOT/backtest/tests/run_safety_gate.py"; then
