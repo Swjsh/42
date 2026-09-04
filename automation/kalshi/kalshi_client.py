@@ -13,7 +13,7 @@ shape the Alpaca arms already use:
     "kalshi-1": {
         "key":         "<api key id (a UUID)>",
         "secret_path": "automation/state/fleet/kalshi-1.pem",   # preferred
-        "secret":      "-----BEGIN RSA PRIVATE KEY-----\\n...",  # or inline PEM
+        "secret":      "-----BEGIN RSA PRIVATE KEY-----\\n...",  # or inline PEM  # noqa:secret-ok (config-schema docstring; placeholder, never a key)
         "base_url":    "https://api.elections.kalshi.com/trade-api/v2",
         "label":       "KALSHI-1"
     }

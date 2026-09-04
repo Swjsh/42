@@ -217,7 +217,7 @@ function privateKeyToPem(privBytes) {
   const pkcs8 = Buffer.concat([Buffer.from([0x30]), derLen(pkcs8Body.length), pkcs8Body]);
 
   const pem =
-    "-----BEGIN PRIVATE KEY-----\n" +
+    "-----BEGIN PRIVATE KEY-----\n" +  // noqa:secret-ok (PEM header assembled around a runtime buffer; no key literal)
     pkcs8.toString("base64").replace(/(.{64})/g, "$1\n") +
     "\n-----END PRIVATE KEY-----\n";
   return crypto.createPrivateKey(pem);

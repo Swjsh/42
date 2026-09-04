@@ -33,7 +33,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit|Write|NotebookEdit|Bash|PowerShell|SendMessage|Agent|Task|Workflow",
+        "matcher": "Edit|MultiEdit|Write|NotebookEdit|Bash|PowerShell|SendMessage|Agent|Task|Workflow",
         "hooks": [
           {
             "type": "command",

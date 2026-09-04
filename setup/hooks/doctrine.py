@@ -21,7 +21,100 @@ from __future__ import annotations
 import datetime as dt
 import posixpath
 import re
+import sys as _sys
+from pathlib import Path as _Path
 from typing import Iterable
+
+# --------------------------------------------------------------------------------------
+# Credential-literal detection (2026-09-03, GAMMA-DOCTRINE-CREDENTIAL-GUARD).
+#
+# ROOT CAUSE this guard closes: .gitignore correctly protects credential FILES
+# (.mcp.json, automation/state/fleet/secrets.json) -- every leak this repo has had (four
+# separate commits: 2026-06-15, 06-19, 06-24, 09-03) happened because a session READ a
+# value out of one of those files and then WROTE THE LITERAL into ordinary tracked
+# source (a hardcoded env fallback, an ACCOUNT_KEYS dict, a debug script, a docs
+# example). gitignore cannot stop that; nothing could, until this guard, short of the
+# pre-commit staged scan -- which is the LAST line of defence, catching the literal only
+# once it is already on disk and staged. This is the FIRST line: refuse the write itself.
+#
+# The pattern list is IMPORTED from setup/scripts/github_audit.py, not copied. That file
+# is the single source of truth for what a credential looks like in this repo (it also
+# backs the full-tree audit and the pre-commit --staged scan) -- a pattern widened there
+# (e.g. a live-key/secret/token addition) is picked up here with no second copy to keep
+# in sync. github_audit.py's PROJECT_ROOT was made lazy (computed on first actual use,
+# not at import time) specifically for this import: merely importing that module used to
+# shell out to `git rev-parse` eagerly, which this hook would otherwise pay on every
+# single PreToolUse Write/Edit/Bash call.
+# --------------------------------------------------------------------------------------
+_sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / "scripts"))
+from github_audit import (  # noqa: E402
+    SECRET_PATTERNS as _SECRET_PATTERNS,
+    _fix_hint_for_label as _credential_fix_hint,
+)
+
+# Exposed for tests: proves this module IMPORTS the shared pattern list rather than
+# maintaining its own copy (`doctrine.CREDENTIAL_PATTERNS is github_audit.SECRET_PATTERNS`).
+CREDENTIAL_PATTERNS = _SECRET_PATTERNS
+
+# Only HIGH/MEDIUM severities BLOCK. The LOW-severity entry ("possible 43-char
+# credential, check manually") is a heuristic github_audit.py itself only applies to
+# code files and labels "check manually" -- promoting it to a hard PreToolUse block
+# risks catching ordinary hashes/base64 blobs in normal writes, which is the exact
+# cry-wolf failure this task calls out ("a guard that cries wolf gets turned off").
+# HIGH/MEDIUM entries are all real credential SHAPES (Alpaca key/secret, OpenRouter key,
+# Discord bot token, PEM block, secret-named-variable assignment) with no such history.
+_CREDENTIAL_BLOCK_SEVERITIES = ("HIGH", "MEDIUM")
+_NOQA_MARKER = "# noqa:secret-ok"
+
+
+def credential_write_hit(text: str) -> tuple[str, str, str] | None:
+    """(label, first-4-chars, severity) of the first HIGH/MEDIUM credential-shaped
+    literal this text contains, or None.
+
+    Mirrors github_audit.scan_text's per-line / noqa-skip logic (not its regexes --
+    those are imported directly from CREDENTIAL_PATTERNS above). Only a FULLY RESOLVED,
+    CONTIGUOUS credential-shaped literal ever matches: source code that builds one by
+    concatenation, e.g. `"PK" + "A" * 24` (the fixture trick documented in
+    backtest/tests/test_github_audit_staged_2026_09_03.py), never matches -- the quote
+    and operator characters in the middle of it break every pattern's contiguous-run
+    requirement. That is what makes this guard safe for this repo's own test fixtures
+    without any special-casing: it is a property of matching literal text, not a rule
+    this function has to know about.
+    """
+    if not text:
+        return None
+    for line in text.splitlines():
+        stripped = line.strip()
+        if _NOQA_MARKER in stripped:
+            continue
+        for pattern, label, severity in CREDENTIAL_PATTERNS:
+            if severity not in _CREDENTIAL_BLOCK_SEVERITIES:
+                continue
+            m = pattern.search(stripped)
+            if m:
+                matched = m.group(1) if m.groups() else m.group(0)
+                return label, matched[:4], severity
+    return None
+
+
+def credential_deny_message(tool: str, label: str, prefix: str, severity: str = "HIGH") -> str:
+    """PreToolUse deny reason for a credential-shaped literal. Names the TYPE and the
+    first 4 characters only -- never the full value -- states the runtime-loader
+    alternative (per-family, via github_audit's own fix-hint table), and mirrors the
+    pre-commit hook's own noqa escape wording for a genuine false positive.
+    """
+    fix = _credential_fix_hint(label, severity)
+    return (
+        f"This {tool} carries what looks like a real credential literal ({label}, "
+        f"starts '{prefix}...'). Every secret leak in this repo's history happened the "
+        f"same way: a session read a value out of a gitignored credential file "
+        f"(.mcp.json / automation/state/fleet/secrets.json) and then wrote the literal "
+        f"into tracked source instead of loading it at runtime. {fix} Never hardcode a "
+        f"credential literal, even as a fallback default. If this is a genuine false "
+        f"positive (e.g. a test fixture built by string concatenation, never a literal "
+        f"-- see backtest/tests/test_github_audit_staged_2026_09_03.py), add "
+        f"`{_NOQA_MARKER}` to the line."
+    )
 
 # --------------------------------------------------------------------------------------
 # The prime card -- the ONLY doctrine injected unconditionally.

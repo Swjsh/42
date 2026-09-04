@@ -61,27 +61,99 @@ def _detect_project_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-PROJECT_ROOT = _detect_project_root()
+# LAZY (2026-09-03, GAMMA-DOCTRINE-CREDENTIAL-GUARD): _detect_project_root() shells out
+# to `git rev-parse`. Computing it eagerly at import time meant merely IMPORTING this
+# module for its SECRET_PATTERNS/scan_text -- e.g. from setup/hooks/doctrine.py, which
+# needs them on every PreToolUse Write/Edit/Bash call -- paid a subprocess launch it never
+# uses. _project_root() computes once, lazily, on first actual need. There was no prior
+# external caller of a bare `PROJECT_ROOT` module attribute (verified by repo-wide grep
+# 2026-09-03), so this drops the eager global entirely rather than shadowing it behind a
+# module __getattr__ -- every internal call site now calls _project_root() explicitly.
+_PROJECT_ROOT_CACHE: Path | None = None
+
+
+def _project_root() -> Path:
+    global _PROJECT_ROOT_CACHE
+    if _PROJECT_ROOT_CACHE is None:
+        _PROJECT_ROOT_CACHE = _detect_project_root()
+    return _PROJECT_ROOT_CACHE
 
 # ── Secret patterns ───────────────────────────────────────────────────────────
 
 # Each entry: (compiled_regex, label, severity)
+#
+# Live-key blind spot fix (2026-09-03, GITHUB-AUDIT-NO-LIVE-KEY-PATTERN): before this
+# change, every pattern below matched PAPER-shaped Alpaca credentials only (PK-prefix).
+# A live-money Alpaca key (AK-prefix) could have sat in the tree or history and every
+# scan would have read GREEN. Verified from THIS repo's own gitignored credential
+# homes (structure/lengths only, values never read into this file or printed):
+#   - .mcp.json / automation/state/fleet/secrets.json: every live paper key is
+#     `PK` + 24 uppercase-alnum (26 total) -- confirms the existing PK pattern's
+#     length. The matching Alpaca secret is exactly 44 chars, pure alphanumeric,
+#     mixed case + digit (NOT the 43-char generic heuristic below -- one char short).
+#   - automation/state/.discord-config.json: bot_token is 3 dot-separated segments,
+#     26/6/38 chars, [A-Za-z0-9_-] -- matches Discord's publicly documented bot-token
+#     shape.
+#   - automation/kalshi/kalshi_client.py docstring: kalshi-1 credentials are an RSA
+#     PEM (`secret_path` / inline `secret` starting `----- BEGIN RSA PRIVATE KEY -----`).
+#   - setup/scripts/run_minimax.py validates OpenRouter keys by `.startswith("sk-or-")`
+#     only (NOT "sk-or-v1-") -- the existing OpenRouter pattern below required the
+#     literal "v1-" segment, so a v2+ (or unversioned) key would have slipped past it.
+# NO Alpaca LIVE key has ever existed in this repo (verified separately by hand, HIGH
+# severity, unarmed) so its exact body length is UNVERIFIED here -- Alpaca live and
+# paper key IDs share one key-generation system and the paper body is confirmed 24
+# chars; the pattern below uses an 18-26 range centered on that confirmed length
+# rather than a single guessed value. Tighten it the moment real evidence (an Alpaca
+# support page, or -- better -- never -- a real leaked live key) pins the exact length.
 SECRET_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
     # Alpaca paper/live API key -- PK + 24 uppercase alphanumeric chars
     (re.compile(r'\bPK[A-Z0-9]{24}\b'), "Alpaca API key", "HIGH"),
+    # Alpaca LIVE API key -- AK + 18-26 uppercase alphanumeric chars. Length range is
+    # UNVERIFIED (see header comment above) -- no live key has ever existed in this
+    # repo to confirm against. Centered on the confirmed paper-key body length (24).
+    (re.compile(r'\bAK[A-Z0-9]{18,26}\b'),
+     "Alpaca LIVE API key (length unverified -- see SECRET_PATTERNS header)", "HIGH"),
     # Alpaca secret key in a variable assignment (py/js/json)
     (re.compile(
         r'(?:ALPACA_SECRET_KEY|APCA-API-SECRET-KEY)\s*["\']?\s*[:=]\s*["\']([A-Za-z0-9+/=_\-]{30,})["\']',
         re.IGNORECASE,
     ), "Alpaca secret key assignment", "HIGH"),
+    # Alpaca secret key, BARE shape -- exactly 44 chars, pure alphanumeric, mixed
+    # case + digit (confirmed against this repo's own .mcp.json / secrets.json
+    # structure, values never read into this scanner). Catches a secret pasted
+    # without ALPACA_SECRET_KEY-style variable-name context (e.g. a JSON value
+    # under an unrelated key name). One char longer than the generic 43-char LOW
+    # heuristic below, which would otherwise miss it entirely.
+    # QUOTE-ANCHORED (mirrors the 43-char LOW heuristic's lookahead style) so it
+    # matches only a value whose ENTIRE quoted string is exactly 44 chars -- not a
+    # 44-char substring of a longer blob. Without this anchor the pattern false-
+    # positived on every sha512 package-lock.json integrity hash in this repo (a
+    # long base64 blob happens to contain 44-alnum runs between '+'/'/' bytes);
+    # verified during this fix by running the full-tree scan before/after.
+    (re.compile(r'["\'](?=[A-Za-z0-9]{44}["\'])(?=[A-Za-z0-9]*[A-Z])(?=[A-Za-z0-9]*[a-z])(?=[A-Za-z0-9]*\d)[A-Za-z0-9]{44}["\']'),
+     "Possible Alpaca secret key (bare 44-char, unlabeled)", "MEDIUM"),
     # Any long string value (40+ chars) assigned to a variable whose name
-    # contains secret / token / password / credential / auth_key
+    # contains secret / token / password / credential / auth_key / refresh
     (re.compile(
-        r'(?:secret|token|password|credential|auth.?key)\s*[=:]\s*["\']([A-Za-z0-9+/=_\-]{40,})["\']',
+        r'(?:secret|token|password|credential|auth.?key|refresh)\s*[=:]\s*["\']([A-Za-z0-9+/=_\-]{40,})["\']',
         re.IGNORECASE,
     ), "Long string near secret-named variable", "MEDIUM"),
-    # OpenRouter API key
-    (re.compile(r'\bsk-or-v1-[a-zA-Z0-9]{40,}\b'), "OpenRouter API key", "HIGH"),
+    # OpenRouter API key -- "sk-or-" prefix only (matches the runtime's own
+    # validation in setup/scripts/run_minimax.py, which checks .startswith("sk-or-")
+    # and does NOT require a "v1-" version segment). The old pattern hardcoded
+    # "v1-" and would miss any future/unversioned OpenRouter key shape.
+    (re.compile(r'\bsk-or-(?:v\d+-)?[a-zA-Z0-9]{20,}\b'), "OpenRouter API key", "HIGH"),
+    # Discord bot token -- 3 dot-separated segments. Range centered on this repo's
+    # own automation/state/.discord-config.json bot_token shape (26/6/38 chars,
+    # confirmed by length only, value never read into this scanner), padded per
+    # Discord's publicly documented token format.
+    (re.compile(r'\b[A-Za-z0-9_-]{23,28}\.[A-Za-z0-9_-]{6,7}\.[A-Za-z0-9_-]{27,40}\b'),
+     "Discord bot token", "HIGH"),
+    # Private key PEM block (RSA/EC/DSA/OpenSSH/generic PKCS8) -- confirmed live in
+    # this repo: automation/kalshi/kalshi_client.py's `secret` field holds an inline
+    # "----- BEGIN RSA PRIVATE KEY -----" PEM when secret_path isn't used.
+    (re.compile(r'-----BEGIN\s+(?:RSA|EC|DSA|OPENSSH|ENCRYPTED)?\s*PRIVATE KEY-----'),
+     "Private key PEM block", "HIGH"),
     # Generic long bare string in code files (heuristic, LOW).
     # Requires: 43 chars, NO underscores/hyphens (real secrets like Alpaca keys are
     # pure alphanumeric; JSON key names always contain underscores -- filter them out),
@@ -149,7 +221,7 @@ class Finding:
 
 def _run(cmd: list[str], timeout: int = 120) -> str:
     result = subprocess.run(
-        cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT), timeout=timeout,
+        cmd, capture_output=True, text=True, cwd=str(_project_root()), timeout=timeout,
         encoding="utf-8", errors="replace",
         creationflags=_CREATE_NO_WINDOW,
     )
@@ -163,14 +235,14 @@ def _git_tracked_files() -> list[Path]:
         line = line.strip()
         if not line:
             continue
-        p = PROJECT_ROOT / line
+        p = _project_root() / line
         if p.exists() and p.is_file():
             paths.append(p)
     return paths
 
 
 def _read_gitignore() -> str:
-    gi = PROJECT_ROOT / ".gitignore"
+    gi = _project_root() / ".gitignore"
     return gi.read_text(encoding="utf-8", errors="replace") if gi.exists() else ""
 
 
@@ -198,6 +270,20 @@ def _redact(line: str, matched: str) -> str:
 # Shared by the full tracked-file scan and the fast --staged pre-commit scan so the
 # pattern list + matching/redaction logic lives in exactly one place.
 
+_NOQA_RE = re.compile(r"(?:#|//|--|/\*|<!--)\s*noqa:secret-ok")
+
+
+def _is_allowlisted(line: str) -> bool:
+    """True if the line carries the false-positive marker in ANY comment style.
+
+    Was hardcoded to "# noqa:secret-ok", so no JS/TS/SQL/HTML file in this repo
+    could EVER be allowlisted -- gamma-companion/lib/push.js tripped the PEM
+    pattern on PKCS8 header boilerplate and had no way to say so (2026-09-03).
+    A scanner that stays RED on an un-silenceable false positive is a scanner
+    people learn to ignore, which is how the earlier leaks survived.
+    """
+    return bool(_NOQA_RE.search(line))
+
 def scan_text(path: str, text: str, *, is_code: bool = True) -> list[Finding]:
     """Scan `text` (the content of `path`) for secret patterns. `path` is used only
     as the Finding.path label -- caller decides what string to pass (a working-tree
@@ -205,7 +291,7 @@ def scan_text(path: str, text: str, *, is_code: bool = True) -> list[Finding]:
     findings: list[Finding] = []
     for lineno, raw_line in enumerate(text.splitlines(), start=1):
         line = raw_line.strip()
-        if "# noqa:secret-ok" in line:
+        if _is_allowlisted(line):
             continue
         for pattern, label, severity in SECRET_PATTERNS:
             # Low-severity long-string heuristic only on code files
@@ -222,13 +308,48 @@ def scan_text(path: str, text: str, *, is_code: bool = True) -> list[Finding]:
                     line=lineno,
                     label=label,
                     snippet=snippet,
-                    fix=(
-                        "Load from .mcp.json at runtime -- see _load_account_keys() in "
-                        "setup/scripts/fast_path_executor.py for the canonical pattern."
-                    ) if severity == "HIGH" else "Verify this is not a live credential.",
+                    fix=_fix_hint_for_label(label, severity),
                 ))
                 break  # one finding per line is enough
     return findings
+
+
+def _fix_hint_for_label(label: str, severity: str) -> str:
+    """Per-credential-family fix hint pointing at the runtime loader that should
+    have read this secret instead of it being hardcoded. Falls back to the
+    original generic Alpaca hint for HIGH/MEDIUM, or a verify-manually note for LOW,
+    when a label doesn't match a known family (keeps old behaviour for callers /
+    tests that don't care about the new families)."""
+    if "Alpaca" in label:
+        return (
+            "Load from .mcp.json at runtime -- see _load_account_keys() in "
+            "setup/scripts/fast_path_executor.py for the canonical pattern."
+        )
+    if "OpenRouter" in label:
+        return (
+            "Load from automation/state/.openrouter.key or OPENROUTER_API_KEY env var "
+            "-- see setup/scripts/run_minimax.py KEY_FILE loader."
+        )
+    if "Discord" in label:
+        return (
+            "Load from the gitignored .discord-config.json bot_token field -- see "
+            "setup/scripts/discord-bridge.py."
+        )
+    if "Private key" in label or "PEM" in label:
+        return (
+            "Load from automation/state/fleet/secrets.json (secret_path -> a "
+            "gitignored .pem file, or inline secret) -- see load_credentials() in "
+            "automation/kalshi/kalshi_client.py. ROTATE immediately if this was a "
+            "real key."
+        )
+    if severity == "HIGH":
+        return (
+            "Load from .mcp.json at runtime -- see _load_account_keys() in "
+            "setup/scripts/fast_path_executor.py for the canonical pattern."
+        )
+    if severity == "MEDIUM":
+        return "Verify this is not a live credential; move it to a gitignored secrets store if it is."
+    return "Verify this is not a live credential."
 
 
 # ── Scan: secret patterns in tracked files ───────────────────────────────────
@@ -244,7 +365,7 @@ def scan_secrets(files: list[Path]) -> list[Finding]:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        rel = str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        rel = str(path.relative_to(_project_root())).replace("\\", "/")
         findings.extend(scan_text(rel, text, is_code=is_code))
     return findings
 
@@ -266,7 +387,7 @@ def _git_show_staged(path: str) -> str | None:
     result = subprocess.run(
         ["git", "show", f":{path}"],
         capture_output=True, text=True, encoding="utf-8", errors="replace",
-        cwd=str(PROJECT_ROOT),
+        cwd=str(_project_root()),
         timeout=30, creationflags=_CREATE_NO_WINDOW,
     )
     if result.returncode != 0:
@@ -314,7 +435,7 @@ def scan_gitignore() -> list[Finding]:
 def scan_tracked_file_types(files: list[Path]) -> list[Finding]:
     findings: list[Finding] = []
     for path in files:
-        rel = str(path.relative_to(PROJECT_ROOT)).replace("\\", "/")
+        rel = str(path.relative_to(_project_root())).replace("\\", "/")
         for pattern, description in BLOCKED_TRACKED_PATTERNS:
             if pattern.search(rel):
                 findings.append(Finding(
@@ -356,7 +477,7 @@ def scan_history() -> list[Finding]:
             current_file = raw_line[6:].strip()
         elif raw_line.startswith("+") and not raw_line.startswith("+++"):
             line = raw_line[1:]
-            if "# noqa:secret-ok" in line:
+            if _is_allowlisted(line):
                 continue
             for pattern, label, severity in SECRET_PATTERNS:
                 if severity == "LOW":

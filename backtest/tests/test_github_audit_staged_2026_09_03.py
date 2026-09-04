@@ -305,3 +305,174 @@ def test_history_scan_none_output_raises_instead_of_reporting_clean(monkeypatch)
     monkeypatch.setattr(github_audit, "_run", lambda *a, **k: "")
     with pytest.raises(Exception):
         github_audit.scan_history()
+
+
+# ── 11. GITHUB-AUDIT-NO-LIVE-KEY-PATTERN (2026-09-03) ──────────────────────────
+#
+# CONTEXT: github_audit.py's SECRET_PATTERNS had zero coverage for an Alpaca LIVE
+# key (AK-prefix) -- only the paper-shaped PK-prefix pattern existed -- so a
+# live-money credential could have sat in history and every scan would read
+# GREEN. Verified separately (grep by hand) that no live key exists in this
+# repo's history; this queue item closes the blind spot in the tool itself.
+# Five new patterns added: Alpaca LIVE key (AK-prefix), Alpaca secret key bare
+# 44-char shape, widened OpenRouter (drops the hardcoded "v1-" requirement --
+# run_minimax.py's own validator only checks .startswith("sk-or-")), Discord bot
+# token (3-segment shape), and a private-key PEM header (kalshi-1 holds one).
+#
+# All fixtures below are built by string concatenation/repetition, never a
+# literal key-shaped constant -- same trick as FAKE_ALPACA_KEY above, for the
+# same reason: this repo's own staged-secret pre-commit hook would otherwise
+# block a commit that touches this file.
+
+FAKE_ALPACA_LIVE_KEY = "AK" + "A" * 20  # 22 chars, inside the 18-26 body range
+assert len(FAKE_ALPACA_LIVE_KEY) == 22
+
+# Alpaca secret key bare shape: exactly 44 chars, alnum, mixed case + digit --
+# confirmed against this repo's own .mcp.json / secrets.json key LENGTHS only
+# (values never read by this test or by github_audit.py's own comments).
+FAKE_ALPACA_SECRET_BARE = "aB3" * 14 + "aB"
+assert len(FAKE_ALPACA_SECRET_BARE) == 44
+assert FAKE_ALPACA_SECRET_BARE.isalnum()
+
+# OpenRouter key with NO "v1-" segment -- the shape the OLD pattern would have
+# missed (it required the literal "v1-"), but run_minimax.py's own
+# `.startswith("sk-or-")` check would accept.
+FAKE_OPENROUTER_KEY_NO_V1 = "sk-or-" + ("a1" * 15)
+assert FAKE_OPENROUTER_KEY_NO_V1.startswith("sk-or-")
+assert "v1-" not in FAKE_OPENROUTER_KEY_NO_V1
+
+# Discord bot token: 3 dot-separated segments, lengths chosen inside the
+# 23-28 / 6-7 / 27-40 ranges (centered on this repo's own confirmed 26/6/38).
+FAKE_DISCORD_TOKEN = ("M" + "A" * 25) + "." + ("B" * 6) + "." + ("C" * 38)
+_parts = FAKE_DISCORD_TOKEN.split(".")
+assert len(_parts) == 3 and [len(p) for p in _parts] == [26, 6, 38]
+
+# Private key PEM header -- built by concatenation per the file-wide convention,
+# though note this literal header text carries no key material by itself (it is
+# public PEM boilerplate, not an entropy-bearing secret) -- concatenated anyway
+# for consistency with every other fixture in this file.
+FAKE_PEM_HEADER = "-----BEGIN " + "RSA PRIVATE KEY-----"
+
+
+@pytest.mark.parametrize(
+    "fixture,expected_label_substring",
+    [
+        (f'ALPACA_LIVE_KEY = "{FAKE_ALPACA_LIVE_KEY}"', "Alpaca LIVE API key"),
+        (f'unlabeled_value = "{FAKE_ALPACA_SECRET_BARE}"', "Alpaca secret key (bare"),
+        (f'OPENROUTER_API_KEY = "{FAKE_OPENROUTER_KEY_NO_V1}"', "OpenRouter API key"),
+        (f'DISCORD_BOT_TOKEN = "{FAKE_DISCORD_TOKEN}"', "Discord bot token"),
+        (f'PEM = """{FAKE_PEM_HEADER}\\nMII...\\n-----END RSA PRIVATE KEY-----"""',
+         "Private key PEM block"),
+    ],
+    ids=["alpaca_live_key", "alpaca_secret_bare", "openrouter_no_v1", "discord_token", "pem_header"],
+)
+def test_new_pattern_fixture_matched_with_expected_label(fixture, expected_label_substring):
+    """Each new SECRET_PATTERNS entry must fire on its own fixture, with the
+    EXPECTED label -- not preempted/shadowed by an earlier, broader pattern in
+    the list (scan_text breaks on the first match per line, so a wrong label
+    here would mean an earlier pattern silently swallowed this one)."""
+    findings = github_audit.scan_text("inline.py", fixture, is_code=True)
+    assert len(findings) >= 1, f"no finding for fixture: {fixture[:60]}..."
+    assert any(expected_label_substring in f.label for f in findings), (
+        f"expected a label containing {expected_label_substring!r}, "
+        f"got {[f.label for f in findings]}"
+    )
+
+
+@pytest.mark.parametrize(
+    "fixture,fake_secret",
+    [
+        (f'ALPACA_LIVE_KEY = "{FAKE_ALPACA_LIVE_KEY}"', FAKE_ALPACA_LIVE_KEY),
+        (f'unlabeled_value = "{FAKE_ALPACA_SECRET_BARE}"', FAKE_ALPACA_SECRET_BARE),
+        (f'OPENROUTER_API_KEY = "{FAKE_OPENROUTER_KEY_NO_V1}"', FAKE_OPENROUTER_KEY_NO_V1),
+        (f'DISCORD_BOT_TOKEN = "{FAKE_DISCORD_TOKEN}"', FAKE_DISCORD_TOKEN),
+    ],
+    ids=["alpaca_live_key", "alpaca_secret_bare", "openrouter_no_v1", "discord_token"],
+)
+def test_new_pattern_staged_scan_blocks_and_redacts(scratch_repo, fixture, fake_secret):
+    """The full staged pre-commit path (not just scan_text directly) blocks each
+    new fixture and redacts it in the output -- exercises the CLI end-to-end like
+    the rest of this file's tests, not just the library function."""
+    leak = scratch_repo / "leaky_new_pattern.py"
+    leak.write_text(fixture + "\n", encoding="utf-8")
+    _run_git(scratch_repo, "add", "leaky_new_pattern.py")
+
+    result = _run_audit(scratch_repo, "--staged")
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "RED" in result.stdout
+    assert fake_secret not in result.stdout, "raw secret leaked into staged-scan output"
+    # Redaction keeps the first 4 chars of the REGEX MATCH, not necessarily of
+    # `fake_secret` itself -- the Alpaca-secret-bare pattern's match includes the
+    # opening quote character, so its redaction prefix is `"` + 3 secret chars,
+    # not 4 secret chars. Check the shared 3-char prefix, which both share either way.
+    assert fake_secret[:3] in result.stdout
+    assert "..." in result.stdout
+
+
+def test_pem_header_staged_scan_blocks_and_redacts(scratch_repo):
+    """Private key PEM fixture through the full staged path -- kept separate from
+    the parametrized group above because its match is the fixed header string
+    itself (no digits/prefix scheme to redact-prefix-check the same way)."""
+    leak = scratch_repo / "leaky_pem.py"
+    leak.write_text(
+        f'PEM = """{FAKE_PEM_HEADER}\nMII...\n-----END RSA PRIVATE KEY-----"""\n',
+        encoding="utf-8",
+    )
+    _run_git(scratch_repo, "add", "leaky_pem.py")
+
+    result = _run_audit(scratch_repo, "--staged")
+
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert "RED" in result.stdout
+    assert "Private key PEM block" in result.stdout
+
+
+def test_secret_patterns_no_duplicate_or_identical_regexes():
+    """Guard against two SECRET_PATTERNS entries with byte-identical regex source
+    -- a copy-paste duplicate that would silently shadow whichever one is later
+    in the list (scan_text stops at the first match per line) and waste a scan
+    pass for no coverage gain."""
+    pattern_sources = [p.pattern for p, _label, _sev in github_audit.SECRET_PATTERNS]
+    assert len(pattern_sources) == len(set(pattern_sources)), (
+        "duplicate regex source string found in SECRET_PATTERNS"
+    )
+
+
+def test_secret_patterns_labels_are_unique():
+    """Guard against two entries sharing a label -- would make report_text's
+    per-finding label ambiguous about which pattern actually fired."""
+    labels = [label for _p, label, _sev in github_audit.SECRET_PATTERNS]
+    assert len(labels) == len(set(labels)), "duplicate label found in SECRET_PATTERNS"
+
+
+def test_alpaca_paper_key_pattern_unaffected_by_new_live_key_pattern():
+    """Regression: the new AK-prefix live-key pattern must not shadow or
+    interfere with the existing PK-prefix paper-key pattern's own finding label,
+    since both are 'Alpaca API key'-family HIGH findings that could plausibly
+    collide on ordering."""
+    findings = github_audit.scan_text(
+        "inline.py", f'ALPACA_KEY = "{FAKE_ALPACA_KEY}"\n', is_code=True,
+    )
+    assert len(findings) == 1
+    assert findings[0].label == "Alpaca API key"
+
+
+# --- allowlist marker must work in EVERY comment style -------------------
+# 2026-09-03: the marker was hardcoded as '# noqa:secret-ok', so no JS/TS/SQL/HTML
+# file could ever be allowlisted. gamma-companion/lib/push.js tripped the PEM pattern
+# on PKCS8 header boilerplate and had no way to silence it, leaving the scanner
+# permanently RED on a false positive -- the state in which people stop reading it.
+@pytest.mark.parametrize('marker', ['# noqa:secret-ok', '// noqa:secret-ok',
+                                    '-- noqa:secret-ok', '/* noqa:secret-ok */',
+                                    '<!-- noqa:secret-ok -->'])
+def test_allowlist_marker_accepts_every_comment_style(marker):
+    line = 'KEY = "' + FAKE_ALPACA_KEY + '"  ' + marker
+    assert github_audit._is_allowlisted(line), marker + ' should silence the finding'
+    assert not github_audit.scan_text('f.py', line), 'allowlisted line still reported'
+
+
+def test_allowlist_requires_a_comment_prefix_not_a_bare_mention():
+    """A bare mention in a string must NOT silence a real finding."""
+    line = 'KEY = "' + FAKE_ALPACA_KEY + '"  ; note = "noqa:secret-ok"'
+    assert not github_audit._is_allowlisted(line)

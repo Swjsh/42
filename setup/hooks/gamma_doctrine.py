@@ -422,6 +422,16 @@ def _handle_pre_tool(payload: dict) -> int:
         file_path = str(tin.get("file_path") or tin.get("notebook_path") or "")
         body = _added_content(tool, tin)
 
+        # Credential-literal guard runs FIRST: a secret leak is a worse outcome than a
+        # frozen-path or generated-surface edit, and it is the one this task exists to
+        # close. Only the text this edit actually ADDS is scanned (never old_string) --
+        # same reasoning _added_content's own docstring gives for the override-token
+        # check: text being deleted never reaches disk, so it can never BE the leak.
+        cred_hit = D.credential_write_hit(body)
+        if cred_hit:
+            label, prefix, severity = cred_hit
+            return _deny("PreToolUse", D.credential_deny_message(tool, label, prefix, severity))
+
         surface = D.generated_surface_hit(file_path)
         if surface:
             return _deny(
@@ -446,6 +456,18 @@ def _handle_pre_tool(payload: dict) -> int:
 
     if tool in ("Bash", "PowerShell"):
         command = str(tin.get("command") or "")
+
+        # Scan the RAW command -- deliberately BEFORE strip_heredocs/_strip_multiword_quoted
+        # (those exist to avoid false-positiving the frozen-path/generated-surface guards on
+        # documentation strings, and would throw away exactly the heredoc BODY text a
+        # `cat > file <<'EOF' ... EOF` or `echo "PK..." > file` leak lives in). Same guard,
+        # same reasoning as the Edit/Write branch above -- this is the "by another route"
+        # case the task calls out explicitly.
+        cred_hit = D.credential_write_hit(command)
+        if cred_hit:
+            label, prefix, severity = cred_hit
+            return _deny("PreToolUse", D.credential_deny_message(tool, label, prefix, severity))
+
         message = D.bash_guard_hit(command)
         if message:
             return _deny("PreToolUse", message)
