@@ -64,6 +64,7 @@ from multi.lib import positions as mpos  # noqa: E402
 from multi.lib import tickers_execute_support as tes  # noqa: E402 -- pure helpers, split out
                                                         # to keep this file under its 800-line
                                                         # budget (see that module's docstring)
+from multi.lib import tickers_lock as tlock  # noqa: E402 -- lane-vs-flatten lock (FIX 3)
 
 # --- module-level paths -- read FRESH by every helper below, never baked into a default arg
 DEFAULT_PARAMS_PATH = REPO_ROOT / "automation" / "state" / "tickers" / "params.json"
@@ -144,6 +145,13 @@ def arm_account_pin_path(arm: str) -> Path:
 
 def first_fill_marker_path() -> Path:
     return TICKERS_STATE_DIR / "FIRST_FILL.json"
+
+
+def lane_lock_path() -> Path:
+    """FIX 3 -- guards against this module's 2-minute cadence overlapping
+    tickers_flatten.py's 14:52 ET EOD safety net. Lane-wide (not per-arm): the two processes
+    race at the LANE level (both iterate all three arms), not per contract."""
+    return TICKERS_STATE_DIR / ".lane.lock"
 
 
 # --- append-only writers ---------------------------------------------------------------------
@@ -266,6 +274,138 @@ def maybe_write_first_fill_status(arm: str, contract: str, qty: int, price: floa
               f"{type(e).__name__}: {e}", file=sys.stderr)
 
 
+# --- order finalization (FIX 1, 2026-09-04 adversarial review -- BLOCKER) -------------------
+# THE BLOCKER: poll_fill's own attempts (6x2s entries, 4x2s exits) can exhaust without ever
+# reaching a terminal status, and the OLD code just logged *_FILL_UNCONFIRMED and abandoned the
+# order_id -- the order stayed resting live on the book. The next tick's concurrency check only
+# looks at FILLED positions, so it re-scores the same contract and places a SECOND order.
+# poll_fill also returns the instant filled_qty > 0 on a partially_filled order -- the
+# remainder stayed live and untracked. finalize_order() closes both holes: whatever poll_fill
+# did not confirm as FULLY filled gets CANCELED (never left resting), then re-read up to 3x so
+# a fill that raced the cancel (the broker fully filled it between the last poll and the cancel
+# call) is reported as filled, not lost.
+_TERMINAL_ORDER_STATUSES = ("filled", "canceled", "expired", "rejected", "done_for_day")
+
+
+def finalize_order(creds, order_id: str, *, requested_qty: int, shadow: bool, arm_params: dict,
+                   attempts: int, sleep_sec: float) -> dict:
+    """Poll `order_id` to fill; if it is not FULLY filled within the poll window, cancel the
+    resting remainder and re-read broker truth. Returns
+    {status, filled_qty:int, filled_avg_price:float|None, canceled:bool, limbo:bool}.
+
+    `canceled` is True whenever the final filled_qty falls short of `requested_qty` for ANY
+    reason (an explicit cancel/expire/reject, or a still-partial fill even after the cancel
+    attempt). `limbo` is True only when broker truth is STILL non-terminal after the re-reads
+    -- FIX 2's startup sweep (run_arm step 6a, next tick) cleans that up; this function never
+    spins waiting for it, so one stuck order can never blow the 90s wall-clock budget alone.
+
+    Only ever reached on a REAL submission: the shadow path (armed=False) `continue`s at
+    SHADOW_ENTRY_PREVIEW/SHADOW_EXIT_PREVIEW before an order_id resolving to a live broker
+    order exists, so this function carries no shadow/armed branch of its own.
+    """
+    fill = mb.poll_fill(creds, order_id, attempts=attempts, sleep_sec=sleep_sec)
+    status = str(fill.get("status") or "unknown").lower()
+    if status == "filled":
+        return {"status": status, "filled_qty": int(fill.get("filled_qty") or 0),
+                "filled_avg_price": fill.get("filled_avg_price"), "canceled": False, "limbo": False}
+
+    # Not (fully) filled: "unfilled"/"new"/"accepted"/"pending_new", or "partially_filled" with
+    # a live remainder. Cancel it rather than abandon it on the book.
+    try:
+        mb.cancel_order(creds, order_id, armed=(not shadow), params=arm_params)
+    except mb.BrokerAPIError:
+        pass  # a cancel can 422 if the order filled in the gap between poll_fill's last read
+              # and this call -- fine, the re-read below reports whatever actually happened
+    except mb.ShadowModeError:
+        pass  # armed=(not shadow) with shadow=False but lane params.shadow_only still true --
+              # the interlock already fired on the ORIGINAL submission; this is best-effort
+              # cleanup on an order that structurally cannot exist for real in that state
+
+    last = fill
+    for _ in range(3):
+        time.sleep(1.0)
+        try:
+            last = mb.get_order(creds, order_id)
+        except mb.BrokerAPIError:
+            continue
+        if str(last.get("status") or "").lower() in _TERMINAL_ORDER_STATUSES:
+            break
+
+    final_status = str(last.get("status") or status or "unknown").lower()
+    try:
+        raw_fq = last.get("filled_qty")
+        final_qty = int(float(raw_fq if raw_fq is not None else (fill.get("filled_qty") or 0)))
+    except (TypeError, ValueError):
+        final_qty = int(fill.get("filled_qty") or 0)
+    fap = last.get("filled_avg_price", fill.get("filled_avg_price"))
+    try:
+        final_price = float(fap) if fap not in (None, "") else None
+    except (TypeError, ValueError):
+        final_price = None
+    try:
+        req_i = int(requested_qty)
+    except (TypeError, ValueError):
+        req_i = final_qty
+
+    is_terminal = final_status in _TERMINAL_ORDER_STATUSES
+    canceled = final_status in ("canceled", "expired", "rejected") or final_qty < req_i
+    return {"status": final_status, "filled_qty": final_qty, "filled_avg_price": final_price,
+            "canceled": canceled, "limbo": not is_terminal}
+
+
+# --- weighted exit price (FIX 1) -------------------------------------------------------------
+# A SELL_ALL close can now legitimately span more than one broker fill: finalize_order cancels
+# a partial's live remainder and the NEXT tick's exit re-evaluation finishes the close, so the
+# day file can carry two (or more) SELL_ALL/SELL_ALL_PARTIAL fills for the same contract at two
+# different prices before it is fully flat. The journal's one EXIT row needs ONE price -- the
+# qty-weighted average across just those closing fills (never TP1's SELL_PARTIAL fill, which is
+# a separate, already-realized sale at its own price).
+_CLOSING_SELL_SIDES = ("SELL_ALL", "SELL_ALL_PARTIAL")
+
+
+def weighted_exit_price(fills: list, contract: str) -> Optional[float]:
+    """Qty-weighted average price across every `_CLOSING_SELL_SIDES` fill recorded for
+    `contract` in a day file's `fills` list. Pure function. Returns None if there are no
+    qualifying fills to average (caller falls back to the single fill's own price)."""
+    total_qty = 0
+    total_notional = 0.0
+    for f in fills or []:
+        if not isinstance(f, dict) or f.get("contract") != contract:
+            continue
+        if f.get("side") not in _CLOSING_SELL_SIDES:
+            continue
+        try:
+            qty = int(f.get("qty") or 0)
+            price = float(f.get("price"))
+        except (TypeError, ValueError):
+            continue
+        if qty <= 0:
+            continue
+        total_qty += qty
+        total_notional += price * qty
+    if total_qty <= 0:
+        return None
+    return round(total_notional / total_qty, 4)
+
+
+# --- OCC tail parse for orphan adoption (FIX 2b) ----------------------------------------------
+def _parse_occ_contract(contract: str) -> tuple[Optional[str], Optional[str]]:
+    """(side "C"|"P", expiry ISO date) parsed from an OCC-shaped symbol's fixed-width tail
+    (YYMMDD + C|P + 8-digit strike -- mirrors multi.lib.positions's own tail-slice approach,
+    duplicated locally rather than added to that module, which is not this build's file to
+    extend). Returns (None, None) if `contract` is not OCC-shaped or the date segment does not
+    parse -- callers must not assume a non-None root implies a parseable tail."""
+    if mpos.occ_root(contract) is None:
+        return None, None
+    tail = contract[-15:]
+    yy, mm, dd, side = tail[0:2], tail[2:4], tail[4:6], tail[6]
+    try:
+        expiry = dt.date(2000 + int(yy), int(mm), int(dd)).isoformat()
+    except ValueError:
+        return None, None
+    return (side if side in ("C", "P") else None), expiry
+
+
 # --- the per-arm run -------------------------------------------------------------------------
 def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
             shadow: bool, deadline: float) -> dict:
@@ -366,6 +506,147 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
     arm_universe = [str(s).upper() for s in (arm_cfg.get("universe") or [])]
     universe_set = set(arm_universe)
 
+    state_cache: Optional[dict] = None
+    state_load_error: Optional[str] = None
+
+    def _state() -> dict:
+        nonlocal state_cache, state_load_error
+        if state_cache is None:
+            try:
+                state_cache = mps.load_state(path=state_path)
+            except mps.PositionStateError as e:
+                log({"decision": "STATE_UNREADABLE", "reason": str(e)})
+                state_cache = {}
+                state_load_error = str(e)
+        return state_cache
+
+    try:
+        open_opts = mb.equity_option_positions(creds, allowed_roots=arm_universe)
+    except mb.BrokerAPIError as e:
+        open_opts = None
+        log({"decision": "BROKER_READ_ERROR", "gate": "positions", "reason": str(e)})
+        print(f"[tickers] {arm} BROKER_READ_ERROR reading positions: {e}", file=sys.stderr)
+    summary["open"] = len(open_opts) if open_opts is not None else -1
+
+    # 6a. STALE-ORDER SWEEP (FIX 2, startup reconciliation) -- catches an order left resting on
+    # the book by a process killed mid-flight (Task Scheduler's 3-minute hard
+    # ExecutionTimeLimit can kill this process before finalize_order() ever reaches its own
+    # cancel step). Restricted to BUY-side orders: this lane is long_premium_only and never
+    # buys to close, so a resting BUY can only be an entry parent this executor itself placed
+    # and never resolved -- exactly the blocker scenario (a stuck entry causes a duplicate
+    # entry next tick). SELL-side orders in this arm's own universe are deliberately left alone
+    # even so: place_bracket's take-profit/stop-loss CHILD legs are long-lived, INTENTIONAL
+    # protective orders (the same defense-in-depth role tickers_flatten.py plays for the whole
+    # lane) -- sweeping them as if they were garbage would strip a filled position of its only
+    # broker-side protection the instant this process itself stops ticking (a naked long, C2).
+    try:
+        open_orders = mb.get_orders(creds, status="open")
+    except mb.BrokerAPIError as e:
+        open_orders = []
+        log({"decision": "ORDERS_READ_ERROR", "reason": f"{type(e).__name__}: {e}"})
+        print(f"[tickers] {arm} ORDERS_READ_ERROR: {e}", file=sys.stderr)
+    for o in open_orders:
+        o_sym = str(o.get("symbol") or "")
+        o_id = o.get("id")
+        o_root = mpos.occ_root(o_sym)
+        if o_root is None:
+            continue  # not an OCC option order at all -- never this lane's concern either way
+        if o_root.upper() not in universe_set:
+            log({"decision": "FOREIGN_OPEN_ORDER", "order_id": o_id, "symbol": o_sym,
+                 "side": o.get("side"),
+                 "reason": f"root {o_root!r} not in {arm} universe {sorted(universe_set)} -- left alone"})
+            continue
+        if str(o.get("side") or "").lower() != "buy" or not o_id:
+            continue  # ours, but a sell-side leg (protective TP/stop) -- not swept, see above
+        try:
+            cres = mb.cancel_order(creds, o_id, armed=(not shadow), params=arm_params)
+        except mb.ShadowModeError as e:
+            log({"decision": "SHADOW_ONLY_INTERLOCK", "order_id": o_id, "symbol": o_sym, "reason": str(e)})
+            continue
+        except mb.BrokerAPIError as e:
+            log({"decision": "STALE_ORDER_CANCEL_ERROR", "order_id": o_id, "symbol": o_sym,
+                 "reason": f"{type(e).__name__}: {e}"})
+            continue
+        if isinstance(cres, dict) and cres.get("_shadow"):
+            log({"decision": "SHADOW_STALE_ORDER_CANCEL_PREVIEW", "order_id": o_id, "symbol": o_sym,
+                 "side": o.get("side"), "qty": o.get("qty")})
+            continue
+        log({"decision": "STALE_ORDER_CANCELED", "order_id": o_id, "symbol": o_sym,
+             "side": o.get("side"), "qty": o.get("qty"), "submitted_at": o.get("submitted_at")})
+
+    # 6b. ORPHAN-POSITION ADOPTION (FIX 2) -- a broker fill this executor's own state never
+    # recorded (the process was killed between the broker confirming the fill and this code
+    # persisting the PositionRecord) is otherwise invisible to exit management forever:
+    # core.tick()'s manage_open_positions loop only iterates THIS arm's own state file, never
+    # broker positions directly. Adopting it here, before tick() runs below, means THIS SAME
+    # tick's exit evaluation already sees it -- not one tick (2 minutes) late. Skipped when the
+    # state file itself is unreadable (STATE_UNREADABLE already logged above) -- adopting on
+    # top of an unknown state risks silently overwriting real, if corrupt-on-disk, history.
+    if open_opts is not None and state_load_error is None:
+        known_contracts = set(_state().keys())
+        for pos in open_opts:
+            a_contract = str(pos.get("symbol") or "")
+            if not a_contract or a_contract in known_contracts:
+                continue
+            a_side, a_expiry = _parse_occ_contract(a_contract)
+            a_root = mpos.occ_root(a_contract)
+            try:
+                a_entry_premium = float(pos.get("avg_entry_price"))
+            except (TypeError, ValueError):
+                a_entry_premium = None
+            try:
+                a_qty = abs(int(float(pos.get("qty", 0))))
+            except (TypeError, ValueError):
+                a_qty = 0
+
+            a_underlying, _atr = bars_facts(bars, a_root)
+            if a_underlying is None:
+                try:
+                    cp = pos.get("current_price")
+                    a_underlying = float(cp) if cp is not None else None
+                except (TypeError, ValueError):
+                    a_underlying = None
+            if a_underlying is None and a_entry_premium is not None:
+                a_underlying = a_entry_premium  # last resort -- a real number, never a fake 0.0
+
+            if a_side is None or a_expiry is None or a_entry_premium is None or a_qty < 1 or a_underlying is None:
+                log({"decision": "ADOPTION_FAILED", "contract": a_contract,
+                     "reason": f"could not derive PositionRecord fields from broker position "
+                               f"{pos!r}"[:300]})
+                continue
+            try:
+                a_rec = mps.PositionRecord(
+                    symbol=str(a_root or ""), contract=a_contract, side=a_side,
+                    entry_premium=a_entry_premium, entry_underlying_price=a_underlying,
+                    qty=a_qty, entry_session_date=date_str, expiry=a_expiry,
+                    hwm_premium=a_entry_premium, strategy="production_ribbon_ride",
+                )
+            except (ValueError, TypeError) as e:
+                log({"decision": "ADOPTION_FAILED", "contract": a_contract,
+                     "reason": f"PositionRecord rejected: {type(e).__name__}: {e}"})
+                continue
+
+            adopted_state = dict(_state())
+            adopted_state[a_contract] = a_rec
+            mps.save_state(adopted_state, path=state_path)
+            state_cache = adopted_state
+            known_contracts.add(a_contract)
+
+            adopt_ts = now_et()
+            adopt_trade_id = f"adopted-{arm}-{a_contract}-{adopt_ts.strftime('%H%M%S')}"
+            try:
+                mj.append_entry(trade_id=adopt_trade_id, symbol=a_rec.symbol, contract=a_contract,
+                                side=a_rec.side, entry_date=adopt_ts.date(),
+                                entry_time_et=adopt_ts.strftime("%H:%M:%S"),
+                                entry_premium=a_rec.entry_premium, qty=a_qty, arm=arm,
+                                feed="adopted", path=arm_journal_path(arm))
+            except mj.JournalError as e:
+                log({"decision": "JOURNAL_ERROR", "contract": a_contract,
+                     "reason": f"adoption journal entry failed: {e}"})
+            log({"decision": "POSITION_ADOPTED", "contract": a_contract, "qty": a_qty,
+                 "entry_premium": a_entry_premium, "side": a_side, "expiry": a_expiry,
+                 "trade_id": adopt_trade_id})
+
     # 7. tick() ------------------------------------------------------------------------------
     try:
         rows, cascade = core.tick(
@@ -382,34 +663,33 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
         log(dict(r))
     append_cascade(arm_cascade_path(arm), cascade, ts)
 
-    try:
-        open_opts = mb.equity_option_positions(creds, allowed_roots=arm_universe)
-    except mb.BrokerAPIError as e:
-        open_opts = None
-        log({"decision": "BROKER_READ_ERROR", "gate": "positions", "reason": str(e)})
-        print(f"[tickers] {arm} BROKER_READ_ERROR reading positions: {e}", file=sys.stderr)
-    summary["open"] = len(open_opts) if open_opts is not None else -1
-
     # 8. ACT ON EXITS FIRST --------------------------------------------------------------
-    state_cache: Optional[dict] = None
-
-    def _state() -> dict:
-        nonlocal state_cache
-        if state_cache is None:
-            try:
-                state_cache = mps.load_state(path=state_path)
-            except mps.PositionStateError as e:
-                log({"decision": "STATE_UNREADABLE", "reason": str(e)})
-                state_cache = {}
-        return state_cache
-
     n_exits = 0
     exit_rows = [r for r in rows if r.get("kind") == "exit_eval"]
     for r in exit_rows:
         decision_kind = r.get("decision")
+        contract = r.get("contract")
+
+        if decision_kind == "STALE_STATE":
+            # core.py's broker-flat detector (gate="broker_flat"): the broker reports this
+            # contract flat but our own state still carries a record for it (a close this
+            # ledger never saw the fill for -- a crash, a race, or a manual close outside this
+            # executor). Drop the record; write NO journal row -- the flatten / broker
+            # activity feed is what reconciles the actual P&L, since this lane's own ledger has
+            # no fill of its own to attribute it to.
+            if contract:
+                state = _state()
+                if contract in state:
+                    new_state = dict(state)
+                    new_state.pop(contract, None)
+                    mps.save_state(new_state, path=state_path)
+                    state_cache = new_state
+                log({"decision": "STATE_RECORD_DROPPED", "contract": contract,
+                     "reason": r.get("reason") or "core.py STALE_STATE/broker_flat"})
+            continue
+
         if decision_kind not in (mex.ACTION_HOLD, mex.ACTION_SELL_PARTIAL, mex.ACTION_SELL_ALL):
             continue  # BLOCKED (quote error, unreadable state) -- nothing to act on or persist
-        contract = r.get("contract")
         symbol = r.get("symbol")
         if not contract:
             continue
@@ -458,6 +738,28 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
                  "reason": "wall-clock budget exhausted"})
             continue
 
+        # Belt-and-suspenders (FIX 1): core.py derives qty_to_close from the PositionRecord's
+        # ORIGINAL qty (position_state.py: "never decremented"), which goes stale the instant a
+        # PRIOR partial close has already shrunk what the broker actually holds. Clamp to
+        # broker truth here, at the last possible moment before submission, rather than trust a
+        # decision that may be one or more ticks old.
+        try:
+            held = mb.get_position_qty(creds, contract)
+        except mb.BrokerAPIError as e:
+            log({"decision": "EXIT_QTY_READ_ERROR", "contract": contract,
+                 "reason": f"{type(e).__name__}: {e}"})
+            continue  # never sell blind on an unknown held qty
+        if held == 0:
+            new_state = dict(state)
+            if contract in new_state:
+                new_state.pop(contract, None)
+                mps.save_state(new_state, path=state_path)
+                state_cache = new_state
+            log({"decision": "EXIT_SKIPPED_FLAT", "contract": contract,
+                 "reason": "broker reports 0 held for this contract -- nothing to sell; state record dropped"})
+            continue
+        qty_i = min(qty_i, held)
+
         try:
             res = mb.market_sell(creds, symbol=contract, qty=qty_i, armed=(not shadow), params=arm_params)
         except mb.ShadowModeError as e:
@@ -482,29 +784,61 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
                  "reason": f"no order id in broker response: {res!r}"[:300]})
             continue
 
-        fill = mb.poll_fill(creds, order_id, attempts=EXIT_POLL_ATTEMPTS, sleep_sec=EXIT_POLL_SLEEP_SEC)
-        if not fill.get("filled"):
-            log({"decision": "EXIT_FILL_UNCONFIRMED", "contract": contract, "order_id": order_id,
-                 "reason": f"status={fill.get('status')}"})
+        result = finalize_order(creds, order_id, requested_qty=qty_i, shadow=shadow,
+                                arm_params=arm_params, attempts=EXIT_POLL_ATTEMPTS,
+                                sleep_sec=EXIT_POLL_SLEEP_SEC)
+        if result["limbo"]:
+            log({"decision": "ORDER_LIMBO", "contract": contract, "order_id": order_id,
+                 "status": result["status"]})
+        filled_qty = result["filled_qty"]
+        if filled_qty == 0:
+            log({"decision": "EXIT_CANCELED", "contract": contract, "order_id": order_id,
+                 "reason": f"final status={result['status']} after "
+                           f"{EXIT_POLL_ATTEMPTS}x{EXIT_POLL_SLEEP_SEC}s poll window"})
             continue
 
         exit_time = now_et()
-        filled_qty = int(fill.get("filled_qty") or qty_i)
-        exit_px = fill.get("filled_avg_price")
+        exit_px = result["filled_avg_price"]
 
         new_state = dict(state)
         if decision_kind == mex.ACTION_SELL_ALL:
+            if filled_qty < qty_i:
+                # Partial close -- broker truth carries the remainder; the record stays OPEN
+                # (never popped) so the NEXT tick's SELL_ALL re-evaluation finishes it, clamped
+                # again to broker truth by the belt-and-suspenders check above.
+                partial_pnl = (round((float(exit_px) - rec.entry_premium) * filled_qty * 100.0, 2)
+                              if exit_px is not None else None)
+                if partial_pnl is not None:
+                    day["realized_pnl_today"] = realized = round(realized + partial_pnl, 2)
+                day["fills"].append({"ts_et": exit_time.isoformat(timespec="seconds"),
+                                     "side": "SELL_ALL_PARTIAL", "contract": contract,
+                                     "qty": filled_qty, "price": exit_px, "pnl_dollars": partial_pnl})
+                save_day_file(arm_day_path(arm, date_str), day)
+                log({"decision": "EXIT_PARTIAL", "action": "SELL_ALL", "contract": contract,
+                     "requested_qty": qty_i, "qty": filled_qty, "price": exit_px,
+                     "pnl_dollars": partial_pnl, "order_id": order_id})
+                continue
+
+            # FULLY closed (this fill's qty matches qty_i, which was itself clamped to broker-
+            # held qty moments earlier) -- pop the record and write the journal EXIT row, price
+            # is the qty-weighted average across every closing fill for this contract today (a
+            # prior partial may have filled at a different price than this final one).
             new_state.pop(contract, None)
             mps.save_state(new_state, path=state_path)
             state_cache = new_state
+            day["fills"].append({"ts_et": exit_time.isoformat(timespec="seconds"), "side": "SELL_ALL",
+                                 "contract": contract, "qty": filled_qty, "price": exit_px})
+            journal_px = weighted_exit_price(day["fills"], contract)
+            if journal_px is None:
+                journal_px = exit_px
             entry_row = next((e for e in mj.open_trades(path=arm_journal_path(arm))
                               if e.get("contract") == contract), None)
             pnl = None
-            if entry_row is not None and exit_px:
+            if entry_row is not None and journal_px:
                 try:
                     exit_row = mj.append_exit(
                         trade_id=entry_row["trade_id"], exit_date=exit_time.date(),
-                        exit_time_et=exit_time.strftime("%H:%M:%S"), exit_premium=float(exit_px),
+                        exit_time_et=exit_time.strftime("%H:%M:%S"), exit_premium=float(journal_px),
                         exit_reason=str(r.get("stage") or decision_kind), path=arm_journal_path(arm),
                     )
                     pnl = float(exit_row.get("pnl_dollars") or 0.0)
@@ -515,14 +849,13 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
                      "reason": "no open ENTRY row found for this contract"})
             if pnl is not None:
                 day["realized_pnl_today"] = realized = round(realized + pnl, 2)
-            day["fills"].append({"ts_et": exit_time.isoformat(timespec="seconds"), "side": "SELL_ALL",
-                                 "contract": contract, "qty": filled_qty, "price": exit_px,
-                                 "pnl_dollars": pnl})
             save_day_file(arm_day_path(arm, date_str), day)
             log({"decision": "EXIT_FILLED", "action": "SELL_ALL", "contract": contract,
-                 "qty": filled_qty, "price": exit_px, "pnl_dollars": pnl, "order_id": order_id})
-        else:  # SELL_PARTIAL (TP1) -- record stays open with tp1_filled ratcheted; no journal
-               # EXIT row (journal.py has no PARTIAL row type -- only the FINAL close is a trade).
+                 "qty": filled_qty, "price": exit_px, "journal_price": journal_px,
+                 "pnl_dollars": pnl, "order_id": order_id})
+        else:  # SELL_PARTIAL (TP1) -- record the ACTUAL filled qty; keep the existing re-derive
+               # path. No journal EXIT row (journal.py has no PARTIAL row type -- only the
+               # FINAL close is a trade).
             try:
                 new_state[contract] = _re_derive_exit_record(
                     rec, r, bars, arm_params, best_override=(exit_px or r.get("ask")))
@@ -535,6 +868,9 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
             save_day_file(arm_day_path(arm, date_str), day)
             log({"decision": "EXIT_FILLED", "action": "SELL_PARTIAL", "contract": contract,
                  "qty": filled_qty, "price": exit_px, "order_id": order_id})
+            if filled_qty < qty_i:
+                log({"decision": "EXIT_PARTIAL_REMAINDER_CANCELED", "contract": contract,
+                     "order_id": order_id, "requested_qty": qty_i, "filled_qty": filled_qty})
 
     summary["exits"] = n_exits
 
@@ -631,15 +967,21 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
                  "reason": f"no order id in broker response: {res!r}"[:300]})
             continue
 
-        fill = mb.poll_fill(creds, order_id, attempts=ENTRY_POLL_ATTEMPTS, sleep_sec=ENTRY_POLL_SLEEP_SEC)
-        if not fill.get("filled"):
-            log({"decision": "ENTRY_FILL_UNCONFIRMED", "contract": contract, "order_id": order_id,
-                 "reason": f"status={fill.get('status')}"})
+        result = finalize_order(creds, order_id, requested_qty=qty, shadow=shadow,
+                                arm_params=arm_params, attempts=ENTRY_POLL_ATTEMPTS,
+                                sleep_sec=ENTRY_POLL_SLEEP_SEC)
+        if result["limbo"]:
+            log({"decision": "ORDER_LIMBO", "contract": contract, "order_id": order_id,
+                 "status": result["status"]})
+        filled_qty = result["filled_qty"]
+        if filled_qty == 0:
+            log({"decision": "ENTRY_CANCELED", "contract": contract, "order_id": order_id,
+                 "reason": f"final status={result['status']} after "
+                           f"{ENTRY_POLL_ATTEMPTS}x{ENTRY_POLL_SLEEP_SEC}s poll window"})
             continue
 
         entry_time = now_et()
-        fill_px = fill.get("filled_avg_price") or limit_price
-        filled_qty = int(fill.get("filled_qty") or qty)
+        fill_px = result["filled_avg_price"] or limit_price
         try:
             rec = mps.PositionRecord(
                 symbol=str(r.get("symbol") or root), contract=contract, side=str(r.get("side")),
@@ -678,6 +1020,9 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
         log({"decision": "ENTRY_FILLED", "contract": contract, "qty": filled_qty,
              "price": rec.entry_premium, "trade_id": trade_id, "order_id": order_id})
         maybe_write_first_fill_status(arm, contract, filled_qty, rec.entry_premium, entry_time)
+        if filled_qty < qty:
+            log({"decision": "ENTRY_PARTIAL_REMAINDER_CANCELED", "contract": contract,
+                 "order_id": order_id, "requested_qty": qty, "filled_qty": filled_qty})
 
         # a fresh fill counts toward THIS tick's concurrency for any further WOULD_PLACE rows
         # in the SAME pass (max_concurrent_positions=1 makes this the common case).
@@ -690,7 +1035,28 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
 # --- process-level driver ---------------------------------------------------------------------
 def run_once(arms: list[str], params_path: Path, *, shadow: bool = False) -> int:
     """One pass over `arms`: shared bar fetch, then each arm run independently. Never raises;
-    returns 1 only when params.json itself cannot be loaded at all (nothing per-arm to run)."""
+    returns 1 only when params.json itself cannot be loaded at all (nothing per-arm to run).
+
+    FIX 3 (lane-vs-flatten lock): holds `<TICKERS_STATE_DIR>/.lane.lock` for the WHOLE pass.
+    If tickers_flatten.py (or a second overlapping instance of this same process) already
+    holds it, this pass is skipped entirely -- logged LOCK_HELD, returns 0 (a skipped pass is
+    not an error; the next scheduled tick two minutes later tries again)."""
+    lock_path = lane_lock_path()
+    handle = tlock.acquire(lock_path)
+    if handle is None:
+        holder = tlock.holder_info(lock_path)
+        print(f"[tickers] LOCK_HELD: {lock_path} held by pid={holder.get('pid')} "
+              f"age={holder.get('age_sec')}s -- skipping this pass (tickers_flatten.py's own "
+              f"safety net is unaffected)", file=sys.stderr)
+        return 0
+    try:
+        return _run_once_locked(arms, params_path, shadow=shadow)
+    finally:
+        tlock.release(handle)
+
+
+def _run_once_locked(arms: list[str], params_path: Path, *, shadow: bool = False) -> int:
+    """The original run_once() body, now called only while lane_lock_path() is held."""
     pass_start = time.monotonic()
     deadline = pass_start + WALL_CLOCK_BUDGET_SEC
 

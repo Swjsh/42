@@ -137,12 +137,20 @@ def _stub_verify_account(resolved_number="PA_RESOLVED", equity=100000.0):
     return _fn
 
 
-def _recording_broker(monkeypatch: pytest.MonkeyPatch) -> dict:
-    """Patches execute.mb.place_bracket / market_sell / poll_fill / equity_option_positions
-    with recording stand-ins that reuse the REAL _gate_submission shadow/armed interlock (so
-    the shadow-preview shape and the ShadowModeError interlock behave exactly as broker.py's
-    real functions do), never reaching execute.mb._request."""
-    calls = {"place_bracket": [], "market_sell": []}
+def _recording_broker(monkeypatch: pytest.MonkeyPatch, *, held_qty: int = 999) -> dict:
+    """Patches execute.mb.place_bracket / market_sell / poll_fill / equity_option_positions /
+    get_orders / get_order / cancel_order / get_position_qty with recording stand-ins that
+    reuse the REAL _gate_submission shadow/armed interlock (so the shadow-preview shape and
+    the ShadowModeError interlock behave exactly as broker.py's real functions do), never
+    reaching execute.mb._request.
+
+    `held_qty` is the default `get_position_qty` answer (FIX 1's belt-and-suspenders exit
+    clamp) -- 999 so existing exit-qty assertions (seeded at qty=3) are never truncated by
+    the clamp unless a test explicitly overrides `execute.mb.get_position_qty` afterward.
+    `get_orders` defaults to `[]` (FIX 2's stale-order sweep is a no-op by default) -- a test
+    exercising the sweep itself overrides it after calling this function.
+    """
+    calls = {"place_bracket": [], "market_sell": [], "cancel_order": []}
 
     def fake_place_bracket(creds, *, symbol, qty, limit_price, take_profit_price, stop_price,
                            armed=False, simple_fallback=False, params=None):
@@ -165,10 +173,30 @@ def _recording_broker(monkeypatch: pytest.MonkeyPatch) -> dict:
     def fake_equity_option_positions(creds, *, allowed_roots=None):
         return []
 
+    def fake_get_orders(creds, *, status="open", symbol=None, side=None):
+        return []
+
+    def fake_get_order(creds, order_id):
+        return {"id": order_id, "status": "filled", "filled_qty": 3, "filled_avg_price": 1.60}
+
+    def fake_cancel_order(creds, order_id, *, armed=False, params=None):
+        calls["cancel_order"].append({"order_id": order_id, "armed": armed})
+        preview = execute.mb._gate_submission(armed, {"cancel_order_id": order_id}, params=params)
+        if preview is not None:
+            return preview
+        return {"id": order_id, "status": "canceled"}
+
+    def fake_get_position_qty(creds, symbol):
+        return held_qty
+
     monkeypatch.setattr(execute.mb, "place_bracket", fake_place_bracket)
     monkeypatch.setattr(execute.mb, "market_sell", fake_market_sell)
     monkeypatch.setattr(execute.mb, "poll_fill", fake_poll_fill)
     monkeypatch.setattr(execute.mb, "equity_option_positions", fake_equity_option_positions)
+    monkeypatch.setattr(execute.mb, "get_orders", fake_get_orders)
+    monkeypatch.setattr(execute.mb, "get_order", fake_get_order)
+    monkeypatch.setattr(execute.mb, "cancel_order", fake_cancel_order)
+    monkeypatch.setattr(execute.mb, "get_position_qty", fake_get_position_qty)
     return calls
 
 
@@ -201,6 +229,13 @@ def test_shadow_flag_constructs_and_logs_but_never_sends(state_dir, monkeypatch)
     monkeypatch.setattr(execute.mb, "poll_fill",
                         lambda *a, **kw: pytest.fail("poll_fill must never run in shadow mode"))
     monkeypatch.setattr(execute.mb, "equity_option_positions", lambda creds, allowed_roots=None: [])
+    # FIX 2's stale-order sweep issues a READ (get_orders) even in --shadow -- broker.py's own
+    # design has read-only calls carry no `armed` gate at all (see its module docstring). []
+    # keeps the sweep a no-op here; it never reaches cancel_order (an actual submission, which
+    # WOULD legitimately go through _gate_submission/armed=False rather than booming).
+    monkeypatch.setattr(execute.mb, "get_orders", lambda creds, **kw: [])
+    # FIX 1's belt-and-suspenders exit-qty clamp is also a READ, also unconditional on shadow.
+    monkeypatch.setattr(execute.mb, "get_position_qty", lambda creds, symbol: 999)
 
     exit_contract = "NVDA260904C00490000"
     _seed_position("tickers-1", exit_contract, entry_premium=1.0, hwm_premium=1.0)
