@@ -1,0 +1,116 @@
+{
+  "rule_id": "prereg-catalyst-direction-2026-09-03",
+  "title": "Does a news catalyst supply the DIRECTION that the level/structure trigger provably cannot?",
+  "status": "FROZEN_BEFORE_ANY_RESULT",
+  "frozen_at_et": "2026-09-03T21:44:25-04:00",
+  "frozen_by": "Fable session (J-directed: 'expand past SPY 0DTE; fill in the market-knowledge gaps')",
+
+  "_no_results_seen": "Written before backtest/tools/catalyst_direction_null_harness.py exists. The harness has never been run, on any symbol, for any window. Only FEASIBILITY was checked beforehand -- (a) mcp__alpaca__get_news returns Benzinga articles for NVDA back to 2024-02-20 with second-resolution created_at and symbol tags, on the existing free paper key; (b) 5-minute underlying bars are fetchable for the same symbols. Feasibility is not a result.",
+
+  "provenance": {
+    "why": "Every non-SPY experiment this shop has run tested PRICE GEOMETRY. MULTI-LANE-STAGE-A (7,489 signals / 9 symbols, hit 49.06/49.35/49.17%) and WEEKLY-EXPIRY-EXPERIMENT (684 real positions, 4 arms) independently killed the same level-interaction + structure-shift detector, and both post-mortems reached the same words: it detects VOLATILITY, not DIRECTION. MULTI-LEVELS-TRANSPLANT then ruled out the level source as the cause. News is a mechanically different information class and has never been tested at all -- there is no news-to-return study anywhere in this repo.",
+    "prior_nulls": [
+      "analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20.md",
+      "analysis/deep-research/WEEKLY-EXPIRY-EXPERIMENT-2026-08-18.md",
+      "analysis/deep-research/MULTI-LEVELS-TRANSPLANT-VERDICT-2026-08-21.md"
+    ],
+    "reuses": [
+      "multi/lib/scanners.py::fetch_news_raw / parse_news / classify_headline",
+      "multi/core.py::fetch_bars_batch",
+      "backtest/tools/multi_intraday_null_harness.py::random_null (extended, see statistics.fixes)"
+    ]
+  },
+
+  "prior_working_against_this_hypothesis": [
+    "Post-earnings-announcement drift is a days-to-weeks phenomenon. A 10-60 minute window is the LEAST likely place to find it.",
+    "Benzinga wire headlines on mega-caps are among the fastest-priced information in the US market. By the time an article's created_at stamp exists, the move has usually happened.",
+    "Two well-powered nulls have already failed on this exact symbol set. The base rate for this shop finding an edge on these names is poor.",
+    "Stated here, before the run, so a negative result cannot later be framed as a surprise."
+  ],
+
+  "hypothesis": {
+    "primary": "After a symbol-specific news headline publishes during RTH, the underlying's initial 10-minute reaction predicts CONTINUATION over the following 30 minutes, beyond what random entries drawn from the same symbol-session-bar population achieve.",
+    "null": "It does not. Post-headline continuation is indistinguishable from random entry.",
+    "null_is_shippable": true,
+    "_null_action": "A null STOPS the catalyst line with a written verdict. It does NOT trigger a threshold sweep, a sentiment-model upgrade, a wider symbol set, or a re-slice of the same data. All four are dead-knobs dressed as progress and are on this prereg's kill-list.",
+    "_why_direction_is_derived_from_price_not_sentiment": "Deriving direction from headline sentiment would introduce a free parameter (the classifier) that could be tuned until the result appears. Using the sign of the market's OWN first reaction has zero free parameters and is mechanically reproducible. Sentiment/news-class enters only as a DESCRIPTIVE split, never as the direction source."
+  },
+
+  "signal_definition": {
+    "event": "A Benzinga article from Alpaca /v1beta1/news whose created_at falls inside RTH 09:35-15:30 ET on a US trading day.",
+    "symbol_specificity_filter": "The article must tag <= 3 symbols. VERIFIED NECESSARY BEFORE FREEZE: a real 2024-02-20 market-wrap article tags 25 symbols including SPY, QQQ, NVDA, INTC and WMT -- treating that as an NVDA catalyst would measure the market, not the name. The <=3 threshold is set once, here, and is NOT swept.",
+    "entry_reference_bar": "t0 = the first 5-minute bar that CLOSES strictly after created_at. No bar that was already forming at publication time is used.",
+    "direction": "sign of (close[t0+2] - close[t0]) -- the underlying's first 10 minutes of reaction. Zero-return reactions are DISCARDED, not assigned a side.",
+    "forward_measurement": "signed return in that direction at t0+2 -> t0+4 (10 min), t0+2 -> t0+8 (30 min, HEADLINE), t0+2 -> t0+14 (60 min).",
+    "_no_look_ahead": "The direction is computed from bars strictly at or before t0+2; every forward return starts at t0+2 and never enters the direction decision. Same slicing discipline as backtest/tools/multi_intraday_null_harness.py."
+  },
+
+  "test_symbols": {
+    "set": ["NVDA", "QQQ", "GLD", "IWM", "AAPL", "TSLA", "SPY", "MSFT", "AMD"],
+    "_why_identical_to_stage_A": "Deliberately the SAME nine symbols as prereg-multi-intraday-null-2026-08-20 so the catalyst result is directly comparable to the price-geometry null on the same names, same market, same period class. Changing the symbol set would make the comparison uninterpretable and would be indistinguishable from 'try more names'.",
+    "_lesson": "strategy/candidates/_lesson-inbox/small-n-symbol-sample-manufactures-a-mechanism-2026-08-18.md -- a 2-symbol sample manufactured a clean conclusion that 9 symbols destroyed."
+  },
+
+  "window": {
+    "requested_start": "2025-09-02",
+    "requested_end": "2026-08-31",
+    "_doc": "~12 months, ending before the current freeze-window scoring period so this study cannot touch the go-live gate's data. The ACHIEVED window (whatever Alpaca actually returns for bars and news) is reported WITH the result, never assumed.",
+    "feed": "SIP for underlying bars where available, else IEX -- the feed actually used is recorded per symbol in the output and disclosed on the same line as any statistic."
+  },
+
+  "statistics": {
+    "min_signals_required": 50,
+    "_min_n_rationale": "Below 50 the forward-return distribution cannot separate a real effect from noise at plausible effect sizes. Fewer than 50 in a cell => INSUFFICIENT_EVIDENCE, reported as such, never as a weak positive.",
+    "random_entry_null": {
+      "construction": "Draw entries uniformly at random from the SAME symbol-session-bar population the catalyst signals drew from, with the same direction mix and the same count per draw. N >= 40 draws.",
+      "comparison": "The signal's mean forward return must exceed the MAXIMUM of the draws' means, not their mean.",
+      "_why_max": "With 3 horizons x 9 symbols x several news classes examined, beating an average null is easy by chance."
+    },
+    "fixes": {
+      "block_bootstrap": "CIs are computed by block-bootstrap resampling whole (symbol, trading_day) blocks, NOT individual bars. The existing random_null() in multi_intraday_null_harness.py draws flat from a pooled bar set, which understates variance under intraday autocorrelation. This prereg does not silently inherit that; the fix is named here in advance.",
+      "multiple_comparison": "Holm correction across the 3 horizons. Per-symbol and per-news-class results are DESCRIPTIVE and are excluded from the corrected family.",
+      "abs_move_also_reported": "mean |return| lift vs the same random-entry null is computed and null-tested THE SAME WAY as signed return -- explicitly correcting the Stage-A harness, whose random_null() was applied only to signed returns while its abs_move_lift_pct was a bare point estimate against an unconditional pooled baseline."
+    },
+    "alpha": 0.05
+  },
+
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "PASS": "n >= 50 AND the signal's mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show the same sign.",
+    "FAIL_stop_the_line": "Any of: n < 50; fails the null MAX at the headline horizon; or the effect is carried by fewer than half the symbols. Result written as a verdict, line stopped, machinery retained.",
+    "CONCENTRATION_KILL": "If the pooled effect is positive but is carried by a single symbol or a single news class, it is DESCRIPTIVE ONLY and does not pass. Per-symbol and per-class spreads are reported ALONGSIDE the pooled mean, never instead of it.",
+    "VOLATILITY_NOT_DIRECTION": "If abs-move lift is significant while signed return is not, the signal is a volatility detector. Inheriting prereg-multi-intraday-null-2026-08-20's clause verbatim: that is NOT a pass -- this shop trades long directional premium only. Recorded as a finding, never acted on.",
+    "what_a_PASS_authorizes": "A forward out-of-sample shadow (>= 15 trading days) and nothing else. It does NOT arm live money, does NOT change SPY parameters, does NOT alter the 10 rules, and does NOT place a paper order.",
+    "what_a_FAIL_authorizes": "Writing the verdict and stopping. Per OP-22 a closing verdict doc is a valid terminal state."
+  },
+
+  "kill_list": {
+    "_doc": "Explicitly forbidden follow-ups on a FAIL. Each is a dead-knob dressed as progress.",
+    "forbidden": [
+      "Sweeping the <=3 symbol-tag threshold until signals appear.",
+      "Swapping the price-derived direction for a sentiment classifier and re-running the same data.",
+      "Widening the symbol set ('try more names').",
+      "Re-slicing the same failed data by time of day, VIX regime, or news class until a cell survives.",
+      "Moving the headline horizon off +30min after seeing the results."
+    ]
+  },
+
+  "known_limitations_stated_upfront": [
+    "This measures the SIGNAL on the UNDERLYING. No option pricing, no spread, no theta. A PASS here is necessary, never sufficient.",
+    "created_at is Benzinga's publication stamp, not the moment the information became public. For company-issued news the wire may lag the issuer's own release by seconds to minutes; that lag is unmeasured here and biases AGAINST finding an effect.",
+    "The equity feed available on this account is IEX for recent data and SIP for history; the feed actually used per symbol is recorded in the output.",
+    "Alpaca 5-minute bar history depth is finite. The achieved window is reported with the result rather than assumed.",
+    "Articles with identical content republished under multiple ids will double-count. De-duplication is by (symbol, headline, created_at rounded to the minute); residual duplicates are counted and disclosed."
+  ],
+
+  "output": {
+    "raw": "analysis/multi-lane/catalyst-direction-stageA.json",
+    "verdict": "analysis/deep-research/CATALYST-DIRECTION-VERDICT-2026-09-XX.md",
+    "harness": "backtest/tools/catalyst_direction_null_harness.py"
+  },
+
+  "freeze_compliance": {
+    "frozen_paths_touched": "none",
+    "_doc": "setup/hooks/doctrine.py FROZEN_TRADING_PATH lists exactly 10 files; this study creates a new harness and a new output and touches none of them. It places no orders and changes no params."
+  }
+}
