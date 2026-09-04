@@ -33,7 +33,38 @@ from urllib.request import Request, urlopen
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "backtest" / "tools"))
+sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from _alpaca_creds import resolve_alpaca_creds  # noqa: E402
+from et_clock import et_now as _et_now  # noqa: E402 -- this box runs Mountain; local != ET
+
+# SESSION ANCHOR (2026-09-03 fix). Three bugs, one root cause: this module had no notion of
+# the ET clock or of whether the session was over.
+#   1. `as_of_et` was written from dt.datetime.now() -- LOCAL Mountain time. A 2026-09-03 run
+#      at 21:54 ET stamped itself 19:54 and called the field "_et". Two hours wrong by name,
+#      and near a session boundary it is the wrong DAY. This is the standing CLAUDE.md scar:
+#      time comes from et_clock.py, never from the local clock.
+#   2. nearest_expiry() anchored on dt.date.today() (local again) with no close check, so a
+#      post-close min_dte=0 run selected an ALREADY-SETTLED same-day contract for every
+#      daily-cadence ticker and reported its dead settlement quotes as live liquidity
+#      (spreads read 11-52%).
+#   3. The output recorded the REQUESTED min_dte and never the ACHIEVED dte, so an all-1DTE
+#      measurement could be filed under "min_dte: 0" and read later as a 0DTE result.
+RTH_CLOSE_HOUR_ET = 16
+
+
+def session_anchor_date(now_et: dt.datetime) -> tuple[dt.date, str]:
+    """The earliest date whose options can still actually be traded, plus a reason string.
+
+    During or before RTH, that is today. Once the close has passed, today's expiry is settled
+    and quoting it is quoting a corpse -- so the anchor rolls to the next calendar day and the
+    reason says so. Weekends/holidays are handled downstream by the exchange itself: the
+    contracts endpoint simply returns no expiry on a non-trading date."""
+    if now_et.hour >= RTH_CLOSE_HOUR_ET:
+        return now_et.date() + dt.timedelta(days=1), (
+            f"anchored to the NEXT day: this ran at {now_et.strftime('%H:%M')} ET, after the "
+            f"{RTH_CLOSE_HOUR_ET}:00 close, so today's expiry is already settled and its quotes "
+            f"are dead. A same-day contract here would report settlement noise as liquidity.")
+    return now_et.date(), f"anchored to today: ran at {now_et.strftime('%H:%M')} ET, session not yet closed."
 
 DATA_HOST = "https://data.alpaca.markets"
 PAPER_HOST = "https://paper-api.alpaca.markets"
@@ -71,8 +102,11 @@ def spot_for(symbols: list[str], key: str, secret: str) -> dict[str, float]:
     return out
 
 
-def nearest_expiry(symbol: str, min_dte: int, key: str, secret: str) -> dt.date | None:
-    today = dt.date.today()
+def nearest_expiry(symbol: str, min_dte: int, key: str, secret: str,
+                    anchor: dt.date | None = None) -> dt.date | None:
+    """`anchor` is the first tradeable date (see session_anchor_date). Defaults to the ET date
+    so a caller that forgets it is still ET-correct rather than local-correct."""
+    today = anchor or _et_now().date()
     d = _get(f"{PAPER_HOST}/v2/options/contracts", {
         "underlying_symbols": symbol, "status": "active",
         "expiration_date_gte": (today + dt.timedelta(days=min_dte)).isoformat(),
@@ -84,14 +118,15 @@ def nearest_expiry(symbol: str, min_dte: int, key: str, secret: str) -> dt.date 
 
 
 def screen_symbol(symbol: str, spot: float, min_dte: int, cap_dollars: float,
-                  key: str, secret: str) -> dict:
+                  key: str, secret: str, anchor: dt.date | None = None) -> dict:
+    anchor = anchor or _et_now().date()
     row: dict = {"symbol": symbol, "spot": round(spot, 2)}
-    exp = nearest_expiry(symbol, min_dte, key, secret)
+    exp = nearest_expiry(symbol, min_dte, key, secret, anchor=anchor)
     if exp is None:
         row.update(ok=False, reason="no listed expiry in the min-DTE window")
         return row
     row["expiry"] = exp.isoformat()
-    row["dte"] = (exp - dt.date.today()).days
+    row["dte"] = (exp - anchor).days
     band = max(spot * 0.03, 1.0)
     chain = _get(f"{DATA_HOST}/v1beta1/options/snapshots/{symbol}", {
         "feed": "indicative", "expiration_date": exp.isoformat(), "type": "call",
@@ -150,11 +185,21 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--symbols", required=True, help="comma-separated")
     ap.add_argument("--cap-dollars", type=float, default=1500.0)
+    ap.add_argument("--params-path", type=Path, default=PARAMS,
+                     help=f"params.json to read entry.min_dte_at_entry / liquidity_gate from "
+                          f"(default: {PARAMS})")
+    ap.add_argument("--out", type=Path, default=OUT,
+                     help=f"output JSON path (default: {OUT})")
     args = ap.parse_args(argv)
 
-    params = json.loads(PARAMS.read_text(encoding="utf-8"))
+    now_et = _et_now()
+    anchor, anchor_reason = session_anchor_date(now_et)
+
+    params = json.loads(args.params_path.read_text(encoding="utf-8"))
     min_dte = int(params["entry"]["min_dte_at_entry"])
     max_spread = float(params["entry"]["liquidity_gate"]["max_spread_pct_of_premium"])
+    print(f"[screen] {now_et:%Y-%m-%d %H:%M} ET | min_dte={min_dte} | {anchor_reason}",
+          file=sys.stderr)
 
     symbols = [s.strip().upper() for s in args.symbols.split(",") if s.strip()]
     creds = resolve_alpaca_creds()
@@ -167,7 +212,7 @@ def main(argv: list[str] | None = None) -> int:
             continue
         try:
             r = screen_symbol(sym, spots[sym], min_dte, args.cap_dollars,
-                              creds.key, creds.secret)
+                              creds.key, creds.secret, anchor=anchor)
         except ScreenError as e:
             r = {"symbol": sym, "ok": False, "reason": str(e)[:160]}
         r["tier"] = classify(r, max_spread)
@@ -181,9 +226,17 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     rows.sort(key=lambda r: (r.get("tier") != "TIER1_tradeable", r.get("spread_pct", 999)))
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({
-        "as_of_et": dt.datetime.now().isoformat(timespec="seconds"),
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    args.out.write_text(json.dumps({
+        "as_of_et": now_et.isoformat(timespec="seconds"),
+        "session_anchor_date": anchor.isoformat(),
+        "session_anchor_reason": anchor_reason,
+        "achieved_dte": sorted({r["dte"] for r in rows if r.get("dte") is not None}),
+        "_achieved_dte_doc": "The DTE actually screened, measured from session_anchor_date. "
+                             "min_dte below is what was REQUESTED. A post-close run with "
+                             "min_dte=0 legitimately achieves dte=1, and filing that under "
+                             "'0DTE' without this field is how a 1DTE measurement gets read "
+                             "as a 0DTE result.",
         "risk_cap_dollars": args.cap_dollars,
         "max_spread_pct_of_premium": max_spread,
         "min_dte": min_dte,
@@ -201,7 +254,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f"{r['symbol']:<6} {'-':>8} {'-':>8} {'-':>7} {'-':>7} {'-':>7} {'-':>9}  "
                   f"UNSCREENABLE ({r.get('reason','?')[:40]})")
-    print(f"\nwrote {OUT}", file=sys.stderr)
+    print(f"\nwrote {args.out}", file=sys.stderr)
     return 0
 
 
