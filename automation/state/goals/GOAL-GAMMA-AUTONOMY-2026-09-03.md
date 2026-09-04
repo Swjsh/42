@@ -108,6 +108,8 @@ Falsifiable, each checked by a command quoted in the PROGRESS LOG:
 
 - 2026-09-03 18:42 ET — Stop-hook continuation 2/3 reached session b6eea006 again. A6 is a NEXT-FIRE verification (00:10 ET conductor), not doable now; skipped, not ticked. `goal_autopilot.py status --json` at 18:42 ET: {   "checked_at_et": "2026-09-03 18:20 ET",   "action": "noop",   "reason": "active goal has an open item",   "active_goal_id": "GOAL-GAMMA-AUTONOMY-2026-09-03",   "next_item": "A5 \u2014 `conductor.md` STAGE 1 clause 2a: reads `goal_autopilot.py status --json`; if no",   "ladder": [     {       "id": "GOAL-GAMMA-AUTONOMY-2026-09-03",       "state": "active",       "eligible": true,       "why": "
 - 2026-09-03 18:55 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
+- 2026-09-04 03:40 ET — DONE-WHEN (e) VERIFIED: conductor-outcomes.jsonl rows 2026-09-04T05:09Z task_id=GOAL-COCKPIT-REDESIGN-2026-09-03-R7 (the 00:10 ET slot, lock-log proof per its note), then 06:07Z GOAL-TICKERS-LANE-2026-09-04/T6 and 06:45Z .../T3+T5 — three consecutive goal-driven conductor fires; goal_autopilot closed COCKPIT-REDESIGN at 01:19 ET and opened TICKERS-LANE from the ladder with no human in the loop. (Autopilot close rule bug found: [~] counted as terminal — fix in flight.)
+
 ## HONEST STATE
 A1–A5 shipped and verified (commit 5322e780). A6 is the only open item: it needs the next scheduled conductor fire (00:10 ET) to prove DONE-WHEN (e). Known soft spots: prereg verdict dates fall back to file mtime (labelled in methods); Gamma_AutofireCards still has never fired because every card is an alarm, not a read-and-report item (separate item, not this goal).
 AUTOPILOT CLOSE 2026-09-03 18:55 ET: queue fully terminal (no bare '- [ ] ' item left)
