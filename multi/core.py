@@ -146,6 +146,16 @@ def liquidity_ok(quote: dict | None, params: dict) -> tuple[bool, str, dict]:
     max_spread = float(gate.get("max_spread_pct_of_premium", 8.0))
     if spread_pct > max_spread:
         return False, f"spread {spread_pct:.1f}% > {max_spread}%", facts
+
+    # ABSOLUTE PREMIUM FLOOR (BUG 3, 2026-09-04 adversarial review, added pre-window): a
+    # sub-$0.20 0DTE contract x3 (this lane's fixed qty) is lottery noise, not a trade -- a
+    # contract can clear spread/OI/volume cleanly and still be effectively worthless. OPTIONAL:
+    # absent (the default) means NO CHECK, so any params.json that predates this key -- e.g.
+    # the multi-1 shadow lane -- is byte-for-byte unchanged.
+    min_premium = gate.get("min_premium_dollars")
+    if min_premium is not None and mid < float(min_premium):
+        return False, f"mid {mid:.2f} < min_premium_dollars {float(min_premium):.2f}", facts
+
     # OPEN INTEREST IS A DEAD KNOB ON THIS FEED (WP-6, verified 2026-08-20): the free
     # "indicative" feed returns openInterest=None for every contract, and this check only fires
     # when oi is not None -- so min_open_interest could never bind, on any contract, ever. It is
@@ -368,6 +378,44 @@ def fetch_option_quote_checked(creds, occ: str) -> tuple:
         return None, f"{type(e).__name__}: {str(e)[:120]}"
 
 
+def fetch_underlying_last(creds, symbol: str) -> float | None:
+    """Live last-trade price for ONE underlying STOCK. Returns None on any failure (network,
+    malformed payload, no trade) -- never raises.
+
+    THE BUG THIS FIXES (BUG 2, 2026-09-04 adversarial review): manage_open_positions used to
+    derive "underlying now" from bars_by_symbol, which in the armed lane are the funnel's
+    1Day bars -- and fetch_bars_batch drops any bar whose close time hasn't passed (C6
+    no-look-ahead), so intraday that daily bar is still YESTERDAY's close. The theta-budget
+    thesis-progress test (multi/lib/exits.py ~line 339: underlying_price - entry_underlying_
+    price >= atr_mult * atr14) then compared an INTRADAY entry price against a STALE
+    underlying, which can fire (or mask) THETA_STOP on a move that never actually happened
+    intraday.
+
+    ENDPOINT SHAPE, verified against this file's OWN existing conventions rather than
+    guessed: this is a SINGLE-symbol read, and this file already has two single-vs-batch stock
+    endpoint pairs to pattern-match against --
+      * fetch_bars (ONE symbol)       -> f".../v2/stocks/{symbol}/bars?..."   (symbol IN THE PATH)
+      * fetch_bars_batch (MANY symbols) -> ".../v2/stocks/bars?symbols=A,B,C" (symbols as a QUERY PARAM)
+    i.e. for STOCKS, Alpaca's v2 data API puts a single symbol in the URL PATH and only moves
+    to a `symbols=` query param for the batch/many-symbol form. This is the OPPOSITE of the
+    single-OPTION-contract gotcha documented on fetch_option_quote above (the options
+    `/v1beta1/options/snapshots` endpoint takes `symbols=` as a query param even for ONE
+    contract; verified live 2026-08-20 after a wasted trading day). Different endpoint family,
+    different shape -- so this uses the PATH form, matching fetch_bars, not fetch_option_quote:
+    `/v2/stocks/{symbol}/trades/latest` -> `{"symbol": ..., "trade": {"p": <price>, ...}}`.
+    `_data_get(creds, path, params)` composes `https://data.alpaca.markets` + `path` +
+    `?` + urlencode(params), so the symbol belongs in `path`, exactly as used below.
+    """
+    try:
+        d = _data_get(creds, f"/v2/stocks/{symbol}/trades/latest", {"feed": "iex"})
+        p = ((d or {}).get("trade") or {}).get("p")
+        return float(p) if p is not None else None
+    except Exception:  # noqa: BLE001 -- classified by the caller as "live read failed"; the
+        # caller (manage_open_positions) discloses this as underlying_source="daily_close_stale"
+        # rather than treating a failed live read as a reason to skip exit evaluation entirely.
+        return None
+
+
 def _num(v):
     try:
         f = float(v)
@@ -403,7 +451,7 @@ def attention_from_bars(bars_by_symbol: dict) -> dict:
     return out
 
 
-def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: dict, *,
+def manage_open_positions(params: dict, creds, open_opts: list | None, bars_by_symbol: dict, *,
                           state_path: Path | None = None) -> list:
     """Evaluate EXITS for open positions BEFORE considering any new entry.
 
@@ -414,6 +462,29 @@ def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: 
     `state_path` overrides where exit-state.json is read from (tests use a tmp path so they
     never touch the real automation/state/multi/exit-state.json). Omitted (None, the default)
     -> mps.load_state()'s own default STATE_PATH, byte-identical to pre-existing behavior.
+
+    `open_opts` is the broker's REAL option positions this tick (multi/lib/positions.
+    equity_option_positions -- each dict has at least "symbol" (OCC contract) and "qty"
+    (string)). THIS is qty truth, never `rec.qty`: position_state.py:88 documents `.qty` as
+    the ORIGINAL entry qty, never decremented after a partial close -- `open_qty` (broker
+    truth) is what actually shrinks. BUG (2026-09-04 adversarial review): every prior tick
+    evaluated exits against the record's ORIGINAL entry qty, so once TP1 sold part of a
+    position, every later SELL_ALL asked the broker to close the full original qty, the
+    broker rejected it, and the runner rode unmanaged for the rest of the day.
+
+    `open_opts=None` (distinct from `[]`) means the caller could not read positions AT ALL
+    this tick (tick()'s try/except around mb.get_positions) -- exit management falls back to
+    each record's own qty (`open_qty_source="record_fallback"`) rather than skipping exits
+    entirely, since a possibly-stale qty is still a far safer input than leaving an expiring
+    position unmanaged for a tick. When `open_opts` WAS read successfully but does not contain
+    a contract the state file still tracks, that is signal, not noise (TP1's second lot
+    already closed it, or the record is orphaned) -- no exit is evaluated for it; a
+    STALE_STATE row is emitted instead (gate="broker_flat", open_qty=0).
+
+    Every `kind="exit_eval"` row produced by the per-contract loop below carries `open_qty`
+    (int), `open_qty_source` ("broker" | "record_fallback"), `underlying_price` (float|None),
+    `underlying_source` ("live" | "daily_close_stale" | None), `atr14` (float|None) -- the
+    ledger must disclose which qty/price basis every decision used.
 
     SHADOW: this records the exit DECISION. It does not send anything -- exits.evaluate_exit is
     a pure function and no broker submission is reachable from here.
@@ -431,10 +502,41 @@ def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: 
     if not state:
         return out
 
+    broker_qty: dict[str, int] = {}
+    for p in (open_opts or []):
+        try:
+            broker_qty[str(p.get("symbol"))] = int(float(p.get("qty") or 0))
+        except (TypeError, ValueError):
+            continue  # one bad entry must not blind the whole broker-truth map
+
     for contract, rec in state.items():
         row = {"ts_et": now_et().isoformat(timespec="seconds"), "kind": "exit_eval",
                "contract": contract, "symbol": getattr(rec, "symbol", None),
-               "shadow": True, "feed": "indicative"}
+               "shadow": True, "feed": "indicative",
+               "underlying_price": None, "underlying_source": None, "atr14": None}
+
+        if open_opts is not None:
+            bq = broker_qty.get(contract, 0)
+            if bq > 0:
+                open_qty, open_qty_source = bq, "broker"
+            else:
+                # BUG 1: the state file remembers a position the broker no longer shows.
+                # Never invent a qty to evaluate an exit against -- the broker is the only
+                # source of truth for what is actually open. No quote fetch, no evaluate_exit
+                # call: there is nothing to manage.
+                row.update(decision="STALE_STATE", gate="broker_flat", open_qty=0,
+                           open_qty_source="broker",
+                           reason="state holds a record but the broker shows no position for "
+                                  "this contract")
+                out.append(row)
+                continue
+        else:
+            # Positions could not be read this tick at all -- fall back to the record's own
+            # qty rather than skip exit management outright (see docstring above).
+            open_qty, open_qty_source = int(getattr(rec, "qty", 0) or 0), "record_fallback"
+        row["open_qty"] = open_qty
+        row["open_qty_source"] = open_qty_source
+
         quote, qerr = fetch_option_quote_checked(creds, contract)
         if qerr or not quote:
             row.update(decision="BLOCKED",
@@ -445,20 +547,36 @@ def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: 
 
         sym = getattr(rec, "symbol", None)
         df = (bars_by_symbol or {}).get(sym)
-        underlying = None
+        daily_close = None
         atr14 = None
         if df is not None and len(df) > 15:
             try:
-                underlying = float(df["close"].iloc[-1])
+                daily_close = float(df["close"].iloc[-1])
                 atr14 = mlv._atr(df)
             except Exception:  # noqa: BLE001
-                underlying, atr14 = None, None
+                daily_close, atr14 = None, None
+
+        # BUG 2: the theta-budget thesis-progress test needs the underlying's price NOW, not
+        # `daily_close` above -- in the armed lane bars_by_symbol are the funnel's 1Day bars,
+        # and fetch_bars_batch only ever returns a CLOSED bar (C6 no-look-ahead), so intraday
+        # that daily bar is still YESTERDAY's close. Try a live read first; fall back to the
+        # (disclosed) daily close only when it fails, and still evaluate against it rather
+        # than skipping the position.
+        underlying = fetch_underlying_last(creds, sym) if sym else None
+        if underlying is not None:
+            underlying_source = "live"
+        else:
+            underlying = daily_close
+            underlying_source = "daily_close_stale"
+        row["underlying_price"] = underlying
+        row["underlying_source"] = underlying_source
+        row["atr14"] = atr14
 
         try:
             decision = mex.evaluate_exit(
                 rec, now_et=now_et(),
                 best_premium=float(quote["ask"]), worst_premium=float(quote["bid"]),
-                open_qty=getattr(rec, "qty", 0), underlying_price=underlying,
+                open_qty=open_qty, underlying_price=underlying,
                 atr14=atr14, params=params,
             )
         except Exception as e:  # noqa: BLE001
@@ -550,6 +668,12 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     Any other value raises TickError immediately -- never a silent fall-back to the default
     scorer. Every scored row carries `row["scorer"]` so a ledger reader can tell which stack
     produced it.
+
+    A positions-read failure (mb.get_positions raising) no longer aborts the whole tick before
+    exits ever run: it is caught, open_opts becomes None, and manage_open_positions still runs
+    with its record-fallback qty path (see that function's docstring). Entries are then
+    refused for this tick (an explicit early return right after exits) -- the same zero-entries
+    outcome as before this change, reached without also silently skipping exit management.
     """
     scorer = str(params.get("scorer") or "fork")
     if scorer not in ("fork", "production"):
@@ -564,8 +688,17 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     ts = now_et().isoformat(timespec="seconds")
 
     account = mb.get_account(creds)
-    raw_positions = mb.get_positions(creds)
-    open_opts = mp.equity_option_positions(raw_positions)
+    try:
+        raw_positions = mb.get_positions(creds)
+        open_opts = mp.equity_option_positions(raw_positions)
+    except Exception as e:  # noqa: BLE001 -- a positions-read failure must not ALSO skip exit
+        # management, the higher-priority half of this tick (see "EXITS FIRST" below). Passing
+        # open_opts=None onward makes manage_open_positions' record-fallback path real instead
+        # of this exception aborting the whole tick before that function is ever called.
+        open_opts = None
+        cascade["positions_read_failed"] = 1
+        print(f"    [tick] positions read failed: {type(e).__name__}: {str(e)[:100]} -- exits "
+              f"fall back to record qty, entries are refused this tick", file=sys.stderr)
     equity = float(account.get("equity") or 0.0)
     if equity <= 0:
         raise TickError(f"account equity read as {equity!r} — refusing to size against it")
@@ -575,6 +708,17 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
     exit_rows = manage_open_positions(params, creds, open_opts, dry_bars or {}, state_path=state_path)
     rows.extend(exit_rows)
     cascade["exit_evaluations"] = len(exit_rows)
+
+    if open_opts is None:
+        # Positions are unknown this tick. mr.evaluate_admission / msz.size_entry both accept
+        # open_positions=None (Optional[Sequence[...]]) and treat it identically to "no open
+        # positions" -- safe for THEIR crash-safety, but wrong for THIS lane's risk posture:
+        # max_concurrent_positions=1 means a None here would silently let a new entry through
+        # even if a position we simply could not read is already open. Refusing every entry
+        # this tick preserves the PRE-fix outcome for entries (zero fired when positions could
+        # not be read -- previously via a crash that also skipped exits; now via this explicit
+        # return with exits already evaluated above) rather than relaxing it.
+        return rows, cascade
 
     # --- THE FUNNEL: narrow ~72 names to <=5 BEFORE any expensive chain read ---------------
     # Stages 1-3 are cheap (bars we already hold); the per-symbol chain reads that follow are

@@ -40,10 +40,12 @@ def is_spy_like(root_or_symbol: Optional[str]) -> bool:
 
 
 def clamp_entry_qty(raw_qty: Any, *, min_contracts: int, max_contracts: int) -> tuple[int, Optional[str]]:
-    """(qty, block_reason). block_reason is None iff qty >= min_contracts. `raw_qty` (read from
-    a WOULD_PLACE row's "qty") may legitimately be None -- treated as 0, the safe direction
-    (see execute.py's final-report note on multi/lib/sizing.SizingResult.contracts vs the
-    row's own "qty" field, which core.py currently populates via a nonexistent .qty attr)."""
+    """(qty, block_reason). block_reason is None iff qty >= min_contracts.
+
+    `raw_qty` (read from a WOULD_PLACE row's "qty") may be None or "" -- both are treated as
+    0, the safe direction. The result is clamped to [0, max_contracts]; a clamped qty below
+    min_contracts is blocked (block_reason set) rather than silently rounded up to the
+    minimum."""
     try:
         qty = int(raw_qty) if raw_qty is not None and raw_qty != "" else 0
     except (TypeError, ValueError):
@@ -64,10 +66,18 @@ def parse_hhmm(value: Any) -> dt.time:
 
 
 def bars_facts(bars: Optional[dict], symbol: Optional[str]) -> tuple[Optional[float], Optional[float]]:
-    """(underlying_price, atr14) from the SAME bars dict the tick already used -- mirrors
-    multi/core.py::manage_open_positions's own underlying/atr14 derivation exactly (identical
-    >15-bar guard), so a re-run evaluate_exit() call against these facts is provably
-    consistent with the row tick() already produced."""
+    """(underlying_price, atr14) recomputed from the SAME daily bars dict the tick already
+    used -- mirrors multi/core.py::manage_open_positions's DAILY-CLOSE fallback derivation
+    exactly (identical >15-bar guard, same mlv._atr call).
+
+    FALLBACK ONLY as of the 2026-09-04 review (BUG 2 fix): manage_open_positions's own
+    underlying_price is no longer just this daily close -- it prefers a LIVE quote first
+    (core.fetch_underlying_last) and falls back to the daily close (this same computation)
+    only when that live read fails, disclosing which one won via row["underlying_source"].
+    `re_derive_exit_record` below therefore PREFERS the row's own persisted underlying_price/
+    atr14 (the exact facts the tick actually evaluated against, live or stale) and calls this
+    function only when the row doesn't carry them -- so a re-derive never silently swaps a
+    live figure the tick used for a different, always-stale one recomputed here."""
     df = (bars or {}).get(symbol) if symbol else None
     if df is None or len(df) <= 15:
         return None, None
@@ -82,13 +92,29 @@ def re_derive_exit_record(rec, r: dict, bars: Optional[dict], arm_params: dict, 
     """Re-run evaluate_exit with the row's OWN bid/ask (never a fresh quote -- that would race
     the price tick() already decided this row against) purely to obtain the touched
     PositionRecord for persistence: tick()'s exit_eval rows carry the DECISION but not
-    `.record` (execute.py's final-report judgment-call note). Raises mex.ExitConfigError on
-    malformed params -- the caller logs and continues, per execute.py's fail-per-row design."""
-    underlying, atr14 = bars_facts(bars, r.get("symbol"))
+    `.record`. Raises mex.ExitConfigError on malformed params -- the caller logs and
+    continues, per execute.py's fail-per-row design.
+
+    open_qty/underlying_price/atr14 all PREFER the row `r` (the exact facts manage_open_
+    positions actually evaluated this contract against this tick -- broker-truth qty, a live
+    or disclosed-stale underlying, per-tick ATR14) and fall back to rec.qty / a fresh
+    bars_facts() recomputation only when the row lacks them (an older or foreign row shape).
+    Falling back to rec.qty here would reintroduce BUG 1 (the original entry qty, never
+    decremented after a partial close) for this specific caller; falling back to bars_facts()
+    when the row already has better facts would reintroduce BUG 2 (a stale daily close) for
+    it -- both bugs fixed 2026-09-04."""
+    row_underlying = r.get("underlying_price")
+    row_atr14 = r.get("atr14")
+    if row_underlying is not None and row_atr14 is not None:
+        underlying, atr14 = row_underlying, row_atr14
+    else:
+        underlying, atr14 = bars_facts(bars, r.get("symbol"))
     best = best_override if best_override is not None else (r.get("ask") or rec.hwm_premium)
     worst = r.get("bid") or rec.entry_premium
+    row_open_qty = r.get("open_qty")
+    open_qty = row_open_qty if isinstance(row_open_qty, int) and row_open_qty > 0 else rec.qty
     ed = mex.evaluate_exit(rec, now_et=now_aware, best_premium=float(best),
-                           worst_premium=float(worst), open_qty=rec.qty,
+                           worst_premium=float(worst), open_qty=open_qty,
                            underlying_price=underlying, atr14=atr14, params=arm_params)
     return ed.record if ed.record is not None else rec
 

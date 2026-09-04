@@ -60,6 +60,8 @@
       "min_open_interest": 250,
       "min_contract_volume_today": 100,
       "min_underlying_dollar_volume": 20000000,
+      "min_premium_dollars": 0.20,
+      "_min_premium_note": "Added pre-window on the 2026-09-04 review: a sub-$0.20 0DTE contract x3 is lottery noise, not a trade.",
       "feed": "indicative",
       "_feed_note": "No OPRA agreement on this account: every spread number is from the free indicative feed. Permanent disclosure on every row."
     },
