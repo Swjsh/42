@@ -1,0 +1,36 @@
+<!--
+  Mini Sparkline Card
+  Source: self-authored -- gap-filler. The kit's only sparkline recipe (monet-devrev's
+  "Mini inline sparkline + health/progress bar") is N/A-licensed, extracted by DOM
+  computed-style inspection from a live devrev.ai dashboard mock on monet.design and is
+  therefore recipe-only per the brief (see REFERENCE-ONLY.md) -- not code-copyable. This
+  file is an independent implementation of the generic inline-SVG-polyline sparkline
+  technique (no axis/grid, just the line) so the cockpit's "Agent health" rows have a
+  vendored, license-clean component to use instead of copying the N/A-licensed one.
+  License: original work, generic technique, no proprietary code copied.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03.
+  Cockpit use: Agent health list rows (name, version, %, Healthy chip, small green
+  sparkline).
+-->
+<div class="uk-agent-row">
+  <div class="uk-agent-text">
+    <div class="uk-agent-name">Classifier-v2 <span class="uk-agent-ver">v2.4.1</span></div>
+    <div class="uk-agent-sub">98.6% uptime</div>
+  </div>
+  <svg class="uk-sparkline" viewBox="0 0 80 24" preserveAspectRatio="none">
+    <polyline points="0,18 10,14 20,16 30,9 40,11 50,6 60,8 70,4 80,5" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+  </svg>
+  <span class="uk-chip healthy">Healthy</span>
+</div>
+
+<style>
+.uk-agent-row{display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:#151c38;font-family:'Inter',system-ui,sans-serif}
+.uk-agent-text{flex:1;min-width:0}
+.uk-agent-name{font-size:13px;font-weight:600;color:#e5e7eb}
+.uk-agent-ver{font-size:11px;color:#6b7694;font-weight:400;margin-left:4px}
+.uk-agent-sub{font-size:12px;color:#94a3b8}
+.uk-sparkline{width:70px;height:22px;flex-shrink:0}
+.uk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid transparent}
+.uk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.uk-chip.healthy{color:#22c55e;background:rgba(34,197,94,.125)}
+</style>

@@ -1,0 +1,30 @@
+<!--
+  Frosted Glass Panel
+  Source: https://uiverse.io/vinodjangid07/grumpy-mule-23
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*, colors remapped
+  onto AetherOps custom properties, demo content swapped for cost-pulse figure text.
+  Cockpit use: approval-queue row / Cost-pulse panel base -- the frosted glass card with
+  a soft roaming color-bleed blob behind it, for translucent panels over the navy canvas.
+-->
+<div class="uk-glass-container">
+  <div class="uk-glass-card">
+    <p class="uk-glass-heading">COST PULSE</p>
+    <p class="uk-glass-sub">Last 30 days</p>
+    <p class="uk-glass-big">$48,320</p>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-glass-container{width:fit-content;position:relative;display:flex;align-items:center;justify-content:center}
+.uk-glass-card{position:relative;width:220px;min-height:140px;display:flex;flex-direction:column;justify-content:center;padding:20px;border-radius:14px;backdrop-filter:blur(30px);background-color:rgba(30,35,60,.35);border:1px solid rgba(255,255,255,.09)}
+.uk-glass-heading{font-weight:700;font-size:.8em;letter-spacing:1.2px;color:#e5e7ff}
+.uk-glass-sub{font-weight:500;font-size:.65em;letter-spacing:1px;color:#9ca3d6;margin-top:2px}
+.uk-glass-big{font-size:1.9em;color:#fff;margin-top:10px}
+.uk-glass-container::before{width:100px;height:100px;content:'';position:absolute;background-color:var(--uk-accent-2);z-index:-1;border-radius:50%;left:100px;top:50px;filter:blur(10px);opacity:.5;transition:all 1s}
+.uk-glass-container:hover::before{transform:translate(-50px,50px)}
+</style>

@@ -1,0 +1,23 @@
+<!--
+  Glow Radial Checkbox
+  Source: https://uiverse.io/gagan-gv/unlucky-yak-4
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*; recolored
+  the 7-point radial glow from the source's rainbow ring to the AetherOps
+  indigo/violet/cyan ramp.
+  Cockpit use: approval-queue row checkbox / "Approved" status dot.
+-->
+<label class="uk-glow-check">
+  <input type="checkbox" checked />
+  <div class="uk-glow-check-mark"></div>
+</label>
+
+<style>
+.uk-glow-check input{position:absolute;opacity:0;height:0;width:0}
+.uk-glow-check{display:block;position:relative;cursor:pointer;font-size:22px}
+.uk-glow-check-mark{position:relative;height:1.3em;width:1.3em;background:#0a0e1c;border-radius:50px;transition:all .7s;--spread:14px}
+.uk-glow-check input:checked~.uk-glow-check-mark{background:#0a0e1c;box-shadow:-8px -8px var(--spread) 0 #6366f1,0 -8px var(--spread) 0 #8b5cf6,8px -8px var(--spread) 0 #a855f7,8px 0 var(--spread) 0 #c026d3,8px 8px var(--spread) 0 #22d3ee,0 8px var(--spread) 0 #06b6d4,-8px 8px var(--spread) 0 #4f46e5}
+.uk-glow-check-mark:after{content:'';position:absolute;display:none}
+.uk-glow-check input:checked~.uk-glow-check-mark:after{display:block}
+.uk-glow-check .uk-glow-check-mark:after{left:.45em;top:.25em;width:.25em;height:.5em;border:solid #f0f0f0;border-width:0 .15em .15em 0;transform:rotate(45deg)}
+</style>

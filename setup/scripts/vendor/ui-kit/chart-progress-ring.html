@@ -1,0 +1,37 @@
+<!--
+  Animated Circular Progress Bar
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/animated-circular-progress-bar
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original computes
+  strokeDasharray=(percent*circumference/100) on an r=45 circle and transitions it;
+  ported 1:1.
+  Cockpit use: per-agent uptime ring (e.g. next to a "Healthy" chip).
+-->
+<div class="uk-progress-ring" id="uk-progress-demo">
+  <svg viewBox="0 0 100 100">
+    <circle class="uk-progress-ring__track" cx="50" cy="50" r="45"></circle>
+    <circle class="uk-progress-ring__value" cx="50" cy="50" r="45"></circle>
+  </svg>
+  <span class="uk-progress-ring__label"></span>
+</div>
+
+<style>
+.uk-progress-ring{position:relative;width:44px;height:44px}
+.uk-progress-ring svg{transform:rotate(-90deg)}
+.uk-progress-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.uk-progress-ring__track{stroke:rgba(139,146,184,.18)}
+.uk-progress-ring__value{stroke:#34d399;transition:stroke-dasharray .8s ease}
+.uk-progress-ring__label{position:absolute;inset:0;display:grid;place-items:center;font-size:.7rem;font-weight:600;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif}
+</style>
+
+<script>
+function ukSetProgressRing(el,percent){
+  const c=el.querySelector('.uk-progress-ring__value');
+  const r=c.r.baseVal.value;
+  const circumf=2*Math.PI*r;
+  const p=Math.max(0,Math.min(100,percent));
+  c.style.strokeDasharray=(p/100*circumf)+' '+circumf;
+  el.querySelector('.uk-progress-ring__label').textContent=Math.round(p)+'%';
+}
+ukSetProgressRing(document.getElementById('uk-progress-demo'),98.6);
+</script>

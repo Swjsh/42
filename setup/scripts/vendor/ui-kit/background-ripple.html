@@ -1,0 +1,41 @@
+<!--
+  Ripple
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/ripple
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original renders numCircles stacked
+  divs with size=mainCircleSize+i*70, opacity=mainCircleOpacity-i*.03,
+  animationDelay=i*.06s (this file uses i*.15s per the recipe as captured -- cosmetic
+  choice, mechanism identical). Ported 1:1.
+  Cockpit use: ambient background rings behind a promo panel or empty state.
+-->
+<div class="uk-ripple-demo" id="uk-ripple-target"></div>
+
+<style>
+.uk-ripple-demo{position:relative;width:100%;height:220px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-ripple{pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,#fff,transparent);mask-image:linear-gradient(to bottom,#fff,transparent)}
+/* fix (2026-09-03): dropped position:absolute;inset:0 -- it collided with
+   .uk-ripple-demo's own position:relative/height:220px on the SAME element
+   (ukBuildRipple adds this class onto the sized container), and the cascade-later
+   .uk-ripple rule won position, pulling the whole ring stack out of the card's box
+   entirely (rendered as position:absolute;inset:0 against the nearest positioned
+   ancestor instead of centered in its 220px card). Positioning is already owned by
+   .uk-ripple-demo; this class only needs to add the fade mask. */
+.uk-ripple__ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid rgba(139,146,184,.4);background:rgba(99,102,241,.06);transform:translate(-50%,-50%);animation:uk-ripple-pulse 3s ease-out infinite}
+@keyframes uk-ripple-pulse{0%{opacity:.3}50%{opacity:.6}100%{opacity:.3}}
+</style>
+
+<script>
+function ukBuildRipple(container,{mainCircleSize=210,mainCircleOpacity=.24,numCircles=6}={}){
+  container.classList.add('uk-ripple');
+  for(let i=0;i<numCircles;i++){
+    const ring=document.createElement('div');
+    ring.className='uk-ripple__ring';
+    const size=mainCircleSize+i*70;
+    ring.style.width=ring.style.height=size+'px';
+    ring.style.opacity=Math.max(0,mainCircleOpacity-i*.03);
+    ring.style.animationDelay=i*.15+'s';
+    container.appendChild(ring);
+  }
+}
+ukBuildRipple(document.getElementById('uk-ripple-target'));
+</script>

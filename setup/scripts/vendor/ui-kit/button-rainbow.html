@@ -1,0 +1,17 @@
+<!--
+  Rainbow Button
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/rainbow-button
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original pans a 200%-wide multi-hue
+  gradient behind a solid inset button face; re-tuned from full rainbow to the
+  indigo/violet/cyan ramp to match AetherOps.
+  Cockpit use: tertiary gradient-outline button.
+-->
+<div class="uk-rainbow-btn"><span>View report</span></div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-panel:#121933; }
+.uk-rainbow-btn{position:relative;z-index:0;display:inline-flex;border-radius:10px;padding:2px;background:linear-gradient(90deg,var(--uk-accent),var(--uk-accent-3),var(--uk-accent-2),var(--uk-accent));background-size:200% 100%;animation:uk-rainbow-pan 4s linear infinite}
+.uk-rainbow-btn>span{display:inline-flex;border-radius:8px;padding:.6em 1.2em;background:var(--uk-panel);color:#e7e9f5;font-weight:600}
+@keyframes uk-rainbow-pan{to{background-position:200% 0%}}
+</style>

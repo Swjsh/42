@@ -1,0 +1,143 @@
+<!--
+  Workflow Routing Map (5-stage glowing Sankey ribbons)
+  Source: self-authored -- no single copyable source; math derived from the standard
+  SVG cubic-Bezier ribbon technique (the same approach D3-Sankey / Google Charts Sankey
+  use internally), generalized here without either library since the 5 stages are fixed
+  (Intake/Classify/Review/Fallback/Deliver -- no need for a dynamic layout solver).
+  License: original work, no proprietary code copied -- safe to use without attribution.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03 (assembled from the reference-hunt kit's
+  layout-math recipe into a real, running SVG).
+  Cockpit use: THE CENTERPIECE Workflow routing map panel -- Intake->Classify->Review->
+  Fallback->Deliver ribbons + node bars + "Live" chip + legend.
+-->
+<div class="uk-routing-panel">
+  <div class="uk-routing-header">
+    <h3>Workflow routing map</h3>
+    <span class="uk-live-chip"><span class="uk-live-dot"></span>Live</span>
+  </div>
+  <svg viewBox="0 0 960 380" class="uk-routing-svg">
+    <defs>
+      <linearGradient id="uk-flow-grad" gradientUnits="userSpaceOnUse" x1="90" y1="0" x2="890" y2="0">
+        <stop offset="0%" stop-color="#6366f1"/>
+        <stop offset="50%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#22d3ee"/>
+      </linearGradient>
+      <linearGradient id="uk-node-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6366f1"/>
+        <stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient>
+      <pattern id="uk-dots" width="14" height="14" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1" fill="#334155"/>
+      </pattern>
+      <filter id="uk-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="6" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <rect x="0" y="40" width="70" height="300" fill="url(#uk-dots)" opacity=".45"/>
+
+    <!-- ribbons drawn first so node bars sit on top -->
+    <g id="uk-ribbons" filter="url(#uk-glow)"></g>
+    <g id="uk-flow-dashes"></g>
+
+    <!-- 5 node bars -->
+    <g id="uk-nodes"></g>
+
+    <!-- stage labels -->
+    <g id="uk-stage-labels" font-family="Inter,system-ui,sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle"></g>
+
+    <!-- percentage labels -->
+    <g id="uk-pct-labels" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#e5e7eb" text-anchor="middle"></g>
+  </svg>
+  <div class="uk-legend">
+    <span><i class="uk-swatch" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></i>Primary path 68%</span>
+    <span><i class="uk-swatch" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></i>Secondary 22%</span>
+    <span><i class="uk-swatch" style="background:linear-gradient(90deg,#475569,#64748b)"></i>Fallback 10%</span>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-routing-panel{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:18px;padding:20px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb}
+.uk-routing-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.uk-routing-header h3{margin:0;font-size:1rem;font-weight:600}
+.uk-live-chip{display:inline-flex;gap:6px;align-items:center;background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.3);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
+.uk-live-dot{width:6px;height:6px;border-radius:50%;background:#34d399;animation:uk-pulse 1.6s ease-in-out infinite}
+@keyframes uk-pulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}50%{box-shadow:0 0 0 6px rgba(52,211,153,0)}}
+.uk-routing-svg{width:100%;height:auto;display:block}
+.uk-flow-dash{stroke:#fff;stroke-opacity:.55;stroke-width:2;fill:none;stroke-dasharray:4 14;animation:uk-flow 3.5s linear infinite}
+@keyframes uk-flow{to{stroke-dashoffset:-360}}
+.uk-legend{display:flex;gap:20px;font-size:12px;color:#94a3b8;margin-top:6px;flex-wrap:wrap}
+.uk-swatch{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:6px}
+</style>
+
+<script>
+(function(){
+  const stages=['Intake','Classify','Review','Fallback','Deliver'];
+  const xs=[90,290,490,690,890];
+  const bands=[
+    {name:'Primary',pct:68,color1:'#6366f1',color2:'#8b5cf6'},
+    {name:'Secondary',pct:22,color1:'#8b5cf6',color2:'#a855f7'},
+    {name:'Fallback',pct:10,color1:'#475569',color2:'#64748b'}
+  ];
+  const barTop=60, gap=10;
+  let y=barTop;
+  const bandYs=bands.map(b=>{
+    const h=b.pct*2;
+    const top=y, bot=y+h;
+    y=bot+gap;
+    return {top,bot,mid:(top+bot)/2,h};
+  });
+  const barBottom=y-gap;
+
+  const nodesG=document.getElementById('uk-nodes');
+  const labelsG=document.getElementById('uk-stage-labels');
+  const ribbonsG=document.getElementById('uk-ribbons');
+  const dashesG=document.getElementById('uk-flow-dashes');
+  const pctG=document.getElementById('uk-pct-labels');
+  const svgNS='http://www.w3.org/2000/svg';
+
+  xs.forEach((x,i)=>{
+    const rect=document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x',x-7); rect.setAttribute('y',barTop);
+    rect.setAttribute('width',14); rect.setAttribute('height',barBottom-barTop);
+    rect.setAttribute('rx',7); rect.setAttribute('fill','url(#uk-node-grad)');
+    nodesG.appendChild(rect);
+
+    const label=document.createElementNS(svgNS,'text');
+    label.setAttribute('x',x); label.setAttribute('y',barBottom+22);
+    label.textContent=stages[i];
+    labelsG.appendChild(label);
+  });
+
+  for(let i=0;i<xs.length-1;i++){
+    const x1=xs[i]+7, x2=xs[i+1]-7, mx=(x1+x2)/2;
+    bands.forEach((b,bi)=>{
+      const {top,bot,mid}=bandYs[bi];
+      const opacity = bi===2 ? 0.5 : 0.85;
+      const d=`M ${x1},${top} C ${mx},${top} ${mx},${top} ${x2},${top} L ${x2},${bot} C ${mx},${bot} ${mx},${bot} ${x1},${bot} Z`;
+      const path=document.createElementNS(svgNS,'path');
+      path.setAttribute('d',d);
+      path.setAttribute('fill', bi<2 ? 'url(#uk-flow-grad)' : '#475569');
+      path.setAttribute('fill-opacity',opacity);
+      ribbonsG.appendChild(path);
+
+      const dash=document.createElementNS(svgNS,'path');
+      dash.setAttribute('class','uk-flow-dash');
+      dash.setAttribute('d',`M ${x1},${mid} C ${mx},${mid} ${mx},${mid} ${x2},${mid}`);
+      dashesG.appendChild(dash);
+
+      if(i===Math.floor((xs.length-2)/2)){
+        const pct=document.createElementNS(svgNS,'text');
+        pct.setAttribute('x',mx); pct.setAttribute('y',mid-8);
+        pct.textContent=b.pct+'%';
+        pctG.appendChild(pct);
+      }
+    });
+  }
+})();
+</script>

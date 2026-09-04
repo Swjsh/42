@@ -1,0 +1,26 @@
+<!--
+  Stacked-Layer Hover-Lift Card
+  Source: https://uiverse.io/gharsh11032000/fuzzy-robin-67
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*, recolored to
+  navy/indigo for the cockpit, demo content swapped to an approval-queue row.
+  Cockpit use: approval-queue row / agent-health row -- the whole row lifts and two
+  background layers fan out behind it on hover.
+-->
+<div class="uk-lift-card">
+  <div class="uk-lift-content">
+    <svg fill="currentColor" viewBox="0 0 24 24" width="28" height="28"><path d="M20 9V5H4V9H20ZM20 11H4V19H20V11ZM3 3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3ZM5 12H8V17H5V12ZM5 6H7V8H5V6ZM9 6H11V8H9V6Z"></path></svg>
+    <p class="uk-lift-para">Refund escalation &mdash; needs review</p>
+  </div>
+</div>
+
+<style>
+.uk-lift-card{position:relative;display:flex;align-items:center;justify-content:center;width:320px;border-radius:16px;transition:all .48s cubic-bezier(.23,1,.32,1)}
+.uk-lift-content{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:20px 24px;border-radius:14px;color:#e8ecff;overflow:hidden;background:#151c38;transition:all .48s cubic-bezier(.23,1,.32,1);width:100%}
+.uk-lift-content::before{position:absolute;content:'';top:-4%;left:50%;width:90%;height:90%;transform:translate(-50%);background:#242b52;z-index:-1;transform-origin:bottom;border-radius:inherit;transition:all .48s cubic-bezier(.23,1,.32,1)}
+.uk-lift-content::after{position:absolute;content:'';top:-8%;left:50%;width:80%;height:80%;transform:translate(-50%);background:#2f3766;z-index:-2;transform-origin:bottom;border-radius:inherit;transition:all .48s cubic-bezier(.23,1,.32,1)}
+.uk-lift-para{z-index:1;font-size:.9rem}
+.uk-lift-card:hover{transform:translate(0,-10px)}
+.uk-lift-card:hover .uk-lift-content::before{rotate:-8deg;top:0;width:100%;height:100%}
+.uk-lift-card:hover .uk-lift-content::after{rotate:8deg;top:0;width:100%;height:100%}
+</style>

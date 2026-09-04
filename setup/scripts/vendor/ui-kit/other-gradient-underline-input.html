@@ -1,0 +1,24 @@
+<!--
+  Gradient Underline Input
+  Source: https://uiverse.io/adamgiebl/hot-cat-14
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*, colors remapped
+  onto AetherOps custom properties, placeholder swapped to cockpit search copy.
+  Cockpit use: header search field with the ⌘K hint -- underline fills with an
+  indigo->violet->cyan gradient on focus.
+-->
+<div class="uk-search-control">
+  <input class="uk-search-input" placeholder="Search workflows, agents, runs..." type="text" />
+  <span class="uk-search-border"></span>
+  <kbd class="uk-search-kbd">&#8984;K</kbd>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#a855f7; --uk-accent-3:#22d3ee; }
+.uk-search-control{position:relative;--width-of-input:340px;width:var(--width-of-input);display:flex;align-items:center}
+.uk-search-input{color:#e8ecff;font-size:.95rem;background-color:transparent;width:100%;box-sizing:border-box;padding:.8em 1em;border:none;border-bottom:2px solid rgba(255,255,255,.12)}
+.uk-search-input:focus{outline:none}
+.uk-search-border{position:absolute;background:linear-gradient(90deg,var(--uk-accent) 0%,var(--uk-accent-2) 50%,var(--uk-accent-3) 100%);width:0%;height:2px;bottom:0;left:0;transition:width .4s cubic-bezier(.42,0,.58,1)}
+.uk-search-input:focus+.uk-search-border{width:100%}
+.uk-search-kbd{position:absolute;right:10px;padding:2px 6px;border-radius:4px;background:#1e2340;border:1px solid #2f3560;font-size:11px;font-family:ui-monospace,monospace;color:rgba(255,255,255,.5);pointer-events:none}
+</style>

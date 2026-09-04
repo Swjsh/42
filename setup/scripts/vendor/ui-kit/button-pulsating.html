@@ -1,0 +1,16 @@
+<!--
+  Pulsating Button
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/pulsating-button
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original scales a duplicated ::after
+  ring 1x->2x while fading opacity, looping. Ported directly, pure CSS.
+  Cockpit use: attention-drawing button for a live/urgent action (e.g. "Acknowledge alert").
+-->
+<button class="uk-pulse-btn">Acknowledge</button>
+
+<style>
+:root{ --uk-accent:#6366f1; }
+.uk-pulse-btn{position:relative;border:none;border-radius:999px;padding:.7em 1.4em;color:#fff;font-weight:600;background:var(--uk-accent);cursor:pointer}
+.uk-pulse-btn::after{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--uk-accent);animation:uk-pulse-ring 1.8s cubic-bezier(.4,0,.6,1) infinite;z-index:-1}
+@keyframes uk-pulse-ring{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.9);opacity:0}}
+</style>

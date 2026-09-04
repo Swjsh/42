@@ -1,0 +1,38 @@
+<!--
+  Magic Card (Spotlight Card)
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/magic-card
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original tracks pointer x/y via
+  useMotionValue+useSpring into a radial-gradient border-box ring + content-box fill
+  glow. Spring interpolation dropped for a CSS transition on the two layers --
+  mechanically identical result, no JS animation library.
+  Cockpit use: hover-spotlight card for approval-queue rows / agent tiles.
+-->
+<div class="uk-spotlight-card" id="uk-spotlight-demo">
+  <div style="position:relative;z-index:2;padding:20px;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif">
+    <p style="font-weight:600;margin:0 0 6px">Router-v3</p>
+    <p style="font-size:.8rem;color:#9ca3d6;margin:0">Hover to see the spotlight follow the cursor</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-panel:#121933; }
+.uk-spotlight-card{--uk-mx:50%;--uk-my:50%;position:relative;isolation:isolate;overflow:hidden;border-radius:14px;border:1px solid rgba(99,102,241,.22);background:var(--uk-panel);min-height:110px}
+.uk-spotlight-card::before{content:'';position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;background:radial-gradient(220px circle at var(--uk-mx) var(--uk-my),var(--uk-accent),var(--uk-accent-2) 60%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s ease}
+.uk-spotlight-card:hover::before{opacity:1}
+</style>
+
+<script>
+(function(){
+  const card=document.getElementById('uk-spotlight-demo');
+  function reset(){ card.style.setProperty('--uk-mx','50%'); card.style.setProperty('--uk-my','50%'); }
+  card.addEventListener('pointermove',e=>{
+    const r=card.getBoundingClientRect();
+    card.style.setProperty('--uk-mx',(e.clientX-r.left)+'px');
+    card.style.setProperty('--uk-my',(e.clientY-r.top)+'px');
+  });
+  card.addEventListener('pointerenter',reset);
+  card.addEventListener('blur',reset);
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) reset(); });
+})();
+</script>

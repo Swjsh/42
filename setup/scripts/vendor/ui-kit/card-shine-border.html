@@ -1,0 +1,22 @@
+<!--
+  Shine Border
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/shine-border
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original pans a 300%x300% radial-gradient
+  background masked to a ring via mask-composite:exclude. Ported verbatim, pure CSS.
+  Cockpit use: subtle traveling-shine border for a secondary panel.
+-->
+<div class="uk-shine-demo">
+  <div class="uk-panel uk-shine-border">
+    <p>Agent health</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent-3:#22d3ee; --uk-panel:#121933; }
+.uk-shine-demo{padding:20px;background:#0a0e1c;border-radius:12px}
+.uk-panel{background:var(--uk-panel);border-radius:14px;padding:24px;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif}
+.uk-shine-border{position:relative}
+.uk-shine-border::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background-image:radial-gradient(transparent,transparent,var(--uk-accent-3),transparent,transparent);background-size:300% 300%;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:uk-shine-pan 14s linear infinite}
+@keyframes uk-shine-pan{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
+</style>

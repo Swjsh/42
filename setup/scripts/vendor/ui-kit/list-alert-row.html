@@ -1,0 +1,41 @@
+<!--
+  System Alert Row
+  Source: self-authored -- gap-filler. The kit's icon-tile+chip list-row recipe
+  (monet-devrev's "Icon-tile + status-chip list row") was extracted by DOM
+  computed-style inspection from a monet.design live-preview page and is therefore
+  recipe-only per the brief (see REFERENCE-ONLY.md) -- not code-copyable. This file is
+  an independent composition reusing this kit's own already-vendored MIT/original
+  pieces (icon tile shape from card-kpi-stat.html's convention + chip-status.html's
+  chip) rather than copying anything from monet.design.
+  License: original work, composed from this kit's own vendored pieces.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03.
+  Cockpit use: System alerts list rows -- warning/info icon tile + text + Review button.
+-->
+<div class="uk-alert-row warning">
+  <div class="uk-alert-icon">&#9888;</div>
+  <div class="uk-alert-text">
+    <div class="uk-alert-title">Fallback rate above threshold</div>
+    <div class="uk-alert-sub">12.4% of requests routed to fallback in the last hour</div>
+  </div>
+  <button class="uk-alert-btn">Review</button>
+</div>
+<div class="uk-alert-row info">
+  <div class="uk-alert-icon">&#8505;</div>
+  <div class="uk-alert-text">
+    <div class="uk-alert-title">New agent version deployed</div>
+    <div class="uk-alert-sub">Router-v3 promoted to production</div>
+  </div>
+  <button class="uk-alert-btn">Review</button>
+</div>
+
+<style>
+.uk-alert-row{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:12px;background:#151c38;font-family:'Inter',system-ui,sans-serif;margin-bottom:8px}
+.uk-alert-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.uk-alert-row.warning .uk-alert-icon{background:rgba(251,191,36,.14);color:#fbbf24}
+.uk-alert-row.info .uk-alert-icon{background:rgba(99,102,241,.14);color:#a5b4fc}
+.uk-alert-text{flex:1;min-width:0}
+.uk-alert-title{font-size:13px;font-weight:600;color:#e5e7eb}
+.uk-alert-sub{font-size:12px;color:#94a3b8}
+.uk-alert-btn{background:rgba(99,102,241,.14);border:1px solid rgba(99,102,241,.3);color:#c7d2fe;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;flex-shrink:0}
+.uk-alert-btn:hover{background:rgba(99,102,241,.24)}
+</style>

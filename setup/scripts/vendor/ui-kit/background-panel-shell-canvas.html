@@ -1,0 +1,20 @@
+<!--
+  Panel Shell + Deep Navy Canvas (glow background system)
+  Source: self-authored -- the inset-highlight + soft-shadow "floating dark panel" is
+  the standard glassmorphic-adjacent dark-UI convention (seen across Figma's free
+  "Glow UI" kit and Sneat's dark admin kit per research, not scraped verbatim).
+  License: original work, generic convention.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03.
+  Cockpit use: overall canvas + base panel shell every other panel sits inside.
+-->
+<div class="uk-canvas-demo">
+  <div class="uk-panel-shell">
+    <p style="margin:0;font-size:.9rem;color:#e5e7eb">Panel shell on the deep-navy canvas</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-panel:#121933; --uk-line:rgba(99,102,241,.18); }
+.uk-canvas-demo{background:radial-gradient(1200px 600px at 20% -10%,#131a33 0%,#0a0e1c 55%,#0a0e1c 100%);border-radius:12px;padding:30px;font-family:'Inter',system-ui,sans-serif}
+.uk-panel-shell{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 20px 40px -20px rgba(0,0,0,.6);padding:24px}
+</style>

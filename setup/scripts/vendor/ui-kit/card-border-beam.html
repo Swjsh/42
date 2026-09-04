@@ -1,0 +1,24 @@
+<!--
+  Border Beam
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/border-beam
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original animates a small square along
+  offset-path:rect(...) with motion/react around a mask-intersect border. Ported with
+  native CSS offset-path + offset-distance keyframe, zero JS/library.
+  Cockpit use: animated glowing 1px border traveling around any panel/card edge.
+-->
+<div class="uk-border-beam-demo">
+  <div class="uk-panel uk-border-beam">
+    <p>Approval queue</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-panel:#121933; }
+.uk-border-beam-demo{padding:20px;background:#0a0e1c;border-radius:12px}
+.uk-panel{background:var(--uk-panel);border-radius:14px;padding:24px;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif}
+.uk-border-beam{position:relative}
+.uk-border-beam::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.5px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.uk-border-beam::after{content:'';position:absolute;width:80px;aspect-ratio:1;border-radius:50%;background:linear-gradient(90deg,transparent,var(--uk-accent),var(--uk-accent-2),var(--uk-accent-3),transparent);filter:blur(6px);offset-path:border-box;animation:uk-beam-travel 6s linear infinite}
+@keyframes uk-beam-travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+</style>

@@ -1,0 +1,35 @@
+<!--
+  Deploy Smarter Promo Panel
+  Source: self-authored -- gap-filler composition. The kit's promo-panel recipe
+  (monet-devrev's "Large promo panel") mixes an N/A-licensed aurora-glow layer
+  (monet.design-derived, recipe-only, see REFERENCE-ONLY.md) with an MIT CTA button --
+  this file instead composes ONLY vendored/original pieces already in this kit:
+  background-aurora-glow.html's original radial-bloom technique + button-gradient-cta-glow.html's
+  MIT-derived (uiverse.io nima-mollazadeh/terrible-panda-97) gradient CTA.
+  License: original composition; the embedded CTA button's gradient/blur mechanism is
+  MIT per button-gradient-cta-glow.html's own header.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03.
+  Cockpit use: "Deploy smarter" promo panel at the bottom of the cockpit.
+-->
+<div class="uk-promo-panel">
+  <div class="uk-promo-glow"></div>
+  <div class="uk-promo-body">
+    <h4>Deploy smarter</h4>
+    <p>Let the router auto-classify and auto-approve routine cases, so your team only touches the ones that need a human.</p>
+    <button class="uk-cta2 uk-promo-cta"><span>Deploy smarter</span></button>
+  </div>
+</div>
+
+<style>
+.uk-promo-panel{position:relative;overflow:hidden;border-radius:16px;padding:32px;background:linear-gradient(160deg,#171c33 0%,#10142a 100%);border:1px solid #2a2f4d;font-family:'Inter',system-ui,sans-serif}
+.uk-promo-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(70% 60% at 15% 0%,rgba(99,102,241,.25) 0%,transparent 65%)}
+.uk-promo-body{position:relative;z-index:1;max-width:70%}
+.uk-promo-body h4{margin:0 0 8px;font-size:1.3rem;font-weight:700;color:#fff}
+.uk-promo-body p{margin:0 0 18px;font-size:13px;color:rgba(255,255,255,.6)}
+.uk-cta2{position:relative;color:#fff;background:linear-gradient(45deg,#6366f1,#8b5cf6,#a855f7);padding:8px 18px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;border:none}
+.uk-cta2 span{position:relative;z-index:1}
+.uk-cta2::before{content:'';position:absolute;inset:1px;background:#121933;border-radius:9px;transition:.4s}
+.uk-cta2:hover::before{opacity:.55}
+.uk-cta2::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,#6366f1,#8b5cf6,#a855f7);border-radius:9px;transition:.4s;opacity:0;filter:blur(20px)}
+.uk-cta2:hover::after{opacity:1}
+</style>

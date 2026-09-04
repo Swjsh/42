@@ -1,0 +1,43 @@
+<!--
+  Bento Grid
+  Source: MagicUI bento-grid.tsx (magicuidesign/magicui). 21st.dev/uilayout.contact/stats-bento
+  page (states MIT) was used only as the KPI-row layout target -- its Component.tsx never
+  rendered to WebFetch/browser extraction, so no code was copied from that specific page.
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original is a CSS grid with
+  grid-column/row:span N overrides per card, group-hover translating the icon/title
+  block to reveal a CTA row, plus a dark-mode inset glow. Ported 1:1, pure CSS grid +
+  transitions.
+  Cockpit use: the 4-KPI-stat-card header row grid.
+-->
+<div class="uk-bento-grid">
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Total Revenue</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">$48,320</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#34d399;margin-top:8px">&#8599; 12.4% vs last month</div>
+  </div>
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Uptime</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">98.6%</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#34d399;margin-top:8px">&#8599; steady</div>
+  </div>
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Approval rate</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">94%</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#34d399;margin-top:8px">&#8599; 3.1%</div>
+  </div>
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Open reviews</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">18</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#f87171;margin-top:8px">&#8600; needs attention</div>
+  </div>
+</div>
+
+<style>
+.uk-bento-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.uk-bento-card{position:relative;overflow:hidden;border-radius:14px;border:1px solid rgba(99,102,241,.22);background:#121933;box-shadow:0 -20px 80px -20px rgba(255,255,255,.06) inset;padding:1.1rem;transition:border-color .25s ease,transform .25s ease;font-family:'Inter',system-ui,sans-serif}
+.uk-bento-card:hover{border-color:rgba(139,92,246,.5);transform:translateY(-2px)}
+.uk-bento-card__cta{opacity:0;transform:translateY(8px);transition:opacity .25s ease,transform .25s ease}
+.uk-bento-card:hover .uk-bento-card__cta{opacity:1;transform:translateY(0)}
+@media (max-width:720px){.uk-bento-grid{grid-template-columns:repeat(2,1fr)}}
+</style>

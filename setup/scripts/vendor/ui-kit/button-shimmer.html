@@ -1,0 +1,18 @@
+<!--
+  Shimmer Button
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/shimmer-button
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original layers a spinning conic-gradient
+  spark behind a clipped container, an inset highlight, and a backdrop. All 3 layers
+  ported 1:1 as plain CSS.
+  Cockpit use: secondary gradient button with a rotating shimmer spark.
+-->
+<button class="uk-shimmer-btn">Run workflow</button>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; }
+.uk-shimmer-btn{position:relative;z-index:0;overflow:hidden;border-radius:10px;border:1px solid rgba(255,255,255,.1);padding:.65em 1.3em;color:#fff;font-weight:600;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-2));cursor:pointer}
+.uk-shimmer-btn::before{content:'';position:absolute;inset:-100%;z-index:-1;background:conic-gradient(from 225deg,transparent 0,#fff 90deg,transparent 180deg);animation:uk-shimmer-spin 3s linear infinite;filter:blur(2px);opacity:.5}
+.uk-shimmer-btn::after{content:'';position:absolute;inset:3px;z-index:-1;border-radius:7px;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-2));box-shadow:inset 0 -8px 10px rgba(255,255,255,.12)}
+@keyframes uk-shimmer-spin{to{transform:rotate(360deg)}}
+</style>

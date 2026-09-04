@@ -1,0 +1,23 @@
+<!--
+  Gradient CTA button with blurred hover-glow (dual-layer border trick)
+  Source: https://uiverse.io/nima-mollazadeh/terrible-panda-97
+  License: MIT (Uiverse.io element page states "MIT License", confirmed live via
+  browser fetch -- direct WebFetch of uiverse.io 403s, this one was crawled via the
+  Claude Browser pane)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Colors swapped from the source's
+  teal/purple/pink trio to AetherOps indigo->violet; mechanism unchanged -- the gradient
+  is painted twice (once as the visible base fill, once as a 20px-blurred duplicate at
+  opacity 0 fading to 1 on hover), producing a bloom uncapped by box-shadow's blur limit.
+  Cockpit use: alt primary CTA / "Deploy smarter" promo-panel button.
+-->
+<button class="uk-cta2"><span>Deploy smarter</span></button>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#a855f7; --uk-panel:#121933; }
+.uk-cta2{position:relative;color:#fff;background:linear-gradient(45deg,var(--uk-accent),var(--uk-accent-2),var(--uk-accent-3));padding:10px 22px;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;border:none}
+.uk-cta2 span{position:relative;z-index:1}
+.uk-cta2::before{content:'';position:absolute;inset:1px;background:var(--uk-panel);border-radius:9px;transition:.4s}
+.uk-cta2:hover::before{opacity:.55}
+.uk-cta2::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,var(--uk-accent),var(--uk-accent-2),var(--uk-accent-3));border-radius:9px;transition:.4s;opacity:0;filter:blur(20px)}
+.uk-cta2:hover::after{opacity:1}
+</style>

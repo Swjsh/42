@@ -1,0 +1,592 @@
+/*
+ * aetherops-ui-kit.css
+ * Vanilla-CSS ports of MagicUI (MIT) React+Tailwind components, recreating the
+ * AetherOps reference mood (deep navy #0a0e1c canvas, #121933 panels, indigo(#6366f1)
+ * -> violet(#8b5cf6) -> cyan(#22d3ee) glow ramp). Every recipe below is a from-scratch
+ * vanilla-CSS re-implementation of the visual technique described in the cited MagicUI
+ * source file (motion/react + Tailwind removed, replaced with plain CSS
+ * transitions/keyframes/@property, or a small vanilla-JS hook noted per-block).
+ * No CDN at runtime — this file is meant to be inlined/concatenated into the
+ * single self-contained cockpit HTML the same way openprops/radix CSS already are
+ * (see ../MANIFEST.md convention). Provenance + license table: ./MANIFEST.md.
+ */
+
+:root {
+  --uk-bg: #0a0e1c;
+  --uk-bg-2: #0d1226;
+  --uk-panel: #121933;
+  --uk-hairline: rgba(99, 102, 241, 0.22);
+  --uk-indigo: #6366f1;
+  --uk-violet: #8b5cf6;
+  --uk-cyan: #22d3ee;
+  --uk-text: #e7e9f5;
+  --uk-text-dim: #8b92b8;
+  --uk-green: #34d399;
+}
+
+/* ============================================================
+ * 1. uk-dot-pattern — dotted-matrix decoration
+ * Source: 21st.dev/dillionverma/dot-pattern -> magicui.design/docs/components/dot-pattern
+ * GitHub: magicuidesign/magicui/apps/www/registry/magicui/dot-pattern.tsx
+ * License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md)
+ * Recipe: original renders one <circle> per grid cell in JS (React + ResizeObserver).
+ * Ported as a single tiled SVG <pattern> data-URI background — same visual, zero JS,
+ * works as a static or radial-mask-faded backdrop (mask-image trick preserved).
+ * Cockpit use: the "dotted-matrix decoration on the left" of the workflow routing map.
+ * ============================================================ */
+.uk-dot-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(139, 146, 184, 0.55) 1px, transparent 1.5px);
+  background-size: 16px 16px;
+  -webkit-mask-image: radial-gradient(320px circle at var(--uk-dot-fx, 30%) var(--uk-dot-fy, 50%), #000, transparent 80%);
+  mask-image: radial-gradient(320px circle at var(--uk-dot-fx, 30%) var(--uk-dot-fy, 50%), #000, transparent 80%);
+}
+.uk-dot-pattern.uk-dot-pattern--glow circle,
+.uk-dot-pattern.uk-dot-pattern--glow {
+  animation: uk-dot-glow 3s ease-in-out infinite;
+}
+@keyframes uk-dot-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
+/* ============================================================
+ * 2. uk-border-beam — chasing gradient border
+ * Source: 21st.dev / magicui.design/docs/components/border-beam
+ * GitHub: magicuidesign/magicui .../border-beam.tsx
+ * License: MIT
+ * Recipe: original animates a small square along `offset-path: rect(...)` around
+ * the border with motion/react. Ported with the SAME native CSS `offset-path` +
+ * `offset-distance` animation (no JS needed, no library) — the border itself is
+ * masked so only the ring shows via mask-composite exclude (content-box vs border-box).
+ * Cockpit use: the glowing indigo->violet->cyan tube edges on the Sankey flow panel,
+ * and a hover accent on KPI stat cards / the "Live" chip.
+ * ============================================================ */
+.uk-border-beam {
+  --uk-beam-size: 80px;
+  --uk-beam-w: 1.5px;
+  position: relative;
+  border-radius: inherit;
+}
+.uk-border-beam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--uk-beam-w);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.uk-border-beam::after {
+  content: "";
+  position: absolute;
+  width: var(--uk-beam-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, var(--uk-indigo), var(--uk-violet), var(--uk-cyan), transparent);
+  filter: blur(6px);
+  offset-path: border-box;
+  animation: uk-beam-travel 6s linear infinite;
+  pointer-events: none;
+}
+@keyframes uk-beam-travel {
+  0%   { offset-distance: 0%; }
+  100% { offset-distance: 100%; }
+}
+
+/* ============================================================
+ * 3. uk-shine-border — animated radial sweep border (lighter alt to border-beam)
+ * Source: magicui.design/docs/components/shine-border ; GitHub .../shine-border.tsx
+ * License: MIT
+ * Recipe: original paints a 300%x300% radial-gradient background and pans its
+ * background-position, masked to only the border ring via the same
+ * content-box/border-box mask-composite:exclude trick. Ported verbatim as pure CSS.
+ * Cockpit use: subtle animated ring around the "Live" chip / active nav pill.
+ * ============================================================ */
+.uk-shine-border {
+  position: relative;
+  border-radius: inherit;
+}
+.uk-shine-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background-image: radial-gradient(transparent, transparent, var(--uk-cyan), transparent, transparent);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: uk-shine-pan 14s linear infinite;
+  pointer-events: none;
+}
+@keyframes uk-shine-pan {
+  0%   { background-position: 0% 0%; }
+  50%  { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* ============================================================
+ * 4. uk-shimmer-btn — gradient CTA button with rotating spark + inset highlight
+ * Source: magicui.design/docs/components/shimmer-button ; GitHub .../shimmer-button.tsx
+ * License: MIT
+ * Recipe: original layers (a) a conic-gradient "spark" spinning behind a clipped
+ * container, (b) an inset box-shadow highlight, (c) a background-color backdrop
+ * inset by --cut so only a thin shimmering ring shows through. All 3 layers ported
+ * 1:1 as plain CSS (conic-gradient + @keyframes spin, no library).
+ * Cockpit use: the header's "indigo->violet gradient CTA button" (⌘K row).
+ * ============================================================ */
+.uk-shimmer-btn {
+  --uk-cut: 3px;
+  --uk-radius: 10px;
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  overflow: hidden;
+  border-radius: var(--uk-radius);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.65em 1.3em;
+  color: #fff;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--uk-indigo), var(--uk-violet));
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.uk-shimmer-btn:active { transform: translateY(1px); }
+.uk-shimmer-btn::before {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  z-index: -1;
+  background: conic-gradient(from 225deg, transparent 0, #fff 90deg, transparent 180deg);
+  animation: uk-shimmer-spin 3s linear infinite;
+  filter: blur(2px);
+  opacity: 0.5;
+}
+.uk-shimmer-btn::after {
+  content: "";
+  position: absolute;
+  inset: var(--uk-cut);
+  z-index: -1;
+  border-radius: calc(var(--uk-radius) - var(--uk-cut));
+  background: linear-gradient(135deg, var(--uk-indigo), var(--uk-violet));
+  box-shadow: inset 0 -8px 10px rgba(255, 255, 255, 0.12);
+}
+@keyframes uk-shimmer-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+ * 5. uk-rainbow-btn — animated multi-hue border sweep (alt CTA)
+ * Source: magicui.design/docs/components/rainbow-button ; GitHub .../rainbow-button.tsx
+ * License: MIT
+ * Recipe: a background-size:200% linear-gradient of hues panned via
+ * background-position, sitting behind a solid inset button face (same layering
+ * idea as shine-border/shimmer-button). Re-tuned to the indigo/violet/cyan ramp
+ * instead of the original full rainbow so it matches AetherOps, not a rainbow app.
+ * Cockpit use: secondary CTA / "Deploy smarter" promo button.
+ * ============================================================ */
+.uk-rainbow-btn {
+  position: relative;
+  z-index: 0;
+  display: inline-flex;
+  border-radius: 10px;
+  padding: 2px;
+  background: linear-gradient(90deg, var(--uk-indigo), var(--uk-cyan), var(--uk-violet), var(--uk-indigo));
+  background-size: 200% 100%;
+  animation: uk-rainbow-pan 4s linear infinite;
+}
+.uk-rainbow-btn > span {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  background: var(--uk-panel);
+  color: var(--uk-text);
+  font-weight: 600;
+}
+@keyframes uk-rainbow-pan {
+  to { background-position: 200% 0%; }
+}
+
+/* ============================================================
+ * 6. uk-pulse-btn — pulsating halo ring button
+ * Source: magicui.design/docs/components/pulsating-button ; GitHub .../pulsating-button.tsx
+ * License: MIT
+ * Recipe: a duplicated ::after ring that scales 1->2x while fading opacity,
+ * looping — CSS keyframes only, ported directly.
+ * Cockpit use: "Deploy smarter" promo panel primary action.
+ * ============================================================ */
+.uk-pulse-btn {
+  position: relative;
+  border: none;
+  border-radius: 999px;
+  padding: 0.7em 1.4em;
+  color: #fff;
+  font-weight: 600;
+  background: var(--uk-indigo);
+  cursor: pointer;
+}
+.uk-pulse-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--uk-indigo);
+  animation: uk-pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: -1;
+}
+@keyframes uk-pulse-ring {
+  0%   { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+
+/* ============================================================
+ * 7. uk-number-ticker — count-up KPI numeral
+ * Source: 21st.dev featured "Number Ticker" (12.4k installs) = magicui.design/docs/components/number-ticker
+ * GitHub: magicuidesign/magicui .../number-ticker.tsx
+ * License: MIT
+ * Recipe: original drives a spring (motion/react useSpring) writing formatted
+ * Intl.NumberFormat text into the node on every tick. Ported as a small vanilla-JS
+ * easing tween (see aetherops-ui-kit.js: ukAnimateNumberTicker) — same
+ * "spring settle" easing shape (cubic ease-out), same Intl.NumberFormat output,
+ * same IntersectionObserver "animate once when scrolled into view" gate.
+ * Cockpit use: the 4 KPI stat card big numbers ($48,320 / 98.6% / 94% / 18).
+ * ============================================================ */
+.uk-number-ticker {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  font-weight: 300;
+  font-size: 2rem;
+  color: var(--uk-text);
+}
+
+/* ============================================================
+ * 8. uk-marquee — infinite-scroll row
+ * Source: magicui.design/docs/components/marquee ; GitHub .../marquee.tsx
+ * License: MIT
+ * Recipe: two (or `repeat`) duplicated flex rows inside an overflow-hidden
+ * container, one long `translateX(-100%)` keyframe looping seamlessly, with
+ * `animation-play-state:paused` on :hover — ported 1:1, no JS.
+ * Cockpit use: System alerts ticker / agent roster strip.
+ * ============================================================ */
+.uk-marquee {
+  --uk-gap: 1rem;
+  --uk-duration: 32s;
+  display: flex;
+  overflow: hidden;
+  gap: var(--uk-gap);
+  padding: 0.5rem 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.uk-marquee__track {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--uk-gap);
+  animation: uk-marquee-scroll var(--uk-duration) linear infinite;
+}
+.uk-marquee:hover .uk-marquee__track { animation-play-state: paused; }
+.uk-marquee--reverse .uk-marquee__track { animation-direction: reverse; }
+@keyframes uk-marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--uk-gap))); }
+}
+
+/* ============================================================
+ * 9. uk-spotlight-card — mouse-tracked radial-glow border card
+ * Source: magicui.design/docs/components/magic-card ; GitHub .../magic-card.tsx
+ * License: MIT
+ * Recipe: original tracks pointer x/y into two CSS custom props via
+ * useMotionValue/useSpring and paints a radial-gradient at that point on a
+ * border-box layer (colored ring) + a fainter one on a content-box layer
+ * (soft fill glow), fading to opacity:0 on pointer-leave. Ported with a small
+ * vanilla-JS pointermove handler (see .js: ukInitSpotlightCards) writing
+ * --uk-mx/--uk-my custom properties consumed by these two radial-gradients —
+ * mechanically identical, only the spring interpolation is dropped for a plain
+ * CSS transition on the two background layers.
+ * Cockpit use: Approval-queue row cards + KPI stat cards + Agent-health rows.
+ * ============================================================ */
+.uk-spotlight-card {
+  --uk-mx: 50%;
+  --uk-my: 50%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--uk-hairline);
+  background: var(--uk-panel);
+}
+.uk-spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(220px circle at var(--uk-mx) var(--uk-my), var(--uk-indigo), var(--uk-violet) 60%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.uk-spotlight-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: radial-gradient(220px circle at var(--uk-mx) var(--uk-my), rgba(99, 102, 241, 0.18), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.uk-spotlight-card:hover::before,
+.uk-spotlight-card:hover::after { opacity: 1; }
+.uk-spotlight-card > * { position: relative; z-index: 2; }
+
+/* ============================================================
+ * 10. uk-progress-ring — circular % gauge
+ * Source: magicui.design/docs/components/animated-circular-progress-bar
+ * GitHub: magicuidesign/magicui .../animated-circular-progress-bar.tsx
+ * License: MIT
+ * Recipe: two concentric SVG <circle>s (track + value), value circle's
+ * stroke-dasharray computed from `percent * circumference/100`, animated by
+ * transitioning that dasharray/rotate on value change. Ported 1:1 — pure SVG +
+ * CSS transition, value set via inline style from JS (see .js: ukSetProgressRing).
+ * Cockpit use: "Agent health" per-row % ring (also works for KPI card icon tile ring).
+ * ============================================================ */
+.uk-progress-ring { position: relative; width: 44px; height: 44px; }
+.uk-progress-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.uk-progress-ring circle {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.uk-progress-ring .uk-progress-ring__track { stroke: rgba(139, 146, 184, 0.18); }
+.uk-progress-ring .uk-progress-ring__value {
+  stroke: var(--uk-green);
+  transition: stroke-dasharray 0.8s ease;
+}
+.uk-progress-ring__label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--uk-text);
+}
+
+/* ============================================================
+ * 11. uk-bento-grid / uk-bento-card — asymmetric KPI/feature grid with hover lift
+ * Source: magicui.design/docs/components/bento-grid ; GitHub .../bento-grid.tsx
+ * License: MIT
+ * Recipe: CSS grid with `grid-auto-rows` + per-card `grid-column/row: span N`
+ * overrides; on hover the icon/title block translates up to reveal a CTA row,
+ * plus a `[box-shadow:0_-20px_80px_-20px_#fff1f_inset]` inner glow in dark mode.
+ * Ported 1:1 as pure CSS grid + transform/opacity transitions.
+ * Cockpit use: the KPI stat-card row + bottom-row layout (Agent health / Alerts /
+ * Deploy-smarter promo) sized as 1/2/1 column spans.
+ * ============================================================ */
+.uk-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+.uk-bento-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--uk-hairline);
+  background: var(--uk-panel);
+  box-shadow: 0 -20px 80px -20px rgba(255, 255, 255, 0.06) inset;
+  padding: 1.1rem;
+  transition: border-color 0.25s ease, transform 0.25s ease;
+}
+.uk-bento-card:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+}
+.uk-bento-card__cta {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.uk-bento-card:hover .uk-bento-card__cta { opacity: 1; transform: translateY(0); }
+
+/* ============================================================
+ * 12. uk-ripple — concentric expanding-ring ambient background
+ * Source: magicui.design/docs/components/ripple ; GitHub .../ripple.tsx
+ * License: MIT
+ * Recipe: N stacked circles of increasing size/decreasing opacity, each with a
+ * staggered animation-delay, pulsing scale — ported 1:1 as pure CSS (8 static
+ * divs or generated via JS loop, see .js helper for the generator).
+ * Cockpit use: ambient backdrop behind the header CTA / hero title.
+ * ============================================================ */
+.uk-ripple {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #fff, transparent);
+  mask-image: linear-gradient(to bottom, #fff, transparent);
+}
+.uk-ripple__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(139, 146, 184, 0.4);
+  background: rgba(99, 102, 241, 0.06);
+  transform: translate(-50%, -50%);
+  animation: uk-ripple-pulse 3s ease-out infinite;
+}
+@keyframes uk-ripple-pulse {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 0.3; }
+}
+
+/* ============================================================
+ * 13. uk-meteors — diagonal streaking light-trail decoration
+ * Source: magicui.design/docs/components/meteors ; GitHub .../meteors.tsx
+ * License: MIT
+ * Recipe: N absolutely-positioned 2px dots, each rotated to a fixed angle with a
+ * fading linear-gradient "tail" div inside, animated along that angle with random
+ * delay/duration per instance (JS randomizes start position + timing — see .js:
+ * ukSpawnMeteors). Ported 1:1: same rotate(--angle) + translate keyframe, same
+ * tail gradient, JS only used for the random placement loop (no framework).
+ * Cockpit use: subtle premium-glow behind the "Workflow routing map" centerpiece.
+ * ============================================================ */
+.uk-meteors { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.uk-meteor {
+  position: absolute;
+  top: -5%;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #c7cbe6;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: rotate(var(--uk-angle, 215deg));
+  animation: uk-meteor-fall linear infinite;
+}
+.uk-meteor::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 50px;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, #c7cbe6, transparent);
+}
+@keyframes uk-meteor-fall {
+  0%   { transform: rotate(var(--uk-angle, 215deg)) translateX(0); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: rotate(var(--uk-angle, 215deg)) translateX(-500px); opacity: 0; }
+}
+
+/* ============================================================
+ * 14. uk-animated-grid — fading grid-square backdrop
+ * Source: magicui.design/docs/components/animated-grid-pattern
+ * GitHub: magicuidesign/magicui .../animated-grid-pattern.tsx
+ * License: MIT
+ * Recipe: original draws an SVG grid of <rect>s in React and randomly cross-fades
+ * a subset in/out forever. Ported as a static tiled SVG grid background (data-URI
+ * pattern, same 1px indigo-tinted hairline look as the panel borders) with a
+ * slow global opacity breathe — visually equivalent ambient texture without
+ * per-cell DOM/JS cost.
+ * Cockpit use: header/nav-rail backdrop texture.
+ * ============================================================ */
+.uk-animated-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.10) 1px, transparent 1px);
+  background-size: 32px 32px;
+  animation: uk-grid-breathe 6s ease-in-out infinite;
+}
+@keyframes uk-grid-breathe {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.9; }
+}
+
+/* ============================================================
+ * 15. uk-shiny-text — sweeping shine-through text (badge / subtitle accent)
+ * Source: magicui.design/docs/components/animated-shiny-text
+ * GitHub: magicuidesign/magicui .../animated-shiny-text.tsx
+ * License: MIT
+ * Recipe: original masks a `background-clip:text` gradient and pans its
+ * background-position left-to-right in a loop. Ported 1:1, pure CSS.
+ * Cockpit use: the "Live" chip label / header subtitle micro-shimmer.
+ * ============================================================ */
+.uk-shiny-text {
+  display: inline-block;
+  background: linear-gradient(110deg, var(--uk-text-dim) 45%, #fff 55%, var(--uk-text-dim) 65%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: uk-shiny-pan 2.5s linear infinite;
+}
+@keyframes uk-shiny-pan {
+  from { background-position: 100% 0; }
+  to   { background-position: -100% 0; }
+}
+
+/* ============================================================
+ * 16. uk-flow-ribbon — gradient "tube" connecting two nodes (Sankey ribbon)
+ * Source: recombination of two MagicUI recipes, both MIT:
+ *   (a) path shape + moving gradient stroke technique from
+ *       magicui.design/docs/components/animated-beam (GitHub .../animated-beam.tsx)
+ *   (b) chase-glow blur treatment from border-beam.tsx (#2 above)
+ * Recipe: original animated-beam computes a quadratic-bezier `M..Q..` path
+ * between two React refs via getBoundingClientRect + ResizeObserver, then
+ * animates a `<linearGradient gradientUnits="userSpaceOnUse">`'s x1/x2 stops
+ * with motion/react. Ported as: a static SVG <path> (coordinates supplied by
+ * caller/layout, no ResizeObserver needed for a fixed cockpit layout) + the
+ * same userSpaceOnUse linearGradient, animated via native SVG `<animate>` on
+ * the gradient's x1/x2 attributes (no JS/library) instead of motion/react.
+ * The tube thickness + blur + percentage-label chip are new (not in either
+ * source) to match the reference's "glowing gradient tubes with % labels".
+ * Cockpit use: the 5-stage Intake->Classify->Review->Fallback->Deliver ribbons.
+ * ============================================================ */
+.uk-flow-ribbon-svg { position: absolute; inset: 0; overflow: visible; }
+.uk-flow-ribbon__glow {
+  fill: none;
+  stroke: url(#uk-flow-gradient);
+  stroke-linecap: round;
+  filter: blur(4px);
+  opacity: 0.9;
+}
+.uk-flow-ribbon__label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--uk-text);
+  background: rgba(10, 14, 28, 0.85);
+  border: 1px solid var(--uk-hairline);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.uk-flow-node {
+  width: 6px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--uk-indigo), var(--uk-violet));
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.55);
+}

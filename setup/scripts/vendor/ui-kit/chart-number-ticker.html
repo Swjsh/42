@@ -1,0 +1,48 @@
+<!--
+  Number Ticker
+  Source: https://21st.dev/community/components/featured -> https://magicui.design/docs/components/number-ticker
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original drives motion/react
+  useSpring(damping:60,stiffness:100) writing Intl.NumberFormat text per tick, gated by
+  useInView(once:true). Ported as a cubic ease-out rAF tween (visually matches a
+  critically-damped spring's settle curve) gated by the same IntersectionObserver-once rule.
+  Cockpit use: KPI stat-card big number that counts up into view.
+-->
+<span class="uk-number-ticker" data-value="48320" data-decimals="0" data-prefix="$"></span>
+
+<style>
+.uk-number-ticker{display:inline-block;font-variant-numeric:tabular-nums;font-weight:300;font-size:2rem;color:#fff;font-family:'Inter',system-ui,sans-serif}
+</style>
+
+<script>
+// fix (2026-09-03): the original gated the count-up on an IntersectionObserver
+// (once:true), matching the source's useInView-gated spring. Under a headless
+// --virtual-time-budget capture (this kit's own QA harness) the observer's first
+// callback never fired inside the budget, so el.textContent was never set and the
+// stat rendered permanently blank. A dashboard KPI number is above-the-fold by
+// construction here, so the lazy-trigger has no payoff worth the failure mode --
+// starting the tween unconditionally on load keeps the count-up visual and removes
+// the race.
+function ukAnimateNumberTicker(el,{value,startValue=0,decimalPlaces=0,duration=1200,prefix=''}={}){
+  const fmt=new Intl.NumberFormat('en-US',{minimumFractionDigits:decimalPlaces,maximumFractionDigits:decimalPlaces});
+  let t0=null;
+  function frame(ts){
+    if(t0===null) t0=ts;
+    const p=Math.min(1,(ts-t0)/duration);
+    const eased=1-Math.pow(1-p,3);
+    const cur=startValue+(value-startValue)*eased;
+    el.textContent=prefix+fmt.format(Number(cur.toFixed(decimalPlaces)));
+    if(p<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+window.addEventListener('load', function(){
+  document.querySelectorAll('.uk-number-ticker').forEach(el=>{
+    ukAnimateNumberTicker(el,{
+      value:Number(el.dataset.value||0),
+      decimalPlaces:Number(el.dataset.decimals||0),
+      prefix:el.dataset.prefix||''
+    });
+  });
+});
+</script>

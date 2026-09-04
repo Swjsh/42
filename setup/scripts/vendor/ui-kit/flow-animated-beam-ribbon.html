@@ -1,0 +1,55 @@
+<!--
+  Animated Beam -> Flow Ribbon
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/animated-beam
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original computes a quadratic-bezier
+  M..Q.. path between two React refs via getBoundingClientRect+ResizeObserver, then
+  animates a userSpaceOnUse linearGradient's x1/x2 with motion/react. Ported as a
+  JS-positioned SVG path with the SAME userSpaceOnUse gradient technique, animated via
+  native SVG <animate> instead of a JS animation library. This is the recipe behind the
+  cockpit's glowing gradient-tube ribbons -- generalize buildFlowRibbon() across the 5
+  routing-map stages (Intake->Classify->Review->Fallback->Deliver).
+  Cockpit use: single glowing connector between two nodes; the Workflow routing map
+  (flow-workflow-routing-map.html) extends this into the full 5-stage Sankey.
+-->
+<div class="uk-flow-demo">
+  <div class="uk-flow-node" id="uk-flow-a"></div>
+  <div class="uk-flow-node" id="uk-flow-b" style="margin-left:auto"></div>
+  <svg class="uk-flow-ribbon-svg" id="uk-flow-svg">
+    <defs>
+      <linearGradient id="uk-flow-gradient" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0" y2="0">
+        <animate attributeName="x1" values="10%;110%" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="x2" values="0%;100%" dur="5s" repeatCount="indefinite"/>
+        <stop stop-color="#6366f1" stop-opacity="0"/>
+        <stop stop-color="#6366f1"/>
+        <stop offset="32.5%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<style>
+.uk-flow-demo{position:relative;width:100%;height:140px;background:#0a0e1c;border-radius:12px;padding:20px;box-sizing:border-box;display:flex;align-items:center}
+.uk-flow-ribbon-svg{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.uk-flow-ribbon__glow{fill:none;stroke:url(#uk-flow-gradient);stroke-linecap:round;filter:blur(4px);opacity:.9}
+.uk-flow-node{width:14px;height:56px;border-radius:7px;background:linear-gradient(180deg,#6366f1,#8b5cf6);box-shadow:0 0 12px rgba(139,92,246,.55)}
+</style>
+
+<script>
+function ukBuildFlowRibbon(svg,containerEl,fromEl,toEl,{curvature=60,width=18}={}){
+  const cr=containerEl.getBoundingClientRect(), a=fromEl.getBoundingClientRect(), b=toEl.getBoundingClientRect();
+  const sx=a.left-cr.left+a.width/2, sy=a.top-cr.top+a.height/2;
+  const ex=b.left-cr.left+b.width/2, ey=b.top-cr.top+b.height/2;
+  const cy=(sy+ey)/2-curvature;
+  const d=`M ${sx},${sy} Q ${(sx+ex)/2},${cy} ${ex},${ey}`;
+  let p=svg.querySelector('.uk-flow-ribbon__glow');
+  if(!p){ p=document.createElementNS('http://www.w3.org/2000/svg','path'); p.setAttribute('class','uk-flow-ribbon__glow'); svg.appendChild(p); }
+  p.setAttribute('d',d);
+  p.setAttribute('stroke-width',width);
+}
+window.addEventListener('load',()=>{
+  const demo=document.querySelector('.uk-flow-demo');
+  ukBuildFlowRibbon(document.getElementById('uk-flow-svg'),demo,document.getElementById('uk-flow-a'),document.getElementById('uk-flow-b'));
+});
+</script>

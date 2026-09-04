@@ -1,0 +1,23 @@
+<!--
+  Hover-Reveal Tooltip
+  Source: https://uiverse.io/themrsami/quick-zebra-71
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Structural recipe only -- original
+  is a light folder-tree tooltip; recolored to a dark indigo-bordered panel and demo
+  content swapped to fit the cockpit (heavier content swap than most ports in this kit).
+  Cockpit use: nav-rail icon tooltip / agent-health info popover.
+-->
+<div class="uk-tip-wrap">
+  <div class="uk-tip-trigger">Agent health</div>
+  <div class="uk-tip-panel">
+    <p>Classifier-v2 &middot; 98.6% uptime</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-panel:#151c38; --uk-line:rgba(129,140,248,.35); }
+.uk-tip-wrap{position:relative;display:inline-block}
+.uk-tip-trigger{font-size:.85rem;color:#e8ecff;cursor:default}
+.uk-tip-panel{position:absolute;left:0;margin-top:8px;width:220px;background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s ease;padding:12px;color:#d7dcff;font-size:.8rem}
+.uk-tip-wrap:hover .uk-tip-panel{opacity:1;pointer-events:auto}
+</style>

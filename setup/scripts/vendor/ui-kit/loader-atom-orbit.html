@@ -1,0 +1,31 @@
+<!--
+  Atom Orbit Loader
+  Source: https://uiverse.io/OMPRABHU8125/nice-sheep-25
+  License: MIT (Uiverse.io element page footer states "MIT License"). NOTE: the page
+  separately credits "a design by Rahul Sahni, modified by OMPRABHU8125" as inspiration
+  even though the page's own MIT footer is present -- flagged for J's awareness, not
+  blocking (still MIT per the page's own license tag).
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*, recolored to
+  the indigo/violet/cyan ribbon palette.
+  Cockpit use: "Live" chip spinner on the routing-map panel header.
+-->
+<div class="uk-atom-loader">
+  <div class="uk-atom-star">
+    <div class="uk-atom-nucleus"></div>
+    <div class="uk-atom-electron uk-atom-e1"></div>
+    <div class="uk-atom-electron uk-atom-e2"></div>
+    <div class="uk-atom-electron uk-atom-e3"></div>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#4f46e5; --uk-accent-3:#22d3ee; --uk-accent-electron:#a78bfa; }
+.uk-atom-loader{height:4rem;width:4rem;display:flex;justify-content:center;align-items:center}
+.uk-atom-star{position:relative;width:3.2rem;height:3.2rem;display:flex;justify-content:center;align-items:center;animation:uk-atom-rotate 3s infinite}
+.uk-atom-nucleus{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(var(--uk-accent),var(--uk-accent-3));height:.5rem;width:.5rem;animation:uk-atom-rotate 1s linear infinite}
+.uk-atom-electron{position:absolute;width:3.2rem;height:1.3rem;border-radius:50%;border:.06rem solid var(--uk-accent-electron);animation:uk-atom-revolve 1s linear infinite}
+.uk-atom-e2{transform:rotate(60deg);animation-delay:-.66s}
+.uk-atom-e3{transform:rotate(-60deg)}
+@keyframes uk-atom-rotate{from{transform:rotate(0)}to{transform:rotate(360deg) scale3d(1.1,1.1,0)}}
+@keyframes uk-atom-revolve{0%{border-color:#a78bfa9c;border-right:transparent}25%{border-bottom-color:transparent}50%{border-left-color:transparent}75%{border-top-color:transparent}100%{border-right-color:transparent}}
+</style>

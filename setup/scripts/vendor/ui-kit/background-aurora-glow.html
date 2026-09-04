@@ -1,0 +1,24 @@
+<!--
+  Aurora Glow Background
+  Source: self-authored -- gap-filler. The kit's aurora-glow recipe (monet-devrev's
+  "Aurora glow panel") was extracted by DOM computed-style inspection from a
+  monet.design live-preview page and is therefore recipe-only per the brief (see
+  REFERENCE-ONLY.md) -- not code-copyable. This file is an independent implementation
+  of the same generic top-radial-bloom technique (a single radial-gradient positioned
+  above the panel, faded to transparent) so the cockpit has a vendored, license-clean
+  component for the header hero band.
+  License: original work, generic technique, no proprietary code copied.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03.
+  Cockpit use: soft top-down glow behind the header hero band / KPI stat-card row.
+-->
+<div class="uk-aurora-demo">
+  <div class="uk-aurora-glow"></div>
+  <div style="position:relative;z-index:1;padding:24px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb">
+    <p style="margin:0;font-size:1.1rem;font-weight:600">AI Workflow Command Center</p>
+  </div>
+</div>
+
+<style>
+.uk-aurora-demo{position:relative;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-aurora-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 50% at 50% 0%,rgba(99,102,241,.22) 0%,rgba(0,0,0,0) 60%)}
+</style>

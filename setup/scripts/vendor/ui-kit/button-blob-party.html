@@ -1,0 +1,51 @@
+<!--
+  Blob Party Button
+  Source: https://uiverse.io/Ashon-G/mean-mayfly-77
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*, colors remapped
+  onto AetherOps custom properties (12 blob layers unchanged, mechanism verbatim).
+  Cockpit use: decorative secondary CTA / celebratory "Deploy smarter" promo button --
+  12 blurred color blobs drift inside the pill on hover.
+-->
+<button class="uk-blob-btn">
+  <div class="uk-blob-wrap">
+    <span>Deploy</span>
+    <div class="uk-blob-circle uk-blob-c1"></div><div class="uk-blob-circle uk-blob-c2"></div><div class="uk-blob-circle uk-blob-c3"></div><div class="uk-blob-circle uk-blob-c4"></div><div class="uk-blob-circle uk-blob-c5"></div><div class="uk-blob-circle uk-blob-c6"></div><div class="uk-blob-circle uk-blob-c7"></div><div class="uk-blob-circle uk-blob-c8"></div><div class="uk-blob-circle uk-blob-c9"></div><div class="uk-blob-circle uk-blob-c10"></div><div class="uk-blob-circle uk-blob-c11"></div><div class="uk-blob-circle uk-blob-c12"></div>
+  </div>
+</button>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-blob-btn{--duration:7s;--c1:rgba(99,102,241,.7);--c2:#1a23ff;--c3:#c026d3;--c4:rgba(56,189,248,.7);-webkit-appearance:none;outline:none;border:none;cursor:pointer;border-radius:24px;font-weight:600;font-size:15px;color:#fff;background:radial-gradient(circle,var(--uk-accent-2),var(--uk-accent) 80%);box-shadow:0 0 14px var(--uk-glow)}
+.uk-blob-btn:hover{--duration:1400ms}
+.uk-blob-wrap{overflow:hidden;border-radius:24px;min-width:132px;padding:12px 20px;-webkit-mask-image:-webkit-radial-gradient(#fff,#000)}
+.uk-blob-wrap span{position:relative;z-index:1}
+.uk-blob-circle{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;filter:blur(12px);animation:none var(--duration) linear infinite}
+.uk-blob-c1{background:var(--c4);transform:translate(0,-40px);animation-name:uk-b1}
+.uk-blob-c2{background:var(--c1);transform:translate(92px,8px);animation-name:uk-b2}
+.uk-blob-c3{background:var(--c2);filter:blur(14px);transform:translate(-12px,-12px);animation-name:uk-b3}
+.uk-blob-c4{background:var(--c2);filter:blur(14px);transform:translate(80px,-12px);animation-name:uk-b4}
+.uk-blob-c5{background:var(--c3);filter:blur(16px);transform:translate(12px,-4px);animation-name:uk-b5}
+.uk-blob-c6{background:var(--c3);filter:blur(16px);transform:translate(56px,16px);animation-name:uk-b6}
+.uk-blob-c7{background:var(--c1);transform:translate(8px,28px);animation-name:uk-b7}
+.uk-blob-c8{background:var(--c1);transform:translate(28px,-4px);animation-name:uk-b8}
+.uk-blob-c9{background:var(--c4);transform:translate(20px,-12px);animation-name:uk-b9}
+.uk-blob-c10{background:var(--c4);transform:translate(64px,16px);animation-name:uk-b10}
+.uk-blob-c11{background:var(--c1);transform:translate(4px,4px);animation-name:uk-b11}
+.uk-blob-c12{background:var(--c1);filter:blur(14px);transform:translate(52px,4px);animation-name:uk-b12}
+@keyframes uk-b1{33%{transform:translate(0,16px)}66%{transform:translate(12px,64px)}}
+@keyframes uk-b2{33%{transform:translate(80px,-10px)}66%{transform:translate(72px,-48px)}}
+@keyframes uk-b3{33%{transform:translate(20px,12px)}66%{transform:translate(12px,4px)}}
+@keyframes uk-b4{33%{transform:translate(76px,-12px)}66%{transform:translate(112px,-8px)}}
+@keyframes uk-b5{33%{transform:translate(84px,28px)}66%{transform:translate(40px,-32px)}}
+@keyframes uk-b6{33%{transform:translate(28px,-16px)}66%{transform:translate(76px,-56px)}}
+@keyframes uk-b7{33%{transform:translate(8px,28px)}66%{transform:translate(20px,-60px)}}
+@keyframes uk-b8{33%{transform:translate(32px,-4px)}66%{transform:translate(56px,-20px)}}
+@keyframes uk-b9{33%{transform:translate(20px,-12px)}66%{transform:translate(80px,-8px)}}
+@keyframes uk-b10{33%{transform:translate(68px,20px)}66%{transform:translate(100px,28px)}}
+@keyframes uk-b11{33%{transform:translate(4px,4px)}66%{transform:translate(68px,20px)}}
+@keyframes uk-b12{33%{transform:translate(56px,0)}66%{transform:translate(60px,-32px)}}
+</style>

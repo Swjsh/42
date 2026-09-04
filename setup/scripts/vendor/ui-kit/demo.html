@@ -1,0 +1,1254 @@
+<!--
+  AetherOps UI-kit demo grid
+  Renders every vendored snippet in ui-kit/ inline on a single dark page, so the kit can
+  be screenshotted headless for a visual QA pass. Each snippet's HTML/CSS/JS is inlined
+  directly (build script: fix root-caused 2026-09-03 -- fetch()-of-sibling-file:// was
+  blocked by Chrome's CORS policy for the null file:// origin, so every card silently
+  rendered "failed to load"). Each demo-card section below is just that sibling
+  file's own HTML/CSS/JS (leading provenance comment stripped) pasted in place -- if
+  a snippet file changes, hand-update its matching <section data-file="..."> to
+  match (or regenerate the whole grid with a short script: read each file in
+  VENDOR-INDEX order, strip its leading HTML comment block, wrap in a demo-card
+  section). Note for the next edit: a literal comment-close marker inside THIS
+  comment's own prose ends it early and leaks the remainder onto the rendered page
+  -- happened once already (2026-09-03), don't reintroduce it.
+  This file itself is original/self-authored -- a plain test harness, no third-party code.
+-->
+<div class="uk-demo-root">
+  <header class="uk-demo-hero">
+    <h1>AetherOps UI-kit</h1>
+    <p>41 vendored snippets &mdash; 41 shown below. See <code>VENDOR-INDEX.md</code> for provenance.</p>
+  </header>
+  <div class="uk-demo-grid">
+    <section class="demo-card" data-file="background-animated-grid.html">
+      <header><h3>Animated Grid Pattern</h3><code>background-animated-grid.html</code></header>
+      <div class="demo-stage" id="stage-background-animated-grid">
+<div class="uk-grid-demo">
+  <div class="uk-animated-grid"></div>
+</div>
+
+<style>
+:root{ --uk-line:rgba(99,102,241,.10); }
+.uk-grid-demo{position:relative;width:100%;height:180px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-animated-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--uk-line) 1px,transparent 1px),linear-gradient(90deg,var(--uk-line) 1px,transparent 1px);background-size:32px 32px;animation:uk-grid-breathe 6s ease-in-out infinite}
+@keyframes uk-grid-breathe{0%,100%{opacity:.5}50%{opacity:.9}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="background-aurora-glow.html">
+      <header><h3>Aurora Glow Background</h3><code>background-aurora-glow.html</code></header>
+      <div class="demo-stage" id="stage-background-aurora-glow">
+<div class="uk-aurora-demo">
+  <div class="uk-aurora-glow"></div>
+  <div style="position:relative;z-index:1;padding:24px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb">
+    <p style="margin:0;font-size:1.1rem;font-weight:600">AI Workflow Command Center</p>
+  </div>
+</div>
+
+<style>
+.uk-aurora-demo{position:relative;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-aurora-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 50% at 50% 0%,rgba(99,102,241,.22) 0%,rgba(0,0,0,0) 60%)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="background-dot-pattern.html">
+      <header><h3>Dot Pattern</h3><code>background-dot-pattern.html</code></header>
+      <div class="demo-stage" id="stage-background-dot-pattern">
+<div class="uk-dot-demo">
+  <div class="uk-dot-pattern"></div>
+</div>
+
+<style>
+:root{ --uk-accent:#8b92b8; }
+.uk-dot-demo{position:relative;width:100%;height:160px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-dot-pattern{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle, rgba(139,146,184,.55) 1px, transparent 1.5px);background-size:16px 16px;-webkit-mask-image:radial-gradient(320px circle at 30% 50%,#000,transparent 80%);mask-image:radial-gradient(320px circle at 30% 50%,#000,transparent 80%)}
+.uk-dot-pattern--glow{animation:uk-dot-glow 3s ease-in-out infinite}
+@keyframes uk-dot-glow{0%,100%{opacity:.4}50%{opacity:.9}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="background-meteors.html">
+      <header><h3>Meteors</h3><code>background-meteors.html</code></header>
+      <div class="demo-stage" id="stage-background-meteors">
+<div class="uk-meteors-demo" id="uk-meteors-target"></div>
+
+<style>
+.uk-meteors-demo{position:relative;width:100%;height:220px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-meteor{position:absolute;top:-5%;width:2px;height:2px;border-radius:50%;background:#c7cbe6;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.uk-meteor::before{content:'';position:absolute;top:50%;right:0;width:50px;height:1px;transform:translateY(-50%);background:linear-gradient(90deg,#c7cbe6,transparent)}
+</style>
+
+<script>
+function ukSpawnMeteors(container,{number=12,minDuration=3,maxDuration=8,angle=215}={}){
+  const w=container.getBoundingClientRect().width||600;
+  for(let i=0;i<number;i++){
+    const m=document.createElement('span');
+    m.className='uk-meteor';
+    m.style.left=Math.random()*w+'px';
+    const durationMs=(Math.random()*(maxDuration-minDuration)+minDuration)*1000;
+    const anim=m.animate(
+      [
+        {transform:`rotate(${angle}deg) translateX(0px)`, opacity:1, offset:0},
+        {transform:`rotate(${angle}deg) translateX(0px)`, opacity:1, offset:0.7},
+        {transform:`rotate(${angle}deg) translateX(-500px)`, opacity:0, offset:1},
+      ],
+      {duration:durationMs, iterations:Infinity, easing:'linear'}
+    );
+    // Start each meteor at a random point already in-progress, so the very first
+    // painted frame (headless capture included) already shows several meteors
+    // mid-flight instead of every one waiting at its 0% start.
+    anim.currentTime=Math.random()*durationMs;
+    container.appendChild(m);
+  }
+}
+window.addEventListener('load', function(){
+  ukSpawnMeteors(document.getElementById('uk-meteors-target'));
+});
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="background-panel-shell-canvas.html">
+      <header><h3>Panel Shell + Deep Navy Canvas (glow background system)</h3><code>background-panel-shell-canvas.html</code></header>
+      <div class="demo-stage" id="stage-background-panel-shell-canvas">
+<div class="uk-canvas-demo">
+  <div class="uk-panel-shell">
+    <p style="margin:0;font-size:.9rem;color:#e5e7eb">Panel shell on the deep-navy canvas</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-panel:#121933; --uk-line:rgba(99,102,241,.18); }
+.uk-canvas-demo{background:radial-gradient(1200px 600px at 20% -10%,#131a33 0%,#0a0e1c 55%,#0a0e1c 100%);border-radius:12px;padding:30px;font-family:'Inter',system-ui,sans-serif}
+.uk-panel-shell{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03),0 20px 40px -20px rgba(0,0,0,.6);padding:24px}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="background-ripple.html">
+      <header><h3>Ripple</h3><code>background-ripple.html</code></header>
+      <div class="demo-stage" id="stage-background-ripple">
+<div class="uk-ripple-demo" id="uk-ripple-target"></div>
+
+<style>
+.uk-ripple-demo{position:relative;width:100%;height:220px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-ripple{pointer-events:none;-webkit-mask-image:linear-gradient(to bottom,#fff,transparent);mask-image:linear-gradient(to bottom,#fff,transparent)}
+/* fix (2026-09-03): dropped position:absolute;inset:0 -- it collided with
+   .uk-ripple-demo's own position:relative/height:220px on the SAME element
+   (ukBuildRipple adds this class onto the sized container), and the cascade-later
+   .uk-ripple rule won position, pulling the whole ring stack out of the card's box
+   entirely (rendered as position:absolute;inset:0 against the nearest positioned
+   ancestor instead of centered in its 220px card). Positioning is already owned by
+   .uk-ripple-demo; this class only needs to add the fade mask. */
+.uk-ripple__ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid rgba(139,146,184,.4);background:rgba(99,102,241,.06);transform:translate(-50%,-50%);animation:uk-ripple-pulse 3s ease-out infinite}
+@keyframes uk-ripple-pulse{0%{opacity:.3}50%{opacity:.6}100%{opacity:.3}}
+</style>
+
+<script>
+function ukBuildRipple(container,{mainCircleSize=210,mainCircleOpacity=.24,numCircles=6}={}){
+  container.classList.add('uk-ripple');
+  for(let i=0;i<numCircles;i++){
+    const ring=document.createElement('div');
+    ring.className='uk-ripple__ring';
+    const size=mainCircleSize+i*70;
+    ring.style.width=ring.style.height=size+'px';
+    ring.style.opacity=Math.max(0,mainCircleOpacity-i*.03);
+    ring.style.animationDelay=i*.15+'s';
+    container.appendChild(ring);
+  }
+}
+ukBuildRipple(document.getElementById('uk-ripple-target'));
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-blob-party.html">
+      <header><h3>Blob Party Button</h3><code>button-blob-party.html</code></header>
+      <div class="demo-stage" id="stage-button-blob-party">
+<button class="uk-blob-btn">
+  <div class="uk-blob-wrap">
+    <span>Deploy</span>
+    <div class="uk-blob-circle uk-blob-c1"></div><div class="uk-blob-circle uk-blob-c2"></div><div class="uk-blob-circle uk-blob-c3"></div><div class="uk-blob-circle uk-blob-c4"></div><div class="uk-blob-circle uk-blob-c5"></div><div class="uk-blob-circle uk-blob-c6"></div><div class="uk-blob-circle uk-blob-c7"></div><div class="uk-blob-circle uk-blob-c8"></div><div class="uk-blob-circle uk-blob-c9"></div><div class="uk-blob-circle uk-blob-c10"></div><div class="uk-blob-circle uk-blob-c11"></div><div class="uk-blob-circle uk-blob-c12"></div>
+  </div>
+</button>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-blob-btn{--duration:7s;--c1:rgba(99,102,241,.7);--c2:#1a23ff;--c3:#c026d3;--c4:rgba(56,189,248,.7);-webkit-appearance:none;outline:none;border:none;cursor:pointer;border-radius:24px;font-weight:600;font-size:15px;color:#fff;background:radial-gradient(circle,var(--uk-accent-2),var(--uk-accent) 80%);box-shadow:0 0 14px var(--uk-glow)}
+.uk-blob-btn:hover{--duration:1400ms}
+.uk-blob-wrap{overflow:hidden;border-radius:24px;min-width:132px;padding:12px 20px;-webkit-mask-image:-webkit-radial-gradient(#fff,#000)}
+.uk-blob-wrap span{position:relative;z-index:1}
+.uk-blob-circle{position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;filter:blur(12px);animation:none var(--duration) linear infinite}
+.uk-blob-c1{background:var(--c4);transform:translate(0,-40px);animation-name:uk-b1}
+.uk-blob-c2{background:var(--c1);transform:translate(92px,8px);animation-name:uk-b2}
+.uk-blob-c3{background:var(--c2);filter:blur(14px);transform:translate(-12px,-12px);animation-name:uk-b3}
+.uk-blob-c4{background:var(--c2);filter:blur(14px);transform:translate(80px,-12px);animation-name:uk-b4}
+.uk-blob-c5{background:var(--c3);filter:blur(16px);transform:translate(12px,-4px);animation-name:uk-b5}
+.uk-blob-c6{background:var(--c3);filter:blur(16px);transform:translate(56px,16px);animation-name:uk-b6}
+.uk-blob-c7{background:var(--c1);transform:translate(8px,28px);animation-name:uk-b7}
+.uk-blob-c8{background:var(--c1);transform:translate(28px,-4px);animation-name:uk-b8}
+.uk-blob-c9{background:var(--c4);transform:translate(20px,-12px);animation-name:uk-b9}
+.uk-blob-c10{background:var(--c4);transform:translate(64px,16px);animation-name:uk-b10}
+.uk-blob-c11{background:var(--c1);transform:translate(4px,4px);animation-name:uk-b11}
+.uk-blob-c12{background:var(--c1);filter:blur(14px);transform:translate(52px,4px);animation-name:uk-b12}
+@keyframes uk-b1{33%{transform:translate(0,16px)}66%{transform:translate(12px,64px)}}
+@keyframes uk-b2{33%{transform:translate(80px,-10px)}66%{transform:translate(72px,-48px)}}
+@keyframes uk-b3{33%{transform:translate(20px,12px)}66%{transform:translate(12px,4px)}}
+@keyframes uk-b4{33%{transform:translate(76px,-12px)}66%{transform:translate(112px,-8px)}}
+@keyframes uk-b5{33%{transform:translate(84px,28px)}66%{transform:translate(40px,-32px)}}
+@keyframes uk-b6{33%{transform:translate(28px,-16px)}66%{transform:translate(76px,-56px)}}
+@keyframes uk-b7{33%{transform:translate(8px,28px)}66%{transform:translate(20px,-60px)}}
+@keyframes uk-b8{33%{transform:translate(32px,-4px)}66%{transform:translate(56px,-20px)}}
+@keyframes uk-b9{33%{transform:translate(20px,-12px)}66%{transform:translate(80px,-8px)}}
+@keyframes uk-b10{33%{transform:translate(68px,20px)}66%{transform:translate(100px,28px)}}
+@keyframes uk-b11{33%{transform:translate(4px,4px)}66%{transform:translate(68px,20px)}}
+@keyframes uk-b12{33%{transform:translate(56px,0)}66%{transform:translate(60px,-32px)}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-frosted-border-mask.html">
+      <header><h3>Frosted Border-Mask Button</h3><code>button-frosted-border-mask.html</code></header>
+      <div class="demo-stage" id="stage-button-frosted-border-mask">
+<div class="uk-frost-btn">Export<span class="uk-frost-btn-border"></span></div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-frost-btn{padding:.7rem 1.4rem;border-radius:.5rem;font-size:.9rem;font-weight:500;color:#e8ecff;text-align:center;position:relative;cursor:pointer;display:inline-block}
+.uk-frost-btn::before{content:'';position:absolute;inset:0;border-radius:.5rem;background:linear-gradient(180deg,rgba(99,102,241,0)0%,rgba(99,102,241,.42)100%),rgba(139,92,246,.16);box-shadow:inset 0 0 12px rgba(165,180,252,.35);z-index:-1}
+.uk-frost-btn::after{content:'';position:absolute;inset:0;background:rgba(139,92,246,.28);border-radius:.5rem;opacity:0;z-index:-1;transition:opacity .3s ease-in}
+.uk-frost-btn:hover::after{opacity:1}
+.uk-frost-btn-border{position:absolute;inset:0;border-radius:.5rem;z-index:-1}
+.uk-frost-btn-border::before{content:'';position:absolute;border-radius:.5rem;padding:1px;inset:0;background:linear-gradient(180deg,rgba(199,210,254,.35)0%,rgba(199,210,254,0)100%),linear-gradient(0deg,rgba(199,210,254,.32),rgba(199,210,254,.32));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-glow-cta.html">
+      <header><h3>Glow Border CTA Button (PRIMARY CTA)</h3><code>button-glow-cta.html</code></header>
+      <div class="demo-stage" id="stage-button-glow-cta">
+<button class="uk-cta-btn">New workflow</button>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-cta-btn{position:relative;height:40px;background-color:var(--uk-canvas);display:flex;align-items:center;justify-content:center;color:#fff;border:none;padding:0 20px;border-radius:8px;cursor:pointer;font-weight:600;font-size:14px}
+.uk-cta-btn::before{content:'';position:absolute;inset:0;left:-4px;top:-1px;margin:auto;width:calc(100% + 8px);height:calc(100% + 8px);border-radius:10px;background:linear-gradient(-45deg,var(--uk-accent) 0%,var(--uk-accent-3) 100%);z-index:-10;pointer-events:none;transition:all .6s cubic-bezier(.175,.885,.32,1.275)}
+.uk-cta-btn::after{content:'';z-index:-1;position:absolute;inset:0;background:linear-gradient(-45deg,var(--uk-accent-2) 0%,var(--uk-accent-3) 100%);transform:translate3d(0,0,0) scale(.95);filter:blur(20px)}
+.uk-cta-btn:hover::after{filter:blur(30px)}
+.uk-cta-btn:hover::before{transform:rotate(-180deg)}
+.uk-cta-btn:active::before{scale:.7}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-gradient-cta-glow.html">
+      <header><h3>Gradient CTA button with blurred hover-glow (dual-layer border trick)</h3><code>button-gradient-cta-glow.html</code></header>
+      <div class="demo-stage" id="stage-button-gradient-cta-glow">
+<button class="uk-cta2"><span>Deploy smarter</span></button>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#a855f7; --uk-panel:#121933; }
+.uk-cta2{position:relative;color:#fff;background:linear-gradient(45deg,var(--uk-accent),var(--uk-accent-2),var(--uk-accent-3));padding:10px 22px;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;border:none}
+.uk-cta2 span{position:relative;z-index:1}
+.uk-cta2::before{content:'';position:absolute;inset:1px;background:var(--uk-panel);border-radius:9px;transition:.4s}
+.uk-cta2:hover::before{opacity:.55}
+.uk-cta2::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,var(--uk-accent),var(--uk-accent-2),var(--uk-accent-3));border-radius:9px;transition:.4s;opacity:0;filter:blur(20px)}
+.uk-cta2:hover::after{opacity:1}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-pulsating.html">
+      <header><h3>Pulsating Button</h3><code>button-pulsating.html</code></header>
+      <div class="demo-stage" id="stage-button-pulsating">
+<button class="uk-pulse-btn">Acknowledge</button>
+
+<style>
+:root{ --uk-accent:#6366f1; }
+.uk-pulse-btn{position:relative;border:none;border-radius:999px;padding:.7em 1.4em;color:#fff;font-weight:600;background:var(--uk-accent);cursor:pointer}
+.uk-pulse-btn::after{content:'';position:absolute;inset:0;border-radius:inherit;background:var(--uk-accent);animation:uk-pulse-ring 1.8s cubic-bezier(.4,0,.6,1) infinite;z-index:-1}
+@keyframes uk-pulse-ring{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.9);opacity:0}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-rainbow.html">
+      <header><h3>Rainbow Button</h3><code>button-rainbow.html</code></header>
+      <div class="demo-stage" id="stage-button-rainbow">
+<div class="uk-rainbow-btn"><span>View report</span></div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-panel:#121933; }
+.uk-rainbow-btn{position:relative;z-index:0;display:inline-flex;border-radius:10px;padding:2px;background:linear-gradient(90deg,var(--uk-accent),var(--uk-accent-3),var(--uk-accent-2),var(--uk-accent));background-size:200% 100%;animation:uk-rainbow-pan 4s linear infinite}
+.uk-rainbow-btn>span{display:inline-flex;border-radius:8px;padding:.6em 1.2em;background:var(--uk-panel);color:#e7e9f5;font-weight:600}
+@keyframes uk-rainbow-pan{to{background-position:200% 0%}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="button-shimmer.html">
+      <header><h3>Shimmer Button</h3><code>button-shimmer.html</code></header>
+      <div class="demo-stage" id="stage-button-shimmer">
+<button class="uk-shimmer-btn">Run workflow</button>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; }
+.uk-shimmer-btn{position:relative;z-index:0;overflow:hidden;border-radius:10px;border:1px solid rgba(255,255,255,.1);padding:.65em 1.3em;color:#fff;font-weight:600;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-2));cursor:pointer}
+.uk-shimmer-btn::before{content:'';position:absolute;inset:-100%;z-index:-1;background:conic-gradient(from 225deg,transparent 0,#fff 90deg,transparent 180deg);animation:uk-shimmer-spin 3s linear infinite;filter:blur(2px);opacity:.5}
+.uk-shimmer-btn::after{content:'';position:absolute;inset:3px;z-index:-1;border-radius:7px;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-2));box-shadow:inset 0 -8px 10px rgba(255,255,255,.12)}
+@keyframes uk-shimmer-spin{to{transform:rotate(360deg)}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-bento-grid.html">
+      <header><h3>Bento Grid</h3><code>card-bento-grid.html</code></header>
+      <div class="demo-stage" id="stage-card-bento-grid">
+<div class="uk-bento-grid">
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Total Revenue</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">$48,320</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#34d399;margin-top:8px">&#8599; 12.4% vs last month</div>
+  </div>
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Uptime</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">98.6%</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#34d399;margin-top:8px">&#8599; steady</div>
+  </div>
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Approval rate</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">94%</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#34d399;margin-top:8px">&#8599; 3.1%</div>
+  </div>
+  <div class="uk-bento-card">
+    <p style="font-size:.75rem;color:#94a3b8;margin:0 0 6px">Open reviews</p>
+    <p style="font-size:1.6rem;font-weight:600;margin:0;color:#fff">18</p>
+    <div class="uk-bento-card__cta" style="font-size:.7rem;color:#f87171;margin-top:8px">&#8600; needs attention</div>
+  </div>
+</div>
+
+<style>
+.uk-bento-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.uk-bento-card{position:relative;overflow:hidden;border-radius:14px;border:1px solid rgba(99,102,241,.22);background:#121933;box-shadow:0 -20px 80px -20px rgba(255,255,255,.06) inset;padding:1.1rem;transition:border-color .25s ease,transform .25s ease;font-family:'Inter',system-ui,sans-serif}
+.uk-bento-card:hover{border-color:rgba(139,92,246,.5);transform:translateY(-2px)}
+.uk-bento-card__cta{opacity:0;transform:translateY(8px);transition:opacity .25s ease,transform .25s ease}
+.uk-bento-card:hover .uk-bento-card__cta{opacity:1;transform:translateY(0)}
+@media (max-width:720px){.uk-bento-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-border-beam.html">
+      <header><h3>Border Beam</h3><code>card-border-beam.html</code></header>
+      <div class="demo-stage" id="stage-card-border-beam">
+<div class="uk-border-beam-demo">
+  <div class="uk-panel uk-border-beam">
+    <p>Approval queue</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-panel:#121933; }
+.uk-border-beam-demo{padding:20px;background:#0a0e1c;border-radius:12px}
+.uk-panel{background:var(--uk-panel);border-radius:14px;padding:24px;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif}
+.uk-border-beam{position:relative}
+.uk-border-beam::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1.5px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.uk-border-beam::after{content:'';position:absolute;width:80px;aspect-ratio:1;border-radius:50%;background:linear-gradient(90deg,transparent,var(--uk-accent),var(--uk-accent-2),var(--uk-accent-3),transparent);filter:blur(6px);offset-path:border-box;animation:uk-beam-travel 6s linear infinite}
+@keyframes uk-beam-travel{0%{offset-distance:0%}100%{offset-distance:100%}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-frosted-glass.html">
+      <header><h3>Frosted Glass Panel</h3><code>card-frosted-glass.html</code></header>
+      <div class="demo-stage" id="stage-card-frosted-glass">
+<div class="uk-glass-container">
+  <div class="uk-glass-card">
+    <p class="uk-glass-heading">COST PULSE</p>
+    <p class="uk-glass-sub">Last 30 days</p>
+    <p class="uk-glass-big">$48,320</p>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-glass-container{width:fit-content;position:relative;display:flex;align-items:center;justify-content:center}
+.uk-glass-card{position:relative;width:220px;min-height:140px;display:flex;flex-direction:column;justify-content:center;padding:20px;border-radius:14px;backdrop-filter:blur(30px);background-color:rgba(30,35,60,.35);border:1px solid rgba(255,255,255,.09)}
+.uk-glass-heading{font-weight:700;font-size:.8em;letter-spacing:1.2px;color:#e5e7ff}
+.uk-glass-sub{font-weight:500;font-size:.65em;letter-spacing:1px;color:#9ca3d6;margin-top:2px}
+.uk-glass-big{font-size:1.9em;color:#fff;margin-top:10px}
+.uk-glass-container::before{width:100px;height:100px;content:'';position:absolute;background-color:var(--uk-accent-2);z-index:-1;border-radius:50%;left:100px;top:50px;filter:blur(10px);opacity:.5;transition:all 1s}
+.uk-glass-container:hover::before{transform:translate(-50px,50px)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-glow-border.html">
+      <header><h3>Glow Border Card</h3><code>card-glow-border.html</code></header>
+      <div class="demo-stage" id="stage-card-glow-border">
+<div class="uk-glow-card">
+  <b class="uk-glow-card-mask"></b>
+  <div class="uk-glow-card-content">
+    <p class="uk-glow-card-title">Revenue<br><span>$48,320</span></p>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-glow-card{position:relative;width:190px;height:120px;display:flex;justify-content:center;align-items:center;border-radius:14px;overflow:hidden}
+.uk-glow-card::before{content:'';position:absolute;inset:0;background:linear-gradient(315deg,var(--uk-accent),var(--uk-accent-2))}
+.uk-glow-card::after{content:'';position:absolute;inset:0;background:linear-gradient(315deg,var(--uk-accent),var(--uk-accent-2));filter:blur(30px)}
+.uk-glow-card-mask{position:absolute;inset:6px;background:rgba(10,14,28,0.88);border-radius:10px;z-index:2}
+.uk-glow-card-content{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;color:#fff;text-align:center}
+.uk-glow-card-title{font-weight:500;letter-spacing:.05em;font-size:.85em;text-transform:uppercase;color:#a5b4fc}
+.uk-glow-card-title span{display:block;font-weight:600;font-size:1.6em;color:#fff;letter-spacing:0;text-transform:none;margin-top:4px}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-kpi-stat.html">
+      <header><h3>KPI Stat Card (icon tile + gradient + delta chip)</h3><code>card-kpi-stat.html</code></header>
+      <div class="demo-stage" id="stage-card-kpi-stat">
+<div class="uk-stat-card">
+  <div class="uk-stat-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+  </div>
+  <div class="uk-stat-label">Total Revenue</div>
+  <div class="uk-stat-value">$48,320</div>
+  <div class="uk-stat-delta up">&#8599; 12.4% vs last month</div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-panel:#121933; --uk-line:rgba(99,102,241,.25); }
+.uk-stat-card{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:16px;padding:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 24px rgba(0,0,0,.35);font-family:'Inter',system-ui,sans-serif;color:#e5e7eb;transition:transform .25s ease,box-shadow .25s ease;max-width:220px}
+.uk-stat-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(99,102,241,.18),inset 0 1px 0 rgba(255,255,255,.06)}
+.uk-stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-2));box-shadow:0 4px 14px rgba(99,102,241,.45)}
+.uk-stat-label{font-size:13px;color:#94a3b8;margin-bottom:6px;letter-spacing:.01em}
+.uk-stat-value{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:8px}
+.uk-stat-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px}
+.uk-stat-delta.up{color:#34d399;background:rgba(52,211,153,.12)}
+.uk-stat-delta.down{color:#f87171;background:rgba(248,113,113,.12)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-magic-spotlight.html">
+      <header><h3>Magic Card (Spotlight Card)</h3><code>card-magic-spotlight.html</code></header>
+      <div class="demo-stage" id="stage-card-magic-spotlight">
+<div class="uk-spotlight-card" id="uk-spotlight-demo">
+  <div style="position:relative;z-index:2;padding:20px;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif">
+    <p style="font-weight:600;margin:0 0 6px">Router-v3</p>
+    <p style="font-size:.8rem;color:#9ca3d6;margin:0">Hover to see the spotlight follow the cursor</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-panel:#121933; }
+.uk-spotlight-card{--uk-mx:50%;--uk-my:50%;position:relative;isolation:isolate;overflow:hidden;border-radius:14px;border:1px solid rgba(99,102,241,.22);background:var(--uk-panel);min-height:110px}
+.uk-spotlight-card::before{content:'';position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;background:radial-gradient(220px circle at var(--uk-mx) var(--uk-my),var(--uk-accent),var(--uk-accent-2) 60%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s ease}
+.uk-spotlight-card:hover::before{opacity:1}
+</style>
+
+<script>
+(function(){
+  const card=document.getElementById('uk-spotlight-demo');
+  function reset(){ card.style.setProperty('--uk-mx','50%'); card.style.setProperty('--uk-my','50%'); }
+  card.addEventListener('pointermove',e=>{
+    const r=card.getBoundingClientRect();
+    card.style.setProperty('--uk-mx',(e.clientX-r.left)+'px');
+    card.style.setProperty('--uk-my',(e.clientY-r.top)+'px');
+  });
+  card.addEventListener('pointerenter',reset);
+  card.addEventListener('blur',reset);
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) reset(); });
+})();
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-promo-panel.html">
+      <header><h3>Deploy Smarter Promo Panel</h3><code>card-promo-panel.html</code></header>
+      <div class="demo-stage" id="stage-card-promo-panel">
+<div class="uk-promo-panel">
+  <div class="uk-promo-glow"></div>
+  <div class="uk-promo-body">
+    <h4>Deploy smarter</h4>
+    <p>Let the router auto-classify and auto-approve routine cases, so your team only touches the ones that need a human.</p>
+    <button class="uk-cta2 uk-promo-cta"><span>Deploy smarter</span></button>
+  </div>
+</div>
+
+<style>
+.uk-promo-panel{position:relative;overflow:hidden;border-radius:16px;padding:32px;background:linear-gradient(160deg,#171c33 0%,#10142a 100%);border:1px solid #2a2f4d;font-family:'Inter',system-ui,sans-serif}
+.uk-promo-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(70% 60% at 15% 0%,rgba(99,102,241,.25) 0%,transparent 65%)}
+.uk-promo-body{position:relative;z-index:1;max-width:70%}
+.uk-promo-body h4{margin:0 0 8px;font-size:1.3rem;font-weight:700;color:#fff}
+.uk-promo-body p{margin:0 0 18px;font-size:13px;color:rgba(255,255,255,.6)}
+.uk-cta2{position:relative;color:#fff;background:linear-gradient(45deg,#6366f1,#8b5cf6,#a855f7);padding:8px 18px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;border:none}
+.uk-cta2 span{position:relative;z-index:1}
+.uk-cta2::before{content:'';position:absolute;inset:1px;background:#121933;border-radius:9px;transition:.4s}
+.uk-cta2:hover::before{opacity:.55}
+.uk-cta2::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,#6366f1,#8b5cf6,#a855f7);border-radius:9px;transition:.4s;opacity:0;filter:blur(20px)}
+.uk-cta2:hover::after{opacity:1}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-shine-border.html">
+      <header><h3>Shine Border</h3><code>card-shine-border.html</code></header>
+      <div class="demo-stage" id="stage-card-shine-border">
+<div class="uk-shine-demo">
+  <div class="uk-panel uk-shine-border">
+    <p>Agent health</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent-3:#22d3ee; --uk-panel:#121933; }
+.uk-shine-demo{padding:20px;background:#0a0e1c;border-radius:12px}
+.uk-panel{background:var(--uk-panel);border-radius:14px;padding:24px;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif}
+.uk-shine-border{position:relative}
+.uk-shine-border::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;background-image:radial-gradient(transparent,transparent,var(--uk-accent-3),transparent,transparent);background-size:300% 300%;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:uk-shine-pan 14s linear infinite}
+@keyframes uk-shine-pan{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-spherical-gradient.html">
+      <header><h3>Spherical Gradient Card</h3><code>card-spherical-gradient.html</code></header>
+      <div class="demo-stage" id="stage-card-spherical-gradient">
+<div class="uk-orb-card">
+  <div class="uk-orb-card-bg"><div class="uk-orb-card-shape"></div></div>
+  <div class="uk-orb-card-glass"><div class="uk-orb-card-orb"></div></div>
+  <div class="uk-orb-card-frame">
+    <div class="uk-orb-card-body">
+      <span class="uk-orb-card-num">94%</span>
+      <span class="uk-orb-card-label">Approval rate</span>
+    </div>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-orb-card{width:200px;height:130px;position:relative;border:1px solid rgba(255,255,255,.15);border-radius:16px;overflow:hidden}
+.uk-orb-card-bg{width:100%;height:100%;padding:4px;position:absolute;background:var(--uk-accent-2)}
+.uk-orb-card-shape{width:100%;height:100%;border-radius:12px 34px 10px 10px;background:var(--uk-panel)}
+.uk-orb-card-glass{width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(16px);border-radius:16px}
+.uk-orb-card-orb{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-3));animation:uk-orb-spin 12s linear infinite}
+@keyframes uk-orb-spin{to{transform:rotate(360deg)}}
+.uk-orb-card-frame{position:absolute;inset:0;padding:14px;display:flex;flex-direction:column;justify-content:flex-end;color:#e5e7ff}
+.uk-orb-card-num{font-size:1.6rem;font-weight:600;color:#fff}
+.uk-orb-card-label{font-size:.72rem;color:#9ca3d6}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="card-stacked-layer-hover-lift.html">
+      <header><h3>Stacked-Layer Hover-Lift Card</h3><code>card-stacked-layer-hover-lift.html</code></header>
+      <div class="demo-stage" id="stage-card-stacked-layer-hover-lift">
+<div class="uk-lift-card">
+  <div class="uk-lift-content">
+    <svg fill="currentColor" viewBox="0 0 24 24" width="28" height="28"><path d="M20 9V5H4V9H20ZM20 11H4V19H20V11ZM3 3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3ZM5 12H8V17H5V12ZM5 6H7V8H5V6ZM9 6H11V8H9V6Z"></path></svg>
+    <p class="uk-lift-para">Refund escalation &mdash; needs review</p>
+  </div>
+</div>
+
+<style>
+.uk-lift-card{position:relative;display:flex;align-items:center;justify-content:center;width:320px;border-radius:16px;transition:all .48s cubic-bezier(.23,1,.32,1)}
+.uk-lift-content{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:20px 24px;border-radius:14px;color:#e8ecff;overflow:hidden;background:#151c38;transition:all .48s cubic-bezier(.23,1,.32,1);width:100%}
+.uk-lift-content::before{position:absolute;content:'';top:-4%;left:50%;width:90%;height:90%;transform:translate(-50%);background:#242b52;z-index:-1;transform-origin:bottom;border-radius:inherit;transition:all .48s cubic-bezier(.23,1,.32,1)}
+.uk-lift-content::after{position:absolute;content:'';top:-8%;left:50%;width:80%;height:80%;transform:translate(-50%);background:#2f3766;z-index:-2;transform-origin:bottom;border-radius:inherit;transition:all .48s cubic-bezier(.23,1,.32,1)}
+.uk-lift-para{z-index:1;font-size:.9rem}
+.uk-lift-card:hover{transform:translate(0,-10px)}
+.uk-lift-card:hover .uk-lift-content::before{rotate:-8deg;top:0;width:100%;height:100%}
+.uk-lift-card:hover .uk-lift-content::after{rotate:8deg;top:0;width:100%;height:100%}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="chart-cost-pulse-area.html">
+      <header><h3>Glowing Cost-Pulse Area Chart</h3><code>chart-cost-pulse-area.html</code></header>
+      <div class="demo-stage" id="stage-chart-cost-pulse-area">
+<div class="uk-cost-panel">
+  <p class="uk-cost-label">Cost pulse</p>
+  <p class="uk-cost-big">$48,320 <span class="uk-cost-delta">&#8599; 8.2%</span></p>
+  <div class="uk-chart-wrap">
+    <svg viewBox="0 0 640 220" class="uk-area-chart" id="uk-area-svg" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="uk-area-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="uk-area-fill" fill="url(#uk-area-grad)" stroke="none"/>
+      <path class="uk-area-line-glow" fill="none" stroke="#a78bfa" stroke-width="6" stroke-linecap="round" opacity="0.35" style="filter:blur(4px)"/>
+      <path class="uk-area-line" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/>
+      <circle class="uk-hover-dot" r="9" fill="none" stroke="#a78bfa" stroke-opacity=".4" stroke-width="6" style="filter:blur(3px)"></circle>
+      <circle class="uk-hover-dot-core" r="4" fill="#c4b5fd"></circle>
+      <rect class="uk-hit-area" x="0" y="0" width="640" height="220" fill="transparent" style="pointer-events:all"></rect>
+    </svg>
+    <div class="uk-chart-tooltip"></div>
+  </div>
+</div>
+
+<style>
+.uk-cost-panel{background:#121933;border:1px solid rgba(99,102,241,.22);border-radius:16px;padding:20px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb;position:relative}
+.uk-cost-label{font-size:.75rem;color:#94a3b8;margin:0 0 4px;text-transform:uppercase;letter-spacing:.05em}
+.uk-cost-big{font-size:1.9rem;font-weight:700;margin:0 0 10px;color:#fff}
+.uk-cost-delta{font-size:.8rem;font-weight:600;color:#34d399;background:rgba(52,211,153,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
+.uk-chart-wrap{position:relative}
+.uk-area-chart{width:100%;height:160px;display:block}
+.uk-chart-tooltip{position:absolute;transform:translate(-50%,0);background:#1a2140;border:1px solid rgba(99,102,241,.35);color:#e5e7eb;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+</style>
+
+<script>
+(function(){
+  const points=[38000,40500,39200,43000,41800,45200,44100,47000,46200,48800,47600,48320].map((v,i,arr)=>{
+    const min=Math.min(...arr), max=Math.max(...arr);
+    const x=i/(arr.length-1)*640;
+    const y=210-((v-min)/(max-min||1))*180;
+    return {x,y,value:v};
+  });
+
+  let d=`M ${points[0].x},${points[0].y}`;
+  for(let i=1;i<points.length;i++){
+    const cpx=(points[i-1].x+points[i].x)/2;
+    d+=` C ${cpx},${points[i-1].y} ${cpx},${points[i].y} ${points[i].x},${points[i].y}`;
+  }
+  const areaPath=d+` L ${points[points.length-1].x},220 L ${points[0].x},220 Z`;
+
+  const svg=document.getElementById('uk-area-svg');
+  svg.querySelector('.uk-area-fill').setAttribute('d',areaPath);
+  svg.querySelector('.uk-area-line-glow').setAttribute('d',d);
+  svg.querySelector('.uk-area-line').setAttribute('d',d);
+
+  const dot=svg.querySelector('.uk-hover-dot'), core=svg.querySelector('.uk-hover-dot-core');
+  const last=points[points.length-1];
+  dot.setAttribute('cx',last.x); dot.setAttribute('cy',last.y);
+  core.setAttribute('cx',last.x); core.setAttribute('cy',last.y);
+
+  const tip=svg.closest('.uk-chart-wrap').querySelector('.uk-chart-tooltip');
+  svg.querySelector('.uk-hit-area').addEventListener('pointermove', e => {
+    const rect=svg.getBoundingClientRect();
+    const relX=(e.clientX-rect.left)/rect.width*640;
+    const step=640/(points.length-1);
+    let i=Math.round(relX/step);
+    i=Math.max(0,Math.min(points.length-1,i));
+    const p=points[i];
+    dot.setAttribute('cx',p.x); dot.setAttribute('cy',p.y);
+    core.setAttribute('cx',p.x); core.setAttribute('cy',p.y);
+    tip.style.left=(p.x/640*rect.width)+'px';
+    tip.style.top=(p.y/220*rect.height-44)+'px';
+    tip.textContent='$'+p.value.toLocaleString();
+    tip.style.opacity=1;
+  });
+  svg.querySelector('.uk-hit-area').addEventListener('pointerleave', () => { tip.style.opacity=0; });
+})();
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="chart-number-ticker.html">
+      <header><h3>Number Ticker</h3><code>chart-number-ticker.html</code></header>
+      <div class="demo-stage" id="stage-chart-number-ticker">
+<span class="uk-number-ticker" data-value="48320" data-decimals="0" data-prefix="$"></span>
+
+<style>
+.uk-number-ticker{display:inline-block;font-variant-numeric:tabular-nums;font-weight:300;font-size:2rem;color:#fff;font-family:'Inter',system-ui,sans-serif}
+</style>
+
+<script>
+// fix (2026-09-03): the original gated the count-up on an IntersectionObserver
+// (once:true), matching the source's useInView-gated spring. Under a headless
+// --virtual-time-budget capture (this kit's own QA harness) the observer's first
+// callback never fired inside the budget, so el.textContent was never set and the
+// stat rendered permanently blank. A dashboard KPI number is above-the-fold by
+// construction here, so the lazy-trigger has no payoff worth the failure mode --
+// starting the tween unconditionally on load keeps the count-up visual and removes
+// the race.
+function ukAnimateNumberTicker(el,{value,startValue=0,decimalPlaces=0,duration=1200,prefix=''}={}){
+  const fmt=new Intl.NumberFormat('en-US',{minimumFractionDigits:decimalPlaces,maximumFractionDigits:decimalPlaces});
+  let t0=null;
+  function frame(ts){
+    if(t0===null) t0=ts;
+    const p=Math.min(1,(ts-t0)/duration);
+    const eased=1-Math.pow(1-p,3);
+    const cur=startValue+(value-startValue)*eased;
+    el.textContent=prefix+fmt.format(Number(cur.toFixed(decimalPlaces)));
+    if(p<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+window.addEventListener('load', function(){
+  document.querySelectorAll('.uk-number-ticker').forEach(el=>{
+    ukAnimateNumberTicker(el,{
+      value:Number(el.dataset.value||0),
+      decimalPlaces:Number(el.dataset.decimals||0),
+      prefix:el.dataset.prefix||''
+    });
+  });
+});
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="chart-progress-ring.html">
+      <header><h3>Animated Circular Progress Bar</h3><code>chart-progress-ring.html</code></header>
+      <div class="demo-stage" id="stage-chart-progress-ring">
+<div class="uk-progress-ring" id="uk-progress-demo">
+  <svg viewBox="0 0 100 100">
+    <circle class="uk-progress-ring__track" cx="50" cy="50" r="45"></circle>
+    <circle class="uk-progress-ring__value" cx="50" cy="50" r="45"></circle>
+  </svg>
+  <span class="uk-progress-ring__label"></span>
+</div>
+
+<style>
+.uk-progress-ring{position:relative;width:44px;height:44px}
+.uk-progress-ring svg{transform:rotate(-90deg)}
+.uk-progress-ring circle{fill:none;stroke-width:4;stroke-linecap:round}
+.uk-progress-ring__track{stroke:rgba(139,146,184,.18)}
+.uk-progress-ring__value{stroke:#34d399;transition:stroke-dasharray .8s ease}
+.uk-progress-ring__label{position:absolute;inset:0;display:grid;place-items:center;font-size:.7rem;font-weight:600;color:#e5e7eb;font-family:'Inter',system-ui,sans-serif}
+</style>
+
+<script>
+function ukSetProgressRing(el,percent){
+  const c=el.querySelector('.uk-progress-ring__value');
+  const r=c.r.baseVal.value;
+  const circumf=2*Math.PI*r;
+  const p=Math.max(0,Math.min(100,percent));
+  c.style.strokeDasharray=(p/100*circumf)+' '+circumf;
+  el.querySelector('.uk-progress-ring__label').textContent=Math.round(p)+'%';
+}
+ukSetProgressRing(document.getElementById('uk-progress-demo'),98.6);
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="chart-sparkline-card.html">
+      <header><h3>Mini Sparkline Card</h3><code>chart-sparkline-card.html</code></header>
+      <div class="demo-stage" id="stage-chart-sparkline-card">
+<div class="uk-agent-row">
+  <div class="uk-agent-text">
+    <div class="uk-agent-name">Classifier-v2 <span class="uk-agent-ver">v2.4.1</span></div>
+    <div class="uk-agent-sub">98.6% uptime</div>
+  </div>
+  <svg class="uk-sparkline" viewBox="0 0 80 24" preserveAspectRatio="none">
+    <polyline points="0,18 10,14 20,16 30,9 40,11 50,6 60,8 70,4 80,5" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+  </svg>
+  <span class="uk-chip healthy">Healthy</span>
+</div>
+
+<style>
+.uk-agent-row{display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:10px;background:#151c38;font-family:'Inter',system-ui,sans-serif}
+.uk-agent-text{flex:1;min-width:0}
+.uk-agent-name{font-size:13px;font-weight:600;color:#e5e7eb}
+.uk-agent-ver{font-size:11px;color:#6b7694;font-weight:400;margin-left:4px}
+.uk-agent-sub{font-size:12px;color:#94a3b8}
+.uk-sparkline{width:70px;height:22px;flex-shrink:0}
+.uk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid transparent}
+.uk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.uk-chip.healthy{color:#22c55e;background:rgba(34,197,94,.125)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="chip-animated-shiny-text.html">
+      <header><h3>Animated Shiny Text</h3><code>chip-animated-shiny-text.html</code></header>
+      <div class="demo-stage" id="stage-chip-animated-shiny-text">
+<p class="uk-shiny-text">Route, review, and deliver every AI workflow from one command center.</p>
+
+<style>
+.uk-shiny-text{display:inline-block;background:linear-gradient(110deg,#8b92b8 45%,#fff 55%,#8b92b8 65%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:uk-shiny-pan 2.5s linear infinite;font-family:'Inter',system-ui,sans-serif;font-size:.95rem;margin:0}
+@keyframes uk-shiny-pan{from{background-position:100% 0}to{background-position:-100% 0}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="chip-status.html">
+      <header><h3>Status Chip (Needs review / Approved / Escalated / Resolved)</h3><code>chip-status.html</code></header>
+      <div class="demo-stage" id="stage-chip-status">
+<span class="uk-chip review">Needs review</span>
+<span class="uk-chip approved">Approved</span>
+<span class="uk-chip escalated">Escalated</span>
+<span class="uk-chip resolved">Resolved</span>
+
+<style>
+.uk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid transparent;font-family:'Inter',system-ui,sans-serif}
+.uk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.uk-chip.review{color:#fbbf24;background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)}
+.uk-chip.approved{color:#34d399;background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3)}
+.uk-chip.escalated{color:#f87171;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
+.uk-chip.resolved{color:#22d3ee;background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.3)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="flow-animated-beam-ribbon.html">
+      <header><h3>Animated Beam -&gt; Flow Ribbon</h3><code>flow-animated-beam-ribbon.html</code></header>
+      <div class="demo-stage" id="stage-flow-animated-beam-ribbon">
+<div class="uk-flow-demo">
+  <div class="uk-flow-node" id="uk-flow-a"></div>
+  <div class="uk-flow-node" id="uk-flow-b" style="margin-left:auto"></div>
+  <svg class="uk-flow-ribbon-svg" id="uk-flow-svg">
+    <defs>
+      <linearGradient id="uk-flow-gradient" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0" y2="0">
+        <animate attributeName="x1" values="10%;110%" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="x2" values="0%;100%" dur="5s" repeatCount="indefinite"/>
+        <stop stop-color="#6366f1" stop-opacity="0"/>
+        <stop stop-color="#6366f1"/>
+        <stop offset="32.5%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+  </svg>
+</div>
+
+<style>
+.uk-flow-demo{position:relative;width:100%;height:140px;background:#0a0e1c;border-radius:12px;padding:20px;box-sizing:border-box;display:flex;align-items:center}
+.uk-flow-ribbon-svg{position:absolute;inset:0;overflow:visible;pointer-events:none}
+.uk-flow-ribbon__glow{fill:none;stroke:url(#uk-flow-gradient);stroke-linecap:round;filter:blur(4px);opacity:.9}
+.uk-flow-node{width:14px;height:56px;border-radius:7px;background:linear-gradient(180deg,#6366f1,#8b5cf6);box-shadow:0 0 12px rgba(139,92,246,.55)}
+</style>
+
+<script>
+function ukBuildFlowRibbon(svg,containerEl,fromEl,toEl,{curvature=60,width=18}={}){
+  const cr=containerEl.getBoundingClientRect(), a=fromEl.getBoundingClientRect(), b=toEl.getBoundingClientRect();
+  const sx=a.left-cr.left+a.width/2, sy=a.top-cr.top+a.height/2;
+  const ex=b.left-cr.left+b.width/2, ey=b.top-cr.top+b.height/2;
+  const cy=(sy+ey)/2-curvature;
+  const d=`M ${sx},${sy} Q ${(sx+ex)/2},${cy} ${ex},${ey}`;
+  let p=svg.querySelector('.uk-flow-ribbon__glow');
+  if(!p){ p=document.createElementNS('http://www.w3.org/2000/svg','path'); p.setAttribute('class','uk-flow-ribbon__glow'); svg.appendChild(p); }
+  p.setAttribute('d',d);
+  p.setAttribute('stroke-width',width);
+}
+window.addEventListener('load',()=>{
+  const demo=document.querySelector('.uk-flow-demo');
+  ukBuildFlowRibbon(document.getElementById('uk-flow-svg'),demo,document.getElementById('uk-flow-a'),document.getElementById('uk-flow-b'));
+});
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="flow-workflow-routing-map.html">
+      <header><h3>Workflow Routing Map (5-stage glowing Sankey ribbons)</h3><code>flow-workflow-routing-map.html</code></header>
+      <div class="demo-stage" id="stage-flow-workflow-routing-map">
+<div class="uk-routing-panel">
+  <div class="uk-routing-header">
+    <h3>Workflow routing map</h3>
+    <span class="uk-live-chip"><span class="uk-live-dot"></span>Live</span>
+  </div>
+  <svg viewBox="0 0 960 380" class="uk-routing-svg">
+    <defs>
+      <linearGradient id="uk-flow-grad" gradientUnits="userSpaceOnUse" x1="90" y1="0" x2="890" y2="0">
+        <stop offset="0%" stop-color="#6366f1"/>
+        <stop offset="50%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#22d3ee"/>
+      </linearGradient>
+      <linearGradient id="uk-node-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6366f1"/>
+        <stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient>
+      <pattern id="uk-dots" width="14" height="14" patternUnits="userSpaceOnUse">
+        <circle cx="2" cy="2" r="1" fill="#334155"/>
+      </pattern>
+      <filter id="uk-glow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="6" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <rect x="0" y="40" width="70" height="300" fill="url(#uk-dots)" opacity=".45"/>
+
+    <!-- ribbons drawn first so node bars sit on top -->
+    <g id="uk-ribbons" filter="url(#uk-glow)"></g>
+    <g id="uk-flow-dashes"></g>
+
+    <!-- 5 node bars -->
+    <g id="uk-nodes"></g>
+
+    <!-- stage labels -->
+    <g id="uk-stage-labels" font-family="Inter,system-ui,sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle"></g>
+
+    <!-- percentage labels -->
+    <g id="uk-pct-labels" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#e5e7eb" text-anchor="middle"></g>
+  </svg>
+  <div class="uk-legend">
+    <span><i class="uk-swatch" style="background:linear-gradient(90deg,#6366f1,#8b5cf6)"></i>Primary path 68%</span>
+    <span><i class="uk-swatch" style="background:linear-gradient(90deg,#8b5cf6,#a855f7)"></i>Secondary 22%</span>
+    <span><i class="uk-swatch" style="background:linear-gradient(90deg,#475569,#64748b)"></i>Fallback 10%</span>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-routing-panel{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:18px;padding:20px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb}
+.uk-routing-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.uk-routing-header h3{margin:0;font-size:1rem;font-weight:600}
+.uk-live-chip{display:inline-flex;gap:6px;align-items:center;background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.3);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
+.uk-live-dot{width:6px;height:6px;border-radius:50%;background:#34d399;animation:uk-pulse 1.6s ease-in-out infinite}
+@keyframes uk-pulse{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.6)}50%{box-shadow:0 0 0 6px rgba(52,211,153,0)}}
+.uk-routing-svg{width:100%;height:auto;display:block}
+.uk-flow-dash{stroke:#fff;stroke-opacity:.55;stroke-width:2;fill:none;stroke-dasharray:4 14;animation:uk-flow 3.5s linear infinite}
+@keyframes uk-flow{to{stroke-dashoffset:-360}}
+.uk-legend{display:flex;gap:20px;font-size:12px;color:#94a3b8;margin-top:6px;flex-wrap:wrap}
+.uk-swatch{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:6px}
+</style>
+
+<script>
+(function(){
+  const stages=['Intake','Classify','Review','Fallback','Deliver'];
+  const xs=[90,290,490,690,890];
+  const bands=[
+    {name:'Primary',pct:68,color1:'#6366f1',color2:'#8b5cf6'},
+    {name:'Secondary',pct:22,color1:'#8b5cf6',color2:'#a855f7'},
+    {name:'Fallback',pct:10,color1:'#475569',color2:'#64748b'}
+  ];
+  const barTop=60, gap=10;
+  let y=barTop;
+  const bandYs=bands.map(b=>{
+    const h=b.pct*2;
+    const top=y, bot=y+h;
+    y=bot+gap;
+    return {top,bot,mid:(top+bot)/2,h};
+  });
+  const barBottom=y-gap;
+
+  const nodesG=document.getElementById('uk-nodes');
+  const labelsG=document.getElementById('uk-stage-labels');
+  const ribbonsG=document.getElementById('uk-ribbons');
+  const dashesG=document.getElementById('uk-flow-dashes');
+  const pctG=document.getElementById('uk-pct-labels');
+  const svgNS='http://www.w3.org/2000/svg';
+
+  xs.forEach((x,i)=>{
+    const rect=document.createElementNS(svgNS,'rect');
+    rect.setAttribute('x',x-7); rect.setAttribute('y',barTop);
+    rect.setAttribute('width',14); rect.setAttribute('height',barBottom-barTop);
+    rect.setAttribute('rx',7); rect.setAttribute('fill','url(#uk-node-grad)');
+    nodesG.appendChild(rect);
+
+    const label=document.createElementNS(svgNS,'text');
+    label.setAttribute('x',x); label.setAttribute('y',barBottom+22);
+    label.textContent=stages[i];
+    labelsG.appendChild(label);
+  });
+
+  for(let i=0;i<xs.length-1;i++){
+    const x1=xs[i]+7, x2=xs[i+1]-7, mx=(x1+x2)/2;
+    bands.forEach((b,bi)=>{
+      const {top,bot,mid}=bandYs[bi];
+      const opacity = bi===2 ? 0.5 : 0.85;
+      const d=`M ${x1},${top} C ${mx},${top} ${mx},${top} ${x2},${top} L ${x2},${bot} C ${mx},${bot} ${mx},${bot} ${x1},${bot} Z`;
+      const path=document.createElementNS(svgNS,'path');
+      path.setAttribute('d',d);
+      path.setAttribute('fill', bi<2 ? 'url(#uk-flow-grad)' : '#475569');
+      path.setAttribute('fill-opacity',opacity);
+      ribbonsG.appendChild(path);
+
+      const dash=document.createElementNS(svgNS,'path');
+      dash.setAttribute('class','uk-flow-dash');
+      dash.setAttribute('d',`M ${x1},${mid} C ${mx},${mid} ${mx},${mid} ${x2},${mid}`);
+      dashesG.appendChild(dash);
+
+      if(i===Math.floor((xs.length-2)/2)){
+        const pct=document.createElementNS(svgNS,'text');
+        pct.setAttribute('x',mx); pct.setAttribute('y',mid-8);
+        pct.textContent=b.pct+'%';
+        pctG.appendChild(pct);
+      }
+    });
+  }
+})();
+</script>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="list-alert-row.html">
+      <header><h3>System Alert Row</h3><code>list-alert-row.html</code></header>
+      <div class="demo-stage" id="stage-list-alert-row">
+<div class="uk-alert-row warning">
+  <div class="uk-alert-icon">&#9888;</div>
+  <div class="uk-alert-text">
+    <div class="uk-alert-title">Fallback rate above threshold</div>
+    <div class="uk-alert-sub">12.4% of requests routed to fallback in the last hour</div>
+  </div>
+  <button class="uk-alert-btn">Review</button>
+</div>
+<div class="uk-alert-row info">
+  <div class="uk-alert-icon">&#8505;</div>
+  <div class="uk-alert-text">
+    <div class="uk-alert-title">New agent version deployed</div>
+    <div class="uk-alert-sub">Router-v3 promoted to production</div>
+  </div>
+  <button class="uk-alert-btn">Review</button>
+</div>
+
+<style>
+.uk-alert-row{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:12px;background:#151c38;font-family:'Inter',system-ui,sans-serif;margin-bottom:8px}
+.uk-alert-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.uk-alert-row.warning .uk-alert-icon{background:rgba(251,191,36,.14);color:#fbbf24}
+.uk-alert-row.info .uk-alert-icon{background:rgba(99,102,241,.14);color:#a5b4fc}
+.uk-alert-text{flex:1;min-width:0}
+.uk-alert-title{font-size:13px;font-weight:600;color:#e5e7eb}
+.uk-alert-sub{font-size:12px;color:#94a3b8}
+.uk-alert-btn{background:rgba(99,102,241,.14);border:1px solid rgba(99,102,241,.3);color:#c7d2fe;font-size:12px;font-weight:600;padding:6px 14px;border-radius:8px;cursor:pointer;flex-shrink:0}
+.uk-alert-btn:hover{background:rgba(99,102,241,.24)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="list-avatar-row.html">
+      <header><h3>Avatar Row (Approval Queue list item)</h3><code>list-avatar-row.html</code></header>
+      <div class="demo-stage" id="stage-list-avatar-row">
+<div class="uk-queue-row">
+  <div class="uk-queue-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+  <div class="uk-queue-text">
+    <div class="uk-queue-title">Refund request #4821</div>
+    <div class="uk-queue-sub">Escalated by classifier, low confidence</div>
+  </div>
+  <span class="uk-chip review">Needs review</span>
+  <div class="uk-avatar">JW</div>
+</div>
+
+<style>
+.uk-queue-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;transition:background .15s;font-family:'Inter',system-ui,sans-serif}
+.uk-queue-row:hover{background:rgba(148,163,184,.05)}
+.uk-queue-icon{width:34px;height:34px;border-radius:10px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.uk-queue-title{font-size:13px;font-weight:600;color:#e5e7eb}
+.uk-queue-sub{font-size:12px;color:#94a3b8}
+.uk-queue-text{flex:1;min-width:0}
+.uk-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#6366f1,#22d3ee);flex-shrink:0}
+.uk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid transparent}
+.uk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.uk-chip.review{color:#fbbf24;background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="list-marquee.html">
+      <header><h3>Marquee</h3><code>list-marquee.html</code></header>
+      <div class="demo-stage" id="stage-list-marquee">
+<div class="uk-marquee">
+  <div class="uk-marquee__track">
+    <span>Classifier-v2</span><span>Router-v3</span><span>Fallback-Handler</span><span>Delivery-Bot</span>
+  </div>
+  <div class="uk-marquee__track" aria-hidden="true">
+    <span>Classifier-v2</span><span>Router-v3</span><span>Fallback-Handler</span><span>Delivery-Bot</span>
+  </div>
+</div>
+
+<style>
+.uk-marquee{--uk-gap:1rem;--uk-duration:32s;display:flex;overflow:hidden;gap:var(--uk-gap);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.uk-marquee__track{display:flex;flex-shrink:0;gap:var(--uk-gap);animation:uk-marquee-scroll var(--uk-duration) linear infinite}
+.uk-marquee:hover .uk-marquee__track{animation-play-state:paused}
+.uk-marquee span{padding:6px 14px;border-radius:999px;background:#121933;border:1px solid rgba(99,102,241,.22);color:#e5e7eb;font-size:.8rem;white-space:nowrap;font-family:'Inter',system-ui,sans-serif}
+@keyframes uk-marquee-scroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% - var(--uk-gap)))}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="loader-atom-orbit.html">
+      <header><h3>Atom Orbit Loader</h3><code>loader-atom-orbit.html</code></header>
+      <div class="demo-stage" id="stage-loader-atom-orbit">
+<div class="uk-atom-loader">
+  <div class="uk-atom-star">
+    <div class="uk-atom-nucleus"></div>
+    <div class="uk-atom-electron uk-atom-e1"></div>
+    <div class="uk-atom-electron uk-atom-e2"></div>
+    <div class="uk-atom-electron uk-atom-e3"></div>
+  </div>
+</div>
+
+<style>
+:root{ --uk-accent:#4f46e5; --uk-accent-3:#22d3ee; --uk-accent-electron:#a78bfa; }
+.uk-atom-loader{height:4rem;width:4rem;display:flex;justify-content:center;align-items:center}
+.uk-atom-star{position:relative;width:3.2rem;height:3.2rem;display:flex;justify-content:center;align-items:center;animation:uk-atom-rotate 3s infinite}
+.uk-atom-nucleus{position:absolute;transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(var(--uk-accent),var(--uk-accent-3));height:.5rem;width:.5rem;animation:uk-atom-rotate 1s linear infinite}
+.uk-atom-electron{position:absolute;width:3.2rem;height:1.3rem;border-radius:50%;border:.06rem solid var(--uk-accent-electron);animation:uk-atom-revolve 1s linear infinite}
+.uk-atom-e2{transform:rotate(60deg);animation-delay:-.66s}
+.uk-atom-e3{transform:rotate(-60deg)}
+@keyframes uk-atom-rotate{from{transform:rotate(0)}to{transform:rotate(360deg) scale3d(1.1,1.1,0)}}
+@keyframes uk-atom-revolve{0%{border-color:#a78bfa9c;border-right:transparent}25%{border-bottom-color:transparent}50%{border-left-color:transparent}75%{border-top-color:transparent}100%{border-right-color:transparent}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="loader-diamond-pulse.html">
+      <header><h3>Diamond Pulse Loader</h3><code>loader-diamond-pulse.html</code></header>
+      <div class="demo-stage" id="stage-loader-diamond-pulse">
+<div class="uk-diamond-loading">
+  <div class="uk-diamond"></div>
+  <div class="uk-diamond uk-diamond-mid"></div>
+  <div class="uk-diamond"></div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-3:#22d3ee; }
+.uk-diamond-loading{display:flex;justify-content:center;align-items:center;gap:2px}
+.uk-diamond{width:16px;height:16px;background:linear-gradient(45deg,var(--uk-accent),var(--uk-accent-3));clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);margin:5px;opacity:0;animation:uk-diamond-fade 1.5s ease-in-out infinite}
+.uk-diamond-mid{animation-delay:.5s}
+.uk-diamond:last-child{animation-delay:1s}
+@keyframes uk-diamond-fade{0%,100%{opacity:0}50%{opacity:1}}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="nav-rail-active-pill.html">
+      <header><h3>Nav Rail with Active Pill</h3><code>nav-rail-active-pill.html</code></header>
+      <div class="demo-stage" id="stage-nav-rail-active-pill">
+<nav class="uk-rail">
+  <a class="uk-rail-item active" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><span>Overview</span></a>
+  <a class="uk-rail-item" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg><span>Workflows</span></a>
+  <a class="uk-rail-item" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg><span>Agents</span></a>
+</nav>
+
+<style>
+.uk-rail{display:flex;flex-direction:column;gap:4px;padding:12px;width:220px;font-family:'Inter',system-ui,sans-serif}
+.uk-rail-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;color:#94a3b8;font-size:14px;text-decoration:none;transition:background .2s,color .2s}
+.uk-rail-item:hover{background:rgba(148,163,184,.06);color:#e5e7eb}
+.uk-rail-item.active{background:linear-gradient(90deg,rgba(99,102,241,.20),rgba(139,92,246,.10));color:#fff;box-shadow:inset 0 0 0 1px rgba(139,92,246,.35)}
+.uk-rail-item.active svg{filter:drop-shadow(0 0 4px rgba(99,102,241,.6))}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="other-gradient-underline-input.html">
+      <header><h3>Gradient Underline Input</h3><code>other-gradient-underline-input.html</code></header>
+      <div class="demo-stage" id="stage-other-gradient-underline-input">
+<div class="uk-search-control">
+  <input class="uk-search-input" placeholder="Search workflows, agents, runs..." type="text" />
+  <span class="uk-search-border"></span>
+  <kbd class="uk-search-kbd">&#8984;K</kbd>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#a855f7; --uk-accent-3:#22d3ee; }
+.uk-search-control{position:relative;--width-of-input:340px;width:var(--width-of-input);display:flex;align-items:center}
+.uk-search-input{color:#e8ecff;font-size:.95rem;background-color:transparent;width:100%;box-sizing:border-box;padding:.8em 1em;border:none;border-bottom:2px solid rgba(255,255,255,.12)}
+.uk-search-input:focus{outline:none}
+.uk-search-border{position:absolute;background:linear-gradient(90deg,var(--uk-accent) 0%,var(--uk-accent-2) 50%,var(--uk-accent-3) 100%);width:0%;height:2px;bottom:0;left:0;transition:width .4s cubic-bezier(.42,0,.58,1)}
+.uk-search-input:focus+.uk-search-border{width:100%}
+.uk-search-kbd{position:absolute;right:10px;padding:2px 6px;border-radius:4px;background:#1e2340;border:1px solid #2f3560;font-size:11px;font-family:ui-monospace,monospace;color:rgba(255,255,255,.5);pointer-events:none}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="toggle-glow-radial-check.html">
+      <header><h3>Glow Radial Checkbox</h3><code>toggle-glow-radial-check.html</code></header>
+      <div class="demo-stage" id="stage-toggle-glow-radial-check">
+<label class="uk-glow-check">
+  <input type="checkbox" checked />
+  <div class="uk-glow-check-mark"></div>
+</label>
+
+<style>
+.uk-glow-check input{position:absolute;opacity:0;height:0;width:0}
+.uk-glow-check{display:block;position:relative;cursor:pointer;font-size:22px}
+.uk-glow-check-mark{position:relative;height:1.3em;width:1.3em;background:#0a0e1c;border-radius:50px;transition:all .7s;--spread:14px}
+.uk-glow-check input:checked~.uk-glow-check-mark{background:#0a0e1c;box-shadow:-8px -8px var(--spread) 0 #6366f1,0 -8px var(--spread) 0 #8b5cf6,8px -8px var(--spread) 0 #a855f7,8px 0 var(--spread) 0 #c026d3,8px 8px var(--spread) 0 #22d3ee,0 8px var(--spread) 0 #06b6d4,-8px 8px var(--spread) 0 #4f46e5}
+.uk-glow-check-mark:after{content:'';position:absolute;display:none}
+.uk-glow-check input:checked~.uk-glow-check-mark:after{display:block}
+.uk-glow-check .uk-glow-check-mark:after{left:.45em;top:.25em;width:.25em;height:.5em;border:solid #f0f0f0;border-width:0 .15em .15em 0;transform:rotate(45deg)}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="toggle-neon-power.html">
+      <header><h3>Neon Power Toggle</h3><code>toggle-neon-power.html</code></header>
+      <div class="demo-stage" id="stage-toggle-neon-power">
+<input id="uk-power-cb" type="checkbox" class="uk-power-input" checked />
+<label class="uk-power-switch" for="uk-power-cb">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="uk-power-slider">
+    <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"></path>
+  </svg>
+</label>
+
+<style>
+:root{ --uk-accent-3:#22d3ee; }
+.uk-power-input{display:none}
+.uk-power-switch{position:relative;width:44px;height:44px;background-color:#374151;border-radius:50%;z-index:1;cursor:pointer;display:flex;align-items:center;justify-content:center;border:2px solid #4b5563;box-shadow:0 0 3px #000 inset}
+.uk-power-slider{width:1.1em}
+.uk-power-slider path{fill:#6b7280}
+.uk-power-input:checked+.uk-power-switch{box-shadow:0 0 1px var(--uk-accent-3) inset,0 0 2px var(--uk-accent-3) inset,0 0 10px var(--uk-accent-3) inset,0 0 30px var(--uk-accent-3),0 0 60px var(--uk-accent-3);border:2px solid #fff;background-color:#164e63}
+.uk-power-input:checked+.uk-power-switch .uk-power-slider{filter:drop-shadow(0 0 5px var(--uk-accent-3))}
+.uk-power-input:checked+.uk-power-switch .uk-power-slider path{fill:#fff}
+</style>
+      </div>
+    </section>
+
+    <section class="demo-card" data-file="tooltip-hover-reveal.html">
+      <header><h3>Hover-Reveal Tooltip</h3><code>tooltip-hover-reveal.html</code></header>
+      <div class="demo-stage" id="stage-tooltip-hover-reveal">
+<div class="uk-tip-wrap">
+  <div class="uk-tip-trigger">Agent health</div>
+  <div class="uk-tip-panel">
+    <p>Classifier-v2 &middot; 98.6% uptime</p>
+  </div>
+</div>
+
+<style>
+:root{ --uk-panel:#151c38; --uk-line:rgba(129,140,248,.35); }
+.uk-tip-wrap{position:relative;display:inline-block}
+.uk-tip-trigger{font-size:.85rem;color:#e8ecff;cursor:default}
+.uk-tip-panel{position:absolute;left:0;margin-top:8px;width:220px;background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .25s ease;padding:12px;color:#d7dcff;font-size:.8rem}
+.uk-tip-wrap:hover .uk-tip-panel{opacity:1;pointer-events:auto}
+</style>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style>
+:root{
+  --uk-canvas:#0a0e1c; --uk-panel:#121933; --uk-line:rgba(99,102,241,.22);
+  --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-accent-3:#22d3ee; --uk-glow:rgba(139,92,246,.5);
+}
+.uk-demo-root{background:var(--uk-canvas);min-height:100%;padding:32px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb}
+.uk-demo-hero{margin-bottom:24px}
+.uk-demo-hero h1{margin:0 0 6px;font-size:1.6rem;font-weight:700;background:linear-gradient(90deg,#fff,#c7d2fe);-webkit-background-clip:text;background-clip:text;color:transparent}
+.uk-demo-hero p{margin:0;color:#94a3b8;font-size:.85rem}
+.uk-demo-hero code{background:#151c38;padding:2px 6px;border-radius:4px;font-size:.8rem}
+.uk-demo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.demo-card{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:160px}
+.demo-card header{display:flex;flex-direction:column;gap:2px}
+.demo-card h3{margin:0;font-size:.85rem;font-weight:600;color:#e5e7eb}
+.demo-card code{font-size:.7rem;color:#6b7694}
+.demo-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:6px}
+/* fix (2026-09-03): the Hover-Reveal Tooltip's panel is position:absolute,
+   width:220px, opacity:0 until hover -- CSS scrollable-overflow is computed from
+   the descendant box tree regardless of visibility/opacity, so this stage's
+   overflow:auto was picking up the hidden panel's off-box footprint and painting
+   native (unstyled, light-track) scroll chrome over an otherwise-dark card. The
+   component itself is clean in isolation (verified) -- this is a QA-harness-only
+   artifact, so the harness is where it's fixed: let this one stage overflow
+   visibly instead of scrolling (opacity:0 keeps the spill invisible either way).
+*/
+#stage-tooltip-hover-reveal{overflow:visible}
+</style>

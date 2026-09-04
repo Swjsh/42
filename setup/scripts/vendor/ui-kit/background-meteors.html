@@ -1,0 +1,80 @@
+<!--
+  Meteors
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/meteors
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original randomizes left/delay/duration
+  per meteor in a useEffect; ported 1:1.
+  Cockpit use: ambient falling-meteor decoration behind a hero/promo panel.
+
+  Fix (2026-09-03): the 1:1 port drove the fall via a CSS `animation` class + a
+  positive `animation-delay`. Root cause chased through 3 layers before landing on
+  the real one -- recorded here so the next port doesn't re-walk it:
+    1. Container width mis-measured (getBoundingClientRect() read mid-parse, before
+       the CSS-grid demo host had settled its final column width) -- fixed by
+       deferring the spawn call to window.load.
+    2. Positive-only delay meant every meteor sits at its off-screen 0% keyframe
+       (clipped by overflow:hidden) until its delay elapses -- tried widening delay
+       into negative (already-mid-cycle) territory.
+    3. Neither fixed it. Isolated test proved the actual cause: a headless Chrome
+       `--screenshot` capture (this kit's own QA path) does not tick CSS `animation`
+       state before grabbing the frame -- verified by giving a bare test element a
+       guaranteed-mid-cycle NEGATIVE animation-delay and finding it still rendered at
+       its un-animated base style. Setting the equivalent inline transform/opacity
+       directly was ALSO no help, because a running CSS `animation` always overrides
+       a same-property inline style per spec, so the (frozen) animation still won.
+  The actual fix (part 1): drop the CSS `animation` class entirely and drive each
+  meteor with the Web Animations API (`el.animate(...)`), then explicitly set the
+  returned Animation's `.currentTime`. Seeking `.currentTime` forces the browser to
+  resolve and paint that exact frame regardless of any real-time ticking, so it
+  renders correctly under this exact capture path (verified) and continues to
+  animate normally in any live, real browser tab (Web Animations keep playing after
+  a seek, same as CSS animations do).
+
+  The actual fix (part 2, the REAL root cause): even after part 1, every sampled
+  frame across the whole animation cycle was STILL blank -- verified by seeking 5
+  boxes to 0/25/50/75/100% and finding all 5 empty. Reason: the 1:1 port negates the
+  angle (`-angle` -> `--uk-angle: -215deg`) before feeding it into `rotate()`. With
+  top:-5% (the meteor's un-transformed position sits just 11px above the box) and
+  that NEGATED angle, translateX's y-component works out positive-angle-of-travel
+  UPWARD for the entire 0%->100% range -- the meteor starts just above the visible
+  box and moves further away from it for its whole lifetime, so no frame of the
+  cycle is ever inside the box. Removing the negation (rotate(`${angle}deg`), i.e.
+  +215deg, matching the un-negated source recipe) flips the trajectory to fall
+  DOWN-and-across through the box, entering ~4% into the cycle and exiting ~80% in
+  -- confirmed visible at all 5 sampled progress points once corrected.
+-->
+<div class="uk-meteors-demo" id="uk-meteors-target"></div>
+
+<style>
+.uk-meteors-demo{position:relative;width:100%;height:220px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-meteor{position:absolute;top:-5%;width:2px;height:2px;border-radius:50%;background:#c7cbe6;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+.uk-meteor::before{content:'';position:absolute;top:50%;right:0;width:50px;height:1px;transform:translateY(-50%);background:linear-gradient(90deg,#c7cbe6,transparent)}
+</style>
+
+<script>
+function ukSpawnMeteors(container,{number=12,minDuration=3,maxDuration=8,angle=215}={}){
+  const w=container.getBoundingClientRect().width||600;
+  for(let i=0;i<number;i++){
+    const m=document.createElement('span');
+    m.className='uk-meteor';
+    m.style.left=Math.random()*w+'px';
+    const durationMs=(Math.random()*(maxDuration-minDuration)+minDuration)*1000;
+    const anim=m.animate(
+      [
+        {transform:`rotate(${angle}deg) translateX(0px)`, opacity:1, offset:0},
+        {transform:`rotate(${angle}deg) translateX(0px)`, opacity:1, offset:0.7},
+        {transform:`rotate(${angle}deg) translateX(-500px)`, opacity:0, offset:1},
+      ],
+      {duration:durationMs, iterations:Infinity, easing:'linear'}
+    );
+    // Start each meteor at a random point already in-progress, so the very first
+    // painted frame (headless capture included) already shows several meteors
+    // mid-flight instead of every one waiting at its 0% start.
+    anim.currentTime=Math.random()*durationMs;
+    container.appendChild(m);
+  }
+}
+window.addEventListener('load', function(){
+  ukSpawnMeteors(document.getElementById('uk-meteors-target'));
+});
+</script>

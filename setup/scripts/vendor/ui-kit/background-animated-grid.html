@@ -1,0 +1,20 @@
+<!--
+  Animated Grid Pattern
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/animated-grid-pattern
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original draws an SVG grid of <rect>s
+  in React and randomly cross-fades a subset forever (per-cell DOM+JS). Ported as a
+  static tiled CSS grid background with a slow global opacity breathe -- same ambient
+  texture, no per-cell DOM/JS cost.
+  Cockpit use: faint structural grid texture behind the routing-map panel.
+-->
+<div class="uk-grid-demo">
+  <div class="uk-animated-grid"></div>
+</div>
+
+<style>
+:root{ --uk-line:rgba(99,102,241,.10); }
+.uk-grid-demo{position:relative;width:100%;height:180px;background:#0a0e1c;border-radius:12px;overflow:hidden}
+.uk-animated-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--uk-line) 1px,transparent 1px),linear-gradient(90deg,var(--uk-line) 1px,transparent 1px);background-size:32px 32px;animation:uk-grid-breathe 6s ease-in-out infinite}
+@keyframes uk-grid-breathe{0%,100%{opacity:.5}50%{opacity:.9}}
+</style>

@@ -1,0 +1,29 @@
+<!--
+  Avatar Row (Approval Queue list item)
+  Source: self-authored -- generic gradient-initials avatar pattern.
+  License: original work, generic convention.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03.
+  Cockpit use: Approval queue rows -- icon tile + title/subtitle + status chip + avatar.
+-->
+<div class="uk-queue-row">
+  <div class="uk-queue-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2"><path d="M9 12l2 2 4-4"/></svg></div>
+  <div class="uk-queue-text">
+    <div class="uk-queue-title">Refund request #4821</div>
+    <div class="uk-queue-sub">Escalated by classifier, low confidence</div>
+  </div>
+  <span class="uk-chip review">Needs review</span>
+  <div class="uk-avatar">JW</div>
+</div>
+
+<style>
+.uk-queue-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;transition:background .15s;font-family:'Inter',system-ui,sans-serif}
+.uk-queue-row:hover{background:rgba(148,163,184,.05)}
+.uk-queue-icon{width:34px;height:34px;border-radius:10px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.uk-queue-title{font-size:13px;font-weight:600;color:#e5e7eb}
+.uk-queue-sub{font-size:12px;color:#94a3b8}
+.uk-queue-text{flex:1;min-width:0}
+.uk-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#6366f1,#22d3ee);flex-shrink:0}
+.uk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid transparent}
+.uk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.uk-chip.review{color:#fbbf24;background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)}
+</style>

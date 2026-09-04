@@ -1,0 +1,23 @@
+<!--
+  Diamond Pulse Loader
+  Source: https://uiverse.io/Zadrus/sweet-dragon-8
+  License: MIT (Uiverse.io element page footer states "MIT License")
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Classes renamed uk-*, recolored
+  indigo->violet->cyan (was a single flat color in the source).
+  Cockpit use: compact "processing" loader for a queue row / dotted-matrix accent --
+  three diamonds fading in sequence.
+-->
+<div class="uk-diamond-loading">
+  <div class="uk-diamond"></div>
+  <div class="uk-diamond uk-diamond-mid"></div>
+  <div class="uk-diamond"></div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-3:#22d3ee; }
+.uk-diamond-loading{display:flex;justify-content:center;align-items:center;gap:2px}
+.uk-diamond{width:16px;height:16px;background:linear-gradient(45deg,var(--uk-accent),var(--uk-accent-3));clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);margin:5px;opacity:0;animation:uk-diamond-fade 1.5s ease-in-out infinite}
+.uk-diamond-mid{animation-delay:.5s}
+.uk-diamond:last-child{animation-delay:1s}
+@keyframes uk-diamond-fade{0%,100%{opacity:0}50%{opacity:1}}
+</style>

@@ -1,0 +1,32 @@
+<!--
+  KPI Stat Card (icon tile + gradient + delta chip)
+  Source: https://uiverse.io/vk-uiux/nasty-chicken-72
+  License: MIT (Uiverse.io site-wide license, confirmed live on page footer)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original is a flip/reveal profile card
+  with a circular gradient icon that hover-cycles background-position. Kept: the panel
+  shell (rounded corners, soft box-shadow, hover lift) and the circular gradient icon
+  tile. Dropped: the hover-flip reveal-text behavior (not needed for a static KPI tile);
+  reworked into a stat card with label/value/delta.
+  Cockpit use: the 4 header KPI stat cards (icon tile + label + big number + green
+  delta chip).
+-->
+<div class="uk-stat-card">
+  <div class="uk-stat-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+  </div>
+  <div class="uk-stat-label">Total Revenue</div>
+  <div class="uk-stat-value">$48,320</div>
+  <div class="uk-stat-delta up">&#8599; 12.4% vs last month</div>
+</div>
+
+<style>
+:root{ --uk-accent:#6366f1; --uk-accent-2:#8b5cf6; --uk-panel:#121933; --uk-line:rgba(99,102,241,.25); }
+.uk-stat-card{background:var(--uk-panel);border:1px solid var(--uk-line);border-radius:16px;padding:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 8px 24px rgba(0,0,0,.35);font-family:'Inter',system-ui,sans-serif;color:#e5e7eb;transition:transform .25s ease,box-shadow .25s ease;max-width:220px}
+.uk-stat-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(99,102,241,.18),inset 0 1px 0 rgba(255,255,255,.06)}
+.uk-stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;background:linear-gradient(135deg,var(--uk-accent),var(--uk-accent-2));box-shadow:0 4px 14px rgba(99,102,241,.45)}
+.uk-stat-label{font-size:13px;color:#94a3b8;margin-bottom:6px;letter-spacing:.01em}
+.uk-stat-value{font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-bottom:8px}
+.uk-stat-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px}
+.uk-stat-delta.up{color:#34d399;background:rgba(52,211,153,.12)}
+.uk-stat-delta.down{color:#f87171;background:rgba(248,113,113,.12)}
+</style>

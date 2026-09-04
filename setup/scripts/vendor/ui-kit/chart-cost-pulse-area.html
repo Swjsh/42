@@ -1,0 +1,89 @@
+<!--
+  Glowing Cost-Pulse Area Chart
+  Source: self-authored -- SVG gradient-fill-area + drop-shadow-glow is a standard
+  technique (see MDN's SVG gradients tutorial for the base mechanic); the
+  glow-via-blurred-duplicate-path idea generalizes the same principle
+  gradients.design's (proprietary, all-rights-reserved) neon generator uses, into
+  original code here -- no proprietary values copied.
+  License: original work, no proprietary code copied.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03 (assembled from the reference-hunt
+  kit's recipe into a real, running chart with hover tooltip).
+  Cockpit use: Cost pulse panel -- big figure + delta + glowing violet-fill area chart
+  with a highlighted hover point + tooltip.
+-->
+<div class="uk-cost-panel">
+  <p class="uk-cost-label">Cost pulse</p>
+  <p class="uk-cost-big">$48,320 <span class="uk-cost-delta">&#8599; 8.2%</span></p>
+  <div class="uk-chart-wrap">
+    <svg viewBox="0 0 640 220" class="uk-area-chart" id="uk-area-svg" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="uk-area-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35"/>
+          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="uk-area-fill" fill="url(#uk-area-grad)" stroke="none"/>
+      <path class="uk-area-line-glow" fill="none" stroke="#a78bfa" stroke-width="6" stroke-linecap="round" opacity="0.35" style="filter:blur(4px)"/>
+      <path class="uk-area-line" fill="none" stroke="#c4b5fd" stroke-width="2" stroke-linecap="round"/>
+      <circle class="uk-hover-dot" r="9" fill="none" stroke="#a78bfa" stroke-opacity=".4" stroke-width="6" style="filter:blur(3px)"></circle>
+      <circle class="uk-hover-dot-core" r="4" fill="#c4b5fd"></circle>
+      <rect class="uk-hit-area" x="0" y="0" width="640" height="220" fill="transparent" style="pointer-events:all"></rect>
+    </svg>
+    <div class="uk-chart-tooltip"></div>
+  </div>
+</div>
+
+<style>
+.uk-cost-panel{background:#121933;border:1px solid rgba(99,102,241,.22);border-radius:16px;padding:20px;font-family:'Inter',system-ui,sans-serif;color:#e5e7eb;position:relative}
+.uk-cost-label{font-size:.75rem;color:#94a3b8;margin:0 0 4px;text-transform:uppercase;letter-spacing:.05em}
+.uk-cost-big{font-size:1.9rem;font-weight:700;margin:0 0 10px;color:#fff}
+.uk-cost-delta{font-size:.8rem;font-weight:600;color:#34d399;background:rgba(52,211,153,.12);padding:2px 8px;border-radius:999px;vertical-align:middle}
+.uk-chart-wrap{position:relative}
+.uk-area-chart{width:100%;height:160px;display:block}
+.uk-chart-tooltip{position:absolute;transform:translate(-50%,0);background:#1a2140;border:1px solid rgba(99,102,241,.35);color:#e5e7eb;font-size:12px;font-weight:600;padding:4px 8px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+</style>
+
+<script>
+(function(){
+  const points=[38000,40500,39200,43000,41800,45200,44100,47000,46200,48800,47600,48320].map((v,i,arr)=>{
+    const min=Math.min(...arr), max=Math.max(...arr);
+    const x=i/(arr.length-1)*640;
+    const y=210-((v-min)/(max-min||1))*180;
+    return {x,y,value:v};
+  });
+
+  let d=`M ${points[0].x},${points[0].y}`;
+  for(let i=1;i<points.length;i++){
+    const cpx=(points[i-1].x+points[i].x)/2;
+    d+=` C ${cpx},${points[i-1].y} ${cpx},${points[i].y} ${points[i].x},${points[i].y}`;
+  }
+  const areaPath=d+` L ${points[points.length-1].x},220 L ${points[0].x},220 Z`;
+
+  const svg=document.getElementById('uk-area-svg');
+  svg.querySelector('.uk-area-fill').setAttribute('d',areaPath);
+  svg.querySelector('.uk-area-line-glow').setAttribute('d',d);
+  svg.querySelector('.uk-area-line').setAttribute('d',d);
+
+  const dot=svg.querySelector('.uk-hover-dot'), core=svg.querySelector('.uk-hover-dot-core');
+  const last=points[points.length-1];
+  dot.setAttribute('cx',last.x); dot.setAttribute('cy',last.y);
+  core.setAttribute('cx',last.x); core.setAttribute('cy',last.y);
+
+  const tip=svg.closest('.uk-chart-wrap').querySelector('.uk-chart-tooltip');
+  svg.querySelector('.uk-hit-area').addEventListener('pointermove', e => {
+    const rect=svg.getBoundingClientRect();
+    const relX=(e.clientX-rect.left)/rect.width*640;
+    const step=640/(points.length-1);
+    let i=Math.round(relX/step);
+    i=Math.max(0,Math.min(points.length-1,i));
+    const p=points[i];
+    dot.setAttribute('cx',p.x); dot.setAttribute('cy',p.y);
+    core.setAttribute('cx',p.x); core.setAttribute('cy',p.y);
+    tip.style.left=(p.x/640*rect.width)+'px';
+    tip.style.top=(p.y/220*rect.height-44)+'px';
+    tip.textContent='$'+p.value.toLocaleString();
+    tip.style.opacity=1;
+  });
+  svg.querySelector('.uk-hit-area').addEventListener('pointerleave', () => { tip.style.opacity=0; });
+})();
+</script>

@@ -1,0 +1,24 @@
+<!--
+  Status Chip (Needs review / Approved / Escalated / Resolved)
+  Source: self-authored -- the rgba-tinted-background + matching-border + matching-text
+  pill-badge convention is common across shadcn/ui, Tailwind UI, and Uiverse badges;
+  no specific page's code was copied.
+  License: original work, generic convention.
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Added a 4th "Resolved" (blue) tone
+  beyond the reference-hunt kit's 3, extending the same original pattern to cover the
+  brief's "4 tones" ask.
+  Cockpit use: Approval queue / System alerts status chip.
+-->
+<span class="uk-chip review">Needs review</span>
+<span class="uk-chip approved">Approved</span>
+<span class="uk-chip escalated">Escalated</span>
+<span class="uk-chip resolved">Resolved</span>
+
+<style>
+.uk-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid transparent;font-family:'Inter',system-ui,sans-serif}
+.uk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.uk-chip.review{color:#fbbf24;background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)}
+.uk-chip.approved{color:#34d399;background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.3)}
+.uk-chip.escalated{color:#f87171;background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.3)}
+.uk-chip.resolved{color:#22d3ee;background:rgba(34,211,238,.12);border-color:rgba(34,211,238,.3)}
+</style>

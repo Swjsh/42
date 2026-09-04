@@ -1,0 +1,14 @@
+<!--
+  Animated Shiny Text
+  Source: https://21st.dev (MagicUI re-embed) -> https://magicui.design/docs/components/animated-shiny-text
+  License: MIT (magicuidesign/magicui, confirmed via repo LICENSE.md, commit 2d671cc6c0e0)
+  Ported by: Gamma UI-kit vendor pass 2026-09-03. Original masks a background-clip:text
+  gradient and pans background-position left-to-right in a loop. Ported 1:1, pure CSS.
+  Cockpit use: subtitle line under the header title ("AI Workflow Command Center").
+-->
+<p class="uk-shiny-text">Route, review, and deliver every AI workflow from one command center.</p>
+
+<style>
+.uk-shiny-text{display:inline-block;background:linear-gradient(110deg,#8b92b8 45%,#fff 55%,#8b92b8 65%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:uk-shiny-pan 2.5s linear infinite;font-family:'Inter',system-ui,sans-serif;font-size:.95rem;margin:0}
+@keyframes uk-shiny-pan{from{background-position:100% 0}to{background-position:-100% 0}}
+</style>
