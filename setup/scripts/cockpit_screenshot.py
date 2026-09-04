@@ -14,14 +14,30 @@ Themes: "dark" (default page theme) and "light" via Chrome's --force-color-profi
 theme switch, so light is captured by appending ?theme=light which gamma_cockpit_ui.py may
 honour; if it does not, the light capture is labelled UNVERIFIED in the summary line.
 Never edits anything else. Exit 0 unless --strict.
+
+FIX (round-2 review, critical, 2026-09-03): a dead dev server used to produce 9 silent
+"successes" -- Chrome's own ERR_CONNECTION_REFUSED error page is a valid PNG well over the
+2000-byte floor, so the old `ok = exists and size > 2000` check happily wrote 9 copies of a
+browser error card and called it a batch of screenshots. Two independent guards now catch
+that failure mode instead of the file-size heuristic alone:
+  1. For an http(s) --url, a pre-flight urllib GET confirms the server answers 200 with a
+     body that doesn't carry Chrome/edge's own error-page signature, BEFORE Chrome is ever
+     spawned -- fails loud and fast instead of writing a plausible-looking PNG.
+  2. Every written PNG is hashed; if two DIFFERENT (view, theme) combinations hash
+     byte-identical, that's the "N screenshots collapsed to fewer distinct images" tell
+     (a dead page renders the same error chrome regardless of theme/route) and is reported
+     as a failure, never silently written to disk as if they were distinct captures.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import shutil
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -43,6 +59,44 @@ def _browser() -> Path | None:
         if w:
             return Path(w)
     return None
+
+
+# Signatures Chrome/Edge write into their own "can't be reached" interstitial --
+# any of these in a fetched body means the target isn't the app, it's a dead-connection
+# error page (round-2 review: this exact page was screenshotted 9 times as if it were
+# the dashboard). Lowercase; matched case-insensitively.
+_ERROR_PAGE_SIGNATURES = (
+    "err_connection_refused",
+    "this site can’t be reached",
+    "this site can't be reached",
+    "refused to connect",
+    "err_name_not_resolved",
+    "err_connection_timed_out",
+)
+
+
+def preflight(url: str, timeout_s: float = 5.0) -> tuple[bool, str]:
+    """For an http(s) URL, confirms the server answers 200 with real body content
+    before Chrome is ever spawned. Non-http(s) URLs (file://) skip this -- there is
+    no server to be down. Returns (alive, note)."""
+    if not url.lower().startswith(("http://", "https://")):
+        return True, "non-http url, preflight skipped"
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "cockpit_screenshot-preflight"})
+        with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 -- localhost dev server only
+            status = resp.status
+            body = resp.read(8192).decode("utf-8", errors="replace")
+    except urllib.error.URLError as e:
+        return False, f"preflight GET failed: {e}"
+    except OSError as e:
+        return False, f"preflight GET failed: {e}"
+    if status != 200:
+        return False, f"preflight got HTTP {status}"
+    lower = body.lower()
+    for sig in _ERROR_PAGE_SIGNATURES:
+        if sig in lower:
+            return False, f"preflight body matches browser error-page signature: {sig!r}"
+    return True, f"preflight ok ({status}, {len(body)}B sampled)"
 
 
 def shoot(browser: Path, url: str, out: Path, size: str, dark: bool, budget_ms: int) -> tuple[bool, str]:
@@ -81,6 +135,24 @@ def main() -> int:
     ap.add_argument("--sizes", default="1600x950,1440x900")
     ap.add_argument("--themes", default="dark,light")
     ap.add_argument("--budget-ms", type=int, default=6000)
+    # MID-ANIMATION STILLS (R5b, 2026-09-03). A settled screenshot cannot show a
+    # choreography -- stars -> orchestrator rise -> bento settle -> beams power-up ->
+    # rings fill -> figures count up all finish before --budget-ms 6000 draws. The
+    # mechanism is already here: --virtual-time-budget IS the clock, so sampling the
+    # choreography means asking for a SMALLER budget, not sleeping. Chrome advances
+    # virtual time as fast as it can and (with --run-all-compositor-stages-before-draw,
+    # already passed) draws the frame at exactly that virtual timestamp, so the same
+    # delay yields the same frame every run -- deterministic, not a race.
+    #
+    # HONEST LIMIT, and it belongs on the same line as any still this produces: the
+    # number is VIRTUAL milliseconds since navigation start, not wall clock. CSS and
+    # rAF animations honour it; anything a script kicks off after a real network round
+    # trip may not have started yet at a small delay. A still is a SAMPLE of the
+    # choreography, never proof that a given frame appears on a real machine.
+    ap.add_argument("--delays-ms", default="",
+                     help="comma-separated virtual-time samples for mid-animation stills, "
+                          "e.g. '400,1200'. Empty (default) = settled shot only, byte-identical "
+                          "to pre-flag behaviour. Each sample adds one PNG tagged @<n>ms.")
     ap.add_argument("--strict", action="store_true")
     a = ap.parse_args()
 
@@ -88,20 +160,60 @@ def main() -> int:
     if browser is None:
         print("NO BROWSER: no chrome/edge found -- screenshots UNVERIFIED")
         return 1 if a.strict else 0
+
+    alive, note = preflight(a.url)
+    if not alive:
+        print(f"SERVER DOWN, refusing to capture: {note} (url={a.url})")
+        print("fix: start the dev server (or pass --url file:///path/to/index.html) and re-run")
+        return 1
+
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        delays = [int(d) for d in a.delays_ms.split(",") if d.strip()]
+    except ValueError:
+        print(f"BAD --delays-ms {a.delays_ms!r}: expected comma-separated integers")
+        return 1
+    if any(d <= 0 for d in delays):
+        print(f"BAD --delays-ms {a.delays_ms!r}: every sample must be > 0")
+        return 1
     fails = 0
+    # hash -> [(view, size, theme, suffix, relpath), ...] -- lets us catch the exact
+    # round-2 failure mode (multiple named captures collapsing to one distinct image)
+    # instead of trusting "file exists and is a plausible size".
+    hash_seen: dict[str, list[tuple[str, str, str, str, str]]] = {}
     for view in [v for v in a.views.split(",") if v]:
         for size in [s for s in a.sizes.split(",") if s]:
             for theme in [t for t in a.themes.split(",") if t]:
                 dark = theme == "dark"
                 sep = "&" if "?" in a.url else "?"
                 url = f"{a.url}{sep}theme={theme}#{view}"
-                out = OUT_DIR / f"{a.tag}-{view}-{size}-{theme}.png"
-                t0 = time.time()
-                ok, note = shoot(browser, url, out, size, dark, a.budget_ms)
-                fails += 0 if ok else 1
-                print(f"{'OK ' if ok else 'FAIL'} {out.relative_to(REPO).as_posix()} {int((time.time()-t0)*1000)}ms {note}")
-    print(f"done: {fails} failures; browser={browser.name}")
+                # (None,) is the settled shot; each delay adds one mid-animation sample.
+                for delay in (None, *delays):
+                    suffix = "" if delay is None else f"@{delay}ms"
+                    out = OUT_DIR / f"{a.tag}-{view}-{size}-{theme}{suffix}.png"
+                    t0 = time.time()
+                    ok, shot_note = shoot(browser, url, out, size, dark,
+                                     a.budget_ms if delay is None else delay)
+                    fails += 0 if ok else 1
+                    rel = out.relative_to(REPO).as_posix()
+                    if ok:
+                        digest = hashlib.md5(out.read_bytes()).hexdigest()  # noqa: S324 -- dedup only, not security
+                        hash_seen.setdefault(digest, []).append((view, size, theme, suffix, rel))
+                    print(f"{'OK ' if ok else 'FAIL'} {rel} "
+                          f"{int((time.time()-t0)*1000)}ms {shot_note}")
+    # Post-batch dedup check: two DIFFERENT (view, theme) captures sharing a hash means
+    # the page rendered the same thing regardless of route/theme -- almost always a dead
+    # page (error chrome) or a stuck loader, never a legitimate outcome for this app.
+    dup_fails = 0
+    for digest, entries in hash_seen.items():
+        distinct_view_theme = {(v, t) for v, _, t, _, _ in entries}
+        if len(distinct_view_theme) > 1:
+            dup_fails += 1
+            names = ", ".join(rel for *_, rel in entries)
+            print(f"DUP HASH {digest[:12]} across {len(distinct_view_theme)} distinct "
+                  f"view/theme combos -- these collapsed to one image: {names}")
+    fails += dup_fails
+    print(f"done: {fails} failures ({dup_fails} duplicate-hash); browser={browser.name}")
     return 1 if (fails and a.strict) else 0
 
 
