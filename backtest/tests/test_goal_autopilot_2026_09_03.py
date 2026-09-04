@@ -277,6 +277,136 @@ def test_closes_terminal_goal_then_opens_next(tmp_path):
 
 
 # ============================================================================
+# 4b. WIP items keep a goal OPEN -- the 2026-09-04 01:19 ET bug.
+#
+# Root cause: goal_autopilot's close-if-terminal path used to treat
+# "doctrine.goal_next_open_item returned None" as "the goal is finished", but
+# that function deliberately skips `[~]` (wip, owned by a running session) as
+# well as bare `[ ]` -- so a goal with only `[~]` items left (nothing
+# ASSIGNABLE to a new fire) looked identical to a goal with nothing OPEN at
+# all, and got closed out from under the session that owned the wip items.
+# The fix: a goal is terminal only when every QUEUE marker is x/B/B-J.
+# ============================================================================
+
+def test_active_goal_with_one_wip_item_is_not_closed(tmp_path):
+    active = {
+        "id": "GOAL-A", "active": True, "opened_at_et": "2026-09-01T00:00:00",
+        "expires_at_et": FUTURE_EXPIRY, "file": "automation/state/goals/GOAL-A.md",
+        "queue_id": "GOAL-A", "max_continuations_per_session": 3, "last_next_item": None,
+    }
+    ladder = ["- [~] GOAL-A :: has a wip item :: file: automation/state/goals/GOAL-A.md :: expires_days:14"]
+    paths = _write_repo(
+        tmp_path, active_goal=active, ladder_lines=ladder,
+        # All [x] except one [~] -- nothing bare-open, but NOT finished:
+        # this is exactly the shape GOAL-COCKPIT-REDESIGN-2026-09-03 was in
+        # (R4b/R5/R5b/R6 all [~], owned by session 42-98) when it got closed.
+        goal_files={"GOAL-A.md": _goal_md(queue_lines=(
+            "- [x] step 1 done",
+            "- [~] step 2 owned by another session",
+            "- [x] step 3 done",
+        ))},
+        queue_text=_queue_md_with_row("GOAL-A"),
+    )
+    before_active = paths.active_goal.read_text(encoding="utf-8")
+    before_ladder = paths.ladder.read_text(encoding="utf-8")
+    before_queue = paths.queue_md.read_text(encoding="utf-8")
+    before_goal = (paths.goals_dir / "GOAL-A.md").read_text(encoding="utf-8")
+
+    ap = ga.Autopilot(paths, NOW, write=True)
+    result = ap.ensure()
+
+    assert result["action"] == "noop"
+    assert result["active_goal_id"] == "GOAL-A"
+    assert result["reason"] == "active goal has in-progress items (no assignable item)"
+    assert "in-progress" in result["reason"]
+    # Nothing on disk changed -- it must NOT be closed, NOT reopened as a
+    # different goal, and the goal file must not be touched.
+    assert paths.active_goal.read_text(encoding="utf-8") == before_active
+    assert paths.ladder.read_text(encoding="utf-8") == before_ladder
+    assert paths.queue_md.read_text(encoding="utf-8") == before_queue
+    assert (paths.goals_dir / "GOAL-A.md").read_text(encoding="utf-8") == before_goal
+
+
+def test_close_if_terminal_also_keeps_wip_only_goal_open(tmp_path):
+    active = {
+        "id": "GOAL-A", "active": True, "opened_at_et": "2026-09-01T00:00:00",
+        "expires_at_et": FUTURE_EXPIRY, "file": "automation/state/goals/GOAL-A.md",
+        "queue_id": "GOAL-A", "max_continuations_per_session": 3, "last_next_item": None,
+    }
+    ladder = ["- [~] GOAL-A :: has a wip item :: file: automation/state/goals/GOAL-A.md :: expires_days:14"]
+    paths = _write_repo(
+        tmp_path, active_goal=active, ladder_lines=ladder,
+        goal_files={"GOAL-A.md": _goal_md(queue_lines=("- [~] still owned",))},
+        queue_text=_queue_md_with_row("GOAL-A"),
+    )
+    ap = ga.Autopilot(paths, NOW, write=True)
+    result = ap.close_if_terminal()
+    assert result["action"] == "noop"
+    assert result["reason"] == "active goal has in-progress items (no assignable item)"
+    assert json.loads(paths.active_goal.read_text(encoding="utf-8"))["active"] is True
+
+
+def test_all_x_b_bj_markers_close_and_open_next(tmp_path):
+    active = {
+        "id": "GOAL-A", "active": True, "opened_at_et": "2026-09-01T00:00:00",
+        "expires_at_et": FUTURE_EXPIRY, "file": "automation/state/goals/GOAL-A.md",
+        "queue_id": "GOAL-A", "max_continuations_per_session": 3, "last_next_item": None,
+    }
+    ladder = [
+        "- [~] GOAL-A :: fully terminal via x/B/B-J :: file: automation/state/goals/GOAL-A.md :: expires_days:14",
+        "- [ ] GOAL-B :: next up :: file: automation/state/goals/GOAL-B.md :: expires_days:14",
+    ]
+    paths = _write_repo(
+        tmp_path, active_goal=active, ladder_lines=ladder,
+        goal_files={
+            "GOAL-A.md": _goal_md(queue_lines=(
+                "- [x] step 1 done",
+                "- [B] step 2 blocked",
+                "- [B-J] step 3 blocked by J",
+            )),
+            "GOAL-B.md": _goal_md(),
+        },
+        queue_text=_queue_md_with_row("GOAL-A"),
+    )
+    ap = ga.Autopilot(paths, NOW, write=True)
+    result = ap.ensure()
+
+    assert result["action"] == "closed_opened"
+    assert result["closed_id"] == "GOAL-A"
+    assert result["opened_id"] == "GOAL-B"
+    assert result["reason"] == "queue fully terminal (no bare '- [ ] ' item left)"
+    ladder_text = paths.ladder.read_text(encoding="utf-8")
+    assert "- [x] GOAL-A ::" in ladder_text
+    assert "- [~] GOAL-B ::" in ladder_text
+
+
+def test_queue_markers_ignores_lines_outside_queue_heading():
+    text = (
+        "# GOAL: TEST\n\n"
+        "## DONE-WHEN\nSomething falsifiable.\n\n"
+        "## OPERATING RULES\n"
+        "- [ ] not a queue item -- this must be ignored\n"
+        "- [x] also not a queue item\n\n"
+        "## QUEUE\n"
+        "- [x] real item one\n"
+        "- [~] real item two\n\n"
+        "## J-DECISIONS\n"
+        "- [ ] a decision bullet, also not QUEUE -- must be ignored\n\n"
+        "## PROGRESS LOG\n- note\n"
+    )
+    assert ga.queue_markers(text) == ["x", "~"]
+    assert ga.goal_is_terminal(text) is False  # the [~] keeps it open
+
+
+def test_goal_is_terminal_true_only_when_all_markers_terminal():
+    assert ga.goal_is_terminal("## QUEUE\n- [x] a\n- [B] b\n- [B-J] c\n") is True
+    assert ga.goal_is_terminal("## QUEUE\n- [x] a\n- [~] b\n") is False
+    assert ga.goal_is_terminal("## QUEUE\n- [ ] a\n") is False
+    assert ga.goal_is_terminal("## QUEUE\nno markers here\n") is False  # empty -> not terminal
+    assert ga.goal_is_terminal(None) is False
+
+
+# ============================================================================
 # 5. Closes an expired goal
 # ============================================================================
 
@@ -305,6 +435,34 @@ def test_closes_expired_goal(tmp_path):
     assert "status:expired" in queue_text
     ladder_text = paths.ladder.read_text(encoding="utf-8")
     assert "- [x] GOAL-A ::" in ladder_text
+
+
+def test_closes_expired_goal_even_with_a_wip_item(tmp_path):
+    """Expiry is independent of terminality -- a `[~]` item does NOT protect
+    an expired goal from closing (only an unexpired goal gets the new
+    in-progress noop)."""
+    active = {
+        "id": "GOAL-A", "active": True, "opened_at_et": "2026-08-01T00:00:00",
+        "expires_at_et": PAST_EXPIRY, "file": "automation/state/goals/GOAL-A.md",
+        "queue_id": "GOAL-A", "max_continuations_per_session": 3, "last_next_item": None,
+    }
+    ladder = ["- [~] GOAL-A :: expired with wip :: file: automation/state/goals/GOAL-A.md :: expires_days:14"]
+    paths = _write_repo(
+        tmp_path, active_goal=active, ladder_lines=ladder,
+        goal_files={"GOAL-A.md": _goal_md(queue_lines=("- [~] still owned by a session",))},
+        queue_text=_queue_md_with_row("GOAL-A"),
+    )
+    ap = ga.Autopilot(paths, NOW, write=True)
+    result = ap.ensure()
+
+    # No other ladder entry exists here, so after closing GOAL-A there is
+    # nothing left to open -- "closed_ladder_empty" (still confirms it closed).
+    assert result["action"] == "closed_ladder_empty"
+    assert result["closed_id"] == "GOAL-A"
+    assert result["reason"] == "expired"
+    active_json = json.loads(paths.active_goal.read_text(encoding="utf-8"))
+    assert active_json["active"] is False
+    assert active_json["closed_reason"] == "expired"
 
 
 # ============================================================================

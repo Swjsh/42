@@ -21,7 +21,13 @@ ALGORITHM (`ensure`):
      can never collide with the trading engine.
   2. If `active-goal.json` is active, unexpired, and its goal file still has an
      open `- [ ]` QUEUE item -> noop (the common case; this is what most fires do).
-  3. Otherwise CLOSE the active goal (if one exists): append a PROGRESS LOG line +
+     If instead every remaining item is `[~]` (wip, owned by a running session)
+     -> ALSO noop ("no assignable item" is not "finished" -- see goal_is_terminal;
+     this was the 2026-09-04 01:19 ET bug: closing a goal out from under three
+     in-progress items because none of them was a bare `- [ ] `).
+  3. Otherwise CLOSE the active goal (if one exists) -- reached only when EVERY
+     QUEUE item's marker is terminal (`x`/`B`/`B-J`), or the goal expired, or its
+     file went missing: append a PROGRESS LOG line +
      a HONEST STATE paragraph to the goal file, set active-goal.json inactive,
      flip its LADDER.md marker `[~]` -> `[x]`, flip its queue.md row's
      `status:in_progress` -> `status:done`/`status:expired` IN PLACE (one line).
@@ -152,6 +158,52 @@ def parse_ladder(text: str) -> list[dict]:
             "expires_days": int(expires_days),
         })
     return out
+
+
+_QUEUE_MARKER_LINE = re.compile(r"^-\s*\[(x| |~|B|B-J)\]")
+
+
+def queue_markers(goal_md: Optional[str]) -> list[str]:
+    """Every QUEUE item marker, in file order, from the literal `## QUEUE`
+    section only (scanning stops at the next `## ` heading). Distinct from
+    `doctrine.goal_next_open_item`, which only reports bare `[ ]` items --
+    this collects ALL markers so `goal_is_terminal` can tell "nothing
+    assignable right now" ([~] wip owned by a running session) apart from
+    "nothing left to do, ever" (every item closed or blocked)."""
+    markers: list[str] = []
+    in_queue = False
+    for line in (goal_md or "").splitlines():
+        if line.startswith("## "):
+            in_queue = line[3:].strip().upper().startswith("QUEUE")
+            continue
+        if not in_queue:
+            continue
+        m = _QUEUE_MARKER_LINE.match(line)
+        if m:
+            markers.append(m.group(1))
+    return markers
+
+
+def goal_is_terminal(goal_md: Optional[str]) -> bool:
+    """True only when EVERY QUEUE item's marker is `x`/`B`/`B-J` -- i.e.
+    there is nothing left to do, ever, not even a wip item some other
+    session owns. A `[~]` (in-progress) or a bare `[ ]` (open, just not
+    handed out to THIS fire) both keep the goal OPEN. An empty QUEUE (no
+    recognized markers at all) is NOT terminal -- that is a schema
+    violation to skip past, never a false "done".
+
+    Root cause this replaces (BUG found live 2026-09-04 01:19 ET): the old
+    close-if-terminal path treated "doctrine.goal_next_open_item returned
+    None" as "finished", but that function deliberately skips `[~]` items
+    too (a fire must never steal a wip item) -- so a goal with three `[~]`
+    rows and zero bare `[ ]` rows looked "fully terminal" and got closed out
+    from under the session that owned them. "No assignable item" is not the
+    same claim as "no open item"; this function answers the second question.
+    """
+    markers = queue_markers(goal_md)
+    if not markers:
+        return False
+    return all(m in ("x", "B", "B-J") for m in markers)
 
 
 def goal_file_eligible(text: Optional[str]) -> tuple[bool, str, Optional[str]]:
@@ -485,6 +537,15 @@ class Autopilot:
                 opened_item = item
                 reason = "active goal has an open item"
                 attempt_open = False
+            elif not expired and text is not None and not goal_is_terminal(text):
+                # Nothing bare-open to hand a NEW fire, but the goal is not
+                # finished -- at least one QUEUE item is still `[~]` (wip,
+                # owned by a running session). Must noop, not close: closing
+                # here is exactly the 2026-09-04 01:19 ET bug.
+                action = "noop"
+                opened_item = None
+                reason = "active goal has in-progress items (no assignable item)"
+                attempt_open = False
             else:
                 if expired:
                     close_reason = "expired"
@@ -545,6 +606,14 @@ class Autopilot:
                 "next_item": item, "ladder": self.ladder_status(),
                 "last_opened": None, "last_closed": None, "error": None,
                 "closed_id": None, "opened_id": None,
+            }
+        if not expired and text is not None and not goal_is_terminal(text):
+            return {
+                "checked_at_et": _human(self.now_et), "action": "noop",
+                "reason": "active goal has in-progress items (no assignable item)",
+                "active_goal_id": active.get("id"), "next_item": None,
+                "ladder": self.ladder_status(), "last_opened": None, "last_closed": None,
+                "error": None, "closed_id": None, "opened_id": None,
             }
         close_reason = "expired" if expired else ("goal file missing" if text is None else "queue fully terminal (no bare '- [ ] ' item left)")
         closed_id = self._close(active, close_reason)
