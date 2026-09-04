@@ -50,6 +50,7 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
   open and close; J gets a before/after screenshot pair.
 
 ## OPERATING RULES
+- **J 2026-09-03 23:33 ET: "make sure nothing you do causes any popups, everything silent/headless, do not take focus."** All captures and interaction tests run headless (Chrome --headless=new + CREATE_NO_WINDOW, CDP over a pipe/socket); never the in-app browser pane, never a visible window, never Start-ScheduledTask on a GUI task, never a Fire click in tests.
 - **J 2026-09-03 23:10 ET: "remember visuals and designs and styling and animations."** Density and hierarchy are table stakes; the bar is VISUAL. Every spec §4.1 motion moment must exist in code AND be exercised in a live browser (expand, hover, theme toggle, load choreography, live count-up), with the check quoted. Headless stills do not prove motion.
 - **J 2026-09-03 19:30 ET: "do not honour any of my previous designs ... maybe the plumbing."** The prior spec's and current page's LOOK are not inputs; plumbing only survives. Design from the research pack's references + the installed design skills.
 - **CONFIG FREEZE 2026-08-31 → 2026-10-30**: presentation + state readers only; no trading-path
@@ -111,7 +112,10 @@ Falsifiable, each checked by a command or screenshot quoted in the PROGRESS LOG:
 
 - 2026-09-03 19:26 ET — Stop-hook continuation 3/3: R4 (build) is blocked on R2 (design spec workflow, running with the corrected brief) and R3 (vendoring agent, running). Build workflow script is drafted (planner -> parallel builders -> integrator -> screenshot critique loop to median >= 7) and launches on the spec. Screenshot instrument committed bbf34333.
 
+- 2026-09-03 23:33 ET — OWNERSHIP: session 42-98 (Fable) owns R5/R5b/R6 tonight; peer session d0ffce89/61534b9a shipped a partial R5b (--delays-ms on cockpit_screenshot.py) — folded in, not redone. Directed pass: fixer done (273 tests, DOM self-check dark+light clean) but its capture step hit a companion outage 23:05-23:15 ET (keepalive restarted pid 37152 at 23:15) so that panel (1/1/1) is VOID; re-captured 23:31 against the live server; fresh panel running. Found pre-existing bug: companion keepalive probes /api/state without the x-gamma-token header -> logs 'not 200' 274x today while the server is fine (filed in queue.md).
 - 2026-09-03 19:52 ET — R4 build workflow launched (planner -> parallel Sonnet builders on disjoint files -> integrator -> screenshot critique loop, target median >= 7). Deviation from spec §9: NO feature branch — this is a shared checkout with peer sessions committing to main (C34 scar); work lands as scoped commits on main, revert = `git revert <sha>` per commit. Spec + research pack committed 3eda8574.
 
+- 2026-09-03 23:45 ET — Real-capture panel on the directed pass: 4/4/5 (wall_of_text=true): collapsed rows carry the full log sentence (inverted: detail-first), stage occluded/dull with 0 sessions, mid-word truncation, best graphics buried. Fable wrote spec §10 (Iteration 2, the GLANCE layer: 6-tile Vitals grid under the sentence, glance-level rows, crafted day-line, plain-word gate state, human titles, one glyph language, Journal/Answers fill the viewport, WAAPI load choreography, headless CDP exercise). Iteration-2 workflow launched (fix -> headless verify -> panel, <= 3 rounds). Commits so far: 93b36e6e (rebuild), 64d1232f (directed pass), 608e0ca7 (theme module).
+
 ## HONEST STATE
-Queued. Nothing built. Research workflow launching.
+Rebuilt page is LIVE and committed (blind median 4-5, up from 2.3; not yet 7). Iteration 2 (glance layer + motion) in flight. Nothing lost: guard suite green, DOM self-check clean both themes.

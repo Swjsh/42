@@ -392,3 +392,35 @@ Merge order: A -> (B, C in parallel) -> D -> E -> F. WS-C and WS-D negotiate the
 | UNVERIFIED in a browser until WS-F | no "done" claim before after-*.png exist and are compared against `analysis/home/screens/before-*.png` (OP-33) |
 
 **Revert line:** all work lands as one branch `cockpit-quiet-command`; `git revert <merge-sha>` restores the 2026-08-30 page byte-for-byte because `analysis/home/index.html` and `gamma-companion/public/cockpit.html` are regenerated from the reverted modules by `python setup/scripts/gamma_home.py --quiet`. Vendor files stay (already committed, harmless). No state file, no params, no scheduled task is touched by this work.
+
+---
+
+## 10. Iteration 2 — the GLANCE layer (Fable, 2026-09-03 23:40 ET, after five blind rounds: 5/4/4 → 6/5/4 → 5/6/5 → 4/4/5)
+
+**What every panel said, in one sentence:** the page is structurally right but *inverted* — the collapsed row shows the full log sentence and the best graphics are at the bottom, so the first viewport reads as a log viewer with a dark panel on top. J's words: "visuals, designs, styling, animations"; "expandable tiles" means **collapsed = glance, expanded = detail**.
+
+### 10.1 First viewport at 1600×950, top to bottom (heights are targets)
+| # | Band | Height | Rule |
+|---|---|---|---|
+| 1 | Sentence | 48 | ONE line, 20/600. Plain-word state first: `NOT LIVE` (red word, not a red bar) · `Market closed` · `2 agents running` · `1 needs you` · `Book flat`. The metric (`PF CI-lower 0.42 vs 1.0, 42 days`) moves to the Gate tile. No solid-fill banner. |
+| 2 | Day-line | 36 | One track: elapsed segment filled `--accent` at 30%, future segment `--line`; ALL labels below the track, min 56 px apart (drop the collision pair 08:30/09:30 → show 09:30 only; 16:45/17:00 → 17:00 only); the now-marker is a 10 px glowing dot with a 2 s breathing halo (ambient easing). |
+| 3 | **Vitals grid** (NEW) | 168 | 6 tiles in one row (`grid-template-columns:repeat(6,1fr)`, gap 12): **Book** (7-day P&L sparkline with area fill + end dot, big net figure), **Gate** (ring 56 px: CI-lower vs 1.0, big word NOT LIVE/LIVE, metric small), **Agents** (ring: running/total + count), **Kitchen** (pulse bar + done/pending), **Shadow board** (heatmap 12×3 of clocks by verdict), **Budget** (ring: spent/cap + $ figure). Each tile: 24 icon, label 12/600 uppercase-tracked, ONE graphic ≥ 56 px tall, ONE big figure (mono 22/500), one 12 px state line, source+age on hover/expand. Tiles are `<details>` too: expand opens the same body the producer row has. These are the graphics the panel found "wasted at the bottom" — they move UP. |
+| 4 | Army stage | 300 (compact) | Never occluded: session cards dock to the BOTTOM edge inside the stage with 16 px clearance, the orchestrator card sits top-left at 60% width, beams draw between them. When zero sessions are live the stage still earns its space: the star-field + a slow radial sweep (8 s, ambient) + the sentence "Nothing running. Next fire 00:10 ET" centred in mono 13. |
+| 5 | Needs you (rows) | rest | Collapsed row = **glance**: icon (severity-tinted: red/amber/ink) · title ≤ 34 chars at a WORD boundary (never mid-word; wrap to 2 lines before truncating) · one **short state clause** ≤ 60 chars (the builder derives it: first clause before the first `:`/`--`/`(`, stripped of timestamps, markdown, backticks, emoji) · source basename + age · Fire · chevron. The full sentence and the why[] bullets live ONLY in the expanded body. |
+
+Goal + Budget band collapses INTO the Vitals grid (Budget tile) and a one-line goal strip (ring 24 + goal title + next item) directly above "Needs you".
+
+### 10.2 Row families share ONE glyph language
+Every row family (Needs you / Trading / Research / Rig / Answers) uses the same anatomy: `[icon] [title] [graphic 160×24] [state clause] [src·age] [action] [chevron]`. Needs-you rows get a **severity bar** graphic (a 160×24 strip: filled segment length = rank weight, tone = severity) so no row family is text-only. Answers rows get the matching glyph of their question (gate → gauge, kitchen → pulse, futures → lane dots) and a real age (wire `sources[0].mtime` → `data-stamp`; never "unknown age" when the source exists).
+
+### 10.3 Titles are human
+`gamma_cockpit_cards.py::_row_title` and the tile builders produce **labels**, not log lines: strip `[timestamp]`, emoji, markdown, backticks, `_`/`-` screaming-snake → words in sentence case (`ROSTER-LIVENESS` → `Roster liveness`), cut at a word boundary ≤ 34 chars, and put the first number/state into the state clause (`1 lane dead`). Pin with tests: no `…` inside a word, no `[`, no `**`, no emoji in `.tile__title`.
+
+### 10.4 Journal / Answers fill the viewport
+Journal: calendar cells 56 px, a 7-day equity sparkline band (160 px) under the grid, the month summary as three vitals-style tiles above it. Answers: the 7 rows + a right column with the two most relevant vitals tiles (Gate, Book). No page shows > 40 % dead space at 1600×950.
+
+### 10.5 Motion (J: "big on visuals and animations") — must EXIST and be EXERCISED headless
+Load choreography (one WAAPI timeline): sentence words fade/rise 0–200 ms → day-line draws 100–400 → vitals graphics draw (sparkline path-length, ring dashoffset, heatmap cells stagger 12 ms) 200–800 → stage stars fade + orchestrator rises 300–700 → beams power up 700–1000 → figures CountUp 400–1000. Row expand: height + opacity, chevron 180°. Hover: surface only. Verdict flip: dot scale + tint. Theme: 200 ms crossfade. Day-line now-marker breathes (ambient curve). All gated by `prefers-reduced-motion` (tokens → 0, no height transitions). **Proof = headless CDP exercise** (`setup/scripts/cockpit_exercise.py`: Chrome `--headless=new --remote-debugging-port`, `websockets` client; Runtime.evaluate for `document.getAnimations().length`, `details[open]` after click via Input.dispatchMouseEvent, theme flip via key, computed styles) — never the in-app pane, never a visible window (J 23:33 ET).
+
+### 10.6 Exit bar
+Blind panel median ≥ 7 with `wall_of_text=false` on real captures (pre-flight 200 + hash-dedup), DOM self-check clean both themes, guard suite green, headless exercise: 0 console errors, ≥ 8 of 10 checks ok.
