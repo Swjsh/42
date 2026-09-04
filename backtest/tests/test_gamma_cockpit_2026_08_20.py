@@ -44,9 +44,19 @@ def html():
 # ------------------------------------------------------- self-contained
 
 def test_no_external_resource_tags(html):
-    for bad in ("<script src", "<link rel=\"stylesheet\"", "@import", "@font-face",
+    for bad in ("<script src", "<link rel=\"stylesheet\"", "@import",
                 "cdn.", "unpkg", "jsdelivr", "googleapis"):
         assert bad not in html.lower() if bad.islower() else bad not in html, bad
+
+
+def test_font_face_is_inlined_never_networked(html):
+    """@font-face is now expected (vendored fonts, base64-inlined) -- the intent
+    this test protects is stronger than "absent": every src: must be a data:
+    URI, never a network font request (2026-09-03 amendment, WS-A)."""
+    faces = re.findall(r"@font-face\{[^}]*\}", html)
+    assert faces, "expected inlined @font-face rules from gamma_cockpit_vendor"
+    for face in faces:
+        assert "src:url(data:" in face.replace(" ", ""), face[:120]
 
 
 def test_no_placeholder_survives(html):

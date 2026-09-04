@@ -19,8 +19,14 @@ from gamma_cockpit_cards_js import CARDS_JS
 from gamma_cockpit_chat_js import CHAT_JS
 
 VIEWS_JS = r"""
-/* ---------- OVERVIEW: verdict -> desks -> agents -> exceptions ---------- */
+/* ---------- OVERVIEW: verdict -> desks -> agents -> exceptions ----------
+   Quiet Command redesign (2026-09-03): this view is now an ALIAS for the single Command
+   view (gamma_cockpit_command_js.py's vCommand()) -- Overview/Desks/Orchestration/Engine
+   room/Agents/Activity all collapse into one page, scrolled+expanded to the matching row
+   group. Feature-detected: until vCommand() lands, each renderer falls through to its
+   original body below so the page never throws on a missing function. */
 function vOverview(h){
+  if(typeof vCommand==='function'){ vCommand(h); return; }
   const s=bookSummary(), desks=D.desks?.desks||[];
 
   // THE BRIEFING leads. J: "command center should be like me talking to an
@@ -159,6 +165,11 @@ function vOverview(h){
 
 /* ---------- DESKS ---------- */
 function vDesks(h){
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    if(typeof tileOpen==='function')tileOpen('tile-org',{scroll:true});
+    return;
+  }
   const desks=D.desks?.desks||[];
   h.appendChild(el('div','shead','<h2>Trading desks</h2><span class="dim">decomposed by instrument — the context boundary, not by role</span>'));
   const g=el('div','grid g2');
@@ -207,6 +218,11 @@ function deskDrawer(d){
 
 /* ---------- ORCHESTRATION ---------- */
 function vOrch(h){
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    if(typeof tileOpen==='function')tileOpen('tile-org',{scroll:true});
+    return;
+  }
   const org=D.org||{}, alloc=D.allocation||{};
   h.appendChild(el('div','shead','<h2>Agent orchestration</h2><span class="dim">master coordinates · desks own context · functions are shared</span>'));
 
@@ -291,6 +307,11 @@ function orgSvg(org){
 
 /* ---------- ENGINE ROOM: every engine's heartbeat and its reasons ---------- */
 function vEngine(h){
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    if(typeof tileOpen==='function')tileOpen('tile-engines',{scroll:true});
+    return;
+  }
   const er=D.engine_room||{engines:[]};
   h.appendChild(el('div','shead','<h2>Engine room</h2><span class="dim">every engine, its own ledger, its own stated reasons</span>'));
   const g=el('div','grid g2');
@@ -350,6 +371,11 @@ function engineDrawer(e){
 
 /* ---------- AGENTS: who ran, and was the output TRUSTED ---------- */
 function vAgents(h){
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    if(typeof tileOpen==='function')tileOpen('tile-agents',{scroll:true});
+    return;
+  }
   const a=D.agents||{events:[],counts:{},sources:[]};
   h.appendChild(el('div','shead','<h2>Agents</h2><span class="dim">what ran \u2014 and whether its output survived the fabrication gate</span>'));
   const g=el('div','grid g4');
@@ -387,8 +413,11 @@ function vAgents(h){
 /* ---------- JOURNAL ---------- */
 let calArm='BOOK', calBasis='n', calMonth=null;
 function vJournal(h){
-  h.appendChild(el('div','shead','<h2>Journal</h2><span class="dim">per-arm P&amp;L · click a day for its trades</span>'));
-  const c=el('div','card'); calendarInto(c,calArm,false); h.appendChild(c);
+  // .page: the re-skinned Journal wrapper (spec sec 3 "Journal: calendar grid re-skinned").
+  const page=el('div','page');
+  page.appendChild(el('div','shead','<h2>Journal</h2><span class="dim">per-arm P&amp;L · click a day for its trades</span>'));
+  const c=el('div','card'); calendarInto(c,calArm,false); page.appendChild(c);
+  h.appendChild(page);
 }
 function calendarInto(host,arm,mini){
   host.innerHTML='';
@@ -426,17 +455,23 @@ function calendarInto(host,arm,mini){
   const first=new Date(Y,Mo-1,1), nd=new Date(Y,Mo,0).getDate();
   for(let i=0;i<first.getDay();i++)grid.appendChild(el('div','cell empty'));
   let tot=0,n=0;
+  // Re-skin to the token names on the full Journal tab only (spec sec 3): 44x44 cells,
+  // mono figures. The Overview mini strip (mini=true) keeps its compact sizing --
+  // D.calendar_scale/clamp/max_abs stay the SAME numbers either way, only the paint differs.
   for(let d=1;d<=nd;d++){
     const iso=`${Y}-${String(Mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`, row=v.days[iso];
     const p=row?row[calBasis]:null;
     const c=el('div','cell'+(row?' has ':' ')+(row?(p>0?'win':p<0?'loss':'flat'):''));
+    if(!mini)c.style.cssText='min-width:44px;min-height:44px';
     c.appendChild(el('div','d',String(d)));
     if(row){
       tot+=p;n++;
       // clamped intensity: one blowout day cannot flatten the month
       const k=Math.min(1,Math.abs(p)/clamp);
       c.style.background=`color-mix(in oklch, var(--${p>0?'pos':'neg'}) ${(6+k*22).toFixed(0)}%, var(--bg-1))`;
-      c.appendChild(el('div','v',M(p)));
+      const vEl=el('div','v',M(p));
+      if(!mini)vEl.style.cssText='font-family:var(--mono);font-size:12px';
+      c.appendChild(vEl);
       c.appendChild(el('div','t',row.t+(row.t===1?' trade':' trades')));
       c.title=`${iso} · ${row.t} trades · ${M2(p)}`;
       c.onclick=()=>dayDrawer(iso,arm);
@@ -486,6 +521,30 @@ function dayDrawer(iso,arm){
 
 /* ---------- ANSWERS ---------- */
 function vAnswers(h){
+  const answers=D.answers||[];
+  /* Rows, not cards (spec sec 4/5): each answer becomes one tileRow inside one groupRows,
+     verdict dot from health() remapped to the tile colour enum. tileRow/groupRows are owned
+     by gamma_cockpit_tiles_js.py (WS-C) -- feature-detected, and the call is wrapped so a
+     signature this file guessed wrong falls through to the grid below rather than throwing. */
+  if(typeof tileRow==='function'&&typeof groupRows==='function'){
+    try{
+      const VERDICT_MAP={ok:'green',warn:'amber',bad:'red'};
+      const src0=(i)=>{ const s=(answers[i].sources||[])[0];
+        return s?{path:s.path,stamp:s.last_write||null}:null; };
+      const rows=answers.map((a,i)=>tileRow({
+        id:'tile-answer-'+i, icon:'check-circle-2', title:a.q,
+        verdict:VERDICT_MAP[health(a.verdict)]||'off',
+        say:esc(a.answer), src:src0(i),
+        body:(b)=>{
+          if(a.detail)b.appendChild(el('div','mut',esc(a.detail)));
+          if(a.means)b.appendChild(el('div','dim',esc(a.means)));
+          b.appendChild(srcRow(a.sources));
+        },
+      }));
+      h.appendChild(groupRows({id:'tile-group-answers',title:'The answers',rows}));
+      return;
+    }catch(_){ /* tileRow/groupRows not ready for this shape yet -- fall through */ }
+  }
   h.appendChild(el('div','shead','<h2>The answers</h2><span class="dim">you shouldn’t have to ask</span>'));
   const g=el('div','grid g2');
   (D.answers||[]).forEach(a=>{
@@ -517,6 +576,11 @@ function answerDrawer(a){
 
 /* ---------- ACTIVITY ---------- */
 function vActivity(h){
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    if(typeof tileOpen==='function')tileOpen('tile-activity',{scroll:true});
+    return;
+  }
   const hq=D.hq||{};
   h.appendChild(el('div','shead','<h2>Activity</h2><span class="dim">clocks · wants · recent ships</span>'));
   const g=el('div','grid g2');

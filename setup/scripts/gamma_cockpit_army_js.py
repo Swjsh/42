@@ -54,7 +54,7 @@ function armyHumanAct(detail){
 function armySvg(a){
   const ns='http://www.w3.org/2000/svg';
   const mk=(t,attrs)=>{const e=document.createElementNS(ns,t);for(const k in (attrs||{}))e.setAttribute(k,attrs[k]);return e};
-  const stxt=(x,y,str,c,sz,w,anchor)=>{const e=mk('text',{x,y,fill:c||'var(--tx-2)','font-size':sz||11,
+  const stxt=(x,y,str,c,sz,w,anchor)=>{const e=mk('text',{x,y,fill:c||'var(--tx-2)','font-size':Math.max(12,sz||12),  /* 12px floor: spec 2.2, nothing visible below it */
     'font-family':'var(--font)','font-weight':w||500,'text-anchor':anchor||'middle'});e.textContent=str;return e};
   /* Left-aligned label -- reading a box is scanning a short list, not centring a poster. */
   const ltxt=(x,y,str,c,sz,w)=>stxt(x,y,str,c,sz,w,'start');
@@ -84,17 +84,22 @@ function armySvg(a){
      and the old 330px boxes + 380px hero used barely 40% of it -- a postage stamp on a
      billboard. Boxes 430x200, hero 560x120, type up a full step. fitCols() already adapts
      column count to what fits, so smaller windows degrade to 2/1 columns, never to tiny. */
-  const BW=430, BH=200, GAPX=32, GAPY=32, PAD=34;
+  /* Box width flexes between BW_MIN and BW_MAX so the 1360px Command column
+     (spec 3) still seats 3 columns at 1:1 scale: 430px boxes need 1422px for
+     three, which forced 2 columns + 2 rows and a 760px stage; 398px boxes fit.
+     Type size is unaffected (the viewBox stays at the real column width). */
+  const BW_MAX=430, BW_MIN=380, BH=200, GAPX=32, GAPY=32, PAD=34;
   const fitCols=(avail)=>{
-    for(let c=3;c>1;c--){ if(PAD*2+c*BW+(c-1)*GAPX<=avail) return c; }
+    for(let c=3;c>1;c--){ if(PAD*2+c*BW_MIN+(c-1)*GAPX<=avail) return c; }
     return 1;
   };
   let availW=0;
   try{
     const host=document.getElementById('view')||document.body;
-    availW=host.clientWidth-380;               // rail (340) + grid gap + card padding
+    availW=host.clientWidth-32;                // card padding only -- the cards rail is gone
   }catch(_){}
   const COLS=availW>200?fitCols(availW):3;
+  const BW=availW>200?Math.max(BW_MIN,Math.min(BW_MAX,Math.floor((availW-PAD*2-(COLS-1)*GAPX)/COLS))):BW_MAX;
   const MAX_BOXES=9;
   /* The orchestrator was ALSO drawn in the grid below itself, so 42-dd appeared twice and
      the page silently implied there was one more window than exists. J: "wtf is 42-dd?
@@ -203,9 +208,9 @@ function armySvg(a){
       rdot.id='armyworker-'+w.agent_id;
       rg.appendChild(rdot);
       const tag=armyTypeWord(w.agent_type)+(w.model?'·'+w.model:'');
-      rg.appendChild(ltxt(cx0+16,ry,fitTxt(tag,120,10.5,true),
+      rg.appendChild(ltxt(cx0+16,ry,fitTxt(tag,120,12,true),
         w.active?'var(--tx-2)':'var(--tx-4)',10.5,600));
-      rg.appendChild(ltxt(cx0+144,ry,fitTxt(w.purpose||armyPurpose(w.task),colW-160,11.5),
+      rg.appendChild(ltxt(cx0+144,ry,fitTxt(armyGist(w.purpose||w.task),colW-160,12),
         w.active?'var(--tx-3)':'var(--tx-4)',11.5,400));
       const tt=mk('title',{}); tt.textContent=(w.agent_type||'agent')+' · '+(w.model||'?')+
         ' · '+(w.active?'running':'finished')+'\n'+(w.task||''); rg.appendChild(tt);
@@ -378,11 +383,11 @@ function armySvg(a){
       rdot.id='armyworker-'+w.agent_id;
       rg.appendChild(rdot);
       const tag=armyTypeWord(w.agent_type)+(w.model?'·'+w.model:'');
-      rg.appendChild(ltxt(L+38,ry,fitTxt(tag,120,10.5,true),
+      rg.appendChild(ltxt(L+38,ry,fitTxt(tag,120,12,true),
         w.active?'var(--tx-2)':'var(--tx-4)',10.5,600));
       /* `purpose` is derived in the payload, where the full prompt and the agent's
          sibling set are both in hand -- the browser can see neither. */
-      rg.appendChild(ltxt(L+166,ry,fitTxt(w.purpose||armyPurpose(w.task),CW-144,11.5),
+      rg.appendChild(ltxt(L+166,ry,fitTxt(armyGist(w.purpose||w.task),CW-144,12),
         w.active?'var(--tx-3)':'var(--tx-4)',11.5,400));
       const tt=mk('title',{}); tt.textContent=(w.agent_type||'agent')+' · '+(w.model||'?')+
         ' · '+(w.active?'running':'finished')+'\n'+(w.task||''); rg.appendChild(tt);
@@ -455,39 +460,54 @@ function armySvg(a){
       ' not shown — the roster is capped so the boxes stay readable','var(--tx-4)',11,500));
   }
 
-  /* TOOLBAR -- J on the first screenshot: "there is no butotns or anything". The graph
-     was fully interactive (every box opened a drawer) but advertised none of it, and the
-     only place with real actions -- the Cards view -- was reachable only from the nav. */
+  /* CONTROLS -- a 28px icon row, top-right of the stage (Quiet Command spec sec 3 band 3).
+     Was a row of labelled text buttons; icons now, with ic() feature-detected so the row
+     never goes blank while gamma_cockpit_vendor.py's icon helper is still landing. Refresh
+     routes to 'command' first -- the new home for this stage -- and falls back to the old
+     'army' route while that view has not shipped yet. */
   const wrap=el('div','org armywrap');
-  const bar=el('div','armybar');
-  bar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px';
-  const mkbtn=(label,title,fn,primary)=>{
-    const b=document.createElement('button');
-    b.type='button'; b.textContent=label; b.title=title;
-    b.style.cssText='font:600 12px/1 var(--font);padding:9px 14px;border-radius:8px;cursor:pointer;'+
-      'border:1px solid '+(primary?'var(--acc)':'var(--bd)')+';'+
-      'background:'+(primary?'var(--acc-dim)':'var(--bg-2)')+';color:'+(primary?'var(--acc)':'var(--tx-2)')+';';
-    b.onclick=fn;
-    return b;
-  };
+  const icOr=(name,glyph)=>(typeof ic==='function')?ic(name):esc(glyph);
+  const routeStage=()=>{ try{route('command')}catch(_){ try{route('army')}catch(__){} } };
+  const bar=el('div','stage__controls');
   bar.style.cssText='display:flex;gap:6px;align-items:center;margin:0 0 10px;'+
     'position:absolute;top:10px;right:12px;z-index:5';
-  bar.appendChild(mkbtn('↻','Re-read the roster and pulse log now',
-    ()=>{try{route('army')}catch(_){}}));
+  const mkctl=(html,title,fn)=>{
+    const b=document.createElement('button');
+    b.type='button'; b.title=title; b.className='stage__ctlbtn';
+    b.style.cssText='min-width:28px;height:28px;padding:0 8px;display:inline-grid;place-items:center;'+
+      'font:600 12px/1 var(--font);border-radius:8px;cursor:pointer;'+
+      'border:1px solid var(--bd);background:var(--bg-2);color:var(--tx-2);';
+    b.innerHTML=html; b.onclick=fn;
+    return b;
+  };
+  bar.appendChild(mkctl(icOr('refresh-cw','↻'),'Re-read the roster and pulse log now',routeStage));
   const staleN=((a.sessions||[]).filter(x=>x.activity==='stale'&&x.session_id!==(a.orchestrator||{}).session_id)).length;
   if(staleN){
-    const t=mkbtn(armyShowStale?'−'+staleN:'+'+staleN,
+    /* round-2 review (major): this was bare text ("+3") beside three icon-only
+       buttons -- "four different visual treatments in a few inches". The eye
+       glyph (already vendored) plus the count reads as one family with
+       refresh/pause/help, and still says show-vs-hide via its title + the
+       glyph itself rather than a naked +/- sign. */
+    bar.appendChild(mkctl(icOr('eye','◉')+'<span style="margin-left:4px">'+esc(staleN)+'</span>',
       (armyShowStale?'Hide ':'Show ')+staleN+' idle chats (no transcript write for 2h+)',
-      ()=>{ armyShowStale=!armyShowStale; try{route('army')}catch(_){} });
-    bar.appendChild(t);
+      ()=>{ armyShowStale=!armyShowStale; routeStage(); }));
   }
-  const pauseBtn=mkbtn('⏸','Stop the travelling dots without stopping the data',()=>{
+  const pauseBtn=mkctl(icOr('pause','⏸'),'Stop the travelling dots without stopping the data',()=>{
     if(!armyState)return;
     armyState.paused=!armyState.paused;
-    pauseBtn.textContent=armyState.paused?'▶':'⏸';
+    pauseBtn.innerHTML=armyState.paused?icOr('play','▶'):icOr('pause','⏸');
   });
   bar.appendChild(pauseBtn);
-  const helpBtn=mkbtn('?','What am I looking at?',()=>{
+  /* Hand-authored (not a vendored Lucide asset -- none of the 59 vendored names is a
+     help glyph, spec section 5's own note: "circle-help are deliberately absent"),
+     but drawn with the SAME contract every vendored icon uses (16x16, stroke
+     currentColor, stroke-width 2, round caps) so it reads as the fourth member of one
+     icon family instead of a plain "?" character next to three SVGs. */
+  const helpIcon='<svg class="ic" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" '+
+    'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+
+    '<circle cx="12" cy="12" r="9"/><path d="M9.4 9.2a2.6 2.6 0 0 1 5 1c0 1.8-2.5 2-2.5 3.8"/>'+
+    '<circle cx="12" cy="17.2" r=".1"/></svg>';
+  const helpBtn=mkctl(helpIcon,'What am I looking at?',()=>{
     const lg=wrap.querySelector('.armylegend');
     if(lg)lg.style.display=(lg.style.display==='none'?'':'none');
   });
@@ -500,7 +520,7 @@ function armySvg(a){
   const legend=el('div','armylegend');
   legend.style.cssText='display:flex;flex-wrap:wrap;gap:14px;align-items:baseline;margin:0 0 10px;'+
     'padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg-inset);'+
-    'font:500 11.5px/1.4 var(--font);color:var(--tx-3);flex:none';
+    'font:500 12px/1.4 var(--font);color:var(--tx-3);flex:none';
   const li=(strong,rest)=>{
     const d=document.createElement('div');
     d.innerHTML='<b style="color:var(--tx-1);font-weight:700">'+strong+'</b> '+rest;
@@ -510,7 +530,8 @@ function armySvg(a){
      do?" The old legend was a paragraph; this is a scan. */
   legend.appendChild(li('Boxes = Claude sessions.',
     'Top one is this page. Small circles inside a box are its subagents ('+wct+' total).'+
-    (staleCount&&!armyShowStale?' '+staleCount+' idle chat'+(staleCount===1?'':'s')+' hidden.':'')));
+    (staleCount&&!armyShowStale?' '+staleCount+' idle chat'+(staleCount===1?'':'s')+' hidden.':'')+
+    ' The bottom bar is memory used before a compact -- cyan is fine, amber near one, red past it.'));
   legend.appendChild(li('Cards on the right = things to do.',
     'Click one to open it, then Fire to spawn a worker that handles it.'));
   legend.style.display='none';   // furniture on demand, not permanent -- J: "too busy"
@@ -652,6 +673,32 @@ function armyPurpose(task){
   const pre=t.match(/^You are [^.]{0,80}\.\s+/i);
   if(pre&&t.length-pre[0].length>24)t=t.slice(pre[0].length);
   return t||'(no task recorded)';
+}
+
+/* round-2 review (major): the hero row printed armyPurpose() verbatim -- full CLI
+   invocations ('after-r2 --views command,overview,cards,journal --sizes...') and
+   prompts truncated mid-word by fitTxt's char-level fallback ('...design-taste/re...')
+   -- "the opposite of visual not textual". A short verb-phrase gist by default; the
+   untouched task/prompt is still one click away (armySessionDrawer/armyWorkerDrawer)
+   and still sits in the row's <title> tooltip, so nothing is lost, only deferred. */
+function armyGist(task){
+  const t=armyPurpose(task);
+  // CLI-shaped tasks ("tool --flag a --flag b ...") read as command noise on a
+  // glance surface -- same reduction armyHumanAct already applies to a pulse
+  // event's "Ran: ..." detail, applied here to a task string instead.
+  const cli=t.match(/^(\S+)\s+--?\S/);
+  const gist=cli?('Running '+cli[1].replace(/^\.?\/*/,'').split(/[\\/]/).pop()):t;
+  const CAP=52;
+  if(gist.length<=CAP)return gist;
+  // grow word-by-word so the cut always lands on a space, never mid-word/mid-path
+  const words=gist.split(' ');
+  let out='';
+  for(const w of words){
+    const next=out?out+' '+w:w;
+    if(next.length>CAP)break;
+    out=next;
+  }
+  return (out||gist.slice(0,CAP)).replace(/[ ,;:.\-]+$/,'')+'…';
 }
 
 /* THE ANSWER BAR. J has asked three times what he is looking at. The page could only
@@ -848,232 +895,65 @@ function armyPoll(){
     .finally(()=>{setTimeout(armyPoll,1000)});
 }
 
-/* ---------- cards rail: list on the right, promote into the canvas ----------
-   J: "put the Cards in a vertical column on the right side of the army page, then when I
-   click a card, we see the card go from the column on to the actual page itself."
-
-   The card is NOT moved through the DOM. The rail and the canvas are two independent
-   render targets reading one selected-id, and the visual morph is the View Transitions
-   API: the same `view-transition-name` is on the rail item while collapsed and on the
-   promoted panel while open -- never both at once -- so the browser interpolates position
-   and size between them by itself. Chromium 111+, which is the only target this page has,
-   so there is no FLIP math and no fallback branch beyond reduced-motion. */
-let armyCardSel=null;
+/* ---------- cards rail: DELETED (Quiet Command redesign, 2026-09-03) ----------
+   J's "cards in a column, click to promote onto the canvas" rail -- the right-hand list,
+   the promoted panel inside the stage, and the view-transition morph between them -- is
+   gone. Action cards now live as rows in Command's "Needs you" group
+   (gamma_cockpit_cards_js.py's vCommand path), Fire button on the row itself.
+   armyShowStale survives: the stale-chat toggle is still read by armySvg() above. */
 let armyShowStale=false;
 
-function armyCardVtName(id){ return 'acard-'+String(id||'').replace(/[^A-Za-z0-9_-]/g,''); }
+/* ---------- armyMount: the stage, self-contained ----------
+   Everything vArmy() used to assemble inline (armySvg's wrap -- itself already bundling
+   the SVG, stars/flicker canvases, legend and the controls row above -- plus the hidden
+   diagnostic ledger, armyState wiring, the baked-pulse replay and the live poll) now lives
+   here so any host (Command's stage band, or this file's own fallback below) can mount the
+   whole stage with one call. Keeps ids #armystage and #armyledger. */
+function armyMount(host){
+  const a=D.army||{sessions:[],workers:[],pulses:[],orchestrator:null,source:{}};
+  const live=location.protocol!=='file:';
+  const built=armySvg(a);
+  built.wrap.id='armystage';
+  built.wrap.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column;position:relative';
+  host.appendChild(built.wrap);
 
-function armyPaintCards(){
-  const rail=document.getElementById('armyrail');
-  const stage=document.getElementById('armystage');
-  if(!rail||!stage)return;
-  const cards=((D.cards&&D.cards.cards)||D.action_cards||[]);
-  rail.innerHTML='';
-  stage.innerHTML='';
+  // Diagnostic event ledger -- HIDDEN by default now that chat owns the bottom panel
+  // (chat lives in #chatdock, mounted by the runtime, not here). Still populated by
+  // armyApplyRow/armyLedgerRow so the data exists for a future disclosure affordance.
+  const ledger=el('div','armyledger'); ledger.id='armyledger'; ledger.style.display='none';
+  host.appendChild(ledger);
+  host.appendChild(srcRow([a.source&&a.source.pulse,a.source&&a.source.sessions].filter(Boolean)));
+  if(a.error)host.appendChild(el('div','micro warnc','army payload error: '+esc(a.error)));
 
-  const sel=cards.find(c=>c.id===armyCardSel)||null;
-  if(sel){
-    const p=el('div','card acard-open');
-    p.style.viewTransitionName=armyCardVtName(sel.id);
-    p.style.cssText+=';border-color:var(--acc);margin:0 0 16px';
-    const head=el('div','row');
-    head.innerHTML='<span class="chip">RANK '+esc(String(sel.rank))+'</span>'+
-      (sel.gated?'<span class="chip warn">GATED</span>':'')+
-      '<span class="chip">'+esc(sel.model||'sonnet')+'</span>';
-    const close=document.createElement('button');
-    close.type='button'; close.textContent='Close ✕';
-    close.style.cssText='margin-left:auto;font:600 12px/1 var(--font);padding:7px 12px;border-radius:6px;'+
-      'border:1px solid var(--bd);background:var(--bg-2);color:var(--tx-2);cursor:pointer';
-    close.onclick=()=>armySelectCard(sel.id);
-    head.appendChild(close);
-    p.appendChild(head);
-    const t=el('h3'); t.textContent=sel.title; t.style.cssText='margin:12px 0 8px;font-size:20px;line-height:1.2';
-    p.appendChild(t);
-    (sel.why||[]).slice(0,4).forEach(w=>p.appendChild(el('div','micro','• '+esc(String(w).slice(0,220)))));
-    p.appendChild(srcRow([sel.source_path].filter(Boolean)));
-    /* WHAT HAPPENS WHEN I CLICK GO. J: "am i going to realize what happens when I click go?"
-       The fire button is now a two-step confirm that SAYS the consequence before it happens,
-       and the second click plays a spawn animation so the cause (this card) and the effect
-       (a new box on the graph) are visibly the same event. */
-    const rth=rthNowClient();
-    const act=el('div'); act.style.marginTop='14px';
-    const what=el('div','firewhat');
-    what.innerHTML=rth
-      ? 'Market hours (09:30-15:55 ET) - firing is disabled so cockpit work never competes with the heartbeat.'
-      : 'Clicking spawns a <b>'+esc(sel.model||'sonnet')+'</b> worker to do this. '+
-        'It appears as a new box on the graph above and streams its work into Chat.';
-    act.appendChild(what);
-    const btn=document.createElement('button');
-    btn.type='button'; btn.className='firebtn'; btn.dataset.state='idle'; btn.disabled=rth;
-    btn.textContent=rth?'Disabled during market hours':'Fire this worker';
-    const msg=el('div','micro'); msg.style.marginTop='8px';
-    btn.onclick=()=>{
-      if(btn.dataset.state==='idle'){
-        btn.dataset.state='armed';
-        btn.textContent='Click again to confirm — spawns a worker';
-        btn.classList.add('armed');
-        msg.textContent='One more click actually starts it. Click anywhere else to cancel.';
-        return;
-      }
-      armyFireAnimation(sel.id);          // the visible cause->effect
-      fireCard(sel,btn,msg);
-    };
-    // Clicking away from an armed button cancels it -- an armed destructive control that
-    // stays armed silently is a foot-gun.
-    p.addEventListener('click',(e)=>{ if(e.target!==btn && btn.dataset.state==='armed'){
-      btn.dataset.state='idle'; btn.classList.remove('armed');
-      btn.textContent='Fire this worker'; msg.textContent=''; } });
-    act.appendChild(btn); p.appendChild(act); p.appendChild(msg);
-    stage.appendChild(p);
-  }
-
-  const head=el('div','micro'); head.textContent='ACTION CARDS · '+cards.length+' ranked, worst first';
-  head.style.cssText='letter-spacing:.1em;margin:0 0 10px;color:var(--tx-4)';
-  rail.appendChild(head);
-
-  cards.forEach(c=>{
-    const open=(c.id===armyCardSel);
-    const it=el('div','card acard-item');
-    // Radius/padding from the two independently-sourced token scales the research found
-    // agreeing (Linear + Geist): 12px container radius, 4px-base spacing, hairline border
-    // for elevation rather than a shadow.
-    it.style.cssText='padding:11px 13px 11px 17px;margin:0 0 8px;cursor:pointer;border-radius:12px;'+
-      'border:1px solid '+(open?'var(--acc)':'var(--bd)')+';'+
-      'background:linear-gradient(rgba(255,255,255,.02),rgba(255,255,255,0) 45%),var(--bg-1);'+
-      'box-shadow:var(--topline),var(--ring);'+
-      (open?'opacity:.45;':'');
-    if(!open)it.style.viewTransitionName=armyCardVtName(c.id);
-    it.onclick=()=>armySelectCard(c.id);
-    /* Severity is encoded in the leading edge, not just the number. Cards sourced from
-       STATUS.md are things that are BROKEN; queue items are things that are QUEUED. A rail
-       where every row looks identical makes "ranked, worst first" a claim the eye cannot
-       verify. Semantic colour only -- the purple accent is never used to mean severity. */
-    const src=(c.source_path||'').split('/').pop();
-    const sev=/STATUS/i.test(src)?'var(--neg)':(/unattended/i.test(src)?'var(--warn)':'var(--acc)');
-    const edge=document.createElement('i');
-    edge.style.cssText='position:absolute;left:0;top:0;bottom:0;width:3px;background:'+sev+';opacity:.85';
-    it.appendChild(edge);
-    const r=el('div'); r.style.cssText='display:flex;align-items:center;gap:8px';
-    const rk=el('span'); rk.textContent=String(c.rank);
-    rk.style.cssText='font:700 10.5px/1 var(--mono);min-width:20px;height:20px;display:inline-grid;'+
-      'place-items:center;border-radius:6px;background:rgba(255,255,255,.06);color:var(--tx-2);'+
-      'border:1px solid var(--bd-subtle)';
-    const srcEl=el('span'); srcEl.textContent=src.replace(/\.(md|json)$/,'');
-    srcEl.style.cssText='font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--tx-4)';
-    r.appendChild(rk); r.appendChild(srcEl);
-    const t=el('div'); t.textContent=String(c.title||'').slice(0,84);
-    t.style.cssText='font:600 13.5px/1.35 var(--font);color:var(--tx-1);margin-top:4px';
-    it.appendChild(r); it.appendChild(t);
-    rail.appendChild(it);
-  });
-
-  if(!cards.length)rail.appendChild(el('div','micro','No cards right now — nothing is flagged.'));
-}
-
-function armyFireAnimation(id){
-  /* Make the cause visible. A pulse leaves the fired card panel and travels to the
-     orchestrator node, which flashes -- so "I clicked this card" and "a worker is being
-     born up there" read as one motion, not two disconnected events. A toast says it in
-     words for anyone who missed the motion, and both respect prefers-reduced-motion. */
-  try{
-    const panel=document.querySelector('.acard-open');
-    const orc=document.getElementById('army-orc');
-    const svg=document.getElementById('armysvg');
-    // toast, always (this is the words-fallback and the reduced-motion path)
-    let toast=document.getElementById('firetoast');
-    if(!toast){ toast=el('div'); toast.id='firetoast'; toast.className='firetoast'; document.body.appendChild(toast); }
-    toast.textContent='Spawning a worker — watch the top box';
-    toast.classList.add('show');
-    setTimeout(()=>toast.classList.remove('show'),2600);
-    if(orc){ orc.classList.add('orc-spawn'); setTimeout(()=>orc.classList.remove('orc-spawn'),1400); }
-    if(RM||!panel||!svg)return;
-    const a=panel.getBoundingClientRect(), b=svg.getBoundingClientRect();
-    const dot=el('div'); dot.className='firecomet';
-    dot.style.left=(a.left+20)+'px'; dot.style.top=(a.top+20)+'px';
-    document.body.appendChild(dot);
-    requestAnimationFrame(()=>{
-      dot.style.transform='translate('+((b.left+b.width/2)-(a.left+20))+'px,'+((b.top+70)-(a.top+20))+'px) scale(.4)';
-      dot.style.opacity='0';
-    });
-    setTimeout(()=>{ try{dot.remove()}catch(_){}} ,900);
-  }catch(_){/* animation must never break the actual fire */}
-}
-
-function armySelectCard(id){
-  const go=()=>{ armyCardSel=(armyCardSel===id?null:id); armyPaintCards(); };
-  if(document.startViewTransition && !RM){ document.startViewTransition(go); } else { go(); }
+  armyState=built.state;
+  (a.pulses||[]).forEach(r=>armyApplyRow(r,false));
+  armyState.cursor=(a.pulses&&a.pulses.length)?a.pulses[a.pulses.length-1].ts:'';
+  if(live)armyPoll();
 }
 
 function vArmy(h){
+  /* The Army stage now lives inside Command (spec sec 3 band 3); this route is an alias
+     that mounts Command and scrolls its stage into view -- same pattern as the other old
+     view ids (vOverview etc. in gamma_cockpit_views_js.py). Feature-detected: until
+     gamma_cockpit_command_js.py's vCommand() lands, fall back to mounting the stage
+     directly here so the page never throws on a missing function. */
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    try{
+      const sh=document.getElementById('stagehost');
+      if(sh)sh.scrollIntoView({behavior:RM?'auto':'smooth'});
+    }catch(_){}
+    return;
+  }
   const a=D.army||{sessions:[],workers:[],pulses:[],orchestrator:null,source:{}};
   const live=location.protocol!=='file:';
   /* The topbar already says "Army" -- repeating it as an h2 directly underneath was the
      view introducing itself twice. One slim status line carries what is actually new. */
   h.appendChild(armyAnswerBar(a,live));
-
-  /* Two-column shell. align-self:start is load-bearing, not cosmetic: grid's default
-     `stretch` makes the short rail column match its taller sibling's height, which
-     silently defeats position:sticky. */
-  /* ONE SCREEN, NO SCROLL. J: "make it one page i dont want to ahve to scroll."
-     The page was a growing document; it is now a fixed-height viewport grid. The graph gets
-     the elastic row (flex:1, min-height:0) and the SVG scales to FIT that box rather than
-     dictating it, so adding a session makes the boxes smaller instead of making the page
-     longer. min-height:0 is load-bearing -- without it a flex child refuses to shrink below
-     its content and the whole thing overflows anyway. */
-  const shell=el('div','armyshell');
-  shell.style.cssText='display:grid;grid-template-columns:1fr minmax(280px,320px);'+
-    'gap:16px;align-items:stretch;height:calc(100vh - 150px);min-height:520px';
-
-  const main=el('div');
-  main.style.cssText='display:flex;flex-direction:column;gap:12px;min-height:0;overflow:hidden';
-  const stage=el('div'); stage.id='armystage'; stage.style.flex='none'; main.appendChild(stage);
-
   const card=el('div','card');
-  card.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto';
-  const built=armySvg(a);
-  built.wrap.style.cssText='flex:1;min-height:0;display:flex;flex-direction:column';
-  card.appendChild(built.wrap);
-  /* BOTTOM PANEL: chat first, the raw event ledger behind a tab. J asked for the terminal
-     to BE the orchestrator window; the ledger is still useful telemetry, so it moves rather
-     than dies. */
-  const tabs=el('div','chattabs'); tabs.style.flex='none';
-  const ledger=el('div','armyledger'); ledger.id='armyledger'; ledger.style.display='none';
-  const chat=chatPane();
-  const mkTab=(label,on)=>{
-    const b=document.createElement('button');
-    b.type='button'; b.textContent=label; b.className='chattab'+(on?' on':'');
-    return b;
-  };
-  const tChat=mkTab('Chat',true), tAct=mkTab('Activity',false);
-  const pick=(chatOn)=>{
-    chat.style.display=chatOn?'':'none';
-    ledger.style.display=chatOn?'none':'';
-    tChat.className='chattab'+(chatOn?' on':'');
-    tAct.className='chattab'+(chatOn?'':' on');
-  };
-  tChat.onclick=()=>pick(true); tAct.onclick=()=>pick(false);
-  tabs.appendChild(tChat); tabs.appendChild(tAct);
-  card.appendChild(tabs);
-  chat.style.cssText='flex:none';
-  ledger.style.maxHeight='150px';
-  card.appendChild(chat);
-  card.appendChild(ledger);
-  card.appendChild(srcRow([a.source&&a.source.pulse,a.source&&a.source.sessions].filter(Boolean)));
-  if(a.error)card.appendChild(el('div','micro warnc','army payload error: '+esc(a.error)));
-  main.appendChild(card);
-  shell.appendChild(main);
-
-  const rail=el('div'); rail.id='armyrail';
-  rail.style.cssText='min-height:0;overflow:auto;padding-right:4px';
-  shell.appendChild(rail);
-
-  h.appendChild(shell);   // attached to the document NOW -- ids below become queryable
-
-  armyPaintCards();
-  armyState=built.state;
-  (a.pulses||[]).forEach(r=>armyApplyRow(r,false));
-  armyState.cursor=(a.pulses&&a.pulses.length)?a.pulses[a.pulses.length-1].ts:'';
-  if(live)armyPoll();
+  card.style.cssText='display:flex;flex-direction:column;gap:12px;min-height:520px';
+  armyMount(card);
+  h.appendChild(card);
 }
 function armySessionDrawer(s,workers){
   openDrawer(s.name,b=>{

@@ -39,7 +39,7 @@ function cardsGammaToken(){
   return m?m.content:'';
 }
 
-function cardFireLabel(rth){ return rth?'Fire — disabled 09:30–15:55 ET':'Fire'; }
+function cardFireLabel(rth){ return rth?'Fire, disabled 09:30-15:55 ET':'Fire'; }
 
 function paintCardButtons(){
   const rth=rthNowClient();
@@ -51,6 +51,19 @@ function paintCardButtons(){
 setInterval(function(){ if($('#cardsview'))paintCardButtons(); },30000);
 
 function vCards(h){
+  /* Action cards now render as rows in Command's "Needs you" group (spec sec 5, 5a) --
+     this route is an alias that mounts Command and scrolls that group into view, same
+     pattern as the other retired view ids. Feature-detected: until
+     gamma_cockpit_command_js.py's vCommand() lands, fall back to the old card-grid markup
+     below so the page never throws on a missing function. */
+  if(typeof vCommand==='function'){
+    vCommand(h);
+    try{
+      const g=document.querySelector('.tgroup');
+      if(g)g.scrollIntoView({behavior:RM?'auto':'smooth'});
+    }catch(_){}
+    return;
+  }
   const c=D.cards||{cards:[],rth_now:false,quiet_active:false,legend:'',source:{}};
   const live=location.protocol!=='file:';
   const rth=rthNowClient();

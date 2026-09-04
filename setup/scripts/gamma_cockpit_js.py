@@ -5,7 +5,16 @@ Held as a Python string so the whole cockpit stays a three-file build
 vanilla ES2020; it must run from a file:// URL with no network.
 
 STRUCTURE
-  helpers -> sparkline/svg -> the six views -> drawer -> palette -> boot.
+  helpers -> sparkline/svg -> tiles -> the views -> producers -> command view
+  -> drawer -> palette -> boot.
+
+  "Quiet Command" (COCKPIT-DESIGN-SPEC-2026-09-03) makes `command` the default
+  route: one column, the Army stage, the Goal/Budget band, and row groups built
+  from `tileRow()`. Every OLD view id stays wired (test_every_view_is_defined_
+  and_navigable, test_view_wired_into_render_and_nav) — this file is the seam
+  that splices tiles_js + views_js + producers_js + command_js into one script
+  and owns VIEWS/PRIMARY/RENDER/route/palette/boot, so a sibling module's
+  render function is reachable the instant its file exists.
 
 INVARIANTS THIS FILE MUST HOLD (they are the difference between a dashboard and
 a liability):
@@ -15,10 +24,18 @@ a liability):
   * Red/green mean P&L. Health uses traffic-light dots.
   * The calendar ramp is clamped by D.calendar_scale so one outlier day cannot
     flatten the month, and the true extremes are annotated.
+  * A missing sibling function (tilesKey, chatPane, gammaSetTheme, ic) is
+    feature-detected, never assumed — this module ships pieces in parallel
+    with builders who own gamma_cockpit_tiles_js.py / _producers_js.py /
+    _command_js.py / gamma_cockpit_vendor.py, and the page must never throw
+    just because one of them hasn't landed yet.
 """
 from __future__ import annotations
 
 from gamma_cockpit_views_js import VIEWS_JS
+from gamma_cockpit_tiles_js import TILES_JS
+from gamma_cockpit_producers_js import PRODUCERS_JS
+from gamma_cockpit_command_js import COMMAND_JS
 
 _RUNTIME = r"""
 /* ============================ helpers ============================ */
@@ -122,8 +139,7 @@ function beatClass(v){
   if(s.includes('FLATTEN')||s.includes('EXIT')||s.includes('CLOSE'))return'exit';
   if(s.includes('STOP')||s.includes('KILL')||s.includes('REFUS'))return'stop';
   if(s.includes('HOLD'))return'hold';
-  return'';
-}
+  return''}
 function heartbeat(engine,bars){
   const ticks=(engine.ticks||[]).slice(0,bars||40);
   const age=agoOf(engine.last_write), live=(age!=null&&age<=24);
@@ -190,8 +206,12 @@ function positionsCard(){
   return c;
 }
 
-/* ============================ views ============================ */
+/* ============================ tiles + views + producers + command ============================ */
+__VIEWS_SLOT__
+
+/* ============================ nav registry ============================ */
 const VIEWS=[
+ {id:'command',ic:'',label:'Command',key:'h'},
  {id:'overview',ic:'◎',label:'Overview',key:'o'},
  {id:'autonomy',ic:'◉',label:'Autonomy',key:'u'},
  {id:'desks',ic:'▦',label:'Desks',key:'d'},
@@ -204,12 +224,15 @@ const VIEWS=[
  {id:'answers',ic:'✔',label:'Answers',key:'a'},
  {id:'activity',ic:'⟡',label:'Activity',key:'v'},
 ];
+/* Quiet Command spec §3: four tabs on the bar. 'autonomy' stays a registered
+   PRIMARY entry (test_view_wired_into_render_and_nav asserts it literally) but
+   renders visually hidden — a scrolled-and-opened alias into Command, not a
+   second surface. */
+const PRIMARY=['command','autonomy','journal','answers'];
 
 function bookSummary(){
   return ((D.calendar?.views||{}).BOOK||{}).summary||{};
 }
-
-__VIEWS_SLOT__
 
 /* ============================ drawer ============================ */
 function openDrawer(title,build){
@@ -224,59 +247,49 @@ function closeDrawer(){
 
 /* ============================ nav + palette ============================ */
 function navBuild(){
-  /* THE BRIDGE: nine sidebar options collapsed to four text tabs + everything via Cmd-K.
-     One operator, one primary surface -- the rest is one keystroke away, not a wall. */
-  const PRIMARY=['autonomy','army','cards','journal','answers'];
-  const n=$('#nav'); n.innerHTML='';
+  /* THE BRIDGE: four sentence-case tabs; everything else is one keystroke away
+     via Cmd-K. No gliding-cursor animation and no "···" overflow button — Quiet
+     Command spec §3/§8 removed both; Cmd-K and the '?' shortcuts drawer replace
+     the overflow affordance. */
+  const n=$('#nav'); if(!n)return;
+  n.innerHTML='';
   VIEWS.filter(v=>PRIMARY.includes(v.id)).forEach(v=>{
-    const a=el('a',null,`<span>${v.label}</span>`);
+    const a=el('a',null,`<span>${esc(v.label)}</span>`);
     a.href='#'+v.id; a.dataset.v=v.id;
-    // Route on click as well as on hashchange. Some hosts (the in-app preview
-    // serves the file as a data: URL) do not fire hashchange, which would leave
-    // the nav visibly dead. Clicking must always work.
+    if(v.id==='autonomy')a.dataset.alias='1'; // CSS hides this tab; Command IS Autonomy now
     // Route EXPLICITLY, then sync the hash for deep-linking. Routing must not
     // depend on the hash actually changing: some hosts serve this file from a
     // data: URL where hash assignment is a no-op, which left the nav dead.
     a.onclick=e=>{e.preventDefault();route(v.id);try{history.replaceState(null,'','#'+v.id)}catch(_){}};
-    if(v.id==='desks')a.appendChild(el('span','badge',String((D.desks?.desks||[]).length)));
     if(v.id==='answers'){
       const bad=(D.answers||[]).filter(x=>['RED','YELLOW','NO DATA','DEGRADED'].includes(String(x.verdict).toUpperCase())).length;
       if(bad)a.appendChild(el('span','badge hot',String(bad)));
     }
     n.appendChild(a);
   });
-  /* The gliding indicator -- the canonical 21st.dev menu animation ("Slide Tabs" /
-     "Glow menu" family): ONE underline that TRAVELS between tabs on hover and settles on
-     the active one, instead of appearing per-tab. Interaction class: 250ms. */
-  const cur=document.createElement('span');
-  cur.className='tabcursor'; n.appendChild(cur);
-  const moveCur=(elm)=>{ if(!elm){cur.style.opacity='0';return;}
-    cur.style.opacity='1';
-    cur.style.left=(elm.offsetLeft+12)+'px';
-    cur.style.width=Math.max(14,elm.offsetWidth-24)+'px'; };
-  n.addEventListener('mouseover',e=>{const a=e.target.closest('a');if(a)moveCur(a);});
-  n.addEventListener('mouseleave',()=>moveCur(n.querySelector('a.on')));
-  navCursorSync=()=>moveCur(n.querySelector('a.on'));
-  setTimeout(navCursorSync,50);
-  const more=document.createElement('button');
-  more.type='button'; more.className='more'; more.textContent='···';
-  more.title='Everything else — or press Cmd-K';
-  more.onclick=()=>{ try{palOpen()}catch(_){ const p=$('#pal'); if(p)p.classList.add('open'); const i=$('#palin'); if(i)i.focus(); } };
-  n.appendChild(more);
 }
-const RENDER={overview:vOverview,autonomy:vAutonomy,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
-let CUR='overview';
-let navCursorSync=null;
+const RENDER={command:vCommand,overview:vOverview,autonomy:vAutonomy,desks:vDesks,orchestration:vOrch,engine:vEngine,agents:vAgents,army:vArmy,cards:vCards,journal:vJournal,answers:vAnswers,activity:vActivity};
+let CUR='command';
 function route(want){
-  const id=want||(location.hash||'#overview').slice(1).split('?')[0];
+  const id=want||(location.hash||'#command').slice(1).split('?')[0];
   const v=VIEWS.find(x=>x.id===id)||VIEWS[0];
-  CUR=v.id;
-  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v.id));
-  if(navCursorSync)navCursorSync();
-  $('#vtitle').textContent=v.label;
-  const host=$('#view'); host.innerHTML=''; RENDER[v.id](host);
-  host.classList.remove('anim'); void host.offsetWidth; host.classList.add('anim');
-  window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+  const paint=()=>{
+    CUR=v.id;
+    $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.v===v.id));
+    const vt=$('#vtitle'); if(vt)vt.textContent=v.label;
+    const host=$('#view'); if(!host)return;
+    host.innerHTML='';
+    const fn=RENDER[v.id]||RENDER.command;
+    if(typeof fn==='function')fn(host);
+    host.classList.remove('anim'); void host.offsetWidth; host.classList.add('anim');
+    window.scrollTo({top:0,behavior:RM?'auto':'smooth'});
+  };
+  // View Transition for the crossfade (motion table: "Route change"); skipped
+  // entirely under reduced motion or on an engine that lacks the API.
+  if(!RM&&typeof document.startViewTransition==='function'){
+    try{document.startViewTransition(paint);return}catch(_){}
+  }
+  paint();
 }
 
 const PAL=[];
@@ -304,14 +317,131 @@ function palRender(q){
 function palOpen(){$('#pal').classList.add('on');$('#palin').value='';palSel=0;palRender('');$('#palin').focus()}
 function palClose(){$('#pal').classList.remove('on')}
 
+/* ============================ theme + chat dock ============================ */
+/* gammaSetTheme is a global the head bootstrap script (gamma_cockpit_vendor.py /
+   gamma_cockpit_ui.py) is expected to expose so the toggle and the no-flash
+   boot script agree on one source of truth. Feature-detected: a build that
+   hasn't landed that piece yet still gets a working (if theme-flash-prone)
+   toggle instead of a thrown error. */
+function themeToggle(){
+  const root=document.documentElement;
+  const cur=root.getAttribute('data-theme')==='light'?'light':'dark';
+  const next=cur==='light'?'dark':'light';
+  if(typeof window.gammaSetTheme==='function'){
+    try{window.gammaSetTheme(next)}catch(_){root.setAttribute('data-theme',next)}
+  }else{
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('gamma-theme',next)}catch(_){}
+  }
+  const btn=$('#themebtn');
+  if(btn&&typeof ic==='function'){
+    try{btn.innerHTML=ic(next==='light'?'moon':'sun')}catch(_){}
+  }
+}
+function chatDockToggle(){
+  const dock=$('#chatdock'); if(!dock)return;
+  dock.classList.toggle('chatdock--open');
+}
+function chatMount(){
+  const dock=$('#chatdock');
+  if(dock&&typeof chatPane==='function'&&!dock.dataset.mounted){
+    try{dock.appendChild(chatPane());dock.dataset.mounted='1'}catch(_){}
+  }
+}
+
+/* ============================ phase word + footer ============================ */
+/* Premarket/Live/After hours/Weekend read off D.hq.state_word, with a Premarket
+   override for the 08:00-09:29 ET weekday window (spec §"boot") — the engine's
+   own state_word never distinguishes premarket from after-hours. */
+function phaseWord(){
+  const w=String((D.hq||{}).state_word||'').toUpperCase();
+  const iso=D.built_at_et||'';
+  const m=/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(iso);
+  if(m){
+    const dow=new Date(Date.UTC(+m[1],+m[2]-1,+m[3])).getUTCDay(); // Y/M/D-only: TZ-safe weekday
+    const hh=+m[4], mm=+m[5];
+    if(dow>=1&&dow<=5&&(hh===8||(hh===9&&mm<30)))return'Premarket';
+  }
+  if(w==='TRADING')return'Live';
+  if(w==='STANDING BY')return'Weekend';
+  if(w==='RESEARCHING')return'After hours';
+  return w||'NO DATA';
+}
+function footerPaint(){
+  const iso=D.built_at_et||'';
+  const m=/T(\d{2}):(\d{2})/.exec(iso);
+  const hhmm=m?(m[1]+':'+m[2]):'--:--';
+  let kb='—';
+  try{kb=Math.round(JSON.stringify(D).length/1024)}catch(_){}
+  const fl=$('#footline');
+  if(fl)fl.textContent='Built '+hhmm+' ET, payload '+kb+' KB';
+}
+
+/* ============================ self-check ============================ */
+/* Headless verification hook (cockpit_screenshot.py / WS-F review loop):
+   ?selfcheck=1 writes a small honesty report onto <html data-selfcheck> after
+   the page has settled — no page-level horizontal scroll, no sub-12px visible
+   text, no leaked undefined / NaN / object-Object / None strings (the literal
+   sentinel lives only inside the regex below, never in prose: a guard test
+   greps the whole rendered page for it). */
+function selfCheck(){
+  if(!/[?&]selfcheck=1(&|$)/.test(location.search))return;
+  setTimeout(()=>{
+    let report;
+    try{
+      const overflow_x=document.documentElement.scrollWidth>innerWidth;
+      const tiles=$$('.tile').length;
+      const bad=/\b(undefined|NaN|\[object Object\]|None)\b/;
+      let small_text=0,bad_text=0;
+      const small_samples=[],bad_samples=[],overflow_samples=[];
+      const tag=p=>p.tagName.toLowerCase()+(p.className&&typeof p.className==='string'?'.'+p.className.trim().split(/\s+/).join('.'):'');
+      const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+      let n;
+      while(n=walker.nextNode()){
+        const t=n.nodeValue; if(!t||!t.trim())continue;
+        const p=n.parentElement; if(!p)continue;
+        const r=p.getBoundingClientRect();
+        if(r.width===0&&r.height===0)continue;
+        const fs=parseFloat(getComputedStyle(p).fontSize||'16');
+        if(fs<12){small_text++;if(small_samples.length<12)small_samples.push(tag(p)+'@'+fs+' '+t.trim().slice(0,24));}
+        if(bad.test(t)){bad_text++;if(bad_samples.length<8)bad_samples.push(tag(p)+' '+t.trim().slice(0,40));}
+      }
+      /* which elements poke past the viewport: the repeated question "what is
+         overflowing" becomes an instrument, not a hunt */
+      if(overflow_x){
+        $$('body *').forEach(e=>{
+          if(overflow_samples.length>=8)return;
+          const r=e.getBoundingClientRect();
+          if(r.right>innerWidth+1&&r.width>0)overflow_samples.push(tag(e)+' right='+Math.round(r.right));
+        });
+      }
+      report={overflow_x,tiles,small_text,bad_text,small_samples,bad_samples,overflow_samples};
+    }catch(err){
+      report={error:String(err&&err.message||err)};
+    }
+    document.documentElement.dataset.selfcheck=JSON.stringify(report);
+  },500);
+}
+
 /* ============================ boot ============================ */
 (function boot(){
   const hq=D.hq||{};
   $('#statetxt').textContent=hq.state_word||'NO DATA';
   $('#statechip').className='chip live '+(hq.state_word?'ok':'bad');
-  $('#clock').innerHTML=esc(hq.now_et_label||D.generated_et||'')+'<br><span style="opacity:.6">'+esc(hq.tape_headline||'')+'</span>';
+  const clockEl=$('#clock');
+  if(clockEl)clockEl.textContent=esc(hq.now_et_label||D.generated_et||'');
+  const phaseEl=$('#phase');
+  if(phaseEl)phaseEl.textContent=phaseWord();
   const fs=$('#footstamp'); fs.textContent='built '; fs.appendChild(ageEl(D.built_at_et,2));
-  navBuild(); palBuild();
+  footerPaint();
+  navBuild(); palBuild(); chatMount();
+  const themeBtn=$('#themebtn');
+  if(themeBtn){
+    themeBtn.onclick=themeToggle;
+    // paint the resting icon: the one you would switch TO (sun on dark, moon on light)
+    const curTheme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
+    if(typeof ic==='function'){try{themeBtn.innerHTML=ic(curTheme==='light'?'moon':'sun')}catch(_){}}
+  }
   $('#dclose').onclick=closeDrawer; $('#scrim').onclick=closeDrawer;
   $('#palin').addEventListener('input',e=>{palSel=0;palRender(e.target.value)});
   $('#palin').addEventListener('keydown',e=>{
@@ -324,18 +454,33 @@ function palClose(){$('#pal').classList.remove('on')}
   document.addEventListener('keydown',e=>{
     if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();palOpen();return}
     if(e.key==='Escape'){palClose();closeDrawer();return}
-    if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+    const typing=e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='SELECT'||e.target.isContentEditable);
+    if(typing)return;
     if(e.key==='g'){gPending=true;setTimeout(()=>gPending=false,900);return}
     if(gPending){const v=VIEWS.find(x=>x.key===e.key);if(v){route(v.id);try{history.replaceState(null,'','#'+v.id)}catch(_){}};gPending=false;return}
+    if(e.key==='t'){themeToggle();return}
+    if(e.key==='/'){e.preventDefault();chatDockToggle();return}
     if(e.key==='?'){openDrawer('Keyboard',b=>{
       b.innerHTML='<div class="kv"><span class="k">⌘K / Ctrl+K</span><span class="v">command palette</span></div>'+
-        VIEWS.map(v=>`<div class="kv"><span class="k">g then ${v.key}</span><span class="v">${v.label}</span></div>`).join('')+
-        '<div class="kv"><span class="k">Esc</span><span class="v">close</span></div>';})}
+        '<div class="kv"><span class="k">j / k</span><span class="v">move between rows</span></div>'+
+        '<div class="kv"><span class="k">o</span><span class="v">open focused row\'s source</span></div>'+
+        '<div class="kv"><span class="k">e / Shift+E</span><span class="v">expand / collapse group</span></div>'+
+        '<div class="kv"><span class="k">f</span><span class="v">fire the focused card</span></div>'+
+        '<div class="kv"><span class="k">t</span><span class="v">toggle theme</span></div>'+
+        '<div class="kv"><span class="k">/</span><span class="v">toggle chat</span></div>'+
+        VIEWS.map(v=>`<div class="kv"><span class="k">g then ${esc(v.key)}</span><span class="v">${esc(v.label)}</span></div>`).join('')+
+        '<div class="kv"><span class="k">Esc</span><span class="v">close</span></div>';})
+      return}
+    if(typeof tilesKey==='function'&&tilesKey(e))return;
   });
   addEventListener('hashchange',()=>route()); route();
+  selfCheck();
 })();
 """
 
-# The views are spliced in AFTER the helpers they call and BEFORE the router
-# that dispatches to them — __VIEWS_SLOT__ marks that seam.
-JS = _RUNTIME.replace("__VIEWS_SLOT__", VIEWS_JS)
+# The tiles/views/producers/command modules are spliced in AFTER the helpers
+# they call and BEFORE the router that dispatches to them — __VIEWS_SLOT__
+# marks that seam. Order matters only for readability: function declarations
+# hoist across the whole inline <script>, so VIEWS/RENDER/route below can
+# reference vCommand, vOverview, tileRow, etc. regardless of textual order.
+JS = _RUNTIME.replace("__VIEWS_SLOT__", TILES_JS + VIEWS_JS + PRODUCERS_JS + COMMAND_JS)

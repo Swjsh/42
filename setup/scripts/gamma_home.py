@@ -650,6 +650,18 @@ def build(quiet: bool = False) -> dict:
     except Exception as e:                      # noqa: BLE001 - a missing briefing must not lose the page
         payload["briefing"] = {"lines": [], "flags": [], "error": str(e)[:160]}
 
+    # 9 new Command-view tiles (WS-D, 2026-09-03): gate/prep/eod/standup/shadow/
+    # watchers/guards/tasks/gym. Each tile already fails safe on its own source;
+    # this guards the IMPORT itself so a broken tiles module never loses the page.
+    try:
+        sys.path.insert(0, str(REPO / "setup" / "scripts"))
+        from gamma_cockpit_tiles import build_tiles as _build_tiles
+        payload.update(_build_tiles())
+    except Exception as e:                       # noqa: BLE001 - tiles must never lose the page
+        for _k in ("gate", "prep", "eod", "standup", "shadow", "watchers", "guards", "tasks", "gym"):
+            payload[_k] = {"ok": False, "path": None, "stamp_et": None, "verdict": "off",
+                           "say": "NO DATA, tiles module failed: %s" % str(e)[:120], "fresh_h": 24}
+
     if not quiet:
         if not hq_meta["ok"]:
             print("WARN: state librarian unavailable (%s) - presence renders NO DATA"

@@ -125,8 +125,13 @@ def test_rendered_page_is_self_contained_and_clean():
     assert "http://" not in probe and "https://" not in probe, "external http reference in markup/CSS"
     assert "<script src" not in html and "<link rel=\"stylesheet\"" not in html
     assert "cdn." not in html.lower() and "@import" not in html
-    # Fonts must be system stacks — a webfont would be a network dependency.
-    assert "@font-face" not in html
+    # Fonts are vendored + base64-inlined (gamma_cockpit_vendor.py) -- @font-face
+    # is now expected, but every src: must stay a data: URI, never a network
+    # fetch (2026-09-03 amendment, WS-A: strengthens intent, doesn't drop it).
+    faces = re.findall(r"@font-face\{[^}]*\}", html)
+    assert faces, "expected inlined @font-face rules"
+    for face in faces:
+        assert "src:url(data:" in face.replace(" ", ""), face[:120]
     # Mojibake canaries from the cp1252 decode bug.
     for bad in ("Â·", "â€", "Ã©"):
         assert bad not in html, "mojibake %r survived - check subprocess encoding" % bad

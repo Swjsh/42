@@ -6,7 +6,7 @@ reliable capture path. Headless Chrome/Edge is on the box; this wraps it.
 
 Usage:
   python setup/scripts/cockpit_screenshot.py --tag before
-  python setup/scripts/cockpit_screenshot.py --tag after --views overview,command --sizes 1600x950
+  python setup/scripts/cockpit_screenshot.py --tag after --views command,journal --sizes 1600x950
   python setup/scripts/cockpit_screenshot.py --tag x --url http://localhost:4317/cockpit.html
 
 Writes analysis/home/screens/<tag>-<view>-<WxH>-<theme>.png and prints one line per file.
@@ -70,7 +70,14 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", required=True)
     ap.add_argument("--url", default="http://localhost:4317/cockpit.html")
-    ap.add_argument("--views", default="overview,autonomy,army,cards,answers")
+    # Quiet Command (2026-09-03) collapsed Overview/Desks/Orchestration/Engine room/
+    # Agents/Army/Cards/Activity into aliases of the one Command view (they still
+    # render -- vOverview() etc. all delegate to vCommand() -- but a review pass that
+    # screenshots them as if they were distinct pages just gets N identical images and
+    # reads that as a bug (round-2 review, critical, 2x: "the four overview screenshots
+    # are pixel-identical to command"). Default to the actual four nav tabs; pass an
+    # explicit --views to still capture a legacy alias id on purpose.
+    ap.add_argument("--views", default="command,autonomy,journal,answers")
     ap.add_argument("--sizes", default="1600x950,1440x900")
     ap.add_argument("--themes", default="dark,light")
     ap.add_argument("--budget-ms", type=int, default=6000)
