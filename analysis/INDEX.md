@@ -1,11 +1,16 @@
 # 📊 analysis/ — reviews, weeklies, one-offs
 
-> Auto-generated `2026-08-20 22:09:08 Thursday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
+> Auto-generated `2026-09-04 02:46:42 Friday EDT` by obsidian_vault_sync.py -- graph hub, do not edit.
 
 ## winning-trade-map
 
 - [[analysis/winning-trade-map/MAP-2026-07-20|MAP-2026-07-20]]
 - [[analysis/winning-trade-map/SYNTHESIS-2026-07-20|SYNTHESIS-2026-07-20]]
+
+## whole-engine-null
+
+- [[analysis/whole-engine-null/2026-09-01|2026-09-01]]
+- [[analysis/whole-engine-null/2026-09-02|2026-09-02]]
 
 ## weekly
 
@@ -22,6 +27,8 @@
 - [[analysis/weekly/2026-W31|2026-W31]]
 - [[analysis/weekly/2026-W32|2026-W32]]
 - [[analysis/weekly/2026-W33|2026-W33]]
+- [[analysis/weekly/2026-W34|2026-W34]]
+- [[analysis/weekly/2026-W35|2026-W35]]
 
 ## token-forensics
 
@@ -39,9 +46,19 @@
 
 - [[analysis/skill-tune/chart-data-verify-2026-05-19T00-00-36+00-00|chart-data-verify-2026-05-19T00-00-36+00-00]]
 
+## regime-stress
+
+- [[analysis/regime-stress/REGIME-STRESS-2026-09-02|REGIME-STRESS-2026-09-02]]
+
 ## j-calls
 
 - [[analysis/j-calls/README|README]]
+
+## harness-fidelity
+
+- [[analysis/harness-fidelity/FULLHIST-ANCHOR-DRIFT-2026-09-03|FULLHIST-ANCHOR-DRIFT-2026-09-03]]
+- [[analysis/harness-fidelity/REGIME-CONDITIONED-VALIDATION-2026-09-03|REGIME-CONDITIONED-VALIDATION-2026-09-03]]
+- [[analysis/harness-fidelity/WALKER-MAGNITUDE-2026-09-03|WALKER-MAGNITUDE-2026-09-03]]
 
 ## futures-eod
 
@@ -56,12 +73,31 @@
 - [[analysis/futures-eod/2026-08-18|2026-08-18]]
 - [[analysis/futures-eod/2026-08-19|2026-08-19]]
 - [[analysis/futures-eod/2026-08-20|2026-08-20]]
+- [[analysis/futures-eod/2026-08-21|2026-08-21]]
+- [[analysis/futures-eod/2026-08-24|2026-08-24]]
+- [[analysis/futures-eod/2026-08-25|2026-08-25]]
+- [[analysis/futures-eod/2026-08-26|2026-08-26]]
+- [[analysis/futures-eod/2026-08-27|2026-08-27]]
+- [[analysis/futures-eod/2026-08-28|2026-08-28]]
+- [[analysis/futures-eod/2026-09-01|2026-09-01]]
+- [[analysis/futures-eod/2026-09-02|2026-09-02]]
+- [[analysis/futures-eod/2026-09-03|2026-09-03]]
+
+## futures
+
+- [[analysis/futures/autopsy-latest|autopsy-latest]]
 
 ## fleet-weekly
 
 - [[analysis/fleet-weekly/risky-divergence-2026-08-04|risky-divergence-2026-08-04]]
 - [[analysis/fleet-weekly/risky-divergence-2026-08-09|risky-divergence-2026-08-09]]
 - [[analysis/fleet-weekly/risky-divergence-2026-08-16|risky-divergence-2026-08-16]]
+- [[analysis/fleet-weekly/risky-divergence-2026-08-23|risky-divergence-2026-08-23]]
+
+## first-live-day
+
+- [[analysis/first-live-day/2026-09-02|2026-09-02]]
+- [[analysis/first-live-day/2026-09-03|2026-09-03]]
 
 ## eod-deep
 
@@ -119,10 +155,77 @@
 - [[analysis/eod-deep/eod-deep-2026-08-12|eod-deep-2026-08-12]]
 - [[analysis/eod-deep/eod-deep-2026-08-19|eod-deep-2026-08-19]]
 - [[analysis/eod-deep/eod-deep-2026-08-20|eod-deep-2026-08-20]]
+- [[analysis/eod-deep/eod-deep-2026-08-21|eod-deep-2026-08-21]]
 
 ## dojo
 
 - [[analysis/dojo/EXIT-DIVERSITY-2026-07-20|EXIT-DIVERSITY-2026-07-20]]
+
+## deep-research/2026-09-03-money
+
+- [[analysis/deep-research/2026-09-03-money/bear-no-level|bear-no-level]]
+- [[analysis/deep-research/2026-09-03-money/bold-otm-tickets|bold-otm-tickets]]
+- [[analysis/deep-research/2026-09-03-money/dissect-entry-quality-vs-alternatives|dissect-entry-quality-vs-alternatives]]
+- [[analysis/deep-research/2026-09-03-money/dissect-gates-revalidation|dissect-gates-revalidation]]
+- [[analysis/deep-research/2026-09-03-money/dissect-hold-counterfactual|dissect-hold-counterfactual]]
+- [[analysis/deep-research/2026-09-03-money/dissect-loss-size|dissect-loss-size]]
+- [[analysis/deep-research/2026-09-03-money/dissect-sizing-correlation|dissect-sizing-correlation]]
+- [[analysis/deep-research/2026-09-03-money/dissect-structure-veto-misclass|dissect-structure-veto-misclass]]
+- [[analysis/deep-research/2026-09-03-money/dissect-wave-autopsy|dissect-wave-autopsy]]
+- [[analysis/deep-research/2026-09-03-money/dissect-zone-stop-semantics|dissect-zone-stop-semantics]]
+- [[analysis/deep-research/2026-09-03-money/entry-location|entry-location]]
+- [[analysis/deep-research/2026-09-03-money/fleet-gates-bypass-cohort-pnl|fleet-gates-bypass-cohort-pnl]]
+- [[analysis/deep-research/2026-09-03-money/fleet-gates-code-binding-table|fleet-gates-code-binding-table]]
+- [[analysis/deep-research/2026-09-03-money/fleet-gates-design-intent|fleet-gates-design-intent]]
+- [[analysis/deep-research/2026-09-03-money/fleet-gates-designation-accuracy|fleet-gates-designation-accuracy]]
+- [[analysis/deep-research/2026-09-03-money/fleet-gates-ledger-binding-check|fleet-gates-ledger-binding-check]]
+- [[analysis/deep-research/2026-09-03-money/fleet-mechanics-cost|fleet-mechanics-cost]]
+- [[analysis/deep-research/2026-09-03-money/loss-size-math|loss-size-math]]
+- [[analysis/deep-research/2026-09-03-money/profit-lock-scope|profit-lock-scope]]
+- [[analysis/deep-research/2026-09-03-money/range-extreme-dead|range-extreme-dead]]
+- [[analysis/deep-research/2026-09-03-money/release-gap-study|release-gap-study]]
+- [[analysis/deep-research/2026-09-03-money/retest-entry-variant|retest-entry-variant]]
+- [[analysis/deep-research/2026-09-03-money/structure-stop-whipsaw|structure-stop-whipsaw]]
+- [[analysis/deep-research/2026-09-03-money/SYNTHESIS|SYNTHESIS]]
+- [[analysis/deep-research/2026-09-03-money/time-of-day|time-of-day]]
+- [[analysis/deep-research/2026-09-03-money/trendline-capability-and-shadow|trendline-capability-and-shadow]]
+- [[analysis/deep-research/2026-09-03-money/trendline-historical-study|trendline-historical-study]]
+- [[analysis/deep-research/2026-09-03-money/trendline-sight-check|trendline-sight-check]]
+- [[analysis/deep-research/2026-09-03-money/trendline-today-exhibit|trendline-today-exhibit]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-sizing-correlation-0|verify-dissect-sizing-correlation-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-sizing-correlation-1|verify-dissect-sizing-correlation-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-sizing-correlation-2|verify-dissect-sizing-correlation-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-structure-veto-misclass-0|verify-dissect-structure-veto-misclass-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-structure-veto-misclass-1|verify-dissect-structure-veto-misclass-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-structure-veto-misclass-2|verify-dissect-structure-veto-misclass-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-wave-autopsy-0|verify-dissect-wave-autopsy-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-wave-autopsy-1|verify-dissect-wave-autopsy-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-dissect-wave-autopsy-2|verify-dissect-wave-autopsy-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-bypass-cohort-pnl-0|verify-fleet-gates-bypass-cohort-pnl-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-bypass-cohort-pnl-1|verify-fleet-gates-bypass-cohort-pnl-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-bypass-cohort-pnl-2|verify-fleet-gates-bypass-cohort-pnl-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-code-binding-table-0|verify-fleet-gates-code-binding-table-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-code-binding-table-1|verify-fleet-gates-code-binding-table-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-code-binding-table-2|verify-fleet-gates-code-binding-table-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-design-intent-0|verify-fleet-gates-design-intent-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-design-intent-1|verify-fleet-gates-design-intent-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-design-intent-2|verify-fleet-gates-design-intent-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-designation-accuracy-0|verify-fleet-gates-designation-accuracy-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-designation-accuracy-1|verify-fleet-gates-designation-accuracy-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-designation-accuracy-2|verify-fleet-gates-designation-accuracy-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-ledger-binding-check-0|verify-fleet-gates-ledger-binding-check-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-ledger-binding-check-1|verify-fleet-gates-ledger-binding-check-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-fleet-gates-ledger-binding-check-2|verify-fleet-gates-ledger-binding-check-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-range-extreme-dead-0|verify-range-extreme-dead-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-range-extreme-dead-1|verify-range-extreme-dead-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-range-extreme-dead-2|verify-range-extreme-dead-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-trendline-capability-and-shadow-0|verify-trendline-capability-and-shadow-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-trendline-capability-and-shadow-1|verify-trendline-capability-and-shadow-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-trendline-capability-and-shadow-2|verify-trendline-capability-and-shadow-2]]
+- [[analysis/deep-research/2026-09-03-money/verify-trendline-sight-check-0|verify-trendline-sight-check-0]]
+- [[analysis/deep-research/2026-09-03-money/verify-trendline-sight-check-1|verify-trendline-sight-check-1]]
+- [[analysis/deep-research/2026-09-03-money/verify-trendline-sight-check-2|verify-trendline-sight-check-2]]
+- [[analysis/deep-research/2026-09-03-money/veto-scope-safe-3|veto-scope-safe-3]]
 
 ## deep-research/2026-08-12-churn
 
@@ -157,18 +260,23 @@
 - [[analysis/deep-research/2026-07-14-premarket-reliability|2026-07-14-premarket-reliability]]
 - [[analysis/deep-research/2026-07-14-trendline-break-exhibit|2026-07-14-trendline-break-exhibit]]
 - [[analysis/deep-research/2026-07-14-vix-deadzone-map|2026-07-14-vix-deadzone-map]]
+- [[analysis/deep-research/2026-09-03-aetherops-ui-kit-port|2026-09-03-aetherops-ui-kit-port]]
 - [[analysis/deep-research/ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18|ACCOUNT-IDENTITY-ALIGNMENT-2026-08-18]]
 - [[analysis/deep-research/AGENT-ORCHESTRATION-2026-08-19|AGENT-ORCHESTRATION-2026-08-19]]
 - [[analysis/deep-research/ARM-PARTICIPATION-AND-GROWTH-2026-08-03|ARM-PARTICIPATION-AND-GROWTH-2026-08-03]]
+- [[analysis/deep-research/BEAR-08-31-NO-TRIGGER-REPLAY|BEAR-08-31-NO-TRIGGER-REPLAY]]
 - [[analysis/deep-research/BLIND-ENGINE-REPAIR-2026-07-30|BLIND-ENGINE-REPAIR-2026-07-30]]
 - [[analysis/deep-research/BOLD-HARNESS-2026-08-01|BOLD-HARNESS-2026-08-01]]
 - [[analysis/deep-research/BULL-REEVAL-VERDICT-2026-08-09|BULL-REEVAL-VERDICT-2026-08-09]]
 - [[analysis/deep-research/CAPITAL-EFFICIENCY-2026-08-03|CAPITAL-EFFICIENCY-2026-08-03]]
+- [[analysis/deep-research/CATALYST-DIRECTION-VERDICT-2026-09-03|CATALYST-DIRECTION-VERDICT-2026-09-03]]
 - [[analysis/deep-research/CATASTROPHE-CAP-DECISION-2026-08-09|CATASTROPHE-CAP-DECISION-2026-08-09]]
 - [[analysis/deep-research/CHOP-DEFENSE-2026-08-06|CHOP-DEFENSE-2026-08-06]]
 - [[analysis/deep-research/CLOSE-EXECUTION-2026-08-07|CLOSE-EXECUTION-2026-08-07]]
 - [[analysis/deep-research/CLOSE-PACKAGE-2026-08-07|CLOSE-PACKAGE-2026-08-07]]
 - [[analysis/deep-research/CLOSE-PACKAGE-LADDER-ADDENDUM-2026-08-07|CLOSE-PACKAGE-LADDER-ADDENDUM-2026-08-07]]
+- [[analysis/deep-research/COCKPIT-REDESIGN-RESEARCH-2026-09-03|COCKPIT-REDESIGN-RESEARCH-2026-09-03]]
+- [[analysis/deep-research/COCKPIT-VISUAL-KIT-2026-09-04|COCKPIT-VISUAL-KIT-2026-09-04]]
 - [[analysis/deep-research/CONVICTION-LANE-MISMATCH-2026-08-18|CONVICTION-LANE-MISMATCH-2026-08-18]]
 - [[analysis/deep-research/CONVICTION-V2-HISTORICAL-REPLAY-2026-08-18|CONVICTION-V2-HISTORICAL-REPLAY-2026-08-18]]
 - [[analysis/deep-research/COST-REALISM-2026-08-18|COST-REALISM-2026-08-18]]
@@ -206,9 +314,14 @@
 - [[analysis/deep-research/EOD-2026-08-17-FABLE-AUDIT|EOD-2026-08-17-FABLE-AUDIT]]
 - [[analysis/deep-research/EVENT-CATALYST-LANE-2026-08-19|EVENT-CATALYST-LANE-2026-08-19]]
 - [[analysis/deep-research/EXIT-LEAK-2026-07-28|EXIT-LEAK-2026-07-28]]
+- [[analysis/deep-research/EXIT-POLICY-BEATS-NULL-2026-08-23|EXIT-POLICY-BEATS-NULL-2026-08-23]]
 - [[analysis/deep-research/F10-F7-AB-2026-08-07|F10-F7-AB-2026-08-07]]
+- [[analysis/deep-research/FABLE-FULL-AUDIT-2026-09-01|FABLE-FULL-AUDIT-2026-09-01]]
+- [[analysis/deep-research/FABLE-FULL-REVIEW-2026-08-29|FABLE-FULL-REVIEW-2026-08-29]]
 - [[analysis/deep-research/FIND-THE-MONEY-SYNTHESIS-2026-07-28|FIND-THE-MONEY-SYNTHESIS-2026-07-28]]
 - [[analysis/deep-research/FLEET-RACE-AND-LATENCY-2026-08-01|FLEET-RACE-AND-LATENCY-2026-08-01]]
+- [[analysis/deep-research/FLEET-SIGNAL-UNREADABLE-VERIFICATION-2026-09-03|FLEET-SIGNAL-UNREADABLE-VERIFICATION-2026-09-03]]
+- [[analysis/deep-research/FLEET-STALE-SIGNAL-SKIP-2026-09-03|FLEET-STALE-SIGNAL-SKIP-2026-09-03]]
 - [[analysis/deep-research/FREQUENCY-CEILING-2026-08-03|FREQUENCY-CEILING-2026-08-03]]
 - [[analysis/deep-research/FRIDAY-2026-08-07-FULL|FRIDAY-2026-08-07-FULL]]
 - [[analysis/deep-research/FRIDAY-BLOCKERS-2026-08-07|FRIDAY-BLOCKERS-2026-08-07]]
@@ -242,6 +355,7 @@
 - [[analysis/deep-research/MONDAY-READINESS-2026-08-09|MONDAY-READINESS-2026-08-09]]
 - [[analysis/deep-research/MULTI-LANE-FIDELITY-AUDIT-2026-08-20|MULTI-LANE-FIDELITY-AUDIT-2026-08-20]]
 - [[analysis/deep-research/MULTI-LANE-STAGE-A-VERDICT-2026-08-20|MULTI-LANE-STAGE-A-VERDICT-2026-08-20]]
+- [[analysis/deep-research/MULTI-LEVELS-TRANSPLANT-VERDICT-2026-08-21|MULTI-LEVELS-TRANSPLANT-VERDICT-2026-08-21]]
 - [[analysis/deep-research/MULTIDAY-STRUCTURE-2026-07-31|MULTIDAY-STRUCTURE-2026-07-31]]
 - [[analysis/deep-research/NIGHT-SYNTHESIS-2026-08-19|NIGHT-SYNTHESIS-2026-08-19]]
 - [[analysis/deep-research/ONE-POSITION-CONSTRAINT-COST-2026-08-02|ONE-POSITION-CONSTRAINT-COST-2026-08-02]]
@@ -255,6 +369,7 @@
 - [[analysis/deep-research/PNL-ATTRIBUTION-2026-07-28|PNL-ATTRIBUTION-2026-07-28]]
 - [[analysis/deep-research/PREREG-LEVER-DAILY-CAP-2026-08-06|PREREG-LEVER-DAILY-CAP-2026-08-06]]
 - [[analysis/deep-research/PREREG-ONE-POSITION-CONSTRAINT-COST-2026-08-02|PREREG-ONE-POSITION-CONSTRAINT-COST-2026-08-02]]
+- [[analysis/deep-research/PROFITABILITY-ORDER-2026-08-23|PROFITABILITY-ORDER-2026-08-23]]
 - [[analysis/deep-research/PROP-FIRM-RESEARCH-2026-08-09|PROP-FIRM-RESEARCH-2026-08-09]]
 - [[analysis/deep-research/REGIME-EARLY-CLASSIFIER-2026-08-02|REGIME-EARLY-CLASSIFIER-2026-08-02]]
 - [[analysis/deep-research/REGIME-PARTICIPATION-2026-08-02|REGIME-PARTICIPATION-2026-08-02]]
@@ -264,13 +379,18 @@
 - [[analysis/deep-research/RIBBON-SPREAD-MATRIX-2026-08-17|RIBBON-SPREAD-MATRIX-2026-08-17]]
 - [[analysis/deep-research/RISKY3-SPECULATIVE-DIVERGENCE-2026-08-04|RISKY3-SPECULATIVE-DIVERGENCE-2026-08-04]]
 - [[analysis/deep-research/RULE-ENGINE-ALIGNMENT-2026-08-18|RULE-ENGINE-ALIGNMENT-2026-08-18]]
+- [[analysis/deep-research/RULE9-DOC-PASS-2026-09-05-DRAFT|RULE9-DOC-PASS-2026-09-05-DRAFT]]
+- [[analysis/deep-research/SAFE3-RISKY1-GATE-OVERRIDE-COHORT-2026-09-03|SAFE3-RISKY1-GATE-OVERRIDE-COHORT-2026-09-03]]
 - [[analysis/deep-research/SCORE-LADDER-BUILD-2026-08-07|SCORE-LADDER-BUILD-2026-08-07]]
 - [[analysis/deep-research/SCORE-LADDER-REPLAY-2026-08-07|SCORE-LADDER-REPLAY-2026-08-07]]
+- [[analysis/deep-research/SEQUENCE-REJECTION-PARITY-PROBE-2026-08-23|SEQUENCE-REJECTION-PARITY-PROBE-2026-08-23]]
 - [[analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31|SHADOW-SIGNAL-INVENTORY-2026-07-31]]
 - [[analysis/deep-research/SHADOW-SIGNAL-PREREG-2026-07-31|SHADOW-SIGNAL-PREREG-2026-07-31]]
 - [[analysis/deep-research/SHIP-LOG-2026-08-06-EVENING|SHIP-LOG-2026-08-06-EVENING]]
 - [[analysis/deep-research/SIZE-ANATOMY-2026-08-07|SIZE-ANATOMY-2026-08-07]]
 - [[analysis/deep-research/SIZING-SCALING-DECISION-2026-08-03|SIZING-SCALING-DECISION-2026-08-03]]
+- [[analysis/deep-research/SPY-CALIBRATION-THE-LEVELS-ARE-THE-EDGE-2026-08-20|SPY-CALIBRATION-THE-LEVELS-ARE-THE-EDGE-2026-08-20]]
+- [[analysis/deep-research/SSR-EXIT-QUALITY-DECOMPOSITION-2026-09-03|SSR-EXIT-QUALITY-DECOMPOSITION-2026-09-03]]
 - [[analysis/deep-research/STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09|STOP-MODE-STRUCTURE-VS-PREMIUM-2026-08-09]]
 - [[analysis/deep-research/STOPPED-THEN-PAID-2026-08-04|STOPPED-THEN-PAID-2026-08-04]]
 - [[analysis/deep-research/STRIKE-MATRIX-2026-08-18|STRIKE-MATRIX-2026-08-18]]
@@ -281,6 +401,11 @@
 - [[analysis/deep-research/TRENDLINE-ENGINE-2026-08-09|TRENDLINE-ENGINE-2026-08-09]]
 - [[analysis/deep-research/TRENDLINE-SWING-MES-2026-08-09|TRENDLINE-SWING-MES-2026-08-09]]
 - [[analysis/deep-research/TRENDLINE-SWING-MES-PREREG-2026-08-09|TRENDLINE-SWING-MES-PREREG-2026-08-09]]
+- [[analysis/deep-research/WALKER-EXIT-SLIPPAGE-ABLATION-2026-09-03|WALKER-EXIT-SLIPPAGE-ABLATION-2026-09-03]]
+- [[analysis/deep-research/WALKER-FULL-POPULATION-ANCHOR-2026-09-03|WALKER-FULL-POPULATION-ANCHOR-2026-09-03]]
+- [[analysis/deep-research/WALKER-STAGE-DISAGREE-RESIDUAL-2026-09-03|WALKER-STAGE-DISAGREE-RESIDUAL-2026-09-03]]
+- [[analysis/deep-research/WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM-2026-09-03|WALKER-STRUCTURE-STOP-MISFIRE-MECHANISM-2026-09-03]]
+- [[analysis/deep-research/WATCHER-LANE-PROVENANCE-2026-08-23|WATCHER-LANE-PROVENANCE-2026-08-23]]
 - [[analysis/deep-research/WEEK-FINAL-PREP-2026-08-07|WEEK-FINAL-PREP-2026-08-07]]
 - [[analysis/deep-research/WEEK-ORDER-2026-08-03|WEEK-ORDER-2026-08-03]]
 - [[analysis/deep-research/WEEK-ORDER-2026-08-10|WEEK-ORDER-2026-08-10]]
@@ -294,6 +419,7 @@
 - [[analysis/deep-research/WINNERS-HOLD-TIME-MATRIX-2026-08-19|WINNERS-HOLD-TIME-MATRIX-2026-08-19]]
 - [[analysis/deep-research/WINNERS-SIZING-MATRIX-2026-08-19|WINNERS-SIZING-MATRIX-2026-08-19]]
 - [[analysis/deep-research/WINNERS-STRIKE-MATRIX-2026-08-19|WINNERS-STRIKE-MATRIX-2026-08-19]]
+- [[analysis/deep-research/ZERO-FOR-TWELVE-STATUS-2026-09-03|ZERO-FOR-TWELVE-STATUS-2026-09-03]]
 - [[analysis/deep-research/ZONE-WIDTH-2026-07-28|ZONE-WIDTH-2026-07-28]]
 
 ## crypto-twin
@@ -304,6 +430,10 @@
 
 - [[analysis/conviction/backtest-2026-08-12|backtest-2026-08-12]]
 - [[analysis/conviction/CONVICTION-VERDICT-2026-08-12|CONVICTION-VERDICT-2026-08-12]]
+
+## compound
+
+- [[analysis/compound/MATRIX|MATRIX]]
 
 ## (top level)
 
@@ -330,8 +460,18 @@
 - [[analysis/eod-deep-2026-08-18|eod-deep-2026-08-18]]
 - [[analysis/eod-deep-2026-08-19|eod-deep-2026-08-19]]
 - [[analysis/eod-deep-2026-08-20|eod-deep-2026-08-20]]
+- [[analysis/eod-deep-2026-08-21|eod-deep-2026-08-21]]
+- [[analysis/eod-deep-2026-08-24|eod-deep-2026-08-24]]
+- [[analysis/eod-deep-2026-08-26|eod-deep-2026-08-26]]
+- [[analysis/eod-deep-2026-08-27|eod-deep-2026-08-27]]
+- [[analysis/eod-deep-2026-08-28|eod-deep-2026-08-28]]
+- [[analysis/eod-deep-2026-08-31|eod-deep-2026-08-31]]
+- [[analysis/eod-deep-2026-09-01|eod-deep-2026-09-01]]
+- [[analysis/eod-deep-2026-09-02|eod-deep-2026-09-02]]
+- [[analysis/eod-deep-2026-09-03|eod-deep-2026-09-03]]
 - [[analysis/expanded-gate-2026-05-31|expanded-gate-2026-05-31]]
 - [[analysis/futures-vs-options-control-2026-06-20|futures-vs-options-control-2026-06-20]]
+- [[analysis/go-live-gate|go-live-gate]]
 - [[analysis/green-config-validation|green-config-validation]]
 - [[analysis/HONEST-PNL-BASELINE-2026-06-20|HONEST-PNL-BASELINE-2026-06-20]]
 - [[analysis/htf-suppression-2026-07-08|htf-suppression-2026-07-08]]

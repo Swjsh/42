@@ -1,19 +1,20 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-09-03 02:34:42 Thursday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-09-04 02:46:42 Friday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
-- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 52 session rows; latest: `{"date": "2026-09-02", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-09-02T14:40:03.597028", "est": false, "n_added": 28, "added_pnl": -255.0, "binary_day_pnl": -200.0, "ladd`
+- **Score ladder** (`Gamma_LadderRungShadow`, 16:40 ET) — 54 session rows; latest: `{"date": "2026-09-03", "arm_id": "risky-1", "rung": 8, "tallied_at": "2026-09-03T14:40:05.092273", "est": false, "n_added": 33, "added_pnl": -285.0, "binary_day_pnl": -133.0, "ladd`
 - **V-d1 / V-e3 entry shadow** (16:25 fold) — artifact: `analysis\entry-quality\shadow-tally.jsonl` — ADJUDICATED: V-d1 **KILL** (pooled F4 p=0.6661) · V-e3 **EXTEND** (pooled F4 p=0.1252)
 - **Chop exposure meter** (`Gamma_ChopMeter`, 16:08 ET) — artifact appears after the next close.
 
-- **stop_mode premium-vs-structure** (16:25 fold) — n=177 trades / 16 days, cum Δ **$-1,940.90** (-10.97/tr), mechanism FAILS, 4 days to bar
+- **stop_mode premium-vs-structure** (16:25 fold) — n=189 trades / 17 days, cum Δ **$-1,760.90** (-9.32/tr), mechanism FAILS, 3 days to bar
 - **Direction symmetry** (16:25 fold) — **RED**: 2 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
+- **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — latest verdict 2026-09-02: 73 sessions, n=1451, +0.0386 pts/trade, session-clustered 95% CI [-0.0301, 0.1177] (straddles zero), top-3 sessions 105% of profit — NOT a green light; promotion bar: [[analysis/trendlines/shadow-verdict.json]]
 
-## Frozen preregs — auto-discovered (96 non-terminal)
+## Frozen preregs — auto-discovered (97 non-terminal)
 
-_96 non-terminal preregs — grouped by status below; every one is listed, nothing truncated._
+_97 non-terminal preregs — grouped by status below; every one is listed, nothing truncated._
 
 ### `no status field` (49)
 
@@ -67,16 +68,10 @@ _96 non-terminal preregs — grouped by status below; every one is listed, nothi
 - `trail-width-exit-prereg-2026-07-21` — [[analysis/recommendations/trail-width-exit-prereg-2026-07-21]] · `no status field`
 - `ribbon-state-entry-gate-prereg-2026-07-21` — [[analysis/recommendations/ribbon-state-entry-gate-prereg-2026-07-21]] · `no status field`
 
-### `FROZEN_PREREG_FORWARD` (5)
+### `FROZEN_BEFORE_ANY_RESULT` (6)
 
-- `rolling-loss-circuit-core-prereg-2026-09-02` — [[analysis/recommendations/rolling-loss-circuit-core-prereg-2026-09-02]] · `FROZEN_PREREG_FORWARD`
-- `loss-armed-budget-forward-prereg-2026-08-28` — [[analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28]] · `FROZEN_PREREG_FORWARD`
-- `vwap-family-killcheck-prereg-2026-08-18` — [[analysis/recommendations/vwap-family-killcheck-prereg-2026-08-18]] · `FROZEN_PREREG_FORWARD`
-- `day-throttle-forward-prereg-2026-08-18` — [[analysis/recommendations/day-throttle-forward-prereg-2026-08-18]] · `FROZEN_PREREG_FORWARD`
-- `entry-structure-forward-prereg-2026-08-06` — [[analysis/recommendations/entry-structure-forward-prereg-2026-08-06]] · `FROZEN_PREREG_FORWARD`
-
-### `FROZEN_BEFORE_ANY_RESULT` (4)
-
+- `prereg-tickers-lane-production-scorer-2026-09-04` — [[analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04]] · `FROZEN_BEFORE_ANY_RESULT`
+- `prereg-catalyst-direction-2026-09-03` — [[analysis/recommendations/prereg-catalyst-direction-2026-09-03]] · `FROZEN_BEFORE_ANY_RESULT`
 - `prereg-multi-levels-transplant-2026-08-20` — [[analysis/recommendations/prereg-multi-levels-transplant-2026-08-20]] · `FROZEN_BEFORE_ANY_RESULT`
 - `prereg-spy-production-calibration-2026-08-20` — [[analysis/recommendations/prereg-spy-production-calibration-2026-08-20]] · `FROZEN_BEFORE_ANY_RESULT`
 - `prereg-multi-intraday-null-2026-08-20` — [[analysis/recommendations/prereg-multi-intraday-null-2026-08-20]] · `FROZEN_BEFORE_ANY_RESULT`
@@ -88,6 +83,13 @@ _96 non-terminal preregs — grouped by status below; every one is listed, nothi
 - `entry-quality-admissibility-prereg-2026-08-06` — [[analysis/recommendations/entry-quality-admissibility-prereg-2026-08-06]] · `FROZEN_PREREG`
 - `lever-entry-count-prereg-2026-08-06` — [[analysis/recommendations/lever-entry-count-prereg-2026-08-06]] · `FROZEN_PREREG`
 - `entry-improvement-variants-prereg-2026-08-05` — [[analysis/recommendations/entry-improvement-variants-prereg-2026-08-05]] · `FROZEN_PREREG`
+
+### `FROZEN_PREREG_FORWARD` (4)
+
+- `rolling-loss-circuit-core-prereg-2026-09-02` — [[analysis/recommendations/rolling-loss-circuit-core-prereg-2026-09-02]] · `FROZEN_PREREG_FORWARD`
+- `loss-armed-budget-forward-prereg-2026-08-28` — [[analysis/recommendations/loss-armed-budget-forward-prereg-2026-08-28]] · `FROZEN_PREREG_FORWARD`
+- `day-throttle-forward-prereg-2026-08-18` — [[analysis/recommendations/day-throttle-forward-prereg-2026-08-18]] · `FROZEN_PREREG_FORWARD`
+- `entry-structure-forward-prereg-2026-08-06` — [[analysis/recommendations/entry-structure-forward-prereg-2026-08-06]] · `FROZEN_PREREG_FORWARD`
 
 ### `FROZEN_PENDING_RUN` (3)
 
@@ -219,9 +221,9 @@ _96 non-terminal preregs — grouped by status below; every one is listed, nothi
 
 - `STRUCTURE-STOP-ZONE-2026-08-11` — [[analysis/recommendations/prereg-structure-stop-zone-2026-08-11]] · `{"status": "CLOSED by its own G4 -- dead-frequency knob", "run": "2...`
 
-## Frozen preregs — terminal (32, verdict/lifecycle already closed)
+## Frozen preregs — terminal (33, verdict/lifecycle already closed)
 
-- 32 terminal prereg(s) — most recent: `prereg-ladder-vwap-2026-08-11`, `prereg-pdt-blocked-counterfactual-2026-08-11`, `prereg-recency-qty-clamp-2026-08-11`, `fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03`, `BULL-VIX-SOFT-MODE-SOLE-BLOCKER-2026-08-03` _(+27 more)_ (status carries RUN_COMPLETE*/KILLED/SUPERSEDED/RETIRED/etc. -- see `analysis/recommendations/*prereg*.json`)
+- 33 terminal prereg(s) — most recent: `vwap-family-killcheck-prereg-2026-08-18`, `prereg-ladder-vwap-2026-08-11`, `prereg-pdt-blocked-counterfactual-2026-08-11`, `prereg-recency-qty-clamp-2026-08-11`, `fleet-strike-tier-atm-extension-safe3-prereg-2026-08-03` _(+28 more)_ (status carries RUN_COMPLETE*/KILLED/SUPERSEDED/RETIRED/etc. -- see `analysis/recommendations/*prereg*.json`)
 
 ## Frozen preregs — curated (richer write-ups)
 

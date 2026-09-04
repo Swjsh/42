@@ -1007,6 +1007,9 @@ CLAUDE_ROUTING = [
      "automation/state/futures/health.json + analysis/futures-eod/<date>.md"),
     ("Are we go-live yet?",
      "HOME.md §The gate (rendered from analysis/go-live-gate.json — one number, never re-derived)"),
+    ("Anything non-SPY — the tickers lane, other names, did it trade / why not?",
+     "markdown/planning/TICKERS-LANE.md (pipeline, clamps, revoke) → automation/state/tickers/<arm>/ledger.jsonl "
+     "→ automation/state/goals/GOAL-TICKERS-LANE-2026-09-04.md (the day-check's own verdict lines)"),
 ]
 
 
