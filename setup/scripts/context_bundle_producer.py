@@ -422,6 +422,145 @@ def compute_events_context(calendar: "dict | None", news: "dict | None", *,
     }
 
 
+# ----- catalysts (EXTENSION 2026-09-03) ----------------------------------------------------
+# WHY: on 2026-09-03 the book gapped -$779 in one minute at 10:00->10:01 ET on the ISM
+# Services PMI release, and this bundle's own `events` block read `todays_windows: []` for
+# that session. The pipe was never broken -- macro-calendar.json#no_trade_window_rules has 16
+# keys and ZERO ISM, and #events_30d had zero ISM rows, so the mechanical calendar correctly
+# reported "nothing scheduled". Meanwhile Scout (the ONLY agent with WebSearch/WebFetch, fires
+# 05:30 ET) had already written, four and a half hours ahead of the print:
+#     {"start": "09:55", "end": "10:05", "reason": "ISM Services PMI print"}
+# and nothing on the live path read it -- `grep -in scout automation/prompts/premarket.md`
+# returns zero matches across 408 lines. This block is the bridge: it carries Scout's windows
+# and, more importantly, DIFFS them against the mechanical calendar so a window one producer
+# knows about and the other does not becomes a visible, countable field instead of silence.
+#
+# STRICTLY LOGGED-ONLY, exactly like every other dimension here. `windows_scout_only` is a
+# DISAGREEMENT DETECTOR, not a gate: L199 (independently-reasonable filters AND'd together
+# produced a fleet-wide cascade -- 700 signals, 0 trades) and multi/lib/scanners.py's own
+# header both forbid promoting a watchlist input into a hard entry gate. Whether event
+# awareness should ever gate entries is being decided by Gamma_ReleaseBlackoutShadow on its
+# own forward clock -- and on the only ISM day measured so far, the entry-blackout arm R1 is
+# worth $0 (the 09:41 entries were already open); the flatten arm R3 is worth $329. n=1,
+# bar_met=false. Nothing here presumes that verdict.
+SCOUT_F = REPO / "automation" / "scout" / "state" / "scout_output.json"
+EARNINGS_BLACKOUT_F = STATE / "weekly" / "earnings-blackout.json"
+SCOUT_FIRE_ET = dt_time(5, 30)              # Gamma_ScoutPremarket's weekday cadence
+SCOUT_STALE_SLACK_MIN = 60                  # grace past the expected fire before flagging stale
+
+
+def _hhmm_to_minutes(s: "str | None") -> "int | None":
+    """'09:55' -> 595. None on anything unparseable -- never guesses a time."""
+    try:
+        h, m = (int(x) for x in str(s).split(":"))
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return h * 60 + m if 0 <= h <= 23 and 0 <= m <= 59 else None
+
+
+def _scout_staleness(scout: "dict | None", *, now_et: datetime) -> tuple[bool, "str | None"]:
+    """Same honest-degraded shape as _calendar_staleness: stale iff scout_output.json's own
+    generated_at is not from today's ET session, once we are past Gamma_ScoutPremarket's
+    05:30 ET fire plus slack. Before that window on a given morning, yesterday's file is
+    expected, not stale."""
+    if not scout:
+        return True, "scout_output.json missing/unreadable"
+    raw = scout.get("generated_at") or scout.get("generated_at_et")
+    gen = None
+    try:
+        gen = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except (AttributeError, TypeError, ValueError):
+        return True, f"scout generated_at unparseable: {raw!r}"
+    gen_et = gen.astimezone(now_et.tzinfo) if gen.tzinfo else gen
+    if gen_et.date() == now_et.date():
+        return False, None
+    expected_by = now_et.replace(hour=SCOUT_FIRE_ET.hour, minute=SCOUT_FIRE_ET.minute,
+                                 second=0, microsecond=0) + timedelta(minutes=SCOUT_STALE_SLACK_MIN)
+    if now_et < expected_by:
+        return False, None
+    return True, (f"scout generated_at {gen_et.date()} is not today ({now_et.date()}) "
+                  f"and it is past the 05:30 ET fire + {SCOUT_STALE_SLACK_MIN}min slack")
+
+
+def compute_catalyst_context(scout: "dict | None", earnings: "dict | None",
+                              events_context: "dict | None", *, now_et: datetime) -> dict:
+    """PURE (no I/O -- every argument is an already-loaded dict). Carries the two catalyst
+    sources that exist on disk today and are read by nothing on the live path:
+
+      * Scout's researched `today_no_trade_windows` (WebSearch-derived, cited, and on
+        2026-09-03 it named the ISM Services window 4.5h ahead of a -$779 one-minute gap).
+      * The two-source (yfinance + Nasdaq) fail-closed earnings blackout produced daily by
+        setup/scripts/earnings_calendar.py.
+
+    And it emits the field that makes a repeat of 2026-09-03 visible rather than silent:
+    `windows_scout_only` -- windows Scout named that the MECHANICAL calendar did not produce.
+    A non-empty list means the two producers disagree about what is scheduled today.
+
+    Every field is null-or-empty WITH a reason. Never fabricates a window or a date.
+    Comparison is by overlap on the ET minute axis, not by string equality, because the two
+    producers format and pad their windows differently."""
+    scout_stale, scout_stale_reason = _scout_staleness(scout, now_et=now_et)
+    now_hm = now_et.hour * 60 + now_et.minute
+
+    scout_windows: list = []
+    for w in ((scout or {}).get("today_no_trade_windows") or []):
+        s, e = _hhmm_to_minutes(w.get("start")), _hhmm_to_minutes(w.get("end"))
+        if s is None or e is None or e < s:
+            continue
+        scout_windows.append({"start_et": w.get("start"), "end_et": w.get("end"),
+                              "reason": w.get("reason"), "_s": s, "_e": e})
+
+    mech = []
+    for w in ((events_context or {}).get("todays_windows") or []):
+        s, e = _hhmm_to_minutes(w.get("start_et")), _hhmm_to_minutes(w.get("end_et"))
+        if s is not None and e is not None:
+            mech.append((s, e))
+
+    scout_only = [{"start_et": w["start_et"], "end_et": w["end_et"], "reason": w["reason"]}
+                  for w in scout_windows
+                  if not any(w["_s"] <= me and ms <= w["_e"] for ms, me in mech)]
+    active = [{"start_et": w["start_et"], "end_et": w["end_et"], "reason": w["reason"]}
+              for w in scout_windows if w["_s"] <= now_hm <= w["_e"]]
+
+    blackout_today, earn_stale, earn_reason = [], True, "earnings-blackout.json missing/unreadable"
+    if earnings and isinstance(earnings.get("symbols"), dict):
+        earn_stale, earn_reason = False, None
+        gen = earnings.get("generated_at_et")
+        if not (isinstance(gen, str) and gen[:10] == now_et.strftime("%Y-%m-%d")):
+            earn_stale, earn_reason = True, f"earnings-blackout.json generated_at_et={gen!r} is not today"
+        today_str = now_et.strftime("%Y-%m-%d")
+        for sym, rec in earnings["symbols"].items():
+            if not isinstance(rec, dict) or rec.get("exempt"):
+                continue
+            s, e = rec.get("blackout_start_date"), rec.get("blackout_end_date")
+            if isinstance(s, str) and isinstance(e, str) and s <= today_str <= e:
+                blackout_today.append({"symbol": sym, "next_earnings_date": rec.get("next_earnings_date"),
+                                       "timing": rec.get("timing"), "confidence": rec.get("confidence"),
+                                       "record_as_of": rec.get("as_of")})
+
+    return {
+        "scout_windows": [{k: v for k, v in w.items() if not k.startswith("_")} for w in scout_windows],
+        "scout_window_active": bool(active),
+        "scout_active_windows": active,
+        "scout_stale": scout_stale,
+        "scout_stale_reason": scout_stale_reason,
+        "windows_scout_only": scout_only,
+        "windows_scout_only_count": len(scout_only),
+        "_windows_scout_only_doc": "Windows Scout researched that the mechanical calendar did "
+                                   "NOT produce. Non-empty = the two producers disagree about "
+                                   "today. On 2026-09-03 this would have read 2 (jobless claims, "
+                                   "ISM Services) against a mechanical todays_windows of [].",
+        "earnings_blackout_today": blackout_today,
+        "earnings_blackout_count": len(blackout_today),
+        "earnings_stale": earn_stale,
+        "earnings_stale_reason": earn_reason,
+        "consumption_contract": "WATCHLIST / DECISION-ROW CONTEXT ONLY -- never AND'd into a "
+                                "hard entry gate (L199; multi/lib/scanners.py header). Whether "
+                                "event awareness should gate entries is Gamma_ReleaseBlackout"
+                                "Shadow's forward clock to decide, not this block's.",
+    }
+
+
 # ----- prior_day (reuses the SAME daily_df trend_alignment already fetches) ----------------
 def compute_prior_day(daily_df: "pd.DataFrame | None", *, today_et_date: str) -> dict:
     """PURE. The most recent daily bar strictly BEFORE today_et_date -- the prior COMPLETE
@@ -712,6 +851,20 @@ def main() -> int:
                               "reason": f"levels_context_error: {type(e).__name__}: {e}"}
             reasons.append(f"levels_context: {type(e).__name__}: {e}")
 
+        try:
+            catalysts = compute_catalyst_context(
+                _load_json_or_none(SCOUT_F), _load_json_or_none(EARNINGS_BLACKOUT_F),
+                events, now_et=now_et)
+        except Exception as e:  # noqa: BLE001 -- degrade this dimension, never the bundle
+            catalysts = {"scout_windows": [], "scout_window_active": False,
+                         "scout_active_windows": [], "scout_stale": True,
+                         "scout_stale_reason": f"catalyst_context_error: {type(e).__name__}: {e}",
+                         "windows_scout_only": [], "windows_scout_only_count": None,
+                         "earnings_blackout_today": [], "earnings_blackout_count": None,
+                         "earnings_stale": True, "earnings_stale_reason": None,
+                         "consumption_contract": "WATCHLIST / DECISION-ROW CONTEXT ONLY"}
+            reasons.append(f"catalysts: {type(e).__name__}: {e}")
+
         degraded = bool(reasons)
 
         bundle = {
@@ -724,10 +877,13 @@ def main() -> int:
             "prior_day": prior_day,
             "today_context": today_context,
             "levels_context": levels_context,
+            "catalysts": catalysts,
             "degraded": degraded,
             "degraded_reason": "; ".join(reasons) if reasons else None,
             "note": "TREND ALIGNMENT (v1, J 2026-07-14) + EVENTS/PRIOR-DAY/TODAY-CONTEXT/"
-                    "LEVELS-CONTEXT (v1.1, J 2026-07-15). LOGGED ONLY: not consumed by "
+                    "LEVELS-CONTEXT (v1.1, J 2026-07-15) + CATALYSTS (v1.2, 2026-09-03: "
+                    "Scout's researched windows + the two-source earnings blackout, and the "
+                    "scout-vs-mechanical-calendar disagreement counter). LOGGED ONLY: not consumed by "
                     "score/gates/_derive_tier this phase -- see heartbeat_core."
                     "_read_context_bundle + rec['context_bundle']. Grading path (spec only, "
                     "not built): see this module's docstring 'GRADING PATH' section.",
@@ -738,6 +894,7 @@ def main() -> int:
             "computed_at_et": now_et.strftime("%Y-%m-%dT%H:%M:%S"),
             "per_tf": {}, "trend_alignment": {}, "alignment_score": 0,
             "events": None, "prior_day": None, "today_context": None, "levels_context": None,
+            "catalysts": None,
             "degraded": True, "degraded_reason": f"producer crash: {type(e).__name__}: {e}",
             "note": "context_bundle_producer main() failed -- see degraded_reason. Fail-open: "
                     "this bundle is intentionally written so heartbeat_core's stale/absent "
