@@ -53,14 +53,21 @@ function cmdVitalTile(spec){
   s.appendChild(top);
   const gfx=el('div','vital__gfx'); if(spec.gfx)gfx.innerHTML=spec.gfx; s.appendChild(gfx);
   s.appendChild(el('div','vital__figure gc-kpi__value',esc(spec.figure==null?'NO DATA':String(spec.figure))));
-  // Optional delta chip (spec: "green delta chip vs prior period"). Only the
-  // Book KPI populates this today (cmdVitalBook below); every other caller
-  // omits `spec.delta` and gets nothing extra, never a fabricated comparison.
-  if(spec.delta&&spec.delta.text){
-    s.appendChild(el('span','gc-delta '+(spec.delta.dir||'flat'),esc(spec.delta.text)));
-  }
+  // ROUND-2 FIX (2026-09-04): spec wants "a delta chip on every card" -- a
+  // card whose caller could not compute one used to render NOTHING (an
+  // empty slot the reviewer read as a missing feature, not a considered
+  // absence). Every tile now gets a chip: a real one when the caller
+  // computed spec.delta, else an explicit 'NO DATA' chip (flat tone) --
+  // never a fabricated comparison, never a blank slot either.
+  const deltaSpec=spec.delta&&spec.delta.text?spec.delta:{text:'NO DATA',dir:'flat'};
+  s.appendChild(el('span','gc-delta '+(deltaSpec.dir||'flat'),esc(deltaSpec.text)));
+  // ROUND-2 FIX (2026-09-04): every KPI card's state line is MUTED METADATA
+  // ("7 trading days, 7d", "2 idle", "Fires 0/8, cap $30.00") -- the card's
+  // own verdict is already carried by data-verdict (tile background/border
+  // tint) and, for Gate, the big figure text itself. A leading .vd dot here
+  // just read as a stray bullet in front of a non-verdict sentence (spec:
+  // "use the tone dot only on verdict words").
   const state=el('div','vital__state');
-  state.appendChild(el('i','vd'));
   state.appendChild(el('span',null,spec.state||'NO DATA'));
   s.appendChild(state);
   d.appendChild(s);
@@ -116,11 +123,20 @@ function cmdVitalGate(){
   const at=(gt.ci&&gt.ci.as_traded)||{};
   const cl=at.ci_lower;
   const v=cmdGateVerdict(gt);
+  // Delta chip (spec: "CI-lower delta vs last Friday reading if available
+  // in analysis/go-live-gate.json history else 'vs 1.0 bar' chip"). That
+  // file is a single point-in-time snapshot with no history array today
+  // (verified, not assumed), so this is always the distance from the go-
+  // live bar itself -- still a real, non-fabricated number, just not a
+  // week-over-week one.
+  const delta=(cl!=null)?
+    {text:(cl>=1.0?'+':'')+(cl-1.0).toFixed(2)+' vs 1.0 bar', dir:cl>=1.0?'up':'down'}:null;
   return cmdVitalTile({
     id:'vital-gate', icon:'gauge', label:'Gate',
     verdict:v,
     gfx:cl!=null?cmdGfx('gfxRingV',Math.max(0,cl),1):'',
     figure:v==='green'?'LIVE':(v==='none'?'NO DATA':'NOT LIVE'),
+    delta:delta,
     state:cmdWrapDigits(gt.say||'NO DATA'),
     jumpTo:'tile-gate',
   });
@@ -130,11 +146,20 @@ function cmdVitalAgents(){
   if(!a)return cmdVitalTile({id:'vital-agents',icon:'bot',label:'Agents',verdict:'off',state:'NO DATA',jumpTo:'tile-agents'});
   const c=cmdArmyCounts(a);
   const total=((a.sessions)||[]).length;
+  // Delta chip (spec: "running vs 24h peak from army") -- peak_24h_sessions
+  // is gamma_cockpit_army.py's own disclosed proxy (distinct session_ids
+  // per busiest trailing-24h hour bucket in pulse.jsonl -- see its
+  // docstring for what it is and isn't a measurement of), not a
+  // fabricated number; null when the ledger can't answer it.
+  const peak=a.peak_24h_sessions;
+  const delta=(peak!=null)?
+    {text:c.running+' vs 24h peak '+peak, dir:c.running>=peak?'up':'flat'}:null;
   return cmdVitalTile({
     id:'vital-agents', icon:'bot', label:'Agents',
     verdict:c.running>0?'green':'off',
     gfx:total?cmdGfx('gfxRingV',c.running,total):'',
     figure:total?(c.running+'/'+total):'0',
+    delta:delta,
     state:c.waiting+' idle',
     jumpTo:'tile-agents',
   });
@@ -161,11 +186,27 @@ function cmdVitalKitchen(){
   const spend=mm?parseFloat(mm[1]):null, cap=mm?parseFloat(mm[2]):null;
   const verdict=lane.state==='WORKING'?'green':lane.state==='HELD'?'none':
     (lane.state==='STALE'||lane.state==='NO DATA')?'amber':(lane.state==='BROKEN'||lane.state==='ERROR')?'red':'none';
+  // Delta chip (spec: "done today vs 7d avg from learning-ledger.json").
+  // D.learning.windows carries real today/7d aggregate task counts (see
+  // learning_ledger.py); avg7 = that 7d total / 7, so this is a real pace
+  // comparison, not a fabricated one. null (-> NO DATA chip) when the
+  // ledger has neither window.
+  const lw=(D.learning&&D.learning.windows)||{};
+  const kToday=lw.today&&lw.today.kitchen_tasks_completed;
+  const k7d=lw['7d']&&lw['7d'].kitchen_tasks_completed;
+  let delta=null;
+  if(kToday!=null&&k7d!=null){
+    const avg7=k7d/7;
+    const diff=kToday-avg7;
+    delta={text:(diff>=0?'+':'')+diff.toFixed(1)+' vs 7d avg '+avg7.toFixed(1),
+      dir:diff>0?'up':(diff<0?'down':'flat')};
+  }
   return cmdVitalTile({
     id:'vital-kitchen', icon:'flame', label:'Kitchen',
     verdict:verdict,
     gfx:(spend!=null&&cap!=null)?cmdGfx('gfxPulseV',spend,cap):'',
     figure:dm?(dm[1]+' pending'):(lane.state||'NO DATA'),
+    delta:delta,
     state:cmdWrapDigits(lane.detail||lane.state||'NO DATA'),
     jumpTo:'tile-kitchen',
   });
@@ -174,11 +215,21 @@ function cmdVitalShadow(){
   const sh=D.shadow;
   if(!sh||sh.ok===false)return cmdVitalTile({id:'vital-shadow',icon:'hourglass',label:'Shadow',verdict:'off',state:'NO DATA, looked for SHADOW.md',jumpTo:'tile-shadow'});
   const heat=sh.heat||[];
+  const nowN=(sh.live||[]).length;
+  // Delta chip (spec: "clocks vs last week") -- live_count_7d_ago is a real
+  // re-parse of SHADOW.md as git had it ~7 days ago (build_shadow(), same
+  // module), not a live/fabricated comparison. null (-> NO DATA chip) when
+  // git can't find a commit that far back yet (a young repo window).
+  const prevN=sh.live_count_7d_ago;
+  const delta=(prevN!=null)?
+    {text:(nowN-prevN>=0?'+':'')+(nowN-prevN)+' vs last week ('+prevN+')',
+      dir:nowN>prevN?'up':(nowN<prevN?'down':'flat')}:null;
   return cmdVitalTile({
     id:'vital-shadow', icon:'hourglass', label:'Shadow',
     verdict:'none',
     gfx:heat.length?cmdGfx('gfxHeatV',heat):'',
-    figure:(sh.live||[]).length+' clocks',
+    figure:nowN+' clocks',
+    delta:delta,
     state:cmdWrapDigits(sh.say||'NO DATA'),
     jumpTo:'tile-shadow',
   });
@@ -189,6 +240,12 @@ function cmdVitalBudget(){
   const vals=cmdCostSeries(CM);
   const haveRing=(bud.spent_usd!=null&&bud.cap_usd!=null&&!isNaN(bud.spent_usd)&&!isNaN(bud.cap_usd)&&Number(bud.cap_usd)>0);
   const over=(haveRing&&Number(bud.spent_usd)>Number(bud.cap_usd));
+  // Delta chip (spec: "spent vs cap %") -- pure arithmetic over bud's own
+  // two numbers, same haveRing guard the ring graphic already uses (never a
+  // percentage against a zero/missing cap).
+  const pct=haveRing?(Number(bud.spent_usd)/Number(bud.cap_usd)*100):null;
+  const delta=(pct!=null)?
+    {text:pct.toFixed(0)+'% of cap', dir:pct>=100?'down':(pct>=75?'flat':'up')}:null;
   // spec V2-GLOW component map: "Budget (ring spent/cap)" -- a ring reads the
   // spend-vs-cap fraction at a glance the way Gate/Agents already do; falls
   // back to the 14d spend spark when spent/cap aren't both present (never a
@@ -199,6 +256,7 @@ function cmdVitalBudget(){
     stale:!!CM.as_of_et_date,
     gfx:haveRing?cmdGfx('gfxRingV',bud.spent_usd,bud.cap_usd):(vals.length>=2?cmdGfx('gfxSparkV',vals):''),
     figure:(bud.spent_usd!=null)?cmdUsd(bud.spent_usd):'NO DATA',
+    delta:delta,
     state:(bud.fires_used!=null&&bud.fires_cap!=null)?('Fires '+bud.fires_used+'/'+bud.fires_cap+', cap '+cmdUsd(bud.cap_usd)):'NO DATA',
     jumpTo:null,
   });

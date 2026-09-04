@@ -28,9 +28,13 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
+
+_CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -387,6 +391,43 @@ def build_standup() -> dict:
 
 # --------------------------------------------------------------- shadow
 
+def _shadow_live_count_days_ago(days: int) -> int | None:
+    """The 'Live shadow instruments' bullet count from SHADOW.md as it stood
+    in git ~`days` ago (nearest commit at/before that point) -- reparsed with
+    the SAME regex build_shadow() uses on today's file, so the KPI's "vs last
+    week" delta is a real historical count, never a guess. None (never
+    raises) if git/the file/that section isn't found at that point in
+    history; the caller draws NO DATA rather than a fabricated comparison."""
+    try:
+        rev = subprocess.run(
+            ["git", "rev-list", "-1", "--before=%d.days.ago" % days, "HEAD", "--", "SHADOW.md"],
+            cwd=str(REPO), capture_output=True, text=True, timeout=20,
+            encoding="utf-8", errors="replace",
+            creationflags=_CREATE_NO_WINDOW,
+        )
+        sha = rev.stdout.strip()
+        if rev.returncode != 0 or not sha:
+            return None
+        show = subprocess.run(
+            ["git", "show", "%s:SHADOW.md" % sha],
+            cwd=str(REPO), capture_output=True, text=True, timeout=20,
+            encoding="utf-8", errors="replace",
+            creationflags=_CREATE_NO_WINDOW,
+        )
+        if show.returncode != 0:
+            return None
+        text = show.stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m_live = re.search(r'^##\s+Live shadow instruments\s*$', text, re.M)
+    if not m_live:
+        return None
+    section_starts = [m.start() for m in re.finditer(r'^##\s+.*$', text, re.M)]
+    nxt = next((s for s in section_starts if s > m_live.start()), len(text))
+    return sum(1 for line in text[m_live.end():nxt].splitlines()
+               if re.match(r'^-\s+\*\*(.+?)\*\*', line.strip()))
+
+
 def build_shadow() -> dict:
     p = REPO / "SHADOW.md"
     text = p.read_text(encoding="utf-8")
@@ -433,6 +474,9 @@ def build_shadow() -> dict:
         # clocks by verdict)"): one dot per live clock, verdict word ONLY
         # (never a colour) so the client's gfxHeatV just maps a known word.
         "heat": [c["verdict"] for c in live][:36],
+        # KPI delta chip source (round-2, 2026-09-04): real git history, not
+        # a live/fabricated comparison -- None when git can't answer it.
+        "live_count_7d_ago": _shadow_live_count_days_ago(7),
     }
 
 
@@ -497,6 +541,107 @@ def build_watchers() -> dict:
         "graded_at": graded_at, "total_observations": total_obs, "watchers": watchers,
         "best": ({"name": best["name"], "pnl": best["would_be_pnl"]} if best else None),
     }
+
+
+# ------------------------------------------------------ health sparklines
+# ROUND-2 FIX (2026-09-04): Agent health rows drew a "NO DATA" PILL where the
+# sparkline belongs, for every lane, always -- the module's own prior comment
+# said why (learning-ledger.json's `windows` only carries today/7d
+# AGGREGATES, no day-by-day breakdown). That is true of the ledger, but not
+# of the RAW sources it aggregates: cook-queue.jsonl and the prospector ideas
+# ledger are both append-only JSONL with a real per-row date, so a genuine
+# 7-day-by-day count is one bucket-and-count pass away. Futures/multi/spy/
+# watchers have no equivalent per-day raw log today (verified this pass --
+# futures/decisions.jsonl is 5 stale July rows, watcher-summary.json is a
+# single aggregate snapshot) -- those stay `series: None` and the row draws
+# spec's other honest option: a flat dotted baseline + "no series" caption,
+# never a fabricated shape and never a bare NO DATA pill either.
+
+def _day_window(days: int, today: str | None) -> list[str]:
+    end = datetime.strptime(today or et_now().strftime("%Y-%m-%d"), "%Y-%m-%d")
+    return [(end - timedelta(days=k)).strftime("%Y-%m-%d") for k in range(days - 1, -1, -1)]
+
+
+def _utc_iso_to_et_day(ts) -> str | None:
+    try:
+        d = datetime.fromisoformat(str(ts))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=timezone.utc)
+        return d.astimezone(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        return None
+
+
+def _tail_jsonl(path: Path, max_bytes: int = 400_000) -> list[dict]:
+    """Last `max_bytes` of an append-only JSONL file, parsed -- plenty for a
+    7-day window on a ledger this project writes to continuously; a
+    malformed or half-written first line (from the byte-offset seek landing
+    mid-record) is simply skipped, never a crash."""
+    try:
+        size = path.stat().st_size
+        with path.open("rb") as fh:
+            fh.seek(max(0, size - max_bytes))
+            data = fh.read()
+    except OSError:
+        return []
+    rows = []
+    for raw in data.split(b"\n"):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            rows.append(json.loads(raw))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            continue
+    return rows
+
+
+def _spark_kitchen(days: list[str]) -> list[int] | None:
+    p = STATE / "cook-queue.jsonl"
+    if not p.exists():
+        return None
+    counts = {d: 0 for d in days}
+    for row in _tail_jsonl(p):
+        if row.get("event") != "complete":
+            continue
+        d = _utc_iso_to_et_day(row.get("ts"))
+        if d in counts:
+            counts[d] += 1
+    return [counts[d] for d in days]
+
+
+def _spark_prospector(days: list[str]) -> list[int] | None:
+    p = ANALYSIS / "prospector" / "ideas-ledger.jsonl"
+    if not p.exists():
+        return None
+    counts = {d: 0 for d in days}
+    for row in _tail_jsonl(p):
+        d = row.get("date")
+        if d in counts:
+            counts[d] += 1
+    return [counts[d] for d in days]
+
+
+def build_health_spark() -> dict:
+    """{lane_id: {"series": [7 ints] | None, "path": str}} for the Agent
+    health panel's sparkline slot, one entry per GC_HEALTH_ORDER id plus
+    'watchers'. Never raises -- a per-lane failure degrades that lane's own
+    series to None (drawn as the flat-baseline honest state), never the
+    whole tile."""
+    days = _day_window(7, et_now().strftime("%Y-%m-%d"))
+    out: dict = {}
+    for lane_id, fn, path in (
+        ("kitchen", _spark_kitchen, STATE / "cook-queue.jsonl"),
+        ("prospector", _spark_prospector, ANALYSIS / "prospector" / "ideas-ledger.jsonl"),
+    ):
+        try:
+            series = fn(days)
+        except Exception:  # noqa: BLE001 -- one lane's bad ledger must not cost the others
+            series = None
+        out[lane_id] = {"series": series, "path": _rel(path)}
+    for lane_id in ("futures", "multi", "spy", "watchers"):
+        out[lane_id] = {"series": None, "path": None}
+    return out
 
 
 # --------------------------------------------------------------- guards
@@ -695,7 +840,15 @@ def build_tiles() -> dict:
         "guards": _safe("guards", STATE / "task-state-guard.json", build_guards),
         "tasks": _safe("tasks", STATE / "SCHEDULED-TASKS.md", build_tasks),
         "gym": _safe("gym", _find_gym_path(today)[0], build_gym),
+        "health_spark": _build_health_spark_safe(),
     }
+
+
+def _build_health_spark_safe() -> dict:
+    try:
+        return build_health_spark()
+    except Exception:  # noqa: BLE001 -- the sparkline slot degrading is never worth losing the page
+        return {}
 
 
 if __name__ == "__main__":

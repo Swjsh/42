@@ -622,6 +622,40 @@ def _scan_pulse_file() -> list[dict]:
     return rows
 
 
+def _peak_24h_sessions(pulse_rows: list[dict]) -> int | None:
+    """Agents KPI delta source (round-2, 2026-09-04): "running vs 24h peak".
+    pulse.jsonl has no session start/end pair to compute exact simultaneous-
+    process overlap from, so this is a disclosed PROXY: for each 1-hour ET
+    bucket in the trailing 24h, count the DISTINCT session_ids that sent at
+    least one pulse row in that bucket, and return the busiest bucket's
+    count -- a real measurement of ledger activity, not a fabricated one,
+    just an hour-granularity approximation of concurrency rather than an
+    exact instant-by-instant sample. None (never raises) if the ledger is
+    empty or every row is outside the window; the caller draws NO DATA."""
+    try:
+        from et_clock import et_now
+        now = et_now()
+    except Exception:  # noqa: BLE001 -- fail-open, this stat is a bonus
+        now = dt.datetime.now()
+    cutoff = now - dt.timedelta(hours=24)
+    buckets: dict[int, set] = {}
+    for row in pulse_rows:
+        sid, ts = row.get("session_id"), row.get("ts")
+        if not sid or not ts:
+            continue
+        try:
+            when = dt.datetime.fromisoformat(str(ts))
+        except ValueError:
+            continue
+        if when < cutoff or when > now:
+            continue
+        bucket = int((when - cutoff).total_seconds() // 3600)
+        buckets.setdefault(bucket, set()).add(sid)
+    if not buckets:
+        return None
+    return max(len(s) for s in buckets.values())
+
+
 def _pick_orchestrator(sessions: list[dict], pulse_rows: list[dict]) -> str | None:
     """The session with the most recent 'spawn' row, else the newest-started
     session (preferring one still alive)."""
@@ -734,6 +768,10 @@ def build_army() -> dict:
         # comparable clock or it is not a claim, it is a guess.
         "generated_epoch": int(time.time()),
         "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
+        # Agents KPI delta chip source (round-2, 2026-09-04) -- see
+        # _peak_24h_sessions' own docstring for exactly what this is (and is
+        # not) a measurement of.
+        "peak_24h_sessions": _peak_24h_sessions(pulse_rows),
         # NON-NEGOTIABLE HONESTY (pulse.py's own contract, carried through):
         # this is SENDS, never confirmed deliveries.
         "legend": ("Pulses show messages SENT, not delivered — a held, expired, refused, or "

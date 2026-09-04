@@ -68,6 +68,7 @@ def _no_data(day: str | None) -> dict:
         "stamp_et": None,
         "day": day,
         "live": False,
+        "session_label": None,
         "verdict": "off",
         "say": "NO DATA, looked for core-decisions.jsonl and autonomy-metric.json",
         "stages": _empty_stages(),
@@ -149,6 +150,41 @@ def _aggregate_cause_counts(accounts: dict) -> dict:
     return dict(total)
 
 
+def _last_trading_day_before(today: str | None) -> str | None:
+    """The newest ET date strictly before `today` that has a row in
+    core-decisions.jsonl -- read from the TAIL only (append-only ledger, so
+    the newest rows are the last bytes in the file), never a full parse.
+    Returns None (never raises) if the file is missing/empty/unreadable or
+    every date found is not < today."""
+    path = STATE / "core-decisions.jsonl"
+    try:
+        size = path.stat().st_size
+        if size <= 0:
+            return None
+        with path.open("rb") as fh:
+            block = min(size, 65536)
+            fh.seek(size - block)
+            data = fh.read()
+        lines = data.split(b"\n")
+    except OSError:
+        return None
+    for raw in reversed(lines):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            row = json.loads(raw)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            continue
+        ts = row.get("ts_et") or ""
+        if len(ts) < 10:
+            continue
+        day = ts[:10]
+        if today is None or day < today:
+            return day
+    return None
+
+
 def _fallback_from_autonomy_metric(day: str | None) -> dict | None:
     path = STATE / "autonomy-metric.json"
     try:
@@ -197,6 +233,7 @@ def _fallback_from_autonomy_metric(day: str | None) -> dict | None:
         "stamp_et": raw.get("computed_at"),
         "day": day,
         "live": False,
+        "session_label": None,
         "verdict": verdict,
         "say": say,
         "stages": stages,
@@ -236,6 +273,26 @@ def _build_inner(day: str | None) -> dict:
     funnel = fill_funnel.compute_funnel(the_day)
     totals = funnel.get("totals") or {}
     accounts_raw = funnel.get("accounts") or {}
+    session_label = None
+
+    # ROUND-2 FIX (2026-09-04): pre-market/holiday/fresh-boot reads land here with
+    # 0 ticks for TODAY every time (the ledger simply has nothing yet), and used to
+    # fall straight to autonomy-metric.json -- which only carries enter/accepted/
+    # fills, so ticks/signals/exited drew "no data" even though the LAST closed
+    # session has all six numbers sitting in core-decisions.jsonl already. Try the
+    # newest day strictly before `the_day` that the ledger actually has rows for
+    # FIRST; only fall to autonomy-metric (fewer stages) or NO DATA (none) if that
+    # comes up empty too. `the_day`/verdict/say below all move to the found day
+    # together so nothing here mixes two different days' numbers.
+    if not totals.get("ticks"):
+        last_day = _last_trading_day_before(the_day)
+        if last_day:
+            alt_funnel = fill_funnel.compute_funnel(last_day)
+            alt_totals = alt_funnel.get("totals") or {}
+            if alt_totals.get("ticks"):
+                funnel, totals, accounts_raw = alt_funnel, alt_totals, alt_funnel.get("accounts") or {}
+                the_day = last_day
+                session_label = f"Last session {last_day}, closed"
 
     if not totals.get("ticks"):
         fb = _fallback_from_autonomy_metric(the_day)
@@ -267,6 +324,8 @@ def _build_inner(day: str | None) -> dict:
     say = (f"{verdict}: {stages[0]['n']} ticks -> {stages[1]['n']} signals -> "
            f"{stages[2]['n']} enter -> {stages[3]['n']} accepted -> "
            f"{stages[4]['n']} filled -> {stages[5]['n']} exited, {len(accounts)} account(s)")
+    if session_label:
+        say = f"{the_day} ({session_label}): " + say
     if flags:
         say += " | " + str(flags[0])[:160]
 
@@ -287,6 +346,7 @@ def _build_inner(day: str | None) -> dict:
         "stamp_et": funnel.get("generated_at_et"),
         "day": the_day,
         "live": bool(live),
+        "session_label": session_label,
         "verdict": verdict,
         "say": say,
         "stages": stages,

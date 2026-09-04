@@ -149,6 +149,12 @@ function sankeyPanel(funnel){
     chip = el('span','gc-chip gc-chip--live');
     chip.appendChild(el('span','gc-live-dot'));
     chip.appendChild(document.createTextNode('Live'));
+  } else if (f.session_label){
+    // ROUND-2 FIX: gamma_cockpit_funnel.py falls back to the last CLOSED
+    // trading day's ledger when today's is still empty (pre-market/holiday) --
+    // this label is the only thing that tells the reader the six numbers
+    // below are yesterday's, not a today that never happened.
+    chip = el('span','gc-chip gc-chip--closed',String(f.session_label));
   } else {
     chip = el('span','gc-chip gc-chip--closed','Today, closed');
   }

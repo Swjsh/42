@@ -241,6 +241,26 @@ function cmdDaylineCursor(pct){
   svg.appendChild(line);
   return svg;
 }
+/* Real-pixel label thinning (see cmdDayline). `order` is ascending-time
+   {tk,pos%} pairs already in the live DOM. Never throws -- a measurement
+   failure (track not yet laid out, zero width) just leaves every label
+   showing, which is the safe default, not a worse one. */
+function cmdDaylineThin(track,order){
+  try{
+    const tw=track.getBoundingClientRect().width;
+    if(!tw||!order.length)return;
+    let lastPx=null;
+    order.forEach(o=>{
+      const px=(o.pos/100)*tw;
+      if(lastPx!=null&&(px-lastPx)<56){
+        o.tk.dataset.hideLabel='1';
+      }else{
+        delete o.tk.dataset.hideLabel;
+        lastPx=px;
+      }
+    });
+  }catch(_){}
+}
 function cmdDayline(){
   const wrap=el('div','dayline');
   const T=D.tasks;
@@ -257,13 +277,23 @@ function cmdDayline(){
   const nowHHMM=cmdISOToHHMM(D.built_at_et);
   const nowPct=nowHHMM!=null?dlPos(nowHHMM):null;
   if(nowPct!=null)track.appendChild(cmdDaylineCursor(nowPct));
-  /* spec 10.1: "ALL labels below the track, min 56px apart (drop the
-     collision pair 08:30/09:30 -> show 09:30 only; 16:45/17:00 -> 17:00
-     only)" -- ticks are sorted ascending, so a collision drops the PREVIOUS
-     tick's label (never alternates it to a second row -- that read as two
-     competing label lanes, not one clean line). */
-  let prevPos=null, prevTick=null;
-  const LBL_PCT=4.2;  /* a 5-char mono label plus a gap, as a share of the track */
+  /* ROUND-2 FIX (2026-09-04): spec's "min 56px apart" is a REAL pixel budget,
+     not a share of the track -- and the track's rendered width varies with
+     viewport (measured ~486px wide on the Command header at 1600px, nowhere
+     near the 990-1310min domain's naive "4.2% of the axis" guess this used
+     to use), so a percentage threshold picked by hand either under- or
+     over-collides depending on how wide the header happens to be that day.
+     Every tick still gets placed and labelled synchronously below (so the
+     page never has a frame with NO labels); `cmdDaylineThin` then measures
+     the TRACK'S ACTUAL RENDERED WIDTH after layout (double rAF -- one frame
+     for the caller to insert `wrap` into the document, one more so the
+     browser has actually laid it out) and hides whichever labels sit closer
+     than 56 real px to the last one it kept, walking oldest-to-newest so an
+     always-first tick (08:00) is never the one dropped -- it is always its
+     later, redundant neighbour (08:30 when 08:00/09:30 already bracket it)
+     that goes. Never alternates to a second row -- that read as two
+     competing label lanes, not one clean line. */
+  const order=[];
   ticks.slice().sort((a,b)=>(cmdDlMinutesAbs(a.time_et)||0)-(cmdDlMinutesAbs(b.time_et)||0)).forEach(t=>{
     let pos=dlPos(t.time_et);
     if(pos==null){
@@ -274,11 +304,10 @@ function cmdDayline(){
     const state=t.failed_today?'failed':(t.fired_today?'fired':'upcoming');
     const tk=el('div','dayline__tick'); tk.dataset.state=state;
     tk.style.left=pos+'%';
-    if(prevPos!=null&&prevTick&&(pos-prevPos)<LBL_PCT)prevTick.dataset.hideLabel='1';
-    prevPos=pos; prevTick=tk;
     tk.title=(t.name||t.label||'')+(t.time_et?' '+t.time_et:' time NO DATA');
     tk.appendChild(el('span','dayline__lbl mono',esc(t.time_et||'?')));
     track.appendChild(tk);
+    order.push({tk:tk,pos:pos});
   });
   if(nowPct!=null){
     const now=el('div','dayline__now'); now.style.left=nowPct+'%';
@@ -286,6 +315,8 @@ function cmdDayline(){
   }
   wrap.appendChild(track);
   if(!ok)wrap.appendChild(el('div','dayline__meta mut','NO DATA'));
+  /* the thinning pass is a layout read, not an animation -- runs regardless of RM */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>cmdDaylineThin(track,order)));
   return wrap;
 }
 

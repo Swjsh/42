@@ -279,13 +279,22 @@ a:hover{text-decoration:underline}
    uses (`--neg-soft`/`--warn-soft` below). Sizing is 20px/28px/600 to match
    `.sentence` -- see gamma_cockpit_ui_theme.py for the verdict-text-colour
    rules layered on top of this base. */
-.statusrow{display:flex;flex-wrap:wrap;align-items:baseline;row-gap:var(--s3)}
-.statusitem{display:inline-flex;align-items:baseline;gap:8px;padding:0 var(--s5);
-  font:600 20px/28px var(--font);color:var(--ink-2);border-radius:var(--r-sm)}
+/* ROUND-2 FIX (2026-09-04): at 20px/28px with 16px padding each side, 5
+   clauses ("NOT LIVE" / "Market closed" / "N agents running" / "N need you"
+   / "Book ...") wrapped to 3 lines at 1600px -- the state-of-the-rig
+   sentence, the ONE thing the header exists to say at a glance, was the
+   tallest thing on the page. Chips shrink to 13px/gap 12px (still >= this
+   project's 12px floor) so the row fits on one line down to a 1300px
+   viewport; only below that does wrapping return, and it wraps by whole
+   chip (never mid-word) either way. */
+.statusrow{display:flex;flex-wrap:wrap;align-items:baseline;row-gap:6px}
+@media (min-width:1300px){.statusrow{flex-wrap:nowrap}}
+.statusitem{display:inline-flex;align-items:baseline;gap:6px;padding:0 6px;
+  font:600 13px/1.4 var(--font);color:var(--ink-2);border-radius:var(--r-sm);white-space:nowrap}
 .statusitem:first-child{padding-left:0}
 .statusitem+.statusitem{border-left:1px solid var(--line)}
-.statusitem[data-verdict="red"]{background:var(--neg-soft);padding:4px var(--s4);margin:-4px 0}
-.statusitem[data-verdict="amber"]{background:var(--warn-soft);padding:4px var(--s4);margin:-4px 0}
+.statusitem[data-verdict="red"]{background:var(--neg-soft);padding:3px 8px;margin:-3px 0}
+.statusitem[data-verdict="amber"]{background:var(--warn-soft);padding:3px 8px;margin:-3px 0}
 .statusitem[data-verdict="red"]+.statusitem,.statusitem[data-verdict="amber"]+.statusitem,
 .statusitem+.statusitem[data-verdict="red"],.statusitem+.statusitem[data-verdict="amber"]{border-left:0}
 .statusitem .vd{position:relative;top:-1px}
@@ -299,7 +308,7 @@ a:hover{text-decoration:underline}
 .dayline__tick[data-state="failed"]{background:var(--dot-red)}
 .dayline__live{position:absolute;top:-1px;height:2px;background:var(--ink-2)}
 .dayline__now{position:absolute;top:-4px;width:8px;height:8px;border-radius:50%;background:var(--accent-fill);
-  transform:translateX(-50%)}
+  transform:translateX(-50%);box-shadow:var(--gc-glow-cyan,0 0 12px rgba(34,211,238,.5))}
 .dayline__now::after{content:"";position:absolute;left:3px;top:8px;width:1px;height:8px;background:var(--accent-fill)}
 .dayline__lbl{position:absolute;top:10px;left:50%;transform:translateX(-50%);
   font:400 12px/16px var(--mono);color:var(--tx-3);white-space:nowrap}

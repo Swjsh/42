@@ -585,7 +585,7 @@ function armySvg(a){
     spotC.setAttribute('opacity','1');
   });
   svg.addEventListener('pointerleave',()=>spotC.setAttribute('opacity','0'));
-  return {wrap,compact,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
+  return {wrap,compact,contentH:H,state:{centers,edges,nameToSid,lastSeen,queue:[],raf:null,cursor:''}};
 }
 
 function armyStars(canvas,W,H){
@@ -948,6 +948,7 @@ function armyMount(host){
   try{ if(host.parentElement&&host.parentElement.classList){
     host.parentElement.classList.toggle('stage--compact',!!built.compact);
     host.parentElement.classList.add('gc-panel');   // Glow panel + dot texture (.stage.gc-panel only)
+    const floor=built.compact?300:480; host.parentElement.style.maxHeight=Math.min(Math.max(built.contentH+56,floor),960)+'px';  // round-2: size off the real roster, not a guessed cap
   } }catch(_){}
 
   // Diagnostic event ledger -- HIDDEN by default now that chat owns the bottom panel

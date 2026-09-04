@@ -21,6 +21,13 @@ import gamma_cockpit_tiles as tiles          # noqa: E402
 import gamma_home as gh                      # noqa: E402
 
 ALL_KEYS = ("gate", "prep", "eod", "standup", "shadow", "watchers", "guards", "tasks", "gym")
+# ROUND-2 addition (2026-09-04, Agent health sparklines): build_tiles() now also
+# carries "health_spark" -- {lane_id: {"series": [7 ints] | None, "path": str | None}}
+# for the Agent-health panel's per-lane sparkline. It is deliberately NOT one of the
+# 9 tile-contract builders above (no ok/path/stamp_et/verdict/say/fresh_h -- see
+# gamma_cockpit_tiles.py's build_health_spark() docstring), so it is asserted on its
+# own shape below rather than folded into ALL_KEYS's per-tile contract checks.
+HEALTH_SPARK_LANES = ("kitchen", "prospector", "futures", "multi", "spy", "watchers")
 
 
 # ------------------------------------------------------- missing sources
@@ -34,7 +41,7 @@ def test_every_builder_reports_no_data_when_source_missing(tmp_path, monkeypatch
     monkeypatch.setattr(tiles, "ANALYSIS", nope / "analysis")
 
     out = tiles.build_tiles()
-    assert set(out.keys()) == set(ALL_KEYS)
+    assert set(out.keys()) == set(ALL_KEYS) | {"health_spark"}
     for key in ALL_KEYS:
         row = out[key]
         assert row["ok"] is False, (key, row)
@@ -43,6 +50,12 @@ def test_every_builder_reports_no_data_when_source_missing(tmp_path, monkeypatch
         assert row["verdict"] == "off", (key, row)
         assert row["say"].startswith("NO DATA"), (key, row["say"])
         assert "looked for" in row["say"], (key, row["say"])
+    # health_spark degrades the same way -- never raises, every lane's series
+    # goes honestly to None when its source root doesn't exist.
+    hs = out["health_spark"]
+    assert set(hs.keys()) == set(HEALTH_SPARK_LANES)
+    for lane_id in HEALTH_SPARK_LANES:
+        assert hs[lane_id]["series"] is None, (lane_id, hs[lane_id])
 
 
 def test_missing_source_never_raises_even_with_real_repo_globals():
@@ -65,6 +78,8 @@ def test_no_none_or_undefined_leaks_into_any_say_string():
     value."""
     out = tiles.build_tiles()
     for key, row in out.items():
+        if key == "health_spark":
+            continue  # not a "say"-shaped tile -- see ALL_KEYS' own comment above
         say = row.get("say", "")
         assert "None" not in say, (key, say)
         assert "undefined" not in say, (key, say)
@@ -76,12 +91,14 @@ def test_build_tiles_carries_all_nine_keys_against_real_repo_state():
     files, not a fixture. Every key must be present and every tile must
     carry the common contract fields."""
     out = tiles.build_tiles()
-    assert set(out.keys()) == set(ALL_KEYS)
-    for key, row in out.items():
+    assert set(out.keys()) == set(ALL_KEYS) | {"health_spark"}
+    for key in ALL_KEYS:
+        row = out[key]
         for field in ("ok", "path", "stamp_et", "verdict", "say", "fresh_h"):
             assert field in row, (key, field)
         assert row["verdict"] in ("green", "amber", "red", "off"), (key, row["verdict"])
         assert row["fresh_h"] == (6 if key == "guards" else 24), (key, row["fresh_h"])
+    assert set(out["health_spark"].keys()) == set(HEALTH_SPARK_LANES)
 
 
 # ------------------------------------------------------- gate (real file)

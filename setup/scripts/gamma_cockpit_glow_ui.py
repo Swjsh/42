@@ -397,6 +397,13 @@ _LAYOUT_CSS = r"""
 .gc-icon-tile.good{background:var(--gc-chip-good);border-color:rgba(52,211,153,.3);color:var(--gc-good)}
 .gc-spark{width:70px;height:22px;flex:none}
 .gc-spark polyline{fill:none;stroke-width:1.5}
+/* ROUND-2 addition (2026-09-04): Agent health's per-lane sparkline slot --
+   the real-series case is just .gc-spark (gfxSparkV, above); the no-series
+   case stacks the flat dotted baseline over a small caption so it never
+   reads as a blank/broken slot. */
+.gc-spark-slot{display:flex;flex-direction:column;align-items:center;gap:2px;flex:none}
+.gc-spark--flat{opacity:.7}
+.gc-spark__cap{font-size:12px;line-height:1;color:var(--gc-ink-3);white-space:nowrap}
 
 /* ---- promo panel ---- */
 .gc-promo{position:relative;overflow:hidden;border-radius:var(--gc-r);padding:28px;
@@ -427,7 +434,18 @@ _LAYOUT_CSS = r"""
    sibling modules that append SANKEY_CSS/COSTPULSE_CSS below (section 5) ---- */
 .gc-sankey{grid-column:1/-1}
 @media (min-width:1400px){.gc-sankey{grid-column:span 2}}
-.gc-sankey svg{width:100%;height:auto;display:block}
+/* ROUND-2 FIX (2026-09-04): this used to be the blanket `.gc-sankey svg`,
+   which ALSO matched the small inline network icon gcSankey's own eyebrow
+   prepends (ic('network'), a 16x16 <svg>) -- width:100% on a 16x16 icon
+   sitting in an otherwise auto-width flex child resolved to something like
+   90-140px square (the exact "giant placeholder icon top-left" the review
+   caught), stealing the header row's layout. Scoped to the ACTUAL chart's
+   own class (gcSvgEl(...,{class:'gc-sankey__svg'}) in gamma_cockpit_
+   sankey_js.py) so only the real Sankey graphic fills the panel; the
+   eyebrow icon gets the same fixed 14px every other eyebrow icon on the
+   page uses, below. */
+.gc-sankey__svg{width:100%;height:auto;display:block}
+.gc-eyebrow svg{width:14px;height:14px;vertical-align:-2px;margin-right:2px}
 .gc-costpulse{position:relative}
 .gc-costpulse__big{font:700 24px/1.2 var(--mono);color:var(--gc-ink-1);margin:6px 0 4px;
   font-variant-numeric:tabular-nums}
@@ -447,6 +465,16 @@ _LAYOUT_CSS = r"""
 .gc-kpi .gc-kpi__icon{width:34px;height:34px;margin-bottom:8px}
 .gc-kpi .gc-kpi__value{font-size:22px;line-height:26px}
 .gc-kpi .vital__state{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* ROUND-2 FIX (2026-09-04): Needs-you rows (cmdNeedsYouRows -> tileRow,
+   tagged .gc-row alongside the base .tile class) already carry a real
+   verdict via their own RED/AMBER/QUEUE chip -- tileRow's unconditional
+   leading <i class="vd"> on tile__say (every producer row's own convention,
+   correct THERE since that line usually IS a verdict clause) just read as a
+   second, redundant, always-muted-grey bullet in front of a plain detail
+   string here ("[2026-09-04T05:27+00...", "trendline_headless_dr...").
+   Scoped to .gc-row so every OTHER tile__say elsewhere on the page (the
+   producer rows, which are genuine verdict lines) keeps its dot. */
+.gc-row .tile__say .vd{display:none}
 /* Needs-you queue: the 13-column tile grammar is built for full-width rows -- inside the
    1/3-width panel its 200px title + 160px graphic columns spilled past the panel edge, and
    .gc-row's flex-row anatomy turned the <details> into a horizontal flexbox (the body sat

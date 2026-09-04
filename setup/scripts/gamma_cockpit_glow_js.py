@@ -239,19 +239,39 @@ const GC_HEALTH_ORDER=[
   {id:'futures',icon:'activity'}, {id:'multi',icon:'layers'},
   {id:'spy',icon:'trending-up'},
 ];
+/* ROUND-2 FIX (2026-09-04): every lane row used to draw a "NO DATA" pill
+   where the sparkline belongs, always -- gamma_cockpit_tiles.py's
+   build_health_spark() now computes a REAL 7-day-by-day count for the lanes
+   that have a raw per-row ledger to bucket (kitchen: cook-queue.jsonl
+   `event:complete` rows; prospector: ideas-ledger.jsonl's own `date` field),
+   landing as D.health_spark[lane_id].series. Futures/multi/spy/watchers have
+   no equivalent per-day raw log (verified, not assumed -- see that module's
+   docstring) and keep `series:null`; those draw the OTHER honest empty
+   state spec calls for: a flat dotted baseline with a small "no series"
+   caption, never a fabricated shape and never a bare pill either. */
+function gcHealthSparkExtra(series){
+  const slot=el('span','gc-spark-slot');
+  if(Array.isArray(series)&&series.length>=2){
+    const svg=gcSafe(()=>(typeof gfxSparkV==='function')?gfxSparkV(series):'','');
+    if(svg){ slot.appendChild(el('span','gc-spark',svg)); return slot; }
+  }
+  slot.appendChild(el('span','gc-spark gc-spark--flat',
+    '<svg viewBox="0 0 70 22" width="70" height="22" class="gfx" aria-hidden="true">'+
+    '<line x1="4" y1="11" x2="66" y2="11" stroke="var(--gc-ink-3,#7581a8)" stroke-width="1.5" '+
+    'stroke-dasharray="3 3"/></svg>'));
+  slot.appendChild(el('span','gc-spark__cap','no series'));
+  return slot;
+}
 function gcHealthLaneRow(entry){
   const lane=gcSafe(()=>(typeof cmdLaneById==='function')?cmdLaneById(entry.id):null,null);
   if(!lane)return null;
   const t=gcHealthTone(lane.state);
-  // The honest NO-DATA mark stands in for a sparkline: no source on `D`
-  // carries a real day-by-day series per lane today (learning-ledger.json
-  // only has today/7d aggregate counts) -- rendering a fabricated shape
-  // would be worse than naming the gap.
+  const spark=(D.health_spark&&D.health_spark[entry.id])||{};
   return gcRow({
     icon:entry.icon, iconTone:t.cls,
     title:lane.label||entry.id,
     sub:lane.detail||lane.metric||null,
-    extra:el('span','gc-nodata','NO DATA'),
+    extra:gcHealthSparkExtra(spark.series),
     chipLabel:t.chip, chipTone:t.cls,
   });
 }
@@ -259,11 +279,12 @@ function gcHealthWatcherRow(){
   const W=D.watchers;
   if(!W||W.ok===false)return null;
   const watchers=(W.watchers)||[];
+  const spark=(D.health_spark&&D.health_spark.watchers)||{};
   return gcRow({
     icon:'eye', iconTone:'info',
     title:'Watcher fleet',
     sub:W.say||null,
-    extra:el('span','gc-nodata','NO DATA'),
+    extra:gcHealthSparkExtra(spark.series),
     chipLabel:watchers.length+' watching', chipTone:'info',
   });
 }
