@@ -1,3 +1,6 @@
+## [2026-09-04 17:21 ET] COCKPIT v3 SHIPPED: command center rebuilt on shadcn/ui + Magic UI + Recharts at http://localhost:3000/cockpit (commit 9760fcca; revert = git revert 9760fcca)
+J's 11th design ask ("crayons... use a real plugin/skill, not native tools"). Backend untouched (gamma_home.py -> payload.json). Verified: tsc 0 errors, next build green, /api/cockpit 200, headless captures analysis/home/screens/final-command-*.png. Launcher: LAUNCH-COMMAND-CENTER.vbs. Open: blind-panel score on v3 not run (UNVERIFIED); old generated analysis/home/index.html still produced by Gamma_Home as fallback.
+
 ## [2026-09-04T16:35 ET] conductor AFTERHOURS: GOAL-TICKERS-LANE T7 autopsy -- root-caused + fixed the 144-row TICK_ERROR outage (commit `7ebbeeec`)
 
 Picked up GOAL-TICKERS-LANE-2026-09-04's last open item (T7: day-one autopsy). Found the exact
@@ -468,7 +471,7 @@ written**. Fix path is proven, not speculative.
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
 
 ## Kitchen
-Kitchen: alive, queue 49 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: self-check 2026-09-04T09:39:56
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-04.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
@@ -539,4 +542,29 @@ Kitchen: alive, queue 49 pending, last cook 0 min ago, today $0.00, model=openro
 - FILL-FUNNEL FILL WITHOUT EXIT AT EOD[core:safe]: ['SPY260904P00772000'] filled but no exit record in the ledger.
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-04.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
+
+### BROKEN: self-check 2026-09-04T16:39:56
+- FILL-FUNNEL FILL WITHOUT EXIT AT EOD[core:bold]: ['SPY260904P00770000'] filled but no exit record in the ledger.
+- FILL-FUNNEL FILL WITHOUT EXIT AT EOD[core:safe]: ['SPY260904P00772000'] filled but no exit record in the ledger.
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-04.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
+
+### INFO: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-09-04T20:45:37+00:00
+- task: analyst
+- date_et: 2026-09-04
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
+
+- [2026-09-04 21:00:04] gym-session (2026-09-04) → **YELLOW** :: see `automation\state\gym-scorecard-2026-09-04.json`
+### BROKEN: self-check 2026-09-04T17:09:57
+- FILL-FUNNEL FILL WITHOUT EXIT AT EOD[core:bold]: ['SPY260904P00770000'] filled but no exit record in the ledger.
+- FILL-FUNNEL FILL WITHOUT EXIT AT EOD[core:safe]: ['SPY260904P00772000'] filled but no exit record in the ledger.
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-04.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards

@@ -23,8 +23,10 @@ type FunnelData = {
 const W = 720;
 const COL_PAD_X = 56;
 const NODE_W = 16;
-const MIN_RIBBON_W = 6;
+const MIN_RIBBON_W = 4;
+const H_MIN = 14;
 const QUIET_LABEL = "Quiet";
+const QUIET_BAR_H = 22;
 
 /** Track container size so the viewBox aspect matches the panel — no letterbox dead space. */
 function useContainerAspect(defaultH: number) {
@@ -35,7 +37,7 @@ function useContainerAspect(defaultH: number) {
     if (!el) return;
     const update = () => {
       const { width, height } = el.getBoundingClientRect();
-      if (width > 0 && height > 0) setH(Math.max(180, (height / width) * W));
+      if (width > 0 && height > 0) setH(Math.max(220, (height / width) * W));
     };
     update();
     const ro = new ResizeObserver(update);
@@ -45,12 +47,7 @@ function useContainerAspect(defaultH: number) {
   return { ref, h };
 }
 
-/** log-scale ribbon thickness so a 1300-wide link doesn't crush a 2-wide one. */
-function scaleN(n: number): number {
-  return Math.log10(Math.max(0, n) + 1);
-}
-
-function toneStroke(tone: string): string {
+function toneFill(tone: string): string {
   switch (tone) {
     case "accepted":
       return "url(#gc-grad-accept)";
@@ -63,18 +60,21 @@ function toneStroke(tone: string): string {
   }
 }
 
-/** Ribbon stroke width: log-scaled against the biggest link, but any real (n>0) link
- *  gets at least MIN_RIBBON_W so small-but-real flows stay visible next to a huge quiet sink. */
-function ribbonWidth(n: number, maxScale: number): number {
-  if (n <= 0) return 0;
-  const scaled = (scaleN(n) / maxScale) * 26;
-  return Math.max(MIN_RIBBON_W, scaled);
+/** sqrt-scale node height so 1324 vs 2 both stay legibly distinct without one swallowing the other. */
+function nodeHeight(n: number, nMax: number, hMax: number): number {
+  if (nMax <= 0) return H_MIN;
+  const frac = Math.sqrt(Math.max(0, n) / nMax);
+  return H_MIN + (hMax - H_MIN) * frac;
 }
 
-function ribbonPath(x1: number, y1: number, x2: number, y2: number): string {
+/** Ribbon band: two cubic-bezier edges (top + bottom) plus closing verticals — a filled Sankey ribbon. */
+function ribbonBandPath(x1: number, y1a: number, y1b: number, x2: number, y2a: number, y2b: number): string {
   const mx = (x1 + x2) / 2;
-  return `M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+  return `M ${x1} ${y1a} C ${mx} ${y1a}, ${mx} ${y2a}, ${x2} ${y2a} L ${x2} ${y2b} C ${mx} ${y2b}, ${mx} ${y1b}, ${x1} ${y1b} Z`;
 }
+
+type StageBox = { id: string; x: number; top: number; bottom: number; n: number };
+type RibbonGeo = FunnelLink & { key: string; x1: number; y1a: number; y1b: number; x2: number; y2a: number; y2b: number; isQuiet: boolean; pct: number };
 
 export function RoutingMap({ data }: { data: CockpitPayload }) {
   const funnel = data?.funnel as FunnelData | undefined;
@@ -104,29 +104,91 @@ export function RoutingMap({ data }: { data: CockpitPayload }) {
     [hasData, funnel]
   );
 
-  // Column x position per stage id, plus a shared "quiet" sink column offset per source column.
-  const colX = new Map<string, number>();
+  // --- layout geometry -----------------------------------------------------
   const n = stages.length;
+  const rowTop = 56;
+  const rowBottom = Math.max(rowTop + H_MIN + 20, H - 140);
+  const hMax = rowBottom - rowTop;
+  const quietTop = rowBottom + 46;
+  const nMax = Math.max(1, ...stages.map((s) => s.n));
+
+  const boxes = new Map<string, StageBox>();
   stages.forEach((s, i) => {
-    colX.set(s.id, COL_PAD_X + (i * (W - 2 * COL_PAD_X)) / Math.max(1, n - 1));
+    const x = COL_PAD_X + (i * (W - 2 * COL_PAD_X)) / Math.max(1, n - 1);
+    const h = nodeHeight(s.n, nMax, hMax);
+    boxes.set(s.id, { id: s.id, x, top: rowTop, bottom: rowTop + h, n: s.n });
   });
 
-  const nodeTop = 56;
-  const nodeH = H - nodeTop - 64;
+  const quietTotal = links.reduce((acc, l) => acc + (l.tone === "quiet" || l.to === "quiet" ? l.n : 0), 0);
+  const quietX = W / 2;
 
-  // node y-center is fixed mid-column; quiet sinks per-column sit slightly below.
-  const nodeCy = nodeTop + nodeH / 2;
+  // stack outgoing links top-to-bottom on the source node (non-quiet flows first, quiet last)
+  const byFrom = new Map<string, FunnelLink[]>();
+  links.forEach((l) => {
+    if (l.n <= 0) return;
+    const arr = byFrom.get(l.from) ?? [];
+    arr.push(l);
+    byFrom.set(l.from, arr);
+  });
+  byFrom.forEach((arr) =>
+    arr.sort((a, b) => (a.tone === "quiet" ? 1 : 0) - (b.tone === "quiet" ? 1 : 0))
+  );
 
-  const maxLinkScale = Math.max(1e-6, ...links.map((l) => scaleN(l.n)));
+  // stack incoming links top-to-bottom on the target node (quiet handled separately below)
+  const byTo = new Map<string, FunnelLink[]>();
+  links.forEach((l) => {
+    if (l.n <= 0 || l.tone === "quiet" || l.to === "quiet") return;
+    const arr = byTo.get(l.to) ?? [];
+    arr.push(l);
+    byTo.set(l.to, arr);
+  });
 
-  function linkY(stageId: string, isQuiet: boolean): number {
-    if (isQuiet) return nodeCy + nodeH / 2 + 34;
-    return nodeCy;
+  function thickness(v: number, denom: number, span: number): number {
+    if (v <= 0) return 0;
+    return Math.max(MIN_RIBBON_W, (v / Math.max(1, denom)) * span);
   }
 
-  const sourceTotals = new Map<string, number>();
-  links.forEach((l) => {
-    sourceTotals.set(l.from, (sourceTotals.get(l.from) ?? 0) + l.n);
+  const ribbons: RibbonGeo[] = [];
+  const srcCursor = new Map<string, number>();
+  const tgtCursor = new Map<string, number>();
+
+  links.forEach((l, i) => {
+    if (l.n <= 0) return;
+    const isQuiet = l.tone === "quiet" || l.to === "quiet" || l.to === QUIET_LABEL.toLowerCase();
+    const src = boxes.get(l.from);
+    if (!src) return;
+    const srcSpan = src.bottom - src.top;
+    const srcThick = thickness(l.n, src.n, srcSpan);
+    const c1 = srcCursor.get(l.from) ?? 0;
+    const y1a = src.top + c1;
+    const y1b = y1a + srcThick;
+    srcCursor.set(l.from, c1 + srcThick);
+
+    const x1 = src.x + NODE_W / 2;
+    const key = `${l.from}->${l.to}-${i}`;
+    const sourceTotal = links.reduce((acc, o) => (o.from === l.from ? acc + o.n : acc), 0);
+    const pct = sourceTotal > 0 ? Math.round((l.n / sourceTotal) * 100) : 0;
+
+    if (isQuiet) {
+      // quiet is a shared drain bar, not a per-source stacked node: keep the ribbon's own
+      // taper (source-side thickness clamped to the bar) rather than sharing a cursor across sources.
+      const qThick = Math.min(QUIET_BAR_H, thickness(l.n, quietTotal, QUIET_BAR_H) || MIN_RIBBON_W);
+      const y2a = quietTop;
+      const y2b = y2a + qThick;
+      ribbons.push({ ...l, key, x1, y1a, y1b, x2: x1, y2a, y2b, isQuiet, pct });
+      return;
+    }
+
+    const tgt = boxes.get(l.to);
+    if (!tgt) return;
+    const tgtSpan = tgt.bottom - tgt.top;
+    const tgtThick = thickness(l.n, tgt.n, tgtSpan);
+    const c2 = tgtCursor.get(l.to) ?? 0;
+    const y2a = tgt.top + c2;
+    const y2b = y2a + tgtThick;
+    tgtCursor.set(l.to, c2 + tgtThick);
+    const x2 = tgt.x - NODE_W / 2;
+    ribbons.push({ ...l, key, x1, y1a, y1b, x2, y2a, y2b, isQuiet, pct });
   });
 
   return (
@@ -144,7 +206,7 @@ export function RoutingMap({ data }: { data: CockpitPayload }) {
           <div
             className="flex items-center gap-1.5 text-[13px]"
             style={{ color: "var(--gc-text-3)" }}
-            title="Ribbon width is log-scaled; labels show real counts."
+            title="Node height = sqrt-scaled stage volume. Ribbon thickness = share of source/target height."
           >
             <LegendDot color="url(#gc-grad-flow-legend)" />
             <span>Accepted flow</span>
@@ -175,7 +237,7 @@ export function RoutingMap({ data }: { data: CockpitPayload }) {
           aria-label="Decision routing funnel"
         >
           <defs>
-            {/* userSpaceOnUse: ribbons are often perfectly horizontal (zero-height bbox), and
+            {/* userSpaceOnUse: ribbons are often near-horizontal (zero-height bbox), and
                 per SVG spec an objectBoundingBox gradient does not paint at all in that case. */}
             <linearGradient id="gc-grad-flow" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2={W} y2="0">
               <stop offset="0%" stopColor="var(--gc-indigo)" />
@@ -197,7 +259,7 @@ export function RoutingMap({ data }: { data: CockpitPayload }) {
             {/* userSpaceOnUse + fixed padding: a horizontal ribbon has a zero-height bbox, and
                 a percentage/objectBoundingBox filter region degenerates to nothing in that case. */}
             <filter id="gc-ribbon-glow" filterUnits="userSpaceOnUse" x={-40} y={-200} width={W + 80} height={800}>
-              <feGaussianBlur stdDeviation="3.2" result="blur" />
+              <feGaussianBlur stdDeviation="2.6" result="blur" />
               <feMerge>
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -213,113 +275,81 @@ export function RoutingMap({ data }: { data: CockpitPayload }) {
           </defs>
 
           {/* ribbons */}
-          {links.filter((l) => l.n > 0).map((l, i) => {
-            const isQuiet = l.to === "quiet" || l.to === QUIET_LABEL.toLowerCase();
-            const x1 = (colX.get(l.from) ?? 0) + NODE_W / 2;
-            const x2 = isQuiet
-              ? (colX.get(l.from) ?? 0) + (W - 2 * COL_PAD_X) / Math.max(1, n - 1) * 0.42
-              : (colX.get(l.to) ?? 0) - NODE_W / 2;
-            const y1 = linkY(l.from, false);
-            const y2 = isQuiet ? linkY(l.from, true) : linkY(l.to, false);
-            const strokeW = ribbonWidth(l.n, maxLinkScale);
-            const key = `${l.from}->${l.to}-${i}`;
-            const dimmed = hoverKey !== null && hoverKey !== key;
-            const pct =
-              sourceTotals.get(l.from) && sourceTotals.get(l.from)! > 0
-                ? Math.round((l.n / sourceTotals.get(l.from)!) * 100)
-                : 0;
-
-            const ribbon = (
-              <path
-                d={ribbonPath(x1, y1, x2, y2)}
-                fill="none"
-                stroke={toneStroke(l.tone)}
-                strokeWidth={strokeW}
-                strokeLinecap="round"
-                opacity={dimmed ? 0.14 : l.tone === "quiet" ? 0.35 : 0.85}
-                filter="url(#gc-ribbon-glow)"
-                strokeDasharray={funnel?.live && !reduceMotion && l.tone !== "quiet" ? "10 8" : undefined}
-                style={{ transition: "opacity 160ms ease" }}
-              >
-                {funnel?.live && !reduceMotion && l.tone !== "quiet" && (
-                  <animate
-                    attributeName="stroke-dashoffset"
-                    from="0"
-                    to="-36"
-                    dur="1.6s"
-                    repeatCount="indefinite"
-                  />
-                )}
-              </path>
-            );
-
+          {ribbons.map((r) => {
+            const dimmed = hoverKey !== null && hoverKey !== r.key;
+            const d = ribbonBandPath(r.x1, r.y1a, r.y1b, r.x2, r.y2a, r.y2b);
             return (
               <g
-                key={key}
-                onMouseEnter={() => setHoverKey(key)}
+                key={r.key}
+                onMouseEnter={() => setHoverKey(r.key)}
                 onMouseLeave={() => setHoverKey(null)}
                 style={{ cursor: "default" }}
               >
                 <title>
-                  {l.from} &rarr; {isQuiet ? "quiet" : l.to}: {l.n.toLocaleString()} ({pct}% of {l.from})
+                  {r.from} &rarr; {r.isQuiet ? "quiet" : r.to}: {r.n.toLocaleString()} ({r.pct}% of {r.from})
                 </title>
-                {ribbon}
+                <path
+                  d={d}
+                  fill={toneFill(r.tone)}
+                  stroke="none"
+                  opacity={dimmed ? 0.12 : r.isQuiet ? 0.4 : 0.88}
+                  filter="url(#gc-ribbon-glow)"
+                  style={{ transition: "opacity 160ms ease" }}
+                />
+                {funnel?.live && !reduceMotion && !r.isQuiet && (
+                  <path d={d} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth={1} strokeDasharray="8 10" opacity={dimmed ? 0 : 0.5}>
+                    <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="1.6s" repeatCount="indefinite" />
+                  </path>
+                )}
               </g>
             );
           })}
 
+          {/* quiet sink bar */}
+          {hasData && (
+            <g>
+              <rect
+                x={COL_PAD_X - NODE_W / 2}
+                y={quietTop}
+                width={W - 2 * COL_PAD_X + NODE_W}
+                height={QUIET_BAR_H}
+                rx={6}
+                fill="var(--gc-line-strong)"
+                opacity={hoverKey !== null && !hoverKey.includes("quiet") ? 0.18 : 0.32}
+                style={{ transition: "opacity 160ms ease" }}
+              />
+              <text x={W / 2} y={quietTop + QUIET_BAR_H + 18} textAnchor="middle" fontSize={13} fill="var(--gc-text-3)">
+                {QUIET_LABEL} — no trigger / gate skip ({quietTotal.toLocaleString()})
+              </text>
+            </g>
+          )}
+
           {/* stage nodes */}
           {stages.map((s) => {
-            const x = colX.get(s.id) ?? 0;
+            const box = boxes.get(s.id)!;
             const dimmedNode = hoverKey !== null && !hoverKey.startsWith(`${s.id}->`) && !hoverKey.includes(`->${s.id}-`);
             return (
               <g key={s.id}>
                 <rect
-                  x={x - NODE_W / 2}
-                  y={nodeCy - nodeH / 2}
+                  x={box.x - NODE_W / 2}
+                  y={box.top}
                   width={NODE_W}
-                  height={nodeH}
-                  rx={7}
+                  height={Math.max(2, box.bottom - box.top)}
+                  rx={6}
                   fill="url(#gc-grad-node)"
                   filter="url(#gc-node-glow)"
-                  opacity={dimmedNode ? 0.45 : 0.95}
+                  opacity={dimmedNode ? 0.4 : 0.95}
                   style={{ transition: "opacity 160ms ease" }}
                 />
-                <text
-                  x={x}
-                  y={nodeCy - nodeH / 2 - 12}
-                  textAnchor="middle"
-                  fontSize={13}
-                  fill="var(--gc-text-2)"
-                >
+                <text x={box.x} y={box.top - 12} textAnchor="middle" fontSize={13} fill="var(--gc-text-2)">
                   {s.label}
                 </text>
-                <text
-                  x={x}
-                  y={nodeCy + nodeH / 2 + 20}
-                  textAnchor="middle"
-                  fontSize={13}
-                  fontWeight={600}
-                  fill="var(--gc-text)"
-                >
+                <text x={box.x} y={box.bottom + 20} textAnchor="middle" fontSize={13} fontWeight={600} fill="var(--gc-text)">
                   {s.n.toLocaleString()}
                 </text>
               </g>
             );
           })}
-
-          {/* quiet sink label */}
-          {hasData && (
-            <text
-              x={W / 2}
-              y={nodeCy + nodeH / 2 + 46}
-              textAnchor="middle"
-              fontSize={13}
-              fill="var(--gc-text-3)"
-            >
-              {QUIET_LABEL} (no trigger / gate skip)
-            </text>
-          )}
 
           {!hasData && (
             <text x={W / 2} y={H / 2} textAnchor="middle" fontSize={14} fill="var(--gc-text-3)">
