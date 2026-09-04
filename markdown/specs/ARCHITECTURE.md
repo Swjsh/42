@@ -177,6 +177,18 @@ As of 2026-09-02, the `execution: "fleet_rest"` roster in `automation/state/flee
 
 Doctrine: [`WEEKLY-OPTIONS-PROGRAM.md`](../planning/WEEKLY-OPTIONS-PROGRAM.md) §9a/§9c. The account is shared with the crypto twin, so **its equity is not evidence for either lane.**
 
+### 3.2c Tickers lane — three DEDICATED non-SPY 0DTE paper accounts, PRODUCTION scorer, ARMED (added 2026-09-04)
+
+**What:** `multi/execute.py` runs `multi/core.py::tick()` per arm with `params.scorer == "production"`, so the scoring is `backtest/lib/filters.py::evaluate_bearish_setup / evaluate_bullish_setup` — the SPY engine's own code, imported unmodified — on a production `BarContext` built by `multi/lib/scorer_production.py`. Everything downstream (funnel, 0DTE expiry, ATM strike, 8% indicative-spread gate, sizing, exits, broker) is the multi lane's audited plumbing. **One variable moves vs multi-1: the scoring code.** This is the experiment no prior non-SPY test ran — weekly (684 fills), multi (7,489 signals) and catalyst (7,019 signals) nulls all scored the FORK.
+
+**Accounts:** Tickers-1 (NVDA AAPL AMZN) · Tickers-2 (TSLA META AVGO) · Tickers-3 (QQQ IWM GLD). Split universes, never the same contract twice, **never SPY** (asserted). Secrets ONLY in gitignored `automation/state/tickers/secrets.json` (key sources `tickers-1/2/3` in `multi/lib/creds.py`; paper base_url enforced). Per-arm state `automation/state/tickers/<arm>/`, journal `journal/trades-tickers-<arm>.csv`.
+
+**Tasks:** `Gamma_TickersLane` 09:35 ET every 2 min to ~14:55 (LOCAL 07:35 — `Gamma_MultiCore` had been registered at local 09:35 = 11:35 ET for its whole life) · `Gamma_TickersEodFlatten` 14:52 ET (`multi/tickers_flatten.py` → `close_all_equity_options`, OCC-filtered twice). Day-one clamps frozen by the prereg: qty exactly 3, 1 concurrent per arm, 1% daily kill, entries to 14:30, expiry-day soft stop 14:45 / hard 14:50.
+
+**Safety:** `multi/core.py` still has NO order path (AST guard `test_multi_core.py`); orders exist only in `execute.py` / `tickers_flatten.py` behind `armed=True` + the `shadow_only` interlock. Creds self-heal (`NO_CREDS` retried each tick). Account PIN refuses a key that resolves to a different account. Revoke: `shadow_only: true` in `automation/state/tickers/params.json`.
+
+**Evidence bar:** `analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04.json` (frozen `5062ea52` before the executor existed): ≥20 days AND ≥30 fills per arm; PF CI-lower > 1.0 as-traded/ex-best-day/cost-adjusted AND the signed-return control beats the random-entry null MAX. Never live (OP-0 #1). Doc: `markdown/planning/TICKERS-LANE.md`. Goal: `automation/state/goals/GOAL-TICKERS-LANE-2026-09-04.md`.
+
 ### 3.3 Agents & Skills (`.claude/`, loaded by path)
 Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`, `treasurer`, `coach`, `lesson-author`, `skill-author`, `validator-author`. Skills: gym-session, preflight-gate/connectivity-gate, chart-read (market-structure + pattern + level fused read, connectivity-gated), context-leanness, heartbeat/-tick-audit, gamma-sync, log-trade, etc. (catalog: `markdown/infra/SKILLS-CATALOG.md`).
 
