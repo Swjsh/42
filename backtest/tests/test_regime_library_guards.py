@@ -318,3 +318,113 @@ def test_slicer_recent_mix_counts(artifact):
     assert mix == artifact["distribution"]["last_25_counts"] or all(
         mix.get(k, 0) == v for k, v in artifact["distribution"]["last_25_counts"].items() if v
     )
+
+
+# ---------------------------------------------------------------------------
+# 5. write atomicity (2026-09-04) -- torn-read guard
+#
+# `load_library()` in regime_slice.py reads this artifact with a plain
+# `open()` + `json.load()`. The old builder wrote it with a direct
+# `OUT_JSON.write_bytes(payload)`, which truncates the file in place before
+# writing the new bytes -- any reader that lands mid-write (this project's
+# own 12,000+-test full suite calling load_library() while a parallel
+# session happens to re-run this builder is the observed shape: the same
+# node id, test_build_regime_early_classifier_walk_forward_no_leakage,
+# showed up in guard_runner_full.py's "still_failing_after_retry" list three
+# separate times on 2026-09-04 -- 00:01, 00:36, 03:42 ET -- yet never
+# reproduced standalone or scoped-together in this fire's direct re-runs)
+# could see a torn/incomplete JSON body. Fixed to the same temp-file +
+# os.replace idiom already used by backtest/autoresearch/trendline_watch.py
+# and the futures/ writers.
+# ---------------------------------------------------------------------------
+
+_FAKE_ARTIFACT = {
+    "population": {"data_days": 1, "assignable_days": 1, "sessions": {"full": 1}},
+    "distribution": {"full_counts": {}, "last_25_counts": {},
+                      "last_25_window": [], "mix_l1_distance": 0.0},
+}
+
+
+def test_write_uses_temp_file_and_atomic_replace(monkeypatch, tmp_path):
+    """RED-proof: main() must never call write_bytes on the real artifact path
+    directly -- only on a same-directory .tmp sibling, swapped into place via
+    os.replace. A concurrent reader must always see either the complete old
+    file or the complete new one, never a partial write."""
+    out_dir = tmp_path / "regime-library"
+    out_json = out_dir / "day-archetypes.json"
+    monkeypatch.setattr(bda, "OUT_DIR", out_dir)
+    monkeypatch.setattr(bda, "OUT_JSON", out_json)
+    monkeypatch.setattr(bda, "build_artifact", lambda: dict(_FAKE_ARTIFACT))
+    monkeypatch.setattr(sys, "argv", ["build_day_archetypes.py"])
+
+    write_calls: list[Path] = []
+    real_write_bytes = Path.write_bytes
+
+    def _tracking_write_bytes(self, data):
+        write_calls.append(self)
+        return real_write_bytes(self, data)
+
+    monkeypatch.setattr(Path, "write_bytes", _tracking_write_bytes)
+
+    replace_calls: list[tuple] = []
+    real_replace = bda.os.replace
+
+    def _tracking_replace(src, dst):
+        replace_calls.append((Path(src), Path(dst)))
+        return real_replace(src, dst)
+
+    monkeypatch.setattr(bda.os, "replace", _tracking_replace)
+
+    rc = bda.main()
+
+    assert rc == 0
+    assert out_json.exists()
+    assert out_json not in write_calls, (
+        "write_bytes must never target the real artifact path directly -- "
+        "that is exactly the torn-read hazard this guard exists to catch")
+    assert len(write_calls) == 1 and write_calls[0].name.endswith(".tmp"), write_calls
+    assert replace_calls == [(write_calls[0], out_json)]
+    # no leftover .tmp after a clean run
+    assert not list(out_dir.glob("*.tmp"))
+
+
+def test_write_never_truncates_target_before_the_swap(monkeypatch, tmp_path):
+    """A second RED-proof from the reader's side: pre-seed the real path with
+    known 'old' bytes, make the .tmp write itself blow up mid-flight, and
+    confirm the real artifact file is BYTE-IDENTICAL to the old content
+    afterward -- proving the target is never opened for writing until the
+    new content is already fully staged and the atomic swap is ready to run.
+    (Reverting build_day_archetypes.py's write block to the pre-fix
+    `OUT_JSON.write_bytes(payload)` would fail this test: that call truncates
+    the real file in place before an interruption could ever be observed.)"""
+    out_dir = tmp_path / "regime-library"
+    out_dir.mkdir(parents=True)
+    out_json = out_dir / "day-archetypes.json"
+    old_bytes = b'{"sentinel": "old-content-must-survive"}'
+    out_json.write_bytes(old_bytes)
+
+    monkeypatch.setattr(bda, "OUT_DIR", out_dir)
+    monkeypatch.setattr(bda, "OUT_JSON", out_json)
+    monkeypatch.setattr(bda, "build_artifact", lambda: dict(_FAKE_ARTIFACT))
+    monkeypatch.setattr(sys, "argv", ["build_day_archetypes.py"])
+
+    def _boom(self, data):
+        # Faithfully reproduce what a real interrupted write really does at the
+        # OS level: opening a path in 'wb' mode truncates it immediately, before
+        # any bytes land. Whichever Path this lands on (the real target under the
+        # pre-fix code, or the harmless .tmp sibling under the fix) is the exact
+        # thing this test is discriminating between.
+        with self.open("wb"):
+            pass
+        raise OSError("simulated interruption mid-write")
+
+    monkeypatch.setattr(Path, "write_bytes", _boom)
+
+    with pytest.raises(OSError):
+        bda.main()
+
+    assert out_json.read_bytes() == old_bytes, (
+        "the real artifact must never be touched until the temp file is "
+        "fully written and the atomic swap succeeds -- reverting to the "
+        "pre-fix OUT_JSON.write_bytes(payload) truncates the real file "
+        "immediately on open, before the interruption, and fails this assert")

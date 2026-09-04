@@ -57,6 +57,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -413,7 +414,18 @@ def main() -> int:
         return 1
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    OUT_JSON.write_bytes(payload)
+    # Atomic write (2026-09-04, L-pending): a plain write_bytes() truncates-then-writes
+    # in place, so a reader that lands mid-write (e.g. this project's own 12,000+-test
+    # full suite calling regime_slice.load_library() while this builder happens to be
+    # re-run by a parallel session) can see a torn/incomplete JSON body. Same class as
+    # the STATUS.md writer bug fixed 2026-09-03 (_find_real_heading); the fix here is
+    # the same idiom already used by backtest/autoresearch/trendline_watch.py and the
+    # futures/ writers -- write to a same-directory temp file, then os.replace() so any
+    # concurrent reader always sees either the complete old file or the complete new one,
+    # never a partial one.
+    tmp = OUT_JSON.with_suffix(OUT_JSON.suffix + ".tmp")
+    tmp.write_bytes(payload)
+    os.replace(tmp, OUT_JSON)
     art = json.loads(payload)
     dist = art["distribution"]
     print(f"[OK] wrote {OUT_JSON} ({len(payload)} bytes)")
