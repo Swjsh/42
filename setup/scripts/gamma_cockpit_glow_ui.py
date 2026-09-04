@@ -358,7 +358,9 @@ _LAYOUT_CSS = r"""
    2x3 below 1200px, 3+3 at 1200-1499px, all 6 in one row at >=1500px. */
 .gc-grid--kpi{display:grid;gap:var(--s5);grid-template-columns:repeat(2,minmax(220px,1fr))}
 @media (min-width:1200px){.gc-grid--kpi{grid-template-columns:repeat(3,minmax(220px,1fr))}}
-@media (min-width:1500px){.gc-grid--kpi{grid-template-columns:repeat(6,minmax(220px,1fr))}}
+/* 6-up must FIT: minmax(220px) made 6 cards 1400px wide inside a ~1300px content column at a
+   1600px viewport, clipping Budget (seen 2026-09-04 05:04 ET capture). Cards shrink instead. */
+@media (min-width:1500px){.gc-grid--kpi{grid-template-columns:repeat(6,minmax(0,1fr))}}
 
 /* ---- KPI stat card ---- */
 .gc-kpi{background:var(--gc-panel);border:1px solid var(--gc-line);border-radius:var(--gc-r);
