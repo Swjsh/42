@@ -189,6 +189,8 @@ Doctrine: [`WEEKLY-OPTIONS-PROGRAM.md`](../planning/WEEKLY-OPTIONS-PROGRAM.md) �
 
 **Evidence bar:** `analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04.json` (frozen `5062ea52` before the executor existed): ≥20 days AND ≥30 fills per arm; PF CI-lower > 1.0 as-traded/ex-best-day/cost-adjusted AND the signed-return control beats the random-entry null MAX. Never live (OP-0 #1). Doc: `markdown/planning/TICKERS-LANE.md`. Goal: `automation/state/goals/GOAL-TICKERS-LANE-2026-09-04.md`.
 
+- **Hardened 2026-09-04 (pre-first-session review):** exits evaluate against BROKER-truth qty (`STALE_STATE` when the broker no longer holds a record) and a LIVE underlying; `finalize_order` cancels any order not fully filled in the poll window and re-reads to a terminal status; every tick sweeps resting BUY orders and adopts unrecorded broker positions; `.lane.lock` serialises the tick and the 14:52 flatten; the pass asks the broker's `/v2/clock` (holidays); `Gamma_TickersDayCheck` (09:40 + 15:05 ET, read-only) is the day's verdict instrument. Full pipeline + ledger vocabulary: [`TICKERS-LANE.md`](../planning/TICKERS-LANE.md) §3.
+
 ### 3.3 Agents & Skills (`.claude/`, loaded by path)
 Personas: `gamma` (conductor), `pilot` (live trader), `scout`, `analyst`, `chef`, `treasurer`, `coach`, `lesson-author`, `skill-author`, `validator-author`. Skills: gym-session, preflight-gate/connectivity-gate, chart-read (market-structure + pattern + level fused read, connectivity-gated), context-leanness, heartbeat/-tick-audit, gamma-sync, log-trade, etc. (catalog: `markdown/infra/SKILLS-CATALOG.md`).
 

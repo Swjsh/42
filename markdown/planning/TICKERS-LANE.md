@@ -35,26 +35,41 @@ Excluded by the same screen: MSFT 5.55%, AMD 7.18%, GOOGL 7.71%, SMH 14.9%, XLF 
 
 ```
 Gamma_TickersLane (07:35 LOCAL = 09:35 ET, PT2M)
-  └─ multi/execute.py
+  └─ multi/execute.py  [holds automation/state/tickers/.lane.lock for the pass; a second instance skips (LOCK_HELD)]
        ├─ invariants: arm=="tickers", scorer=="production", no SPY, max_contracts<=5,
        │             base_url contains "paper", weekday 09:30-15:00 ET     (any fail -> arm aborted, loudly)
        ├─ creds: multi/lib/creds.resolve(key_source=tickers-N) -> automation/state/tickers/secrets.json
        │         missing? -> NO_CREDS logged, retried next tick (self-heal; never crashes)
+       ├─ market clock: broker /v2/clock is_open (holidays, early closes) -> closed = one MARKET_CLOSED row per arm,
+       │                pass ends; unreadable = CLOCK_READ_ERROR disclosed, proceed under the weekday/window invariants
        ├─ account PIN: first verify writes <arm>/account.json; a different number later -> REFUSE
+       ├─ reconcile (every tick, before exits): sweep resting BUY orders in this arm's universe (STALE_ORDER_CANCELED;
+       │             SELL legs + foreign roots left alone) · adopt any broker position the state never recorded (POSITION_ADOPTED)
        ├─ funnel bars ONCE (daily) + scanners -> attention
        └─ per arm: multi/core.py::tick(scorer=production, state_path=<arm>/exit-state.json, ...)
             ├─ EXITS FIRST: open_qty = BROKER positions (never record.qty; a record the broker no longer
             │             holds -> STALE_STATE row, dropped) · underlying = LIVE last trade (daily close only as a
-            │             disclosed fallback) -> exits.evaluate_exit -> SELL_ALL/SELL_PARTIAL -> broker.market_sell(armed=True)
+            │             disclosed fallback) -> exits.evaluate_exit -> SELL_ALL/SELL_PARTIAL -> qty clamped to
+            │             get_position_qty at the last moment (0 held -> EXIT_SKIPPED_FLAT) -> broker.market_sell(armed=True)
+            │             -> finalize_order (not fully filled -> cancel remainder -> re-read to a terminal status)
             └─ ENTRIES: production evaluate_*_setup -> admission (kill switch, 1 concurrent)
                         -> nearest listed expiry (0DTE) -> ATM strike -> liquidity gate (<=8% spread, mid >= $0.20, indicative)
                         -> size_entry -> HARD CLAMP qty=3 -> entry window <=14:30 ET
                         -> broker.place_bracket(simple_fallback=True) [Alpaca rejects option brackets -> simple limit]
-                        -> fill readback -> PositionRecord + journal/trades-tickers-<arm>.csv
+                        -> finalize_order: poll -> not FULLY filled? cancel the remainder -> re-read to a terminal status
+                           (ENTRY_CANCELED = no record; partial = record the ACTUAL qty, ENTRY_PARTIAL_REMAINDER_CANCELED)
+                        -> PositionRecord + journal/trades-tickers-<arm>.csv
                         -> FIRST fill of the lane's life -> STATUS.md ## Known broken line (the REVOKE surface)
 Gamma_TickersEodFlatten (12:52 LOCAL = 14:52 ET)
-  └─ multi/tickers_flatten.py -> broker.close_all_equity_options(armed=True) per arm -> verify FLAT from broker
+  └─ multi/tickers_flatten.py -> waits ≤90s for .lane.lock then proceeds regardless (LOCK_FORCED) -> close_all_equity_options(armed=True)
+     per arm -> verify FLAT from broker -> pops every record, journal EXIT row from the closing fills, day-file P&L
+     (FLATTEN_PNL_UNRESOLVED if the lookup fails; the record is still dropped -- broker is truth)
+Gamma_TickersDayCheck (07:40 + 13:05 LOCAL = 09:40 + 15:05 ET, READ-ONLY -- goal T6's instrument)
+  └─ multi/tickers_day_check.py -> rows-exist (09:40) / flat-at-broker (15:05) verdict -> day-check-<date>-<phase>.json
+     + a PROGRESS LOG line in the goal file + a TICKERS-DAY-CHECK line on STATUS ## Known broken when RED
 ```
+
+**Ledger vocabulary** (beyond HOLD / BLOCKED / WOULD_PLACE): `ENTRY_FILLED` `ENTRY_CANCELED` `ENTRY_PARTIAL_REMAINDER_CANCELED` `ORDER_LIMBO` `EXIT_FILLED` `EXIT_PARTIAL` `EXIT_CANCELED` `EXIT_SKIPPED_FLAT` `EXIT_QTY_READ_ERROR` `STALE_STATE`→`STATE_RECORD_DROPPED` `STALE_ORDER_CANCELED` `FOREIGN_OPEN_ORDER` `POSITION_ADOPTED` `ADOPTION_FAILED` `MARKET_CLOSED` `CLOCK_READ_ERROR` `NO_CREDS` `INVARIANT_FAIL` `ACCOUNT_PIN_MISMATCH` `KILL_BLOCKED` `SHADOW_ONLY_INTERLOCK`; stderr-only: `LOCK_HELD` `LOCK_FORCED` `FLATTEN_PNL_UNRESOLVED`. Every exit_eval row also discloses `open_qty`/`open_qty_source` and `underlying_price`/`underlying_source`.
 
 **The scorer.** `multi/lib/scorer_production.py` builds a production `BarContext` (production ribbon
 from `backtest/lib/ribbon.py`, production 20-bar vol/range baselines, the multi lane's level
@@ -99,6 +114,7 @@ sizing), **not** `engine_cli`'s SPY-specific gates — disclosed on every row.
   (takes effect next tick; exits and the flatten still run).
 - Stop everything: `Unregister-ScheduledTask Gamma_TickersLane -Confirm:$false` (and the flatten
   task if positions are already flat).
+- Day-check only: `Unregister-ScheduledTask Gamma_TickersDayCheck -Confirm:$false` (it never trades).
 - Undo the code: `git revert <sha>` per commit (all listed in the goal file's PROGRESS LOG).
 
 ## 7. What the evidence has to clear (prereg, verbatim rule)
@@ -124,3 +140,4 @@ A pass authorizes more paper and a promotion instrument — **never live**.
   building. Found: `install-multi-core.ps1` registered `Gamma_MultiCore` at local 09:35 = 11:35 ET
   (the 2h scar); the tickers installers use local 07:35.
 - 2026-09-04 ~02:00 ET -- registered (`Gamma_TickersLane` 09:35 ET/PT2M, `Gamma_TickersEodFlatten` 14:52 ET). Shadow E2E probe x3 on a real account found and fixed two day-one blockers (sector buckets fail-closed; 2% cap could not afford 3 contracts) and proved the last mile (NVDA 0DTE put, 39 -> 3, limit ask+0.01, nothing sent). Two core.py bugs fixed on the way: WOULD_PLACE qty=None (would have blocked every entry) and the triggers key. Human step remaining: paste secrets, run `python multi/tickers_verify.py`.
+- 2026-09-04 02:42 ET -- adversarial review of the executor: 2 BLOCKERs (exit qty was the ORIGINAL entry qty, never broker truth -- after TP1 every SELL_ALL would have been rejected; unconfirmed/partial orders were left resting with the id discarded, so the next tick could stack a second entry), 1 HIGH (theta budget compared an intraday entry against YESTERDAY's close), 2 MED (no lane/flatten lock; no premium floor), 2 LOW. All fixed on two builders with disjoint files + a market-clock gate for Monday's Labor Day holiday, then a fourth shadow E2E probe on the merged build: NVDA WOULD_PLACE qty 3 -> SHADOW_ENTRY_PREVIEW, 14s. T6 instrumented (`Gamma_TickersDayCheck`). Follow-up named, not done: split execute.py's pure helpers into multi/lib/tickers_order_lifecycle.py (1,2xx lines > 800 guideline).
