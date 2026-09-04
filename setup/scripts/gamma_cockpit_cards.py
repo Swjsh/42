@@ -290,6 +290,69 @@ def _clip(s, cap: int = 200) -> str:
     return (cut or s[:cap]) + "…"
 
 
+# ---------------------------------------------------- title humanization
+# (spec: markdown/specs/COCKPIT-DESIGN-SPEC-2026-09-03.md section 10.3 --
+# ".tile__title" carries a LABEL, never a log line: strip a leading
+# "[timestamp]" bracket, markdown bold/backticks (keeping the inner text),
+# emoji, and sentence-case a screaming-snake token, e.g. "ROSTER-LIVENESS" ->
+# "Roster liveness". Applied at every title-building call site below; the
+# row's SENTENCE (why[0]) keeps the untouched original text.)
+_EMOJI_RE = re.compile(
+    "["
+    "\U0001F300-\U0001FAFF"
+    "\U00002600-\U000027BF"
+    "\U0001F1E6-\U0001F1FF"
+    "️"
+    "]+",
+    re.UNICODE,
+)
+_MD_BOLD_RE = re.compile(r"\*\*(.+?)\*\*")
+_MD_CODE_RE = re.compile(r"`([^`]+)`")
+_SCREAMING_TOKEN_RE = re.compile(r"\b([A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+)+)\b")
+_SNAKE_SEGMENT_OK_RE = re.compile(r"^(?:[a-z0-9]+|[A-Z0-9]+)$")
+
+
+def _sentence_case_words(tok: str) -> str:
+    """"ROSTER-LIVENESS" / "session_ran" -> "Roster liveness" / "Session
+    ran": split on - and _, lower-case every word, capitalize only the
+    first."""
+    words = [w.lower() for w in re.split(r"[_-]+", tok) if w]
+    if not words:
+        return tok
+    words[0] = words[0].capitalize()
+    return " ".join(words)
+
+
+def _humanize_title(text: str) -> str:
+    """Prose-safe title cleanup: strip a leading bracket timestamp, markdown
+    bold/backticks, emoji, and sentence-case any embedded screaming-snake
+    token. Never raises -- a regex miss just leaves the original substring
+    in place."""
+    s = _LEADING_BRACKET_TS_RE.sub("", str(text or ""))
+    s = _MD_BOLD_RE.sub(r"\1", s)
+    s = _MD_CODE_RE.sub(r"\1", s)
+    s = _EMOJI_RE.sub("", s)
+    s = _SCREAMING_TOKEN_RE.sub(lambda m: _sentence_case_words(m.group(1)), s)
+    return _clean(s)
+
+
+def _humanize_ident(ident: str) -> str:
+    """A whole-string identifier (an engine-health check `name` like
+    'session_ran', a task_scorer id like 'TASK-OUTPUT-FRESHNESS') -> sentence
+    case. Falls back to the original string unchanged when it is not a FLAT
+    snake/screaming identifier -- every underscore/dash-separated segment
+    must be entirely lower-case or entirely upper-case. A mixed-case segment
+    ('HeartbeatCore' inside 'Gamma_HeartbeatCore') means this is a proper
+    noun, not a screaming/snake label, and is left untouched."""
+    s = str(ident or "")
+    segs = [seg for seg in re.split(r"[_-]+", s) if seg]
+    if (len(segs) < 2
+            or not all(_SNAKE_SEGMENT_OK_RE.match(seg) for seg in segs)
+            or not any(seg.isalpha() for seg in segs)):
+        return s  # a purely-numeric id ("42-98") is a session id, not a label
+    return _sentence_case_words(s)
+
+
 def _load_json(p: Path):
     try:
         return json.loads(p.read_text(encoding="utf-8"))
@@ -430,7 +493,10 @@ def _cards_engine_health() -> list[dict]:
         name = str(chk.get("name", "check"))
         c = _card(
             card_id="card-engine-%s" % re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-"),
-            title="%s is %s" % (name, status),
+            # engine-health.json's own `name` field is a snake_case identifier
+            # ("session_ran", "levels_blind") -- _humanize_ident sentence-cases
+            # it ("Session ran is RED") rather than shipping the raw token.
+            title="%s is %s" % (_humanize_ident(name), status),
             why=[_clip(chk.get("detail", "")), "engine-health.json checked_at_et %s" % checked_at],
             source_path=_rel(ENGINE_HEALTH_JSON),
             source_age_h=age,
@@ -458,8 +524,14 @@ def _row_title(text: str) -> str:
     2026-09-03: "titles like '[timestamp] ...' (a timestamp truncated to
     nothing)"). Strip a leading bracket, then keep only the first meaningful
     clause at a word boundary -- the row's sentence (why[0]) still carries the
-    untouched original text, bracket included."""
-    stripped = _LEADING_BRACKET_TS_RE.sub("", text or "").strip()
+    untouched original text, bracket included.
+
+    Spec 10.3 (2026-09-03): also runs through _humanize_title -- markdown
+    bold/backticks and emoji stripped, any screaming-snake token sentence-
+    cased -- so a title never carries "**", "[", a raw emoji, or an
+    ALL-CAPS-WITH-DASHES label. _clip's own word-boundary cut means the
+    "…" this can still append is never mid-word."""
+    stripped = _humanize_title(text or "")
     return _clip(stripped or (text or ""), 34)
 
 
@@ -576,7 +648,10 @@ def _cards_task_scorer() -> list[dict]:
             why.append(_clip(advisory, 200))
         c = _card(
             card_id="card-task-%s" % re.sub(r"[^a-z0-9]+", "-", t.id.lower()).strip("-"),
-            title=t.id.replace("-", " ").title(),
+            # queue.md ids are screaming-snake ("TASK-OUTPUT-FRESHNESS");
+            # sentence-case per spec 10.3, not Title.title() (which would
+            # read "Task Output Freshness" -- every word capitalized).
+            title=_humanize_ident(t.id),
             why=why,
             source_path=_rel(task_scorer.QUEUE),
             source_age_h=age,

@@ -587,6 +587,25 @@ function gfxDots(states){
   return s;
 }
 
+function gfxSeverity(rank,ofN,severity){
+  /* spec 10.2: a 160x24 strip for every "Needs you" row -- "filled segment
+     length = rank weight, tone = severity" -- so no row family in the whole
+     app is text-only. rank is 0-based (0 = worst, sorted first); ofN is the
+     total row count in the group. A single-row group still draws (bar full,
+     no division by zero). */
+  if(ofN==null||ofN<=0)return'';
+  const w=160,h=24,pad=2,barY=h/2,barH=8;
+  const n=Math.max(1,ofN);
+  const frac=Math.max(0.08,Math.min(1,(n-Math.max(0,rank||0))/n));
+  const fw=(w-2*pad)*frac;
+  const tone=tilesDotColor(severity);
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-severity">';
+  s+='<rect x="'+pad+'" y="'+(barY-barH/2)+'" width="'+(w-2*pad)+'" height="'+barH+'" rx="'+(barH/2)+'" fill="var(--ink-2)" opacity=".18"/>';
+  s+='<rect x="'+pad+'" y="'+(barY-barH/2)+'" width="'+fw.toFixed(1)+'" height="'+barH+'" rx="'+(barH/2)+'" fill="'+tone+'"/>';
+  s+='</svg>';
+  return s;
+}
+
 function gfxBars(vals){
   if(!vals||!vals.length)return'';
   const w=160,h=24,gap=4;
@@ -616,6 +635,92 @@ function gfxRingBig(n,of){
     const dash=(circ*frac).toFixed(1)+' '+circ.toFixed(1);
     s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--accent-fill)" stroke-width="4" '
       +'stroke-dasharray="'+dash+'" stroke-linecap="round" transform="rotate(-90 '+cx+' '+cy+')"/>';
+  }
+  s+='</svg>';
+  return s;
+}
+
+/* ============================ vitals graphics (spec 10.1) ============================ */
+/* The 6 Vitals-grid tiles need ONE graphic each that is >=56px tall (the row
+   spine's gfx* above are all 24-32px, designed for a 56px ROW, not a taller
+   stat tile) -- these are the same "if it cannot be drawn it is not a tile"
+   contract, just bigger canvases. Same colour budget as the row spine:
+   currentColor / var(--ink-2) / var(--dot-*) / var(--accent-fill); var(--pos)/
+   var(--neg) ONLY on a P&L series. No gradients (ban-list: gradients stay
+   confined to the stage bloom) -- an "area fill" is a flat fill-opacity, not
+   a linear-gradient. */
+
+function gfxRingV(n,of){
+  if(of==null||of<=0)return'';
+  const w=64,h=64,r=24,cx=32,cy=32;
+  const frac=Math.max(0,Math.min(1,(n||0)/of));
+  const circ=2*Math.PI*r;
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-ringv">';
+  s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--ink-2)" stroke-width="5" opacity=".35"/>';
+  if(frac>0){
+    const dash=(circ*frac).toFixed(1)+' '+circ.toFixed(1);
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="var(--accent-fill)" stroke-width="5" '
+      +'stroke-linecap="round" stroke-dasharray="'+dash+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+  }
+  s+='</svg>';
+  return s;
+}
+
+function gfxSparkV(vals,opts){
+  opts=opts||{};
+  if(!vals||vals.length<2)return'';
+  const w=160,h=56,pad=3,base=h-pad;
+  const mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals);
+  const rg=(mx-mn)||1;
+  const pts=vals.map(function(v,i){
+    const x=pad+i*((w-2*pad)/(vals.length-1));
+    const y=base-((v-mn)/rg)*(base-pad);
+    return[x,y];
+  });
+  const last=vals[vals.length-1];
+  let color='var(--ink-2)';
+  if(opts.pnl)color=(last>=0)?'var(--pos)':'var(--neg)';
+  const line=pts.map(function(p,i){return(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' ');
+  const area=line+' L'+pts[pts.length-1][0].toFixed(1)+' '+base+' L'+pts[0][0].toFixed(1)+' '+base+' Z';
+  const lp=pts[pts.length-1];
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-sparkv">';
+  s+='<path d="'+area+'" fill="'+color+'" fill-opacity=".12" stroke="none"/>';
+  s+='<path d="'+line+'" fill="none" stroke="'+color+'" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/>';
+  s+='<circle cx="'+lp[0].toFixed(1)+'" cy="'+lp[1].toFixed(1)+'" r="2.6" fill="'+color+'"/>';
+  s+='</svg>';
+  return s;
+}
+
+function gfxHeatV(cells){
+  if(!cells||!cells.length)return'';
+  const cols=12,size=9,gap=2;
+  const rows=Math.ceil(cells.length/cols);
+  const w=160,h=56;
+  const totalW=cols*size+(cols-1)*gap, totalH=rows*size+(rows-1)*gap;
+  const ox=(w-totalW)/2, oy=(h-totalH)/2;
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-heatv">';
+  cells.forEach(function(c,i){
+    const r=Math.floor(i/cols),col=i%cols;
+    const x=ox+col*(size+gap),y=oy+r*(size+gap);
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+size+'" height="'+size+'" rx="1.5" fill="'+tilesDotColor(c)+'"/>';
+  });
+  s+='</svg>';
+  return s;
+}
+
+function gfxPulseV(n,of){
+  if(of==null||of<=0)return'';
+  const w=160,h=56,bars=14,gap=3;
+  const bw=(w-(bars-1)*gap)/bars;
+  const filled=Math.max(0,Math.min(bars,Math.round((n||0)/of*bars)));
+  let s='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" class="gfx gfx-pulsev">';
+  for(let i=0;i<bars;i++){
+    const on=i<filled;
+    const bh=on?(h*.85):(h*.3);
+    const x=i*(bw+gap), y=h-bh;
+    s+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="1.5" '
+      +'fill="'+(on?'var(--accent-fill)':'var(--ink-2)')+'" opacity="'+(on?'1':'.3')+'" class="'
+      +((on&&i===filled-1)?'gfx-pulsev-now':'')+'"/>';
   }
   s+='</svg>';
   return s;

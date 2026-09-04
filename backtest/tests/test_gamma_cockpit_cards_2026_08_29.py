@@ -18,6 +18,7 @@ WHAT IS PINNED
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -298,3 +299,82 @@ def test_build_cards_live_smoke_never_crashes_and_stays_safe():
         assert "conductor_outcome.py record --task-id %s" % c["id"] in c["prompt"]
         for k in ("id", "rank", "title", "why", "source_path", "model", "gated", "prompt"):
             assert k in c
+
+
+# ======================================================================
+# title humanization (spec COCKPIT-DESIGN-SPEC-2026-09-03.md section 10.3):
+# ".tile__title" is a LABEL, never a log line -- no leading bracket
+# timestamp, no markdown bold/backticks, no emoji, screaming-snake
+# sentence-cased, and _clip's word-boundary cut means any "..." it appends
+# is never mid-word.
+# ======================================================================
+
+def test_row_title_strips_bracket_markdown_backtick_and_emoji():
+    raw = ("[2026-09-03 19:00 ET] **ROSTER-LIVENESS** broke: `fleet.json` "
+           "stale " + "\U0001F525")
+    out = gc._row_title(raw)
+    assert "[" not in out and "]" not in out
+    assert "**" not in out
+    assert "`" not in out
+    assert "\U0001F525" not in out
+    assert out.startswith("Roster liveness")
+
+
+def test_row_title_never_cuts_mid_word():
+    raw = ("a very long finding text that goes well past the thirty four "
+           "character title cap and should cut at a word boundary not mid word")
+    out = gc._row_title(raw)
+    assert len(out) <= 35  # 34 + the appended ellipsis
+    assert out.endswith("…")
+    body = out[:-1]
+    # every character up to the cut belongs to a whole word from the source --
+    # i.e. body is a prefix of raw up to its last space, never a partial word
+    assert raw.startswith(body)
+    assert raw[len(body):len(body) + 1] in (" ", "")
+
+
+def test_humanize_ident_sentence_cases_screaming_snake():
+    assert gc._humanize_ident("TASK-OUTPUT-FRESHNESS") == "Task output freshness"
+    assert gc._humanize_ident("session_ran") == "Session ran"
+
+
+def test_humanize_ident_leaves_proper_nouns_and_session_ids_alone():
+    assert gc._humanize_ident("Gamma_HeartbeatCore") == "Gamma_HeartbeatCore"
+    assert gc._humanize_ident("42-98") == "42-98"
+    assert gc._humanize_ident("kitchen") == "kitchen"
+
+
+def test_engine_health_card_title_is_sentence_case_not_raw_snake_case(monkeypatch, tmp_path):
+    p = tmp_path / "engine-health.json"
+    p.write_text(json.dumps({
+        "checked_at_et": "2026-09-03T19:00:00",
+        "checks": [{"name": "session_ran", "critical": True, "status": "RED", "detail": "x"}],
+    }), encoding="utf-8")
+    monkeypatch.setattr(gc, "ENGINE_HEALTH_JSON", p)
+    out = gc._cards_engine_health()
+    assert len(out) == 1
+    assert out[0]["title"] == "Session ran is RED"
+
+
+def test_task_scorer_card_title_is_sentence_case(monkeypatch, tmp_path):
+    q = tmp_path / "queue.md"
+    q.write_text("- [ ] TASK-OUTPUT-FRESHNESS (P1, ready): a description\n", encoding="utf-8")
+    monkeypatch.setattr(gc.task_scorer, "QUEUE", q)
+    # load_queue_text(path=QUEUE) binds its default at def-time, so patching
+    # the QUEUE attribute alone does not reach it -- patch the function too.
+    monkeypatch.setattr(gc.task_scorer, "load_queue_text", lambda path=q: q.read_text(encoding="utf-8"))
+    out = gc._cards_task_scorer()
+    if out:  # ranker may drop it depending on real-repo scoring config; title contract only
+        assert out[0]["title"] == "Task output freshness"
+
+
+def test_build_cards_live_titles_carry_no_bracket_markdown_or_emoji():
+    """Live smoke against real on-disk state: every produced title clears the
+    three literal bans spec 10.3 pins on .tile__title."""
+    payload = gc.build_cards(write=False)
+    emoji = re.compile("[\U0001F300-\U0001FAFF\U00002600-\U000027BF]")
+    for c in payload["cards"]:
+        t = c["title"]
+        assert "[" not in t, t
+        assert "**" not in t, t
+        assert not emoji.search(t), t

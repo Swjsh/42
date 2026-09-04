@@ -155,6 +155,23 @@ def test_shadow_fixture_with_3_buckets_parses_counts(tmp_path, monkeypatch):
     buckets = {b["status"]: b["n"] for b in row["preregs"]["buckets"]}
     assert buckets == {"no status field": 4, "FROZEN_PREREG": 2, "ACCRUING": 1}
     assert "2 shadow clocks, 7 preregs, 0 armed" == row["say"]
+    # spec 10.1 Vitals "Shadow board" heatmap: one verdict word per live clock
+    assert row["heat"] == [c["verdict"] for c in row["live"]]
+
+
+def test_shadow_clock_verdict_reads_explicit_keywords_only():
+    assert tiles._shadow_clock_verdict("ADJUDICATED: V-d1 KILL (p=0.66)") == "red"
+    assert tiles._shadow_clock_verdict("EXTEND per pooled F4") == "green"
+    assert tiles._shadow_clock_verdict("still collecting, no verdict yet") == "off"
+
+
+def test_shadow_clock_verdict_does_not_read_a_negation_backwards():
+    """Real SHADOW.md line (2026-09-03): the trendline shadow clock's own
+    text is 'NOT a green light' -- a bare keyword scan would misread this as
+    green, the opposite of what the sentence says."""
+    assert tiles._shadow_clock_verdict(
+        "95% CI straddles zero -- NOT a green light; promotion bar: [[x]]"
+    ) == "off"
 
 
 def test_shadow_zero_sections_reports_no_data(tmp_path, monkeypatch):

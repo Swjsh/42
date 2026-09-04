@@ -66,6 +66,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import gamma_cockpit_vendor as vendor  # noqa: E402
 import gamma_cockpit_ui_theme  # noqa: E402 -- new rules only; kept out of this file to hold its 800-line ceiling
+import gamma_cockpit_ui_motion  # noqa: E402 -- spec section 10 CSS; same reason, new rules only
 
 _BASE_CSS = r"""
 /* ============ DARK (default) -- Radix gray-dark / cyan-dark hex values,
@@ -729,7 +730,7 @@ tr:last-child td{border-bottom:none}
 }
 """
 
-CSS = _BASE_CSS + gamma_cockpit_ui_theme.THEME_CSS
+CSS = _BASE_CSS + gamma_cockpit_ui_theme.THEME_CSS + gamma_cockpit_ui_motion.MOTION_CSS
 
 SHELL = r"""<!doctype html>
 <html lang="en">

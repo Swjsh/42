@@ -19,9 +19,10 @@ vCards, vArmy, ...).
 `goalBody(host)` is what survives from the old view: the DONE-WHEN / QUEUE /
 PROGRESS LOG / HONEST STATE / source block, tonight's fires, and the learning
 counts table -- everything the old hero card showed, now rendered as the Goal
-band's `<details>` expansion (spec section 3 band 4, section 4 "Expand") by
-`gamma_cockpit_command_js.py`'s `cmdGoalTile()`, which passes `goalBody` in as
-`spec.body`. The old "Research engines" grid (kitchen/prospector/autofire/
+band's `<details>` expansion (spec section 3 band 4, section 4 "Expand"; the
+band itself is a one-line strip per spec section 10.1 as of 2026-09-03) by
+`gamma_cockpit_command_js.py`'s `cmdGoalStrip()`, which passes `goalBody` in
+as its own body content. The old "Research engines" grid (kitchen/prospector/autofire/
 quiet/goal-autopilot cards) is NOT moved here -- Kitchen and Prospector are
 now Research-group producer rows (`gamma_cockpit_producers_js.py`), which is
 where that data belongs going forward; carrying the old grid into goalBody

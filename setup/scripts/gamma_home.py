@@ -48,8 +48,11 @@ import re
 import subprocess
 import sys
 import webbrowser
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import et_clock  # noqa: E402 -- DST-aware ET stamp for source mtimes (spec 10.2)
 
 REPO = Path(__file__).resolve().parents[2]
 STATE = REPO / "automation" / "state"
@@ -197,10 +200,26 @@ def _age_h(p: Path):
         return None
 
 
+def _mtime_et(p: Path):
+    """Absolute ET timestamp from a file's own mtime (spec COCKPIT-DESIGN-
+    SPEC-2026-09-03.md 10.2: Answers rows need "a real age (wire
+    sources[0].mtime -> data-stamp; never 'unknown age' when the source
+    exists)"). `age_h` above is a build-time relative number this same meta
+    dict already carried; this is the absolute stamp the client's own
+    paintAge() timer needs to keep ticking after the page loads. Never
+    raises -- None when the file cannot be stat'd."""
+    try:
+        return et_clock.et_now(
+            now_utc=datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc)
+        ).replace(microsecond=0).isoformat()
+    except OSError:
+        return None
+
+
 def _load_json(p: Path):
     """Return (data, meta). data is None when the source cannot be trusted."""
     meta = {"path": p.relative_to(REPO).as_posix() if str(p).startswith(str(REPO)) else str(p),
-            "age_h": _age_h(p), "ok": False}
+            "age_h": _age_h(p), "mtime_et": _mtime_et(p), "ok": False}
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
         meta["ok"] = True
@@ -230,7 +249,8 @@ def _hq_json() -> tuple:
 
 def _latest_status() -> tuple:
     """Newest STATUS.md entry: (verdict, headline, body_first_para)."""
-    meta = {"path": "automation/overnight/STATUS.md", "age_h": _age_h(STATUS_MD), "ok": False}
+    meta = {"path": "automation/overnight/STATUS.md", "age_h": _age_h(STATUS_MD),
+            "mtime_et": _mtime_et(STATUS_MD), "ok": False}
     try:
         text = STATUS_MD.read_text(encoding="utf-8", errors="replace")
     except OSError as e:

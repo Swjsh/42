@@ -364,6 +364,22 @@ def test_no_object_object_or_undefined_in_the_data_blob(html):
     assert "[object Object]" not in blob
 
 
+def test_card_titles_in_the_data_blob_are_human_no_bracket_markdown_or_emoji(payload):
+    """Spec section 10.3: ".tile__title" is a LABEL, never a log line. The
+    "Needs you" rows render straight from D.cards.cards[].title with no
+    further cleanup on the client -- so this checks the SAME data the page
+    actually ships, one level below gamma_cockpit_cards.py's own unit tests
+    (redundant on purpose, per this file's docstring: "a bad tile must never
+    cost J the rest of the page")."""
+    emoji = re.compile("[\U0001F300-\U0001FAFF\U00002600-\U000027BF]")
+    cards = ((payload.get("cards") or {}).get("cards")) or []
+    for c in cards:
+        t = c.get("title") or ""
+        assert "[" not in t, t
+        assert "**" not in t, t
+        assert not emoji.search(t), t
+
+
 # ======================================================================
 # (h) payload
 # ======================================================================

@@ -92,12 +92,21 @@ function cmdArmyCounts(a){
   return{running,waiting};
 }
 function cmdArmyClause(){
+  /* spec 10.1: the sentence's agents clause is JUST "N agents running" --
+     idle-session "waiting" no longer rides along here (it was a different
+     signal from "needs you" anyway); see cmdNeedsYouClause below for the
+     count that actually maps to the "Needs you" group. */
   const a=D.army; if(!a)return{verdict:'none',text:'agents NO DATA'};
   const c=cmdArmyCounts(a);
   return{
     verdict:c.running>0?'green':'off',
-    text:'<b>'+c.running+'</b> agent'+(c.running===1?'':'s')+' running, <b>'+c.waiting+'</b> waiting for you',
+    text:'<b>'+c.running+'</b> agent'+(c.running===1?'':'s')+' running',
   };
+}
+function cmdNeedsYouClause(){
+  const cards=((D.cards||{}).cards)||[];
+  const n=cards.filter(c=>!String(c.id||'').startsWith('card-goal-')).length;
+  return{verdict:n>0?'amber':'off',text:'<b>'+n+'</b> need'+(n===1?'s':'')+' you'};
 }
 function cmdBookClause(){
   const p=D.positions; if(!p)return{verdict:'none',text:'book NO DATA'};
@@ -113,11 +122,17 @@ function cmdGateVerdict(gt){
   if(v==='AMBER'||v==='YELLOW')return'amber';
   return'none';
 }
-function cmdGateClause(){
+/* spec 10.1: the sentence's own gate clause is a PLAIN WORD -- "NOT LIVE"
+   (red WORD, never a red bar) or "LIVE" -- the CI-lower metric this used to
+   carry inline ("Gate RED. PF CI-lower 0.42 vs 1.0, 42 days") moves to the
+   Gate Vitals tile instead (cmdVitalGate below), which still reads
+   D.gate.say verbatim so the real number is never re-derived, just moved. */
+function cmdGateWordClause(){
   const gt=D.gate; if(!gt||gt.ok===false)return{verdict:'none',text:'gate NO DATA'};
-  const s=gt.say||gt.overall_verdict||gt.verdict||null;
-  if(!s)return{verdict:'none',text:'gate NO DATA'};
-  return{verdict:cmdGateVerdict(gt),text:'Gate '+cmdWrapDigits(s)};
+  const v=cmdGateVerdict(gt);
+  if(v==='green')return{verdict:'green',text:'LIVE'};
+  if(v==='red'||v==='amber')return{verdict:v,text:'NOT LIVE'};
+  return{verdict:'none',text:'gate NO DATA'};
 }
 function cmdStatusItem(clause){
   const item=el('span','statusitem'); item.dataset.verdict=clause.verdict||'none';
@@ -127,7 +142,8 @@ function cmdStatusItem(clause){
 }
 function cmdSentence(){
   const wrap=el('div','statusrow sentence');
-  [cmdMarketClause(),cmdArmyClause(),cmdBookClause(),cmdGateClause()]
+  // order per spec 10.1: gate word, market, agents, needs-you, book
+  [cmdGateWordClause(),cmdMarketClause(),cmdArmyClause(),cmdNeedsYouClause(),cmdBookClause()]
     .forEach(c=>wrap.appendChild(cmdStatusItem(c)));
   return wrap;
 }
@@ -220,7 +236,12 @@ function cmdDayline(){
   const nowHHMM=cmdISOToHHMM(D.built_at_et);
   const nowPct=nowHHMM!=null?dlPos(nowHHMM):null;
   if(nowPct!=null)track.appendChild(cmdDaylineCursor(nowPct));
-  let prevPos=null, prevAlt=false;
+  /* spec 10.1: "ALL labels below the track, min 56px apart (drop the
+     collision pair 08:30/09:30 -> show 09:30 only; 16:45/17:00 -> 17:00
+     only)" -- ticks are sorted ascending, so a collision drops the PREVIOUS
+     tick's label (never alternates it to a second row -- that read as two
+     competing label lanes, not one clean line). */
+  let prevPos=null, prevTick=null;
   const LBL_PCT=4.2;  /* a 5-char mono label plus a gap, as a share of the track */
   ticks.slice().sort((a,b)=>(cmdDlMinutesAbs(a.time_et)||0)-(cmdDlMinutesAbs(b.time_et)||0)).forEach(t=>{
     let pos=dlPos(t.time_et);
@@ -232,9 +253,8 @@ function cmdDayline(){
     const state=t.failed_today?'failed':(t.fired_today?'fired':'upcoming');
     const tk=el('div','dayline__tick'); tk.dataset.state=state;
     tk.style.left=pos+'%';
-    const alt=(prevPos!=null&&!prevAlt&&(pos-prevPos)<LBL_PCT);
-    if(alt)tk.dataset.alt='1';
-    prevPos=pos; prevAlt=alt;
+    if(prevPos!=null&&prevTick&&(pos-prevPos)<LBL_PCT)prevTick.dataset.hideLabel='1';
+    prevPos=pos; prevTick=tk;
     tk.title=(t.name||t.label||'')+(t.time_et?' '+t.time_et:' time NO DATA');
     tk.appendChild(el('span','dayline__lbl mono',esc(t.time_et||'?')));
     track.appendChild(tk);
@@ -259,6 +279,23 @@ function cmdStagePulseLine(){
     (last.detail?' '+String(last.detail).slice(0,160):'');
   return line;
 }
+function cmdNextFireLabel(){
+  /* spec 10.1's zero-session stage text: "Next fire HH:MM ET" -- reuses the
+     SAME dayline tick source cmdDayline() already reads (never a second,
+     divergent schedule), picking the first tick strictly after "now" that
+     is not already fired_today. Falls back to a plain word, never a
+     fabricated time, when nothing qualifies. */
+  const T=D.tasks;
+  const ok=!!(T&&T.ok!==false&&Array.isArray(T.dayline)&&T.dayline.length);
+  const ticks=ok?T.dayline:DAYLINE_DEFAULT;
+  const nowM=cmdDlMinutesAbs(cmdISOToHHMM(D.built_at_et));
+  if(nowM==null)return null;
+  const upcoming=ticks
+    .map(t=>({t,m:cmdDlMinutesAbs(t.time_et)}))
+    .filter(x=>x.m!=null&&!x.t.fired_today&&x.m>nowM)
+    .sort((a,b)=>a.m-b.m);
+  return upcoming.length?(upcoming[0].t.time_et+' ET'):null;
+}
 function cmdStage(){
   const wrap=el('div','stage');
   const host=el('div'); host.id='stagehost';
@@ -269,39 +306,197 @@ function cmdStage(){
   }else{
     host.appendChild(el('div','mut','NO DATA, armyMount is not wired yet'));
   }
+  // spec 10.1 band 4: "When zero sessions are live the stage still earns
+  // its space: the star-field + a slow radial sweep (ambient) + the
+  // sentence 'Nothing running. Next fire 00:10 ET' centred". armyMount()
+  // above already drew the star-field (it draws it unconditionally); this
+  // only ADDS the sweep + sentence on top when there is truly nothing to
+  // show, so the delete-only army_js module needs no edit for this.
+  const nSessions=cmdSafe(()=>((D.army&&D.army.sessions)||[]).length,0);
+  if(nSessions===0){
+    const sweep=el('div','stage__sweep'); sweep.append(el('i'),el('i'),el('i'));
+    wrap.appendChild(sweep);
+    const next=cmdNextFireLabel();
+    const empty=el('div','stage__empty');
+    empty.appendChild(el('span',null,'Nothing running. '+(next?('Next fire '+esc(next)):'No upcoming fire on today\'s schedule')));
+    wrap.appendChild(empty);
+  }
   wrap.appendChild(cmdStagePulseLine());
   return wrap;
 }
 
-/* ---------- 4. GOAL + BUDGET BAND ---------- */
-function cmdGoalTile(){
+/* ---------- 4. GOAL STRIP + VITALS GRID ---------- */
+/* spec 10.1: "Goal + Budget band collapses INTO the Vitals grid (Budget
+   tile) and a one-line goal strip directly above 'Needs you'." The strip
+   keeps id="tile-goal" (the 'autonomy' alias's tileOpen target,
+   gamma_cockpit_autonomy_js.py:vAutonomy) and stays a real <details> so a
+   click still expands the untouched goalBody() content -- only the
+   COLLAPSED anatomy changes, from a 56px tile row to a 40px single line. */
+function cmdGoalStrip(){
   const A=D.autonomy||{}, g=D.goal||A.goal||null;
   const q=(g&&g.queue)||[];
   const done=q.filter(x=>x.state==='done').length, total=q.length;
-  const gfx=total?cmdGfx('gfxRingBig',done,total):'';
   const active=!!(g&&g.active);
-  let say;
-  if(!active){
-    say='NOT DRIVING. no active goal';
-  }else{
-    const bits=[esc(g.next_item||'no open item')];
-    if(g.days_left!=null)bits.push('<b>'+g.days_left+'</b> days left');
-    say=bits.join('. ');
+  const d=document.createElement('details');
+  d.className='tile'; d.id='tile-goal'; d.dataset.verdict=active?'none':'off';
+  const s=document.createElement('summary'); s.className='goalstrip';
+  const ring=el('span','goalstrip__ring'); if(total)ring.innerHTML=cmdGfx('gfxRingBig',done,total);
+  s.appendChild(ring);
+  s.appendChild(el('span','goalstrip__t',esc((g&&(g.title||g.id))||'No active goal')));
+  s.appendChild(el('span','goalstrip__next',active?esc(g.next_item||'no open item'):'NOT DRIVING'));
+  if(active&&g.days_left!=null)s.appendChild(el('span','goalstrip__days','<b>'+g.days_left+'</b> days left'));
+  d.appendChild(s);
+  const body=document.createElement('div'); body.className='tile__body';
+  d.appendChild(body);
+  let built=false;
+  d.addEventListener('toggle',()=>{
+    if(!d.open||built)return; built=true;
+    if(typeof goalBody==='function')goalBody(body);
+    else body.appendChild(el('div','mut','NO DATA, goalBody is not wired yet'));
+  });
+  return d;
+}
+
+/* ---------- 4a. THE VITALS GRID (NEW, spec 10.1 band 3) ---------- */
+/* 6 tiles, each a <details> whose expand affordance JUMPS to the matching
+   producer row (tileOpen) rather than re-rendering that row's body a
+   second time -- one body per fact, so the two can never drift apart. */
+/* ROUND-2 REVIEW FIX (critical): a native <details> hides everything except
+   its <summary> until opened -- gfx/figure/state used to live in a sibling
+   .vital__body div, so every Vitals tile rendered at rest (the ONLY state a
+   settled screenshot ever shows) as icon+label with NO ring/spark/figure at
+   all. That is exactly spec 10.1's "collapsed = glance": the graphic, the
+   big figure and the state line ARE the glance and must be visible with the
+   tile closed. Fix: everything that must be visible at rest now lives
+   inside <summary> (a flex column: icon+label row, then gfx, then figure,
+   then state); ONLY the optional "Full detail below" jump link is the
+   actual collapsible <details> content, since that's genuinely expand-only
+   per spec ("Tiles are <details> too"). vitals_grid_min6_with_svg (which
+   only checks svg PRESENCE in the DOM, not visibility) could not catch this
+   -- see cmdVitalTile geometry note in cockpit_exercise.py if adding a
+   visibility-checking guard later. */
+function cmdVitalTile(spec){
+  const d=document.createElement('details');
+  d.className='vital'+(spec.stale?' vital--stale':''); if(spec.id)d.id=spec.id;
+  d.dataset.verdict=spec.verdict||'none';
+  const s=document.createElement('summary'); s.className='vital__head';
+  const top=el('div','vital__top');
+  top.appendChild(el('span','vital__ic',tilesSafeIcOrEmpty(spec.icon)));
+  top.appendChild(el('span','vital__label',esc(spec.label||'')));
+  s.appendChild(top);
+  const gfx=el('div','vital__gfx'); if(spec.gfx)gfx.innerHTML=spec.gfx; s.appendChild(gfx);
+  s.appendChild(el('div','vital__figure',esc(spec.figure==null?'NO DATA':String(spec.figure))));
+  const state=el('div','vital__state');
+  state.appendChild(el('i','vd'));
+  state.appendChild(el('span',null,spec.state||'NO DATA'));
+  s.appendChild(state);
+  d.appendChild(s);
+  if(spec.jumpTo){
+    const body=document.createElement('div'); body.className='vital__body';
+    const more=el('div','vital__more');
+    const a=document.createElement('a'); a.href='#'+spec.jumpTo; a.textContent='Full detail below';
+    a.addEventListener('click',e=>{e.preventDefault();if(typeof tileOpen==='function')tileOpen(spec.jumpTo,{scroll:true});});
+    more.appendChild(a);
+    body.appendChild(more);
+    d.appendChild(body);
   }
-  const spec={
-    id:'tile-goal', icon:'target',
-    title:(g&&(g.title||g.id))||'No active goal',
-    verdict:active?'none':'off',
-    gfx:gfx||'',
-    say:say,
-    src:{path:(g&&g.source)||'goal file', stamp:(g&&g.opened_at_et)||null},
-    fresh_h:24*7,
-    body:(host)=>{
-      if(typeof goalBody==='function')goalBody(host);
-      else host.appendChild(el('div','mut','NO DATA, goalBody is not wired yet'));
-    },
-  };
-  return(typeof tileRow==='function')?tileRow(spec):cmdRowFallback(spec);
+  return d;
+}
+function tilesSafeIcOrEmpty(name){ return cmdSafe(()=>(typeof ic==='function')?ic(name):'',''); }
+
+function cmdVitalBook(){
+  const views=(D.calendar&&D.calendar.views)||{}, book=views.BOOK||{days:{}};
+  const dates=Object.keys(book.days||{}).sort().slice(-7);
+  const vals=dates.map(k=>book.days[k].n).filter(v=>v!=null);
+  const net=vals.reduce((a,b)=>a+b,0);
+  return cmdVitalTile({
+    id:'vital-book', icon:'dollar-sign', label:'Book',
+    verdict:vals.length?(net>=0?'green':'red'):'off',
+    gfx:vals.length>=2?cmdGfx('gfxSparkV',vals,{pnl:true}):'',
+    figure:vals.length?cmdUsd(net):'NO DATA',
+    state:vals.length?(dates.length+' trading days, 7d'):'NO DATA',
+    jumpTo:'tile-money',
+  });
+}
+function cmdVitalGate(){
+  const gt=D.gate;
+  if(!gt||gt.ok===false)return cmdVitalTile({id:'vital-gate',icon:'gauge',label:'Gate',verdict:'off',state:'NO DATA, looked for go-live-gate.json',jumpTo:'tile-gate'});
+  const at=(gt.ci&&gt.ci.as_traded)||{};
+  const cl=at.ci_lower;
+  const v=cmdGateVerdict(gt);
+  return cmdVitalTile({
+    id:'vital-gate', icon:'gauge', label:'Gate',
+    verdict:v,
+    gfx:cl!=null?cmdGfx('gfxRingV',Math.max(0,cl),1):'',
+    figure:v==='green'?'LIVE':(v==='none'?'NO DATA':'NOT LIVE'),
+    state:cmdWrapDigits(gt.say||'NO DATA'),
+    jumpTo:'tile-gate',
+  });
+}
+function cmdVitalAgents(){
+  const a=D.army;
+  if(!a)return cmdVitalTile({id:'vital-agents',icon:'bot',label:'Agents',verdict:'off',state:'NO DATA',jumpTo:'tile-agents'});
+  const c=cmdArmyCounts(a);
+  const total=((a.sessions)||[]).length;
+  return cmdVitalTile({
+    id:'vital-agents', icon:'bot', label:'Agents',
+    verdict:c.running>0?'green':'off',
+    gfx:total?cmdGfx('gfxRingV',c.running,total):'',
+    figure:total?(c.running+'/'+total):'0',
+    state:c.waiting+' idle',
+    jumpTo:'tile-agents',
+  });
+}
+function cmdVitalKitchen(){
+  const lane=((D.lanes)||{}).kitchen;
+  if(!lane)return cmdVitalTile({id:'vital-kitchen',icon:'flame',label:'Kitchen',verdict:'off',state:'NO DATA',jumpTo:'tile-kitchen'});
+  const dm=/(\d+)\s*pending/.exec(String(lane.detail||''));
+  const mm=/\$([\d.]+)\s*\/\s*\$([\d.]+)/.exec(String(lane.metric||''));
+  const spend=mm?parseFloat(mm[1]):null, cap=mm?parseFloat(mm[2]):null;
+  const verdict=lane.state==='WORKING'?'green':lane.state==='HELD'?'none':
+    (lane.state==='STALE'||lane.state==='NO DATA')?'amber':(lane.state==='BROKEN'||lane.state==='ERROR')?'red':'none';
+  return cmdVitalTile({
+    id:'vital-kitchen', icon:'flame', label:'Kitchen',
+    verdict:verdict,
+    gfx:(spend!=null&&cap!=null)?cmdGfx('gfxPulseV',spend,cap):'',
+    figure:dm?(dm[1]+' pending'):(lane.state||'NO DATA'),
+    state:cmdWrapDigits(lane.detail||lane.state||'NO DATA'),
+    jumpTo:'tile-kitchen',
+  });
+}
+function cmdVitalShadow(){
+  const sh=D.shadow;
+  if(!sh||sh.ok===false)return cmdVitalTile({id:'vital-shadow',icon:'hourglass',label:'Shadow board',verdict:'off',state:'NO DATA, looked for SHADOW.md',jumpTo:'tile-shadow'});
+  const heat=sh.heat||[];
+  return cmdVitalTile({
+    id:'vital-shadow', icon:'hourglass', label:'Shadow board',
+    verdict:'none',
+    gfx:heat.length?cmdGfx('gfxHeatV',heat):'',
+    figure:(sh.live||[]).length+' clocks',
+    state:cmdWrapDigits(sh.say||'NO DATA'),
+    jumpTo:'tile-shadow',
+  });
+}
+function cmdVitalBudget(){
+  const A=D.autonomy||{}, bud=A.budget||{};
+  const CM=D.cost_meter||{};
+  const vals=cmdCostSeries(CM);
+  const over=(bud.spent_usd!=null&&bud.cap_usd!=null&&Number(bud.spent_usd)>Number(bud.cap_usd));
+  return cmdVitalTile({
+    id:'vital-budget', icon:'target', label:'Budget',
+    verdict:over?'amber':'none',
+    stale:!!CM.as_of_et_date,
+    gfx:vals.length>=2?cmdGfx('gfxSparkV',vals):'',
+    figure:(bud.spent_usd!=null)?cmdUsd(bud.spent_usd):'NO DATA',
+    state:(bud.fires_used!=null&&bud.fires_cap!=null)?('Fires '+bud.fires_used+'/'+bud.fires_cap+', cap '+cmdUsd(bud.cap_usd)):'NO DATA',
+    jumpTo:null,
+  });
+}
+function cmdVitals(){
+  const grid=el('div','vitals');
+  [cmdVitalBook,cmdVitalGate,cmdVitalAgents,cmdVitalKitchen,cmdVitalShadow,cmdVitalBudget]
+    .forEach(fn=>grid.appendChild(cmdSafe(fn,el('div','vital'))));
+  return grid;
 }
 function cmdCostDays(CM){
   const raw=CM&&CM.days;
@@ -316,63 +511,10 @@ function cmdUsd(v){
   if(v==null||isNaN(v))return'NO DATA';
   return'$'+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 }
-function cmdBudgetPane(){
-  /* ONE 64-72px row (Fable review, 2026-09-03, item 1): fires meter, spend
-     figure, an inline sparkline, source+age -- all in one flex row beside the
-     goal row, not stacked into their own ~240px column. See module docstring
-     for the contract this reuses (cmdGfx/cmdUsd/cmdCostSeries unchanged). */
-  const A=D.autonomy||{}, bud=A.budget||{};
-  const pane=el('div','band__budget');
-  const row=el('div','band__budget-row');
-
-  const firesWrap=el('div','band__budget-fires');
-  const firesTxt=(bud.fires_used!=null&&bud.fires_cap!=null)?('Fires <b>'+bud.fires_used+'</b>/<b>'+bud.fires_cap+'</b>'):'Fires NO DATA';
-  firesWrap.appendChild(el('span','meta',firesTxt));
-  const meterS=cmdGfx('gfxMeter',bud.fires_used,bud.fires_cap);
-  if(meterS){const g=el('span','band__budget-meter');g.innerHTML=meterS;firesWrap.appendChild(g);}
-  row.appendChild(firesWrap);
-
-  /* round-2 review (major): "$34.56 / $30.00" is 115% of budget but rendered in the
-     same neutral ink as every on-budget figure -- the one number most likely to
-     matter to J at a glance carried zero visual alarm. Over cap now gets the figure's
-     own `.over` class (--warn, the CAUTION hue -- a budget overrun is not P&L, so
-     --neg stays off-limits here) plus an explicit "+$X over" delta so it reads as a
-     problem in the first second, not the tenth. */
-  const over=(bud.spent_usd!=null&&bud.cap_usd!=null&&Number(bud.spent_usd)>Number(bud.cap_usd))
-    ?Number(bud.spent_usd)-Number(bud.cap_usd):0;
-  const CM=D.cost_meter||{};
-  const figure=el('span','figure mono band__budget-figure'+(over>0?' over':''),cmdUsd(bud.spent_usd)+' / '+cmdUsd(bud.cap_usd));
-  if(CM.as_of_et_date)figure.title='cost-meter '+CM.as_of_et_date;
-  row.appendChild(figure);
-  if(over>0)row.appendChild(el('span','meta over','+'+cmdUsd(over)));
-
-  const vals=cmdCostSeries(CM);
-  const sparkS=vals.length>=2?cmdGfx('gfxSpark',vals):'';
-  if(sparkS){const sw=el('span','band__budget-spark');sw.innerHTML=sparkS;row.appendChild(sw);}
-
-  /* basename, not srcRow()'s usual full path -- "automation/state/cost-meter.json"
-     alone is wider than the fires block and the figure combined, which is what
-     kept forcing a 3rd wrapped line here even after the rest of the row was
-     already compact. srcRow's own last_write/age_h fallback stays intact by
-     routing through it with a shortened path, rather than re-deriving the
-     age here. */
-  const srcWrap=el('div','band__budget-src');
-  const src=D.cost_meter_source;
-  if(src&&src.path){
-    const base=_fnOf('tilesBaseName');
-    srcWrap.appendChild(srcRow([Object.assign({},src,{path:base?base(src.path):src.path})]));
-  }
-  row.appendChild(srcWrap);
-
-  pane.appendChild(row);
-  return pane;
-}
-function cmdBand(){
-  const band=el('div','band');
-  const left=el('div','band__goal'); left.appendChild(cmdGoalTile());
-  band.append(left,cmdBudgetPane());
-  return band;
-}
+/* cmdBudgetPane/cmdBand (the old 2-column Goal/Budget band) are retired by
+   spec 10.1 -- budget now renders as one of the 6 Vitals tiles (cmdVitalBudget
+   above) and the goal as the one-line cmdGoalStrip above. cmdCostDays/
+   cmdCostSeries/cmdUsd stay: cmdVitalBudget still calls them verbatim. */
 
 /* ---------- 5. ROW GROUPS ---------- */
 function cmdRowFallback(spec){
@@ -409,13 +551,21 @@ function cmdGroup(id,title,rows){
 function cmdNeedsYouRows(){
   const cards=((D.cards||{}).cards)||[];
   const rth=cmdSafe(()=>(typeof rthNowClient==='function')&&rthNowClient(),false);
-  return cards.filter(c=>!String(c.id||'').startsWith('card-goal-')).map(c=>{
+  const filtered=cards.filter(c=>!String(c.id||'').startsWith('card-goal-'));
+  const n=filtered.length;
+  return filtered.map((c,i)=>{
+    // spec 10.2: every "Needs you" row gets a severity-bar graphic, never a
+    // text-only row. Rank weight = the row's own worst-first position
+    // (already how build_cards() orders `cards`); tone buckets that same
+    // position into thirds -- the row's REAL `gated` flag still drives the
+    // verdict dot/tint independently, this is only the bar's colour.
+    const tone=n<=1?'red':(i<n/3?'red':(i<2*n/3?'amber':'none'));
     const spec={
       id:'card-'+String(c.id||c.rank||'').replace(/[^A-Za-z0-9_-]/g,'')||('card-'+(c.rank||0)),
       icon:'target',
       title:c.title||'',
       verdict:c.gated?'amber':'none',
-      gfx:'',
+      gfx:cmdGfx('gfxSeverity',i,n,tone),
       say:cmdWrapDigits([c.kind||'',(c.why&&c.why[0])||''].filter(Boolean).join('. ')),
       src:{path:c.source_path||'', stamp:null, age_h:c.source_age_h},
       fresh_h:c.source_age_h,
@@ -484,17 +634,77 @@ function cmdConfetti(){
   }catch(_){}
 }
 
+/* ---------- 7. LOAD CHOREOGRAPHY (spec 10.5) ---------- */
+/* ONE WAAPI timeline, run once per page load (never on a re-render or a
+   route back to Command -- CMD_LOAD_CHOREO_DONE below), entirely skipped
+   under reduced motion (the elements' resting CSS state is already fully
+   visible either way -- WAAPI releases control back to that state when an
+   animation finishes without `fill:'forwards'`, so skipping never leaves
+   anything stuck invisible). The Army stage's own entrance (stars/
+   orchestrator/beams) is army_js's existing mechanism, untouched here. */
+let CMD_LOAD_CHOREO_DONE=false;
+function cmdAnimate(el,keyframes,opts){
+  try{ if(el&&typeof el.animate==='function')el.animate(keyframes,opts); }catch(_){}
+}
+function cmdChoreograph(host){
+  if(RM||CMD_LOAD_CHOREO_DONE)return;
+  CMD_LOAD_CHOREO_DONE=true;
+  try{
+    // sentence: words fade/rise, 0-200ms, staggered
+    Array.prototype.slice.call(host.querySelectorAll('.statusitem')).forEach((n,i)=>{
+      cmdAnimate(n,[{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],
+        {duration:200,delay:i*30,easing:'ease-out'});
+    });
+    // vitals: tiles settle in 60ms steps, 200-800ms (spec 4.1's mission-
+    // control-style "bento cells settle in 60ms steps" graft, applied here)
+    const vitals=Array.prototype.slice.call(host.querySelectorAll('.vitals .vital'));
+    vitals.forEach((n,i)=>{
+      cmdAnimate(n,[{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],
+        {duration:240,delay:200+i*60,easing:'cubic-bezier(0,0,.2,1)'});
+    });
+    // ring graphics: stroke-dashoffset draws in from empty to its real value
+    Array.prototype.slice.call(host.querySelectorAll('.gfx-ringv,.gfx-ringbig')).forEach((svg,i)=>{
+      const circ=svg.querySelector('circle[stroke-dasharray]');
+      if(!circ)return;
+      const dash=circ.getAttribute('stroke-dasharray')||'';
+      const total=(parseFloat(dash.split(' ')[1])||parseFloat(dash.split(' ')[0])||0);
+      if(!total)return;
+      cmdAnimate(circ,[{strokeDashoffset:total},{strokeDashoffset:0}],
+        {duration:500,delay:220+i*40,easing:'cubic-bezier(0,0,.2,1)'});
+    });
+    // sparkline: the line path draws in via its own true length
+    Array.prototype.slice.call(host.querySelectorAll('.gfx-sparkv path[stroke]:not([stroke="none"])')).forEach((p,i)=>{
+      let len=0; try{len=p.getTotalLength();}catch(_){}
+      if(!len)return;
+      cmdAnimate(p,[{strokeDasharray:len+'px',strokeDashoffset:len+'px'},
+                    {strokeDasharray:len+'px',strokeDashoffset:0}],
+        {duration:520,delay:240+i*40,easing:'cubic-bezier(0,0,.2,1)'});
+    });
+    // heatmap: cells stagger 12ms each (spec 10.5's literal figure)
+    Array.prototype.slice.call(host.querySelectorAll('.gfx-heatv rect')).forEach((r,i)=>{
+      cmdAnimate(r,[{opacity:0,transform:'scale(.5)'},{opacity:1,transform:'none'}],
+        {duration:180,delay:260+i*12,easing:'ease-out'});
+    });
+    // day-line ticks fade in alongside the cursor's own stroke-draw (100-400ms)
+    Array.prototype.slice.call(host.querySelectorAll('.dayline__tick')).forEach((n,i)=>{
+      cmdAnimate(n,[{opacity:0},{opacity:1}],{duration:200,delay:100+i*20,easing:'ease-out'});
+    });
+  }catch(_){}
+}
+
 /* ---------- vCommand ---------- */
 function vCommand(h){
   h.appendChild(cmdSentence());
   h.appendChild(cmdDayline());
+  h.appendChild(cmdVitals());
   h.appendChild(cmdStage());
-  h.appendChild(cmdBand());
+  h.appendChild(cmdGoalStrip());
   h.appendChild(cmdGroup('group-needs-you','Needs you',cmdNeedsYouRows()));
   h.appendChild(cmdGroup('group-trading','Trading',cmdProducerRows('trading')));
   h.appendChild(cmdGroup('group-research','Research',cmdProducerRows('research')));
   h.appendChild(cmdGroup('group-rig','Rig',cmdProducerRows('rig')));
   if(typeof tilesInit==='function'){try{tilesInit();}catch(_){}}
   cmdConfetti();
+  cmdChoreograph(h);
 }
 """

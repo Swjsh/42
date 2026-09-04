@@ -409,7 +409,9 @@ def build_shadow() -> dict:
         for line in text[m_live.end():nxt].splitlines():
             lm = re.match(r'^-\s+\*\*(.+?)\*\*', line.strip())
             if lm:
-                live.append({"name": lm.group(1).strip(), "line": line.strip()[2:].strip()})
+                clock_line = line.strip()[2:].strip()
+                live.append({"name": lm.group(1).strip(), "line": clock_line,
+                             "verdict": _shadow_clock_verdict(clock_line)})
 
     total_non_terminal, buckets = 0, []
     m_frozen = re.search(r'^##\s+Frozen preregs\s+\S+\s+auto-discovered.*?\((\d+)\s+non-terminal\)', text, re.M)
@@ -427,7 +429,42 @@ def build_shadow() -> dict:
         "ok": True, "path": _rel(p), "stamp_et": stamp, "verdict": "off", "say": say,
         "n_sections": n_sections, "live": live,
         "preregs": {"total_non_terminal": total_non_terminal, "buckets": buckets},
+        # Vitals-grid heatmap cells (spec 10.1 "Shadow board (heatmap 12x3 of
+        # clocks by verdict)"): one dot per live clock, verdict word ONLY
+        # (never a colour) so the client's gfxHeatV just maps a known word.
+        "heat": [c["verdict"] for c in live][:36],
     }
+
+
+# Explicit-only keyword scan of a live clock's own SHADOW.md line -- a
+# verdict is claimed ONLY when the line itself uses one of these exact
+# words (KILL/FAIL/RED = red, EXTEND/PASS/GREEN = green); anything else
+# (a still-collecting clock, ambiguous prose) stays "off" rather than
+# guessing a colour the source text never stated (C7: never fabricate).
+_SHADOW_RED_RE = re.compile(r"\bKILL\b|\bFAIL(?:S|ED)?\b|\bRED\b", re.I)
+_SHADOW_GREEN_RE = re.compile(r"\bEXTEND\b|\bPASS(?:ES|ED)?\b|\bGREEN\b", re.I)
+# "NOT a green light" is exactly the kind of prose this scan must not read
+# backwards -- a bare keyword match a few words after a "not" reads the
+# opposite of what the sentence says, so a nearby negation drops the match
+# rather than being counted (real SHADOW.md line, 2026-09-03: the trendline
+# shadow clock's "NOT a green light" would otherwise render as green).
+_SHADOW_NEGATED_RE = re.compile(r"\bnot\b[^.;]{0,24}\b(kill|fail(?:s|ed)?|red|extend|pass(?:es|ed)?|green)\b", re.I)
+
+
+def _shadow_clock_verdict(line: str) -> str:
+    negated_spans = {m.start(1) for m in _SHADOW_NEGATED_RE.finditer(line)}
+
+    def _hit(rx):
+        for m in rx.finditer(line):
+            if m.start() not in negated_spans:
+                return True
+        return False
+
+    if _hit(_SHADOW_RED_RE):
+        return "red"
+    if _hit(_SHADOW_GREEN_RE):
+        return "green"
+    return "off"
 
 
 # --------------------------------------------------------------- watchers

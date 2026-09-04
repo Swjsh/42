@@ -419,9 +419,40 @@ function vJournal(h){
   const c=el('div','card'); calendarInto(c,calArm,false); page.appendChild(c);
   h.appendChild(page);
 }
+/* spec 10.4: "the month summary as three vitals-style tiles above [the
+   grid]" -- reuses cmdVitalTile (gamma_cockpit_command_js.py; available
+   here via function-declaration hoisting across the one concatenated
+   <script>, same as tileRow/gfx* already are). No jumpTo: there is no
+   single producer row these three summarise into, so the tile's own
+   "Full detail below" link is simply omitted (cmdVitalTile already
+   skips it when jumpTo is falsy). */
+function journalSummaryVitals(tot,n,s,basis){
+  if(typeof cmdVitalTile!=='function')return null;
+  const allTime=basis==='n'?s.total_pnl_net:s.total_pnl_gross;
+  const wrap=el('div','vitals');
+  wrap.appendChild(cmdVitalTile({
+    id:'vital-journal-month', icon:'dollar-sign', label:'This month',
+    verdict:n?(tot>=0?'green':'red'):'off',
+    figure:n?M(tot):'NO DATA', state:n+' trading days',
+  }));
+  wrap.appendChild(cmdVitalTile({
+    id:'vital-journal-days', icon:'timer', label:'Trading days',
+    verdict:n?'none':'off',
+    figure:String(n), state:'this month',
+  }));
+  wrap.appendChild(cmdVitalTile({
+    id:'vital-journal-alltime', icon:'trending-up', label:'All-time',
+    verdict:allTime!=null?(allTime>=0?'green':'red'):'off',
+    figure:allTime!=null?M(allTime):'NO DATA',
+    state:(s.trading_days!=null?s.trading_days:'?')+' days',
+  }));
+  return wrap;
+}
 function calendarInto(host,arm,mini){
   host.innerHTML='';
   const views=D.calendar?.views||{}, v=views[arm]||{days:{},summary:{}};
+  const vitalsHost=el('div'); vitalsHost.style.marginBottom='var(--s6)';
+  if(!mini)host.appendChild(vitalsHost);  // filled once tot/n/s are known, below
   const ctl=el('div','row wrap'); ctl.style.marginBottom='var(--s5)';
   if(!mini){
     const sel=el('select'); sel.style.cssText='background:var(--bg-2);color:var(--tx-1);border:1px solid var(--bd);border-radius:var(--r-md);padding:6px 10px;font-family:var(--font);font-size:13px';
@@ -455,17 +486,20 @@ function calendarInto(host,arm,mini){
   const first=new Date(Y,Mo-1,1), nd=new Date(Y,Mo,0).getDate();
   for(let i=0;i<first.getDay();i++)grid.appendChild(el('div','cell empty'));
   let tot=0,n=0;
-  // Re-skin to the token names on the full Journal tab only (spec sec 3): 44x44 cells,
-  // mono figures. The Overview mini strip (mini=true) keeps its compact sizing --
-  // D.calendar_scale/clamp/max_abs stay the SAME numbers either way, only the paint differs.
+  const monthDaily=[];  // [{iso,p}] this month, in day order -- spec 10.4's 7-day sparkline reads its tail
+  // Re-skin to the token names on the full Journal tab only (spec sec 3): 56x56 cells
+  // (spec 10.4, bumped from 44px), mono figures. The Overview mini strip (mini=true)
+  // keeps its compact sizing -- D.calendar_scale/clamp/max_abs stay the SAME numbers
+  // either way, only the paint differs.
   for(let d=1;d<=nd;d++){
     const iso=`${Y}-${String(Mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`, row=v.days[iso];
     const p=row?row[calBasis]:null;
     const c=el('div','cell'+(row?' has ':' ')+(row?(p>0?'win':p<0?'loss':'flat'):''));
-    if(!mini)c.style.cssText='min-width:44px;min-height:44px';
+    if(!mini)c.style.cssText='min-width:56px;min-height:56px';
     c.appendChild(el('div','d',String(d)));
     if(row){
       tot+=p;n++;
+      monthDaily.push({iso,p});
       // clamped intensity: one blowout day cannot flatten the month
       const k=Math.min(1,Math.abs(p)/clamp);
       c.style.background=`color-mix(in oklch, var(--${p>0?'pos':'neg'}) ${(6+k*22).toFixed(0)}%, var(--bg-1))`;
@@ -479,7 +513,21 @@ function calendarInto(host,arm,mini){
     grid.appendChild(c);
   }
   host.appendChild(grid);
+  // spec 10.4: "a 7-day equity sparkline band (160px) under the grid" -- the
+  // real last 7 TRADED days of the arm currently shown, not 7 calendar days
+  // (a weekend/holiday gap would otherwise flatten the line with zeros that
+  // never happened).
+  const last7=monthDaily.slice(-7).map(x=>x.p);
+  if(!mini&&last7.length>=2&&typeof gfxSparkV==='function'){
+    const band=el('div','vital__gfx'); band.style.cssText='min-height:56px;margin:var(--s4) 0';
+    band.innerHTML=gfxSparkV(last7,{pnl:true})||'';
+    host.appendChild(band);
+  }
   const s=v.summary||{};
+  if(!mini){
+    const vt=journalSummaryVitals(tot,n,s,calBasis);
+    if(vt)vitalsHost.appendChild(vt);
+  }
   const foot=el('div','row wrap'); foot.style.marginTop='var(--s5)';
   foot.appendChild(el('div','mut',`<b class="${sgn(tot)}">${M(tot)}</b> this month · ${n} trading days`));
   foot.appendChild(el('div','dim',`all-time <b class="${sgn(calBasis==='n'?s.total_pnl_net:s.total_pnl_gross)}">${M(calBasis==='n'?s.total_pnl_net:s.total_pnl_gross)}</b> over ${s.trading_days??'—'} days`));
@@ -529,11 +577,31 @@ function vAnswers(h){
   if(typeof tileRow==='function'&&typeof groupRows==='function'){
     try{
       const VERDICT_MAP={ok:'green',warn:'amber',bad:'red'};
+      // real age, not "unknown" -- sources[0].mtime_et is the file's own
+      // mtime (gamma_home.py:_mtime_et), wired straight to data-stamp so
+      // paintAge() ticks a genuine number, never a baked-in placeholder
+      // (spec 10.2).
       const src0=(i)=>{ const s=(answers[i].sources||[])[0];
-        return s?{path:s.path,stamp:s.last_write||null}:null; };
+        return s?{path:s.path,stamp:s.mtime_et||s.last_write||null}:null; };
+      // spec 10.2: "Answers rows get the matching glyph of their question"
+      // -- each of the 7 fixed questions (build_answers(), gamma_home.py)
+      // gets its own icon + a small verdict-dot glyph so no row family on
+      // the page is text-only. Matched by substring so a wording tweak in
+      // Python never silently falls back to a blank icon slot.
+      const ANSWER_ICON=[
+        [/good to trade/i,'shield'],
+        [/status/i,'list-checks'],
+        [/theorizing/i,'sunrise'],
+        [/edge/i,'trending-up'],
+        [/money/i,'dollar-sign'],
+        [/futures/i,'network'],
+        [/changed since/i,'timer'],
+      ];
+      const iconFor=q=>{ const hit=ANSWER_ICON.find(([re])=>re.test(q||'')); return hit?hit[1]:'check-circle-2'; };
       const rows=answers.map((a,i)=>tileRow({
-        id:'tile-answer-'+i, icon:'check-circle-2', title:a.q,
+        id:'tile-answer-'+i, icon:iconFor(a.q), title:a.q,
         verdict:VERDICT_MAP[health(a.verdict)]||'off',
+        gfx:(typeof gfxDots==='function')?(gfxDots([a.verdict])||''):'',
         say:esc(a.answer), src:src0(i),
         body:(b)=>{
           if(a.detail)b.appendChild(el('div','mut',esc(a.detail)));
@@ -541,7 +609,21 @@ function vAnswers(h){
           b.appendChild(srcRow(a.sources));
         },
       }));
-      h.appendChild(groupRows({id:'tile-group-answers',title:'The answers',rows}));
+      // spec 10.4: "Answers: the 7 rows + a right column with the two most
+      // relevant vitals tiles (Gate, Book)". A 2-column layout so the tab
+      // does not read as a single narrow list on a wide viewport; falls
+      // back to the plain single column below if cmdVitalTile/cmdVitalGate/
+      // cmdVitalBook are not yet wired (feature-detected, never a throw).
+      const wrap=el('div','answerslayout');
+      wrap.appendChild(groupRows({id:'tile-group-answers',title:'The answers',rows}));
+      if(typeof cmdVitalGate==='function'&&typeof cmdVitalBook==='function'){
+        const side=el('div','vitals vitals--col');
+        [cmdVitalGate,cmdVitalBook].forEach(fn=>{
+          const t=cmdSafe(fn,null); if(t)side.appendChild(t);
+        });
+        wrap.appendChild(side);
+      }
+      h.appendChild(wrap);
       return;
     }catch(_){ /* tileRow/groupRows not ready for this shape yet -- fall through */ }
   }
