@@ -124,8 +124,8 @@ def fetch_vix(*, cache_path: Path = VIX_CACHE, max_age_min: int = VIX_STALE_MINU
 
 # --- level-state memory ----------------------------------------------------------------------
 
-def _states_path(symbol: str) -> Path:
-    return STATE_DIR / f"level-states-{symbol.upper()}.json"
+def _states_path(symbol: str, state_dir: Path = STATE_DIR) -> Path:
+    return state_dir / f"level-states-{symbol.upper()}.json"
 
 
 @dataclass
@@ -152,7 +152,14 @@ def update_level_states(symbol: str, levels: list, bars, *, max_bounces: int = 8
     if bars is None or len(bars) < 3 or not levels:
         return {}
 
-    path = _states_path(symbol)
+    # BUG FIX (2026-09-04, found while building the tickers-lane production-scorer adapter):
+    # `state_dir` was a DEAD knob for the actual read/write path -- it only drove the mkdir
+    # below, while `path` was always derived from the module-level STATE_DIR constant via
+    # _states_path(symbol) regardless of what the caller passed. A caller isolating tests with
+    # state_dir=<tmp> was silently ALSO writing (and, on a second run, reading stale memory
+    # from) the real automation/state/multi/ directory. `_states_path` now takes `state_dir`
+    # too so the two actually agree.
+    path = _states_path(symbol, state_dir)
     prior: dict = {}
     if path.exists():
         try:

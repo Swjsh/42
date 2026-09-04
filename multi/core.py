@@ -58,6 +58,7 @@ from multi.lib import watchlist as mw  # noqa: E402
 from multi.lib import positions as mp  # noqa: E402
 from multi.lib import risk as mr  # noqa: E402
 from multi.lib import scanners as msc  # noqa: E402
+from multi.lib import scorer_production as msp  # noqa: E402
 from multi.lib import signal as ms  # noqa: E402
 from multi.lib import sizing as msz  # noqa: E402
 
@@ -402,19 +403,24 @@ def attention_from_bars(bars_by_symbol: dict) -> dict:
     return out
 
 
-def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: dict) -> list:
+def manage_open_positions(params: dict, creds, open_opts: list, bars_by_symbol: dict, *,
+                          state_path: Path | None = None) -> list:
     """Evaluate EXITS for open positions BEFORE considering any new entry.
 
     Ordering is deliberate: a lane that looks for entries before managing what it already holds
     can breach its own concurrency cap and, worse, can miss an expiry-day flatten while busy
     scoring new names. Exits first, always.
 
+    `state_path` overrides where exit-state.json is read from (tests use a tmp path so they
+    never touch the real automation/state/multi/exit-state.json). Omitted (None, the default)
+    -> mps.load_state()'s own default STATE_PATH, byte-identical to pre-existing behavior.
+
     SHADOW: this records the exit DECISION. It does not send anything -- exits.evaluate_exit is
     a pure function and no broker submission is reachable from here.
     """
     out = []
     try:
-        state = mps.load_state()
+        state = mps.load_state(path=state_path) if state_path is not None else mps.load_state()
     except mps.PositionStateError as e:
         # A corrupt/missing state file must never read as "no open positions" -- that is the
         # dangerous direction (it would look like a clean book while positions are live).
@@ -520,12 +526,39 @@ def merge_scanner_attention(base: dict, params: dict, creds) -> dict:
 
 def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
          dry_bars: dict | None = None,
-         attention_override: dict | None = None) -> tuple[list[dict], Counter]:
+         attention_override: dict | None = None,
+         state_path: Path | None = None,
+         level_state_dir: Path | None = None,
+         realized_pnl_today: float = 0.0,
+         kill_switch_tripped: bool = False) -> tuple[list[dict], Counter]:
     """One evaluation pass over `symbols`. Returns (rows, cascade_counter).
 
     Writes nothing and sends nothing — the caller persists. `dry_bars` lets tests inject bar
     frames without a network call.
+
+    `state_path` / `level_state_dir` override where exit-state.json / per-symbol level-state
+    JSON are read and written (tests pass tmp paths so they never touch the real
+    automation/state/multi/ files). `realized_pnl_today` / `kill_switch_tripped` feed the kill
+    switch in mr.evaluate_admission -- both were previously hardcoded to 0.0 / False inline; a
+    caller that tracks the account's actual realized P&L / latch state can now pass it through.
+    All four default to the prior hardcoded values, so calling tick() without them is
+    byte-identical to before this change.
+
+    `params["scorer"]` selects which filter stack scores every symbol this tick: "fork"
+    (default -- multi.lib.filters via multi.lib.signal.build_signal, unchanged behavior) or
+    "production" (backtest.lib.filters, FROZEN, via multi.lib.scorer_production.build_signal).
+    Any other value raises TickError immediately -- never a silent fall-back to the default
+    scorer. Every scored row carries `row["scorer"]` so a ledger reader can tell which stack
+    produced it.
     """
+    scorer = str(params.get("scorer") or "fork")
+    if scorer not in ("fork", "production"):
+        raise TickError(
+            f"params.scorer={scorer!r} is not recognized (expected 'fork' or 'production') — "
+            f"refusing to silently fall back to a default scorer"
+        )
+    build_signal_fn = msp.build_signal if scorer == "production" else ms.build_signal
+
     cascade: Counter = Counter()
     rows: list[dict] = []
     ts = now_et().isoformat(timespec="seconds")
@@ -539,7 +572,7 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
 
     # EXITS FIRST. Managing what we already hold outranks hunting new entries -- a lane that
     # scores 72 names before checking an expiry-day flatten has its priorities inverted.
-    exit_rows = manage_open_positions(params, creds, open_opts, dry_bars or {})
+    exit_rows = manage_open_positions(params, creds, open_opts, dry_bars or {}, state_path=state_path)
     rows.extend(exit_rows)
     cascade["exit_evaluations"] = len(exit_rows)
 
@@ -609,6 +642,7 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
             continue
         row["timeframe"] = "5Min"
         row["trigger_bar_et"] = bars.index[-1].isoformat()
+        row["scorer"] = scorer
         cascade["bars_ok"] += 1
 
         # Per-symbol levels. Without these, filter 10 (level-tied trigger required) vetoes
@@ -621,10 +655,11 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
             rows.append(row)
             continue
         row["n_levels_active"] = len(active_lv)
+        level_state_kwargs = {"state_dir": level_state_dir} if level_state_dir is not None else {}
         try:
-            lvl_states = mctx.update_level_states(sym, active_lv, bars)
+            lvl_states = mctx.update_level_states(sym, active_lv, bars, **level_state_kwargs)
             row["n_level_states"] = len(lvl_states)
-            sig = ms.build_signal(sym, bars, params=params,
+            sig = build_signal_fn(sym, bars, params=params,
                                   candidate_levels=active_lv,
                                   candidate_multi_day_levels=multi_lv,
                                   level_states=lvl_states,
@@ -644,8 +679,13 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
                    bear_score=bear.get("score"), bull_score=bull.get("score"),
                    bear_blockers=name_blockers(bear.get("blockers")),
                    bull_blockers=name_blockers(bull.get("blockers")),
-                   bear_triggers=list(bear.get("triggers") or []),
-                   bull_triggers=list(bull.get("triggers") or []),
+                   # Both scorers emit `triggers_fired` (fork: multi/lib/signal.py; production:
+                   # multi/lib/scorer_production.py). This read `triggers` for the lane's whole
+                   # life, so bear_triggers/bull_triggers were silently [] on every ledger row
+                   # (found 2026-09-04 during the tickers-lane build). Fall back to the old key
+                   # only so a foreign scorer that still uses it is not blanked a second time.
+                   bear_triggers=list(bear.get("triggers_fired") or bear.get("triggers") or []),
+                   bull_triggers=list(bull.get("triggers_fired") or bull.get("triggers") or []),
                    vix_now=sig.get("vix"), vix_regime=sig.get("vix_regime"),
                    htf_15m_stack=sig.get("htf_15m_stack"),
                    ribbon_stack=sig.get("ribbon_stack"))
@@ -660,8 +700,8 @@ def tick(params: dict, creds: mc.MultiCreds, symbols: list[str], *,
 
         admission = mr.evaluate_admission(
             account=account, symbol=sym,
-            start_of_day_equity=equity, realized_pnl_today=0.0,
-            kill_switch_tripped=False, open_positions=open_opts,
+            start_of_day_equity=equity, realized_pnl_today=realized_pnl_today,
+            kill_switch_tripped=kill_switch_tripped, open_positions=open_opts,
             correlations=None, params=params,
         )
         if not getattr(admission, "allowed", False):
