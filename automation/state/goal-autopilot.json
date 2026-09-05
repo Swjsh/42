@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 07:49 ET",
-  "action": "noop",
-  "reason": "active goal has an open item",
-  "active_goal_id": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
-  "next_item": "O4 -- RETENTION.md row for the 1-min cache; guard that the coverage check runs inside",
+  "checked_at_et": "2026-09-05 08:13 ET",
+  "action": "closed_ladder_empty",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -121,12 +121,12 @@
     },
     {
       "id": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
-  "last_closed": "GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05",
+  "last_closed": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
   "error": null
 }
