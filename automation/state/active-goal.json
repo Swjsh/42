@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
-  "active": false,
-  "opened_at_et": "2026-09-05T04:43:28",
+  "id": "GOAL-EXIT-SHAPE-PARITY-2026-09-05",
+  "active": true,
+  "opened_at_et": "2026-09-05T05:12:43",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05.md",
-  "queue_id": "GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
+  "file": "automation/state/goals/GOAL-EXIT-SHAPE-PARITY-2026-09-05.md",
+  "queue_id": "GOAL-EXIT-SHAPE-PARITY-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 05:11 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }
