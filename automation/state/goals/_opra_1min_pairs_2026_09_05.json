@@ -1,0 +1,806 @@
+{
+  "generated_by": "scratch_inventory_pairs.py",
+  "n_walk_ok": 305,
+  "n_ledger_scored": 144,
+  "n_pairs_total": 98,
+  "n_cached_before": 79,
+  "pct_cached_before": 80.61,
+  "pairs": [
+    {
+      "contract": "SPY260803C00751000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00752000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00754000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00756000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00757000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00758000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00759000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260803C00760000",
+      "date": "2026-08-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260804C00762000",
+      "date": "2026-08-04",
+      "sources": [
+        "ledger"
+      ]
+    },
+    {
+      "contract": "SPY260804C00763000",
+      "date": "2026-08-04",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260804C00765000",
+      "date": "2026-08-04",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260804C00767000",
+      "date": "2026-08-04",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260804C00768000",
+      "date": "2026-08-04",
+      "sources": [
+        "ledger"
+      ]
+    },
+    {
+      "contract": "SPY260804C00769000",
+      "date": "2026-08-04",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260804C00771000",
+      "date": "2026-08-04",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260804C00773000",
+      "date": "2026-08-04",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260805C00777000",
+      "date": "2026-08-05",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260805C00779000",
+      "date": "2026-08-05",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260805P00769000",
+      "date": "2026-08-05",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260805P00770000",
+      "date": "2026-08-05",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260805P00771000",
+      "date": "2026-08-05",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260805P00772000",
+      "date": "2026-08-05",
+      "sources": [
+        "ledger"
+      ]
+    },
+    {
+      "contract": "SPY260806P00769000",
+      "date": "2026-08-06",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260806P00770000",
+      "date": "2026-08-06",
+      "sources": [
+        "ledger"
+      ]
+    },
+    {
+      "contract": "SPY260806P00771000",
+      "date": "2026-08-06",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260807C00772000",
+      "date": "2026-08-07",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260807C00773000",
+      "date": "2026-08-07",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260807C00774000",
+      "date": "2026-08-07",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260807C00775000",
+      "date": "2026-08-07",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260810C00773000",
+      "date": "2026-08-10",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260810C00775000",
+      "date": "2026-08-10",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260810P00773000",
+      "date": "2026-08-10",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260811P00769000",
+      "date": "2026-08-11",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260811P00770000",
+      "date": "2026-08-11",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260811P00771000",
+      "date": "2026-08-11",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260811P00772000",
+      "date": "2026-08-11",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260811P00773000",
+      "date": "2026-08-11",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812C00773000",
+      "date": "2026-08-12",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812C00775000",
+      "date": "2026-08-12",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812P00770000",
+      "date": "2026-08-12",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812P00771000",
+      "date": "2026-08-12",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812P00772000",
+      "date": "2026-08-12",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812P00773000",
+      "date": "2026-08-12",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260812P00774000",
+      "date": "2026-08-12",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813C00776000",
+      "date": "2026-08-13",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813C00777000",
+      "date": "2026-08-13",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813C00778000",
+      "date": "2026-08-13",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813C00779000",
+      "date": "2026-08-13",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813C00780000",
+      "date": "2026-08-13",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813P00774000",
+      "date": "2026-08-13",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260813P00776000",
+      "date": "2026-08-13",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260814C00778000",
+      "date": "2026-08-14",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260814C00780000",
+      "date": "2026-08-14",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260814P00774000",
+      "date": "2026-08-14",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260814P00775000",
+      "date": "2026-08-14",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260814P00776000",
+      "date": "2026-08-14",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260814P00777000",
+      "date": "2026-08-14",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260817P00773000",
+      "date": "2026-08-17",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260817P00774000",
+      "date": "2026-08-17",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260817P00775000",
+      "date": "2026-08-17",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260817P00776000",
+      "date": "2026-08-17",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260818P00768000",
+      "date": "2026-08-18",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260819C00770000",
+      "date": "2026-08-19",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260819C00771000",
+      "date": "2026-08-19",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260819C00772000",
+      "date": "2026-08-19",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260819C00773000",
+      "date": "2026-08-19",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260820C00767000",
+      "date": "2026-08-20",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260820P00763000",
+      "date": "2026-08-20",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260820P00764000",
+      "date": "2026-08-20",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260820P00765000",
+      "date": "2026-08-20",
+      "sources": [
+        "ledger"
+      ]
+    },
+    {
+      "contract": "SPY260820P00766000",
+      "date": "2026-08-20",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260821C00766000",
+      "date": "2026-08-21",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260821C00768000",
+      "date": "2026-08-21",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260821P00763000",
+      "date": "2026-08-21",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260824P00763000",
+      "date": "2026-08-24",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260825C00765000",
+      "date": "2026-08-25",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260826C00766000",
+      "date": "2026-08-26",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260827C00768000",
+      "date": "2026-08-27",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260827C00770000",
+      "date": "2026-08-27",
+      "sources": [
+        "ledger"
+      ]
+    },
+    {
+      "contract": "SPY260827C00771000",
+      "date": "2026-08-27",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260827C00772000",
+      "date": "2026-08-27",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260828C00771000",
+      "date": "2026-08-28",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260828C00773000",
+      "date": "2026-08-28",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260828C00777000",
+      "date": "2026-08-28",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260828P00767000",
+      "date": "2026-08-28",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260828P00768000",
+      "date": "2026-08-28",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260901P00759000",
+      "date": "2026-09-01",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260901P00760000",
+      "date": "2026-09-01",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260901P00762000",
+      "date": "2026-09-01",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260902C00765000",
+      "date": "2026-09-02",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260902C00766000",
+      "date": "2026-09-02",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260902C00767000",
+      "date": "2026-09-02",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260902C00768000",
+      "date": "2026-09-02",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260903C00770000",
+      "date": "2026-09-03",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260903C00772000",
+      "date": "2026-09-03",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260903C00773000",
+      "date": "2026-09-03",
+      "sources": [
+        "ledger",
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260903C00774000",
+      "date": "2026-09-03",
+      "sources": [
+        "walk"
+      ]
+    },
+    {
+      "contract": "SPY260903P00773000",
+      "date": "2026-09-03",
+      "sources": [
+        "walk"
+      ]
+    }
+  ],
+  "missing_before": [
+    {
+      "contract": "SPY260803C00751000",
+      "date": "2026-08-03"
+    },
+    {
+      "contract": "SPY260803C00756000",
+      "date": "2026-08-03"
+    },
+    {
+      "contract": "SPY260803C00758000",
+      "date": "2026-08-03"
+    },
+    {
+      "contract": "SPY260803C00759000",
+      "date": "2026-08-03"
+    },
+    {
+      "contract": "SPY260803C00760000",
+      "date": "2026-08-03"
+    },
+    {
+      "contract": "SPY260805C00779000",
+      "date": "2026-08-05"
+    },
+    {
+      "contract": "SPY260805P00769000",
+      "date": "2026-08-05"
+    },
+    {
+      "contract": "SPY260806P00771000",
+      "date": "2026-08-06"
+    },
+    {
+      "contract": "SPY260807C00775000",
+      "date": "2026-08-07"
+    },
+    {
+      "contract": "SPY260811P00769000",
+      "date": "2026-08-11"
+    },
+    {
+      "contract": "SPY260812C00775000",
+      "date": "2026-08-12"
+    },
+    {
+      "contract": "SPY260812P00770000",
+      "date": "2026-08-12"
+    },
+    {
+      "contract": "SPY260812P00771000",
+      "date": "2026-08-12"
+    },
+    {
+      "contract": "SPY260813C00780000",
+      "date": "2026-08-13"
+    },
+    {
+      "contract": "SPY260813P00774000",
+      "date": "2026-08-13"
+    },
+    {
+      "contract": "SPY260814C00780000",
+      "date": "2026-08-14"
+    },
+    {
+      "contract": "SPY260814P00774000",
+      "date": "2026-08-14"
+    },
+    {
+      "contract": "SPY260814P00775000",
+      "date": "2026-08-14"
+    },
+    {
+      "contract": "SPY260819C00773000",
+      "date": "2026-08-19"
+    }
+  ]
+}

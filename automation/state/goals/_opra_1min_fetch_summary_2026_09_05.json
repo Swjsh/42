@@ -1,0 +1,9 @@
+{
+  "n_attempted": 19,
+  "n_ok": 19,
+  "n_failed": 0,
+  "cache_mb_before": 19.408,
+  "cache_mb_after": 19.726,
+  "cache_mb_growth": 0.319,
+  "failed": []
+}
