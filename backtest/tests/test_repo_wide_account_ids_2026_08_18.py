@@ -50,6 +50,14 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 ACCOUNTS = REPO / "automation" / "state" / "fleet" / "accounts.json"
 
+# Tickers lane (GOAL-TICKERS-LANE-2026-09-04): 3 dedicated paper accounts, NOT arms in
+# fleet/accounts.json's registry. Each arm's account_number lives in its own per-arm
+# account.json under automation/state/tickers/<arm>/ (pinned there when J supplies the key --
+# never the day-check-*.json outputs, which are dated run artifacts, not the roster). Read
+# every tickers-* arm's account.json rather than hardcoding the numbers, so a repointed or
+# added arm stays covered without editing this test.
+TICKERS_STATE_DIR = REPO / "automation" / "state" / "tickers"
+
 # Narrower than the CLAUDE.md guard's PA[A-Z0-9]{10} -- see module docstring.
 ACCT_RE = re.compile(r"PA3[A-Z0-9]{9}")
 
@@ -95,12 +103,34 @@ EXTRA_KNOWN_ACCOUNTS = {
 }
 
 
+def _tickers_roster_accounts() -> set[str]:
+    """Every account_number pinned in a tickers-* arm's own account.json.
+
+    Deliberately globs `tickers/*/account.json` (not a fixed tickers-1/2/3 list and never
+    the day-check-*.json run outputs) so a new or repointed arm is picked up automatically.
+    """
+    found: set[str] = set()
+    if not TICKERS_STATE_DIR.is_dir():
+        return found
+    for account_file in TICKERS_STATE_DIR.glob("*/account.json"):
+        try:
+            data = json.loads(account_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        found |= set(ACCT_RE.findall(json.dumps(data)))
+    return found
+
+
 def _registry_accounts() -> set[str]:
     data = json.loads(ACCOUNTS.read_text(encoding="utf-8"))
     # Whole-blob scan (not just arms[].account_number) so historical numbers documented
     # inline in accounts.json's own prose fields (e.g. safe-2's _repoint_2026_07_11 doc
     # naming the deleted PA3S2PYAS2WQ) count as registry-known, same as the CLAUDE.md guard.
-    return set(ACCT_RE.findall(json.dumps(data))) | EXTRA_KNOWN_ACCOUNTS
+    return (
+        set(ACCT_RE.findall(json.dumps(data)))
+        | EXTRA_KNOWN_ACCOUNTS
+        | _tickers_roster_accounts()
+    )
 
 
 def _tracked_markdown_files() -> list[str]:
@@ -198,6 +228,40 @@ def test_guard_fires_on_reintroduced_phantom_account(tmp_path: Path) -> None:
     good_file.write_text("Safe-2's account is PA3POKNV46VG.\n", encoding="utf-8")
     found_good = set(ACCT_RE.findall(good_file.read_text(encoding="utf-8")))
     assert not (found_good - known), "guard flagged a genuinely registry-known account"
+
+
+def test_tickers_roster_known_but_fabricated_pa3_id_still_flagged(tmp_path: Path) -> None:
+    """RED-proof for H2: the tickers-roster wiring recognizes real arms but is not a
+    blanket allowlist -- a made-up PA3 id (never pinned in any tickers-*/account.json,
+    never in fleet accounts.json) in a temp living-tier doc must still be caught.
+    """
+    known = _registry_accounts()
+    tickers_accounts = _tickers_roster_accounts()
+    assert tickers_accounts, (
+        "no tickers-*/account.json found under automation/state/tickers/ -- the roster "
+        "read this test depends on yielded nothing, so it cannot prove anything"
+    )
+    # Every real tickers arm account is registry-known via the roster read.
+    assert tickers_accounts <= known
+
+    doc = tmp_path / "fake-living-doc.md"
+    real_arm_account = sorted(tickers_accounts)[0]
+    fabricated_account = "PA3ZZZZZZZZZ"
+    assert fabricated_account not in known, (
+        "fixture picked a fabricated PA3 id that collides with a real known account -- "
+        "pick a different placeholder"
+    )
+    doc.write_text(
+        f"Tickers-1 is {real_arm_account}. Tickers-9 (never pinned) is "
+        f"{fabricated_account}.\n",
+        encoding="utf-8",
+    )
+    found = set(ACCT_RE.findall(doc.read_text(encoding="utf-8")))
+    unknown = found - known
+    assert unknown == {fabricated_account}, (
+        "guard failed to discriminate: real tickers-roster account and/or the fabricated "
+        "one were not classified correctly"
+    )
 
 
 def test_excluded_files_still_exist(tmp_path: Path) -> None:

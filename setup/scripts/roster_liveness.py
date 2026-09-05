@@ -63,7 +63,7 @@ def probe(lane: dict, roster: dict) -> dict:
 NL = chr(10)
 
 
-def flag_known_broken(dead: list[dict], status_md: Path = STATUS_MD) -> bool:
+def flag_known_broken(dead: list[dict], status_md: Path | None = None) -> bool:
     """Surface permanently-dead lane ids on the STATUS Known-broken channel.
 
     WHY (2026-08-29 audit): this probe existed since Phase 0 but was MUTE -- it wrote
@@ -85,7 +85,24 @@ def flag_known_broken(dead: list[dict], status_md: Path = STATUS_MD) -> bool:
     reading -- exactly one line survives, never a stack. Return value and the
     recreate-section-if-missing behaviour are unchanged (still True on write, False on
     a genuine no-op).
+
+    STATUS_MD RESOLVED LAZILY (2026-09-05, GOAL-RIG-SIGNAL-HYGIENE H4): status_md used to
+    default directly to the module-level STATUS_MD Path -- bound ONCE at import time. A
+    test that did `monkeypatch.setattr(rl, "STATUS_MD", tmp_path)` then called
+    `rl.main()` (which calls `flag_known_broken(dead)` with no status_md kwarg, same as
+    here) silently kept using the ORIGINAL real STATUS.md path, because a function's
+    default argument value is evaluated once at def-time, not re-read from the module
+    namespace on every call. That is exactly how test_main_returns_nonzero_only_when_a_
+    lane_is_dead's dead_id case injected a synthetic "p::m" ROSTER-LIVENESS line into the
+    real automation/overnight/STATUS.md -- a lane that never existed in model-roster.json
+    and that a same-day live probe (roster_liveness.py, 2026-09-05) found zero dead_id
+    lanes for. Defaulting to None and resolving STATUS_MD inside the function body makes
+    a bare call always honor whatever the module attribute currently is, so a monkeypatch
+    (test or otherwise) is never silently bypassed. RED-proofed:
+    backtest/tests/test_roster_liveness_status_md_default_2026_09_05.py.
     """
+    if status_md is None:
+        status_md = STATUS_MD
     if not dead:
         return False
     ids = ", ".join(d["lane"] for d in dead)
