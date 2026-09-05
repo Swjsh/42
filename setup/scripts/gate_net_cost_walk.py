@@ -115,6 +115,13 @@ import strike_selection as ss  # noqa: E402
 sys.path.insert(0, str(BACKTEST / "tools"))
 import gate_revalidation_ab as grab  # noqa: E402
 import fleet_executor  # noqa: E402
+from _option_bars_1min_cache import load_1min_cache_readonly as _load_1min_cache_readonly  # noqa: E402,F401
+# GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3: the read-only 1-min cache loader (schema
+# normalization + vwap/trade_count proxy fill, see that function's own docstring) lives in
+# _option_bars_1min_cache.py so gate_net_cost_walk.py and right_tail_waves.py share ONE
+# implementation (OP-22) instead of each re-deriving it.
+
+RESOLUTIONS = ("5min", "1min")
 
 REFUSALS_PATH = REPO / "analysis" / "gate-net-cost" / "refusals-2026-09-05.json"
 OUT_PATH = REPO / "analysis" / "gate-net-cost" / "walk-2026-09-05.json"
@@ -285,6 +292,7 @@ def _walk_entry(
     stop_level: Optional[float], strike_override: Optional[int] = None,
     entry_premium_override: Optional[float] = None,
     opt_df_override: Optional[pd.DataFrame] = None, opt_df_resolution: str = "5min",
+    resolution: str = "5min",
 ) -> dict[str, Any]:
     """Price + walk ONE entry via the real production exit_manager core.
     strike_override / entry_premium_override let the hand-check reproduce a REAL fill's
@@ -295,7 +303,12 @@ def _walk_entry(
     `backtest/tools/_option_bars_1min_cache.fetch_1min_cached`'s cache-hit path -- NEVER a
     live fetch, per the goal's $0/read-only rules), the hand-check passes that DataFrame here
     to walk at the SAME resolution the real live engine ticks at, instead of the 5-min OPRA
-    cache the main N2 wave-walk uses (disclosed resolution difference, not silently blended)."""
+    cache the main N2 wave-walk uses (disclosed resolution difference, not silently blended).
+    resolution (GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3, default unchanged): when "1min" and
+    opt_df_override is not already supplied, look up the 1-min cache read-only via
+    `_load_1min_cache_readonly` for the resolved contract/day; on a cache miss, falls back to
+    the normal 5-min cache and discloses it via the returned `resolution_1min_fallback` flag
+    -- never a live fetch from inside the walk."""
     spy_day = ctx.spy_by_date.get(day)
     if spy_day is None or spy_day.empty:
         return {"walk_ok": False, "walk_error": f"no SPY bars cached for {day}"}
@@ -315,8 +328,18 @@ def _walk_entry(
             return {"walk_ok": False, "walk_error": f"no cached contract near strike {target}"}
 
     symbol = option_symbol(day, strike, side)
+    resolution_1min_fallback = False
     if opt_df_override is not None:
         opt_df = opt_df_override
+    elif resolution == "1min":
+        opt_df_1min = _load_1min_cache_readonly(symbol, day.isoformat())
+        if opt_df_1min is not None:
+            opt_df = opt_df_1min
+            opt_df_resolution = "1min"
+        else:
+            opt_df = load_contract_bars(symbol, frame="wall-v1")
+            opt_df_resolution = "5min"
+            resolution_1min_fallback = True
     else:
         opt_df = load_contract_bars(symbol, frame="wall-v1")
     if opt_df is None or opt_df.empty:
@@ -376,6 +399,8 @@ def _walk_entry(
         "realized_if_taken_dollars": res.dollar_pnl,
         "peak_multiple": round(peak_multiple, 4) if peak_multiple is not None else None,
         "qty": qty, "hold_minutes": res.hold_minutes, "exit_reason": res.exit_reason,
+        "resolution_used": opt_df_resolution,
+        "resolution_1min_fallback": resolution_1min_fallback,
     }
 
 
@@ -395,7 +420,9 @@ def _iter_wave_buckets(refusals: dict) -> list[tuple[str, str, dict]]:
     return out
 
 
-def run_walk(refusals_path: Path = REFUSALS_PATH) -> dict[str, Any]:
+def run_walk(refusals_path: Path = REFUSALS_PATH, resolution: str = "5min") -> dict[str, Any]:
+    if resolution not in RESOLUTIONS:
+        raise ValueError(f"resolution must be one of {RESOLUTIONS}, got {resolution!r}")
     refusals = json.loads(refusals_path.read_text(encoding="utf-8"))
     buckets = _iter_wave_buckets(refusals)
     fleet_arms = ["safe-3", "risky-1", "risky-3"]
@@ -459,7 +486,7 @@ def run_walk(refusals_path: Path = REFUSALS_PATH) -> dict[str, Any]:
                         continue
                     stop_level = _stop_level_for_wave_row(src_row, ctx.spy, bar_idx, side)
                     res = _walk_entry(ctx, arm=arm, side=side, day=day, trig_ts=trig_ts,
-                                       stop_level=stop_level)
+                                       stop_level=stop_level, resolution=resolution)
                     row_out["side"] = side
                     row_out.update(res)
         except Exception as exc:  # noqa: BLE001 -- fail-open at the ROW level, never abort the run
@@ -475,13 +502,16 @@ def run_walk(refusals_path: Path = REFUSALS_PATH) -> dict[str, Any]:
             log(f"... {len(rows)}/{len(buckets)} walked ({n_ok} ok)")
 
     top_errors = sorted(error_counts.items(), key=lambda kv: -kv[1])[:15]
+    n_1min_fallback = sum(1 for r in rows if r.get("resolution_1min_fallback"))
     return {
         "_doc": __doc__,
         "generated_at": dt.datetime.now().isoformat(),
         "source_inventory": str(refusals_path.relative_to(REPO)),
+        "resolution": resolution,
         "n_rows": len(rows),
         "n_walk_ok": n_ok,
         "n_walk_error": len(rows) - n_ok,
+        "n_resolution_1min_fallback": n_1min_fallback if resolution == "1min" else None,
         "top_error_reasons": top_errors,
         "cost_model": {
             "engine": "backtest.lib.exit_manager_walk.walk_exit_manager",
@@ -501,8 +531,12 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--refusals", default=str(REFUSALS_PATH))
     ap.add_argument("--out", default=str(OUT_PATH))
+    ap.add_argument("--resolution", default="5min", choices=list(RESOLUTIONS),
+                     help="OPRA bar resolution to walk at. Default 5min (unchanged behavior). "
+                          "1min reads backtest/data/highres/ read-only (GOAL-OPRA-1MIN-COVERAGE-"
+                          "2026-09-05 O3); falls back to 5min per-row on a cache miss.")
     args = ap.parse_args()
-    out = run_walk(Path(args.refusals))
+    out = run_walk(Path(args.refusals), resolution=args.resolution)
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")

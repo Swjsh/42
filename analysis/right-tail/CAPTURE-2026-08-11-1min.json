@@ -1,0 +1,204 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-11",
+  "n_waves_all": 2,
+  "n_waves_meeting_threshold": 2,
+  "waves": [
+    {
+      "date": "2026-08-11",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-11T11:51:04",
+      "side": "P",
+      "n_ticks_in_wave": 16,
+      "computed": true,
+      "symbol": "SPY260811P00772000",
+      "strike": 772,
+      "entry_bar_et": "2026-08-11T11:57:00",
+      "entry_premium": 0.88,
+      "peak_high": 2.54,
+      "peak_time_et": "2026-08-11T14:30:00",
+      "peak_multiple": 2.8864,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-11",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-11T13:31:05",
+      "side": "P",
+      "n_ticks_in_wave": 22,
+      "computed": true,
+      "symbol": "SPY260811P00771000",
+      "strike": 771,
+      "entry_bar_et": "2026-08-11T13:37:00",
+      "entry_premium": 0.63,
+      "peak_high": 1.73,
+      "peak_time_et": "2026-08-11T14:29:00",
+      "peak_multiple": 2.746,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-11T11:51:04",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-11T11:51:52.273727",
+          "entry_symbol": "SPY260811P00772000",
+          "latency_minutes": 0.8,
+          "exit_multiple": 0.7407,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.8864
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-11T13:31:05",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-11T13:45:09.004475",
+          "entry_symbol": "SPY260811P00771000",
+          "latency_minutes": 14.1,
+          "exit_multiple": 2.5306,
+          "held_to_tp1": true,
+          "runner_ran": true,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.746
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-11T13:31:05",
+        "gap_minutes_from_first": 100.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-11T11:51:04",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-11T11:54:38.732269",
+          "entry_symbol": "SPY260811P00772000",
+          "latency_minutes": 3.6,
+          "exit_multiple": 0.6742,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.8864
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-11T13:31:05",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-11T13:32:01.316225",
+          "entry_symbol": "SPY260811P00771000",
+          "latency_minutes": 0.9,
+          "exit_multiple": 1.6329,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.746
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-11T13:31:05",
+        "gap_minutes_from_first": 100.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-11T11:51:04",
+          "side": "P",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.8864
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-11T13:31:05",
+          "side": "P",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.746
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 2,
+      "n_taken": 0,
+      "capture_rate": 0.0
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-11T11:51:04",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-11T11:52:08.662107",
+          "entry_symbol": "SPY260811P00772000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 0.8,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.8864
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-11T13:31:05",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-11T13:32:09.072128",
+          "entry_symbol": "SPY260811P00771000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 1.6026,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.746
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-11T13:31:05",
+        "gap_minutes_from_first": 100.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    }
+  }
+}

@@ -134,3 +134,27 @@ somewhere in the day's wave list.
   wave, strike 775, no `analysis/options` cache row despite a `highres`
   1-min file existing) degrades that one wave to `computed: False` with a
   labeled reason -- fail-open, not a crash, not a fabricated number.
+
+## 1-min re-walk (GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3)
+
+`backtest/lib/right_tail_waves.find_waves`/`_price_wave` gained a `resolution` param
+("5min" default, unchanged behavior; "1min" reads `backtest/data/highres/` read-only via the
+shared `_option_bars_1min_cache.load_1min_cache_readonly`, falling back to the 5-min cache
+per-row on a miss -- disclosed via `resolution_used`/`resolution_1min_fallback`, never a
+silent blend). `setup/scripts/right_tail_capture.py` exposes it as `--resolution`, plus
+`--out-suffix`/`--ledger-path` so the re-run writes `CAPTURE-<date>-1min.json` (25 files,
+2026-08-03..2026-09-04) and `analysis/right-tail/ledger-1min.jsonl` without touching the
+originals.
+
+Ran all 25 days at `--resolution 1min`. Over the 140 scored rows present in both ledgers:
+- **peak_multiple_on_tape**: mean delta (1min - 5min) = **+0.0057**, small and consistent
+  across all 4 arms (safe-2/bold-2/safe-3/risky-1 each +0.0057 -- they share the same
+  underlying waves, so this is expected, not 4 independent confirmations).
+- **`taken` (capture) never flipped**: 0/140 rows changed taken/not-taken between
+  resolutions.
+- **capture_rate** (per-arm daily aggregate) shifted a little either way: safe-2 -0.0417,
+  bold-2 +0.0250, safe-3 -0.0125, risky-1 -0.0125 (mean deltas over 20 day-rows per arm) --
+  no arm's qualitative capture story (which days had a second wave, which arm's rate is
+  higher) changed.
+
+Full per-row numbers: `automation/state/goals/_opra_1min_righttail_deltas_2026_09_05.json`.

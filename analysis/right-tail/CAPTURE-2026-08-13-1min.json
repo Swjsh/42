@@ -1,0 +1,359 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-13",
+  "n_waves_all": 5,
+  "n_waves_meeting_threshold": 4,
+  "waves": [
+    {
+      "date": "2026-08-13",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-13T09:51:03",
+      "side": "C",
+      "n_ticks_in_wave": 24,
+      "computed": true,
+      "symbol": "SPY260813C00777000",
+      "strike": 777,
+      "entry_bar_et": "2026-08-13T09:57:00",
+      "entry_premium": 1.26,
+      "peak_high": 2.7,
+      "peak_time_et": "2026-08-13T10:32:00",
+      "peak_multiple": 2.1429,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-13",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-13T11:41:04",
+      "side": "C",
+      "n_ticks_in_wave": 3,
+      "computed": true,
+      "symbol": "SPY260813C00776000",
+      "strike": 776,
+      "entry_bar_et": "2026-08-13T11:47:00",
+      "entry_premium": 1.06,
+      "peak_high": 2.46,
+      "peak_time_et": "2026-08-13T15:09:00",
+      "peak_multiple": 2.3208,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-13",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-13T12:41:03",
+      "side": "P",
+      "n_ticks_in_wave": 6,
+      "computed": true,
+      "symbol": "SPY260813P00776000",
+      "strike": 776,
+      "entry_bar_et": "2026-08-13T12:47:00",
+      "entry_premium": 0.52,
+      "peak_high": 0.51,
+      "peak_time_et": "2026-08-13T12:47:00",
+      "peak_multiple": 0.9808,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-13",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-13T14:36:04",
+      "side": "C",
+      "n_ticks_in_wave": 5,
+      "computed": true,
+      "symbol": "SPY260813C00777000",
+      "strike": 777,
+      "entry_bar_et": "2026-08-13T14:42:00",
+      "entry_premium": 0.9,
+      "peak_high": 1.5,
+      "peak_time_et": "2026-08-13T15:09:00",
+      "peak_multiple": 1.6667,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-13",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-13T15:11:04",
+      "side": "C",
+      "n_ticks_in_wave": 3,
+      "computed": true,
+      "symbol": "SPY260813C00778000",
+      "strike": 778,
+      "entry_bar_et": "2026-08-13T15:17:00",
+      "entry_premium": 0.43,
+      "peak_high": 0.66,
+      "peak_time_et": "2026-08-13T15:25:00",
+      "peak_multiple": 1.5349,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-13T09:51:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T09:51:05.489959",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 0.0,
+          "exit_multiple": 2.1456,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.1429
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-13T11:41:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "SKIP_BULL_1100_1200: blocked by entry gate block_bull_1100_1200",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3208
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-13T14:36:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T14:36:06.100166",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 0.0,
+          "exit_multiple": 3.3485,
+          "held_to_tp1": true,
+          "runner_ran": true,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6667
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-13T15:11:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "SKIP_LATE_ENTRY: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+          "would_be_refused_under_cap4": true,
+          "peak_multiple_on_tape": 1.5349
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-13T11:41:04",
+        "gap_minutes_from_first": 110.0
+      },
+      "n_waves": 4,
+      "n_taken": 2,
+      "capture_rate": 0.5
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-13T09:51:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T09:51:07.752740",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 0.1,
+          "exit_multiple": 2.1881,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.1429
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-13T11:41:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T11:41:06.199801",
+          "entry_symbol": "SPY260813C00776000",
+          "latency_minutes": 0.0,
+          "exit_multiple": 0.8247,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3208
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-13T14:36:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
+          "would_be_refused_under_cap4": true,
+          "peak_multiple_on_tape": 1.6667
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-13T15:11:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
+          "would_be_refused_under_cap4": true,
+          "peak_multiple_on_tape": 1.5349
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-13T11:41:04",
+        "gap_minutes_from_first": 110.0
+      },
+      "n_waves": 4,
+      "n_taken": 2,
+      "capture_rate": 0.5
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-13T09:51:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T09:52:08.545465",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 2.0826,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.1429
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-13T11:41:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T11:42:07.338865",
+          "entry_symbol": "SPY260813C00776000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 0.7345,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3208
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-13T14:36:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T14:37:08.906953",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 3.4923,
+          "held_to_tp1": true,
+          "runner_ran": true,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6667
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-13T15:11:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "NOT_FLAT: risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.5349
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-13T11:41:04",
+        "gap_minutes_from_first": 110.0
+      },
+      "n_waves": 4,
+      "n_taken": 3,
+      "capture_rate": 0.75
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-13T09:51:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T09:52:10.273678",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 2.0463,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.1429
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-13T11:41:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T11:42:37.756570",
+          "entry_symbol": "SPY260813C00776000",
+          "latency_minutes": 1.6,
+          "exit_multiple": 0.7281,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3208
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-13T14:36:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-13T14:37:11.081315",
+          "entry_symbol": "SPY260813C00777000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 3.4,
+          "held_to_tp1": true,
+          "runner_ran": true,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6667
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-13T15:11:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.5349
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-13T11:41:04",
+        "gap_minutes_from_first": 110.0
+      },
+      "n_waves": 4,
+      "n_taken": 3,
+      "capture_rate": 0.75
+    }
+  }
+}

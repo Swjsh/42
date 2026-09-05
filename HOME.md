@@ -1,18 +1,18 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-05 03:00:20 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-05 07:47:37 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
 
 | Arm | Equity | Day | Holding |
 |---|---:|---:|---|
-| safe-2 | 5,553.35 | **+212.85** | flat |
-| bold-2 | 5,845.16 | **+124.75** | flat |
+| safe-2 | 5,553.21 | **+0.00** | flat |
+| bold-2 | 5,844.96 | **+0.00** | flat |
 | safe-3 | 6,241.85 | **+0.00** | flat |
 | risky-1 | 6,458.59 | **+0.00** | flat |
 | risky-3 | 4,282.65 | **+0.00** | flat |
-| **BOOK** | | **+337.60** | |
+| **BOOK** | | **+0.00** | |
 
 ## The gate
 
@@ -32,7 +32,7 @@
 
 ## Today's levels
 
-*as of `2026-09-05T02:58:36-04:00`*
+*as of `2026-09-05T07:43:37-04:00`*
 
 - **731.22** — PRIOR_CLOSE_2026-06-26
 - **734.52** — PML_2026-06-29
@@ -59,7 +59,7 @@
 
 ### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **lane health** `RED` (as of `2026-09-05 03:00:02`) — [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']
+- **lane health** `RED` (as of `2026-09-05 07:30:02`) — [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']
 - **book lane** (fillsim) `HOLD` — last tick `2026-09-04T16:00:01` · session GLOBEX
 - **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-09-04T16:00:01` · session GLOBEX
 - **sim book** equity $1,595.86 (start $2,000.00) · day $-256.24 · 11 trades
@@ -75,13 +75,13 @@
     - ⚠️ `pin-chain-verify` **YELLOW** — rule_version=v15.3, mismatches=1
     - ⚠️ `heartbeat-pulse-check` **NOT_APPLICABLE** — max gap 0.0min
     - ⚠️ `watcher-state-inspector` **YELLOW** — odf_state empty (may be correct if no drive-then-fade pattern) (obs_today=78)
-- **twin** last journal row `2026-09-05T06:36:18.134785+00:00` · 2694 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
+- **twin** last journal row `2026-09-05T09:50:38.516933+00:00` · 2701 events (24/7 mechanism validator — its P&L is NEVER SPY evidence)
 
 ## This week
 
 | Day | Book | safe-2 | bold-2 | safe-3 | risky-1 | risky-3 | Legs |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| [[journal/2026-09-05\|2026-09-05]] | **337.60** | 212.85 | 124.75 | 0.00 | 0.00 | 0.00 | 0 |
+| [[journal/2026-09-05\|2026-09-05]] | **0.00** | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0 |
 | [[journal/2026-09-04\|2026-09-04]] | **337.60** | 212.85 | 124.75 | 0.00 | 0.00 | 0.00 | 4 |
 | [[journal/2026-09-03\|2026-09-03]] | **730.34** | -312.66 | 128.00 | 604.00 | 311.00 | 0.00 | 37 |
 | [[journal/2026-09-02\|2026-09-02]] | **-701.53** | -126.43 | -15.50 | -213.60 | -346.00 | 0.00 | 24 |

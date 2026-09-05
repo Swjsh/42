@@ -1,0 +1,146 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-07",
+  "n_waves_all": 2,
+  "n_waves_meeting_threshold": 1,
+  "waves": [
+    {
+      "date": "2026-08-07",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-07T09:46:03",
+      "side": "C",
+      "n_ticks_in_wave": 10,
+      "computed": true,
+      "symbol": "SPY260807C00772000",
+      "strike": 772,
+      "entry_bar_et": "2026-08-07T09:52:00",
+      "entry_premium": 1.51,
+      "peak_high": 2.3,
+      "peak_time_et": "2026-08-07T11:26:00",
+      "peak_multiple": 1.5232,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-07",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-07T12:06:03",
+      "side": "C",
+      "n_ticks_in_wave": 20,
+      "computed": true,
+      "symbol": "SPY260807C00773000",
+      "strike": 773,
+      "entry_bar_et": "2026-08-07T12:12:00",
+      "entry_premium": 1.14,
+      "peak_high": 1.13,
+      "peak_time_et": "2026-08-07T12:12:00",
+      "peak_multiple": 0.9912,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-07T09:46:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-07T09:46:34.266159",
+          "entry_symbol": "SPY260807C00772000",
+          "latency_minutes": 0.5,
+          "exit_multiple": 0.6946,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.5232
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-07T09:46:03",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "RISK_DENY_PDT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.5232
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 1,
+      "n_taken": 0,
+      "capture_rate": 0.0
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-07T09:46:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-07T09:47:06.574163",
+          "entry_symbol": "SPY260807C00772000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 0.8346,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.5232
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-07T09:46:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-07T09:47:07.965317",
+          "entry_symbol": "SPY260807C00772000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 0.8571,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.5232
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    }
+  }
+}

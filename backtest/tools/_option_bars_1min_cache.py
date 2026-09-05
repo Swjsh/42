@@ -61,3 +61,38 @@ def fetch_1min_cached(symbol: str, date_et: str) -> tuple[Optional[pd.DataFrame]
     HIGHRES_DIR.mkdir(parents=True, exist_ok=True)
     df.to_csv(cache_path, index=False)
     return df, "rest_fetch"
+
+
+def load_1min_cache_readonly(symbol: str, date_et: str) -> Optional[pd.DataFrame]:
+    """GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3: read-only cache lookup shared by
+    gate_net_cost_walk.py and right_tail_waves.py's 1-min re-walk paths (OP-22 -- one
+    loader, not copy-pasted across both). NEVER fetches live -- unlike
+    `fetch_1min_cached`, a cache miss here returns None so the caller can fall back to the
+    5-min cache, disclosed rather than silently blended.
+
+    backtest/data/highres/ is shared, disk-persisted state written by multiple tools over
+    time; a handful of pre-existing files use an older "timestamp" column name instead of
+    "timestamp_et" (hand-verified 2026-09-05: SPY260805C00776000/00777000_1m_2026-08-05.csv)
+    -- normalized here rather than assumed away. "vwap"/"trade_count" are required by
+    `option_pricing_real.OptionBar`'s field list but are never read downstream of that
+    construction (grepped: no `.vwap` / `.trade_count` access anywhere in
+    exit_manager_walk.py, gate_revalidation_ab.py, or right_tail_waves.py's own
+    entry-premium logic, which uses `entry_bar.open`) -- filled as a disclosed close-price
+    proxy so the OptionBar build doesn't KeyError, not a claim of real 1-min VWAP.
+    """
+    cache_path = HIGHRES_DIR / f"{symbol}_1m_{date_et}.csv"
+    if not cache_path.exists():
+        return None
+    df = pd.read_csv(cache_path)
+    if df.empty:
+        return None
+    if "timestamp_et" not in df.columns and "timestamp" in df.columns:
+        df = df.rename(columns={"timestamp": "timestamp_et"})
+    if "timestamp_et" not in df.columns:
+        return None
+    df["timestamp_et"] = pd.to_datetime(df["timestamp_et"]).dt.tz_localize(None)
+    if "vwap" not in df.columns:
+        df["vwap"] = df["close"]
+    if "trade_count" not in df.columns:
+        df["trade_count"] = 0
+    return df

@@ -1,0 +1,411 @@
+{
+  "n_common_ok": 305,
+  "mean_delta_dollars": 8.61,
+  "per_stage": {
+    "premium_stop": {
+      "n": 109,
+      "mean_delta_dollars": 42.61
+    },
+    "ribbon_flip": {
+      "n": 23,
+      "mean_delta_dollars": 14.78
+    },
+    "trail": {
+      "n": 77,
+      "mean_delta_dollars": -44.17
+    },
+    "structure_stop": {
+      "n": 66,
+      "mean_delta_dollars": 22.18
+    },
+    "time_stop": {
+      "n": 30,
+      "mean_delta_dollars": -14.07
+    }
+  },
+  "per_gate": {
+    "SKIP_STRUCTURE_VETO": {
+      "n": 7,
+      "mean_delta_dollars": 39.71
+    },
+    "SKIP_STALE_TRIGGER": {
+      "n": 1,
+      "mean_delta_dollars": 8.0
+    },
+    "NOT_FLAT": {
+      "n": 142,
+      "mean_delta_dollars": 1.29
+    },
+    "SKIP_LATE_ENTRY": {
+      "n": 9,
+      "mean_delta_dollars": -19.33
+    },
+    "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+      "n": 21,
+      "mean_delta_dollars": 8.0
+    },
+    "settlement_cap": {
+      "n": 12,
+      "mean_delta_dollars": 58.92
+    },
+    "SKIP_MIN_PREMIUM_FLOOR": {
+      "n": 59,
+      "mean_delta_dollars": 8.1
+    },
+    "min_triggers": {
+      "n": 34,
+      "mean_delta_dollars": 0.82
+    },
+    "require_confluence_or_sequence": {
+      "n": 20,
+      "mean_delta_dollars": 47.5
+    }
+  },
+  "n_stage_changed": 43,
+  "stage_changed_rows": [
+    {
+      "key": "2026-09-03|2026-09-03T11:11:04|SKIP_STRUCTURE_VETO",
+      "gate": "SKIP_STRUCTURE_VETO",
+      "stage_5min": "premium_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 189.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-04|2026-08-04T11:27:05|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "structure_stop",
+      "delta_dollars": -261.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-13|2026-08-13T09:52:03|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "premium_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 337.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-18|2026-08-18T14:37:03|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 48.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-19|2026-08-19T10:42:03|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "structure_stop",
+      "delta_dollars": -276.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-27|2026-08-27T09:42:03|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -164.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-02|2026-09-02T11:20:05|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "structure_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 45.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T09:42:03|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "structure_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 12.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T11:07:04|NOT_FLAT",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -249.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-13|2026-08-13T15:11:04|SKIP_LATE_ENTRY",
+      "gate": "SKIP_LATE_ENTRY",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 111.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-17|2026-08-17T15:01:03|SKIP_LATE_ENTRY",
+      "gate": "SKIP_LATE_ENTRY",
+      "stage_5min": "time_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 24.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-17|2026-08-17T15:01:04|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "stage_5min": "time_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 39.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-18|2026-08-18T14:36:06|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 70.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-20|2026-08-20T14:56:05|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -95.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-01|2026-09-01T13:21:05|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -268.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T13:51:06|SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "stage_5min": "structure_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 95.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T13:52:03|settlement_cap",
+      "gate": "settlement_cap",
+      "stage_5min": "structure_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 45.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-21|2026-08-21T12:26:08|SKIP_MIN_PREMIUM_FLOOR",
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "stage_5min": "structure_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -10.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T09:41:05|SKIP_MIN_PREMIUM_FLOOR",
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "stage_5min": "structure_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 5.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-27|2026-08-27T12:32:05.477526-04:00|NOT_FLAT__risky-1",
+      "gate": "NOT_FLAT",
+      "stage_5min": "premium_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 497.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-18|2026-08-18T14:37:04.096217-04:00|min_triggers__risky-1",
+      "gate": "min_triggers",
+      "stage_5min": "time_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 115.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T13:52:05.694165-04:00|min_triggers__risky-1",
+      "gate": "min_triggers",
+      "stage_5min": "structure_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 75.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-26|2026-08-26T09:46:05.694333-04:00|require_confluence_or_sequence__risky-1",
+      "gate": "require_confluence_or_sequence",
+      "stage_5min": "premium_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 160.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T11:23:06.299365-04:00|settlement_cap__risky-1",
+      "gate": "settlement_cap",
+      "stage_5min": "premium_stop",
+      "stage_1min": "time_stop",
+      "delta_dollars": 470.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-11|2026-08-11T09:47:06.009606-04:00|NOT_FLAT__risky-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "premium_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 130.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-12|2026-08-12T11:28:05.299651-04:00|NOT_FLAT__risky-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "premium_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 25.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-19|2026-08-19T10:45:05.357633-04:00|NOT_FLAT__risky-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "premium_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 106.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-27|2026-08-27T09:43:04.968417-04:00|NOT_FLAT__risky-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -105.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-13|2026-08-13T12:42:05.825690-04:00|SKIP_MIN_PREMIUM_FLOOR__risky-3",
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "stage_5min": "ribbon_flip",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -10.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-14|2026-08-14T12:15:07.596833-04:00|SKIP_MIN_PREMIUM_FLOOR__risky-3",
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -82.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-19|2026-08-19T10:42:05.066627-04:00|SKIP_MIN_PREMIUM_FLOOR__risky-3",
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -175.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-03|2026-08-03T09:43:03.522051-04:00|NOT_FLAT__safe-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -544.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-04|2026-08-04T11:28:05.337509-04:00|NOT_FLAT__safe-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -394.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-12|2026-08-12T14:18:05.334885-04:00|NOT_FLAT__safe-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 117.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-19|2026-08-19T10:43:04.920184-04:00|NOT_FLAT__safe-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -114.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-19|2026-08-19T11:51:04.189947-04:00|NOT_FLAT__safe-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "premium_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 256.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-27|2026-08-27T11:53:05.637351-04:00|NOT_FLAT__safe-3",
+      "gate": "NOT_FLAT",
+      "stage_5min": "trail",
+      "stage_1min": "premium_stop",
+      "delta_dollars": -19.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-04|2026-08-04T09:46:06.079642-04:00|require_confluence_or_sequence__safe-3",
+      "gate": "require_confluence_or_sequence",
+      "stage_5min": "premium_stop",
+      "stage_1min": "trail",
+      "delta_dollars": 189.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-10|2026-08-10T09:52:05.198066-04:00|require_confluence_or_sequence__safe-3",
+      "gate": "require_confluence_or_sequence",
+      "stage_5min": "structure_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 54.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-26|2026-08-26T09:46:05.694333-04:00|require_confluence_or_sequence__safe-3",
+      "gate": "require_confluence_or_sequence",
+      "stage_5min": "premium_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 96.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-08-18|2026-08-18T14:37:04.096217-04:00|min_triggers__safe-3",
+      "gate": "min_triggers",
+      "stage_5min": "time_stop",
+      "stage_1min": "premium_stop",
+      "delta_dollars": 48.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T13:52:05.694165-04:00|min_triggers__safe-3",
+      "gate": "min_triggers",
+      "stage_5min": "structure_stop",
+      "stage_1min": "ribbon_flip",
+      "delta_dollars": 45.0,
+      "stage_changed": true
+    },
+    {
+      "key": "2026-09-03|2026-09-03T11:23:06.299365-04:00|settlement_cap__safe-3",
+      "gate": "settlement_cap",
+      "stage_5min": "premium_stop",
+      "stage_1min": "time_stop",
+      "delta_dollars": 282.0,
+      "stage_changed": true
+    }
+  ]
+}

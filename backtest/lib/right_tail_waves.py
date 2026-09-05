@@ -111,7 +111,7 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
 BACKTEST = REPO / "backtest"
-for _p in (REPO, BACKTEST, BACKTEST / "lib", REPO / "setup" / "scripts"):
+for _p in (REPO, BACKTEST, BACKTEST / "lib", BACKTEST / "tools", REPO / "setup" / "scripts"):
     if str(_p) not in sys.path:
         sys.path.insert(0, str(_p))
 
@@ -120,6 +120,11 @@ from lib.simulator_real import DEFAULT_ENTRY_SLIPPAGE  # noqa: E402
 from lib.option_pricing_real import (  # noqa: E402
     option_symbol, load_contract_bars, bar_at_or_after,
 )
+from _option_bars_1min_cache import load_1min_cache_readonly  # noqa: E402
+# GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3: read-only 1-min cache lookup, shared with
+# setup/scripts/gate_net_cost_walk.py (OP-22 -- one loader, not copy-pasted).
+
+RESOLUTIONS = ("5min", "1min")
 
 try:
     import pandas as pd
@@ -268,20 +273,39 @@ def _group_into_waves(ticks: list[dict[str, Any]]) -> list[list[dict[str, Any]]]
     return groups
 
 
-def _price_wave(day: str, side: str, strike_spy: float, start_ts: str) -> dict[str, Any]:
+def _price_wave(day: str, side: str, strike_spy: float, start_ts: str,
+                 resolution: str = "5min") -> dict[str, Any]:
     """Price one wave's peak multiple against the real OPRA cache. Fail-open:
     a missing cache or missing bars degrades to computed=False, never a
-    crash or a fabricated number."""
+    crash or a fabricated number.
+
+    resolution (GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3, default unchanged): "1min" looks up
+    the 1-min cache read-only via `_option_bars_1min_cache.load_1min_cache_readonly` for the
+    resolved contract/day; a cache miss falls back to the normal 5-min `load_contract_bars`
+    cache, disclosed via the returned `resolution_used` / `resolution_1min_fallback` fields
+    -- never a live fetch from inside this pricer, never a silent resolution blend."""
     trade_date = dt.date.fromisoformat(day)
     strike = int(round(strike_spy))
     side_char = "C" if side == "bull" else "P"
     symbol = option_symbol(trade_date, strike, side_char)
-    df = load_contract_bars(symbol)
+    resolution_1min_fallback = False
+    if resolution == "1min":
+        df = load_1min_cache_readonly(symbol, day)
+        resolution_used = "1min"
+        if df is None:
+            df = load_contract_bars(symbol)
+            resolution_used = "5min"
+            resolution_1min_fallback = True
+    else:
+        df = load_contract_bars(symbol)
+        resolution_used = "5min"
     if df is None or df.empty:
         return {
             "computed": False, "symbol": symbol,
             "reason": f"no OPRA option cache for {symbol}",
             "peak_multiple": None, "peak_time_et": None,
+            "resolution_used": resolution_used,
+            "resolution_1min_fallback": resolution_1min_fallback,
         }
     df = df.copy()
     df["timestamp_et"] = pd.to_datetime(df["timestamp_et"]).dt.tz_localize(None)
@@ -295,6 +319,8 @@ def _price_wave(day: str, side: str, strike_spy: float, start_ts: str) -> dict[s
             "computed": False, "symbol": symbol,
             "reason": f"no {symbol} bar at/after {entry_lookup.isoformat()}",
             "peak_multiple": None, "peak_time_et": None,
+            "resolution_used": resolution_used,
+            "resolution_1min_fallback": resolution_1min_fallback,
         }
     entry_premium = entry_bar.open + DEFAULT_ENTRY_SLIPPAGE
     if entry_premium <= 0:
@@ -302,6 +328,8 @@ def _price_wave(day: str, side: str, strike_spy: float, start_ts: str) -> dict[s
             "computed": False, "symbol": symbol,
             "reason": "non-positive entry premium",
             "peak_multiple": None, "peak_time_et": None,
+            "resolution_used": resolution_used,
+            "resolution_1min_fallback": resolution_1min_fallback,
         }
     session_end = dt.datetime.combine(trade_date, RTH_END_ET)
     window = df[(df["timestamp_et"] >= entry_bar.timestamp_et) & (df["timestamp_et"] <= session_end)]
@@ -310,6 +338,8 @@ def _price_wave(day: str, side: str, strike_spy: float, start_ts: str) -> dict[s
             "computed": False, "symbol": symbol,
             "reason": "no bars in entry->session-end window",
             "peak_multiple": None, "peak_time_et": None,
+            "resolution_used": resolution_used,
+            "resolution_1min_fallback": resolution_1min_fallback,
         }
     peak_idx = window["high"].idxmax()
     peak_high = float(window.loc[peak_idx, "high"])
@@ -326,17 +356,24 @@ def _price_wave(day: str, side: str, strike_spy: float, start_ts: str) -> dict[s
         "peak_time_et": peak_time.isoformat(),
         "peak_multiple": peak_multiple,
         "meets_threshold": peak_multiple >= WAVE_THRESHOLD,
+        "resolution_used": resolution_used,
+        "resolution_1min_fallback": resolution_1min_fallback,
     }
 
 
-def find_waves(day: str, account: str | None = None) -> list[dict[str, Any]]:
+def find_waves(day: str, account: str | None = None, resolution: str = "5min") -> list[dict[str, Any]]:
     """Find every right-tail wave on `day`. Returns a list of wave dicts:
     {start_tick_et, side, source_mode, ...pricing fields from _price_wave}.
     `account` defaults to None -- union both CORE_ACCOUNTS (the tape-level
     wave, per module docstring bug #3); pass a specific account (e.g.
     "safe") to restrict eligibility to that account's own admission ticks
     only, for a single-account capture-scoring join. Never raises -- a
-    missing/empty data source yields [] (fail-open)."""
+    missing/empty data source yields [] (fail-open).
+
+    resolution (GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3, default unchanged): passed straight
+    through to `_price_wave` -- see that function's docstring."""
+    if resolution not in RESOLUTIONS:
+        raise ValueError(f"resolution must be one of {RESOLUTIONS}, got {resolution!r}")
     if _core_decisions_has_date(day):
         ticks = _eligible_ticks_core_score(day, account)
         source_mode = "core_score"
@@ -347,7 +384,7 @@ def find_waves(day: str, account: str | None = None) -> list[dict[str, Any]]:
     waves: list[dict[str, Any]] = []
     for group in _group_into_waves(ticks):
         start = group[0]
-        pricing = _price_wave(day, start["side"], start["spy"], start["ts"])
+        pricing = _price_wave(day, start["side"], start["spy"], start["ts"], resolution=resolution)
         waves.append({
             "date": day,
             "source_mode": source_mode,
@@ -364,8 +401,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", required=True)
     ap.add_argument("--account", default="safe")
+    ap.add_argument("--resolution", default="5min", choices=list(RESOLUTIONS))
     args = ap.parse_args()
-    waves = find_waves(args.date, account=args.account)
+    waves = find_waves(args.date, account=args.account, resolution=args.resolution)
     print(json.dumps(waves, indent=2, default=str))
     return 0
 

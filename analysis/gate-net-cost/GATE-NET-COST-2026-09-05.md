@@ -11,17 +11,19 @@ N3 -- per-gate net-of-losers table, GOAL-GATE-NET-COST-2026-09-05. Built from `a
 
 ## Per gate, deduped to WAVES (one signal, up to 4 arms collapsed) -- full window 2026-08-01..today
 
-| Gate | Arms touched | Waves | Waves peak>=1.3x | Winners $ | Losers $ | Net $ | Ex-best-day net $ | walk_error | Verdict |
-|---|---|---|---|---|---|---|---|---|---|
-| NOT_FLAT | bold-2, risky-1, risky-3, safe-2, safe-3 | 99 | 66 | $18,685.00 | $-11,142.00 | $7,543.00 | $2,759.00 | 1 | COSTING |
-| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY | bold-2 | 21 | 8 | $729.00 | $-1,025.00 | $-296.00 | $-506.00 | 2 | EARNING |
-| SKIP_LATE_ENTRY | safe-2 | 9 | 3 | $162.00 | $-264.00 | $-102.00 | $-165.00 | 1 | UNDERPOWERED |
-| SKIP_MIN_PREMIUM_FLOOR | bold-2, risky-1, risky-3, safe-3 | 50 | 20 | $3,777.00 | $-2,379.00 | $1,398.00 | $-1,495.00 | 1 | COSTING |
-| SKIP_STALE_TRIGGER | safe-2 | 1 | 1 | $898.00 | $0.00 | $898.00 | $0.00 | 29 | UNDERPOWERED |
-| SKIP_STRUCTURE_VETO | safe-2 | 7 | 2 | $241.00 | $-396.00 | $-155.00 | $-303.00 | 8 | UNDERPOWERED |
-| min_triggers | risky-1, safe-3 | 20 | 14 | $2,791.00 | $-2,275.00 | $516.00 | $-66.00 | 4 | COSTING |
-| require_confluence_or_sequence | risky-1, safe-3 | 13 | 5 | $1,669.00 | $-3,475.00 | $-1,806.00 | $-2,700.00 | 4 | EARNING |
-| settlement_cap | bold-2, risky-1, risky-3, safe-2, safe-3 | 9 | 1 | $50.00 | $-1,381.00 | $-1,331.00 | $-1,271.00 | 0 | UNDERPOWERED |
+| Gate | Arms touched | Waves | Waves peak>=1.3x | Winners $ | Losers $ | Net $ | Net $ (1-min) | Δ (1min-5min) | Ex-best-day net $ | walk_error | Verdict |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| NOT_FLAT | bold-2, risky-1, risky-3, safe-2, safe-3 | 99 | 66 | $18,685.00 | $-11,142.00 | $7,543.00 | $7,726.00 | $183.00 | $2,759.00 | 1 | COSTING |
+| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY | bold-2 | 21 | 8 | $729.00 | $-1,025.00 | $-296.00 | $-128.00 | $168.00 | $-506.00 | 2 | EARNING |
+| SKIP_LATE_ENTRY | safe-2 | 9 | 3 | $162.00 | $-264.00 | $-102.00 | $-276.00 | $-174.00 | $-165.00 | 1 | UNDERPOWERED |
+| SKIP_MIN_PREMIUM_FLOOR | bold-2, risky-1, risky-3, safe-3 | 50 | 20 | $3,777.00 | $-2,379.00 | $1,398.00 | $1,876.00 | $478.00 | $-1,495.00 | 1 | COSTING |
+| SKIP_STALE_TRIGGER | safe-2 | 1 | 1 | $898.00 | $0.00 | $898.00 | $906.00 | $8.00 | $0.00 | 29 | UNDERPOWERED |
+| SKIP_STRUCTURE_VETO | safe-2 | 7 | 2 | $241.00 | $-396.00 | $-155.00 | $123.00 | $278.00 | $-303.00 | 8 | UNDERPOWERED |
+| min_triggers | risky-1, safe-3 | 20 | 14 | $2,791.00 | $-2,275.00 | $516.00 | $544.00 | $28.00 | $-66.00 | 4 | COSTING |
+| require_confluence_or_sequence | risky-1, safe-3 | 13 | 5 | $1,669.00 | $-3,475.00 | $-1,806.00 | $-856.00 | $950.00 | $-2,700.00 | 4 | EARNING |
+| settlement_cap | bold-2, risky-1, risky-3, safe-2, safe-3 | 9 | 1 | $50.00 | $-1,381.00 | $-1,331.00 | $-624.00 | $707.00 | $-1,271.00 | 0 | UNDERPOWERED |
+
+1-min column source: `analysis\gate-net-cost\walk-2026-09-05-1min.json` (GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3 -- same _agg definition, full window only, gates with no 1-min-walked rows show n/a rather than a fabricated 0).
 
 ## Per gate, deduped to WAVES -- frozen window 2026-08-31..today
 
@@ -83,17 +85,17 @@ N3 -- per-gate net-of-losers table, GOAL-GATE-NET-COST-2026-09-05. Built from `a
 
 ## Error bar (T3, 1-min vs 5-min resolution bias)
 
-Of 305 rows N2 walked OK on 5-min OPRA bars, 262 already have a 1-minute OPRA cache on disk (`backtest/data/highres/`) -- re-walked via the SAME `walk_exit_manager` core (`gate_net_cost_walk._walk_entry`, `opt_df_resolution="1min"`), zero new fetch. 262 of those re-walked successfully.
+Of 305 rows N2 walked OK on 5-min OPRA bars, 305 already have a 1-minute OPRA cache on disk (`backtest/data/highres/`) -- re-walked via the SAME `walk_exit_manager` core (`gate_net_cost_walk._walk_entry`, `opt_df_resolution="1min"`), zero new fetch. 305 of those re-walked successfully.
 
 | Exit stage | n | mean $ delta (5min-1min) | median $ delta | 5min overstates | 5min understates | sign-consistency |
 |---|---|---|---|---|---|---|
-| premium_stop | 85 | $-52.46 | $-20.00 | 29 | 55 | 64.71% |
-| ribbon_flip | 19 | $-13.95 | $-18.00 | 5 | 14 | 73.68% |
-| structure_stop | 64 | $-9.47 | $-1.50 | 27 | 32 | 50.00% |
-| time_stop | 27 | $16.52 | $-3.00 | 13 | 14 | 51.85% |
-| trail | 67 | $47.15 | $19.00 | 39 | 26 | 58.21% |
-| **ALL STAGES** | 262 | $-6.58 | $-5.00 | 113 | 149 | 53.82% |
+| premium_stop | 109 | $-42.61 | $-20.00 | 34 | 72 | 66.06% |
+| ribbon_flip | 23 | $-14.78 | $-18.00 | 8 | 15 | 65.22% |
+| structure_stop | 66 | $-8.80 | $-1.50 | 28 | 33 | 50.00% |
+| time_stop | 30 | $14.07 | $-7.00 | 13 | 17 | 56.67% |
+| trail | 77 | $44.17 | $13.00 | 43 | 32 | 55.84% |
+| **ALL STAGES** | 305 | $-5.71 | $-5.00 | 126 | 179 | 55.41% |
 
-Exit stage changed between the 5-min and 1-min walk on 40 of 262 rows.
+Exit stage changed between the 5-min and 1-min walk on 45 of 305 rows.
 
 This section is APPENDED by `setup/scripts/gate_net_cost_resolution_bias.py` (T3, GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05) and is idempotent -- a re-run replaces this section in place rather than duplicating it.

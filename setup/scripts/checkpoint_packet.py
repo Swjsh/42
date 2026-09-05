@@ -115,6 +115,17 @@ def _read_jsonl(path: Path) -> list[dict]:
     return out
 
 
+def _prefer_1min_path(base_path: Path) -> tuple[Path, str]:
+    """GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3: prefer the '-1min' sibling of `base_path`
+    (e.g. ledger.jsonl -> ledger-1min.jsonl) when it exists, else fall back to `base_path`
+    unchanged. Returns (path_used, resolution_used) -- never raises; a missing 1min sibling
+    is not an error, just a fallback."""
+    candidate = base_path.with_name(base_path.stem + "-1min" + base_path.suffix)
+    if candidate.exists():
+        return candidate, "1min"
+    return base_path, "5min"
+
+
 def _et_date_str() -> str:
     return et_now().strftime("%Y-%m-%d")
 
@@ -551,7 +562,13 @@ def _net_of_losers_for_mechanism(arms: set[str], codes: set[str]) -> dict | None
     """GOAL-GATE-NET-COST-2026-09-05 N4: sum the wave-deduped-per-arm NET $ (winners +
     losers walked through the real exit shape, NOT the raw refused-winner ceiling) from
     `GATE-NET-COST-2026-09-05.json`'s `gate_arm_rows` for every (gate, arm) this mechanism
-    covers. Returns None (never raises) if the table is missing -- callers must fail open."""
+    covers. Returns None (never raises) if the table is missing -- callers must fail open.
+
+    GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3: prefers each row's `full_window.net_dollars_1min`
+    (populated by gate_net_cost_table.py when walk-2026-09-05-1min.json exists) over the
+    5-min `net_dollars` when present, falling back to 5-min per-row on a miss -- never a
+    silent blend within one mechanism's sum. `full_net_5min`/`used_1min_count` disclose which
+    figure actually won for how many of the matched rows."""
     if not _NET_COST_TABLE_PATH.exists():
         return None
     table = json.loads(_NET_COST_TABLE_PATH.read_text(encoding="utf-8"))
@@ -559,30 +576,43 @@ def _net_of_losers_for_mechanism(arms: set[str], codes: set[str]) -> dict | None
     for code in codes:
         gate_names.update(_MECHANISM_CODE_TO_NET_COST_GATES.get(code, [code]))
     full_net = 0.0
+    full_net_5min = 0.0
     frozen_net = 0.0
     n_waves_full = 0
     n_waves_frozen = 0
+    used_1min_count = 0
     matched_rows = []
     for r in table.get("gate_arm_rows", []):
         if r["gate"] not in gate_names:
             continue
         if arms and r["arm"] not in arms:
             continue
-        full_net += r["full_window"]["net_dollars"]
+        net_5min = r["full_window"]["net_dollars"]
+        net_1min = r["full_window"].get("net_dollars_1min")
+        net_used = net_1min if net_1min is not None else net_5min
+        if net_1min is not None:
+            used_1min_count += 1
+        full_net += net_used
+        full_net_5min += net_5min
         frozen_net += r["frozen_window"]["net_dollars"]
         n_waves_full += r["full_window"]["n_waves"]
         n_waves_frozen += r["frozen_window"]["n_waves"]
         matched_rows.append({"gate": r["gate"], "arm": r["arm"],
-                              "net_dollars": r["full_window"]["net_dollars"]})
+                              "net_dollars": net_used, "resolution": "1min" if net_1min is not None else "5min"})
     if not matched_rows:
         return None
     return {
         "net_of_losers_dollars_full_window": round(full_net, 2),
+        "net_of_losers_dollars_full_window_5min": round(full_net_5min, 2),
         "net_of_losers_dollars_frozen_window": round(frozen_net, 2),
         "n_waves_full_window": n_waves_full,
         "n_waves_frozen_window": n_waves_frozen,
         "matched_gate_arm_rows": matched_rows,
-        "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table)",
+        "n_gate_arm_rows_using_1min": used_1min_count,
+        "n_gate_arm_rows_total": len(matched_rows),
+        "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table; "
+                  "full_window prefers net_dollars_1min per row when present, per "
+                  "GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3)",
     }
 
 
@@ -600,7 +630,8 @@ def _score_capture_gap_mechanism(row: dict, today: str) -> dict:
     + losers walked through the real exit shape) -- NOT the prereg's raw refused-winner
     CEILING figure (`dollar_figure`, $4,354.92 / $1,664.00), which this scorer never reads
     and the packet must not surface as if it were the decision-relevant number."""
-    ledger_path = REPO / (row.get("ledger_path") or "analysis/right-tail/ledger.jsonl")
+    ledger_path_base = REPO / (row.get("ledger_path") or "analysis/right-tail/ledger.jsonl")
+    ledger_path, ledger_resolution = _prefer_1min_path(ledger_path_base)
     arms = set(row.get("mechanism_arms", []))
     codes = set(row.get("mechanism_codes", []))
     min_n = row.get("min_n", 10)
@@ -625,6 +656,8 @@ def _score_capture_gap_mechanism(row: dict, today: str) -> dict:
         "forward_missed_matching_rows": n, "min_n": min_n,
         "forward_window_start": forward_start,
         "sample_dates": sorted({r.get("date") for r in matches})[:5],
+        "ledger_resolution": ledger_resolution,
+        "ledger_path_used": str(ledger_path.relative_to(REPO)),
     }
     net = _net_of_losers_for_mechanism(arms, codes)
     if net is not None:
@@ -644,6 +677,63 @@ def _score_capture_gap_mechanism(row: dict, today: str) -> dict:
     }
 
 
+def _score_not_flat_second_wave(row: dict, today: str) -> dict:
+    """W2 (GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05): the prereg is
+    FROZEN_BEFORE_ANY_RESULT with n_needed>=20 forward second-wave refusals -- same
+    FROZEN-status-driven shape as `_score_runner_target_vs_tape_peak`/
+    `_score_spy_signal_weekly_lane` above, reused rather than re-invented. Reads the
+    NOT_FLAT gate's already-computed dedup-to-waves numbers straight from
+    GATE-NET-COST-2026-09-05.json (N3's table) for disclosure -- it does NOT re-walk
+    or re-derive them -- and counts `second_wave_summary.present` rows in
+    analysis/right-tail/ledger.jsonl as the (backward, unfiltered-by-TP1) n context.
+    Forward n (post this prereg's filed_at, matching the a/b/c admission condition)
+    is not yet accruing anywhere, so verdict stays INSUFFICIENT N until the prereg's
+    own `status` field turns terminal/adjudicated."""
+    prereg_path = REPO / row["prereg_path"]
+    d = _read_json(prereg_path)
+    status = _status_field(d)
+    verdict = VERDICT_INSUFFICIENT_N
+    if status and TERMINAL_STATUS_RE.search(status or ""):
+        verdict = VERDICT_MET
+    elif status and ADJUDICATION_STATUS_RE.match(status or ""):
+        verdict = VERDICT_MET
+    numbers: dict[str, Any] = {"status": status}
+    if _NET_COST_TABLE_PATH.exists():
+        table = json.loads(_NET_COST_TABLE_PATH.read_text(encoding="utf-8"))
+        for r in table.get("gate_rows_deduped_to_waves", []):
+            if r.get("gate") == "NOT_FLAT":
+                numbers["full_window_net_dollars"] = r["full_window"]["net_dollars"]
+                numbers["full_window_n_waves"] = r["full_window"]["n_waves"]
+                numbers["full_window_best_day"] = r["full_window"]["best_day"]
+                numbers["full_window_best_day_dollars"] = r["full_window"]["best_day_dollars"]
+                numbers["full_window_ex_best_day_net_dollars"] = r["full_window"]["ex_best_day_net_dollars"]
+                numbers["frozen_window_net_dollars"] = r["frozen_window"]["net_dollars"]
+                numbers["frozen_window_n_waves"] = r["frozen_window"]["n_waves"]
+                numbers["frozen_window_ex_best_day_net_dollars"] = r["frozen_window"]["ex_best_day_net_dollars"]
+                break
+    ledger_path_base = REPO / (row.get("ledger_path") or "analysis/right-tail/ledger.jsonl")
+    ledger_path, ledger_resolution = _prefer_1min_path(ledger_path_base)
+    n_present = 0
+    if ledger_path.exists():
+        n_present = sum(1 for r in _read_jsonl(ledger_path)
+                         if r.get("second_wave_summary", {}).get("present"))
+    numbers["right_tail_ledger_n_second_wave_present_all_time_backward"] = n_present
+    numbers["right_tail_ledger_resolution"] = ledger_resolution
+    return {
+        "verdict": verdict,
+        "n": 0,
+        "numbers": numbers,
+        "note": "FROZEN_BEFORE_ANY_RESULT -- no forward-scored second-wave-refusal "
+                "waves yet; n>=20 forward refusals (post-2026-09-05, matching the "
+                "60min/fresh-trigger/TP1-reached admission condition) is the frozen "
+                "floor (kill_criteria). The right_tail_ledger n=30 figure is BACKWARD "
+                "and unfiltered by the TP1-reached condition -- never citable as the "
+                "forward bar. full_window/frozen_window numbers are read straight from "
+                "GATE-NET-COST-2026-09-05.json's NOT_FLAT dedup-to-waves row, not "
+                "re-walked here.",
+    }
+
+
 _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "capture_gap_mechanism": _score_capture_gap_mechanism,
     "tight_ladder_control4": _score_tight_ladder_control4,
@@ -657,6 +747,7 @@ _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "catastrophe_cap_and_day_throttle": _score_catastrophe_cap_and_day_throttle,
     "runner_target_vs_tape_peak": _score_runner_target_vs_tape_peak,
     "tp1_qty_fraction_safe_0_8": _score_tp1_qty_fraction_safe_0_8,
+    "not_flat_second_wave": _score_not_flat_second_wave,
 }
 
 

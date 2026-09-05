@@ -337,9 +337,13 @@ def score_second_wave(waves: list[dict[str, Any]], arm_events: list[dict[str, An
     return {"present": False, "reason": "no wave >=60min after the first"}
 
 
-def run_capture(day: str) -> dict[str, Any]:
-    """Build the full CAPTURE-<day>.json payload. Never raises."""
-    waves = find_waves(day)
+def run_capture(day: str, resolution: str = "5min") -> dict[str, Any]:
+    """Build the full CAPTURE-<day>.json payload. Never raises.
+
+    resolution (GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3, default unchanged): passed straight
+    through to `find_waves` -- see that function / `_price_wave`'s docstrings for the
+    read-only 1-min-cache-with-5min-fallback behavior."""
+    waves = find_waves(day, resolution=resolution)
     real_waves = [w for w in waves if w.get("computed") and w.get("meets_threshold")]
 
     all_fills = _load_jsonl(FILLS_LEDGER)
@@ -371,15 +375,17 @@ def run_capture(day: str) -> dict[str, Any]:
     }
 
 
-def _append_ledger_rows(day: str, result: dict[str, Any]) -> int:
-    """Append one row per (arm, wave) scored to the rolling ledger.jsonl.
+def _append_ledger_rows(day: str, result: dict[str, Any], ledger_path: Path = LEDGER_PATH) -> int:
+    """Append one row per (arm, wave) scored to the rolling ledger.jsonl (or `ledger_path`
+    when given -- GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3's ledger-1min.jsonl re-run passes
+    its own path so the original ledger.jsonl is never touched).
     Idempotent-ish: does not dedupe against prior runs for the same day (the
     rolling ledger is append-only per the goal's "rolling ledger" framing;
     callers doing a re-run for the same date should expect duplicates -- the
     backfill script guards against this by writing the ledger fresh)."""
-    LEDGER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ledger_path.parent.mkdir(parents=True, exist_ok=True)
     n = 0
-    with LEDGER_PATH.open("a", encoding="utf-8") as fh:
+    with ledger_path.open("a", encoding="utf-8") as fh:
         for arm, data in result["arms"].items():
             for ev in data["wave_events"]:
                 row = {"date": day, **ev}
@@ -400,16 +406,27 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--date", default=None)
     ap.add_argument("--no-ledger", action="store_true", help="Skip appending to ledger.jsonl (used by backfill).")
+    ap.add_argument("--resolution", default="5min", choices=["5min", "1min"],
+                     help="OPRA bar resolution for wave pricing. Default 5min (unchanged "
+                          "behavior). GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3.")
+    ap.add_argument("--ledger-path", default=None,
+                     help="Override the ledger.jsonl output path (default: analysis/right-tail/"
+                          "ledger.jsonl). Use to re-run at 1-min without touching the original.")
+    ap.add_argument("--out-suffix", default="",
+                     help="Suffix inserted before .json in the CAPTURE-<date><suffix>.json "
+                          "filename, e.g. '-1min', so a resolution re-run never overwrites the "
+                          "original CAPTURE-<date>.json.")
     args = ap.parse_args()
     day = args.date or _default_date()
 
-    result = run_capture(day)
+    result = run_capture(day, resolution=args.resolution)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUT_DIR / f"CAPTURE-{day}.json"
+    out_path = OUT_DIR / f"CAPTURE-{day}{args.out_suffix}.json"
     out_path.write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
 
     if not args.no_ledger:
-        n = _append_ledger_rows(day, result)
+        ledger_path = Path(args.ledger_path) if args.ledger_path else LEDGER_PATH
+        n = _append_ledger_rows(day, result, ledger_path=ledger_path)
     else:
         n = 0
 

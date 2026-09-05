@@ -1,0 +1,123 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-05",
+  "n_waves_all": 1,
+  "n_waves_meeting_threshold": 1,
+  "waves": [
+    {
+      "date": "2026-08-05",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-05T11:46:03",
+      "side": "P",
+      "n_ticks_in_wave": 36,
+      "computed": true,
+      "symbol": "SPY260805P00772000",
+      "strike": 772,
+      "entry_bar_et": "2026-08-05T13:30:00",
+      "entry_premium": 0.93,
+      "peak_high": 2.43,
+      "peak_time_et": "2026-08-05T15:57:00",
+      "peak_multiple": 2.6129,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-05T11:46:03",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-05T11:49:07.326182",
+          "entry_symbol": "SPY260805P00772000",
+          "latency_minutes": 3.1,
+          "exit_multiple": 0.4785,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6129
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-05T11:46:03",
+          "side": "P",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "VETOED_BY_MODELS: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6129
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 1,
+      "n_taken": 0,
+      "capture_rate": 0.0
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-05T11:46:03",
+          "side": "P",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6129
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 1,
+      "n_taken": 0,
+      "capture_rate": 0.0
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-05T11:46:03",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-05T11:48:05.994002",
+          "entry_symbol": "SPY260805P00772000",
+          "latency_minutes": 2.0,
+          "exit_multiple": 1.5503,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": true,
+          "peak_multiple_on_tape": 2.6129
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-31",
+  "n_waves_all": 0,
+  "n_waves_meeting_threshold": 0,
+  "waves": [],
+  "arms": {
+    "safe-2": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    },
+    "bold-2": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    },
+    "safe-3": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    },
+    "risky-1": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    }
+  }
+}

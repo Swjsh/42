@@ -1,0 +1,87 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-26",
+  "n_waves_all": 2,
+  "n_waves_meeting_threshold": 0,
+  "waves": [
+    {
+      "date": "2026-08-26",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-26T14:56:03",
+      "side": "C",
+      "n_ticks_in_wave": 15,
+      "computed": true,
+      "symbol": "SPY260826C00766000",
+      "strike": 766,
+      "entry_bar_et": "2026-08-26T15:02:00",
+      "entry_premium": 1.82,
+      "peak_high": 2.08,
+      "peak_time_et": "2026-08-26T15:04:00",
+      "peak_multiple": 1.1429,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-08-26",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-26T15:51:03",
+      "side": "C",
+      "n_ticks_in_wave": 5,
+      "computed": true,
+      "symbol": "SPY260826C00767000",
+      "strike": 767,
+      "entry_bar_et": "2026-08-26T15:57:00",
+      "entry_premium": 0.93,
+      "peak_high": 0.97,
+      "peak_time_et": "2026-08-26T15:57:00",
+      "peak_multiple": 1.043,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    },
+    "bold-2": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    },
+    "safe-3": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    },
+    "risky-1": {
+      "wave_events": [],
+      "second_wave": {
+        "present": false,
+        "reason": "no first wave taken this arm/day"
+      },
+      "n_waves": 0,
+      "n_taken": 0,
+      "capture_rate": null
+    }
+  }
+}

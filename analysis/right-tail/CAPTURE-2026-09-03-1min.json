@@ -1,0 +1,269 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-09-03",
+  "n_waves_all": 5,
+  "n_waves_meeting_threshold": 2,
+  "waves": [
+    {
+      "date": "2026-09-03",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-09-03T09:41:03",
+      "side": "C",
+      "n_ticks_in_wave": 30,
+      "computed": true,
+      "symbol": "SPY260903C00770000",
+      "strike": 770,
+      "entry_bar_et": "2026-09-03T09:47:00",
+      "entry_premium": 1.06,
+      "peak_high": 4.0,
+      "peak_time_et": "2026-09-03T14:15:00",
+      "peak_multiple": 3.7736,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-09-03",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-09-03T11:06:04",
+      "side": "C",
+      "n_ticks_in_wave": 37,
+      "computed": true,
+      "symbol": "SPY260903C00770000",
+      "strike": 770,
+      "entry_bar_et": "2026-09-03T11:12:00",
+      "entry_premium": 1.7,
+      "peak_high": 4.0,
+      "peak_time_et": "2026-09-03T14:15:00",
+      "peak_multiple": 2.3529,
+      "meets_threshold": true,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-09-03",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-09-03T13:51:03",
+      "side": "P",
+      "n_ticks_in_wave": 5,
+      "computed": true,
+      "symbol": "SPY260903P00773000",
+      "strike": 773,
+      "entry_bar_et": "2026-09-03T13:57:00",
+      "entry_premium": 0.44,
+      "peak_high": 0.48,
+      "peak_time_et": "2026-09-03T13:59:00",
+      "peak_multiple": 1.0909,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-09-03",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-09-03T13:56:04",
+      "side": "C",
+      "n_ticks_in_wave": 3,
+      "computed": true,
+      "symbol": "SPY260903C00773000",
+      "strike": 773,
+      "entry_bar_et": "2026-09-03T14:02:00",
+      "entry_premium": 1.1,
+      "peak_high": 1.23,
+      "peak_time_et": "2026-09-03T14:15:00",
+      "peak_multiple": 1.1182,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    },
+    {
+      "date": "2026-09-03",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-09-03T14:36:04",
+      "side": "C",
+      "n_ticks_in_wave": 6,
+      "computed": true,
+      "symbol": "SPY260903C00774000",
+      "strike": 774,
+      "entry_bar_et": "2026-09-03T14:42:00",
+      "entry_premium": 0.33,
+      "peak_high": 0.36,
+      "peak_time_et": "2026-09-03T14:50:00",
+      "peak_multiple": 1.0909,
+      "meets_threshold": false,
+      "resolution_used": "1min",
+      "resolution_1min_fallback": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-09-03T09:41:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T09:41:04.466709",
+          "entry_symbol": "SPY260903C00770000",
+          "latency_minutes": 0.0,
+          "exit_multiple": 0.5102,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 3.7736
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-09-03T11:06:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T12:16:09.315099",
+          "entry_symbol": "SPY260903C00773000",
+          "latency_minutes": 70.1,
+          "exit_multiple": 0.6757,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3529
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-09-03T11:06:04",
+        "gap_minutes_from_first": 85.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-09-03T09:41:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T09:42:06.260669",
+          "entry_symbol": "SPY260903C00772000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 2.1081,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 3.7736
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-09-03T11:06:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T11:06:05.554817",
+          "entry_symbol": "SPY260903C00772000",
+          "latency_minutes": 0.0,
+          "exit_multiple": 2.1081,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3529
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-09-03T11:06:04",
+        "gap_minutes_from_first": 85.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-09-03T09:41:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T09:42:06.247051",
+          "entry_symbol": "SPY260903C00770000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 2.0901,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 3.7736
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-09-03T11:06:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T11:07:15.548666",
+          "entry_symbol": "SPY260903C00770000",
+          "latency_minutes": 1.2,
+          "exit_multiple": 1.9829,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3529
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-09-03T11:06:04",
+        "gap_minutes_from_first": 85.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-09-03T09:41:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T09:42:08.349849",
+          "entry_symbol": "SPY260903C00770000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 1.8056,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 3.7736
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-09-03T11:06:04",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-09-03T11:07:10.371476",
+          "entry_symbol": "SPY260903C00770000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 1.6525,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.3529
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-09-03T11:06:04",
+        "gap_minutes_from_first": 85.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "n_common_scored": 140,
+  "mean_peak_multiple_delta": 0.0057,
+  "n_taken_flip": 0,
+  "per_arm_peak_multiple_delta": {
+    "safe-2": 0.0057,
+    "bold-2": 0.0057,
+    "safe-3": 0.0057,
+    "risky-1": 0.0057
+  },
+  "per_arm_capture_rate_delta": {
+    "safe-2": -0.0417,
+    "bold-2": 0.025,
+    "safe-3": -0.0125,
+    "risky-1": -0.0125
+  }
+}

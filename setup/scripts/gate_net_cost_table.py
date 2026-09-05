@@ -47,6 +47,7 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[2]
 WALK_PATH = REPO / "analysis" / "gate-net-cost" / "walk-2026-09-05.json"
+WALK_1MIN_PATH = REPO / "analysis" / "gate-net-cost" / "walk-2026-09-05-1min.json"
 OUT_JSON = REPO / "analysis" / "gate-net-cost" / "GATE-NET-COST-2026-09-05.json"
 OUT_MD = REPO / "analysis" / "gate-net-cost" / "GATE-NET-COST-2026-09-05.md"
 
@@ -133,12 +134,36 @@ def build_table() -> dict[str, Any]:
     for r in err_rows:
         err_by_gate_arm[(r["gate"], r.get("arm") or "unknown")] += 1
 
+    # GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3: net $ re-computed on the 1-min walk
+    # (walk-2026-09-05-1min.json, same _agg logic, full window only -- the goal's own
+    # DONE-WHEN asks for "a '1-min' column with the deltas", not a second frozen-window
+    # table), joined onto both arm_rows_out and gate_rows_out below. Missing/absent file
+    # (older runs, or before O3 shipped) degrades every row's 1-min fields to None --
+    # disclosed, never a crash.
+    by_gate_arm_1min: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    by_gate_1min: dict[str, list[dict]] = defaultdict(list)
+    if WALK_1MIN_PATH.exists():
+        walk_1min = json.loads(WALK_1MIN_PATH.read_text(encoding="utf-8"))
+        for r in walk_1min["rows"]:
+            if r.get("walk_ok"):
+                by_gate_arm_1min[(r["gate"], r["arm"])].append(r)
+                by_gate_1min[r["gate"]].append(r)
+
     arm_rows_out = []
     for (gate, arm), rows in sorted(by_gate_arm.items()):
         full = _agg(rows)
         frozen_rows = [r for r in rows if _in_frozen(r["wave_id"])]
         frozen = _agg(frozen_rows) if frozen_rows else _agg([])
         n_waves_for_verdict = full["n_waves"]
+        rows_1min = by_gate_arm_1min.get((gate, arm))
+        if rows_1min:
+            full_1min = _agg(rows_1min)
+            full["net_dollars_1min"] = full_1min["net_dollars"]
+            full["net_dollars_delta_1min_minus_5min"] = round(
+                full_1min["net_dollars"] - full["net_dollars"], 2)
+        else:
+            full["net_dollars_1min"] = None
+            full["net_dollars_delta_1min_minus_5min"] = None
         arm_rows_out.append({
             "gate": gate,
             "arm": arm,
@@ -156,6 +181,15 @@ def build_table() -> dict[str, Any]:
         frozen = _agg(frozen_rows) if frozen_rows else _agg([])
         arms_touched = sorted(set(r["arm"] for r in rows))
         err_count = sum(v for (g, a), v in err_by_gate_arm.items() if g == gate)
+        rows_1min = by_gate_1min.get(gate)
+        if rows_1min:
+            full_1min = _agg(rows_1min)
+            full["net_dollars_1min"] = full_1min["net_dollars"]
+            full["net_dollars_delta_1min_minus_5min"] = round(
+                full_1min["net_dollars"] - full["net_dollars"], 2)
+        else:
+            full["net_dollars_1min"] = None
+            full["net_dollars_delta_1min_minus_5min"] = None
         gate_rows_out.append({
             "gate": gate,
             "arms_touched": arms_touched,
@@ -170,6 +204,7 @@ def build_table() -> dict[str, Any]:
         "_doc": __doc__,
         "generated_at": dt.datetime.now().isoformat(),
         "source_walk": str(WALK_PATH.relative_to(REPO)),
+        "source_walk_1min": str(WALK_1MIN_PATH.relative_to(REPO)) if WALK_1MIN_PATH.exists() else None,
         "definition": {
             "winner": "realized_if_taken_dollars > 0",
             "loser": "realized_if_taken_dollars <= 0",
@@ -223,19 +258,30 @@ def render_md(table: dict[str, Any]) -> str:
     lines.append("")
     lines.append(
         "| Gate | Arms touched | Waves | Waves peak>=1.3x | Winners $ | Losers $ | Net $ | "
-        "Ex-best-day net $ | walk_error | Verdict |"
+        "Net $ (1-min) | Δ (1min-5min) | Ex-best-day net $ | walk_error | Verdict |"
     )
-    lines.append("|---|---|---|---|---|---|---|---|---|---|")
+    lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for g in table["gate_rows_deduped_to_waves"]:
         f = g["full_window"]
+        net_1min = _fmt_dollars(f["net_dollars_1min"]) if f.get("net_dollars_1min") is not None else "n/a"
+        delta_1min = (_fmt_dollars(f["net_dollars_delta_1min_minus_5min"])
+                      if f.get("net_dollars_delta_1min_minus_5min") is not None else "n/a")
         lines.append(
             f"| {g['gate']} | {', '.join(g['arms_touched'])} | {f['n_waves']} | "
             f"{f['n_waves_peak_ge_1p3x']} | {_fmt_dollars(f['winners_dollars'])} | "
             f"{_fmt_dollars(f['losers_dollars'])} | {_fmt_dollars(f['net_dollars'])} | "
+            f"{net_1min} | {delta_1min} | "
             f"{_fmt_dollars(f['ex_best_day_net_dollars'])} | {g['walk_error_count']} | "
             f"{g['verdict_full_window']} |"
         )
     lines.append("")
+    if table.get("source_walk_1min"):
+        lines.append(
+            f"1-min column source: `{table['source_walk_1min']}` "
+            "(GOAL-OPRA-1MIN-COVERAGE-2026-09-05 O3 -- same _agg definition, full window only, "
+            "gates with no 1-min-walked rows show n/a rather than a fabricated 0)."
+        )
+        lines.append("")
     lines.append("## Per gate, deduped to WAVES -- frozen window 2026-08-31..today")
     lines.append("")
     lines.append(

@@ -1,65 +1,65 @@
 {
  "_doc": "gate_net_cost_resolution_bias.py -- T3, GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05.\n\nWHAT THIS MEASURES. `gate_net_cost_walk.py` (N2, GOAL-GATE-NET-COST-2026-09-05) walks every\nrefused-wave counterfactual through `walk_exit_manager` on the real OPRA **5-minute** bar\ncache (`load_contract_bars(..., frame=\"wall-v1\")`). The live engine itself ticks (and its own\nhand-checks, per that module's `opt_df_override`/`opt_df_resolution` docstring) at 1-minute\nresolution when a 1-minute OPRA cache already exists on disk\n(`backtest/data/highres/{symbol}_1m_{date}.csv`, `backtest/tools/_option_bars_1min_cache.py`).\nA stop/TP/trail that fires mid-bar on the 1-minute tape can walk to a DIFFERENT exit stage,\ntime, and price than the same trade walked on 5-minute bars -- this module quantifies that\nresolution bias so N2's headline $ figures carry an honest error bar instead of an implicit\n\"5-minute is exact\" assumption.\n\nSCOPE, PER THE GOAL. Only rows in `walk-2026-09-05.json` that are (a) `walk_ok: true` AND\n(b) already have a 1-minute OPRA CSV cached on disk for their exact `contract` + entry date\nare re-walked -- ZERO new data fetch (this reads the cache file directly, never\n`_option_bars_1min_cache.fetch_1min_cached`'s REST-fetch branch, which this module never\nimports at all). If fewer than 20 rows qualify, this module says so explicitly rather than\nreporting a false-confidence n.\n\nREUSES gate_net_cost_walk.py's OWN machinery byte-for-byte (WalkCtx, _iter_wave_buckets,\n_row_lookup_index, _stop_level_for_wave_row, _side_from_char, _walk_entry) -- this module\nadds NO new walking logic, only a second `_walk_entry` call per qualifying row with\n`opt_df_override` set to the cached 1-minute frame and `opt_df_resolution=\"1min\"` (both\nparameters `_walk_entry` already exposed for exactly this hand-check use case).\n\nOUTPUT: analysis/gate-net-cost/resolution-bias-2026-09-05.json (full per-row + per-stage\ndetail) and an appended \"## Error bar (T3, 1-min vs 5-min resolution bias)\" section on both\nanalysis/gate-net-cost/GATE-NET-COST-2026-09-05.json and .md. Idempotent (recomputes fully\neach run against the on-disk cache + walk-2026-09-05.json; never mutates either input file).\n\n$0, read-only, no new fetch, no trading-path file touched.\n",
  "n_walked_ok_5min": 305,
- "n_qualifying_1min_cached": 262,
- "n_rewalked_ok": 262,
+ "n_qualifying_1min_cached": 305,
+ "n_rewalked_ok": 305,
  "insufficient_n": false,
  "min_n_for_confidence": 20,
  "per_exit_stage": {
   "premium_stop": {
-   "n": 85,
-   "mean_delta_5min_minus_1min": -52.46,
+   "n": 109,
+   "mean_delta_5min_minus_1min": -42.61,
    "median_delta_5min_minus_1min": -20.0,
-   "n_5min_overstates": 29,
-   "n_5min_understates": 55,
-   "n_tied": 1,
-   "sign_consistency_share": 0.6471
+   "n_5min_overstates": 34,
+   "n_5min_understates": 72,
+   "n_tied": 3,
+   "sign_consistency_share": 0.6606
   },
   "ribbon_flip": {
-   "n": 19,
-   "mean_delta_5min_minus_1min": -13.95,
+   "n": 23,
+   "mean_delta_5min_minus_1min": -14.78,
    "median_delta_5min_minus_1min": -18.0,
-   "n_5min_overstates": 5,
-   "n_5min_understates": 14,
+   "n_5min_overstates": 8,
+   "n_5min_understates": 15,
    "n_tied": 0,
-   "sign_consistency_share": 0.7368
+   "sign_consistency_share": 0.6522
   },
   "structure_stop": {
-   "n": 64,
-   "mean_delta_5min_minus_1min": -9.47,
+   "n": 66,
+   "mean_delta_5min_minus_1min": -8.8,
    "median_delta_5min_minus_1min": -1.5,
-   "n_5min_overstates": 27,
-   "n_5min_understates": 32,
+   "n_5min_overstates": 28,
+   "n_5min_understates": 33,
    "n_tied": 5,
    "sign_consistency_share": 0.5
   },
   "time_stop": {
-   "n": 27,
-   "mean_delta_5min_minus_1min": 16.52,
-   "median_delta_5min_minus_1min": -3.0,
+   "n": 30,
+   "mean_delta_5min_minus_1min": 14.07,
+   "median_delta_5min_minus_1min": -7.0,
    "n_5min_overstates": 13,
-   "n_5min_understates": 14,
+   "n_5min_understates": 17,
    "n_tied": 0,
-   "sign_consistency_share": 0.5185
+   "sign_consistency_share": 0.5667
   },
   "trail": {
-   "n": 67,
-   "mean_delta_5min_minus_1min": 47.15,
-   "median_delta_5min_minus_1min": 19.0,
-   "n_5min_overstates": 39,
-   "n_5min_understates": 26,
+   "n": 77,
+   "mean_delta_5min_minus_1min": 44.17,
+   "median_delta_5min_minus_1min": 13.0,
+   "n_5min_overstates": 43,
+   "n_5min_understates": 32,
    "n_tied": 2,
-   "sign_consistency_share": 0.5821
+   "sign_consistency_share": 0.5584
   }
  },
  "overall": {
-  "n": 262,
-  "mean_delta_5min_minus_1min": -6.58,
+  "n": 305,
+  "mean_delta_5min_minus_1min": -5.71,
   "median_delta_5min_minus_1min": -5.0,
-  "n_5min_overstates": 113,
-  "n_5min_understates": 149,
-  "sign_consistency_share": 0.5382,
-  "n_stage_changed": 40
+  "n_5min_overstates": 126,
+  "n_5min_understates": 179,
+  "sign_consistency_share": 0.5541,
+  "n_stage_changed": 45
  },
  "rows": [
   {
@@ -154,6 +154,19 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-03|2026-08-03T09:30:04",
+   "contract": "SPY260803C00751000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "time_stop",
+   "exit_stage_1min": "time_stop",
+   "exit_ts_5min": "2026-08-03T15:40:00",
+   "exit_ts_1min": "2026-08-03T15:41:00",
+   "dollars_5min": 898.0,
+   "dollars_1min": 906.0,
+   "delta_5min_minus_1min": -8.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-04|2026-08-04T09:57:07",
    "contract": "SPY260804C00763000",
    "rewalk_ok": true,
@@ -203,6 +216,19 @@
    "dollars_5min": -246.0,
    "dollars_1min": -177.0,
    "delta_5min_minus_1min": -69.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-06|2026-08-06T10:32:03",
+   "contract": "SPY260806P00771000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-06T12:40:00",
+   "exit_ts_1min": "2026-08-06T11:49:00",
+   "dollars_5min": 300.0,
+   "dollars_1min": 150.0,
+   "delta_5min_minus_1min": 150.0,
    "stage_changed": false
   },
   {
@@ -258,6 +284,19 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-11|2026-08-11T13:32:05",
+   "contract": "SPY260811P00769000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-11T14:35:00",
+   "exit_ts_1min": "2026-08-11T14:31:00",
+   "dollars_5min": 44.0,
+   "dollars_1min": 125.0,
+   "delta_5min_minus_1min": -81.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-12|2026-08-12T09:54:03",
    "contract": "SPY260812C00773000",
    "rewalk_ok": true,
@@ -268,6 +307,19 @@
    "dollars_5min": -60.0,
    "dollars_1min": 18.0,
    "delta_5min_minus_1min": -78.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-12|2026-08-12T12:57:36",
+   "contract": "SPY260812C00775000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "structure_stop",
+   "exit_stage_1min": "structure_stop",
+   "exit_ts_5min": "2026-08-12T13:20:00",
+   "exit_ts_1min": "2026-08-12T13:20:00",
+   "dollars_5min": -40.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": -5.0,
    "stage_changed": false
   },
   {
@@ -843,6 +895,19 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-05|2026-08-05T11:54:36",
+   "contract": "SPY260805P00769000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-05T12:55:00",
+   "exit_ts_1min": "2026-08-05T12:51:00",
+   "dollars_5min": -280.0,
+   "dollars_1min": -245.0,
+   "delta_5min_minus_1min": -35.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-06|2026-08-06T10:31:54",
    "contract": "SPY260806P00769000",
    "rewalk_ok": true,
@@ -866,6 +931,97 @@
    "dollars_5min": 75.0,
    "dollars_1min": 121.0,
    "delta_5min_minus_1min": -46.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-11|2026-08-11T13:35:06",
+   "contract": "SPY260811P00769000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-11T14:35:00",
+   "exit_ts_1min": "2026-08-11T14:31:00",
+   "dollars_5min": 74.0,
+   "dollars_1min": 84.0,
+   "delta_5min_minus_1min": -10.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-12|2026-08-12T11:26:53",
+   "contract": "SPY260812P00770000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "ribbon_flip",
+   "exit_stage_1min": "ribbon_flip",
+   "exit_ts_5min": "2026-08-12T12:00:00",
+   "exit_ts_1min": "2026-08-12T11:33:00",
+   "dollars_5min": -80.0,
+   "dollars_1min": 25.0,
+   "delta_5min_minus_1min": -105.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-12|2026-08-12T13:01:04",
+   "contract": "SPY260812P00771000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "ribbon_flip",
+   "exit_stage_1min": "ribbon_flip",
+   "exit_ts_5min": "2026-08-12T13:15:00",
+   "exit_ts_1min": "2026-08-12T13:08:00",
+   "dollars_5min": -5.0,
+   "dollars_1min": -15.0,
+   "delta_5min_minus_1min": 10.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-13|2026-08-13T12:42:05",
+   "contract": "SPY260813P00774000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "ribbon_flip",
+   "exit_stage_1min": "ribbon_flip",
+   "exit_ts_5min": "2026-08-13T12:55:00",
+   "exit_ts_1min": "2026-08-13T12:55:00",
+   "dollars_5min": -15.0,
+   "dollars_1min": -25.0,
+   "delta_5min_minus_1min": 10.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T12:14:07",
+   "contract": "SPY260814P00775000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "structure_stop",
+   "exit_stage_1min": "structure_stop",
+   "exit_ts_5min": "2026-08-14T12:30:00",
+   "exit_ts_1min": "2026-08-14T12:30:00",
+   "dollars_5min": -5.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": 30.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T12:56:06",
+   "contract": "SPY260814P00774000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T14:05:00",
+   "exit_ts_1min": "2026-08-14T14:03:00",
+   "dollars_5min": -60.0,
+   "dollars_1min": -60.0,
+   "delta_5min_minus_1min": 0.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T13:32:07",
+   "contract": "SPY260814P00774000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T14:05:00",
+   "exit_ts_1min": "2026-08-14T14:03:00",
+   "dollars_5min": -45.0,
+   "dollars_1min": -60.0,
+   "delta_5min_minus_1min": 15.0,
    "stage_changed": false
   },
   {
@@ -1272,6 +1428,32 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-03|2026-08-03T11:52:03.820044-04:00",
+   "contract": "SPY260803C00756000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-03T14:30:00",
+   "exit_ts_1min": "2026-08-03T14:21:00",
+   "dollars_5min": 369.0,
+   "dollars_1min": 410.0,
+   "delta_5min_minus_1min": -41.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T12:32:03.783722-04:00",
+   "contract": "SPY260803C00756000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-03T14:30:00",
+   "exit_ts_1min": "2026-08-03T14:21:00",
+   "dollars_5min": 372.0,
+   "dollars_1min": 376.0,
+   "delta_5min_minus_1min": -4.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-03|2026-08-03T13:17:03.919499-04:00",
    "contract": "SPY260803C00757000",
    "rewalk_ok": true,
@@ -1282,6 +1464,19 @@
    "dollars_5min": 259.0,
    "dollars_1min": 242.0,
    "delta_5min_minus_1min": 17.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T15:08:03.639021-04:00",
+   "contract": "SPY260803C00758000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "time_stop",
+   "exit_stage_1min": "time_stop",
+   "exit_ts_5min": "2026-08-03T15:40:00",
+   "exit_ts_1min": "2026-08-03T15:40:00",
+   "dollars_5min": -85.0,
+   "dollars_1min": -75.0,
+   "delta_5min_minus_1min": -10.0,
    "stage_changed": false
   },
   {
@@ -1373,6 +1568,19 @@
    "dollars_5min": -385.0,
    "dollars_1min": -350.0,
    "delta_5min_minus_1min": -35.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-06|2026-08-06T10:33:04.634334-04:00",
+   "contract": "SPY260806P00771000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-06T12:40:00",
+   "exit_ts_1min": "2026-08-06T11:47:00",
+   "dollars_5min": 512.0,
+   "dollars_1min": 320.0,
+   "delta_5min_minus_1min": 192.0,
    "stage_changed": false
   },
   {
@@ -2130,6 +2338,32 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-05|2026-08-05T09:59:04.613768-04:00",
+   "contract": "SPY260805C00779000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-05T10:20:00",
+   "exit_ts_1min": "2026-08-05T10:20:00",
+   "dollars_5min": -175.0,
+   "dollars_1min": -140.0,
+   "delta_5min_minus_1min": -35.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-05|2026-08-05T11:49:04.813818-04:00",
+   "contract": "SPY260805P00769000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-05T12:30:00",
+   "exit_ts_1min": "2026-08-05T12:16:00",
+   "dollars_5min": -90.0,
+   "dollars_1min": 15.0,
+   "delta_5min_minus_1min": -105.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-06|2026-08-06T10:33:04.634334-04:00",
    "contract": "SPY260806P00769000",
    "rewalk_ok": true,
@@ -2153,6 +2387,19 @@
    "dollars_5min": -150.0,
    "dollars_1min": -105.0,
    "delta_5min_minus_1min": -45.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-07|2026-08-07T12:08:05.858536-04:00",
+   "contract": "SPY260807C00775000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-07T12:25:00",
+   "exit_ts_1min": "2026-08-07T12:22:00",
+   "dollars_5min": -80.0,
+   "dollars_1min": -60.0,
+   "delta_5min_minus_1min": -20.0,
    "stage_changed": false
   },
   {
@@ -2195,6 +2442,19 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-12|2026-08-12T11:28:05.299651-04:00",
+   "contract": "SPY260812P00770000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "ribbon_flip",
+   "exit_ts_5min": "2026-08-12T11:50:00",
+   "exit_ts_1min": "2026-08-12T11:35:00",
+   "dollars_5min": -60.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": -25.0,
+   "stage_changed": true
+  },
+  {
    "wave_id": "2026-08-13|2026-08-13T09:53:05.656823-04:00",
    "contract": "SPY260813C00779000",
    "rewalk_ok": true,
@@ -2205,6 +2465,19 @@
    "dollars_5min": 180.0,
    "dollars_1min": 275.0,
    "delta_5min_minus_1min": -95.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T09:48:06.864142-04:00",
+   "contract": "SPY260814C00780000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T10:15:00",
+   "exit_ts_1min": "2026-08-14T10:02:00",
+   "dollars_5min": -125.0,
+   "dollars_1min": -40.0,
+   "delta_5min_minus_1min": -85.0,
    "stage_changed": false
   },
   {
@@ -2219,6 +2492,19 @@
    "dollars_1min": -65.0,
    "delta_5min_minus_1min": 10.0,
    "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-19|2026-08-19T10:45:05.357633-04:00",
+   "contract": "SPY260819C00773000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-19T11:10:00",
+   "exit_ts_1min": "2026-08-19T11:07:00",
+   "dollars_5min": 35.0,
+   "dollars_1min": 141.0,
+   "delta_5min_minus_1min": -106.0,
+   "stage_changed": true
   },
   {
    "wave_id": "2026-08-20|2026-08-20T13:17:05.089331-04:00",
@@ -2325,6 +2611,84 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-03|2026-08-03T09:57:03.881477-04:00",
+   "contract": "SPY260803C00756000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-03T10:30:00",
+   "exit_ts_1min": "2026-08-03T10:07:00",
+   "dollars_5min": 30.0,
+   "dollars_1min": -45.0,
+   "delta_5min_minus_1min": 75.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T11:52:03.820044-04:00",
+   "contract": "SPY260803C00758000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-03T12:40:00",
+   "exit_ts_1min": "2026-08-03T12:31:00",
+   "dollars_5min": 20.0,
+   "dollars_1min": 25.0,
+   "delta_5min_minus_1min": -5.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T12:32:03.783722-04:00",
+   "contract": "SPY260803C00758000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-03T12:55:00",
+   "exit_ts_1min": "2026-08-03T12:52:00",
+   "dollars_5min": -20.0,
+   "dollars_1min": -30.0,
+   "delta_5min_minus_1min": 10.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T13:17:03.919499-04:00",
+   "contract": "SPY260803C00759000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-03T14:15:00",
+   "exit_ts_1min": "2026-08-03T14:12:00",
+   "dollars_5min": 77.0,
+   "dollars_1min": 66.0,
+   "delta_5min_minus_1min": 11.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T15:08:03.639021-04:00",
+   "contract": "SPY260803C00760000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-03T15:40:00",
+   "exit_ts_1min": "2026-08-03T15:30:00",
+   "dollars_5min": -35.0,
+   "dollars_1min": -15.0,
+   "delta_5min_minus_1min": -20.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-07|2026-08-07T12:10:06.843172-04:00",
+   "contract": "SPY260807C00775000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-07T12:25:00",
+   "exit_ts_1min": "2026-08-07T12:22:00",
+   "dollars_5min": -65.0,
+   "dollars_1min": -55.0,
+   "delta_5min_minus_1min": -10.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-11|2026-08-11T11:52:06.697758-04:00",
    "contract": "SPY260811P00770000",
    "rewalk_ok": true,
@@ -2335,6 +2699,45 @@
    "dollars_5min": -20.0,
    "dollars_1min": -45.0,
    "delta_5min_minus_1min": 25.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-11|2026-08-11T13:32:07.014982-04:00",
+   "contract": "SPY260811P00769000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-11T13:45:00",
+   "exit_ts_1min": "2026-08-11T13:42:00",
+   "dollars_5min": -45.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": -10.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-12|2026-08-12T11:30:07.477072-04:00",
+   "contract": "SPY260812P00770000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-12T11:50:00",
+   "exit_ts_1min": "2026-08-12T11:37:00",
+   "dollars_5min": -70.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": -35.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-12|2026-08-12T12:58:05.188100-04:00",
+   "contract": "SPY260812C00775000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-12T13:15:00",
+   "exit_ts_1min": "2026-08-12T13:16:00",
+   "dollars_5min": -40.0,
+   "dollars_1min": -25.0,
+   "delta_5min_minus_1min": -15.0,
    "stage_changed": false
   },
   {
@@ -2351,6 +2754,19 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-13|2026-08-13T12:42:05.825690-04:00",
+   "contract": "SPY260813P00774000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "ribbon_flip",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-13T12:55:00",
+   "exit_ts_1min": "2026-08-13T12:52:00",
+   "dollars_5min": -15.0,
+   "dollars_1min": -25.0,
+   "delta_5min_minus_1min": 10.0,
+   "stage_changed": true
+  },
+  {
    "wave_id": "2026-08-13|2026-08-13T14:37:07.369376-04:00",
    "contract": "SPY260813C00779000",
    "rewalk_ok": true,
@@ -2361,6 +2777,71 @@
    "dollars_5min": 11.0,
    "dollars_1min": 29.0,
    "delta_5min_minus_1min": -18.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-13|2026-08-13T15:12:07.196319-04:00",
+   "contract": "SPY260813C00780000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-13T15:30:00",
+   "exit_ts_1min": "2026-08-13T15:28:00",
+   "dollars_5min": -20.0,
+   "dollars_1min": -10.0,
+   "delta_5min_minus_1min": -10.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T09:57:07.044956-04:00",
+   "contract": "SPY260814C00780000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T10:15:00",
+   "exit_ts_1min": "2026-08-14T10:15:00",
+   "dollars_5min": -100.0,
+   "dollars_1min": -65.0,
+   "delta_5min_minus_1min": -35.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T12:15:07.596833-04:00",
+   "contract": "SPY260814P00775000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T13:10:00",
+   "exit_ts_1min": "2026-08-14T12:27:00",
+   "dollars_5min": 47.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": 82.0,
+   "stage_changed": true
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T12:57:06.366846-04:00",
+   "contract": "SPY260814P00774000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T13:15:00",
+   "exit_ts_1min": "2026-08-14T13:07:00",
+   "dollars_5min": -35.0,
+   "dollars_1min": -35.0,
+   "delta_5min_minus_1min": 0.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-14|2026-08-14T13:32:06.774198-04:00",
+   "contract": "SPY260814P00774000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-14T14:00:00",
+   "exit_ts_1min": "2026-08-14T13:41:00",
+   "dollars_5min": -45.0,
+   "dollars_1min": -20.0,
+   "delta_5min_minus_1min": -25.0,
    "stage_changed": false
   },
   {
@@ -2390,6 +2871,19 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-19|2026-08-19T10:42:05.066627-04:00",
+   "contract": "SPY260819C00773000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-19T11:10:00",
+   "exit_ts_1min": "2026-08-19T10:50:00",
+   "dollars_5min": 130.0,
+   "dollars_1min": -45.0,
+   "delta_5min_minus_1min": 175.0,
+   "stage_changed": true
+  },
+  {
    "wave_id": "2026-08-19|2026-08-19T11:50:05.933170-04:00",
    "contract": "SPY260819C00772000",
    "rewalk_ok": true,
@@ -2400,6 +2894,19 @@
    "dollars_5min": 59.0,
    "dollars_1min": 137.0,
    "delta_5min_minus_1min": -78.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-19|2026-08-19T12:37:04.238580-04:00",
+   "contract": "SPY260819C00773000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-19T12:55:00",
+   "exit_ts_1min": "2026-08-19T12:52:00",
+   "dollars_5min": -30.0,
+   "dollars_1min": -20.0,
+   "delta_5min_minus_1min": -10.0,
    "stage_changed": false
   },
   {
@@ -2988,6 +3495,32 @@
    "stage_changed": false
   },
   {
+   "wave_id": "2026-08-03|2026-08-03T11:52:03.820044-04:00",
+   "contract": "SPY260803C00756000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-03T14:30:00",
+   "exit_ts_1min": "2026-08-03T14:21:00",
+   "dollars_5min": 252.0,
+   "dollars_1min": 287.0,
+   "delta_5min_minus_1min": -35.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T12:32:03.783722-04:00",
+   "contract": "SPY260803C00756000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "trail",
+   "exit_stage_1min": "trail",
+   "exit_ts_5min": "2026-08-03T14:30:00",
+   "exit_ts_1min": "2026-08-03T14:21:00",
+   "dollars_5min": 274.0,
+   "dollars_1min": 321.0,
+   "delta_5min_minus_1min": -47.0,
+   "stage_changed": false
+  },
+  {
    "wave_id": "2026-08-03|2026-08-03T13:17:03.919499-04:00",
    "contract": "SPY260803C00757000",
    "rewalk_ok": true,
@@ -2998,6 +3531,19 @@
    "dollars_5min": 255.0,
    "dollars_1min": 213.0,
    "delta_5min_minus_1min": 42.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-03|2026-08-03T15:08:03.639021-04:00",
+   "contract": "SPY260803C00758000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "time_stop",
+   "exit_stage_1min": "time_stop",
+   "exit_ts_5min": "2026-08-03T15:40:00",
+   "exit_ts_1min": "2026-08-03T15:40:00",
+   "dollars_5min": -51.0,
+   "dollars_1min": -45.0,
+   "delta_5min_minus_1min": -6.0,
    "stage_changed": false
   },
   {
@@ -3193,6 +3739,19 @@
    "dollars_5min": -231.0,
    "dollars_1min": 75.0,
    "delta_5min_minus_1min": -306.0,
+   "stage_changed": false
+  },
+  {
+   "wave_id": "2026-08-06|2026-08-06T10:32:04.804726-04:00",
+   "contract": "SPY260806P00771000",
+   "rewalk_ok": true,
+   "exit_stage_5min": "premium_stop",
+   "exit_stage_1min": "premium_stop",
+   "exit_ts_5min": "2026-08-06T12:40:00",
+   "exit_ts_1min": "2026-08-06T11:49:00",
+   "dollars_5min": 300.0,
+   "dollars_1min": 150.0,
+   "delta_5min_minus_1min": 150.0,
    "stage_changed": false
   },
   {
