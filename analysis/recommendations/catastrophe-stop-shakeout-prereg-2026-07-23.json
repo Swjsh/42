@@ -4,21 +4,24 @@
   "version": 1,
   "generated_at_et": "2026-07-23 (after-hours work block)",
   "runner": "backtest/tools/catastrophe_stop_shakeout_ab.py",
-
   "mechanism_under_test": {
     "code_path": "automation/state/fleet/exit_manager.py ExitState.from_entry + plan_exit_actions",
     "how_it_works": "v15.3 chart-stop-primary: when a position resolves stop_mode=='structure' (shape declares stop_mode=structure AND structure_stop_enabled AND a trigger_level is available at entry), the STRUCTURE check (last CLOSED 5m SPY bar beyond trigger_level) is evaluated BEFORE the premium check each tick -- but the premium/catastrophe check (worst_premium <= entry*(1+catastrophe_stop_pct), current -50%) is a POINT-SAMPLE evaluated EVERY tick (1-min resolution in exit_manager_walk's point-sample convention), while the structure check only updates once per CLOSED 5-min bar. A sharp intrabar premium move (theta/gamma/spread wick) can therefore trip the catastrophe backstop several minutes BEFORE the slower 5-min structure check would confirm (or refute) the same directional move. This is the mechanism candidate (a)/(b) target.",
     "critical_scope_note": "catastrophe_stop_pct ONLY applies to positions that resolve stop_mode=='structure' (trigger_level recoverable at entry). Positions that fall back to stop_mode=='premium' use the strategy's own premium_stop_pct (-0.20 for ribbon_ride) -- a DIFFERENT, untouched knob. Candidates in this study leave premium-mode trades byte-identical to control (their delta is exactly $0 by construction) -- disclosed, not hidden."
   },
-
   "today_counterfactual_scope": {
-    "symbol": "SPY260723P00735000", "entry_time_et": "11:29:25", "entry_premium": 1.28, "qty": 5,
-    "exit_time_et": "11:56:05", "exit_premium": 0.67, "realized_pnl": -305.0,
-    "trigger_level": 737.68, "stop_mode": "structure",
+    "symbol": "SPY260723P00735000",
+    "entry_time_et": "11:29:25",
+    "entry_premium": 1.28,
+    "qty": 5,
+    "exit_time_et": "11:56:05",
+    "exit_premium": 0.67,
+    "realized_pnl": -305.0,
+    "trigger_level": 737.68,
+    "stop_mode": "structure",
     "method": "real Alpaca OPRA 1-min option bars (SPY260723P00735000) + real SPY 1-min/5-min bars fetched live this session (task-sanctioned live fetch, read-only market data, no order actions) -- NOT the backtest cache (today's contract is not yet in backtest/data/options/).",
     "computed_before_seeing_historical_result": "max-favorable-after-stop (highest option premium print from 11:57 ET through 16:00 ET RTH close), held-to-time-stop (15:40 ET) counterfactual premium, held-to-EOD (16:00 ET) counterfactual premium -- reported in the companion .md with exact bar timestamps."
   },
-
   "population": {
     "source": "analysis/recommendations/engine-fullhist-replay-2026-07-23.json (already-generated 2025-01-02..2026-07-22, 387 RTH-day, real-OPRA-fills, exit_manager_walk-derived population -- reused as this study's FROZEN entry population per task's explicit '386-day population, real OPRA fills through exit_manager_walk' instruction; not re-run, to guarantee byte-identical entries between this study and the cited baseline)",
     "filter": "side=='P' and setup=='BEARISH_REJECTION_RIDE_THE_RIBBON' (the setup family today's Bold trade belongs to)",
@@ -28,7 +31,6 @@
     "note_on_thin_n": "Only 27/151 raw orchestrator entries carry a populated rejection_level (t.rejection_level) -- a pre-existing data-availability characteristic of run_backtest's entry layer, not something this study introduces. The catastrophe_stop_pct knob can only ever move the 27 structure-mode trades; disclosed as a hard population ceiling before any candidate is run.",
     "held_out_split": "chronological, LAST 25% of the 27 structure-mode trades (by date_et then entry_time_et) = OOS/held-out; first 75% = IS. Exact split index and date frozen at run time in the output (n is small enough that a fixed date threshold pre-committed here would risk an empty OOS bucket)."
   },
-
   "candidates": {
     "CAND-WIDE70": {
       "change": "catastrophe_stop_pct: -0.50 -> -0.70",
@@ -41,7 +43,6 @@
       "everything_else": "byte-identical to control."
     }
   },
-
   "gates": {
     "methodology_source": "identical 4-gate + BH-FDR + concentration-ex-top3 methodology already used by backtest/tools/trail_width_exit_ab.py (2026-07-21, precedent in this repo) -- gate1 aggregate, gate2 majority-of-days, gate3 survives-drop-best1, gate4 OOS (adapted here to the task's explicit 'held-out last 25%' split instead of that precedent's 50/50 midpoint split), plus one-sided BH-FDR (alpha=0.10) on paired per-trade deltas and a drop-top-3 concentration disclosure.",
     "gate1_aggregate": "sum(candidate_pnl) > sum(control_pnl) over the 27-trade structure-mode population",
@@ -50,18 +51,22 @@
     "gate4_oos_last25": "held-out last 25% (chronological) delta > 0, no sign flip vs the first-75% IS delta",
     "ship_rule": "ALL FOUR gates must pass for SHIP; anything else reports CONTROL_HOLDS (undecorated, per OP-16/OP-33 no-oversell)."
   },
-
   "give_back_accounting": "REQUIRED (task honesty clause): each candidate reports extra captured on trades where it beat control, separately from extra given back on trades where it lost MORE than control (a wider/disabled catastrophe cap riding a genuine reversal further before any other exit catches it) -- both sides of the ledger, never just the net.",
-
   "descriptive_shakeout_stat": {
     "definition": "Among the 27 structure-mode bear trades whose CONTROL exit_reason startswith 'premium_stop' (the catastrophe backstop actually fired), for each: (a) does the LAST CLOSED 5m SPY bar ever close beyond trigger_level (a genuine structure confirmation) between the stop time and that day's 16:00 ET RTH close? (b) does the option's own subsequent OPRA premium print ever recover back above the stop's exit fill price before EOD? (c) does it ever reach the TP1 threshold (entry*(1+tp1_premium_pct), +100%) before EOD? Reported as three independent yes/no rates over this subset -- computed BEFORE candidate gates are evaluated, purely descriptive, not gated."
   },
-
   "reconciliation_pre_committed": {
     "trail_width_exit_2026_07_21": "held catastrophe_stop_pct constant at -0.50 across every candidate (control_shape dict printed in that study's own output: 'catastrophe_stop_pct': -0.5, unchanged in TRAIL-20/25/30, TP1Q-050/033, RIDE-BUNDLE) -- varied ONLY trail_pct/tp1_qty_fraction/tp1_premium_pct. Disjoint from this study's axis.",
     "structure_stop_reference_level_2026_07_20": "held catastrophe_stop_pct constant at -0.50 across REF-EXACT/REF-ZONE/REF-NONE -- varied ONLY the structure-stop's REFERENCE LEVEL (WHERE trigger_level is sourced from: trigger-exact vs zone-boundary vs none), never whether/how hard the catastrophe backstop bites. Disjoint from this study's axis.",
     "conclusion_pre_committed": "This study's axis (catastrophe_stop_pct threshold, i.e. HOW WIDE the premium backstop is once already in structure mode) is genuinely disjoint from both prior NO-SHIP/CONTROL_HOLDS studies -- not a re-litigation. Restated with the actual run numbers in the companion .md regardless of which way this study's own verdict lands."
   },
-
-  "rules": "READ-ONLY: no params.json/exit_manager.py/strategies.py/heartbeat_core.py edit. No broker imports beyond read-only historical-market-data fetch (same _alpaca_creds.py pattern tools/fetch_option_data.py already uses -- market-data auth only, never order placement). No commit (orchestrator adjudicates). Verdict reported honestly even if CONTROL_HOLDS or INCONCLUSIVE_UNDERPOWERED -- no forced SHIP."
+  "rules": "READ-ONLY: no params.json/exit_manager.py/strategies.py/heartbeat_core.py edit. No broker imports beyond read-only historical-market-data fetch (same _alpaca_creds.py pattern tools/fetch_option_data.py already uses -- market-data auth only, never order placement). No commit (orchestrator adjudicates). Verdict reported honestly even if CONTROL_HOLDS or INCONCLUSIVE_UNDERPOWERED -- no forced SHIP.",
+  "status": "NULL -- CONTROL_HOLDS both candidates",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/catastrophe-stop-shakeout-2026-07-23.json + .md (backtest/tools/catastrophe_stop_shakeout_ab.py)",
+    "numbers": "CAND-WIDE70 (catastrophe_stop_pct=-0.7): agg delta +$2,146.55, gate1(agg) PASS, gate2(days) FAIL, gate3(drop-best) PASS, gate4(OOS-last25) FAIL -> CONTROL_HOLDS. CAND-NOCAT (-0.99, effectively no cap): agg delta +$3,626.05, same gate2/gate4 FAIL pattern -> CONTROL_HOLDS. Descriptive: of the 4 CONTROL trades where the -50% cap fired, 4/4 recovered past the exit fill by EOD and 3/4 reached TP1 by EOD, but n=4 is the real limiting sample (far below the n=15 evidence floor) and today's own live counterfactual (bold-2 SPY260723P00735000) was NOT a shakeout in hindsight -- max-favorable-after-stop never approached breakeven.",
+    "lessons_cited": "Disjoint axis from prior CONTROL_HOLDS stop studies (trail-width-exit-2026-07-21, structure-stop-reference-level-2026-07-20) per the study's own reconciliation section -- not a re-litigation, but lands in the same CONTROL_HOLDS place as every other catastrophe/premium-stop-widening study in this graveyard (C2: first-strike entries chart-stop only, premium-stop disabled).",
+    "rationale": "Reused the committed A/B output; no new backtest run."
+  }
 }

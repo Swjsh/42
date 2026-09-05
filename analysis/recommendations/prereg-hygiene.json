@@ -1,52 +1,11 @@
 {
-  "generated_at_et": "2026-09-05T00:17:49",
-  "n_total": 131,
-  "n_parsed": 131,
+  "generated_at_et": "2026-09-05T00:53:23",
+  "n_total": 132,
+  "n_parsed": 132,
   "n_malformed": 0,
   "malformed": [],
-  "n_flagged": 4,
-  "flagged": [
-    {
-      "file": "prereg-chasing-filter-2026-08-14.json",
-      "status": "FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.",
-      "age_days": 22.2,
-      "age_source": "frozen_at_et",
-      "orphan": false,
-      "has_results_file": false,
-      "result_file": null,
-      "reason": "FROZEN/NOT RUN + age>14d"
-    },
-    {
-      "file": "prereg-ladder-x-premium-2026-08-09.json",
-      "status": "FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.",
-      "age_days": 27.2,
-      "age_source": "frozen_at_et",
-      "orphan": false,
-      "has_results_file": false,
-      "result_file": null,
-      "reason": "FROZEN/NOT RUN + age>14d"
-    },
-    {
-      "file": "prereg-runner-finite-tgt-candidate-2026-08-06.json",
-      "status": "CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.",
-      "age_days": 30.2,
-      "age_source": "filename_date",
-      "orphan": false,
-      "has_results_file": false,
-      "result_file": null,
-      "reason": "FROZEN/NOT RUN + age>14d"
-    },
-    {
-      "file": "vwap-family-killcheck-prereg-2026-08-18.json",
-      "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
-      "age_days": 18.2,
-      "age_source": "frozen_at_et",
-      "orphan": false,
-      "has_results_file": false,
-      "result_file": null,
-      "reason": "FROZEN/NOT RUN + age>14d"
-    }
-  ],
+  "n_flagged": 0,
+  "flagged": [],
   "n_has_results_file": 97,
   "stale_status_but_has_results": [
     {
@@ -100,6 +59,11 @@
       "result_file": "expected-move-gate-result.json"
     },
     {
+      "file": "prereg-gate-revalidation-2026-08-08.json",
+      "status": "KILL -- all 3 named gate unblocks fail their own frozen G-battery; current gate values retained",
+      "result_file": "gate-recency-audit-2026-08-08.json"
+    },
+    {
       "file": "prereg-level-memory-wire-2026-07-15.json",
       "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
       "result_file": "level-memory-wire.json"
@@ -125,9 +89,19 @@
       "result_file": "regime-standdown-2026-08-02.json"
     },
     {
+      "file": "prereg-score-ladder-v2-2026-08-07.json",
+      "status": "KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 frozen arm-bar criteria",
+      "result_file": "SCORE-LADDER-GATES-2026-08-07.json"
+    },
+    {
       "file": "prereg-spy-production-calibration-2026-08-20.json",
       "status": "FROZEN_BEFORE_ANY_RESULT",
       "result_file": "spy-production-calibration.json"
+    },
+    {
+      "file": "prereg-structure-shift-cascade-2026-07-28.json",
+      "status": "KILL -- fails own frozen gates, DO_NOT_ARM",
+      "result_file": "filter5-ribbon-2026-07-31.json"
     },
     {
       "file": "prereg-time-stop-broker-sweep-2026-09-01.json",
@@ -376,7 +350,7 @@
   "entries": [
     {
       "file": "atm-tier-extension-2k10k-prereg-2026-08-03.json",
-      "status": null,
+      "status": "EXTEND -- per-arm split already resolved in code; extension still live for bold-2/safe-3/risky-1",
       "age_days": 32.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -430,7 +404,7 @@
     },
     {
       "file": "bull-requalification-prereg-2026-07-22.json",
-      "status": null,
+      "status": "KILL -- gate stays KEEP (blocking), bull cohort thin/negative at ATM",
       "age_days": 45.2,
       "age_source": "frozen_at",
       "orphan": false,
@@ -439,7 +413,7 @@
     },
     {
       "file": "catastrophe-stop-shakeout-prereg-2026-07-23.json",
-      "status": null,
+      "status": "NULL -- CONTROL_HOLDS both candidates",
       "age_days": 44.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -448,7 +422,7 @@
     },
     {
       "file": "chop-defense-prereg-2026-08-06.json",
-      "status": null,
+      "status": "EXTEND",
       "age_days": 30.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -466,7 +440,7 @@
     },
     {
       "file": "dynamic-exits-forward-prereg-2026-08-09.json",
-      "status": null,
+      "status": "NULL",
       "age_days": 27.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -475,7 +449,7 @@
     },
     {
       "file": "dynamic-exits-prereg-2026-08-09.json",
-      "status": null,
+      "status": "NULL",
       "age_days": 27.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -493,7 +467,7 @@
     },
     {
       "file": "engulfing-at-local-cluster-prereg-2026-07-25.json",
-      "status": null,
+      "status": "KILL -- 0/16 cells clear ship bar, do NOT wire",
       "age_days": 42.2,
       "age_source": "frozen_at",
       "orphan": false,
@@ -502,7 +476,7 @@
     },
     {
       "file": "engulfing-at-structure-prereg-2026-07-23.json",
-      "status": null,
+      "status": "KILL -- 0/12 cells clear ship bar, do NOT wire",
       "age_days": 44.2,
       "age_source": "frozen_at",
       "orphan": false,
@@ -511,7 +485,7 @@
     },
     {
       "file": "entry-buffer-reduction-prereg-2026-08-02.json",
-      "status": null,
+      "status": "EXTEND -- shipped 2026-08-02, live in both params files, held past its post-ship kill window",
       "age_days": 34.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -574,7 +548,7 @@
     },
     {
       "file": "fleet-same-bar-cooldown-prereg-2026-08-06.json",
-      "status": null,
+      "status": "KILL -- shipped disarmed, kill criterion met day-0 per commit 7598c20d",
       "age_days": 30.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -601,7 +575,7 @@
     },
     {
       "file": "fleet-vwap-reclaim-extension-prereg-2026-08-04.json",
-      "status": null,
+      "status": "KILL -- cohort net-negative at the kill checkpoint per own pre-committed criterion",
       "age_days": 32.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -754,7 +728,7 @@
     },
     {
       "file": "prereg-catastrophe-cap-decision-2026-08-09.json",
-      "status": null,
+      "status": "NULL -- cap validated by forward fires, no width clears all 4 gates",
       "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -763,7 +737,7 @@
     },
     {
       "file": "prereg-chasing-filter-2026-08-14.json",
-      "status": "FROZEN -- NOT RUN. Workplan step 2 is freeze-only by design.",
+      "status": "EXTEND -- still blocked on named dependency (J signing the OPRA agreement, handoff N8)",
       "age_days": 22.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -799,7 +773,7 @@
     },
     {
       "file": "prereg-entry-exit-matrix-2026-08-09.json",
-      "status": null,
+      "status": "NULL -- 0/96 cells clear BH-FDR in either population; CONTROL x CONTROL dominates net of correction",
       "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -808,7 +782,7 @@
     },
     {
       "file": "prereg-entry-location-gate-2026-08-14.json",
-      "status": null,
+      "status": "NULL -- naive global location gate decisively refuted, no live-arming evidence",
       "age_days": 22.2,
       "age_source": "frozen_at_et",
       "orphan": true,
@@ -817,7 +791,7 @@
     },
     {
       "file": "prereg-entry-range-context-2026-08-14.json",
-      "status": null,
+      "status": "EXTEND",
       "age_days": 22.2,
       "age_source": "frozen_at_et",
       "orphan": true,
@@ -871,7 +845,7 @@
     },
     {
       "file": "prereg-fill-model-unification-2026-08-13.json",
-      "status": null,
+      "status": "EXTEND -- mandatory STEP 1 (exit_manager_walk fill-model fix) still not executed",
       "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -880,7 +854,7 @@
     },
     {
       "file": "prereg-filter5-ribbon-2026-07-31.json",
-      "status": null,
+      "status": "NULL -- filter 5 STAYS per own ship_rule",
       "age_days": 36.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -898,7 +872,7 @@
     },
     {
       "file": "prereg-g2-trendline-bypass-2026-08-01.json",
-      "status": null,
+      "status": "NULL",
       "age_days": 35.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -907,7 +881,7 @@
     },
     {
       "file": "prereg-gate-revalidation-2026-08-08.json",
-      "status": null,
+      "status": "KILL -- all 3 named gate unblocks fail their own frozen G-battery; current gate values retained",
       "age_days": 28.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -944,7 +918,7 @@
     {
       "file": "prereg-hygiene.json",
       "status": null,
-      "age_days": 0.3,
+      "age_days": 0.0,
       "age_source": "mtime_fallback",
       "orphan": false,
       "has_results_file": false,
@@ -961,7 +935,7 @@
     },
     {
       "file": "prereg-ladder-x-premium-2026-08-09.json",
-      "status": "FROZEN HYPOTHESIS -- deliberately NOT run tonight. It is BLOCKED on the risky-3 forward result (prereg STOP-MODE-LIVE-ARM-RISKY3-2026-08-09, commit a2d7c3e4). Filed now so the hypothesis is registered before its evidence exists, which is the whole point.",
+      "status": "KILL -- unblocked this window, own pre-committed rule resolves it CLOSED-UNRUN",
       "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1024,7 +998,7 @@
     },
     {
       "file": "prereg-paired-ribbon-2026-08-01.json",
-      "status": null,
+      "status": "NULL -- ribbon question CLOSED BOTH WAYS per own ship_rule",
       "age_days": 35.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1087,7 +1061,7 @@
     },
     {
       "file": "prereg-regime-conditional-exit-2026-08-11.json",
-      "status": null,
+      "status": "EXTEND",
       "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1105,7 +1079,7 @@
     },
     {
       "file": "prereg-regime-conditioning-2026-07-28.json",
-      "status": null,
+      "status": "NULL -- 0/178 slices survive BH-FDR correction",
       "age_days": 39.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1132,7 +1106,7 @@
     },
     {
       "file": "prereg-ribbon-confirm-2026-08-11.json",
-      "status": null,
+      "status": "NULL -- coded and guard-tested, never armed, forward clock never started",
       "age_days": 25.2,
       "age_source": "frozen_at_et",
       "orphan": true,
@@ -1177,7 +1151,7 @@
     },
     {
       "file": "prereg-runner-finite-tgt-candidate-2026-08-06.json",
-      "status": "CANDIDATE ONLY. Nothing armed. Running this requires its own frozen commit first.",
+      "status": "NULL -- unrunnable as registered (candidate-only, no commit ever cut) and matches the standing dead-runner-knob lesson",
       "age_days": 30.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -1186,7 +1160,7 @@
     },
     {
       "file": "prereg-score-ladder-v2-2026-08-07.json",
-      "status": null,
+      "status": "KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 frozen arm-bar criteria",
       "age_days": 29.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1195,7 +1169,7 @@
     },
     {
       "file": "prereg-slippage-rebaseline-2026-08-12.json",
-      "status": null,
+      "status": "NULL -- no published KILL overturned, blocked pending FILL-MODEL-UNIFICATION",
       "age_days": 24.2,
       "age_source": "frozen_at_et",
       "orphan": true,
@@ -1231,7 +1205,7 @@
     },
     {
       "file": "prereg-structure-shift-cascade-2026-07-28.json",
-      "status": null,
+      "status": "KILL -- fails own frozen gates, DO_NOT_ARM",
       "age_days": 39.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1240,7 +1214,7 @@
     },
     {
       "file": "prereg-structure-shift-confirmation-2026-07-28.json",
-      "status": null,
+      "status": "KILL -- 1/5 gates pass",
       "age_days": 39.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1266,6 +1240,15 @@
       "result_file": null
     },
     {
+      "file": "prereg-tickers-theta-budget-cadence-2026-09-05.json",
+      "status": "FROZEN_BEFORE_ANY_ADDITIONAL_RESULT",
+      "age_days": 0.2,
+      "age_source": "frozen_at_et",
+      "orphan": true,
+      "has_results_file": false,
+      "result_file": null
+    },
+    {
       "file": "prereg-tight-stop-vwap-2026-08-11.json",
       "status": "{\"gates_g1_g3\": \"FAIL (run earlier: total -$910, drop-best -$1,631, 2/4 days, n=4 days < 8)\", \"G4_mechanism\": {\"death_causes_all_vwap_positions\": {\"premium_stop\": 17, \"trail\": 11, \"tp1\": 4, \"ribbon_fl",
       "age_days": 25.2,
@@ -1285,7 +1268,7 @@
     },
     {
       "file": "prereg-tp1-reachability-2026-08-06.json",
-      "status": null,
+      "status": "KILL",
       "age_days": 30.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -1303,7 +1286,7 @@
     },
     {
       "file": "prereg-trendline-break-at-level-2026-08-13.json",
-      "status": null,
+      "status": "NULL",
       "age_days": 23.2,
       "age_source": "frozen_at_et",
       "orphan": true,
@@ -1321,7 +1304,7 @@
     },
     {
       "file": "prereg-trendline-context-conditioning-2026-08-01.json",
-      "status": null,
+      "status": "NULL",
       "age_days": 35.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1330,7 +1313,7 @@
     },
     {
       "file": "prereg-trendline-engine-validation-2026-08-09.json",
-      "status": null,
+      "status": "KILL",
       "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1348,7 +1331,7 @@
     },
     {
       "file": "prereg-trigger-parity-2026-08-09.json",
-      "status": null,
+      "status": "KILL -- G_ADDED_COHORT structurally empty (n=0), asymmetry VALIDATED not inherited",
       "age_days": 27.2,
       "age_source": "frozen_at_et",
       "orphan": true,
@@ -1357,7 +1340,7 @@
     },
     {
       "file": "prereg-vix-regime-gate-archetype-2026-08-02.json",
-      "status": null,
+      "status": "NULL -- filter 8 STAYS, both arms NULL per own ship_rule",
       "age_days": 35.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1393,7 +1376,7 @@
     },
     {
       "file": "prereg-wick-lane-2026-07-31.json",
-      "status": null,
+      "status": "NULL -- NULL_BOTH_COHORTS (verdict already computed in the run)",
       "age_days": 36.2,
       "age_source": "frozen_at_et",
       "orphan": false,
@@ -1420,7 +1403,7 @@
     },
     {
       "file": "pullback-hold-bull-prereg-2026-07-22.json",
-      "status": null,
+      "status": "NULL -- NO_CELL_SHIPS (iteration 1, disqualified at fidelity gate)",
       "age_days": 45.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -1429,7 +1412,7 @@
     },
     {
       "file": "pullback-hold-bull-prereg-v2-2026-07-22.json",
-      "status": null,
+      "status": "NULL -- NO_CELL_SHIPS (iteration 2, evidence-based null)",
       "age_days": 45.2,
       "age_source": "filename_date",
       "orphan": false,
@@ -1447,7 +1430,7 @@
     },
     {
       "file": "ribbon-scope-gap-morning-prereg-2026-07-23.json",
-      "status": null,
+      "status": "NULL",
       "age_days": 44.2,
       "age_source": "frozen_at",
       "orphan": false,
@@ -1456,7 +1439,7 @@
     },
     {
       "file": "ribbon-state-entry-gate-prereg-2026-07-21.json",
-      "status": null,
+      "status": "NULL -- hypothesis structurally impossible under current live filters",
       "age_days": 46.2,
       "age_source": "frozen_at",
       "orphan": false,
@@ -1537,7 +1520,7 @@
     },
     {
       "file": "vwap-family-killcheck-prereg-2026-08-18.json",
-      "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
+      "status": "NULL -- unrunnable as registered, vwap_continuation disarmed with zero forward fills",
       "age_days": 18.2,
       "age_source": "frozen_at_et",
       "orphan": false,

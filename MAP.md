@@ -1,6 +1,6 @@
 # 🗺️ Gamma — SYSTEM MAP
 
-> Auto-generated `2026-09-04 02:46:42 Friday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
+> Auto-generated `2026-09-05 00:56:03 Saturday EDT`. Every path is existence-checked at build time, so this map cannot silently describe a system we no longer have. `⛔MISSING` = the spec claims a file that is gone.
 
 ## For a fresh Claude session — read only the branch you need
 
@@ -90,7 +90,7 @@ flowchart LR
 
 ## 🩺 Vault link health
 
-- visible notes: **960** · broken wikilinks: **40** · orphans (no links either way): **4**
+- visible notes: **970** · broken wikilinks: **41** · orphans (no links either way): **5**
   - ⛔ `memory-mirror/feedback_adhd_output_style_2026_07_09.md` → `concise-responses` unresolved
   - ⛔ `memory-mirror/feedback_dashboard_visuals_chat_ideas.md` → `STRATEGY-SPACE-MAP` unresolved
   - ⛔ `memory-mirror/feedback_design_starts_at_external_reference_2026_08_30.md` → `app-design-dossier` unresolved
@@ -101,7 +101,7 @@ flowchart LR
   - ⛔ `memory-mirror/feedback_fable_judgment_only_no_oversell_2026_07_09.md` → `default-act-never-ask` unresolved
   - ⛔ `memory-mirror/feedback_free_model_audit_harness_2026_07_11.md` → `free-model-audit-harness-design` unresolved
   - ⛔ `memory-mirror/feedback_free_swarm_only.md` → `project_groq_paid_tier_2026_07_06` unresolved
-  - … +30 more
+  - … +31 more
 
 ## ⏰ The daily loop (live task state)
 
@@ -109,7 +109,7 @@ flowchart LR
 |---|---|---|---|
 | 08:00 | `Gamma_LaunchTV` | TV + CDP up (no TV = no trades) | Ready (last=0) |
 | 08:05/5m | `Gamma_TvWatchdog` | keeps CDP alive; heals in ~67s | Ready (last=0) |
-| 08:30 | `Gamma_Premarket` | levels, bias, hypothesis → journal note | Ready (last=267011) |
+| 08:30 | `Gamma_Premarket` | levels, bias, hypothesis → journal note | Ready (last=0) |
 | 09:30–15:55 | `Gamma_HeartbeatCore` | THE engine, 1/min | Ready (last=0) |
 | /5m RTH | `Gamma_LevelRefresh` | key-levels.json freshness | Ready (last=0) |
 | 15:55 | `Gamma_EodFlatten` | nothing 0DTE survives the close | Ready (last=0) |

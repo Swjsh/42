@@ -4,14 +4,12 @@
   "frozen_at_et_source": "python setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
   "frozen_before_any_run": true,
   "author_lane": "filter-5 (ribbon MA-stack) cost measurement + fate decision",
-
   "motivating_incident": {
     "date": "2026-07-31",
     "summary": "J called a long off the 737.68 low/wick at 10:15 ET. Bull score reached 9-10/11, the level WAS tracked, the engine detected a wick_reclaim shadow signal at 10:21 -- but the COUNTED path was blocked on FILTER 5 (ribbon MA-stack), which flipped BULL->MIXED at 10:16 and never restacked through the entire bounce. Blocked ALL 5 live arms. Price bounced +4.82 in 30 min.",
     "mechanism_tally_15_live_cells": "GATE_BLOCKED 7 (filter_5 x5, block_elite_bull x2), NO_TRIGGER_FIRED 5, SIZING_REFUSED 2, ENTERED 1",
     "note": "n=1 day = ANECDOTE. It motivates the question; it does not answer it. The population below is the evidence."
   },
-
   "filter_5_definition_as_read": {
     "source": "backtest/lib/filters.py",
     "bull_path_line": 1174,
@@ -28,7 +26,6 @@
     ],
     "existing_scoped_bypass_precedent": "filters.py ~1609-1634 trendline_only_setup: when trendline_rejection is the ONLY level-tied trigger, blockers 5, 8 and 9 are REMOVED and replaced with a -1 score demerit each. A scoped, trigger-conditional bypass of filter 5 already exists in production and has since 2026-05-09. BEAR PATH ONLY -- the bull path has NO bypass of any kind."
   },
-
   "provenance_finding_stated_before_measurement": {
     "claim": "Filter 5 has NO ratification scorecard. It is inherited doctrine, not an evidence-armed gate.",
     "evidence_checked": [
@@ -38,16 +35,13 @@
     ],
     "consequence": "Under J's standing rule (memory: kill_reentry_lock_gate_provenance_2026_07_02 -- 'every gate needs provenance + evidence or it dies'), filter 5 currently has neither. It survives only if THIS study's measurement earns it."
   },
-
   "hypothesis": "H1: Filter 5 is a lagging veto whose block-set is NOT net-negative. Specifically: the cohort of setups it blocks while every OTHER blocker is empty (blockers == [5] exactly) has POSITIVE real-OPRA expectancy when walked through the real exit manager, and removing/scoping the gate improves the book -- most importantly over the RECENT window, because a gate positive over 390 days but negative over 25 is a DEAD gate (J 2026-07-31: 'the same thing that worked on day 372 ago is not gonna work on day 162 ago').",
-
   "arms_frozen": {
     "CONTROL": "run_backtest(**SAFE_BASE_LIVE) -- live production config, unchanged.",
     "ARM_A_delete": "CONTROL + disable_filters=[5]. Filter 5 removed for BOTH directions. Option (a).",
     "ARM_B_level_anchored_bypass": "CONTROL + a NEW flag filter5_level_anchored_bypass=True. Removes blocker 5 (replacing it with a -1 score demerit, mirroring the trendline_chop_demerit precedent exactly) ONLY when the setup carries a STATIC-LEVEL-TIED trigger -- bull: level_reclaim | confluence | sequence_reclaim; bear: level_rejection | confluence | sequence_rejection. Rationale: money is level-tied (+$6,895/66tr level-anchored vs -$1,830/124tr trendline-only, PNL-ATTRIBUTION-2026-07-28); the ribbon adds nothing to a level thesis. Option (b).",
     "ARM_C_structure_shift_replacement": "DROPPED BEFORE RUNNING, not silently omitted. Exactly this semantics -- the market_structure shift as an OR-alternative to filter 5 inside the full cascade -- was already pre-registered and tested on 2026-07-28 (prereg-structure-shift-cascade-2026-07-28.json / structure-shift-cascade-ab-2026-07-28.json). Verdict: delta -$46.00 over the full population, g1 FAIL, g3 FAIL (delta-minus-best -$625), g4 FAIL, g5 FAIL. That study's own note records that the BULL side was a no-op there because the staged wiring waives only the HTF demerit on bull, never filter 5. Re-running it would be retesting a graveyard entry. Option (c) is therefore answered by prior evidence for bear and is NOT re-tested; the bull-side filter-5 question it never touched is covered by ARM_A and ARM_B here."
   },
-
   "population": {
     "window_start": "2025-01-02",
     "window_end": "2026-07-31",
@@ -58,18 +52,15 @@
     "exit_rule": "backtest/lib/exit_manager_walk.walk_exit_manager -- the REAL live exit_manager.plan_exit_actions decision core, RIBBON_RIDE registry exit shape, structure_stop enabled, time_stop 15:40 ET. NEVER simulate_trade_real (known-divergent, 2026-07-09 sim-parity scar).",
     "entry_convention": "entry+1 -- walk_exit_manager begins at the first bar STRICTLY AFTER the entry timestamp (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md). Enforced by the harness, not by hand."
   },
-
   "recent_window": {
     "definition": "the newest 25 distinct trading dates present in the population frame, ending 2026-07-31",
     "n_trading_days": 25,
     "convention_source": "backtest/autoresearch/recency_check.py RECENCY_LOOKBACK_TRADING_DAYS = 25"
   },
-
   "cohort_definitions": {
     "A_blocked_by_filter_5_alone": "every scored bar (either direction) whose blockers == [5] EXACTLY -- i.e. filter 5 is the ONLY thing standing between the setup and a pass. Captured via a pure pass-through monkeypatch of evaluate_bearish_setup / evaluate_bullish_setup during the CONTROL run (same technique as structure_shift_cascade_ab.py run_control_with_candidate_capture; restores originals in finally; zero behavior change to CONTROL).",
     "B_allowed_by_filter_5": "CONTROL's own entered book -- every trade the engine actually took with filter 5 satisfied."
   },
-
   "gates_frozen": [
     {
       "id": "G1_recent_window_positive",
@@ -96,19 +87,14 @@
       "rationale": "L243 guard: a fix that is itself so lagging/narrow it never fires is a non-fix. FIRE COUNT is reported for every arm, pass or fail, alongside P&L."
     }
   ],
-
   "advisory_not_gating": {
     "full_population_delta": "reported for every arm; informative but explicitly NOT the ship criterion (see G1 rationale)",
     "bh_fdr": "Benjamini-Hochberg across the 2 live arms (A, B) at alpha=0.10, one-sided on per-changed-trade mean > 0. Advisory.",
     "evidence_floor": "n_changed >= 10 advisory floor (structure_shift_cascade_ab.py convention)"
   },
-
   "ship_rule": "An arm SHIPS only if G1 AND G2 AND G3 AND G4 AND G5 all pass. If more than one arm passes, ship the one with the higher RECENT-window delta. If NO arm passes, filter 5 STAYS (option d) and the null goes in the graveyard verbatim -- including the case where deletion looks good on the aggregate but fails the recent window.",
-
   "reporting_rule": "ALL cells reported -- every arm, both windows, pass or fail, including cohort A's raw n / total / WR / per-trade / drop-best. No cherry-picking. Synthetic (Black-Scholes fallback) P&L is disclosed AND excluded from every total.",
-
   "no_new_knobs": "ARM_B introduces exactly ONE new boolean flag (filter5_level_anchored_bypass), default False, byte-identical when off, proven by a RED-proofed guard test. No thresholds, no sweeps, no tuning. If ARM_B needs a threshold to work, it fails.",
-
   "out_of_lane_do_not_touch": [
     "block_elite_bull requalification (another agent)",
     "J's called-entry replay + wick-touch-at-persistent-shelf detector (another agent)",
@@ -116,5 +102,13 @@
     "0.30 min_entry_premium floor provenance/fix (another agent)",
     "OPRA cache backfill to Feb 2024 (another agent)",
     "gate-expiry/revalidation-clock instrument (another agent)"
-  ]
+  ],
+  "status": "NULL -- filter 5 STAYS per own ship_rule",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/filter5-ribbon-2026-07-31.json (ARM_A_delete, the direct test of this prereg)",
+    "numbers": "Full-window delta_total=+$738.60 (n_added=21, n_dropped=8) looks positive, but the PRIMARY gate is the RECENT-25-day window: delta_total_recent=-$68.00, labeled UNDETERMINED because 4/7 recent added entries are unpriceable (missing entries would need +$17/tr average to flip sign -- inside dispersion, not a real pass). Attribution: 86% of the full-window delta is pre-emption sequencing (dropped_days_that_also_gained_a_trade = 6/6), not the gate's own block-set (added cohort worth ~$103.60 total / ~$4.93 per trade). Added cohort's exit mix is 76.2% ribbon_flip_back vs control's 48.7% premium_stop -- entries admitted against a non-stacked ribbon get closed by the ribbon-flip exit almost immediately.",
+    "lessons_cited": "C27 (detectors/gates whose apparent edge is a sequencing artifact, not a real block-set edge) and C28 (ribbon flip is a lagging exit, L139-243) -- filter 5's entry veto and the ribbon_flip_back exit read the SAME lagging indicator; removing the veto alone manufactures round-trips rather than capturing real edge.",
+    "rationale": "Per ship_rule: 'If NO arm passes, filter 5 STAYS (option d) and the null goes in the graveyard verbatim.' Reused ARM_A_delete's existing computed gates; no new run."
+  }
 }

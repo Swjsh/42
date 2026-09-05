@@ -16,5 +16,13 @@
   ],
   "kill_criteria_post_arm": "Forward: 10 sessions or n>=8 shift-path fills, whichever first; negative expectancy vs counterfactual lagging-gate behavior -> revert the flag, record.",
   "no_new_knobs": "K=3 only (pre-reg #1's primary; K=2 sensitivity is dropped -- it was worse and adds a comparison). No other parameters exist.",
-  "arming_authority": "J's standing 2026-07-28 directive (rule-9 waiver documented in pre-reg #1) applies; arming on a PASS may happen same-day. A FAIL or evidence-thin result stays off and gets recorded."
+  "arming_authority": "J's standing 2026-07-28 directive (rule-9 waiver documented in pre-reg #1) applies; arming on a PASS may happen same-day. A FAIL or evidence-thin result stays off and gets recorded.",
+  "status": "KILL -- fails own frozen gates, DO_NOT_ARM",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/structure-shift-cascade-ab-2026-07-28.json (already-committed A/B run of this exact prereg, id STRUCTURE-SHIFT-IN-CASCADE)",
+    "numbers": "verdict field = DO_NOT_ARM. g1_positive_aggregate delta_total=-$46.00 (FAIL); g2_day_majority 10 improved/6 worsened (PASS); g3_survives_drop_best delta_minus_best=-$625.00 (FAIL); g4_preemption_no_negative_day 2 of 7 preempted days go net-negative (FAIL); g5_bear_anchor_added: the 2026-07-27 09:40 bear anchor did NOT get added by the treatment (FAIL). Ship rule requires ALL 5 gates -- only 1/5 (G2) passes.",
+    "lessons_cited": "Matches CLAUDE.md Lessons index C22 (backward-looking classifiers anti-correlate with recovery periods, L118-146) and C28 (ribbon flip is a lagging exit, L139,141,156,157,175,243) -- the structure-shift predicate is itself a lagging confirmation gated the same way the ribbon-flip exit already is; this is the same anti-pattern shape already graveyarded under those L#s.",
+    "rationale": "Pre-reg #2's own companion A/B file (committed same day) is the direct evidence artifact for this exact hypothesis; per OPERATING RULES this adjudication reuses that existing run rather than inventing a new backtest pass."
+  }
 }

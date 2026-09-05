@@ -4,13 +4,11 @@
   "frozen_at_et_source": "python setup/scripts/et_clock.py (run this session; NEVER bash TZ -- box is Mountain, ET = local+2)",
   "frozen_before_any_run": true,
   "author_lane": "filter-8 (VIX regime gate) participation + fate decision, archetype-conditional lens (REGIME-PARTICIPATION-2026-08-02 task)",
-
   "motivating_finding": {
     "source": "analysis/deep-research/REGIME-PARTICIPATION-2026-08-02.md (this study)",
     "summary": "Full-history replay of the live core-Safe engine (2025-01-02..2026-07-22, 191 real-OPRA trades, $4,808.75) shows gap-go = 60.5% of ALL P&L ($2,911.10) on ~22% of days; trend-up/trend-down/V-reversal/inverted-V are all underpowered (n<15 trades). A NEW full-population bear-side decision-trace replay (backtest/tools/regime_participation_replay.py, 2025-01-02..2026-07-27, 390 days, 2306 qualifying candidates) cross-referenced against the WS6 regime library shows GATE_BLOCKED[filter_8] (VIX regime) is the SINGLE LARGEST blocker by day-count AND by oracle-bound dollars in EVERY archetype without exception: trend-up 10/28 days blocked (oracle bound -$222.00), trend-down 4/14 (+$1,951.50), V-reversal 3/11 (+$1,477.50), inverted-V 4/9 (+$258.35), gap-go 21/86 (+$8,889.85), gap-fade 33/62 (+$4,700.10), pin-day 3/21 (-$30.00), range-chop 43/158 (+$9,521.70). This matches and extends the INDEPENDENT 90-day DAY-CARDS-90D-2026-07-28.md finding, which already flagged GATE_BLOCKED[filter_8] as the #2 cause of the engine's shortfall against the FOCUS-DOCTRINE $100/day floor (19 days, oracle bound +$6,664, first-shot bound +$2,859/17 days) and explicitly stated: 'First-shot +$2,859/17d is the hypothesis, NOT a validated edge... needs the full pre-reg battery.' This prereg is that battery.",
     "n_1_anecdote_note": "core-decisions.jsonl (live window 2026-06-25..2026-07-31, armed==True only) independently shows filter_8-adjacent blocking is real but the DOMINANT live blocker in that short window is actually block_elite_bull (a tier/cohort gate, out of this lane's scope -- see out_of_lane below), observed on only 1 trend-up day and 1 trend-down day. That thinness is exactly why this prereg's PRIMARY evidence is the full-population replay, not the live window; the live window is reported as a cross-check, not the basis for the hypothesis."
   },
-
   "filter_8_definition_as_read": {
     "source": "backtest/lib/filters.py",
     "bull_path_line": "1190-1195 (inside evaluate_bullish_setup)",
@@ -27,7 +25,6 @@
     ],
     "existing_escape_valve": "vix_soft_mode: bool = False is ALREADY a real, wired parameter on evaluate_bearish_setup (threaded through lib/engine/score.py, engine_cli.py, orchestrator.py -- confirmed live, not dead code). disable_filters is likewise already wired on both paths. This prereg introduces ZERO new parameters or code paths -- both arms toggle existing, already-plumbed flags."
   },
-
   "provenance_finding_stated_before_measurement": {
     "claim": "Filter 8 has NO ratification scorecard using the current gold-standard exit-walk methodology. It is inherited doctrine (same single squashed-snapshot commit as filter 5), and the ONLY prior research on relaxing it is built on a KNOWN-DIVERGENT, now-superseded simulation path -- its headline numbers must NOT be cited as evidence.",
     "evidence_checked": [
@@ -38,16 +35,13 @@
     ],
     "consequence": "Under J's standing rule (memory: kill_reentry_lock_gate_provenance_2026_07_02 -- 'every gate needs provenance + evidence or it dies'), filter 8 currently has neither a provenance-backed arming decision NOR a trustworthy scorecard. It survives only if THIS study's measurement (current gold-standard exit walk, not the divergent 2026-05-19 path) earns it."
   },
-
   "hypothesis": "H1: Filter 8 (VIX regime gate) is a lagging veto whose block-set is NOT net-negative when walked through the REAL exit manager, and relaxing it disproportionately restores participation in the trend-up/trend-down/V-reversal/inverted-V archetypes where the engine is currently most starved (per this study's full-population blocker histogram) -- most importantly over the RECENT window, per J's dynamic-market doctrine (2026-07-31: 'the same thing that worked on day 372 ago is not gonna work on day 162 ago'). H0 (null): relaxing filter 8 either does not improve the recent-window book, or improves it only by adding low-quality trades that regress the runner-cohort profit engine or the already-working gap-go/range-chop archetypes.",
-
   "arms_frozen": {
     "CONTROL": "run_backtest(**SAFE_BASE_LIVE) -- live production config, unchanged.",
     "ARM_A_soft": "CONTROL + vix_soft_mode=True. BEAR-SIDE ONLY (see asymmetry_disclosed above) -- filter 8 becomes a -1 score demerit on bear candidates instead of a hard block; bull-side filter 8 unchanged (still an unconditional hard block, no soft-mode exists there). Zero new code -- toggles an existing, already-wired flag.",
     "ARM_B_delete": "CONTROL + disable_filters=[8]. SYMMETRIC across both sides -- filter 8 removed entirely from both evaluate_bullish_setup and evaluate_bearish_setup, no demerit either. Zero new code.",
     "ARM_C_bull_soft_new_flag": "NOT ATTEMPTED HERE. A bull-side soft-mode would require a genuinely NEW code path (evaluate_bullish_setup has no vix_soft_mode parameter to toggle) -- out of this prereg's 'no new knobs' discipline. If ARM_A/ARM_B's results suggest the bull side specifically is where the value is, a follow-up prereg should scope that new flag on its own, gated by this study's findings, not bundled in blind."
   },
-
   "population": {
     "window_start": "2025-01-02",
     "window_end": "2026-07-31",
@@ -59,18 +53,15 @@
     "entry_convention": "entry+1 -- walk_exit_manager begins at the first bar STRICTLY AFTER the entry timestamp (markdown/audits/ENTRY-BAR-CONVENTION-RULING-2026-07-25.md). Enforced by the harness, not by hand.",
     "archetype_tagging": "every changed/candidate day tagged via backtest/lib/regime_slice.py against analysis/regime-library/day-archetypes.json (spec_version 1.0.0, frozen) -- descriptive attribution only, reported per G6 below, not itself a search dimension."
   },
-
   "recent_window": {
     "definition": "the newest 25 distinct trading dates present in the population frame, ending 2026-07-31",
     "n_trading_days": 25,
     "convention_source": "backtest/autoresearch/recency_check.py RECENCY_LOOKBACK_TRADING_DAYS = 25 (same convention prereg-filter5-ribbon-2026-07-31.json uses)"
   },
-
   "cohort_definitions": {
     "A_blocked_by_filter_8_alone": "every scored bar (either direction) whose blockers == [8] EXACTLY -- filter 8 is the ONLY thing standing between the setup and a pass. Captured via a pure pass-through monkeypatch of evaluate_bearish_setup / evaluate_bullish_setup during the CONTROL run (same technique prereg-filter5-ribbon-2026-07-31.json and structure_shift_cascade_ab.py use; restores originals in finally; zero behavior change to CONTROL).",
     "B_allowed_by_filter_8": "CONTROL's own entered book -- every trade the engine actually took with filter 8 satisfied."
   },
-
   "gates_frozen": [
     {
       "id": "G1_recent_window_positive",
@@ -97,24 +88,27 @@
       "rationale": "L243 guard: a fix that is itself so lagging/narrow it never fires is a non-fix. FIRE COUNT is reported for every arm, pass or fail, alongside P&L."
     }
   ],
-
   "reported_not_gating": {
     "G6_archetype_participation_delta": "per-archetype (trend-up / trend-down / V-reversal / inverted-V / gap-go / gap-fade / pin-day / range-chop) delta in n_days_entered and total $, full population AND recent window, for each arm vs CONTROL. This is the motivating question (does the archetype-conditional participation gap actually close) but is EXPLICITLY DESCRIPTIVE, not a ship gate -- slicing an already-thin population 8 further ways and gating on any one slice would be uncorrected multiple comparisons on top of an underpowered base. It feeds a FUTURE archetype-conditional study if the aggregate (G1-G5) ships; it does not by itself justify shipping.",
     "full_population_delta": "reported for every arm; informative but explicitly NOT the ship criterion (see G1 rationale)",
     "bh_fdr": "Benjamini-Hochberg across the 2 live arms (A_soft, B_delete) at alpha=0.10, one-sided on per-changed-trade mean > 0. Advisory.",
     "evidence_floor": "n_changed >= 10 advisory floor (structure_shift_cascade_ab.py / prereg-filter5 convention)"
   },
-
   "ship_rule": "An arm SHIPS only if G1 AND G2 AND G3 AND G4 AND G5 all pass. If both arms pass, ship the one with the higher RECENT-window delta. If NO arm passes, filter 8 STAYS and the null goes in the graveyard verbatim -- including the case where deletion/soft-mode looks good on the aggregate but fails the recent window, and including the case where G6's archetype numbers look good but G1-G5 don't clear (a real but not yet ship-worthy finding, logged for the follow-up study, not force-shipped on a descriptive metric).",
-
   "reporting_rule": "ALL cells reported -- every arm, both windows, pass or fail, including cohort A's raw n / total / WR / per-trade / drop-best AND the full G6 archetype breakdown. No cherry-picking. Synthetic (Black-Scholes fallback) P&L is disclosed AND excluded from every total. The 2026-05-19 vix_soft sweep family's numbers are NOT reported as comparison points (see provenance section) beyond noting they exist and why they are excluded.",
-
   "no_new_knobs": "Both live arms (A_soft, B_delete) toggle EXISTING, already-wired flags (vix_soft_mode, disable_filters) -- zero new parameters, zero new thresholds, zero sweeps. ARM_C (bull-side soft-mode) would require new code and is explicitly NOT attempted in this prereg (see arms_frozen).",
-
   "out_of_lane_do_not_touch": [
     "filter 5 (ribbon direction) -- ALREADY has its own frozen, active pre-registration: analysis/recommendations/prereg-filter5-ribbon-2026-07-31.json. Not re-proposed here; do not duplicate that lane's work.",
     "block_elite_bull requalification -- explicitly another agent's lane per prereg-filter5-ribbon-2026-07-31.json's own out_of_lane list. This study's LIVE core-decisions window (2026-06-25..2026-07-31) shows it as the dominant blocker across every observed archetype for BOTH accounts, which makes it directly relevant to trend-day bull-side participation -- flagged for that lane's attention, not absorbed into this one.",
     "2024 stratum extension (regime-tag + full engine replay) -- would roughly double n for the underpowered archetypes (analysis/deep-research/OPRA-BACKFILL-2026-07-31.md clears 239 usable 2024 days) but requires (a) extending backtest/tools/build_day_archetypes.py's data lineage to read 2024 bars, currently deliberately excluded, and (b) a new full engine replay over 2024 -- neither exists yet. Separate, appropriately-scoped infra task, not bundled into this gate study.",
     "sub-threshold trigger / scoring-component investigation on trend days (CORRECTLY_FLAT = 9 of trend-up's 28 non-entry days, triggers fired but never reached score>=8) -- a real, distinct participation mechanism from GATE_BLOCKED, but requires its own diagnostic pass (which score COMPONENT under-fires in trending regimes) before it is even a testable A/B. Noted as a candidate follow-up, not scoped here."
-  ]
+  ],
+  "status": "NULL -- filter 8 STAYS, both arms NULL per own ship_rule",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/vix-regime-gate-archetype-2026-08-02.json (ARM_A_soft, ARM_B_delete)",
+    "numbers": "ARM_A_soft: all_gates_pass=False, verdict=NULL (G1_recent_window_positive=False, G2_day_majority_recent=False, G3_survives_drop_best_recent=False; G4/G5 pass). ARM_B_delete: identical pattern, all_gates_pass=False, verdict=NULL.",
+    "lessons_cited": "C27 (lagging veto whose block-set is not net-negative once you correct for sequencing) -- same shape as the sibling filter5-ribbon-2026-07-31 study run the day before.",
+    "rationale": "Per ship_rule: 'If NO arm passes, filter 8 STAYS and the null goes in the graveyard verbatim.' Reused both arms' existing computed gates."
+  }
 }

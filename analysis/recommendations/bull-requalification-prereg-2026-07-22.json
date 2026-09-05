@@ -18,11 +18,13 @@
   ],
   "account_scope": "safe (Gamma-Safe-2) ONLY. Bold has a different VIX band [15,18) and block_bull_morning_agg=false (J-directed removal 2026-06-24) -- out of scope, separate study if needed.",
   "strategy": "BULLISH_RECLAIM_RIDE_THE_RIBBON (ribbon_ride) -- the only bull setup in setups_allowed.",
-
   "method": {
     "signal_detection": "run_backtest(use_real_fills=True) A/B per gate, held-constant isolation: BASE = both prod gates True; UNBLOCK_ELITE = block_elite_bull False (block_bull_1100_1200 held True); UNBLOCK_1100 = block_bull_1100_1200 False (block_elite_bull held True). Added cohort per gate = trades present in the UNBLOCK run but not BASE, filtered side=='C'. This reuses bull_unblock_replay_probe.py's established added-cohort method (dated 2026-06-30), changing ONLY strike_offset (-2 -> 0) and the window/gate-stack to current production values.",
     "strike": "strike_offset=0 (ATM) -- corrects the one variable every prior bull-gate study (2026-06-18 original ratifications, 2026-06-30 replay, 2026-07-10 SS-B revalidation) left at OTM-2 or OTM-3. ATM has been core-Safe's REAL live strike since >=2026-06-18 per analysis/deep-research/2026-07-11-strike-tier-reconciliation.md.",
-    "window": ["2026-05-21", "2026-07-17"],
+    "window": [
+      "2026-05-21",
+      "2026-07-17"
+    ],
     "window_rationale": "Bounded by backtest/data/options/ cache coverage (earliest relevant continuous SPY 5m + option-bar overlap through 2026-07-17; task brief's own '2026-05-19..07-17+' framing). No live/broker reads used (rail-4/no-broker-imports compliance) -- entry premiums and exit walks are 100% local-cache (backtest/data/options/*.csv), so any signal whose contract is not cached is DROPPED and counted in n_missing_bars, never imputed.",
     "other_gates_held_at_production": {
       "block_level_rejection": true,
@@ -33,13 +35,12 @@
       "filter_10_min_triggers_bull": 2,
       "entry_bar_body_pct_min": 0.2,
       "no_trade_before": "09:35",
-      "per_trade_risk_cap_pct": 0.30,
+      "per_trade_risk_cap_pct": 0.3,
       "initial_equity": 1746.75
     },
     "exit_replay": "backtest/lib/exit_manager_walk.py#walk_exit_manager -- the REAL production exit_manager.plan_exit_actions decision core (NOT simulate_trade_real, which exit_manager_walk.py's own docstring documents as KNOWN-DIVERGENT from live). exit_shape = automation/state/fleet/strategies.py RIBBON_RIDE.exit.to_dict() (the LIVE-SHIPPED SS-B shape: premium_stop_pct=-0.50 catastrophe cap, tp1_premium_pct=1.0/sell 66.7%, profit_lock_mode=trailing/trail_pct=0.15, runner_target_pct=99.0, stop_mode=structure). structure_stop_enabled=True (matches automation/state/params.json's live structure_stop_enabled=true). trigger_level = the added trade's own rejection_level from the run_backtest detection pass. time_stop_et = exit_manager.TIME_STOP_ET (15:50 ET, the live constant). opt_df/five_min_spy_df sourced from local backtest/data/ caches only.",
     "known_simplification": "ribbon_tick_df=None (no ribbon-flip-back exit modeled) -- matches the established methodology in backtest/tools/structure_stop_study.py#replay_structure_aware (which always passes ribbon_flip_back=False), the same simplification the already-shipped 2026-07-10 SS-B revalidation used. This is CONSERVATIVE for a bull cohort under scrutiny (an omitted early-exit channel can only remove a WORSE outcome from firing, i.e. this walk can only be flattering, never unfairly harsh, to the cohorts under test) -- disclosed, not hidden."
   },
-
   "stats_reported_per_cohort": [
     "n, win_rate, total_pnl, expectancy_per_trade",
     "day_concentration (top3-day % of net)",
@@ -47,7 +48,6 @@
     "chronological half-split (first half of window vs second half) as an IS/OOS-style stability proxy -- the 2-month window is too short for a calendar-quarter split",
     "n_structure_fired (how many exits used the structure-stop channel vs premium/TP1/time-stop)"
   ],
-
   "pass_bar_OP16": {
     "statement": "Per CLAUDE.md OP-16 auto-ratify rail (adapted to a REQUALIFICATION, not a fresh ship): a gate is graded RETIRE (unblock recommended) only if ALL of:",
     "conditions": [
@@ -59,14 +59,19 @@
     "any_condition_failing_with_n_ge_20": "verdict = KEEP (the original block's verdict SURVIVES on current config)",
     "n_below_20": "verdict = RETEST-INSUFFICIENT-N regardless of sign -- never forced either way, per the task brief's explicit instruction."
   },
-
   "reconciliation_targets": {
     "block-elite-bull-ssb-revalidation.json_2026-07-10": "SS-B exit shape already applied there, but strike_offset=-2 (OTM-2), window 2026-05-21..2026-07-10, n=28, SS-B total_pnl=-$3,873.60, WR 28.6%, drop_top1 still negative -- verdict KEEP. This pre-reg's ATM re-test either confirms (same-sign, same order of magnitude) or overturns that KEEP; if it overturns, the too_good_hunt disclosure clause below applies.",
     "bull-unblock-elite-replay-2026-06-30.json": "OLD exit shape, OTM-2 strike, window 2026-05-21..2026-06-30, n=7, net -$241.26. Superseded by the SS-B revalidation above (same window, more mature exit model) -- carried forward for provenance only, not re-litigated here.",
     "bold-strike-axis-2026-07-15.json": "Bold-account ATM-cell A/B (different account, different VIX band, different equity/sizing) -- disjoint scope from this Safe-only study. Any apparent agreement/disagreement is coincidental, not a shared-cohort comparison; addressed narratively in the companion .md, not re-run here."
   },
-
   "too_good_discipline": "If either gate's ATM/SS-B cohort clears the pass bar (verdict RETIRE) AND its total_pnl is more than 2x the magnitude of the corresponding OTM-2/SS-B or OLD-exit total on the SAME added-cohort trades, the output must name the specific artifact hunted (day-concentration, single-signal dominance, ATM-vs-OTM premium-scaling sanity check on 2-3 sample trades) before the verdict is reported -- per /fable-too-good.",
-
-  "rail": "ANALYSIS ONLY. Read-only against automation/state/params.json, automation/state/fleet/strategies.py, backtest/data/*.csv, backtest/data/options/*.csv. NO writes to any trading-path file. NO broker/Alpaca imports (fleet_broker, exit_shape_parity_study, structure_stop_study are NOT imported -- their broker-touching modules are avoided by construction; only tw8_level_context-free, pure-local logic is used). NO commits/pushes. NO live/network OPRA reads -- missing cache = dropped trade, disclosed in n_missing_bars, never imputed."
+  "rail": "ANALYSIS ONLY. Read-only against automation/state/params.json, automation/state/fleet/strategies.py, backtest/data/*.csv, backtest/data/options/*.csv. NO writes to any trading-path file. NO broker/Alpaca imports (fleet_broker, exit_shape_parity_study, structure_stop_study are NOT imported -- their broker-touching modules are avoided by construction; only tw8_level_context-free, pure-local logic is used). NO commits/pushes. NO live/network OPRA reads -- missing cache = dropped trade, disclosed in n_missing_bars, never imputed.",
+  "status": "KILL -- gate stays KEEP (blocking), bull cohort thin/negative at ATM",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/bull-requalification-2026-07-22.json + .md",
+    "numbers": "block_elite_bull (Safe): decision-log mining n=30, total +$665.60 but drop-top-1 flips to -$1,420.80 (fails stability), WR 16.7%, top3-day=580.8% of net -> KEEP (i.e. bull stays blocked). Raw current-config real fills across all 6 fleet arms since SS-B (2026-07-09): n=24 (>= OP-16's n>=20 floor), WR 0%, total -$885.00; core Safe specifically n=8, all losers, -$312.00. block_bull_1100_1200: n=1-2, RETEST-INSUFFICIENT-N.",
+    "lessons_cited": "Matches memory project_bull_already_wired_2026_06_28.md ($5,586 claim was a SIM; real n=80 WR 1.2%) -- three independent current-config measurements (backtest re-detection, decision-log mining, raw real fills) all agree bull is a low-win-rate, day-concentrated population near breakeven-to-negative at ATM exactly as it was at OTM-2.",
+    "rationale": "Reused the already-committed OP-16 requalification study; no new run needed."
+  }
 }

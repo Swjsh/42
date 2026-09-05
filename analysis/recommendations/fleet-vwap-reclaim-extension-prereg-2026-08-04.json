@@ -28,5 +28,13 @@
   },
   "revert": "ONE LINE: build_shared_signal.RUN_VWAP_RECLAIM_FB = False (producer stops emitting; consumers go inert; byte-identical signal). Registry/routing code may stay dormant.",
   "guards": "backtest/tests/test_vwap_reclaim_fleet_extension_2026_08_04.py -- vary-and-assert: (1) risky-3 ENTERs / safe-3 HOLDs on the same real-shaped signal (divergence proof), (2) strike routing provably diverges from the arm table at an equity where they differ (C14 live-knob proof), (3) exit-shape port exact, (4) flag-off byte-identical revert, (5) full-send clamp on risky-1",
-  "measurement_context": "Committed alongside RISKY3-DIVERGENCE-2026-08-03 measurement: last 5 sessions risky-3 marginal cohort vs both safes = n=4 closed -$229 real (2 BASE-quality bears -$275, 2 premium-floor/strike-tier bulls +$46); all 39 all-time risky-3 placed entries lane=normal (probe/ladder/full-send: 0 fires ever)."
+  "measurement_context": "Committed alongside RISKY3-DIVERGENCE-2026-08-03 measurement: last 5 sessions risky-3 marginal cohort vs both safes = n=4 closed -$229 real (2 BASE-quality bears -$275, 2 premium-floor/strike-tier bulls +$46); all 39 all-time risky-3 placed entries lane=normal (probe/ladder/full-send: 0 fires ever).",
+  "status": "KILL -- cohort net-negative at the kill checkpoint per own pre-committed criterion",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "python -c \"import csv; rows=[r for r in csv.DictReader(open('journal/trades.csv', encoding='utf-8-sig')) if r.get('account_id') in ('risky-3','risky-1') and 'vwap_reclaim_failed_break' in str(r.get('setup','')).lower()]; print(len(rows), sum(float(r['dollar_pnl']) for r in rows))\"",
+    "numbers": "n=3 real risky-3 fills since arming 2026-08-04 (all on 2026-08-17): -$64, -$72, -$64 = -$200.00 total. Kill criterion (frozen in this prereg): window: n>=10 risky-3 fills OR 10 trading sessions from arming, whichever first; kill_if: cohort net real-fill P&L < 0 at checkpoint -> revert. It is now ~18 trading sessions since arming (2026-08-04) with zero additional fires and the checkpoint window (10 sessions) is long past; cohort net P&L is negative.",
+    "lessons_cited": "None of the standing lesson classes directly apply; this is a straightforward frozen-criterion kill on thin, negative real-fills evidence, consistent with C1 (real-fills is the only WR authority).",
+    "rationale": "Reused journal/trades.csv (the canonical real-fills ledger) rather than inventing a new backtest; the setup is still technically wired in heartbeat_core.py/setup_dispatch.py but the criterion's own OR-clause has already fired on elapsed time."
+  }
 }

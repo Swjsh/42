@@ -3,11 +3,8 @@
   "frozen_at_et": "2026-07-28T19:0x",
   "frozen_before_any_run": true,
   "authority": "J 2026-07-28 post-close, verbatim: 'Are you sure that you're not trying to apply the same strategy every day? The same thing is not gonna work every day. We'll have to adapt for the market. Some days we might just scalp a little bit, some days we might ride the wave. Just because it failed every day doesn't necessarily mean it should be a kill.'",
-
   "the_critique_conceded": "Every variant killed this week was tested UNCONDITIONALLY -- one rule applied at every trigger regardless of market state. A rule that is strongly positive in one regime and strongly negative in another nets to ~zero and gets killed, and we would never know. Supporting evidence already on file: the P&L attribution found chop days = -$1,797 while the same engine is positive overall, i.e. regime dependence is measurable in THIS book.",
-
   "hypothesis": "H: at least one variant in the graveyard is consistently positive INSIDE a morning-knowable regime, even though it nets negative unconditionally.",
-
   "graveyard_under_test": [
     "score ladder floors 7/8/9 (LADDER-FULLHIST-2026-07-27.json)",
     "ladder subset score>=9+confluence+htf (LADDER-SUBSET-VERDICT-2026-07-28)",
@@ -16,7 +13,6 @@
     "zone bands 10c/25c (ZONE-WIDTH-2026-07-28.json)",
     "min_triggers_bear=2 (min-triggers-bear2-ab-2026-07-28.json) -- already staged, re-slice for regime too"
   ],
-
   "regime_axes_frozen_MORNING_KNOWABLE_ONLY": {
     "rule": "A conditioning variable is admissible ONLY if it is fully determined before the entry decision. Backward-looking / same-day-outcome classifiers are FORBIDDEN -- that defect is exactly how structure_veto labelled an $8 down day 'uptrend' (C22).",
     "axes": [
@@ -28,16 +24,20 @@
     ],
     "forbidden_examples": "same-day day_type, same-day realized range, anything computed from bars after the entry bar."
   },
-
   "method": "DESCRIPTIVE re-slice of ALREADY-COMPUTED per-trade records. No new replays, no new variants, no re-optimization. For each graveyard variant x each regime axis: n, total, per-trade, WR, day-majority, drop-best, computed from the stored per-trade JSONs.",
-
   "multiplicity_discipline": "This is a systematic search over ~6 variants x ~5 axes x ~3 buckets = up to ~90 slices. That IS a search and it WILL manufacture false positives if reported raw. Therefore: (a) report ALL slices, (b) apply Benjamini-Hochberg FDR across the ENTIRE slice surface at once, (c) NOTHING is armed or even proposed off this run -- a surviving slice earns exactly one thing: its own fresh pre-registration on a frozen forward/held-out window, run separately.",
-
   "gates_frozen": [
     "A slice is a CANDIDATE only if: n>=25 trades in the bucket AND positive aggregate AND day-majority AND survives-drop-best AND BH-significant at q<=0.10 across the full slice surface",
     "Any candidate then requires a SEPARATE pre-registered confirmation before any arming discussion",
     "If ZERO slices qualify: the unconditional kills stand under J's own lens, and that is the reportable answer"
   ],
-
-  "expected_outcome_stated_up_front": "Most likely outcome is zero qualifying slices -- the graveyard variants lost by large margins (e.g. -$31,015 at ladder floor 7), which regime conditioning is unlikely to rescue. The value of this run is that it ANSWERS J's question with data instead of assertion, and it establishes the regime-conditioning harness for future candidates whose unconditional result is marginal rather than catastrophic."
+  "expected_outcome_stated_up_front": "Most likely outcome is zero qualifying slices -- the graveyard variants lost by large margins (e.g. -$31,015 at ladder floor 7), which regime conditioning is unlikely to rescue. The value of this run is that it ANSWERS J's question with data instead of assertion, and it establishes the regime-conditioning harness for future candidates whose unconditional result is marginal rather than catastrophic.",
+  "status": "NULL -- 0/178 slices survive BH-FDR correction",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/deep-research/REGIME-RESLICE-2026-07-28.md (backtest/tools/regime_reslice_2026_07_28.py, 13/13 guard tests green)",
+    "numbers": "178 total slices (161 BH-eligible) across 10 graveyard variants x 4 morning-knowable regime axes. 0 candidates survive Benjamini-Hochberg FDR at q<=0.10. Best single p-value in the whole surface (min_triggers_bear2 x prior_day_type=range, p=0.00637) needed <=0.00062 for rank-1 BH significance and missed by 10x. 7 near-misses pass 4/5 gates (n>=25, positive aggregate, day-majority, survives-drop-best) but fail multiplicity correction -- exactly the manufactured-false-positive risk the pre-reg's own multiplicity_discipline clause named in advance.",
+    "lessons_cited": "This prereg IS the C22 (L118-146) self-check -- its own regime_axes_frozen_MORNING_KNOWABLE_ONLY clause exists specifically to forbid the backward-looking-classifier trap. Result: none of the graveyard kills (ladder floors 7/8/9, structure-shift standalone/cascade, zone-width bands) are rescued by any morning-knowable regime pocket. The unconditional kills stand.",
+    "rationale": "Descriptive re-slice of already-computed per-trade records, exactly as the pre-reg specified (no new replay). Reused existing output rather than re-running."
+  }
 }

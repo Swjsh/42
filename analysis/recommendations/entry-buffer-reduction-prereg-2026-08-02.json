@@ -78,5 +78,13 @@
         }
       }
     ]
+  },
+  "status": "EXTEND -- shipped 2026-08-02, live in both params files, held past its post-ship kill window",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "grep -n entry_cross_buffer automation/state/params.json automation/state/aggressive/params.json",
+    "numbers": "0.015 candidate is live in both params.json and aggressive/params.json (_entry_cross_buffer_doc confirms SHIPPED 2026-08-02). Original results (embedded in this prereg's own results.per_candidate_headline): candidate 0.015 PASS_ALL_GATES, total_delta_pnl=+$853.00, fill_rate=94.3%, 0 runner-cohort misses; candidate 0.01 FAILED the runner-cohort zero-tolerance gate (2 misses including a named winner anchor). Kill criterion (n>=10 real fills OR 10 trading sessions post-ship, if realized worse than 0.03 baseline -> revert) has had ~1 month to trigger and has not -- the key remains unchanged in both frozen params files.",
+    "lessons_cited": "None -- clean ship-and-hold case.",
+    "rationale": "Reused this prereg's own embedded results object plus a live grep of the frozen params files (read-only, no edit -- FROZEN_TRADING_PATH respected) as the evidence of record."
   }
 }

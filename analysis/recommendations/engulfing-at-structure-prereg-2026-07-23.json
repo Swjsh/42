@@ -4,47 +4,124 @@
   "frozen_at": "2026-07-23T18:35:00-04:00",
   "frozen_before_any_run": true,
   "frozen_before_note": "The FULL real-fills replay (section below) had NOT been run when this file was written. A cheap, targeted, non-P&L falsification check (detector fired or not, both anchor bars, every candidate grid cell) WAS run first and its exact output is quoted verbatim in `anchor_falsification_precheck` -- this is the same discipline automation/overnight/queue.md's own prior fire on this item required before building any grid on the follow-up primitive ('a new rolling-K-bar local-extreme-cluster primitive must be falsified against this exact bar BEFORE any pre-reg is built on it'). The precheck fixed the grid's axis VALUES (which bands/N-bars are even worth including); it did not touch P&L, gates, or population -- those are frozen here, unrun.",
-
   "origin": {
     "queue_item": "ENGULFING-AT-STRUCTURE-TRIGGER (automation/overnight/queue.md)",
     "prior_attempt": "backtest/lib/patterns/registry.py::engulfing_at_swing_shelf (commit 31c5089e) composed the existing `engulfing` predicate with the existing `flat_side(kind=swing_high/low, n_touches=2)` primitive over crypto.lib.market_structure labeled_swings. VERIFIED via backtest/tools/pattern_anchor_verify.py (commit eea3f423) to NOT fire on either exhibit -- both anchors on that registry rule are honestly declared expected_fire=false.",
     "root_cause_pinned": "labeled_swings' pivot confirmation requires `window`=2 bars on BOTH sides of a candidate pivot (crypto.lib.market_structure.DEFAULT_WINDOW / walk_structure's by_confirm lag) before it counts as a confirmed swing. In BOTH exhibits the second touch of the shelf IS the reaction/engulfing bar itself (bar t), which has zero bars after it at evaluation time -- a 2-sided-fractal primitive can never confirm its own trigger bar as a touch in time to fire on it. Every rule composed on flat_side/labeled_swings inherits this blind spot structurally, not as a tuning miss.",
     "new_primitive": "backtest/tools/engulfing_at_structure_detector.py::find_shelf_touch -- a ONE-SIDED (backward-only) rolling local-extreme check (is_rolling_extreme: bar i's low/high is the min/max of itself + a short window of PRECEDING bars only). A touch can therefore be confirmed using ONLY bars <= t, including t itself as the second touch. This is the exact primitive queue.md's falsification writeup named as the required next step, not a re-run of the swing-shelf angle."
   },
-
   "runner": "backtest/tools/edge_matrix_engulfing_at_structure.py",
   "detector": "backtest/tools/engulfing_at_structure_detector.py",
   "episodes_output": "analysis/recommendations/engulfing-at-structure-episodes-2026-07-23.json",
   "results_output": "analysis/recommendations/engulfing-at-structure-2026-07-23.json",
-
   "hypothesis": "An engulfing candle (standard OHLC body-containment geometry, body-% floor gated) whose reaction bar sits within a small $ zone-band of a recent rolling-window local extreme (a 'shelf' -- NOT a formally-confirmed swing pivot) marks a tradeable reversal: bearish engulfing at a high-shelf -> put, bullish engulfing at a low-shelf -> call. This is genuinely untested vocabulary -- the 98-cell edge-matrix + 83-cell kitchen matrix tested LEVEL-TOUCH triggers (rejection/reclaim/flip/pingpong/break-retest) and non-level trend vocab; a candle pattern reacting at freshly-formed INTRADAY swing structure (not a named daily level) was never a cell in either.",
-
   "anchor_falsification_precheck": {
     "method": "backtest/.venv/Scripts/python.exe -c \"...\" run against backtest/data/spy_5m_2026-05-19_2026-07-23.csv (the freshest cache, includes 2026-07-23) BEFORE the grid axis values below were chosen. RTH-sliced (09:30-16:00 ET), tz-aware timestamp_et parsed via pd.to_datetime(utc=True).tz_convert('America/New_York') (correct-parse convention, matches pattern_prescreen.py's own TIMESTAMP CONVENTION note). Every candidate cell across zone_band in {0.08,0.15,0.25} x body_floor in {0.50,0.65} x min_bars_apart in {1,2,3,5} was checked against detect_bar() at the exact two anchor bar indices. Full result table quoted verbatim below (not summarized) -- this IS the falsification evidence, not a paraphrase of it.",
-    "bar_2026_07_23_10_40": {"open": 740.38, "high": 740.64, "low": 738.67, "close": 738.87, "body_pct": 0.7665},
-    "bar_2026_07_21_11_05": {"open": 746.00, "high": 747.07, "low": 745.85, "close": 746.98, "body_pct": 0.8033},
+    "bar_2026_07_23_10_40": {
+      "open": 740.38,
+      "high": 740.64,
+      "low": 738.67,
+      "close": 738.87,
+      "body_pct": 0.7665
+    },
+    "bar_2026_07_21_11_05": {
+      "open": 746.0,
+      "high": 747.07,
+      "low": 745.85,
+      "close": 746.98,
+      "body_pct": 0.8033
+    },
     "result_table": [
-      {"band": 0.08, "nbar": 1, "bear_fires": false, "bull_fires": true, "note": "bull touch=10:40(745.77) vs 745.85 not reached at nbar1 -- nearest touch is 11:00(745.83), spread=0.02, fires; bear touch=10:35(740.51) vs 740.64 spread=0.13 > 0.08, fails"},
-      {"band": 0.08, "nbar": 2, "bear_fires": false, "bull_fires": false, "note": "bull: only remaining candidate in [t-lookback, t-2] is 10:40(745.77), spread=0.08 <= 0.08 -- BORDERLINE, this run resolved False due to float repr (745.77 vs 745.85 diff computed 0.08000000000000185 > 0.08); disclosed exactly, not rounded away"},
-      {"band": 0.08, "nbar": 3, "bear_fires": false, "bull_fires": false, "note": "same borderline float miss as nbar2"},
-      {"band": 0.15, "nbar": 1, "bear_fires": true, "bull_fires": true, "note": "BOTH ANCHORS FIRE. bear: shelf=10:35(740.51) spread=0.13<=0.15; bull: shelf=11:00(745.83) spread=0.02"},
-      {"band": 0.15, "nbar": 2, "bear_fires": false, "bull_fires": true, "note": "bear fails (nbar2 skips the only qualifying touch, 10:35 is exactly 1 bar back); bull finds 10:40(745.77) spread=0.08"},
-      {"band": 0.15, "nbar": 3, "bear_fires": false, "bull_fires": true, "note": "same as nbar2"},
-      {"band": 0.25, "nbar": 1, "bear_fires": true, "bull_fires": true, "note": "BOTH ANCHORS FIRE (wider band, same touches as band0.15/nbar1)"},
-      {"band": 0.25, "nbar": 2, "bear_fires": false, "bull_fires": true, "note": "bear fails (nbar2 structural exclusion, not a band issue)"},
-      {"band": 0.25, "nbar": 3, "bear_fires": false, "bull_fires": true, "note": "same as nbar2"},
-      {"band": 0.25, "nbar": 5, "bear_fires": false, "bull_fires": true, "note": "bear fails at any nbar>1 (only 1 qualifying touch exists within lookback for this exhibit)"}
+      {
+        "band": 0.08,
+        "nbar": 1,
+        "bear_fires": false,
+        "bull_fires": true,
+        "note": "bull touch=10:40(745.77) vs 745.85 not reached at nbar1 -- nearest touch is 11:00(745.83), spread=0.02, fires; bear touch=10:35(740.51) vs 740.64 spread=0.13 > 0.08, fails"
+      },
+      {
+        "band": 0.08,
+        "nbar": 2,
+        "bear_fires": false,
+        "bull_fires": false,
+        "note": "bull: only remaining candidate in [t-lookback, t-2] is 10:40(745.77), spread=0.08 <= 0.08 -- BORDERLINE, this run resolved False due to float repr (745.77 vs 745.85 diff computed 0.08000000000000185 > 0.08); disclosed exactly, not rounded away"
+      },
+      {
+        "band": 0.08,
+        "nbar": 3,
+        "bear_fires": false,
+        "bull_fires": false,
+        "note": "same borderline float miss as nbar2"
+      },
+      {
+        "band": 0.15,
+        "nbar": 1,
+        "bear_fires": true,
+        "bull_fires": true,
+        "note": "BOTH ANCHORS FIRE. bear: shelf=10:35(740.51) spread=0.13<=0.15; bull: shelf=11:00(745.83) spread=0.02"
+      },
+      {
+        "band": 0.15,
+        "nbar": 2,
+        "bear_fires": false,
+        "bull_fires": true,
+        "note": "bear fails (nbar2 skips the only qualifying touch, 10:35 is exactly 1 bar back); bull finds 10:40(745.77) spread=0.08"
+      },
+      {
+        "band": 0.15,
+        "nbar": 3,
+        "bear_fires": false,
+        "bull_fires": true,
+        "note": "same as nbar2"
+      },
+      {
+        "band": 0.25,
+        "nbar": 1,
+        "bear_fires": true,
+        "bull_fires": true,
+        "note": "BOTH ANCHORS FIRE (wider band, same touches as band0.15/nbar1)"
+      },
+      {
+        "band": 0.25,
+        "nbar": 2,
+        "bear_fires": false,
+        "bull_fires": true,
+        "note": "bear fails (nbar2 structural exclusion, not a band issue)"
+      },
+      {
+        "band": 0.25,
+        "nbar": 3,
+        "bear_fires": false,
+        "bull_fires": true,
+        "note": "same as nbar2"
+      },
+      {
+        "band": 0.25,
+        "nbar": 5,
+        "bear_fires": false,
+        "bull_fires": true,
+        "note": "bear fails at any nbar>1 (only 1 qualifying touch exists within lookback for this exhibit)"
+      }
     ],
     "conclusion": "min_bars_apart MUST include 1 for the bearish exhibit to ever be reachable (its only qualifying shelf touch is the immediately preceding bar). zone_band MUST reach 0.15 for the bearish exhibit (0.08 is 1-2 cents short of the real 0.13 spread). The bullish exhibit is comfortably reachable across the whole grid via ITS nearest touch (11:00, spread 0.02) at nbar=1, and via a second farther touch (10:40, spread 0.08) once nbar>=2 excludes the near one -- both are real, both are disclosed, neither is cherry-picked (the runner returns the NEAREST qualifying touch by construction, not a hand-picked one). GRID DECISION: zone_band={0.08,0.15,0.25} (spans below/at/above the bearish exhibit's real spread), min_bars_apart={1,3} (1 = both exhibits' actual touch geometry; 3 = a genuine separation requirement neither exhibit was built to satisfy, included so the grid can HONESTLY show whether requiring more separation helps or just kills the population -- not included to inflate cell count). body_floor={0.50,0.65} unaffected by either anchor (both exhibits' body_pct are 0.77/0.80, comfortably clearing both) -- included because the FULL population's engulfing bars will not all be this decisive; this axis is the honesty check for whether looser bodies still work or just add noise."
   },
-
   "grid": {
     "n_knobs": 3,
     "n_cells": 12,
     "axes": {
-      "zone_band_dollars": [0.08, 0.15, 0.25],
-      "body_floor_pct": [0.50, 0.65],
-      "min_bars_apart": [1, 3]
+      "zone_band_dollars": [
+        0.08,
+        0.15,
+        0.25
+      ],
+      "body_floor_pct": [
+        0.5,
+        0.65
+      ],
+      "min_bars_apart": [
+        1,
+        3
+      ]
     },
     "axis_rationale": {
       "zone_band_dollars": "Spans below (0.08), at (0.15), and above (0.25) the bearish exhibit's real touch_spread ($0.13) -- picked from the precheck's own arithmetic, not a round-number guess. Matches the existing registry's LEVEL_PROXIMITY_DOLLARS=0.30 family of magnitude (levels-are-zones doctrine: band width is always a pre-reg A/B, never hand-picked to one value).",
@@ -53,7 +130,6 @@
     },
     "baseline_cell": "NO LIVE BASELINE EXISTS -- this is novel vocabulary, not a refinement of an already-armed live detector (unlike bear-level-rejection/pullback-hold-bull, which replicate a live trigger as cell 0). band0.15|body0.50|nbar1 is used as the REFERENCE cell for narrative purposes only (the loosest cell that still fires on BOTH anchors) -- not a control in the classical sense, and gets no privileged treatment in the gate math."
   },
-
   "population": {
     "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
     "signal_days": "inventory opra_days (386) -- days with real OPRA option coverage, 2025-01-02..2026-07-22",
@@ -63,7 +139,6 @@
     "timestamp_frame": "TRUE ET (per-row offset -> UTC -> US-DST-aware America/New_York -> naive wall), same convention as the bear-level-rejection fullhist prereg amendment 1. Constant across all cells.",
     "note_on_todays_anchor": "2026-07-23 (the bearish anchor's own date) is NOT in the frozen 386-day inventory (which ends 2026-07-22) -- the anchor sanity check below reads the FRESHEST cache directly (includes today), completely separate from the P&L population. The bullish anchor's date (2026-07-21) IS inside the inventory population and therefore also appears (or not) in that cell's own tuning-population fill list; no double-counting concern since the anchor check and the P&L run are reported as two separate sections."
   },
-
   "detector_definition": {
     "signal_bar": "A fully closed 5m bar t, evaluated with bars <= t ONLY (C6). engulfing_at_structure_detector.detect_bar reads opens/highs/lows/closes[<=t] exclusively; find_shelf_touch searches strictly backward from t-min_bars_apart. Guard test asserts mutating bars after t leaves the result at t unchanged.",
     "engulfing": "Standard OHLC body-containment geometry (cur body fully contains + exceeds prev body; cur green + prev red for bullish, mirrored for bearish) -- same math as backtest/lib/patterns/predicates.py::engulfing.",
@@ -72,7 +147,6 @@
     "direction_match": "bearish engulfing pairs ONLY with a HIGH shelf (kind='high') -> put side; bullish engulfing pairs ONLY with a LOW shelf (kind='low') -> call side. Structural, not a grid axis.",
     "trigger_level": "midpoint of (shelf_price, touch_price), rounded to the cent -- the SPY price level exit_manager's structure_stop references (v15.3 chart-stop-primary doctrine)."
   },
-
   "fixed_not_tuned": {
     "ribbon_gate": "NONE. Deliberately NOT applied -- this is a detector-isolation study of the new vocabulary itself (does an engulfing-at-shelf reaction carry edge at all), same disclosed-simplification precedent as bear-level-rejection's own 'not full engine replication' note. A ribbon-confirmation follow-up A/B is a natural next cell if this family clears gates.",
     "entry_window": "entry bar time (signal + 5min) in [09:35, 15:00) ET wall -- params.json entry_no_trade_before_et/entry_no_trade_after_et, read fresh 2026-07-23.",
@@ -84,11 +158,9 @@
     "exits": "the LIVE RIBBON_RIDE shape resolved via sim_executor._resolve_exit_shape(safe arm, 'ribbon_ride', None), walked through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL production exit_manager decision core). structure_stop_enabled per params.json, trigger_level = the detector's own trigger_level (shelf/touch midpoint), time_stop_et=params.json value. ENTRY-SIDE TUNING ONLY -- exits identical across all 12 cells.",
     "one_position_at_a_time": "a signal whose entry falls while a prior walked position from the SAME cell is still open is recorded as a signal but not filled (live engine trades one at a time)."
   },
-
   "dollars": {
     "authority": "real OPRA fills only (backtest/data/options via option_pricing_real.load_contract_bars). NO Black-Scholes synthetic anywhere in gate math: signals whose contract has no cached OPRA series are excluded from fills and counted/disclosed as no_opra skips."
   },
-
   "per_cell_outputs": [
     "n_signals (tuning days, both directions combined + split)",
     "n_real_fills (tuning days, FILLED with real OPRA)",
@@ -103,13 +175,19 @@
     "regime_split: half-year + vix_band buckets (disclosure only, no gate)",
     "both_anchors_fire: whether THIS cell's own knob values are among the anchor_falsification_precheck cells that fired on both real anchor bars (cross-reference, not re-derived)"
   ],
-
   "ship_criteria": "A cell is a SHIP CANDIDATE only if: gates_passed == 4 of 4 AND bh_significant == true AND both_anchors_fire == true AND n_real_fills >= 15 (OP-16 advisory evidence floor, labeled not gated). Firing on the anchors alone ships nothing -- it is a necessary, not sufficient, condition (task's own explicit instruction). If NO cell clears this bar, the result is reported as an HONEST NULL naming the exact binding gate(s) that failed for the best-performing anchor-passing cell(s) -- no post-hoc grid loosening to catch the 2 exhibits.",
-
   "disclosures_committed_in_advance": {
     "not_full_engine_replication": "No ribbon gate, no VIX gate, no volume filter, no tier-block cascade -- this isolates the new detector's own entry-side edge. Constant across all cells.",
     "small_n_honesty": "Any cell with n_real_fills < 15 is below the OP-16 advisory evidence floor and will be labeled accordingly regardless of gates.",
     "anchor_precheck_is_not_the_pnl_run": "The anchor_falsification_precheck above answers only 'does the detector fire at all on these two specific bars, for these candidate knob values' -- zero dollars, zero option data, zero exit simulation. It exists to freeze SENSIBLE grid axis values before spending compute on the expensive real-fills replay (queue.md's own required discipline for this exact follow-up). The full P&L run below is untouched by it beyond that axis-selection role.",
     "honest_null": "If no cell clears ship_criteria, that is the result. No post-hoc knob additions, no grid extension after seeing results, no loosening a gate to retroactively qualify the 2 exhibits."
+  },
+  "status": "KILL -- 0/12 cells clear ship bar, do NOT wire",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/engulfing-at-structure-2026-07-23.json + engulfing-at-structure-2026-07-23.md (386-day real-fills replay via exit_manager_walk)",
+    "numbers": "0/12 grid cells net-positive on tuning population, held-out days, or after dropping the best trade. Best anchor-passing cell (band0.15|body0.65|nbar1): n=518, expectancy -$1.85/tr, total -$956.59, day WR 0.363, held-out -$5,666.00, 0/4 gates. n is not the limiting factor (297-731 fills/cell, well above the n=15 evidence floor) -- every cell is simply net-negative.",
+    "lessons_cited": "Same honest-null engulfing-family shape as the sibling Lane-A study (engulfing-at-local-cluster-prereg-2026-07-25) -- both of J's live exhibits (2026-07-21 bullish, 2026-07-23 bearish) fire the trigger correctly, but the pattern class carries no measurable real-fills edge under the live RIBBON_RIDE exit shape.",
+    "rationale": "Reused the existing full real-fills replay output; no new backtest run."
   }
 }

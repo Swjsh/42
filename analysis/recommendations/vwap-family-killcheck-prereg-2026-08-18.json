@@ -1,33 +1,45 @@
 {
   "rule_id": "vwap-family-killcheck-2026-08-18",
   "title": "KILL-CHECK pre-registration -- do the VWAP-family entries produce a right tail at all?",
-  "status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis",
+  "status": "NULL -- unrunnable as registered, vwap_continuation disarmed with zero forward fills",
   "parked_reason": "PARKED 2026-09-03 04:31 ET (Sonnet, queue item VWAP-KILLCHECK-PREREG-DEADLOCKED): the forward clock below requires 20 live sessions OR n>=25 forward positions from vwap_continuation, but that strategy was DISARMED 2026-07-25 (commit e0356fb1, automation/state/params.json extra_setup_exec_armed.vwap_continuation=false, and confirmed dark on the fleet path too since the 2026-08-12 structural fix, strategies.py#_disarmed_setups) -- six days before this file was frozen -- and has taken zero fills since. A forward clock with zero incoming evidence cannot tick; this is not a verdict on H-VWAP-NOTAIL, it is a park on an unresolvable measurement. The kill question this file contemplated is moot while the producer stays disarmed: there is no live order path left to kill.",
   "reopen_condition": "vwap_continuation re-armed on any arm (extra_setup_exec_armed.vwap_continuation flips back to true in automation/state/params.json, or an equivalent fleet-path re-arm) -- at that point either resume this frozen measurement_protocol/forward_gates unchanged (if the re-arm is on the same validated cell) or write a fresh pre-registration (if the re-arm ships a different cell/exit shape, per this file's own no_peeking_rule).",
   "frozen_at_et": "2026-08-18 (market CLOSED -- et_clock.py verified market_hours=False at freeze time)",
   "parent_study": "analysis/winner-autopsies/SIGNATURE.md + analysis/pain-ledger/mae-mfe.json",
   "shadow_only": "MEASUREMENT ONLY -- nothing is disabled by this file. The kill it contemplates is a one-line producer flag, taken only if the forward bar below fails.",
-
   "why_this_is_a_MECHANISM_question_not_an_exit_tune": "The parent study established that this book's entire P&L is a right tail: exits at >=1.3x entry premium are 23% of fills and carry $17,067, while the 1.0-1.3x band is 50 fills for $900 against a -$18,635 loss book. A strategy family that structurally cannot reach 1.3x is therefore not 'badly tuned' -- it is a negative-expectancy tax on a business whose only product is the tail. The discriminating measurement is MFE (maximum favorable excursion), because MFE answers what the trade OFFERED, independent of what our exit shape took. If MFE is there and we did not capture it, that is an exit problem. If MFE was never there, no exit shape can fix it.",
-
   "the_measurement_that_prompted_this": {
     "source": "analysis/pain-ledger/mae-mfe.json -- real Alpaca OPRA 1-min bars, FULL population (winners AND losers), entry+1 convention, 308 scored positions",
-    "ribbon_ride": {"n": 233, "median_mfe_pct": 19, "p90_mfe_pct": 131,
-                    "pct_offering_ge_50": 27, "pct_offering_ge_100": 16,
-                    "winners_median_mfe_pct": 129,
-                    "note": "the entries DO produce runners -- 87% of its winners offered >=+50%"},
-    "vwap_continuation": {"n": 41, "median_mfe_pct": 5, "p75_mfe_pct": 10, "p90_mfe_pct": 17,
-                          "pct_offering_ge_50": 5, "pct_offering_ge_100": 5,
-                          "winners_median_mfe_pct": 10, "realized_usd": -1088,
-                          "offered_ge_50_but_not_captured": 0,
-                          "note": "even its WINNERS top out around +10%. There is no tail to harvest and zero evidence of an exit failing to capture one."},
-    "vwap_reclaim_failed_break": {"n": 3, "median_mfe_pct": 14, "pct_offering_ge_50": 0,
-                                  "realized_usd": -200,
-                                  "note": "n=3 scored. Reported for completeness ONLY -- this arm of the family is NOT judgeable and is explicitly excluded from the verdict below."}
+    "ribbon_ride": {
+      "n": 233,
+      "median_mfe_pct": 19,
+      "p90_mfe_pct": 131,
+      "pct_offering_ge_50": 27,
+      "pct_offering_ge_100": 16,
+      "winners_median_mfe_pct": 129,
+      "note": "the entries DO produce runners -- 87% of its winners offered >=+50%"
+    },
+    "vwap_continuation": {
+      "n": 41,
+      "median_mfe_pct": 5,
+      "p75_mfe_pct": 10,
+      "p90_mfe_pct": 17,
+      "pct_offering_ge_50": 5,
+      "pct_offering_ge_100": 5,
+      "winners_median_mfe_pct": 10,
+      "realized_usd": -1088,
+      "offered_ge_50_but_not_captured": 0,
+      "note": "even its WINNERS top out around +10%. There is no tail to harvest and zero evidence of an exit failing to capture one."
+    },
+    "vwap_reclaim_failed_break": {
+      "n": 3,
+      "median_mfe_pct": 14,
+      "pct_offering_ge_50": 0,
+      "realized_usd": -200,
+      "note": "n=3 scored. Reported for completeness ONLY -- this arm of the family is NOT judgeable and is explicitly excluded from the verdict below."
+    }
   },
-
   "hypothesis": "H-VWAP-NOTAIL: vwap_continuation entries do not produce the >=1.3x excursions this book requires, and its realized loss is therefore structural rather than a tuning defect.",
-
   "candidates": [
     {
       "id": "K-VWAPCONT",
@@ -36,13 +48,11 @@
       "do_not_kill_yet_because": "41 scored positions collapse to ~6 independent impulse waves. Wave-level that is an anecdote, and killing a family on an anecdote is exactly how this repo's strategy graveyard acquired entries that should have lived."
     }
   ],
-
   "explicitly_out_of_scope": [
     "vwap_reclaim_failed_break -- n=3 scored positions. NOT judgeable. It rides the same suspicion but must accumulate its own evidence; folding it in to make the sample look bigger is the pooling error this repo already knows about (C4).",
     "ribbon_ride -- the opposite verdict. It produces the tail (27% of ALL its fills offer >=+50%) and its own historical leak was closed by the 2026-08-10 pre_tp1_ladder ship. Nothing here proposes touching it.",
     "Any exit re-tune for the VWAP family. With MFE p90 at +17%, no exit shape is reachable that changes the outcome; proposing one would be optimizing under a constraint whose provenance was never checked (OP-32)."
   ],
-
   "measurement_protocol": {
     "mode": "SHADOW. vwap_continuation keeps trading paper unchanged through the window -- TRADE-TO-LEARN standing. The forward evidence is the paper fills themselves.",
     "instrument": "analysis/pain-ledger/mae-mfe.json, already produced nightly by Gamma_PainLedger. No new counter is built -- the measurement already exists and this pre-registration only names the query and freezes the bar.",
@@ -51,7 +61,6 @@
     "no_peeking_rule": "no interim kill, no bar edits inside the window. If the bar needs to move, this pre-registration is VOID and a new one is written.",
     "cost": "$0 -- the ledger is already built nightly."
   },
-
   "forward_gates": {
     "K1_tail_presence": "at least 15% of forward vwap_continuation positions reach mfe_pct >= 0.50 (ribbon_ride, the family that works, runs 27%; 15% is deliberately set BELOW it so the bar is 'produces a tail at all', not 'matches the best family')",
     "K2_not_merely_unlucky": "if K1 passes but realized P&L is still negative, the verdict is EXIT-PROBLEM, not KILL -- the tail existed and we failed to capture it, which is a different study",
@@ -63,6 +72,13 @@
       "EXTEND": "K3 not met"
     }
   },
-
-  "falsification_note": "The honest way this pre-registration dies: forward MFE comes in materially above the in-sample +5% median. That would mean the in-sample window caught vwap_continuation in an unrepresentative regime -- entirely possible on ~6 independent waves -- and the family deserves to keep trading. Written down now so a future session cannot quietly re-read the bar after seeing the data."
+  "falsification_note": "The honest way this pre-registration dies: forward MFE comes in materially above the in-sample +5% median. That would mean the in-sample window caught vwap_continuation in an unrepresentative regime -- entirely possible on ~6 independent waves -- and the family deserves to keep trading. Written down now so a future session cannot quietly re-read the bar after seeing the data.",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "grep -n extra_setup_exec_armed.vwap_continuation automation/state/params.json",
+    "numbers": "Own parked_reason (2026-09-03 04:31 ET): forward clock requires 20 live sessions OR n>=25 forward positions, but vwap_continuation was DISARMED 2026-07-25 (commit e0356fb1, extra_setup_exec_armed.vwap_continuation=false) and confirmed dark on the fleet path since the 2026-08-12 structural fix -- zero fills since disarming, 6 days before this file was even frozen. A forward clock with zero incoming evidence cannot tick.",
+    "lessons_cited": "Matches memory project_weekly_lane_v1_signal_dead_2026_08_18.md (v1 signal is DEAD, machinery LIVES) and project_vwap_grind_second_family.md context -- the vwap_continuation producer itself is the dead part, independent of whatever the exit-side H-VWAP-NOTAIL hypothesis would find.",
+    "rationale": "Own prior status (RETIRED_UNRUNNABLE_AS_FROZEN) already correctly identifies this as unrunnable, not a verdict on the hypothesis -- this adjudication converts that into the goal's 4-token vocabulary (NULL) while preserving the full prior status text in evidence.prior_status, per the goal's instruction for the 4 hygiene-flagged files.",
+    "prior_status": "RETIRED_UNRUNNABLE_AS_FROZEN -- not a verdict on the hypothesis"
+  }
 }

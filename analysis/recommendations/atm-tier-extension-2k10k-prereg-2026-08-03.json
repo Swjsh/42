@@ -42,5 +42,13 @@
     "analysis/recommendations/fleet-strike-tier-atm-extension-prereg-2026-08-01.json (sibling prereg this one mirrors)",
     "commits 43bb979d (risky-1/risky-3 extension) + 9b6a3e35 (safe-3 extension) -- the template ships"
   ],
-  "results_artifact_planned": "analysis/recommendations/atm-tier-extension-2k10k.json (written when the sample floor is reached; per-arm cohort P&L, floor-refusal delta, verdict KEEP/REVERT)"
+  "results_artifact_planned": "analysis/recommendations/atm-tier-extension-2k10k.json (written when the sample floor is reached; per-arm cohort P&L, floor-refusal delta, verdict KEEP/REVERT)",
+  "status": "EXTEND -- per-arm split already resolved in code; extension still live for bold-2/safe-3/risky-1",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "grep -n V15_BOLD_CORE_PRE_EXT_TIERS crypto/lib/strike_selection.py",
+    "numbers": "Per-arm kill already executed 2026-08-06 (code comment + guard test, no separate results JSON was ever written at the planned path analysis/recommendations/atm-tier-extension-2k10k.json): risky-3 MET the kill criterion (n=14 fills under the extension, net -$653) and was moved to a dedicated V15_BOLD_CORE_PRE_EXT_TIERS table (pre-08-04 OTM-2 restored, reachable only via fleet_executor._tiers_for_arm's 'bold_core_pre_ext' branch). risky-1 did NOT meet it (n=11, +$903) and core bold-2/safe-3 keep V15_BOLD_CORE_TIERS' ATM-through-$10K extension live today.",
+    "lessons_cited": "C29 (exit/tier knobs ratified on one strike tier or account don't transfer to another without independent per-account verification) -- this is exactly that: the same $2K-$10K extension helped 2 consumers and hurt 1, and the per-arm kill respects that rather than forcing one verdict onto a shared surface.",
+    "rationale": "Reused the already-executed code-level per-arm resolution (backtest/tests/test_atm_tier_extension_risky3_kill_2026_08_06.py) instead of re-running a backtest; the planned results-JSON artifact was never produced, so this adjudication cites the code comment + guard test as the evidence of record."
+  }
 }

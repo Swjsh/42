@@ -77,6 +77,10 @@ except Exception:  # noqa: BLE001 -- a reporting script must never fail to run (
         except OSError:
             return 0.0, "unknown"
 
+# 2026-09-05 (GOAL-PREREG-ADJUDICATION P9): adjudication verdicts that leave the board.
+# Mirrors prereg_hygiene.ADJUDICATION_STATUS_RE minus EXTEND (see build_preregs_board).
+_BOARD_TERMINAL_VERDICT_RE = re.compile(r"^\s*(?:KILL|NULL|SHIP-CANDIDATE)\b")
+
 FLEET_DIR = REPO / "automation" / "state" / "fleet"
 STATE = REPO / "automation" / "state"
 JOURNAL = REPO / "journal"
@@ -832,7 +836,16 @@ def build_preregs_board(stamp: str) -> str:
         seen_ids.add(pid)
         status = _prereg_status_field(d)
         age_days, _age_src = _prereg_age_days(p, d)
-        if status and TERMINAL_STATUS_RE.search(status):
+        # 2026-09-05 (GOAL-PREREG-ADJUDICATION P9): report files that live beside the preregs
+        # (the hygiene report, the adjudication worklist) are not preregs -- never board them.
+        if p.name == "prereg-hygiene.json" or d.get("_not_a_prereg") is True:
+            continue
+        # 2026-09-05: a written adjudication verdict KILL / NULL / SHIP-CANDIDATE is terminal
+        # for this board too (same start-anchored, case-sensitive rule as prereg_hygiene's
+        # ADJUDICATION_STATUS_RE). EXTEND deliberately stays on the board: it means "still
+        # accruing on a named instrument", which is exactly what this board shows.
+        if status and (TERMINAL_STATUS_RE.search(status)
+                       or _BOARD_TERMINAL_VERDICT_RE.match(status)):
             terminal.append((age_days, pid))
             continue
         ships = d.get("ship_rule")

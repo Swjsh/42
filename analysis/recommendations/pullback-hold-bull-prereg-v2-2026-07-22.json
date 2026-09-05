@@ -4,14 +4,12 @@
   "queue_id": "PULLBACK-HOLD-BULL-TRIGGER",
   "iteration": 2,
   "supersedes": "analysis/recommendations/pullback-hold-bull-prereg-2026-07-22.json (v1, NO_CELL_SHIPS -- kept as committed evidence, never edited)",
-
   "v1_root_cause_being_fixed": {
     "failure_1_lagging_up_structure": "v1's two up-structure qualifier candidates (MARKET_STRUCTURE trend, PRICE_VWAP) both read FALSE at J's own 2026-07-22 10:44-10:53 pullback-low bar (10:40 ET) and only recovered TRUE 15 min (PRICE_VWAP) / 45 min (MARKET_STRUCTURE) later -- both are lagging-confirmation signals by construction, so neither could ever see the entry J actually wanted live.",
     "failure_2_loose_selectivity": "v1's level-match rule accepted ANY LevelMemory level within the zone band, firing 9-13x/day (n=340-506 per cell on 39 days) -- diluting a distinctive, occasional J-named pattern into statistical noise (best cell: $1.60/trade expectancy, p=0.878, nowhere near BH-FDR significance).",
     "fix_1": "IMPULSE-LEG qualifier -- computable causally AT the pullback-low bar itself, no trend-confirmation lag, no VWAP-crossing lag. See detector_definition_space.up_structure_qualifier below.",
     "fix_2": "SELECTIVITY axis -- replaces any-level with either (a) a battle-tested (prior same-day touch) level or (b) a level that IS the impulse leg's own origin. Disclosed to cut entry frequency hard; see populations.disclosure and the replay tool's entries/day report."
   },
-
   "detector_definition_space": {
     "up_structure_qualifier": {
       "name": "IMPULSE-LEG",
@@ -19,21 +17,52 @@
       "evaluated_at": "the pullback-low candidate bar itself (bar j), same convention as v1 -- a shallow pullback can transiently break intraday structure without invalidating the setup.",
       "no_look_ahead": "the K-bar window is strictly BEFORE the candidate bar's own extended-frame index; only the candidate bar's own low (never its close, never anything after it) is consulted 'in the present'. Guarded by test_pullback_hold_bull_v2.py's truncation test.",
       "grid_axes_raw": {
-        "k_bars": [12, 24],
-        "min_leg_dollars_M": [1.00, 1.50],
-        "max_retrace_pct_R": [0.618, 0.786],
+        "k_bars": [
+          12,
+          24
+        ],
+        "min_leg_dollars_M": [
+          1.0,
+          1.5
+        ],
+        "max_retrace_pct_R": [
+          0.618,
+          0.786
+        ],
         "note_full_factorial_not_used": "K x M x R = 8 combinations; combined into 3 named IMPULSE_LEG_MODE presets (impulse_leg_mode axis below) to respect the <=36 cell cap, mirroring v1's own precedent of collapsing RSI-reset+green-close into one confirm_mode axis. M is FIXED at 1.00 (the looser value) across all 3 presets -- disclosed simplification: M never bound either anchor in hand-verification (leg_dollars was 2.60-3.37 at anchor_1, comfortably clearing both grid M values), so M is not the discriminating variable and was dropped from the swept axis to make room for K and R, which ARE discriminating (see hand_verification below)."
       },
       "impulse_leg_mode": {
-        "selected_for_grid": ["K24_M1.00_R0.786", "K24_M1.00_R0.618", "K12_M1.00_R0.786"],
+        "selected_for_grid": [
+          "K24_M1.00_R0.786",
+          "K24_M1.00_R0.618",
+          "K12_M1.00_R0.786"
+        ],
         "rationale": "Isolates one dimension change per preset from a common K24_M1.00_R0.786 baseline (the verified-passing combo): preset 2 tightens R only (tests the R-asymmetry the mission spec named explicitly); preset 3 shortens K only (tests whether a shorter lookback still captures a real leg). All 3 share M=1.00."
       },
       "hand_verification": {
         "_doc": "Verified BEFORE this grid was run, against the ACTUAL cached backtest/data/spy_5m_2026-05-19_2026-07-22.csv bars (not synthetic) -- this is design-time pre-reg authoring (choosing K/M/R), not post-hoc tuning after seeing grid results; the grid itself is frozen below and not touched again after running.",
         "anchor_1_2026-07-22_bar_10:40": {
-          "K24_M1.00_R0.786": {"leg_high": 748.97, "leg_origin_low": 746.01, "leg_dollars": 2.96, "pullback_low": 746.76, "retrace_pct": 0.7466, "passes": true},
-          "K24_M1.00_R0.618": {"retrace_pct": 0.7466, "passes": false, "note": "same leg, tighter R -- fails as expected, this IS the pre-registered asymmetry ('R=0.786 must pass it, R=0.618 will not; that asymmetry is expected and fine')"},
-          "K12_M1.00_R0.786": {"leg_high": 748.97, "leg_origin_low": 747.09, "leg_dollars": 1.88, "pullback_low": 746.76, "note": "pullback_low (746.76) < leg_origin_low (747.09) -- FAILS the 'higher low' condition outright, K=12's window is too short to reach behind the true launch point on this date", "passes": false}
+          "K24_M1.00_R0.786": {
+            "leg_high": 748.97,
+            "leg_origin_low": 746.01,
+            "leg_dollars": 2.96,
+            "pullback_low": 746.76,
+            "retrace_pct": 0.7466,
+            "passes": true
+          },
+          "K24_M1.00_R0.618": {
+            "retrace_pct": 0.7466,
+            "passes": false,
+            "note": "same leg, tighter R -- fails as expected, this IS the pre-registered asymmetry ('R=0.786 must pass it, R=0.618 will not; that asymmetry is expected and fine')"
+          },
+          "K12_M1.00_R0.786": {
+            "leg_high": 748.97,
+            "leg_origin_low": 747.09,
+            "leg_dollars": 1.88,
+            "pullback_low": 746.76,
+            "note": "pullback_low (746.76) < leg_origin_low (747.09) -- FAILS the 'higher low' condition outright, K=12's window is too short to reach behind the true launch point on this date",
+            "passes": false
+          }
         },
         "anchor_2_2026-07-21_bars_10:40_11:00_11:05": {
           "note": "all 3 impulse_leg_mode presets read TRUE at all three shelf-tap bars (retrace 0.42-0.56, well under even R=0.618) -- anchor_2's up-move is a much larger, cleaner leg than anchor_1's, so it is insensitive to the R/K choice within the grid. Full per-bar figures in the replay tool's diagnostic output."
@@ -41,81 +70,206 @@
         "origin_definition_rationale": "A SEARCHED-extremum origin (min low anywhere in the K-window) was tried first and rejected: at K=24 it finds 2026-07-22 08:55 ET (low 744.30, volume 152,849 vs a typical premarket 5m bar of 10-50k -- a thin-liquidity wick), which manufactures leg_dollars=5.08 and retrace=0.516 -- LOW enough that even R=0.618 would pass, collapsing the R-grid's entire point as a selectivity axis. The fixed trailing-bar-K-back reference (leg_origin_low = low of the bar exactly K bars back) does not have this failure mode and is what is actually implemented."
       }
     },
-
     "selectivity": {
       "name": "SELECTIVITY (replaces v1's any-LevelMemory-level rule)",
       "candidates_considered": [
         "(a) PRIOR-INTERACTION: the matched level had >=1 same-day touch/bounce BEFORE the pullback candidate bar",
         "(b) LEG-ORIGIN: the matched level IS (within zone_band_cents) the same bar's own impulse-leg origin low"
       ],
-      "selected_for_grid": ["PRIOR_INTERACTION", "LEG_ORIGIN"],
+      "selected_for_grid": [
+        "PRIOR_INTERACTION",
+        "LEG_ORIGIN"
+      ],
       "prior_interaction_impl": "some bar strictly BEFORE the candidate bar (same day) had high/low within LevelMemory's own TOUCH_TOL (0.20, reused -- backtest.lib.watchers.level_memory.TOUCH_TOL) of the level price.",
       "leg_origin_impl": "abs(level_price - leg_origin_low_at_candidate_bar) <= zone_band_cents (reused tolerance, not a new invented constant).",
       "disclosure": "Both modes are pre-registered; a cell is NOT required to fire on every anchor to remain in the grid -- only the eventual SHIPPING cell must clear both sanity anchors (see ship_bar.cell_disqualified_if). Hand-verification found PRIOR_INTERACTION plausible at anchor_1 (LevelMemory's matched ~746.5x level shows a same-day touch at the 09:30 opening print, before the 10:40 pullback); LEG_ORIGIN was NOT expected to coincide with the LevelMemory-matched level at anchor_1 given the ~0.5 gap between the leg origin (746.01) and the matched level (~746.5x) -- disclosed here as an expected near-miss for that axis value at that anchor, not hidden after the fact."
     },
-
     "zone_band_width": {
       "rule": "UNCHANGED from v1 -- fixed-cents grid, symmetric zone [level - band, level + band].",
-      "selected_for_grid": [0.15, 0.25, 0.40]
+      "selected_for_grid": [
+        0.15,
+        0.25,
+        0.4
+      ]
     },
     "hold_condition": {
       "rule": "UNCHANGED from v1 -- pullback low enters the zone AND price closes back above zone_top within N bars of the pullback-low bar, checked over bars [j, j+N] inclusive.",
-      "N_grid": [1, 2]
+      "N_grid": [
+        1,
+        2
+      ]
     },
     "confirmation_features": {
       "status": "DROPPED in v2 (not part of the 4 frozen grid axes) -- disclosed simplification made to respect the <=36 cell cap once impulse_leg_mode (3) x selectivity_mode (2) are added; RSI-reset/green-close confirmation is entry-ENTRY tuning v1 already explored (all 18 confirm_mode=BOTH cells missed anchor_2 in v1) and is out of scope for this iteration, which is scoped to fix ONLY the two diagnosed structural failures."
     },
-
     "cell_count": 36,
     "grid_axes": {
-      "impulse_leg_mode": ["K24_M1.00_R0.786", "K24_M1.00_R0.618", "K12_M1.00_R0.786"],
-      "selectivity_mode": ["PRIOR_INTERACTION", "LEG_ORIGIN"],
-      "zone_band_cents": [0.15, 0.25, 0.40],
-      "hold_bars_n": [1, 2]
+      "impulse_leg_mode": [
+        "K24_M1.00_R0.786",
+        "K24_M1.00_R0.618",
+        "K12_M1.00_R0.786"
+      ],
+      "selectivity_mode": [
+        "PRIOR_INTERACTION",
+        "LEG_ORIGIN"
+      ],
+      "zone_band_cents": [
+        0.15,
+        0.25,
+        0.4
+      ],
+      "hold_bars_n": [
+        1,
+        2
+      ]
     },
     "grid_axes_impulse_leg_params": {
-      "K24_M1.00_R0.786": {"k_bars": 24, "min_leg_dollars": 1.00, "max_retrace_pct": 0.786},
-      "K24_M1.00_R0.618": {"k_bars": 24, "min_leg_dollars": 1.00, "max_retrace_pct": 0.618},
-      "K12_M1.00_R0.786": {"k_bars": 12, "min_leg_dollars": 1.00, "max_retrace_pct": 0.786}
+      "K24_M1.00_R0.786": {
+        "k_bars": 24,
+        "min_leg_dollars": 1.0,
+        "max_retrace_pct": 0.786
+      },
+      "K24_M1.00_R0.618": {
+        "k_bars": 24,
+        "min_leg_dollars": 1.0,
+        "max_retrace_pct": 0.618
+      },
+      "K12_M1.00_R0.786": {
+        "k_bars": 12,
+        "min_leg_dollars": 1.0,
+        "max_retrace_pct": 0.786
+      }
     }
   },
-
   "exit_shape": {
     "base": "IDENTICAL to v1 -- automation/state/fleet/strategies.py RIBBON_RIDE.exit (SS-B validated cell). Entry is the only thing being tuned in this iteration.",
     "fields": {
-      "premium_stop_pct": -0.20,
+      "premium_stop_pct": -0.2,
       "tp1_premium_pct": 1.0,
       "tp1_qty_fraction": 0.667,
       "profit_lock_mode": "trailing",
       "runner_target_pct": 99.0,
       "trail_pct": 0.15,
       "stop_mode": "structure",
-      "catastrophe_stop_pct": -0.50
+      "catastrophe_stop_pct": -0.5
     },
     "structure_stop_reference": "trigger_level passed to walk_exit_manager = zone_low (level - band), IDENTICAL semantics to v1.",
     "structure_stop_enabled": true,
     "time_stop_et": "from automation/state/params.json (time_stop_et)"
   },
-
   "entry_pricing": {
     "strike": "IDENTICAL to v1 -- ATM per live tier, crypto.lib.strike_selection.pick_strike via fleet_executor._tiers_for_arm on accounts.json arm 'safe-2'.",
     "qty": "IDENTICAL to v1 -- min(params.json min_contracts=3, risk_gate.max_affordable_qty(...)).",
     "fill": "IDENTICAL to v1 -- next 5-min OPRA option bar's VWAP at/after the entry bar's timestamp.",
     "exit_walk": "IDENTICAL to v1 -- backtest.lib.exit_manager_walk.walk_exit_manager, the REAL production exit_manager decision core."
   },
-
   "populations": {
     "full_history_source": "backtest/data/spy_5m_2026-05-19_2026-07-22.csv -- SAME file as v1, but v2 loads it in TWO views: RTH-only (09:30-16:00, for entry/hold scanning, unchanged from v1) and EXTENDED (04:00-16:00, premarket-inclusive, NEW -- only feeds the impulse-leg qualifier's lookback).",
     "full_history_days_n": 44,
-    "full_history_days": ["2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-06-01","2026-06-02","2026-06-03","2026-06-04","2026-06-05","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-15","2026-07-16","2026-07-17","2026-07-20","2026-07-21","2026-07-22"],
+    "full_history_days": [
+      "2026-05-19",
+      "2026-05-20",
+      "2026-05-21",
+      "2026-05-22",
+      "2026-05-26",
+      "2026-05-27",
+      "2026-05-28",
+      "2026-05-29",
+      "2026-06-01",
+      "2026-06-02",
+      "2026-06-03",
+      "2026-06-04",
+      "2026-06-05",
+      "2026-06-08",
+      "2026-06-09",
+      "2026-06-10",
+      "2026-06-11",
+      "2026-06-12",
+      "2026-06-15",
+      "2026-06-16",
+      "2026-06-17",
+      "2026-06-18",
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24",
+      "2026-06-25",
+      "2026-06-26",
+      "2026-06-29",
+      "2026-06-30",
+      "2026-07-01",
+      "2026-07-02",
+      "2026-07-06",
+      "2026-07-07",
+      "2026-07-08",
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-13",
+      "2026-07-14",
+      "2026-07-15",
+      "2026-07-16",
+      "2026-07-17",
+      "2026-07-20",
+      "2026-07-21",
+      "2026-07-22"
+    ],
     "opra_covered_days_n": 39,
-    "opra_covered_days": ["2026-05-19","2026-05-20","2026-05-21","2026-05-22","2026-05-26","2026-05-27","2026-05-28","2026-05-29","2026-06-01","2026-06-02","2026-06-03","2026-06-04","2026-06-05","2026-06-08","2026-06-09","2026-06-10","2026-06-11","2026-06-12","2026-06-15","2026-06-16","2026-06-17","2026-06-18","2026-06-22","2026-06-23","2026-06-24","2026-06-25","2026-06-26","2026-06-29","2026-06-30","2026-07-01","2026-07-02","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-17"],
+    "opra_covered_days": [
+      "2026-05-19",
+      "2026-05-20",
+      "2026-05-21",
+      "2026-05-22",
+      "2026-05-26",
+      "2026-05-27",
+      "2026-05-28",
+      "2026-05-29",
+      "2026-06-01",
+      "2026-06-02",
+      "2026-06-03",
+      "2026-06-04",
+      "2026-06-05",
+      "2026-06-08",
+      "2026-06-09",
+      "2026-06-10",
+      "2026-06-11",
+      "2026-06-12",
+      "2026-06-15",
+      "2026-06-16",
+      "2026-06-17",
+      "2026-06-18",
+      "2026-06-22",
+      "2026-06-23",
+      "2026-06-24",
+      "2026-06-25",
+      "2026-06-26",
+      "2026-06-29",
+      "2026-06-30",
+      "2026-07-01",
+      "2026-07-02",
+      "2026-07-06",
+      "2026-07-07",
+      "2026-07-08",
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-13",
+      "2026-07-14",
+      "2026-07-17"
+    ],
     "held_out_days_rule": "IDENTICAL to v1 -- chronological tail, last 25% of opra_covered_days by date (round(39*0.25)=10), frozen here, never chosen after seeing results.",
     "held_out_days_n": 10,
-    "held_out_days": ["2026-07-01","2026-07-02","2026-07-06","2026-07-07","2026-07-08","2026-07-09","2026-07-10","2026-07-13","2026-07-14","2026-07-17"],
+    "held_out_days": [
+      "2026-07-01",
+      "2026-07-02",
+      "2026-07-06",
+      "2026-07-07",
+      "2026-07-08",
+      "2026-07-09",
+      "2026-07-10",
+      "2026-07-13",
+      "2026-07-14",
+      "2026-07-17"
+    ],
     "disclosure": "Detector-frequency stats (how often each cell fires, structurally, INCLUDING entries/day per cell -- the mission's explicit disclosure requirement given the selectivity axis is meant to cut frequency hard) are reported over the FULL 44-day history. Dollar P&L / expectancy / the ship gate are computed ONLY over the 39 OPRA-covered days (real option fills), per C1."
   },
-
   "ship_bar": {
     "_doc": "IDENTICAL structure to v1 -- a cell only SHIPS if it clears ALL gates. Computed ONLY on the 39-day OPRA-covered real-fills population. IMMUTABLE per mission instruction -- copied verbatim from v1, not weakened.",
     "condition_1_positive_aggregate_expectancy": "total real-fills P&L / n > 0",
@@ -124,24 +278,39 @@
     "condition_4_holds_on_held_out_subset": "the held_out_days subset (last 10 OPRA days, never touched during tuning) has positive total P&L for this cell",
     "condition_5_bh_fdr": "Benjamini-Hochberg FDR at q=0.10 across all 36 cells' one-sample significance test (mean P&L != 0) -- multiplicity correction across the whole grid, mandatory because 36 cells were tested.",
     "cell_disqualified_if": "the cell cannot produce a PULLBACK-HOLD entry event matching BOTH named sanity anchors below (fidelity check, evaluated BEFORE the ship-bar dollar gates) -- regardless of how good its aggregate P&L looks.",
-    "verdict_labels": ["SHIP_CANDIDATE (clears all 5)", "NO_CELL_SHIPS (honest null -- report best near-miss + exact failed gate)"]
+    "verdict_labels": [
+      "SHIP_CANDIDATE (clears all 5)",
+      "NO_CELL_SHIPS (honest null -- report best near-miss + exact failed gate)"
+    ]
   },
-
   "sanity_anchors": {
     "_doc": "IDENTICAL to v1's frozen anchors (unchanged windows/descriptions) -- fidelity checks, not P&L checks. A disqualifying cell fails regardless of aggregate.",
     "anchor_1": {
       "date": "2026-07-22",
-      "window_et": ["10:44", "10:53"],
+      "window_et": [
+        "10:44",
+        "10:53"
+      ],
       "description": "higher-low ~746.80 over a known level_memory level ~746.54 (verified this fire: LevelMemory finds a support cluster at 746.59, memory_score 160, one bar prior to the low)",
       "requirement": "cell must emit >=1 PULLBACK-HOLD entry (reclaim/entry bar) with entry timestamp inside the window on this date"
     },
     "anchor_2": {
       "date": "2026-07-21",
-      "window_et": ["11:03", "11:17"],
+      "window_et": [
+        "11:03",
+        "11:17"
+      ],
       "description": "shelf 745.77-745.85 (three taps: 10:40 L745.77, 11:00 L745.83, 11:05 L745.85) then 11:15 CLOSE 747.41 above the 10:30/10:45 highs (verified this fire: LevelMemory finds a persistent support cluster ~745.60-745.89 across this window)",
       "requirement": "cell must emit >=1 PULLBACK-HOLD entry with entry timestamp inside the window on this date"
     }
   },
-
-  "no_post_hoc_tuning": "The grid, populations, ship bar, and sanity anchors above are fixed at this file's write time. The replay tool may not adjust any of these after seeing results; a changed definition requires a new dated pre-reg (v3)."
+  "no_post_hoc_tuning": "The grid, populations, ship bar, and sanity anchors above are fixed at this file's write time. The replay tool may not adjust any of these after seeing results; a changed definition requires a new dated pre-reg (v3).",
+  "status": "NULL -- NO_CELL_SHIPS (iteration 2, evidence-based null)",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/pullback-hold-bull-v2-2026-07-22.json + pullback-hold-bull-stage-summary-v2-2026-07-22.md",
+    "numbers": "0/36 pre-registered cells clear the ship bar. v2's IMPULSE-LEG qualifier fix WORKED (both of J's anchors now fire on real cached bars, unlike v1), but the best-looking cells are driven by extreme single-day concentration and do not hold up on the held-out tail.",
+    "lessons_cited": "C24 (anchor trades are one-off exceptional setups -- general population of same pattern class may be losers) -- v2 fires correctly on both named anchors yet the dollar economics fail exactly the concentration/held-out checks C24 exists to catch.",
+    "rationale": "Reused the already-committed grid-run scorecard; superseded by the LIVE Gamma_PullbackHoldShadow forward instrument (separate, newer 2026-09-03 pre-reg, currently 2/30 sessions, n=10 scored fires, 0 favourable -- not yet decision-ready, tracked outside this worklist's 20 rows)."
+  }
 }

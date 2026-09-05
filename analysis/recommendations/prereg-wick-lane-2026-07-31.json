@@ -51,5 +51,13 @@
     "backtest/tools/wick_zone_lane.py (detector module)",
     "backtest/tools/wick_lane_fullhist_replay.py (runner)",
     "backtest/tests/test_wick_zone_lane.py (guards)"
-  ]
+  ],
+  "status": "NULL -- NULL_BOTH_COHORTS (verdict already computed in the run)",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/wick-lane-2026-07-31.json",
+    "numbers": "verdict field: NULL_BOTH_COHORTS (persistent-shelf BULL wick-hold detector, both cohorts fail the ship bar on the held-out split under the live RIBBON_RIDE exit shape).",
+    "lessons_cited": "C27 (detectors that don't discriminate signal from noise once run through the real exit shape).",
+    "rationale": "Reused the run's own already-computed verdict field verbatim; no new replay needed."
+  }
 }

@@ -24,5 +24,13 @@
   ],
   "arming_plan": "If G1-G5 pass: flag-gated params key (structure_shift_confirmation_enabled, default false -> true on core Safe + Bold for level-tied setups only), guard tests RED-proofed, REVOKE = flip the flag. May arm mid-session TODAY per J's waiver above. If any gate fails: record the null in analysis/recommendations/, do NOT arm, philosophy doctrine unchanged (measurement gates arming, not direction).",
   "kill_criteria_post_arm": "Forward: 10 sessions or n>=8 structure-shift fills, whichever first. Negative expectancy vs the counterfactual lagging-gate entries -> auto-revert the flag and record.",
-  "known_costs_disclosed": "Confirmation costs 1-3 bars of entry price vs the raw trigger; it replaces gates that cost 5-61 minutes or block entirely. The replay prices this honestly (entry at confirmation close). Replay entry layer remains PROVISIONAL vs live (07-17 anchors) -- cohort CONTRASTS are the signal."
+  "known_costs_disclosed": "Confirmation costs 1-3 bars of entry price vs the raw trigger; it replaces gates that cost 5-61 minutes or block entirely. The replay prices this honestly (entry at confirmation close). Replay entry layer remains PROVISIONAL vs live (07-17 anchors) -- cohort CONTRASTS are the signal.",
+  "status": "KILL -- 1/5 gates pass",
+  "adjudicated_at_et": "2026-09-05T00:45:00",
+  "evidence": {
+    "command": "cat analysis/recommendations/structure-shift-replay-2026-07-28.json (the direct A/B run of this prereg's own predicate, K=3 primary)",
+    "numbers": "verdict: G1_positive_aggregate_delta=False (delta_total=-$46.00), G2_day_majority_changed_days=False, G3_survives_drop_best=False, G4_anchor_no_regression=False, G5_incident_anchors_captured=True. n_gates_pass_of_5=1. all_pass=False. Population: n_candidates=15,303 (~40/day), n_passed_by_engine=412 -- reproduces the broad-ladder failure shape (no selectivity floor) the pre-reg's own relationship_to_prereg_1 note in pre-reg #2 flags as DEAD.",
+    "lessons_cited": "C22 (backward-looking/lagging structure classifiers, L118-146) -- the shift predicate itself is a same-session structural confirmation with no selectivity floor, structurally identical to the anti-pattern class those lessons document.",
+    "rationale": "structure-shift-replay-2026-07-28.json is the pre-registered direct test of this exact prereg (commit 773a17f0 per its own 'prereg' field) -- reused, not re-run."
+  }
 }
