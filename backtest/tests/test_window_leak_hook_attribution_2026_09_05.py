@@ -44,6 +44,31 @@ def _load_module():
 HOOK = _load_module()
 
 
+@pytest.fixture(autouse=True)
+def _redirect_log_to_tmp(tmp_path, monkeypatch):
+    """R4c fix (GOAL-SILENT-RIG-2026-09-05): every test in this file exercises
+    _flush_daily_summary/_maybe_flush_daily_summary, both of which call the module's
+    `_log()` helper -- and `_log()` writes to the module-level `LOG` Path, which defaults
+    to the REAL `automation/state/logs/window-leak-hook-<today>.log` file that the LIVE
+    hook process also writes to.
+
+    Before this fix, only status_known_broken.upsert() was faked (via
+    monkeypatch.setitem(sys.modules, ...)) -- `_log()` was untouched and wrote straight
+    through to the real log file on every test run. That is exactly how the two fake
+    lines ended up in the real window-leak-hook-2026-09-05.log at 12:08:41 ET ("daily
+    summary flushed for 2026-09-05: ... " / "upsert failed: disk full" / "daily summary
+    flushed for 2026-09-04: ... leaker.exe x7" -- the literal text this test file's fixture
+    data produces). Tests must never write to real files under automation/state.
+
+    Redirecting HOOK.LOG (and HOOK.PID_FILE, defensively, for any future test that
+    exercises main()'s singleton-file write) to tmp_path makes every test's file writes
+    land in pytest's own tmp_path -- never the live log the orchestrator/hook process
+    reads and writes.
+    """
+    monkeypatch.setattr(HOOK, "LOG", tmp_path / "window-leak-hook-test.log")
+    monkeypatch.setattr(HOOK, "PID_FILE", tmp_path / "window-leak-hook-test.pid")
+
+
 # --- attribution: a fake hide event + a fake process list ---------------------------------
 
 def test_bite_attribute_recent_processes_flags_only_the_just_created(monkeypatch):
@@ -179,3 +204,135 @@ def test_maybe_flush_is_noop_within_the_same_day(monkeypatch):
     monkeypatch.setattr(HOOK, "_hidden_today", 5)
     HOOK._maybe_flush_daily_summary()
     assert calls == [], "same-day call must not flush (only a day rollover flushes)"
+
+
+# --- R4a: proc_trace.py cross-reference (fixture trace files, no live process/CIM) --------
+
+import json as _json  # noqa: E402
+
+
+def _write_trace_file(tmp_path, d: dt.date, rows: list) -> "object":
+    p = tmp_path / f"proc-trace-{d.isoformat()}.jsonl"
+    p.write_text("\n".join(_json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    return p
+
+
+_TRACE_ROW = {
+    "ts_local": 1_757_000_000_000,
+    "pid": 4242,
+    "ppid": 1,
+    "name": "wscript.exe",
+    "cmdline": r"wscript.exe //nologo run_exe_hidden.vbs",
+    "parent_name": "explorer.exe",
+    "parent_cmdline": r"C:\Windows\explorer.exe",
+    "session_id": 1,
+}
+
+
+def test_proc_trace_path_for_date_is_daily_rotated(tmp_path):
+    p1 = HOOK._proc_trace_path_for_date(dt.date(2026, 9, 5))
+    p2 = HOOK._proc_trace_path_for_date(dt.date(2026, 9, 6))
+    assert p1 != p2
+    assert p1.name == "proc-trace-2026-09-05.jsonl"
+
+
+def test_bite_read_recent_events_includes_only_within_window(tmp_path, monkeypatch):
+    """NON-VACUOUS BITE: a row 0.5s before `now` (inside a 2s window) must be returned; a row
+    30s before `now` must not."""
+    today = dt.date(2026, 9, 5)
+    now_s = 1_757_000_010.0  # seconds
+    recent_row = dict(_TRACE_ROW, ts_local=int(now_s * 1000 - 500), pid=1)
+    old_row = dict(_TRACE_ROW, ts_local=int(now_s * 1000 - 30_000), pid=2)
+    _write_trace_file(tmp_path, today, [recent_row, old_row])
+
+    monkeypatch.setattr(HOOK.dt, "date", type("_D", (dt.date,), {"today": classmethod(lambda cls: today)}))
+
+    events = HOOK._read_recent_proc_trace_events(within_seconds=2.0, now=now_s, log_dir=tmp_path)
+    pids = {e["pid"] for e in events}
+    assert pids == {1}, f"expected only the recent row, got pids={pids}"
+
+
+def test_read_recent_events_missing_file_returns_empty(tmp_path, monkeypatch):
+    monkeypatch.setattr(HOOK.dt, "date", type("_D", (dt.date,), {"today": classmethod(lambda cls: dt.date(2026, 9, 5))}))
+    assert HOOK._read_recent_proc_trace_events(within_seconds=2.0, now=1_757_000_000.0, log_dir=tmp_path) == []
+
+
+def test_read_recent_events_skips_malformed_lines(tmp_path, monkeypatch):
+    today = dt.date(2026, 9, 5)
+    now_s = 1_757_000_010.0
+    p = tmp_path / f"proc-trace-{today.isoformat()}.jsonl"
+    good_row = dict(_TRACE_ROW, ts_local=int(now_s * 1000 - 100), pid=9)
+    p.write_text(_json.dumps(good_row) + "\n{not json}\n\n", encoding="utf-8")
+    monkeypatch.setattr(HOOK.dt, "date", type("_D", (dt.date,), {"today": classmethod(lambda cls: today)}))
+    events = HOOK._read_recent_proc_trace_events(within_seconds=2.0, now=now_s, log_dir=tmp_path)
+    assert len(events) == 1
+    assert events[0]["pid"] == 9
+
+
+def test_read_recent_events_bounded_tail_read_does_not_crash_on_huge_file(tmp_path, monkeypatch):
+    """A file far larger than _PROC_TRACE_TAIL_BYTES must still be readable (tail-only) and
+    must never raise -- the hide path can never be delayed by a huge trace file."""
+    today = dt.date(2026, 9, 5)
+    now_s = 1_757_000_010.0
+    rows = [dict(_TRACE_ROW, ts_local=int(now_s * 1000 - 100), pid=i) for i in range(2000)]
+    _write_trace_file(tmp_path, today, rows)
+    monkeypatch.setattr(HOOK, "_PROC_TRACE_TAIL_BYTES", 4096)  # force a small tail window
+    monkeypatch.setattr(HOOK.dt, "date", type("_D", (dt.date,), {"today": classmethod(lambda cls: today)}))
+    events = HOOK._read_recent_proc_trace_events(within_seconds=2.0, now=now_s, log_dir=tmp_path)
+    assert isinstance(events, list)  # must not raise; tail read means not ALL 2000 need appear
+
+
+def test_format_proc_trace_chain_names_a_dead_parent():
+    """THE WHOLE POINT: a process whose parent has already exited by the time the hide log
+    is written is still named here, because proc_trace.py looked the parent up at CREATION
+    time, not after the fact."""
+    events = [dict(_TRACE_ROW, name="pythonw.exe", parent_name="cmd.exe",
+                   parent_cmdline=r"C:\Windows\System32\cmd.exe /c foo")]
+    chain = HOOK._format_proc_trace_chain(events)
+    assert "pythonw.exe" in chain
+    assert "cmd.exe" in chain
+    assert "C:\\Windows\\System32\\cmd.exe" in chain
+
+
+def test_format_proc_trace_chain_empty_list_is_none_string():
+    assert HOOK._format_proc_trace_chain([]) == "none"
+
+
+def test_format_proc_trace_chain_bounded_by_limit():
+    events = [dict(_TRACE_ROW, pid=i) for i in range(10)]
+    chain = HOOK._format_proc_trace_chain(events, limit=3)
+    assert chain.count("<- parent") == 3
+
+
+def test_handle_show_wiring_calls_proc_trace_reader(monkeypatch, tmp_path):
+    """Structural: _handle_show must call _read_recent_proc_trace_events and fold its
+    output into the HID log line via proc_trace=[...] -- proven by monkeypatching the reader
+    to a sentinel and asserting the sentinel text lands in the log file.
+
+    Forces the hide branch by faking _image_name (console host) + _service_rooted (True),
+    and by pre-seeding the shared wt.DWORD instance _handle_show constructs so the real
+    GetWindowThreadProcessId (also faked, a no-op) doesn't need to write through a live
+    ctypes.byref pointer -- the module reads pid.value straight back off that same instance."""
+    calls = []
+
+    def _fake_reader(within_seconds=2.0, now=None, log_dir=None):
+        calls.append(within_seconds)
+        return [dict(_TRACE_ROW, name="SENTINEL_PROC.exe")]
+
+    monkeypatch.setattr(HOOK, "_read_recent_proc_trace_events", _fake_reader)
+    monkeypatch.setattr(HOOK, "_parent_map", lambda: {1234: ("windowsterminal.exe", 1), 1: ("services.exe", 0)})
+    monkeypatch.setattr(HOOK, "_attribute_recent_processes", lambda pm: [])
+    monkeypatch.setattr(HOOK, "ShowWindow", lambda hwnd, cmd: None)
+    monkeypatch.setattr(HOOK, "_image_name", lambda pid: "windowsterminal.exe")
+    monkeypatch.setattr(HOOK, "_service_rooted", lambda pid, pm: True)
+
+    fake_pid_holder = HOOK.wt.DWORD()
+    fake_pid_holder.value = 1234
+    monkeypatch.setattr(HOOK.wt, "DWORD", lambda *a, **kw: fake_pid_holder)
+    monkeypatch.setattr(HOOK, "GetWindowThreadProcessId", lambda hwnd, ref: None)
+
+    HOOK._handle_show(None, HOOK.EVENT_OBJECT_SHOW, 999, HOOK.OBJID_WINDOW, 0, 0, 0)
+
+    assert calls, "_read_recent_proc_trace_events must be called from _handle_show"
+    log_text = HOOK.LOG.read_text(encoding="utf-8") if HOOK.LOG.exists() else ""
+    assert "SENTINEL_PROC.exe" in log_text

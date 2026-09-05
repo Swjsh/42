@@ -105,3 +105,42 @@ def test_should_yield_matches_check_presence(tmp_path):
 def test_get_idle_seconds_never_raises():
     result = pg.get_idle_seconds()
     assert result is None or isinstance(result, float)
+
+
+# ---------------------------------------------------------------------------
+# main() --conductor-check (GOAL-SILENT-RIG-2026-09-05 R4b): the conductor
+# launchers' rail-0 gate needs a stable exit-code contract, mirroring
+# conductor_budget.py's --check (exit 3 == skip the Claude spawn). These tests
+# monkeypatch pg.check_presence directly rather than touching the real
+# quiet-presence.json / Win32 idle counter, so the DECISION function is what's
+# under test, not the live machine's actual presence state.
+# ---------------------------------------------------------------------------
+
+def _fake_check_presence(*, present: bool, reasons=("fake",)):
+    def _fn(**kwargs):
+        return pg.PresenceCheck(present=present, reasons=reasons, fullscreen_age_s=None, idle_s=None)
+    return _fn
+
+
+def test_conductor_check_exits_3_when_present(monkeypatch, capsys):
+    monkeypatch.setattr(pg, "check_presence", _fake_check_presence(present=True, reasons=("fullscreen app foreground 10s ago (<600s)",)))
+    rc = pg.main(["--conductor-check"])
+    assert rc == pg.EXIT_PRESENT == 3
+    out = capsys.readouterr().out
+    assert "PRESENT" in out
+
+
+def test_conductor_check_exits_0_when_clear(monkeypatch, capsys):
+    monkeypatch.setattr(pg, "check_presence", _fake_check_presence(present=False, reasons=()))
+    rc = pg.main(["--conductor-check"])
+    assert rc == pg.EXIT_CLEAR == 0
+    out = capsys.readouterr().out
+    assert "CLEAR" in out
+
+
+def test_plain_main_without_conductor_check_always_exits_0(monkeypatch):
+    """Without --conductor-check, main() keeps its original CLI smoke-test contract
+    (always exit 0) -- this flag must be strictly additive, never change the default
+    `python setup/scripts/presence_gate.py` behavior other callers may already rely on."""
+    monkeypatch.setattr(pg, "check_presence", _fake_check_presence(present=True))
+    assert pg.main([]) == 0

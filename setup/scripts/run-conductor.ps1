@@ -154,6 +154,73 @@ if ($precheckExitCode -eq 3) {
 }
 # ===RAIL0-PRECHECK-BLOCK-END===
 
+# ===PRESENCE-GATE-BLOCK-START=== (test seam: backtest/tests/test_presence_gate_conductor_wiring_2026_09_05.py
+# extracts the code between these two marker lines verbatim and swaps only the interpreter
+# /script/outcome-recorder paths + the check result -- never touches this file).
+# --- PRESENCE GATE (2026-09-05, GOAL-SILENT-RIG-2026-09-05 R4b) -----------------
+# J: "everything must be silent... i can't have my pc bogged down." A conductor fire
+# (a full Claude session + its MCP children + subagent fan-out) is exactly the load
+# this goal exists to suppress while J is actively at the box. Right after the
+# rail-0 budget precheck (same architectural slot: after the wrapper's own "should
+# this fire run at all" gates, before the cross-fire lock -- a gate that decides not
+# to run should never touch the lock file), ask presence_gate.py's --conductor-check
+# mode (exit 3 == J present, mirroring conductor_budget.py's --check convention
+# above) whether J is at the keyboard (input within 5 min) or in a fullscreen app
+# (foreground within 10 min). If present: log, record a PRESENCE-SKIP outcome row
+# (zero cost, Claude never spawned), and end the fire with exit 0 -- identical shape
+# to the rail-0 budget-exhausted block. FAIL-OPEN, same discipline as rail-0: only a
+# CONFIRMED exit 3 skips the spawn; a missing interpreter/script, timeout, or thrown
+# exception falls through to the normal Claude fire below, unchanged. This block
+# runs BEFORE `$env:GAMMA_CONDUCTOR_FIRE = "1"` is set further down, so
+# conductor_outcome.py's own fire_source() naturally tags this row "interactive"
+# (a scheduled conductor fire that was skipped is not a conductor "fire" for
+# max_fires purposes) without needing a --source CLI flag (record's subparser
+# exposes none; the CLI as-shipped already does the right thing here).
+$presenceGatePy = Join-Path $projectRoot "backtest\.venv\Scripts\python.exe"
+$presenceGateScript = Join-Path $projectRoot "setup\scripts\presence_gate.py"
+$presenceExitCode = $null
+$presenceStdout = ""
+if ((Test-Path $presenceGatePy) -and (Test-Path $presenceGateScript)) {
+    try {
+        $presenceResult = Invoke-PythonHidden -ScriptPath $presenceGateScript `
+            -ArgList @("--conductor-check") -TaskName "$task-presence-gate" -TimeoutSec 30
+        $presenceExitCode = $presenceResult.ExitCode
+        $presenceStdout = $presenceResult.Stdout
+        if ($presenceStdout) {
+            Write-TaskLog -TaskName $task -Message ("conductor: presence-gate stdout: " + $presenceStdout.Trim())
+        }
+    } catch {
+        Write-TaskLog -TaskName $task -Message ("conductor: PRESENCE GATE ERROR (" + $_.Exception.Message + ") -- failing OPEN, proceeding to Claude fire")
+        $presenceExitCode = $null
+    }
+} else {
+    Write-TaskLog -TaskName $task -Message "conductor: PRESENCE GATE SKIPPED -- venv python or presence_gate.py missing, failing OPEN"
+}
+
+if ($presenceExitCode -eq 3) {
+    Write-TaskLog -TaskName $task -Message "conductor: PRESENCE SKIP -- J at the box"
+    $presTaskId = "PRESENCE-SKIP-" + (Get-EtNow).ToString("yyyy-MM-ddTHHmmss")
+    $presNote = "presence gate PRESENT (J at the box, rail-0 conductor pre-check, before Claude spawn) -- zero real cost, Claude session never launched. " + $presenceStdout.Trim()
+    try {
+        $presRecordArgs = @(
+            "record",
+            "--task-id", $presTaskId,
+            "--cost", "0",
+            "--drained", "0",
+            "--added", "0",
+            "--lessons", "0",
+            "--tests-delta", "0",
+            "--regressions", "0",
+            "--note", $presNote
+        )
+        $null = Invoke-PythonHidden -ScriptPath "setup\scripts\conductor_outcome.py" `
+            -ArgList $presRecordArgs -TaskName "$task-presence-record" -TimeoutSec 30
+    } catch { }
+    Write-TaskLog -TaskName $task -Message "conductor: END exit=0 (presence gate blocked, Claude never spawned)"
+    exit 0
+}
+# ===PRESENCE-GATE-BLOCK-END===
+
 # --- CROSS-FIRE LOCK (fail-open; shared with conductor-weekend) -----------------
 # See Enter-ConductorFireLock in _shared.ps1 for the full incident writeup (2026-07-18
 # self-audit gap + same-day F7 duplicate-build + a `git stash` collision).

@@ -127,13 +127,29 @@ def should_yield(**kwargs) -> bool:
     return check_presence(**kwargs).present
 
 
+# Exit code convention deliberately mirrors conductor_budget.py's --check (EXIT_EXHAUSTED
+# = 3): a conductor launcher's rail-0 PowerShell block already knows how to test a
+# precheck's exit code for "3 == skip the Claude spawn" and fail open on everything else
+# (missing interpreter, non-3 exit, exception) -- reusing the same code means
+# run-conductor.ps1 / run-conductor-weekend.ps1 need no new exit-code convention, just a
+# second precheck call (GOAL-SILENT-RIG-2026-09-05 R4b).
+EXIT_PRESENT = 3
+EXIT_CLEAR = 0
+
+
 def main(argv=None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    conductor_check = "--conductor-check" in argv
+
     result = check_presence()
     if result.present:
         print(f"PRESENT: {'; '.join(result.reasons)}")
     else:
         print("CLEAR")
     print(f"  fullscreen_age_s={result.fullscreen_age_s} idle_s={result.idle_s}")
+
+    if conductor_check:
+        return EXIT_PRESENT if result.present else EXIT_CLEAR
     return 0
 
 

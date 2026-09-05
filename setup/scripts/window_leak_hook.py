@@ -22,6 +22,7 @@ import collections
 import ctypes
 import ctypes.wintypes as wt
 import datetime as dt
+import json
 import os
 import sys
 import time
@@ -164,6 +165,89 @@ def _attribute_recent_processes(pm: dict, within_seconds: float = 3.0) -> list[d
     return out
 
 
+# === proc_trace.py cross-reference (2026-09-05, GOAL-SILENT-RIG R4a) ====================
+# _attribute_recent_processes() above can only name a process that is STILL ALIVE in the
+# toolhelp snapshot taken right after a hide -- a short-lived process whose PARENT already
+# exited by the time the hide fires shows up as "(parent=?)" (exactly the live 14:00:0x
+# incident: 4 pythonw.exe entries, no parent nameable). proc_trace.py records EVERY process
+# creation the instant it happens (WMI eventing, not polling) with the parent's name/cmdline
+# looked up IMMEDIATELY, to automation/state/logs/proc-trace-<date>.jsonl -- this reads the
+# last `within_seconds` of THAT file as a second, richer attribution source. Bounded (only
+# tails the last _PROC_TRACE_TAIL_BYTES of the file, never a full-file read) and wrapped in
+# its own try/except at the call site so a missing/corrupt/huge trace file can never delay
+# or crash a hide -- the hide + the toolhelp-based attribution above always run first.
+_PROC_TRACE_TAIL_BYTES = 256 * 1024
+
+
+def _proc_trace_path_for_date(d: dt.date, log_dir: Path = STATE / "logs") -> Path:
+    """PURE: mirrors proc_trace.py's own _log_path_for_date naming convention -- duplicated
+    here (rather than imported) so this file never depends on proc_trace.py's import-time
+    side effects (log-dir creation, headless stdio redirect) just to read its output."""
+    return log_dir / f"proc-trace-{d.isoformat()}.jsonl"
+
+
+def _read_recent_proc_trace_events(within_seconds: float = 2.0,
+                                    now: "float | None" = None,
+                                    log_dir: Path = STATE / "logs") -> list[dict]:
+    """Tail the last _PROC_TRACE_TAIL_BYTES of today's (and, near midnight, yesterday's)
+    proc-trace-<date>.jsonl and return the parsed rows whose ts_local falls within the last
+    `within_seconds` of `now` (real time.time() if not given). Returns [] on any error
+    (missing file, corrupt JSON, proc_trace.py not running) -- fail-open, this is a
+    best-effort second attribution source, never a hide-path dependency."""
+    now = now if now is not None else time.time()
+    now_ms = now * 1000.0
+    window_ms = within_seconds * 1000.0
+    out: list[dict] = []
+    for d in (dt.date.today(), dt.date.today() - dt.timedelta(days=1)):
+        path = _proc_trace_path_for_date(d, log_dir=log_dir)
+        try:
+            if not path.exists():
+                continue
+            size = path.stat().st_size
+            with path.open("rb") as f:
+                if size > _PROC_TRACE_TAIL_BYTES:
+                    f.seek(size - _PROC_TRACE_TAIL_BYTES)
+                data = f.read().decode("utf-8", errors="ignore")
+            for raw in data.splitlines():
+                raw = raw.strip()
+                if not raw:
+                    continue
+                try:
+                    row = json.loads(raw)
+                except (json.JSONDecodeError, TypeError, ValueError):
+                    continue
+                if not isinstance(row, dict) or "ts_local" not in row:
+                    continue
+                try:
+                    ts = float(row["ts_local"])
+                except (TypeError, ValueError):
+                    continue
+                age_ms = now_ms - ts
+                if 0 <= age_ms <= window_ms:
+                    out.append(row)
+        except Exception:
+            continue  # fail-open: a bad day's trace file must never block another day's
+    out.sort(key=lambda r: r.get("ts_local", 0))
+    return out
+
+
+def _format_proc_trace_chain(events: list[dict], limit: int = 5) -> str:
+    """PURE: render a bounded list of proc_trace rows as one human-readable parent-chain
+    string for the HID log line -- name+cmdline for the process AND its parent (the whole
+    point: a dead parent is still named here, since proc_trace.py looked it up at creation
+    time, not after the fact)."""
+    if not events:
+        return "none"
+    parts = []
+    for r in events[:limit]:
+        name = r.get("name") or "?"
+        cmd = r.get("cmdline") or ""
+        pname = r.get("parent_name") or "?"
+        pcmd = r.get("parent_cmdline") or ""
+        parts.append(f'{name} (cmd="{cmd}") <- parent {pname} (cmd="{pcmd}")')
+    return "; ".join(parts)
+
+
 _leak_sources: "collections.Counter[str]" = collections.Counter()
 _hidden_today = 0
 _flush_date = dt.date.today()
@@ -300,7 +384,14 @@ def _handle_show(hHook, event, hwnd, idObject, idChild, thread, ts):
             for r in recent:
                 _leak_sources[r["image"]] += 1
             attrib = "; ".join(f"{r['image']} (parent={r['parent']})" for r in recent[:5]) or "none"
-            _log(f"HID #{_hidden} hwnd={int(hwnd)} pid={p} img={name} recent_procs=[{attrib}]")
+            try:
+                trace_events = _read_recent_proc_trace_events(within_seconds=2.0)
+            except Exception as ex:
+                trace_events = []
+                _log(f"proc_trace read error (hide already applied): {ex}")
+            proc_trace_chain = _format_proc_trace_chain(trace_events)
+            _log(f"HID #{_hidden} hwnd={int(hwnd)} pid={p} img={name} recent_procs=[{attrib}] "
+                 f"proc_trace=[{proc_trace_chain}]")
             _maybe_flush_daily_summary()
     except Exception as ex:  # never let a callback crash the hook
         _log(f"cb error: {ex}")
