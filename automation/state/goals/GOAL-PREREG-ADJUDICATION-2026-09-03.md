@@ -105,7 +105,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   `project_pipeline_audit_2026_07_01.md`-adjacent note on the same trigger (mentioned in
   the skill doc as the hidden-queue-grammar bug case study) before closing. DONE-WHEN:
   same as P2.
-- [~] P8 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Vocabulary check: read `setup/scripts/prereg_hygiene.py`'s
+- [x] P8 (DONE 2026-09-05 00:5x ET, Fable: `ADJUDICATION_STATUS_RE` = start-anchored, case-sensitive `EXTEND|KILL|SHIP-CANDIDATE|NULL` wins over PENDING in `_is_pending_status`; guard backtest/tests/test_prereg_hygiene_adjudication_vocab_2026_09_05.py 5 passed; RED-proof: "KILL -- was FROZEN -- NOT RUN" reads pending=True with the regex disabled, False with it) — Vocabulary check: read `setup/scripts/prereg_hygiene.py`'s
   `PENDING_STATUS_RE`/`TERMINAL_STATUS_RE` (current vocabulary: FROZEN/PENDING/PARKED/
   CANDIDATE ONLY/NOT RUN/NOT SHIPPED/NOT IMPLEMENTED/NOT BUILT for pending;
   RUN_COMPLETE/RETIRED/KILLED/CLOSED_KILL/SUPERSEDED/EARNS_RIGHTS/

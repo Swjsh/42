@@ -120,6 +120,13 @@ TERMINAL_STATUS_RE = re.compile(
     r"|armed_paper_collecting_evidence",
     re.IGNORECASE,
 )
+# 2026-09-05 (GOAL-PREREG-ADJUDICATION P8): the adjudication vocabulary -- a status that
+# STARTS with one of the four bare tokens EXTEND / KILL / SHIP-CANDIDATE / NULL (optionally
+# followed by " -- <reason>") is a written verdict and therefore terminal for hygiene
+# purposes (EXTEND = "keep accruing on the named instrument", a decision, not an absence
+# of one). Anchored to the start of the string and CASE-SENSITIVE on purpose: prose such
+# as "not yet run against the null" or "will extend the window" must not read as a verdict.
+ADJUDICATION_STATUS_RE = re.compile(r"^\s*(?:EXTEND|KILL|SHIP-CANDIDATE|NULL)\b")
 
 
 def _is_pending_status(status: Optional[str]) -> bool:
@@ -129,7 +136,7 @@ def _is_pending_status(status: Optional[str]) -> bool:
     also happens to contain the substring FROZEN."""
     if not status:
         return False
-    if TERMINAL_STATUS_RE.search(status):
+    if TERMINAL_STATUS_RE.search(status) or ADJUDICATION_STATUS_RE.match(status):
         return False
     return bool(PENDING_STATUS_RE.search(status))
 # A genuine per-prereg result mentions at most a small handful of siblings (a related
