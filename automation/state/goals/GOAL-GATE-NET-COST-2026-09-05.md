@@ -45,24 +45,36 @@ stated as such -- this goal is allowed to conclude that a gate is EARNING its ke
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] N1 (WIP 2026-09-05 08:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain N1-N5 -- other sessions do not pick up) -- Inventory refusals: every ENTER-eligible tick refused by a gate, 2026-08-01 -> today,
-  per gate id, from core-decisions.jsonl (verdict/action + blockers) and fleet decisions.jsonl
-  (reason strings) and the fleet-gate-leak ledger; dedupe to waves; write
-  analysis/gate-net-cost/refusals-2026-09-05.json. DONE-WHEN: counts per gate quoted; the right-tail
-  gate attribution (46 missed pairs) is a strict subset (cross-check by wave id).
-- [~] N2 (WIP 2026-09-05 08:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain N1-N5 -- other sessions do not pick up) -- Walk each refused wave forward through the refusing arm's real exit shape on OPRA bars
-  with the engine cost model (compose zero_enter_autopsy's pricing + a small exit walker reusing
-  backtest/lib/exit_manager_walk.py with all_exits_market=True); output realized-if-taken $ per
-  (wave, arm). Hand-check 2 examples against real same-day fills; quote both.
-- [~] N3 (WIP 2026-09-05 08:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain N1-N5 -- other sessions do not pick up) -- The table: per gate, per arm, full window and frozen window: refused winners $, refused
-  losers $, net, ex-best-day net, n waves. Write the .md/.json. State per gate: EARNING / COSTING /
-  UNDERPOWERED (n < 10 waves).
-- [~] N4 (WIP 2026-09-05 08:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain N1-N5 -- other sessions do not pick up) -- Evidence appends to the three preregs + `checkpoint_packet.py` reads net (RED-proofed
-  test for the swap from ceiling to net); regenerate CHECKPOINT files via the script.
-- [ ] N5 -- Cockpit: gate net-cost (top costing gate, top earning gate) on the right-tail tile;
-  DOM read quoted. Append the verdict table to markdown/doctrine/edge-master-doctrine.md under
-  "August 2026 big-day anatomy" as a dated sub-section (this is the doctrine-level answer to
-  "which gates are shaving the right tail").
+- [x] N1 (DONE 2026-09-05 03:56 ET, session a16e320c) -- Inventory refusals: every ENTER-eligible
+  tick refused by a gate, 2026-08-01 -> today, per gate id, from core-decisions.jsonl
+  (verdict/action) and fleet decisions.jsonl (reason strings) and the fleet-gate-leak ledger;
+  deduped to waves via the 30-min WAVE_GAP_MINUTES episode grouping; written to
+  analysis/gate-net-cost/refusals-2026-09-05.json (setup/scripts/gate_net_cost_inventory.py).
+  DONE-WHEN met: counts per gate quoted (see .md table); right-tail gate attribution (46 missed
+  pairs, 24 unique wave ids) is a strict subset -- cross_check_vs_capture_gap_46:
+  {"n_present_in_my_inventory": 24, "n_missing": 0, "strict_subset": true}. fleet gate_override
+  min_triggers/require_confluence_or_sequence found NOT tracked by fleet-gate-leak-ledger.jsonl
+  (that ledger only instruments 4 other gates) -- recovered instead from fleet decisions.jsonl
+  reason strings ("gate: 1 triggers < 2", "gate: requires confluence/sequence"), disclosed as a
+  real ledger-coverage gap. filter 8/filter 10 explicitly NOT_COMPUTED (fire on the large
+  majority of all ticks; isolating true ENTER-eligible-minus-this-blocker needs a full
+  filters.py gate-stack replay, out of scope this pass -- disclosed, not force-fit).
+- [ ] N2 (NOT DONE -- see analysis/gate-net-cost/GATE-NET-COST-2026-09-05.md "Recommendation")
+  -- Walk each refused wave forward through the refusing arm's real exit shape on OPRA bars
+  with the engine cost model. NOT attempted this pass: assembling opt_df/ribbon_tick_df/
+  five_min_spy_df per (wave, arm) across ~340 waves x up to 4 arms, then hand-checking 2
+  examples against real fills to the goal's own verification bar, is a multi-hour build that
+  this bounded pass chose not to rush rather than ship an unverified or fabricated walk.
+- [ ] N3 (NOT DONE -- blocked on N2) -- The table: winners_$/losers_$/net_$/ex_best_day_net_$
+  columns are all `null` by construction in GATE-NET-COST-2026-09-05.json; every gate is
+  labeled UNDERPOWERED_NO_WALK or NO_WALK rather than EARNING/COSTING (no gate verdict is
+  supportable without N2).
+- [ ] N4 (NOT STARTED -- correctly withheld) -- No prereg touched, no checkpoint_packet.py
+  edit made. Appending an evidence_2026_09_05_net_of_losers block with no walked evidence, or
+  swapping checkpoint_packet.py to read a number that does not exist yet, would be
+  fabrication into decision-facing files gating a 10-30 packet.
+- [ ] N5 (NOT STARTED -- blocked on N3) -- Cockpit tile and doctrine append both need a real
+  top-costing/top-earning gate, which N3 did not produce.
 
 ## J-DECISIONS
 - None. Measurement only; preregs wait for 10-30.
@@ -70,5 +82,19 @@ stated as such -- this goal is allowed to conclude that a gate is EARNING its ke
 ## PROGRESS LOG
 - 2026-09-05 08:0x ET -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 03:46 ET — opened by goal_autopilot
+- 2026-09-05 03:56 ET -- session a16e320c: N1 shipped real (refusals-2026-09-05.json,
+  gate_net_cost_inventory.py, cross-check strict_subset=true). N2-N5 explicitly NOT done --
+  see HONEST STATE. No FROZEN_TRADING_PATH file touched. No prereg/checkpoint/cockpit/doctrine
+  file touched.
+
 ## HONEST STATE
-Queued. Nothing started.
+- N1 (refusal inventory) is real and verifiable: 20 gate/arm buckets counted from
+  core-decisions.jsonl + fleet decisions.jsonl reason strings, wave-deduped, cross-checked
+  strict-subset against the existing 46-pair right-tail attribution (24/24 present).
+- N2 (the actual exit-shape walk that turns refused-winner ceilings into a net-of-losers
+  figure) was NOT built this pass -- it is the load-bearing new work this goal exists for,
+  and doing it credibly (per-arm real exit params, OPRA bars, 2 hand-checked examples)
+  needs a dedicated follow-up fire, not a rushed finish inside this one.
+- Nothing decision-facing was touched: the 3 preregs, checkpoint_packet.py, the cockpit, and
+  edge-master-doctrine.md are all still exactly as they were before this session -- correct,
+  since none of them have real net numbers to append yet.

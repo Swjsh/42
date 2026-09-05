@@ -1,0 +1,2880 @@
+{
+  "_doc": "gate_net_cost_inventory.py -- GOAL-GATE-NET-COST-2026-09-05 N1.\n\nInventories every ENTER-eligible tick refused by a named gate, 2026-08-01..today,\ndeduped to WAVES (reuses backtest/lib/right_tail_waves.WAVE_GAP_MINUTES episode-grouping\nlogic -- same-side refusal ticks within 30 minutes of each other collapse into one wave).\n\nSources (read-only, per goal OPERATING RULES -- no new backtest grid):\n  - automation/state/core-decisions.jsonl `verdict`/`action` for the 7 core-named gates\n    (SKIP_STRUCTURE_VETO, SKIP_LATE_ENTRY, SKIP_STALE_TRIGGER,\n    SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY, SKIP_MIN_PREMIUM_FLOOR, RISK_DENY_SETTLEMENT\n    (settlement cap), NOT_FLAT).\n  - analysis/recommendations/fleet-gate-leak-ledger.jsonl `cohort==\"bypass\"` rows for the\n    2 fleet gate_override gates (min_triggers / require_confluence_or_sequence), keyed by\n    `gate_param_key`.\n\nFilter 8 / filter 10 (bear/bull min_triggers volume-multiplier blockers) are NOT counted\nhere as discrete refusal waves: those blocker codes fire on the large majority of every\ntick regardless of whether the tick was otherwise ENTER-eligible (verified this session:\nbull_blockers code 10 fires on 4288/6068 core-decisions rows since 2026-08-01, bear code 8\non 5896/6068) -- isolating \"ENTER-eligible but for this blocker alone\" requires replaying\nbacktest/lib/filters.py's full per-side gate stack (score + every other blocker) at each\ntick, not a blocker-code tally. Reported honestly as UNDERPOWERED/NOT COMPUTED rather than\nforce-fit into a wave count -- see the .md's explicit note.\n\nCross-check: every (date, wave_start_et) key in\nanalysis/right-tail/capture-gap-join-2026-09-05.json's 46 rows must appear in this script's\nwave set (goal DONE-WHEN \"strict subset by wave id\").\n\nCLI: python setup/scripts/gate_net_cost_inventory.py\n",
+  "window": {
+    "start": "2026-08-01",
+    "frozen_start": "2026-08-31"
+  },
+  "core_gates": {
+    "SKIP_STRUCTURE_VETO": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 93,
+      "n_waves": 15,
+      "n_waves_frozen_window": 4,
+      "waves": [
+        {
+          "date": "2026-08-01",
+          "wave_start_et": "2026-08-01T13:02:06",
+          "account": "safe",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-01",
+          "wave_start_et": "2026-08-01T14:23:18",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-01",
+          "wave_start_et": "2026-08-01T17:19:38",
+          "account": "safe",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-02",
+          "wave_start_et": "2026-08-02T03:49:49",
+          "account": "safe",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-02",
+          "wave_start_et": "2026-08-02T04:45:18",
+          "account": "safe",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:02:42",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T04:16:32",
+          "account": "safe",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T12:36:03",
+          "account": "safe",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T13:01:03",
+          "account": "safe",
+          "n_ticks_in_wave": 20,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T13:06:03",
+          "account": "safe",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T13:34:03",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:11:04",
+          "account": "safe",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:56:03",
+          "account": "safe",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T15:21:03",
+          "account": "safe",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T14:31:02",
+          "account": "safe",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "SKIP_STALE_TRIGGER": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 314,
+      "n_waves": 30,
+      "n_waves_frozen_window": 5,
+      "waves": [
+        {
+          "date": "2026-08-01",
+          "wave_start_et": "2026-08-01T13:02:06",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-01",
+          "wave_start_et": "2026-08-01T14:23:18",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-01",
+          "wave_start_et": "2026-08-01T17:19:38",
+          "account": "safe",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-02",
+          "wave_start_et": "2026-08-02T03:49:49",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-02",
+          "wave_start_et": "2026-08-02T04:45:18",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:02:42",
+          "account": "safe",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T04:16:32",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-10",
+          "wave_start_et": "2026-08-10T09:30:07",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T09:30:05",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T09:30:07",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T09:30:18",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-24",
+          "wave_start_et": "2026-08-24T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-25",
+          "wave_start_et": "2026-08-25T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-26",
+          "wave_start_et": "2026-08-26T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-31",
+          "wave_start_et": "2026-08-31T09:30:03",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T09:30:04",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T09:30:05",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:30:06",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T09:30:05",
+          "account": "safe",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "NOT_FLAT": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 449,
+      "n_waves": 48,
+      "n_waves_frozen_window": 10,
+      "waves": [
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:57:07",
+          "account": "safe",
+          "n_ticks_in_wave": 13,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T11:27:05",
+          "account": "bold",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T12:36:03",
+          "account": "safe",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T11:51:03",
+          "account": "safe",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T10:32:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T09:47:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T12:07:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-10",
+          "wave_start_et": "2026-08-10T09:57:03",
+          "account": "safe",
+          "n_ticks_in_wave": 32,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T11:52:04",
+          "account": "safe",
+          "n_ticks_in_wave": 13,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T13:32:05",
+          "account": "bold",
+          "n_ticks_in_wave": 19,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T09:54:03",
+          "account": "safe",
+          "n_ticks_in_wave": 19,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T12:57:36",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T09:52:03",
+          "account": "safe",
+          "n_ticks_in_wave": 22,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T11:42:04",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T12:42:04",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T14:37:04",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T09:47:04",
+          "account": "safe",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:15:04",
+          "account": "safe",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:57:04",
+          "account": "safe",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T13:31:04",
+          "account": "safe",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T13:07:04",
+          "account": "bold",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T14:37:03",
+          "account": "safe",
+          "n_ticks_in_wave": 22,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T10:42:03",
+          "account": "safe",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T11:50:04",
+          "account": "bold",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T12:37:03",
+          "account": "safe",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T12:57:03",
+          "account": "safe",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:02:03",
+          "account": "safe",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:57:03",
+          "account": "safe",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T09:52:04",
+          "account": "safe",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T11:08:04",
+          "account": "bold",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T12:27:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-25",
+          "wave_start_et": "2026-08-25T13:17:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T09:42:03",
+          "account": "safe",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T11:54:04",
+          "account": "bold",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T12:31:05",
+          "account": "bold",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:22:03",
+          "account": "safe",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:56:03",
+          "account": "safe",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:02:03",
+          "account": "safe",
+          "n_ticks_in_wave": 22,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T13:22:03",
+          "account": "safe",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T14:39:03",
+          "account": "safe",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:20:05",
+          "account": "bold",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:57:04",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T13:07:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T14:22:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:42:03",
+          "account": "safe",
+          "n_ticks_in_wave": 25,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:07:04",
+          "account": "bold",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T12:17:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T09:47:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "SKIP_LATE_ENTRY": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 86,
+      "n_waves": 10,
+      "n_waves_frozen_window": 2,
+      "waves": [
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T15:06:03",
+          "account": "safe",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T15:46:03",
+          "account": "safe",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T15:11:04",
+          "account": "safe",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T15:01:03",
+          "account": "safe",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T15:31:03",
+          "account": "safe",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T15:00:04",
+          "account": "safe",
+          "n_ticks_in_wave": 23,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-26",
+          "wave_start_et": "2026-08-26T15:00:04",
+          "account": "safe",
+          "n_ticks_in_wave": 11,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-26",
+          "wave_start_et": "2026-08-26T15:51:03",
+          "account": "safe",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T15:01:03",
+          "account": "safe",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T15:14:02",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 121,
+      "n_waves": 23,
+      "n_waves_frozen_window": 5,
+      "waves": [
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T11:54:36",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T10:31:54",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T11:51:53",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T13:35:06",
+          "account": "bold",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T11:26:53",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T13:01:04",
+          "account": "bold",
+          "n_ticks_in_wave": 23,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T12:42:05",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:14:07",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:56:06",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T13:32:07",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T13:11:04",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T15:01:04",
+          "account": "bold",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T14:36:06",
+          "account": "bold",
+          "n_ticks_in_wave": 7,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T15:31:04",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T12:56:05",
+          "account": "bold",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:56:05",
+          "account": "bold",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T09:51:07",
+          "account": "bold",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:29:04",
+          "account": "bold",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T13:21:05",
+          "account": "bold",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T14:49:06",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:51:06",
+          "account": "bold",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T09:47:05",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T14:31:03",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "settlement_cap": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 33,
+      "n_waves": 5,
+      "n_waves_frozen_window": 3,
+      "waves": [
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T12:56:04",
+          "account": "safe",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T13:49:04",
+          "account": "safe",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:34:04",
+          "account": "bold",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:52:03",
+          "account": "safe",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T14:36:04",
+          "account": "safe",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "SKIP_MIN_PREMIUM_FLOOR": {
+      "source": "core-decisions.jsonl verdict",
+      "n_refusal_rows": 51,
+      "n_waves": 15,
+      "n_waves_frozen_window": 7,
+      "waves": [
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T12:57:05",
+          "account": "bold",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:01:07",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:57:05",
+          "account": "bold",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T11:06:06",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T12:26:08",
+          "account": "bold",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T13:34:04",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-25",
+          "wave_start_et": "2026-08-25T13:16:05",
+          "account": "bold",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T11:51:04",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T14:39:05",
+          "account": "bold",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:16:04",
+          "account": "bold",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T13:06:06",
+          "account": "bold",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:41:05",
+          "account": "bold",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:21:04",
+          "account": "bold",
+          "n_ticks_in_wave": 11,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:56:04",
+          "account": "bold",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T14:32:03",
+          "account": "bold",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": true
+        }
+      ]
+    }
+  },
+  "fleet_gate_override": {},
+  "fleet_decisions_reason_gates": {
+    "SKIP_MIN_PREMIUM_FLOOR__risky-1": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 41,
+      "n_waves": 6,
+      "n_waves_frozen_window": 1,
+      "waves": [
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T09:43:03.522051-04:00",
+          "arm": "risky-1",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T11:52:03.820044-04:00",
+          "arm": "risky-1",
+          "reason_sample": "premium 0.15 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T12:32:03.783722-04:00",
+          "arm": "risky-1",
+          "reason_sample": "premium 0.07 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T13:17:03.919499-04:00",
+          "arm": "risky-1",
+          "reason_sample": "premium 0.08 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T15:08:03.639021-04:00",
+          "arm": "risky-1",
+          "reason_sample": "premium 0.11 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T15:02:06.354397-04:00",
+          "arm": "risky-1",
+          "reason_sample": "premium 0.26 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "NOT_FLAT__risky-1": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 347,
+      "n_waves": 37,
+      "n_waves_frozen_window": 5,
+      "waves": [
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T09:44:03.812734-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:47:05.296039-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 30,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T11:28:05.337509-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T12:29:06.083233-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 25,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T09:59:04.613768-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 7,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T11:49:04.813818-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T10:33:04.634334-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T09:48:05.605929-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T12:08:05.858536-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-10",
+          "wave_start_et": "2026-08-10T09:36:05.314274-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T09:53:05.460275-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T11:53:06.138120-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T13:33:06.868662-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 13,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T09:47:05.715878-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 34,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T11:28:05.299651-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T12:59:05.102302-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 24,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T09:53:05.656823-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T11:43:07.393866-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T14:38:06.418886-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T09:48:06.864142-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T10:43:04.920184-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T11:51:04.189947-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T12:38:05.229676-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T11:08:06.095277-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T12:28:05.741313-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T13:36:05.459021-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-25",
+          "wave_start_et": "2026-08-25T13:18:05.791183-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T09:43:04.968417-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T11:53:05.637351-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T12:32:05.477526-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:23:05.698823-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:57:05.914832-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:18:06.268967-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:58:06.113426-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T13:08:06.017038-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:43:05.130752-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 13,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:08:05.782615-04:00",
+          "arm": "risky-1",
+          "reason_sample": "risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "min_triggers__risky-1": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 112,
+      "n_waves": 16,
+      "n_waves_frozen_window": 5,
+      "waves": [
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T12:42:05.825690-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:15:07.596833-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:57:06.366846-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T13:32:06.774198-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T13:07:05.182451-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T14:37:04.096217-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T12:57:04.912671-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:02:06.254847-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:57:05.084107-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T09:52:06.357436-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:02:05.552868-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T13:22:05.492073-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T14:40:06.058048-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:52:05.694165-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T09:47:05.814301-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T14:33:04.422251-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "require_confluence_or_sequence__risky-1": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 204,
+      "n_waves": 9,
+      "n_waves_frozen_window": 4,
+      "waves": [
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T09:46:05.543303-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 39,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T09:46:05.407194-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-24",
+          "wave_start_et": "2026-08-24T09:46:06.048758-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 35,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-26",
+          "wave_start_et": "2026-08-26T09:46:05.694333-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 30,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T09:46:05.569169-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-31",
+          "wave_start_et": "2026-08-31T09:46:05.508963-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 39,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T09:51:05.704486-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 33,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:52:05.774618-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T15:15:05.944389-04:00",
+          "arm": "risky-1",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "settlement_cap__risky-1": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 32,
+      "n_waves": 3,
+      "n_waves_frozen_window": 3,
+      "waves": [
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T14:23:05.680471-04:00",
+          "arm": "risky-1",
+          "reason_sample": "fleet settlement gate: PA3S9N1IV0A4: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:23:06.299365-04:00",
+          "arm": "risky-1",
+          "reason_sample": "fleet settlement gate: PA3S9N1IV0A4: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 19,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:57:05.549506-04:00",
+          "arm": "risky-1",
+          "reason_sample": "fleet settlement gate: PA3S9N1IV0A4: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "NOT_FLAT__risky-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 216,
+      "n_waves": 25,
+      "n_waves_frozen_window": 0,
+      "waves": [
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T09:43:03.522051-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:47:05.296039-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 26,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T11:28:05.337509-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T12:29:06.083233-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 25,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T09:59:04.613768-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 7,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T11:49:04.813818-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T10:33:04.634334-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T09:48:05.605929-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T12:08:05.858536-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-10",
+          "wave_start_et": "2026-08-10T09:36:05.314274-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T09:47:06.009606-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T09:47:05.715878-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 34,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T11:28:05.299651-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T09:53:05.656823-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T09:48:06.864142-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T09:54:05.315303-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T10:45:05.357633-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T13:17:05.089331-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:04:05.956283-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T09:53:05.205816-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T11:41:04.766329-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T09:43:04.968417-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T11:54:05.846317-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:23:05.698823-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:03:05.804215-04:00",
+          "arm": "risky-3",
+          "reason_sample": "risk_gate denied: PA3V7JT25H6Z: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        }
+      ]
+    },
+    "SKIP_MIN_PREMIUM_FLOOR__risky-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 235,
+      "n_waves": 34,
+      "n_waves_frozen_window": 0,
+      "waves": [
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T09:57:03.881477-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T11:52:03.820044-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.15 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T12:32:03.783722-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.07 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T13:17:03.919499-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.07 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T15:08:03.639021-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.11 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T12:10:06.843172-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.27 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T11:52:06.697758-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.28 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T13:32:07.014982-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.17 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T11:30:07.477072-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T12:58:05.188100-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.11 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 35,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T11:43:07.393866-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T12:42:05.825690-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.17 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T14:37:07.369376-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.08 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T15:12:07.196319-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.08 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T09:57:07.044956-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.24 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:15:07.596833-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.12 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:57:06.366846-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.17 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T13:32:06.774198-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.14 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T13:07:05.182451-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.15 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T14:37:04.096217-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.06 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T10:42:05.066627-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T11:50:05.933170-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.27 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T12:37:04.238580-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.11 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T12:57:04.912671-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.2 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:02:06.254847-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.26 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:57:05.084107-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.11 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T11:08:06.095277-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 13,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T12:27:04.885836-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.23 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T13:35:07.015104-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.04 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-25",
+          "wave_start_et": "2026-08-25T13:17:05.823956-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.07 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T11:52:06.010147-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.27 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T12:32:05.477526-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.12 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:57:05.914832-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.23 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 7,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:33:06.182466-04:00",
+          "arm": "risky-3",
+          "reason_sample": "premium 0.29 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        }
+      ]
+    },
+    "settlement_cap__risky-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 5,
+      "n_waves": 1,
+      "n_waves_frozen_window": 0,
+      "waves": [
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:28:06.520763-04:00",
+          "arm": "risky-3",
+          "reason_sample": "fleet settlement gate: PA3V7JT25H6Z: 5 same-day entries already placed >= sanity cap 5 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        }
+      ]
+    },
+    "NOT_FLAT__safe-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 258,
+      "n_waves": 33,
+      "n_waves_frozen_window": 5,
+      "waves": [
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T09:43:03.522051-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:59:05.254645-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 7,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T11:28:05.337509-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T12:29:06.083233-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 23,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T09:48:05.605929-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-07",
+          "wave_start_et": "2026-08-07T12:08:05.858536-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-10",
+          "wave_start_et": "2026-08-10T09:36:05.314274-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T09:55:05.622913-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T12:59:05.102302-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T14:18:05.334885-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T09:53:05.656823-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T11:43:07.393866-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T14:38:06.418886-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T15:12:07.196319-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T09:48:06.864142-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T10:43:04.920184-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T11:51:04.189947-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-19",
+          "wave_start_et": "2026-08-19T12:38:05.229676-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T11:08:06.095277-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T12:28:05.741313-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T13:36:05.459021-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-25",
+          "wave_start_et": "2026-08-25T13:18:05.791183-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-26",
+          "wave_start_et": "2026-08-26T14:58:06.093939-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T09:43:04.968417-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T11:53:05.637351-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-27",
+          "wave_start_et": "2026-08-27T12:32:05.477526-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:23:05.698823-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T10:57:05.914832-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:18:06.268967-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T11:58:06.113426-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T13:08:06.017038-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:43:05.130752-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 13,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:08:05.782615-04:00",
+          "arm": "safe-3",
+          "reason_sample": "risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "SKIP_MIN_PREMIUM_FLOOR__safe-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 39,
+      "n_waves": 5,
+      "n_waves_frozen_window": 1,
+      "waves": [
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T11:52:03.820044-04:00",
+          "arm": "safe-3",
+          "reason_sample": "premium 0.15 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T12:32:03.783722-04:00",
+          "arm": "safe-3",
+          "reason_sample": "premium 0.07 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T13:17:03.919499-04:00",
+          "arm": "safe-3",
+          "reason_sample": "premium 0.08 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 18,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-03",
+          "wave_start_et": "2026-08-03T15:08:03.639021-04:00",
+          "arm": "safe-3",
+          "reason_sample": "premium 0.1 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T15:02:06.354397-04:00",
+          "arm": "safe-3",
+          "reason_sample": "premium 0.23 < min_entry_premium floor 0.3",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "require_confluence_or_sequence__safe-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 284,
+      "n_waves": 15,
+      "n_waves_frozen_window": 4,
+      "waves": [
+        {
+          "date": "2026-08-04",
+          "wave_start_et": "2026-08-04T09:46:06.079642-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 26,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T09:58:04.790807-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 12,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T12:13:04.693002-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-10",
+          "wave_start_et": "2026-08-10T09:52:05.198066-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T09:46:06.575114-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 11,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T09:46:04.877914-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 26,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T09:46:05.543303-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 39,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T09:46:05.407194-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-24",
+          "wave_start_et": "2026-08-24T09:46:06.048758-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 35,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-26",
+          "wave_start_et": "2026-08-26T09:46:05.694333-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 30,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T09:46:05.569169-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 8,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-31",
+          "wave_start_et": "2026-08-31T09:46:05.508963-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 39,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T09:51:05.704486-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 33,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T09:52:05.774618-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T15:15:05.944389-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: requires confluence/sequence",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "min_triggers__safe-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 180,
+      "n_waves": 22,
+      "n_waves_frozen_window": 5,
+      "waves": [
+        {
+          "date": "2026-08-05",
+          "wave_start_et": "2026-08-05T11:48:04.581792-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 14,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-06",
+          "wave_start_et": "2026-08-06T10:32:04.804726-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T11:52:06.697758-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 10,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-11",
+          "wave_start_et": "2026-08-11T13:32:07.014982-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 16,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T11:27:05.411803-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-12",
+          "wave_start_et": "2026-08-12T13:17:06.896847-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-13",
+          "wave_start_et": "2026-08-13T12:42:05.825690-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:15:07.596833-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 2,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T12:57:06.366846-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-14",
+          "wave_start_et": "2026-08-14T13:32:06.774198-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-17",
+          "wave_start_et": "2026-08-17T13:07:05.182451-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-18",
+          "wave_start_et": "2026-08-18T14:37:04.096217-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 17,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T12:57:04.912671-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:02:06.254847-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-20",
+          "wave_start_et": "2026-08-20T14:57:05.084107-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-21",
+          "wave_start_et": "2026-08-21T09:52:06.357436-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-08-28",
+          "wave_start_et": "2026-08-28T13:02:05.552868-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 15,
+          "in_frozen_window": false
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T13:22:05.492073-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 3,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-01",
+          "wave_start_et": "2026-09-01T14:40:06.058048-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 6,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:52:05.694165-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 5,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T09:47:05.814301-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-04",
+          "wave_start_et": "2026-09-04T14:33:04.422251-04:00",
+          "arm": "safe-3",
+          "reason_sample": "gate: 1 triggers < 2",
+          "n_ticks_in_wave": 1,
+          "in_frozen_window": true
+        }
+      ]
+    },
+    "settlement_cap__safe-3": {
+      "source": "fleet/<arm>/decisions.jsonl reason string",
+      "n_refusal_rows": 32,
+      "n_waves": 3,
+      "n_waves_frozen_window": 3,
+      "waves": [
+        {
+          "date": "2026-09-02",
+          "wave_start_et": "2026-09-02T14:23:05.680471-04:00",
+          "arm": "safe-3",
+          "reason_sample": "fleet settlement gate: PA32T7Q1O20H: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 4,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T11:23:06.299365-04:00",
+          "arm": "safe-3",
+          "reason_sample": "fleet settlement gate: PA32T7Q1O20H: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 19,
+          "in_frozen_window": true
+        },
+        {
+          "date": "2026-09-03",
+          "wave_start_et": "2026-09-03T13:57:05.549506-04:00",
+          "arm": "safe-3",
+          "reason_sample": "fleet settlement gate: PA32T7Q1O20H: 4 same-day entries already placed >= sanity cap 4 (params.max_same_day_roundtrips)",
+          "n_ticks_in_wave": 9,
+          "in_frozen_window": true
+        }
+      ]
+    }
+  },
+  "filter_8_filter_10": {
+    "status": "NOT_COMPUTED",
+    "reason": "blocker codes 8 (bear vol-multiplier) and 10 (bull vol-multiplier) fire on the large majority of ticks regardless of other-blocker state (bull-10: 4288/6068 rows since 2026-08-01, bear-8: 5896/6068) -- isolating 'ENTER-eligible but for this blocker alone' requires replaying filters.py's full per-side gate stack at each tick, out of scope for this pass. UNVERIFIED / not in this table."
+  },
+  "cross_check_vs_capture_gap_46": {
+    "checked": true,
+    "method": "time-window join: a gap-ledger wave id counts as PRESENT if any refusal tick this script found on the same date falls within 30 minutes of it (matches right_tail_waves' own WAVE_GAP_MINUTES episode-grouping tolerance, not exact-string match).",
+    "n_gap_rows": 46,
+    "n_gap_wave_ids": 24,
+    "n_present_in_my_inventory": 24,
+    "n_missing": 0,
+    "missing_sample": [],
+    "strict_subset": true
+  }
+}
