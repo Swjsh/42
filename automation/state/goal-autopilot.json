@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 05:12 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
-  "active_goal_id": "GOAL-EXIT-SHAPE-PARITY-2026-09-05",
-  "next_item": "E1 -- Evidence: per arm, count exit stages on real fills since 08-01 (tp1, trail, runner_target,",
+  "checked_at_et": "2026-09-05 05:37 ET",
+  "action": "closed_ladder_empty",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -85,12 +85,12 @@
     },
     {
       "id": "GOAL-EXIT-SHAPE-PARITY-2026-09-05",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-EXIT-SHAPE-PARITY-2026-09-05",
-  "last_closed": "GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
+  "last_closed": "GOAL-EXIT-SHAPE-PARITY-2026-09-05",
   "error": null
 }

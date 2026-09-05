@@ -52,7 +52,7 @@ for 09-29 if setting a finite target would be a risk REDUCTION -- decide from th
 - 2026-09-05 10:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 05:12 ET — opened by goal_autopilot
 - 2026-09-05 05:26 ET -- E1-E5 all done in one Sonnet chain (session a16e320c). markdown/0dte/EXIT-SHAPE-TRUTH.md written; CLAUDE.md corrected + linked; backtest/tests/test_exit_shape_parity_2026_09_05.py RED-proofed + passing; E5 adjudicated (a) trail-only-by-design, no reduction prereg needed. No params/code VALUE changes (FROZEN_TRADING_PATH untouched).
-
+- 2026-09-05 05:37 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 DONE. All 5 queue items closed this fire. VERIFIED this session: real fills-ledger exit-stage
 counts (script run against automation/state/core-decisions.jsonl + fleet/{safe-3,risky-1}/decisions.jsonl),
@@ -62,3 +62,4 @@ context-budget script's fresh verdict. UNVERIFIED / not run yet this fire: the f
 `pytest backtest/tests/ -k "parity or exit_shape or checkpoint"` sweep and `run_safety_gate.py`
 were kicked off in the background (120s timeout) and conductor_outcome.py has not yet been called --
 both close out in this same fire before it ends.
+AUTOPILOT CLOSE 2026-09-05 05:37 ET: queue fully terminal (no bare '- [ ] ' item left)
