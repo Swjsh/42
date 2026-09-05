@@ -66,9 +66,9 @@ market-closed hour exceeds 60 launches. Registered later by Fable, not by the wo
 - [x] S2 (DONE: audit_window_leak_compliance.py gained TASK_VENV_INTERPRETER (7a, live registry incl. Disabled) + INSTALLER_VENV_INTERPRETER (7b, install-*.ps1 with variable-indirection tracking) flags, wired into main() totals; new guard backtest/tests/test_task_venv_interpreter_guard_2026_09_05.py, 5/5 pass, RED-proofed live against fixtures)
 - [x] S3 (DONE: window_leak_hook.py attributes each hide to processes created in the prior 3s via GetProcessTimes/toolhelp -- no wmi/pywin32 subprocess, checked neither installed; ONE daily WINDOW-LEAK Known-broken line via status_known_broken.upsert on day rollover, opportunistic-on-hide + hourly WM_TIMER backstop; live hook pid 21040 NOT restarted; guard 8/8 pass)
 - [x] S4 (DONE: root cause = discord plugin's OWN .mcp.json declared bare "bun" (unwrapped), invisible to any existing scan surface; patched + a matching audit surface added so a plugin update can't silently un-fix it; claude.exe itself + the tradingview node MCP child were independently verified already compliant. VERIFICATION UNVERIFIED per spec -- no conductor fire this session; next enabled fire's hook log is the real proof)
-- [~] L1 (WIP 2026-09-05 13:44 ET, worker L) -- load plan + apply script with -WhatIf (not applied).
-- [~] L2 (WIP 2026-09-05 13:44 ET, worker L) -- presence-aware, below-normal, 2-worker grinders + guards.
-- [~] L3 (WIP 2026-09-05 13:44 ET, worker L) -- launch_rate.py instrument.
+- [x] L1 (DONE 2026-09-05 14:15 ET, worker L) -- `markdown/infra/SILENT-RIG-2026-09-05.md` + `setup/scripts/apply_silent_rig_triggers.ps1` written. `-WhatIf` run (`automation/state/logs/silent_rig_whatif_run5.log`) previewed 34 trigger changes (24 NARROW_MONFRI + 3 NARROW_CME + 7 OFF_HOURS_CADENCE incl. HealthBeacon) + confirmed all 190 Gamma_* tasks already carry Settings.Priority=7, exit 0, 0 errors. Caught and fixed 2 real bugs before finalizing: (1) unbounded/empty repetition duration would have let a Weekly+Mon-Fri trigger fire straight through weekends anyway (duration now clamped); (2) script was about to force every narrowed task onto one fixed clock time, which would have silently moved afternoon one-shots like MondayVerify/WinnerAutopsy/TrendCacheProducer to a morning fire (fixed to preserve each task's own StartBoundary, verified against Gamma_HeartbeatCore's live StartBoundary). 3 open questions flagged for Fable in the doc (Grind_Watchdog weekday scope, FuturesHealth CME-vs-RTH window, MondayVerify possible single-day narrowing). Nothing applied, nothing enabled.
+- [x] L2 (DONE 2026-09-05 14:15 ET, worker L) -- `setup/scripts/presence_gate.py` (shared module: quiet-presence.json fullscreen check + Win32 GetLastInputInfo idle check, fails open) with 9/9 guard tests green (`backtest/tests/test_presence_gate_2026_09_05.py`). Wired into `setup/scripts/kitchen_daemon.py` (GRINDER_MAX_WORKERS 4->2 at line 194, presence check before spawn + inside the poll loop at ~1288-1340, creationflags now `CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS`), `setup/scripts/crypto_grinder_keepalive.py` (presence check before (re)launch, BELOW_NORMAL added to creationflags), and `crypto/benchmarks/live_grinder.py` (presence check skips each iteration's work while J is present). All 3 edited files verified to import/parse cleanly (`ast.parse` + a real module exec of kitchen_daemon.py). No daemon started.
+- [x] L3 (DONE 2026-09-05 14:15 ET, worker L) -- `setup/scripts/launch_rate.py` (reads the two hidden-launcher logs, writes `automation/state/launch-rate.json`, upserts one `LAUNCH-RATE:` Known-broken line via the shared `status_known_broken.upsert()` helper) with 9/9 guard tests green (`backtest/tests/test_launch_rate_2026_09_05.py`, fixture logs + tmp STATUS.md only). Ran once against the real 2026-09-05 logs with `--no-flag` (read-only, live STATUS.md untouched): `total=3812 peak_hour=08(507) market_closed_over_60=['00'..'06']` — this run produced the before-table in L1's doc. Not registered as a scheduled task (per instruction).
 - [ ] R1 -- Fable: review L1 table, apply triggers, re-enable tasks in stages watching the hook log; J decides the tickers lane.
 
 ## J-DECISIONS
@@ -83,8 +83,13 @@ market-closed hour exceeds 60 launches. Registered later by Fable, not by the wo
 ## HONEST STATE
 Open. S1-S4 (worker S) all DONE, code-level, none live-verified by a real fire (S1/S2/S4 checked
 against the live registry/repo which IS a real check; S3's new attribution/flush code has not run
-inside the live hook process since it was not restarted). Everything except the two window hiders
-(Gamma_WindowLeakDetectorKeepalive, Gamma_WindowLeakHookKeepalive -- confirmed still the only two
-Ready/non-Disabled Gamma_* tasks post-session) is OFF; no task was enabled or started by this
-worker. L1-L3 (worker L) not covered by this worker. Still needs Fable review + R1 (staged
-re-enable watching the hook log) + J's tickers-lane decision before Tuesday.
+inside the live hook process since it was not restarted). L1-L3 (worker L) all DONE: L1's load-plan
+doc + apply script are `-WhatIf`-verified only (34 changes previewed, exit 0, nothing applied); L2's
+presence-gate wiring is import/parse-verified only (no daemon started, no live grinder run under the
+new gate yet); L3's launch_rate.py ran once for real against today's live logs in read-only mode
+(`--no-flag`, live STATUS.md untouched) and its output is what backs L1's before-table. Everything
+except the two window hiders (Gamma_WindowLeakDetectorKeepalive, Gamma_WindowLeakHookKeepalive --
+confirmed still the only two Ready/non-Disabled Gamma_* tasks post-session) is OFF; no task was
+enabled or started by either worker. Still needs Fable review of L1's table (including the 3 open
+questions) + R1 (staged re-enable watching the hook log, apply the trigger changes for real, register
+launch_rate.py if desired) + J's tickers-lane decision before Tuesday.

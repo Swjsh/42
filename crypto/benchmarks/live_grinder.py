@@ -34,6 +34,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "setup" / "scripts"))
+
+# GOAL-SILENT-RIG-2026-09-05 L2: shared presence-awareness gate -- pause between
+# iterations while J is at the keyboard or in a fullscreen app.
+import presence_gate  # noqa: E402
 
 from crypto.lib.data_sources import fetch_bars, now_utc
 from crypto.validators import (
@@ -220,6 +225,18 @@ def main(argv: list[str] | None = None) -> int:
     while time.time() < deadline:
         if args.max_iterations and iteration >= args.max_iterations:
             break
+
+        # GOAL-SILENT-RIG-2026-09-05 L2: pause between iterations while J is
+        # present (fullscreen app in the last 10 min, or input in the last 5
+        # min). Skip this iteration's work entirely and re-check next pass --
+        # a real pause, not just a deferred start.
+        presence = presence_gate.check_presence()
+        if presence.present:
+            print(f"[grinder] presence detected ({'; '.join(presence.reasons)}) — "
+                  f"skipping iteration, will re-check in {min(args.interval, 60)}s")
+            time.sleep(max(0, min(args.interval, 60, deadline - time.time())))
+            continue
+
         iteration += 1
         try:
             rec = _run_iteration(args.symbol, args.granularity, args.count)

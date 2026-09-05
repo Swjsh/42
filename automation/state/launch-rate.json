@@ -1,0 +1,141 @@
+{
+  "date": "2026-09-05",
+  "per_hour": {
+    "00": 302,
+    "01": 300,
+    "02": 302,
+    "03": 300,
+    "04": 303,
+    "05": 300,
+    "06": 309,
+    "07": 426,
+    "08": 507,
+    "09": 496,
+    "10": 248,
+    "11": 19,
+    "12": 0,
+    "13": 0,
+    "14": 0,
+    "15": 0,
+    "16": 0,
+    "17": 0,
+    "18": 0,
+    "19": 0,
+    "20": 0,
+    "21": 0,
+    "22": 0,
+    "23": 0
+  },
+  "top_scripts": [
+    [
+      "crypto_twin_health.py",
+      627
+    ],
+    [
+      "run-engine-health.ps1",
+      621
+    ],
+    [
+      "run-sight-beacon.ps1",
+      209
+    ],
+    [
+      "run-heartbeat-core.ps1",
+      179
+    ],
+    [
+      "run-fleet-executor.ps1",
+      172
+    ],
+    [
+      "window_leak_detector_keepalive.py",
+      142
+    ],
+    [
+      "window_leak_hook_keepalive.py",
+      140
+    ],
+    [
+      "run-kitchen-daemon-keepalive.ps1",
+      126
+    ],
+    [
+      "run-dashboard-keepalive.ps1",
+      126
+    ],
+    [
+      "xsp_spread_recorder.py",
+      126
+    ],
+    [
+      "run-level-refresh.ps1",
+      125
+    ],
+    [
+      "quiet_mode.py",
+      125
+    ],
+    [
+      "quote_recorder_keepalive.py",
+      125
+    ],
+    [
+      "ensure-discord-bridge-alive.ps1",
+      124
+    ],
+    [
+      "run-conductor-wake.ps1",
+      124
+    ],
+    [
+      "run-companion-keepalive.ps1",
+      119
+    ],
+    [
+      "execute.py",
+      85
+    ],
+    [
+      "run-crypto-grinder-keepalive.ps1",
+      73
+    ],
+    [
+      "unattended_health.py",
+      62
+    ],
+    [
+      "market_keepawake_keepalive.py",
+      57
+    ],
+    [
+      "state_freshness_remediate.py",
+      43
+    ],
+    [
+      "twin_sentinel.py",
+      42
+    ],
+    [
+      "run-discord-responder.ps1",
+      33
+    ],
+    [
+      "run-gamma-home.ps1",
+      22
+    ],
+    [
+      "futures_health.py",
+      22
+    ]
+  ],
+  "market_closed_hours_over_60": [
+    "00",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06"
+  ],
+  "total_launches": 3812
+}

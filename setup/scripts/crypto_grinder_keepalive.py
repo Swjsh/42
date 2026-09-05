@@ -34,6 +34,15 @@ LOG_DIR = REPO / "automation" / "state" / "logs"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / f"crypto-grinder-keepalive-{dt.date.today().isoformat()}.log"
 
+# GOAL-SILENT-RIG-2026-09-05 L2: shared presence-awareness gate -- do not
+# (re)launch the grinder while J is at the keyboard or in a fullscreen app.
+sys.path.insert(0, str(REPO / "setup" / "scripts"))
+import presence_gate  # noqa: E402
+
+# BELOW_NORMAL_PRIORITY_CLASS -- grinder must not compete with J for CPU when it
+# does run, on top of never opening a window.
+_BELOW_NORMAL_PRIORITY_CLASS = 0x00004000 if sys.platform == "win32" else 0
+
 SYS_PYTHONW = Path(r"C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe")
 GRINDER_SCRIPT = REPO / "crypto" / "benchmarks" / "live_grinder.py"
 GRINDER_ARGS = ["--interval", "120", "--duration", "43200", "--symbol", "BTC-USD", "--granularity", "300"]
@@ -80,6 +89,15 @@ def main() -> int:
         _log(f"grinder alive (PID={pid})")
         return 0
 
+    # GOAL-SILENT-RIG-2026-09-05 L2: don't relaunch while J is present. The next
+    # 5-min keepalive fire will retry -- this only delays the (re)start, it never
+    # permanently skips it.
+    presence = presence_gate.check_presence()
+    if presence.present:
+        _log(f"deferred: presence detected ({'; '.join(presence.reasons)}) — "
+             f"not (re)launching grinder this fire")
+        return 0
+
     if not SYS_PYTHONW.exists():
         _log(f"FATAL: system pythonw missing at {SYS_PYTHONW}")
         return 1
@@ -105,7 +123,8 @@ def main() -> int:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             stdin=subprocess.DEVNULL,
-            creationflags=0x00000008 | 0x08000000,  # DETACHED_PROCESS | CREATE_NO_WINDOW
+            # DETACHED_PROCESS | CREATE_NO_WINDOW | BELOW_NORMAL_PRIORITY_CLASS (L2)
+            creationflags=0x00000008 | 0x08000000 | _BELOW_NORMAL_PRIORITY_CLASS,
             close_fds=True,
         )
         _log(f"launched grinder PID={proc.pid} duration=12h interval=2m")

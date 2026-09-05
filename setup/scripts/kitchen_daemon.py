@@ -82,6 +82,11 @@ from chef_nemotron import (  # noqa: E402
 # both files stay byte-identical about what the numbers mean.
 from kitchen_stage1_runner import ENGINE_NOTE as STAGE1_ENGINE_NOTE  # noqa: E402
 
+# GOAL-SILENT-RIG-2026-09-05 L2: presence-awareness gate shared with the crypto
+# grinder keepalives (setup/scripts/crypto_grinder_keepalive.py). Never start
+# (or continue) a grinder while J is at the keyboard or in a fullscreen app.
+import presence_gate  # noqa: E402
+
 # Free lane-pool client (Groq/Cerebras/Gemini/OpenRouter + local Ollama floor).
 # Optional: cooks route through this first; if it is unavailable or fails, _run_task
 # falls back to the OpenRouter-only ladder below. This is what stops the 24/7 kitchen
@@ -93,6 +98,11 @@ except Exception:  # noqa: BLE001
 
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+# GOAL-SILENT-RIG-2026-09-05 L2: grinders must not compete with J for CPU/IO --
+# BELOW_NORMAL_PRIORITY_CLASS on every grinder spawn, combined (OR'd) with
+# CREATE_NO_WINDOW so it still never flashes a console.
+_BELOW_NORMAL_PRIORITY_CLASS = 0x00004000 if sys.platform == "win32" else 0
+_GRINDER_CREATIONFLAGS = _CREATE_NO_WINDOW | _BELOW_NORMAL_PRIORITY_CLASS
 
 # Configuration
 SLEEP_BETWEEN_TASKS_S = 60
@@ -191,7 +201,7 @@ def _tier_min_sleep_s() -> float:
 _BACKTEST_DIR = REPO / "backtest"
 _GRINDER_STATE = _BACKTEST_DIR / "autoresearch" / "_state"
 
-GRINDER_MAX_WORKERS = 4
+GRINDER_MAX_WORKERS = 2  # was 4 -- halved 2026-09-05 (GOAL-SILENT-RIG-2026-09-05 L2)
 GRINDER_POLL_INTERVAL_S = 30
 GRINDER_TIMEOUT_S = 7200          # 2 h hard cap per grinder task
 GRINDER_COOLDOWN_H = 4.0          # skip re-seed if ran within this many hours
@@ -1284,6 +1294,15 @@ def _run_grinder_task(task_state: dict) -> dict:
     if not info:
         return {"ok": False, "error": f"unknown grinder script: {script_name!r} — not in GRINDER_REGISTRY"}
 
+    # GOAL-SILENT-RIG-2026-09-05 L2: don't even spawn a grinder while J is present
+    # (fullscreen app in the last 10 min, or keyboard/mouse input in the last 5 min).
+    presence = presence_gate.check_presence()
+    if presence.present:
+        _log(f"GRINDER_SWEEP deferred (presence: {'; '.join(presence.reasons)}) — "
+             f"script={script_name}, will retry next queue pass")
+        return {"ok": False, "error": f"deferred: presence detected ({'; '.join(presence.reasons)})",
+                "deferred": True}
+
     hours = float(task_state.get("grinder_hours", info.get("default_hours", 2.0)))
     workers = int(task_state.get("grinder_workers", GRINDER_MAX_WORKERS))
     module = info["module"]
@@ -1329,7 +1348,7 @@ def _run_grinder_task(task_state: dict) -> dict:
             cmd,
             cwd=str(_BACKTEST_DIR),
             env=env,
-            creationflags=_CREATE_NO_WINDOW,
+            creationflags=_GRINDER_CREATIONFLAGS,  # no window + below-normal priority (L2)
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
@@ -1390,6 +1409,22 @@ def _run_grinder_task(task_state: dict) -> dict:
         if time.monotonic() > deadline:
             final_status = "timeout"
             _log(f"GRINDER_SWEEP timeout {GRINDER_TIMEOUT_S}s — terminating pid={proc.pid}")
+            try:
+                proc.terminate()
+                proc.wait(timeout=15)
+            except OSError:
+                pass
+            break
+
+        # GOAL-SILENT-RIG-2026-09-05 L2: yield between iterations if J shows up
+        # mid-sweep. The sweep is resume-safe (progress.json tracks completed
+        # combos), so ending the process here and letting the daemon re-seed on
+        # its next queue pass is a real "pause", not just a deferred start.
+        presence = presence_gate.check_presence()
+        if presence.present:
+            final_status = "presence_yield"
+            _log(f"GRINDER_SWEEP yielding to presence ({'; '.join(presence.reasons)}) — "
+                 f"terminating pid={proc.pid} combos={completed}/{total} keepers={n_keepers}")
             try:
                 proc.terminate()
                 proc.wait(timeout=15)
