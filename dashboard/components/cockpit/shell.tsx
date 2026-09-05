@@ -79,7 +79,14 @@ function payloadAgeLabel(raw?: string | null): string {
 
 function scrollToAnchor(id: string) {
   const el = document.getElementById(id);
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Smooth scrollIntoView is a no-op inside this overflow container in Chromium
+  // (verified 2026-09-04: scrollTop stayed 0 after 3 s; "auto" jumped to 2293) -- so
+  // scroll the container explicitly, which honours smooth where the engine supports it.
+  const main = document.querySelector("main");
+  if (!el || !main) return;
+  const top = el.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop - 8;
+  try { main.scrollTo({ top, behavior: "smooth" }); } catch { main.scrollTop = top; }
+  if (Math.abs(main.scrollTop - top) > 2) window.setTimeout(() => { if (Math.abs(main.scrollTop - top) > 2) main.scrollTop = top; }, 350);
 }
 
 interface CockpitShellProps {
