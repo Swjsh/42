@@ -1,0 +1,38 @@
+{
+  "id": "PREREG-VIX-BULL-HARD-CAP-UNBLOCK-SHADOW-2026-09-05",
+  "status": "SHADOW-FILED -- new $0 forward instrument registered (Gamma_VixBullHardCapUnblockShadow).",
+  "filed_by": "Sonnet worker, K9 fire on GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
+  "filed_at_et": "2026-09-05",
+  "candidate": "VIX_BULL_HARD_CAP_UNBLOCK (leaderboard rank 22, strategy/candidates/2026-06-26-vix-bull-hard-cap-revalidate.md)",
+  "candidate_own_headline_evidence": "real-fills -$471 FULL and -$471 OOS from keeping the OLD 18.0 hard cap, 2 confirmed bull winners suppressed (4/09 +$205, 4/22 +$266), anchor no-regression PASS (all deltas $0), gym 97/98 PASS. n=2 -- thin.",
+  "candidate_own_adjudication": "strategy/candidates/2026-06-26-vix-bull-hard-cap-revalidate.md ## ADJUDICATION 2026-09-05 -- verdict SHADOW-FILED-CANDIDATE, premised on the 18->22 change being CONFIG-FROZEN and not yet shipped, directing K9 to build a forward shadow that watches for VIX-in-[18,22) bull setups the hard cap 'currently suppresses'.",
+  "corrected_premise_found_this_session": {
+    "finding": "The 18.0 -> 22.0 change has ALREADY SHIPPED in both places that matter, predating this goal's 2026-08-31 config freeze. There is nothing left in the 18-22 band for a live hard cap to suppress.",
+    "evidence": [
+      "automation/state/params.json vix_entry_thresholds.bull_hard_cap = 22.0 (read fresh this session)",
+      "backtest/lib/filters.py line 1243: VIX_BULL_HARD_CAP = 22.0, inline comment 'WS2 unblock 2026-06-26, was 18'",
+      "backtest/lib/filters.py line 1360 (filter 9, the actual live gate): 'if ctx.vix_now >= VIX_BULL_HARD_CAP: blockers.append(9)' -- reads the already-22.0 constant",
+      "backtest/tests/test_no_stale_blocks.py::test_vix_bull_hard_cap_params_unblocked and ::test_vix_bull_hard_cap_filters_unblocked both assert ==22.0 and both PASS (re-run this session: cd backtest && .venv/Scripts/python.exe -m pytest tests/test_no_stale_blocks.py -q -k 'vix_bull or bull_hard_cap' -> '3 passed, 4 deselected')",
+      "automation/prompts/heartbeat.md line 567 ('9. VIX<18 (HARD) -- lowered from 22.0') is STALE PROSE describing the pre-2026-06-26 state; it does not gate anything itself (filters.py is the live-path source of truth) but is a live/backtest-doc drift worth a future fix, out of this goal's scope (never edits heartbeat.md)"
+    ],
+    "implication": "This candidate is functionally in the SAME already-live position as STRUCTURE_VETO_DIR_VS_TREND (see prereg-structure-veto-standing-ab-2026-09-05.json), not a pending freeze-blocked change. What remains genuinely open is whether the cited +$471 in-sample benefit HOLDS forward now that the band is unblocked -- that is what the new shadow measures, not suppression events (there are none left to count at this threshold)."
+  },
+  "existing_instrument_checked_and_ruled_out": {
+    "task": "Gamma_FleetGateLeakShadow",
+    "result": "Does NOT cover this gate. Its GATE_TO_PARAM_KEY dict (fleet_gate_leak_shadow.py) has exactly 4 entries -- SKIP_STRUCTURE_VETO, SKIP_BULL_1100_1200, SKIP_CONF_LVL_REC_AFTERNOON, SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY -- no VIX gate. Confirmed by a distinct-value scan of fleet-gate-leak-ledger.jsonl's gate/action field this session: no VIX-related action appears (expected, since the hard cap at 22.0 rarely fires)."
+  },
+  "new_instrument_built": {
+    "task": "Gamma_VixBullHardCapUnblockShadow",
+    "script": "setup/scripts/vix_bull_hard_cap_unblock_shadow.py",
+    "installer": "setup/scripts/install-vix-bull-hard-cap-unblock-shadow.ps1",
+    "ledger": "analysis/recommendations/vix-bull-hard-cap-unblock-shadow-ledger.jsonl",
+    "summary": "analysis/recommendations/vix-bull-hard-cap-unblock-shadow-summary.json",
+    "mechanism": "Scans core-decisions.jsonl for safe-arm ENTER_BULL ticks with vix in [18.0, 22.0) on/after 2026-09-05, joins each to its real round-trip P&L via fills_fifo.mine_real_arm_fills(arm='safe-2') within a 5-minute entry window, writes the full ledger + summary idempotently every fire (same pattern as pullback_hold_shadow.py / day_throttle_shadow.py). ZERO engine wiring, ZERO params/heartbeat/filters edits, read-only on both inputs.",
+    "schedule": "16:57 ET weekdays (14:57 MT), +15min repetition over 30min self-heal. Registered and verified State=Ready this session (Get-ScheduledTask -TaskName Gamma_VixBullHardCapUnblockShadow -> State: Ready)."
+  },
+  "kill_criterion": "If, at n>=15 matched forward round trips, the bootstrap CI-lower(2.5%) of forward P&L is negative (i.e. the unblocked 18-22 band is net-losing forward), this flips the standing state's read from 'benign already-live unblock' to 'the old 18.0 cap was actually correct' and a re-block (params.json bull_hard_cap 22.0 -> 18.0, matching filters.py constant) becomes a 2026-10-30 checkpoint proposal.",
+  "extend_criterion": "If forward P&L stays neutral-to-positive at n>=15, or n<15 by the checkpoint (UNVERIFIED -- insufficient n, not a negative finding), the unblock stands as shipped with no further action.",
+  "does_this_ship_anything": "No. The 18->22 change already shipped before this goal existed; this instrument only forward-monitors its effect. No params.json / heartbeat.md / filters.py edit made by this fire.",
+  "consumer": "2026-10-30 config-freeze checkpoint review + this goal's DONE-WHEN clause.",
+  "revoke": "Unregister-ScheduledTask -TaskName Gamma_VixBullHardCapUnblockShadow -Confirm:$false; delete this file, the ledger/summary it writes, the installer, and vix_bull_hard_cap_unblock_shadow.py; remove its SCHEDULED-TASKS.md row."
+}

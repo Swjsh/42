@@ -1,0 +1,18 @@
+{
+  "_arm": "safe-2",
+  "_forward_start_date": "2026-09-05",
+  "_generated_at_et": "2026-09-05T01:16:41.246880",
+  "_prereg": "analysis/recommendations/prereg-vix-bull-hard-cap-unblock-shadow-2026-09-05.json",
+  "_vix_band": [
+    18.0,
+    22.0
+  ],
+  "decision_rule": "Forward CI-lower bootstrap PF > 1.0 over n>=15 matched round trips before this is cited as confirming evidence at the 2026-10-30 config-freeze checkpoint; n<15 stays UNVERIFIED/insufficient regardless of sign.",
+  "forward_total_pnl": 0,
+  "forward_win_rate": null,
+  "is_baseline_n": 2,
+  "is_baseline_pnl": 471.0,
+  "n_band_entries_seen": 0,
+  "n_matched_round_trips": 0,
+  "status": "ACCRUING"
+}

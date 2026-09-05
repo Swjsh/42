@@ -1,0 +1,24 @@
+{
+  "id": "PREREG-STRUCTURE-VETO-STANDING-AB-2026-09-05",
+  "status": "EXTEND -- accruing on Gamma_FleetGateLeakShadow. No new task registered (goal K9, GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03).",
+  "filed_by": "Sonnet worker, K9 fire on GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
+  "filed_at_et": "2026-09-05",
+  "candidate": "STRUCTURE_VETO_DIR_VS_TREND (leaderboard rank star, strategy/candidates/2026-06-26-160000-structure-veto-direction-vs-trend.md)",
+  "candidate_own_adjudication": "strategy/candidates/2026-06-26-160000-structure-veto-direction-vs-trend.md ## ADJUDICATION 2026-09-05 -- verdict SHADOW-FILED-CANDIDATE, flagged as UNVERIFIED whether a distinct standing-A/B shadow task is actually needed given the mechanism already runs in production with its own ledger.",
+  "hypothesis_frozen": "structure_veto_enabled (Safe=true since 2026-06-26, Bold=false per 2026-08-12 decision) continues to be net-neutral-to-positive as a robustness gate (removes wrong-way losers, does not touch anchor edge_capture) rather than a forward alpha source. WF measured as OOS-delta/IS-delta on structure-veto-ab-2026-06-26.json is 0.00 (train_delta_pnl=$582.90 2025 IS, oos_delta_pnl=$0.00 2026 OOS) -- below the 0.70 gate on that specific ratio, consistent with a risk-reduction gate rather than an edge.",
+  "existing_instrument_verified_this_session": {
+    "task": "Gamma_FleetGateLeakShadow",
+    "script": "setup/scripts/fleet_gate_leak_shadow.py",
+    "ledger": "analysis/recommendations/fleet-gate-leak-ledger.jsonl",
+    "summary": "analysis/recommendations/fleet-gate-leak-summary.json",
+    "how_it_records_this_gate": "GATE_TO_PARAM_KEY dict (fleet_gate_leak_shadow.py line ~164) maps action 'SKIP_STRUCTURE_VETO' -> params key 'structure_veto_enabled'; the script mines core-decisions.jsonl for SKIP_STRUCTURE_VETO refusal events and reconstructs the counterfactual (what the trade would have done had the veto not fired) via fills_fifo.mine_real_arm_fills, same pattern as every other GATE_TO_PARAM_KEY entry.",
+    "current_n_verified_fresh_this_session": "220 SKIP_STRUCTURE_VETO rows in fleet-gate-leak-ledger.jsonl (python3 one-liner count over the ledger, run 2026-09-05; command: python3 -c \"import json; n=0; [n:=n+1 for line in open('analysis/recommendations/fleet-gate-leak-ledger.jsonl',encoding='utf-8') if line.strip() and 'STRUCTURE_VETO' in (json.loads(line).get('gate') or json.loads(line).get('action') or '')]; print(n)\")",
+    "schedule": "Gamma_FleetGateLeakShadow 17:20 ET weekdays, added 2026-09-03 15:14 ET, State=Ready per SCHEDULED-TASKS.md"
+  },
+  "decision": "No duplicate task registered. This prereg documents that Gamma_FleetGateLeakShadow IS the standing forward instrument for structure_veto's SKIP-event counterfactual, and freezes the kill/extend criteria against ITS accrual going forward rather than commissioning a second ledger for the same gate.",
+  "kill_criterion": "If, once the FleetGateLeakShadow forward n for SKIP_STRUCTURE_VETO reaches >=20 post-2026-09-05 events, the counterfactual (what-if-not-blocked) P&L delta is negative (i.e. the veto is now COSTING money by blocking would-be winners) at CI-lower(2.5%) < 0, this candidate's SHADOW-FILED status flips to KILL and a params.json revert (structure_veto_enabled: true -> false for Safe) becomes a 2026-10-30 checkpoint proposal.",
+  "extend_criterion": "If the counterfactual stays neutral-to-positive (veto still correctly blocking net-losing setups) at n>=20, EXTEND as-is through the 2026-10-30 checkpoint -- no action needed, already live.",
+  "does_this_ship_anything": "No. Documentation-only prereg naming an already-live, already-instrumented production gate. No params.json / heartbeat.md / filters.py / generated-surface edit made by this prereg.",
+  "consumer": "2026-10-30 config-freeze checkpoint review + this goal's DONE-WHEN clause.",
+  "revoke": "delete this file (Gamma_FleetGateLeakShadow itself predates and is independent of this prereg -- revoking this file does not touch that task)."
+}
