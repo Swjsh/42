@@ -61,4 +61,6 @@ def test_garbled_exclusion_file_fails_open(tmp_path, monkeypatch):
 
 def test_live_exclusion_file_names_the_two_saturday_tasks():
     live = json.loads((REPO / "automation" / "state" / "quiet-mode-never-restore.json").read_text(encoding="utf-8-sig"))
-    assert {"Gamma_CryptoTwin", "Gamma_TickersLane"} <= set(live["never_restore"])
+    # TickersLane was released 17:15 ET the same day (OP-0: paper-only, launcher on the silent pattern);
+    # CryptoTwin stays off for good -- its resident loop replaced it.
+    assert "Gamma_CryptoTwin" in set(live["never_restore"])

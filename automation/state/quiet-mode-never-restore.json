@@ -1,7 +1,6 @@
 {
   "note": "Tasks turned OFF on purpose; quiet_mode.py never re-enables them. Edit this file to release one (delete its name), then Enable-ScheduledTask by hand.",
   "never_restore": [
-    "Gamma_CryptoTwin",
-    "Gamma_TickersLane"
+    "Gamma_CryptoTwin"
   ]
 }
