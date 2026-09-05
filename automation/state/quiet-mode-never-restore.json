@@ -1,6 +1,15 @@
-{
-  "note": "Tasks turned OFF on purpose; quiet_mode.py never re-enables them. Edit this file to release one (delete its name), then Enable-ScheduledTask by hand.",
-  "never_restore": [
-    "Gamma_CryptoTwin"
-  ]
+﻿{
+    "note":  "Tasks turned OFF on purpose; quiet_mode.py never re-enables them. Edit this file to release one (delete its name), then Enable-ScheduledTask by hand.",
+    "never_restore":  [
+                          "Gamma_CryptoTwin",
+                          "Gamma_CompanionKeepalive",
+                          "Gamma_DashboardKeepalive",
+                          "Gamma_KitchenDaemonKeepalive",
+                          "Gamma_DiscordBridge",
+                          "Gamma_QuoteRecorderKeepalive",
+                          "Gamma_CryptoTwinKeepalive",
+                          "Gamma_WindowLeakDetectorKeepalive",
+                          "Gamma_WindowLeakHookKeepalive",
+                          "Gamma_ProcTraceKeepalive"
+                      ]
 }
