@@ -165,6 +165,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   fresh verification found `params.json` + `backtest/lib/filters.py` already at 22.0
   since 2026-06-26, guarded by `test_no_stale_blocks.py` (re-run: `3 passed, 4 deselected`)
   — so the new shadow measures forward P&L on the already-unblocked band, not suppression.
+- 2026-09-05 01:29 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 K1-K9 all closed this pass. Every leaderboard row filed >14 days ago now carries a
 non-PROMISING/non-NEEDS-MORE-DATA Status (verified by grep, quoted above) — 2 real new/
@@ -178,3 +179,4 @@ citing files that do not exist, and a 2026-09-04 `base-engine-stage-1-backtest` 
 that inferred round-number P&L + a 10/10 confidence rating from another candidate's delta
 table rather than running its own backtest. This pattern needs a dedicated audit/guard,
 not a per-file patch.
+AUTOPILOT CLOSE 2026-09-05 01:29 ET: queue fully terminal (no bare '- [ ] ' item left)
