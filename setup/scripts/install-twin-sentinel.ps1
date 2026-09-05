@@ -66,7 +66,6 @@ if ($Uninstall) {
 }
 
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $script       = Join-Path $root "setup\scripts\twin_sentinel.py"
 # 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
 # VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
@@ -74,7 +73,6 @@ $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.
 $pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 
-if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
 if (-not (Test-Path $script))      { throw "twin_sentinel.py not found at $script" }
 if (-not (Test-Path $sysPythonw))  { throw "system pythonw.exe not found at $sysPythonw" }
 if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }

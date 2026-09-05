@@ -18,8 +18,8 @@ $task = "discord-watchdog"
 # python.exe (CONSOLE subsystem), which always allocates conhost — even -WindowStyle Hidden
 # can't fully suppress it on Windows 11. See CLAUDE.md OP 27 L38 + 5/16 evening foot-gun.
 $sysPythonw  = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
-$venvPythonw = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
-$venv = if (Test-Path $sysPythonw) { $sysPythonw } else { $venvPythonw }
+if (-not (Test-Path $sysPythonw)) { throw "system pythonw.exe not found at $sysPythonw" }
+$venv = $sysPythonw
 $venvSitePackages = Join-Path $WorkDir "backtest\.venv\Lib\site-packages"
 $logDir = Join-Path $WorkDir "automation\state\logs"
 

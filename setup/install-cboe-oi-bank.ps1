@@ -46,12 +46,13 @@ $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_CboeOiBank"
 
-# Backtest venv pythonw for consistency with the sibling Gamma_GexCapture banker. (This
-# worker has no third-party deps, so the system pythonw would also work -- but mirroring
-# keeps the fleet uniform. pythonw keeps the process windowless.)
-$pythonw = "C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\pythonw.exe"
+# 2026-09-05 SILENT-RIG R6a fix: was backtest\.venv\Scripts\pythonw.exe -- that stub's base
+# executable is the CONSOLE python.exe and opens a terminal window per fire from this
+# windowless parent. This worker has no third-party deps (own docstring above), so the
+# system pythonw.exe (true GUI-subsystem binary) is a drop-in swap, no PYTHONPATH needed.
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
+    Write-Error "system pythonw not found at $pythonw"
     exit 1
 }
 

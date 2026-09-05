@@ -1,0 +1,12 @@
+# Modelfile.claude-local — qwen3.6:35b tuned for Claude Code CLI use.
+# Root-cause fix (2026-07-08): Ollama's default num_ctx=4096 truncated Claude
+# Code's large system prompt, so the model saw fragments and rambled about
+# random tools. num_ctx=40960 fits the full prompt. temp 0.7 per Qwen's own
+# instruct recommendation (default 1.0 is too hot for agentic work).
+# Build:  ollama create claude-local -f setup/ollama/Modelfile.claude-local
+FROM qwen3.6:35b
+PARAMETER num_ctx 40960
+PARAMETER temperature 0.7
+PARAMETER top_p 0.8
+PARAMETER top_k 20
+PARAMETER presence_penalty 1.0

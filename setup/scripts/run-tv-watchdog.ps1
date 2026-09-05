@@ -181,7 +181,13 @@ $freshHealScript = Join-Path $WorkDir "setup\scripts\state_freshness_selfheal.py
 $freshHealAction = "skipped_no_script"
 $fhOut = ""
 if (Test-Path $freshHealScript) {
-    $venvPy = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
+    # System python.exe (CONSOLE, not pythonw) -- this call reads stdout inline via
+    # `| Out-String`, and the venv's own pythonw.exe stub resolves to the CONSOLE
+    # python.exe anyway (opens a terminal window per fire from a windowless parent),
+    # so the correct interpreter here is the system CONSOLE python.exe (GOAL-SILENT-RIG R6a).
+    $venvPy = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\python.exe"
+    $env:PYTHONPATH = Join-Path $WorkDir "backtest\.venv\Lib\site-packages"
+    $env:VIRTUAL_ENV = Join-Path $WorkDir "backtest\.venv"
     try {
         $fhOut = & $venvPy $freshHealScript --json 2>&1 | Out-String
         $freshHealAction = "ran"

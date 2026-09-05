@@ -71,14 +71,13 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $script       = Join-Path $root "setup\scripts\trend_cache_producer.py"
 $taskName     = "Gamma_TrendCacheProducer"
 
-foreach ($p in @($vbs, $pythonwVenv, $runCmdHidden, $sysPythonw, $script)) {
+foreach ($p in @($vbs, $runCmdHidden, $sysPythonw, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 

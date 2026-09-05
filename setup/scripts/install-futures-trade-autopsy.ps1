@@ -48,7 +48,6 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $script       = Join-Path $root "backtest\futures\futures_trade_autopsy.py"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
@@ -56,7 +55,7 @@ $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 $taskName     = "Gamma_FuturesTradeAutopsy"
 
-foreach ($p in @($vbs, $pythonwVenv, $script, $sysPythonw, $runCmdHidden)) {
+foreach ($p in @($vbs, $script, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 

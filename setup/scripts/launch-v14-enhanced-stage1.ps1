@@ -12,8 +12,6 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$venvPython = Join-Path $repoRoot 'backtest\.venv\Scripts\python.exe'
-$venvPythonW = Join-Path $repoRoot 'backtest\.venv\Scripts\pythonw.exe'
 $pidFile = Join-Path $repoRoot 'backtest\autoresearch\_state\v14_enhanced_stage1\runner.pid'
 $logDir = Join-Path $repoRoot 'backtest\autoresearch\_state\v14_enhanced_stage1'
 $launchLog = Join-Path $logDir 'launch.log'
@@ -35,11 +33,16 @@ if (Test-Path $pidFile) {
     }
 }
 
-$exe = if (Test-Path $venvPythonW) { $venvPythonW } elseif (Test-Path $venvPython) { $venvPython } else { (Get-Command python -ErrorAction SilentlyContinue).Source }
+# System pythonw.exe -- the venv's own pythonw.exe stub resolves to the CONSOLE python.exe
+# and opens a terminal window per fire from this windowless parent (GOAL-SILENT-RIG R6a).
+$sysPythonW = 'C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe'
+$exe = if (Test-Path $sysPythonW) { $sysPythonW } else { (Get-Command python -ErrorAction SilentlyContinue).Source }
 if (-not $exe) {
     "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [ERROR] No python found" | Out-File -FilePath $launchLog -Append -Encoding utf8
     exit 1
 }
+$env:PYTHONPATH = Join-Path $repoRoot 'backtest\.venv\Lib\site-packages'
+$env:VIRTUAL_ENV = Join-Path $repoRoot 'backtest\.venv'
 
 $workingDir = Join-Path $repoRoot 'backtest'
 $hours = if ($args.Count -gt 0) { $args[0] } else { '2' }

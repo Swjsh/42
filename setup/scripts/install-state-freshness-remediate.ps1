@@ -67,14 +67,12 @@ if ($Uninstall) {
 }
 
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $venvDir      = Join-Path $root "backtest\.venv"
 $venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\state_freshness_remediate.py"
 
-if (-not (Test-Path $pythonwVenv))   { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
 if (-not (Test-Path $sysPythonw))    { throw "system pythonw.exe not found at $sysPythonw" }
 if (-not (Test-Path $venvSitePkgs))  { throw "backtest venv site-packages not found at $venvSitePkgs" }
 if (-not (Test-Path $runCmdHidden))  { throw "run_cmd_hidden.py not found at $runCmdHidden" }

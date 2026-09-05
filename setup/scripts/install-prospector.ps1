@@ -52,7 +52,6 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonw      = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $script       = Join-Path $root "setup\scripts\prospector.py"
 $etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 $taskName     = "Gamma_Prospector"
@@ -62,7 +61,7 @@ $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.
 $pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 
-foreach ($p in @($vbs, $pythonw, $script, $sysPythonw, $runCmdHidden)) {
+foreach ($p in @($vbs, $script, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 

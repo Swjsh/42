@@ -50,11 +50,15 @@ $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_OosCheck"
 
-# Backtest venv pythonw (reaper-exempt interpreter home; the runner itself is
-# stdlib-only but spawns the venv python.exe for the heavy OOS backtest).
-$pythonw = "C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\pythonw.exe"
+# 2026-09-05 SILENT-RIG R6a fix: was backtest\.venv\Scripts\pythonw.exe -- that stub's
+# base executable is the CONSOLE python.exe and opens a terminal window per fire from
+# this windowless parent. The runner itself is stdlib-only (verified: only os/sys/json/
+# subprocess/pathlib/datetime/typing at module level) and spawns the venv python.exe
+# itself (as a subprocess) for the heavy OOS backtest, so the OUTER interpreter here
+# needs no PYTHONPATH -- the system pythonw.exe is a drop-in swap.
+$pythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw"
+    Write-Error "system pythonw not found at $pythonw"
     exit 1
 }
 

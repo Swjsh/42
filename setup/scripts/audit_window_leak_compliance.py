@@ -619,6 +619,116 @@ def _audit_installer_venv_interpreter() -> list[dict]:
     return flags
 
 
+# --- (7c) LAUNCHER_VENV_INTERPRETER: whole-tree sweep -----------------------------------
+# GOAL-SILENT-RIG-2026-09-05 R6b. (7a) only checks the LIVE task registry; (7b) only checks
+# `setup/scripts/install-*.ps1`. Neither one would have caught the actual 2026-09-05
+# incident: 12 non-install LAUNCHER scripts (setup/scripts/run-*.ps1, launch-*.ps1,
+# setup/run-j-strategy.cmd) that build their OWN interpreter path at runtime
+# (`$exe = if (Test-Path $venvPythonW) { $venvPythonW } else { $venvPython }`) rather than
+# going through a task-registration script at all -- a task's action can point at a
+# perfectly clean wrapper .ps1 while the wrapper's OWN body still picks the broken venv
+# pythonw.exe stub (a launcher stub whose base executable is the CONSOLE python.exe --
+# opens a terminal window per fire from a windowless parent). This check closes that gap:
+# it scans EVERY *.ps1 / *.cmd / *.vbs under setup/ (not just install-*.ps1, not just
+# setup/scripts/), case-insensitive, both slash styles, and the Join-Path-argument form.
+#
+# A handful of files legitimately keep the string as a COMMENT/DOCSTRING mention -- either
+# narrating an already-applied fix ("was $pythonwVenv ... now $sysPythonw") or explaining
+# the root cause (run_exe_hidden_exec.vbs's own docstring). Those are allowlisted BY NAME
+# with a reason below; anything else that matches is a live offender until proven
+# otherwise. Re-verify the allowlist stays accurate any time one of these files is edited:
+# `python setup/scripts/audit_window_leak_compliance.py` re-scans it on every run.
+LAUNCHER_STUB_RE = re.compile(r"\.venv[\\/]+Scripts[\\/]+pythonw\.exe", re.IGNORECASE)
+
+# {path relative to REPO, POSIX separators: reason the remaining match is NOT live code}
+LAUNCHER_VENV_INTERPRETER_ALLOWLIST: dict[str, str] = {
+    # Comment-only: docstring narrates the OLD (fixed) wiring for provenance/history.
+    "setup/install-cboe-oi-bank.ps1": "comment only -- fix note referencing the pre-2026-09-05 wiring",
+    "setup/install-gex-capture.ps1": "comment only -- fix note referencing the pre-2026-09-05 wiring",
+    "setup/install-guards-nightly.ps1": "comment only -- fix note referencing the pre-2026-09-05 wiring",
+    "setup/install-oos-check.ps1": "comment only -- fix note referencing the pre-2026-09-05 wiring",
+    "setup/install-retest-zone-shadow.ps1": "comment only -- 2026-09-03 fix note, both hops already $sysPythonw",
+    "setup/install-structure-classifier-shadow.ps1": "comment only -- 2026-09-03 fix note, both hops already $sysPythonw",
+    "setup/scripts/fix-venv-pythonw-console-leak.ps1": "comment only -- describes the stub bug this script itself remediates",
+    "setup/scripts/install-auto-commit-candidates.ps1": "comment only -- REAPER EXEMPTION docstring note, action uses $sysPythonw",
+    "setup/scripts/install-bold-tier-rail.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-checkpoint-packet.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-context-bundle.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-crypto-twin.ps1": "comment only -- REAPER EXEMPTION + WIRING PATTERN docstring, action uses $sysPythonw",
+    "setup/scripts/install-earnings-calendar.ps1": "comment only -- fix note, action uses $pyw (system pythonw)",
+    "setup/scripts/install-fee-recalibrate.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-free-model-audit.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-futures-edge3-sim.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-futures-eod.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-futures-mirror.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-futures-premarket.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-futures-trade-autopsy.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-futures-trader.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-gamma-standup.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-j-intent-executor.ps1": "comment only -- 2026-09-05 SILENT-RIG fix note, action uses $sysPythonw",
+    "setup/scripts/install-key-levels-snapshot.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-ledger-archive.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-ledger-custody.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-live-watch.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-monday-verify.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-participation-daily.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-premarket-readiness.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-prospector.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-ssr-shadow.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-state-freshness-remediate.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-swing-tasks.ps1": "comment only -- 2026-09-05 SILENT-RIG R6a fix note, action uses $sysPythonw",
+    "setup/scripts/install-theta-clock.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-trend-cache-producer.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-twin-chaos-drill.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-twin-sentinel.ps1": "comment only -- fix note, action uses $sysPythonw",
+    "setup/scripts/install-whole-engine-null.ps1": "comment only -- fix note, action uses $sysPythonw",
+    # This wrapper's docstring EXPLAINS the stub bug (root-cause narrative); the script
+    # itself takes an arbitrary exe path as $args(0) -- it never hardcodes the stub.
+    "setup/scripts/run_exe_hidden_exec.vbs": "docstring explains the root-cause bug; script is a generic exe wrapper, hardcodes nothing",
+}
+
+
+def _audit_launcher_venv_interpreter() -> list[dict]:
+    """Check (7c): whole-tree sweep for the venv pythonw/python stub across every
+    *.ps1 / *.cmd / *.vbs under setup/ (not just install-*.ps1 or the live task
+    registry -- see the module comment above for why (7a)/(7b) alone missed the
+    2026-09-05 incident). Anything not explicitly allowlisted above is a live flag."""
+    flags: list[dict] = []
+    setup_dir = REPO / "setup"
+    if not setup_dir.exists():
+        return flags
+    files: list[Path] = []
+    for pattern in ("*.ps1", "*.cmd", "*.vbs"):
+        files.extend(setup_dir.rglob(pattern))
+    for path in sorted(set(files)):
+        rel = path.relative_to(REPO).as_posix()
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except Exception as e:
+            flags.append({"file": rel, "line": 0, "flag": "READ_ERROR", "detail": str(e)})
+            continue
+        if not LAUNCHER_STUB_RE.search(text):
+            continue
+        if rel in LAUNCHER_VENV_INTERPRETER_ALLOWLIST:
+            continue
+        for i, line in enumerate(text.splitlines(), start=1):
+            if LAUNCHER_STUB_RE.search(line):
+                flags.append({
+                    "file": rel,
+                    "line": i,
+                    "flag": "LAUNCHER_VENV_INTERPRETER",
+                    "detail": line.strip()[:220],
+                    "fix": "Not on the (7a)/(7b) allowlist and not a known comment-only "
+                           "mention -- repoint to the SYSTEM pythonw "
+                           "(C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\"
+                           "pythonw.exe) with --env/$env:PYTHONPATH=<repo>\\backtest\\.venv\\"
+                           "Lib\\site-packages, or add to LAUNCHER_VENV_INTERPRETER_ALLOWLIST "
+                           "in audit_window_leak_compliance.py with a stated reason if it is "
+                           "genuinely comment-only.",
+                })
+    return flags
+
+
 # --- LIVE hider-liveness check (6) ----------------------------------------------------
 # WHY THIS CHECK EXISTS (2026-08-30, J: "first priority is stopping all popups").
 #
@@ -841,6 +951,7 @@ def main() -> int:
     task_flags = _audit_live_task_registry()
     task_venv_flags = _audit_task_venv_interpreter()
     installer_venv_flags = _audit_installer_venv_interpreter()
+    launcher_venv_flags = _audit_launcher_venv_interpreter()
     hook_flags, hooks_scanned = _audit_hook_commands()
     hider_flags = _audit_hiders_running()
     coverage = _scan_coverage()
@@ -877,7 +988,8 @@ def main() -> int:
         })
 
     all_flags = (ps1_flags + py_flags + mcp_flags + task_flags + task_venv_flags
-                 + installer_venv_flags + hook_flags + hider_flags + empty_scan_flags)
+                 + installer_venv_flags + launcher_venv_flags + hook_flags + hider_flags
+                 + empty_scan_flags)
     # Health is driven ONLY by findings someone can act on. Informational findings stay in
     # the report (never silently dropped) but must not hold the audit permanently RED.
     violations = [f for f in all_flags if f.get("severity") != "info"]
@@ -892,6 +1004,7 @@ def main() -> int:
         "live_task_registry_count": len(task_flags),
         "task_venv_interpreter_count": len(task_venv_flags),
         "installer_venv_interpreter_count": len(installer_venv_flags),
+        "launcher_venv_interpreter_count": len(launcher_venv_flags),
         "hook_bare_console_count": len(hook_flags),
         "hider_not_running_count": len(hider_flags),
         "scan_coverage": coverage,
@@ -912,6 +1025,7 @@ def main() -> int:
     print(f"  LIVE task registry violations:    {report['live_task_registry_count']}")
     print(f"  Task venv-pythonw stub (7a):      {report['task_venv_interpreter_count']}")
     print(f"  Installer venv-pythonw stub (7b): {report['installer_venv_interpreter_count']}")
+    print(f"  Launcher venv-pythonw stub (7c):  {report['launcher_venv_interpreter_count']}")
     print(f"  Hook cmds w/o hidden wrapper:     {report['hook_bare_console_count']} "
           f"({coverage['hook_commands_scanned']} scanned)")
     print(f"  Live hiders down / unkept:        {report['hider_not_running_count']} "

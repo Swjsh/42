@@ -49,13 +49,11 @@ $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
-$venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"  # kept for -Test-Path guard only; no longer used as a launch target
 $pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 
 if (-not (Test-Path $vbs))          { throw "run_exe_hidden.vbs not found at $vbs" }
 if (-not (Test-Path $sysPythonw))   { throw "system pythonw.exe not found at $sysPythonw" }
 if (-not (Test-Path $runCmdHidden)) { throw "run_cmd_hidden.py not found at $runCmdHidden" }
-if (-not (Test-Path $venvPythonw))  { throw "backtest venv pythonw.exe not found at $venvPythonw" }
 
 # {TaskName -> @{ Target = <relative .py path>; Args = @(extra positional args) }}
 $targets = [ordered]@{

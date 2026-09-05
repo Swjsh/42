@@ -18,13 +18,12 @@
 $ErrorActionPreference = "Stop"
 $Root = "C:\Users\jackw\Desktop\42"; $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName = "Gamma_TickersDayCheck"
-$pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $pythonPath = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $Root "multi\tickers_day_check.py"
-foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
+foreach ($p in @($runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
   if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 }
 }
 

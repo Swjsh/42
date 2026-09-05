@@ -1,8 +1,10 @@
 $ErrorActionPreference = 'Continue'
 $repoRoot = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$venvPython = Join-Path $repoRoot 'backtest\.venv\Scripts\python.exe'
-$venvPythonW = Join-Path $repoRoot 'backtest\.venv\Scripts\pythonw.exe'
-$exe = if (Test-Path $venvPythonW) { $venvPythonW } else { $venvPython }
+$sysPythonW = 'C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe'
+if (-not (Test-Path $sysPythonW)) { throw "system pythonw.exe not found at $sysPythonW" }
+$exe = $sysPythonW
+$env:PYTHONPATH = Join-Path $repoRoot 'backtest\.venv\Lib\site-packages'
+$env:VIRTUAL_ENV = Join-Path $repoRoot 'backtest\.venv'
 $workingDir = Join-Path $repoRoot 'backtest'
 $startInfo = New-Object System.Diagnostics.ProcessStartInfo
 $startInfo.FileName = $exe

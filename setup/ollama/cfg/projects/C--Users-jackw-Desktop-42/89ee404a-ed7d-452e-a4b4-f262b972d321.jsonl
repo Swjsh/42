@@ -1,0 +1,4 @@
+{"type":"queue-operation","operation":"enqueue","timestamp":"2026-07-09T01:02:52.286Z","sessionId":"89ee404a-ed7d-452e-a4b4-f262b972d321","content":"In one sentence, what is a put option?"}
+{"type":"queue-operation","operation":"dequeue","timestamp":"2026-07-09T01:02:52.286Z","sessionId":"89ee404a-ed7d-452e-a4b4-f262b972d321"}
+{"parentUuid":null,"isSidechain":false,"promptId":"195e776d-7ae1-4534-b6b5-3093cc5a5a53","type":"user","message":{"role":"user","content":"In one sentence, what is a put option?"},"uuid":"6a906448-3da6-47b1-817d-5ea60287be14","timestamp":"2026-07-09T01:02:53.125Z","permissionMode":"default","promptSource":"sdk","userType":"external","entrypoint":"claude-desktop","cwd":"C:\\Users\\jackw\\Desktop\\42","sessionId":"89ee404a-ed7d-452e-a4b4-f262b972d321","version":"2.1.205","gitBranch":"main"}
+{"type":"ai-title","aiTitle":"Explain put option","sessionId":"89ee404a-ed7d-452e-a4b4-f262b972d321"}

@@ -58,7 +58,6 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $venvDir      = Join-Path $root "backtest\.venv"
 $venvSitePkgs = Join-Path $root "backtest\.venv\Lib\site-packages"
@@ -75,7 +74,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $pythonwVenv, $sysPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 

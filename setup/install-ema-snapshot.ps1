@@ -33,7 +33,6 @@ $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_EmaSnapshot"
 
 # Backtest venv pythonw -- has pandas (system Python313 does not). GUI-subsystem = windowless.
-$pythonw = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
 if (-not (Test-Path $pythonw)) {
     Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
     exit 1
@@ -44,6 +43,7 @@ $worker       = Join-Path $WorkDir "automation\scripts\compute_ema_snapshot.py"
 # 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
 # VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $WorkDir "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 
 foreach ($p in @($runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
@@ -56,7 +56,7 @@ Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Silent
 #   -- <venv pythonw> <compute_ema_snapshot.py>  (fully hidden, real exit-code logged)
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$WorkDir`" -- `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$WorkDir`" --env `"PYTHONPATH=$pythonPath`" -- `"$sysPythonw`" `"$worker`""
 
 # 06:20 LOCAL (Mountain) = 08:20 ET, 10 min before Gamma_Premarket.
 $trigger = New-ScheduledTaskTrigger -Daily -At "06:20"

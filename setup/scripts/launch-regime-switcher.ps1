@@ -22,8 +22,6 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$venvPython = Join-Path $repoRoot 'backtest\.venv\Scripts\python.exe'
-$venvPythonW = Join-Path $repoRoot 'backtest\.venv\Scripts\pythonw.exe'
 $logDir = Join-Path $repoRoot 'backtest\autoresearch\_state\regime_switcher_stage1'
 $launchLog = Join-Path $logDir 'launch.log'
 $matrixPath = Join-Path $logDir 'strategy_pnl_matrix.json'
@@ -64,8 +62,10 @@ if ($wantedStage -eq 'auto') {
     }
 }
 
-# Prefer pythonw to suppress console; fallback to python
-$exe = if (Test-Path $venvPythonW) { $venvPythonW } else { $venvPython }
+# System pythonw.exe -- the venv's own pythonw.exe stub resolves to the CONSOLE python.exe
+# and opens a terminal window per fire from this windowless parent (GOAL-SILENT-RIG R6a).
+$sysPythonW = 'C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe'
+$exe = $sysPythonW
 if (-not (Test-Path $exe)) {
     $exe = (Get-Command python -ErrorAction SilentlyContinue).Source
     if (-not $exe) {
@@ -73,6 +73,8 @@ if (-not (Test-Path $exe)) {
         exit 1
     }
 }
+$env:PYTHONPATH = Join-Path $repoRoot 'backtest\.venv\Lib\site-packages'
+$env:VIRTUAL_ENV = Join-Path $repoRoot 'backtest\.venv'
 
 $workingDir = Join-Path $repoRoot 'backtest'
 

@@ -61,7 +61,6 @@ $ErrorActionPreference = "Stop"
 $repo         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $repo "setup\scripts\run_exe_hidden.vbs"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
-$pywVenv      = Join-Path $repo "backtest\.venv\Scripts\pythonw.exe"
 $venvDir      = Join-Path $repo "backtest\.venv"
 $venvSitePkgs = Join-Path $repo "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $repo "setup\scripts\run_cmd_hidden.py"
@@ -76,7 +75,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $sysPythonw, $pywVenv, $venvSitePkgs, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $venvSitePkgs, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 

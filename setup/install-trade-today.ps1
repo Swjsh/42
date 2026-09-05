@@ -5,16 +5,16 @@
 $ErrorActionPreference = "Stop"
 $Root = "C:\Users\jackw\Desktop\42"; $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName = "Gamma_TradeToday"
-$pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $worker = Join-Path $ScriptsDir "trade_today_watcher.py"
 # 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
 # VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
-foreach ($p in @($pythonw, $runExeHidden, $worker, $sysPythonw, $runCmdHidden)) { if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 } }
+foreach ($p in @($runExeHidden, $worker, $sysPythonw, $runCmdHidden)) { if (-not (Test-Path $p)) { Write-Error "missing: $p"; exit 1 } }
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`""
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" --env `"PYTHONPATH=$pythonPath`" -- `"$sysPythonw`" `"$worker`""
 # 07:30 LOCAL (MT) = 09:30 ET open; repeat every 2 min for 6.5h -> covers 09:30-16:00 ET.
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "07:30"
 $rep = (New-ScheduledTaskTrigger -Once -At "07:30" -RepetitionInterval (New-TimeSpan -Minutes 2) -RepetitionDuration (New-TimeSpan -Hours 6 -Minutes 30)).Repetition

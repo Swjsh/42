@@ -59,15 +59,15 @@ if ($Uninstall) {
 }
 
 $WorkDir = "C:\Users\jackw\Desktop\42"
-$pythonw      = Join-Path $WorkDir "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $WorkDir "setup\scripts\run_exe_hidden.vbs"
 $worker       = Join-Path $WorkDir "setup\scripts\dress_rehearsal.py"
 # 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
 # VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $WorkDir "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $WorkDir "setup\scripts\run_cmd_hidden.py"
 
-foreach ($p in @($pythonw, $runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
+foreach ($p in @($runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -75,7 +75,7 @@ Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Silent
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$WorkDir`" -- `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$WorkDir`" --env `"PYTHONPATH=$pythonPath`" -- `"$sysPythonw`" `"$worker`""
 
 # 21:44 LOCAL (Mountain) = 23:44 ET. DAILY -- the worker computes the next trading day.
 $trigger = New-ScheduledTaskTrigger -Daily -At "21:44"

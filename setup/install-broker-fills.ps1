@@ -7,7 +7,6 @@ $ErrorActionPreference = "Stop"
 $Root       = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $Root "setup\scripts"
 $TaskName   = "Gamma_BrokerFills"
-$pythonw      = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $worker       = Join-Path $ScriptsDir "broker_fills.py"
 # 2026-08-07: route through the run_cmd_hidden.py relay (real exit-code visibility --
@@ -16,16 +15,17 @@ $worker       = Join-Path $ScriptsDir "broker_fills.py"
 # own template was never updated to match, so a future re-run of THIS script would have
 # silently reverted it exactly like Gamma_CryptoTwin's 2026-08-01 cadence-tune did.
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 
-foreach ($p in @($pythonw, $runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
+foreach ($p in @($runExeHidden, $worker, $sysPythonw, $runCmdHidden)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" --env `"PYTHONPATH=$pythonPath`" -- `"$sysPythonw`" `"$worker`""
 
 # (a) 07:00 LOCAL (Mountain) = 09:00 ET; repeat every 10 min for 7h -> covers 09:00-16:00 ET.
 $rthTrigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "07:00"

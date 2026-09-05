@@ -1,0 +1,10 @@
+{
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "C:\\Users\\jackw\\Desktop\\42\\setup\\ollama\\cfg\\plugins\\marketplaces\\claude-plugins-official",
+    "lastUpdated": "2026-07-09T01:02:45.301Z"
+  }
+}

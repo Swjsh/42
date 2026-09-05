@@ -49,19 +49,24 @@ $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_GexCapture"
 
-# Must be the backtest venv interpreter -- it has pandas/the engine deps that the worker
-# imports via gex_regime. The system Python313 does NOT (the "No module named pandas"
-# foot-gun, L20/L42). pythonw keeps the process windowless.
-$pythonw = "C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\pythonw.exe"
-if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
+# 2026-09-05 SILENT-RIG R6a fix: was backtest\.venv\Scripts\pythonw.exe run directly --
+# that stub's base executable is the CONSOLE python.exe and opens a terminal window per
+# fire from this windowless parent. The worker still needs pandas/the engine deps it
+# imports via gex_regime (the system Python313 does NOT have them installed, L20/L42), so
+# the venv's site-packages are reached via run_cmd_hidden.py's --env PYTHONPATH instead of
+# executing the venv's own (broken) pythonw.exe.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $WorkDir "backtest\.venv\Lib\site-packages"
+$runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
+if (-not (Test-Path $sysPythonw)) {
+    Write-Error "system pythonw not found at $sysPythonw"
     exit 1
 }
 
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $worker       = Join-Path $WorkDir "automation\scripts\gex_capture.py"
 
-foreach ($p in @($runExeHidden, $worker)) {
+foreach ($p in @($runExeHidden, $worker, $runCmdHidden)) {
     if (-not (Test-Path $p)) {
         Write-Error "Required file missing: $p"
         exit 1
@@ -70,10 +75,11 @@ foreach ($p in @($runExeHidden, $worker)) {
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
-# wscript //nologo run_exe_hidden.vbs <venv-pythonw> <gex_capture.py>  (fully hidden)
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- system pythonw (venv activated via --env PYTHONPATH) -> gex_capture.py
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$worker`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$WorkDir`" -- `"$sysPythonw`" `"$worker`""
 
 # 07:15 LOCAL (Mountain) = 09:15 ET -- ~15 min after options open, chain liquid, still
 # inside premarket prep (before the 09:30 ET heartbeat). LOCAL time per Task Scheduler.
@@ -93,7 +99,7 @@ Register-ScheduledTask `
     -Description "Daily SPY dealer-GEX capture: archives the raw option chain (greeks+OI) to journal/gex-archive/{date}.json (backtestable history) and writes the regime tag to automation/state/gex-regime.json (reuses backtest/lib/engine/gex_regime.py). 09:15 ET weekdays (07:15 MT). Idempotent + fail-safe. Pure Python, zero LLM cost. OP-22 propose-only -- does NOT trade or edit doctrine."
 
 Write-Output "OK: Registered $TaskName for 09:15 ET weekdays (07:15 MT)"
-Write-Output "    Interpreter: $pythonw  (backtest venv -- has pandas/engine deps)"
+Write-Output "    Interpreter: $sysPythonw  (venv site-packages via PYTHONPATH)"
 Write-Output "    Archive:     journal\gex-archive\{date}.json   (backtestable raw chain)"
 Write-Output "    Regime tag:  automation\state\gex-regime.json"
 Write-Output "    Audit:       python setup\scripts\audit_scheduled_tasks.py"

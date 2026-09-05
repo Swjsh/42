@@ -7,8 +7,7 @@
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))
-$venvPython = Join-Path $repoRoot 'backtest\.venv\Scripts\python.exe'
-$venvPythonW = Join-Path $repoRoot 'backtest\.venv\Scripts\pythonw.exe'
+$sysPythonW = 'C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe'
 $pidFile = Join-Path $repoRoot 'backtest\autoresearch\_state\overnight_grinder\runner.pid'
 $logDir = Join-Path $repoRoot 'backtest\autoresearch\_state\overnight_grinder'
 $launchLog = Join-Path $logDir 'launch.log'
@@ -29,8 +28,10 @@ if (Test-Path $pidFile) {
     }
 }
 
-# Pick pythonw.exe to avoid console flash; fallback to python.exe if missing.
-$exe = if (Test-Path $venvPythonW) { $venvPythonW } else { $venvPython }
+if (-not (Test-Path $sysPythonW)) { throw "system pythonw.exe not found at $sysPythonW" }
+$exe = $sysPythonW
+$env:PYTHONPATH = Join-Path $repoRoot 'backtest\.venv\Lib\site-packages'
+$env:VIRTUAL_ENV = Join-Path $repoRoot 'backtest\.venv'
 if (-not (Test-Path $exe)) {
     "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') [ERROR] No python found at $venvPython or $venvPythonW" | Out-File -FilePath $launchLog -Append -Encoding utf8
     exit 1

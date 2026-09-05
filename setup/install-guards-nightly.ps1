@@ -35,18 +35,24 @@ $WorkDir = "C:\Users\jackw\Desktop\42"
 $ScriptsDir = Join-Path $WorkDir "setup\scripts"
 $TaskName = "Gamma_GuardsNightly"
 
-# Must be an interpreter that HAS the backtest deps (pandas/pytest). The dedicated
-# backtest venv does; the system Python313 does NOT. pythonw keeps it windowless.
-$pythonw = "C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\pythonw.exe"
-if (-not (Test-Path $pythonw)) {
-    Write-Error "backtest venv pythonw not found at $pythonw (create: cd backtest; python -m venv .venv; .venv\Scripts\pip install -r requirements.txt)"
+# 2026-09-05 SILENT-RIG R6a fix: was backtest\.venv\Scripts\pythonw.exe run directly --
+# that stub's base executable is the CONSOLE python.exe and opens a terminal window per
+# fire from this windowless parent. The runner still needs pandas/pytest (the system
+# Python313 does NOT have them installed), so the venv's site-packages are reached via
+# run_cmd_hidden.py's --env PYTHONPATH instead of executing the venv's own (broken)
+# pythonw.exe.
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $WorkDir "backtest\.venv\Lib\site-packages"
+$runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
+if (-not (Test-Path $sysPythonw)) {
+    Write-Error "system pythonw not found at $sysPythonw"
     exit 1
 }
 
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $runnerSlow   = Join-Path $WorkDir "setup\guard_runner_slow.py"
 
-foreach ($p in @($runExeHidden, $runnerSlow)) {
+foreach ($p in @($runExeHidden, $runnerSlow, $runCmdHidden)) {
     if (-not (Test-Path $p)) {
         Write-Error "Required file missing: $p"
         exit 1
@@ -55,10 +61,11 @@ foreach ($p in @($runExeHidden, $runnerSlow)) {
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
-# wscript //nologo run_exe_hidden.vbs <pythonw> <guard_runner_slow.py>  (fully hidden)
+# wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
+#   -- system pythonw (venv activated via --env PYTHONPATH) -> guard_runner_slow.py
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `
-    -Argument "//nologo `"$runExeHidden`" `"$pythonw`" `"$runnerSlow`""
+    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$WorkDir`" -- `"$sysPythonw`" `"$runnerSlow`""
 
 # 22:30 LOCAL (Mountain) = 00:30 ET. After-hours both ways; clear of market hours.
 $trigger = New-ScheduledTaskTrigger -Daily -At "22:30"

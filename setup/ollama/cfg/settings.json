@@ -1,0 +1,11 @@
+{
+  "model": "claude-local",
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:11435",
+    "ANTHROPIC_API_KEY": "ollama",
+    "ANTHROPIC_AUTH_TOKEN": "ollama",
+    "ANTHROPIC_MODEL": "claude-local",
+    "ANTHROPIC_SMALL_FAST_MODEL": "claude-local",
+    "MAX_THINKING_TOKENS": "0"
+  }
+}

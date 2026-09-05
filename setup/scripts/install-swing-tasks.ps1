@@ -29,12 +29,18 @@
   Both tasks tick BOTH MNQ and MES (--mes flag) per the plan's stated priority (MES primary,
   direct SPY x10 mapping; MNQ second).
 
-  WIRING PATTERN (flash-free, matches heartbeat_core + sight_beacon + level_memory):
-    wscript -> run_exe_hidden.vbs -> backtest\.venv pythonw.exe -> swing_core_runner.py
-  Runs on the BACKTEST venv (not system Python 3.13) because swing_core_runner.py imports
-  futures_heartbeat_core, which transitively imports pandas + the full watcher fleet + the
-  fillsim broker's yfinance quote fetch -- none of which are installed under system Python
-  (mirrors Gamma_LevelMemory's exact interpreter choice, install-level-memory.ps1).
+  WIRING PATTERN (2026-09-05 SILENT-RIG R6a fix -- was a direct wscript -> vbs -> backtest-
+  venv-pythonw chain: backtest\.venv\Scripts\pythonw.exe is a launcher STUB whose base
+  executable is the CONSOLE python.exe, and opens a terminal window per fire from this
+  windowless parent. Now matches install-futures-eod.ps1 / install-level-memory.ps1's
+  proven relay):
+    wscript -> run_exe_hidden.vbs -> SYSTEM pythonw -> run_cmd_hidden.py --cwd <repo>
+      -- SYSTEM pythonw -> swing_core_runner.py
+  swing_core_runner.py imports futures_heartbeat_core, which transitively imports pandas +
+  the full watcher fleet + the fillsim broker's yfinance quote fetch -- none of which are
+  installed under system Python 3.13 by default, so PYTHONPATH is injected via run_cmd_
+  hidden.py's --env flag to point at backtest\.venv\Lib\site-packages instead of running the
+  venv's own (broken) pythonw.exe stub.
 
   TZ RULE: this rig is Mountain Time (ET = local + 2h). 15:35 ET -> 13:35 MT.
   NEVER pass an ET literal to -At. Weekly Mon-Fri triggers only (NOT a one-shot TimeTrigger,
@@ -50,11 +56,13 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $script       = Join-Path $root "setup\scripts\swing_core_runner.py"
 $etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 
-foreach ($p in @($vbs, $pythonwVenv, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -75,7 +83,7 @@ if (Get-ScheduledTask -TaskName $taskCore -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskCore -Confirm:$false
 }
 
-$coreArgs   = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" --mes"
+$coreArgs   = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`" --mes"
 $coreAction = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $coreArgs `
     -WorkingDirectory $root
 
@@ -106,7 +114,7 @@ if (Get-ScheduledTask -TaskName $taskMonitor -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskMonitor -Confirm:$false
 }
 
-$monitorArgs   = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" --monitor --mes"
+$monitorArgs   = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`" --monitor --mes"
 $monitorAction = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $monitorArgs `
     -WorkingDirectory $root
 
