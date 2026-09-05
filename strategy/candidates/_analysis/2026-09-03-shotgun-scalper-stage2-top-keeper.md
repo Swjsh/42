@@ -67,3 +67,16 @@ These settings create a relatively tight profit target and a wide stop, favoring
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a new rule or parameter change; it only evaluates a keeper from the shotgun_scalper_stage2 sweep. Therefore, it does not conflict with any existing candidate in `_LEADERBOARD.md`. However, if the keeper were promoted as a parameter change, it would likely be REJECTED because its edge_capture is far below the 771 floor, violating OP‑16 gating. It would not improve the leaderboard and would be archived.
+
+## ADJUDICATION 2026-09-05
+
+**Our verdict: KILLED (edge_capture=-$36 < 771 OP-16 floor; negative)**
+
+- Own verdict: confidence 2/10 -- "fails to capture any of the three winner days that define the OP-16 edge... suggests overfitting to non-J regimes; without OOS and real-fills validation, confidence is low." File's own "Pre-merge gate" lists five UNMET requirements (Stage-1 anchor backtest, edge_capture>=771, OOS walk-forward test_per_mo/train_per_mo>=0.7, real-fills validation, leaderboard non-regression check) -- none of which have been run.
+- WF ratio: not computed -- explicitly "NEEDS-OOS (no walk-forward held-out window performed; the metric is in-sample wide_pnl)". No number exists against the goal's WF>=0.70 bar.
+- OOS expectancy: not computed (same NEEDS-OOS note).
+- n: 1,458 combos swept, in-sample only; wide_pnl=$15,706 is entirely in-sample and, per the file's own read, is driven by non-J-day noise (negative edge_capture on J's actual source-of-truth days).
+- /fable-too-good check: the headline number ($15,706 wide_pnl, described as "enormous") is exactly the shape of artifact this discipline exists to catch -- huge aggregate P&L paired with NEGATIVE performance on the only days that matter (J's anchor days) is the signature of overfitting to non-J regime noise, not a real edge. The file's own hypothesis section reaches the same conclusion independently.
+- Canonical battery: fails OP-16 anchor floor before SS4 gates are reached.
+- Data basis: Kitchen grinder output is BS-synthetic option pricing (Black-Scholes simulated premiums over historical SPY bars), NOT real-fills OPRA evidence -- per memory project_free_kitchen_plan_b_hardened.md ("no free 0DTE data; BS-synthetic only"). Any number in this file's Mechanism/OP-20 sections is Stage-1/grinder-tier at best; none of these files report a completed walk-forward OOS split or a real-fills validation run.
+- Disposition: KILLED. No K9 action.

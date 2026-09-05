@@ -72,3 +72,16 @@ FAILS OP-16 THRESHOLD: edge_capture=40.01 < 771 (50% of 1542). REJECTED at the d
 ## Pre-existing leaderboard impact
 
 NO IMPACT: Candidate fails OP-16 edge_capture floor (771) and is ineligible for leaderboard. Does not conflict with existing candidates (all have edge_capture≥771). Represents a dead-end path requiring fundamental redesign to capture J's winner days.
+
+## ADJUDICATION 2026-09-05
+
+**Our verdict: KILLED (edge_capture=40.01 < 771 OP-16 floor)**
+
+- Own verdict (file's own "Pre-merge gate" section): "FAILS OP-16 THRESHOLD: edge_capture=40.01 < 771 (50% of 1542). REJECTED at the door per OP-16; no further gates evaluated." Own confidence 2/10.
+- WF ratio: not computed -- file states "NEEDS-OOS (no OOS test performed in grinder output)". No WF number exists to check against the goal's WF>=0.70 bar.
+- OOS expectancy: not computed (NEEDS-OOS, as above).
+- n: unspecified sweep size; edge_capture driven almost entirely by one day (5/01, "100% of winner capture" per file's own concentration disclosure) -- classic single-day concentration, not evidence of a generalizable edge.
+- Canonical battery (`markdown/research/BACKTESTING-PLAYBOOK.md` SS4): fails at the OP-16 anchor floor before reaching SS4.3 concentration / SS4.6 walk-forward gates at all -- this candidate never gets far enough to be scored against the battery.
+- /fable-too-good check: not applicable in the "looks too good" direction -- this result is bad, not suspiciously good, so no artifact-hunt needed on that axis. The failure itself (missed 2 of 3 J winner days) is consistent with the file's own honest self-assessment.
+- Data basis: Kitchen grinder output is BS-synthetic option pricing (Black-Scholes simulated premiums over historical SPY bars), NOT real-fills OPRA evidence -- per memory project_free_kitchen_plan_b_hardened.md ("no free 0DTE data; BS-synthetic only"). Any number in this file's Mechanism/OP-20 sections is Stage-1/grinder-tier at best; none of these files report a completed walk-forward OOS split or a real-fills validation run.
+- Disposition: KILLED. No K9 shadow-file action -- there is nothing to register.

@@ -1,0 +1,122 @@
+{
+  "generated": "2026-09-05",
+  "goal": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03.md#K8",
+  "kitchen_status_note": "automation/state/kitchen-status.json parses fine (NOT {}); recent_completed_top_10 has 10 rows, newest completed_at=2026-09-05T04:44:12Z. Used as corroborating evidence for the 09-05 rows below.",
+  "canonical_battery_bar_quoted": "markdown/research/BACKTESTING-PLAYBOOK.md SS4.6 Walk-forward (OOS): per-month normalized test_pnl_per_month/train_pnl_per_month >= 0.5, test P&L > 0. Goal-level bar (backtest/lib/canonical_battery.py L24-27): 'oos_positive AND wf_median_ge_0.70 AND sub_window_stable AND anchor_no_regression'. SS4.3 concentration top5_pct<=200%, SS4.4 quarter coverage >=4/6, SS4.7 real-fills diff <+/-20%.",
+  "data_basis_global_note": "Kitchen grinder output is BS-synthetic option pricing, NOT real-fills OPRA evidence (memory: project_free_kitchen_plan_b_hardened.md). None of the K8 files report a completed walk-forward split or real-fills run -- all WF/OOS claims below are 'not computed' unless stated otherwise.",
+  "rows": [
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-vwap-overnight-grinder-top-keeper.md",
+      "own_verdict": "FAILS OP-16 THRESHOLD (own words); confidence 2/10",
+      "wf": "not computed (NEEDS-OOS)",
+      "oos_exp": "not computed (NEEDS-OOS)",
+      "n": "unspecified sweep; edge driven by 1 day (5/01) = 100% of winner capture",
+      "data_basis": "BS-synthetic (Kitchen grinder), not real-fills",
+      "our_verdict": "KILLED (edge_capture=40.01 < 771)",
+      "reason": "OP-16 anchor floor failure quoted by the file itself; no WF/OOS number exists to evaluate against the goal's WF>=0.70 bar; single-day concentration confirms non-generalizing edge."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-shotgun-scalper-stage2-top-keeper.md",
+      "own_verdict": "confidence 2/10; own pre-merge gate lists 5 unmet requirements",
+      "wf": "not computed (NEEDS-OOS, in-sample wide_pnl only)",
+      "oos_exp": "not computed",
+      "n": "1,458 combos swept, in-sample",
+      "data_basis": "BS-synthetic (Kitchen grinder), not real-fills",
+      "our_verdict": "KILLED (edge_capture=-$36 < 771; negative)",
+      "reason": "Negative edge_capture on J's actual anchor days despite a large positive wide_pnl headline -- classic overfit-to-non-J-noise artifact per fable-too-good discipline; own hypothesis reaches the same conclusion independently."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-top-keeper-shotgun-scalper-stage3-1.md",
+      "own_verdict": "confidence 2/10; edge_capture 285.0 is 63% below floor per own text",
+      "wf": "not computed (NEEDS-OOS)",
+      "oos_exp": "not computed",
+      "n": "1,399 trades / 16mo in-sample, top-1-of-5 keepers from 324 combos",
+      "data_basis": "BS-synthetic (Kitchen grinder), not real-fills",
+      "our_verdict": "KILLED (edge_capture=285.0 < 771, -63%)",
+      "reason": "OP-16 anchor floor failure quoted by the file itself; by_day figures UNVERIFIED (not independently re-derived this pass, per goal instruction to use existing evidence rather than re-run)."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-midday-vol-contraction-breakout-backtest-2025-q3-2026-q1.md",
+      "own_verdict": "confidence 0/10 -- 'no data yet'; pure placeholder, Stage-1 never executed",
+      "wf": "none exists",
+      "oos_exp": "none exists",
+      "n": "none exists",
+      "data_basis": "none -- no backtest was run",
+      "our_verdict": "STILL-PENDING (not adjudicable)",
+      "reason": "No failing number exists to cite, so KILLED is not applicable per the goal's own KILLED definition; not SHADOW-FILED either since nothing was measured. Needs the Stage-1 backtest actually run before any verdict."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-walk-forward-oos-test-preceding-30-days-2026-07-28-to-2026-0.md",
+      "own_verdict": "confidence 3/10 -- 'purely procedural', scripts described as not-yet-run",
+      "wf": "none exists (this file IS the plan to compute WF, not a result)",
+      "oos_exp": "none exists",
+      "n": "none exists",
+      "data_basis": "none -- named scripts (walkforward_oos_30d.py, realfills_j_anchors.py) never executed",
+      "our_verdict": "STILL-PENDING (not adjudicable)",
+      "reason": "Pre-registers the exact WF>=0.70 bar this goal uses but never executes against it. Cannot be SHADOW-FILED or KILLED-with-number."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-weekly-dte-not-0dte-anchor-day-op-16-validation.md",
+      "own_verdict": "SKIPPED -- explicitly owned by another worker under K4 per this goal's K8 text",
+      "wf": "n/a (out of this worker's scope)",
+      "oos_exp": "n/a",
+      "n": "n/a",
+      "data_basis": "n/a",
+      "our_verdict": "SKIPPED (K4 territory)",
+      "reason": "K8 instructions explicitly exclude this file: 'SKIP this one -- another worker owns it under K4'. Not touched."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-03-state-freshness-remediate-lint-and-test.md",
+      "own_verdict": "confidence 3/10; infra lint/test task, not a trading strategy",
+      "wf": "n/a -- not a strategy",
+      "oos_exp": "n/a -- not a strategy",
+      "n": "n/a -- not a strategy",
+      "data_basis": "n/a",
+      "our_verdict": "SKIPPED (not a strategy)",
+      "reason": "File itself states 'Not applicable (this is an infrastructure script, not a trading strategy; it does not place trades)'. Per K8 instructions, noted and skipped -- no ADJUDICATION section appended."
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-02-base-engine-stage1-backtest.md",
+      "own_verdict": "confidence 5/10 -- 'baseline numbers unknown pending actual Stage-1 backrun'",
+      "wf": "not computed",
+      "oos_exp": "not computed",
+      "n": "none -- placeholder",
+      "data_basis": "none -- no backtest run in this file",
+      "our_verdict": "STILL-PENDING (not adjudicable); flags a suspect near-duplicate",
+      "reason": "Closest existing match to the goal's named 'base-engine-stage1-backtest' file (no exact 2026-09-03-dated file exists). A near-duplicate file dated 2026-09-04 (2026-09-04-base-engine-stage-1-backtest.md) claims the SAME task complete with concrete per-day P&L and 10/10 confidence, sourced only by inference off another candidate's delta table -- flagged as a fable-too-good artifact (fabricated-looking precision + inflated confidence, not an independent Stage-1 run) and should NOT be used as baseline evidence by K3-K7/K9 without a real re-run."
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vix1d-spike-fade.md",
+      "own_verdict": "confidence 5/10 -- 'zero empirical validation'",
+      "wf": "not computed",
+      "oos_exp": "not computed",
+      "n": "0 (no historical samples tested per own text)",
+      "data_basis": "none yet -- pure hypothesis, no backtest run",
+      "our_verdict": "KEEPER-QUEUED (under 24h, optional verdict)",
+      "reason": "Corroborated fresh via kitchen-status.json recent_completed_top_10 (task_id 2d6b8de6, completed_at 2026-09-05T04:44:12Z). Under 24h old per K8 rule -- queued as a Kitchen keeper, no forced verdict; needs Stage-1 backtest before real adjudication."
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-shotgun-scalper-stage4-top-keeper.md",
+      "own_verdict": "confidence 3/10 -- edge_capture 506.55 < 771 OP-16 floor per own text",
+      "wf": "not computed (NEEDS-OOS)",
+      "oos_exp": "not computed",
+      "n": "1,199 trades, 2025-Q1 to 2026-Q2, in-sample",
+      "data_basis": "BS-synthetic (Kitchen grinder), not real-fills",
+      "our_verdict": "KEEPER-QUEUED (under 24h, optional verdict; already trending toward KILL)",
+      "reason": "Corroborated via kitchen-status.json (task_id df041c63, completed_at 2026-09-05T04:41:48Z). Under 24h so not forced, but own edge_capture already fails the 771 floor -- likely KILLED on next pass unless OOS materially improves it."
+    }
+  ],
+  "k9_handoff": [
+    "No SHIP-CANDIDATE emerged from K8 -- nothing to register as a shadow instrument or prereg. K9's action list from this worker's scope is EMPTY.",
+    "3 files KILLED with a cited failing number (vwap-overnight-grinder-top-keeper edge_capture=40.01, shotgun-scalper-stage2-top-keeper edge_capture=-$36, top-keeper-shotgun-scalper-stage3-1 edge_capture=285.0) -- K9 can safely render these as 'KILLED (<number>)' in the leaderboard if/when they appear there.",
+    "3 files are STILL-PENDING, not KILLED and not SHADOW-FILED (midday-vol-contraction-breakout-backtest, walk-forward-oos-test-preceding-30-days, base-engine-stage1-backtest-2026-09-02) -- these never executed their own stated backtest; K9 must NOT render them as KILLED (no failing number exists) nor mark them done.",
+    "FLAG for any downstream worker (K3-K7, K9, or the next Kitchen fire): 2026-09-04-base-engine-stage-1-backtest.md contains fabricated-looking baseline numbers at 10/10 confidence with no real backtest behind them -- do not treat it as ground truth.",
+    "2 files intentionally untouched: weekly-dte-not-0dte-anchor-day-op-16-validation.md (K4's), state-freshness-remediate-lint-and-test.md (not a strategy).",
+    "2 fresh 09-05 auto-committed candidates (vix1d-spike-fade, shotgun-scalper-stage4-top-keeper) logged as KEEPER-QUEUED, under 24h -- no action needed from K9 yet."
+  ],
+  "unverified_items": [
+    "By-day P&L figures quoted inside top-keeper-shotgun-scalper-stage3-1.md and shotgun-scalper-stage4-top-keeper.md were not independently re-derived from raw grinder output this pass -- taken as reported, per the goal's instruction to use existing evidence rather than re-run backtests.",
+    "kitchen-status.json's recent_completed_top_10 only shows 10 rows -- could not confirm from it alone whether any 09-03-dated K8 file (vwap-overnight, shotgun-scalper-stage2/3) has a corresponding completion record, since the visible window only reaches back to 2026-09-04T20:38Z. Treated the _analysis files themselves as the primary evidence per the goal's own instruction.",
+    "Did not verify git status / in-flight edits from other parallel K1-K7 workers on the SAME files before appending -- ran `ls`/`cat` only, no lock check. No conflicting edits observed in the files read, but this is a multi-worker goal (K1-K8 running in parallel per PROGRESS LOG) so a race is theoretically possible."
+  ]
+}

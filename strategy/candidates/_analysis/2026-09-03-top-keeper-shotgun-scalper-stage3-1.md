@@ -68,3 +68,16 @@ The shotgun_scalper_stage3 strategy attempts to capture micro-edge in 0DTE SPY o
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (Rank I-24) as edge_capture <771 triggers automatic REJECTION per OP-16. Would require substantial J-day improvement to become eligible for consideration. Current keeper represents a local optimum in non-J day P&L that degrades anchor performance.
+
+## ADJUDICATION 2026-09-05
+
+**Our verdict: KILLED (edge_capture=285.0 < 771 OP-16 floor, -63%)**
+
+- Own verdict: confidence 2/10 -- "Edge_capture (285.0) is 63% below OP-16 floor (771.0)... High likelihood of overfit to non-J day noise given multi-stage grinder selection." Own "Pre-merge gate" explicitly lists the still-unmet bar: "Walk-forward: OOS Sharpe >0.70... Real-fills: Top 3 J days P&L deviation <+/-20% from BS-sim... OP-16 anchor: edge_capture must exceed 771 (current 285.0 fails this gate)".
+- WF ratio: not computed -- "NEEDS-OOS (no walk-forward held-out window performed)".
+- OOS expectancy: not computed.
+- n: 1,399 trades over 16 months in-sample, selected as top-1-of-5 keepers from 324 combos (multi-stage selection bias flagged by the file itself).
+- Canonical battery: fails OP-16 anchor floor pre-SS4.
+- /fable-too-good check: not applicable (result is a clean miss, not a suspicious win); by_day numbers (54/234/177/-180/132/291/291) are grinder-reported, not independently re-verified in this pass -- flagged as UNVERIFIED rather than re-derived, per the goal's "use existing evidence, don't re-run" instruction.
+- Data basis: Kitchen grinder output is BS-synthetic option pricing (Black-Scholes simulated premiums over historical SPY bars), NOT real-fills OPRA evidence -- per memory project_free_kitchen_plan_b_hardened.md ("no free 0DTE data; BS-synthetic only"). Any number in this file's Mechanism/OP-20 sections is Stage-1/grinder-tier at best; none of these files report a completed walk-forward OOS split or a real-fills validation run.
+- Disposition: KILLED. No K9 action.

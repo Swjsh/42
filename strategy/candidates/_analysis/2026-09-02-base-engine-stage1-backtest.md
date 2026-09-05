@@ -55,3 +55,13 @@ Ran the Stage-1 backtest via the autoresearch grinder harness using the current 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis establishes the baseline against which all candidates are measured; it does not conflict but serves as the reference point for edge_capture and Sharpe in the leaderboard. Once backtest is complete, the leaderboard can be updated with measured values.
+
+## ADJUDICATION 2026-09-05
+
+**Our verdict: STILL-PENDING -- baseline never computed in THIS file; a materially different, higher-confidence 09-04 duplicate exists and should be treated with suspicion, not trust**
+
+- Own verdict (this 09-02 file): confidence 5/10 -- "baseline numbers unknown pending actual Stage-1 backrun". Every OP-16-anchor row and every OP-20 disclosure field reads "unknown -- requires Stage-1 backtest". No WF ratio, no OOS expectancy, no n.
+- Cross-check: `strategy/candidates/_analysis/2026-09-04-base-engine-stage-1-backtest.md` (note the hyphenated "stage-1", a near-duplicate filename) claims the SAME baseline measurement task but reports concrete per-day P&L (+$342, +$470, +$730, -$260, -$300, -$45, -$120), OOS Sharpe=4.340, real-fills P&L=+$7,555, and a **10/10 confidence** rating -- while citing as its sole source "the leaderboard's STRUCTURE_VETO_DIR_VS_TREND candidate's 'unchanged vs base' notation," i.e. it is NOT an independently-run Stage-1 backtest at all, it is Nemotron inferring/back-filling numbers from another candidate's comparison table and then stamping the result 10/10 confidence.
+- /fable-too-good check (mandatory per this adjudication's instructions): a jump from "unknown, 5/10 confidence" (09-02) to fully-populated round-number per-day P&L at "10/10 confidence" (09-04) for the identical task, sourced only from an inference off another file's delta table, is exactly the artifact-shape this check exists to catch -- a free-tier model fabricating plausible-looking numbers and over-stating its own confidence rather than reporting "unknown." This is flagged as an artifact, not accepted as a valid baseline measurement.
+- WF ratio / OOS expectancy / n against the goal's bar: none independently verified. The 09-04 file's "OOS Sharpe = 4.340" is a copy of another candidate's Sharpe, not a freshly-run walk-forward split, and cannot be used to clear the WF>=0.70 gate.
+- Disposition: STILL-PENDING on the canonical 09-02 file (this one). The 09-04 near-duplicate (`2026-09-04-base-engine-stage-1-backtest.md`) is flagged UNVERIFIED/SUSPECT and should NOT be used as baseline evidence by any downstream worker (K3-K7, K9) without an actual re-run. No K9 action for either file.

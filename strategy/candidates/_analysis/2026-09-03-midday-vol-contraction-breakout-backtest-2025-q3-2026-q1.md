@@ -36,3 +36,13 @@ unknown -- requires Stage-1 backtest
 ## Confidence  
 
 0 / 10 -- no data yet.
+
+## ADJUDICATION 2026-09-05
+
+**Our verdict: STILL-PENDING -- not adjudicable (no data was ever produced)**
+
+- Own verdict: confidence 0/10 -- "no data yet". Every field in "Expected impact on OP-16 anchors" and "OP-20 disclosures" reads "unknown -- requires Stage-1 backtest" / "TBD". The file's own "Next steps" section confirms the Stage-1 backtest for this date range (2025-Q3 + 2026-Q1) was never executed.
+- WF ratio / OOS expectancy / n: none exist. There is nothing to compare against the goal's WF>=0.70 bar or the canonical battery.
+- This is a stub/placeholder filed under the "top-keeper"/"backtest" naming convention but containing zero backtest output -- distinct from the three KILLED files above, which at least ran and reported a real (failing) edge_capture number.
+- Per the goal's KILLED definition ("the failing number is quoted... never a bare 'killed' with no evidence"), this file CANNOT be marked KILLED -- there is no failing number to cite, only an unexecuted plan.
+- Disposition: STILL-PENDING. Neither SHADOW-FILED nor KILLED. Recommend the next Kitchen fire actually execute the Stage-1 backtest named in "Next steps" before this gets a real verdict. No K9 action (nothing to shadow-file or kill-with-number).

@@ -58,3 +58,13 @@ Running a walk-forward out-of-sample test on the most recent 30 trading days wil
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to any existing candidate; it is a diagnostic step. It does not conflict with any leaderboard entry. If the OOS test passes, it may support future candidates that rely on recent‑window stability; if it fails, it may prompt regime‑specific filters. No direct impact on current rankings.
+
+## ADJUDICATION 2026-09-05
+
+**Our verdict: STILL-PENDING -- not adjudicable (procedural plan only, script never run)**
+
+- Own verdict: confidence 3/10 -- "No data yet; the analysis is purely procedural. Confidence will increase after the OOS test and real-fills check are completed." The named scripts (`backtest/autoresearch/walkforward_oos_30d.py`, `backtest/autoresearch/realfills_j_anchors.py`) are described in "Pre-merge gate" as things that "must run to completion" -- present tense, meaning they have not run yet as of this file.
+- WF ratio: not computed. This file IS the plan to compute a WF ratio, not a WF result -- it defines the WF>=0.70 bar it will eventually be judged against but reports no number.
+- OOS expectancy / n: none.
+- Note: this file's own hypothesis is literally "would a WF ratio >=0.70 indicate readiness" -- i.e. it pre-registers the exact bar named in this goal's DONE-WHEN clause, but never executes against it.
+- Disposition: STILL-PENDING. Cannot be SHADOW-FILED (no WF number cleared) or KILLED-with-number (no number exists at all). Recommend the next Kitchen fire actually run `walkforward_oos_30d.py` + `realfills_j_anchors.py` before this gets adjudicated. No K9 action.
