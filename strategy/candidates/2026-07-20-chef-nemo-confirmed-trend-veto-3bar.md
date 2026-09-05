@@ -60,3 +60,5 @@ Use the existing `crypto.lib.market_structure.classify_trend` (5m-sameday) to de
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing structure veto candidates (like STRUCTURE_VETO_DIR_VS_TREND) by adding a confirmation layer. It does not conflict with non-structure candidates. If implemented, it would likely supersede STRUCTURE_VETO_DIR_VS_TREND if proven superior, as it is a strict enhancement of the same core idea. No direct conflict with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_trend_persistence.py -->

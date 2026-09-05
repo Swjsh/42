@@ -26,3 +26,5 @@
 **Unknown**: Whether the "sim-accuracy gate" in OP-16 refers to a pre-defined backtest threshold (e.g., 95% correlation between sim and live) or a dynamic check. No mention of how "edge capture" is aggregated across strategies.  
 
 **Action**: Define "edge capture" as a composite metric (e.g., 60% win rate + 2:1 risk-reward + 10% Sharpe ratio threshold). Add a sim-accuracy gate that blocks strategy deployment if live performance deviates >15% from historical edge patterns.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

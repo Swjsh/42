@@ -55,3 +55,5 @@ The Stage-1 backtest was executed via the autoresearch grinder harness (standard
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates the baseline. It complements all candidates by providing the reference edge_capture and wide_pnl against which deltas are measured. No conflict with existing leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

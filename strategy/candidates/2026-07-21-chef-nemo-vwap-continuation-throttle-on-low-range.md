@@ -56,3 +56,5 @@ We modify the VWAP_CONTINUATION watcher's signal generation logic. For each bar,
 ## Pre-existing leaderboard impact
 
 This candidate proposes a filter change to an existing live setup (VWAP_CONTINUATION). It does not conflict with any existing candidate in the leaderboard as it modifies only the VWAP_CONTINUATION trigger's firing condition. It complements candidates that aim to improve other aspects (e.g., exit logic, other filters) and is orthogonal to structural gates like STRUCTURE_VETO_DIR_VS_TREND. No known conflicts with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE) as they target different signal paths.
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_throttle_low_range.py -->

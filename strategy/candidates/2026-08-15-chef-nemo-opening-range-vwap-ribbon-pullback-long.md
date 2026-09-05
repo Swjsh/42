@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not conflict with existing leaderboard candidates (which are primarily filter changes, watcher proposals, or exit modifications). It complements by adding a distinct long-biased entry logic for morning mean-reversion pulls, potentially diversifying the strategy portfolio without overlapping triggers. No direct impact on current rankings pending backtest validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

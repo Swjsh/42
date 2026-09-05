@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing trigger-based strategies (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER, BEARISH_SWEEP_BLOCKER) by adding a confirmation layer (RSI divergence) to sweep retests. It does not conflict with structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) or watcher-only proposals. If validated, it could augment the leaderboard as a new_trigger type targeting range-bound market conditions, distinct from trend-following or breakout candidates. No direct overlap with current top candidates (WEEKLY_DTE_NOT_0DTE, MIDDAY_TRENDLINE_GATE) as it operates on different market regimes and trigger logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

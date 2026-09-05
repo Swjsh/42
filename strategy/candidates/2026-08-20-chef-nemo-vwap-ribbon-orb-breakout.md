@@ -61,3 +61,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger that does not directly conflict with existing leaderboard entries (which are primarily filters, gates, or other trade classes). It complements VWAP_CONTINUATION by adding EMA ribbon and ORB conditions, and differs from BULLISH_RECLAIM_RIDE_THE_RIBBON by triggering on the first close meeting all criteria rather than after a pullback. No direct overlap with current top‑20 candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No existing candidate in the leaderboard uses harmonic pattern detection or RSI divergence as a trigger. The closest is TRENDLINE_BREAK_VOLUME, which relies on trendline breaks, not geometric ratios. Therefore this proposal is complementary and does not conflict with any current top‑9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

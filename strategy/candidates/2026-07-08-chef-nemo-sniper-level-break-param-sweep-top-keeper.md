@@ -54,3 +54,5 @@ Entry triggers on SNIPER_LEVEL_BREAK with: vol_mult=1.3, body_min_cents=0.05, mi
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the leaderboard; no conflict with existing candidates. It does not complement any leaderboard entry because it fails the OP-16 edge threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

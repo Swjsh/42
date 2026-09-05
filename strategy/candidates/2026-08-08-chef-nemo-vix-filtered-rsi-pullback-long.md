@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates as a new long-direction trigger; does not modify or conflict with any current gates, exits, or watchers in _LEADERBOARD.md (all entries are either put-focused, structural, or watcher-only). No overlap with existing RSI_DIVERGENCE_BULL_WATCHER (which uses divergence, not absolute RSI level).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

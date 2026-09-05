@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard. It is orthogonal to structural gates and exit changes, so it may complement existing strategies if proven effective after backtest. No known overlap with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

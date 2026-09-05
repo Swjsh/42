@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates; it is a new trigger that could complement existing filters if it proves additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ Gym validators (all tests pass), walk-forward (WF >= 0.70), real-fills check on 
 ## Pre-existing leaderboard impact
 
 This candidate modifies filter 10 of BEARISH_REJECTION_RIDE_THE_RIBBON. It does not conflict with existing leaderboard candidates that modify other aspects of the same strategy (e.g., rank 24: confluence tolerance, rank 25: max ribbon duration). These changes can be stacked and are complementary.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

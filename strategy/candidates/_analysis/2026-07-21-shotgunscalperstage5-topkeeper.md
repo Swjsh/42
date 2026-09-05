@@ -67,3 +67,5 @@ Entry triggers on the first bar meeting volume threshold; exits use the first of
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Does not conflict -- fails OP-16 floor so would be REJECTED at door regardless of leaderboard composition. Neither complements nor conflicts with existing candidates as it does not meet minimum edge_capture threshold for consideration. Resources better spent on candidates with edge_capture > 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

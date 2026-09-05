@@ -55,3 +55,5 @@ Before entering the main research loop in autoresearch/loop.py, run a baseline b
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing trading strategy in the leaderboard. It is a research loop improvement that may indirectly improve the quality of future candidates by filtering out low-quality research attempts. It complements all existing candidates by potentially reducing noise in the candidate generation process.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -68,3 +68,5 @@ To promote this validation to a ratified analysis, the following must be complet
 ## Pre‑existing leaderboard impact
 
 This analysis does **not** propose a change to the engine or parameters; it is a validation of an existing watcher‑only gate (ORB_DIRECTION_FILTER). It therefore does not conflict with any candidate in the leaderboard. If the validation shows positive edge, it could support the promotion of ORB_DIRECTION_FILTER from NEEDS‑MORE‑DATA to PROMISING (pending OP‑21 live‑win gate). If the validation shows negative or inconclusive results, it may reinforce the current NEEDS‑MORE‑DATA status. No existing candidate’s edge_capture or Sharpe projections are altered by this validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

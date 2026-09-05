@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing volatility/gating strategies (e.g., F8_BULL_VIX_GATE_REVAL) by adding a mean-reversion entry trigger rather than a static level filter. It does not directly conflict with any top-9 leaderboard candidates as it targets a different market condition (intraday VIX spikes vs. trend/follow or structural breaks). However, it may overlap with regime-based watches (e.g., VIX stratification in FBW_MORNING_MID) and would need to be tested for interaction with existing gates like the VIX put-gate in VWAP_CONTINUATION. No immediate conflict with J-RATIFIED candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as they operate on different timeframes and signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

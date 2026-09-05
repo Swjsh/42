@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk-fo
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by trading the opposite mean-reversion logic rather than continuation. No direct conflict with current leaderboard entries as it targets a different time window (midday vs. morning) and opposite price action. Does not interfere with watcher-only or structural gate candidates. May provide diversification if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

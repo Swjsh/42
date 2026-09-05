@@ -64,3 +64,5 @@ The sniper strategy with specific entry filters (vol_mult=1.1, body_min_cents=0.
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Conflicts with all leaderboard candidates (which require edge_capture>=771). This candidate would be REJECTED at the door per OP-16. No complement; suggests sniper parameter tuning needs regime filtering or exit redesign to capture J's edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

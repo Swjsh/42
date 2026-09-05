@@ -521,3 +521,5 @@ But note: the task says "For each keeper assess: ... (4) promote to LEADERBOARD 
 We must choose one of these two options. However, if the candidate is rejected by OP-16, then neither promoting nor requiring OOS walk-forward is appropriate. We must reject it outright.
 
 Given the instructions, we will output a candidate block that is a DRAFT proposal
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

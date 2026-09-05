@@ -91,3 +91,5 @@ The original intent was "wide_pnl>5000 primary, J-anchor catastrophic." The grin
 ## Pre-existing leaderboard impact
 
 None. This does not conflict with any existing candidate — it simply fails to qualify.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Before merging the vwap_overnight_grinder into the production engine, the follow
 ## Pre-existing leaderboard impact
 
 The vwap_overnight_grinder may complement or conflict with existing candidates in the leaderboard, but its impact is unknown without further testing and evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with candidates 1-9 in _LEADERBOARD.md as it introduces a novel trigger (VIX term structure slope) absent from all existing candidates. Complements watcher_proposals and quality_gates but would require integration testing if ratified. No known overlap with killed list (F8_BULL_VIX_GATE_REVAL uses only VIX spot, not term structure).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

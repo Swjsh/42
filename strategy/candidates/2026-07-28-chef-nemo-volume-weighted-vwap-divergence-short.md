@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is structurally distinct from the current VWAP‑based entries (e.g., VWAP_CONTINUATION) because it adds a price‑VWAP divergence condition coupled with a volume filter, which is not present in any registered candidate. Therefore it should **complement** rather than conflict with existing strategies, provided it passes the Stage‑1 backtest and shows non‑overlapping trade signals. If the backtest reveals significant signal overlap with VWAP_CONTINUATION, further analysis would be needed to avoid double‑counting edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

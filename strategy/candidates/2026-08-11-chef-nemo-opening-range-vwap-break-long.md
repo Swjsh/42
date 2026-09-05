@@ -63,3 +63,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing leaderboard entries (which are primarily filters, exits, or other trade classes). It complements VWAP_CONTINUATION by targeting a different intraday phenomenon (opening range VWAP reclamation vs. session-bias continuation) but operates in an earlier time window (first 30 minutes vs. up to 10:30). Without backtest data, overlap or synergy cannot be assessed. No obvious conflicts with current candidates 1-9 observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

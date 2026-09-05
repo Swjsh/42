@@ -70,3 +70,5 @@ Since this is an analysis of an already live gate, no pre-merge gate is required
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not conflict with any candidate. It complements the existing MIDDAY_TRENDLINE_GATE by providing deeper insight into its regime-dependent performance. It may inform future gate adjustments (e.g., if the gate underperforms in low-VIX, we might consider adjusting the time window or adding a VIX filter). However, the gate is already J-RATIFIED and live, so this analysis is for monitoring and potential future iteration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

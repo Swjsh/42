@@ -53,3 +53,5 @@ We need to run the Stage-1 backtest via the autoresearch grinder harness to meas
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard (to our knowledge). It is a filter_change that could be combined with other candidates. However, note that the TRENDLINE_BREAK_CALL_VETO (rank WS4) is a similar idea (call veto based on trendline break). We must check for overlap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

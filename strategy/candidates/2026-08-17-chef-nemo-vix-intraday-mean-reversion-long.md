@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown impact without Stage-1 backtest; potential complement if strategy captures long-edge on non-J anchor days (current leaderboard dominated by PUT/bearish strategies). No direct conflict identified with existing candidates (e.g., VWAP_CONTINUATION uses VWAP but different trigger logic), but synergy or interference requires backtest validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

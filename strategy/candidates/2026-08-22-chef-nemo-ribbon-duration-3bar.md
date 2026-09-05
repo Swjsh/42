@@ -55,3 +55,5 @@ Parameter: `max_ribbon_duration_bars` in BEARISH_REJECTION_RIDE_THE_RIBBON logic
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_REJECTION_RIDE_THE_RIBBON (baseline). Conflicts with MAX_RIBBON_DUR_8 (Rank 25) which tests N=8; this candidate tests lower N (2-4). No direct overlap with other candidates. If validated, could replace baseline ribbon duration parameter.
+
+<!-- PROVENANCE-MISSING: test_ribbon_duration_3bar.py -->

@@ -120,3 +120,5 @@ This analysis establishes the baseline performance (edge_capture=780, wide_pnl~$
 But note: the system prompt says to output ONLY the markdown block, no preamble.
 
 We
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

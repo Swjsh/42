@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing structural triggers (e.g., VWAP_CONTINUATION, GAP_AND_GO) by targeting a different momentum signal (EMA ribbon expansion vs. VWAP/ORB). It does not conflict with quality gates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on independent signal generation. If validated, would occupy the 'new_trigger' niche alongside LIVE_PRICE_FIRST_BAR_TRIGGER but with different mechanistic foundation. No direct overlap with watcher-only proposals or exit-change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

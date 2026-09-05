@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON, etc.) as it targets a distinct exhaustion signal (RSI>70 + wick break) not currently captured. Aims to complement by capturing short‑term mean‑reversion moves within broader bearish structure. No known overlap with leaderboard entries 1‑24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

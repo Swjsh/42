@@ -46,3 +46,5 @@ Top keeper combo shows:
 - runner_target_pct=2.0 (200% runner target)  
 - profit_lock_threshold_pct=0.05 (+5% profit lock arm)  
 - profit_lock_stop_offset_pct=0.05 (+5% stop offset)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

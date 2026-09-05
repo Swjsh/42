@@ -62,3 +62,5 @@ Based on the grinder's per-day P&L breakdown, the strategy's behavior on the OP-
 This analysis does not conflict with any existing candidate. It complements candidates like [STRUCTURE_VETO_DIR_VS_TREND] (which improves Sharpe without affecting edge_capture) and [MIDDAY_TRENDLINE_GATE] (which improves midday selectivity). A candidate proposal based on this grinder would be a `quality_gate` or `new_trigger` type, aiming to capture the edge in the opening range with VWAP-pullback confirmation and ribbon alignment. If ratified, it would likely rank highly on the leaderboard due to strong edge_capture and Sharpe.  
 
 ---
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_opening_range_vwap_pullback_ribbon_confirm.py -->

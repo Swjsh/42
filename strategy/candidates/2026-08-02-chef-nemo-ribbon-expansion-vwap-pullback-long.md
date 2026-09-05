@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 complements existing candidates by adding a new long entry trigger; does not modify any existing rules or filters in candidates 1-9 from _LEADERBOARD.md (e.g., no overlap with VWAP_CONTINUATION, STRUCTURE_VETO, or WEEKLY_DTE_NOT_0DTE mechanics) and can coexist as an additional signal source.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

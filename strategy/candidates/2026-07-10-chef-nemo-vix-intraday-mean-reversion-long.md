@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No candidate in the current leaderboard (ranks 1‑9) references VIX intraday mean reversion or a similar trigger. This proposal is orthogonal and does not conflict with existing entries; it may complement by adding a new long‑bias trigger that operates under different regime conditions (moderate VIX, early session).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

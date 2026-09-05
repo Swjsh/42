@@ -68,3 +68,5 @@ Complements existing candidates:
 - Does not alter exit logic, so compatible with all exit-change candidates (none currently in leaderboard top 9). 
 - Neutral vs watcher-only candidates (ranks 10,11,12,13,14,15,16,17,18,19,20) as it affects execution arm only. 
 - No known conflicts with top 9 candidates; net impact depends on backtest results.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/bearish_vwap_cont_filter_ab.json -->

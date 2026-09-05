@@ -52,3 +52,5 @@ The proposed mechanism involves adding a chandelier-style trailing stop to the e
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to improve the engine's performance by incorporating a more robust veto mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

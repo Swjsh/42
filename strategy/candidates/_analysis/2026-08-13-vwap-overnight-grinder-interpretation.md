@@ -70,3 +70,5 @@ Entry triggers when VWAP reclaim/rejection conditions align with the above filte
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard because the edge_capture is insufficient to clear the OP‑16 rejection gate (edge_capture < 771). Promoting it would clutter the board with low‑edge, overfit ideas. The grinder output should instead be treated as a signal to refine the VWAP entry logic (e.g., add loser‑day filters, tighten confluence) before allocating further sweep resources.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

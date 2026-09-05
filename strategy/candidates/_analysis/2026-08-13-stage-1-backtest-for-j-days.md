@@ -57,3 +57,5 @@ Execute the autoresearch grinder harness for Stage-1 (SPY 0DTE, real OPRA fills,
 ## Pre-existing leaderboard impact
 
 This analysis provides baseline data for the current engine. It does not conflict with any existing candidate; rather, it supplies the OP-16 anchor measurements needed to evaluate future proposals against the leaderboard. Once completed, the results can be used to recompute edge_capture and Sharpe for baseline comparison.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

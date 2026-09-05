@@ -122,3 +122,5 @@ downstream gate relaxation that just opens more entry slots at the wrong bars.
 Artifact: The VALIDATE scenarios (B4, F3, F4, F5) warrant a follow-on sweep on the full 16-month
 window to quantify their impact on non-J days before final burial. If they add no losers on a
 broad window, they might be safe gate additions for specific regime conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

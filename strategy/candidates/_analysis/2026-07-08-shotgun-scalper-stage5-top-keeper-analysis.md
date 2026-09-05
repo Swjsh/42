@@ -56,3 +56,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates as it fails OP-16 gate (edge_capture < 771). Would be REJECTED if submitted as a candidate. Complements none; suggests need for strategy redesign focused on J's winner day capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

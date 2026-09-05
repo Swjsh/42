@@ -258,9 +258,76 @@ def _write_md(report: dict) -> None:
     AUDIT_MD.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+_MISSING_TAG_PREFIX = "<!-- PROVENANCE-MISSING:"
+_UNVERIFIED_TAG = "<!-- UNVERIFIED-BY-CONSTRUCTION -->"
+
+
+def _tag_block(row: dict) -> Optional[str]:
+    """Return the append-only comment block for a row, or None if the row's status
+    isn't taggable (PROVENANCE-OK / NOT-A-VERDICT get no tag)."""
+    if row["status"] == "PROVENANCE-MISSING":
+        return f"{_MISSING_TAG_PREFIX} {', '.join(row['missing'])} -->"
+    if row["status"] == "NO-ARTIFACT-CITED":
+        return _UNVERIFIED_TAG
+    return None
+
+
+def _already_tagged(text: str, row: dict) -> bool:
+    if row["status"] == "PROVENANCE-MISSING":
+        return _MISSING_TAG_PREFIX in text
+    if row["status"] == "NO-ARTIFACT-CITED":
+        return _UNVERIFIED_TAG in text
+    return False
+
+
+def tag_files(report: dict, apply: bool = False, repo_root: Optional[Path] = None) -> dict:
+    """Append the machine-readable provenance tag block to every PROVENANCE-MISSING /
+    NO-ARTIFACT-CITED file. Idempotent: a file that already carries its tag is skipped
+    (counted separately) and never re-tagged or rewritten -- only ever appended to once.
+
+    apply=False (default): dry-run, computes counts without writing.
+    apply=True: writes the tag blocks.
+
+    Returns counts: {"PROVENANCE-MISSING": n, "NO-ARTIFACT-CITED": n, "already_tagged": n,
+    "errors": n}.
+    """
+    repo_root = repo_root if repo_root is not None else REPO
+    counts = {"PROVENANCE-MISSING": 0, "NO-ARTIFACT-CITED": 0, "already_tagged": 0, "errors": 0}
+    for row in report["rows"]:
+        block = _tag_block(row)
+        if block is None:
+            continue
+        path = repo_root / row["path"]
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            counts["errors"] += 1
+            continue
+        if _already_tagged(text, row):
+            counts["already_tagged"] += 1
+            continue
+        counts[row["status"]] += 1
+        if apply:
+            try:
+                with path.open("a", encoding="utf-8") as fh:
+                    if not text.endswith("\n"):
+                        fh.write("\n")
+                    fh.write(f"\n{block}\n")
+            except OSError:
+                counts["errors"] += 1
+                counts[row["status"]] -= 1
+    return counts
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--json-only", action="store_true", help="skip writing the markdown table")
+    ap.add_argument(
+        "--tag", action="store_true",
+        help="append PROVENANCE-MISSING / UNVERIFIED-BY-CONSTRUCTION tag blocks to the corpus "
+             "(dry-run by default -- pass --apply together with --tag to actually write)",
+    )
+    ap.add_argument("--apply", action="store_true", help="with --tag, actually write the tag blocks")
     args = ap.parse_args()
 
     report = run_audit()
@@ -276,6 +343,17 @@ def main() -> int:
         f"NO-ARTIFACT={t['NO-ARTIFACT-CITED']} NOT-A-VERDICT={t['NOT-A-VERDICT']} "
         f"fabricated_artifact_rate={report['fabricated_artifact_rate']} -> {AUDIT_JSON.relative_to(REPO)}"
     )
+
+    if args.tag:
+        tag_counts = tag_files(report, apply=args.apply)
+        mode = "APPLIED" if args.apply else "DRY-RUN"
+        print(
+            f"[kitchen_provenance_audit] --tag {mode}: "
+            f"PROVENANCE-MISSING={tag_counts['PROVENANCE-MISSING']} "
+            f"NO-ARTIFACT-CITED={tag_counts['NO-ARTIFACT-CITED']} "
+            f"already_tagged={tag_counts['already_tagged']} errors={tag_counts['errors']}"
+        )
+
     return 0
 
 

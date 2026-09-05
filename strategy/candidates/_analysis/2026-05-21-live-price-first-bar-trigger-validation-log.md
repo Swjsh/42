@@ -70,3 +70,5 @@ Top-3 J anchor day dates = 0% of P&L (zero fires).
 
 Supports promotion of LIVE_PRICE_FIRST_BAR_TRIGGER from NEEDS-MORE-DATA to PROMISING if OP-21 gate is satisfied (3+ live fires + J anchor day real-fills validation). No conflict with existing candidates; complements watcher-only proposals by adding live-trigger capability.  
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/live_price_first_bar_validation_20260522.json -->

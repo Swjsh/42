@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing leaderboard entries. It may complement or compete with ribbon-based or RSI-based strategies, but impact unknown without backtest. No obvious conflicts with current PROMISING candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

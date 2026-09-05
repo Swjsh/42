@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new trigger and does not conflict with existing leaderboard entries (which are primarily watcher quality gates, DTE studies, and structural filters). It complements BEARISH_REJECTION_RIDE_THE_RIBBON by offering an alternative short-side entry condition (compression break vs. rejection candle). Without backtest, cannot confirm overlap or distinct trade capture. No expected impact on current leaderboard rankings pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

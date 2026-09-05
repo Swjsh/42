@@ -71,3 +71,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type and does not directly modify any existing rules in the leaderboard. It is orthogonal to the current quality‑gate and exit‑shape candidates, so it could complement them if it demonstrates independent edge. No direct conflict with any ranked candidate is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

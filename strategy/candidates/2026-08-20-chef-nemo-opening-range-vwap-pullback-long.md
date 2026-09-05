@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the current top‑9 candidates in _LEADERBOARD.md, as it targets a distinct intraday long‑bias mechanism (opening‑range break + VWAP pullback) rather than the existing short‑bias or watcher‑gate proposals. It could complement existing strategies by providing a long‑only alternative during low‑volatility morning windows, potentially increasing diversification if proven effective.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

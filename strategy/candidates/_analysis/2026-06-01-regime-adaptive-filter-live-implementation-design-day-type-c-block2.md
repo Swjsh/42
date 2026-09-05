@@ -16,3 +16,5 @@ The 2026-05-31 OOS result shows day-type differentiation works:
 **Key question:** What threshold values produced this result? The candidate above uses heuristic guesses (gap 0.3%, direction ±1, range $1.50). If the actual OOS used different thresholds, the candidate may not replicate the finding.
 
 **Action needed:** Locate the backtest that produced the 307-trade OOS result and extract the exact threshold parameters used. Without that, the candidate is guessing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

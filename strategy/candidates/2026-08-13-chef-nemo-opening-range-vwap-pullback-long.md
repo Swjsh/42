@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements ORB_RETEST_LONG (watch-only) by adding a VWAP-conditioned filter; does not conflict with any ratified candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) as it targets long bias only after OR break. No direct overlap with existing triggers in leaderboard (all are either watch-only, gates, or bearish/bullish ribbon rides). May provide orthogonal long-side edge if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

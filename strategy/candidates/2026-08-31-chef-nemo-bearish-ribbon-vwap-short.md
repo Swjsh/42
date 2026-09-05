@@ -73,3 +73,5 @@ Does not conflict with existing candidates 1-9 in _LEADERBOARD.md. This is a new
 - VWAP_CONTINUATION (requires first 3 RTH closes same side of VWAP, no EMA ribbon/RSI).  
 - MIDDAY_TRENDLINE_GATE (filter, not trigger).  
 Complements existing watchers/gates as a potential new short-bias trigger. No overlap in mechanics with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

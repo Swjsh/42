@@ -58,3 +58,5 @@ The proposed mechanism must pass the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed mechanism may complement or conflict with existing candidates in the leaderboard, particularly those related to trendline breakouts and VIX confirmation. Further analysis is required to determine the potential impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Requires: (1) Walk‑forward OOS test with WF ≥ 0.70, (2) Real‑fills validat
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; however its edge_capture (40.01) is far below the OP‑16 rejection floor (771), so it would not appear on the leaderboard. It may serve as a research starting point for further refinement (e.g., tightening VWAP conditions, adding regime filters) before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

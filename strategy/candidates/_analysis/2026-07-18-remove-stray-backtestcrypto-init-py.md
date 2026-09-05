@@ -53,3 +53,5 @@ Verified deletion fixed the issue by running:
 ## Pre-existing leaderboard impact
 
 N/A (code fix, not a strategy candidate) -- does not conflict with or complement any strategy candidates in _LEADERBOARD.md. Protects all existing and future `from crypto...` importers.
+
+<!-- PROVENANCE-MISSING: backtest/crypto/__init__.py -->

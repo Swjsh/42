@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard (which contains VWAP_CONTINUATION, gap/orb, and structural gates). It complements existing strategies by targeting a different intraday regime (low-VIX compression breakouts) and may add diversification without direct overlap. No known conflicts with candidates 1-24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

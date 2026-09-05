@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard entries (which are primarily gates, DTE studies, or other triggers). It may complement by providing a novel short-side entry signal for low-volatility breakouts. No overlap with current candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

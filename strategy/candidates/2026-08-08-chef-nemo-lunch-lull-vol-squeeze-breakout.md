@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard entries (which are primarily filters, gates, or alternative trade classes). It may complement by providing a midday entry signal orthogonal to morning‑focused strategies like ORB_RETEST_LONG or BEARISH_REJECTION_RIDE_THE_RIBBON. No direct overlap in trigger logic or time window with current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

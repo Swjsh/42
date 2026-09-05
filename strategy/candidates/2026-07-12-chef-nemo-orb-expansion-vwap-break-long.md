@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a brand‑new trigger and does not directly conflict with any existing leaderboard entries. It could complement existing VWAP‑based or ORB‑related setups if it proves additive, but until a Stage‑1 backtest is run we cannot know whether it overlaps or duplicates current signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

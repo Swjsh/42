@@ -57,3 +57,5 @@ We require the real-fills validation to pass (|delta| < 20% for each day) for th
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate in the leaderboard. It highlights a gap in validation infrastructure that, if addressed, would strengthen the evaluation process for all candidates relying on simulation accuracy. Once trade proposals are available, this validation can be executed to inform candidate reliability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing logic in the leaderboard. It is complementary to existing VWAP‑based strategies (e.g., VWAP_CONTINUATION) because it trades the opposite fade rather than continuation. No known conflict with current ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -45,3 +45,5 @@ The walk-forward script uses the v14e strategy with the optimized exit parameter
 ## Pre-existing leaderboard impact
 
    This analysis is for candidate #12, which is already on the leaderboard at rank 12. It does not conflict with other candidates; it complements them as an exit-structure optimization for the v14e strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Define a flat-ribbon tick as a 3-minute bar where the EMA ribbon spread (Slow EM
 ## Pre-existing leaderboard impact
 
 Complements existing filters like MIDDAY_TRENDLINE_GATE and BEARISH_SCORE_7_RELAXATION by adding a volatility-based filter. No direct conflict with current leaderboard candidates (all are trigger/watcher/gate types). May reduce false positives during choppy periods, potentially improving candidates that rely on trend following.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

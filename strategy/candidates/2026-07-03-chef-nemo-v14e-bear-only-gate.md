@@ -52,3 +52,5 @@ The pre-merge gate requires a walk-forward test and a real-fills test to be comp
 ## Pre-existing leaderboard impact
 
 The gate is expected to have a positive impact on the leaderboard, as it reduces the number of losing trades and improves the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

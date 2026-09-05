@@ -57,3 +57,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup captures a specific edge in the mark
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO candidate, by providing an alternative approach to capturing the bearish edge in the market.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

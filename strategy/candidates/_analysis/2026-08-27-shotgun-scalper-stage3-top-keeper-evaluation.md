@@ -76,3 +76,5 @@ To promote to LEADERBOARD, must:
 
 Does not conflict with/complement current leaderboard (all candidates have edge_capture ≥771). This keeper fails the OP-16 floor and would be REJECTED outright. If re-engineered to improve J edge capture, it could complement candidates focusing on structural filters (e.g., STRUCTURE_VETO_DIR_VS_TREND) by adding directional participation scoring.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

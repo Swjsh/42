@@ -68,3 +68,5 @@ Must pass:
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door per OP-16 (edge_capture < 771) and thus has no impact on the current leaderboard. It does not complement or conflict with existing candidates as it fails the minimum edge threshold. Promoting it would violate Rule 9 doctrine. Needs OOS walk-forward first -- but even with OOS, negative edge_capture on J days makes promotion unlikely without significant parameter revision.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

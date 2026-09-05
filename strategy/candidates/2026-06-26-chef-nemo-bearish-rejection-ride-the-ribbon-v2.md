@@ -52,3 +52,5 @@ The pre-merge gate requires that the walk-forward testing and real-fills validat
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, as it is designed to validate and improve an existing setup rather than introduce a new one.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

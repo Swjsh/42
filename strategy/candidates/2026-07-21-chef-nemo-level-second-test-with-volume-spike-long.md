@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is novel and does not conflict with existing candidates in the leaderboard. It introduces a new trigger condition (volume spike and ribbon alignment) on top of the existing NAMED_LEVEL_SECOND_TEST concept, making it structurally distinct. No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

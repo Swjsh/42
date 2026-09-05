@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard entries (mostly watcher proposals, quality gates, or structural adds). Adds a new short‑side trigger complementary to existing long‑biased frameworks (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) but targets different intraday dynamics (gap fade vs. rejection ride). No overlap in trigger logic with ranked candidates 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md; introduces a new trigger type (volatility contraction breakout) distinct from existing triggers (e.g., BOLLINGER_SQUEEZE, LEVEL_BREAK_FIRST_STRIKE). Complements watcher/gate candidates by adding a new entry signal. No overlap with existing veto or exit candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

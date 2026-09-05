@@ -55,3 +55,5 @@ This analysis does not propose a live candidate. To derive a viable candidate fr
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so no direct impact on the leaderboard. However, it reinforces the need for OP-16 anchor validation in grinder processes (per L10: optimization-induced overfit) and may inform future parameter sweeps to prioritize anchor-day performance over wide_pnl.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

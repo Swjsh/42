@@ -59,3 +59,5 @@ The top keeper is **NOT READY for leaderboard promotion** due to insufficient ed
 ## Confidence
 
 4 / 10 -- Limited by missing baseline, OOS data, and real-fills validation. Directional assessment (edge_capture < floor) is certain, but root-cause analysis is speculative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

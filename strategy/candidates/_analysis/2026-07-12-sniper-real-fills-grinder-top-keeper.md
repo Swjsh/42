@@ -59,3 +59,5 @@ The keeper uses: vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_offset=2
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so it does not conflict with the leaderboard. It evaluates an existing grinder output that fails OP-16 anchors (edge_capture < 771) and would be rejected if submitted as a candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

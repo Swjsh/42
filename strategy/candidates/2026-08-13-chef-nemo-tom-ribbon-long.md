@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger for long bias and does not conflict with existing leaderboard candidates (which focus on watcher gates, DTE studies, and structural filters). It complements by adding a seasonal/momentum long trigger that could coexist with short-biased systems like BEARISH_REJECTION_RIDE_THE_RIBBON. No direct overlap with current top candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

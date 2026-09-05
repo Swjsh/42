@@ -67,3 +67,5 @@ We note that the BEARISH_REJECTION setup is the basis for many candidates (like 
 We do not see a direct conflict with any of the listed candidates because they are either watchers, other setup types, or parameter changes. However, we must be cautious because changing the core setup's logic might affect the performance of other strategies that are built on top of it.
 
 We will leave it to the J review to determine if this change is acceptable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

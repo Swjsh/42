@@ -276,3 +276,5 @@ def main() -> int:
 
 if __name__ == '__main__':
     sys.exit(main())
+
+<!-- PROVENANCE-MISSING: automation/state/positions.json, automation/state/trades.csv, automation/state/watcher-observations.json -->

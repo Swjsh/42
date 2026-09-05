@@ -62,3 +62,5 @@ The candidate requires the following pre-merge gates to pass:
 ## Pre-existing leaderboard impact
 
 The candidate is a new trigger and does not conflict with any existing candidates in the leaderboard. However, its performance may be affected by the existing candidates, and further analysis is required to determine the potential impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -38,3 +38,5 @@ Note: For loser days, the "Current engine behavior" column shows the ideal refer
 4. **Real-fills:** We used cached real OPRA fills for the anchor days. The difference between the simulated P&L (using mid-price) and real-fills P&L is shown in the delta column (which includes both the engine's decision change and slippage). We have not isolated slippage alone, but the total difference is within 10% for most days.
 5. **Failure modes:** 
    - Worst day: 5
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

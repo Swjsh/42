@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type distinct from existing leaderboard entries (which focus on watcher gates, DTE variations, and VWAP_CONTINUATION refinements). It does not conflict with any current candidates as it introduces a new entry condition (max pain as magnet) rather than modifying existing signals. Could potentially complement VWAP_CONTINUATION by adding a profit target layer but is proposed as a standalone trigger requiring independent validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ J confirms ≥3 live SNIPER shadow trades matching vol_mult=0.9 configuration in
 ## Pre-existing leaderboard impact
 
 This action does not conflict with any existing candidate. It complements the SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP candidate by removing its blocker (pending anchor confirmation). It does not affect other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

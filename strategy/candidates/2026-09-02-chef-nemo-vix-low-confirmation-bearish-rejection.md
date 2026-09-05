@@ -53,3 +53,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON trigger currently fires based on level rej
 ## Pre-existing leaderboard impact
 
 This candidate complements existing volatility-based filters (e.g., VIX_BULL_LOW_THRESHOLD) and does not conflict with any current leaderboard entries. It is a filter change on an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON) and may improve its quality without altering the core logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

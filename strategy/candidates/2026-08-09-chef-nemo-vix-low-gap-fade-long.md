@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown -- requires Stage-1 backtest to assess overlap/complementarity with existing candidates; potential conflict with bullish-biased strategies (e.g., VWAP_CONTINUATION side='both') but unclear without data on signal timing and frequency. No direct parameter overlap with current leaderboard entries (which are primarily watcher gates, exit tweaks, or structural filters).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

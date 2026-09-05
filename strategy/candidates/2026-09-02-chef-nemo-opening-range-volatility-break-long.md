@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates in _LEADERBOARD.md; the closest setups are GAP_AND_GO and ORB_RETEST_LONG, but this candidate adds a distinct ATR‑based volatility filter and volume‑surge requirement not present in those strategies. It is likely complementary, targeting a different intraday pattern (opening‑range break after low volatility) rather than gap‑or‑retest setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

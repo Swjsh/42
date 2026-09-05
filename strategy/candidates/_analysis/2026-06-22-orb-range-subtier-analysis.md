@@ -52,3 +52,5 @@ Gym validators (ORB_RETEST_LONG signals), walk-forward (IS/OOS WF ratio >=0.50),
 ## Pre-existing leaderboard impact
 
 Complements ORB_NARROW_OR_GATE (rank 4) by providing sub-tier analysis. Does not conflict with existing candidates; informs potential gate tightening for ORB_RETEST_LONG watcher. No impact on leaderboard rankings as watcher-only analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

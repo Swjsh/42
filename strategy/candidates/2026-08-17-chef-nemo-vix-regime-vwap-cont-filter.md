@@ -64,3 +64,5 @@ VWAP_CONTINUATION generates edge primarily on days where VIX confirms the direct
 ## Pre-existing leaderboard impact
 
 Complements the live VWAP_CONTINUATION setup (already in leaderboard as a live pattern). Does not conflict with any existing candidate; may improve its edge_capture and Sharpe, potentially moving it higher in the ranking. No overlap with watcher‑only or structural‑gate proposals.
+
+<!-- PROVENANCE-MISSING: test_vix_regime_vwap_cont_filter.py -->

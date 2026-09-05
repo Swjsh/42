@@ -269,3 +269,5 @@ to the J anchor set. Then re-run edge_capture evaluation.
 
 *Candidate filed by Gamma (engine calibration session, 2026-05-24 04:30 ET)*  
 *Grinder: 432/432 combos, 90 ratif candidates. off=2 OOS confirmed WF=0.983. Awaiting J shadow-trade anchor build before ratification.*
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/sniper_vix_trend_grinder.py -->

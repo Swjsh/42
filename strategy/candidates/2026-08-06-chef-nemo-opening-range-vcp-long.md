@@ -72,3 +72,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new long-only trigger for SPY 0DTE calls. It does not directly conflict with existing leaderboard entries (which are predominantly watcher gates, DTE studies, or bearish-focused proposals like BEARISH_REJECTION_RIDE_THE_RIBBON). It complements structural DTE/filter candidates by offering an alternative entry logic. No overlap with ratified bullish setups (BULLISH_RECLAIM_RIDE_THE_RIBBON remains PAPER-ELIGIBLE with <3 confirmed examples). Should be evaluated independently for OP-16 anchor performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -47,3 +47,5 @@ We require a Stage-1 backtest using the options_3dte backfill to compute the OOS
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It complements the WEEKLY_DTE_NOT_0DTE candidate by extending its DTE study to 3DTE. If the OOS exp/tr for 3DTE is greater than $66.13, it would support extending the WEEKLY_DTE_NOT_0DTE candidate's findings. If it is less, it would indicate the trend reverses at 3DTE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

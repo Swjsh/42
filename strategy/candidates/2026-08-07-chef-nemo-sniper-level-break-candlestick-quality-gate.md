@@ -56,3 +56,5 @@ For each potential SNIPER_LEVEL_BREAK entry (break of a named level with VIX>=18
 ## Pre-existing leaderboard impact
 
 This candidate proposes a quality_gate for SNIPER_LEVEL_BREAK entries. It does not conflict with any existing leaderboard candidates directly, as it is a modification to the SNIPER_VIX_TREND strategy (which is not currently on the leaderboard as a live candidate, but rather as an artifact-invalidated trade class). However, it may complement or conflict with other SNIPER-related candidates. Since the SNIPER_VIX_TREND strategy is currently artifact-invalidated (due to profit_lock_threshold=0.0), this candidate is an attempt to revive it by improving the entry quality. It does not conflict with the existing leaderboard because it is not proposing a new standalone strategy but rather an enhancement to an existing one that is not currently traded.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

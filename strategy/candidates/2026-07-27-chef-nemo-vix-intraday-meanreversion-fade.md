@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger based on VIX mean‑reversion; it does not appear to conflict with any existing candidates in _LEADERBOARD.md. It may complement existing volatility‑based filters (e.g., F8_VIX_FLAT_UNBLOCK, VIX_BULL_HARD_CAP_UNBLOCK) by providing an active signal rather than a passive gate, but no direct overlap is detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

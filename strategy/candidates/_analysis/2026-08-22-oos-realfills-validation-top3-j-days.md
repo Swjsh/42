@@ -55,3 +55,5 @@ Run the baseline engine (no candidate modifications) over the period 2025-01-02 
 ## Pre-existing leaderboard impact
 
 This analysis does not change any candidate; it provides verification ground truth for the baseline engine. All existing candidates' OP-16 anchor numbers should be re-evaluated against these verified baseline numbers if they differ. No conflict; serves as reference.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

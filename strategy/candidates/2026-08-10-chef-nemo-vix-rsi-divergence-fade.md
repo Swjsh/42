@@ -70,3 +70,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing candidates 1‑9 in _LEADERBOARD.md. It is complementary to existing watchers (e.g., RSI_DIVERGENCE_BULL_WATCHER) because it adds a VIX momentum filter and VWAP requirement, potentially producing a distinct signal set. No conflict is anticipated; it would occupy a new row in the leaderboard once backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

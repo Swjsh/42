@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type that does not modify any existing logic in the leaderboard candidates 1‑9. It is complementary in that it targets a different intraday window and setup structure, so it should not conflict with current top candidates. However, until a Stage‑1 backtest is run we cannot know whether it will add edge or interfere with existing strategies via overlapping trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

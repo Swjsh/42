@@ -33,3 +33,5 @@ Same structure as keeper 1.
 ## Pre-existing leaderboard impact
 
 Same as keeper 1.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

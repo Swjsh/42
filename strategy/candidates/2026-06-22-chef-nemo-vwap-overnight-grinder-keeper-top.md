@@ -81,3 +81,5 @@ We aim to capture overnight VWAP reclaim/rejection signals as a high-probability
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP‑16 edge_capture ≥ 771 threshold required for leaderboard inclusion. It would be REJECTED at the door. It does not conflict with existing candidates because it is not competitive on the anchor days; however, if future work improves the edge_capture, it could complement existing filters as a VWAP‑based entry refinement. For now, it remains a low‑confidence parameter tweak requiring substantial validation before promotion consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

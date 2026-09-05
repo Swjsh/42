@@ -55,3 +55,5 @@
 ## Recommendation
 
 Promote ORB_DIRECTION_FILTER to higher ratification priority. V14E_BEAR_ONLY requires VIX-conditional deployment (only trade in VIX15-20) to match ORB's stability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

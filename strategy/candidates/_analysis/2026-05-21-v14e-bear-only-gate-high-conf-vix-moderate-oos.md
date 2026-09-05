@@ -58,3 +58,5 @@ The watcher gate simply filters entries to this sub-tier; no changes to engine l
 ## Pre-existing leaderboard impact
 
 This analysis concerns the existing watcher candidate **V14E_BEAR_ONLY_GATE** (ranked #3, status PROMISING). It does not propose a new rule change; it merely evaluates a high‑conf sub‑tier for potential promotion to a dedicated quality gate. If the OOS validation passes, the watcher could be upgraded to a filter that only admits score=10 + VIX_MODERATE entries, which would be a **filter_change** type candidate. It complements, does not conflict with, the current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

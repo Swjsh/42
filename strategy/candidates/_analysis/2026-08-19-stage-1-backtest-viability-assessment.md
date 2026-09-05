@@ -53,3 +53,5 @@ Run Stage-1 backtest using the existing codebase and parameters, compute edge_ca
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change; it evaluates viability of the current engine or any candidate. It does not conflict with existing leaderboard entries but may inform future candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

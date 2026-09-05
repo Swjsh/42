@@ -69,3 +69,5 @@ We aim to evaluate the base engine's performance via walk-forward out-of-sample 
 This analysis evaluates the base engine, which is the benchmark against which all leaderboard candidates are measured. It does not conflict with any candidate but provides the baseline for OP-16 scoring. Candidates must improve upon this base engine's edge_capture and Sharpe to achieve positive delta. No direct impact on leaderboard rankings, as this is an analysis, not a candidate for merger.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ These changes increase position size on level setups and tighten exits, aiming t
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door due to edge_capture < 771 (50% of max 1542). It does not conflict with current leaderboard entries as it fails the edge gate; promotion would require OOS validation and a redesign to increase edge capture while controlling concentration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

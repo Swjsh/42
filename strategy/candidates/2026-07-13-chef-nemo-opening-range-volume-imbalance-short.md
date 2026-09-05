@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it introduces a new trigger type (opening range volume imbalance short) not represented in the current registry. Complements existing watchers and filters by targeting a distinct morning session inefficiency.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

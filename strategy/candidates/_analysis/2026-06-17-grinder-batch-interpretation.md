@@ -165,3 +165,5 @@ Comparison note: sniper_stage2 (917ce271) uses vol_mult=1.1 vs sniper_overnight 
 3. **VWAP setup fires at wrong times:** VWAP reclaim/rejection setups don't align with J's edge moments (4/29, 5/04). These are valid strategies but for a different market condition. Deprioritize VWAP research until BEARISH_REJECTION edge is fully exploited.
 
 4. **Suspicious high WR (93%) in SNIPER grinders:** Production BEARISH_REJECTION real-fills WR is 45-55%. Any grinder producing 93% WR on IS is almost certainly selecting on exit criteria rather than entry edge. The `-0.06` stop (SNIPER_STAGE2) plus high `runner_target_pct=3.0` likely creates many "didn't hit stop yet" phantom wins.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

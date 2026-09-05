@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates in _LEADERBOARD.md; this is a novel trigger based on EMA ribbon compression, which is not currently used by any registered strategy. It may complement existing volatility‑ or regime‑based filters if proven additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

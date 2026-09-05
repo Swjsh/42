@@ -74,3 +74,5 @@ This alert is for manual J override only and does not change any engine behavior
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates (ranks 1-24). This alert-only proposal does not change engine behavior, parameters, or P&L, so it coexists with all current strategies and does not affect their edge_capture or Sharpe projections. Complements any candidate by providing visibility into potentially missed setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

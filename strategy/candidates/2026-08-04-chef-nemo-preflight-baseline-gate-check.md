@@ -58,3 +58,5 @@ Before initiating any parameter sweep in autoresearch/loop.py, run a quick backt
 ## Pre-existing leaderboard impact
 
 This candidate is a meta-improvement to the research infrastructure and does not propose a new strategy. It does not conflict with any existing leaderboard entries (which are strategy candidates). Instead, it complements all candidates by reducing wasted compute and improving the signal-to-noise ratio of the sweep process.
+
+<!-- PROVENANCE-MISSING: test_autoresearch_loop_preflight_gate.py -->

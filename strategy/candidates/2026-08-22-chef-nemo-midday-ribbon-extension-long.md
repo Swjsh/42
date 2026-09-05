@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including gym val
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (primarily filters/exits/watchers in leaderboard); complements by adding a new long-trigger mechanism for midday window. Does not overlap with existing trigger candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER) as it uses different temporal/technical conditions. May synergize with regime filters like VIX_BULL_HARD_CAP_UNBLOCK but requires joint testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

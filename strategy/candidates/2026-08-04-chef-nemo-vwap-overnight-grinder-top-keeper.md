@@ -64,3 +64,5 @@ The VWAP overnight grinder sweep identified a parameter combo that captures VWAP
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This candidate would be REJECTED at the door per OP-16 due to insufficient edge capture. Not comparable to existing candidates which target J's edge directly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

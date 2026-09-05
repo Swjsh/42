@@ -58,3 +58,5 @@ Adding structural confirmation (lower-highs/lower-lows sequence) and role-revers
 ## Pre-existing leaderboard impact
 
 Complements existing structure-based candidates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by adding microstructure confirmation. No direct conflict; may subsume some lower-conviction structure gates if proven additive. Does not alter bullish logic or exit mechanics.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_structure_role.py -->

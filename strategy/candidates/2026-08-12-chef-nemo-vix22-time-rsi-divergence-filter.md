@@ -72,3 +72,5 @@ Conflicts:
 - None directly; modifies same setup as BEARISH_REJECTION_RIDE_THE_RIBBON but adds filters. May reduce trade frequency vs baseline.  
 Does not conflict with watch-only candidates (e.g., RSI_DIVERGENCE_BULL_WATCHER) as it is a filter_change, not a new trade class.  
 Impact on leaderboard: Likely lower edge_capture than [BEARISH_SCORE_7_RELAXATION] (which captured 5/04 outlier) but more robust; needs OOS to rank.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

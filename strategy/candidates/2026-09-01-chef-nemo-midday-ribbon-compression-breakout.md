@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with top-9 leaderboard candidates (mostly quality gates, wiring proposals, or veto primitives). Complements by adding a new trigger type distinct from existing entries (e.g., no overlap with BOLLINGER_SQUEEZE which uses Bollinger Bands, not EMA ribbon, and lacks lunch-lull/volume conditions). Novelty claim stands pending backtest verification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

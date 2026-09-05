@@ -34,3 +34,5 @@ Analysis:
 - **Impact:** Misaligned strike_offset could inflate edge_capture scores, leading to suboptimal strategy selection.  
 - **Mitigation:** Add `test_strike_offset_parity` to pre-ratification checks.  
 - **Dependency:** Requires SIM and production to share strike_offset parameters (OTM/ITM via `strike_offset`).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

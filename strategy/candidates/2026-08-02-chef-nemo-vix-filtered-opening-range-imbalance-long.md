@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates (e.g., ORB_RETEST_LONG, ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) as it uses a volume-weighted imbalance metric combined with VIX gating, not price retests or narrow ranges. May complement VWAP_CONTINUATION by capturing early morning momentum in low-VIX regimes. No overlap with watcher-only gates in leaderboard. Unique trigger logic not present in current registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

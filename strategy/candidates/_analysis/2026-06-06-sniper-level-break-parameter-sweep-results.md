@@ -116,3 +116,5 @@ However, the missing 5/01 capture suggests these filters are TOO TIGHT — they 
 3/10 — The edge_capture math is technically positive (229.63) but fundamentally broken because it only captures 2/3 J winners. The "success" is entirely from avoiding losers, not from capturing winners.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

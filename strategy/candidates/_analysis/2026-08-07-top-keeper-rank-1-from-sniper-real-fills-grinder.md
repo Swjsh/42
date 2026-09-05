@@ -74,3 +74,5 @@ We are assessing whether the top keeper combo from the sniper_real_fills_grinder
 Conflicts with all current leaderboard candidates (which require edge_capture ≥ 771). This keeper's negative edge_capture would be REJECTED at the door per OP-16. Does not complement any existing candidate; represents a deterioration in edge capture.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

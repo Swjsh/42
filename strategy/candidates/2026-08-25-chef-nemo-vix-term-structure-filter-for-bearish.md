@@ -50,3 +50,5 @@ Stage-1 backtest via autoresearch grinder must pass (generate initial equity cur
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates as it is a filter change to an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON). It may complement candidates that are also filters (like V14E_BEAR_ONLY_GATE) by adding another layer of confirmation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

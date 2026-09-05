@@ -45,3 +45,5 @@ Gym validators must pass, walk-forward OOS test must show edge_capture > 771 wit
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it targets the SNIPER_LEVEL_BREAK trade class, which is not currently on the leaderboard. It may complement existing SNIPER-related candidates if they exist, but none are currently promoted due to OP-16 inapplicability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

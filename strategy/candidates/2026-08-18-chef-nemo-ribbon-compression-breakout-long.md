@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk‑
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; those are primarily watcher quality gates, DTE studies, VIX filters, or structural breaks. This proposal introduces a new entry trigger based on EMA ribbon dynamics, offering orthogonal edge if validated. No overlap in logic or parameters detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

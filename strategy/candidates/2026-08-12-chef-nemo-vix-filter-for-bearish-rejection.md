@@ -57,3 +57,5 @@ Add a pre-entry filter in the BEARISH_REJECTION_RIDE_THE_RIBBON setup logic: onl
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by targeting different loser class (low-VIX breakdowns vs wrong-way trend). No conflict with live candidates (VWAP_CONTINUATION, GAP_AND_GO, MIDDAY_TRENDLINE_GATE) as it modifies BEARISH_REJECTION_RIDE_THE_RIBBON entry logic only. May overlap with V14E_BEAR_ONLY_GATE watcher but operates at different layer (entry filter vs observation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

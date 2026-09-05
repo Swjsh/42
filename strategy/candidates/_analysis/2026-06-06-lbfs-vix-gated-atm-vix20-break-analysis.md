@@ -61,3 +61,5 @@ We will mine `watcher-observations.jsonl` for entries where:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is purely diagnostic for LBFS_VIX_GATED_ATM (rank #18). It complements the OP-21 gate progress by clarifying whether the VIX≥20 subset has sufficient J-confirmed observations for promotion and whether the discriminating filter is functioning as intended. No changes to leaderboard ranking are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

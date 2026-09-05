@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not modify any existing strategy in the leaderboard (ranks 1‑9). It therefore does not conflict with current candidates; if profitable it would add a new line to the leaderboard, potentially complementing existing approaches by capturing a different intraday pattern. No known overlap with the current top‑9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

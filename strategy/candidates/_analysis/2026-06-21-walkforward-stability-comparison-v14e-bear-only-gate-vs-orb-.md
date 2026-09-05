@@ -52,3 +52,5 @@ Not applicable (analysis of existing candidates).
 ## Pre-existing leaderboard impact
 
 Neither conflicts with existing ranked candidates (#1-9, #12, #17, #21, etc.) as both are watcher-only gates with no OP-16 anchor impact. They complement the leaderboard as quality-gate candidates awaiting promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

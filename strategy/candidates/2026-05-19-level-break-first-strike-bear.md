@@ -260,3 +260,5 @@ If OP-21 gates pass (N≥15 VIX≥20 across ≥2 regimes + 3 live J-confirmed):
 ---
 
 *Created: 2026-05-19. Updated: 2026-05-24 (N=19 gate crossing, expanded real-fills PASS, ATM confirmed, break≥100c filter validated). Source: chef-inbox 2026-05-19-ribbon-lag-first-strike-bear.md vol-regime split analysis + watcher fleet wiring.*
+
+<!-- PROVENANCE-MISSING: strategy/candidates/_chef-inbox/2026-05-19-ribbon-lag-first-strike-bear.md, automation/state/watcher-observations.json -->

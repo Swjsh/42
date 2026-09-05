@@ -59,3 +59,5 @@ The strategy must pass the following tests before being merged into production:
 ## Pre-existing leaderboard impact
 
 The proposed strategy is expected to complement the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND candidates, by providing an additional source of alpha and reducing losses during periods of consolidation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

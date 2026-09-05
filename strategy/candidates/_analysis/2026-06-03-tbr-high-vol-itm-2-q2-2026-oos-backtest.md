@@ -93,3 +93,5 @@ April 2026 concentration still elevated (82.1%), but May 2026 cleaned up signifi
 - [ ] J Rule 9 ratification
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not appear to conflict with any existing candidates in the leaderboard. It is a new trigger type that could complement existing filters or exits (e.g., as a quality gate for BEARISH_REJECTION_RIDE_THE_RIBBON). No overlap with current J-RATIFIED candidates like V14E_PARAM_SWEEP_26K or MIDDAY_TRENDLINE_GATE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (506.55 < 771) and therefore would not appear on the leaderboard. It does not conflict with existing candidates but is not eligible for promotion until edge_capture is increased above 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

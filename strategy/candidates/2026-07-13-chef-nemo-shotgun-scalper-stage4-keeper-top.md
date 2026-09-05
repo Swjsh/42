@@ -64,3 +64,5 @@ Must pass:
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (Rank 1-24) as it fails OP-16 edge_capture floor. Does not complement; would be rejected at door per OP-16. No impact on leaderboard as it cannot be promoted without redesign to capture ≥771 edge_capture on J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

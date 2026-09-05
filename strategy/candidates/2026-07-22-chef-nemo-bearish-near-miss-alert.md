@@ -58,3 +58,5 @@ We will create a new watcher that replicates the BEARISH_REJECTION filter evalua
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This watcher complements all existing candidates as it adds observability without altering trade logic. No conflicts with leaderboard candidates; it is a standalone diagnostic tool. May complement structure-based vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) by highlighting when bearish setups are blocked despite high scores.
+
+<!-- PROVENANCE-MISSING: test_watcher_near_miss.py -->

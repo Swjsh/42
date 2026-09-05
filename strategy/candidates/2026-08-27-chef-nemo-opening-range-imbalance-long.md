@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This is a novel trigger type not present in the current leaderboard (which contains watcher gates, DTE studies, and structural filters). Does not conflict with existing candidates 1-9 as it defines a new entry logic rather than modifying existing triggers or exits. May complement VWAP_CONTINUATION or GAP_AND_GO if proven additive, but requires Stage-1 backtest to assess interaction.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are primarily filters, gates, or other trade classes). It complements ORB_RETEST_LONG by focusing on volatility-compressed OR and reversal bias rather than retest continuation, but impact on leaderboard rankings is unknown without Stage-1 backtest. No known conflicts with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

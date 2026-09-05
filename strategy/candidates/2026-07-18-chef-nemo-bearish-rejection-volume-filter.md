@@ -51,3 +51,5 @@ The BEARISH_REJECTION setup triggers on a breakdown bar (level rejection + EMA r
 
 ## Pre-existing leaderboard impact
 This candidate modifies the BEARISH_REJECTION baseline, which is not itself a leaderboard candidate. It complements structural candidates (e.g., DTE changes) but conflicts with any other filter_change to BEARISH_REJECTION. No such candidates currently exist on the leaderboard. Impact is isolated to BEARISH_REJECTION variants.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

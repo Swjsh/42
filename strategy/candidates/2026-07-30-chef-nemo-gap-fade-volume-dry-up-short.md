@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it is a novel trigger type (gap fade on low volume) not currently represented. May complement existing gap continuation strategies by providing a counter-trend filter for low-conviction gaps. No direct overlap with current watchers or triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -113,3 +113,5 @@ But note: the system prompt says to output ONLY markdown candidate/analysis bloc
 We can output an analysis block.
 
 Let's do:
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

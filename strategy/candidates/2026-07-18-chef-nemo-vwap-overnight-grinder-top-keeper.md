@@ -58,3 +58,5 @@ Enter on the first VWAP reclaim or rejection bar after the overnight session, us
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates as it fails the OP-16 floor (edge_capture=40.01 < 771) and would be REJECTED at the door. If redeveloped to capture more J-edge, it could complement structural candidates like WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND by refining the VWAP continuation signal, but current form is not viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

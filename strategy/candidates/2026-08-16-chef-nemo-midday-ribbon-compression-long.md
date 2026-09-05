@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown -- requires analysis; this is a new trigger type that does not directly modify existing gates or watches in candidates 1‑9, but potential interaction with existing intraday filters (e.g., MIDDAY_TRENDLINE_GATE) would need evaluation. No obvious conflict identified at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Exit logic change: In `lib/simulator_real.py` and `heartbeat_core.py`, modify th
 ## Pre-existing leaderboard impact
 
 Complements [WEEKLY_DTE_NOT_0DTE](2026-07-07-193737-weekly-dte-not-0dte.md) (DTE leverage) and [MIDDAY_TRENDLINE_GATE](2026-05-31-midday-trendline-gate.md) (midday filter) — no direct conflict. Does not affect watcher-only candidates. May conflict with future exit-change candidates targeting same parameter (e.g., dynamic stop proposals).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by targeting a distinct market anomaly (gap fade on low volume) not covered by current registry (which includes GAP_AND_GO for gap continuations). No direct conflict with top 9 candidates as they focus on VWAP, structure, or DTE variations. May provide orthogonal edge if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ The baseline WR is calculated from the engine's `decisions.jsonl` (or equivalent
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries; it is a infrastructural change to the autoreearch loop. It complements all candidates by potentially improving the efficiency of the sweep process, allowing more compute to be allocated to high‑quality baselines. No known conflicts with candidates 1‑9 in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: test_preflight_wr_gate.py -->

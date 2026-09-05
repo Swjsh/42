@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, exits, or watchers). 
 It complements existing volatility-based strategies but is novel in its specific trigger (ribbon compression breakout). 
 No direct overlap with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a different signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

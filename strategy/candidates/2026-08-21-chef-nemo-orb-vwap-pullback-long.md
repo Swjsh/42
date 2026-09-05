@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Adds a new long-only trigger; does not conflict with existing bearish-focused candidates in leaderboard (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_RECLAIM_FAILED_BREAK). May complement by providing long exposure on bullish intraday days, but impact unknown until backtested. No overlap with current leaderboard candidates' mechanisms (none use ORB/VWAP pullback structure).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

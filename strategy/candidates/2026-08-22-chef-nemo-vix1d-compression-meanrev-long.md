@@ -66,3 +66,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type not present in current leaderboard (which contains structural DTE studies, exit changes, and quality gates). It complements existing candidates by adding a volatility-term-structure-based entry signal orthogonal to current approaches like VIX_REGIME_DAYSIDE (which uses only VIX levels). No direct conflict with ranked candidates as it targets a different market inefficiency (intraday mean-reversion during volatility term-structure dislocations) rather than DTE optimization or exit mechanics. Could potentially synergize with existing watchers if volatility filters prove complementary.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

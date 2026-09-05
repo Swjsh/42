@@ -63,3 +63,5 @@ For each strike_offset in {-3, -2, -1, 0} we will:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in _LEADERBOARD.md. It provides data that could inform a future parameter‑tuning candidate (e.g., OPTIMIZE_STRIKE_OFFSET) and may help explain why certain strike offsets appear in higher‑ranking candidates. It is complementary to existing work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

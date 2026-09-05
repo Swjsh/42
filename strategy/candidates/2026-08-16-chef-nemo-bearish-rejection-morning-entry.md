@@ -59,3 +59,5 @@ The BEARISH_REJECTION_MORNING watcher identifies high-probability bearish entry 
 ## Pre-existing leaderboard impact
 
 This candidate complements the BEARISH_REJECTION_MORNING watcher (which is currently WATCH-ONLY) by promoting it to an entry trigger. It may conflict with any candidate that changes the trigger logic for the BEARISH_REJECTION_RIDE_THE_RIBBON setup. We see no direct conflicts in the leaderboard, but note that the BEARISH_REJECTION_MORNING watcher is a watcher-only candidate (BEARISH_REJECTION_MORNING, filed 2026-05-24) and is currently WATCH-ONLY.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

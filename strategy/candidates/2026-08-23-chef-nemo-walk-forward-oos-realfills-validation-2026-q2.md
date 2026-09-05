@@ -55,3 +55,5 @@ Running a walk-forward out-of-sample test on the most recent 4 months (2026-02-0
 ## Pre-existing leaderboard impact
 
 This candidate is a validation gate, not a strategy change. It does not conflict with existing candidates but may affect their status if they fail the validation criteria. Candidates that currently show promise (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) would need to pass this same gate to remain viable. No direct conflict; complementary in that it sets a quality bar for all future proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ This forces Python child processes to emit UTF-8 encoded output, which PowerShel
 ## Pre-existing leaderboard impact
 
 No conflict with candidates 1-9 in _LEADERBOARD.md. This is an infrastructure fix that does not alter trading logic, parameters, or strategy behavior. It complements all candidates by improving log reliability for diagnostics and validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

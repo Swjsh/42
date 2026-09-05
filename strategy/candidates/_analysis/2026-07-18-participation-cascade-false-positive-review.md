@@ -58,3 +58,5 @@ The instrument calculates a participation hole metric (abnormal options volume i
 ## Pre-existing leaderboard impact
 
 No direct impact as this is an instrument tuning; does not conflict with existing candidates in _LEADERBOARD.md. May improve signal quality for strategies using participation_cascade.py outputs (if any), but no current leaderboard candidates reference this instrument.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

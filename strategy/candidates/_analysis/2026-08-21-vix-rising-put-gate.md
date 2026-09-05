@@ -58,3 +58,5 @@ Gym validators (`test_vix_rising_put_gate.py`), walk-forward OOS (Sharpe ≥0.70
 ## Pre-existing leaderboard impact
 
 Complements existing bearish gates (e.g., BEARISH_SCORE_7_RELAXATION) by adding VIX filter; does not conflict with bullish candidates (put-only gate). Neutral vs watcher proposals (e.g., V14E_BEAR_ONLY_GATE) as it targets entry quality, not observation. May overlap with VWAP_CONTINUATION put-vix_gate but uses different VIX logic (absolute level+slope vs 5-bar slope≥0).
+
+<!-- PROVENANCE-MISSING: test_vix_rising_put_gate.py -->

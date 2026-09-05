@@ -57,3 +57,5 @@ Entry trigger remains BEARISH_REJECTION_RIDE_THE_RIBBON (level rejection + EMA r
 ## Pre-existing leaderboard impact
 
 Complements existing BEARISH_REJECTION_RIDE_THE_RIBBON logic (no conflict). Does not duplicate any current candidate (filter_change type). May interact with MIDDAY_TRENDLINE_GATE (rank 21) if volume filter affects midday entries. No direct conflict with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE).
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_volume_filter.py -->

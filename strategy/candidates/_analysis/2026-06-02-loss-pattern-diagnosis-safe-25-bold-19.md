@@ -102,3 +102,5 @@ IF entry_time.hour in [11, 12, 13]:
 4. **File CANDIDATE** for MIDDAY_SELECTIVITY_GATE using trigger_count >= 2 requirement
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

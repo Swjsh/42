@@ -54,3 +54,5 @@ Not applicable (this is an analysis, not a strategy candidate).
 ## Pre-existing leaderboard impact
 
 This analysis supports candidate #3 (V14E_BEAR_ONLY_GATE) by assessing its OP-21 readiness. It does not conflict with any existing candidates.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

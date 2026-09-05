@@ -111,3 +111,5 @@ real methodological gap. If a future fire has 30+ days of `core-decisions.jsonl`
 ledger will accumulate this passively), a re-run with real n and real OPRA fills for the
 specific late-session strikes would be the honest next step — not urgent, since the current
 answer already discourages the change the original item wanted made.
+
+<!-- PROVENANCE-MISSING: automation/state/core-decisions.json -->

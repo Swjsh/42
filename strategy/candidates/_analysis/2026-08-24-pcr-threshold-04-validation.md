@@ -57,3 +57,5 @@ PCR will be computed as (total put volume) / (total call volume) on SPY options 
 ## Pre-existing leaderboard impact
 
 This filter_change does not conflict with existing candidates (e.g., BEARISH_SWEEP_BLOCKER, MIDDAY_TRENDLINE_GATE) as it operates on a different dimension (sentiment filter). It may complement structural or exit-based candidates by reducing false positives in bullish regimes. No overlap with watcher-only or bullish candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

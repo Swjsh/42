@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (mostly filters/gates). Complements VWAP_CONTINUATION by adding volume confirmation and opening range context, but distinct due to strict volume-spike requirement and specific time window. May overlap with ORB_RETEST_LONG but differs in entry condition (VWAP reclaim vs. simple retest) and exit structure.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

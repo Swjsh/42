@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in _LEADERBOARD.md. It is a new trigger type that could complement existing strategies by providing short‑term mean‑reversion entries in low‑volume gap environments, potentially adding diversification to the portfolio. No overlap with current trigger, filter, exit, or quality‑gate candidates is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

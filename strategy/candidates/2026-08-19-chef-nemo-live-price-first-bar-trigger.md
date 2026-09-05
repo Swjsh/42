@@ -61,3 +61,5 @@ We aim to capture intraday continuation energy from premarket reversal patterns.
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 Complements existing candidates (filters/exits) by providing additive trigger signals. No conflict with ranks 1-9 (BEARISH_SWEEP_BLOCKER through VISION_CHART_OBSERVER) as it operates orthogonally (trigger vs. filter/exit). Already present at rank 2; this backtest informs its promotion path. Does not alter anchor-day behavior, so safe to test alongside quality gates/exit changes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

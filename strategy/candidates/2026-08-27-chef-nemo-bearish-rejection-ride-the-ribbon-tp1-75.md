@@ -53,3 +53,5 @@ Gym validators: all tests pass (including the new exit logic); walk-forward OOS:
 ## Pre-existing leaderboard impact
 
 This candidate complements the STRUCTURE_VETO_DIR_VS_TREND candidate (which is a veto on wrong-way trades) because it changes the exit logic of the underlying setup. It does not conflict with any existing candidate in the leaderboard as it is a new exit_change proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

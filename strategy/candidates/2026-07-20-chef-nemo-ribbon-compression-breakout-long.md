@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates (mostly filters/gates/trade classes); provides new entry signal that may complement existing structural edges (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by capturing long-side volatility expansion. No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

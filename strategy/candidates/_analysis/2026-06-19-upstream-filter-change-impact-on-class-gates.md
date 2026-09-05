@@ -53,3 +53,5 @@ The `require_bearish_fill_bar` filter is applied upstream of the class-based gat
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in _LEADERBOARD.md as it evaluates an upstream filter change, not a new strategy. It may impact the validation status of candidates that rely on these gates (e.g., MIDDAY_TRENDLINE_GATE, BEARISH_REJECTION_MORNING_WATCHER) if the filter change alters their behavior, but no direct conflict exists. Candidates 1-9 remain unaffected by this analysis alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

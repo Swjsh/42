@@ -63,3 +63,5 @@ The SNIPER_LEVEL_BREAK setup with ★★+ level break triggers (vol_mult=1.3, bo
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trade class (SNIPER_LEVEL_BREAK) that does not currently intersect the OP‑16 anchor set (J’s source‑of‑truth days are BEARISH_REVERSAL patterns). Until J validates 3+ live SNIPER‑specific anchor days, the candidate is structurally orthogonal to the leaderboard and can be pursued in parallel. It does not conflict with existing candidates; rather, it expands the strategy suite to a new setup class pending its own OP‑16 eligibility process.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

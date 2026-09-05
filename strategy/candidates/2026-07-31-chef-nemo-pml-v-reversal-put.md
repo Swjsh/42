@@ -94,3 +94,5 @@ Complements existing candidates:
 - No known conflicts with current leaderboard ranks 1-24 (all are watcher-only, gate, or structural proposals; this is a new entry trigger).  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

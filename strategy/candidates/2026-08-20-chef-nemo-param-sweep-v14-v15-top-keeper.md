@@ -65,3 +65,5 @@ Runner target remains 3.0x. All other parameters (chart stop, profit-lock, time 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This candidate would be REJECTED at the door per OP-16 (edge_capture < 771). May complement if combined with filters that recover 4/29/5/01 winners, but standalone lacks sufficient edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

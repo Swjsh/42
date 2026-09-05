@@ -57,3 +57,5 @@ For each vwap_continuation signal (Safe and Bold), compute intraday trend using 
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND by scoping the veto to vwap_continuation; no conflict with existing candidates. May improve Sharpe without harming edge_capture if veto removes only losers.
+
+<!-- PROVENANCE-MISSING: test_vwapcont_structure_veto.py -->

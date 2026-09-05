@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a novel entry trigger based on ribbon width dynamics, distinct from rejection/reclaim-based ribbon rides or parameter filters like MAX_RIBBON_DUR_8. Complements existing structural gates by focusing on volatility expansion signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ The pre-merge gate requires a successful Stage-1 backtest, out-of-sample testing
 This setup does not conflict with or complement existing candidates in the leaderboard, as it is a new trigger branch.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

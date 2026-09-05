@@ -57,3 +57,5 @@ We will then verify WF ratio >= 0.70.
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it highlights the missing Stage-1 backtest step required for any candidate to advance. It complements all candidates by emphasizing the need for rigorous Stage-1 validation before leaderboard inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

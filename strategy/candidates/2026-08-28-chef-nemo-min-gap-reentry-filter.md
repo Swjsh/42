@@ -56,3 +56,5 @@ After a trade exits due to stop-loss (any stop type), enforce a minimum gap (e.g
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements quality-gate proposals like `V14E_BEAR_ONLY_GATE` and `STRUCTURE_VETO_DIR_VS_TREND` by adding a temporal dimension to entry filtering. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

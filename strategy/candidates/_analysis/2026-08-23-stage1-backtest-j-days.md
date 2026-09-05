@@ -54,3 +54,5 @@ We will run the existing engine logic (or a candidate's logic) over the full 16-
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it provides a standardized evaluation method that should be applied to all candidates before they advance on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

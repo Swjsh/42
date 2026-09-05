@@ -55,3 +55,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard, as it is a new trigger based on the SHOTGUN_SCALPER_STAGE3 Grinder output. However, it may complement some of the existing candidates, such as the TRENDLINE_BREAK_RETEST candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

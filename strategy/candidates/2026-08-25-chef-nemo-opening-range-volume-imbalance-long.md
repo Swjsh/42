@@ -59,3 +59,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new trigger-based strategy (volume/OR breakout) that does not modify any current engine logic or gates; no overlap with watcher gates, DTE studies, or structural filters in leaderboard. Adds diversity to strategy portfolio without conflicting with ratified setups (e.g., BEARISH_REJECTION, VWAP_CONTINUATION).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

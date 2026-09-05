@@ -68,3 +68,5 @@ We aim to capture edge in counter-trend chop traps by identifying sequences of 2
 ## Pre-existing leaderboard impact
 
 This filter_change complements existing candidates by adding a new confluence condition to filter 10. It does not conflict directly with any leaderboard candidate but may interact with structural gates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by altering entry frequency. Impact on leaderboard TBD pending backtest. No known duplication of effort.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

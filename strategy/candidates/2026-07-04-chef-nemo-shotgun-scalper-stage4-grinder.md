@@ -57,3 +57,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing candidates on the leaderboard, as it is designed to improve the edge capture of the engine in high-volatility environments. However, the candidate may conflict with other candidates that are designed to improve the engine's performance in low-volatility environments.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

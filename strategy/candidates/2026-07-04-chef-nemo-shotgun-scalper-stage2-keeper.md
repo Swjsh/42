@@ -54,3 +54,5 @@ The keeper must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The keeper may conflict with or complement existing candidates in the leaderboard, but its impact is unknown due to the lack of explicit information about its mechanism and performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

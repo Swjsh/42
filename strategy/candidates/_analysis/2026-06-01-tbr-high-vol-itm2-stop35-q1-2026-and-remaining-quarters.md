@@ -56,3 +56,5 @@ We analyze the existing TBR_HIGH_VOL strategy (TRENDLINE_BREAK_RETEST with vol >
 ## Pre-existing leaderboard impact
 
 This analysis evaluates candidate #16 (TBR_HIGH_VOL). It does not conflict with other candidates but may influence #16's status if the edge fails to persist outside the tariff-crash regime. Current WATCH-ONLY status may be downgraded if follow-up analysis confirms no persistent edge. No impact on candidates 1-15.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

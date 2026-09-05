@@ -65,3 +65,5 @@ Tracking progressive weakening in bounce attempts at key levels can identify exh
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements structure-based vetoes (e.g., Rank 37) by adding micro-structure filter. May overlap with midday_trendline_gate (Rank 21) but operates on different timeframe (bar-by-bounce vs fixed window). No known duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

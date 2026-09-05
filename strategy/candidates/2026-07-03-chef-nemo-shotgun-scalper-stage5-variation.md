@@ -50,3 +50,5 @@ The pre-merge gate requires that the candidate passes the out-of-sample test, re
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND candidates, as it refines the trigger and exit logic for the SHOTGUN_SCALPER stage 5 keeper.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

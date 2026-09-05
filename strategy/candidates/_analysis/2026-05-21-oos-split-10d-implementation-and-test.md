@@ -60,3 +60,5 @@ Since this is an evaluation tool and not a strategy change, it does not directly
 ## Pre-existing leaderboard impact
 
 This tool does not conflict with any existing candidate. It supports the evaluation process for all candidates, potentially helping to promote or demote them based on more robust OOS testing. It complements the leaderboard by providing additional OOS validation data.
+
+<!-- PROVENANCE-MISSING: automation/eval/oos_split_10d.py -->

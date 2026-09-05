@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It may complement existing VWAP‑based candidates (e.g., VWAP_CONTINUATION) by providing a short‑term mean‑reversion filter, but it could also conflict with ORB_RETEST_LONG (which trades ORB retests in the same time window) if both fire on the same bar. No current leaderboard entry implements this exact logic, so there is no direct duplication. Further testing is required to determine whether it adds orthogonal edge or overlaps with existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ We need to verify that any strategy change under consideration does not degrade 
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a rule change; it is a validation gate for any candidate. It complements all existing candidates by providing a required OP‑16 anchor check. No conflict with leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

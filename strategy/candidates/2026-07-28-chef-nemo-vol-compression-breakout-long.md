@@ -61,3 +61,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict observed; this candidate explores a new trigger dimension (volatility compression + volume breakout) not present in current leaderboard. May complement existing strategies by providing entries in low-volatility regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

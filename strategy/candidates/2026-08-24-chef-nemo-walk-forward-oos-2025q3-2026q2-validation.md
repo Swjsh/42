@@ -58,3 +58,5 @@ A 12-month training / 3-month testing walk-forward OOS from 2025-Q3 to 2026-Q2 w
 ## Pre-existing leaderboard impact
 
 This candidate is a validation gate, not a strategy change. It does not conflict with existing leaderboard entries; rather, it provides a prerequisite OOS/real‑fills check that future candidates must satisfy before being considered PROMISING. It complements the leaderboard by ensuring any promoted strategy has demonstrated out‑of‑sample robustness and simulator fidelity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

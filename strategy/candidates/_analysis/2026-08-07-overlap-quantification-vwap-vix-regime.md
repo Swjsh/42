@@ -63,3 +63,5 @@ The vwap_continuation and vix_regime_dayside OOS signals may overlap in their (d
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any leaderboard candidate. It supports accurate validation counting for candidates that use vwap_continuation or vix_regime_dayside (e.g., any strategy combining these signals). No candidate's edge_capture or Sharpe is altered; only the interpretation of their sample size independence is updated. Complements all candidates by improving validation hygiene.
+
+<!-- PROVENANCE-MISSING: backtest/lib/watchers/vix_regime_watcher.py, test_vwap_continuation_signal.py, test_vix_regime_signal.py -->

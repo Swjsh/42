@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, exits, or watchers). It may complement existing strategies by providing an alternative entry signal, but without backtest we cannot confirm impact on leaderboard rankings. No obvious overlap with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a different signal premise.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

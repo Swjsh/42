@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements rather than conflicts with existing candidates. Unlike ORB_RETEST_LONG (which fades OR high/low retests), this candidate uses VWAP deviation and EMA ribbon alignment as entry filters—a combination absent in the registry. Does not interfere with watcher-only gates or structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) as it operates on different signals. May synergize with volatility-regime filters (VIX < 18) already used in other candidates. No parameter overlap with existing live strategies (e.g., VWAP_CONTINUATION, BEARISH_REJECTION).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

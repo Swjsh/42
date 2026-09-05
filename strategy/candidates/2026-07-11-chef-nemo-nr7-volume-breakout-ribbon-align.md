@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are structural gates, watchers, or exit changes). Complements by providing a new entry trigger based on price action and volume, orthogonal to current VWAP/ORB/structure-based approaches in the leaderboard. No overlap in trigger logic with current top candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

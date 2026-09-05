@@ -72,3 +72,5 @@ We are trying to capture edge by using VWAP reclaim or rejection as an entry tri
 ## Pre-existing leaderboard impact
 
 Complements existing leaderboard candidates (mostly watcher gates/structural filters) as a new VWAP-based entry trigger. Does not conflict with live VWAP_CONTINUATION setup (different trigger logic: VWAP_CONTINUATION uses first 3 RTH closes on same side of VWAP + continuation bar; this uses intraday reclaim/rejection with volume/ribbon filters). Could be studied as additive filter but requires combination testing. No overlap with current leaderboard topics (DTE, structure vetoes, ORB gates).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

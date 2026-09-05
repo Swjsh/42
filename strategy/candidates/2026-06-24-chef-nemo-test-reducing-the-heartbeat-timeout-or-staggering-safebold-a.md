@@ -58,3 +58,5 @@ Add a filter in the BEARISH_REJECTION_RIDE_THE_RIBBON watcher (or shared entry l
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements watcher gates (e.g., V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) by reducing processing load rather than filtering on signal quality. No overlap with params.json or heartbeat*.md changes (Rule 9 safe).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

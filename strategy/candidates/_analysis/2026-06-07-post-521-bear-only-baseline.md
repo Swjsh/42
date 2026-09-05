@@ -50,3 +50,5 @@ Verify the watcher is correctly logging only bear observations post-5/21 and tha
 ## Pre-existing leaderboard impact
 
 This analysis supports the V14E_BEAR_ONLY_GATE (leaderboard #3) by providing post-deployment baseline metrics. It does not conflict with other candidates. Once data is available, it may influence the gate's promotion path (e.g., accumulating N≥100 new obs WR≥55% for path A).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

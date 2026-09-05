@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it introduces a novel trigger (FINRA short-volume ratio) not used in any current candidate. May complement volatility/gap-based setups but requires independent validation. No overlap with existing watchers or triggers in codebase per current registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements ORB_RETEST_LONG by targeting a different OR-based mechanism (fade to VWAP vs. retest of ORH). No overlap in trigger logic with current leaderboard entries (e.g., VWAP_CONTINUATION, GAP_AND_GO). If validated, could add diversity to short-biased strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

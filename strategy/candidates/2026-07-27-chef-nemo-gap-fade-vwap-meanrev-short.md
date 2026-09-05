@@ -66,3 +66,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing candidates in the leaderboard. It is likely orthogonal to current strategies (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION, GAP_AND_GO) because it fades gaps rather than rides them, so it could complement the existing mix if proven effective. No conflict is anticipated at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

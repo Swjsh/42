@@ -67,3 +67,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup captures directional edge on J's win
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing WEEKLY_DTE_NOT_0DTE (rank ★★) by applying the same DTE hypothesis to the BEARISH_REJECTION_RIDE_THE_RIBBON signal instead of the vwap_continuation signal. It does not conflict with any top‑9 candidates, as it targets a different setup. If successful, it could be stacked with the STRUCTURE_VETO_DIR_VS_TREND veto (rank ★) to further improve Sharpe while preserving or increasing edge_capture.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_weekly_dte.py -->

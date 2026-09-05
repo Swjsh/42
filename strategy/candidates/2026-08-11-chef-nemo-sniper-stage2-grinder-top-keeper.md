@@ -66,3 +66,5 @@ Note: The current engine behavior is unknown because we don't have the baseline 
 This candidate conflicts with the current leaderboard because it fails the OP-16 gate (edge_capture < 771) and therefore would not appear on the leaderboard. It does not complement any existing candidate on the leaderboard because it is rejected on the anchor days. The leaderboard currently shows candidates with edge_capture >= 771 (e.g., the top candidate WEEKLY_DTE_NOT_0DTE has N/A edge_capture because it is a DTE study, but note: the leaderboard only shows candidates that pass the OP-16 gate, so WEEKLY_DTE_NOT_0DTE must have been exempted? Actually, the leaderboard says: "Candidates with edge_capture < 771 (50% of max possible 1542) are REJECTED at the door and do not appear here." So WEEKLY_DTE_NOT_0DTE does not appear because its edge_capture is N/A (not a number) and therefore not comparable? However, the leaderboard includes it with a note that it is a DTE study and the edge_capture is not applicable. This candidate, however, has a numeric edge_capture of 373.48 which is below 771, so it would be rejected.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

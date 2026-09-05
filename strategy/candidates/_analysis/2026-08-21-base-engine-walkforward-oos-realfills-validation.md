@@ -60,3 +60,5 @@ We will run a walk-forward OOS backtest using the base engine logic on historica
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine or params; it is a validation check. It conflicts with no existing candidates but highlights that all leaderboard candidates with projected edge_capture < 771 are rejected per OP-16. Candidates like STRUCTURE_VETO_DIR_VS_TREND (edge_capture 780) rely on aggregate validation; this analysis would test whether their edge_capture holds on the J days specifically under OOS and real-fills. If validation passes, it reinforces candidates that preserve J-day edge_capture; if it fails, it may re-rank candidates based on J-day-specific performance. No immediate leaderboard changes are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

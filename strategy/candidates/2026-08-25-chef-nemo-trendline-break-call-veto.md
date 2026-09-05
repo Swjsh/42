@@ -65,3 +65,5 @@ Complements:
 - Synergistic with MIDDAY_TRENDLINE_GATE (Rank 21) as both address trendline-based errors but on different time windows (morning vs midday) and directions (CALL veto vs PUT filter).
 - No overlap with WEEKLY_DTE_NOT_0DTE (Rank ★★) as DTE override is orthogonal to structural veto.
 - Does not affect VWAP_CONTINUATION detectors as gate is structure-based, not VWAP-based.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/trendline_break_call_veto_ab_scorecard.json -->

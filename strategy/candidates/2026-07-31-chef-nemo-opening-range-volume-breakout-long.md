@@ -47,3 +47,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher quality gates, DTE studies, or exit changes). It complements by adding a new entry trigger based on opening range and volume, which is not currently in the registry. However, it may overlap with ORB_RETEST_LONG (which is a watcher-only setup) in that both use the opening range, but this candidate enters on the initial breakout with a volume filter and OR-range percentile filter, whereas ORB_RETEST_LONG waits for a retest. No direct parameter or wiring conflicts identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

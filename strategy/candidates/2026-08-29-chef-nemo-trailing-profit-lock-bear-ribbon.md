@@ -67,3 +67,5 @@ The current fixed profit-lock (+5% arm, +10% stop) clips winners prematurely on 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 - Complements: does not alter entry logic, so compatible with all watchers/filters.
 - Conflicts: none directly; may affect rankings of candidates that rely on fixed PL (e.g., V14E_PARAM_SWEEP_26K) but those are already J-RATIFIED with fixed PL; this is a separate exit_change proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

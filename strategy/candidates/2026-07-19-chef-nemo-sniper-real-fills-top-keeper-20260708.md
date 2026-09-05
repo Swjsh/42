@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS test must show positive edge_capture,
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED (edge_capture < 771) and does not appear on the current leaderboard; no impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

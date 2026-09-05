@@ -60,3 +60,5 @@ Compare aggressive trigger composition vs Safe account composition (from leaderb
 ## Pre-existing leaderboard impact
 
 This analysis complements leaderboard by providing corrected aggressive account baseline. No conflict with existing candidates; informs future aggressive-trigger proposals. Safe account composition reference available in leaderboard notes (e.g., qty=28 requires $25K+).
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/aggressive_composition.py -->

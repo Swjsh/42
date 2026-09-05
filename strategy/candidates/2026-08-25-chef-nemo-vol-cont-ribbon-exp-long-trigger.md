@@ -66,3 +66,5 @@ Complements existing candidates:
 - No direct impact on ranked candidates 1-17 as this is a new trigger proposal targeting long-side enhancement  
 
 ---
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_ribbon_contraction_filter.py -->

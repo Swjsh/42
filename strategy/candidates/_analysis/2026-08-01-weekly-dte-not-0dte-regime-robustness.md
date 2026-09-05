@@ -55,3 +55,5 @@ To confirm our analysis, we would need to:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the candidate. It is an evaluation of the existing candidate's robustness. It does not conflict with any existing candidate. It may inform future candidates that attempt to condition the DTE lever on regime.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are structural gates, watchers, or parameter tweaks); complements VWAP_CONTINUATION by adding a volatility precondition but is distinct in trigger logic. No overlap with leaderboard entries 1‑24 (all are watcher quality gates, exit changes, or structural filters). If validated, would sit in new_trigger lane alongside VWAP_CONTINUATION (which is a watcher-trigger hybrid).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

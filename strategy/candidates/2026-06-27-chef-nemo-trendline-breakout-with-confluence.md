@@ -58,3 +58,5 @@ The entry will be based on the breakout of the trendline, with a limit order pla
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The addition of confluence to the trendline breakout setup may improve the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

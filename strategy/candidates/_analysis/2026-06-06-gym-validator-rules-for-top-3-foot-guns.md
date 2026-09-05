@@ -62,3 +62,5 @@ We propose three automated gym validator rules that must pass for any candidate 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?> 
 This analysis proposes gym validators that complement all candidates by adding pre-merge checks. It does not conflict with any existing candidate; rather, it strengthens the integration process for all future candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

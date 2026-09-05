@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing leaderboard candidates (which are primarily filters, gates, or other trade classes). It may complement existing strategies by providing a new long-biased entry signal that could be combined with filters like STRUCTURE_VETO_DIR_VS_TREND or VWAP_CONTINUATION, but would require integration testing to avoid conflicts or redundancy. No known overlap with current top candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

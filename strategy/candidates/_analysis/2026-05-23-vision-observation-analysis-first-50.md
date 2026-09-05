@@ -58,3 +58,5 @@ We would need to:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis is for the existing VISION_CHART_OBSERVER candidate (rank 10). It does not conflict with other candidates but may enhance it if predictive signals are found. It is complementary to the observation surface. Once sufficient data is gathered, this analysis may inform a watcher_gate or filter_change candidate derived from VISION_CHART_OBSERVER.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

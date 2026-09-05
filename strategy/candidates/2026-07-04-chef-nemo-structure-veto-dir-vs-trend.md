@@ -52,3 +52,5 @@ The pre-merge gate requires the candidate to pass the gym validators, walk-forwa
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, as it provides a new perspective on the market structure and trend direction. However, it may conflict with some candidates that rely on different market structure assumptions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

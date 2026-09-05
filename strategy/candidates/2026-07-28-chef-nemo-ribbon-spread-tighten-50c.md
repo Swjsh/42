@@ -56,3 +56,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup currently requires ribbon spread ≥
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION and WEEKLY_DTE_NOT_0DTE by providing a stricter quality filter for bearish ribbon trades. No overlap with bullish-focused proposals. If validated, could be stacked with MIDDAY_TRENDLINE_GATE or STRUCTURE_VETO_DIR_VS_TREND for additive edge.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_bearish_rejection_watcher.py -->

@@ -47,3 +47,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing candidates (mostly watcher gates, DTE studies, or setup tweaks). May complement by providing midday low-volatility entry signal but could compete for capital if overlapping triggers. No overlap with top candidates like WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

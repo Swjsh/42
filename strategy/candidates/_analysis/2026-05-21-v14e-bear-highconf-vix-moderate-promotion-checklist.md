@@ -73,3 +73,5 @@ The leaderboard already defines a fast‑track to **WATCH‑STABLE** (N=15, ≥8
 ## Pre‑existing leaderboard impact
 
 This analysis complements candidate #3 (V14E_BEAR_ONLY_GATE). The bear‑only gate is the broad branch promotion; this sub‑tier is the high‑confidence variant that would trigger more aggressive execution (e.g., lower premium stop tolerance, earlier entry). They can coexist: the bear‑only gate qualifies the _branch_, and the high‑conf sub‑tier qualifies the _sub‑type_. Other candidates (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) are unrelated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

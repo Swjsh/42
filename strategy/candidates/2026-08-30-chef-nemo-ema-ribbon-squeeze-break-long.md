@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not modify existing filters, exits, or quality gates. It does not conflict with any of the current leaderboard entries (which are primarily watcher proposals, gate adjustments, or exit‑knob tests). It could complement existing filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK, MIDDAY_TRENDLINE_GATE) by providing an entry signal that those gates could refine. No overlap in mechanism with the top‑9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -70,3 +70,5 @@ We are testing whether tightening exit parameters (TP at +75% premium, stop at -
 ## Pre-existing leaderboard impact
 
 This keeper would **not** appear on the current leaderboard because its edge_capture (506.55) is below the 771 threshold required for inclusion. It does not directly conflict with any existing candidate (all current leaderboard members have edge_capture ≥771). If the combo were to improve edge_capture above the floor after OOS refinement, it could complement existing strategies by providing an alternative parameter set for the shotgun_scalper signal. However, at present it remains a draft requiring further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

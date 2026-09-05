@@ -52,3 +52,5 @@ Requires: (1) OOS walk-forward with WF ≥ 0.70 and positive OOS edge_capture; (
 ## Pre-existing leaderboard impact
 
 Would be REJECTED at door due to edge_capture < 771; does not appear on leaderboard. No conflict with existing PROMISING candidates; fails basic edge threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

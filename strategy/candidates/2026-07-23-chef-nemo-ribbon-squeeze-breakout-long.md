@@ -74,3 +74,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md. Structurally distinct from BEARISH_REJECTION_RIDE_THE_RIBBON (which trades ribbon *rejections*, not squeezes). No overlap in trigger logic or exit mechanics. Complements existing watchers (e.g., could run alongside VWAP_CONTINUATION as a separate long-bias setup). No parameter/engine changes proposed -- pure new trigger addition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

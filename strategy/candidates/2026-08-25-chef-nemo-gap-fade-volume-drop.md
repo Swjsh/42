@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it is a novel trigger type (gap-based) not currently represented; may complement existing volatility/volume-based filters if uncorrelated. No direct overlap with existing trigger types (e.g., QQQ divergence, VWAP continuation, level breaks).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

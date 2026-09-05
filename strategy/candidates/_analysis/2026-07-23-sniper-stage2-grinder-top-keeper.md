@@ -96,3 +96,5 @@ Since the candidate is rejected on edge_capture floor, no pre-merge gate applies
 ## Pre-existing Leaderboard Impact
 
 This candidate does not impact the leaderboard as it fails the edge_capture floor and would not appear. It conflicts with no current leaderboard candidates since it is not eligible for ranking. Resources should focus on candidates that clear the edge_capture floor first.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

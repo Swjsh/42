@@ -50,3 +50,5 @@ Gym validator suite must pass, walk-forward OOS profitable, real-fills validatio
 ## Pre-existing leaderboard impact
 
 This candidate does not yet exist, so it does not conflict with current leaderboard. If it passes the pre-merge gate, it will be added to the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

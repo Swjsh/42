@@ -61,3 +61,5 @@ Entry logic remains unchanged for BEARISH_REJECTION_RIDE_THE_RIBBON. Exit logic:
 ## Pre-existing leaderboard impact
 
 Complements V14E_BEAR_ONLY_GATE (rank 3) as it changes exit logic for the same setup (BEARISH_REJECTION_RIDE_THE_RIBBON) without conflicting with entry logic gates. No conflicts with other leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

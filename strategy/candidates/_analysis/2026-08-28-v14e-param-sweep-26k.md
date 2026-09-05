@@ -57,3 +57,5 @@ OOS PASS (ratio=2.07) + Real-fills PASS ($42,102 > BS $26,601) — all gates cle
 ## Pre-existing leaderboard impact
 
 This candidate is already J-RATIFIED and sits at rank 12 in the leaderboard. It complements entry‑focused candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND) by improving exit management. No conflict; it is additive to the overall edge capture.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/v14e_param_sweep_26k.json -->

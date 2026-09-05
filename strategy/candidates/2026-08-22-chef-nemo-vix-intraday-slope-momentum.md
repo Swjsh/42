@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (primarily filters/exits/watchers). Complements VWAP_CONTINUATION and BEARISH_REJECTION setups by adding a new long-biased trigger. No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The pre-merge gate requires a successful Stage-1 backtest, walk-forward validati
 ## Pre-existing leaderboard impact
 
 This evaluation does not conflict with or complement any existing candidates in _LEADERBOARD.md, as it is an analysis of SHOTGUN_SCALPER's readiness for live deployment.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

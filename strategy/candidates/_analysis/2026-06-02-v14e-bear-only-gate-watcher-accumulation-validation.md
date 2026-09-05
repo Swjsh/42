@@ -55,3 +55,5 @@ As of 2026-05-31 (latest leaderboard date), the watcher has accumulated approxim
 ## Pre-existing leaderboard impact
 
 This analysis pertains to candidate #3 V14E_BEAR_ONLY_GATE, currently marked PROMISING. If the gate fails to accumulate sufficient data, the candidate may need to be reverted to NEEDS-MORE-DATA or adjusted.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

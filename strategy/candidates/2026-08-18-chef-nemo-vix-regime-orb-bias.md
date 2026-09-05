@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB-based strategies (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding volatility regime conditioning. Does not conflict with structural gates (TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) as it operates on different timing (opening range vs. intraday structure). May overlap with VIX-gated strategies (F8_BULL_VIX_GATE_REVAL) but differs in mechanism (ORB bias vs. VIX threshold filtering). Unique in combining prior-day bias with VIX-regime ORB directionality, a combination not present in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

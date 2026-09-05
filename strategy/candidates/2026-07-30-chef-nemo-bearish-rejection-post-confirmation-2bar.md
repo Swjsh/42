@@ -60,3 +60,5 @@ Entering BEARISH_REJECTION setups two bars after the initial trigger (post‑con
 ## Pre-existing leaderboard impact
 
 This candidate is a filter_change on BEARISH_REJECTION_RIDE_THE_RIBBON. It does not conflict with existing ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it modifies a different logic block. It may complement quality‑gate candidates by adding a temporal confirmation layer. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

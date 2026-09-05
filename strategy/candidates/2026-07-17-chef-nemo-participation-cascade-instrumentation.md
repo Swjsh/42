@@ -64,3 +64,5 @@ The probe arm `risky-3` will be configured with relaxed filters (e.g., lower sco
 ## Pre-existing leaderboard impact
 
 This candidate complements existing watchers and quality gates by adding meta-monitoring. It does not conflict with any current leaderboard candidates as it operates at the system level, not modifying triggers, exits, or filters directly. It may provide data to inform future candidates (e.g., identifying which gates are causing participation holes).
+
+<!-- PROVENANCE-MISSING: test_funnel_computation.py, test_alert_conditions.py -->

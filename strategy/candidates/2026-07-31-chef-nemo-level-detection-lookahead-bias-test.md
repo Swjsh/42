@@ -62,3 +62,5 @@ We will test functions like `_detect_from_history` in `level_memory.py` and any 
 ## Pre-existing leaderboard impact
 
 No impact -- this is a quality gate that does not alter trading logic, parameters, or strategy behavior. It complements existing candidates by ensuring foundational code integrity. Conflicts with none; supports all candidates by reducing risk of silent failures.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_level_detection_lookahead.py -->

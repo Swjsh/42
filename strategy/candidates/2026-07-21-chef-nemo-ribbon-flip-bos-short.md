@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 No conflict with existing candidates (all are structural gates, watchers, or parameter changes). This is a new trigger type that may complement existing strategies by adding short signals during choppy sessions (VIX 18-24, post-11:00 EST). No overlap with current leaderboard entries.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

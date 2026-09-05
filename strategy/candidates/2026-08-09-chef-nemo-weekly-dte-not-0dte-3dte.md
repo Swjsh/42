@@ -55,3 +55,5 @@ Use the same directional signal as the base engine (e.g., structure_veto or vwap
 ## Pre-existing leaderboard impact
 
 Complements `STRUCTURE_VETO_DIR_VS_TREND` (rank ★) and `WEEKLY_DTE_NOT_0DTE` (rank ★★) by adding a DTE dimension that improves edge capture without conflicting with existing gates; no overlap in parameter space. Does not conflict with any top-9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

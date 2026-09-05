@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a **new trigger** (opening‑range VWAP pullback long) that is orthogonal to the existing triggers in the leaderboard (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND). It does not modify any existing parameters or gates, so it does not directly conflict with candidates 1‑9. If proven effective, it could be added as a complementary source of trades, increasing overall trade frequency without interfering with current logic. Until a Stage‑1 backtest is run, the exact interaction (e.g., overlapping signals) remains unknown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

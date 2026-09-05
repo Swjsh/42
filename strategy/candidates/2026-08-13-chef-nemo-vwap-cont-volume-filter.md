@@ -59,3 +59,5 @@ Adding a minimum volume threshold to the VWAP_CONTINUATION entry filter will red
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION (LIVE) by adding a filter. May overlap with VOLUME_DIVERGENCE_FILTER concepts but focuses on entry-bar volume rather than divergence. No direct conflict with top leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

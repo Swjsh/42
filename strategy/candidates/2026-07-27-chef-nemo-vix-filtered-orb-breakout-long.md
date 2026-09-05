@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly watcher proposals, DTE studies, or quality gates). Complements by adding novel ORB breakout entry conditioned on VIX and volume, distinct from ORB_RETEST_LONG's retest mechanism. Does not overlap with current leaderboard entries' mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

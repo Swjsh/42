@@ -43,3 +43,5 @@ Input provided only top keeper's JSON snippet; data for ranks 2-5 missing. Per O
 - OP-20 disclosures unknown (account size, sample bias, OOS, real-fills, failure modes, concentration).  
 - Promotion decision impossible without edge_capture and OOS validation.  
 **Action:** Request full Keepers JSON for re-analysis. Do not promote any keeper without individual OOS walk-forward and real-fills validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

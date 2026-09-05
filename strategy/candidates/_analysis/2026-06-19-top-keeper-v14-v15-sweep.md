@@ -61,3 +61,5 @@ Candidate does not meet OP-16 gate (edge_capture=670.6 < 771 floor). Requires re
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 gate and therefore would not appear on the leaderboard. It does not conflict with existing candidates because it is not promoted. No impact on current leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

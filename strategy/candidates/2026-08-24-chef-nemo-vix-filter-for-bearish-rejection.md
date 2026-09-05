@@ -60,3 +60,5 @@ Adding a VIX floor filter to BEARISH_REJECTION_RIDE_THE_RIBBON entries will impr
 ## Pre-existing leaderboard impact
 
 Complements existing BEARISH_REJECTION_RIDE_THE_RIBBON setup (rank not applicable as it's a filter on an existing strategy). Does not conflict with any leaderboard candidates; may improve performance of the underlying setup if edge exists in higher VIX regimes. No overlap with watcher-only or bullish-focused candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

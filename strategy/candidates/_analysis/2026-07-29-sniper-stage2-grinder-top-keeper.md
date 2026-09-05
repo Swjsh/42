@@ -53,3 +53,5 @@ Likely drivers of improvement vs baseline: the permissive `body_min_cents` and l
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates the top keeper from sniper_stage2_grinder. The keeper's edge_capture ($373.48) is below the OP-16 floor ($771), so it would be REJECTED and not appear on the leaderboard. No impact on existing leaderboard ranks. If promoted (which it should not be), it would conflict with all current candidates due to failing the OP-16 gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

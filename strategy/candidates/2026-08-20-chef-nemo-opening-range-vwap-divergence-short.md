@@ -63,3 +63,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing candidates in the leaderboard. It complements by adding a short-bias mean-reversion trigger based on opening range and VWAP divergence, distinct from breakout-based strategies like GAP_AND_GO. No known overlap with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

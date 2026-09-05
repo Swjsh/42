@@ -71,3 +71,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard (which are primarily quality gates, watchers, or structural changes). It may complement volatility‑based candidates (e.g., VIX_BULL_HARD_CAP_UNBLOCK) by providing an alternative entry signal in low‑volatility regimes, but could overlap with ORB‑based strategies in concept (though differing in mechanism: auction imbalance vs. opening range breakout). No direct parameter or wiring conflicts are expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

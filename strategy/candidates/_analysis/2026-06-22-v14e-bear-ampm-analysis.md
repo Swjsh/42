@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS test required, real-fills validation 
 ## Pre-existing leaderboard impact
 
 Complements V14E_BEAR_TIME_OF_DAY_GATE (rank 17) by providing the underlying AM/PM numbers that motivated that gate. No conflict with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

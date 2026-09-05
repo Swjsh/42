@@ -63,3 +63,5 @@ Modify `ribbon_ride_strike_exit_ab.py`'s per-strike SS-B replay to:
 ## Pre-existing leaderboard impact
 
 Complements `QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS` by resolving the QQQ-specific confirmation vs. volatility-proxy confound. No conflict with existing candidates; informs potential future wiring proposals post-analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

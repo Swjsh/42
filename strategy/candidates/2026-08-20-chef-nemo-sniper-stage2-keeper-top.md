@@ -65,3 +65,5 @@ We are trying to capture edge by refining SNIPER_LEVEL_BREAK parameters to impro
 ## Confidence
 
 3 / 10 -- Candidate shows positive non-J day P&L but underperforms on J days (capturing only 4/29 and 5/04 winners partially, missing 5/01 entirely). Edge_capture (373.48) < rejection floor (771) indicates insufficient edge. High overfit risk to non-J
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

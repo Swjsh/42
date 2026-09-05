@@ -25,3 +25,5 @@ Run a Stage-1 backtest for the aggressive account baseline (block_level_rejectio
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate, so it does not directly impact the leaderboard. However, the insights gained may inform future exit-parameter research that could lead to new candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

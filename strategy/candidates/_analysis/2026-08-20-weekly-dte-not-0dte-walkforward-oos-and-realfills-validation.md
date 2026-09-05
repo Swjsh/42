@@ -65,3 +65,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate itself. It is a validation step for the existing candidate WEEKLY_DTE_NOT_0DTE. If the validation passes, we may promote the candidate to a higher status. If it fails, we may need to adjust or reject.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

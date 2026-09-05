@@ -52,3 +52,5 @@ Gym validators: 100/100 PASS; Walk-forward OOS: WF ≥ 0.70 and positive in all 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements V14E_BEAR_TIME_OF_DAY_GATE (rank ★) and MIDDAY_TRENDLINE_GATE (rank 21) by adding VIX condition to same bearish entry path; no conflict with watcher-only candidates. May overlap with VIX_BULL_HARD_CAP_UNBLOCK (rank 22) but operates on opposite side (bear vs bull). No parameter changes to existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

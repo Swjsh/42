@@ -50,3 +50,5 @@ Gym validators (67/67), walk-forward OOS positive, real-fills on J days, no regr
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_SWEEP_BLOCKER (rank 1) by addressing its root cause; conflicts with no other candidates as it is a parameter change to the quality escalation lock
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates (all are watcher/gate modifications or established trade classes); represents a new trigger mechanism that could complement existing filters if validated. No known overlap with candidates 1-25 in _LEADERBOARD.md as those focus on specific structural gates or DTE variations rather than EMA ribbon/volume compression breakouts. Potential synergy with MIDDAY_TRENDLINE_GATE (rank 21) and VWAP_CONTINUATION (live setup) but requires testing to confirm.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard, which are primarily watcher quality gates, DTE studies, and structural filters. It complements the existing VIX_REGIME_DAYSIDE by adding an intraday VIX change trigger and VWAP pullback condition, potentially capturing short-term momentum shifts not covered by static VIX regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

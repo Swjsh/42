@@ -66,3 +66,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which all have edge_capture ≥ 771). This candidate's negative edge_capture places it below the OP-16 rejection floor (771), so it would not qualify for the leaderboard. It contradicts the core thesis of capturing J's edge. No complementarity; requires complete redesign.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

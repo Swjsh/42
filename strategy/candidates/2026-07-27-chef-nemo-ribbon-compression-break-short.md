@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger based on EMA ribbon width compression and volume break. The current leaderboard (_LEADERBOARD.md) shows no existing candidate using ribbon width as a trigger. The closest is BEARISH_REJECTION_RIDE_THE_RIBBON, which relies on ribbon alignment and rejection candles, not width-based compression. Therefore, this candidate is novel and does not conflict with existing candidates. It is complementary by adding a distinct entry mechanism to the strategy arsenal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

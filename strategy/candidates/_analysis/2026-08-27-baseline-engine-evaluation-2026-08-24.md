@@ -65,3 +65,5 @@ Before any candidate that modifies the baseline can be considered for merge, the
 ## Pre‑existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it provides the baseline reference against which all candidates in the leaderboard (ranks 1‑9) are measured. Understanding the baseline’s anchor‑day P&L distribution helps interpret why certain candidates show zero delta on J days (e.g., STRUCTURE_VETO_DIR_VS_TREND) and why others improve edge capture by reducing losses on loser days. No changes to the baseline are proposed here.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

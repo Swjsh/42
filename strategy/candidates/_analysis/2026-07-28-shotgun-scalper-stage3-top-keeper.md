@@ -63,3 +63,5 @@ The shotgun scalper stage 3 combo uses a tight profit target (+150% premium), ti
 ## Pre‑existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and therefore does not appear on the current leaderboard. It does not conflict with any existing candidate; it simply fails the OP‑16 gate and requires substantial re‑work before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

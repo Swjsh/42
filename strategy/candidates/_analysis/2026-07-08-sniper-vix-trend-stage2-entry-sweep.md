@@ -59,3 +59,5 @@ The Sniper Stage2 Grinder candidate uses an artifact exit setting (profit_lock_t
 ## Pre-existing leaderboard impact
 
 This analysis confirms the existing ARTIFACT-INVALIDATED status (Rank 15). No change to leaderboard ranking; candidate remains invalidated pending exit logic redesign. Complements other sniper candidates (e.g., SNIPER_VIX18_GRINDER) that share the same exit flaw. Does not conflict with live candidates as it is not tradable in current form.
+
+<!-- PROVENANCE-MISSING: test_sniper_exit_sweep.py -->

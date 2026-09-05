@@ -53,3 +53,5 @@ Stage-1 backtest must pass: edge_capture ≥ 771, Sharpe ≥ 1.0, walk-forward O
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 as it targets a distinct trade class (premarket-triggered entries) with zero overlap on J anchor days per preliminary scan; may complement by adding non-J day trades if edge_capture clears OP-16 floor.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

@@ -53,3 +53,5 @@ Stage-1 backtest via autoresearch grinder harness must pass basic sanity (no cra
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION and GAP_AND_GO as an additional filter on the BEARISH_REJECTION_RIDE_THE_RIBBON setup. No overlap with watcher-only or bull‑side proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

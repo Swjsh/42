@@ -241,3 +241,5 @@ under the current real-fills engine before any params.json flip.
 - No prereg or shadow task exists for WS4 specifically — none to hand off.
 
 **K9 handoff:** None — this is a KILL, no SHADOW-FILED artifacts to register. Leaderboard Status column should read `KILLED (no OOS/WF ever produced; 71d stale)` per this candidate's own file, consistent with K7's parallel "no OOS/WF evidence ever produced" pattern for the other stale rows.
+
+<!-- PROVENANCE-MISSING: automation/state/structure-state.json -->

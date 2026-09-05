@@ -71,3 +71,5 @@ Complements rather than conflicts with current leaderboard:
 - Differentiates from ORB_RETEST_LONG (rank #4) by entering on initial breakout with volume filter vs. waiting for ORB retest.  
 - Does not interfere with VWAP_CONTINUATION (live) or MIDDAY_TRENDLINE_GATE (J-RATIFIED) as timeframes and triggers are distinct (opening range vs. VWAP/midday).  
 - May provide additive diversification if uncorrelated with existing strategies, but requires backtest to confirm.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

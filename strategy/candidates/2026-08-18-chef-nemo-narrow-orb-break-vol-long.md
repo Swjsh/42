@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 complements existing ORB gates (ORB_NARROW_OR_GATE, ORB_RETEST_LONG) by providing an alternative entry logic (initial breakout vs. retest/gate); no direct conflict with current leaderboard candidates as it targets long bias during low-VIX mornings, whereas most candidates are PUT-focused or regime-agnostic gates; potential synergy with VWAP_CONTINUATION for morning session alignment but requires Stage-1 backtest to confirm non-overlapping trade signals
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

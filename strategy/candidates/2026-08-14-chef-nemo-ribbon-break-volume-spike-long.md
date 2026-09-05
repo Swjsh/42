@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: Does not conflict with any top-9 leaderboard entries (all are watcher/gate refinements or DTE studies). This is a novel trigger type orthogonal to current registry (which lacks pure volume+ribbon-break longs). May conflict with BULLISH_RECLAIM_RIDE_THE_RIBBON if both fire same bar; requires priority logic in Stage-1 testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

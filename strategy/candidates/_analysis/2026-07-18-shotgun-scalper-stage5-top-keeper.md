@@ -66,3 +66,5 @@ The shotgun_scalper_stage5 sweep sought a scalping edge using premium‑based TP
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates because it fails the OP‑16 gate and would be REJECTED. It could inform future work if the vol‑ratio filter or chandelier parameters are adapted to a strategy that does capture J’s edge (e.g., by tightening premium TP/SL to align with OP‑16 winner/loser PnL signs). No direct complement or conflict with existing ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

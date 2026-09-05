@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it introduces a new trigger based on EMA ribbon compression and RSI divergence, which is not currently represented. It complements existing watchers and filters but would need to be evaluated for interaction with existing gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

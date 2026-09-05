@@ -64,3 +64,5 @@ Grinder A vs B sweep must complete with:
 ## Pre-existing leaderboard impact
 
 This analysis directly impacts [MIDDAY_TRENDLINE_GATE](2026-05-31-midday-trendline-gate.md) (rank 21). The sweep result is a remaining gate for ratification. No conflict with other candidates; complements V14E_BEAR_TIME_OF_DAY_GATE (rank 17) via adjacent time windows. If Gate A wins, it becomes the configured MIDDAY_TRENDLINE_GATE; if Gate B wins, relaxed threshold is adopted. Either outcome preserves the anchor day behavior noted in leaderboard (5/04 kept, 4/29 loser corrected).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

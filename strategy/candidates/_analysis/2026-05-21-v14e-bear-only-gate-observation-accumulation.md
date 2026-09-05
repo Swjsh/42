@@ -55,3 +55,5 @@ We need to accumulate at least 100 new bear-only observations with a win rate of
 ## Pre-existing leaderboard impact
 
 This analysis supports the existing candidate V14E_BEAR_ONLY_GATE (ranked #3) by providing the data needed to meet its OP-21 promotion gate. It does not conflict with any other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

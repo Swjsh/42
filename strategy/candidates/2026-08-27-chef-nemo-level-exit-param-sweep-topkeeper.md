@@ -65,3 +65,5 @@ All other parameters remain at baseline v14/v15 defaults.
 ## Pre-existing leaderboard impact
 
 Would be REJECTED at the door (edge_capture < 771) and not appear on leaderboard. No conflict with existing candidates as it fails mandatory OP-16 filter. Complements research by highlighting LEVEL tier sensitivity but requires significant revision before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

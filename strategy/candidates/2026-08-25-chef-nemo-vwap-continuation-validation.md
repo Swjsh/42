@@ -57,3 +57,5 @@ The VWAP_CONTINUATION trigger fires on the first ≤10:30-ET bar that continues 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate does not conflict with any existing leaderboard candidates as it is validating a separate setup (VWAP_CONTINUATION). It may complement candidates that are filters or exits if we later find that VWAP_CONTINUATION needs refinement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

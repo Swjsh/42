@@ -72,3 +72,5 @@ Complements [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) as orthogonal filter (durat
 - Differentiates from [MIDDAY_TRENDLINE_GATE] (Rank 21) by targeting entry quality rather than midday filtering
 - Does not overlap with any live J-RATIFIED candidates (ranks 12,17,21) as it modifies core BEARISH_REJECTION logic
 - Potential synergy with [BEARISH_REJECTION_MORNING] (Rank 20) if morning entries show shorter ribbon durations
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

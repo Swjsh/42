@@ -26,3 +26,5 @@ The grinder tested 1,296 new candidate strategies (standard autorearch configura
 No new candidate met Stage-1 criteria (edge_capture ≥ 771 on J days, WF ≥ 0.70, real-fills within ±20% of BS sim on top 3 J days). Existing leaderboard unchanged. Recommend focusing on Stage-2 validation for current PROMISING candidates (WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND).  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

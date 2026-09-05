@@ -82,3 +82,5 @@ Exit logic:
    It may complement existing filters (e.g., it could be combined with the MIDDAY_TRENDLINE_GATE or structure vetoes) but would require integration testing.
    No known conflicts with current PROMISING or J-RATIFIED candidates.
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

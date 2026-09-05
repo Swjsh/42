@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This is a new trigger strategy. It does not directly conflict with existing candidates in the leaderboard (which are mostly structural, filter, or exit changes). However, it may overlap in time-of-day or regime with existing watchers. Without backtest, we cannot confirm complementarity or conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

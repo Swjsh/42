@@ -60,3 +60,5 @@ The TRENDLINE_BREAKOUT_BULL mechanism involves the following steps:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON setups. The TRENDLINE_BREAKOUT_BULL trade class provides an additional edge-capture opportunity, potentially increasing overall profitability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

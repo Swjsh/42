@@ -52,3 +52,5 @@ Candidates must pass: gym validators (9/9 or equivalent), walk-forward OOS ratio
 ## Pre-existing leaderboard impact
 
 The grinder's output will either add new candidates to the leaderboard (if they clear Stage-1 gates) or reinforce that the current search space is exhausted. It does not directly modify existing candidates but may inspire filter_change, exit_change, or quality_gate proposals that could conflict with or complement top-ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND). De-duplication against existing candidates will be required before ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

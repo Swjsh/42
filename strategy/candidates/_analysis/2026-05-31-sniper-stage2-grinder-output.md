@@ -98,3 +98,5 @@ The keeper JSON shows:
 ## Confidence
 
 4/10 — Insufficient data to validate. Grinder output lacks OOS validation, and the results contradict the already-ratified Stage 2 findings (vol_mult=0.9 vs 1.1). Needs backtest run before any candidate filing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

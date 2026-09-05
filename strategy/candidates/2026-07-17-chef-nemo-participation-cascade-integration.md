@@ -61,3 +61,5 @@ No change to order generation logic; monitor is passive observation only. Exit l
 ## Pre-existing leaderboard impact
 
 Does not conflict with / complements all candidates in _LEADERBOARD.md (pure monitoring addition; zero impact on trading logic or P&L). Complements safety-focused candidates like STRUCTURE_VETO_DIR_VS_TREND by adding execution-pipeline vigilance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

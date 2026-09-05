@@ -70,3 +70,5 @@ The shotgun_scalper_stage4 grinder identified a parameter combination that impro
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Does not conflict (fails OP-16 gate). Complements structural research (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by testing exit parameter sensitivity but requires OOS validation before consideration. No overlap with current leaderboard candidates (all either above edge_capture floor or address different hypotheses like DTE or VETO gates).
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_stage4.py -->

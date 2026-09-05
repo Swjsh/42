@@ -42,3 +42,5 @@ No changes to automation/heartbeat.md or params.json are required for this analy
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it merely validates the reported metric for candidate #17.
+
+<!-- PROVENANCE-MISSING: automation/heartbeat.md -->

@@ -53,3 +53,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing strategy in the leaderboard. It complements existing volatility‑ or regime‑based filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK, BEARISH_REJECTION_RIDE_THE_RIBBON) by providing an alternative entry condition for gap environments. It does not conflict with any ratified candidates because it proposes a distinct trigger logic that would be evaluated independently. If proven effective, it could be added as a new trigger branch alongside existing ones like GAP_AND_GO.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

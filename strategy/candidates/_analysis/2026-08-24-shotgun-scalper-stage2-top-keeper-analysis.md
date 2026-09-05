@@ -56,3 +56,5 @@ The combo uses: tp_premium_pct=0.5 (50% TP1), stop_premium_pct=-0.3 (30% premium
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder output. Since edge_capture is negative, it would not meet the leaderboard floor (edge_capture >= 771) and should be rejected. It conflicts with no existing leaderboard entries because it fails to clear the OP-16 gate. The top5_pct is low, suggesting the wide_pnl is not driven by a few extreme days, but the lack of J edge capture makes it unsuitable for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

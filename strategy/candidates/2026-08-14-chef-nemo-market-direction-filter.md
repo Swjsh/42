@@ -58,3 +58,5 @@ Otherwise, no trades are allowed for the day.
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

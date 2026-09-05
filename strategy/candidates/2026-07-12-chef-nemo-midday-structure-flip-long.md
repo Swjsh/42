@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rule in the leaderboard. It may complement existing filters (e.g., VWAP_CONTINUATION, MIDDAY_TRENDLINE_GATE) by providing an alternative entry signal for the same time window, but it could also compete for capital if both fire on the same bar. No direct conflict with current top‑9 candidates; it adds diversity to the trigger set. However, until a Stage‑1 backtest shows positive edge_capture on J’s anchor days, it remains speculative and should not be considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

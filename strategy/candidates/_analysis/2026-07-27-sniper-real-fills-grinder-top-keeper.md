@@ -63,3 +63,5 @@ This combo fails the OP-16 edge_capture requirement (edge_capture = -126.0 < 771
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This combo does not meet the OP-16 edge_capture floor (>=771) and therefore would not appear on the leaderboard. It conflicts with the leaderboard's requirement and would be rejected if submitted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

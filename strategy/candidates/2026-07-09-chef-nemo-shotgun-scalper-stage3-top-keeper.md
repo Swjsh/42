@@ -66,3 +66,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 This candidate's edge_capture (285.0) is below the OP-16 floor of 771, so it would be REJECTED at the door and not appear on the leaderboard. No impact on current leaderboard rankings. Requires OOS walk-forward first to even consider for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

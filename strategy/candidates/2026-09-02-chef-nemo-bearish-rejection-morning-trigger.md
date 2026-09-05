@@ -61,3 +61,5 @@ This candidate does not conflict with any existing candidate in the leaderboard 
 
 Note: The BEARISH_REJECTION_MORNING watcher already exists as a WATCH-ONLY candidate (rank 20 in the leaderboard). This proposal converts it into an active trigger.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -37,3 +37,5 @@ For any combo to be considered, it must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate but checks existing parameters. It does not conflict with any candidate in the leaderboard. It may inform future parameter change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

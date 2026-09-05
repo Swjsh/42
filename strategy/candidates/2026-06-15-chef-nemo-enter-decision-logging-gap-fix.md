@@ -74,3 +74,5 @@ The log line is written atomically with a newline; no change to order placement 
 ## Pre-existing leaderboard impact
 
 No conflict with any existing candidate. This change complements all leaderboard entries by improving ledger fidelity for shadow‑eval, walk‑forward, and real‑fills validation without altering any edge or Sharpe projections. It is a pure instrumentation upgrade.
+
+<!-- PROVENANCE-MISSING: automation/state/decisions.json -->

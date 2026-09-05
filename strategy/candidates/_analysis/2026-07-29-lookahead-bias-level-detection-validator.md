@@ -61,3 +61,5 @@ The validator will scan the level detection functions in `lib/watchers/` and `ba
 ## Pre-existing leaderboard impact
 
 This validator does not conflict with any existing candidate; it is a code quality gate that ensures the integrity of all strategies. It complements all leaderboard entries by preventing silent data leaks that could invalidate backtests. No known overlap with current candidates 1-24 in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_level_detection_lookahead.py -->

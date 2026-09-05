@@ -54,3 +54,5 @@ The function `pooled_distinct_trials()` takes a list of setup identifiers and th
 ## Pre-existing leaderboard impact
 
 This helper does not directly change any strategy on the leaderboard. It is a research tool that may improve the accuracy of future strategy evaluations by preventing overcounting of trials. It does not conflict with existing candidates; rather, it supports the integrity of the research process that generates them.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

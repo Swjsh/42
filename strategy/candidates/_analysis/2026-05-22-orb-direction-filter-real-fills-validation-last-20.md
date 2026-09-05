@@ -58,3 +58,5 @@ The ORB_DIRECTION_FILTER (long-only only) watcher gate preserves the edge of lon
 ## Pre-existing leaderboard impact
 
 Complements ORB_DIRECTION_FILTER (rank 5) by extending real-fills validation. No conflict with existing candidates; validation supports NEEDS-MORE-DATA → PROMISING transition if results confirm WR≥60%. Does not affect watcher-only candidates (#3, #4, #9, #11). Neutral on trigger/exit-change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

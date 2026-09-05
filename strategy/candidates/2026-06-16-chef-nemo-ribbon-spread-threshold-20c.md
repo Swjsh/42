@@ -61,3 +61,5 @@ This filter_change complements existing candidates in leaderboard. Does not conf
 - Rank 17 (V14E_BEAR_TIME_OF_DAY_GATE): time-of-day filter
 - Rank 31 (MIDDAY_TRENDLINE_GATE): midday filter
 Orthogonal to rank 24/25 (confluence_tolerance/max_ribbon_duration) as they target different mechanics. May conflict if combined changes make entries too frequent, but no direct overlap in logic. Safe to test independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

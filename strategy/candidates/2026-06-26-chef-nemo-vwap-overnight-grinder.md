@@ -50,3 +50,5 @@ This candidate requires a Stage-1 backtest to determine its effectiveness and po
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in the leaderboard, but further analysis is needed to determine its potential impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

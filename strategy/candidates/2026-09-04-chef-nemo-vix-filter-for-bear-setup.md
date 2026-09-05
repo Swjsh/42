@@ -60,3 +60,5 @@ Add a pre-entry filter that blocks any bearish setup entry (side == "P") when th
 ## Pre-existing leaderboard impact
 
 Does not conflict with / complements candidates 1-9 in _LEADERBOARD.md. Specifically, complements [STRUCTURE_VETO_DIR_VS_TREND] by adding orthogonal VIX filter; may conflict with [V14E_BEAR_ONLY_GATE] if both target similar VIX regimes (requires combined testing). No changes to existing params.json or heartbeat.md (pure filter additive).
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_bear_setup.py -->

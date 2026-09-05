@@ -55,3 +55,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly those that focus on improving the strategy's performance during losing days. The veto gate out-of-sample candidate has the potential to enhance the overall performance of the strategy by filtering out losing trades and improving the risk-reward ratio.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

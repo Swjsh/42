@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate explores a new trigger condition combining volatility compression, VWAP, and EMA ribbon flip. It does not directly conflict with existing candidates in the leaderboard (which are primarily filters, gates, or alternative trade classes like VWAP_CONTINUATION). It may complement VWAP_CONTINUATION by adding a precondition for higher-probability entries, but remains independent until backtested. No overlap with current top candidates' mechanics observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

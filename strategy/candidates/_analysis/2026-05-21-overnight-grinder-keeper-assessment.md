@@ -116,3 +116,5 @@ The `runner_target=2.0` change is the key differentiator — it allows the strat
 ## Pre-existing leaderboard impact
 
 Does not complement candidates 1-11. The edge is fragile and appears overfit to a single day. Recommend: discard keeper, run extended grinder with time constraint removed to find more robust candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

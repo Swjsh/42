@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including gym val
 ## Pre-existing leaderboard impact
 
 Does not duplicate any existing candidate in _LEADERBOARD.md (which contains watcher revalidations, DTE studies, structural gates, and VWAP_CONTINUATION). This is a novel mean-reversion trigger distinct from continuation-based strategies. May complement by adding long-biased mean-reversion logic, but conflict/synergy unknown without backtest. No direct overlap with current leaderboard entries (types: cross-ticker breadth, DTE studies, wiring proposals, structural gates, watcher revalidations).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

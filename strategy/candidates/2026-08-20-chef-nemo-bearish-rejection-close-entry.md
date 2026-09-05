@@ -64,3 +64,5 @@ Entering on the close of the rejection candle (instead of the next bar open) for
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEARISH_REJECTION_RIDE_THE_RIBBON (playbook setup) by refining entry timing. May subsume or improve upon TRENDLINE_BREAK_CALL_VETO if trigger timing reduces false calls. No overlap with WEEKLY_DTE_NOT_0DTE (DTE lever) or STRUCTURE_VETO_DIR_VS_TREND (structure-based veto). Safe to test alongside live candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

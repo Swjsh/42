@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-23 in _LEADERBOARD.md) as it is a novel short-trigger logic. May complement existing bearish setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by providing alternative entry signals in different market regimes, but requires testing to confirm additive edge. No direct overlap with current watchers or gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

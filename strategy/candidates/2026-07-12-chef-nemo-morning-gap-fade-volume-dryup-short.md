@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with / complement candidates 1-9 in _LEADERBOARD.md> -- novel trigger combining gap, volume dry‑up, and RSI >65; no existing candidate uses this exact triplet (GAP_AND_GO is continuation, not fade). May complement existing filters if proven additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

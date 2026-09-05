@@ -64,3 +64,5 @@ The shotgun_scalper_stage5 parameter sweep seeks to capture intraday mean-revers
 ## Pre-existing leaderboard impact
 
 No impact; edge_capture < 771 auto-rejects per OP-16 door guard. Would not appear on leaderboard even if ratified. Complements no existing candidates due to disqualification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

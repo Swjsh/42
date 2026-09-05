@@ -71,3 +71,5 @@ Since this candidate is about infrastructure and not a trading strategy, it does
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing trading strategy candidates in the leaderboard because it is infrastructure. It may complement candidates that rely on FRED or CBOE data by ensuring more reliable data fetching.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

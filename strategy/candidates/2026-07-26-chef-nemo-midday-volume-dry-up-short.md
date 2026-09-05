@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including gym v
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (midday volume dry‑up + VWAP break + ribbon alignment) that does not directly conflict with existing candidates 1‑9 in the leaderboard. It may complement strategies that focus on morning or afternoon regimes by capturing a distinct intraday liquidity edge, provided the backtest shows positive edge capture on the OP‑16 anchor days. No direct overlap with current watcher‑only or exit‑change proposals is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

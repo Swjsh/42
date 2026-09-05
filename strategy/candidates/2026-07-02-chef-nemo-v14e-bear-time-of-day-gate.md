@@ -54,3 +54,5 @@ The pre-merge gate requires the proposed candidate to pass the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed candidate complements the existing leaderboard candidates, particularly the V14E bear setup, by adding a time-of-day gate to improve the edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

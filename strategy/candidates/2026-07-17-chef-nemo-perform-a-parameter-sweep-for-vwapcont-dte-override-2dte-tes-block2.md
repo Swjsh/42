@@ -54,3 +54,5 @@ Entry: Same VWAP_CONTINUATION trigger with `j_vwap_cont_dte_override=2.5`. Exit:
 ## Pre-existing leaderboard impact
 
 Complements / may replace HOLD candidate `VWAPCONT_DTE_OVERRIDE_2DTE` if 2.5DTE clears gates. Does not conflict with other candidates as it isolates DTE variable. Note: may conflict with liquidity constraints (min 3 contracts) at smaller account sizes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ These changes collectively raise win rate and average profit per trade on non‑
 ## Pre‑existing leaderboard impact
 
 This keeper would be REJECTED at the door (edge_capture < 771) and thus not appear on the leaderboard. It does not conflict with any existing candidate because it does not meet the minimum edge threshold. If OOS validation were to show positive edge_capture ≥771, it could compete with structural DTE/hold candidates, but current evidence points to overfit.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

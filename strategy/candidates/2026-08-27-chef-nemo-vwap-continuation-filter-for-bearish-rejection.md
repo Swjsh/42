@@ -64,3 +64,5 @@ Based on VWAP_CONTINUATION's live detector validity (76.5% WR, +$38.3 expectancy
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements MIDDAY_TRENDLINE_GATE (rank 21) by targeting different time windows (morning VWAP_CONTINUATION vs midday trendline). Does not conflict with STRUCTURE_VETO_DIR_VS_TREND (rank ★) as it operates on different signal layer. May overlap with WEEKLY_DTE_NOT_0DTE (rank ★★) but tests different hypothesis (filter vs DTE leverage). No direct conflicts with top 9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

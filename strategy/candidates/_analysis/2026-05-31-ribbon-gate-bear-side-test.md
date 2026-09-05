@@ -62,3 +62,5 @@ Both with the rmom>=5 gate applied and without the gate (baseline). The delta (g
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It complements watcher‑only quality gates such as V14E_BEAR_TIME_OF_DAY_GATE (rank 17) and ORB_NARROW_OR_GATE (rank 4) by providing a side‑specific effectiveness test for the ribbon gate. If the bear side shows strong improvement, it could reinforce the case for retaining the rmom>=5 gate; if the bull side drives the gain, it would highlight that BULLISH_RECLAIM remains DRAFT per OP‑16. No changes to the current leaderboard rankings are implied by this analysis alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

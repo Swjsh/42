@@ -122,3 +122,5 @@ From candidate #14 (SNIPER_VIX_TREND_OOS_CONFIRMED):
 - Real-fills validation PASS on all 3 J anchor days
 
 The VIX-trend filter (VIX >= 18 AND VIX > 5d avg) is **OP-16 compliant** and improves quality by filtering low-conviction VIX-declining days while capturing high-conviction VIX-escalating days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

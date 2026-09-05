@@ -64,3 +64,5 @@ Entry triggers when price reclaims (closes above) or rejects (closes below) the 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate does not appear on the current leaderboard (edge_capture=40.01 < 771 rejection floor). It likely complements existing candidates by targeting different market conditions (overnight VWAP vs. intraday ribbon/rejection setups), but conflicts are unknown without cross-correlation analysis. No direct anchor day overlap with current leaders (e.g., ORB gates) as it fires primarily on 5/01 and 5/05 per keeper data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

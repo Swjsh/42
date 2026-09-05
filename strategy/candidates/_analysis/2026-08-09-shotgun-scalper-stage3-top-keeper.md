@@ -54,3 +54,5 @@ To even consider this candidate for the leaderboard, it must first pass the OP-1
 ## Confidence
 
 2 / 10 -- The edge_capture is well below the OP-16 floor of 771, indicating that the strategy does not capture the J edge effectively. The high wide_pnl is likely driven by overfit to non-J days or regime-specific conditions that may not persist. Without OOS validation
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

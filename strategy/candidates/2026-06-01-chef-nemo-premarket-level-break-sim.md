@@ -57,3 +57,5 @@ When SPY trades above/below the premarket high (PMH) or low (PML) in the first R
 ## Pre-existing leaderboard impact
 
 This candidate is similar to #2 LIVE_PRICE_FIRST_BAR_TRIGGER but focuses on simulation and estimation for a new trigger. It does not conflict with existing candidates as it is a distinct trigger mechanism. However, it may overlap in logic with #2; if #2 is ratified, this candidate may be superseded or combined.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ These keepers must pass:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates require edge_capture ≥ 771); these keepers are ineligible for promotion until edge_capture improves via J-day-focused refinement. Complements existing analysis by highlighting the danger of optimizing for wide_pnl without OP-16 anchor constraints.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Entry fires when: volume > 1.3× 20-bar average, candle body ≥ $0.05, pattern 
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture threshold for leaderboard inclusion (≥ $771). It conflicts with existing SNIPER candidates (e.g., SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP) that aim to improve edge_capture via VIX filters; promoting this would dilute focus on anchor‑day alignment. It should be treated as a exploration path requiring further refinement before consideration for the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

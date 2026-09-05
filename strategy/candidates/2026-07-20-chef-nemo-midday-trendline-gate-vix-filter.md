@@ -58,3 +58,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate modifies the existing J-RATIFIED MIDDAY_TRENDLINE_GATE (rank 21 in leaderboard). It does not conflict with any other candidate as it is an evolution of a live strategy. It may complement existing VIX-based filters (e.g., V14E_BEAR_ONLY_GATE) by adding a temporal regime filter to the midday gate. If ratified, it would replace the current live MIDDAY_TRENDLINE_GATE configuration in params.json. No impact on other leaderboard candidates' rankings or statuses.
+
+<!-- PROVENANCE-MISSING: test_midday_trendline_gate_vix_filter.py -->

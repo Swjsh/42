@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (leaderboard shows no VWAP mean-reversion post-lunch triggers). Complements time-of-day filters by targeting a specific lunchtime window but adds new volatility/volume conditions. No overlap with ribbon-ride or VWAP continuation strategies due to different entry logic and time window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

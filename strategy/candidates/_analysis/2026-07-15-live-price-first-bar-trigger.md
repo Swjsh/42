@@ -42,3 +42,5 @@ Stage-1 backtest (grinder) must be completed and produce edge_capture and Sharpe
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so it does not conflict with existing candidates. It recommends that the candidate LIVE_PRICE_FIRST_BAR_TRIGGER requires further Stage-1 backtest before it can be evaluated for the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

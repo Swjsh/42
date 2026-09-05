@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any current candidates in _LEADERBOARD.md; introduces a new trigger type that is orthogonal to existing watchers, gates, and exit‑shape proposals. No overlap in logic or parameter space with ranked items 1‑24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

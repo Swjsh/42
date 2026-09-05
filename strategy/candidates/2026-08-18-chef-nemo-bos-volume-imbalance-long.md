@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) or watcher gates (e.g., VWAP_CONTINUATION). Novel trigger mechanism distinct from TRENDLINE_BREAK_VOLUME (uses market structure BOS instead of trendline breaks). May additive with regime filters if validated. No overlap with existing leaderboard candidates 1-9 in _LEADERBOARD.md (all are either watcher gates, DTE studies, or rejected proposals).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

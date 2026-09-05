@@ -54,3 +54,5 @@ The ORB_DIRECTION_FILTER watcher (already live per OP-22) accumulates long-only 
 ## Pre-existing leaderboard impact
 
 Complements ORB_DIRECTION_FILTER (#5) by advancing it toward OP-21 promotion; does not conflict with any existing candidate. Supports regime analysis for ORB_NARROW_OR_GATE (#4) and other ORB-related watchers. No impact on non-ORB candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

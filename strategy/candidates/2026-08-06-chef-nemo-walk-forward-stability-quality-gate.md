@@ -64,3 +64,5 @@ During candidate evaluation (after Stage-1 OOS backtest):
 ## Pre-existing leaderboard impact
 
 This gate is complementary to existing quality gates (e.g., WF ratio, concentration checks). It does not conflict with any specific candidate but may cause some current PROMISING or NEEDS-MORE-DATA candidates to be rejected if they fail the stability or real-fills checks. It adds an additional layer of robustness validation that is orthogonal to existing gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis is on the existing candidate WEEKLY_DTE_NOT_0DTE (ranked ★★). It does not conflict with other candidates; it is an evaluation of an existing candidate. If the walk-forward shows the edge persists, it may strengthen the candidate's case for promotion. If not, it may lead to downgrade.
+
+<!-- PROVENANCE-MISSING: test_walkforward_weekly_dte.py -->

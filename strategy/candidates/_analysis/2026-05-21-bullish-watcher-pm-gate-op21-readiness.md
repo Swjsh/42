@@ -55,3 +55,5 @@ The watcher passively grades all engine-generated observations (both bullish and
 ## Pre-existing leaderboard impact
 
 Complements candidate #9 (BULLISH_WATCHER_PM_GATE) by defining the OP-21 promotion path. No conflict with other candidates; analysis is watcher-specific and does not alter engine behavior or rankings.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

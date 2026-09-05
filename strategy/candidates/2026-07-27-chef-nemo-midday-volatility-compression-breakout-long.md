@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; introduces a novel trigger mechanism (ATR‑based squeeze) distinct from price‑step or structure‑based entries. May complement existing filters (e.g., VWAP_CONTINUATION, GAP_AND_GO) by providing an alternative entry regime during midday compression periods. Does not modify any existing params or gates; stands as a new_trigger proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

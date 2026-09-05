@@ -66,3 +66,5 @@ The SHOTGUN_SCALPER stage3 strategy (TBR_HIGH_VOL) captures edge by entering on 
 ## Pre-existing leaderboard impact
 
 This candidate promotes the existing WATCH-ONLY candidate TBR_HIGH_VOL (rank 16) to live status. It does not conflict with other candidates but rather upgrades one candidate's status. If ratified, it would replace the WATCH-ONLY entry with a J-RATIFIED status, potentially improving the leaderboard by moving a candidate from the bottom tier to the top tier. No known conflicts with candidates 1-15 or 17-24. Complements structural filters (e.g., MIDDAY_TRENDLINE_GATE) by operating on a different timeframe and setup type.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/tbr_high_vol.py, analysis/recommendations/tbr_high_vol_live_ab.json -->

@@ -56,3 +56,5 @@ Add a gate that checks VIX > 20 (using the same VIX source as existing filters) 
 ## Pre-existing leaderboard impact
 
 Does not conflict with any ranked candidate; complements existing volatility‑based filters (e.g., VIX_BULL_LOW_THRESHOLD) by adding a time‑of‑day dimension. No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

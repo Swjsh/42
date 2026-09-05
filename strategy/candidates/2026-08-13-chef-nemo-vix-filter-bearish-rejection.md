@@ -59,3 +59,5 @@ Bearish entries from the BEARISH_REJECTION_RIDE_THE_RIBBON setup have higher win
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION and BEARISH_REJECTION_RIDE_THE_RIBBON by adding a regime filter. May overlap with existing VIX-based gates (e.g., V14E_BEAR_ONLY_GATE) but operates on different setup. No direct duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

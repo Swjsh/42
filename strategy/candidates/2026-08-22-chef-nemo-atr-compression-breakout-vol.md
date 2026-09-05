@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger type (ATR compression + volume expansion) that does not directly modify any existing candidates in the leaderboard (ranks 1‑9). It is complementary in that it could be combined with existing quality gates or exit rules, but it does not conflict with any current trigger or filter changes. No impact on leaderboard rankings is expected until a Stage‑1 backtest is completed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

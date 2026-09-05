@@ -62,3 +62,5 @@ We need the real-fills P&L and win rate for each of 2026-05-26, 27, 28, 29 with 
 ## Pre-existing leaderboard impact
 
 No direct impact; this analysis evaluates a gate that is not currently a leaderboard candidate. If the gate shows promise, it could be formalized as a candidate (type: quality_gate) and added to the leaderboard after satisfying OP-20 and OP-16 gates. It does not conflict with existing candidates 1-22.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

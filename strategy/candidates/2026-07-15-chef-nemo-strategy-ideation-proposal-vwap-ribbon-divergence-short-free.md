@@ -29,3 +29,5 @@
 - **Premarket Prep (08:00-09:30 ET):** News refresh, level audit, bias write. Safe for production.
 - **Weekend Grind:** Long-running backtests (24+ hours). Param tuning ships after-4pm if validated (WF ≥ 0.70, OOS positive).
 - **Autonomous Operator Rule:** No automated process may block J's Claude session. Uptime prioritized; J holds off-switch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

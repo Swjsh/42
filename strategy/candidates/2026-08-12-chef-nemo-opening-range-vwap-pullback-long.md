@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate does not conflict with existing candidates in the leaderboard as it is a new trigger type. It complements existing VWAP-based strategies by focusing on opening range deviations and mean reversion to VWAP.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

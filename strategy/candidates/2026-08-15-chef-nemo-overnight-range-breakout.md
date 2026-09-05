@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing logic in the leaderboard. It complements existing time‑based or volatility‑based filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but would need to be evaluated for overlap with GAP_AND_GO (which uses prior‑day gap) and ORB‑style watchers. No direct conflict is anticipated; however, if both fire on the same bar, the engine would need tie‑breaking logic (not yet defined). The candidate is independent of watcher‑only proposals and does not affect any gate‑only entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

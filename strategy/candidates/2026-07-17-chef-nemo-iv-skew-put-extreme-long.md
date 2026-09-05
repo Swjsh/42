@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-24 in _LEADERBOARD.md). Complements structural DTE/watcher proposals as a new trigger lane. No overlap with existing IV-based candidates (none in registry). Adds diversity to trigger types without modifying existing setup logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with the leaderboard because its edge_capture (670.6) is below the 771 threshold required for inclusion. It does not complement any existing candidate as it fails the basic OP-16 gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

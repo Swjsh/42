@@ -49,3 +49,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel trigger type not present in the current leaderboard. It complements existing structural approaches (like WEEKLY_DTE_NOT_0DTE and VWAPCONT_DTE_OVERRIDE_2DTE) by adding a volatility/volume-based entry filter. No direct conflicts identified with ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

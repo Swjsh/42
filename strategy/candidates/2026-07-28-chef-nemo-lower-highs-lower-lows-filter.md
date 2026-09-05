@@ -50,3 +50,5 @@ Requires: gym validator pass for key-levels bounce counter, walk-forward OOS tes
 ## Pre-existing leaderboard impact
 
 This filter_change complements BEARISH_REJECTION-based setups (e.g., VWAP_CONTINUATION, GAP_AND_GO) by adding bounce quality. No direct conflict with existing leaderboard candidates as it modifies scoring rather than structure or triggers. May synergize with quality_gate candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

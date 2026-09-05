@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries because it is a new_trigger type and does not modify any existing parameters or gates. It is complementary to existing watchers and filters, provided it passes the Stage‑1 backtest and OP‑20 gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

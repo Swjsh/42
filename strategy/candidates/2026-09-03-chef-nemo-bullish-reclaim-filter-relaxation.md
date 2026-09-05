@@ -68,3 +68,5 @@ Complements existing candidates:
 - No overlap with rejected candidates (e.g., [BEAR_SCORE_7_RELAXATION](2026-06-17-214442-bear-score-7-relaxation.md)) as this targets bullish scope only.  
 - Safe to test alongside [WEEKLY_DTE_NOT_0DTE](2026-07-07-193737-weekly-dte-not-0dte.md) as DTE change is orthogonal.  
 - **No pre-merge conflicts** with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_bullish_reclaim_signal.py, analysis/recommendations/bullish_reclaim_filter_relaxation.json -->

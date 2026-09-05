@@ -65,3 +65,5 @@ Entry trigger remains: PULLBACK-HOLD-BULL (price holds above pullback low for 2 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: modifies confirmation qualifiers for PULLBACK-HOLD-BULL-TRIGGER grid (not currently on leaderboard as a standalone candidate). No direct conflict with ranked candidates (I, ★★, HOLD, WS4, ★, RV, REJ, 1-15) as those target different mechanisms (DTE overrides, structure vetoes, watcher revalidations). May interact with VWAP_CONTINUATION setup if grid is used for VWAP continuation signals, but grid audit is isolated to PULLBACK-HOLD-BULL-TRIGGER context.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

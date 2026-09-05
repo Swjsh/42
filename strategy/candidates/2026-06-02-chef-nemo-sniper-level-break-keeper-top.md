@@ -68,3 +68,5 @@ We hypothesize that tightening the SNIPER_LEVEL_BREAK trigger with a higher volu
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771 or are watcher-only). This parameter set would be REJECTED at the door per OP-16 (edge_capture < 771) and thus would not appear on the leaderboard unless OOS validation shows a dramatic improvement in J-day capture. If anything, it highlights the need for stricter selectivity in SNIPER_LEVEL_BREAK tuning.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ We will validate the top-3 J days (4/29, 5/01, 5/04) with real-fills simulation 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a foundational study that may inform future candidates (e.g., regime-based filters or overrides). It complements candidates that seek to improve robustness (e.g., STRUCTURE_VETO_DIR_VS_TREND) by identifying regimes where the setup needs protection.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ We need to quantify the edge capture of the current engine on J's source-of-trut
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate change; it is a prerequisite for evaluating any candidate against OP-16. It will impact the leaderboard by providing the baseline edge_capture against which all candidates' delta is measured. No conflict with existing candidates; rather, it enables proper assessment of them.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

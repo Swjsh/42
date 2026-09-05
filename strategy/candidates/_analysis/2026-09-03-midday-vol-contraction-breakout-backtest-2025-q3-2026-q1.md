@@ -46,3 +46,5 @@ unknown -- requires Stage-1 backtest
 - This is a stub/placeholder filed under the "top-keeper"/"backtest" naming convention but containing zero backtest output -- distinct from the three KILLED files above, which at least ran and reported a real (failing) edge_capture number.
 - Per the goal's KILLED definition ("the failing number is quoted... never a bare 'killed' with no evidence"), this file CANNOT be marked KILLED -- there is no failing number to cite, only an unexecuted plan.
 - Disposition: STILL-PENDING. Neither SHADOW-FILED nor KILLED. Recommend the next Kitchen fire actually execute the Stage-1 backtest named in "Next steps" before this gets a real verdict. No K9 action (nothing to shadow-file or kill-with-number).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

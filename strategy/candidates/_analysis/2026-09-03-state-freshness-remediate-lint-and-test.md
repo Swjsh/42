@@ -54,3 +54,5 @@ We need to:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any trading strategy candidates in `_LEADERBOARD.md` as it is about infrastructure and not a trading strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

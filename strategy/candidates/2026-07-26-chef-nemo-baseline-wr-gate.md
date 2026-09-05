@@ -65,3 +65,5 @@ Parameters are made configurable via command-line arguments to avoid modifying a
 ## Pre-existing leaderboard impact
 
 Complements all candidates by ensuring research loop only operates when baseline is viable. No conflict with existing candidates 1-9; enhances robustness of candidate evaluation pipeline. Does not alter any strategy logic, so zero direct impact on OP-16 anchors or leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

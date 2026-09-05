@@ -55,3 +55,5 @@ This correction does not conflict with any strategy candidate. It invalidates le
 - Rank 24 (CONFLUENCE_TOL_1_00) and Rank 25 (MAX_RIBBON_DUR_8) were invalidated by the L106 bug; their v2 reruns show opposite conclusions.
 - All other leaderboard entries relying solely on internal consistency (e.g., WF ratios, real-fills vs BS-sim) remain valid.
 - No candidate's status changes due to this correction; only the interpretation of certain historical scorecards is updated.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/data-versions.json -->

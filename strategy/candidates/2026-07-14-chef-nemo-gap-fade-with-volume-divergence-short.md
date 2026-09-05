@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by providing a short-biased trigger orthogonal to trend-following or mean-reversion setups. Does not conflict with current leaderboard entries (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE) as it operates on a different market anomaly (gap fading vs. continuation or DTE effects). May conflict with GAP_AND_GO (which trades gap continuation) but that is intentional novelty. No direct parameter or wiring overlap with existing live candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

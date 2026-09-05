@@ -52,3 +52,5 @@ Gym validators (all tests pass), walk-forward OOS positive, real-fills validatio
 ## Pre-existing leaderboard impact
 
 Complements the base BEARISH_REJECTION_RIDE_THE_RIBBON setup (not a leaderboard candidate). Does not conflict with existing filter candidates (e.g., MAX_RIBBON_DUR_8) as it operates on a different dimension; can be stacked.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

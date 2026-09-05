@@ -20,3 +20,5 @@
 - IS = Q3 2025, OOS = Q4 2025 as per task.
 - Ratios are OOS/IS (out-of-sample over in-sample).
 - For MIDDAY_TRENDLINE_GATE, the leaderboard entry reports real-fills OOS completeness but does not specify a walk-forward OOS/IS ratio for the given windows. A Stage-1 backtest is required to derive this metric.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

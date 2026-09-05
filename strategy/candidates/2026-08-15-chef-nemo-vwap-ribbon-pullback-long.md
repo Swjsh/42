@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION by capturing pullback-reentries rather than strict VWAP stays; differs from RIBBON_RIDE by adding VWAP reclaim trigger and body-quality filter. No direct conflict with leaderboard candidates as it targets a distinct setup type (VWAP/ribbon hybrid) not currently covered. May overlap with MIDDAY_TRENDLINE_GATE regime filters but operates earlier in session (09:45-11:30 vs 11:30-14:00).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

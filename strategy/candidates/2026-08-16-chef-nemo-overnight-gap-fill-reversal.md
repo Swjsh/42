@@ -57,3 +57,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including gym v
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type focused on overnight gap‑fill reversals. It does not conflict with existing candidates 1‑9 in _LEADERBOARD.md (which include GAP_AND_GO – gap continuation, ORB_RETEST_LONG – opening‑range retest, and various filters/gates). Instead, it complements the leaderboard by adding a distinct mean‑reversion edge on overnight gaps that is not currently represented.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

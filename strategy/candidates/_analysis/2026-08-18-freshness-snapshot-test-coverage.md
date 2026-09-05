@@ -54,3 +54,5 @@ This analysis concerns test infrastructure only, not strategy logic. No direct i
 ## Pre-existing leaderboard impact
 
 No impact -- pure testing infrastructure change. Complements all existing candidates by improving test reliability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

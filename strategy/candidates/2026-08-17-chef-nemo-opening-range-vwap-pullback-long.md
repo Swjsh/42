@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any current leaderboard entries. It introduces a novel trigger (opening‑range break → VWAP pullback long) distinct from existing watchers/triggers such as ORB_RETEST_LONG, VWAP_CONTINUATION, or gap‑and‑go setups, and therefore complements the existing strategy exploration space.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

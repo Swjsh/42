@@ -55,3 +55,5 @@ Current engine behavior is defined by the production heartbeat.md and params.jso
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it is a validation prerequisite for all candidates. Complements leaderboard by providing OOS/real-fills grounding for OP-16 anchors. Candidates like #12 (V14E_PARAM_SWEEP_26K) and #4 (ORB_NARROW_OR_GATE) have partial validation but lack joint OOS+real-fills on all 3 J winner days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

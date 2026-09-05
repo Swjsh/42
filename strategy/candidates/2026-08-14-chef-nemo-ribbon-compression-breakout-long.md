@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md. The leaderboard contains cross‑ticker divergence, DTE overrides, VWAP continuation gates, and trendline vetoes, none of which trade the EMA‑ribbon compression‑breakout phenomenon. This candidate would add a new trigger type that could complement existing filters if proven additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -36,3 +36,5 @@ We lack baseline parameters to isolate specific knob changes, but the edge_captu
 5. **Failure modes:** 
         - Worst day: 2026-05-15 with -$195.45 loss.
         - Max drawdown: not provided in keeper, but given the high wide_pnl and low edge_capture, likely significant drawdown during J loser days when the engine takes losses (e.g., 5/05 only lost $3, but 5
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ The VWAP_CONTINUATION setup (already validated as a detector) produces higher-qu
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION detector (rank 24 in leaderboard, currently disarmed). Does not conflict with J-RATIFIED candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it operates on different time window (morning VWAP continuation vs midday trendline). May overlap with ORB_NARROW_OR_GATE (rank 4) but uses different logic (VWAP vs opening range). Synergistic with structure-based vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) as volume confirmation strengthens structural signals. No known conflicts with top-10 leaderboard candidates.
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_vol_filter.py -->

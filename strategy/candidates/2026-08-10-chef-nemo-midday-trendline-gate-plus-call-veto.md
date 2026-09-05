@@ -58,3 +58,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing MIDDAY_TRENDLINE_GATE (rank 21) and STRUCTURE_VETO_DIR_VS_TREND (rank ★). It does not conflict with any existing candidate in the leaderboard because it is a new combination. However, it may subsume the individual benefits of those candidates if they are additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

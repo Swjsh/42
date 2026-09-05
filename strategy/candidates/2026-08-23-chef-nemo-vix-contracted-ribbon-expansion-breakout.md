@@ -67,3 +67,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing candidate in the leaderboard. It is complementary to existing filters (e.g., it could be combined with quality gates or exit changes) and does not conflict with any currently ranked strategy. No changes to existing params or automation files are required at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

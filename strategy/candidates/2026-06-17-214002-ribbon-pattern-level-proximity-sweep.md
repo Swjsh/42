@@ -173,3 +173,5 @@ is a genuine finding that should inform future quality-tier refinement.
 The sweep correctly identifies that the current OP-16 failure is rooted in (1) 5/01 FHH
 bypass missing and (2) BS simulator distorting loser-day P&L rather than in the pattern/level
 gates themselves. This closes the loop on the scenario hypothesis cleanly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

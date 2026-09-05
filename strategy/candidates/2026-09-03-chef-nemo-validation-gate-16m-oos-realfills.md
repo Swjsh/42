@@ -64,3 +64,5 @@ Only if all four conditions are satisfied does the candidate proceed to further 
 ## Pre-existing leaderboard impact
 
 This gate does not conflict with any existing candidate on the leaderboard; rather, it complements the leaderboard by ensuring that only candidates that have demonstrated robustness via the 16‑month Stage‑1 backtest, OOS walk‑forward ≥0.70, and real‑fills validation can appear. It acts as a quality filter that should increase the overall integrity of the leaderboard. No current candidate is known to violate these gate conditions (many lack OOS or real‑fills validation), so applying the gate would likely move several candidates from PROMISING to NEEDS‑MORE‑DATA until they satisfy the gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

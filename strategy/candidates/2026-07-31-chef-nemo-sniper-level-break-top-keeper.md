@@ -71,3 +71,5 @@ Gym validators must pass, walk-forward OOS test must show edge_capture ≥ 771 (
 ## Pre-existing leaderboard impact
 
 This candidate has edge_capture=229.63 < 771, so it is REJECTED at the door and does not appear on the leaderboard. It does not conflict with or complement existing leaderboard candidates (which all have edge_capture ≥ 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

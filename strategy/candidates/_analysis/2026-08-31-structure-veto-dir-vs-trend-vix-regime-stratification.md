@@ -57,3 +57,5 @@ Since this is an analysis and not a code change, no merge is required. However, 
 ## Pre-existing leaderboard impact
 
 This analysis does not change the engine or the leaderboard. It is purely an analysis of an existing candidate (STRUCTURE_VETO_DIR_VS_TREND) and therefore does not conflict with or complement any existing candidate on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

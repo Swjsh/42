@@ -58,3 +58,5 @@ We aim to capture the mean reversion tendency of overnight gaps in SPY. When SPY
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Unknown impact; does not appear to directly conflict with existing candidates (different mechanism), but may complement trend-following strategies by providing counter-trend entries. Requires Stage-1 backtest to quantify edge_capture and assess redundancy with current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ The mechanism involves the following steps:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The BULLISH_RECLAIM_RIDE_THE_RIBBON setup targets the opposite side of the market and may provide a hedge or diversification opportunity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

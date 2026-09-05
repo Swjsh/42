@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate introduces a new trigger type not present in the current leaderboard. It does not conflict with existing candidates (which are primarily watcher gates, parameter changes, or structural filters) but may complement or compete with ORB-based and VIX-based strategies (e.g., ORB_NARROW_OR_GATE, VIX_REGIME_DAYSIDE) once backtested. No direct overlap with current J-RATIFIED or PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -49,3 +49,5 @@ The pre-merge gate requires that the keepers pass a series of tests, including a
 ## Pre-existing leaderboard impact
 
 The proposed candidate complements the existing leaderboard candidates, particularly those related to the SNIPER_LEVEL_BREAK trigger. However, further analysis is required to determine the exact impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

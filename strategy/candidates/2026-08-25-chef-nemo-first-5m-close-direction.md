@@ -70,3 +70,5 @@ The first 5-minute bar's close relative to its open indicates intraday momentum 
 ## Pre-existing leaderboard impact
 
 Complements trigger-based candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER, VWAP_CONTINUATION) by adding a new opening-bar signal. No direct conflicts with existing candidates as it operates on a different timeframe/trigger logic. May compete for same trades but likely additive due to low correlation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Additionally, the gate enforces `placement.placed == true` for every entry count
 ## Pre-existing leaderboard impact
 
 This candidate complements existing quality gates (e.g., ranks 3, 17, 21) by adding a decision‑safety layer; it does not modify trigger, exit, or sizing logic, so no known conflict with current leaderboard entries. It is orthogonal to DTE, strike, or VIX‑based proposals.
+
+<!-- PROVENANCE-MISSING: test_no_intra_session_pnl_revert_block.py -->

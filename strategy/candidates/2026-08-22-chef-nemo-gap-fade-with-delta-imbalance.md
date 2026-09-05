@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict identified. The leaderboard includes GAP_AND_GO (gap continuation) as a WATCH-ONLY setup. This candidate targets gap fade under delta imbalance, a condition not covered by existing setups. May be complementary or non-overlapping depending on market conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

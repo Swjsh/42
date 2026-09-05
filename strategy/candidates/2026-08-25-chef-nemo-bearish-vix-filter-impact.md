@@ -57,3 +57,5 @@ Current mechanism: BEARISH_REJECTION_RIDE_THE_RIBBON requires VIX to be rising O
 ## Pre-existing leaderboard impact
 
 This candidate tests the removal of the VIX filter from BEARISH_REJECTION_RIDE_THE_RIBBON. It does not conflict with any existing candidate in the leaderboard, as it is a filter change on an existing setup. However, if the VIX filter is found to be detrimental, it may supersede the current BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is not explicitly in the leaderboard as a candidate, but is the baseline). The candidate complements the VIX bull gate revalidation (F8_BULL_VIX_GATE_REVAL) by testing the bearish side.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

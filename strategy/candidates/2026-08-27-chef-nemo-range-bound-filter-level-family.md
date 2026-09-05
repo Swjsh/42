@@ -53,3 +53,5 @@ Gym validators must pass, walk-forward OOS must show Sharpe >=0.70 on range-boun
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing level_memory perception layer (which is retained as infrastructure) and does not conflict with any existing candidates in the leaderboard. It is a new filter that uses the existing level-memory output.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

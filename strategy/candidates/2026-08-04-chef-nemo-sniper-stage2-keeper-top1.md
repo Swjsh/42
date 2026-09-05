@@ -72,3 +72,5 @@ The sniper_stage2_grinder combo aims to improve capture of J's winner days by ti
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door because its edge_capture (373.48) < 771. It does not conflict with existing leaderboard entries (all of which have edge_capture ≥ 771), but it also does not meet the minimum bar for inclusion. It should remain in the grinder pool for further refinement rather than being promoted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

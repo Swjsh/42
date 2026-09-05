@@ -55,3 +55,5 @@ The ORB_NARROW_OR_GATE (MAX_OR_RANGE=2.00) is **orthogonal to J's source-of-trut
 3. The gate filters noise from WIDE ORB days (>2.00) without touching J's anchors
 
 **Conclusion:** ORB_NARROW_OR_GATE is OP-16 neutral — it improves overall signal quality without harming any J anchor day P&L. The gate's benefit comes from excluding wide-ORB false breakouts on non-anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

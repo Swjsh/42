@@ -57,3 +57,5 @@ The backfill satisfies the gate: "J confirms 3+ live SNIPER signals in `journal/
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate but completes the pending action for candidate #15 [SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP](2026-05-24-sniper-vix-trend-stage2-entry-sweep.md). Once 3 J-confirmed shadow trades are recorded, the candidate can proceed to J ratification per Rule 9, potentially moving from RATIFICATION_BLOCKED-PENDING-ANCHOR to RATIFICATION_READY. It complements existing SNIPER-related candidates by providing the anchor trades needed for OP-16 evaluation.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 (which are mostly watcher gates, DTE studies, or structural filters). This proposal adds a new long‑bias trigger and could complement strategies that are neutral or short‑biased, provided it passes OP‑16 anchors. No overlap in mechanics with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

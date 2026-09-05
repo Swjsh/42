@@ -63,3 +63,5 @@ Entry fires when the HTF‑gated directional score exceeds its threshold. Exit u
 ## Pre‑existing leaderboard impact
 
 This candidate would be REJECTED at the door because its edge_capture (506.55) < 771 (50% of the max possible 1542). It does not affect the current leaderboard; it neither complements nor conflicts with any existing candidates. Promotion to the leaderboard requires first achieving a passing edge_capture via OOS walk‑forward and real‑fills validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

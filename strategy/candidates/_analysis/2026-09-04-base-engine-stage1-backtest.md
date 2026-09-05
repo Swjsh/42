@@ -56,3 +56,5 @@ The base engine is the current production engine as of the leaderboard's base (w
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is an evaluation of the baseline. It does not conflict with any existing candidate but provides context for evaluating their delta (e.g., a candidate's edge_capture delta is relative to this baseline 780). All candidates in the leaderboard are measured against this same base engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -73,3 +73,5 @@ The `require_break_above_open=true` is the likely primary driver. This is a stro
 Do not file as candidate. The grinder found 5 keepers but none meet OP-16 edge_capture floor. The high WR is likely from extreme filtering (require_break_above_open), not genuine edge.
 
 **Next step:** Run grinder with `require_break_above_open=false` to test if the filter is the primary driver of the "keepers" vs a genuine parameter combination improvement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

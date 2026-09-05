@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new long‑bias trigger, while the current leaderboard (candidates 1‑9) consists mostly of bearish‑oriented gates, structural studies, or watcher proposals. There is no direct overlap in mechanics, so it is likely complementary rather than conflicting, but the actual impact on leaderboard rankings cannot be determined without a Stage‑1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

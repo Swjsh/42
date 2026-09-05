@@ -40,3 +40,5 @@
 - Sharpe ratio of edge-capture cohort (needs full backtest grid).  
 
 **Dependency:** OP-0 #1 (live arming) is blocked until J-edge score is validated against live paper fills (post-VIX pin).
+
+<!-- PROVENANCE-MISSING: analysis/2026-W29.md -->

@@ -51,3 +51,5 @@ Same vwap_continuation signal (ITM-2 strike, -8%/+30% exit) executed at 1DTE and
 ## Pre-existing leaderboard impact
 
 Analysis requests additional data to evaluate candidate robustness; does not alter candidate's PROMISING status. Candidate remains viable pending quarterly walk-forward results showing persistent DTE lift across 2026 Q1/Q2/Q3. No conflict with existing leaderboard; complements by adding regime-specific scrutiny to structural DTE finding.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

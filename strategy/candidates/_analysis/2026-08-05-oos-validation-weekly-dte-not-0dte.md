@@ -57,3 +57,5 @@ Identical to the WEEKLY_DTE_NOT_0DTE candidate: trigger the same vwap_continuati
 ## Pre‑existing leaderboard impact
 
 This analysis validates the existing ★★ candidate `WEEKLY_DTE_NOT_0DTE` (filed 2026-07-07). It does not conflict with any other leaderboard entries; rather, it may promote, demote, or leave unchanged its status based on the OOS outcome. No changes to other candidates’ rankings are implied. If the DTE lift persists, the candidate’s edge_capture and Sharpe projections will be updated, potentially increasing its final_score and preserving its PROMISING status. If the lift fails, the candidate may be moved to NEEDS-MORE-DATA or REJECTED pending further study. Either way, the analysis is additive and does not alter the mechanics of any other strategy.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/weekly_dte_3_4dte_oos.json -->

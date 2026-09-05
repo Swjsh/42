@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger based on ribbon contraction mean reversion. It does not duplicate any existing candidate in the leaderboard (which are mostly watcher quality gates, DTE studies, or structural filters). It may complement existing ribbon‑based strategies by providing a mean‑reversion alternative to the trend‑following BEARISH_REJECTION_RIDE_THE_RIBBON.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

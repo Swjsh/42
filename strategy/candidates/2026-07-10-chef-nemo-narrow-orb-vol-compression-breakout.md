@@ -68,3 +68,5 @@ This candidate is a novel trigger distinct from existing ORB-based ideas in the 
 - Expected to complement rather than conflict with existing candidates (e.g., may add entries on days where ORB-based watchers are silent).  
 - No direct overlap with structural or exit-change candidates in the leaderboard.  
 - If validated, would be evaluated as a new_trigger type for potential integration into the engine's setup dispatch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ Entry triggers on EMA ribbon rejection signals (same as BEARISH_REJECTION_RIDE_T
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates as edge_capture < 771 auto-rejects per OP-16. Would complement existing candidates if edge_capture improved via OOS-refined parameters, but current version lacks J-day edge purity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

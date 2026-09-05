@@ -58,3 +58,5 @@ Running the autoresearch grinder (Stage-1 backtest) will generate new strategy c
 ## Pre-existing leaderboard impact
 
 This analysis does not directly propose a strategy change but provides a validation framework. It complements existing candidates by offering a path to vet new ideas. It does not conflict with any current leaderboard entries; rather, it aims to feed new candidates into the leaderboard after validation. If successful, it could add new PROMISING or J-RATIFIED candidates. If unsuccessful, it will refine the grinder's search space.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

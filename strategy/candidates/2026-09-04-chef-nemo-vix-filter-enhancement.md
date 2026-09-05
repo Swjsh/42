@@ -53,3 +53,5 @@ Gym validators for the new VIX filter must pass; walk-forward OOS test with prof
 ## Pre-existing leaderboard impact
 
 This candidate may conflict with [F8_BULL_VIX_GATE_REVAL](2026-06-26-094255-f8-bull-vix-block-revalidation-KEEP.md) and [VIX_BULL_HARD_CAP_UNBLOCK](2026-06-26-vix-bull-hard-cap-revalidate.md) if it modifies the same VIX bullish filter. If it introduces a new filter (e.g., a VIX high threshold for bullish entries), it may complement these candidates. Further analysis is needed to determine interactions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

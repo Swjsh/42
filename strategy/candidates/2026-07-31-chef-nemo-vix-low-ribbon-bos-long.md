@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (e.g., F8_BULL_VIX_GATE_REVAL, F8_VIX_FLAT_UNBLOCK) as it adds a unique BOS trigger + ribbon condition combination not currently in registry. May complement VIX filters by providing stricter entry timing. No overlap with bearish-focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) as this is long-biased.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

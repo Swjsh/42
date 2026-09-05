@@ -68,3 +68,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon-based strategies (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by targeting fresh BOS events rather than pullback reclaims. No direct conflict with current leaderboard entries as it proposes a new trigger type. May overlap with structural gates like TRENDLINE_BREAK_CALL_VETO but differs in entry conditions (ribbon expansion + BOS vs trendline break alone). Requires deduplication analysis if promoted to avoid signal redundancy with existing bullish setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

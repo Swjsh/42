@@ -52,3 +52,5 @@ Two simultaneous changes:
 
 ## Pre-existing leaderboard impact
 No conflict with existing candidates; engine logic fix evaluated independently. May complement BEARISH_REVERSAL-dependent candidates by improving signal quality.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

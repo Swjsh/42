@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB_RETEST_LONG (watch-only) by providing a short-side alternative using VWAP instead of OR retest. No direct conflict with current leaderboard candidates (all are watcher/gate/quality proposals or structural finds); adds new trigger type to strategy arsenal. Does not overlap with any ratified setups (BEARISH_REJECTION, BULLISH_RECLAIM, VWAP_CONTINUATION, GAP_AND_GO) in mechanism or timeframe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

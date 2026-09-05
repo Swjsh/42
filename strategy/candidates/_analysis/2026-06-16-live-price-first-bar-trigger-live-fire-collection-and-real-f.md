@@ -63,3 +63,5 @@ As per the leaderboard notes, the LIVE_PRICE_FIRST_BAR_TRIGGER trigger does not 
 ## Pre-existing leaderboard impact
 
 This analysis supports the LIVE_PRICE_FIRST_BAR_TRIGGER candidate (rank 2) by addressing its two remaining OP-21 gates: (1) 3+ live fires observed and (2) real-fills P&L validation. It does not conflict with any other candidates in the leaderboard, as it is purely a validation step for this candidate. It complements the existing smoke test and Stage-2/3 analyses.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing logic in the leaderboard (candidates 1‑9). It is complementary in that it adds a distinct entry signal based on opening‑range dynamics and volume, which is not currently represented. No known conflict with existing candidates; however, simultaneous execution would require position‑sizing coordination to avoid exceeding per‑trade risk limits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -41,3 +41,5 @@ Any future candidate must pass: gym validators, walk-forward OOS (WF ratio >= 0.
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so it does not conflict with the existing leaderboard. It serves as a performance check on the grinder harness process.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ The STRUCTURE_VETO_DIR_VS_TREND keeper wires `crypto.lib.market_structure.classi
 ## Pre-existing leaderboard impact
 
 This analysis evaluates the existing keeper ★ (STRUCTURE_VETO_DIR_VS_TREND). It does not conflict with other candidates; rather, it validates its continued suitability. If OOS shows degradation, it may prompt re-evaluation or replacement by other candidates (e.g., WEEKLY_DTE_NOT_0DTE or VWAPCONT_DTE_OVERRIDE_2DTE). If OOS shows improvement, it reinforces its keeper status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

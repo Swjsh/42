@@ -74,3 +74,5 @@ Entry triggers on a level break with the above filters; exit uses a chart stop (
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder keeper. Since its edge_capture (373.48) is below the rejection threshold (771), it would not appear on the leaderboard even if promoted. It conflicts with no current leaderboard entries because it fails the OP‑16 gate outright. Any further work must first raise edge_capture above the floor before considering leaderboard inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

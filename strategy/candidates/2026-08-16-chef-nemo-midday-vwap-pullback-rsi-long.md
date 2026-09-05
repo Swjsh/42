@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9; complements VWAP_CONTINUATION by offering a different intraday timing and filter set. No overlap in trigger logic observed in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

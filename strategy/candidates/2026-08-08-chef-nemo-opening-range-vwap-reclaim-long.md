@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; complements VWAP_CONTINUATION by adding opening-range precondition and close-in-upper-half filter. Would occupy new trigger lane if validated. Does not modify any existing watchers, gates, or exits in current leaderboard ranks 1-24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

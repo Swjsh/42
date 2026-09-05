@@ -64,3 +64,5 @@ Tightening VIX thresholds for trade entry will improve signal quality by filteri
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding regime filter; conflicts with F8_BULL_VIX_GATE_REVAL (KEEP) which uses VIX<17.20 for bull path. No direct duplication in leaderboard. If validated, may supersede standalone VIX filters.
+
+<!-- PROVENANCE-MISSING: test_vix_threshold_tighten.py -->

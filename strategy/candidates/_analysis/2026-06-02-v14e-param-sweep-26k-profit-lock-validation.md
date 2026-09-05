@@ -55,3 +55,5 @@ Do **not** keep the fixed profit-lock in production. Replace it with a trailing 
 ## Pre-existing leaderboard impact
 
 This analysis supports refining the V14E_PARAM_SWEEP_26K candidate (rank 12) by replacing fixed profit-lock with trailing profit-lock. It does not conflict with other candidates but may improve the edge_capture and Sharpe of candidate 12.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

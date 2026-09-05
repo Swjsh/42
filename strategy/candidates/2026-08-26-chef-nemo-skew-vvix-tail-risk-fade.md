@@ -55,3 +55,5 @@ Low confidence because the hypothesis is theoretically sound but untested on liv
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is a new_trigger type and does not directly conflict with existing candidates (which are primarily filter changes, quality gates, or exit changes). It may complement strategies that trade in low-volatility regimes by providing a tail-risk hedge, but could conflict if it fires on the same days as BEARISH_REJECTION_RIDE_THE_RIBBON (potentially increasing bearish exposure on already bearish days).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

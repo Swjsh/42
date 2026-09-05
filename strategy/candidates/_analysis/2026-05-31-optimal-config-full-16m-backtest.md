@@ -61,3 +61,5 @@ Then assess concentration verdict per OP-20 disclosure 6.
 ## Pre-existing leaderboard impact  
 
 This analysis does not propose a new candidate; it evaluates an existing config. If concentration passes, it may support ratification of related parameters (e.g., V14E exits) but does not conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

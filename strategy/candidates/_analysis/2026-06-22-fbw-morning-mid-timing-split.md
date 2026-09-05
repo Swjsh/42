@@ -56,3 +56,5 @@ FBW_MORNING_MID is a bull trade class; OP-16 anchor days are bearish PUT winners
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; FBW_MORNING_MID is currently WATCH-ONLY (rank 19). This analysis may inform a future candidate to adjust time_gate (EARLY vs LATE) or adjust confidence band.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

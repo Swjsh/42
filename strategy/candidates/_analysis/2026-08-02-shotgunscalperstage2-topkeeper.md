@@ -57,3 +57,5 @@ This configuration uses a 50% TP1 target, 30% premium stop, 10-minute time stop,
 
 ## Pre-existing leaderboard impact
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771). This analysis confirms the keeper fails OP-16 floor and requires significant rework before reconsideration. Complements existing analysis by highlighting dangers of overfit in parameter sweeps without anchor-day gating.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

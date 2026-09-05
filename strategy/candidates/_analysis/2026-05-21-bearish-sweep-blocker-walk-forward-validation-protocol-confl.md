@@ -58,3 +58,5 @@ The gate blocks trades when a sweep is detected *unless* the sweep trigger co-oc
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_SWEEP_BLOCKER candidate (rank #1) by providing OOS validation path. Does not conflict with other candidates; supports J-RATIFICATION path if Sharpe improves. No impact on watcher-only candidates (#3-5, #9-10).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

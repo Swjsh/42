@@ -53,3 +53,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing rules in the leaderboard. It may complement existing volatility‑ or regime‑based filters (e.g., VIX‑gated watches) but must be evaluated for overlap with existing ORB‑related watchers (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER). No conflict is anticipated at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

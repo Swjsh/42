@@ -57,3 +57,5 @@ To pass the pre-merge gate, the following tests need to be completed:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard by addressing a specific pain point (SKIP_TV_DATA_STALE events) and potentially improving the overall performance and reliability of the system. However, its impact on the leaderboard rankings and the effectiveness of other candidates need to be evaluated through further testing and analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

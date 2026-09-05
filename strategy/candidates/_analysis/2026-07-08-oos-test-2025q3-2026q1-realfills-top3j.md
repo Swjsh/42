@@ -55,3 +55,5 @@ We will run the existing engine (or a candidate under evaluation) through a walk
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it is a test plan that can be applied to any candidate. It complements existing candidates by providing a robust validation framework. No conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

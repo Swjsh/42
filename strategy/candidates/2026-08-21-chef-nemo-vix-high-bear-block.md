@@ -53,3 +53,5 @@ Gym validators must pass (including new test for the VIX gate), walk-forward OOS
 ## Pre-existing leaderboard impact
 
 This candidate complements existing VIX-related filters (e.g., V14E_BEAR_ONLY_GATE's VIX stratification) and does not conflict with any ratified candidates. It is orthogonal to structural gates like STRUCTURE_VETO_DIR_VS_TREND and timing gates like MIDDAY_TRENDLINE_GATE. It may conflict with candidates that rely on high VIX for edge (e.g., some SNIPER variants), but those are not OP-16 focused and are currently WATCH-ONLY or REJECTED.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Add a pre-entry filter for BEARISH_REJECTION_RIDE_THE_RIBBON setups: reject if t
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing filters (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) by targeting different time window (first 5 min post-trigger vs midday). No direct conflicts; likely additive if uncorrelated with existing gates. Does not affect watcher-only candidates or bull-side setups. May conflict with BEARISH_SCORE_7_RELAXATION (Rank 36) if both target similar loser-day mechanics; requires A/B testing to isolate marginal impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

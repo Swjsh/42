@@ -54,3 +54,5 @@ Requires gym validators for trigger logic (unit tests with hand-computed expecte
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (no exact trigger overlap). May complement VWAP_CONTINUATION and GAP_AND_GO by providing an additional long entry signal for hammer patterns, potentially increasing trade frequency without degrading edge if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

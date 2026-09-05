@@ -63,3 +63,5 @@ Not applicable (analysis of existing keepers, not a new strategy proposal).
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 Does not conflict; all current leaderboard candidates have edge_capture ≥ 771 (by OP-16 rejection rule). These keepers fail the OP-16 floor and would be rejected at door. No complementarity edge since they lose on anchor days where leaderboard candidates capture edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

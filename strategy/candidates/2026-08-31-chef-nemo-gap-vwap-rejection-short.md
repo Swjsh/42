@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is orthogonal to the current leaderboard entries. It proposes a short‑trigger based on gap‑up/VWAP rejection, whereas the top candidates are either structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND), DTE studies (WEEKLY_DTE_NOT_0DTE), or watcher‑only proposals. It does not duplicate or directly conflict with any existing trigger type in the leaderboard, so it can be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

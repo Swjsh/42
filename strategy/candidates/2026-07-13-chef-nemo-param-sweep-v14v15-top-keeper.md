@@ -53,3 +53,5 @@ Must pass gym validators, walk-forward OOS test with WF >= 0.70, show edge_captu
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor and would be REJECTED at the door. It does not appear on the current leaderboard (which only includes candidates with edge_capture >= 771). Therefore, it does not conflict with the leaderboard. However, it highlights the risk of overfit in parameter sweeps without OOS validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Tightening the chart stop buffer from $0.50 to $0.30 will reduce premature stops
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; modifies an exit parameter of the core BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is not itself a candidate in the leaderboard (it is the baseline playbook setup). May complement candidates that act as filters (e.g., MIDDAY_TRENDLINE_GATE) by reducing false exits on winner days. No overlap with watcher‑only or structural‑gate candidates.
+
+<!-- PROVENANCE-MISSING: test_chart_stop_buffer_tighten_0d3.py -->

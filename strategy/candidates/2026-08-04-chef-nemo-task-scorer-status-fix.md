@@ -58,3 +58,5 @@ Modify task_scorer.py: replace the status field extraction logic in the item par
 ## Pre-existing leaderboard impact
 
 No impact on existing candidates' content or engine behavior. This change only corrects how the leaderboard's status field is read, ensuring accurate reflection of candidate states (e.g., preventing closed multi-paragraph items from appearing ready). Does not conflict with or complement any trading strategy candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

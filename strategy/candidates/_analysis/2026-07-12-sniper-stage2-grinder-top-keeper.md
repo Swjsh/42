@@ -75,3 +75,5 @@ Compared to a baseline SNIPER_LEVEL_BREAK strategy (exact baseline unknown), thi
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture threshold (≥771) and would be REJECTED at the door. It does not conflict with or complement any leaderboard candidates, as it fails the primary gate. Promotion to leaderboard requires edge_capture ≥771 first.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

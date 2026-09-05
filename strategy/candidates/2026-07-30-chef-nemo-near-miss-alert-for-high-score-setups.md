@@ -62,3 +62,5 @@ The alert is written once per bar to avoid spamming.
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates by providing visibility into near-miss opportunities. It does not conflict with any current strategy rules or parameters, as it adds observability without changing engine behavior. It may inform future filter relaxation candidates (e.g., for filter 9 or 10) by quantifying blocked edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

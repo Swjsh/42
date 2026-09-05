@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing top 9 candidates (QQQ divergence, weekly DTE, VWAP cont DTE override, trendline break call veto, structure veto, etc.); complements by providing a short-bias trigger based on VIX intraday deviation that may capture orthogonal edges.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Each candidate must be individually backtested on the J anchor window to confirm
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a gate check applied to SNIPER candidates. The SNIPER candidates #13, #14, #15 are currently in the leaderboard with various statuses. This gate may lead to their rejection if they fail to capture 5/04. Given the aggregate J anchor performance, all three candidates are expected to fail this gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

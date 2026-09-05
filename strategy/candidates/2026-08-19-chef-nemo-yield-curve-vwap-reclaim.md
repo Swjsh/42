@@ -70,3 +70,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it introduces a unique macro regime filter (yield curve steepness/flattening) absent from all registered strategies. It may complement VWAP‑based strategies (e.g., VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK) by adding a directional bias layer, potentially improving their edge without overlapping triggers. No parameter or wiring changes to existing candidates are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

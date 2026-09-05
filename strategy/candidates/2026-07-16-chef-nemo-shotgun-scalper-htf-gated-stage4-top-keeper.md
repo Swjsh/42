@@ -64,3 +64,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771). Would not appear on leaderboard due to failing OP-16 edge_capture bar. Complements existing candidates by exploring HTF-gated approach but needs significant improvement to be viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

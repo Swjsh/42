@@ -50,3 +50,5 @@ Grinder Stage-1 completion, walk-forward OOS positive, real-fills validation dif
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate; it is a procedural step. No conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

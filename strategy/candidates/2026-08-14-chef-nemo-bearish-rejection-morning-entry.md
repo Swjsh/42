@@ -55,3 +55,5 @@ The BEARISH_REJECTION_MORNING watcher fires on bearish ribbon-flip-at-level entr
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?> This candidate complements existing
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

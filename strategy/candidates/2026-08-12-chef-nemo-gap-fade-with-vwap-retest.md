@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with / complements candidates 1-9 in _LEADERBOARD.md: trades gap fade (short bias) vs GAP_AND_GO (gap continuation, long bias for puts); orthogonal logic. No overlap in trigger conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

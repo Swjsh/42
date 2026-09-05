@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (primarily watcher quality gates and DTE studies). Conceptually distinct from VWAP_CONTINUATION and VWAP_RECLAIM_FAILED_BREAK by requiring ribbon slope kink (not just price/VWAP interaction) and volume confirmation. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

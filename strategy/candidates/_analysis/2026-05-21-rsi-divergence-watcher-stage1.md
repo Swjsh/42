@@ -60,3 +60,5 @@ The RSI divergence watcher identifies bullish/bearish divergences between price 
 ## Pre-existing leaderboard impact
 
 This watcher proposal does not conflict with any existing candidate in _LEADERBOARD.md because it is a watcher‑only observation (no direct P&L impact unless combined with a trigger). It could be combined with a quality gate or trigger change in the future.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

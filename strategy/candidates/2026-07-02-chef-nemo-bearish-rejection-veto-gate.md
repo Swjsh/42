@@ -54,3 +54,5 @@ The pre-merge gate requires the veto gate to pass the following tests:
 ## Pre-existing leaderboard impact
 
 The veto gate is expected to complement the existing leaderboard candidates, as it is designed to block entries in low-volatility environments, which are relatively rare. The veto gate is not expected to conflict with any existing candidates, as it is a new filter that is designed to work with the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

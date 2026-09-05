@@ -22,3 +22,5 @@ Validate that the bear-only subset of v14e watcher observations maintains its wi
 -# OOS/Promotion Threshold Analysis for V14E_BEAR_ONLY_GATE per-barrier dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown dates unknown datesThe bear-only gate EXISTS irrespective of engine changes and simply filters out bull v14e setups entirely — engine behavior unchanged; hence no OP-16 anchor days affected whatsoever (confirmed-zero fires across all 7 anchor days unaffected = edge_capture unchanged = no OP- anchor days affected equivalently unaffectedNone remains edge_candidate unchanged J-engine unchangedHenceforth unaffected.OOS validation');
    thetruncated_DATE DATE OOS_TheThe primary limitation: Observations with dates breakdown unknown without explicitTimestampelse the integral Validation unable_date_TESThist
 theWalk-Forward Walk-——)_
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

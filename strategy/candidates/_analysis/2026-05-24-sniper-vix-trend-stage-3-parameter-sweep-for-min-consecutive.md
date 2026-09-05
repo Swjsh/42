@@ -65,3 +65,5 @@ Fixed parameters from Stage 2 winner: vix_lower=18.0, vol_mult=0.9, min_stars=2,
 Complements #15 SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP (adds regime filter to existing winner params). No conflict with top 14 candidates as this is a parameter refinement proposal for SNIPER_VIX_TREND class. Does not affect watcher-only or non-SNIPER candidates. If sweep shows N=2/N=3 improves OOS stability without harming edge_capture, could become new Stage 2 winner recommendation.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

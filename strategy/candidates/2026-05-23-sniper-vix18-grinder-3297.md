@@ -313,3 +313,5 @@ VIX-trend grinder COMPLETE: 432/432 combos, 90 ratif candidates. Best results:
 
 *Candidate filed by Gamma (engine calibration session, 2026-05-24 00:00 ET)*  
 *Grinder COMPLETE: 432/432 combos, completed 2026-05-24 ~00:50 ET. 24 ratification candidates. Best=$3,297.60 (confirmed stable from combo #5 onward). OOS walk-forward in progress.*
+
+<!-- PROVENANCE-MISSING: strategy/candidates/2026-05-23-sniper-vix18-regime-filter.md -->

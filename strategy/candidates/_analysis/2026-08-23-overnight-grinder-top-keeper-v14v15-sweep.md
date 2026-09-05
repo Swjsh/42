@@ -60,3 +60,5 @@ Before any consideration for promotion, the following must be completed:
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a new candidate; it interprets an existing grinder output. Because the edge_capture is below the OP‑16 rejection threshold, the keeper would not appear on the leaderboard. It conflicts with the leaderboard’s requirement that candidates must have edge_capture ≥ 771 to be considered. No direct impact on current ranked candidates; the insight is that this parameter set should be discarded or used only as a cautionary example of overfit in parameter sweeps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

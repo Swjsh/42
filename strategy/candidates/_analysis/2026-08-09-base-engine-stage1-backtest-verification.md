@@ -39,3 +39,5 @@ None (verification of existing engine).
 ## Pre-existing leaderboard impact
 
 Does not conflict with any candidate; serves as baseline for evaluating new proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing bullish setups (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by providing an alternative long-entry trigger based on ribbon structure and BOS rather than VWAP reclaim. No direct conflict with current leaderboard candidates (which are primarily gates, DTE studies, or bearish-focused setups); may coexist as a separate long-bias strategy lane if validated. Does not interfere with watcher-only or veto-type candidates in rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

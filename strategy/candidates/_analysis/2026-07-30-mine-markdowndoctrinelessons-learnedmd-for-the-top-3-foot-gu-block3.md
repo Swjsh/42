@@ -43,3 +43,5 @@ Reduces risk of deploying overfit candidates by making overfitting harder to ach
 ## Confidence
 
 7 / 10 -- The concept of layered gates is already reflected in some existing grinders (see LESSONS‑LEARNED.md L10), but encoding it as a validator will require checking script structure; risk of false negatives is moderate due to variety of grinder implementations.
+
+<!-- PROVENANCE-MISSING: test_l10_optimization_overfit_guard.py -->

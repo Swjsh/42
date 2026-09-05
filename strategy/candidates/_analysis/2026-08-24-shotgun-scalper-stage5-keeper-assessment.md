@@ -78,3 +78,5 @@ The top keeper must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the edge_capture floor and thus would not appear on the leaderboard. It does not conflict with existing candidates but suggests the shotgun_scalper_stage5 approach needs re-evaluation to capture more edge on the J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

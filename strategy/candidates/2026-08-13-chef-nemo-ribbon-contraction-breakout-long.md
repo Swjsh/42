@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md. This is a novel trigger type (ribbon contraction precondition + volume filter) not present in current registry (BULLISH_RECLAIM_RIDE_THE_RIBBON and BEARISH_REJECTION_RIDE_THE_RIBBON require price already above/below ribbon). Complements watcher_proposals and quality_gates by adding a new entry signal orthogonal to VWAP, trendline, and structure-based triggers. No overlap with exit_change or filter_change types.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; complements by providing new trigger type (RSI divergence + named level confluence) not currently represented in leaderboard strategies. May overlap with VISION_CHART_OBSERVER (watcher-only) but adds actionable entry logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

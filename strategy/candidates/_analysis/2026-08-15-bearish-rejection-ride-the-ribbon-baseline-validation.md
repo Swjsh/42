@@ -58,3 +58,5 @@ No changes to entry/exit logic. We are evaluating the existing BEARISH_REJECTION
 ## Pre-existing leaderboard impact
 
 Complements candidates that modify this setup (e.g., BEARISH_SWEEP_BLOCKER, MAX_RIBBON_DUR_8, TRENDLINE_BREAK_CALL_VETO). Conflicts with any candidate that removes or gates this setup's entries on anchor days. Does not affect watcher-only or bullish-direction candidates. If baseline edge_capture < 771, all modifications must improve upon it to be considered.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_ride_the_ribbon.py -->

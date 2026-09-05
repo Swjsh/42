@@ -86,3 +86,5 @@ For the top keeper to be reconsidered, it would need:
 
 ## Pre-existing leaderboard impact
 This analysis does not propose a new candidate, so it does not conflict with the leaderboard. However, if the top keeper were to be promoted (which it should not be), it would rank below the current threshold (edge_capture < 771) and thus be rejected.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

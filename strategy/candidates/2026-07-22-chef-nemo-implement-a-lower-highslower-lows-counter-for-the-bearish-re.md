@@ -39,3 +39,5 @@
 - **Sim Accuracy Gate**: Strike offset mismatch (BS-sim-ignored-strike-offset) risk invalidating research.  
 - **Bullish Strategy**: Live paper fills (n=80, WR 1.2%) may fail edge_capture ≥ 771 (needs n≥20 under SS-B).  
 - **Work Cadence**: Weekend deferral risk (foot-gun) if <8h tasks unshipped. No explicit log of L#240 fold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

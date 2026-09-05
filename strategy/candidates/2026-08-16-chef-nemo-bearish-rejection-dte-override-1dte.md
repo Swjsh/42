@@ -58,3 +58,5 @@ Identical trigger logic to BEARISH_REJECTION_RIDE_THE_RIBBON: level rejection (c
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements WEEKLY_DTE_NOT_0DTE (Rank ★★) by applying same DTE lever to BEARISH_REJECTION_RIDE_THE_RIBBON setup instead of VWAP_CONTINUATION. No direct conflict; if successful, could be stacked as alternative trigger for same DTE override logic. Does not affect watcher-only candidates. May reduce reliance on 0DTE execution quality.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_dte_override.py -->

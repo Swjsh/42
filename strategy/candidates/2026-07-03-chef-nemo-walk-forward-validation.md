@@ -52,3 +52,5 @@ The pre-merge gate will require the walk-forward validation to pass before the s
 ## Pre-existing leaderboard impact
 
 The proposed behavior is not expected to have a significant impact on the pre-existing leaderboard, as it is a testing methodology rather than a strategy change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

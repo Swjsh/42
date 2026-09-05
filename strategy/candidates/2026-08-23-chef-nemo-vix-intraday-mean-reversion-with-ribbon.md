@@ -70,3 +70,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with any existing candidate in the leaderboard (all are filters, exits, or structural gates). It may complement existing quality gates (e.g., structure_veto_enabled) or exit rules, but potential overlap or redundancy requires Stage-1 backtest to evaluate. No known conflicts with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

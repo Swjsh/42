@@ -56,3 +56,5 @@ The keeper combo uses: vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_of
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates existing grinder output. No direct conflict with leaderboard entries. However, any derivative candidate based on these parameters would likely be REJECTED due to failing the OP-16 edge_capture gate (as seen with similar SNIPER premium-exit variants in the leaderboard). Resources should be directed toward OOS walk-forward and real-fills validation before further parameter sweeps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -221,3 +221,5 @@ Real edge confirmed with OPRA-level pricing. Ready for J ratification.
 ---
 
 *Candidate authored by Gamma (autonomous engine tuning session, 2026-05-23 22:55 ET)*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

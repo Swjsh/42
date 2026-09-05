@@ -53,3 +53,5 @@ Revise the ITEM_RE pattern to allow newlines inside the priority field by using 
 ## Pre-existing leaderboard impact
 
 No direct impact on leaderboard scores (which are derived from trading strategy backtests). May affect internal queue processing by correctly recognizing open items with multi-line priority annotations, potentially changing which items are considered in the queue scoring and thus the leaderboard if the queue items influence leaderboard generation (e.g., via open item counts or priority-based filtering).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

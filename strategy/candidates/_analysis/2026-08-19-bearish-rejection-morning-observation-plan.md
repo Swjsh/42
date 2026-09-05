@@ -60,3 +60,5 @@ We need to:
 ## Pre-existing leaderboard impact
 
 This observation plan does not conflict with any existing candidates. It supports the BEARISH_REJECTION_MORNING watcher (rank 20) by providing the data needed to move it from WATCH-ONLY to a higher status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

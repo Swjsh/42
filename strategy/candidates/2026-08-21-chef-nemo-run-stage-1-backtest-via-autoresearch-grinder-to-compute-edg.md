@@ -26,3 +26,5 @@ DRAFT CANDIDATE: **Work Cadence Window Alignment for PDT Fix**
   - Use `markdown/doctrine/edge-master-doctrine.md` as source-of-truth for PDT logic.  
 - **Validation**: Run `backtest/tests/test_pdt_edge.py` in parallel with WS2.  
 - **Output**: If successful, merge into `mcp_heartbeat` and remove `PDT_GAP_DEFERRED` from `STATUS.md`. If failure, escalate to J via `automation/state/news.json`.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_pdt_edge.py -->

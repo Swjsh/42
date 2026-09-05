@@ -52,3 +52,5 @@ Gym validators (97/98 PASS), walk-forward OOS test for 2025-Q3–2026-Q2 (Sharpe
 ## Pre-existing leaderboard impact
 
 Evaluates existing candidate STRUCTURE_VETO_DIR_VS_TREND (rank ★). Complements by providing OOS validation for 2025-Q3–2026-Q2 window. No conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

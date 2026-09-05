@@ -59,3 +59,5 @@ We will run walk-forward analysis (using the existing walk-forward test) and rea
 ## Pre-existing leaderboard impact
 
 This candidate validates the existing TBR_HIGH_VOL watcher strategy (currently WATCH-ONLY) and does not conflict with any leaderboard entries. It complements the existing candidate by providing the validation requested in the task.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

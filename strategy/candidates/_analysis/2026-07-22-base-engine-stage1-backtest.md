@@ -50,3 +50,5 @@ Gym validators must pass (all/all), walk-forward Sharpe ratio ≥ 0.70, real-fil
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate; it evaluates the base engine. It complements all candidates by providing a baseline for edge_capture and Sharpe. No conflict with existing leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

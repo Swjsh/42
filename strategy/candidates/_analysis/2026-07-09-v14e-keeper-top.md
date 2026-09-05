@@ -59,3 +59,5 @@ The v14_enhanced_grinder sweep identified parameter sets that increase trade fre
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it interprets an existing grinder keeper. Compared to current leaderboard entries (e.g., V14E_PARAM_SWEEP_26K with edge_capture=$499 and Sharpe=9.34), this keeper shows similar edge_capture but far lower Sharpe (implied by wide_wr=0.649 vs. high Sharpe candidates). It would likely rank below existing candidates that already fail the OP‑16 edge floor and thus would not be promotable without further OOS walk‑forward improvement. No.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

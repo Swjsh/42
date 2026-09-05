@@ -35,3 +35,5 @@ Run Stage-1 backtest via autoresearch grinder harness, then walk-forward OOS tes
 
 N/A  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

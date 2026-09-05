@@ -89,3 +89,5 @@ The candidate should be evaluated as **"does this improve aggregate P&L vs curre
 ## Confidence
 
 8/10 — OOS validation PASS, real-fills confirm improvement, edge_capture limitation is architectural not fixable within V14E confirmation-late design.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

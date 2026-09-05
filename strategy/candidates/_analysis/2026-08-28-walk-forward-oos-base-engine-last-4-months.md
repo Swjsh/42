@@ -54,3 +54,5 @@ We test whether the base engine (no candidate changes) achieves OOS Sharpe >= 0.
 ## Pre-existing leaderboard impact
 
 This analysis does not change the engine; it validates the base engine. If OOS Sharpe >=0.70 and real-fills validation passes, the base engine remains the benchmark for future candidates. If fails, triggers investigation into engine degradation or overfit. No direct impact on current leaderboard rankings unless base engine performance changes (which it does not in this analysis).
+
+<!-- PROVENANCE-MISSING: test_walk_forward_oos.py, test_real_fills_j_days.py -->

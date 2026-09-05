@@ -55,3 +55,5 @@ Instead, the strategy should be discarded as overfit.
 
 This candidate does not impact the leaderboard as it is rejected by the OP-16 gate. It does not conflict with any existing candidate (which all have edge_capture >= 771).  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

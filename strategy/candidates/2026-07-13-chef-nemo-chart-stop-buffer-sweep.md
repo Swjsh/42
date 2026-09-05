@@ -74,3 +74,5 @@ Conflicts:
 - Note: Rank 24 (CONFLUENCE_TOL_1_00) tested similar parameter sweep (confluence tolerance) and was rejected for hurting IS/OOS; buffer sweep may share similar regime-dependency risk  
 
 ---
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/chart_stop_buffer_sweep.py, test_chart_stop_buffer_sweep.py -->

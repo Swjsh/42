@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture > 771
 ## Pre-existing leaderboard impact
 
 This analysis is for the BEARISH_REJECTION_MORNING watcher (currently rank 20, WATCH-ONLY). It does not conflict with existing candidates but proposes to validate this watcher for potential arming. It complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup in the playbook.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

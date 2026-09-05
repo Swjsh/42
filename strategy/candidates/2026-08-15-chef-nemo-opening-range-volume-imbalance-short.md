@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher quality gates, DTE studies, and exit changes). It complements by adding a new entry trigger based on opening range volume imbalance, potentially capturing bearish momentum missed by price-only ORB strategies. No overlap with current J-RATIFIED or PROMISING candidates detected in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

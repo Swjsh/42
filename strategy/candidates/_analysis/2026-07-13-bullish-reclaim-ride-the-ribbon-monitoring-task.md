@@ -56,3 +56,5 @@ This analysis task requires no code changes and therefore does not need to pass 
 ## Pre-existing leaderboard impact
 
 This analysis task does not impact the leaderboard as it does not propose any changes to strategy candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

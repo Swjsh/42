@@ -108,3 +108,5 @@ From `_LEADERBOARD.md` entry #5 and subsequent direction-split analysis (2026-05
 4. **Real-fills:** N=10 WR=90% P&L=+$273 (chart-stop-only) — from leaderboard
 5. **Failure modes:** High-VIX stress regime (Q1 2026) produces near-zero edge; single-quarter concentration risk
 6. **Concentration:** Q2-2026 = 85% of P&L; top-2 quarters = 92%
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

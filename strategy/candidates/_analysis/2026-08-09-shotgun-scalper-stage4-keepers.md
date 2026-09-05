@@ -66,3 +66,5 @@ Compared to a likely baseline (default values from Stage‑3), the changes tight
 ## Pre‑existing leaderboard impact
 
 The keeper’s edge_capture ($506.55) is below the leaderboard’s inclusion threshold ($771). It would not appear on the leaderboard and would be REJECTED at the door per OP‑16. It does not conflict with existing candidates (which all have edge_capture ≥771) but adds no value unless further refined to improve J‑day capture while retaining wide‑P&L gains. Current recommendation: discard or return to Stage‑3 for re‑tuning with an explicit edge_capture objective.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

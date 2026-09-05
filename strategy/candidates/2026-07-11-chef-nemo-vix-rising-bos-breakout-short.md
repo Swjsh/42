@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly gates/filters or other trade classes like SNIPER_VIX18_GRINDER which uses static VIX threshold). Complements by offering a distinct short-trigger mechanism; may coexist or compete after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

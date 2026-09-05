@@ -53,3 +53,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing strategies in _LEADERBOARD.md (ranks 1‑24). It introduces a novel trigger combining turn‑of‑the‑month bias with gap‑fill logic, which is not represented by any current candidate (the nearest is GAP_AND_GO, which trades gap continuations, not fills). It is complementary in the sense that it adds a new long‑biased trigger to the strategy pool.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ Combining structural trend veto (blocking P-in-uptrend/C-in-downtrend) with tren
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) and [TRENDLINE_BREAK_CALL_VETO] (Rank WS4). Does not conflict — adds call veto dimension to structural veto. Expected to improve edge_capture over structural veto alone by ~$165 (from blocking 5/07 CALL losers) while maintaining its Sharpe improvement. No overlap with top candidates like [WEEKLY_DTE_NOT_0DTE] (DTE study) or [V14E_PARAM_SWEEP_26K] (J-RATIFIED exit structure). Safe to test as orthogonal enhancement.
+
+<!-- PROVENANCE-MISSING: test_trendline_break_call_veto.py -->

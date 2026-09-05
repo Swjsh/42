@@ -37,3 +37,5 @@ Entry triggers on a level break with volume ≥1.1× 20-bar average, minimum can
 3. **Out-of-sample:** NEEDS-OOS
 4. **Real-fills:** NEEDS-REAL-FILLS
 5. **Failure modes:** unknown -- requires Stage-1 backtest for worst day, max drawdown
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

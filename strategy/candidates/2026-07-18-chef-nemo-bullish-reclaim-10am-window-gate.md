@@ -57,3 +57,5 @@ When the flag `block_bull_10am_window` is set to True (which will occur only aft
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any current leaderboard entries as it targets the BULLISH_RECLAIM setup (which is not yet a leaderboard candidate). It complements the graduation of BULLISH_RECLAIM by potentially improving its live performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

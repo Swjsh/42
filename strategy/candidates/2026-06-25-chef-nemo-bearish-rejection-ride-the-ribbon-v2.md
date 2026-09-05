@@ -61,3 +61,5 @@ The proposed candidate must pass the following tests before merging:
 ## Pre-existing leaderboard impact
 
 The proposed candidate is expected to complement the existing leaderboard candidates, particularly the BEARISH_SWEEP_BLOCKER and ORB_NARROW_OR_GATE candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

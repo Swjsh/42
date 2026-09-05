@@ -61,3 +61,5 @@ Catastrophic months for BEARISH_REVERSAL (Apr-2026, Mar-2026, Mar-2025) are driv
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidate; pure analysis piece. May inform future filter candidates (e.g., VIX‑trend gate). No impact on current leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

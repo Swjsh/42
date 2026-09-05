@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard (which are primarily filters, gates, or alternative trade classes). It complements existing ribbon-based setups (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by using a distinct trigger (breakout with volume surge vs. pullback/reclaim). However, it may overlap in regime conditions and would need synergy/redundancy testing post-backtest. No immediate conflict with ranked candidates 1-9 observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

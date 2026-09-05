@@ -35,3 +35,5 @@ unknown -- requires Stage-1 backtest with real OPRA fills on anchor days
 
 1. **Account-size assumption:** The baseline engine assumes a Safe account size of $25K+ for full position sizing (15 contracts at $1.00 entry), with $1K paper account realizing ~14% of headline P&L due to 3-contract minimum.
 2. **
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

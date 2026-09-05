@@ -73,3 +73,5 @@ Based on WEEKLY_DTE_NOT_0DTE's strong OOS exp/tr monotonicity ($36.34→$59.02�
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements WEEKLY_DTE_NOT_0DTE (rank ★★) by adding a volatility regime filter. Does not conflict with other candidates as it modifies only the DTE lever with an additional condition. May conflict with VIX_BULL_HARD_CAP_UNBLOCK (rank 22) if both attempt to modify VIX thresholds, but this candidate uses VIX as entry filter while that candidate modifies exit risk parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

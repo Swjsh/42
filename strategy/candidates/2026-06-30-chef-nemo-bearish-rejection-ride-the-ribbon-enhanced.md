@@ -80,3 +80,5 @@ The proposed setup must pass the following tests before merging:
 ## Pre-existing leaderboard impact
 
 The proposed setup complements the existing leaderboard candidates and does not conflict with any of them. It provides an additional edge capture opportunity and improves the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

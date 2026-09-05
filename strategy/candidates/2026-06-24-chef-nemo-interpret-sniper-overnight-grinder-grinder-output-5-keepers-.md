@@ -59,3 +59,5 @@ Entry triggers on a named level break where: volume >= vol_mult * 20-bar average
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all require edge_capture >= 771); this candidate fails OP-16 gate structurally. Complements watcher-only candidates (e.g., V14E_BEAR_ONLY_GATE) as orthogonal signal class but lacks J-anchor coverage. Would require fundamental redesign to target J's BEARISH_REVERSAL days before leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

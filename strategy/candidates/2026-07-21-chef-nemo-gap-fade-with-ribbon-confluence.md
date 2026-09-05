@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by providing a new short-side trigger mechanism (unlike current structural DTE/watcher proposals). No direct conflict with leaderboard candidates 1-9 (which are mostly structural, filter, or exit modifications). Could potentially synergize with volatility-regime filters like VIX_BULL_HARD_CAP_UNBLOCK but operates on opposite bias (short vs their long focus). Does not duplicate any existing trigger in the registry (per novelty claim vs GAP_AND_GO).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

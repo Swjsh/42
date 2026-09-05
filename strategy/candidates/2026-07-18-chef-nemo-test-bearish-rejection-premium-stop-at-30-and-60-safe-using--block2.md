@@ -60,3 +60,5 @@ Change the premium stop parameter for BEARISH_REJECTION_RIDE_THE_RIBBON in Safe 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements structural DTE candidates (ranks ★★, HOLD) as orthogonal exit parameter; conflicts with dynamic stop REJ (rank REJ) which proved adaptive rules lose to fixed -- this is a fixed stop test. No direct overlap with existing exit_change candidates (none in leaderboard). May complement structure_veto_dir_vs_trend (rank ★) by reducing losing trades it already filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

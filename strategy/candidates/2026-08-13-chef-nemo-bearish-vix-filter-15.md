@@ -61,3 +61,5 @@ In the BEARISH_REJECTION_RIDE_THE_RIBBON entry path (gates.py), add a preconditi
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements BEARISH_REJECTION_RIDE_THE_RIBBON (core setup) and STRUCTURE_VETO_DIR_VS_TREND (existing PROMISING candidate). No direct conflict with top-9 candidates; may overlap with VIX_BULL_HARD_CAP_UNBLOCK (bull-focused) but applies to bearish side only. Could conflict with any candidate removing VIX filters (none currently in leaderboard).
+
+<!-- PROVENANCE-MISSING: test_bearish_vix_filter_15.py -->

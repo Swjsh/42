@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries. It introduces a new trigger based on EMA ribbon compression and volume surge, which is orthogonal to the existing VWAP‑continuation, gap‑and‑go, and structure‑veto strategies. If successful, it could provide additional diversification and capture trades in low‑volatility environments that other strategies may miss. No changes to existing params or wiring are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

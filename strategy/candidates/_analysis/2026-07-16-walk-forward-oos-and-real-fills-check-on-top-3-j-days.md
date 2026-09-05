@@ -58,3 +58,5 @@ We need to verify that any candidate strategy’s edge_capture is stable across 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a prerequisite gate that all future candidates must satisfy before being considered for promotion. It complements the leaderboard by ensuring that only strategies with verified OOS stability and realistic fill behavior advance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

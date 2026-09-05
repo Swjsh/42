@@ -64,3 +64,5 @@ The shotgun scalper stage2 grinder found 5 keepers by relaxing gates and focusin
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture > 771). This candidate would be REJECTED at the door per OP-16 (edge_capture < 771) and not appear on leaderboard. Complements existing candidates by highlighting regime-dependent edge (profits in non-J chop, loses on J trend days). No direct parameter overlap with ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

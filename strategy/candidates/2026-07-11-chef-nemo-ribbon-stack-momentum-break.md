@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; introduces a new trigger condition that may complement ribbon‑based strategies such as BULLISH_RECLAIM_RIDE_THE_RIBBON by capturing momentum bursts that those setups might miss due to their reclaim‑after‑rejection logic. No overlap in entry logic, so it can run alongside current strategies without interference.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

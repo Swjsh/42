@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (1‑9). Adds a new short‑biased intraday trigger operating midday, distinct from ribbon/reclaim‑based setups; likely complementary as it captures a different market regime (choppy midday vs. morning continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

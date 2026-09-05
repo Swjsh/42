@@ -75,3 +75,5 @@ Exit logic:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate would NOT appear on the leaderboard due to edge_capture < 771 (OP-16 rejection floor). It complements no existing candidates as it fails the minimum edge requirement. Promotion requires improving edge_capture to >771 via better J-winner capture (especially 5/01) while maintaining loser discipline. Current performance suggests overfit to non-J days; needs structural change to trigger logic rather than parameter tuning.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

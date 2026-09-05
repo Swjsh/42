@@ -58,3 +58,5 @@ Gym validators, walk-forward OOS test (ratio >= 0.70), real-fills check on top 3
 ## Pre-existing leaderboard impact
 
 This analysis is of the baseline engine, which is the reference point for all candidates in the leaderboard. It does not conflict with any candidate; rather, it is the basis against which candidates are measured. All candidates in the leaderboard are compared to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

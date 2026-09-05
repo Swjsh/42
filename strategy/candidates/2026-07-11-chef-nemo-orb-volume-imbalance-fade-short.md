@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is novel and untested, so it does not conflict with existing candidates. It complements the existing ORB_RETEST_LONG by providing a short-bias alternative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

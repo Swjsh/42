@@ -60,3 +60,5 @@ Volatility regime filters show promise in academic literature but have mixed res
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing volatility-based filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK, VIX confirmation in BEARISH_REJECTION) by adding a multi-dimensional regime lens. It conflicts with candidates that rely on low-VOL entries (e.g., certain SNIPER variants) but aligns with trend-following principles. No direct overlap with current top-10 candidates as it operates as a pre-entry filter rather than a trigger or exit change.
+
+<!-- PROVENANCE-MISSING: test_volatility_regime_filter.py -->

@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any of the current leaderboard entries (1‑9). Those candidates focus on structural gates, DTE variations, watcher quality filters, or existing setups like VWAP_CONTINUATION and GAP_AND_GO. OPENING_RANGE_VWAP_REVERSAL_SHORT proposes a new short‑biased trigger that operates in the first 20 minutes based on opening range and VWAP reversion, which is orthogonal to the existing mechanisms. It could be layered as an additional entry filter alongside existing strategies, provided it passes independent validation. No changes to existing params or automation are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

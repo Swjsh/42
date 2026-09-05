@@ -61,3 +61,5 @@ Specifically:
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates. Complements VIX_BULL_HARD_CAP_UNBLOCK and F8_BULL_VIX_GATE_REVAL by adding a bear-side VIX filter. May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON watcher logic if already implemented.
+
+<!-- PROVENANCE-MISSING: test_vix_filter.py -->

@@ -59,3 +59,5 @@ If either condition fails, veto the bearish entry. All other entry logic (trigge
 ## Pre-existing leaderboard impact
 
 Does not conflict with any ranked candidate; complements `V14E_BEAR_ONLY_GATE` (which already excludes bull v14e) and `BEARISH_REJECTION_RIDE_THE_RIBBON` playbook by adding a VIX-quality layer. No overlap with existing watchers or gates that modify the same logic. Should be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

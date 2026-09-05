@@ -69,3 +69,5 @@ The keeper's parameter combo:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ $771). Complements research by highlighting need for OP-16-aligned edge; if OOS validates edge_capture ≥ $771, could become PROMISING candidate. Current edge_capture deficit suggests unlikely to promote without significant revision.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

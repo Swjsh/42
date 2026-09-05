@@ -53,3 +53,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a new perspective on capturing the edge in trendline breaks. However, further analysis is needed to determine its impact on the overall leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

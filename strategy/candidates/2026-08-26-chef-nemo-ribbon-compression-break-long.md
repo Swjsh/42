@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (equity curve, tra
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rule in the leaderboard. It is complementary to existing volatility‑ or volume‑based filters (e.g., it could be combined with the existing `midday_trendline_gate` or `vwap_continuation` as a confluence trigger) but conflicts with setups that require ribbon expansion (e.g., `BEARISH_REJECTION_RIDE_THE_RIBBON` requires ribbon spread ≥30c). No overlap with current J‑ratified candidates (e.g., `WEEKLY_DTE_NOT_0DTE`, `MIDDAY_TRENDLINE_GATE`) as they operate on different dimensions (DTE, trend‑line). No expected impact on leaderboard rankings until backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

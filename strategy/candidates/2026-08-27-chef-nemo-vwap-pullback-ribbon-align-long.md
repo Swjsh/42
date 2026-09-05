@@ -72,3 +72,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with any existing candidates in the leaderboard. It complements the existing VWAP_CONTINUATION setup by looking for a pullback rather than a continuation. However, it is distinct in its entry conditions (requiring ribbon alignment and a bullish bar on touch of VWAP). It does not modify any existing candidates, so it can be evaluated independently. No known conflicts with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

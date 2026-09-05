@@ -50,3 +50,5 @@ Must achieve edge_capture >= $771 to be considered; current edge_capture = -$126
 ## Pre-existing leaderboard impact
 
 Would be rejected at the door (edge_capture < 771) and not appear on the leaderboard. Conflicts with the goal of capturing edge on J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

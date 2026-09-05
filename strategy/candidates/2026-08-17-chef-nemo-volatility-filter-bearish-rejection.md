@@ -53,3 +53,5 @@ OP-16 anchor edge_capture >= 771
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to compare against current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

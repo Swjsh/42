@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger; it does not conflict with existing quality gates, filters, or exit changes in the leaderboard. It may complement VWAP_CONTINUATION by capturing a different VWAP‑based pattern (squeeze breakout vs. pullback/continuation in an existing trend). No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

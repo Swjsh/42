@@ -62,3 +62,5 @@ Add a simulator module that mirrors the live fleet arm's decision-making process
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by providing a validation layer; does not conflict with any current leaderboard entries as it is infrastructure-only. May enable faster iteration on future candidates (e.g., those in NEEDS-MORE-DATA status) by allowing safe shadow testing.
+
+<!-- PROVENANCE-MISSING: automation/state/fleet_shadow_trades.csv, automation/state/fleet_params.json, backtest/tests/test_pdt_shadow_simulator.py -->

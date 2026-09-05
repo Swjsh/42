@@ -63,3 +63,5 @@ All attempts are recorded in `decisions.jsonl` with a `retry_index` field to ena
 ## Pre-existing leaderboard impact
 
 This proposal is orthogonal to existing candidates (which focus on signal generation, filtering, or exit logic). It should complement any strategy by improving fill reliability, and does not conflict with any current rules or parameters in `_LEADERBOARD.md`. No changes to automation/prompts/heartbeat*.md or params*.json are required beyond the retry logic itself, which is internal to the order‑placement pathway.
+
+<!-- PROVENANCE-MISSING: test_retry_place_fail_backoff.py -->

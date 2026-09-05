@@ -63,3 +63,5 @@
 **Action Required:**  
 - Prioritize bounded tasks (current work → TODOs → FUTURE-IMPROVEMENTS.md → audit staleness → replays/validations → playbook/lessons → underperformers).  
 - Avoid weekend deferral for <8h tasks; defer only if >60-min.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

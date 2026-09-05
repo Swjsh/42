@@ -62,3 +62,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a new trigger branch with a VIX filter. The performance of this candidate is unknown and requires further testing to determine its impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

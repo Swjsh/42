@@ -66,3 +66,5 @@ Exit rules:
 ## Pre-existing leaderboard impact
 
 This candidate does not affect the leaderboard because its projected edge_capture (<771) triggers an automatic reject per OP-16. It neither conflicts with nor complements existing candidates 1-9; it is a non-viable trigger that requires significant redesign before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any trading strategy candidate as it is not a trading strategy. It is a maintenance tool.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

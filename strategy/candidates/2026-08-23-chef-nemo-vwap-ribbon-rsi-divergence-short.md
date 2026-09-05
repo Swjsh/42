@@ -58,3 +58,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing candidate in the leaderboard. It may complement or conflict with existing bearish triggers (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) but uses different indicators (VWAP, EMA ribbon, RSI divergence). Without backtest, we cannot quantify impact on leaderboard rankings or edge_capture. No direct conflict in mechanism, but may compete for same trade opportunities.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

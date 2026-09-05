@@ -52,3 +52,5 @@ Same as keeper 1: walk‑forward OOS, real‑fills on anchor days, sub‑windo
 Same as keeper 1: would conflict with leaderboard due to likely negative edge_capture; requires OOS validation first.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

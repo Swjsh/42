@@ -52,3 +52,5 @@ The pre-merge gate requires that the strategy pass the OP-16 anchors, out-of-sam
 ## Pre-existing leaderboard impact
 
 The candidate is expected to complement the existing leaderboard candidates, as it provides a new perspective on trend-based vetoes. The candidate is not expected to conflict with the existing candidates, as it is designed to block trades that are counter to the trend, rather than altering the existing trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

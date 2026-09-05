@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing rules in the leaderboard (ranks 1‑9). It is complementary in the sense that it adds a distinct entry signal that could be run alongside existing triggers (e.g., VWAP_CONTINUATION, GAP_AND_GO) provided the engine can handle multiple simultaneous signals. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

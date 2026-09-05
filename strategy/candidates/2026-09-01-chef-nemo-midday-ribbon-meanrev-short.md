@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates (mostly quality gates/watchers); potential complement as new short-side trigger for midday chop but impact unknown without backtest
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

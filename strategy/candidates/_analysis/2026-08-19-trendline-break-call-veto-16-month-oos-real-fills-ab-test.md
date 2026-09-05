@@ -53,3 +53,5 @@ The test has not been executed. We require a Stage-1 backtest to obtain the edge
 ## Pre-merge gate
 
 If we were to propose enabling the call-veto knob based on the test, we would need: gym validators, walk-forward analysis, real-fills check on top 3 J days, and OP-16 anchor validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ expected 30/30 PASS (no edit could have broken it — zero production diff).
 **8.** Evidence is clean and directionally unanimous across IS/OOS/FULL on real fills under the exact current
 engine profile; anchor untouched. Docked 2 points only for thin n (11 lifetime blocked trades) — the *sign*
 is robust but the *magnitude* is small enough that a high-VIX-heavy future regime warrants a periodic recheck.
+
+<!-- PROVENANCE-MISSING: backtest/_chef_vix_bear_cap_revalidate.py -->

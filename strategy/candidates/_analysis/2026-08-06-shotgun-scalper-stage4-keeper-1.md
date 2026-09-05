@@ -60,3 +60,5 @@ The shotgun_scalper_stage4 grinder identified a parameter combination that impro
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This keeper would be REJECTED at the door unless edge_capture improves via OOS refinement. Could complement existing volatility‑filters if promoted after OOS.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

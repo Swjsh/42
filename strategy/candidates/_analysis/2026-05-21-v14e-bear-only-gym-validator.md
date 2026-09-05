@@ -34,3 +34,5 @@ No regressions detected. The V14E_BEAR_ONLY_GATE rule is ready for promotion pen
 ## Pre-existing leaderboard impact
 
 This analysis does not change any strategy candidate. It validates the existing V14E_BEAR_ONLY_GATE candidate (rank 3) which is currently NEEDS-MORE-DATA awaiting OP-21 criteria.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

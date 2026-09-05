@@ -52,3 +52,5 @@ The pre-merge gate requires a positive out-of-sample performance and a real-fill
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it focuses on optimizing the V14E exit structure rather than introducing a new trade class or filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

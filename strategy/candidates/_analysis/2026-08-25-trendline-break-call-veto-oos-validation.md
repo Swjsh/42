@@ -60,3 +60,5 @@ The candidate TRENDLINE_BREAK_CALL_VETO is a structural gate that vetoes CALL en
 ## Pre-existing leaderboard impact
 
 This analysis validates an existing candidate (WS4). If results clear gates, it may promote to PROMISING. No conflict with other candidates; complements structural veto candidates like STRUCTURE_VETO_DIR_VS_TREND by focusing on CALL-specific structure. Overlap with VWAP_CONTINUATION detector possible but different mechanism (structure vs VWAP).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

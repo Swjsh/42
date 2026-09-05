@@ -58,3 +58,5 @@ Exit logic: Unchanged from SNIPER_LEVEL_BREAK baseline (chart-stop primary, chan
 ## Pre-existing leaderboard impact
 
 No conflict: SNIPER_LEVEL_BREAK entry is not currently in the engine or leaderboard (prior SNIPER candidates were artifact-invalidated due to profit_lock_threshold=0.0). This candidate proposes a clean implementation of Design 6. If successful, it may complement existing quality gates (e.g., V14E_BEAR_ONLY_GATE) by adding confluence-independent filter. Does not affect any ranked candidates 1-9.
+
+<!-- PROVENANCE-MISSING: test_sniper_level_break_body_gate.py -->

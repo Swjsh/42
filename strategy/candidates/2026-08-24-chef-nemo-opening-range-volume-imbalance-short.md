@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type and does not directly conflict with existing leaderboard entries (which are predominantly gates, filters, or structural vetoes). It may complement existing morning-biased setups like GAP_AND_GO (which uses price gaps) by adding a volume confirmation layer. No known parameter or wiring conflicts with current candidates 1-9, but Stage-1 backtest must verify interaction with existing filters (e.g., midday_trendline_gate, vwap_cont_dte_override).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

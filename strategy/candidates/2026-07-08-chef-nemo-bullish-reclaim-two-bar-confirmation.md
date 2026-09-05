@@ -65,3 +65,5 @@ No data available to estimate impact; hypothesis is plausible but untested. Requ
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate modifies the BULLISH_RECLAIM_RIDE_THE_RIBBON trigger, which is not directly represented in the current leaderboard (ranked candidates focus on other setups or gates). However, it may interact with bull-related revalidation candidates (e.g., BULL_SCOPE_LOCK_REVAL, BULL_MIN_TRIGGERS_FLOOR_REVAL, F8_BULL_VIX_GATE_REVAL). Without backtest, impact unknown; likely complementary if it reduces false bull entries, but could conflict if it removes valid entries that those gates aim to preserve. NEEDS-STAGE-1-BACKTEST to determine.
+
+<!-- PROVENANCE-MISSING: test_bullish_reclaim_entry_logic.py -->

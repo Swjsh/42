@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (volatility‑compression‑preconditioned ORB breakout) that does not overlap with the existing ORB‑based watchers/gates in the leaderboard (ORB_RETEST_LONG, ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER). It therefore complements the current ORB family by adding a distinct volatility‑filter layer rather than conflicting with any existing trigger, filter, exit, or quality gate. No direct impact on the current ranked candidates is expected until backtest results are available.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

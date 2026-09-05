@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with live candidates; GAP_AND_GO (WATCH-ONLY) is opposite in logic (continuation vs fade) and not execution‑armed. Complements existing short‑bias setups by adding a gap‑fade trigger. No overlap with current leaderboard entries (all are quality gates, DTE studies, or structural filters).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -664,3 +664,5 @@ Unless the base engine's edge_capture of 780 already assumes that we skipped tho
 But then why does the candidate say it removed two loser trades?
 
 Perhaps the base engine was taking those two loser trades and losing money, but the edge_capture formula does not penalize losses on loser days? Then removing them wouldn't
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

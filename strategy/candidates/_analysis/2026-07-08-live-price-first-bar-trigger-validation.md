@@ -70,3 +70,5 @@ We hypothesize that the first premarket bar that makes a new high (for bulls) or
 ## Pre-existing leaderboard impact
 
 This analysis complements candidates 1-9 in _LEADERBOARD.md by validating a trigger branch that does not interfere with OP-16 anchor days (zero delta on all J winners/losers). It does not conflict with any existing candidates because it operates on a distinct temporal window (premarket/first RTH bar) and adds no trades to anchor days. If validated, it could be promoted to PROMISING status and sit alongside candidates like WEEKLY_DTE_NOT_0DTE (rank ★★) as a complementary entry trigger. No changes to existing candidate rankings are implied; this validation is a prerequisite for promoting LIVE_PRICE_FIRST_BAR_TRIGGER from NEEDS-MORE-DATA to PROMISING.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

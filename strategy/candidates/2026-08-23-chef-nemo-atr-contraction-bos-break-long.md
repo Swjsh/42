@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new trigger type (ATR-based volatility contraction + BOS) not present in registry. No direct conflict with current leaderboard entries (which focus on Bollinger squeezes, VWAP, ORB, and structural gates). Could synergize with regime filters from candidates like STRUCTURE_VETO_DIR_VS_TREND.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

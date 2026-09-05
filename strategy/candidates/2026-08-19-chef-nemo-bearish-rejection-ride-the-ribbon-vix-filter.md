@@ -56,3 +56,5 @@ In addition to existing VIX confirmation (VIX rising OR already above 20), block
 ## Pre-existing leaderboard impact
 
 Complements MIDDAY_TRENDLINE_GATE (rank 21) and STRUCTURE_VETO_DIR_VS_TREND (rank ★) by filtering low-VIX losing trades; conflicts with V14E_BEAR_TIME_OF_DAY_GATE (rank 17) only if both fire same bar (rare; VIX filter is stricter). No direct parameter overlap with existing candidates. Would rank above BEARISH_REJECTION_MORNING (rank 20) if validated.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_ab.py -->

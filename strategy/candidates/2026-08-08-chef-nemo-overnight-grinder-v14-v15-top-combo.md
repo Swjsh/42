@@ -60,3 +60,5 @@ Entry logic remains unchanged (v14/v15 structure). Exit logic modified:
 ## Pre-existing leaderboard impact
 
 Fails OP-16 edge_capture floor (670.6 < 771) → would be REJECTED and not appear on leaderboard. No conflict with existing candidates (all candidates above floor).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

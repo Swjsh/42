@@ -59,3 +59,5 @@ We aim to improve consistency on J winner days by tightening risk controls (20% 
 ## Pre-existing leaderboard impact
 
 This candidate would fall below the OP‑16 edge_capture rejection threshold (edge_capture < 771) and therefore would not appear on the leaderboard. It does not conflict with any existing candidate (all current leaders have edge_capture ≥ 771). It would be classified as REJECTED at the gate unless further OOS/walk‑forward validation shows a higher edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

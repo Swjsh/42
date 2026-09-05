@@ -66,3 +66,5 @@ The shotgun_scalper_stage3 directional participation scoring attempts to capture
 ## Pre-existing leaderboard impact
 
 The keeper’s projected edge_capture (285) is below the OP‑16 rejection floor (771), so it would not appear on the leaderboard. It does not conflict with any existing candidate (all current leaderboard entries have edge_capture ≥ 771). Promoting this keeper would require first raising its edge_capture above the floor via further refinement or regime‑specific filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

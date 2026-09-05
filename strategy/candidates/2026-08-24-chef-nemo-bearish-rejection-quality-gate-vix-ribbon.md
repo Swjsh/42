@@ -61,3 +61,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup captures the three J winner days but
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any ranked leaderboard entry. It complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is not a leaderboard candidate but a playbook pattern) and may overlap conceptually with STRUCTURE_VETO_DIR_VS_TREND (which vetoes wrong‑way trends) but focuses on entry quality rather than direction veto. It is neutral to WEEKLY_DTE_NOT_0DTE (which varies DTE) and VWAP_CONTINUATION (which is a separate morning bias). No known duplication or contradiction with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

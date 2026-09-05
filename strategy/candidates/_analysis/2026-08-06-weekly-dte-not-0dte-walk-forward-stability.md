@@ -59,3 +59,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a change but evaluates an existing candidate. It does not conflict with any candidate. It may inform the status of the WEEKLY_DTE_NOT_0DTE candidate (currently ★★ and PROMISING) if quarterly instability is found.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

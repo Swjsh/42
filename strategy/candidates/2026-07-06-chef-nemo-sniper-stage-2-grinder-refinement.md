@@ -62,3 +62,5 @@ The candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The candidate is expected to complement the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND candidates. The candidate's refined entry conditions and additional filters are designed to improve the risk-reward profile of the strategy and increase the edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

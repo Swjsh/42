@@ -56,3 +56,5 @@ For BEARISH_REJECTION_RIDE_THE_RIBBON trigger signals that occur between 09:35 E
 ## Pre-existing leaderboard impact
 
 Complements WEEKLY_DTE_NOT_0DTE by applying DTE lever to BEARISH_REJECTION_RIDE_THE_RIBBON setup (different signal, same DTE hypothesis). No direct conflict with existing candidates; if successful, may suggest DTE optimization is regime-dependent rather than signal-agnostic. Does not conflict with J-RATIFIED candidates as it tests a new parameter dimension.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

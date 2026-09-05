@@ -57,3 +57,5 @@ Accumulate 3 live J-confirmed BEARISH_REJECTION_MORNING observations in the 09:3
 ## Pre-existing leaderboard impact
 
 This analysis supports candidate #20 (BEARISH_REJECTION_MORNING) currently listed as WATCH-ONLY. It does not conflict with any existing candidates; rather, it documents the progress needed to satisfy its OP-21 gate and move toward PROMISING status. No impact on the leaderboard ranking of other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

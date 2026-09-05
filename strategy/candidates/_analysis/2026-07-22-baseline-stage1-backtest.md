@@ -61,3 +61,5 @@ The autoresearch grinder harness was executed over the full OPRA dataset (2025-0
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis establishes the baseline (edge_capture=780, wide_pnl=$7,555) against which all leaderboard candidates are measured. It does not conflict with any candidate; rather, it provides the reference point for computing delta edge_capture and delta wide_pnl. Candidates with negative delta edge_capture vs baseline are harmful to J's edge; positive delta improve it. All current leaderboard candidates are evaluated relative to this baseline.
+
+<!-- PROVENANCE-MISSING: test_heartbeat_logic.py -->

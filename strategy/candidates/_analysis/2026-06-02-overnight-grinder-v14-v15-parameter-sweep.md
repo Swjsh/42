@@ -78,3 +78,5 @@ This keeper represents a **parameter refinement** (not new trade class) that imp
 The $0 losers_added is the standout feature — this combo correctly avoids all J anchor losers while capturing 72% of J winner dollars ($1,110/$1,542).
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

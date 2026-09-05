@@ -60,3 +60,5 @@ These dates are SNIPER-specific winning days, not part of the OP-16 J anchor set
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; provides validation data for the SNIPER chart-stop trade class (see leaderboard #23 SNIPER_CS_CHART_STOP). If real-fills confirm BS-sim edge, may elevate SNIPER_CS_CHART_STOP from NEEDS-REALFILLS to PROMISING pending OP-21 live wins. No direct impact on OP-16 anchors.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/sniper-cs-realfills-anchor.json -->

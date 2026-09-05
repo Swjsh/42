@@ -55,3 +55,5 @@ Update fill_funnel.py to increment the enter, attempted, and accepted counters b
 ## Pre-existing leaderboard impact
 
 This fix does not change any strategy's P&L, so it does not affect the leaderboard rankings. It only improves the accuracy of the monitoring metrics used to evaluate strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

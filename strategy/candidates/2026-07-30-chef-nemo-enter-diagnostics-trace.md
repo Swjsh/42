@@ -55,3 +55,5 @@ Insert a diagnostic log statement in the engine's decision trace immediately aft
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidate in _LEADERBOARD.md as it introduces no changes to trading logic, parameters, or strategy behavior. It is purely observational.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

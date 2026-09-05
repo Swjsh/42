@@ -42,3 +42,5 @@
 **Unknowns**  
 - **Bull Setup Validation Timeline:** No stated deadline for completing A/B validation of bullish entries.  
 - **VIX-Pinned Bull WR Generalizability:** Current 1.2% WR under VIX-pinned conditions may not hold in non-VIX environments.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

@@ -51,3 +51,5 @@ The pre-merge gate requires a successful out-of-sample test, real-fills check on
 ## Pre-existing leaderboard impact
 
 This analysis complements candidates 1-9 in _LEADERBOARD.md, as it assesses the sniper_stage2_grinder keepers' genuine edge and identifies which knob changes drove improvement versus the baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

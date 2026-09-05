@@ -50,3 +50,5 @@ Stage-1 backtest on full history to measure time-to-flip-True of qualifiers and 
 ## Pre-existing leaderboard impact
 
 This candidate modifies the PULLBACK-HOLD-BULL-TRIGGER, which is not currently on the leaderboard. It does not conflict with existing candidates but may complement them if the PULLBACK-HOLD-BULL-TRIGGER is used as a trigger in other strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

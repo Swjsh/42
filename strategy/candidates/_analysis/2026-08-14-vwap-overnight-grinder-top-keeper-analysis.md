@@ -71,3 +71,5 @@ The VWAP overnight grinder identified a parameter combo that produced positive P
 ## Pre‑existing leaderboard impact
 
 This candidate would **not appear** on the current leaderboard because its edge_capture (40.01) is well below the 771 threshold (50% of max possible 1542). It would be REJECTED at the door. It does not complement any existing candidate; it is a standalone, low‑signal idea that requires substantial OOS validation before any further consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

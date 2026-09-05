@@ -50,3 +50,5 @@ Stage-1 backtest via grinder must produce edge_capture > 771 and Sharpe > 0; the
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEARISH_REJECTION_RIDE_THE_RIBBON by adding a filter. No overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

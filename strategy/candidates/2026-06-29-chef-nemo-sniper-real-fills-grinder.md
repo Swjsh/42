@@ -59,3 +59,5 @@ The SNIPER_REAL_FILLS_GRINDER candidate must pass the following pre-merge gates 
 ## Pre-existing leaderboard impact
 
 The SNIPER_REAL_FILLS_GRINDER candidate is a new trade class and does not conflict with any existing candidates in the leaderboard. However, it may complement some of the existing candidates, such as the BEARISH_REJECTION_RIDE_THE_RIBBON candidate, by providing an additional source of edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

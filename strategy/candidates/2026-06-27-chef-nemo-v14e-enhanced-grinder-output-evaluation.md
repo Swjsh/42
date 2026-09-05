@@ -50,3 +50,5 @@ This candidate requires a Stage-1 backtest to evaluate the keepers using the OP-
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger branch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

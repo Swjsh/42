@@ -54,3 +54,5 @@ The validation gates that have already passed: gym validators (97/98 PASS), walk
 This analysis does not change the candidate's standing in the leaderboard. It confirms that the candidate does not regress on the J days (anchor no-regression PASS).
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

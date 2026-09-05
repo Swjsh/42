@@ -67,3 +67,5 @@ The guard `test_budget_roster_no_silent_failures.py` will:
 ## Pre-existing leaderboard impact
 
 This guard does not conflict with or complement any trading strategy candidates in the leaderboard (_LEADERBOARD.md). It is a system reliability tool intended to ensure the integrity of automation scripts used for strategy development and execution, thereby indirectly supporting all candidates by reducing silent failures in the research pipeline. No action is required on existing candidates.
+
+<!-- PROVENANCE-MISSING: test_budget_roster_no_silent_failures.py -->

@@ -59,3 +59,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher gates, DTE studies, and exit changes). It complements the existing ORB_RETEST_LONG by trading the breakout directly rather than waiting for a retest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it introduces a new trigger mechanism based on ATR contraction and volume-confirmed breakout, which is distinct from existing triggers like STAIRSTEP_CONTINUATION (which uses EMA ribbon steps) or VWAP_CONTINUATION. It complements the leaderboard by adding a novel volatility-based entry logic that could capture orthogonal edges.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

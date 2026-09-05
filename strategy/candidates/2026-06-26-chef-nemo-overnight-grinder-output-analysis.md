@@ -52,3 +52,5 @@ The pre-merge gate requires the candidate to pass the out-of-sample test, with a
 ## Pre-existing leaderboard impact
 
 The candidate is expected to complement the existing leaderboard candidates, particularly the BEARISH_SWEEP_BLOCKER and the V14E_BEAR_ONLY_GATE. However, the candidate's performance may be impacted by the presence of these candidates, and further testing is needed to determine the optimal combination of candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

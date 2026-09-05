@@ -59,3 +59,5 @@ No specific mechanism is defined; the analysis is a generic walk-forward test. T
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a generic procedure that would be applied to any new strategy seeking ratification. If a strategy passes this gate, it would be eligible for further OP-16 scoring (edge_capture × aggregate_sharpe). No current leaderboard entries are affected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

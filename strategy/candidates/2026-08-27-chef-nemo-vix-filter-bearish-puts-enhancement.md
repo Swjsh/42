@@ -59,3 +59,5 @@ If either condition fails, the bearish setup is vetoed. All other context filter
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_LOW_THRESHOLD filter revalidation (F8_BULL_VIX_GATE_REVAL) by focusing on the bearish side. No overlap with approved J‑RATIFIED candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE). If validated, could be submitted as a new filter_change candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

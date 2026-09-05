@@ -58,3 +58,5 @@ Additionally, the fill rate increase on Stage-1 must be ≥10% and expectancy pe
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing VWAP_CONTINUATION detector and is orthogonal to most candidates. It does not conflict with the top candidates as it modifies a specific setup's DTE. However, note that the similar candidate [VWAPCONT_DTE_OVERRIDE_2DTE] is currently on HOLD due to failing walk-forward and concentration gates. This candidate aims to address those concerns by re-testing with a focus on fill rate and expectancy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

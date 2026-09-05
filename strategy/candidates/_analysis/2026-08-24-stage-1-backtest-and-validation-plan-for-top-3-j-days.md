@@ -59,3 +59,5 @@ We are executing the Stage-1 backtest via autoresearch grinder to establish base
 ## Pre-existing leaderboard impact
 
 This analysis validates the baseline engine (implicitly referenced in leaderboard as "base 780" in STRUCTURE_VETO_DIR_VS_TREND). Does not conflict with any candidate; provides foundation for evaluating new proposals. Candidates that modify engine behavior must demonstrate improved or non-degraded edge_capture on J days relative to this baseline validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

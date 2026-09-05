@@ -56,3 +56,5 @@ For each BULLISH_RECLAIM setup trigger, compute the 20-bar simple moving average
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements volume-agnostic filters like STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding a conviction layer. No overlap with watcher-only or exit-change candidates. Should be evaluated as a standalone filter_change.
+
+<!-- PROVENANCE-MISSING: test_volume_confirmation_filter_bullish_reclaim_2x.py -->

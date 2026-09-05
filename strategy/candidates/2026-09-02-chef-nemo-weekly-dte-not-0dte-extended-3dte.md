@@ -55,3 +55,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing WEEKLY_DTE_NOT_0DTE candidate (ranked ★★) by extending the DTE study to 3DTE and 4DTE. It does not conflict with any existing candidates as it is a pure DTE extension study. It may inform future DTE override wiring proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

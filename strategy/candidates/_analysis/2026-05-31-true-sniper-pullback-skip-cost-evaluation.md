@@ -70,3 +70,5 @@ The V_pullback filter skips pullback entries to avoid choppy, losing trades but 
 ## Pre-existing leaderboard impact
 
 Complements all candidates by providing skip-cost evaluation framework. Conflicts with none; purely analytical. If net skip-cost is negative, may motivate filter_change candidate to adjust/remove V_pullback. If positive, supports keeping current filter. No impact on existing leaderboard rankings until backtest completes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

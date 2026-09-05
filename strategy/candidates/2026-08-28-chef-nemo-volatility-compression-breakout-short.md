@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (ATR‑based compression breakout) that does not directly conflict with existing candidates in the leaderboard (e.g., BOLLINGER_SQUEEZE, VWAP_CONTINUATION). It may complement volatility‑based filters by providing an alternative short‑side entry signal, but could overlap in low‑VOL regimes; further testing is needed to assess redundancy or synergy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

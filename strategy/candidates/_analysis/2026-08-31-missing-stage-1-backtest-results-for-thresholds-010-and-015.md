@@ -56,3 +56,5 @@ Stage-1 backtest must pass:
 Unknown -- requires Stage-1 backtest results to determine if this thresholds-based strategy conflicts with or complements existing candidates (ranks 1-9 in _LEADERBOARD.md).  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Relaxing the BEARISH_REJECTION filters will increase trade frequency on J winner
 ## Pre-existing leaderboard impact
 
 Complements existing candidates that improve signal quality (e.g., STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE). Conflicts with candidates that tighten filters (e.g., MAX_RIBBON_DUR_8, BEAR_SCORE_7_RELAXATION which was REJECTED-FINAL). No direct overlap with active leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

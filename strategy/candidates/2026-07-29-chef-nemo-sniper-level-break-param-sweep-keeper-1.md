@@ -56,3 +56,5 @@ Enter SPY 0DTE put at strike_offset=2 (ITM-2 for bearish setups) when: volume ex
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates as edge_capture < 771 would REJECT it at the door. May complement if it captures non-J days edge, but OP-16 requires J-edge capture first.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

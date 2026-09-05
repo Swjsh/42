@@ -60,3 +60,5 @@ The sniper_stage2_grinder identified a parameter combination that achieves high 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This keeper's edge_capture=373.48 is below OP-16 rejection floor (771), so would not appear on leaderboard even if promoted. Complements existing candidates as a directional study (e.g., testing OTM-2 puts with loose body requirements) but requires OOS validation before further consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

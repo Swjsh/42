@@ -62,3 +62,5 @@ The top keeper from v14_enhanced_grinder aims to improve edge_capture by tighten
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Conflicts with J-RATIFIED V14E_PARAM_SWEEP_26K (Rank 12) by proposing inferior parameters. Would decrease leaderboard edge_capture if promoted (499.64 < 499 baseline). Complements none; represents a degenerate variant of existing ratified strategy. Not suitable for leaderboard inclusion given edge_capture < 771 OP-16 rejection floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

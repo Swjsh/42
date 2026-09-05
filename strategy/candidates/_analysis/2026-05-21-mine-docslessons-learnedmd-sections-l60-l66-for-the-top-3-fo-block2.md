@@ -63,3 +63,5 @@ if last_date.date() < today.date():
 Does not conflict with any candidate. Complements the L28 fix by preventing reintroduction of the silent‑skip pattern.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

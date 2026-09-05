@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates in the leaderboard (which are primarily watcher proposals, gates, or other setups like VWAP_CONTINUATION or MIDDAY_TRENDLINE_GATE). It complements by providing a short-side gap-fade trigger not currently represented, potentially adding diversification to the short bias portfolio. No direct overlap with ranked candidates 1-24 observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

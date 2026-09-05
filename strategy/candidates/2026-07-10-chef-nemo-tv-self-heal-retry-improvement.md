@@ -61,3 +61,5 @@ Modify `setup\launch_tv_debug.ps1` to:
 ## Pre-existing leaderboard impact
 
 Complements all candidates by reducing infrastructure-induced missed trades. No conflict; enhances reliability of existing setups (e.g., BEARISH_REJECTION, VWAP_CONTINUATION) that depend on TV-drawn levels. Does not alter strategy logic or params, so zero anchor regression risk.
+
+<!-- PROVENANCE-MISSING: automation/state/tv_status.json -->

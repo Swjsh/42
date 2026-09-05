@@ -66,3 +66,5 @@ In `Invoke-LevelRefreshSafe` (likely in `automation/state/modules/levelRefresh.p
 ## Pre-existing leaderboard impact
 
 Complements all candidates by improving infrastructure reliability; no conflicts with existing leaderboard entries as it does not alter trading logic or parameters. Enhances robustness of all strategies dependent on accurate level data (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION).
+
+<!-- PROVENANCE-MISSING: test_watchdog_health.py, test_level_refresh_decoded.py -->

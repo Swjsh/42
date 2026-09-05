@@ -52,3 +52,5 @@ The pre-merge gate requires that the walk-forward testing be completed and the r
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a rigorous evaluation of their performance across a broader time period. The results of the walk-forward testing will help to identify the most robust and generalizable candidates, which can then be prioritized for further development and deployment.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

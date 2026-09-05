@@ -63,3 +63,5 @@ Identify all early entry triggers designed to fire before existing late triggers
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements LIVE_PRICE_FIRST_BAR_TRIGGER (rank 2) by potentially improving its early signal quality. May conflict with midday/trendline filters (e.g., MIDDAY_TRENDLINE_GATE, rank 21) if early triggers fire more frequently in midday window; requires coordination to avoid duplicate entries. No direct conflict with top 9 candidates (mostly watcher gates/exits).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

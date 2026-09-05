@@ -50,3 +50,5 @@ The pre-merge gate requires that the keepers pass a series of tests, including a
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a new trigger branch that can be used in conjunction with the existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis is of the baseline and does not propose a change to the strategy. It is intended to provide a reference point for evaluating candidates in the leaderboard. It does not conflict with any candidate but rather provides the baseline performance against which candidates are compared.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

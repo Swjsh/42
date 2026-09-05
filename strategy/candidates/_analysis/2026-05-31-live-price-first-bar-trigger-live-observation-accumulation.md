@@ -52,3 +52,5 @@ Enable the premarket scan in heartbeat.md (as proposed in the candidate) and log
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate's status directly. Once 3+ live fires are recorded, the candidate may advance from NEEDS-MORE-DATA to PROMISING (if other gates pass). It does not conflict with existing candidates; it is an update to an existing candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (e.g., `backtest
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type and does not duplicate any existing trigger in the leaderboard (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, etc.). It is complementary in that it focuses on a different market pattern (gap‑fill + BOS) rather than divergence, DTE, or VWAP‑based setups. It should not conflict with any current PROMISING or J‑RATIFIED candidates, and may be evaluated alongside them once backtested.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/gap_fill_bos_continuation.py -->

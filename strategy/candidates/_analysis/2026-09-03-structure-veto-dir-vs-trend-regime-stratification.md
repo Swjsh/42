@@ -57,3 +57,5 @@ Not applicable: No code change is proposed. This analysis is for informational p
 ## Pre-existing leaderboard impact
 
 This analysis complements the existing STRUCTURE_VETO_DIR_VS_TREND candidate (ranked ★) by providing deeper insight into its regime-dependent behavior. It does not conflict with any other candidate. If the veto's benefit is found to be regime-dependent, future candidates could explore making the veto adaptive (e.g., only active in high-VIX regimes).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

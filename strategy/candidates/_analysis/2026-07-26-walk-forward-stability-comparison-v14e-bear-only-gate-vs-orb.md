@@ -73,3 +73,5 @@ Neither candidate conflicts with existing ranked proposals because both are watc
 ## Conclusion
 
 ORB_DIRECTION_FILTER exhibits superior walk‑forward stability (WF PASS + RF PASS) and is more regime‑robust for the 2026 Q1 windows. V14E_BEAR_ONLY_GATE remains a promising watcher improvement but requires additional OOS and real‑fills validation to match the confidence level of ORB_DIRECTION_FILTER.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

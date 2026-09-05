@@ -89,3 +89,5 @@ The V14E + NLWB combination **cannot** improve edge_capture because:
 **Alternative path:** To improve edge_capture beyond $499, need:
 - Earlier-timing bear watcher (not NLWB which is bull)
 - Or: engine-level change to take initial-reaction entries vs confirmation entries
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

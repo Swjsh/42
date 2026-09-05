@@ -67,3 +67,5 @@ Candidates must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate. Successful candidates emerging from this grinder run will be drafted as new proposals and evaluated against current leaderboard (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND). Potential impact: new candidates may displace NEEDS-MORE-DATA or STALE entries if they clear OP-16 gates with superior edge_capture×Sharpe. No conflict with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE) as they target different strategy classes.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/grinder.py, test_vwapcont_dte_override.py -->

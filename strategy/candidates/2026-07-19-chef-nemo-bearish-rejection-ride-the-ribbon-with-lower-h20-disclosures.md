@@ -133,3 +133,5 @@ Adding a lower-highs counter (requiring 3 consecutive lower highs) and a role-re
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (Rank ★) and TRENDLINE_BREAK_CALL_VETO (Rank WS4) by adding structural confirmation layers. No direct conflict with current leaderboard candidates (none modify BEARISH_REJECTION_RIDE_THE_RIBBON setup base rules). However, alters foundation for all future candidates building on this setup; requires re-validation of any dependent proposals post-merge.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_setup.py -->

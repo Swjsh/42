@@ -54,3 +54,5 @@ We require: (1) walk-forward OOS test across 2025-Q3 to 2026-Q2 yields edge_capt
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a strategy change; it is a validation of the current engine. It complements all candidates by providing a baseline OOS and real-fills check. No conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

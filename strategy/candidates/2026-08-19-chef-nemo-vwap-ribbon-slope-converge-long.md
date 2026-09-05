@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing leaderboard entries (1‑9). It complements the existing VWAP_CONTINUATION setup by adding a ribbon‑slope convergence filter that is not present in any registered trigger. If proven effective, it could be stacked as an additional quality gate on VWAP_CONTINUATION or run as a standalone trigger, potentially increasing edge without displacing current strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ The mechanism involves the following steps:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAKOUT candidate. The VIX gate adds an additional layer of risk management and may help improve the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

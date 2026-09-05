@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with candidates 1‑9 in _LEADERBOARD.md; those are primarily watcher gates, DTE studies, or structural filters. This proposal introduces a new entry trigger based on gap/RSI/level interaction, which is orthogonal to existing candidates. No duplication detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

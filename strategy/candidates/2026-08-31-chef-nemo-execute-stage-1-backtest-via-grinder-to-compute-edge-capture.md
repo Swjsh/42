@@ -37,3 +37,5 @@ DRAFT CANDIDATE: **Autonomous Operator Guardrail Failures**
 - **Impact**: J locked out during market hours (as in OP-32 scar, 2026-05-22) could halt trading.  
 - **Proposed Fix**: Replace `raise` with `log.warning("J disconnected")` and `continue` in `gamma_heartbeat.py`. Add `J_DISCONNECTED` flag to `STATUS.md`.  
 - **Risks**: Potential for silent failures. Mitigation: `STATUS.md` must include `J_DISCONNECTED` with timestamp and resolution steps.
+
+<!-- PROVENANCE-MISSING: automation/state/oos.json -->

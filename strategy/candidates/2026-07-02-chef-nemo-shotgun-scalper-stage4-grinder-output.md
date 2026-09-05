@@ -54,3 +54,5 @@ The proposed strategy must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The proposed strategy may complement or conflict with existing candidates in the leaderboard, such as the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND candidates. Further analysis is needed to determine the potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

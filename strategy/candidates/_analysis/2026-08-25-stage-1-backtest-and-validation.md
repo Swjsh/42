@@ -46,3 +46,5 @@ The Stage-1 backtest must complete without errors, and the OOS walk-forward and 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so it does not conflict with existing candidates. It is intended to validate the current leaderboard projections.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

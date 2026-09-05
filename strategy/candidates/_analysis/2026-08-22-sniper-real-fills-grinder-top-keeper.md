@@ -47,3 +47,5 @@ Needs OOS walk-forward first. The negative edge_capture and lack of OOS validati
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates a grinder keeper. No direct impact on leaderboard. If promoted after OOS, it would compete with existing candidates but likely fail due to negative edge_capture.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

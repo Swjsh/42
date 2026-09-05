@@ -58,3 +58,5 @@ Change the profit-lock trail parameter in the BEARISH_REJECTION_RIDE_THE_RIBBON 
 ## Pre-existing leaderboard impact
 
 Complements parameter-change candidates like MAX_RIBBON_DUR_8 (different parameter); conflicts only if both modify same profit-lock logic (none do). Does not affect watcher/gate candidates. Neutral to structural veto candidates. May improve edge_capture without harming Sharpe if successful.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Before merging the keeper strategies into the production engine, the following t
 ## Pre-existing leaderboard impact
 
 The keeper strategies may complement or conflict with existing candidates in the leaderboard, but further analysis is required to determine the specific impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

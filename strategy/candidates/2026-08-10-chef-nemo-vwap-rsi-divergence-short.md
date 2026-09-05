@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidates in _LEADERBOARD.md (ranks 1‑9). It introduces a new trigger condition (VWAP + RSI divergence) that is not currently used by any listed strategy, so it is likely complementary rather than redundant. No overlap in entry logic with the existing watchers, filters, or exits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

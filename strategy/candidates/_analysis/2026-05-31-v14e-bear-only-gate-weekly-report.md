@@ -61,3 +61,5 @@ We need to:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It is a report on the watcher V14E_BEAR_ONLY_GATE which is already on the leaderboard as a PROMISING candidate.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

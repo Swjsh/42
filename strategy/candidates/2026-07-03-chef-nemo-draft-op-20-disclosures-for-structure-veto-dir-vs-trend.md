@@ -54,3 +54,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly those that focus on trend-based trading. The `classify_trend` function may help to improve the performance of these candidates by removing wrong-way trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

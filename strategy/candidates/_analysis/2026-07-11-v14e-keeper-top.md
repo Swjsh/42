@@ -52,3 +52,5 @@ Must pass OP-16 edge_capture >= 771 gate, walk-forward OOS Sharpe > 0.7, real-fi
 ## Pre-existing leaderboard impact
 
 This combo would rank below the rejection floor (edge_capture < 771) and thus would not appear on the leaderboard. It conflicts with existing candidates by demonstrating that high wide_pnl and WR do not guarantee J-edge capture; it underscores the importance of OP-16 gating.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

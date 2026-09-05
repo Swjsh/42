@@ -50,3 +50,5 @@ Entry triggers remain unchanged (level rejection + EMA ribbon flip + confluence)
 ## Pre-merge gate
 
 <what tests need to pass: gym validators, walk-forward, real
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

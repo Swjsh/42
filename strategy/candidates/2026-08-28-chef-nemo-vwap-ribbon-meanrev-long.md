@@ -57,3 +57,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that does not duplicate any existing strategy in the leaderboard. It complements existing VWAP‑based approaches (e.g., VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK) by trading the opposite side (mean reversion vs. continuation). No direct conflict with ranked candidates 1‑9 is expected; it may add diversity to the pool if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing GAP_AND_GO (which trades gap continuation) by offering a contrary mean-reversion approach. No direct conflict in trigger logic (opposing VWAP conditions), but may compete for same regime windows. Requires orthogonal validation to ensure no destructive interference with live-traded GAP_AND_GO.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

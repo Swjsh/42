@@ -63,3 +63,5 @@ The intended file list is assumed to be available from the workflow step that in
 ## Pre-existing leaderboard impact
 
 No impact — this candidate proposes a workflow verification step, not a trading strategy change. It does not conflict with or complement any existing candidates in the leaderboard, as it operates outside the strategy engine and backtesting framework. All leaderboard rankings remain unaffected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

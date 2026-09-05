@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates (e.g., ORB_RETEST_LONG, VWAP_CONTINUATION) by adding a new long‑biased trigger for the opening period. No direct conflict with watcher‑quality‑gate or DTE‑override candidates in leaderboard. May overlap with VWAP_CONTINUATION in timing but differs in entry logic (VWAP pullback vs. continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

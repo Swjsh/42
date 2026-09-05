@@ -56,3 +56,5 @@ Original analysis noted concentration risk: Top-2 dates (5/04 N=8 + 5/15 N=6) = 
 ## Pre-existing leaderboard impact
 
 Does not conflict with other candidates; serves as a watcher quality gate that complements exit-structure optimizations (e.g., V14E_PARAM_SWEEP_26K) and time-of-day gates (V14E_BEAR_TIME_OF_DAY_GATE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

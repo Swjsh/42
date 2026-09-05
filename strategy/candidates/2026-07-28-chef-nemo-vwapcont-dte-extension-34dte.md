@@ -61,3 +61,5 @@ Extending the DTE of the vwap_continuation signal from 0DTE to 3DTE and 4DTE (we
 ## Pre-existing leaderboard impact
 
 This candidate complements WEEKLY_DTE_NOT_0DTE by extending the DTE test to 3-4DTE. It does not conflict with any existing candidate; rather, it builds upon the DTE lever finding. If successful, it may prompt a new candidate that makes DTE a dynamic parameter based on signal quality or regime.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

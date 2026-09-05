@@ -57,3 +57,5 @@ The pre-merge gate requires the following tests to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates by providing a new trigger branch that can be used in conjunction with the existing candidates. The candidate does not conflict with any of the existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

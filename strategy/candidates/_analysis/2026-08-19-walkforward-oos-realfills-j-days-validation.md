@@ -61,3 +61,5 @@ We need to verify that the current engine’s edge_capture on J’s source‑of�
 ## Pre-existing leaderboard impact
 
 This analysis does not propose any engine change; it is a validation gate. It therefore does not conflict with any existing candidate in _LEADERBOARD.md. If the validation shows edge_capture < 771, the current engine would be REJECTED and candidates that rely on it would need re‑evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

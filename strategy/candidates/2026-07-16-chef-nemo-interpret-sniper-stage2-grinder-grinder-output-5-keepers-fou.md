@@ -37,3 +37,5 @@
   - **After-4pm:** Build/iterate Phase 2 modules, fix bugs, spec strategies.  
   - **Weekend grind:** Multi-day pipelines (backtests needing >24h).  
 - **Risk:** Weekend deferral = foot-gun. <8h tasks must ship tonight. Ask: "Can this be done in 60 min?" If yes, ship now. Autonomous ship criteria: OOS positive + WF ≥ 0.70 + sub-window stable + anchor no-regression + A/B scorecard filed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

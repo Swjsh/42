@@ -58,3 +58,5 @@ The VWAP overnight grinder identified parameter combos that produce occasional l
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥771 or are watcher-only). This proposal would be REJECTED at the door due to edge_capture <771 and requires substantial OOS validation before reconsideration. No impact on existing rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

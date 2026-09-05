@@ -57,3 +57,5 @@ Join `qqq_label` (precomputed from QQQ 5m bars: reclaimed if 20-bar reclaim, fai
 ## Pre-existing leaderboard impact
 
 This analysis follows up on Rank I candidate (QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS). No conflict with existing candidates. If QQQ label shows edge after volatility control, may support a wiring proposal (new candidate). If no edge, may refine or retire the candidate. Complements leaderboard by resolving the trend-day/volatility confound noted in the candidate's verdict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

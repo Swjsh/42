@@ -61,3 +61,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate tests a variation of the existing HOLD candidate [VWAPCONT_DTE_OVERRIDE_2DTE](2026-07-07-204650-vwapcont-dte-override.md). If it passes gates, it could replace that candidate. It does not conflict with other candidates in the leaderboard as it is a wiring test for the same setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

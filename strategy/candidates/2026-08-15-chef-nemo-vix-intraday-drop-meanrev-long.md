@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new entry signal based on intraday VIX movement, which is not present in any current leaderboard entry. It does not directly modify any existing trigger, filter, or exit rule, so it does not conflict with candidates 1‑9 in _LEADERBOARD.md. Instead, it could complement existing quality gates (e.g., F8_VIX_FLAT_UNBLOCK) by providing an additive long‑bias signal that runs alongside the current PUT‑focused engine, subject to further testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

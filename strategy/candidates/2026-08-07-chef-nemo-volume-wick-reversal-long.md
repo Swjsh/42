@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with candidates 1-9 in _LEADERBOARD.md; introduces a novel trigger mechanism (volume-wick reversal) absent from current registry. Complementary as it targets long entries during bullish reversals while existing candidates focus on bearish setups or different structural edges.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The pre-merge gate for this candidate includes the requirement that the out-of-s
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

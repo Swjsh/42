@@ -56,3 +56,5 @@ Gym validators: all gym tests must pass; walk-forward: OOS Sharpe must be positi
 ## Pre-existing leaderboard impact
 
 This candidate complements the BEAR_SCORE_7_RELAXATION and BEAR_SCORE_8_RELAXATION (if exists) by attempting to avoid the overfitting pitfall. It does not directly conflict with other candidates as it is a parameter range adjustment for the grinder sweep, not a specific parameter value.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

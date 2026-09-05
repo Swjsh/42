@@ -50,3 +50,5 @@ Needs OOS walk-forward first—and likely significant redesign. Edge_capture ($3
 
 ## Pre-existing leaderboard impact
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This analysis highlights why the keeper fails OP-16 gates: it optimizes for wide_pnl (likely curve-fitted to non-J regimes) at the expense of J-anchor edge capture. Complements research by exposing the risk of optimizing aggregate PNL without OP-16 anchoring. No direct impact on leaderboard rankings until edge_capture threshold is met.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

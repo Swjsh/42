@@ -72,3 +72,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and therefore would be rejected at the door. It does not impact the leaderboard as it would not appear. It is not comparable to the current leaderboard candidates which all have edge_capture >= 771 (by virtue of being on the leaderboard).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

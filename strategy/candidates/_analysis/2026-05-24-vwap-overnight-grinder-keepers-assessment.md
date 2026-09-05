@@ -118,3 +118,5 @@ This candidate has edge_capture = 40.01, which is **5.2% of the minimum threshol
 ## Pre-Existing Leaderboard Impact
 
 **No conflict.** This candidate is rejected before leaderboard insertion. It does not complement or conflict with candidates 1-16 — it fails the threshold that all candidates must pass.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

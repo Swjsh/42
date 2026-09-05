@@ -265,3 +265,5 @@ wc -l automation/state/watcher-observations.jsonl
 No `params.json`/`heartbeat.md`/generated-surface edits made. This is a KILL of the promotion
 *candidate*; the watcher itself keeps running unaffected (OP-22 engine-benefit change already
 shipped 2026-05-21, out of scope here).
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

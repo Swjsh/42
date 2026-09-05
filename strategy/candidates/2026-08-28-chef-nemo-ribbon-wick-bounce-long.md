@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger and does not conflict with existing leaderboard entries. It complements BULLISH_RECLAIM_RIDE_THE_RIBBON by focusing on rejection wicks with volume surge rather than simple reclaims, potentially capturing a different slice of bullish momentum. No overlap in entry logic detected with current candidates 1-24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

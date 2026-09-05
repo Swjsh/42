@@ -63,3 +63,5 @@ ORB_DIRECTION_FILTER (long-only gate) requires 3+ live-fire events to satisfy OP
 ## Pre-existing leaderboard impact
 
 Complements ORB_DIRECTION_FILTER (rank #5) by providing OP-21 live-fire data needed for promotion. No conflict with other candidates; pure observation activity. Enables potential promotion to PROMISING upon sufficient live validation.
+
+<!-- PROVENANCE-MISSING: automation/state/orb_direction_filter_live_fills.json -->

@@ -62,3 +62,5 @@ We hypothesize that requiring a confluence of three quality filters—VIX >= 18 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements V14E_BEAR_TIME_OF_DAY_GATE (rank 17) and ORB_NARROW_OR_GATE (rank 4) by adding confluence layer. No overlap with watcher-only candidates; this is a filter_change that would modify BEARISH_REJECTION_RIDE_THE_RIBBON entry logic. If ratified, would be implemented as a quality gate in `filters.py` or `heartbeat.md` pre-entry check.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

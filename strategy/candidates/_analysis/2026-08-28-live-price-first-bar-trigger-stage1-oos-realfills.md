@@ -56,3 +56,5 @@ The candidate is rejected by OP-16 (edge_capture < 771) and does not require fur
 ## Notes
 
 The motivating case of 5/15 (BEAR_PML_V_REVERSAL) was captured in the sample, but 5/15 is not a J day. The setup may have merit for non-J day trading, but it does not contribute to OP-16 edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

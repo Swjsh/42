@@ -56,3 +56,5 @@ The pre-merge gate for the proposed strategy includes the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed strategy may complement or conflict with existing candidates in the leaderboard, such as the BEARISH_SWEEP_BLOCKER or the STRUCTURE_VETO_DIR_VS_TREND. Further analysis is needed to determine the impact of the proposed strategy on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

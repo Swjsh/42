@@ -71,3 +71,5 @@ Modify `setup/scripts/fill_funnel.py`:
 ## Notes
 
 This audit does not change strategy logic, only instrumentation. No OP-16 anchor impact as it affects metrics collection only. The fix ensures accurate reflection of all execution attempts in funnel health checks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

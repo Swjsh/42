@@ -67,3 +67,5 @@ Explanation: Without backtesting, we cannot predict the exact impact. The change
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters like the midday_trendline_gate (which removes midday loser entries) and structure_veto (which removes wrong-way trades). It does not conflict with any existing candidate in the leaderboard as it modifies the ENTER gate timing rather than adding a new filter or trigger. However, it may interact with the midday_trendline_gate (both affect timing) so combined effects should be checked.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

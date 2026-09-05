@@ -61,3 +61,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup exhibits strong edge in elevated VIX
 ## Pre-existing leaderboard impact
 
 This candidate is a **filter_change** that does not modify existing triggers, exits, or watchers. It is orthogonal to quality‑gates like `MIDDAY_TRENDLINE_GATE` and structural vetoes like `STRUCTURE_VETO_DIR_VS_TREND`. It should complement existing candidates by further refining the entry set; no known conflicts with current leaderboard entries. If proven effective, it could be stacked with other passing filters to improve aggregate Sharpe while preserving edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

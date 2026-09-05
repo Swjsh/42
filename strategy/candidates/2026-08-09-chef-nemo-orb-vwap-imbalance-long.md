@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No known conflict with current leaderboard candidates; this is a novel trigger not represented in the existing set. It complements existing VWAP‑based and ORB‑based ideas by combining both with a volume filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Baseline requires no gate (it is the control). For any candidate: gym validators
 ## Pre-existing leaderboard impact
 
 Baseline is implicit in all leaderboard entries (e.g., [STRUCTURE_VETO_DIR_VS_TREND] base edge_capture=780, Sharpe=4.340). Analysis does not conflict with existing candidates; provides foundation for evaluating all proposals. No impact on rankings as it is not a actionable candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate proposes a novel trigger based on prior‑day VWAP wick rejection, which does not duplicate any existing trigger in the leaderboard (ranks 1‑9). It is complementary to existing quality‑gates and structural filters, and could be combined with existing exit logic (e.g., chandelier trailing) without conflict. No known overlap with current candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

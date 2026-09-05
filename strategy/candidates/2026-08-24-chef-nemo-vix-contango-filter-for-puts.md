@@ -55,3 +55,5 @@ Add a pre-entry filter that checks VIX term structure: compute contango signal a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX-based filters (e.g., F8_BULL_VIX_GATE_REVAL, VIX_BULL_HARD_CAP_UNBLOCK) by adding term structure dimension. May overlap with BEAR_SCORE_7_RELAXATION (which already uses VIX thresholds) but focuses on term structure vs absolute level. No known duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

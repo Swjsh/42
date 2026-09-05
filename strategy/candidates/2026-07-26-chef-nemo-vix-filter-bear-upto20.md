@@ -56,3 +56,5 @@ Modify the VIX condition in the BEAR entry path (e.g., in `v14_enhanced_watcher.
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEAR-side filters (e.g., distinct from V14E_BEAR_ONLY_GATE which is a watcher-only filter). No overlap with existing VIX-related gates like F8_BULL_VIX_BLOCK_REVAL (bull-side) or VIX_BULL_HARD_CAP_UNBLOCK (bull-side). May interact with BEARISH_REJECTION_RIDE_THE_RIBBON setup logic; effect must be measured via backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

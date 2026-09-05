@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with current leaderboard candidates (which focus on VWAP continuation, structure gates, DTE shifts, or watcher filters). This proposal introduces a new mean‑reversion trigger that could complement existing filters by providing orthogonal entry opportunities, but must be validated for edge capture on J’s anchor days before any ranking impact can be assessed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

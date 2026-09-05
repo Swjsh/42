@@ -61,3 +61,5 @@ A catastrophic premium stop at `stop_premium_pct` (-0.35 = -35% of entry premium
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries (ranks 1‑9). It complements them by offering an alternative exit‑parameter configuration that could be combined with other quality gates or triggers in future stacked proposals. No current leaderboard candidate uses the exact combination of tp_premium_pct=1.5, stop_premium_pct=-0.35, and chandelier_arm_pct=0.5, so there is no direct overlap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -103,3 +103,5 @@ determine which dominates on edge_capture × sharpe (OP-16).
 
 Large-sample (307), multi-dimensional, real-fills OOS. Only gap: no equity-curve concentration
 check yet and the grinder A vs B sweep is pending.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

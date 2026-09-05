@@ -50,3 +50,5 @@ Pass gym validators, walk-forward OOS test showing edge_capture >=771 and Sharpe
 ## Pre-existing leaderboard impact
 
 This verification analysis does not modify the engine, so it does not conflict with existing candidates. Results may influence future candidate rankings if baseline fails to meet OP-16 thresholds.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

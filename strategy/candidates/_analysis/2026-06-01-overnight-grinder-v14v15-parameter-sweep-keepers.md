@@ -82,3 +82,5 @@ The improvement appears driven by **tighter stops across all qualities** (level_
 **Recommendation:** NEEDS-OOS walk-forward before leaderboard promotion. The edge_capture is strong but concentration in a single quarter raises overfit concern.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

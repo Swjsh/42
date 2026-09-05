@@ -50,3 +50,5 @@ Gym validators: 97/98 PASS, walk-forward OOS/IS Sharpe ratio >= 0.70, real-fills
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing MIDDAY_TRENDLINE_GATE (rank 21) by adding a volume filter. It does not conflict with any other candidate in the leaderboard as it is a refinement of an existing gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

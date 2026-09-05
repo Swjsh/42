@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger that fades VWAP deviations, whereas the live VWAP_CONTINUATION candidate rides VWAP breaks. They are structurally opposite and may generate conflicting signals on the same bar. No direct overlap with existing ranked candidates (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, etc.), but potential interaction with VWAP_CONTINUATION requires joint testing. No known conflict with J‑ratified candidates (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON, MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as they operate on different triggers/filters. However, concurrent firing could affect position sizing and requires correlation analysis in Stage‑1.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

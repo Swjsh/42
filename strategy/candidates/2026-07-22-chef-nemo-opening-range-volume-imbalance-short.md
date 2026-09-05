@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md (all are watcher-only gates or structural filters; this is a new short-trigger mechanism). May complement ORB_DIRECTION_FILTER by providing volume-based short entry signal within opening range versus its price-direction filter. No overlap in trigger logic observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

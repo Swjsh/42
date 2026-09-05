@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger based on ATR compression and volume-filtered breakout. It does not directly conflict with existing candidates in the leaderboard (which focus on watcher quality gates, DTE studies, and structural filters). It may complement volatility-based strategies like SNIPER_VIX18_GRINDER but operates on a different signal. No known conflicts with current top candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

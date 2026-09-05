@@ -50,3 +50,5 @@ Gym validators must pass (e.g., 100/100) and smoke test must pass (UTF-8 output 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it validates the foundation upon which all candidates are evaluated. A passing result reinforces confidence in existing leaderboard rankings. A failing result would invalidate all gym-dependent scores and require re-running validators post-fix.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

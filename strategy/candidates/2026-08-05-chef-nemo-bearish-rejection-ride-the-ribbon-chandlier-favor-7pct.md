@@ -60,3 +60,5 @@ Raising the chandelier profit-lock arm threshold from +5% to +7% will allow winn
 ## Pre-existing leaderboard impact
 
 This candidate modifies the chandelier profit‑lock arm threshold, a parameter not touched by any existing leaderboard entry (ranks 1‑24). It therefore complements current candidates and does not create a direct conflict. If validated, it could be stacked with other exit‑tweaks (e.g., trail‑pct changes) after orthogonal testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

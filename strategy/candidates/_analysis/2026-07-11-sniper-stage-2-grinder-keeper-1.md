@@ -68,3 +68,5 @@ Note: Proposed behavior is taken from the keeper's by_day. Edge_capture = winner
 This keeper does not meet the OP-16 edge_capture floor (≥771) and would be REJECTED at the door if submitted to the leaderboard. It does not conflict with any current leaderboard candidate (all have edge_capture ≥771) as it fails the gate. Promotion would require significant improvement in edge_capture via OOS validation and parameter refinement.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

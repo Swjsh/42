@@ -62,3 +62,5 @@ The Stage-2 refiner uncovered a parameter set that produces an extraordinary win
 ## Pre-existing leaderboard impact
 
 This candidate complements existing SNIPER‑line efforts (e.g., `SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP`) by exploring a different parameter region. It does not conflict with non‑SNIPER gates or quality‑filter candidates and can be evaluated independently once OOS and real‑fills checks are satisfied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

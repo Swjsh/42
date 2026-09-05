@@ -62,3 +62,5 @@ All other components of the BEARISH_REJECTION_RIDE_THE_RIBBON setup remain uncha
 ## Pre-existing leaderboard impact
 
 No existing candidate in the leaderboard modifies the bearish entry body‑position filter (filter 9 in the bearish path). The closest is candidate 22 (VIX_BULL_HARD_CAP_UNBLOCK), which touches a different filter 9 (VIX bull hard cap) and therefore does not conflict. This proposal is orthogonal to all current ranked candidates and should be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

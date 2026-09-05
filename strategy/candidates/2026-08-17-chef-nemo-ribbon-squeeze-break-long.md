@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (run `backtest/a
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that does not directly modify any existing ranked candidate. It may complement ribbon‑based setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by providing an alternative long‑bias entry condition that operates under different precondition (ribbon compression vs. ribbon rejection/reclaim). No conflict with current leaderboard entries is anticipated, but synergistic testing would be required to confirm additive edge.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/ribbon_squeeze_break_long.py -->

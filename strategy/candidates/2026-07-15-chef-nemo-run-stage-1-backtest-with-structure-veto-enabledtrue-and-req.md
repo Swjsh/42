@@ -39,3 +39,5 @@
   - How will T6’s data be validated if PDT checks are disabled?  
   - Is `trades.csv` sufficient for post-hoc PDT analysis?  
 - **Action:** Add **PDT audit** to weekly `analysis/YYYY-Www.md` (even if fleet arms are paper).
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

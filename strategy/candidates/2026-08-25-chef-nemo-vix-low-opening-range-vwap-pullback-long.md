@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing entries in _LEADERBOARD.md. It may complement existing strategies by capturing low‑volatility morning mean‑reversion setups that are not currently covered. No known conflicts with candidates 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

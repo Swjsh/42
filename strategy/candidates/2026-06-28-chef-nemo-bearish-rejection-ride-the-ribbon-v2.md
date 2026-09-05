@@ -63,3 +63,5 @@ The proposed change is expected to have no impact on the OP-16 anchors.
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it targets a different aspect of the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The proposed change may interact with other candidates, such as STRUCTURE_VETO_DIR_VS_TREND, but the impact is unclear without further testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

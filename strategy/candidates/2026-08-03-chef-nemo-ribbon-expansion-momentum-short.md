@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing leaderboard candidate (ranks 1-24) as it introduces a unique trigger mechanism not present in current strategies. May complement existing exit strategies (e.g., chandelier trail) or filters (VIX/time-of-day) but requires integration testing to confirm no adverse interactions with existing logic. No overlap with watcher-only or gate-only candidates in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Replace the fixed VIX threshold of 20 in the BEARISH_REJECTION_RIDE_THE_RIBBON c
 ## Pre-existing leaderboard impact
 
 Complements existing candidates as a parameter tune to BEARISH_REJECTION_RIDE_THE_RIBBON setup; no direct conflict with leaderboard entries (which are watchers/gates/trade classes). Must verify anchor day behavior aligns with OP-16 source-of-truth trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

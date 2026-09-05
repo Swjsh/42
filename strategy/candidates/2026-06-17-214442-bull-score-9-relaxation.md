@@ -126,3 +126,5 @@ further reduces confidence. Worth a follow-up investigation as a pure BULL-strat
 disconnected from the OP-16 bear measurement.
 
 **Status: VALIDATE — needs dedicated BULL OP-16 analysis before promotion**
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

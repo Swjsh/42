@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; introduces a new trigger type that may complement VIX‑gated filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but operates on the short side with a distinct mean‑reversion mechanism. No overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

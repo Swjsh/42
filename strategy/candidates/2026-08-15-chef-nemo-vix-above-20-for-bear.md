@@ -59,3 +59,5 @@ Add a pre-entry filter in the BEARISH_REJECTION_RIDE_THE_RIBBON entry path: only
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements V14E_BEAR_ONLY_GATE (which filters bull v14e) by adding a VIX condition to bear entries. May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON setup but is a filter tightener, not a new trigger. No direct contradiction with PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

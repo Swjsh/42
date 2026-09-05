@@ -57,3 +57,5 @@ We will scan the V14E_BEAR_ONLY_GATE watcher-observations.jsonl for entries wher
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a diagnostic of the V14E_BEAR_ONLY_GATE watcher (ranked #3). The results may inform whether to adjust the gate or add a long-side filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ The first 5-minute bar after the open that decisively breaks the premarket high 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements LIVE_PRICE_FIRST_BAR_TRIGGER (rank 2) by adding volume filter to reduce false signals. Does not conflict with any ranked candidates as it targets a different trigger condition (post-open break vs. first bar = premarket extreme). May overlap with ORB_RETEST_LONG (watch-only) but uses different timing (first break vs. ORB retest window). No direct conflict with J-RATIFIED candidates as it adds new trade class.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

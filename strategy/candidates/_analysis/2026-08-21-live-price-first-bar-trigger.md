@@ -56,3 +56,5 @@ We ran the Stage-1 backtest via the autoresearch grinder harness, which includes
 ## Pre-existing leaderboard impact
 
 This analysis does not change the edge_capture of the candidate (remains unchanged at $0 for J days), so it does not improve the candidate's standing on the leaderboard. The candidate remains in the NEEDS-MORE-DATA status, awaiting 3+ live fires observed and real-fills P&L validation to advance to PROMISING.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

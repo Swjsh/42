@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS test with edge_capture ≥ 0 (or at l
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door due to edge_capture < 771 (OP-16 gate) and thus would not appear on the leaderboard. It does not conflict with existing candidates; it is simply insufficiently edge‑generating for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ The mechanism involves using a trendline detection algorithm to identify descend
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON candidates, by providing an alternative entry mechanism for trendline breakouts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

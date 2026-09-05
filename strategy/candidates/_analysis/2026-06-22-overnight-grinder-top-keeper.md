@@ -62,3 +62,5 @@ OP-16 gate FAILS (edge_capture=670.6 < 771). No further gates can override this 
 ## Pre-existing leaderboard impact
 
 This candidate does not meet OP-16 floor and would be REJECTED at the door. It does not appear on or conflict with the current leaderboard (which only lists candidates with edge_capture ≥ 771). No impact on existing rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

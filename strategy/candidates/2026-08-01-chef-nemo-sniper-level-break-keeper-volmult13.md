@@ -57,3 +57,5 @@ The sniper level break strategy with specific parameters aims to capture edge by
 ## Pre-existing leaderboard impact
 
 This candidate fails OP-16 edge_capture ≥ 771 requirement (229.63 < 771) and would be REJECTED. It does not appear on the current leaderboard and conflicts with the leaderboard's edge_capture floor. It does not complement existing candidates due to inadequate J-edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

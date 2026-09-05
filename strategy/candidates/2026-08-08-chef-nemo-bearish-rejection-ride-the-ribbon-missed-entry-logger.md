@@ -64,3 +64,5 @@ The watcher code must pass the gym validators (i.e., the unit tests in `backtest
 ## Pre-existing leaderboard impact
 
 This watcher proposal does not conflict with any existing candidates. It complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup by providing data on its hit-rate and potential missed opportunities. It does not alter the engine, so it has no direct impact on the leaderboard rankings of other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

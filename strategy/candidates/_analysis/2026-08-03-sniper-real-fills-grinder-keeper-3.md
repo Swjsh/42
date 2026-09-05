@@ -35,3 +35,5 @@ Same structure as keeper 1; all fields marked unknown or NEEDS‑OOS where app
 Same as keeper 1.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

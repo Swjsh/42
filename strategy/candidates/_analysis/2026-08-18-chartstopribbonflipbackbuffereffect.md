@@ -62,3 +62,5 @@ We require a Stage-1 backtest that computes:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change, so it does not conflict with any candidate. It may inform future candidates that adjust the chart stop buffer or ribbon flip back conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

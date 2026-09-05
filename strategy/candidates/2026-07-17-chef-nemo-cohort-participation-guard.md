@@ -63,3 +63,5 @@ Extend `participation_cascade.py` to:
 ## Pre-existing leaderboard impact
 
 Complements existing quality gates (e.g., V14E_BEAR_ONLY_GATE, MIDDAY_TRENDLINE_GATE) by providing meta-monitoring of their collective impact. No direct conflict with ranked candidates; adds observational layer that may inform future gate refinements (e.g., if COHORT_BLOCK_ALERT frequently flags same arm/cohort pair, suggests gate over-reach). Does not alter any OP-16 anchors directly.
+
+<!-- PROVENANCE-MISSING: automation/state/cohort_block_alerts.json, test_participation_cascade_arm_exclusion.py, test_cohort_block_alert.py, test_cohort_block_guard_gym.py -->

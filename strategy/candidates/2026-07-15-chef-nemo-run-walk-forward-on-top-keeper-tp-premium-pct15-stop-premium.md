@@ -31,3 +31,5 @@ DRAFT CANDIDATE: COMPOUND-UPGRADE-LOCK
 **Current gap**: No logged outcome for weekend deferral tasks (e.g., "multi-day pipelines").  
 **Risk**: Untracked weekend work may conflict with after-4pm live updates.  
 **Action**: Enforce "can this be done in 60 min?" rule; log all weekend tasks in `markdown/planning/FUTURE-IMPROVEMENTS.md`.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

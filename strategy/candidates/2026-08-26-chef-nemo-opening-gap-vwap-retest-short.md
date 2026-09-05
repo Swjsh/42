@@ -48,3 +48,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Complements existing GAP_AND_GO (long bias) by providing short-side gap-down logic; no direct conflict with current leaderboard candidates (primarily filters/exits) as it introduces a new trigger type with distinct VWAP/ribbon/RSI filters. Would require evaluation against existing bearish triggers for uniqueness.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

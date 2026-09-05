@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that does not modify any existing rules or params in the leaderboard. It is complementary to existing volatility‑ or structure‑based candidates (e.g., V14E_BEAR_ONLY_GATE, WEEKLY_DTE_NOT_0DTE) because it trades on a different signal (VIX term structure + OR break) and can coexist; there is no direct conflict with the top‑9 candidates listed in _LEADERBOARD.md. It would need to be evaluated for its own OP‑16 edge before any ranking impact can be assessed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

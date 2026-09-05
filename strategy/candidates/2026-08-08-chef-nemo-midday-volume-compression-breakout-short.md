@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; it may complement by adding a short‑bias intraday signal that operates outside the morning‑focused setups (e.g., GAP_AND_GO, VWAP_CONTINUATION). No overlap in trigger logic or time window detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

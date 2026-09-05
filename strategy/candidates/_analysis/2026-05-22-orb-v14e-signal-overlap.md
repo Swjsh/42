@@ -47,3 +47,5 @@ Signals likely complement rather than concentrate:
 ## Confidence
 
 7 / 10 -- Based on confirmed 5/04 overlap + structural reasoning; exact overlap requires bar-level date extraction from backtest logs.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

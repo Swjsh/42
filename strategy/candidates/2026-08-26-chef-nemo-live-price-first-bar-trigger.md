@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS test must show positive P&L with WF >
 ## Pre-existing leaderboard impact
 
 This candidate is already in the leaderboard at rank 2. It does not conflict with other candidates as it is a trigger branch that can be combined with other filters. It complements candidates that are filters or exit changes by providing a new entry signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

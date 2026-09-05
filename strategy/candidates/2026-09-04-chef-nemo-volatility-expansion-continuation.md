@@ -58,3 +58,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new trigger type and does not conflict with existing candidates in the leaderboard (which are primarily filters, exits, or quality gates). It may complement existing strategies by providing an alternative entry signal during consolidation periods, particularly when combined with existing quality gates like structure_veto or midday_trendline_gate. No direct overlap with current top-9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

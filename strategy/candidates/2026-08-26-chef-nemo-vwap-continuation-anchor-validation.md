@@ -58,3 +58,5 @@ The VWAP_CONTINUATION setup captures directional bias from the first three RTH c
 ## Pre-existing leaderboard impact
 
 This candidate tests re‑arming the existing VWAP_CONTINUATION detector (currently execution‑disarmed). It does not conflict with top‑9 leaderboard entries; rather, it complements structural‑veto and DTE‑extension candidates by providing an alternative morning‑bias trigger that could be stacked with those filters. If validated, it may become a new trigger type distinct from the existing candidates 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

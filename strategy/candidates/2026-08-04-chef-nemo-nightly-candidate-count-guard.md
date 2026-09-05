@@ -62,3 +62,5 @@ A script runs nightly (via cron or scheduled task) that:
 ## Pre-existing leaderboard impact
 
 No conflict; this is a housekeeping proposal that does not affect any trading strategy or existing candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

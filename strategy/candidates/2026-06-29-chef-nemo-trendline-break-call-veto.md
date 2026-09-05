@@ -52,3 +52,5 @@ The pre-merge gate requires that the trendline break call veto mechanism be back
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger mechanism that is designed to improve the overall performance of the engine.
+
+<!-- PROVENANCE-MISSING: backtest/lib/triggers/trendline_break.py -->

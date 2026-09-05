@@ -69,3 +69,5 @@ The shotgun scalper attempts to capture short‑term premium spikes by entering 
 ## Pre-existing leaderboard impact
 
 This candidate’s projected edge_capture (506.55) is below the OP‑16 floor of 771, so it would be REJECTED if submitted to the leaderboard. It does not conflict with any existing candidates (all of which have higher edge_capture or are structural/DTE studies). It could be viewed as a filter‑change exploration that, if improved via OOS validation, might eventually complement existing volatility‑ or volume‑based gates, but in its current state it is not leaderboard‑eligible.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

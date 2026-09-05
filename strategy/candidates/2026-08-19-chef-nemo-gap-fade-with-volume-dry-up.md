@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in _LEADERBOARD.md (which are primarily filter_change, exit_change, quality_gate, or watcher_proposal types). It may complement existing volatility‑ or volume‑based filters but requires independent validation. No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

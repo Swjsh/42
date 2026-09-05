@@ -70,3 +70,5 @@ The keeper parameter set (tp_premium_pct=0.75, stop_premium_pct=-0.35, time_stop
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 The keeper does **not** meet the OP‑16 edge_capture floor (771) and therefore cannot appear on the leaderboard. It does not conflict with existing candidates; rather, it highlights the need for a strategy that preserves J's anchor‑day edge while delivering aggregate performance. If future iterations can raise edge_capture ≥771 while maintaining Sharpe, they could complement current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

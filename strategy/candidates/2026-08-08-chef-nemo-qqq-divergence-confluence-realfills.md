@@ -58,3 +58,5 @@ We require:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is a study to resolve the confound in the existing QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS candidate (rank I). It does not conflict with any other candidate; rather, it informs whether the QQQ label should be used as a filter or trigger in future proposals. If the QQQ label shows incremental value after vol control, it may complement candidates that rely on volatility regime (e.g., VIX-based filters). If not, it may suggest that the QQQ label is redundant with volatility information.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

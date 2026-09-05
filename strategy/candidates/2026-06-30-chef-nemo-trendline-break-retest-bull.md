@@ -61,3 +61,5 @@ This candidate needs to pass the following gates before it can be merged into th
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, and does not conflict with any of them. It provides a new trade class that can be used in conjunction with the existing candidates to improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

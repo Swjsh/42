@@ -69,3 +69,5 @@ Entry trigger: the existing signal (e.g., ribbon_ride, vwap_continuation, etc.) 
 ## Impact on leaderboard
 
 If the candidate passes OOS and real-fills, it would increase the aggregate Sharpe (from 4.34 to ~4.50) while maintaining edge_capture at $780, resulting in a higher final_score. It would not conflict with existing candidates as it operates on call entries only, leaving PUT-based strategies untouched. It could complement the STRUCTURE_VETO_DIR_VS_TREND candidate (which also vetoes trades based on structure) but they target different directions (this one is call-only, the other is direction-agnostic veto). However, note that the STRUCTURE_VETO_DIR_VS_TREND candidate is already PROMISING and has been validated with OOS and real-fills, so this candidate would be redundant if it does not add additional value beyond that candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a short‑side trigger that does not duplicate any existing long‑only triggers in the leaderboard (e.g., ORB_RETEST_LONG, VWAP_CONTINUATION). It is complementary in that it adds a new short‑bias setup to the strategy pool without overlapping entry logic with current candidates 1‑9. No direct conflict anticipated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

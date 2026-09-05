@@ -50,3 +50,5 @@ Requires: Stage-1 backtest to establish baseline and compute edge_capture on J d
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates because it fails the OP-16 gate (edge_capture<771) and thus is not eligible for the leaderboard. It would need to be revised to capture more of the J edge before consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

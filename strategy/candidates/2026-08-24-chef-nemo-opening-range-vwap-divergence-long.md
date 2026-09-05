@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger condition; potential complementarity with existing VWAP-based strategies requires further study.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

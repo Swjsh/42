@@ -58,3 +58,5 @@ Run the grinder harness for Stage-1 backtest on the full OPRA dataset (2025-01-0
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine, so it does not conflict with any existing candidate. It serves as a validation of the baseline engine, which is used as the reference for all candidates in the leaderboard.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

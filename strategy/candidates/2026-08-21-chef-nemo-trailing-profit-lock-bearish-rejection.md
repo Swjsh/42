@@ -57,3 +57,5 @@ what tests need to pass: gym validators, walk-forward, real-fills
 ## Pre-existing leaderboard impact
 
 This candidate complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is the basis of the playbook) and may conflict with any other exit_change candidates that modify the same setup. No direct conflicts observed in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

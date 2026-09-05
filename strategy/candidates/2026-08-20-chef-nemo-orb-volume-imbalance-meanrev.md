@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (generating equi
 ## Pre‑existing leaderboard impact
 
 No direct conflict with candidates 1‑9 in _LEADERBOARD.md; the proposal uses a distinct signal (volume distribution inside ORB) rather than price‑retest or trend‑based triggers. It could complement existing ORB‑based watchers (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by providing an alternative long‑only entry filter for the same time window. However, without a Stage‑1 backtest we cannot determine whether it adds redundant or orthogonal edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

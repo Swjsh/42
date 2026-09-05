@@ -54,3 +54,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, as it provides a new trigger branch that can potentially improve the overall performance of the system. However, the exact impact on the leaderboard is unknown and requires further testing and evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

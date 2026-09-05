@@ -66,3 +66,5 @@ The WEEKLY_DTE_NOT_0DTE edge shows a monotonic increase in OOS expectancy per tr
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is purely diagnostic. It may inform a future filter_change or quality_gate candidate that adapts DTE based on VIX/ATR strata, which would then be evaluated for leaderboard impact. No current leaderboard ranks are affected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

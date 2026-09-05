@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, gates, or structural changes). It complements by providing a new entry signal that could be combined with existing filters, but must be tested in isolation first. No known overlap with current top candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

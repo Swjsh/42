@@ -54,3 +54,5 @@ We need the Stage-1 backtest to pass gym validators, produce edge_capture >=771,
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis is a baseline check; it does not propose a new candidate, so no conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

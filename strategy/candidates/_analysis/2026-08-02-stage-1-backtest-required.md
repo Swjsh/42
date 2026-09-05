@@ -54,3 +54,5 @@ Invoke the grinder harness (`backtest/autoresearch/grinder.py` or equivalent) wi
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it is a prerequisite step for any candidate seeking promotion. No conflict with existing leaderboard entries; rather, it ensures future candidates meet the mandatory Stage‑1 backtest requirement before appearing on the leaderboard.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/grinder.py, test_no_lookahead.py -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates in the leaderboard (which are primarily filters, gates, or other trade classes). It complements by adding a novel entry signal based on volume-driven wick rejection, distinct from level-based or structural triggers. No overlap with current leaderboard candidates' mechanisms.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

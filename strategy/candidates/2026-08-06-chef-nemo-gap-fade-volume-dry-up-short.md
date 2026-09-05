@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard because it is a new trigger based on gap and volume conditions. It does not modify any existing parameters or gates, so it should be complementary. However, we note that the GAP_AND_GO setup already exists and trades gaps in the direction of the move. This candidate is the opposite (fade), so it may provide diversification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

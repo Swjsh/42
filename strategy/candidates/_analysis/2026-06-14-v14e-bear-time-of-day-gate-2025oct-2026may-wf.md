@@ -63,3 +63,5 @@ The V14E_BEAR_TIME_OF_DAY_GATE watcher (already deployed per OP-22) applies an e
 ## Pre-existing leaderboard impact
 
 Complements rank 17 (V14E_BEAR_TIME_OF_DAY_GATE) and rank 21 (MIDDAY_TRENDLINE_GATE). No conflict; adjacent time windows (10:xx-11:xx vs 11:30-14:00). Both gates target chop/zombie regimes without overlapping anchor-day interference.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

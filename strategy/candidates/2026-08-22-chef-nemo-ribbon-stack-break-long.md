@@ -51,3 +51,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing strategy in the leaderboard. It is complementary to existing trigger‑based candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER) in that it seeks to capture a different intraday pattern. There is no known conflict with the current top‑ranked candidates, as it operates on a distinct signal set (EMA ribbon alignment + volume breakout) rather than price‑level or VWAP‑based triggers. However, it may overlap in sample space with trend‑following watches; concurrent ratification would require checking for signal duplication and potential double‑counting of trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

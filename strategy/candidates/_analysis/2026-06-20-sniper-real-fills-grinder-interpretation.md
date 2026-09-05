@@ -62,3 +62,5 @@ Not applicable (no promotion recommended). If revisiting:
 ## Pre-existing leaderboard impact
 
 Complements existing SNIPER artifacts (ranks 13-15) by confirming premium-exit mechanics are invalidated (L99/L100). Does not conflict with leaderboard candidates as all are REJECTED-FINAL or ARTIFACT-INVALIDATED. Aligns with recommendation to pursue chart-stop SNIPER variants only after identifying SNIPER-specific anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries; it complements the existing `RSI_DIVERGENCE_BULL_WATCHER` (a passive watcher) by adding an entry trigger and exit rules, potentially turning the divergence signal into an active trade. It is orthogonal to structure‑based vetoes and VWAP‑continuation strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

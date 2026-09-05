@@ -56,3 +56,5 @@ Run `orb_narrow_or_real_fills.py` on the 2025 SPY 5m dataset excluding J-anchor 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis supports the ORB_NARROW_OR_GATE candidate (rank 4) by confirming its real-fills gate on 2025 non-J-anchor data. It does not conflict with any existing candidates; rather, it reinforces the ORB narrow-or + long-only gate as a viable quality gate awaiting J ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

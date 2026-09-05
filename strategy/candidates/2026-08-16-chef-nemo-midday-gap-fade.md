@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing logic in the leaderboard. It could complement existing volatility‑based filters (e.g., VIX‑gated strategies) but would need to be A/B tested against current triggers to ensure it does not degrade anchor performance. No direct conflict with ranked candidates is apparent, but it adds a new trade class that must prove its own edge_capture before being considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

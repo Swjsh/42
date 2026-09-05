@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger based on CME order imbalance, which is not present in any of the current leaderboard entries (ranks 1‑9). It therefore complements existing strategies rather than conflicting with them, offering a new orthogonal signal source for potential ensemble use. No direct overlap with existing triggers (e.g., VWAP_CONTINUATION, GAP_AND_GO) is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

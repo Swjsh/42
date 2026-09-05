@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION (live) by focusing on a specific monthly window; no direct conflict with WEEKLY_DTE_NOT_0DTE (DTE-focused) or STRUCTURE_VETO_DIR_VS_TREND (structure-based veto). May overlap with ORB_RETEST_LONG (calls) but differs in direction (long vs. long) and timing (month-end vs. opening range). Requires differentiation to avoid redundant signal capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

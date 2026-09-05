@@ -59,3 +59,5 @@ Entry requires: vol_mult >= 1.1, body_min_cents >= 0.02, min_stars >= 2, proximi
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture >= 771). This candidate is OP-16 rejected and would not appear on leaderboard. Complements research by showing ITM-2 + tight stop approach fails to capture J-edge; suggests need for wider stops or different exit logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

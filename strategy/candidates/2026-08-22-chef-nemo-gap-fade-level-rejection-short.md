@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify existing candidates in the leaderboard. It may compete for capital and requires independent validation; no known conflict with current candidates as it targets a distinct setup type (gap fade rejection vs. continuation or mean-reversion patterns). However, potential overlap with GAP_AND_GO (which trades gap continuation) requires empirical checking for signal collision.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

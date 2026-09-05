@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates in the leaderboard. This candidate introduces a new trigger based on volatility contraction and prior day high breakout, distinct from ORB_RETEST_LONG (opening-range retest) and other existing triggers. It complements the long-side trigger library by adding a volatility-filtered breakout approach.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

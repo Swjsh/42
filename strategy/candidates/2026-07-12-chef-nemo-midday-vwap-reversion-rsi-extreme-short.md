@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with candidates 1‑9 in _LEADERBOARD.md; complements VWAP_CONTINUATION (trend‑following) by providing a short‑bias mean‑reversion trigger in the midday window, potentially additive when combined with regime filters (VIX 15‑25, no HH/HL). No overlap in entry logic detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The pre-merge gate for this candidate requires out-of-sample testing and real-fi
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger branch. However, it may potentially compete with existing candidates for the same trade opportunities.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

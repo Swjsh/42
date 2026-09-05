@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing leaderboard entries as it introduces a new trigger based on VIX term structure and ORH break conditions. It may complement existing volatility-based candidates (like VIX_REGIME_DAYSIDE) by adding a more nuanced signal and additional confluence factors. No direct overlap in trigger logic with current top candidates is observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

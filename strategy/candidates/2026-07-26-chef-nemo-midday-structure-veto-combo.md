@@ -51,3 +51,5 @@ Combining the midday trendline gate (which blocks low-quality single-trigger ent
 6. **Concentration:** Midday window trades currently ~22% of total P&L (per midday_trendline_gate analysis); adding structure veto may shift concentration but top-5 days expected to remain <60% of P&L based on historical stability.
 
 ## Pre-merge gate
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

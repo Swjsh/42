@@ -58,3 +58,5 @@ The candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in the leaderboard, such as the TRENDLINE_BREAK candidate. Further evaluation is required to determine the impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

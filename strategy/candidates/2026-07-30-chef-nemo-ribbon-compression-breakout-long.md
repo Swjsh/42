@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing ribbon‑based strategies (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) because it uses ribbon compression as a filter rather than relying on ribbon‑touch entries. It does not conflict with any current top‑10 candidates, but it will need to prove its own edge_capture via Stage‑1 backtest before it can be ranked.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new short‑bias trigger and does not directly modify any existing setup in the leaderboard (candidates 1‑9). It is likely complementary, providing an additional entry filter that could be combined with existing exits or quality gates, but it does not conflict with any current ranked candidate. No changes to existing params or automation files are proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

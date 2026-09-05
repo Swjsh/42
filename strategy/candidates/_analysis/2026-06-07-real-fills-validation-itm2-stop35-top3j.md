@@ -52,3 +52,5 @@ We require that the real-fills validation passes (i.e., the average P&L differen
 ## Pre-existing leaderboard impact
 
 This validation does not conflict with any existing candidate. It is a tool to verify the quality of the simulation engine. If the validation fails, it may impact the credibility of backtests used to rank candidates. If it passes, it increases confidence in the BS sim as a ranking tool (though note that per L23, BS sim should only be used for relative comparisons, not absolute P&L).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -68,3 +68,5 @@ We are testing whether optimizing VWAP-anchored entry parameters (volume multipl
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This proposal would be REJECTED at the door per OP-16 (edge_capture < 771). Requires significant improvement before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

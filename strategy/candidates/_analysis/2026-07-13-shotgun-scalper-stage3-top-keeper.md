@@ -66,3 +66,5 @@ The shotgun_scalper_stage3 combo attempts to improve overall P&L by tightening p
 ## Pre-existing leaderboard impact
 
 This candidate does **not** meet the OP‑16 edge_capture floor (≥771) and therefore would be rejected at the door per the leaderboard rules. It does not conflict with any existing leaderboard entries because none of those have edge_capture < 771. It would need to improve edge_capture (by retaining more winner‑day P&L and losing less on loser days) before being considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

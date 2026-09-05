@@ -63,3 +63,5 @@ Before starting a parameter sweep or grid search in autoresearch/loop.py, the sy
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing trading strategy candidates in the leaderboard because it does not propose any changes to the trading logic. It is a meta-candidate that improves the research process. It complements all candidates by potentially reducing wasted effort on low-quality sweeps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

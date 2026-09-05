@@ -73,3 +73,5 @@ Note: The exact parameters (like RSI period, divergence lookback, stop distance)
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with any existing candidates in the leaderboard (which are mostly filters, exits, or other triggers). It may complement existing quality gates if used as a trigger that is then filtered by existing watchers. However, it may also overlap with the VWAP_CONTINUATION trigger (which is already in the playbook) but differs in using RSI divergence. No immediate conflict detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

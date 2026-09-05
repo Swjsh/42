@@ -139,3 +139,5 @@ final_score = edge_capture × aggregate_sharpe
 - No real-fills validation
 - OP-16 cannot be formally scored (1 of 3 required anchors)
 - vol_mult=0.9 selected from 120-combo grid with OOS n=21 — high selection bias on Sharpe
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

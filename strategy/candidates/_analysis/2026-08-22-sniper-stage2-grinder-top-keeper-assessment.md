@@ -87,3 +87,5 @@ Based on the OP-16, the edge_capture must be at least 771 to be considered. This
 We must note that the edge_capture is only 373.48, which is less than 50% of the maximum possible 1542 (which is 771). Therefore, it fails the OP-16 gate.
 
 Thus, we do not promote to LEADERBOARD and instead recommend OOS walk-forward first to see if we can improve the edge_capture (by capturing more of the winners and avoiding losses on losers) while maintaining the wide_pnl.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

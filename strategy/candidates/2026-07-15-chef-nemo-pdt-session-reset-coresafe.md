@@ -56,3 +56,5 @@ At 09:25 ET each trading day (pre-market), reset the internal PDT day-trade coun
 ## Pre-existing leaderboard impact
 
 Complements existing signal-based candidates (e.g., VWAP_CONTINUATION, GAP_AND_GO) by potentially increasing trade frequency for qualifying setups. Conflicts with any candidate relying on PDT-constrained trade counts for performance (none currently in leaderboard). No direct parameter overlap with existing candidates; interacts only via trade volume changes. Must verify no adverse impact on anchor day P&L from increased trading noise.
+
+<!-- PROVENANCE-MISSING: test_risk_gate_pdt_session_reset.py -->

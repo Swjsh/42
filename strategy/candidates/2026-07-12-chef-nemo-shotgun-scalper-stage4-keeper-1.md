@@ -66,3 +66,5 @@ Exit logic: first of TP, SL, or time stop hits; after TP1 (if implemented) move 
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door due to edge_capture < 771 and therefore does not appear on the current leaderboard. It does not complement existing candidates unless the edge_capture can be raised above the 50% floor via additional filtering or exit improvements. As is, it conflicts with the leaderboard’s inclusion criteria and would need significant rework to become viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ We then select the combo with the smallest rmom that achieves OOS WR ≥ 0.65 an
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it is a parameter sweep of the ribbon gate + V14E exits configuration, which is not currently a leaderboard candidate. If a combo meets the OP-16 thresholds, it could become a new candidate of type `filter_change`. No direct conflict with ranks 1-21 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

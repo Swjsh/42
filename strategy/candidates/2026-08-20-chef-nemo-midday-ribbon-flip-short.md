@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with any existing candidates in the leaderboard (which are mostly filters, gates, or other trade classes). It may complement existing volatility or trend filters, but without backtest we cannot confirm. It does not appear to overlap with the existing setups in the playbook (BEARISH_REJECTION, BULLISH_RECLAIM, VWAP_CONTINUATION, etc.) as it targets a specific midday ribbon flip.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

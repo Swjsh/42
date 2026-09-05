@@ -61,3 +61,5 @@ The chart stop buffer (distance above the rejected level that invalidates the be
 ## Pre‑existing leaderboard impact
 
 Does not conflict with existing candidates; it is a parameter tune of an already‑ratified setup (BEARISH_REJECTION_RIDE_THE_RIBBON is implicitly live via the playbook). If the sweep finds a better buffer, it would supersede the current hard‑coded value in `params.json#chart_stop_buffer_dollars` after ratification. No conflict with other leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

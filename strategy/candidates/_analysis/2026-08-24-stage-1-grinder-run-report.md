@@ -46,3 +46,5 @@ N/A (this is an analysis, not a candidate)
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so it does not conflict with any existing candidate. It suggests that the current parameter sweep space may be exhausted for capturing the J edge, and that new ideas are needed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ The strategy uses tight stops (30% premium stop), short time stops (10 min), and
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which require edge_capture > 771). This candidate would be rejected at the door per OP-16. Does not complement any existing candidate as it degrades anchor performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements rather than conflicts with existing leaders. It targets a distinct market state (low-volatility compression + named-level rejection) versus BEARISH_REJECTION_RIDE_THE_RIBBON (which requires ribbon-direction filter but no compression gate). No overlap in trigger logic with top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND). May provide diversification during low-VIX regimes where existing bearish strategies underperform. No parameter/engine changes proposed; purely additive signal generation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

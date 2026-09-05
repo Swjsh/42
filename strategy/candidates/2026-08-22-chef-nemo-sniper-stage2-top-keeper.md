@@ -59,3 +59,5 @@ Entry triggers on a level break with volume multiplier >=1.1, minimum body size 
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the edge_capture floor and would not appear on the leaderboard. It does not conflict with any current leaderboard candidate (all require edge_capture >= 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Specifically: gym validators must pass, walk-forward OOS must show positive edge
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a specific candidate, so it does not conflict with existing leaderboard entries. It is a validation step that would be used to evaluate any candidate emerging from the grinder.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

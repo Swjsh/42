@@ -16,3 +16,5 @@ DRAFT CANDIDATE: "VOL-EDGE-2026-07-20"
 - Bullish_reclaim WR discrepancy (sim +5,586 vs live -$1,573).  
 - Edge_capture sensitivity to VIX regime (C5: VIX *character* > level).  
 **Rejected**: No. Final score: 912 × 1.8 (aggregate Sharpe) = 1,641.6.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

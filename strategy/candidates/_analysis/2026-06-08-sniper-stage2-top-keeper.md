@@ -67,3 +67,5 @@ Exit uses a premium stop at `premium_stop_pct`, TP1 at `tp1_premium_pct`, runner
 ## Pre-existing leaderboard impact
 
 This analysis does **not** propose a new candidate for the leaderboard; it evaluates a parameter combination that fails the OP‑16 edge_capture gate (`edge_capture = 373.48 < 771`). Consequently, it would not appear on the leaderboard. It does not conflict with existing candidates; rather, it highlights that the current SNIPER_LEVEL_BREAK parameter sweeps have not yet yielded a setup meeting the edge_capture threshold. Further work would need to improve edge_capture on the J anchor days before OOS validation could be meaningful.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

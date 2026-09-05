@@ -75,3 +75,5 @@ With the keeper's actual behavior:
 **REJECT** — The keeper's positive P&L on J's losing days (5/05, 5/07) demonstrates antithetical behavior to J's edge. The edge_capture metric is being gamed by showing gains on days that should be avoided. This is not a viable candidate.
 
 **Recommendation:** Run stage2 grinder with explicit OP-16 constraint in the scoring function — penalize any trade that fires on J loser days, not just measure aggregate P&L.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

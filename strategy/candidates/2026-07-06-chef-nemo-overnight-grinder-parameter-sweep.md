@@ -61,3 +61,5 @@ The sweep will require the following pre-merge gates to pass:
 ## Pre-existing leaderboard impact
 
 The sweep is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The sweep may also conflict with other candidates that have similar parameters or mechanisms.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ The pre-merge gate requires a Stage-1 backtest to verify the setup's performance
 ## Pre-existing leaderboard impact
 
 The proposed setup is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

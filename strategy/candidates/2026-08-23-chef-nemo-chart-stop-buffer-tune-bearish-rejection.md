@@ -60,3 +60,5 @@ Modify `params.json#chart_stop_buffer_dollars` for BEARISH_REJECTION_RIDE_THE_RI
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) which improves Sharpe without affecting edge_capture. This candidate targets edge_capture increase directly. No conflict with watcher-only candidates (e.g., BEARISH_REJECTION_MORNING). May conflict with other exit_change candidates if they modify same parameter; will require coordination. Does not affect candidates 1-9 in _LEADERBOARD.md as they are either rejected, watcher-only, or focused on other setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

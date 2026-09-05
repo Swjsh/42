@@ -74,3 +74,5 @@ Before any promotion, the following must be satisfied:
 ## Pre-existing leaderboard impact
 
 This candidate does **not** meet the OP‑16 edge_capture floor (≥771) and would be REJECTED at the door. It does not complement any existing leaderboard entries; instead, it highlights the importance of anchoring to J's source‑of‑truth trades. No promotion to the leaderboard is warranted without a fundamental redesign that improves edge_capture while controlling concentration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

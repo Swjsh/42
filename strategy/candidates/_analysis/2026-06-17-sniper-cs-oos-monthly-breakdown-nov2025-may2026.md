@@ -42,3 +42,5 @@ We require the monthly breakdown to be computed and verified. Specifically, we r
 
 ## Pre-existing leaderboard impact
 This analysis does not propose a change to the strategy, so it does not conflict with any candidate. It supports the existing candidate #23 (SNIPER_CS_CHART_STOP) by providing deeper insight into its OOS failure.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/sniper_cs_evaluator.py -->

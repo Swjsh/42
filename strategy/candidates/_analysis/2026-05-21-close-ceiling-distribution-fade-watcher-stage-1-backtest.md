@@ -62,3 +62,5 @@ Run the Stage-1 backtest using `watcher_replay_new_watchers.py` or a minimal sca
 
 ## Pre-existing leaderboard impact
 This watcher evaluation does not conflict with existing candidates as it is an evaluation of a watcher for potential use as a quality gate or trigger. It does not propose a new candidate at this time. If promoted, it would likely be a watcher quality gate (type: watcher_quality_gate) and would need to pass gym validators, walk-forward, and real-fills checks before leaderboard consideration.
+
+<!-- PROVENANCE-MISSING: backtest/lib/watchers/close_ceiling_distribution_fade_watcher.py -->

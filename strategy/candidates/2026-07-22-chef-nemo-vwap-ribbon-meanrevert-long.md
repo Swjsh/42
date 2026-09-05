@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION by trading the opposite condition (flat ribbon vs. sloped ribbon). No overlap in trigger logic, so can coexist in the strategy registry. No impact on current leaderboard rankings until backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -68,3 +68,5 @@ Not applicable (not promoting).
 ## Pre-existing leaderboard impact
 
 No conflict; these keepers are not eligible for leaderboard due to failing edge_capture floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

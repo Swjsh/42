@@ -32,3 +32,5 @@ N/A (rejected at OP-16 gate)
 
 ## Pre-existing leaderboard impact
 Does not apply (rejected at door; edge_capture < 771 excludes from leaderboard per OP-16).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

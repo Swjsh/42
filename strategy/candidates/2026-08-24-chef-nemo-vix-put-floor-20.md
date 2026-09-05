@@ -55,3 +55,5 @@ In the entry path for put-side setups (BEARISH_REJECTION_RIDE_THE_RIBBON and any
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX-related filters (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK). May overlap with BEARISH_SCORE_7_RELAXATION (which already uses VIX implicitly) but is orthogonal as a pure VIX floor. No direct duplication in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

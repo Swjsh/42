@@ -58,3 +58,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup context filter requires ribbon sprea
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding a volatility-adjusted filter; no conflict with top candidates. May subsume marginal gains from MAX_RIBBON_DUR_8 (rank 25) but addresses different mechanism (instantaneous spread vs duration). Synergistic with VWAP_CONTINUATION (both trend-following enhancers).
+
+<!-- PROVENANCE-MISSING: test_ribbon_spread_filter_40c.py -->

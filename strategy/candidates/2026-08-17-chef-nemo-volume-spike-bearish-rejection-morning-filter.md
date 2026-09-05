@@ -61,3 +61,5 @@ The BEARISH_REJECTION_MORNING watcher currently triggers on ribbon-flip-at-level
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements rank 20 (BEARISH_REJECTION_MORNING) by enhancing its signal quality without structural changes. No conflict with top-9 candidates (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE) as it operates on a distinct signal set (morning ribbon-flip vs. volatility/open-range mechanisms). May reduce overlap with rank 21 (MIDDAY_TRENDLINE_GATE) by tightening morning session specificity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

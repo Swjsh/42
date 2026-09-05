@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS edge_capture >= 771 with WF ratio >= 
 ## Pre-existing leaderboard impact
 
 This candidate does not change the engine; it is a validation gate. It complements all existing candidates by providing a rigorous OOS and real-fills check. It does not conflict with any candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

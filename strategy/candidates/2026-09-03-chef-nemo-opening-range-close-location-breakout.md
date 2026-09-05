@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ORB-based gates (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding a predictive entry signal rather than reactive retest. No direct conflict with current leaderboard candidates as it introduces a new trigger type not represented in top ranks. May conflict with WATCH-ONLY ORB variants if proven additive, but requires Stage-1 backtest to determine interaction effects.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

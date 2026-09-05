@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard entries. It complements current strategies (e.g., VWAP_CONTINUATION, BEARISH_REJECTION) by offering a distinct mean-reversion trigger. No overlap in mechanism with ranked candidates (which are primarily filters, exits, or structural gates). If validated, it could add a new trigger class to the arsenal without displacing existing edges.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

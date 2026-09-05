@@ -58,3 +58,5 @@ The grinder harness runs a Stage-1 backtest over the available data (2025-01-02 
 ## Pre-existing leaderboard impact
 
 Provides baseline edge_capture and Sharpe for comparing all leaderboard candidates. Does not conflict with any candidate; enables recomputation of final_score = edge_capture × aggregate_sharpe using measured values. Candidates with edge_capture < 771 will be REJECTED per OP-16 gate. Current leaderboard baseline (per STRUCTURE_VETO_DIR_VS_TREND) shows base edge_capture=780, Sharpe=4.340, final_score=3,385; this analysis will validate or adjust those projections.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

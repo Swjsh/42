@@ -68,3 +68,5 @@ These rules are applied to the BEARISH_REJECTION_RIDE_THE_RIBBON setup logic.
 ## Pre‑existing leaderboard impact
 
 The keeper’s edge_capture (506.55) is below the 50% OP‑16 threshold (771), meaning it would be REJECTED at the door if submitted as a candidate. It does not conflict with any current leaderboard entries; rather, it fails to meet the minimum edge requirement. Promotion would require first demonstrating a statistically significant OOS improvement that pushes edge_capture above the floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

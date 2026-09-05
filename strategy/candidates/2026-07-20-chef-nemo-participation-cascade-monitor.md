@@ -64,3 +64,5 @@ If `spy_range_pct >= 0.8` and `(scored_events - orders_placed) >= 3` for either 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This watcher complements all candidates by providing operational health monitoring. It does not conflict with any existing candidate as it does not alter trading logic, parameters, or execution. It is additive to the system's observability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

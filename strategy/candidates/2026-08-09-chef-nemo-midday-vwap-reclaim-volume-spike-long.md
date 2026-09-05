@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing rules in the leaderboard. It is distinct from VWAP_CONTINUATION (which lacks the volume‑spike condition and midday restriction) and from UNBLOCK_MIDDAY_TRENDLINE_GATE (which is a trendline‑gate filter). No direct conflict with current PROMISING or J‑RATIFIED entries; it would compete for live‑eligible slots only after successful Stage‑1/OOS validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

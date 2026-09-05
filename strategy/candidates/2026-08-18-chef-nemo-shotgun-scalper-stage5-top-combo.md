@@ -60,3 +60,5 @@ Entry trigger remains the baseline shotgun_scalper setup (volume breakout with c
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥771); this candidate would be REJECTED at the door per OP-16 and not appear on leaderboard. Requires significant improvement to anchor-day performance before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

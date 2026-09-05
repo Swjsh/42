@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it is a new trigger type; it may complement existing VWAP-based strategies by providing a distinct entry condition (gap fade vs. continuation). No direct overlap with current trigger types.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

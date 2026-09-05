@@ -60,3 +60,5 @@ The pre-merge gate for this candidate includes:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a new trigger mechanism for vetoing bearish trendline breaks. It does not conflict with any existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

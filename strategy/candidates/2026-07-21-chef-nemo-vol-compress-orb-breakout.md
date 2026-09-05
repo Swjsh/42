@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (ORB breakout with volume surge) and does not conflict with existing candidates in the leaderboard (which are primarily gates, filters, or structural changes). It may complement existing ORB-related gates (e.g., ORB_NARROW_OR_GATE) by providing an entry signal that operates within narrow OR regimes. No overlap with current trigger types (e.g., VWAP_CONTINUATION, GAP_AND_GO) as it uses OR width compression and volume-surge confirmation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

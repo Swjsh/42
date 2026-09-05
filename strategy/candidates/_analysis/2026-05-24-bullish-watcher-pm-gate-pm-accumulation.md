@@ -56,3 +56,5 @@ The watcher logs an observation each time the bullish watcher triggers during PM
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate's status; it informs the accumulation needed for promotion. No conflict with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

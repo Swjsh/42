@@ -53,3 +53,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture and S
 ## Pre-existing leaderboard impact
 
 This candidate complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is not explicitly on the leaderboard as a candidate but is the base setup). It does not conflict with any existing candidates in the leaderboard, as it is a filter on an existing setup. However, note that the BEARISH_REJECTION_RIDE_THE_RIBBON setup is not listed as a candidate in the leaderboard because it is the base engine. We are proposing a change to the base engine's filter for this setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

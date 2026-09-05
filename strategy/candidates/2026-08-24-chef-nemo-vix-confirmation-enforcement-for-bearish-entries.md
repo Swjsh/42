@@ -54,3 +54,5 @@ Gym validators must pass (all unit tests in backtest/tests/). Walk-forward OOS m
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements filter_change and quality_gate types. May interact with VIX_BULL_HARD_CAP_UNBLOCK and F8_BULL_VIX_GATE_REVAL but those are bull-focused; this candidate is bearish-entry specific. No known overlap that would cause double-counting.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

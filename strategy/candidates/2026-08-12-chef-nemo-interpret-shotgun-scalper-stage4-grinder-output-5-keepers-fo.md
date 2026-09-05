@@ -462,3 +462,5 @@ We are given the task to interpret the shotgun_scalper_stage4 grinder output: 5 
             chandelier_arm_pct increased from 0.05 to 0.6 -> profit lock arms much later 
             vol_ratio_threshold set to 1.2 -> volume filter 
         The tighter stop and volume filter likely helped reduce losses on loser days (we see only -3.0 on 5/05
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate complements existing VWAP_CONTINUATION‑based strategies (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE) by adding orthogonal filters; it does not conflict with any current leaderboard entries as it introduces a new trigger type not present in the registry. No known overlap with existing gates or triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

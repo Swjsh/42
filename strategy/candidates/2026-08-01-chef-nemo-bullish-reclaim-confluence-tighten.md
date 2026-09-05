@@ -66,3 +66,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BULLISH_RECLAIM setup (which is not explicitly on the leaderboard but is part of the playbook). It does not conflict with any ranked candidate in the leaderboard because it is a proposed change to a setup that is not currently listed as a candidate (the leaderboard lists specific engineered changes, not the base setups). However, note that the leaderboard does have candidates that are watchers and gates that may interact. We expect no direct conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

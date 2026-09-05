@@ -76,3 +76,5 @@ These changes collectively made the strategy more selective but also altered the
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates existing grinder output. It conflicts with any leaderboard entry that claims SNIPER_LEVEL_BREAK has a positive edge, as the data show the opposite. It complements the existing leaderboard by highlighting the need for rigorous OOS testing before considering SNIPER‑based strategies. No direct conflict with current ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) because those have demonstrated positive edge_capture and OOS validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It complements existing structural filters (e.g., structure veto, trendline gates) by providing an alternative entry condition that could fire on days where those filters are silent. No direct conflict with current PROMISING or J‑RATIFIED candidates is anticipated, but simultaneous activation would require capital allocation checks to avoid overlapping positions on the same bar.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

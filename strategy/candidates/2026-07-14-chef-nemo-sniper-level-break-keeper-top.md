@@ -73,3 +73,5 @@ The SNIPER_LEVEL_BREAK trigger with specific parameters (vol_mult=1.3, body_min_
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate conflicts with all leaderboard entries because it fails the OP-16 gate (edge_capture < 771). Leaderboard only includes candidates with edge_capture ≥ 771. It does not complement any existing candidate as it underperforms on J's winner days (4/29, 5/01, 5/04) relative to J's source-of-truth trades. Promoting it would violate OP-16 doctrine. Requires significant rework needed before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

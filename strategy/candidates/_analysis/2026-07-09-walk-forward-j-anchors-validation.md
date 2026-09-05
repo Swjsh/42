@@ -56,3 +56,5 @@ The analysis must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose any change to the engine, so it does not conflict with any existing candidate. It serves as a validation step that could be used to ratify or reject the current engine's edge claim. If the analysis confirms edge_capture >= 771, it supports the base engine's edge. If it falls below, it would indicate that the base engine's edge is overfit and requires improvement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

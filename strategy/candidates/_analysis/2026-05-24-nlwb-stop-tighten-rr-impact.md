@@ -63,3 +63,5 @@ $$WR_{BE,new} = \frac{0.233}{1 + 0.233} = \frac{0.233}{1.233} = \textbf{18.9\%}$
 **The tighter stop would reduce break-even WR from 70% to ~19%, making 47.8% WR highly profitable.**
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -63,3 +63,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis validates an existing candidate (WEEKLY_DTE_NOT_0DTE, rank ★★). If the edge_capture remains above 771 and the final score is competitive, it will maintain or improve its position. If the edge_capture falls below 771, it will be REJECTED and removed from the leaderboard. It does not directly conflict with other candidates but may affect the ranking if its score changes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

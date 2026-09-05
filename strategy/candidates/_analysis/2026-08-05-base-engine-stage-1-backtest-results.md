@@ -64,3 +64,5 @@ We executed the autoresearch grinder harness on the base engine over the full hi
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis establishes the baseline (edge_capture=780, wide_pnl=+7,555) against which all leaderboard candidates are ranked. No conflict; provides essential context for evaluating candidate deltas. Complements all candidates by defining the OP-16 anchor reference point.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -76,3 +76,5 @@ Entry = next bar open at the mid price.
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all are bearish-focused or watcher proposals). Complements bull-side development; may provide incremental edge on bull-eligible days without affecting J's bearish anchor days. No known duplication with existing bull triggers (none currently live on bull side per OP-16).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

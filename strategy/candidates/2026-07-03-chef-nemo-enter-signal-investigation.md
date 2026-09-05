@@ -50,3 +50,5 @@ Before merging this candidate, the following tests need to pass: gym validators,
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger branch and does not directly impact existing candidates in the leaderboard. However, the investigation and analysis may reveal insights that can inform and improve other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

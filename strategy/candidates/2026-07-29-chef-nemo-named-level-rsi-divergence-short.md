@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate/proposal types); complements by adding a new short-trigger mechanism for named levels. No overlap with current leaderboard entries 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

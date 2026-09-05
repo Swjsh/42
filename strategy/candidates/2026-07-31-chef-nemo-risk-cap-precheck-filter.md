@@ -62,3 +62,5 @@ This filter sits in `risk_gate.check_order` prior to the existing notional cap c
 ## Pre-existing leaderboard impact
 
 This candidate complements existing risk‑related filters (e.g., pre‑entry liquidity gate, PDT‑aware checks) and does not conflict with any ranked candidate. It is orthogonal to trigger, exit, or quality‑gate proposals and can be stacked with them. No known overlap with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_risk_cap_precheck.py, test_risk_cap_precheck_gym.py -->

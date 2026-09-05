@@ -50,3 +50,5 @@ Pass gym validators (`test_shotgun_scalper_stage3.py`), walk‑forward OOS test 
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (`edge_capture < 771`) and does not appear on the current leaderboard. It does not directly conflict with existing candidates but would need to improve edge capture to rank. If promoted, it would sit below all current entries due to low edge.
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_stage3.py -->

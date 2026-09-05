@@ -53,3 +53,5 @@ gym validators (test_*_early_morning_vix_filter.py) 10/10 PASS, walk-forward OOS
 ## Pre-existing leaderboard impact
 
 Complementary to existing filters like V14E_BEAR_ONLY_GATE and BEARISH_SWEEP_BLOCKER; does not conflict with any top-9 candidates as it operates on a distinct time/VIX dimension. May improve edge_capture without affecting Sharpe of other strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

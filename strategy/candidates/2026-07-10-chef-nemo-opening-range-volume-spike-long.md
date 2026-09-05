@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing logic in the leaderboard. It is complementary to existing ORB‑related watchers (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) because it uses a different entry condition (volume‑spike > OR VWAP) rather than a retest of the OR high. It does not conflict with any quality‑gate or exit‑change candidates, as it proposes a standalone entry trigger that would be evaluated alongside current filters. If proven effective, it could be added as an additional trigger branch under the same structural DTE/hold logic as WEEKLY_DTE_NOT_0DTE, but it does not alter any existing candidate’s parameters or logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

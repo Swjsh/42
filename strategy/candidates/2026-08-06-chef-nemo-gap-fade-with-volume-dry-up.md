@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by providing a short-bias gap fade trigger (opposite bias to GAP_AND_GO). No direct conflict with filter/exit/watcher types in leaderboard; adds new trade class for mean-reversion gap fills. Does not overlap with existing confirmed candidates (e.g., VWAP_CONTINUATION, MIDDAY_TRENDLINE_GATE) which target different regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

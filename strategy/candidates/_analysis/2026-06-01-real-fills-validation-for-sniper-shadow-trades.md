@@ -64,3 +64,5 @@ We need to:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it aims to unblock SNIPER candidates (#13, #14, #15) that are currently blocked on the 3+ live SNIPER shadow trades requirement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

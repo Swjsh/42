@@ -50,3 +50,5 @@ def scan_false_breaks(spy_5m, today_bars):
 - If win-rate on false-break days < 40% → filter has edge
 
 **Status:** Requires Stage-1 scan before advancing to full candidate. This analysis block informs whether the candidate is worth drafting with full OP-16 scoring.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

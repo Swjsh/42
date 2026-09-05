@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is complementary to existing ORB_RETEST_LONG (watch‑only) as it captures the opposite market condition (failed breakout vs. successful retest). It does not conflict with any ranked candidate in _LEADERBOARD.md and introduces a new trigger type not currently represented.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

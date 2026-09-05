@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-24 in _LEADERBOARD.md). Mostly complements structural/gate candidates (e.g., ORB_NARROW_OR_GATE, MIDDAY_TRENDLINE_GATE) by adding entry filters. Distinct from ORB_RETEST_LONG (watcher-only) by requiring VWAP reclamation and EMA ribbon conditions. No overlap with DTE/or exit-change candidates. Novelty claim validated: adds volatility-contraction filter, VWAP reclamation, and stacked EMA ribbon to ORB_RETEST_LONG framework.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

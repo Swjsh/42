@@ -64,3 +64,5 @@ We will also perform walk-forward OOS validation (80/20 split) and real-fills va
 ## Pre-existing leaderboard impact
 
 This analysis provides the baseline for comparing all candidates in _LEADERBOARD.md. It does not conflict with any candidate (as it proposes no engine change) but establishes the reference point (edge_capture=780, Sharpe=4.340, final_score=3,385) against which candidates are ranked. Candidates must improve upon this baseline to achieve positive delta in edge_capture or Sharpe.
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_dte_override.py -->

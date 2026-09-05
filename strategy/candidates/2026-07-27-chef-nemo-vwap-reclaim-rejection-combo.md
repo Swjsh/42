@@ -61,3 +61,5 @@ The VWAP overnight grinder identified a parameter combination that exploits VWAP
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (ranks 1-24) due to OP-16 rejection (edge_capture < 771). Does not complement; would be rejected at door. Not comparable to PROMISING/NEEDS-MORE-DATA candidates which all have edge_capture ≥ 771 (implied by leaderboard inclusion). If improved to pass edge_capture floor, could complement structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) by adding directional edge, but current form is non-viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

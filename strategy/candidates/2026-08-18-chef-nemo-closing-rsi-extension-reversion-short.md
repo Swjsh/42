@@ -70,3 +70,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: differs from RSI_DIVERGENCE_BULL_WATCHER (which scans for bullish divergence) by targeting bearish reversals via overbought RSI + engulfing candle near close. No direct conflicts with current leaderboard entries (primarily watcher quality gates or structural filters). Adds new short-side trigger layer absent from killed list/registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

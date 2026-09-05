@@ -61,3 +61,5 @@ Based on the combo JSON: vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder output. If the keeper were promoted as a candidate, its edge_capture of 373.48 would place it below the OP-16 rejection floor (771) and thus would not appear on the leaderboard. It would conflict with current leaderboard candidates only if it somehow improved edge_capture beyond baseline, which evidence does not support.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

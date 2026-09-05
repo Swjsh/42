@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules or gates in the leaderboard. It is complementary to existing trend‑following and mean‑reversion candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) in that it seeks to capture a different market condition (early‑morning gap fill with ribbon flip). It does not conflict with any of the top‑ranked candidates because it operates on a distinct entry logic and would be evaluated independently for its own OP‑16 edge capture. If the backtest shows positive edge, it could be added as a new setup; if not, it will be archived without impacting the current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ FAILS OP-16 edge_capture < 771 (670.6 < 771) -> REJECTED at door. Requires impro
 ## Pre-existing leaderboard impact
 
 N/A (candidate rejected due to edge_capture < 771; does not appear on leaderboard). Would conflict with existing candidates if promoted (e.g., WEEKLY_DTE_NOT_0DTE relies on DTE variation, not parameter tuning), but rejection avoids conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

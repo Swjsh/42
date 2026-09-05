@@ -54,3 +54,5 @@ The pre-merge gate requires a walk-forward test with a ratio of at least 0.7, a 
 ## Pre-existing leaderboard impact
 
 The proposed candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The time-of-day gate is expected to improve the quality of entries and reduce the number of false positives.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

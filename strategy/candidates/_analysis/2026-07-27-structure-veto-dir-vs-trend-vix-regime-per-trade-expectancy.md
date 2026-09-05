@@ -83,3 +83,5 @@ We require:
 This analysis does not propose a change; it measures an existing candidate ([STRUCTURE_VETO_DIR_VS_TREND](2026-06-26-160000-structure-veto-direction-vs-trend.md)). It complements the candidate by providing the requested VIX-regime breakdown. No conflict with other candidates.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

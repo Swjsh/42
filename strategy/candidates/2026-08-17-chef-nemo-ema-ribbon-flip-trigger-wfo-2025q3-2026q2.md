@@ -66,3 +66,5 @@ Note: The exact exit parameters are those in the current params.json (Safe accou
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger. It does not conflict with any existing candidate in the leaderboard (no current candidate uses EMA_RIBBON_FLIP_TRIGGER as primary trigger). It may complement existing filters/exits but is proposed as a standalone trigger. No known conflicts with candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

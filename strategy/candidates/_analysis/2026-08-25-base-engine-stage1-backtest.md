@@ -59,3 +59,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis is of the base engine, which is the reference for all candidates in the leaderboard. It does not conflict with any candidate; it provides the baseline against which candidates are measured.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

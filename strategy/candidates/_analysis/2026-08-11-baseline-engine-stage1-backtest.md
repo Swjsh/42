@@ -64,3 +64,5 @@ For the baseline engine to be considered solid, the following must pass:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis establishes the baseline against which all candidates in the leaderboard are measured. It does not conflict with any candidate; rather, it provides the reference point for edge_capture and Sharpe calculations. All candidates' edge_capture and Sharpe values in the leaderboard are relative to this baseline or absolute (as noted).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

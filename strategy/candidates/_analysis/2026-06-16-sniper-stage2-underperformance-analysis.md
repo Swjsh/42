@@ -49,3 +49,5 @@ If SNIPER had matched J's quantities exactly, its edge_capture would be $300.744
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate; it explains the underperformance of an existing SNIPER variant (SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP or similar) currently on the leaderboard as an artifact-invalidated candidate. It complements the leaderboard by clarifying why SNIPER strategies have not achieved OP-16 eligibility.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

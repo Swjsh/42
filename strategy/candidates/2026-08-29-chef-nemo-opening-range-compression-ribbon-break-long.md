@@ -70,3 +70,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk‑
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any of the top‑9 ranked candidates in _LEADERBOARD.md because it is a brand‑new trigger type (new_trigger) rather than a filter, exit, or quality‑gate tweak. It could complement existing watchers or gates if it proves to add non‑correlated trades, but until a backtest is run we cannot know whether it overlaps with existing signals (e.g., ORB_RETEST_LONG, VWAP_CONTINUATION). The proposal should be evaluated in isolation first; if it shows promise, interaction studies with existing triggers can be scheduled.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

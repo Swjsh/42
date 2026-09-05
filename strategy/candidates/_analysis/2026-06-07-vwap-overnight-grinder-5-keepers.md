@@ -60,3 +60,5 @@ These constraints are so tight they filter out the high-momentum J winner days.
 ## Verdict
 
 This grinder output reveals that VWAP-anchored entries are structurally incompatible with J's BEARISH_REJECTION_RIDE_THE_RIBBON setup. J's winners (4/29, 5/01, 5/04) are ribbon-driven momentum entries that fire early in the leg. VWAP proximity filtering delays or blocks these entries. The keeper is a false positive — high WR on noise, zero capture of the actual edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

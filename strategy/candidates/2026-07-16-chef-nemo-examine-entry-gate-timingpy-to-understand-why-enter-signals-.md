@@ -36,3 +36,5 @@
 - **Critical Rule:** No silent stopping. All work must log outcomes or state J-block.  
 
 **Gap:** No automation for "can this be done in 60 min?" decision. Manual judgment required to avoid weekend deferral foot-guns.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

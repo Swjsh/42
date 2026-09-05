@@ -55,3 +55,5 @@ Must achieve edge_capture ≥ 771 (50% of max_possible 1542) via parameter refin
 ## Pre-existing leaderboard impact
 
 This keeper would be REJECTED at the door (edge_capture < 771) and not appear on the leaderboard. It does not conflict with existing candidates but requires higher J-day edge_capture to complement/promote. Current leaderboard candidates all exceed the edge_capture floor; this keeper falls short.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

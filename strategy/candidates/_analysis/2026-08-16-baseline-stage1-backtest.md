@@ -50,3 +50,5 @@ Gym validators must pass (≥90%), walk-forward OOS Sharpe ratio ≥0.70, real-f
 ## Pre-existing leaderboard impact
 
 This analysis reports baseline performance; it does not propose a change, so it does not conflict with any candidate. It serves as reference for evaluating future candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

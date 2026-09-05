@@ -59,3 +59,5 @@ The keeper uses the following non-baseline settings relative to the sniper_overn
 ## Pre-existing leaderboard impact
 
 This candidate would NOT appear on the leaderboard because its edge_capture (373.48) is below the 771 floor (50% of max possible 1,542). It would be REJECTED at the door and thus has no impact on the current leaderboard ranking. It does not complement any existing candidate; it is orthogonal and inferior on the OP‑16 metric.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

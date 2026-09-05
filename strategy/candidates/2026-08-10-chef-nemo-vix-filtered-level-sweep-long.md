@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly watches/gates or alternative trade classes). May complement BEARISH_REJECTION_RIDE_THE_RIBBON by capturing long false breaks in low VIX regimes, but impact unknown without backtest. Does not overlap with any live-traded setups in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

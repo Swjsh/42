@@ -58,3 +58,5 @@ To promote NLWB from watch‑only to a tradable setup, incorporate the following
 ## Pre‑existing leaderboard impact  
 
 Does not conflict with existing candidates; NLWB (candidate #8) is currently watch‑only. These filters would be a quality‑gate evolution of NLWB, potentially moving it toward promotion if backtests show improved edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

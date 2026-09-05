@@ -82,3 +82,5 @@ Conflicts with all leaderboard candidates (which require edge_capture ≥ 771). 
 --- 
 
 **Note:** The other 4 keepers from the grinder output were not fully detailed in the input, but given they passed the same grinder filters and the top keeper shows pathological anchor day behavior, they likely suffer from similar overfit. Each would require individual OP-20 disclosure assessment, but the core failure mode (negative edge_capture) is sufficient to reject all for leaderboard consideration. The grinder output suggests the sniper_stage2_grinder input space may not contain viable edge for J's anchor days under current parameterization.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

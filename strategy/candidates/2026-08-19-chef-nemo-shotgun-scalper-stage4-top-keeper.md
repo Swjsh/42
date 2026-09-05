@@ -64,3 +64,5 @@ OOS walk-forward with WF >= 0.70 and positive P&L; real-fills validation on top 
 ## Pre-existing leaderboard impact
 
 This candidate has an edge_capture of 506.55, which is below the OP-16 floor of 771, so it would not appear on the leaderboard. It does not conflict with any current leaderboard candidate (which all have edge_capture >= 771). It may complement if the idea of a tighter stop and higher TP is combined with other filters that improve J day capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

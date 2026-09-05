@@ -60,3 +60,5 @@ The SNIPER_LEVEL_BREAK Stage-2 top keeper parameters (vol_mult=1.1, body_min_cen
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis evaluates a specific SNIPER_LEVEL_BREAK parameter set that is not currently on the leaderboard. It may inform future SNIPER-related candidates (e.g., SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP) but does not directly conflict with existing ranked candidates. If OOS results show strong overfit, it would reinforce the vol_mult=0.9 finding from candidate #15. If results are robust, it could inspire a new SNIPER-focused candidate. No direct impact on current leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

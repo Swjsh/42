@@ -54,3 +54,5 @@ The mechanism involves using a VWAP calculation to determine the overnight trend
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in _LEADERBOARD.md. It is a new and independent strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

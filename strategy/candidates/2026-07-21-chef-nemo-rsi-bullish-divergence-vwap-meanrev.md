@@ -72,3 +72,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not modify any existing rules, gates, or exits. It complements existing watchers (e.g., RSI_DIVERGENCE_BULL_WATCHER) by adding an execution layer and VWAP filter. No known conflict with the top‑9 leaderboard entries; it would run alongside them as a separate signal source.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

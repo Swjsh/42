@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with current leaderboard entries. It complements existing named level strategies (e.g., NAMED_LEVEL_SECOND_TEST) by using RSI divergence on the first approach rather than requiring two tests. It is distinct from all current candidates in the registry, which lack this specific RSI divergence trigger at named levels. No known overlap with existing triggers or filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

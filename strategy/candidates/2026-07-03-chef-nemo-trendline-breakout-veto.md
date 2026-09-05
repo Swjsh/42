@@ -56,3 +56,5 @@ To pass the pre-merge gate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 The TRENDLINE_BREAKOUT_VETO setup complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON setups. However, its impact on the leaderboard is unknown until further testing is done.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

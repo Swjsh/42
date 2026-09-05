@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (ranked 1-24) as it introduces a new trigger type. Complements existing VWAP-based strategies by adding RSI extremity filter. No overlap with current leaderboard entries which focus on breakouts, structure, or watcher-only signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

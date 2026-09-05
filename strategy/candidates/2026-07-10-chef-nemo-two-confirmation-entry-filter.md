@@ -65,3 +65,5 @@ We have not backtested this idea; confidence is low due to lack of data. The hyp
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate is a generic entry filter that does not conflict with any existing leaderboard candidate. It can be layered on top of any setup (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION, etc.) and is complementary to filter_change or quality_gate candidates. It does not modify exits, triggers, or position sizing, so it should not interfere with existing candidates that focus on those areas. No known conflicts with candidates 1-9 in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

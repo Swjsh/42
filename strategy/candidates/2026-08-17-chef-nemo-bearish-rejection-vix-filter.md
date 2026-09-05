@@ -63,3 +63,5 @@ Adding a VIX-based filter to the BEARISH_REJECTION_RIDE_THE_RIBBON entry criteri
 ## Pre-existing leaderboard impact
 
 Does not conflict with J-RATIFIED candidates (they are watcher gates or structural filters). Complements MIDDAY_TRENDLINE_GATE (adjacent time window) and V14E_BEAR_TIME_OF_DAY_GATE (time-of-day filter). May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON core logic but is additive; if proven effective, could replace or enhance the existing VIX confirmation in the setup. No direct conflict with top-ranked candidates (WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as they operate on different dimensions.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_vix_filter.py -->

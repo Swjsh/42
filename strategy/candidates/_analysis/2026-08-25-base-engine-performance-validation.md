@@ -52,3 +52,5 @@ We ran the Stage-1 backtest via the autoresearch grinder harness on the base eng
 ## Pre-existing leaderboard impact
 
 This analysis establishes the baseline (edge_capture=780) against which all candidates in _LEADERBOARD.md are measured. No conflict; candidates are ranked relative to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

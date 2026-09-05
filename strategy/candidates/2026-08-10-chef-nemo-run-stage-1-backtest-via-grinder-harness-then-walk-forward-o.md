@@ -25,3 +25,5 @@ ANALYSIS: **Autonomous Operator Guardrails**
 - **Weakness**: Relies on J's vigilance to "wake to a SIGNAL" — no automated alerting mechanism mentioned.  
 - **Lesson Index Gap**: No entry for "autonomous operator" in [LESSONS-LEARNED.md](markdown/doctrine/LESSONS-LEARNED.md) (C7 mentions "silent success is failure" but not operator autonomy).  
 - **Recommendation**: Add C8 to Lessons index: "Autonomous systems require explicit failure signals, not assumptions of J's oversight."
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -78,3 +78,5 @@ The validators must pass:
 ## Confidence
 
 8/10 -- Based on explicit OP-16/OP-20 requirements and leaderboard data. Main uncertainty is the exact implementation of the realistic OPRA simulator (slippage model), but we have a reference from Lesson L12. The edge_capture_gate logic is directly tied to immutable J days, leaving minimal ambiguity.
+
+<!-- PROVENANCE-MISSING: automation/gym/validators/op16_edge_capture.py, automation/gym/validators/op20_real_fills.py, automation/gym/validators/exit_param_sweep.py -->

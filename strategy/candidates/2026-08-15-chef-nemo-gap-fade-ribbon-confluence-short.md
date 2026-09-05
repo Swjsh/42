@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that does not directly modify any existing rules in the leaderboard. It is complementary to existing short‑bias watches (e.g., BEARISH_REJECTION_MORNING) but orthogonal to the bullish‑only setups. No direct conflict with current PROMISING or J‑RATIFIED entries; however, it will compete for live‑trading allocation if ratified, so its impact on the leaderboard will be determined after Stage‑1 backtesting.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

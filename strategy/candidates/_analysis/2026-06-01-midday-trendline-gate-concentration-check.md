@@ -50,3 +50,5 @@ This analysis does not change the code, so no pre-merge gate is required for the
 
 ## Pre-existing leaderboard impact
 This analysis supports the existing candidate MIDDAY_TRENDLINE_GATE (rank 21) and does not conflict with any other candidate. It complements the adjacent window candidate (V14E_BEAR_TIME_OF_DAY_GATE, rank 17).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

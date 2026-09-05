@@ -54,3 +54,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup includes a VIX confirmation filter: 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is an evaluation of a parameter sweep. If the sweep identifies a superior VIX threshold, a follow‑on candidate may be filed to update `j_vwap_cont_put_vix_gate` or the VIX confirmation logic in BEARISH_REJECTION_RIDE_THE_RIBBON. No conflict with existing candidates 1‑9 in _LEADERBOARD.md; complements any future volatility‑filter refinements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

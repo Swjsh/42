@@ -42,3 +42,5 @@ The grinder harness must be run successfully and produce a candidate file that p
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it highlights the prerequisite step for generating new candidates for leaderboard consideration.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/grinder.py -->

@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates 1‑9 in _LEADERBOARD.md; none use ribbon width compression as a trigger. This proposal is orthogonal to current triggers (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) and would add a new short‑bias trigger if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

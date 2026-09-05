@@ -61,3 +61,5 @@ To advance any candidate from Stage-1 to Stage-2, the following must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose any new candidate; it summarizes the Stage-1 execution outcome. No change to the existing leaderboard is indicated. Candidates currently on the leaderboard (ranks 1-24) have already cleared Stage-1 and are undergoing further validation. The grinder run reinforces that the current bar for Stage-1 passage is high in the present regime, suggesting future candidates may need stronger structural anchors or regime-adaptive filters to succeed. No conflict with existing candidates; supports the hypothesis that regime-dependent edges require explicit conditioning (e.g., VIX filters, volatility triggers) to clear Stage-1 consistently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

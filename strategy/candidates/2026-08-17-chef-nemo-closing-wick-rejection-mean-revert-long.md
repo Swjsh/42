@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate proposes a novel trigger that differs from existing setups (e.g., RESISTANCE_OVERSHOOT_REVERSAL) by using the closing‑session window, a strict wick‑percentage threshold, and a volume‑dryness filter. It does not directly conflict with any of the top‑9 leaderboard entries; rather, it could complement them by capturing a different intraday temporal edge. No known overlap with current triggers or filters in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

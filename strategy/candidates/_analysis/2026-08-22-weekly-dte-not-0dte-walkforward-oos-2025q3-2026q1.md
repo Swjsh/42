@@ -52,3 +52,5 @@ Gym validators for the extended DTE logic must pass; walk-forward OOS must show 
 ## Pre-existing leaderboard impact
 
 This analysis evaluates an existing candidate (WEEKLY_DTE_NOT_0DTE) currently ranked ★★ with status PROMISING. It does not propose a new knob but rather validates the existing DTE extension hypothesis. It complements the STRUCTURE_VETO_DIR_VS_TREND and MIDDAY_TRENDLINE_GATE keepers by providing a orthogonal DTE dimension; no known conflict with top-9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

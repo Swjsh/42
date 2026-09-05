@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard. It complements existing RSI-based watchers (like RSI_DIVERGENCE_BULL_WATCHER) by adding a volume-climax filter for higher probability reversals. No overlap with current leaderboard entries (e.g., WEEKLY_DTE_NOT_0DTE, MIDDAY_TRENDLINE_GATE) as it operates on a distinct signal type.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Trigger the autoresearch grinder harness (Stage-1) to run a full OPRA backtest o
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change; it is a measurement activity. It does not conflict with any existing candidate in _LEADERBOARD.md. It provides the baseline edge_capture and wide_pnl against which all candidates are ranked.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

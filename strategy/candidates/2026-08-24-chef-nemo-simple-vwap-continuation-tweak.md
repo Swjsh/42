@@ -59,3 +59,5 @@ The VWAP_CONTINUATION setup fires too frequently in choppy markets, causing fals
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION detector (rank 24 in leaderboard) by adding a quality filter. Would be evaluated as a potential wiring proposal if Stage-1 backtest shows improved edge_capture without anchor regression. No impact on J-RATIFIED candidates (ranks 12, 17, 21) as it modifies a different setup.
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_slope_filter.py -->

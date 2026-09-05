@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new trigger and does not appear to conflict with existing candidates in the leaderboard (which are mostly watcher revalidations, DTE studies, and structural gates). It complements the existing VWAP_CONTINUATION (which is trend-following) by offering a counter-trend alternative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

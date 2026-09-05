@@ -63,3 +63,5 @@ Strike selection: 2 OTM (strike_offset=2) for puts context. Chandelier arms at 5
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all require edge_capture ≥ 771); this candidate is rejected at the door per OP-16 and would not appear on leaderboard. Complements existing research by showing parameter tweaks in this region harm anchor performance.
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_params.py -->

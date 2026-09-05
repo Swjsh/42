@@ -60,3 +60,5 @@ Adding a VIX filter to the BEARISH_REJECTION_RIDE_THE_RIBBON setup will improve 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing volatility-aware filters (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK) by adding a VIX precondition to the BEARISH_REJECTION_RIDE_THE_RIBBON setup. It does not conflict with any current leaderboard candidates because it targets a specific setup's entry condition rather than altering exits, position sizing, or other watchers. If proven effective, it could be stacked with STRUCTURE_VETO_DIR_VS_TREND (which already improves Sharpe) for additive gains.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_bearish_setup.py -->

@@ -70,3 +70,5 @@ We require: gym validators for the new setup, walk-forward OOS positive, real-fi
 ## Pre-existing leaderboard impact
 
 This candidate is a new setup class and does not conflict with existing candidates in the leaderboard (which are primarily filters, exits, or other setups). It may complement volatility-based filters by providing a structural bearish trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

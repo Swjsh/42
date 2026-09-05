@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complementary: Adds new trigger condition without modifying existing logic. No conflict with current leaderboard candidates (all are filters/exits/watchers). Could potentially stack with existing gates (e.g., VWAP_CONTINUATION) but requires independent validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

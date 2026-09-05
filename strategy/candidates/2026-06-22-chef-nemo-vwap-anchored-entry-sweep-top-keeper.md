@@ -55,3 +55,5 @@ Entry triggers when price reclaims or rejects the VWAP within a proximity thresh
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and therefore does not appear on the leaderboard. It does not conflict with any existing candidate; it is simply insufficient to meet the OP‑16 gate. No complement or conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

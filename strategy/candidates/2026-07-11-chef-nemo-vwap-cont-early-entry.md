@@ -50,3 +50,5 @@ Gym validators (e.g., `test_vwap_cont_early_entry.py`) must pass; walk-forward O
 ## Pre-existing leaderboard impact
 
 This is a filter_change to the live VWAP_CONTINUATION setup (j_vwap_cont_enabled=true, side='both'). It proposes a parameter tweak (`j_vwap_cont_entry_cutoff=10:00`) rather than a new structural signal, so it does not conflict with existing candidates that are structural or watcher-only. It complements the existing VWAP_CONTINUATION by potentially improving its edge_capture and Sharpe; if successful, it could be merged as a param update to the live setup. No known conflicts with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_early_entry.py -->

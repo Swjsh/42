@@ -74,3 +74,5 @@ Exit logic:
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the leaderboard due to edge_capture < 771 (REJECTED at door per OP-16). It does not conflict with leaderboard candidates (all have edge_capture≥771) but is significantly weaker than the top candidate (STRUCTURE_VETO_DIR_VS_TREND: edge_capture=780). Promotion requires OOS walk-forward clearing edge_capture≥771 and other gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Additionally, the harness validates OOS performance via walk-forward analysis an
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to see if any candidate meets the OP-16 floor and improves final_score. Current leaderboard shows candidates like WEEKLY_DTE_NOT_0DTE (PROMISING) and STRUCTURE_VETO_DIR_VS_TREND (PROMISING) but their edge_capture projections are N/A or unchanged; this backtest will provide actual edge_capture values for re-scoring. If edge_capture < 771, the candidate/engine is REJECTED per OP-16. If ≥ 771, we compute final_score and update leaderboard rankings. Impact depends on results: could promote a candidate to PROMISING, trigger NEEDS-MORE-DATA, or confirm REJECTED status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

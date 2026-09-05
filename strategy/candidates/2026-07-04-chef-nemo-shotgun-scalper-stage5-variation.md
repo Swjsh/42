@@ -61,3 +61,5 @@ The pre-merge gate for this candidate includes:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a new approach to capturing the edge in the 2025-Q3 and 2026-Q1 regimes. However, it may conflict with the existing SHOTGUN_SCALPER_STAGE5 candidate, as it uses a similar strategy with different parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

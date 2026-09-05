@@ -50,3 +50,5 @@ gym validators, walk-forward OOS positivity, real-fills validation on top 3 J da
 ## Pre-existing leaderboard impact
 
 unknown -- requires comparison with existing candidates; likely complements if successful as new trigger type distinct from current leaderboard entries (mostly filters/gates) but conflicts if mechanism overlaps with existing VWAP-based candidates (e.g., VWAP_CONTINUATION)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

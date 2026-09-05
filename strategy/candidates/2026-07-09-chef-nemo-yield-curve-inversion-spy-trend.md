@@ -68,3 +68,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 This candidate introduces macro data (yield curve) as a new trigger layer, distinct from existing price-action/structure-based candidates in the leaderboard (e.g., VWAP_CONTINUATION, BEARISH_REJECTION). No direct overlap in trigger logic; may complement regime-filter candidates (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but conflicts unlikely without shared indicators. Impact on leaderboard unknown until backtest; does not appear to replace or invalidate any current PROMISING candidates.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

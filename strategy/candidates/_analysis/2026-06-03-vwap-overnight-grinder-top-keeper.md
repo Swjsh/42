@@ -71,3 +71,5 @@ Exit logic:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard; it evaluates a grinder keeper that fails the OP-16 edge_capture threshold. If promoted, it would be rejected immediately (edge_capture < 771). It does not conflict with existing candidates but highlights the need for more robust filters that capture the large J winners (4/29, 5/04) rather than scavenging small profits on mixed days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

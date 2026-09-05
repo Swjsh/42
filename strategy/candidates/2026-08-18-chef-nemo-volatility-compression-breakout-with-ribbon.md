@@ -59,3 +59,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the current top‑9 candidates in _LEADERBOARD.md because it introduces a distinct trigger mechanism (ATR‑squeeze breakout with EMA ribbon alignment) that is not used by any existing strategy. It can be evaluated independently and may complement existing filters if proven effective.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

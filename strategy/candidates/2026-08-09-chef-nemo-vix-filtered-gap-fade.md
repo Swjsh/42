@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing leaderboard entries (which are mostly watcher quality gates, DTE studies, and structural gates). It contrasts with GAP_AND_GO (trades gap continuation) and any existing gap-fade ideas in the killed list by combining a strict VIX filter and a defined 5-minute trigger to isolate mean-reverting gaps. No overlap with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

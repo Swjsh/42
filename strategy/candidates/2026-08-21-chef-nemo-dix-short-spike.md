@@ -66,3 +66,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate introduces a novel trigger (DIX) not used in any existing leaderboard strategy. It does not conflict directly with current candidates but may exhibit temporal overlap with morning bearish setups like BEARISH_REJECTION_MORNING. As an additive proposal, it complements rather than replaces existing strategies, pending validation of its unique edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

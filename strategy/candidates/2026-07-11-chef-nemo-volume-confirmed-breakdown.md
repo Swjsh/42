@@ -60,3 +60,5 @@ Volume confirmation is a plausible filter but risks overfitting to J's sample; n
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding a volume-based filter to the same underlying setup; no direct conflict with existing candidate uses volume confirmation as a primary filter for BEARISH_REJECTION_RIDE_THE_RIBBON. May overlap with ORB_NARROW_OR_GATE (rank 4) in spirit but different mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -63,3 +63,5 @@ When `j_vwap_cont_dte_override=2` selects 2DTE, the ATM premium rises from ~$1.6
 ## Pre-existing leaderboard impact
 
 This candidate is a modification of the existing HOLD candidate [VWAPCONT_DTE_OVERRIDE_2DTE](2026-07-07-204650-vwapcont-dte-override.md). It does not conflict with any other candidate in the leaderboard; it seeks to promote the same idea to PROMISING if the gates clear. It is orthogonal to the structural veto and DTE‑length candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

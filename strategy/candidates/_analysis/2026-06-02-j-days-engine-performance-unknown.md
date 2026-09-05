@@ -63,3 +63,5 @@ Run expanding window walk-forward simulation:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it provides a baseline for evaluating all J-impacting candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, ORB gates, MIDDAY_TRENDLINE_GATE). Candidates like #12 V14E_PARAM_SWEEP_26K and #21 MIDDAY_TRENDLINE_GATE already report partial J-day impacts; this analysis will fill gaps for missing days (5/01, 5/05, 5/06, 5/07 losers). No duplication of effort; complements leaderboard by standardizing measurement methodology.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

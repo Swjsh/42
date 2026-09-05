@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing rules in the leaderboard (ranks 1‑9). It is complementary to existing watchers that monitor named levels (e.g., BEARISH_REJECTION_MORNING) and could run alongside them, provided the engine logic allows multiple long triggers per bar. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

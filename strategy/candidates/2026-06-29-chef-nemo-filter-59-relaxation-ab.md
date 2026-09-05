@@ -50,3 +50,5 @@ The pre-merge gate for this candidate includes a Stage-1 backtest, a walk-forwar
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new and independent idea.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

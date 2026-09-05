@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This is a new trigger candidate and does not directly conflict with existing registered candidates (which are primarily filters, gates, or other trade classes). It may share conceptual overlap with ORB_RETEST_LONG (watch-only) but differs by requiring simultaneous VWAP and EMA ribbon conditions. Without backtest, cannot determine if it complements or conflicts with current leaderboard strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher quality gates, DTE studies, etc.). It may complement by providing a long-biased trigger for upward moves, but note that the OP-16 anchor days are all bearish (PUT) winners, so the long trigger would not fire on those days (as they are down days). Therefore, it is unlikely to affect the OP-16 anchor edge_capture (which is based on PUT winners and avoiding PUT losers). However, it may add value on non-anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Top keeper selected by maximizing in-sample edge_capture on J days.
 ## Pre-existing leaderboard impact
 
 This candidate complements (does not conflict with) current leaderboard entries. It seeks to optimize the existing VWAP_CONTINUATION detector (which is disarmed for execution but logs signals). If OOS confirms improvement, it may inform a future wiring proposal to arm the optimized parameters. No overlap with DTE override or cross-ticker candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

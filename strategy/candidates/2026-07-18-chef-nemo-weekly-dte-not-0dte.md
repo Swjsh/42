@@ -25,3 +25,5 @@ Same as original candidate: `vwap_continuation` signal, ITM-2 strike, -8%/+30% e
 | 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Before merging this candidate into the production engine, the following tests mu
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly those focused on trendline breakouts and VIX regimes. However, the exact impact on the leaderboard requires further analysis and testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

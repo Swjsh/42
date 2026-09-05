@@ -56,3 +56,5 @@ Running a Stage-1 backtest via the autoresearch grinder on the J anchor days wil
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change, so it does not conflict with existing candidates in _LEADERBOARD.md. It serves as a diagnostic step for future candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

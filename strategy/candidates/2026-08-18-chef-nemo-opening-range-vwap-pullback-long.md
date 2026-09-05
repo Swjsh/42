@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based strategies (e.g., VWAP_CONTINUATION) by focusing on a specific pullback pattern rather than general continuation. No direct conflict with registered candidates; orthogonal to ORB_RETEST_LONG (which tests opening range, not VWAP). Does not interfere with structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) as it operates on different timeframe and conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

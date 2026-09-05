@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (1‑9) in _LEADERBOARD.md_; they focus on volume‑profile, DTE, trendline, and VWAP continuations. This candidate introduces a distinct short‑bias gap‑fade trigger, so it is complementary pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

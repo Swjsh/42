@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries. The nearest analog is VWAP_CONTINUATION (LIVE), which enters on the initial VWAP break. This proposal adds a pullback‑to‑VWAP filter with RSI‑oversold bullish candle, a condition absent from current setups. It is therefore complementary and could be evaluated as an alternative or refinement to the VWAP‑based family. No duplication or contradiction with candidates 1‑9 in _LEADERBOARD.md is evident.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ On each 5‑min bar, compute rolling gamma cluster: sum of (call gamma * call OI
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type; it does not directly conflict with any existing candidate in _LEADERBOARD.md. If successful, it could complement existing structural or volatility‑based setups by capturing a different market regime (gamma‑driven breakouts). No known overlap with current watchers or filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

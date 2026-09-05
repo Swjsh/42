@@ -56,3 +56,5 @@ We will run a walk-forward backtest with 6 months of training data and 3 months 
 ## Pre-existing leaderboard impact
 
 This analysis is of the base engine. It does not conflict with any candidate; rather, it provides a baseline for evaluating candidates. Candidates that change the engine will be compared to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

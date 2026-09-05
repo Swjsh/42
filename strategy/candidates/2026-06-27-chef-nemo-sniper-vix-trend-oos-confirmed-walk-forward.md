@@ -50,3 +50,5 @@ The pre-merge gate requires that the walk-forward analysis shows a positive out-
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

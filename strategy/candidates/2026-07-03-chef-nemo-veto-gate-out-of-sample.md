@@ -50,3 +50,5 @@ The veto gate will be tested on a walk-forward out-of-sample dataset to evaluate
 ## Pre-existing leaderboard impact
 
 The veto gate may complement the existing leaderboard candidates by reducing the number of losing trades and improving the overall performance of the strategy. However, it may also conflict with some candidates that rely on the same technical indicators or machine learning models.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

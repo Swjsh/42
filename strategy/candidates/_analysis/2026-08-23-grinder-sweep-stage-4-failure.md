@@ -66,3 +66,5 @@ Adjust the grinder sweep to include sub-window stability as an earlier gate (e.g
 ## Pre-existing Leaderboard Impact
 
 This analysis does not propose a new strategy candidate; it suggests adjustments to the grinder sweep process. It complements existing candidates by potentially yielding more robust strategies that could appear on the leaderboard. It does not conflict with any current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ These knobs tighten risk (smaller stop, quicker time stop) and require volume co
 ## Pre-existing leaderboard impact
 
 The leaderboard currently rejects any candidate with edge_capture < 771 (see _LEADERBOARD.md). This keeper’s edge_capture=506.55 would place it below the rejection floor, so it would **not** appear on the leaderboard. It does not conflict with existing candidates; rather, it highlights the need for a filter that preserves or improves anchor‑day performance while maintaining wide‑sample stats. If OOS validation shows anchor‑day improvement, it could be promoted as a filter_change candidate; otherwise, it should be archived as overfit.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

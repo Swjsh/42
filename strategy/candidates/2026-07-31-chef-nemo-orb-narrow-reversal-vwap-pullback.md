@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates in _LEADERBOARD.md; this is a new_trigger type not currently represented. It may complement existing ORB‑related watchers (e.g., ORB_NARROW_OR_GATE) but does not duplicate any existing trigger logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Gym validators must pass (all tests). Walk-forward analysis must show WF >= 0.70
 ## Pre-existing leaderboard impact
 
 This candidate complements existing candidates that modify BEARISH_REJECTION parameters (e.g., MAX_RIBBON_DUR_8, CONFLUENCE_TOL_1_00) or add watchers (e.g., BEARISH_REJECTION_MORNING) as it changes the core trigger logic. It does not conflict with any current leaderboard candidate, as none modify the trigger requirement for consecutive lower-highs.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Entry logic remains identical to base engine: BEARISH_REJECTION_RIDE_THE_RIBBON 
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) by adding a volatility regime filter; does not conflict with existing candidates as it modifies the same veto logic. May subsume [STRUCTURE_VETO_DIR_VS_TREND] if walk-forward shows uniform improvement. Neutral to watcher-only candidates (e.g., [TRENDLINE_BREAK_CALL_VETO]) as it operates on entry path post-watcher. No impact on bull-side candidates (veto is bear-direction only).
+
+<!-- PROVENANCE-MISSING: test_volatility_filter.py -->

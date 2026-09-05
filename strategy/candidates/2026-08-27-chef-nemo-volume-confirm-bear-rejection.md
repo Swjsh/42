@@ -58,3 +58,5 @@ The existing BEARISH_REJECTION_RIDE_THE_RIBBON trigger requires ≥2 of: (1) lev
 This candidate complements BEARISH_REJECTION_RIDE_THE_RIBBON (not currently on leaderboard as a standalone candidate but underlying many strategies). It does not conflict with any existing ranked candidate; it is a filter that could be layered onto any bearish trigger. No overlap with watcher-only or bullish-focused candidates.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

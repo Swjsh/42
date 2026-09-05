@@ -99,3 +99,5 @@ python backtest/overnight_grinder.py \
 **Confidence:** 2/10 — Cannot complete without running the backtest. This is a data request, not an analysis completion.
 
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/engine-decisions-2026-05-01.json, backtest/overnight_grinder.py -->

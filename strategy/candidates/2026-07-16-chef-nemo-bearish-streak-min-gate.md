@@ -56,3 +56,5 @@ At the orchestrator level (or as a post-hoc gate in the decision pipeline), we w
 ## Pre-existing leaderboard impact
 
 This candidate complements existing quality gates (like V14E_BEAR_ONLY_GATE) by adding a temporal filter. It does not conflict with any current leaderboard candidates as it operates on a different signal (streak vs. structure/volume). It may synergize with MIDDAY_TRENDLINE_GATE by filtering early weak bearish signals. No known conflicts in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: test_bearish_streak_gate.py -->

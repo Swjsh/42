@@ -67,3 +67,5 @@ Restricting ORB (opening range breakout) setups to long-only entries will improv
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing ORB-related watchers (#4 ORB_NARROW_OR_GATE, #5 ORB_DIRECTION_FILTER) by adding a long-only direction filter. It does not conflict with any top-9 candidates, as it targets a different setup class (ORB) and is orthogonal to structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) and exit knobs. If ratified, it could be stacked with existing ORB quality gates to further refine the ORB signal pool.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ The watcher will monitor the engine's decision process. For each evaluated setup
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate as it does not alter trading logic. It complements all candidates by providing operational visibility into filter performance and potential missed opportunities.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

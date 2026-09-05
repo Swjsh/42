@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type that does not directly modify any existing rules in the leaderboard. It complements existing divergence‑based watchers (e.g., RSI_DIVERGENCE_BULL_WATCHER) by substituting cumulative delta for RSI, offering a potentially orthogonal signal. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

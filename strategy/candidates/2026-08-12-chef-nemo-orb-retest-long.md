@@ -68,3 +68,5 @@ ORB_RETEST_LONG captures the opening-gap continuation edge by entering on bullis
 ## Pre-existing leaderboard impact
 
 Complements existing watch-only candidates (e.g., ORB_NARROW_OR_GATE Rank #4). Does not conflict with PROMISING/J-RATIFIED candidates as it targets a different timeframe and setup type. Would replace ORB_RETEST_LONG in setup ideas section if promoted to live-eligible.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

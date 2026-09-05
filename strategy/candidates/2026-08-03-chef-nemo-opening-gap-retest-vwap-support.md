@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new_trigger and does not conflict with existing leaderboard candidates (which are primarily filters, quality gates, or other trade classes). It is complementary as it proposes a distinct entry condition not currently covered.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (leaderboard shows watcher gates, DTE studies, and setup refinements). This new short-side entry trigger complements structural filters (e.g., MIDDAY_TRENDLINE_GATE) and volatility-based approaches (e.g., VWAP_CONTINUATION) by providing an alternative entry mechanism for bearish momentum. Does not overlap with current bull/bear watcher gates or exit-shape candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

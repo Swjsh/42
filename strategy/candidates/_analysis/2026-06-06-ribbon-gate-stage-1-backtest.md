@@ -53,3 +53,5 @@ Run a Stage‑1 backtest over the full 16‑month SPY 5 m dataset with RIBBON_
 ## Pre-existing leaderboard impact
 
 unknown -- requires comparison with existing candidates in `_LEADERBOARD.md` after the backtest results are available.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ This filter is placed in the entry path after `_derive_routing` and before `_vet
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) by adding a regime-based filter. May overlap with VIX_BULL_HARD_CAP_UNBLOCK but focuses on bearish entries only. No direct duplication in leaderboard.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_avoid_losers.py -->

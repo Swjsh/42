@@ -61,3 +61,5 @@ For each day, we record engine P&L. Edge_capture is then calculated as:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate to add to the leaderboard. It is a fact-finding mission to inform future candidate evaluations. No conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

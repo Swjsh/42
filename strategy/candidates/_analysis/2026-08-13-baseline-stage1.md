@@ -58,3 +58,5 @@ Run Stage-1 backtest via the autoresearch grinder harness on the current engine 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; establishes reference point for evaluating all leaderboard entries. Candidates like [STRUCTURE_VETO_DIR_VS_TREND] (edge_capture=780 unchanged) and [BEAR_SCORE_7_RELAXATION] (edge_capture=1174) are measured against this baseline. If baseline differs from inferred 780/4.340, leaderboard rankings may shift. No direct conflict with watcher-only or structural proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

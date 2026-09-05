@@ -60,3 +60,5 @@ Modify the ribbon filter in `BEARISH_REJECTION_RIDE_THE_RIBBON` entry logic:
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements MIDDAY_TRENDLINE_GATE (which targets 11:30‑14:00 trendline rejections). This proposal addresses choppy‑market ribbon‑filter false negatives across the session. No overlap in mechanics; can be combined additively.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

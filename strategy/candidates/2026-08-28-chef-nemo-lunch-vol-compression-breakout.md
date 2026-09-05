@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements volatility-based filters like MIDDAY_TRENDLINE_GATE by focusing on lunch-period dynamics. Distinct from GAP_AND_GO (opening gap) and LEVEL_BREAK_FIRST_STRIKE (opening range) by using lunchtime compression as trigger. No overlap with existing watchers or triggers in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

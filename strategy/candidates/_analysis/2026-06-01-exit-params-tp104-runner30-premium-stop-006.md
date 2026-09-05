@@ -50,3 +50,5 @@ Requires Stage-1 backtest on exit params, OP-16 edge_capture calculation, walk-f
 ## Pre-existing leaderboard impact
 
 This is an exit param change, not a new candidate. It would affect all existing strategies that use the BEARISH_REJECTION_RIDE_THE_RIBBON exit structure (e.g., V14E_PARAM_SWEEP_26K, etc.). Could improve or degrade edge_capture; needs test.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

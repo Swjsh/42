@@ -50,3 +50,5 @@ Stage-1 backtest must pass edge_capture >= 771, walk-forward OOS Sharpe > 0.7, r
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK (which deals with calls) and may be orthogonal to structure veto.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

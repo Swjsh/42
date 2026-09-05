@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; none incorporate Treasury yield spreads. This proposal is orthogonal to VIX‑only triggers (e.g., VIX_REGIME_DAYSIDE) and could complement existing setups by adding a macro‑regime filter. No expected interference with current leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

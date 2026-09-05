@@ -69,3 +69,5 @@ PM session shows anecdotal bullish tendency, but insufficient data (N<100) to co
 ## Pre-existing leaderboard impact
 
 Complements BULLISH_WATCHER_PM_GATE (rank 9, NEEDS-MORE-DATA) by providing explicit OP-21 promotion path. No conflict with bearish-focused candidates (ranks 1-8, 10-16, 18-23) as gate only affects bullish entries in PM session. Neutral impact on watcher-only candidates (e.g., VISION_CHART_OBSERVER, RSI_DIVERGENCE_BULL_WATCHER).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

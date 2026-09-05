@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It does not conflict with the current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE) because it proposes a distinct entry logic. However, it may overlap in time‑of‑day filtering with existing watchers (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) and would need to be evaluated for potential redundancy or synergy once back‑tested. At this stage, it is complementary in the sense that it adds a new trigger class to the strategy pool, pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

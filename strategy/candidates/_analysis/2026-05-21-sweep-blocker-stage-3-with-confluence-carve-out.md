@@ -100,3 +100,5 @@ Actually, the cleaner logic: original 0.663 was the run BEFORE the sweep_block f
 7/10 — leaderboard provides clear P&L deltas; Sharpe projection is estimate based on linear interpolation of -18.2% drop reversed partially.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

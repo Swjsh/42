@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidates 1‑9 in _LEADERBOARD.md. The nearest relative is RSI_DIVERGENCE_BULL_WATCHER (watch‑only filter), but this proposal is a standalone entry trigger combining RSI divergence, volume exhaustion, and wick rejection — a combination not currently present in the leaderboard or live engine. If validated, it would add a new long‑bias trigger to the arsenal, complementary to existing short‑bias setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

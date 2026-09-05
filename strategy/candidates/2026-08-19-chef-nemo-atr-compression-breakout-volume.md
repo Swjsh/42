@@ -67,3 +67,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger based on ATR compression and volume‑surge breakout, distinct from existing candidates that rely on Bollinger Band width (BOLLINGER_SQUEEZE), predefined levels (LEVEL_BREAK_FIRST_STRIKE), or VWAP‑based continuation (VWAP_CONTINUATION). It does not directly conflict with any of the top‑9 leaderboard entries and could be additive if proven effective, subject to orthogonal signal validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

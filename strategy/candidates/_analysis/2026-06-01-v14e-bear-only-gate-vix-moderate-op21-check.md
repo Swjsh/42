@@ -50,3 +50,5 @@ Gate is satisfied if N ≥ 100 and WR ≥ 55%.
 ## Pre-existing leaderboard impact
 
 This analysis indicates that the OP-21 promotion gate for V14E_BEAR_ONLY_GATE in the VIX_MODERATE regime is unlikely to be satisfied in the near term based on historical accumulation rates. The candidate remains PROMISING but requires extended observation period to meet the N≥100 threshold. No conflict with existing leaderboard candidates; supports the current status of V14E_BEAR_ONLY_GATE (rank 3).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

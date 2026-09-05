@@ -56,3 +56,5 @@ Each trading day, the bullish_watcher will be activated only during the PM sessi
 ## Pre-existing leaderboard impact
 
 This analysis complements candidate #9 (BULLISH_WATCHER_PM_GATE) by providing the data collection plan needed to meet its OP-21 promotion gate. It does not conflict with any existing candidates. It supports the promotion path for #9 from NEEDS-MORE-DATA to PROMISING if the win rate meets thresholds.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

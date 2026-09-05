@@ -60,3 +60,5 @@ The strategy uses the baseline entry trigger (assumed to be BEARISH_REJECTION_RI
 ## Pre-existing leaderboard impact
 
 This candidate proposes changes to exit parameters (stop and TP levels) for different trade qualities. It conflicts with the J-RATIFIED V14E_PARAM_SWEEP_26K (which sets v14e exit parameters: tp1=0.30, runner=2.5, profit_lock=0.05/0.10) as it suggests different values (super_tp1=0.75, runner_target=3.0, etc.). However, since the candidate fails the OP-16 anchor (edge_capture < 771), it cannot be promoted and would not impact the leaderboard. Any promotion would require re-ratification and replacement of the current v14e exit parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

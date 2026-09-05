@@ -54,3 +54,5 @@ The candidate must pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the VWAP_CONTINUATION strategy. The walk-forward optimization approach can help to improve the overall performance of the strategy and reduce the risk of overfitting.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

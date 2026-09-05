@@ -62,3 +62,5 @@ The current engine (or a specified candidate strategy) will achieve a win rate �
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change; it is a validation step. It does not conflict with any existing candidate in _LEADERBOARD.md. If the backtest passes, it may support promotion of the strategy under test (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER, or a new trigger) by satisfying OP‑20 disclosure‑4 (real‑fills). If it fails, it may trigger a REJECT or NEEDS‑MORE‑DATA status for the relevant candidate. No direct leaderboard movement is implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

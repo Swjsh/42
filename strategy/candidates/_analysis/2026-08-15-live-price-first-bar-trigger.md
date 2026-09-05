@@ -59,3 +59,5 @@ The trigger fires when the first RTH bar is a reversal from the premarket extrem
 ## Pre-existing leaderboard impact
 
 This analysis is for the existing candidate LIVE_PRICE_FIRST_BAR_TRIGGER (currently ranked II in the leaderboard with status NEEDS-MORE-DATA). It does not conflict with other candidates; it complements them by providing a trigger that operates outside market hours (premarket) and does not interfere with the J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

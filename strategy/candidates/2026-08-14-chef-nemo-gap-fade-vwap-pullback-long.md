@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based strategies (e.g., VWAP_CONTINUATION) by targeting a different market structure (gaps vs. open-trend continuation). Does not conflict with gap-continuation strategies (GAP_AND_GO) as logic is orthogonal (fade vs. extend). No direct overlap with current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

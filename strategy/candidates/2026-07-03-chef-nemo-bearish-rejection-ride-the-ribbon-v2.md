@@ -56,3 +56,5 @@ The pre-merge gate requires the following tests to pass:
 ## Pre-existing leaderboard impact
 
 The proposed changes are expected to complement the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to improve the performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

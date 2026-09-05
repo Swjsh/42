@@ -59,3 +59,5 @@ We hypothesize that the losing bearish trades on 5/05 and 5/06 occurred when VIX
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidate. It complements candidates that improve the Sharpe (like STRUCTURE_VETO_DIR_VS_TREND) by focusing on edge_capture. It may be combined with such candidates in the future.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

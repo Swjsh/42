@@ -53,3 +53,5 @@ Current BEARISH_REJECTION_RIDE_THE_RIBBON logic enters on the bar immediately fo
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates in _LEADERBOARD.md (e.g., BEARISH_SWEEP_BLOCKER, MIDDAY_TRENDLINE_GATE). Complements filters that improve entry quality (e.g., V14E_BEAR_ONLY_GATE) but may be redundant if those filters already suppress low-quality entries. No overlap with exit-change or quality-gate types. Should be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

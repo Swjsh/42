@@ -67,3 +67,5 @@ The VIX_MODERATE (15-20) sub-tier shows WR=87.5% (deduped N=8):
 ## Confidence
 
 7 / 10 — Statistical calculation is sound. Main uncertainty is whether future observations maintain current WR distribution. VIX regime is the key driver.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -63,3 +63,5 @@ For each top keeper candidate identified from the leaderboard (status PROMISING,
 ## Pre-existing leaderboard impact
 
 This analysis complements the existing leaderboard by providing the missing OOS and real‑fills validation needed to move candidates from NEEDS‑MORE‑DATA to PROMISING or J‑RATIFIED. It does not conflict with any current top‑10 candidates; rather, it supplies the evidence required for their promotion. If validation shows a candidate’s edge_capture < 771, it will be re‑classified accordingly, preserving the integrity of the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

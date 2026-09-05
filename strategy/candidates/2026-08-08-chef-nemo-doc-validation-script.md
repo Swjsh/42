@@ -70,3 +70,5 @@ A Python script that:
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing leaderboard entries by improving documentation integrity. It does not conflict with any trading strategy candidate (types: new_trigger, filter_change, etc.) as it operates purely on documentation. It supports the leaderboard's goal of transparent, evidence-based candidate evaluation by ensuring setup descriptions adhere to provenance rules. No known conflicts with candidates 1-24 in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: automation/state/doc_validation_report.json -->

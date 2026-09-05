@@ -66,3 +66,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a new candidate but evaluates an existing parameter. It does not conflict with any leaderboard candidates. However, if the analysis shows -6% or -10% improves edge_capture, it could motivate a future parameter change candidate (which would be a separate proposal). Currently, no impact on leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

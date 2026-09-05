@@ -12,3 +12,5 @@ DRAFT: Edge capture metric validation — J-edge score requires sum(engine_pnl_o
 ---  
 
 DRAFT: Compound vs accumulate — "Always-on" system requires net improvement (shipped fix, promotion, closed loop) per session. BANNED: silent stopping, blocked-on-J-with-no-stated-reason. Retention cap triggers CONSOLIDATION (prune/dedupe/archive). Bounded-task priority: perfect current work → known TODOs → FUTURE-IMPROVEMENTS.md → audit staleness → replays/validations → improve playbook/lessons → investigate underperformers. Work cadence: live (09:30-15:55 ET) = trade execution; after-4pm = build/iterate/ship Phase 2 modules; premarket (08:00-09:30 ET) = news refresh, level audit, bias write; weekend = multi-day pipelines. Weekend deferral risk: <8h tasks must be done immediately. Ship autonomously if: OOS positive, WF ≥ 0.70, sub-window stable, anchor no-regression, A/B scorecard filed. No known violations of this rule.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

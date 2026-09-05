@@ -63,3 +63,5 @@ Since this candidate is already J-RATIFIED (live v15.3), no further merge gate i
 ## Pre-existing leaderboard impact
 
 This analysis validates the top-ranked candidate (rank 12) and does not conflict with any existing candidates. It complements lower-ranked candidates by confirming the robustness of the current parameter set; no changes to leaderboard rankings are implied.
+
+<!-- PROVENANCE-MISSING: test_v14e_param_sweep_26k.py -->

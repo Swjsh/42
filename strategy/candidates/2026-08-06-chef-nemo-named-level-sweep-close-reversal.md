@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; adds a new entry trigger based on prior‑day level sweeps and complements current gates by providing an alternative entry signal that operates under specific VIX and time‑of‑day conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

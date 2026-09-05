@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger (DIX‑based) that does not overlap with any current setup in the leaderboard. It complements existing VWAP‑ and structure‑based triggers by adding a dark‑pool short‑volume dimension, so it is unlikely to conflict with candidates 1‑9; rather, it could provide an orthogonal signal source for future ensemble work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

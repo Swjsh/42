@@ -47,3 +47,5 @@ We need to run the OOS validation stratified by VIX regime and confirm that:
 
 ## Pre-existing leaderboard impact
 This analysis does not change any candidate; it is a validation of an existing candidate (rank 22). It complements the leaderboard by providing additional validation for VIX_BULL_HARD_CAP_UNBLOCK. It does not conflict with any other candidate.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

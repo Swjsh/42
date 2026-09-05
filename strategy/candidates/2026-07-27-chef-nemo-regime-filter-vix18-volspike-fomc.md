@@ -63,3 +63,5 @@ If all three filters pass, the entry proceeds with the existing stop/target logi
 ## Pre-existing leaderboard impact
 
 This candidate is a filter_change that can be stacked atop existing setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION, GAP_AND_GO). It does not conflict with any current leaderboard entries; rather, it may improve their edge_capture and Sharpe if the filters are beneficial. No known duplication with existing candidates 1‑24 in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: test_regime_filter_vix18_volspike_fomc.py -->

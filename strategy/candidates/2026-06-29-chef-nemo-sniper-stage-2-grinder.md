@@ -53,3 +53,5 @@ The mechanism involves running a parameter sweep of the top-5 keepers from stage
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the SNIPER_LEVEL_BREAK strategy. However, the impact on the leaderboard is unknown due to the lack of out-of-sample test results and real-fills checks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

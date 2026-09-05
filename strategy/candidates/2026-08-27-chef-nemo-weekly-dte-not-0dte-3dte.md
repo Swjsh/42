@@ -62,3 +62,5 @@ Extending the WEEKLY_DTE_NOT_0DTE signal to 3DTE (instead of max 2DTE) will capt
 ## Pre-existing leaderboard impact
 
 Complements WEEKLY_DTE_NOT_0DTE (Rank ★★) by extending the DTE dimension. Does not conflict with STRUCTURE_VETO_DIR_VS_TREND (Rank ★) as it operates on different signal timing (VWAP continuation vs structure veto). May subsume VWAPCONT_DTE_OVERRIDE_2DTE (HOLD) if 3DTE clears all gates where 2DTE failed. No direct conflict with J-RATIFIED candidates (pectateurs, midday gate) as they target different setup classes.
+
+<!-- PROVENANCE-MISSING: test_weekly_dte_3dte_compare.py, test_vwap_continuation_signal.py -->

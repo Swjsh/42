@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not conflict with any existing candidates in the leaderboard. It may complement existing strategies by providing a new long-biased trigger structure, particularly for bullish regime days not well-covered by current bearish-focused anchors. No known overlap with current trigger types in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

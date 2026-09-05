@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing VWAP‑based setups (e.g., VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK) because it adds an RSI‑filtered pullback long bias rather than a break/reclaim bias. No direct conflict with current PROMISING or J‑RATIFIED candidates is anticipated, but it will need to compete for resources in the grinder harness.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ Complements but does not conflict with existing candidates:
 - No overlap with structural veto candidates (e.g., `STRUCTURE_VETO_DIR_VS_TREND`) as it operates on long-side momentum.  
 - Does not interfere with bearish anchors (designed for long entries only; J's anchor days are PUT winners).  
 - If validated, could synergize with morning-session gates like `BEARISH_REJECTION_MORNING` (but for long bias).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

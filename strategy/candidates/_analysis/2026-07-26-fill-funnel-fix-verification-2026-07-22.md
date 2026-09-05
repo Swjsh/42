@@ -50,3 +50,5 @@ Run fill_funnel.py against 2026-07-22 data and verify the verdict changes from `
 ## Pre-existing leaderboard impact
 
 No impact; this is a verification of an internal tool, not a strategy candidate. Does not conflict with any leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

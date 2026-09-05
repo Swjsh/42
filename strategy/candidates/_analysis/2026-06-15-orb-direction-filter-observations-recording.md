@@ -62,3 +62,5 @@ This analysis supports candidate #5 ORB_DIRECTION_FILTER (currently NEEDS-MORE-D
 {"timestamp": "2026-06-12 10:05:00 ET", "premium": 0.92, "outcome": "+$31.40"}
 ```  
 *These examples are illustrative; real observations must be J-confirmed long-only ORB_DIRECTION_FILTER triggers.*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

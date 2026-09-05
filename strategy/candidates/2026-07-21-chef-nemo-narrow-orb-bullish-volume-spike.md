@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing rules in the leaderboard. It is complementary to ORB_RETEST_LONG (which waits for a retest) and could provide earlier entries on days where the breakout is strong and does not retest. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

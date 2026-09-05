@@ -67,3 +67,5 @@ Enter on shotgun_scalper signals (volume-triggered breakouts with EMA alignment)
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate's exit_change type complements existing exit_change candidates (e.g., DYNAMIC_STOP_VS_STATIC REJ) but conflicts if promoted without OOS validation. Leaderboard currently rejects all edge_capture <771; this candidate requires OOS walk-forward to establish true edge_capture before leaderboard consideration. No direct conflict with current PROMISING/NEEDS-MORE-DATA candidates as it addresses different strategy module (shotgun_scalper exit parameters).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

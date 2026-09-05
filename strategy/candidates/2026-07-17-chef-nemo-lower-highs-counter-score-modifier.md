@@ -61,3 +61,5 @@ Modify BEARISH_REJECTION_RIDE_THE_RIBBON entry logic to require, in addition to 
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; does not conflict with top-ranked structural DTE findings (ranks ★★, HOLD). May overlap with trendline-based filters (e.g., MIDDAY_TRENDLINE_GATE) but operates on different timeframe (intraday level tests vs 11:30-14:00 window). No direct parameter changes to existing leaderboard items.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

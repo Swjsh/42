@@ -56,3 +56,5 @@ Entry requires all existing BEARISH_REJECTION_RIDE_THE_RIBBON triggers (level re
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (adds orthogonal VIX filter; no conflict). Does not duplicate or negate any existing candidate; adds a quality‑gate layer that can be stacked with other filters. No impact on WEEKLY_DTE_NOT_0DTE or VWAPCONT_DTE_OVERRIDE_2DTE (different mechanism). Safe to merge after ratification.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_2026_07_12.py -->

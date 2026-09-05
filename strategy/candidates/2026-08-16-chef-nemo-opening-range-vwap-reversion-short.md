@@ -68,3 +68,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1-9 in _LEADERBOARD.md (which cover QQQ divergence, DTE studies, VWAP DTE override, trendline gates, structure vetoes, etc.). This is a new short-trigger mechanism operating in the 09:30-10:30 ET window with VWAP/OR logic, distinct from existing strategies. May complement VWAP_CONTINUATION by providing counter-trend short entries, but impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

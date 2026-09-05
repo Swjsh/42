@@ -50,3 +50,5 @@ gym validators, walk-forward OOS positive, real-fills validation, anchor no-regr
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; adds a new short volatility mean-reversion approach.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

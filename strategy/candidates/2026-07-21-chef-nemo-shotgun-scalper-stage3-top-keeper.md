@@ -61,3 +61,5 @@ We are trying to capture edge by using a scalper strategy with specific paramete
 This candidate would be REJECTED due to edge_capture < 771, so it does not impact the leaderboard (it does not appear). It complements no existing candidates as it fails the OP-16 threshold.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

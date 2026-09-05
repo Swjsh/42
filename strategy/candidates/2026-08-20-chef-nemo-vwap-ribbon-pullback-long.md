@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new long-trigger strategy. Does not conflict with current leaderboard entries (which are primarily filters, gates, or alternative trade classes like vwap_continuation or structure_veto). Provides directional diversity to the long side where current live-eligible setups are limited. No overlap with existing trigger types in leaderboard (e.g., differs from vwap_continuation which requires VWAP break with momentum, not pullback confirmation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

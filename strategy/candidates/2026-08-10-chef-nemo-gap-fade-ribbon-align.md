@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing logic in the leaderboard. It could complement existing volatility‑ or regime‑based filters (e.g., VIX < 22) but would need to be checked for overlap with existing watchers such as `ORB_NARROW_OR_GATE` or `VWAP_CONTINUATION`. No direct conflict is expected, but the pre‑merge gate will verify that it does not degrade the performance of ratified candidates when run in combination.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

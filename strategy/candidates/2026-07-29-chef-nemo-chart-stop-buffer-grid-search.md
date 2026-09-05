@@ -61,3 +61,5 @@ Test chart_stop_buffer_dollars values in BEARISH_REJECTION_RIDE_THE_RIBBON exit 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: Does not conflict with any leaderboard entries. Tests exit parameter orthogonal to existing filters/triggers (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND). May subsume exit-change candidates like DYNAMIC_STOP_VS_STATIC if static buffer proves optimal. No overlap with watcher-only or quality-gate candidates. Leaderboard #1 (BEARISH_SWEEP_BLOCKER) is a negative gate; this is exit parameter tuning. Safe to test alongside all current candidates.
+
+<!-- PROVENANCE-MISSING: test_heartbeat_exit_logic.py -->

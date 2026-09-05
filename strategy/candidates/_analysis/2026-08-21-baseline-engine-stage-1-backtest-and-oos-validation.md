@@ -53,3 +53,5 @@ We will invoke the autoresearch grinder harness to execute a Stage-1 backtest of
 ## Pre-existing leaderboard impact
 
 This analysis provides the baseline edge_capture and Sharpe against which all candidates in the leaderboard are measured. It does not conflict; it is the reference for OP-16 scoring. Candidates are ranked by final_score = edge_capture * aggregate_sharpe relative to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

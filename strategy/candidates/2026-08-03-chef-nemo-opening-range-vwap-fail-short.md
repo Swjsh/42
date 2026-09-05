@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing long-biased candidates (e.g., VWAP_CONTINUATION, ORB_RETEST_LONG) by providing inverse exposure on bearish days; no direct conflicts with current leaderboard entries which are primarily filters, gates, or long-trigger strategies. May diversify regime coverage when combined with long strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

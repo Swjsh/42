@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; introduces a new trigger type (volatility compression + VWAP pullback) not currently represented. May complement existing VWAP‑based strategies by providing an alternative entry condition under low‑vol regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

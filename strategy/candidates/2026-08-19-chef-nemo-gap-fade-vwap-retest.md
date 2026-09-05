@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type and does not directly modify any existing trigger, filter, or exit logic in the leaderboard. It is complementary to existing VWAP‑based and gap‑based ideas (e.g., GAP_AND_GO, VWAP_CONTINUATION) but proposes a fade rather than a continuation, so it is unlikely to conflict with current ranked candidates. No changes to params.json or automation/state/* are proposed, so it should not interfere with any ratified or promising entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

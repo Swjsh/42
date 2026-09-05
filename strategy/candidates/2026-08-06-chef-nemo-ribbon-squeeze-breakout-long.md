@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it introduces a new trigger condition (EMA ribbon width + volume breakout) distinct from current strategies. It may complement existing volatility-based or structural approaches by capturing breakout phases after compression. No direct overlap with current winners/losers in J's anchor days pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

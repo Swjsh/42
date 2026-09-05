@@ -40,3 +40,5 @@ Not applicable (edge_capture < OP-16 floor). If reconsidered after revisions: gy
 
 ## Pre-existing leaderboard impact
 Does not conflict with leaderboard (Rank 1-17) as edge_capture < 771 excludes it from leaderboard consideration. Complements none; addresses different regime (non-J day profitability) but fails OP-16 mandate to capture J's edge. Leaderboard requires edge_capture ≥771 for inclusion; this keeper falls far short.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

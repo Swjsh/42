@@ -67,3 +67,5 @@ Before this spec can be ratified, the following must be verified:
 ## Pre-existing leaderboard impact
 
 This spec supports the ratification of SNIPER_VIX_TREND_OOS_CONFIRMED (rank 14) and SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP (rank 15) by providing the required 3+ live J shadow trades. It does not conflict with any existing candidates; it is a prerequisite for their promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

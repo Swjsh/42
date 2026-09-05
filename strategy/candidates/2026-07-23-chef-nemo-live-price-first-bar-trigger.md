@@ -77,3 +77,5 @@ We aim to capture edge from premarket extreme reversals. When SPY violates the p
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; does not conflict with #1 (BEARISH_SWEEP_BLOCKER) or #3 (V14E_BEAR_ONLY_GATE) as it adds a new trigger branch. No overlap with watcher-only candidates (e.g., #4 ORB_NARROW_OR_GATE). Updates #2 LIVE_PRICE_FIRST_BAR_TRIGGER from NEEDS-MORE-DATA to DRAFT awaiting Stage-2 validation. Does not affect bullish-scoped candidates (e.g., #23 REDDIT_ORB15_AND_ERL_IRL_FVG) as trigger is directionally agnostic but management uses existing bear/bull setups.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py, analysis/recommendations/live_price_first_bar_trigger_ab.json -->

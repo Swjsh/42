@@ -50,3 +50,5 @@ Grinder must pass: Stage-1 backtest completion, edge_capture >= 771 (OP-16 floor
 ## Pre-existing leaderboard impact
 
 This analysis does not change any candidate; it provides data to evaluate existing candidates and inform new proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

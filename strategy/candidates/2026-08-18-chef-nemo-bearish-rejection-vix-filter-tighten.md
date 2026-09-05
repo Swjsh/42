@@ -57,3 +57,5 @@ Modify the VIX confirmation filter in the BEARISH_REJECTION_RIDE_THE_RIBBON setu
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (filter_change on BEARISH_REJECTION_RIDE_THE_RIBBON). Complements VWAP_CONTINUATION and GAP_AND_GO by refining bearish signal quality. No overlap with watcher-only or bull-side candidates. Neutral impact on leaderboard ranks 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

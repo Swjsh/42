@@ -56,3 +56,5 @@ Entry triggers when volume ratio exceeds `vol_ratio_threshold` (1.2) on a 30-sec
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the current leaderboard. It does not complement existing high-edge candidates; instead, it represents a different (scalper) approach that would need to clear the OP-16 hurdle to be considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

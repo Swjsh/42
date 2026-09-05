@@ -41,3 +41,5 @@ In addition to the existing BEARISH_REJECTION_RIDE_THE_RIBBON context filters, w
    - Max drawdown: could increase if the filter causes us to miss winners and take more losers.
    - Blow-up scenario: if the slope threshold is too tight, we may take too few trades and suffer from sampling error.
 6. **Concentration:** We do not know the concentration impact without backtest; if the filter
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

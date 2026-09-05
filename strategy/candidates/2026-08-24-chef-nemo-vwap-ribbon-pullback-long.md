@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing VWAP_CONTINUATION setup (currently disarmed) by providing a distinct long‑side trigger that requires a pullback to VWAP with ribbon alignment and volume surge. It does not conflict with any of the current top‑9 leaderboard candidates (none use this exact trigger logic) and therefore adds a new, non‑overlapping idea to the idea pipeline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

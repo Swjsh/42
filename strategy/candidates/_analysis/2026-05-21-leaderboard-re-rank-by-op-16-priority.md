@@ -129,3 +129,5 @@ This prevents the current situation where watcher-only candidates with N/A edge_
 ## Pre-existing leaderboard impact
 
 This re-rank does **not conflict** with any existing candidates — it re-prioritizes effort allocation. The two REJECTED candidates (#9, #10) remain rejected. The watcher-only candidates move up in priority because they have clear promotion paths and passing validation gates, whereas the "NEEDS-MORE-DATA" candidates (#2, #7, #8, #9, #10) have higher distance-to-ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

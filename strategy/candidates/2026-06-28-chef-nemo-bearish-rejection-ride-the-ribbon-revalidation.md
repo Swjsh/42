@@ -57,3 +57,5 @@ The proposal must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The proposal complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to improve the engine's performance on bearish days. The proposed changes can be combined with other candidates to further enhance the engine's overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

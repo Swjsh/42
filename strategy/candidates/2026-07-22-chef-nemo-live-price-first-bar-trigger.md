@@ -59,3 +59,5 @@ Entry triggers when SPY breaks the premarket low (PML) and then closes above it 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates as it leaves J anchor days unchanged (edge_capture delta = 0). It may complement by adding a new trigger source for non-J day trades, potentially increasing trade frequency without affecting the core J-edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

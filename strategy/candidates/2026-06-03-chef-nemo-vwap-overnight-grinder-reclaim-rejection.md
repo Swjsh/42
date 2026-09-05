@@ -65,3 +65,5 @@ We aim to capture short-term mean-reversion edges when SPY reclaims or rejects t
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates; edge_capture projected well below 771 threshold, so would be REJECTED at the door per OP-16 even if promoted. Recommend OOS walk-forward first to assess true edge before considering leaderboard eligibility.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

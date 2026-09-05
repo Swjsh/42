@@ -56,3 +56,5 @@ We will modify `ribbon_ride_strike_exit_ab.py` to join the `qqq_label` (which fl
 ## Pre-existing leaderboard impact
 
 This candidate is a direct follow-up to the existing `QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS` study (rank I in the leaderboard). It does not conflict with any existing candidates but rather provides the data needed to elevate that study to a wiring proposal. It complements the `WEEKLY_DTE_NOT_0DTE` candidate by potentially adding a cross-ticker filter that could enhance any strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

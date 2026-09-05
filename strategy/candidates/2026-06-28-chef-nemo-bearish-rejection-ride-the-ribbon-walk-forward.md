@@ -52,3 +52,5 @@ The pre-merge gate for this candidate includes the completion of the walk-forwar
 ## Pre-existing leaderboard impact
 
 This candidate is expected to have a neutral impact on the pre-existing leaderboard, as the proposed changes are intended to refine the existing setup rather than introduce new parameters or mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

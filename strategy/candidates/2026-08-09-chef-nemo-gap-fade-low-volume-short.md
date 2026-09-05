@@ -61,3 +61,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it is a new trigger type (gap-fade short) not currently represented; complements GAP_AND_GO (which trades gap continuation) by offering opposite directional bias. No overlap in mechanism or triggers with current leaderboard entries (which are mostly watcher gates, DTE studies, or VWAP/structure-based). Would require its own backtest grid and could potentially join leaderboard if Stage-1 shows edge_capture > 771. No immediate conflict with PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

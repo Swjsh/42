@@ -62,3 +62,5 @@ Both variants use identical entry logic (ORB long-only, confidence medium, OR ra
 ## Pre-existing leaderboard impact
 
 This analysis complements candidate #5 (ORB_DIRECTION_FILTER) by providing the exit‑type validation that motivated its chart‑stop‑only real‑fills pass. It does not conflict with any existing candidate; rather, it reinforces the exit‑choice rationale for ORB‑based strategies. No changes to leaderboard ranking are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

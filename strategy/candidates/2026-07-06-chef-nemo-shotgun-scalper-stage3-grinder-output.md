@@ -52,3 +52,5 @@ The pre-merge gate requires that the candidate pass the gym validators, walk-for
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing candidates on the LEADERBOARD, as it has a different set of parameters and a different mechanism for producing a positive edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

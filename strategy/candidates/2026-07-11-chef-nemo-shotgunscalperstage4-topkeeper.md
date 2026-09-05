@@ -43,3 +43,5 @@ We are trying to capture edge by refining exit parameters and contract selection
 
 1. **Account-size assumption:** ITM-2 strikes (strike_offset=2) require $25K+ account for full position sizing; $1K paper account realizes ~14% of headline P&L per OP-20 disclosure example.  
 2. **Sample bias:** Sample size=288 combos from parameter sweep; selection method=grid search over HTF-gated directional scoring space; overfit risk=high due to multiple testing without OOS validation (5 keepers
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

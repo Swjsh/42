@@ -61,3 +61,5 @@ If all three conditions hold, the watcher writes a JSON line to `automation/stat
 ## Pre-existing leaderboard impact
 
 This candidate adds a new watcher and does not modify any existing strategy logic. It does not conflict with any current candidates in _LEADERBOARD.md; it complements existing watchers by providing additional observability on filter 9/10 behavior. No changes to params.json or heartbeat logic beyond inserting the watcher call.
+
+<!-- PROVENANCE-MISSING: automation/state/alerts.json -->

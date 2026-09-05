@@ -44,3 +44,5 @@ Without baseline comparison, we cannot isolate which changes drove the wide_pnl 
 - Positive expectancy per trade ($14.1) and Sharpe (4.074) are misleading due to misalignment with J's edge; these metrics optimize for non-J noise.
 - **Critical gap:** Strategy fails to suppress losses on 5/06 and 5/07 loser days (generates +$132.0 and +$291.0 instead of skipping/reducing loss), directly violating OP-16 requirements.
 - Recommendation: Return to hypothesis generation; this parameter set shows no evidence of capturing BEARISH_REJECTION's structural edge. Focus on fidelity to playbook context filters (VIX confirmation, ribbon flip, level rejection) before parameter tuning.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

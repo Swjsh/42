@@ -63,3 +63,5 @@ Entry triggered when directional participation score exceeds threshold (derived 
 ## Pre-existing leaderboard impact
 
 The candidate would be REJECTED at the door (edge_capture < 771) and therefore would not appear on the leaderboard. It does not conflict with any existing promoted candidates. If promoted after OOS validation, it would need to demonstrate genuine edge on J’s anchor days to avoid duplication of existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

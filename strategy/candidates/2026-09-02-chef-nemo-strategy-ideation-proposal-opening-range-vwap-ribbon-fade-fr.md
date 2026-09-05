@@ -47,3 +47,5 @@ The doctrine mandates that **J's edge** (OP-16) is the **sole authority** for tr
 - **Log all unapproved trades** to `STATUS.md ## Known broken` with a **"J override pending"** flag.  
 
 **Lessons Index**: Add to **C7** ("Silent success is failure") as L301: *"Autonomous execution without J validation creates untracked risks; all off-hour trades must be logged and audited."*
+
+<!-- PROVENANCE-MISSING: automation/state/j-edge.json -->

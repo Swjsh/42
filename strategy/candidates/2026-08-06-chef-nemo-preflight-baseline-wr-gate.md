@@ -62,3 +62,5 @@ Before initiating any parameter sweep in autoresearch/loop.py, the system will:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard. It is a meta-gate that affects the sweep initiation process, not a strategy change. It complements all candidates by ensuring that sweeps are only launched from a baseline that meets a minimum win rate threshold. It does not alter any engine logic, so it has no direct impact on the OP-16 anchors or the leaderboard rankings of existing candidates.
+
+<!-- PROVENANCE-MISSING: automation/state/preflight_gate.json -->

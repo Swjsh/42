@@ -58,3 +58,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (VWAP‑mean‑reversion with wick filter) that does not directly conflict with any existing candidates in the leaderboard (ranks 1‑24). It may complement the existing VWAP_CONTINUATION strategy by offering a mean‑reversion alternative during low‑volatility, midday windows, potentially diversifying the strategy set without overlapping trigger logic. No parameter or wiring changes to existing proposals are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -76,3 +76,5 @@ The keeper’s edge_capture (285) is below the rejection threshold (771), so it 
 ## Notes on other keepers
 
 The JSON input only provided details for the top keeper. The remaining four keepers from shotgun_scalper_stage3 require identical assessment (edge_capture, knob deltas vs baseline, OP‑20 disclosures). Without their `by_day` and summary stats, a genuine edge vs overfit judgment cannot be made; each needs a Stage‑1 backtest of the parent to establish baseline behavior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

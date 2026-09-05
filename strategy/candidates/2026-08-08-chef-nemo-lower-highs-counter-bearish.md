@@ -60,3 +60,5 @@ When evaluating a bearish setup trigger (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON
 ## Pre-existing leaderboard impact
 
 This proposal introduces a new quality_gate filter and does not modify any existing candidate in _LEADERBOARD.md. It complements existing structural gates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by adding a score-based filter rather than a hard veto. No known conflicts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

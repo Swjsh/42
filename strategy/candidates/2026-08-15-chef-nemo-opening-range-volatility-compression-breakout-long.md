@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This is a new trigger strategy that does not directly modify existing candidates in the leaderboard (ranks 1-24). It may coexist with or compete for capital with existing triggers like LIVE_PRICE_FIRST_BAR_TRIGGER (rank 2) or QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS (rank I), but conflicts are unknown without backtesting. As a long-only breakout strategy, it is structurally orthogonal to bearish-reversal candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) and may complement them by capturing bullish momentum days. However, without Stage-1 backtest data, any impact assessment is speculative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

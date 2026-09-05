@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard candidates (which are primarily filters, gates, or alternative trade classes). It complements by adding a distinct entry signal that could be combined with existing exit logic or filters (e.g., VIX_REGIME_DAYSIDE) but would require independent validation. No direct overlap with current top candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not appear to conflict with any existing candidates in the leaderboard (which are mostly watcher quality gates, structural filters, or other trade classes). It complements the existing GAP_AND_GO setup by trading the opposite polarity (fade vs. continuation) under low VIX conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

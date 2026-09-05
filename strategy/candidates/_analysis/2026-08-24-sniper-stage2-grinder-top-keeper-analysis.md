@@ -78,3 +78,5 @@ Compared to the stage1 baseline (unknown), the key changes appear to be disablin
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door because its edge_capture (373.48) < 771 (50% of max possible 1542). It does not appear on the leaderboard and therefore does not conflict with existing candidates. Promotion to the leaderboard requires first achieving edge_capture ≥ 771 after OOS validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

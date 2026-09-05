@@ -60,3 +60,5 @@ Relaxing a specific filter in the BEARISH_REJECTION_RIDE_THE_RIBBON setup will i
 ## Pre‑existing leaderboard impact
 
 Does not conflict with any ranked candidate; BEARISH_REJECTION_FILTER_RELAXATION is not currently on the leaderboard. If successful, it could be added as a new candidate of type `filter_change`. It complements existing BEARISH_REJECTION‑related work (e.g., BEARISH_REJECTION_MORNING watcher) by potentially increasing trade frequency on the same setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

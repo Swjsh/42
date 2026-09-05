@@ -57,3 +57,5 @@ Modify the vwap_continuation signal to use DTE=2 and strike=ITM-2 (overriding th
 Complements WEEKLY_DTE_NOT_0DTE (Rank ★★) by providing actionable wiring proposal for its findings; no conflict with existing candidates (e.g., VWAPCONT_DTE_OVERRIDE_2DTE HOLD tests ATM 2DTE, this tests ITM-2 2DTE). Structural DTE lever remains orthogonal to quality-gate candidates like STRUCTURE_VETO_DIR_VS_TREND (Rank ★).  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_dte_override_itm2_2026_08_24.py -->

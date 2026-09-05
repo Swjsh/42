@@ -63,3 +63,5 @@ Exit logic remains unchanged (chart stop, TP1 runner, chandelier profit-lock, 15
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md; targets trigger logic not currently represented as a separate candidate. May complement existing filters/gates by improving entry timing. No direct overlap with ratified candidates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

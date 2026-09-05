@@ -66,3 +66,5 @@ The combination of parameters (tp_premium_pct=0.75, stop_premium_pct=-0.35, time
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the current leaderboard. It does not conflict with existing candidates as it is ineligible for promotion. If improved to meet the floor, it would complement candidates focused on exit/filter changes (e.g., similar to V14E_PARAM_SWEEP_26K) but requires further validation.
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_stage4.py -->

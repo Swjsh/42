@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it introduces a new trigger type (VWAP deviation mean reversion) distinct from VWAP_CONTINUATION and VWAP_RECLAIM_FAILED_BREAK which trade continuation after VWAP touch. However, actual impact unknown until backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

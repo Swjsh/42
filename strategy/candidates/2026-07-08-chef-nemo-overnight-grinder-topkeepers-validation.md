@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward optimization must show OOS Sharpe >= 0.70
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to compare with existing candidates in _LEADERBOARD.md
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

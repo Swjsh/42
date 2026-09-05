@@ -55,3 +55,5 @@ The script `setup/scripts/cleanup_prompts.py` (or equivalent) will be modified t
 ## Pre-existing leaderboard impact
 
 This change does not interact with any trading strategy candidates in the leaderboard (_LEADERBOARD.md). It is a standalone operational safeguard with no impact on strategy performance metrics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

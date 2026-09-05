@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; introduces a short‑side gap‑fade trigger complementary to GAP_AND_GO (which is a continuation trigger). No overlap in logic; likely additive if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ We test the SNIPER_LEVEL_BREAK trigger with specific parameters: volume expansio
 ## Pre-existing leaderboard impact
 
 This candidate fails the OP-16 edge_capture gate (<771) and would be REJECTED. It does not appear on the leaderboard and thus has no impact on current rankings. No conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

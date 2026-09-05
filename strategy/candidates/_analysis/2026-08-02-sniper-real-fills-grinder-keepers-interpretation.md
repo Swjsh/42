@@ -75,3 +75,5 @@ Entry triggers on a level break with volume and body filters; exit uses TP1 at +
 ## Pre-existing leaderboard impact
 
 This configuration would be REJECTED at the door (edge_capture < 771) and therefore does not appear on the current leaderboard. It conflicts with no existing candidate because it fails the OP‑16 gate; it would need to demonstrate a positive edge_capture before any comparison could be made. At present it offers no complement to the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

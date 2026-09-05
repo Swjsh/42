@@ -73,3 +73,5 @@ Compared to an undocumented baseline, it is unclear which knobs drove any change
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder output. The top keeper fails the OP‑16 floor (edge_capture < 771) and would be REJECTED if submitted as a candidate. It does not conflict with any leaderboard entries; rather, it reinforces that SNIPER_LEVEL_BREAK requires further refinement (e.g., different exit logic, regime filters) before it can achieve a positive edge on J’s anchor days. No impact on current leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

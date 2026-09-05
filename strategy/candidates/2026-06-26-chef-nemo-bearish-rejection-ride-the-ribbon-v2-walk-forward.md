@@ -53,3 +53,5 @@ To merge this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard by providing a walk-forward validated setup that captures a specific edge in the market. It does not conflict with any existing candidates but rather enhances the overall strategy by adding another tool to the toolkit.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

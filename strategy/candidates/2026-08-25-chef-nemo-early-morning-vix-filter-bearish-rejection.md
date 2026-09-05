@@ -53,3 +53,5 @@ Gym validators: all relevant unit tests must pass; walk-forward: OOS Sharpe rati
 ## Pre-existing leaderboard impact
 
 This candidate complements existing VIX-related candidates (like VIX_BULL_HARD_CAP_UNBLOCK) by adding an early-time dimension. It does not conflict with any current leaderboard candidates as it is a filter_change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is not currently on the leaderboard (it is a baseline setup). However, note that the BEARISH_REJECTION_RIDE_THE_RIBBON setup is the underlying engine for many candidates; changing its filter may affect the baseline for other candidates. Therefore, this candidate must be tested against the current baseline (which includes the existing VIX confirmation) to isolate the impact of the early-morning filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

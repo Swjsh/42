@@ -28,3 +28,5 @@ Once the condition is met (3+ shadow trades logged), we will proceed to evaluate
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates. It is a status update that may lead to the promotion of SNIPER_VIX_TREND_OOS_CONFIRMED and SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP to RATIFICATION_READY once the anchor condition is met.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

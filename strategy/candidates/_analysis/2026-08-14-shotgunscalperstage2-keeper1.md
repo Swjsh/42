@@ -56,3 +56,5 @@ Before any consideration for promotion, the keeper must:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new rule; it interprets a sweep result. If promoted, the keeper would conflict with the OP‑16 requirement (edge_capture < 771 → automatic rejection). It would not complement any existing candidate because it fails the core edge‑capture gate. No impact on current leaderboard ranks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

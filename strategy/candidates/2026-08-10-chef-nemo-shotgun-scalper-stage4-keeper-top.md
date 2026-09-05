@@ -66,3 +66,5 @@ We hypothesize that adjusting the take-profit, stop-loss, time stop, strike offs
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (ranks I, ★★, WS4, ★, RV, etc.) as this candidate's projected edge_capture (506.55 per keeper JSON) is below the 771 OP-16 floor required for leaderboard inclusion. Would not rank; requires OOS walk-forward to potentially improve edge_capture above floor before consideration. Complements volatility-filtering candidates but overlaps with exit_tuning efforts (e.g., DYNAMIC_STOP_VS_STATIC).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ Entry logic appears to be a volatility‑expansion breakout (vol ratio) with a r
 ## Pre-existing leaderboard impact
 
 This keeper does **not** meet the leaderboard’s edge_capture ≥ 771 requirement, so it would be REJECTED at the door. It conflicts with the current leaderboard’s edge‑capture‑first philosophy; promoting it would dilute the bar for genuine J‑edge candidates. It should remain in the grinder’s “needs OOS” bucket unless further walk‑forward and real‑fills validation shows a genuine edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

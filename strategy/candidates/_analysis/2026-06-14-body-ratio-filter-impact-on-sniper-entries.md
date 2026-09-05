@@ -52,3 +52,5 @@ We require the following to pass before considering this filter for promotion:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in the leaderboard. It is intended to inform a potential filter_change candidate (e.g., SNIPER_BODY_RATIO_FILTER) that would be added to the leaderboard pending Stage-1 results. It complements existing SNIPER-related candidates by focusing on entry quality.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

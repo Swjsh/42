@@ -71,3 +71,5 @@ Must pass:
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (ranks 1-17) as edge_capture < 771 triggers automatic rejection per OP-16. Does not complement existing candidates; requires significant improvement to meet J-winner capture thresholds.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

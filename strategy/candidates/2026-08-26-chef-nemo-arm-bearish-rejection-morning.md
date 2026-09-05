@@ -65,3 +65,5 @@ Exit: chart-stop-primary (SPY closes 3-min candle above rejected level + $0.50 b
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements rank 20 (BEARISH_REJECTION_MORNING watcher) by arming it; does not conflict with existing PROMISING candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on different time window and trigger logic. May overlap with ORB_NARROW_OR_GATE in morning window but different logic (ribbon-flip vs OR range).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

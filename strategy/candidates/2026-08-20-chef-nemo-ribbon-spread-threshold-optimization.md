@@ -56,3 +56,5 @@ OP-16 anchor validation: edge_capture >= 771 and no regression on J winner days 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidates as it is a parameter change to an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON). It complements candidates that work on other aspects (e.g., structure veto, midday trendline gate) by potentially improving the quality of the BEARISH_REJECTION_RIDE_THE_RIBBON setup. However, note that BEARISH_REJECTION_RIDE_THE_RIBBON is currently OBSERVATION (demoted) in the playbook, so this candidate aims to revive it by optimizing a key parameter.
+
+<!-- PROVENANCE-MISSING: test_ribbon_spread_threshold_optimization.py -->

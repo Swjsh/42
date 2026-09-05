@@ -27,3 +27,5 @@ Continue accumulation of bear-only observations. No further action required at t
 ## Confidence
 
 10 / 10 -- based on the watcher change date and the absence of new observations in the file.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

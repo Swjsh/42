@@ -52,3 +52,5 @@ The pre-merge gate for this candidate would involve verifying that the proposed 
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly those that involve VWAP-anchored entry sweeps. However, the exact impact on the leaderboard is unknown, as the performance of the proposed behavior is not well understood.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

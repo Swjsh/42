@@ -57,3 +57,5 @@ The candidate uses SNIPER_LEVEL_BREAK entries with VIX>=18 and a VIX-trend regim
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate; it confirms that the sniper_real_fills_grinder top keeper (SNIPER_VIX18_GRINDER) remains invalidated and should not be promoted. It complements the existing leaderboard by reinforcing the rejection of artifact-driven sniper variants and directing research toward chart-stop redesign (as noted in the candidate's rationale). No conflict with current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Modify the VIX confirmation context filter in the BEARISH_REJECTION_RIDE_THE_RIB
 
 This candidate does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new filter change. It may complement candidates that also target volatility regimes (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but operates on the bearish side. No known conflicts with ratified candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as they target different mechanisms.
 ---
+
+<!-- PROVENANCE-MISSING: test_vix_confirmation_tighten_for_bear.py -->

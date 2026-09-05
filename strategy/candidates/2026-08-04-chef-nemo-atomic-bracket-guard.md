@@ -63,3 +63,5 @@ Modify heartbeat order placement logic for non-bracket fallback paths (OTO/naked
 ## Pre-existing leaderboard impact
 
 Complements all candidates (ranks 1-24). No conflict: alters only order execution safety, not entry logic, indicators, or parameters. Synergistic with existing safety gates (e.g., liquidity checks, PDT guards).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

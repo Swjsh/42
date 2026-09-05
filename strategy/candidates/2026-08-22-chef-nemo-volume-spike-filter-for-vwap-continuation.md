@@ -61,3 +61,5 @@ Confidence low because the filter concept is untested; volume spikes may be regi
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing VWAP_CONTINUATION-related work (e.g., VWAPCONT_DTE_OVERRIDE_2DTE) by adding a quality filter. It does not conflict with any ranked candidate as it targets a different mechanism (volume confirmation). However, it may overlap with the spirit of `MIDDAY_TRENDLINE_GATE` (which also filters low-quality entries) but applies to a different time window and setup. No direct parameter duplication exists.
+
+<!-- PROVENANCE-MISSING: test_volume_spike_filter.py -->

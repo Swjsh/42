@@ -50,3 +50,5 @@ We use the autoresearch grinder harness to run the base engine (no changes) over
 ## Pre-existing leaderboard impact
 
 <supersedes projected values for base engine in all candidates; updates ground truth for edge_capture and Sharpe projections. Candidates using base engine as baseline (e.g., STRUCTURE_VETO_DIR_VS_TREND) now have confirmed edge_capture=780, Sharpe=4.348.>
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

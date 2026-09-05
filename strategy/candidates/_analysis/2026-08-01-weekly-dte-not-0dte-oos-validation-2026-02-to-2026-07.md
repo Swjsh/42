@@ -54,3 +54,5 @@ The candidate uses the `vwap_continuation` signal (as per leaderboard descriptio
 ## Pre-existing leaderboard impact
 
 If validation confirms the leaderboard's claimed OOS exp/tr ($59.02 for 1DTE, $66.13 for 2DTE) and Sharpe improvement, the candidate remains PROMISING. If OOS exp/tr degrades or Sharpe falls below 0.70 walk-forward threshold, it may be downgraded to NEEDS-MORE-DATA or REJECTED. No conflict with other candidates; complements DTE-focused studies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Add a new watcher quality gate `j_vwap_cont_put_vix_gate` equivalent for BEARISH
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) which is direction-agnostic veto; conflicts with [BEARISH_SCORE_7_RELAXATION] (Rank 36 REJECTED) which relied on 5/04 outlier. Does not conflict with watcher-only candidates (e.g., V14E_BEAR_ONLY_GATE) as it targets same side but different filter. May duplicate intent of existing VIX put-gate in VWAP_CONTINUATION but applied to BEARISH_REJECTION setup.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_bearish_rejection.py -->

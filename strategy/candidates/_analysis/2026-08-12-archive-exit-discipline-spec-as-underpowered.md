@@ -37,3 +37,5 @@ N/A (archival action requires no strategy ratification per Rule 9)
 ## Pre-existing leaderboard impact
 
 No impact. This is an archival/documentation task that does not alter live engine parameters, candidate rankings, or OP-16 anchor calculations. The EXIT-DISCIPLINE-SPEC test was never a leaderboard candidate (it was an internal A/B test under `strategy/candidates/` but lacked OP-16 scoring). Removing it from active candidates has zero effect on leaderboard rankings.
+
+<!-- PROVENANCE-MISSING: strategy/candidates/EXIT-DISCIPLINE-SPEC.md, analysis/archive/EXIT-DISCIPLINE-SPEC.md, backtest/autoresearch/exit_discipline_buffer_ab.py, analysis/archive/backtest/autoresearch/exit_discipline_buffer_ab.py, analysis/recommendations/exit-discipline-buffer-ab.json, analysis/archive/analysis/recommendations/exit-discipline-buffer-ab.json -->

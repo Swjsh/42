@@ -52,3 +52,5 @@ The pre-merge gate requires the candidate to pass the out-of-sample test, walk-f
 ## Pre-existing leaderboard impact
 
 The candidate is expected to complement the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to capture the edge by vetoing wrong-way trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

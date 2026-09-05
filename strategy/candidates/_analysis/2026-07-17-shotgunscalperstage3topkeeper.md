@@ -61,3 +61,5 @@ Entry logic remains identical to the baseline shotgun_scalper_stage2 (presumed V
 ## Pre-existing leaderboard impact
 
 Edge_capture (285) is below the 771 threshold required for leaderboard inclusion; therefore this keeper would be REJECTED and does not conflict with or complement existing candidates. It requires OOS walk-forward first to establish genuine edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

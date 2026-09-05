@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing strategies; no direct conflict. GAP_AND_GO in registry is a gap continuation play, whereas this candidate is a gap fade conditioned on VIX > 22. Existing candidates are primarily filters, exits, or watchers; this introduces a new short-bias trigger orthogonal to current approaches. Does not interfere with BEARISH_REJECTION or BULLISH_RECLAIM logic as it operates in a distinct time window (09:30-10:00) and volatility regime.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

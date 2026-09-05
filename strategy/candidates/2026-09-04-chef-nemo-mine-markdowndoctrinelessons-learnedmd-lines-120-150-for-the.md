@@ -841,3 +841,5 @@ I'll copy L01 section lines:
 # Lessons Learned — Concrete Anti-Patterns + Fixes
 
 > Companion to `BACKTESTING-PLAYBO
+
+<!-- PROVENANCE-MISSING: tests/test_trendline_trigger.py, automation/state/watcher-observations.json, automation/state/watcher-live-diag.json -->

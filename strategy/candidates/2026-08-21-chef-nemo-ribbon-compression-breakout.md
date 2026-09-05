@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ribbon-ride strategies (BULLISH_RECLAIM_RIDE_THE_RIBBON and BEARISH_REJECTION_RIDE_THE_RIBBON) by targeting the compression phase rather than the ride phase. It does not conflict with any existing candidates in the leaderboard as it is a new trigger type.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

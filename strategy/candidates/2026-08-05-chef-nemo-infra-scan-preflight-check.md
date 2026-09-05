@@ -56,3 +56,5 @@ The heartbeat launcher (e.g., launch_heartbeat.ps1 or similar) will, before star
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidates because it does not alter trading logic, parameters, or watchers. It is a safety layer for the launcher. It complements all candidates by adding a robustness check that prevents the rig from being disabled during trading hours due to infra work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

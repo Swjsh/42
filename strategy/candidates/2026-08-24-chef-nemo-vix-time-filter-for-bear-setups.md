@@ -67,3 +67,5 @@ During high VIX (>25), bearish momentum tends to concentrate in the morning sess
 Complements existing BEARISH_REJECTION_RIDE_THE_RIBBON setup (playbook-confirmed) by adding conditional filters; does not conflict with any ranked candidate as it targets the same setup class with stricter conditions. May overlap with VIX-based filters in REJ candidates (e.g., DYNAMIC_STOP_VS_STATIC) but operates on entry timing rather than exit mechanics.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

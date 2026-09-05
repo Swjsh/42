@@ -59,3 +59,5 @@ Requires Stage-1 backtest with:
 ## Pre-existing leaderboard impact
 
 This analysis validates ORB_NARROW_OR_GATE (leaderboard #4) without altering its definition. It complements the leaderboard by adding regime-specific insights. No conflict with other candidates; supports ORB_DIRECTION_FILTER (#5) as simpler alternative if ORB_NARROW_OR_GATE shows regime fragility.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

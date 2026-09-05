@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (equity curve, t
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not modify any existing rules in the leaderboard. It is expected to be additive; no direct conflict with candidates 1‑9 (which are primarily watcher gates, DTE studies, or exit‑change proposals). If the backtest shows positive edge, it may complement existing strategies by providing an additional entry filter that operates independently of VWAP, ORB, or ribbon‑ride logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

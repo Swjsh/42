@@ -60,3 +60,5 @@ Complements fix 1 (relaxed filter 9) by making HTF less punitive. No known confl
 ---  
 
 **Candidate 3: Ban prompt cleanup during market hours**
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

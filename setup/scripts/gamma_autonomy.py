@@ -361,6 +361,18 @@ def build(now: dt.datetime | None = None) -> dict:
     # (never a fabricated zero) when its own state file is missing.
     kitchen = None
     kraw = _read_json(STATE / "kitchen-status.json")
+    # OP-32 trust gate (GOAL-KITCHEN-INTEGRITY-2026-09-05 I4): fabricated_artifact_rate +
+    # DEGRADED/HEALTHY/UNKNOWN verdict, written by free_model_audit.py into the SAME
+    # bar-state file every other audited touchpoint lives in -- never re-computed here.
+    bar_state = _read_json(STATE / "free-model-audit-state.json") or {}
+    kitchen_provenance = {
+        "fabricated_artifact_rate": (bar_state.get("kitchen_fabricated_artifact_rate") or {}).get(
+            "fabricated_artifact_rate"),
+        "provenance_missing": (bar_state.get("kitchen_fabricated_artifact_rate") or {}).get(
+            "provenance_missing"),
+        "files_scored": (bar_state.get("kitchen_fabricated_artifact_rate") or {}).get("files_scored"),
+        "trust_gate": bar_state.get("kitchen_trust_gate"),
+    }
     if kraw:
         qs = (kraw.get("queue_summary") or {}).get("by_status") or {}
         recent = kraw.get("recent_completed_top_10") or []
@@ -377,7 +389,13 @@ def build(now: dt.datetime | None = None) -> dict:
                 {"task": str(x.get("task") or "")[:160], "completed_at": x.get("completed_at")}
                 for x in recent[:5]
             ],
+            "provenance": kitchen_provenance,
         }
+    elif kitchen_provenance.get("fabricated_artifact_rate") is not None:
+        # Daemon status file absent but the provenance metric exists -- still surface it
+        # rather than let the whole block collapse to None (I4's render must never be
+        # silently swallowed by an unrelated daemon-liveness gap).
+        kitchen = {"alive": None, "provenance": kitchen_provenance}
     prospector = None
     praw = _read_json(REPO / "analysis" / "prospector" / "state.json")
     if praw:

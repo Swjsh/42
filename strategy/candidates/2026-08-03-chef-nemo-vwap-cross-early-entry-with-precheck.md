@@ -67,3 +67,5 @@ Exit logic:
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing leaderboard candidates. It may complement exit or filter changes by providing an alternative entry signal aligned with J's winner day conditions. No known conflicts with candidates 1-24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

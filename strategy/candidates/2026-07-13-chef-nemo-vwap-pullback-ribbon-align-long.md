@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing VWAP‑based triggers (e.g., VWAP_CONTINUATION) by adding ribbon‑alignment and volume filters, likely reducing trade frequency but increasing selectivity. It does not directly conflict with top‑ranked candidates such as WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND, as it operates on a different trigger logic and timeframe. No known duplication or contradiction with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

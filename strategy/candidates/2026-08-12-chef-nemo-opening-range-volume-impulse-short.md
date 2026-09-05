@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates. Unlike ORB_RETEST_LONG (long on ORH retest), this is a short on ORL with volume impulse. May complement by providing a short bias mechanism not currently in the leaderboard. Requires Stage-1 backtest to assess interaction with existing strategies like BEARISH_REJECTION_RIDE_THE_RIBBON.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

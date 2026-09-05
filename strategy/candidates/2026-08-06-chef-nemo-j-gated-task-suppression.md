@@ -60,3 +60,5 @@ Modify `setup/scripts/task_scorer.py` to:
 ## Pre-existing leaderboard impact
 
 No conflict – this is a tooling change that does not alter any existing strategy candidate or its parameters. It complements all candidates by improving the proposal review pipeline.
+
+<!-- PROVENANCE-MISSING: automation/state/conductor-proposals.json -->

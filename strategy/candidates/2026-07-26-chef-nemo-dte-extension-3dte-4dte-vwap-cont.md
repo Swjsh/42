@@ -50,3 +50,5 @@ Pass gym validators (`test_vwap_cont_dte_override_*.py`), walk-forward OOS Sharp
 ## Pre-existing leaderboard impact
 
 Complements existing candidate WEEKLY_DTE_NOT_0DTE (which tested 1DTE and 2DTE). No conflict; extends the same DTE lever further. Does not modify any existing params or logic beyond adding new DTE override values.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

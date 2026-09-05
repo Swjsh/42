@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing midday gates (e.g., MIDDAY_TRENDLINE_GATE) by introducing an EMA ribbon flip trigger as a novel entry signal. It does not conflict with any existing candidates in the leaderboard, as it targets a different trigger mechanism and time window. No known overlap or redundancy with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

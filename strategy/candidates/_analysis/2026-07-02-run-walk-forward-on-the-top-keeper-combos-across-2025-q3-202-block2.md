@@ -43,3 +43,5 @@ The pre-merge gate includes a check for the out-of-sample test result, the real-
 ## Pre-existing leaderboard impact
 
 The analysis complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly filters/exits/watchers); complements by adding new short-side trigger type; overlaps with GAP_AND_GO in open-gap context but distinct fade vs continuation logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

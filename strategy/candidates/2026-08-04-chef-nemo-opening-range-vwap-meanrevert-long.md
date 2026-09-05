@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger that does not modify any existing rules or gates; it complements the existing watchers and triggers by adding a long‑biased mean‑reversion filter. It does not conflict with any of the ranked candidates in _LEADERBOARD.md because it introduces a distinct entry condition not currently present.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

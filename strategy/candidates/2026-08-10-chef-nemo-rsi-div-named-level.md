@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; complements named‑level watchers (e.g., NAMED_LEVEL_SECOND_TEST) and divergence signals (e.g., RSI_DIVERGENCE_BULL_WATCHER) by adding a conjunctive filter. Should be evaluated alongside existing triggers for potential synergy or redundancy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Stage-1 backtest must pass gym validators, walk-forward (OOS/IS ratio >=0.5), an
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine, so it does not conflict with any existing candidates. It may inform future quality_gate candidates (like V14E_BEAR_TIME_OF_DAY_GATE or ORB_NARROW_OR_GATE) by providing VIX-stratified performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

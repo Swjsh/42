@@ -63,3 +63,5 @@ proposed as a strategy.
 This candidate does not conflict with existing candidates as it is a placeholder for the result of the backtest.
 Once the backtest is run and a strategy is identified, we will propose a specific candidate that may complement or
 conflict with existing ones.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

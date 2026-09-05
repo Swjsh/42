@@ -58,3 +58,5 @@ We do not have the current engine behavior for the WEEKLY_DTE_NOT_0DTE candidate
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate itself but provides additional verification. If the monotone OOS exp/tr holds in the 2025 Q3–2026 Q2 window and for 3DTE (with theta decay adjustment showing persistent edge), it would strengthen the candidate's case. If it fails, it would weaken it. We note that the VWAPCONT_DTE_OVERRIDE_2DTE candidate (which is a wiring proposal for 2DTE on the ATM Safe-2 cell) failed due to walk-forward degradation and concentration, but note that the WEEKLY_DTE_NOT_0DTE candidate is ITM-2 and uses a different signal (vwap_continuation) and exit (-8%/+30%) so it may behave differently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

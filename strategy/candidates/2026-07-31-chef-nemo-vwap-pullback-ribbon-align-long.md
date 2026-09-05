@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing bearish strategies (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by adding a long-bias intraday trigger. Does not conflict with current leaderboard (dominated by bearish setups targeting J anchor days) as it trades opposite direction. May add diversification but unlikely to improve OP-16 edge_capture directly due to anchor day direction bias. Could improve aggregate Sharpe if profitable on non-anchor days. No overlap with existing candidates in registry (no VWAP+ribbon pullback long trigger).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

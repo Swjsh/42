@@ -75,3 +75,5 @@ Before any promotion, the following must be satisfied:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates existing grinder output. It does not conflict with any leaderboard entries. If a parameter set from the grinder were to be promoted as a candidate, it would need to clear the OP‑16 edge_capture ≥ 771 threshold, which the current keepers fail by a large margin. Thus, no leaderboard impact is expected unless a future iteration yields a positive edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ The pre-merge gate consists of the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed strategy does not conflict with or complement any existing candidates in the leaderboard, as it is a performance metrics analysis of an existing strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

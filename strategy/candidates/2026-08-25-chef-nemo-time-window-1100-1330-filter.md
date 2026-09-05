@@ -58,3 +58,5 @@ Add a time-of-day gate in `gates.py` that only allows entries when the bar's tim
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This filter is orthogonal to existing candidates in the leaderboard (which focus on DTE, structure vetoes, watcher gates, etc.). It does not conflict with any ranked candidate; rather, it could be stacked atop any existing strategy as an additional quality gate. No known conflicts with candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

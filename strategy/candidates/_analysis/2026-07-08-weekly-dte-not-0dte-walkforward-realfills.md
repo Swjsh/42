@@ -50,3 +50,5 @@ Walk-forward OOS/IS Sharpe ratio >= 0.70, real-fills validation showing <20% dif
 ## Pre-existing leaderboard impact
 
 This analysis validates the existing candidate WEEKLY_DTE_NOT_0DTE. It does not conflict with other candidates. Successful validation may increase its confidence and leaderboard rank; failure may lead to downgrade or rejection.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

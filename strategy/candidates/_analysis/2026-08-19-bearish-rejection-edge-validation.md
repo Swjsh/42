@@ -61,3 +61,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup, when executed with current chart-st
 ## Pre-existing leaderboard impact
 
 This analysis validates the base engine’s edge_capture of 780 (seen in STRUCTURE_VETO_DIR_VS_TREND and others) as a lower bound; the BEARISH_REJECTION_RIDE_THE_RIBBON setup can push edge_capture toward the theoretical max of $1,542, which would increase final_score proportionally (assuming Sharpe remains stable). It does not conflict with any existing leaderboard candidate; rather, it provides a concrete explanation for why the base engine already captures a majority of J’s winners (via chart‑stop‑primary and ribbon‑riding dynamics). Candidates that modify entry logic (e.g., additional filters) should be tested against this baseline to ensure they do not regress edge_capture below 771.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_entry.py, test_chart_stop_primary.py -->

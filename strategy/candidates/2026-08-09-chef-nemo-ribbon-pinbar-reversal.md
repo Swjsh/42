@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; those focus on volume, DTE, VIX gates, and structural filters. This candidate introduces a new trigger based on EMA ribbon width and pin‑bar shape, which is orthogonal to current gates and could complement them as a quality filter or entry refinement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

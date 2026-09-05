@@ -63,3 +63,5 @@ This analysis requires:
 
 ## Pre-existing leaderboard impact
 Analysis does not add candidate to leaderboard but advises against promoting reviewed keeper. Complements existing leaderboard entries by reinforcing OP-16 edge_capture gate as first-pass filter. No conflict with current leaderboard (all candidates have edge_capture ≥ 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ J's 5/15 manual trades showed a bearish macro environment where SPY formed a ser
 ## Pre-existing leaderboard impact
 
 This candidate is a brand-new trigger type not present in the current leaderboard (ranks I-24). It does not directly conflict with existing candidates but may overlap in macro bearish regimes with candidates like BEARISH_REJECTION_RIDE_THE_RIBBON or VIX_BULL_HARD_CAP_UNBLOCK. If validated, it could complement existing short setups by capturing a different phase of distribution (stairstep lower-highs) versus rejection-based entries. No direct duplication of trigger logic observed in current playbook.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

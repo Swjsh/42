@@ -274,3 +274,5 @@ The 3-5 min read delay (watcher fire → heartbeat tick) is acceptable because:
 
 One edge case: if heartbeat tick fires just AFTER bar close and watcher fires on that SAME bar,
 the heartbeat might miss the signal by 1 tick (5 min). Acceptable — the entry window is 10:00-12:30 ET.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

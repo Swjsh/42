@@ -42,3 +42,5 @@ The keeper fails the OP-16 edge_capture floor (229.63 < 771) and thus should be 
 ## Confidence
 
 3 / 10 -- Low confidence due to unknown baseline, lack of OOS validation, and clear failure to meet OP-16 edge_capture requirements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

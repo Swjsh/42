@@ -53,3 +53,5 @@ The pre-merge gate for each candidate is already defined in the leaderboard. We 
 ## Pre-existing leaderboard impact
 
 This analysis does not change the leaderboard directly. After the backtest, we will update the leaderboard with the results and change the status of candidates accordingly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis supports the LIVE_PRICE_FIRST_BAR_TRIGGER candidate by attempting to fulfill its OP-21 gate requirement. It does not conflict with other candidates but rather provides necessary data for its promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

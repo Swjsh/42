@@ -49,3 +49,5 @@ Total shadow P&L: +$359 across 3 trades.
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; provides the required live‑shadow‑trade anchor for SNIPER_VIX_TREND_OOS_CONFIRMED (#14) and SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP (#15) to move them from RATIFICATION_BLOCKED‑PENDING‑ANCHOR toward RATIFICATION_READY. No impact on other leaderboard rows.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

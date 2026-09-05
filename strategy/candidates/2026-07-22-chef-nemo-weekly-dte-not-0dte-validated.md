@@ -58,3 +58,5 @@ The entry trigger remains identical to the base 0DTE strategy (e.g., VWAP contin
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: does not modify params.json or heartbeat.md (structural DTE change via `_expiry_for_setup` picker patch, similar to VWAPCONT_DTE_OVERRIDE_2DTE but applied to the core signal). No conflict with J-RATIFIED candidates (MIDDAY_TRENDLINE_GATE, V14E_PARAM_SWEEP_26K, etc.) as it operates on a different dimension (DTE vs. intraday timing/filters). May overlap with WEEKLY_DTE_NOT_0DTE (rank ★★) but represents a validated progression of that idea with OP-16 anchor verification. If Stage-1 backtest shows no regression and improved edge_capture, this candidate could supersede WEEKLY_DTE_NOT_0DTE in the leaderboard.
+
+<!-- PROVENANCE-MISSING: test_weekly_dte_not_0te.py -->

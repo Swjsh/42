@@ -60,3 +60,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing GAP_AND_GO watcher by adding a VIX filter. It does not conflict with any existing J-RATIFIED candidates (like v14e param sweep or structure veto) as it is a separate trigger. However, it may overlap in logic with the VWAP_CONTINUATION setup, which also uses gap-like concepts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

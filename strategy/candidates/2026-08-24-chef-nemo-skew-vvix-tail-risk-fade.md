@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (run `backtest/a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; introduces a new trigger based on SKEW/VVIX not used in any current setup. Complements existing volatility‑based filters (e.g., VIX_REGIME_DAYSIDE) by adding a skew‑spread dimension. No overlap with leaderboard entries 1‑24.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/skew_vvix_tail_risk_fade.py -->

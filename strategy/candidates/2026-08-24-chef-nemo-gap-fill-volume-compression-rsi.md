@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger type (gap-based mean reversion) rather than modifying existing triggers like VWAP_CONTINUATION or BEARISH_REJECTION. Complements by potentially capturing different market conditions (gap openings) not covered by current open candidates. However, may overlap with GAP_AND_GO watcher (which trades gap continuation) by trading the opposite direction on similar setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

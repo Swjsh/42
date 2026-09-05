@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly conflict with existing leaderboard entries (which are primarily watcher gates, DTE studies, or structural filters). It complements by adding a conditional entry logic layer that could coexist with existing quality gates (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE) but would require integration testing to avoid signal interference. No overlap with current ranked candidates in mechanism or scope.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

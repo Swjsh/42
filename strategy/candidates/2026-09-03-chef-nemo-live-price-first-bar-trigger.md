@@ -74,3 +74,5 @@ The first regular trading hour (RTH) bar that breaks the premarket high (for bea
 Complements existing triggers (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) by targeting a different time window (premarket open vs. midday). No direct conflict with ranked candidates; addresses gap in early-morning structure-based entries. If validated, would likely rank between #22-25 based on preliminary premarket scan stats (~$0.50/trade expectancy). Does not interfere with watcher-only candidates or quality gates.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

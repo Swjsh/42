@@ -55,3 +55,5 @@ Gym validators (all tests pass), walk-forward OOS positive with WF ≥ 0.70, rea
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not modify any existing rules, so it does not conflict with candidates 1-9 (BEARISH_SWEEP_BLOCKER through BULLISH_WATCHER_PM_GATE). It may complement by providing additional entry opportunities on days when other setups are inactive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

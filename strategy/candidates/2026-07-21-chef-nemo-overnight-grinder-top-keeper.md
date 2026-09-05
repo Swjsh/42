@@ -35,3 +35,5 @@ All other parameters (runner_target, etc.) retained as in baseline.
 ## OP-20 disclosures
 
 1. **Account-size assumption:** The level_qty=18 and level_stop=-0.12 imply a risk of 18 * 0.12 * entry_premium * 100 per level trade. Assuming an entry_premium of $1.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger class not present in the current leaderboard (which contains price‑only sweeps, volatility‑based entries, and structural gates). It does not directly conflict with any existing candidate in ranks 1‑9 and may complement them by providing an alternative entry signal under similar regime conditions. No overlap detected with current PROMISING or J‑RATIFIED entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

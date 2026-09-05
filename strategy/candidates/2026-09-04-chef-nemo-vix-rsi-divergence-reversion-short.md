@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (none use VIX high + RSI divergence trigger). Complements VIX_REGIME_DAYSIDE by adding a micro-structure condition (bearish divergence) to VIX-based short bias, but requires independent validation. No overlap with existing ranked candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

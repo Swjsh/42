@@ -66,3 +66,5 @@ Position sizing and other management (chandelier profit-lock, time stop) follow 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). Would not appear on leaderboard due to OP-16 failure. If edge_capture could be improved to ≥771 while preserving other traits, it might complement existing candidates by adding a parameter-based edge layer—but current form is ineligible.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

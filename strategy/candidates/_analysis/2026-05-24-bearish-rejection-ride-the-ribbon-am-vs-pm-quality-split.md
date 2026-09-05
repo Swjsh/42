@@ -68,3 +68,5 @@ Using `automation/state/watcher-observations.jsonl` — v14_enhanced watcher obs
 6. If AM underperforms significantly, propose PM-only gate candidate
 
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

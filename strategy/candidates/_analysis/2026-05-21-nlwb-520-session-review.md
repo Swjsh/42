@@ -52,3 +52,5 @@ No code change proposed; gate not applicable. For promotion of NLWB to live‑el
 ## Pre-existing leaderboard impact
 
 NLWB remains #8 on the leaderboard with status WATCH‑ONLY. The 5/20 session does **not** satisfy the OP‑21 live gate (requires high‑confidence, J‑confirmed level fires). It therefore **weakens** the NLWB bull case for round‑number proxies and reinforces the need for key‑levels.json validation. No change to ranking or edge‑capture projection is indicated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

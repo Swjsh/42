@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements MIDDAY_TRENDLINE_GATE (which uses trendline conditions) by offering an alternative midday filter. No overlap in trigger logic, so could coexist as separate entry types. No impact on current leaderboard rankings until backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

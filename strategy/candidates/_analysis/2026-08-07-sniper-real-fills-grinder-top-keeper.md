@@ -25,3 +25,5 @@ Entry conditions: vol_mult=1.1 (volume must be 1.1x 20-bar average), body_min_ce
 | 4/29 winner | unknown -- requires Stage-1 backtest | engine P&L = -$329.0 (took trade, lost) | unknown -- requires Stage-1 backtest |
 | 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest (data missing in keeper output) | unknown -- requires Stage-1 backtest |
 | 5/04 winner | unknown -- requires Stage-1 backtest | engine P&L = +$110.0 (took trade, won but less than truth) | unknown
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

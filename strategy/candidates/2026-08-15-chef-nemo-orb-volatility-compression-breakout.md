@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not conflict with the existing candidates 1‑9 in _LEADERBOARD.md (which are primarily watcher gates, DTE studies, or parameter tweaks). It complements the current ORB‑related watcher (ORB_RETEST_LONG) by focusing on volatility compression and volume‑filtered breakout rather than a retest of the ORB. No direct overlap is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

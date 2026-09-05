@@ -60,3 +60,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard. It is a new trigger candidate that aims to capture a specific edge in overnight VWAP-anchored entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

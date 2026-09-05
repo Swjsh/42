@@ -62,3 +62,5 @@ Pass gym validators (v43+), walk-forward OOS Sharpe ≥ 0.70, real-fills check o
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (edge_capture < 771 triggers automatic REJECT per OP-16); does not complement existing candidates as it fails the edge_capture gate. Requires significant revision before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

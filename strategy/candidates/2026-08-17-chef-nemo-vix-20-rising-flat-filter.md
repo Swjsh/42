@@ -67,3 +67,5 @@ Complements existing VIX-related candidates:
 - Different approach from [VIX_BULL_HARD_CAP_UNBLOCK] (which relaxes bull VIX cap) 
 - No overlap with [BEARISH_SCORE_7_RELAXATION] (score-based gate) 
 - Should be evaluated alongside [MIDDAY_TRENDLINE_GATE] (J-RATIFIED filter) for combined impact
+
+<!-- PROVENANCE-MISSING: test_vix_20_rising_flat_filter.py -->

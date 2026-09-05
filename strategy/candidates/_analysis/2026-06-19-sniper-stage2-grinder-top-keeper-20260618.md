@@ -42,3 +42,5 @@ The top keeper from sniper_stage2_grinder (vol_mult=1.1, body_min_cents=0.02, mi
 ## Confidence
 
 8 / 10 -- Analysis based on provided grinder output and OP-16 rules; edge_capture calculation is definitive and recommendation follows directly from OP-16 gate. Unknowns (baseline behavior, OOS, real-fills, concentration) are honestly disclosed per OP-20.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

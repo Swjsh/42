@@ -60,3 +60,5 @@ No change to the core strategy mechanics. The candidate adds a veto rule: block 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements rank 17 (adjacent time window veto) and rank 21 (structural confirmation). Candidate is currently ranked ★ (PROMISING) with final score 3,688 (edge_capture 780 × sharpe 4.73). This analysis confirms the OOS and real-fills validity underpinning its leaderboard position. No change to candidate mechanics required; serves as validation of existing J-RATIFIED status.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/structure_veto_ab.json -->

@@ -57,3 +57,5 @@ Since no candidate met the Stage-1 bar (edge_capture >= 771), we did not proceed
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate. It complements the existing leaderboard by reinforcing the OP-16 bar as a stringent filter. Candidates in the leaderboard that have edge_capture >= 771 (like the J-RATIFIED ones) have cleared this bar, while the grinder's output did not yield any new candidate that cleared it. This suggests that future work should focus on validating and potentially improving the existing promising candidates (e.g., via OOS and real-fills) rather than generating new candidates from the current grinder sweep.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

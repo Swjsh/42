@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type and does not directly modify any existing candidate in the leaderboard. It is intended to complement the existing VWAP_CONTINUATION setup by providing a fade signal when opening‑range imbalances are extreme, potentially adding orthogonal trades. There is no known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

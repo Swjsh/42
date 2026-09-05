@@ -65,3 +65,5 @@ We aim to detect silent failures in automation scripts where tasks consistently 
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates by adding infrastructure resilience. It does not conflict with any strategy-specific proposals (ranks 1-24) as it operates at the automation layer, monitoring script health regardless of which strategy is being executed. It enhances the reliability of the system that runs all candidates, thereby indirectly supporting accurate OP-16 measurement by reducing noise from automation failures.
+
+<!-- PROVENANCE-MISSING: test_budget_roster_no_silent_failures.py -->

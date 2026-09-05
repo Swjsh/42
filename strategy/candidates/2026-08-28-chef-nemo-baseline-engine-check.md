@@ -60,3 +60,5 @@ No changes to the engine; we simply run the Stage-1 backtest via the autoresearc
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate is the baseline against which all others are measured; it does not conflict but provides the reference edge_capture and Sharpe for leaderboard ranking. All listed candidates are evaluated relative to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

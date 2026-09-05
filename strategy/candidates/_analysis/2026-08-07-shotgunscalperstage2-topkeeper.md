@@ -63,3 +63,5 @@ Not applicable for leaderboard promotion (edge_capture < 771 triggers automatic 
 ## Pre-existing leaderboard impact
 
 Does not appear on leaderboard (Ranked candidates require edge_capture ≥ 771). Would be REJECTED at door if submitted. No impact on existing leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by trading a different VWAP interaction (fade vs continuation). No direct conflict with top leaderboard entries as it targets a distinct setup type (gap fade) not currently covered. Does not interfere with watcher-only or structural gate candidates. May overlap with GAP_AND_GO (which trades gap continuation) but expresses opposite directional bias.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

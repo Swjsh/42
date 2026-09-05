@@ -66,3 +66,5 @@ Entry logic remains v14e_bear confirmation-first (requires level rejection + rib
 ## Pre-existing leaderboard impact
 
 This keeper does not represent a new trade class or filter change; it is a parameter tweak to existing V14E_bear setup. As such, it does not conflict with leaderboard candidates (which are new trade classes or gates). However, its edge_capture=499.64 < 771 would REJECT it at the door per OP-16 if submitted as a candidate. It complements no existing candidates directly but suggests v14e exit parameters need re-examination to better capture 5/01 winner day behavior. Current J-RATIFIED v14e params (tp1=0.30, runner=2.5, profit_lock=0.05/0.10) from V14E_PARAM_SWEEP_26K remain superior for J edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

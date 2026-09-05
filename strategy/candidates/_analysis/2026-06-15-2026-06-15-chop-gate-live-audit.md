@@ -68,3 +68,5 @@ For each group, compute win rate (WR) by linking signals to actual trade outcome
 ## Pre-existing leaderboard impact
 
 This analysis supports evaluation of candidate #17 (V14E_BEAR_TIME_OF_DAY_GATE) by providing live gate effectiveness data. No conflict with existing candidates. Complements #17's OOS/real-fills validation with live signal-level metrics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

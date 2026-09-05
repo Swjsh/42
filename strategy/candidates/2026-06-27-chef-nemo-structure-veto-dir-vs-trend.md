@@ -52,3 +52,5 @@ The proposed candidate requires out-of-sample testing and real-fills validation 
 ## Pre-existing leaderboard impact
 
 The proposed candidate is expected to have a minimal impact on the pre-existing leaderboard, as it only blocks trades that are counter to the prevailing trend. However, it may improve the overall performance of the engine by reducing the number of losing trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

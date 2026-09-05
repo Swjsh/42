@@ -65,3 +65,5 @@ Run the base engine (no parameter or logic changes) through the autoresearch gri
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-24) as it verifies the baseline against which all candidates are measured. Complements leaderboard by providing ground-truth OP-16 anchor measurements for future candidate evaluation. No wiring/param changes proposed → no Rule 9 violations.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

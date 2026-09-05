@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not appear to conflict with any existing candidates in the current leaderboard (which are mostly watcher revalidations, structural gates, or other setups). It complements the existing suite by adding a candlestick-wick-based long trigger with VWAP/ribbon filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

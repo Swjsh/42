@@ -54,3 +54,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis is for the existing candidate WEEKLY_DTE_NOT_0DTE (ranked ★★, PROMISING). It does not conflict with other candidates but rather provides the missing OOS validation on J anchor days required for promotion to J-RATIFIED.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

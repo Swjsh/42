@@ -59,3 +59,5 @@ Adding a volume surge confirmation (e.g., volume >= 1.5x 20-bar average volume) 
 ## Pre-existing leaderboard impact
 
 Does not conflict with any ranked candidate in _LEADERBOARD.md as it targets the BULLISH_RECLAIM_RIDE_THE_RIBBON setup, which is not currently a candidate. May complement existing bullish filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK) by adding a momentum confirmation layer. No known duplication.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

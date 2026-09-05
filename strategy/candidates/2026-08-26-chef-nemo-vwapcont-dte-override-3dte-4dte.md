@@ -55,3 +55,5 @@ We isolate the DTE variable by keeping the vwap_continuation signal trigger iden
 ## Pre-existing leaderboard impact
 
 This candidate complements the WEEKLY_DTE_NOT_0DTE (DTE=1/2) and VWAPCONT_DTE_OVERRIDE_2DTE (ATM DTE=2) candidates by extending the DTE study to weekly options. No conflict; it is a natural extension of the DTE lever investigation.
+
+<!-- PROVENANCE-MISSING: test_vwapcont_dte_override_3dte_4dte.py -->

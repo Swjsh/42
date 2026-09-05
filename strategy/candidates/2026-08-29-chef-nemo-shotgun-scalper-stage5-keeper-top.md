@@ -65,3 +65,5 @@ The shotgun scalper strategy's exit parameters (take profit, stop loss, time sto
 ## Pre-existing leaderboard impact
 
 This candidate's edge_capture (506.55) is below the OP-16 floor of 771 (50% of max possible 1542), so it would be REJECTED at the door and not appear on the leaderboard. It does not conflict with existing candidates but lacks sufficient edge for promotion. Complements research by highlighting exit parameter sensitivity but requires OOS validation before further consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

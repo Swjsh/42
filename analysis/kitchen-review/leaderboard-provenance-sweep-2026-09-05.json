@@ -1,0 +1,504 @@
+{
+  "generated_at": "2026-09-05T06:05:38+00:00",
+  "mode": "apply",
+  "rows_examined": 79,
+  "rewritten_unsupported": 24,
+  "action_counts": {
+    "kept_protected": 22,
+    "kept_ok_evidence": 22,
+    "rewritten_unsupported": 24,
+    "skipped_malformed": 6,
+    "skipped_not_in_corpus": 1,
+    "skipped_no_link": 4
+  },
+  "rows": [
+    {
+      "line": 11,
+      "rank": "I",
+      "action": "kept_protected"
+    },
+    {
+      "line": 12,
+      "rank": "\u2605\u2605",
+      "action": "kept_protected"
+    },
+    {
+      "line": 13,
+      "rank": "HOLD",
+      "candidate_file": "strategy/candidates/2026-07-07-204650-vwapcont-dte-override.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 14,
+      "rank": "WS4",
+      "action": "kept_protected"
+    },
+    {
+      "line": 15,
+      "rank": "\u2605",
+      "action": "kept_protected"
+    },
+    {
+      "line": 16,
+      "rank": "RV",
+      "candidate_file": "strategy/candidates/2026-06-26-094331-unblock-require-bearish-fill-bar-bold.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 17,
+      "rank": "RV",
+      "candidate_file": "strategy/candidates/2026-06-26-113700-entry-body-gate-bear-revalidation.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 18,
+      "rank": "RV",
+      "candidate_file": "strategy/candidates/2026-06-26-113702-unblock-midday-trendline-gate.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 19,
+      "rank": "RV",
+      "candidate_file": "strategy/candidates/2026-06-26-143000-bull-scope-lock-revalidation.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 20,
+      "rank": "RV",
+      "candidate_file": "strategy/candidates/2026-06-26-092656-bull-min-triggers-floor-revalidation.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 21,
+      "rank": "RV",
+      "candidate_file": "strategy/candidates/2026-06-26-094255-f8-bull-vix-block-revalidation-KEEP.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 22,
+      "rank": "REJ",
+      "candidate_file": "strategy/candidates/2026-07-07-202600-dynamic-stop-vs-static.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 23,
+      "rank": "REJ",
+      "action": "skipped_malformed"
+    },
+    {
+      "line": 24,
+      "rank": "REJ",
+      "candidate_file": "strategy/candidates/2026-07-07-183000-level-memory-perception-layer.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 25,
+      "rank": "1",
+      "candidate_file": "strategy/candidates/2026-05-16-bearish-sweep-blocker.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 26,
+      "rank": "2",
+      "action": "kept_protected"
+    },
+    {
+      "line": 27,
+      "rank": "3",
+      "action": "kept_protected"
+    },
+    {
+      "line": 28,
+      "rank": "4",
+      "action": "kept_protected"
+    },
+    {
+      "line": 29,
+      "rank": "5",
+      "action": "kept_protected"
+    },
+    {
+      "line": 30,
+      "rank": "6",
+      "candidate_file": "strategy/candidates/2026-05-19-182523-f8-vix-flat-unblock.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 31,
+      "rank": "7",
+      "candidate_file": "strategy/candidates/2026-05-19-f11-reversal-day-bypass.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 32,
+      "rank": "8",
+      "candidate_file": "strategy/candidates/2026-05-20-named-level-wick-bounce-bull.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 33,
+      "rank": "9",
+      "action": "kept_protected"
+    },
+    {
+      "line": 34,
+      "rank": "10",
+      "action": "kept_protected"
+    },
+    {
+      "line": 35,
+      "rank": "11",
+      "candidate_file": "strategy/candidates/2026-05-21-rsi-divergence-bull-watcher.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 36,
+      "rank": "12",
+      "candidate_file": "strategy/candidates/2026-05-23-v14e-param-sweep-26k.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 37,
+      "rank": "13",
+      "candidate_file": "strategy/candidates/2026-05-23-sniper-vix18-grinder-3297.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 38,
+      "rank": "14",
+      "candidate_file": "strategy/candidates/2026-05-24-sniper-vix-trend-oos-confirmed.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 39,
+      "rank": "15",
+      "candidate_file": "strategy/candidates/2026-05-24-sniper-vix-trend-stage2-entry-sweep.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 41,
+      "rank": "16",
+      "candidate_file": "strategy/candidates/2026-05-24-tbr-high-vol-discovery.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 43,
+      "rank": "17",
+      "candidate_file": "strategy/candidates/2026-05-24-v14e-bear-time-of-day-gate.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 45,
+      "rank": "21",
+      "candidate_file": "strategy/candidates/2026-05-31-midday-trendline-gate.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 47,
+      "rank": "18",
+      "candidate_file": "strategy/candidates/2026-05-19-level-break-first-strike-bear.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 49,
+      "rank": "19",
+      "candidate_file": "strategy/candidates/2026-05-20-fbw-morning-mid-watcher.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 51,
+      "rank": "20",
+      "candidate_file": "strategy/candidates/2026-05-24-bearish-rejection-morning-watcher.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 53,
+      "rank": "22",
+      "action": "kept_protected"
+    },
+    {
+      "line": 54,
+      "rank": "23",
+      "candidate_file": "strategy/candidates/2026-06-26-block-bull-1100-1200-revalidation.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 55,
+      "rank": "24",
+      "candidate_file": "strategy/candidates/2026-06-26-092624-block-elite-bull-revalidate.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 56,
+      "rank": "21",
+      "candidate_file": "strategy/candidates/2026-05-31-111020-sniper-entry-designs.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 57,
+      "rank": "22",
+      "candidate_file": "strategy/candidates/2026-06-14-reddit-orb15-and-erl-irl-fvg-adoption.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 59,
+      "rank": "23",
+      "candidate_file": "strategy/candidates/2026-06-16-sniper-cs-chart-stop.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 61,
+      "rank": "24",
+      "action": "skipped_malformed"
+    },
+    {
+      "line": 62,
+      "rank": "32",
+      "candidate_file": "strategy/candidates/2026-06-17-213558-gate-sweep-combinations.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 63,
+      "rank": "36",
+      "candidate_file": "strategy/candidates/2026-06-17-214442-bear-score-7-relaxation.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 64,
+      "rank": "37",
+      "candidate_file": "strategy/candidates/2026-06-17-214442-bull-score-9-relaxation.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 65,
+      "rank": "25",
+      "action": "skipped_malformed"
+    },
+    {
+      "line": 67,
+      "rank": "33",
+      "candidate_file": "strategy/candidates/2026-06-17-214313-htf-trigger-gate-sweep.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 111,
+      "rank": "28",
+      "action": "kept_protected"
+    },
+    {
+      "line": 112,
+      "rank": "29",
+      "candidate_file": "strategy/candidates/2026-06-17-tp1-qty-fraction-exit-optimization.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 113,
+      "rank": "30",
+      "candidate_file": "strategy/candidates/2026-06-17-time-stop-minutes-exit-optimization.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 114,
+      "rank": "31",
+      "candidate_file": "strategy/candidates/2026-06-17-combined-exit-params-v2.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 118,
+      "rank": "Candidate",
+      "action": "skipped_malformed"
+    },
+    {
+      "line": 120,
+      "rank": "[GATE_SWEEP_VOL_MORNING](2026-06-17-213349-gate-sweep-volume-morning.md)",
+      "action": "skipped_malformed"
+    },
+    {
+      "line": 121,
+      "rank": "[RIBBON_PATTERN_LEVEL_PROXIMITY_SWEEP](2026-06-17-214002-ribbon-pattern-level-proximity-sweep.md)",
+      "action": "skipped_malformed"
+    },
+    {
+      "line": 154,
+      "rank": "22",
+      "candidate_file": "strategy/candidates/2026-05-31-ribbon-momentum-gate.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 155,
+      "rank": "23",
+      "candidate_file": "strategy/candidates/2026-06-07-watcher-observations-baseline-post-5-21.md",
+      "action": "skipped_not_in_corpus"
+    },
+    {
+      "line": 156,
+      "rank": "24",
+      "candidate_file": "strategy/candidates/2026-06-15-chef-nemo-enter-decision-logging-gap-fix.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 157,
+      "rank": "25",
+      "candidate_file": "strategy/candidates/2026-06-15-auto-decision-trace.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 158,
+      "rank": "26",
+      "candidate_file": "strategy/candidates/2026-06-15-chef-nemo-midday-trendline-gate-bearish-reversal-exception.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 159,
+      "rank": "28",
+      "action": "kept_protected"
+    },
+    {
+      "line": 160,
+      "rank": "27",
+      "candidate_file": "strategy/candidates/2026-06-16-chef-nemo-first-hour-rth-high-level.md",
+      "provenance_status": "NO-ARTIFACT-CITED",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 162,
+      "rank": "32",
+      "action": "skipped_no_link"
+    },
+    {
+      "line": 163,
+      "rank": "33",
+      "action": "skipped_no_link"
+    },
+    {
+      "line": 164,
+      "rank": "34",
+      "action": "skipped_no_link"
+    },
+    {
+      "line": 165,
+      "rank": "35",
+      "action": "skipped_no_link"
+    },
+    {
+      "line": 166,
+      "rank": "38",
+      "action": "kept_protected"
+    },
+    {
+      "line": 167,
+      "rank": "39",
+      "candidate_file": "strategy/candidates/2026-06-26-counter-ribbon-named-level-rejection-SHORT.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 168,
+      "rank": "41",
+      "candidate_file": "strategy/candidates/2026-06-26-113500-vix-bear-hard-cap-revalidation.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 169,
+      "rank": "40",
+      "candidate_file": "strategy/candidates/2026-06-26-counter-ribbon-named-level-bounce-LONG.md",
+      "provenance_status": "PROVENANCE-OK",
+      "action": "kept_ok_evidence"
+    },
+    {
+      "line": 170,
+      "rank": "42",
+      "action": "kept_protected"
+    },
+    {
+      "line": 171,
+      "rank": "43",
+      "action": "kept_protected"
+    },
+    {
+      "line": 172,
+      "rank": "44",
+      "action": "kept_protected"
+    },
+    {
+      "line": 173,
+      "rank": "45",
+      "action": "kept_protected"
+    },
+    {
+      "line": 174,
+      "rank": "46",
+      "action": "kept_protected"
+    },
+    {
+      "line": 175,
+      "rank": "47",
+      "candidate_file": "strategy/candidates/2026-07-21-202600-late-entry-ceiling-reconsider.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 176,
+      "rank": "48",
+      "candidate_file": "strategy/candidates/2026-07-21-235117-gex-flip-regime-tag-prereg.md",
+      "provenance_status": "PROVENANCE-MISSING",
+      "action": "rewritten_unsupported"
+    },
+    {
+      "line": 177,
+      "rank": "49",
+      "action": "kept_protected"
+    },
+    {
+      "line": 178,
+      "rank": "50",
+      "action": "kept_protected"
+    },
+    {
+      "line": 179,
+      "rank": "51",
+      "action": "kept_protected"
+    }
+  ]
+}

@@ -63,3 +63,5 @@ Enter on shotgun scalper signals when volume ratio exceeds 1.2× the 20-bar aver
 ## Pre-existing leaderboard impact
 
 This keeper would **not** appear on the current leaderboard because its edge_capture (506.55) is below the 771 threshold required for inclusion. It does not conflict with any existing candidate; rather, it highlights the need to prioritize edge_capture over raw wide_pnl when evaluating promoter‑worthy strategies. If OOS and real‑fills validation were to show a sufficient edge_capture lift, it could be proposed as a new candidate, but as‑is it remains a exploratory result unsuited for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

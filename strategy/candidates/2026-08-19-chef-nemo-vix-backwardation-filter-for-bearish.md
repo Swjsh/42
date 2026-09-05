@@ -58,3 +58,5 @@ Bearish 0DTE put entries have higher edge when the VIX term structure is in back
 ## Pre-existing leaderboard impact
 
 Complements existing VIX filters (e.g., V14E_BEAR_ONLY_GATE's VIX>20 put-gate) by adding term structure dimension. Does not conflict with top candidates; may enhance STRUCTURE_VETO_DIR_VS_TREND if combined. No direct overlap with live candidates like WEEKLY_DTE_NOT_0DTE or MIDDAY_TRENDLINE_GATE.
+
+<!-- PROVENANCE-MISSING: test_vix_term_structure_filter.py -->

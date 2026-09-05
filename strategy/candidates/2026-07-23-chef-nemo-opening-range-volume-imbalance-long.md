@@ -74,3 +74,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with any existing candidate in the leaderboard. It is distinct from ORB_RETEST_LONG (watcher-only ORB retest setup) by adding volume imbalance, VWAP alignment, and EMA ribbon conditions. It may complement existing strategies by providing a long-biased trigger that can be combined with other filters (e.g., regime filters, exit rules). No overlap with current leaderboard candidates as it defines a unique entry signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

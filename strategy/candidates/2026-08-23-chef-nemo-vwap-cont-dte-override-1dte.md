@@ -50,3 +50,5 @@ Stage-1 backtest must pass: edge_capture > 0 (we need to see if it captures any 
 ## Pre-existing leaderboard impact
 
 This candidate complements [WEEKLY_DTE_NOT_0DTE] (which tested the same DTE idea on vwap_continuation signal but in isolation) and [VWAPCONT_DTE_OVERRIDE_2DTE] (which is a wiring proposal for 2DTE that failed some gates). We are testing 1DTE as a middle ground. It does not conflict with any existing candidate but may supersede [VWAPCONT_DTE_OVERRIDE_2DTE] if 1DTE performs better.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

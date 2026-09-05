@@ -61,3 +61,5 @@ Exit logic (chart stop, chandelier profit-lock, premium stop, time stop) remains
 ## Pre‑existing leaderboard impact
 
 This candidate is a filter_change that does not alter the core trigger or exit logic. It complements existing quality gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) and does not conflict with any ratified candidate. It would likely sit near the top of the leaderboard if edge_capture holds, but it requires OOS and real‑fills validation to promote beyond DRAFT. No known conflicts with current PROMISING or J‑RATIFIED entries.
+
+<!-- PROVENANCE-MISSING: test_vix_rising_put_filter.py -->

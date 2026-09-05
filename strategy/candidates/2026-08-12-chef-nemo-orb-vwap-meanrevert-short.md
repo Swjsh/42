@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md. Those are primarily watcher gates, DTE studies, and VWAP_CONTINUATION variants. This proposal introduces a distinct short-biased mean-reversion trigger after ORB breakouts, complementary to existing long-biased VWAP strategies. No direct overlap in logic or anchors observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

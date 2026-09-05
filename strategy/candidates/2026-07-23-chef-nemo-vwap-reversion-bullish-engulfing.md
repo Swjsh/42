@@ -51,3 +51,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It complements existing VWAP‑based ideas by offering a reversion alternative to the continuation bias of VWAP_CONTINUATION. No direct conflict with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a different signal set and time window. If validated, it could add a new mean‑reversion pillar to the strategy suite.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

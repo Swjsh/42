@@ -79,3 +79,5 @@ The LIVE_PRICE_FIRST_BAR_TRIGGER aims to capture premarket breakouts from the pr
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates. It provides the missing data (real-fills, OOS) needed to move LIVE_PRICE_FIRST_BAR_TRIGGER from NEEDS-MORE-DATA to a higher status (PROMISING or J-RATIFIED). It complements watcher-only candidates by adding a new trigger branch that operates outside the J anchor days, preserving the OP-16 floor while potentially contributing to aggregate Sharpe. No overlap with J days ensures no risk to the strategy's core edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

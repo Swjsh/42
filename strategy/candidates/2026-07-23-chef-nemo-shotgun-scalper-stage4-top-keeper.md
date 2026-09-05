@@ -54,3 +54,5 @@ Gym validators (81/81 PASS), walk-forward OOS positive (WF ≥ 0.70), real-fills
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and therefore would not appear on the leaderboard. It does not conflict with any existing leaderboard candidate (all current candidates have edge_capture ≥ 771). If improved to exceed 771, it would complement structural/gate candidates by focusing on exit optimization rather than entry filtering.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

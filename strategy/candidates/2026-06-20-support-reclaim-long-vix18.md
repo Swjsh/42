@@ -86,3 +86,5 @@ Robustness checks that PASS (the discipline this project demands — C4/PBO/OOS)
 a regime-rescue (the setup loses −$9,841 overall but its elevated-VIX short side is positive on
 both instruments). Weaker and more complex (ICT sweep+FVG) than the reclaim; build second if the
 reclaim ratifies.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/support-reclaim-long-vix18.json -->

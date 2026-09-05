@@ -40,3 +40,5 @@ Not applicable (watcher-only change already deployed per OP-22). Promotion requi
 ## Confidence
 
 3 / 10 -- Progress estimate relies on historical accumulation rate and lacks live data validation. Actual count may vary significantly based on recent market conditions and VIX regime persistence.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ We require:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate does not appear to conflict with any existing leaderboard candidates as it targets a specific trigger not currently listed. It may complement candidates that rely on the PULLBACK-HOLD-BULL-TRIGGER (if any exist) by potentially increasing its signal quality.
+
+<!-- PROVENANCE-MISSING: test_pullback_hold_bull_trigger_no_lagging_qualifier.py -->

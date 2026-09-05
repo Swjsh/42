@@ -28,3 +28,5 @@ The filter uses `market_structure.py` to detect a 5m-close-through-respected-asc
 | 5/05 loser | Takes SPY 722P x 20, loses -$260 | Unchanged (PUT loser, filter does not fire as discriminating PUT gate) | $0 |
 | 5/06 loser | Takes SPY 730P x 10, loses -$300 | Unchanged (PUT loser, filter does not fire as discriminating PUT gate) | $0 |
 | 5/07 loser 1 | Takes SPY 734C x 3, loses -$
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

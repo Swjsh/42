@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the current top‑9 leaderboard entries (which are primarily watcher quality gates, DTE studies, or structural vetoes). As a new trigger on the long side, it could complement existing short‑biased strategies by providing diversification, but any impact on the leaderboard remains unknown until a Stage‑1 backtest is completed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

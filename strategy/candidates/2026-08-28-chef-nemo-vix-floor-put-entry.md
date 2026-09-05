@@ -68,3 +68,5 @@ The hypothesis is grounded in the playbook's VIX confirmation rule for PUTs (VIX
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate is a quality_gate that could be layered atop existing winners like STRUCTURE_VETO_DIR_VS_TREND (rank ★) or BEARISH_REJECTION_RIDE_THE_RIBBON‑based ideas. It does not conflict with any existing candidate because it adds a filter rather than changing triggers, exits, or watchers. If shown to improve edge_capture without harming Sharpe, it would likely complement the current leaderboard by raising the edge_capture of underlying strategies. No known conflicts with candidates 1‑9.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/vix_floor_put_entry.json -->

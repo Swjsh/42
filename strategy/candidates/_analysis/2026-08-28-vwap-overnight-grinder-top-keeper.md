@@ -50,3 +50,5 @@ Not applicable (not proposing a candidate for promotion).
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate, so it does not conflict with existing leaderboard entries. It serves to filter out low-edge_capture candidates from grinder output, preserving leaderboard quality.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

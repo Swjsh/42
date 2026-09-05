@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is independent of existing entries in the leaderboard; it introduces a new trigger based on Market Profile TPO that is not currently represented. It does not conflict with any ranked candidate and could complement existing strategies if it proves additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

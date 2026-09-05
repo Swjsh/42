@@ -57,3 +57,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard because it is a new quality_gate. It may complement candidates that are exit_change or trigger_type by adding an additional filter. However, it may conflict with other quality_gates if they are mutually exclusive (but we design it to be additive).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

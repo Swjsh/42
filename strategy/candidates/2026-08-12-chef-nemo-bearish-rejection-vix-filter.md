@@ -62,3 +62,5 @@ Complements existing candidates:
 - Neutral to MIDDAY_TRENDLINE_GATE (Rank 21) as time filters are orthogonal.
 - No overlap with watcher-only candidates (e.g., ORB_NARROW_OR_GATE Rank 4) as this is an entry filter, not a watcher.
 - May conflict with VIX_BULL_HARD_CAP_UNBLOCK (Rank 22) if both filters active simultaneously, but they operate on opposite sides (bull vs bear). Requires joint validation if both promoted.
+
+<!-- PROVENANCE-MISSING: test_vix_filter.py -->

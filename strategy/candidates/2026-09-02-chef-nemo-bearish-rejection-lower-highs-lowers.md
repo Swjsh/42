@@ -56,3 +56,5 @@ Track the last 3 price bounces (attempts to move above) any defined resistance l
 ## Pre-existing leaderboard impact
 
 Complements existing BEARISH_REJECTION_RIDE_THE_RIBBON setup (no conflict). Does not interact with watcher-only candidates or structural gates. May overlap with score-threshold gates (e.g., BEAR_SCORE_7_RELAXATION) but modifies internal scoring logic rather than adding new filter. Should be evaluated independently before combining with other scoring changes.
+
+<!-- PROVENANCE-MISSING: test_lower_highs_lows_counter.py -->

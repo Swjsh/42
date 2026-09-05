@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is orthogonal to existing structural and filter‑based candidates in the leaderboard (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND). It introduces a new entry trigger based on opening range and VWAP dynamics, which does not directly conflict with current gates and could complement them by providing additional long signals during bullish morning regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

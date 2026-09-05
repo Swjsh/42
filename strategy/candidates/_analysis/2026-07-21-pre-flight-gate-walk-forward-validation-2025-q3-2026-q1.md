@@ -57,3 +57,5 @@ We will extract the pre-flight gate logic (currently embedded in the research lo
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates. It complements all candidates by ensuring the research process remains open during volatile periods, allowing more candidates to be generated and evaluated. No known overlap with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_dynamic_win_rate_gate.py, test_research_loop_gate_integration.py -->

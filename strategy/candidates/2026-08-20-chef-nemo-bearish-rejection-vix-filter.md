@@ -59,3 +59,5 @@ In addition to existing BEARISH_REJECTION_RIDE_THE_RIBBON context filters (09:35
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) which removes wrong-way trades; this filter improves selectivity of bearish signals. No conflict with J-RATIFIED candidates (V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) as they target different mechanisms. May overlap with WEEKLY_DTE_NOT_0DTE (rank ★★) but operates on 0DTE DTE vs. weekly.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_ab.py -->

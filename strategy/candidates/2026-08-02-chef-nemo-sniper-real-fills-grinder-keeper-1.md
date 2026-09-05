@@ -52,3 +52,5 @@ Stage-1 backtest to compute edge_capture on J anchor days (with 5/01 data) and c
 Unknown -- requires Stage-1 backtest to compute edge_capture and compare to leaderboard threshold (edge_capture ≥ 771).
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

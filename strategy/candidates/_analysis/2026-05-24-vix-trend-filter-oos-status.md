@@ -27,3 +27,5 @@ The VIX-trend filter (VIX >= 18 AND VIX > 5-day average) has already been implem
 **Regime alert:** 2026-Q1 alone produced 105% of total OOS P&L. Q4-2025 was -$267, Q2-2026 was +$127. The edge is concentrated in the trending tariff-crash regime.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

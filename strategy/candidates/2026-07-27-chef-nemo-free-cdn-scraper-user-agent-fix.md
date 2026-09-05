@@ -68,3 +68,5 @@ Ensure error handling (try/except) is preserved or improved. The `fetch_url_text
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing strategy candidate in `_LEADERBOARD.md` because it modifies data infrastructure, not strategy logic. It complements all candidates by ensuring that the data feeding into strategies (including those on the leaderboard) is complete and accurate, reducing noise from fetch failures. No edge_capture or Sharpe projections are altered by this change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

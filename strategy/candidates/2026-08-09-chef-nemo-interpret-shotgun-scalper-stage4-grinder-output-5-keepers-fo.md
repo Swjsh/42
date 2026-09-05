@@ -48,3 +48,5 @@ Pending:
 - Bullish paper fills (n≥20) under SS-B (2026-07-11 correction)  
 - J approval for live-money arming (OP-0 #1)  
 - A/B scorecard filing for "VIX pinned" regime (C4)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

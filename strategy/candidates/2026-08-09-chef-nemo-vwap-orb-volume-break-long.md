@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION by adding volume-expansion filter and OR-low guard; no direct conflict with top 9 candidates (which are primarily watcher gates, DTE studies, or structural vetoes). May overlap with ORB_RETEST_LONG but differs in entry condition (volume filter + OR-low guard vs. ORH retest).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Replace the 5m-sameday look-back in `crypto.lib.market_structure.classify_trend`
 ## Pre-existing leaderboard impact
 
 This candidate proposes to replace the existing STRUCTURE_VETO_DIR_VS_TREND (currently ranked ★ with edge_capture=780, Sharpe=4.728, final_score=3,688). If validated, it could potentially improve the Sharpe ratio by reducing false vetoes (thus increasing the number of valid entries and potentially improving the profit factor) while maintaining the same edge_capture (if it continues to not block winners and captures the same wrong-way losers). However, if the 15m look-back misses some wrong-way trades, edge_capture could decrease. Complements other structural gates (e.g., TRENDLINE_BREAK_CALL_VETO) by operating on a different timeframe.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_structure_veto_15m.py -->

@@ -66,3 +66,5 @@ Stage-1 backtest to confirm J day behaviors, walk-forward OOS test with WF ≥ 0
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and would be REJECTED at the door. It does not appear on the current leaderboard and would not conflict with any existing candidates. It is not complementary because it fails the basic edge requirement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

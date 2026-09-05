@@ -61,3 +61,5 @@ All other replay logic (entry/exit, SS‑B mechanics) remains unchanged; only th
 ## Pre-existing leaderboard impact
 
 Complements the ranked candidate **QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS** (Rank I) by funding its prescribed next step (real‑fills follow‑up). Does not conflict with any existing candidate; it is a pure data‑collection/quality‑gate effort that will inform a future wiring proposal. No changes to live engine parameters or automation/state files are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

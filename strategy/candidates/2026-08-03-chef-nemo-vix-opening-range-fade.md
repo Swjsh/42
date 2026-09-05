@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the registry (closest is GAP_AND_GO which trades gap continuations). It does not directly conflict with existing candidates 1-9 in _LEADERBOARD.md as it introduces a new entry condition based on VIX spike and opening-range fade, rather than modifying existing triggers or filters. However, it may compete for capital allocation if ratified, and its impact on existing strategies would require correlation analysis post-backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

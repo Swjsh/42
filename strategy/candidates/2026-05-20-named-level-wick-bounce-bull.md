@@ -364,3 +364,5 @@ round-number levels is a structural issue, not fixable by parameter tuning.
   (train 2025-01 to 2025-09, test 2025-10+).
 - Real-fills: script `backtest/autoresearch/nlwb_real_fills_validate.py` — run 5/04 09:55
   (strongest J-winner MIXED-ribbon PDL bounce) through `simulator_real.py` with CALL, ATM.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

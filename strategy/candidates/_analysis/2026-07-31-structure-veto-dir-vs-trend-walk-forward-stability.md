@@ -53,3 +53,5 @@ Before any promotion, the following must be completed:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it merely evaluates the current STRUCTURE_VETO_DIR_VS_TREND (ranked ★) for possible degradation. If quarterly metrics show significant decay, a future candidate might tighten the veto logic or add a regime filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ In `fill_funnel.py`:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidate as it modifies monitoring/funnel logic, not trading strategy. It should complement all candidates by improving accuracy of account status reporting. No known conflicts with candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

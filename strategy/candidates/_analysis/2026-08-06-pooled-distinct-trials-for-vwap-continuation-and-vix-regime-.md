@@ -68,3 +68,5 @@ This analysis does not conflict with existing candidates. It informs the validat
 - VWAPCONT_DTE_OVERRIDE_2DTE (rank HOLD) which relies on vwap_continuation signal
 - Any candidate using vix_regime_dayside (not explicitly listed in leaderboard but implied by task)
 - Ensures future proposals avoid double-counting overlapping signal days in OOS reporting. Complements signal hygiene efforts like those in LESSONS-LEARNED.md L04 (concentration disclosure) and L22 (failure mode enumeration).
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_signal.py, test_vix_regime_dayside_signal.py -->

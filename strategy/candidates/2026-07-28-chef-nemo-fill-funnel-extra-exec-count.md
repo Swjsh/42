@@ -64,3 +64,5 @@ We do not expect this change to affect the engine's trading decisions, only the 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it is a monitoring change and does not alter trade execution, triggers, filters, exits, or quality gates that affect P&L. It complements all candidates by providing more accurate monitoring of trading activity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

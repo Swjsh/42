@@ -57,3 +57,5 @@ The keeper uses the following parameters: vol_mult=1.5, proximity_dollars=0.15, 
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 anchor requirement (edge_capture < 771) and would be REJECTED. It does not appear on the leaderboard and thus has no impact on existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

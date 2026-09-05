@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are structural gates, watchers, or exit changes). Complements ORB_RETEST_LONG by using VWAP re-entry instead of ORH retest, potentially capturing different market conditions. No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

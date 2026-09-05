@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type that does not duplicate any existing strategy in the leaderboard. It does not conflict with current entries (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, etc.) because it relies on a distinct confluence of VWAP/VPOC, engulfing candles, and OBV. If validated, it could complement existing filters by providing additional long‑bias entries in low‑VIX, morning‑midday windows. No known overlap with rejected or watch‑only candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

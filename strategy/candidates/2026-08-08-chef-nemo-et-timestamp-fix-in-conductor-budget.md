@@ -62,3 +62,5 @@ Each test will mock `et_clock.et_now()` to return a specific ET time and verify 
 ## Pre-existing leaderboard impact
 
 No conflict with existing strategy candidates (ranks 1-24 in _LEADERBOARD.md) as this is a utility fix, not a strategy change. Complements all candidates by improving infrastructure reliability.
+
+<!-- PROVENANCE-MISSING: test_conductor_budget_et_midnight.py -->

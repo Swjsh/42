@@ -60,3 +60,5 @@ Add a new filter `bearish_rejection_vix_rising_required` (default true) that che
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements `STRUCTURE_VETO_DIR_VS_TREND` (Rank ★) by adding a VIX-conditioned filter to the same bearish logic. May overlap with `VWAP_CONTINUATION` put-gate logic but applies to a different setup. No direct duplication in leaderboard.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_risk_gate.py -->

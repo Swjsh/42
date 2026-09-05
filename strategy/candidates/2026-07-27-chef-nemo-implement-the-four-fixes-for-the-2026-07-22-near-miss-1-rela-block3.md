@@ -60,3 +60,5 @@ No impact on P&L; pure operational safety. Complements all candidates by improvi
 ---  
 
 **Candidate 4: Add near-miss alert to dashboard-dialogue.json when bear/bull score ≥8/9 but blocked by strict filters**
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

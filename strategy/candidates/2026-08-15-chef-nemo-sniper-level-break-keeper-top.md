@@ -65,3 +65,5 @@ The sniper_overnight_grinder identified a parameter combination (vol_mult=1.3, b
 ## Pre-existing leaderboard impact
 
 The candidate’s edge_capture ($229.63) is well below the 771 threshold required for inclusion on the leaderboard. It would be REJECTED at the door and does not affect the ranking of existing candidates. It does not complement any current leaderboard entry because it fails to capture J’s edge; instead, it highlights a need to refocus on parameters that improve winner‑day capture while maintaining low loser‑day loss.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

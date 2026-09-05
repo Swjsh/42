@@ -56,3 +56,5 @@ Add a pre-entry quality gate in `gates.py` that computes the 5-bar VIX slope usi
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK (rank 22) by adding a bearish VIX slope condition. No overlap with existing quality gates (e.g., V14E_BEAR_ONLY_GATE, MIDDAY_TRENDLINE_GATE).
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_gym_v41.py -->

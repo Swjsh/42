@@ -46,3 +46,5 @@ NLWB is a bull setup and does not fire on any of the OP-16 anchor days (which ar
 
 ## Pre-existing leaderboard impact
 If validation passes (N>=20, WR>=60%), NLWB may advance from WATCH-ONLY to NEEDS-MORE-DATA or PROMISING. If fails, candidate viability requires reassessment. No impact on OP-16 anchors (bull setup).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

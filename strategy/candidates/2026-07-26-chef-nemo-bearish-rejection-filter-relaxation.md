@@ -62,3 +62,5 @@ Explanation: Without a Stage-1 backtest, we cannot predict how the relaxed filte
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filter-change candidates by focusing on the BEARISH_REJECTION setup's internal filters. It does not conflict with any current leaderboard candidates (which are mostly watcher proposals, structural gates, or other setup types) as it modifies the core entry filters of an existing setup. It may subsume or relate to candidates that also adjust BEARISH_REJECTION filters (e.g., the confluence tolerance or ribbon duration candidates), but those are currently rejected or watch-only. No direct conflict with PROMISING or J-RATIFIED candidates observed in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

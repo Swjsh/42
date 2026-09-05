@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates in _LEADERBOARD.md. It complements by adding a distinct time window (lunchtime) and condition (volatility compression breakout) not currently covered, potentially additive to existing strategies. No overlap with current watcher/proposal types.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

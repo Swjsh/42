@@ -50,3 +50,5 @@ The pre-merge gate requires the gate to pass the out-of-sample test and real-fil
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates by adding a pre-vote gate for market holidays, which can help reduce the risk of incorrect trades and improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

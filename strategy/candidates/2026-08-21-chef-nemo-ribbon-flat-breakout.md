@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger type and does not directly conflict with existing candidates in the leaderboard (which are primarily gates, exits, or watcher proposals). However, it may overlap with ribbon-based strategies like BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON, which trade pullbacks to the ribbon in trending contexts. This candidate trades breakouts from ribbon compression, a distinct condition. No known conflicts, but impact on leaderboard rankings requires Stage-1 backtest to quantify edge capture on J's anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries (which are primarily watcher revalidations, DTE studies, or structural gates). It complements existing VWAP-based strategies by adding an RSI divergence filter to prior day VWAP retests, a combination not present in the current registry. No direct overlap with candidates 1-24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

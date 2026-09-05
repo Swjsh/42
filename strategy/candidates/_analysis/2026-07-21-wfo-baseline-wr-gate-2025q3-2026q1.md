@@ -57,3 +57,5 @@ The baseline WR gate evaluates each candidate setup's historical win rate over a
 ## Pre-existing leaderboard impact
 
 This analysis does not propose any strategy change, so it neither conflicts nor complements existing candidates. It is a diagnostic tool to evaluate the baseline WR gate's influence on research loop efficiency. Candidates in the leaderboard (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE) remain unaffected as this analysis evaluates the gate *before* their signals enter the research loop.
+
+<!-- PROVENANCE-MISSING: automation/state/wins_losses.json, automation/state/wfo_wr_gate_2025q3_2026q1.json -->

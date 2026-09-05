@@ -56,3 +56,5 @@ Modify the existing bear_score gate to only allow entries when bear_score is bet
 ## Pre-existing leaderboard impact
 
 This candidate is a filter_change on bear_score and does not conflict with existing candidates in the leaderboard (which are primarily DTE studies, structural vetoes, and watcher gates). It complements the [STRUCTURE_VETO_DIR_VS_TREND] candidate by potentially improving the edge_capture while maintaining or improving Sharpe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ Entry logic is assumed to be the existing v14/v15 signal generation (BEARISH_REJ
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

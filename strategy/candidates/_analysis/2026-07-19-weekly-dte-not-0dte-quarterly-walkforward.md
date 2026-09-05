@@ -59,3 +59,5 @@ Perform walk-forward analysis with expanding window: train on prior quarters, te
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Analysis complements existing WEEKLY_DTE_NOT_0DTE candidate (rank ★★) by adding regime robustness validation. No conflict; if analysis shows degradation in specific quarters, may trigger refinement (e.g., regime filters) but does not invalidate core DTE isolation hypothesis. Current candidate remains PROMISING pending quarterly walk-forward results.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

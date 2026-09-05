@@ -63,3 +63,5 @@ Adding a CALL VETO based on 5m-close-through-respected-ascending-support (BOS/CH
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) by adding directional specificity. Does not conflict with any top-5 candidates; may be stacked with [MIDDAY_TRENDLINE_GATE] (J-RATIFIED) as they operate in different time windows. No impact on bullish setups (veto is CALL-only).
+
+<!-- PROVENANCE-MISSING: test_trendline_break_call_veto.py -->

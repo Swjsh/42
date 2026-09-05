@@ -77,3 +77,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the leaderboard because its edge_capture (when evaluated on J's true anchor days) is below 771. It conflicts with the leaderboard's requirement of edge_capture >= 771 for inclusion. It does not complement any existing candidate because it fails the OP-16 floor.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

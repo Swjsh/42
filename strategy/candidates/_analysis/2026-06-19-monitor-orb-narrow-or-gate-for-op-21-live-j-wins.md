@@ -47,3 +47,5 @@ No code change required; gate is solely accumulation of 3 live J-confirmed wins 
 
 ## Pre-existing leaderboard impact
 This analysis proposes no new candidate or change to existing candidates. It solely supports promotion of the existing ORB_NARROW_OR_GATE watcher (ranked #4, status PROMISING) by satisfying its OP-21 gate. No conflict with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

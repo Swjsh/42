@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel macro trigger (yield‑spread steepening) not present in any of the current leaderboard entries (ranks 1‑9). It does not conflict with existing candidates; rather, it could complement them as an additional regime filter that may be stacked with existing triggers (e.g., VWAP_CONTINUATION, ORB_RETEST_LONG) after validation. No overlap in mechanism or parameters with the current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

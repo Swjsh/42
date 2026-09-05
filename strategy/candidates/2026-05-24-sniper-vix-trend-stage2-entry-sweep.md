@@ -220,3 +220,5 @@ J should review these days in `journal/sniper-shadow-trades.jsonl` and add
 - Stage 1 keepers: `backtest/autoresearch/_state/sniper_vix_trend_stage1/keepers.jsonl`
 - Shadow trades: `journal/sniper-shadow-trades.jsonl`
 - Grinder scripts: `backtest/autoresearch/sniper_vix_trend_grinder.py` (Stage 1) + `sniper_vix_trend_stage2_grinder.py` (Stage 2)
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/_state/sniper_vix_trend_stage2/keepers.json, backtest/autoresearch/_state/sniper_vix_trend_stage2/results.json, backtest/autoresearch/_state/sniper_vix_trend_stage1/keepers.json, backtest/autoresearch/sniper_vix_trend_grinder.py -->

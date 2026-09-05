@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing setup in the leaderboard. It is complementary to existing VWAP‑based and gap‑based ideas (e.g., GAP_AND_GO) but proposes a fade rather than a continuation, so it could diversify the strategy set if validated. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

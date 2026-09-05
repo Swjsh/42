@@ -37,3 +37,5 @@ The strategy attempts to capture bearish momentum via tighter entry filters (vol
 
 1. **Account-size assumption:** qty=10 contracts assumes $10K-$25K account (per playbook: 6 TP + 4 runners structure). $1K paper account would realize ~29% headline P&L (10/34 contracts scaled to $1K risk cap).
 2. **Sample bias:** Grinder searched ~1,200 combos (in
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

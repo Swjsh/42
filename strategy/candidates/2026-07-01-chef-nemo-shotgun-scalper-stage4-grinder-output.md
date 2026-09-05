@@ -55,3 +55,5 @@ The pre-merge gate requires that the candidate pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate may complement or conflict with existing candidates on the leaderboard. Further analysis is needed to determine the impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

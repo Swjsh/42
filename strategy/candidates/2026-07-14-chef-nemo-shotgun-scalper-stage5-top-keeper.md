@@ -22,3 +22,5 @@ The shotgun_scalper strategy's edge exists in capturing short-term mean reversio
 - Stop loss at `stop_premium_pct` (35% loss)  
 - Time stop at `time_stop_min` (12 minutes)  
 - Chandelier profit lock arms at `chand
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

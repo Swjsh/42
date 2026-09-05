@@ -54,3 +54,5 @@ The proposed change needs to pass the following gates before merging:
 ## Pre-existing leaderboard impact
 
 The proposed change may complement or conflict with existing candidates in the leaderboard, such as the STRUCTURE_VETO_DIR_VS_TREND candidate. Further evaluation is needed to determine the impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

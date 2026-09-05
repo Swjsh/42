@@ -40,3 +40,5 @@ The runner_target=3.0 suggests a runner exit at 300% profit (or a trailing stop 
 1. **Account-size assumption:** qty=18 for LEVEL quality trades requires approximately $25K+ account (based on playbook position sizing: $25K+ for 15+ contracts; 18 contracts exceeds the 15+ minimum for the $25K+ tier).
 
 2. **Sample bias:** Sample size=432 combos from v14/v15 parameter sweep. Selection method: top keeper by wide_pnl (6688.3
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

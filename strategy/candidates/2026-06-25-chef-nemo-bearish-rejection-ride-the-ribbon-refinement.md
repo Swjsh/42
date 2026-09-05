@@ -59,3 +59,5 @@ The proposed refinement must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The proposed refinement is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup, by providing an additional layer of refinement and risk management.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

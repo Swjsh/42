@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; it is a new trigger that could complement existing quality gates or exit changes if proven effective. No overlap with current watchers or filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

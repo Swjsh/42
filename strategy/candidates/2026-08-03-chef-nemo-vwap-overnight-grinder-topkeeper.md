@@ -50,3 +50,5 @@ The candidate must pass: (1) Stage-1 backtest on the full OPRA dataset to verify
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture threshold (≥771) and would be REJECTED at the door. It does not complement any existing leaderboard candidates because it fails the primary gate. If improved to capture sufficient winner edge, it could be a new_trigger type candidate, but as-is it should not be promoted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

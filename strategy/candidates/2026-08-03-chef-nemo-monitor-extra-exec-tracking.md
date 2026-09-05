@@ -63,3 +63,5 @@ For each monitor/funnel/dashboard in `automation/state/`, `backtest/tests/`, and
 ## Pre-existing leaderboard impact
 
 No conflict; complements all candidates by improving monitoring fidelity. Does not alter any strategy logic or params. Safe to layer atop existing candidates 1-24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

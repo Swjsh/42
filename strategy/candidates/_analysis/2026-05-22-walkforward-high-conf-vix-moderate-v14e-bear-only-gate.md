@@ -56,3 +56,5 @@ If proposing a candidate change based on this analysis: gym validators (67/67 PA
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates. Could support a new filter_change candidate (e.g., `V14E_BEAR_ONLY_GATE_VIX_MODERATE_HIGH_CONF`) if walk-forward shows OOS/IS Sharpe ≥ 0.50 and edge_capture ≥ 771. Currently, V14E_BEAR_ONLY_GATE (watcher-only) is ranked #3 PROMISING; this sub-tier analysis is complementary. No impact on leaderboard until analysis completed and candidate proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -45,3 +45,5 @@ The candidate #22 has already passed the pre-merge gate (97/98 PASS). This analy
 ## Pre-existing leaderboard impact
 
 This analysis supports candidate #22 [VIX_BULL_HARD_CAP_UNBLOCK](2026-06-26-vix-bull-hard-cap-revalidate.md) which is currently ranked #22 with status PROMISING. It does not conflict with any existing candidate; rather, it provides detailed validation for the two suppressed winners mentioned in that candidate's description.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

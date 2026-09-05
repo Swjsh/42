@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with any existing candidates in _LEADERBOARD.md. It may complement existing filters (e.g., VWAP_CONTINUATION, GAP_AND_GO) by providing an alternative entry signal under different volatility conditions. No known overlap with current J‑ratified strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

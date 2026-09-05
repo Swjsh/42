@@ -52,3 +52,5 @@ The TV data stale fixer mechanism will be implemented as a separate thread that 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in _LEADERBOARD.md. It is a new mechanism designed to improve the overall performance of the system.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

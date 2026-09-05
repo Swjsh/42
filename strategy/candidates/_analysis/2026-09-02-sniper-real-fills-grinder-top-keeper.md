@@ -30,3 +30,5 @@ but led to poor performance on J days.
 5. **Failure modes:** 
       - Worst day: -$382.0 (2025-02-12, from by_day data)
       -
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

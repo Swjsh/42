@@ -82,3 +82,5 @@ To be considered for the leaderboard, this candidate must:
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 floor and therefore does not impact the leaderboard. It would be rejected at the door per OP-16 rules.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

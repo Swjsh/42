@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type distinct from existing entries in _LEADERBOARD.md (e.g., ORB_RETEST_LONG waits for a retest of the OR edge, whereas this enters on the initial breakout conditioned on volume imbalance). It does not directly conflict with any ranked candidate; rather, it offers an alternative entry signal that could complement existing filters or exits if proven additive. No overlap with current watchers, gates, or exit changes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

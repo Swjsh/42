@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict; complements ORB_RETEST_LONG (watcher-only) by adding VWAP retest and bullish rejection candle filter. Does not overlap with existing live setups like VWAP_CONTINUATION or GAP_AND_GO. May conflict with ORB_RETEST_LONG if both fire on same signal, but ORB_RETEST_LONG is watch-only and this is a new trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

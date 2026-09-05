@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger proposal and does not conflict with existing leaderboard entries (which are primarily watcher proposals, gates, or exit modifications). It may complement structure-based gates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by providing a directional short-entry trigger that confluences with structure breaks. No overlap with existing bullish/bearish ride-the-ribbon setups as it targets short entries via RSI divergence/BOS/VWAP.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

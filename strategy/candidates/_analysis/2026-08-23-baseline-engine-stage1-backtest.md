@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must show Sharpe >=0.70 and per-month
 ## Pre-existing leaderboard impact
 
 This analysis is for the baseline engine, which is the reference for all candidates in the leaderboard. It does not conflict but provides the base case.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

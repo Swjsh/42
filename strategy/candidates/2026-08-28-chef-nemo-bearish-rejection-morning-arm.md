@@ -70,3 +70,5 @@ Arm the BEARISH_REJECTION_MORNING watcher to capture J's morning bearish rejecti
 ## Pre-existing leaderboard impact
 
 Complements [BEARISH_REJECTION_MORNING](2026-05-24-bearish-rejection-morning-watcher.md) by moving it from WATCH-ONLY to execution-armed. Does not conflict with existing J-RATED candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it operates in a non-overlapping time window (09:35-10:55 vs 11:30-14:00). May provide additive edge to [STRUCTURE_VETO_DIR_VS_TREND](2026-06-26-160000-structure-veto-direction-vs-trend.md) by filtering entries during its active window. No known conflicts with top 9 leaderboard candidates.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_morning_watcher.py -->

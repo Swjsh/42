@@ -61,3 +61,5 @@ We isolate the DTE variable by using the same directional signal (vwap_continuat
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements WEEKLY_DTE_NOT_0DTE (which studied 1DTE/2DTE) and VWAPCONT_DTE_OVERRIDE_2DTE (which staged 2DTE wiring). Does not conflict with any existing candidates; extends the DTE parameter study to 3DTE. If successful, may supersede VWAPCONT_DTE_OVERRIDE_2DTE as the preferred DTE override value for vwap_continuation. No structural changes to other setups; isolated to vwap_continuation via `j_vwap_cont_dte_override` parameter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

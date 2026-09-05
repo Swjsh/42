@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It complements existing volatility‑based filters (e.g., VIX gating) and could be combined with existing watchers such as `VWAP_CONTINUATION` or `ORB_RETEST_LONG` without conflict. It does not alter any of the top‑9 candidates’ logic, so there is no expected negative impact on their edge‑capture or Sharpe. However, if the strategy proves effective, it may add a new long‑bias source that could be weighted alongside existing short‑bias setups in future ensemble work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/exits/watchers). Complements by adding new long-biased trigger for gap-up days; may overlap with VWAP_CONTINUATION on gap-up mornings but adds volume-spike and ribbon alignment filters. No direct impact on current leaderboard rankings as untested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with any ranked candidate in _LEADERBOARD.md as it is a new long-side trigger (current leaderboard contains mostly watcher/gate proposals and short-biased structures). Adds diversity to long-side candidate set. No overlap with existing trigger types (e.g., no similar VWAP+EMA+RSI long trigger present).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

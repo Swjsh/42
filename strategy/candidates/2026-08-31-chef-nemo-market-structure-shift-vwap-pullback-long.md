@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a brand‑new trigger type (market‑structure‑shift + VWAP pullback + volume filter) that does not duplicate any existing trigger in the leaderboard (ranks 1‑9). It is therefore complementary rather than conflicting; it can be evaluated alongside existing quality gates, filters, or exit changes without overlap. If the backtest shows positive edge‑capture, it could become a new source of signals that other candidates (e.g., VWAP_CONTINUATION, BEARISH_REJECTION_RIDE_THE_RIBBON) may combine with or filter. No known conflicts with current PROMISING or J‑RATIFIED entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

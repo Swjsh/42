@@ -56,3 +56,5 @@ Same trigger as BEARISH_REJECTION_RIDE_THE_RIBBON (level rejection, EMA ribbon f
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements `WEEKLY_DTE_NOT_0DTE` (rank ★★) by applying DTE lever specifically to BEARISH_REJECTION_RIDE_THE_RIBBON trigger. If successful, could become a specialized variant of the general DTE finding. No known overlap with top-10 candidates; requires Stage-1 grind to evaluate impact on leaderboard ranking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new temporal‑ribbon short trigger that does not directly modify any existing rules in the leaderboard. It is complementary to existing bearish setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) as it adds a separate entry condition for early‑month weakness, and does not conflict with any bullish or watcher‑only candidates. No changes to params.json or heartbeat.md are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

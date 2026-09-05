@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in _LEADERBOARD.md as it introduces a novel trigger type (ribbon-width squeeze + volume breakout) distinct from current ribbon-ride entries (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) and duration filters (MAX_RIBBON_DUR_8). It may complement existing strategies by providing alternative entry signals during low-volatility environments. No overlap with current watcher-only or gate proposals detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

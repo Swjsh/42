@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard (closest are ORB_RETEST_LONG and GAP_AND_GO, which rely solely on price). It does not directly conflict with any existing candidate; if validated, it could complement volume‑agnostic setups by adding a flow‑based filter. No overlap with watcher‑only or veto proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

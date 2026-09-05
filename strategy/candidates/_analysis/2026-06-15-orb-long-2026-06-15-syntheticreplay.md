@@ -52,3 +52,5 @@ Stage‑1 backtest of ORB_RETEST_LONG with chart‑stop/TP1/runner logic on the 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a rule change; it only evaluates an existing watcher (ORB_NARROW_OR_GATE). No conflict with leaderboard candidates. If the ORB logic shows positive edge, it could reinforce the existing watcher’s utility; otherwise it may suggest tightening the OR‑range threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

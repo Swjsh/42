@@ -60,3 +60,5 @@ Entry triggers when: SPY breaks above/below a named level (from key-levels.json)
 ## Pre-existing leaderboard impact
 
 This candidate complements existing BEARISH_REJECTION_RIDE_THE_RIBBON-based candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE) by trading a distinct setup (SNIPER_LEVEL_BREAK) that fires on different days. No direct conflict observed in leaderboard: current top candidates are watcher gates or exit optimizations, not SNIPER entries. However, promotion requires SNIPER-specific OP-16 anchor validation (currently inapplicable per OP-16 scope). If ratified, would add a new trade class to the engine, increasing opportunity set without altering core bearish reversal logic. Requires J to establish 3+ live SNIPER anchor days before OP-16 applicability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

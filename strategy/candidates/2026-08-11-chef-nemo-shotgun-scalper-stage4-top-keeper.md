@@ -61,3 +61,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and would be REJECTED at the door. It does not impact the current leaderboard as it is ineligible for inclusion. It conflicts with the leaderboard's requirement for edge_capture >= 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

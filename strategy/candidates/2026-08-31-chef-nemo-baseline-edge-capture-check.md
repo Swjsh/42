@@ -54,3 +54,5 @@ Run the autoresearch grinder harness Stage-1 backtest on the current engine conf
 ## Pre-existing leaderboard impact
 
 This candidate is a measurement baseline; it does not conflict with existing candidates. It may inform whether current engine meets OP-16 floor; if not, candidates that improve edge_capture become prioritized.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

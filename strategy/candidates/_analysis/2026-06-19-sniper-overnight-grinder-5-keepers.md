@@ -73,3 +73,5 @@ The grinder found parameter combinations that look good in-sample by filtering a
 4. If OOS passes, validate real-fills on top 3 J days before promotion consideration
 
 **Confidence:** 2/10 — grinder output shows structural edge_capture failure, not a viable candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

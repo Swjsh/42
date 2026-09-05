@@ -63,3 +63,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: Does not conflict with NAMED_LEVEL_SECOND_TEST (which uses level retests without VWAP divergence) or VWAP-based strategies (which focus on continuation, not divergence at levels). Adds new short-trigger logic orthogonal to current registry entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

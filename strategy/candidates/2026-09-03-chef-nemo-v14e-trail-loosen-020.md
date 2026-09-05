@@ -54,3 +54,5 @@ V14E currently arms a profit-lock at +5% favor and trails at 0.15 (15%) off the 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates; it is a pure exit_change that could be stacked with existing watchers/filters. No overlap with existing param‑sweep or gate candidates. If successful, could complement V14E_PARAM_SWEEP_26K by altering trail only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

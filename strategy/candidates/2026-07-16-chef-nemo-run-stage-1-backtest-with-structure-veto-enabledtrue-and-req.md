@@ -61,3 +61,5 @@ Bullish direction is enabled but lacks live paper fills (n=80 WR 1.2% -$1,573 ov
 - **Monitor bull fills** in paper accounts; track WR and P&L.  
 - **File A/B scorecard** once 20+ bull episodes are validated.  
 - **Delay bull arming** until edge capture meets threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

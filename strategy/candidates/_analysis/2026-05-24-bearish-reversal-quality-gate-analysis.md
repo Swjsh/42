@@ -98,3 +98,5 @@ Extend the V14E chop-zone approach to BEARISH_REVERSAL:
 
 *This analysis uses deduped watcher-observations.jsonl data (L67 dedup applied). Raw undeduplicated 
 counts are ~2x higher. All WR/P&L figures from deduped unique bar timestamps.*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

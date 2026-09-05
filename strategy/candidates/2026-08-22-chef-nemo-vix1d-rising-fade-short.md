@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger (VIX1D momentum + VWAP proximity) not present in any current leaderboard entry. It does not conflict with existing candidates (which rely on price/structure/VWAP alone) and may offer uncorrelated edge if validated. No overlap with current top candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

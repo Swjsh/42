@@ -59,3 +59,5 @@ Add a gym validator test that:
 ## Pre-existing leaderboard impact
 
 Complements all candidates by ensuring gym optimization aligns with OP-16 objective. No conflicts; foundational validation layer. Candidates 1-24 in _LEADERBOARD.md all depend on correct gym reward function for fair comparison.
+
+<!-- PROVENANCE-MISSING: test_gym_reward_function.py, backtest/tests/test_gym_reward_function.py -->

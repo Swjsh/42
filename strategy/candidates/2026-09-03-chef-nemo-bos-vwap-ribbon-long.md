@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing bearish‑focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by adding a long‑only trigger; no direct conflict as it operates on opposite side of market. Does not duplicate any current long‑only candidates in leaderboard (none present for J anchor days). May conflict with VWAP_CONTINUATION if both fire same bar, but different filters (HH break vs. first‑bar continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

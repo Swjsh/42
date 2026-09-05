@@ -76,3 +76,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771 or are non-P&L proxies). This candidate would be REJECTED at the door per OP-16 (edge_capture < 771) and thus not appear on leaderboard. Focus should be on improving edge capture via OOS walk-forward before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing setup in the leaderboard. It is complementary to existing VWAP‑based ideas (e.g., VWAP_CONTINUATION) but adds a ribbon‑compression filter and volume‑conditioned breakout. It does not conflict with any ranked candidate; however, it shares the same directional bias (long) as the bullish side of VWAP_CONTINUATION, so simultaneous activation would need to be evaluated for signal overlap and potential double‑counting of trades. No changes to existing candidates are required.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

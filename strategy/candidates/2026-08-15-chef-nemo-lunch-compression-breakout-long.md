@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ORB_RETEST_LONG trades opening range, this uses lunchtime compression zone); complements by targeting a different time window. No direct overlap in mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

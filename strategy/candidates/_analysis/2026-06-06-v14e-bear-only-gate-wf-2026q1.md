@@ -52,3 +52,5 @@ The watcher filters v14e observations to only bear direction. We will split 2026
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate; it only evaluates it. The candidate V14E_BEAR_ONLY_GATE remains at rank 3 with status PROMISING. No conflict with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

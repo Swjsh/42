@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger type (mean-reversion VWAP fade) complementary to continuation-based strategies like VWAP_CONTINUATION. May provide diversification during low-volatility regimes where continuation strategies underperform.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

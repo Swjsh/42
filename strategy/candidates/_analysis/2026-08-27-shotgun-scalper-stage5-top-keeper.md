@@ -43,3 +43,5 @@ If OOS edge_capture remains below 771, the strategy likely requires refinement t
 
 ## Confidence
 6 / 10 -- Based on the clear OP-16 floor failure and signs of potential overfit (high wide P&L but low edge capture), though the low concentration and good loser-day handling are positive signs needing OOS validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

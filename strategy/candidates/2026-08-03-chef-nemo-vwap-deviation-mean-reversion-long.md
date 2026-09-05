@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This proposal complements rather than conflicts with existing candidates. It targets mean-reversion fade logic, whereas the closest existing setup (VWAP_CONTINUATION) trades continuation. No direct overlap in trigger logic; may coexist as orthogonal strategies. Does not affect any ranked candidates in _LEADERBOARD.md as it is a new trigger type.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

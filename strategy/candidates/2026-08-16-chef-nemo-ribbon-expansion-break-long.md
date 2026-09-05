@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it is a new trigger type. May complement existing ribbon-based strategies by capturing a different market phase (expansion vs. pullback). No direct overlap with current leaderboard entries which focus on vetoes, gates, or alternative exits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

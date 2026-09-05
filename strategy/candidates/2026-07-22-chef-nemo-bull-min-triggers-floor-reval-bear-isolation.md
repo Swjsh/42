@@ -71,3 +71,5 @@ Validate bear-leg delta ≈ $0 (stricter isolation). If not, investigate and adj
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements RV (BULL_MIN_TRIGGERS_FLOOR_REVAL) by adding bear-leg isolation verification. Does not conflict with any existing candidates; isolates a specific mechanism already in leaderboard. If bull-leg delta confirms -$3,421 loss, reinforces RV's KEEP status. If delta diverges, may trigger REJECT. No overlap with other candidates' mechanisms (e.g., V14E_BEAR_ONLY_GATE, WEEKLY_DTE_NOT_0DTE).
+
+<!-- PROVENANCE-MISSING: test_bull_min_triggers_floor.py -->

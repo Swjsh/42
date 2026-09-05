@@ -69,3 +69,5 @@ The first bar of the regular trading session (RTH) showing a reversal from the p
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (adds non-J day trades via new trigger timing); complements WEEKLY_DTE_NOT_0DTE by providing alternative entry signal for same DTE framework; no overlap with watcher-only candidates. Neutral impact on current leaderboard rankings pending OOS validation.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

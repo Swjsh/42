@@ -61,3 +61,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup includes a VIX confirmation rule (VI
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing bearish-focused candidates (e.g., BEARISH_SWEEP_BLOCKER, BEARISH_REJECTION_MORNING_WATCHER) by adding a VIX-based filter. It does not conflict with bullish candidates as it only affects PUT entries. It may overlap with VIX_BULL_HARD_CAP_UNBLOCK (which deals with bullish VIX thresholds) but operates on the bearish side. No direct conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

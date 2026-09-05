@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel trigger type and does not directly conflict with existing leaderboard entries (which are primarily filters, gates, or alternative trade classes). It complements rather than opposes current strategies by targeting a distinct intraday pattern (midday structure shift) not covered by existing candidates like TRENDLINE_BREAK_VOLUME or LEVEL_SWEEP_SNIPE. No overlap in mechanism or regime focus observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

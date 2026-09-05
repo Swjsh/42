@@ -71,3 +71,5 @@ This keeper does not exhibit genuine edge; it underperforms baseline and fails O
 ## Confidence
 
 2 / 10 -- Low confidence due to negative edge_capture, lack of OOS validation, and concentration in losing days. The keeper appears to be an artifact of overfitting to noise in the sample.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

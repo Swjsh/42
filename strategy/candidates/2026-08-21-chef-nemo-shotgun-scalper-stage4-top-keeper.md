@@ -68,3 +68,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 Does not appear on leaderboard (edge_capture=506.55 < 771 rejection threshold). Complements no existing candidates as it fails to clear the OP-16 gate. Would require significant improvement in J-day edge_capture to be promotable. Current configuration appears to optimize for non-J day profitability (wide_pnl=22084.2) at the expense of J-day edge capture.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_shotgun_scalper.py -->

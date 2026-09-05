@@ -58,3 +58,5 @@ The trigger fires when the first bar of the day (09:30-09:35 ET) breaks the prem
 ## Pre-existing leaderboard impact
 
 This analysis updates the LIVE_PRICE_FIRST_BAR_TRIGGER candidate (currently ranked #2 with status NEEDS-MORE-DATA). It does not conflict with other candidates; it is a prerequisite for promoting this candidate to PROMISING. It complements the watcher-only candidates (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE) by providing a new trigger branch that requires live validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

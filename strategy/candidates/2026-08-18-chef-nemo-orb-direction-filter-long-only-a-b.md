@@ -53,3 +53,5 @@ The watcher logic in `ORB_DIRECTION_FILTER` gates entries based on the opening r
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries; it is a pure filter change to ORB_DIRECTION_FILTER. If successful, it could complement candidates that rely on the ORB signal (e.g., ORB_NARROW_OR_GATE, WEEKLY_DTE_NOT_0DTE) by improving the underlying signal quality. It is independent of exit‑ or trigger‑type proposals.
+
+<!-- PROVENANCE-MISSING: test_orb_direction_filter.py -->

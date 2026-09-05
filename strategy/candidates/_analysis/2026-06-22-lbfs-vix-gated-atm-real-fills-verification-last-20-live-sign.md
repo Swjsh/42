@@ -54,3 +54,5 @@ We will extract the last 20 live signals from the LBFS_VIX_GATED_ATM watcher obs
 ## Pre-existing leaderboard impact
 
 LBFS_VIX_GATED_ATM is currently WATCH-ONLY (rank 18) with OP-21 N≥15 gate passed and real-fills quantitative gates PASS. Sole remaining gate: 3 live J-confirmed VIX≥20 LBFS observations. This verification will assess real-fills performance for recent signals; if results align with historical expectations (+$763 P&L, WR~58.8%), it strengthens the case for promotion to PROMISING or J-RATIFIED after satisfying the live observation gate. No conflict with existing candidates; complements watcher-class candidates by providing empirical validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

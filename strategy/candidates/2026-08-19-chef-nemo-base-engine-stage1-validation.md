@@ -57,3 +57,5 @@ Gym v42 81/81 PASS, walk-forward OOS edge_capture > 600, real-fills validation o
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md>
 Complements all candidates as baseline reference. No conflict; establishes engine's inherent edge_capture (780) and Sharpe (4.340) for delta calculations in future proposals. Candidates like STRUCTURE_VETO_DIR_VS_TREND (delta $0 edge_capture) and WEEKLY_DTE_NOT_0DTE (DTE study) build upon this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

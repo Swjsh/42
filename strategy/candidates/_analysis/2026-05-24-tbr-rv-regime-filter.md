@@ -152,3 +152,5 @@ Leaderboard #16 note updated with:
 - MED-RV WF PASS (20d ratio=1.21, 40d ratio=0.90) = stable underlying edge
 - Concentration is structural to the strategy type (trend-follower captures one dominant trend per quarter)
 - WATCH-ONLY status confirmed: needs 2+ clean quarters without >80% concentration
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/tbr_rv_regime_filter.py -->

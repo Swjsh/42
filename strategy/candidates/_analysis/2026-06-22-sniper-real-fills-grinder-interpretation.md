@@ -56,3 +56,5 @@ The grinder swept parameters including vol_mult, body_min_cents, min_stars, stri
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates the grinder output. No conflict with existing leaderboard entries. If any keeper were to be promoted, it would need to clear the OP-16 edge_capture gate (currently failing) and would likely rank low or be rejected due to negative edge. The analysis suggests the grinder did not discover a viable SNIPER_LEVEL_BREAK strategy under real-fills conditions; further work should focus on OOS validation and regime filtering before reconsidering parameter tweaks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

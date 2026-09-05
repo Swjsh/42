@@ -49,3 +49,5 @@ Gym validators PASS, walk-forward OOS PASS (on a separate window), and real-fill
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate, so it does not conflict with the leaderboard. It validates a specific bypass configuration that may be used in a future candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

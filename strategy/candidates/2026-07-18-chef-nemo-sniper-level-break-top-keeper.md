@@ -64,3 +64,5 @@ The SNIPER_LEVEL_BREAK strategy captures edge by entering on institutional-level
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door due to edge_capture < 771 (OP-16 floor). It does not appear on the current leaderboard and conflicts with no existing candidates (all current candidates have edge_capture ≥ 771 or are structural studies). If promoted, it would rank below all current candidates. However, given the OP-16 failure, promotion is not viable without significant redesign.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

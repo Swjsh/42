@@ -53,3 +53,5 @@ unknown -- requires Stage-1 backtest to inspect the candidate's specific entry t
 ## Pre-existing leaderboard impact
 
 This analysis does not modify the candidate itself; it only evaluates its readiness. If validation fails, the candidate's status may shift from its current ranking to REJECTED or NEEDS-MORE-DATA. If validation passes and edge_capture ≥ 771, the candidate could maintain or improve its leaderboard position. No direct conflict with existing top candidates is known without further detail.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

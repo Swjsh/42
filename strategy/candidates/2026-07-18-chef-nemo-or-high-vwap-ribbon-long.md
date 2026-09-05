@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rule in the leaderboard. It complements existing VWAP‑based and ORB‑style ideas (e.g., ORB_RETEST_LONG, VWAP_CONTINUATION) by adding a stricter EMA‑ribbon condition. It does not conflict with any of the top‑9 leaderboard entries, as those are primarily structural gates, DTE overrides, or watcher‑quality filters. However, it may compete for similar intraday momentum capacity; a Stage‑1 backtest will clarify whether it adds orthogonal edge or duplicates existing signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

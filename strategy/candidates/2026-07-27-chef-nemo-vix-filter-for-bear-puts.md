@@ -66,3 +66,5 @@ Based on STRUCTURE_VETO_DIR_VS_TREND removing wrong-way losers in low-VIX uptren
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements STRUCTURE_VETO_DIR_VS_TREND (both target wrong-way trades) but may overlap; likely additive if VIX filter catches different losing days. Does not conflict with J-RATIFIED candidates as it targets entry filtering, not exit/wiring. May conflict with VIX_BULL_HARD_CAP_UNBLOCK if thresholds interact, but that candidate is bull-side only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

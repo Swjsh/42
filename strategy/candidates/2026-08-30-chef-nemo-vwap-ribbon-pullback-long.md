@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK) by adding ribbon alignment and volume filters to VWAP pullback logic; does not conflict with structural or volatility-based candidates in leaderboard. Would occupy novel trigger niche distinct from existing breakout/reclaim patterns.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

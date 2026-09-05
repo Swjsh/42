@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing VWAP-based strategies (e.g., VWAP_CONTINUATION) by trading counter-trend mean reversion rather than trend continuation. No direct conflict with current leaderboard entries as it uses a novel VIX gate and short-bias mechanism. May conflict with volatility-based filters if they exist, but none currently in leaderboard target this specific regime.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

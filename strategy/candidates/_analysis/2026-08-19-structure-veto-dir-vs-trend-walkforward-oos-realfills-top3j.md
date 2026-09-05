@@ -84,3 +84,5 @@ The candidate has already passed the guard tests (97/98 PASS and guard 29/29 PAS
 
 ## Pre-existing leaderboard impact
 This analysis does not change the candidate's standing. It confirms the candidate's edge_capture anchor behavior and supports its PROMISING status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -71,3 +71,5 @@ Exit:
 This candidate would be REJECTED at the leaderboard door (edge_capture < 771). It conflicts with the goal of capturing J's edge, as it fails to register meaningful P&L on J winner days (4/29 and 5/04 show zero). Does not complement existing candidates; suggests VWAP continuation entry logic needs fundamental revision to align with J's edge.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

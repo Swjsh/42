@@ -65,3 +65,5 @@ does not conflict with / complements candidates 1-9 in _LEADERBOARD.md:
 - Adds a new bullish trigger mechanism (long entries) while existing leaderboard candidates are primarily bearish triggers, gates, or watchers (e.g., BEARISH_SWEEP_BLOCKER, V14E_BEAR_ONLY_GATE, MIDDAY_TRENDLINE_GATE).  
 - Complements existing bullish setups like BULLISH_RECLAIM_RIDE_THE_RIBBON (paper-eligible) by providing an alternative entry filter based on EMA ribbon + structure + volume.  
 - No direct overlap with current candidates; operates on different signal logic (ribbon alignment + HH/HL + volume surge vs. VWAP continuation, ORB, or level breaks).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

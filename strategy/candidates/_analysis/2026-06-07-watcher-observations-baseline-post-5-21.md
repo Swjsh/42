@@ -116,3 +116,5 @@ def query_watcher_baseline():
 ## Pre-existing leaderboard impact
 
 Complements existing watcher candidates (#3 V14E_BEAR_ONLY_GATE, #4 ORB_NARROW_OR_GATE, #19 FBW_MORNING_MID) by providing post-ratification performance tracking. Does not conflict with any candidate.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json, analysis/weekly/watcher-baseline-YYYY-MM-DD.json -->

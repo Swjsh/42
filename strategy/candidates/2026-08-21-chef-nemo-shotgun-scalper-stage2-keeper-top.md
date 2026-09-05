@@ -59,3 +59,5 @@ Must pass:
 ## Pre-existing leaderboard impact
 
 Does not appear on leaderboard due to edge_capture < 771 (REJECTED at door). Complements no existing candidates; fundamentally misaligned with OP-16 goal (seeks to avoid J days rather than capture them). Would require complete redesign to promote.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

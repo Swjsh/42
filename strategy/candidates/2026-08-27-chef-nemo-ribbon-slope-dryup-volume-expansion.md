@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not overlap with any of the existing candidates 1‑9 in _LEADERBOARD.md (which are primarily watcher gates, DTE studies, and structural filters). It may complement existing quality gates (e.g., MIDDAY_TRENDLINE_GATE) by providing an additional entry signal that operates within the same midday window, but it does not conflict or replace any current leaderboard entry. No changes to existing candidates are required.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

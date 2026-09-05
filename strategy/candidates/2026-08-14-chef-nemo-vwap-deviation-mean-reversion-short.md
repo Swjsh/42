@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (new trigger type), but may interact with VWAP_CONTINUATION and other mean-reversion strategies. Requires isolation testing to avoid unintended overlap or interference with ratified setups like MIDDAY_TRENDLINE_GATE or STRUCTURE_VETO_DIR_VS_TREND. Complementary if proven to work in different market conditions (tight openings, weak buying pressure) vs. existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

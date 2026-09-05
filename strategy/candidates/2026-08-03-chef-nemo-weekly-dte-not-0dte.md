@@ -26,3 +26,5 @@ Same directional signal (vwap_continuation) at ITM-2 strike, with -8%/+30% exit,
 | 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 1 | unknown --
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

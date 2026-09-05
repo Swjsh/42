@@ -53,3 +53,5 @@ Walk-forward validation results must demonstrate stable performance across diffe
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard by providing additional validation for the top performers, potentially leading to a more robust and stable engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

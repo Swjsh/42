@@ -63,3 +63,5 @@ N/A (analysis only; no engine change proposed)
 Does not conflict with existing candidates; provides comparative context for ORB_NARROW_OR_GATE (#4) and ORB_DIRECTION_FILTER (#5). Both remain in NEEDS-MORE-DATA status pending Stage-2 SPY backtest (per leaderboard). This analysis supports ORB_NARROW_OR_GATE as the more regime-robust Option C.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

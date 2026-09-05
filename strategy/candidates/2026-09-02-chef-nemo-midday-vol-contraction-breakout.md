@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This is a new_trigger proposal. It does not directly conflict with existing candidates in _LEADERBOARD.md (which are primarily filter changes, quality gates, or structural DTE findings). However, it may interact with existing volatility-based filters (e.g., VIX regimes) and should be evaluated for complementarity with strategies like VWAP_CONTINUATION (which focuses on morning VWAP alignment) or MIDDAY_TRENDLINE_GATE (which blocks midday trendline rejections). No direct duplication of mechanism observed in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

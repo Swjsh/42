@@ -61,3 +61,5 @@ In the heartbeat wrapper’s entry path:
 ## Pre-existing leaderboard impact
 
 This candidate is an execution‑safety layer that does not modify signal generation, exits, or position sizing. It therefore does not conflict with any existing candidates in `_LEADERBOARD.md`; it is complementary and can be merged alongside any strategy change. No impact on previously ranked candidates’ edge_capture or Sharpe is expected.
+
+<!-- PROVENANCE-MISSING: test_entry_timeout_latency.py -->

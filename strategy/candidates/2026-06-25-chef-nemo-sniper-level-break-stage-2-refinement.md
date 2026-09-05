@@ -58,3 +58,5 @@ The pre-merge gate for this trade class includes the following tests:
 ## Pre-existing leaderboard impact
 
 This trade class may complement or conflict with existing candidates on the leaderboard. Further analysis is needed to determine the impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

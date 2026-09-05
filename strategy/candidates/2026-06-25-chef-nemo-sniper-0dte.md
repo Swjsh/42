@@ -60,3 +60,5 @@ The SNIPER_0DTE trade class must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The SNIPER_0DTE trade class does not conflict with any existing candidates on the leaderboard. However, it may complement some of the existing candidates, such as the BEARISH_REJECTION_RIDE_THE_RIBBON trade class.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

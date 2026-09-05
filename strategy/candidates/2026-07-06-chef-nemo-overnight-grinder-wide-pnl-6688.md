@@ -50,3 +50,5 @@ The pre-merge gate for this candidate requires a successful Stage-1 backtest, wh
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as the results are unknown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

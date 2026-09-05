@@ -33,3 +33,5 @@ Grinder A vs B sweep result must be reviewed; gym validators must pass; J Rule 9
 ## Pre-existing leaderboard impact
 
 Complements rank 17 (V14E_BEAR_TIME_OF_DAY_GATE) and does not conflict with any existing candidates; improves upon the baseline MIDDAY_TRENDLINE_GATE filter concept.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

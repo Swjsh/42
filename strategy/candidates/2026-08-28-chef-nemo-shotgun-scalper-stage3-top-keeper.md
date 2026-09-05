@@ -66,3 +66,5 @@ Specifically:
 ## Pre-existing leaderboard impact
 
 This candidate is ineligible for the leaderboard (edge_capture < 771) and does not conflict with current leaderboard entries (all have edge_capture ≥ 771). If developed to increase edge_capture above 771 via improved J winner day capture (e.g., adjusting tp_premium_pct or strike_offset), it could complement existing strategies by offering an alternative exit framework. Current leaderboard relies on structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) and DTE shifts; this candidate focuses on exit parameter tuning.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

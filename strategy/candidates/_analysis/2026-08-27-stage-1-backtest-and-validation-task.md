@@ -42,3 +42,5 @@ The user must run the autoresearch grinder harness for Stage-1 backtest, then pe
 ## Pre-existing leaderboard impact
 
 This analysis does not modify the leaderboard; it is a prerequisite for generating new candidates that would impact the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

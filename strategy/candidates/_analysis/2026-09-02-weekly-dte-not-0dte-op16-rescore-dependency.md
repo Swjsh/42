@@ -44,3 +44,5 @@ The backfill script must complete successfully, and then the OP-16 re-score must
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it merely notes a dependency for the WEEKLY_DTE_NOT_0DTE candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

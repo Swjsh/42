@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including gym val
 ## Pre-existing leaderboard impact
 
 This candidate is a novel short-bias gap fade trigger. It does not directly conflict with existing leaderboard candidates (which are mostly watches, gates, or long-biased triggers like QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS). However, it may interact temporally with GAP_AND_GO (which trades gap continuations) — they are orthogonal in bias but could fire on the same days. No direct parameter or wiring conflicts identified; impact on leaderboard TBD after backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB-related watchers (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding a new long-entry trigger with VWAP/EMA/volume filters. No direct conflict with current leaderboard candidates (which are primarily watcher gates, DTE studies, or exit modifications). Addresses a gap in the registry for ORB-long setups with institutional participation filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

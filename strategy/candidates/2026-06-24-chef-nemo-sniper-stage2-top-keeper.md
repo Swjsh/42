@@ -56,3 +56,5 @@ Entry triggers when: SPY breaks above a named level with volume ≥ vol_mult (1.
 ## Pre-existing leaderboard impact
 
 Complements existing candidates as a new trade class (SNIPER_LEVEL_BREAK); does not conflict with current leaderboard entries (mostly watchers/gates). However, edge_capture < 771 would REJECT this candidate per OP-16 if promoted as-is. Requires OOS walk-forward and real-fills validation before leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

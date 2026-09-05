@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No conflict with existing leaderboard candidates (ranks I through 33). This candidate proposes a new trigger type, while existing candidates are primarily filters, exits, watcher proposals, or studies. It does not interfere with any existing candidate proposals and complements the active BULLISH_RECLAIM_RIDE_THE_RIBBON setup (not a leaderboard candidate) by adding structural confirmation to reduce false signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

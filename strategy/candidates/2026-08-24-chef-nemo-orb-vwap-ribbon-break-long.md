@@ -50,3 +50,5 @@ Pass Stage‑1 gym validators (`test_orb_vwap_ribbon_break_long.py`), walk‑for
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidate; adds a new long‑side trigger that could complement the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup by providing long entries on days where the bearish setup does not fire.
+
+<!-- PROVENANCE-MISSING: test_orb_vwap_ribbon_break_long.py -->

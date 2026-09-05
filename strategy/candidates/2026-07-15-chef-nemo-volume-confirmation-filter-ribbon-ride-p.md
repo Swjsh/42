@@ -61,3 +61,5 @@ This filter is applied in addition to the existing context filters (time of day,
 ## Pre-existing leaderboard impact
 
 This candidate changes the base BEARISH_REJECTION_RIDE_THE_RIBBON entry logic. It may affect the baseline for other candidates that rely on the base entry frequency. However, none of the current leaderboard candidates (1-24) appear to be direct extensions of the BEARISH_REJECTION_RIDE_THE_RIBBON setup that would be invalidated by this filter (most are watchers, gates, or structural changes to other setups). We recommend re-running the leaderboard backtests on the new base engine if this candidate is ratified. No immediate conflict detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

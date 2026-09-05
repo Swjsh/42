@@ -77,3 +77,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the leaderboard because its edge_capture (229.63) is below the rejection floor of 771. It conflicts with the leaderboard's requirement for edge_capture >= 771. It does not complement any existing candidate on the leaderboard because it fails the basic edge_capture gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

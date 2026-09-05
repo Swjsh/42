@@ -50,3 +50,5 @@ Walk-forward OOS Sharpe >=0.70 on 2024-01-02..2024-12-31, and real-fills simulat
 ## Pre-existing leaderboard impact
 
 This analysis supports the candidate LIVE_PRICE_FIRST_BAR_TRIGGER (currently ranked #2, NEEDS-MORE-DATA). If the OOS and real-fills tests pass, it may be promoted to PROMISING. It complements existing candidates by adding a new trigger branch that operates independently of existing filters (e.g., structure_veto, midday_trendline_gate). No known conflicts with top 9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

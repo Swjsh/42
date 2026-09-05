@@ -61,3 +61,5 @@ Since this is an analysis and not a candidate, there is no pre-merge gate for th
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not modify any candidate; it is intended to evaluate the current state of the leaderboard candidates on the anchor days. The results may lead to re-ranking or reclassification of existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

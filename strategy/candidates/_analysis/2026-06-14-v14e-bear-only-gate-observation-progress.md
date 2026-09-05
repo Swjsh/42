@@ -66,3 +66,5 @@ The V14E_BEAR_ONLY_GATE watcher was updated to bear-only mode on 2026-05-21 via 
 - Complements V14E_BEAR_ONLY_GATE (rank 3) by tracking its OP-21 progress.
 - No conflict with other candidates; watcher-only analysis does not alter engine behavior.
 - Supports promotion path for V14E_BEAR_ONLY_GATE from PROMISING to J-RATIFIED upon gate satisfaction.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

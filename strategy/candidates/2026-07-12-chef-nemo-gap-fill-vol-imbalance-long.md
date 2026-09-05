@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/exits/watchers). Complements by providing a new long-biased entry signal for gap‑down environments, orthogonal to existing mean‑reversion and trend‑following triggers. No overlap with current leaderboard entries 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -96,3 +96,5 @@ only an autoresearch diagnostic added).
 confidence the original block evidence is stale (05-13 sign-flip is proven). The residual
 uncertainty (why not 8 or 9) is that I have NOT yet found the loser/tail discriminator
 that would convert this into a clean narrowed-gate proposal — that is the next fire.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

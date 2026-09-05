@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any of the current leaderboard entries (1‑9). It introduces a new trigger based on volume imbalance and close position, which is orthogonal to existing triggers such as GAP_AND_GO (gap‑based) and ORB_RETEST_LONG (price‑retest). It may complement existing quality gates by providing additional long‑only signals in volatile regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

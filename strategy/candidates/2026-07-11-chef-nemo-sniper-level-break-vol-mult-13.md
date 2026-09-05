@@ -76,3 +76,5 @@ The SNIPER_LEVEL_BREAK trigger with vol_mult=1.3 improves edge capture by filter
 Does not conflict with current leaderboard (all candidates have edge_capture ≥771). This candidate would be REJECTED at door due to edge_capture <771. Complements structural veto candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND) by potentially filtering noise, but requires OOS validation first.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

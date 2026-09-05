@@ -190,3 +190,5 @@ def compute_or_range(prior_bars, current_bar_time):
 - **Threshold in watcher gate:** `OR_range < 2.00` (from candidate ORB_NARROW_OR_GATE walk-forward validation). This is a constant; could be moved to `params.json` for tunability.
 - **Account-size assumption for full headline requires $25K+** (standard per OP-20 #1). The engine feature itself has no monetary impact; it's a data pass-through. The watcher gate's edge is validated on J's trade days and walk-forward.
 - **Failure mode:** If heartbeat fails to compute `or_range` (e.g., missed 09:45 bar due to data gap), the watcher gate will not apply the OR-range filter. The long-only direction filter remains as backup (Option A from candidate #5). This is acceptable; the engine still trades long-ORB only, which is profitable on its own.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

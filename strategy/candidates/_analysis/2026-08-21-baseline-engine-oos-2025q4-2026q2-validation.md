@@ -50,3 +50,5 @@ Gym validators (81/81 PASS), walk-forward OOS test on 2025-Q4 to 2026-Q2 with ed
 ## Pre-existing leaderboard impact
 
 Complements all candidates by validating baseline engine performance; no conflict as analysis is baseline-only. Candidates like [STRUCTURE_VETO_DIR_VS_TREND] (rank ★) and [WEEKLY_DTE_NOT_0DTE] (rank ★★) rely on baseline engine stability for their delta claims.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

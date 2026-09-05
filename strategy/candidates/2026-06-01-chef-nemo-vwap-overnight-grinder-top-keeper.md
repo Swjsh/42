@@ -65,3 +65,5 @@ Gym validators must pass; walk-forward OOS test required (edge_capture ≥ 0 as 
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (all are watcher gates or alternative trade classes). However, given the failure to capture J winner days, this candidate does not complement leaderboard strategies and requires significant refinement before consideration for promotion. OOS walk-forward must first demonstrate persistent edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

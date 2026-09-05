@@ -55,3 +55,5 @@ At the start of each iteration in autoresearch/loop.py, run a baseline backtest 
 ## Pre-existing leaderboard impact
 
 No conflict; this is a research loop infrastructure change that does not alter the trading engine or any existing candidate logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type and does not directly conflict with existing candidates in the leaderboard (which are primarily filters, gates, or exit changes). It may complement existing strategies by providing additional entry signals that can be combined with existing quality gates or exit logic, but it must first demonstrate OP‑16 anchor performance in a Stage‑1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

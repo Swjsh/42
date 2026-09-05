@@ -60,3 +60,5 @@ Adding a VIX threshold filter to the existing STRUCTURE_VETO_DIR_VS_TREND will s
 ## Pre-existing leaderboard impact
 
 This candidate complements [STRUCTURE_VETO_DIR_VS_TREND](2026-06-26-160000-structure-veto-direction-vs-trend.md) by adding a filter layer; it does not conflict with existing J‑ratified candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE). It may be stacked atop those if they pass gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

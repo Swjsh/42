@@ -61,3 +61,5 @@ The autoresearch grinder harness will run the candidate's logic (labeling ribbon
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a strategy change; it executes validation for an existing NEEDS-MORE-DATA candidate. If the Stage-1 backtest passes all pre-merge gates, the candidate may promote to PROMISING, potentially impacting leaderboard rankings. It complements other candidates by providing a cross-ticker breadth signal that may be used as a filter or confirmation in future wiring proposals. No conflict with existing candidates 1-9 as it is a validation step, not a strategy modification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

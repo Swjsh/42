@@ -58,3 +58,5 @@ Since this is an analysis-only proposal, no pre-merge gate is required. However,
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It complements the BULLISH_WATCHER_PM_GATE candidate (rank 9) by providing the session-based statistics that were missing in the candidate's documentation. It does not impact other candidates as it is observation-only and does not change engine behavior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

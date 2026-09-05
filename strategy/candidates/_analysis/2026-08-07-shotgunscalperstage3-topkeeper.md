@@ -54,3 +54,5 @@ Requires: Stage-1 backtest to confirm per-anchor P&L, walk-forward OOS test with
 ## Pre-existing leaderboard impact
 
 Does not meet OP-16 floor, so would be REJECTED at the door and not appear on the leaderboard. No conflict with existing candidates; however, resources spent on further developing this combo would be better allocated to candidates that clear the edge_capture gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

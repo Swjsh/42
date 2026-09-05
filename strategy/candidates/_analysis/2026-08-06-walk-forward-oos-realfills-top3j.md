@@ -54,3 +54,5 @@ Running walk-forward out-of-sample (OOS) tests and real-fills replay on the top 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is a validation of current performance. If results show edge_capture ≥ 771 and ≤20% deviation, the current engine remains viable for J-rated deployment. If results fall short, it may trigger re-evaluation of candidates that modify entry/exit logic (e.g., STRUCTURE_VETO_DIR_VS_TREND, WEEKLY_DTE_NOT_0DTE). No conflict with existing leaderboard entries; serves as a gate for future promotions.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/walk_forward_oos.py -->

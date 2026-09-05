@@ -53,3 +53,5 @@ Same directional signal (vwap_continuation) and same strike (ITM-2) as the origi
 ## Pre-existing leaderboard impact
 
 Currently, WEEKLY_DTE_NOT_0DTE is ranked ★★ with status PROMISING, based on 0DTE→1DTE→2DTE monotone expectancy. If the 3-4 DTE re-score shows continued improvement in edge_capture and Sharpe, it could rise in rank. If edge_capture fails to exceed 771 (OP-16 floor) or Sharpe degrades, it may be downgraded to NEEDS-MORE-DATA or REJECTED. Conflict/complement with existing candidates: none, as this is a re-score of an existing candidate rather than a new proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

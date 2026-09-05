@@ -40,3 +40,5 @@ Requires Stage-1 backtest that outputs WR and avg_pnl for each VIX bucket (<15, 
 ## Impact on V14E_BEAR_ONLY_GATE
 
 Without evidence of regime robustness, adding a VIX-regime gate as an addendum is premature. First establish whether the bear edge is uniform across VIX regimes; if not, a regime-specific gate may be warranted. If the edge is uniform, no gate is needed.
+
+<!-- PROVENANCE-MISSING: strategy/candidates/2026-05-21-chef-nemo-v14e-bear-only-vol-gate.md -->

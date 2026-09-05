@@ -66,3 +66,5 @@ Exit logic:
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (I, ★★, HOLD, WS4, ★, RV entries) as edge_candidate < 771 would REJECT at door per OP-16. Does not complement existing candidates; requires OOS validation before any leaderboard consideration. If OOS edge_capture > 771, could potentially rank below current ★★ candidate (WEEKLY_DTE_NOT_0DTE) but above RV entries.
+
+<!-- PROVENANCE-MISSING: test_v14_enhanced_grinder_params.py -->

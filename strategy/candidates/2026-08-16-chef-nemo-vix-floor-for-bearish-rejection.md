@@ -61,3 +61,5 @@ Requiring a minimum VIX level (e.g., VIX >= 20) for BEARISH_REJECTION_RIDE_THE_R
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX-based filters like V14E_BEAR_ONLY_GATE and VIX_BULL_HARD_CAP_UNBLOCK. If proven effective, could be merged as a refinement to BEARISH_REJECTION_RIDE_THE_RIBBON (similar to existing VIX confirmation rule but as a hard gate). No changes to automation/prompts/heartbeat*.md or automation/state/params*.json beyond adding the new parameter (allowed under Rule 9 as a new config knob).
+
+<!-- PROVENANCE-MISSING: test_vix_floor_for_bearish_rejection.py -->

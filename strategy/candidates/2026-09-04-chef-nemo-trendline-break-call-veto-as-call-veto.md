@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward ratio >=0.70, real-fills validation on to
 ## Pre-existing leaderboard impact
 
 This candidate is a variant of WS4 [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md) which is currently NEEDS-MORE-DATA. It complements by focusing on the CALL veto aspect. It does not conflict with other candidates as it is a quality_gate on CALL side.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

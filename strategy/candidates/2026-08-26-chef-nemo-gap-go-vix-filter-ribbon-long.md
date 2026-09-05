@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; it introduces a new long‑side trigger with VIX/EMA/volume filters distinct from GAP_AND_GO (which is PUT‑only and lacks those filters). May complement by adding long‑side diversification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

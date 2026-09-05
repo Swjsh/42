@@ -66,3 +66,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture, and 
 ## Pre-existing leaderboard impact
 
 Complements existing SNIPER_* candidates (e.g., SNIPER_VIX18_GRINDER) by offering an alternative parameter set for the same
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

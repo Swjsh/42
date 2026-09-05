@@ -55,3 +55,5 @@ TRENDLINE_BREAK_RETEST with vol >= 1.5× 20-bar avg (SHOTGUN tier 3) captures hi
 ## Pre-existing leaderboard impact
 
 Complementary to existing candidates 1-9 in _LEADERBOARD.md, as it targets high-volatility breakouts not currently addressed by other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

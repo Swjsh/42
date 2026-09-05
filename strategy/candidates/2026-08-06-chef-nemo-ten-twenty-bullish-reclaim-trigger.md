@@ -58,3 +58,5 @@ At each 10:20 ET bar, compute the bar's range (high-low), close relative to open
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 This candidate complements the existing BULLISH_RECLAIM_RIDE_THE_RIBBON setup by adding a time‑specific filter (10:20 AM) and tighter range/volume conditions. It does not conflict with any bearish‑only candidates (ranks 1, 2, etc.) because it operates on the CALL side. It may overlap with the bullish setup but is intended as a refinement that could improve precision; any impact on the leaderboard would be measured after backtest. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate directly relates to existing candidate `ENTRY_BODY_GATE_BEAR_REVAL` (filed 2026-06-26) which is currently in the RV section with a UNBLOCK recommendation. If the OOS test confirms the IS result (disabling the gate hurts), then we would keep the gate (contrary to the UNBLOCK suggestion). If the OOS test shows a neutral or positive impact, then we would disable the gate. This candidate does not conflict with any other leaderboard candidates as it is isolated to this gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

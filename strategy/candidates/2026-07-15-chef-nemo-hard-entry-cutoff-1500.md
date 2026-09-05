@@ -52,3 +52,5 @@ Must pass: gym validators (entry_gate_timing.py unit tests), walk-forward OOS te
 ## Pre-existing leaderboard impact
 
 Complements existing timing-based filters (e.g., MIDDAY_TRENDLINE_GATE 11:30-14:00 ET) by adding a late-day cutoff. No direct conflict with ranked candidates; may interact with BEARISH_REJECTION_MORNING watcher (09:35-10:55 ET) but operates in separate time window. Safe to test alongside current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

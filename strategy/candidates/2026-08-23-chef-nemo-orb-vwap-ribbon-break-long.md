@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing strategies by providing a new entry trigger orthogonal to current filters/gates (e.g., MIDDAY_TRENDLINE_GATE, VWAP_CONTINUATION). It does not conflict with any ranked candidates in _LEADERBOARD.md as it targets a different time window (09:30-10:30 EST) and setup type (breakout vs. pullback/retest). If validated, it could add diversity to the trigger library without overlapping with existing 0DTE PUT-focused anchors (which are bearish reversals). However, it introduces LONG bias, requiring careful aggregation with existing bearish anchors for net portfolio impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

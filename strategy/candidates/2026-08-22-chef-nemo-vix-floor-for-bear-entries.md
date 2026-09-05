@@ -53,3 +53,5 @@ gym validators (test_vix_floor_bear_entries.py) 10/10 PASS, walk-forward OOS pos
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND by adding a macro filter. No overlap in mechanism.
+
+<!-- PROVENANCE-MISSING: test_vix_floor_bear_entries.py -->

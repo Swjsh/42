@@ -65,3 +65,5 @@ We are trying to capture edge by using HTF-gated directional scoring with volume
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 floor (edge_capture < 771) and would be REJECTED at the door. It does not conflict with any candidate on the leaderboard, as all current candidates have edge_capture ≥ 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

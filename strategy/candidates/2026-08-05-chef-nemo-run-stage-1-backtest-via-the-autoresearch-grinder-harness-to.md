@@ -52,3 +52,5 @@
 - Ship bull fills with caveat: "small-n (n=80), 1.2% WR; edge_capture=789 pending SS-B validation"  
 - File A/B scorecard for C22 (BULLISH_RECLAIM vs NON-ribbon_flip)  
 - Audit C3 risk (delta/theta misfire) in 1.2% WR cohort
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

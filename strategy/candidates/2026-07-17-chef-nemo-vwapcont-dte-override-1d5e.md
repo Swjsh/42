@@ -55,3 +55,5 @@ Entry: Same VWAP_CONTINUATION trigger (first qualifying morning bar ≤10:30 ET 
 Complements / may replace HOLD candidate `VWAPCONT_DTE_OVERRIDE_2DTE` if 1.5DTE clears all gates. Does not conflict with other candidates as it isolates DTE variable on same signal.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

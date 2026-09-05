@@ -81,3 +81,5 @@ Does not conflict with leaderboard candidates (Rank I-24) as edge_capture <771 t
 - /fable-too-good check: not applicable (result is a clean miss, not a suspicious win); by_day numbers (54/234/177/-180/132/291/291) are grinder-reported, not independently re-verified in this pass -- flagged as UNVERIFIED rather than re-derived, per the goal's "use existing evidence, don't re-run" instruction.
 - Data basis: Kitchen grinder output is BS-synthetic option pricing (Black-Scholes simulated premiums over historical SPY bars), NOT real-fills OPRA evidence -- per memory project_free_kitchen_plan_b_hardened.md ("no free 0DTE data; BS-synthetic only"). Any number in this file's Mechanism/OP-20 sections is Stage-1/grinder-tier at best; none of these files report a completed walk-forward OOS split or a real-fills validation run.
 - Disposition: KILLED. No K9 action.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Entry triggers when: volume > 1.3× 20-bar average AND candle body ≥ $0.05 AND
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all require edge_capture ≥ 771). This candidate would be rejected at the door per OP-16 rules and requires significant improvement to J-specific edge capture before reconsideration. Complements research into regime-specific filters (e.g., VIX escalation) that might improve J-day alignment.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

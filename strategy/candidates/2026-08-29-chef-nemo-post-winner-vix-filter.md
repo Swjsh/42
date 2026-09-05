@@ -64,3 +64,5 @@ After a big winner day (where the BEARISH_REJECTION_RIDE_THE_RIBBON setup genera
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: Does not modify params.json or engine logic outside of additive filter. No known conflicts with J-RATIFIED candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it operates on separate dimensionality (post-winner state + VIX). May overlap with VOLATILITY_REGIME_FILTER concepts but uses distinct trigger. No duplication of effort observed in current leaderboard.
+
+<!-- PROVENANCE-MISSING: test_post_winner_vix_filter.py -->

@@ -61,3 +61,5 @@ Tightening the max_ribbon_duration_bars parameter to 8 only when VIX is escalati
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filter‑change candidates (e.g., MAX_RIBBON_DUR_8, V14E_BEAR_TIME_OF_DAY_GATE) by adding a VIX‑conditionality layer. It does not conflict with any watcher‑only or new‑trade‑class candidates; it targets the same BEARISH_REJECTION_RIDE_THE_RIBBON engine logic that underlies several leaderboard entries. If successful, it could supersede the unconditional MAX_RIBBON_DUR_8 filter (rank 25) by providing a more robust, regime‑aware alternative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

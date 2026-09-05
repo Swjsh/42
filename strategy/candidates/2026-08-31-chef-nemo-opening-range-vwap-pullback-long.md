@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new long‑side trigger and does not directly modify any existing trigger, filter, or exit rule in the leaderboard. It is complementary to bullish‑oriented candidates (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) and orthogonal to the bearish‑focused entries that dominate the current leaderboard. No known conflicts exist; however, it may compete for the same morning long opportunities as any future bullish trigger that relies on opening range or VWAP concepts. Until a Stage‑1 backtest is performed, the impact on the leaderboard remains speculative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

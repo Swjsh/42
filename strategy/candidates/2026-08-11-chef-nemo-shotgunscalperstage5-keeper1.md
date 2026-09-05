@@ -63,3 +63,5 @@ Given the edge_capture failure, the candidate is rejected at the door and does n
 ## Pre-existing leaderboard impact
 
 This candidate has edge_capture=506.55 < 771, so it does not appear on the leaderboard and does not conflict with any current candidate. It would require significant improvement to reach the promotion threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -86,3 +86,5 @@ On the J anchor days (4/29, 5/01, 5/04, 5/05, 5/06, 5/07) the PnL was:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate to the leaderboard. It is an evaluation of grinder output. It does not conflict with existing candidates as it is not a promotion proposal. If anything, it reinforces that SNIPER_LEVEL_BREAK variants require significant rework before OP-16 viability.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

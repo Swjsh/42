@@ -63,3 +63,5 @@ We are trying to capture edge by using VWAP as an intraday anchor for mean-rever
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the leaderboard because edge_capture < 771 (OP-16 rejection gate). It conflicts with no existing candidates as it is structurally rejected prior to leaderboard consideration. If promoted after OOS validation, it would likely rank below current PROMISING candidates due to low projected edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

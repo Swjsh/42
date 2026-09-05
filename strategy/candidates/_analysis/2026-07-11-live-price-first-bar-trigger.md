@@ -65,3 +65,5 @@ The trigger fires when the first RTH bar gaps ≥0.25% and the second RTH bar co
 - Does not conflict with existing candidates; operates on a distinct data stream (premarket bars). 
 - Complements GAP_AND_GO (rank 4) by shifting the gap reference to premarket; however, GAP_AND_GO already shows strong real-fills and WF performance, making this variant redundant unless premarket data coverage improves.
 - No impact on OP-16 anchors due to zero trigger fires on J days in current dataset.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

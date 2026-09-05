@@ -67,3 +67,5 @@ The pre-merge gate requires the candidate to pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate, which also focuses on trendline breaks. The TRENDLINE_BREAK_GATED candidate provides an alternative approach to filtering trendline breaks, which may be useful in certain market conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate/structural types). May complement VWAP_CONTINUATION by adding divergence-filtered long entries, but impact unknown without backtest. No overlap with current leaderboard strategies in mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

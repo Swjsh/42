@@ -45,3 +45,5 @@ Eliminates silent failure modes where the system waits for user input that never
 7 / 10 -- The banned‑phrase list is derived from observed failures; required format is already documented in CLAUDE.md OP 18, so encoding it as a validator is low risk. Edge cases around false positives/negatives are manageable.
 
 ---
+
+<!-- PROVENANCE-MISSING: test_l06_chatbot_reflex_guard.py -->

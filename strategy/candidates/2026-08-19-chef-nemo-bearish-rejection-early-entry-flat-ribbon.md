@@ -59,3 +59,5 @@ Proposed: In flat-ribbon regimes (level-family harness signal), allow entry at t
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements existing candidates: does not modify params.json or engine wiring (pure entry timing adjustment). No conflict with structural vetoes (ranks 15-17) or quality gates (ranks 3-4, 22-23). May synergize with VWAP_CONTINUATION (rank 24) by providing alternative entry signal in flat regimes. No overlap with rejected candidates (e.g., rank 24 confluence_tolerance change). Safe to test alongside live PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

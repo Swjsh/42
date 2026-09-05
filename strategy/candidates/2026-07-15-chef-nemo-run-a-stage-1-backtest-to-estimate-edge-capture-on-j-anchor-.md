@@ -44,3 +44,5 @@
 - Validate bull setup’s strike tiers against corrected parameters (PROFITABILITY-DEEP-RESEARCH-2026-07-11.md).  
 - Ensure `test_enter_bull_in_placement_path` is active for live-money arming.  
 - Document edge-capture metrics in `analysis/YYYY-Www.md` for weekly review.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

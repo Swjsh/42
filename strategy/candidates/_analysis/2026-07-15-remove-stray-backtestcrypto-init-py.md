@@ -61,3 +61,5 @@ A zero-byte file `backtest/crypto/__init__.py` exists unintentionally and shadow
 ## Pre-existing leaderboard impact
 
 No impact on any strategy candidate; this is a repo hygiene fix. Does not conflict with or complement any existing candidates in _LEADERBOARD.md. It removes a silent failure mode that could affect any future candidate relying on `crypto.lib`.
+
+<!-- PROVENANCE-MISSING: backtest/crypto/__init__.py -->

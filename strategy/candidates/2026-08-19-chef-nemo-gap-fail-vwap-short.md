@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements GAP_AND_GO (which trades gap-up continuations long) by providing a short bias for gap-up failures. No direct conflict as GAP_AND-GO is WATCH-ONLY and never execution-armed; this proposal targets opposite market conditions. Would not interfere with existing candidates in _LEADERBOARD.md_ as it operates on a distinct setup logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md. Most candidates are gates, exits, or watcher proposals; this is a new entry trigger. May complement volatility-based filters (e.g., VIX regimes) but requires isolation testing to confirm additive edge. No direct overlap with current leaderboard strategies (e.g., ORB_RETEST_LONG trades retests, not initial breaks).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

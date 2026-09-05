@@ -67,3 +67,5 @@ Testing whether the first RTH bar showing a premarket extreme reversal (PML/V-re
 Does not conflict with existing candidates; complements VWAP_CONTINUATION and GAP_AND_GO by capturing premarket-defined structure. If validated, would add a new trigger branch orthogonal to technical indicators (ribbon, structure, VWAP). No overlap with current leaderboard top candidates (WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE) which rely on intraday signals. Would require new params key (`live_price_first_bar_trigger_enabled`) and integration into `engine_cli.decide_payload` after premarket level calculation.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

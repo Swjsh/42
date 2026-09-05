@@ -66,3 +66,5 @@ The first 5‑minute bar after the open establishes an opening range (OR). A bre
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not modify any existing filters, exits, or quality gates. It is complementary to existing candidates such as `STRUCTURE_VETO_DIR_VS_TREND` (which removes wrong‑way trades) and `MIDDAY_TRENDLINE_GATE` (which filters midday noise). There is no direct conflict; the trigger can be stacked with those filters provided the combined logic passes the pre‑merge gate. If the trigger proves effective, it may become a baseline for future filter or exit refinements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

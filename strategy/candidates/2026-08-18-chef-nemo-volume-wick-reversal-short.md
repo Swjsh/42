@@ -19,3 +19,5 @@ A long upper wick on high volume after a VWAP overextension signals short‑term
 Enter short at the close of a 5‑minute bar when all of the following are true:  
 1. High ≥ VWAP × 1.002 (or equivalent price ticks, i.e., ≥0.2% above VWAP).  
 2. Close < Open (bearish bar).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

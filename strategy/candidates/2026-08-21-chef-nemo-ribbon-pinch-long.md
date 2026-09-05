@@ -50,3 +50,5 @@ gym validators 81/81 PASS, walk-forward ratio >= 0.70, real-fills validation on 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9; proposes a new trigger orthogonal to VWAP-continuation and structure veto gates. May complement BEARISH_REJECTION_RIDE_THE_RIBBON by capturing earlier entry points.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

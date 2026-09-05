@@ -60,3 +60,5 @@ All other entry filters and exit logic (chandelier profit-lock, TP1, runner, cha
 ## Pre-existing leaderboard impact
 
 Complements J-RATIFIED candidates `STRUCTURE_VETO_DIR_VS_TREND` (rank ★) and `MIDDAY_TRENDLINE_GATE` (rank 21). Does not conflict; may supersede if combo demonstrates strictly better edge_capture/SHARPE. If combo underperforms, individual candidates remain viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

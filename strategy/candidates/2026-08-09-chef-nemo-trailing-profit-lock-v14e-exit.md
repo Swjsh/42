@@ -67,3 +67,5 @@ Replacing the fixed profit-lock (+5% arm, +10% stop) in v14e_enhanced with a tra
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (exit_change vs veto primitive); conflicts with [V14E_PARAM_SWEEP_26K] (proposes different profit-lock mechanism). Would require A/B test against current v14e_enhanced baseline. No direct conflict with watcher-only candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

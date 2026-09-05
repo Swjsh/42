@@ -64,3 +64,5 @@ If any of these tests fail to show positive edge_capture on the winner days, we 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a strategy change; it is a validation of the current engine. It complements all candidates by providing the OP-16 ground truth needed to score them. No conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ The pre-merge gate requires that the real-fills results confirm the expected beh
 ## Pre-existing leaderboard impact
 
 This candidate may impact the leaderboard by verifying the performance of the top 3 keepers of SHOTGUN_SCALPER_STAGE5. If the real-fills results confirm the expected behavior, it may strengthen the case for promoting the top 3 keepers to live trading.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

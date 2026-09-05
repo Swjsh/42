@@ -49,3 +49,5 @@ Not applicable (keeper fails OP-16 gate; requires strategy redesign before furth
 
 ## Confidence
 8 / 10 — Edge_capture shortfall is definitive from provided data, though missing baseline comparison and full keeper set limit deeper analysis. The OP-16 gate failure is clear and unambiguous.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

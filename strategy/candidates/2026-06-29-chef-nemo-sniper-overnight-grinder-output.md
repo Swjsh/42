@@ -52,3 +52,5 @@ The pre-merge gate requires that the candidate passes the out-of-sample test, re
 ## Pre-existing leaderboard impact
 
 The pre-existing leaderboard impact is low, as this is a new candidate. However, the candidate may complement or conflict with existing candidates, and further testing is needed to determine the impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must show WF >= 0.70, and real-fills 
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to compare against current leaderboard candidates; likely conflicts if it represents a wiring change to an existing setup, but complementary if it is a new standalone strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

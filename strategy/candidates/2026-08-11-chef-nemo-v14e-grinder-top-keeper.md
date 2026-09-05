@@ -60,3 +60,5 @@ Gym validators must pass; walk-forward OOS test must show positive edge_capture;
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture ≥ 771). This keeper would be rejected at the door per OP-16 and not appear on leaderboard. May complement if it isolates a distinct edge regime, but low edge_capture suggests it does not capture J's required edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

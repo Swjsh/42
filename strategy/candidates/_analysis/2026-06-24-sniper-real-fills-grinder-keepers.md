@@ -52,3 +52,5 @@ These changes collectively shift the strategy toward more frequent, smaller‑pr
 
 ## Pre‑existing leaderboard impact  
 This analysis does not propose a new candidate; it only evaluates existing grinder output. No impact on the current leaderboard is expected. If a future iteration of the grinder yields a keeper with positive edge_capture and passes OOS, that would be evaluated as a new trigger‑type candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

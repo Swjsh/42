@@ -31,3 +31,5 @@ The keeper uses SNIPER_LEVEL_BREAK triggers with parameters: vol_mult=1.3, body_
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 *(Note: The keeper's by_day shows PnL on J days: 4/29=+113.65, 5/01=0, 5/04=+115.98, 5/05=+126.51, 5/06=0, 5/07=+147.13 (x2). However, without baseline behavior or proper OP-16
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

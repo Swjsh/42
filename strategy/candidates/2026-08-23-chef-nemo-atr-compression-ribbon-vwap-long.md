@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger long-biased strategy. The current leaderboard contains no long-biased OP-16 tracked setups (all anchor days are PUT winners). This strategy is not designed to capture bearish edge but to provide long exposure in low-VIX, midday environments. It does not directly conflict with existing candidates (which are primarily watcher quality gates, DTE studies, and structural gates) but may complement them by adding a long trigger. However, its impact on OP-16 anchor days (which are bearish PUT winners) is expected to be negative without validation, as long entries on big down days would incur losses. The strategy's viability depends on profitability outside anchor days to offset potential anchor day losses, requiring Stage-1 backtest to evaluate. No parameter or engine changes are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -36,3 +36,5 @@ DRAFT CANDIDATE: WORK-CADENCE WINDOW VIOLATION
 - **Rule**: <8h tasks must be resolved by 23:59 ET Friday (per OP-22).  
 - **Consequence**: Potential foot-gun; task should be addressed in after-4pm work block.  
 - **Mitigation**: Encode task in `CLAUDE.md/automation` with L# reference to `LESSONS-LEARNED.md`.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

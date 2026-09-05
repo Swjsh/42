@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing leaderboard candidates (1-9) as this is a long-side strategy while leaderboard is dominated by short-side (PUT) anchors; potential complement by adding long exposure but requires validation to confirm edge capture and non-overlap with existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

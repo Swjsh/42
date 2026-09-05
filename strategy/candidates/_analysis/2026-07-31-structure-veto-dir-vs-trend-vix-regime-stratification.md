@@ -38,3 +38,5 @@ We need to run the backtest with VIX regime tagging and validate the results.
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not conflict with any candidate; it is an evaluation of an existing candidate (STRUCTURE_VETO_DIR_VS_TREND, which is ranked ★ in the leaderboard).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

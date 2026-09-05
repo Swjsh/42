@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (different trigger mechanism). Nearest analogue is MIDDAY_TRENDLINE_GATE (J-RATIFIED), but this candidate uses volatility-squeeze/volume-expansion instead of trendline breaks, making it structurally distinct. May overlap in time-of-day with other midday gates but targets different market conditions. No known leaderboard impact until backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

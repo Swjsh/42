@@ -55,3 +55,5 @@ The guard runs at the start of the pre-market validation pipeline. It executes `
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates by promoting repository hygiene. No direct conflict with any trading strategy logic.
+
+<!-- PROVENANCE-MISSING: test_untracked_file_guard.py -->

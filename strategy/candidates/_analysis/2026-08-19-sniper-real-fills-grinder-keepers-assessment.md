@@ -59,3 +59,5 @@ Because the keeper JSON does not provide P&L for 5/01 and the baseline engine be
 ## Pre-existing leaderboard impact
 
 The leaderboard currently contains only candidates with edge_capture ≥ 771 (OP‑16 floor). This analysis proposes a parameter set with negative edge_capture, which would be rejected at the door. It does not complement any existing candidate; rather, it highlights a failed search direction. Promoting it would clutter the leaderboard with sub‑threshold work. The appropriate path is to treat this as a null result and either refine the grinder’s objective function or conclude that the parameter region examined contains no edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

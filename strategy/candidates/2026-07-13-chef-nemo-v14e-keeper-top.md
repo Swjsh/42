@@ -54,3 +54,5 @@ Enter on bearish setup with at least 1 trigger (min_triggers_bear=1), no trades 
 This candidate would be rejected at the door (edge_capture < 771) per leaderboard rules, so it does not appear on _LEADERBOARD.md and conflicts with no existing candidates.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

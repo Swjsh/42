@@ -55,3 +55,5 @@ Modify the `pdt_tracker.fetch_day_trades_used_5d()` function to return 0 at the 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 No direct conflict; modifies core risk gate logic orthogonal to existing candidates (which focus on triggers, filters, exits, or watchers). Complements PDT-aware candidates by isolating session-specific count. No overlap with leaderboard entries 1-9 as none address PDT counter reset. Safe to test alongside all current candidates.
+
+<!-- PROVENANCE-MISSING: test_pdt_session_reset.py -->

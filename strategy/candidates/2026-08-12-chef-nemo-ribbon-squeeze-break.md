@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger type and does not directly modify any existing rules in the leaderboard. It is likely complementary to existing volatility‑ or trend‑based candidates, pending empirical validation. No immediate conflict with the current top‑25 candidates is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

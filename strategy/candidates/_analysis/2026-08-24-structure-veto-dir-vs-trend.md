@@ -42,3 +42,5 @@ N/A for analysis. If this analysis were to support ratification of the candidate
 ## Pre-existing leaderboard impact
 
 This analysis complements the existing leaderboard by validating the top keeper's claims. It does not conflict with any other candidate; rather, it reinforces the candidate's position as a promising structural veto that improves robustness without sacrificing edge on the J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

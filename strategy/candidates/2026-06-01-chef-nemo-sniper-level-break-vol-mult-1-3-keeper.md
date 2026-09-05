@@ -56,3 +56,5 @@ Entry triggers when: (1) SPY breaks a ★★+ named level with close beyond leve
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate types or V14e/SNIPER variants with different triggers). Complements SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP by testing vol_mult=1.3 vs its vol_mult=0.9 optimum, but fails OP-16 gate due to poor J-day capture. Not suitable for leaderboard promotion until edge_capture >771 demonstrated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

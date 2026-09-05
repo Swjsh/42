@@ -61,3 +61,5 @@ Extend the existing self-heal logic for Gamma_LevelRefresh to include a verifica
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard because it is an infrastructure change that does not alter trading logic. It is intended to support the existing candidates by ensuring data quality.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

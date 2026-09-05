@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger (GEX zero-cross) not present in the current leaderboard (which focuses on VIX, ribbon, structure, and watcher-based cues). It does not directly conflict with existing candidates but may complement regime filters (e.g., VIX range) used in strategies like SNIPER_VIX_TREND_OOS_CONFIRMED. No overlap with current top candidates' mechanics detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

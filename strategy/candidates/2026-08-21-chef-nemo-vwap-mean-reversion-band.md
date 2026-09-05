@@ -64,3 +64,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel mean-reversion trigger based on VWAP bands. It does not directly conflict with existing trend-following VWAP candidates (VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK) but may complement them by providing counter-trend signals in choppy markets. It is orthogonal to the existing leaderboard candidates which are mostly trend-based or structural.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements GAP_AND_GO by exploring the fade side of gap behavior. No overlap with current leaderboard entries (all are watchers, gates, or DTE studies). Would add a new trigger lane if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

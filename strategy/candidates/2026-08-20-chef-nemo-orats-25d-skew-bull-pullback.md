@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by introducing a novel options‑skew trigger not used in any registered strategy (nearest analog QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS uses price/volume divergence). No direct conflict with current leaderboard entries as it operates on a different signal dimension (IV skew vs. price/volume/structure). May coexist with VWAP_CONTINUATION or ribbon‑based strategies as a conditional long bias filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

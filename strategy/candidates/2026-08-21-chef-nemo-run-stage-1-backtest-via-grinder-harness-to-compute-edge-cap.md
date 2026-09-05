@@ -61,3 +61,5 @@
 - **WS2 Timeline**: No start/end dates for the study.  
 - **Exit-Shape Performance Metrics**: No KPIs (e.g., "reduce drawdown by 15%").  
 - **PDT Tracker Accuracy**: No testing of `pdt_tracker` during high-volume periods.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

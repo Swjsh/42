@@ -36,3 +36,5 @@
 - **End-of-Week (Sunday)**: Weekly review in `analysis/YYYY-Www.md` → compute metrics on paper sample.  
 - **End-of-Month**: Rule review. Adjust in writing, log in `CLAUDE.md` update log.  
 - **Unknowns**: No explicit mention of PDT-gated fleet-arm backtests or shadow-mode simulations to validate fixes before live deployment.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

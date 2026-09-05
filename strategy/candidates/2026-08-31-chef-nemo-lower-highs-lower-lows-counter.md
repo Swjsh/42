@@ -61,3 +61,5 @@ This modifier is combined with other scores before threshold checks, acting as a
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (1‑24). Complements quality-gate candidates like `#3 V14E_BEAR_ONLY_GATE` and `#17 V14E_BEAR_TIME_OF_DAY_GATE` by adding a new structural filter. Does not alter any existing trigger or exit logic; only adds a score modifier. Should be evaluated alongside other filter changes for potential overlap or redundancy.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_key_levels.py -->

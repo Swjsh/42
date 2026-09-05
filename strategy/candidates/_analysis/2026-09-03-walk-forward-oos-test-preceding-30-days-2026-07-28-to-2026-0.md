@@ -68,3 +68,5 @@ This analysis does not propose a change to any existing candidate; it is a diagn
 - OOS expectancy / n: none.
 - Note: this file's own hypothesis is literally "would a WF ratio >=0.70 indicate readiness" -- i.e. it pre-registers the exact bar named in this goal's DONE-WHEN clause, but never executes against it.
 - Disposition: STILL-PENDING. Cannot be SHADOW-FILED (no WF number cleared) or KILLED-with-number (no number exists at all). Recommend the next Kitchen fire actually run `walkforward_oos_30d.py` + `realfills_j_anchors.py` before this gets adjudicated. No K9 action.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/walkforward_oos_30d.py, backtest/autoresearch/realfills_j_anchors.py -->

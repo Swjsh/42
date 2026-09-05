@@ -47,3 +47,5 @@ These keepers **should not be promoted to the LEADERBOARD**. They require **outâ
 
 ## Preâ€‘existing Leaderboard Impact
 None of these keepers conflict with current leaderboard entries (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) because they are not viable candidates. They would be rejected at the gate for edge_capture < 771. If after OOS they showed positive edge_capture, they would be evaluated as new trigger candidates, but none currently meet the bar for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

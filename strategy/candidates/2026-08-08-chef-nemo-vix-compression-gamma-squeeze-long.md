@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (which are primarily bearish or high‑VIX focused); this proposes a long‑only trigger under different conditions, thus likely complementary if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

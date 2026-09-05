@@ -58,3 +58,5 @@ The `[condition]` remains unchanged (presumably the BEARISH_REJECTION setup-spec
 ## Pre-existing leaderboard impact
 
 Complements structural candidates (e.g., BEARISH_REJECTION_MORNING watcher) by potentially increasing setup frequency. No direct conflicts with existing leaderboard candidates (none modify filter 9). May conflict with future filter-tightening proposals. Does not affect watcher-only or bullish-focused candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ The proposed mechanism must pass the following tests before being merged into th
 ## Pre-existing leaderboard impact
 
 The proposed mechanism may complement or conflict with existing candidates in the leaderboard, particularly those related to double-bottom detection and reclaim patterns. Further analysis is required to determine the potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

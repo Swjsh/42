@@ -56,3 +56,5 @@ The chart stop buffer is added to the rejected level to determine the stop price
 ## Pre-existing leaderboard impact
 
 This candidate complements existing BEARISH_REJECTION_RIDE_THE_RIBBON-related work (e.g., MAX_RIBBON_DUR_8, CONFLUENCE_TOL_1_00) by refining the exit logic. It does not conflict with any leaderboard candidates as it targets a specific parameter not currently optimized. If successful, it could supersede loose-buffer variants.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

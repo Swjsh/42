@@ -50,3 +50,5 @@ Gym validators: all tests in `backtest/tests/` must pass; walk-forward: OOS Shar
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing V14E_BEAR_ONLY_GATE (Rank 3) by adjusting a parameter within the same watcher. It does not conflict with any top-9 candidate as it targets a different filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Entry triggers require: volume ≥ 1.1 × 20-bar average volume, candle body ≥
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Unknown -- requires comparison to existing candidates. Likely conflicts due to negative edge_capture (all leaderboard candidates have edge_capture ≥ 771). Would not qualify for leaderboard under current OP-16 rules.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ The pre-merge gate requires the candidate to pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, as it provides a new perspective on the market behavior. However, the candidate's performance on the OP-16 anchors is mixed, and further evaluation is needed to determine its potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

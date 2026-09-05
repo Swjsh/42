@@ -96,3 +96,5 @@ The combination of these changes likely increased trade frequency (208 trades) a
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any leaderboard candidate because it fails the OP-16 gate and would not appear on the leaderboard. It may complement other SNIPER-related candidates if the trigger logic is improved, but as is, it is not viable for live trading per OP-16.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

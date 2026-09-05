@@ -54,3 +54,5 @@ The proposed mechanism must pass the following tests before being merged into th
 ## Pre-existing leaderboard impact
 
 The proposed mechanism may complement or conflict with existing candidates in the leaderboard. Further analysis is needed to determine the impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

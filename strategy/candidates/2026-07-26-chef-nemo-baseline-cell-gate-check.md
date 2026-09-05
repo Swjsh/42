@@ -57,3 +57,5 @@ Augment the harness validation layer to scan all kitchen extra-lanes study confi
 ## Pre-existing leaderboard impact
 
 Complements all candidates by improving backtest integrity. No conflicts; enhances reliability of OP-16 anchor evaluations across leaderboard.
+
+<!-- PROVENANCE-MISSING: test_harness_baseline_gate_check.py -->

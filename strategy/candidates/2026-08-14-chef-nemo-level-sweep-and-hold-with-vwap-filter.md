@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher gates, structural filters, or exit changes); complements by adding a new trigger class focused on sweep‑fail reversals. No overlap in mechanism with current leaderboard entries (which focus on VWAP continuation, structure vetoes, or time/day gates).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

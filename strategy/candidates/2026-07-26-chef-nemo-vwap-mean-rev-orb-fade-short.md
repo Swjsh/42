@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates. Differentiates from ORB_RETEST_LONG (longs on OR retest) and VWAP_CONTINUATION (follows VWAP breaks) by shorting failed ORH breaks that close below VWAP—a combination absent from the registry. May complement ORB_DIRECTION_FILTER (watcher‑only long‑only gate) by providing a short‑biased ORB‑fade signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown -- requires Stage-1 backtest to assess overlap/complementarity with existing candidates (mostly gates, filters, and structural changes). This proposal is a new trigger and does not directly modify existing logic in candidates 1‑9, but could interact with existing filters/exits. No conflict identified without data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

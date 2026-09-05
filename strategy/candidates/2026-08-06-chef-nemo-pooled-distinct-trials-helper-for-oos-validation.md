@@ -67,3 +67,5 @@ Since this is a tooling change and does not alter the trading logic, we expect z
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries because it does not change any trading logic. It is a tooling improvement that may be used in future analyses. It complements all candidates by providing a more accurate way to combine OOS signals from multiple setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

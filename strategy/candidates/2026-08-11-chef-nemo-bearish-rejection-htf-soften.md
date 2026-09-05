@@ -62,3 +62,5 @@ This converts a binary block into a graduated penalty, preserving HTF alignment 
 ## Pre-existing leaderboard impact
 
 Complements existing candidates (e.g., [WEEKLY_DTE_NOT_0DTE], [STRUCTURE_VETO_DIR_VS_TREND]) as it modifies a distinct filter (BEARISH_REJECTION f10) without conflicting with trigger/watcher/proposal types. No overlap with active revalidation candidates (e.g., [VIX_BULL_HARD_CAP_UNBLOCK] targets f9). May interact with future HTF-related candidates but currently orthogonal.
+
+<!-- PROVENANCE-MISSING: test_gates_htf_soften.py -->

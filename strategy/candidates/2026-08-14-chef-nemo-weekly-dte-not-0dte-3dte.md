@@ -50,3 +50,5 @@ Stage-1 backtest must pass gym validators; walk-forward OOS must achieve WF >= 0
 ## Pre-existing leaderboard impact
 
 This candidate complements [WEEKLY_DTE_NOT_0DTE] by extending the DTE concept to 3DTE. It does not conflict with any existing candidate as it is a distinct parameter change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

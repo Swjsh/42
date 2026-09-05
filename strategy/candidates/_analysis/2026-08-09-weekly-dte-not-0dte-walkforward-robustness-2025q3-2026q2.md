@@ -64,3 +64,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis complements the existing PROMISING candidate by proposing a robustness check. If executed and passing, it would increase confidence in the candidate's structural edge. It does not conflict with any leaderboard entries; rather, it supports the candidate's current standing by addressing regime-dependence concerns (C4 in LESSONS-LEARNED.md). No changes to automation/state/params*.json or heartbeat.md are needed (Rule 9 compliant).
+
+<!-- PROVENANCE-MISSING: test_multiday_dte_compare_wf.py -->

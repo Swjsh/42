@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing gates, filters, or exit logic in the leaderboard. It is unlikely to conflict with the ranked candidates 1‑9 (which are mostly watcher re‑validations, parameter tweaks, or structural gates). Instead, it may complement structure‑based watchers (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) by providing an additional short‑bias entry signal that can be layered with existing trend‑filters. No direct duplication or contradiction is apparent at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ The VWAP_CONTINUATION setup generates strong edge but suffers in low-VIX regimes
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing VWAP_CONTINUATION (LIVE) by adding a regime filter. It does not conflict with any ranked candidate in the leaderboard; it is a parameter/evolution of the live setup. If successful, it could replace the base VWAP_CONTINUATION in the heartbeat after ratification. No overlap with watcher-only or structural gate candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

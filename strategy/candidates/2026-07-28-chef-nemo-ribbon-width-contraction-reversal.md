@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (all are filter/quality/gate changes or structural proposals). As a new_trigger, it could complement strategies like VWAP_CONTINUATION in sideways regimes but may conflict with trend-following approaches. Impact unknown without backtest; unlikely to affect current leaderboard rankings until validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

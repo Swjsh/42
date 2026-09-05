@@ -61,3 +61,5 @@ These filters are additive to existing context filters (time, structure, ribbon,
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it modifies BEARISH_REJECTION_RIDE_THE_RIBBON (not currently ranked). Complements structural filters like MIDDAY_TRENDLINE_GATE and V14E_BEAR_TIME_OF_DAY_GATE by adding confluence requirement. May overlap with BEARISH_REJECTION_MORNING watcher (same anchor days) but operates as entry filter vs watcher-only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

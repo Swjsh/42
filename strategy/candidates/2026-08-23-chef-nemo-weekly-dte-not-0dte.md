@@ -52,3 +52,5 @@ Gym validators must pass, walk-forward OOS test must show positive expectancy an
 ## Pre-existing leaderboard impact
 
 Updates the existing WEEKLY_DTE_NOT_0DTE candidate (filed 2026-07-07) with OOS results for 2025-Q3 to 2026-Q2. Does not conflict with other candidates; complements by providing longer-dte validation. If OOS results confirm monotone improvement, may increase confidence and shift status to PROMISING or J-RATIFIED pending further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

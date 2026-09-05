@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger not present in the registry (per novelty claim). It does not directly conflict with existing candidates in the leaderboard, which are mostly watcher proposals, quality gates, or structural changes. It may complement strategies filtering for low-volatility environments or volume expansion, but potential overlap with existing ribbon-based triggers requires further review. No immediate conflicts identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

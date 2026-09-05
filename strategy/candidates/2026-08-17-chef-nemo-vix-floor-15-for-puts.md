@@ -58,3 +58,5 @@ Before entering any bearish setup (BEARISH_REJECTION_RIDE_THE_RIBBON or BULLISH_
 ## Pre-existing leaderboard impact
 
 Complements existing VIX-related gates (e.g., F8_BULL_VIX_GATE_REVAL) but targets bear side. No overlap with ranked candidates; adds a new filter dimension. Does not conflict with J-RATIFIED candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE).
+
+<!-- PROVENANCE-MISSING: test_vix_floor_15_for_puts.py -->

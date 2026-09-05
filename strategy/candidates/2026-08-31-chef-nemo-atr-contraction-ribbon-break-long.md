@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type not represented in the current leaderboard (which contains mostly filter changes, exits, and watchers). It does not directly conflict with any existing candidate and could complement the trigger‑based strategies (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER) by providing an alternative entry signal. No known overlap in logic with ranked candidates 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

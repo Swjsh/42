@@ -73,3 +73,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger type and does not conflict with existing candidates in _LEADERBOARD.md (which are primarily filters, exit changes, or watcher proposals). It may complement existing ribbon-based strategies (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by adding a VIX volatility filter and a precise pullback entry condition, creating a distinct low-vol mean-reversion ribbon tactic not currently in the registry. No direct overlap with current leaderboard entries is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

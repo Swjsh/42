@@ -58,3 +58,5 @@ Compare results to the reported values.
 ## Pre‑existing leaderboard impact
 
 If validated, the candidate’s edge_capture and Sharpe will likely increase its final_score, possibly promoting it higher on the leaderboard (currently ranked ★★ with PROMISING status). If the numbers fail to replicate, the candidate may be downgraded to NEEDS‑MORE‑DATA or REJECTED. No conflict with existing top‑10 candidates; this is a pure validation of an existing entry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

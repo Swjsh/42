@@ -62,3 +62,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup's edge is enhanced when VIX is above
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VOLATILITY_REGIME_FILTER (if exists) and may overlap with VIX_BULL_HARD_CAP_UNBLOCK (which addresses CALL side). No direct duplicates in leaderboard; adds a new dimension to BEARISH_REJECTION_RIDE_THE_RIBBON logic. If validated, could supersede candidates like BEARISH_SCORE_7_RELAXATION (which overfit on 5/04) by providing structural VIX-based filtering.
+
+<!-- PROVENANCE-MISSING: test_vix_above_20_for_puts.py -->

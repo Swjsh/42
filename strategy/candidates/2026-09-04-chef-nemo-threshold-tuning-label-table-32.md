@@ -56,3 +56,5 @@ We constructed a label table of n=32 days featuring technical indicators (EMA ri
 
 This candidate complements existing quality gates (e.g., V14E_BEAR_ONLY_GATE, MIDDAY_TRENDLINE_GATE) by providing a systematic threshold-setting method. It does not conflict with any current leaderboard candidates as it operates on a different feature space (composite score vs. single indicators).
 ---
+
+<!-- PROVENANCE-MISSING: test_quality_gate_threshold.py -->

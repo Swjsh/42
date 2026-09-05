@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new long‑bias trigger that does not modify any existing rules or gates in the leaderboard. It is complementary to the current mix of bearish‑focused and watcher proposals, as it targets a different directional bias and setup type. No direct conflict with candidates 1‑9 is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

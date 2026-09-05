@@ -61,3 +61,5 @@ The candidate must pass:
 This analysis confirms that the existing candidate STRUCTURE_VETO_DIR_VS_TREND (currently ranked ★ with edge_capture 780 and final score 3,688) meets the OP-16 floor of edge_capture >= 771. It does not change the leaderboard ranking but validates the candidate's current status.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

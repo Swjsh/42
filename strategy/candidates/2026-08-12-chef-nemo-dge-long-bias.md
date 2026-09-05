@@ -70,3 +70,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION by adding DGE and engulfing candle filters to VWAP retest logic. No overlap with structural gates (TRENDLINE_BREAK_CALL_VETO, etc.) or DTE studies (WEEKLY_DTE_NOT_0DTE). If validated, would be a new trigger type distinct from current registry entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

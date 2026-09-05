@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; it introduces a new trigger type that complements VWAP_CONTINUATION by adding ribbon‑stack, engulfing‑candle, and RSI filters, turning it into a pull‑back entry rather than a continuation breakout. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

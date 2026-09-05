@@ -57,3 +57,5 @@ Current BEARISH_REJECTION_RIDE_THE_RIBBON triggers on bar close when: (1) level 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher-only, parameter changes, or structural gates). Complements exit_change candidates (e.g., dynamic stop tests) as it modifies entry timing. No overlap with quality_gate or trigger-type candidates in leaderboard. If proven effective, could rank highly if edge_capture improves on loser days without sacrificing winners. Current leaderboard shows no similar entry-timing filters for BEARISH_REJECTION.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

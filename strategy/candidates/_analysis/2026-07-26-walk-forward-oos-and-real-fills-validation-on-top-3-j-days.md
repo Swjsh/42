@@ -60,3 +60,5 @@ We will run a backtest of the current engine using the real OPRA fills simulator
 ## Pre-existing leaderboard impact
 
 This analysis validates the baseline engine. If edge_capture > 771 and Sharpe > 2.0, it confirms the current engine meets OP-16 bar. If not, it indicates need for engine improvement. Does not conflict with existing candidates (validates foundation rather than proposing change).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

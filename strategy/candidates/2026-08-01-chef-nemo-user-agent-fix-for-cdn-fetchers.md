@@ -67,3 +67,5 @@ Target fetchers include:
 ## Pre-existing leaderboard impact
 
 Complements all candidates by improving data integrity. No conflicts; enhances reliability of existing strategies (e.g., VWAP_CONTINUATION, GAP_AND_GO) that may rely on CDN-sourced indicators. Zero overlap with strategy logic changes.
+
+<!-- PROVENANCE-MISSING: backtest/lib/watchers/fred_yield_curve_watcher.py, backtest/lib/watchers/cboe_bxm_watcher.py, backtest/lib/watchers/nyse_tick_watcher.py, backtest/lib/watchers/treasury_yield_watcher.py -->

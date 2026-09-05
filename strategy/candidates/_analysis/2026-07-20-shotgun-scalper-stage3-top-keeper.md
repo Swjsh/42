@@ -66,3 +66,5 @@ The shotgun_scalper stage3 attempts to capture short-term directional participat
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door per OP‑16 (edge_capture < 771) and therefore does not appear on the leaderboard. It does not conflict with or complement any existing candidates; it simply fails to meet the minimum edge threshold. Promoting it would require a substantial improvement in edge_capture, likely necessitating a different approach or parameter region.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

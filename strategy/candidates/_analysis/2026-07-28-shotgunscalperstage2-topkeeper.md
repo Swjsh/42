@@ -53,3 +53,5 @@ The strategy is applied to the shotgun_scalper setup (assumed to be a variant of
 4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills validation on top 3 J days via OPRA cache).
 
 5.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

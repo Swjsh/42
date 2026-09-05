@@ -65,3 +65,5 @@ Restricting BULLISH_RECLAIM entries to high-win-rate time windows (10:00-11:00 E
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are bearish-focused or structural). Complements BULLISH_RECLAIM setup once live; no overlap with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE). May interact with future bullish candidates (e.g., if BULLISH_RECLAIM graduates). Current leaderboard shows no bullish OP-16 anchors (all J anchors are bearish PUTs except 5/07 CALL losers), so no direct anchor regression risk.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

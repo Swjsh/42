@@ -63,3 +63,5 @@ No changes to exit management, position sizing, or other setups. Filter applies 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements V14E_BEAR_ONLY_GATE (watcher-only) and STRUCTURE_VETO_DIR_VS_TREND (which already shows zero delta on J days). May overlap with BEAR_SCORE_7_RELAXATION (which also uses score thresholds) but operates on different variable (VIX vs composite score). No direct duplication in leaderboard.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_puts.py -->

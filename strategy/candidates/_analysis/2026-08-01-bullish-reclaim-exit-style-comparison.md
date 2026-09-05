@@ -37,3 +37,5 @@ Gym validators must pass for the BULLISH_RECLAIM_RIDE_THE_RIBBON setup with both
 ## Pre-existing leaderboard impact
 
 This analysis does not directly conflict with any existing candidate. It may inform a future candidate proposal for adjusting the exit style of the BULLISH_RECLAIM_RIDE_THE_RIBBON setup. If the analysis shows that all-or-nothing is superior, we might propose a candidate to change the exit style. If it shows TP1+trail is superior, we might keep the current style or look for optimizations.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

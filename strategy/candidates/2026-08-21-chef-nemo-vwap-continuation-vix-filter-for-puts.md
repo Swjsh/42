@@ -61,3 +61,5 @@ Adding a VIX confirmation filter to the put side of VWAP_CONTINUATION (requiring
 ## Pre-existing leaderboard impact
 
 Complements [VWAP_CONTINUATION](2026-07-07-204650-vwapcont-dte-override.md) (currently disarmed) and [STRUCTURE_VETO_DIR_VS_TREND](2026-06-26-160000-structure-veto-direction-vs-trend.md) (live). No conflict: adds PUT-side filter to existing detector. Does not affect CALL side or other setups. If VWAP_CONTINUATION is re-armed, this candidate provides a quality gate to improve its edge. May reduce trade frequency but increase win rate on PUT side. No overlap with ranked candidates 1-23 in leaderboard (different mechanism).
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_vix_filter.py -->

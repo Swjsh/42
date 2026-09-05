@@ -50,3 +50,5 @@ Gym validators must pass for the baseline engine; walk-forward OOS test must sho
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it serves as a validation baseline for evaluating future proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

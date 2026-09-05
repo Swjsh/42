@@ -85,3 +85,5 @@ NO IMPACT: Candidate fails OP-16 edge_capture floor (771) and is ineligible for 
 - /fable-too-good check: not applicable in the "looks too good" direction -- this result is bad, not suspiciously good, so no artifact-hunt needed on that axis. The failure itself (missed 2 of 3 J winner days) is consistent with the file's own honest self-assessment.
 - Data basis: Kitchen grinder output is BS-synthetic option pricing (Black-Scholes simulated premiums over historical SPY bars), NOT real-fills OPRA evidence -- per memory project_free_kitchen_plan_b_hardened.md ("no free 0DTE data; BS-synthetic only"). Any number in this file's Mechanism/OP-20 sections is Stage-1/grinder-tier at best; none of these files report a completed walk-forward OOS split or a real-fills validation run.
 - Disposition: KILLED. No K9 shadow-file action -- there is nothing to register.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

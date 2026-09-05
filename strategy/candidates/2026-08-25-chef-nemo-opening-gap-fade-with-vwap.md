@@ -64,3 +64,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is bidirectional and trades gap fades, which contrasts with the existing GAP_AND_GO (gap continuation) watcher. It does not conflict with any currently armed candidate in the leaderboard (all are either watcher-only or J-ratified for bearish strategies). It may complement by providing additional short-side opportunities on gap up days and long-side on gap down days, but requires validation. No overlap with existing armed setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) as it triggers on a distinct condition (opening gap fade vs. VWAP continuation or ribbon rejection).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

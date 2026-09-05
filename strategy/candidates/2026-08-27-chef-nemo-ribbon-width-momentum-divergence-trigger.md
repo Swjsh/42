@@ -66,3 +66,5 @@ Exit logic remains unchanged: chart-stop primary, chandelier profit-lock, TP1 at
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: adds a new trigger condition that can stack with quality gates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) and exit mechanisms. No direct conflict with current leaderboard entries as it tests a novel signal dimension. May subsume or enhance trigger-based candidates like LIVE_PRICE_FIRST_BAR_TRIGGER if ribbon width divergence proves more robust.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

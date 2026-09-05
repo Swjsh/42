@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all are watcher gates, DTE studies, or structural filters). Complements volatility-based strategies by providing a distinct entry signal in low-volatility environments; may overlap with VWAP_CONTINUATION or GAP_AND_GO in trending markets but uses different trigger logic. No direct duplication in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

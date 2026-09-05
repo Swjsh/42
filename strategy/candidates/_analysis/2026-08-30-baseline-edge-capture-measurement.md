@@ -61,3 +61,5 @@ We need to quantify the baseline engine's edge capture on J's source-of-truth tr
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it provides the reference edge_capture against which all candidates in the leaderboard are ranked. It complements all entries by confirming the baseline OP‑16 floor (771) and the current baseline performance (780 > 771, thus not rejected).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

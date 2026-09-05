@@ -12,3 +12,5 @@ We are to test if reducing contract size via dynamic sizing (i.e., trading more 
 However, note that the risk rules and playbook have a minimum of 3 contracts. We cannot go below 3. The idea of dynamic sizing here would be to increase the contract size for 2DTE to match the same dollar risk as 0DTE, but we must stay within the risk rules (max 50% of account per trade) and the position sizing schedule.
 
 But note: the leaderboard says that the 2DTE ATM premium is 2.33x, so to have the same dollar risk, for 35
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

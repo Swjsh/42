@@ -65,3 +65,5 @@ SessionGuard v2 hard-block: During market hours (09:30-15:55 ET), detect interac
   6. Concentration: N/A
 
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/rate-limit-cooldown.json -->

@@ -52,3 +52,5 @@ Gym validators: `test_vix_rising_put_filter.py` must pass. Walk-forward: OOS Sha
 ## Pre-existing leaderboard impact
 
 Complements existing VIX-related filters (e.g., V14E_BEAR_ONLY_GATE's VIX stratification) by adding a directional VIX slope condition. No known conflict with top 9 candidates; may additive with ORB_NARROW_OR_GATE etc.
+
+<!-- PROVENANCE-MISSING: test_vix_rising_put_filter.py -->

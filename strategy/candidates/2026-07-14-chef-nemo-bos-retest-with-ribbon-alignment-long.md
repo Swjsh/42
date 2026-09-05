@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not appear to conflict directly with existing candidates in the leaderboard (which are mostly DTE studies, vetoes, and gates). It may complement strategies that also rely on market structure but uses a different trigger set (BOS + EMA ribbon alignment). No overlap detected with current top candidates (WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, etc.) as they focus on different mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ The parameter controls whether the first hour's high price (09:35-10:35 ET) is a
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a parameter evaluation that may inform future tuning of existing strategies (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, V14E_BEAR_TIME_OF_DAY_GATE). If the flag proves beneficial, it could be proposed as a filter_change candidate; if harmful, it may be left disabled. No current leaderboard entries depend on this flag.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

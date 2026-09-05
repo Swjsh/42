@@ -68,3 +68,5 @@ Gym validators must pass, walk-forward OOS test must show positive edge_capture 
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the leaderboard because its edge_capture (373.48) is below the OP-16 floor of 771. It conflicts with no current leaderboard candidates as it fails the basic edge_capture requirement for inclusion. Promotion requires Stage-3 work to improve J winner capture while maintaining loser avoidance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

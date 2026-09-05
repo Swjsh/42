@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type distinct from existing watchers/gates. It complements RSI_DIVERGENCE_BULL_WATCHER (watcher-only) by adding an entry trigger. No direct conflict with current leaderboard candidates; represents orthogonal approach to trade execution. May overlap with structural breakout candidates but uses different confirmation mechanism (RSI divergence + BOS vs pure price action).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

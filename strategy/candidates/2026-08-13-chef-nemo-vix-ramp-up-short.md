@@ -66,3 +66,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 Complements existing VIX-gated candidates (F8_BULL_VIX_GATE_REVAL, VIX_BULL_HARD_CAP_UNBLOCK) by adding short-side VIX rate-of-change trigger. No direct conflict with current leaderboard entries as it targets different market conditions (bearish intraday bias vs. bullish VIX thresholds). May conflict with BEARISH_REJECTION_RIDE_THE_RIBBON if both fire same bar; requires correlation analysis in Stage-2.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

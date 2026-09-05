@@ -53,3 +53,5 @@ Must pass: gym validators (all tests), walk-forward OOS positive with WF >= 0.70
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the leaderboard. It does not conflict with any existing candidate as it is below the acceptance threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

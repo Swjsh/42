@@ -65,3 +65,5 @@ Based on playbook context filter logic and VIX stratification in V14E_BEAR_ONLY_
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md>
 Complements STRUCTURE_VETO_DIR_VS_TREND (both are filters targeting different failure modes). No direct conflict with J-RATIFIED candidates as it operates on entry signal quality rather than exit or sizing. May overlap with V14E_BEAR_ONLY_GATE (which is watcher-only) but this is an active entry filter. Requires cross-validation to ensure combined effect is additive.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_puts.py -->

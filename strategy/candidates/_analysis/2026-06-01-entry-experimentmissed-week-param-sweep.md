@@ -55,3 +55,5 @@ Task: "Execute parameter sweep using entry_experiment.py on missed week, validat
 Awaiting execution results. If sweep produces viable candidate, will file formal CANDIDATE per template.
 
 ---
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/entry_experiment.py -->

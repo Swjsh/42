@@ -66,3 +66,5 @@ Low confidence due to high overfit risk from anchor-day-only calibration. VIX th
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) as orthogonal filter (VIX-based vs. structure-based). Does not conflict with WEEKLY_DTE_NOT_0DTE (rank ★★) as DTE mechanism unrelated. May conflict with MIDDAY_TRENDLINE_GATE (J-RATIFIED) if both fire on same bar; requires joint gym validation. No direct conflict with top-5 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ This keeper does not meet the OP-16 edge_capture floor and should not be promote
 ## Pre-existing leaderboard impact
 
 This keeper does not meet the OP-16 edge_capture floor and would be REJECTED at the door. It does not conflict with any leaderboard candidates (which all have edge_capture >= 771) but also does not complement them as it fails to capture the J edge.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

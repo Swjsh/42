@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new long-side mean-reversion trigger; does not conflict with current leaderboard entries (which are primarily watcher proposals, gates, or structural filters). Most similar to ORB_RETEST_LONG (rank #4 WATCH-ONLY) but adds VWAP cross confirmation for higher signal quality. No direct overlap with existing triggered candidates like LIVE_PRICE_FIRST_BAR_TRIGGER (rank #2) or QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS (rank #I).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

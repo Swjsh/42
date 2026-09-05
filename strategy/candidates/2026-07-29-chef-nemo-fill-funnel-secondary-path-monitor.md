@@ -62,3 +62,5 @@ Modify `fill_funnel.py`'s `_acct_funnel()` function to:
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates. This monitoring fix does not alter trading logic, triggers, filters, exits, or quality gates of any strategy. It ensures accurate activity tracking for all setups (including those in the leaderboard), thereby improving the fidelity of verdicts used for operational oversight without conflicting with any candidate's core mechanics. No known conflicts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

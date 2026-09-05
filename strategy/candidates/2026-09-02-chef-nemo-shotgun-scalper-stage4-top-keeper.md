@@ -63,3 +63,5 @@ Entry parameters are also adjusted: `strike_offset=2` (OTM-2 strikes) and `vol_r
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door per OP-16 (edge_capture < 771). It does not appear on the current leaderboard and would not conflict with existing candidates. However, it offers no improvement over baseline for the J anchor days and thus provides no value to the leaderboard. Promoting to LEADERBOARD is not warranted without first achieving edge_capture ≥ 771. OOS walk-forward is premature until the anchor edge is sufficient.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

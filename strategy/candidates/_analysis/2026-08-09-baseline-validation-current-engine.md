@@ -58,3 +58,5 @@ Gym validators (all tests PASS), walk-forward OOS test (edge_capture ≥ 0, Shar
 ## Pre-existing leaderboard impact
 
 No conflict; validates current state of J-RATIFIED candidates. Complements leaderboard by confirming no regression in core OP-16 anchors post-ratification. Does not propose changes, so no impact on open candidate rankings.
+
+<!-- PROVENANCE-MISSING: test_no_intra_session_pnl_revert_block.py -->

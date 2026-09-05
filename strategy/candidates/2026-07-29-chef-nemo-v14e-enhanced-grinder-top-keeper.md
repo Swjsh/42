@@ -69,3 +69,5 @@ The v14_enhanced_grinder sweep sought to improve edge capture on J anchor days b
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (which require edge_capture >= 771). This candidate would be REJECTED at the door per OP-16. Does not complement existing candidates; requires significant rework to become viable. No overlap with current leaderboard entries (all J-ratified or promising with edge_capture > 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

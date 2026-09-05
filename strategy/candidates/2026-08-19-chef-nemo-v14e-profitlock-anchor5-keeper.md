@@ -52,3 +52,5 @@ Entry uses v14_enhanced_bearish_rejection_ride_the_ribbon trigger with strike_of
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?> This candidate mirrors the J-RATIFIED V14E_PARAM_SWEEP_26K (edge_capture ~$499) and does not add new edge; likely duplicates existing candidate and would not improve leaderboard ranking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

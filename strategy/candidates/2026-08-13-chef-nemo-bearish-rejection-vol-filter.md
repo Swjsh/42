@@ -52,3 +52,5 @@ gym validators (all tests pass), walk-forward OOS positive, real-fills validatio
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND (which improves Sharpe but not edge capture) by targeting winner-day P&L lift. May overlap with BEAR_SCORE_7_RELAXATION (which used bear_score relaxation) but uses a different mechanism (volatility filter) to avoid overfit on specific loser days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

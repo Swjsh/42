@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; complements VWAP‑based strategies (e.g., VWAP_CONTINUATION) by adding a VIX‑filtered mean‑reversion long bias. Overlaps with volatility‑gated ideas but differs in entry logic (requires two‑bar deviation and bullish reversion bar). Does not interfere with existing trigger types in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

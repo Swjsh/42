@@ -69,3 +69,5 @@ We aim to identify whether any strategy emerging from the Stage-1 autoresearch g
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate does not conflict with existing leaderboard entries; it is a meta-process to evaluate grinder output. If the grinder yields a candidate that clears OP-16, it will be added to the leaderboard as a new entry. It complements the leaderboard by providing a pipeline for generating new strategy ideas from the grinder harness.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/stage1_grinder.py -->

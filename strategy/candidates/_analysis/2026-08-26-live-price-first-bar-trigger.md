@@ -59,3 +59,5 @@ We need to pass:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate (LIVE_PRICE_FIRST_BAR_TRIGGER) is already in the leaderboard at rank 2. We are analyzing it to see if it can be promoted from NEEDS-MORE-DATA to PROMISING or if it should be rejected. It does not conflict with other candidates as it is a trigger branch that can be combined with other filters (but note: the trigger is a new branch, so it would add trades).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

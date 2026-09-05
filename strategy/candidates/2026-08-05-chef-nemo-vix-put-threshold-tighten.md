@@ -55,3 +55,5 @@ We modify the existing VIX confirmation filter in the BEARISH_REJECTION_RIDE_THE
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is not explicitly on the leaderboard as a candidate but is the baseline). It does not conflict with any current leaderboard candidates as it is a filter change on an existing setup. It may interact with other filters (e.g., the VIX bull/gate filters) but those are for bullish trades and we are only affecting bearish puts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

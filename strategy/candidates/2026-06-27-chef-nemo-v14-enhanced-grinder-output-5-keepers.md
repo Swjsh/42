@@ -53,3 +53,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in the leaderboard, particularly those that also target the SPY 0DTE options market. Further analysis is required to determine the potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

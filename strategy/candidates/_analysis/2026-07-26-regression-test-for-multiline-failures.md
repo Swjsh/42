@@ -57,3 +57,5 @@ Since this is a test-only change with no alteration to trading logic, there is z
 ## Pre-existing leaderboard impact
 
 No impact -- this candidate does not modify any trading logic, parameters, or strategy rules. It complements all existing candidates by increasing system reliability in task processing, reducing silent failures that could affect strategy deployment or monitoring. Zero conflict with leaderboard entries 1-9.
+
+<!-- PROVENANCE-MISSING: test_task_scorer_multiline_paren.py -->

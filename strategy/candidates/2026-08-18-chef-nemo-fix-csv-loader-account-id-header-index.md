@@ -62,3 +62,5 @@ Assume the CSV header contains an "account_id" column; if missing, let the `Valu
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This is a code quality fix, not a trading strategy. It complements all candidates by improving infrastructure reliability. No conflicts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

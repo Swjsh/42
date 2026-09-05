@@ -64,3 +64,5 @@ X / 10 -- <brief reasoning>
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis extends the existing PROMISING candidate WEEKLY_DTE_NOT_0DTE. It does not conflict with any other candidate; it complements by providing more data points for the DTE study. If the monotone improvement continues, it reinforces the candidate's validity. If not, it may lead to refining the candidate to an optimal DTE (e.g., 2DTE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

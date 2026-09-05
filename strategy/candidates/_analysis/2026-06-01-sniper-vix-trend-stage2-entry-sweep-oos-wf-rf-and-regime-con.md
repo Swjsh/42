@@ -58,3 +58,5 @@ This analysis validates the OOS walk-forward, real-fills, and regime concentrati
 8 / 10 -- Strong OOS walk-forward and parameter stability, but regime concentration and pending real-fills validation prevent higher confidence. Once J shadow-trade anchors are secured and day-level concentration analyzed, confidence could rise to 9 if top-5 day P&L shows <60% concentration.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

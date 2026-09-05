@@ -56,3 +56,5 @@ For any bearish setup trigger (BEARISH_REJECTION_RIDE_THE_RIBBON, BEARISH_REVERS
 ## Pre-existing leaderboard impact
 
 This filter_change does not conflict with any existing top-9 candidates in _LEADERBOARD.md because it operates as a pre-entry filter that can be stacked with most strategies. It may complement BEARISH_REJECTION_RIDE_THE_RIBBON (not on leaderboard) and any bearish-biased candidate by reducing low-VIX losers. It is orthogonal to exit-change or trigger-change proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

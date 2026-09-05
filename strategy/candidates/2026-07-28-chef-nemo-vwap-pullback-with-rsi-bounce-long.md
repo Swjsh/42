@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing VWAP-based strategies (e.g., VWAP_CONTINUATION) by adding an RSI oversold filter for long entries. It does not conflict with any current leaderboard candidates as it introduces a new trigger mechanism not present in the registry. No overlap with watchers, gates, or exit changes in the top-15 leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

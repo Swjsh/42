@@ -53,3 +53,5 @@ The mechanism involves detecting SNIPER_LEVEL_BREAK trades and filtering them ba
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

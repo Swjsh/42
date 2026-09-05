@@ -58,3 +58,5 @@ Run baseline engine through identical walk-forward split to produce baseline_oos
 ## Confidence (in this analysis)
 
 6 / 10 — The walk-forward numbers are solid for the candidate, but the missing baseline leaves the delta_sharpe undefined. The analysis correctly identifies the gap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

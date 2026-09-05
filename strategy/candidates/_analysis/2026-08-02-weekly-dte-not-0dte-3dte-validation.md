@@ -57,3 +57,5 @@ Run the existing `options_3dte/4dte` backfill (approx 8,090 contracts) using the
 ## Pre-existing leaderboard impact
 
 Complements the existing `WEEKLY_DTE_NOT_0DTE` candidate (rank ★★, PROMISING). If 3DTE/4DTE show continued improvement, may warrant a new candidate or parameter update (e.g., DTE override). No conflict with current leaderboard; extends the same structural hypothesis.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/weekly_dte_not_0dte_3dte_4dte.json -->

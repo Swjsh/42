@@ -54,3 +54,5 @@ The retry mechanism candidate must pass the following tests before being merged 
 ## Pre-existing leaderboard impact
 
 The retry mechanism candidate may complement the existing candidates in the leaderboard, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON candidates, by providing an additional layer of risk management and potential gain capture. However, further analysis is needed to determine the exact impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

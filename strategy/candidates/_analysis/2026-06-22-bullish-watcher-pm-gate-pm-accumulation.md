@@ -31,3 +31,5 @@
 - Updates accumulation status for existing NEEDS-MORE-DATA candidate (Rank 9)
 - Does not affect other candidates; complements V14E_BEAR_TIME_OF_DAY_GATE (Rank 17) which covers AM chop zone
 - Upon N≥100 and WR≥55%, status may advance to PROMISING pending OP-21 live win gate (3+ J PM observations)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

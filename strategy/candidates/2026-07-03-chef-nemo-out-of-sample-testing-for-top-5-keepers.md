@@ -50,3 +50,5 @@ The pre-merge gate will involve evaluating the performance of the keepers using 
 ## Pre-existing leaderboard impact
 
 The proposed candidate will complement the existing leaderboard by providing out-of-sample testing results for the top 5 keepers, which will help to confirm their edge capture and robustness.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

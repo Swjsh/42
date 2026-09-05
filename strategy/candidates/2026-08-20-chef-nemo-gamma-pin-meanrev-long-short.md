@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly modify any existing rules in the leaderboard. It does not conflict with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, MIDDAY_TRENDLINE_GATE) because it operates on a different signal (gamma‑pin mean reversion) and could complement them by providing additional entry opportunities in the early‑morning window, provided the edge is real. No known overlap with the existing 1‑9 ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

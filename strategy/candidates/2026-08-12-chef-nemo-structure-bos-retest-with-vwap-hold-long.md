@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict identified; complements existing structure-based watchers (e.g., TRENDLINE_BREAK_CALL_VETO) by adding VWAP-hold filter for long entries. Impact unknown without Stage-1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

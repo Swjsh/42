@@ -64,3 +64,5 @@ This ensures that any engine setup activity (regular or extra) results in a GREE
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard because it does not alter the engine's trading logic, triggers, filters, exits, or watchers. It only changes the fill_funnel monitor's activity verdict, which is used for operational awareness but does not affect strategy performance metrics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

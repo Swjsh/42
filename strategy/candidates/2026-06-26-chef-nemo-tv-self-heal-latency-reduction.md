@@ -53,3 +53,5 @@ The proposed change requires the following pre-merge gates to be passed:
 ## Pre-existing leaderboard impact
 
 The proposed change may complement or conflict with existing candidates on the leaderboard, such as the BEARISH_SWEEP_BLOCKER and LIVE_PRICE_FIRST_BAR_TRIGGER candidates. Further evaluation is required to determine the potential impact on these candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

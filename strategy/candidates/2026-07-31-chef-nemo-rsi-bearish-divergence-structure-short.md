@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing RSI_DIVERGENCE_BULL_WATCHER (watcher-only) by adding actionable short rules with structure confirmation. No direct conflict with top 9 candidates (mostly gates/exit changes) as this is a new trigger type. May overlap with VWAP_CONTINUATION in morning window but targets different regime (choppy midday vs. morning continuation). Does not interfere with structure-based vetoes (ranks 17-18) as it requires its own structure breakdown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

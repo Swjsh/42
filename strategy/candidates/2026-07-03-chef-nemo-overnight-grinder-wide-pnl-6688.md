@@ -62,3 +62,5 @@ The candidate must pass the following tests before it can be merged into the pro
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, such as the TRENDLINE_BREAK_CALL_VETO candidate, and can be used in conjunction with them to improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

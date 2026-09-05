@@ -67,3 +67,5 @@ The shotgun_scalper_stage2 sweep sought parameters that improve wide_pnl by focu
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates due to negative edge_capture. Does not complement any existing candidate as it undermines the OP-16 edge_capture foundation. Would be REJECTED at door (edge_capture < 771) if submitted. Requires complete redesign to capture J-edge before consideration for leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

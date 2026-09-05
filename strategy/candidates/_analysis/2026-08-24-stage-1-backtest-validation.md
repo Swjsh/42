@@ -61,3 +61,5 @@ Outputs are written to `analysis/backtests/stage1/<timestamp>/`.
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new strategy; it validates the backtest infrastructure. No conflict with existing candidates. If the grinder harness passes, it enables future candidates to be evaluated; if it fails, it blocks all Stage-1 proposals until fixed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

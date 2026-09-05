@@ -173,3 +173,5 @@ All three bull candidates share the chart-stop-only requirement. Can all be acti
 ---
 
 *Created: 2026-05-20. Leaderboard entry added: 2026-05-24. All 4 quantitative OP-21 gates passed. Sole remaining gate: 3 live J observations.*
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/fbw_morning_mid_real_fills.json, automation/state/watcher-observations.json -->

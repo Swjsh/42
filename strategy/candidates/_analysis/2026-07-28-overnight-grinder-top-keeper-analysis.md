@@ -59,3 +59,5 @@ Not applicable (candidate rejected per OP-16 edge_capture floor). If reconsidere
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard. It evaluates a grinder keeper that fails the OP-16 bar and should be rejected. No conflict with existing leaderboard candidates (all have edge_capture ≥771), but highlights the danger of optimizing for wide_pnl without anchor day constraints. Reinforces that OP-16 edge_capture is the gatekeeper for J-edge strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

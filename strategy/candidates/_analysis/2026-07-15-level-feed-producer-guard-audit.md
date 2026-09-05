@@ -59,3 +59,5 @@ The level_feed producer guard currently does not enforce the one-role-per-price 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a trading strategy change, so it does not conflict with any existing candidates in the leaderboard. It is a code quality improvement that supports the reliability of the strategy's data feed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

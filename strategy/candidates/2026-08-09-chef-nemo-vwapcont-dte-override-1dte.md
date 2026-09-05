@@ -55,3 +55,5 @@ Gym validators must pass, walk-forward WF ratio >= 0.70, real-fills P&L within 2
 ## Pre-existing leaderboard impact
 
 This candidate proposes to replace the HOLD candidate VWAPCONT_DTE_OVERRIDE_2DTE. It does not directly conflict with other candidates in the leaderboard, as it is a modification of an existing wiring proposal. It may complement candidates that improve the VWAP_CONTINUATION setup's edge (e.g., quality gates) but we do not anticipate direct conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

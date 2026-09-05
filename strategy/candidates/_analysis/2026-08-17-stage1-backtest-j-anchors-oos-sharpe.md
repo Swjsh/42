@@ -50,3 +50,5 @@ The backtest must pass: edge_capture ≥ 0 on J days, OOS Sharpe ≥ 0.70, and r
 ## Pre-existing leaderboard impact
 
 This backtest is not a candidate but a validation step. It does not conflict with any candidate in the leaderboard; rather, it is a prerequisite for any candidate to be considered.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

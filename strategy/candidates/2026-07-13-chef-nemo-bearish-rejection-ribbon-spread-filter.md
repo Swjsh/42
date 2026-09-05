@@ -56,3 +56,5 @@ Modify the BEARISH_REJECTION_RIDE_THE_RIBBON context filter: compute the EMA rib
 ## Pre‑existing leaderboard impact
 
 This filter_change complements existing candidates that target the BEARISH_REJECTION_RIDE_THE_RIBBON setup (e.g., MIDDAY_TRENDLINE_GATE, structure‑veto gates). It does not conflict with any leaderboard entries because it operates on a separate context filter (ribbon spread) rather than modifying triggers, exits, or other quality gates. It could be stacked with STRUCTURE_VETO_DIR_VS_TREND or VWAP_CONTINUATION as an additional precondition. No known duplication with current leaderboard items.
+
+<!-- PROVENANCE-MISSING: test_ribbon_spread_filter.py -->

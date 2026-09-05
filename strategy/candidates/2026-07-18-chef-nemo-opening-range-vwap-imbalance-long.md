@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate does not directly modify any existing rules in the leaderboard (ranks 1‑9). It is a new trigger that would add a new entry signal alongside strategies like WEEKLY_DTE_NOT_0DTE and VWAPCONT_DTE_OVERRIDE_2DTE. It is complementary in the sense that it trades a different market condition (low‑VIX, mean‑reversion after OR break) whereas the leaders tend to capture trending or continuation edges. No direct conflict is expected, but it would increase strategy diversity and could be combined with existing filters (e.g., VWAP continuation) after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

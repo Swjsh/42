@@ -69,3 +69,5 @@ Modify `self_check.py` to:
 ## Pre-existing leaderboard impact
 
 Complements all candidates by improving system reliability. No conflicts as it does not alter trading logic, parameters, or engine behavior. Enhances the ability to detect and mitigate incidents that could otherwise cause missed opportunities across any strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

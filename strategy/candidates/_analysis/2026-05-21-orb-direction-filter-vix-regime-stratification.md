@@ -64,3 +64,5 @@ We will also repeat the stratification by quarter (2025‑Q1 through 2026‑Q2) 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to any existing candidate; it is a diagnostic study of ORB_DIRECTION_FILTER (#5). It complements the existing watcher by potentially revealing regime‑dependent weaknesses that could motivate a filter_change or quality_gate candidate (e.g., adding a VIX regime filter). It does not conflict with any current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

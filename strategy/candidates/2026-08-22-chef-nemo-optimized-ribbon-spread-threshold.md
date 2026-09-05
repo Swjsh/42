@@ -53,3 +53,5 @@ Gym validators must pass (103/104 PASS, excluding pre-existing market-closed ski
 ## Pre-existing leaderboard impact
 
 This candidate optimizes a parameter of the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is used in multiple strategies. It does not directly add a new line to the leaderboard but may affect the edge_capture of existing strategies that rely on this setup. We will re-score affected candidates after optimization. No conflict with current leaderboard entries as it is a parameter refinement, not a new strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing leaderboard candidates. This proposal introduces a new short-biased gap fade mechanism distinct from GAP_AND_GO (a continuation long strategy) and other gap-related strategies in the leaderboard (mostly watchers or structural gates). It is complementary as it adds a new entry condition for short trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

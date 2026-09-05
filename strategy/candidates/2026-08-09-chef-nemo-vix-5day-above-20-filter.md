@@ -55,3 +55,5 @@ Stage-1 backtest must show edge_capture > 771, walk-forward OOS must maintain ed
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements [STRUCTURE_VETO_DIR_VS_TREND] by potentially increasing edge_capture while preserving its Sharpe improvement. No overlap with watcher-only or gate-change candidates (e.g., ranks 3-11) as this modifies the core BEARISH_REJECTION_RIDE_THE_RIBBON setup's context filters. May conflict with candidates that modify VIX filters (e.g., rank 22 VIX_BULL_HARD_CAP_UNBLOCK) but those are bull-specific; our filter is bearish-context only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

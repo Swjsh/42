@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new long‑side trigger that does not modify any existing gates, filters, or exits. It complements current trigger‑based candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER, VWAP_CONTINUATION) by providing an alternative entry signal based on opening‑range dynamics. No known conflict with the top‑9 leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

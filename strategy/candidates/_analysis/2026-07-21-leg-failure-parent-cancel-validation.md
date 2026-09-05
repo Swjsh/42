@@ -75,3 +75,5 @@ We will measure:
 ## Pre-existing leaderboard impact
 
 No impact. This validation does not alter strategy parameters, triggers, or exits. It solely tests the order management layer's robustness to fill failures. All existing candidates remain unaffected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

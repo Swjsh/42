@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon-based strategies (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by using simultaneous alignment+BOS trigger vs. pullback entry. No direct conflict with current leaderboard entries as it targets long bias (OP-16 tracks PUT winners only), but may overlap with bull-side candidates if extended to calls. Differentiates from VWAP_CONTINUATION by using EMA ribbon+BOS trigger vs. VWAP continuation. Requires isolation testing to avoid interference with existing bull/bear gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

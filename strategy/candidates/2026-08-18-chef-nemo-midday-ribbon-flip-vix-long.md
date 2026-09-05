@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon‑based entries (BULLISH_RECLAIM_RIDE_THE_RIBBON, BEARISH_REJECTION_RIDE_THE_RIBBON, MIDDAY_TRENDLINE_GATE) by adding a time‑of‑day and VIX filter to a classic ribbon cross. Does not conflict with any top‑10 candidates in the leaderboard; likely additive if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

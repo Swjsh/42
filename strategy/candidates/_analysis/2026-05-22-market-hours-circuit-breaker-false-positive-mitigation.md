@@ -52,3 +52,5 @@ We propose the following enhancements to the spend detection logic in `market_ho
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in the leaderboard. It is a risk management enhancement that could benefit all candidates by reducing unnecessary blocks during volatile but profitable periods. It complements candidates that are sensitive to market conditions (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ The ORB_DIRECTION_FILTER long-only gate improves the quality of ORB_RETEST_LONG 
 ## Pre-existing leaderboard impact
 
 This analysis validates an existing watcher proposal ([ORB_DIRECTION_FILTER](2026-05-21-orb-direction-filter.md)) that is currently ranked #5 with status NEEDS-MORE-DATA. The results presented here (Q2‑2026 OOS WR=86%, avg P&L≈$46.96/trade) are consistent with the watcher’s reported OOS performance and do not conflict with any higher‑ranked candidates. Instead, they reinforce the case for promoting ORB_DIRECTION_FILTER to PROMISING status pending the missing real‑fills on J days. No impact on the leaderboard ranking of other candidates is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

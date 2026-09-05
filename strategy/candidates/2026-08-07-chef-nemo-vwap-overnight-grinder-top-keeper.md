@@ -58,3 +58,5 @@ Parameters: VWAP entry triggered when price reclaims/rejects the prior session's
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates -- edge_capture (40.01) < 771 OP-16 floor triggers automatic REJECTION. Does not complement existing candidates as it fails basic eligibility. Requires significant rework to improve J day capture before leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

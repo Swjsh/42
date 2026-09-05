@@ -52,3 +52,5 @@ We will run the participation_cascade.py script over the last 20 trading days (f
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates in the leaderboard. It is a diagnostic tool that may inform future adjustments to existing gates or triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

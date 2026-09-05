@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new long‑biased trigger (VWAP volume‑node pullback). It does not conflict with existing watcher‑quality gates or DTE/structural candidates in the leaderboard (ranks 1‑9). It could complement existing long‑side setups (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by providing an additional entry filter, subject to validation. No direct overlap with current anchor‑scoring strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

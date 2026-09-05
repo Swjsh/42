@@ -53,3 +53,5 @@ The proposed mechanism requires successful simulation of the 401 injection scena
 ## Pre-existing leaderboard impact
 
 The proposed mechanism is a new trigger and does not directly impact existing candidates on the leaderboard. However, it may indirectly impact the leaderboard by improving the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

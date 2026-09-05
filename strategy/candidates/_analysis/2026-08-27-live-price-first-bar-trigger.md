@@ -57,3 +57,5 @@ The trigger aims to capture early directional momentum by entering on the first 
 ## Pre-existing leaderboard impact
 
 Currently ranked #2 (NEEDS-MORE-DATA) in _LEADERBOARD.md. This analysis does not conflict with higher-ranked candidates; it complements the exploration of premarket-triggered setups. If Stage-1 backtest reveals sufficient edge_capture (>771) and acceptable OOS/sharpe, it could promote to PROMISING and potentially challenge existing candidates for rank. No direct overlap with existing trigger types (e.g., VWAP_CONTINUATION, BEARISH_REJECTION) as it operates exclusively in the premarket-to-first-RTH-bar window.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

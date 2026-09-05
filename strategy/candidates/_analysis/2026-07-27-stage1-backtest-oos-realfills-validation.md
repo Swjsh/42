@@ -60,3 +60,5 @@ Running the Stage-1 backtest via the autoresearch grinder harness will generate 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it outlines a validation pipeline. If any candidate emerges from this process with edge_capture ≥ 771, it will be added to the leaderboard and ranked by final_score. It may complement or supersede existing candidates depending on its edge_capture and Sharpe. No direct conflict with current leaderboard entries is anticipated until results are in.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

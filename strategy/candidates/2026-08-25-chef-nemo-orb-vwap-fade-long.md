@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly watcher gates, DTE studies, and parameter sweeps); may complement by providing an alternative entry trigger but impact unknown without backtest. No overlap with current leaderboard entries 1-9 in _LEADERBOARD.md__.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

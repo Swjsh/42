@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Adds a new trigger orthogonal to existing watchers, filters, and exit changes; does not conflict with any ranked candidate in _LEADERBOARD.md. May complement quality‑gates that act on regime or volume.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

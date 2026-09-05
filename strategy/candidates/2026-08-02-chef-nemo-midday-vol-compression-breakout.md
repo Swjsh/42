@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing time‑based filters (e.g., V14E_BEAR_TIME_OF_DAY_GATE) by targeting a different intraday window (lunchtime vs. 10:xx‑11:xx chop). No direct conflict with registered candidates; operates on a distinct trigger (volatility compression breakout) not currently in the registry. Would not interfere with existing watchers or gates as it is a new trigger type.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

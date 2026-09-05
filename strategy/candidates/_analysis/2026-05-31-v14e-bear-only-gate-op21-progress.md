@@ -42,3 +42,5 @@ Each week, we will report:
 ## Pre-existing leaderboard impact
 
 This analysis supports the promotion of candidate #3 (V14E_BEAR_ONLY_GATE) from PROMISING to J-RATIFIED upon meeting OP-21. It does not conflict with other candidates; it complements the watcher's data collection.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

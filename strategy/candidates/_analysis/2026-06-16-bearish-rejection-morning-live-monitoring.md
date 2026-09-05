@@ -63,3 +63,5 @@ N/A (analysis only; no code change proposed). For watcher promotion: 3 live J-co
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates. Complements BEARISH_REJECTION_MORNING (rank 20) by providing the live observation data needed to satisfy its OP-21 gate (0/3 J confirmations → 3/3). No overlap with other watchers' logic (e.g., ORB gates, V14E gates) as it targets a unique morning bear rejection pattern. Supports potential future promotion of BEARISH_REJECTION_MORNING to live status per Rule 9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

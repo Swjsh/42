@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing logic in the leaderboard. It complements existing volatility‑based watches (e.g., VIX_BULL_HARD_CAP_UNBLOCK, F8_BULL_VIX_GATE_REVAL) by providing a long‑side entry condition rooted in VIX compression breakout. It does not conflict with any current J‑ratified candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it operates on a different trigger and time window (11:00‑14:00 ET). If proven effective, it could add a new long‑side strategy to the arsenal, potentially increasing aggregate Sharpe without affecting the existing bear‑side edge capture. No changes to params.json or heartbeat.md are proposed at this draft stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

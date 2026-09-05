@@ -58,3 +58,5 @@ This analysis confirms the baseline engine (prior to any leaderboard candidates)
 - [STRUCTURE_VETO_DIR_VS_TREND] correctly reports delta_edge_capture=0 and delta_sharpe=+0.388.
 - Candidates claiming to improve edge_capture must exceed $780 on J days to be considered additive.
 - No conflict: analysis serves as reference point for all existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -36,3 +36,5 @@ Entry: The engine's existing entry signals are gated by a trend veto. We compute
 2. **Sample bias:** Sample size = 16 months of OPRA data (2025-01-02 to 2026-06-18), selection method = entire available history. Overfit risk is low due to the simplicity of the veto mechanism and sound theoretical basis (avoiding wrong-way trades). However, note the OOS-2026 edge_capture delta was $0, indicating the edge does not come from recent 2026 data but from earlier periods in the sample.
 3. **Out-of-sample:** OOS-2026 edge_capture delta = $0 (no change on J days); overall P&L improved by $583 due to removal of wrong-way trades in non-J days.
 4. **Real-fills:** Real-fills A/B (full OPRA 2025-01-02..2026-06-18) shows total P&L improvement of +$583 ($7
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

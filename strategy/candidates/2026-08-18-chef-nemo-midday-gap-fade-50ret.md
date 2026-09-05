@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger distinct from existing gap-based strategies (GAP_AND_GO trades gap continuation, ORB_RETEST_LONG trades opening range retest) and therefore does not conflict with current leaderboard entries. It may complement by providing a short-biased fade opportunity in gap environments.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

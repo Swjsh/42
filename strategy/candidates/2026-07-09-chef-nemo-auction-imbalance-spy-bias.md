@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type based on auction imbalances and does not directly modify any existing filters, gates, or exit logic. It therefore does not conflict with the current leaderboard entries (which are primarily quality gates, structural DTE studies, or watcher proposals). If validated, it could complement existing strategies by providing an early‑session entry filter that feeds into Gamma’s established EMA‑based management framework.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

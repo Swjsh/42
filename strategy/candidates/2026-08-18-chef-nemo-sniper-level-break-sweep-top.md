@@ -50,3 +50,5 @@ Stage-1 backtest must show edge_capture ≥ 771 (OP-16 floor), walk-forward OOS 
 ## Pre-existing leaderboard impact
 
 No conflict with existing SNIPER candidates (e.g., SNIPER_CS_CHART_STOP uses chart stops, this uses premium stops); complements by exploring parameter space within SNIPER_LEVEL_BREAK framework.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

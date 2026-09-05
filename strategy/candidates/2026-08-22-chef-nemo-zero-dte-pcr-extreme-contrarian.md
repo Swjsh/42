@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with watcher revalidations (e.g., V14E_BEAR_ONLY_GATE) or DTE studies (WEEKLY_DTE_NOT_0DTE). Adds a new entry trigger based on 0DTE PCR that may coexist with VWAP-based strategies (e.g., VWAP_CONTINUATION) but operates in distinct regime (first hour, VIX>20). No overlap with current leaderboard candidates' mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

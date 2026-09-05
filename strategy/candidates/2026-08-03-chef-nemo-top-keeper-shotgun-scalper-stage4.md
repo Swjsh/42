@@ -67,3 +67,5 @@ We are trying to capture edge by optimizing the parameters of the shotgun scalpe
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture ≥771). This candidate fails the OP-16 edge_capture floor (506.55 < 771) and would be REJECTED at the door per leaderboard rules. Requires significant improvement in J-day capture before promotion consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

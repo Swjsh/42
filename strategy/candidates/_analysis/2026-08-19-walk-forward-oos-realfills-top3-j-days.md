@@ -50,3 +50,5 @@ Run walk-forward OOS test and real-fills validation on the top 3 J days, compute
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate; it is a validation step. It does not conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

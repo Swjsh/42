@@ -69,3 +69,5 @@ The core changes are: moving to ATM strikes, tightening the premium stop from 50
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analyzer does not propose a new candidate but evaluates an existing keeper. If promoted, it would compete with structural candidates like WEEKLY_DTE_NOT_0DTE and VWAPCONT_DTE_OVERRIDE_2DTE. It complements quality-gate candidates (e.g., V14E_BEAR_ONLY_GATE) by focusing on exit/entry parameters rather than filters. However, it conflicts with the premise of the J-RATIFIED V14E_PARAM_SWEEP_26K (which uses ITM-2 and 50% stop) by challenging those parameters; promotion would require demonstrating superior robustness. Given current evidence, it should not be promoted to the leaderboard without OOS validation.
+
+<!-- PROVENANCE-MISSING: test_v14e_atm_strike.py, test_profit_lock_parameters.py -->

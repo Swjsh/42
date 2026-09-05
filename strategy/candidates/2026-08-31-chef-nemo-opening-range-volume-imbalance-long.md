@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing volume‑ or VWAP‑based triggers (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) because it adds a volume‑imbalance filter and EMA ribbon condition, potentially capturing trades those setups miss. It does not conflict with any current PROMISING or J‑RATIFIED candidates, as it proposes a distinct entry logic. If the Stage‑1 backtest shows positive edge, it could be added as a new line item; otherwise it will remain in the NEEDS‑MORE‑DATA tier.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

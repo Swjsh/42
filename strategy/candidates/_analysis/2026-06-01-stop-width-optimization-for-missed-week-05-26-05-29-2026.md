@@ -72,3 +72,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not directly conflict with any existing candidate because it is not proposing a new trade class or a watcher/filter change. However, if we were to propose a parameter change (which we cannot do directly due to Rule 9), it would affect all candidates that rely on the engine's stop. Since we cannot propose the parameter change, this analysis is purely informational. It may inform future candidates that are watchers or filters that condition on volatility or other factors to dynamically adjust the stop, but that is beyond the scope of this analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard, as it is a new trigger and does not overlap with any existing strategies. However, it may complement some of the existing candidates, such as the TRENDLINE_BREAK_CALL_VETO candidate, by providing an additional trigger for bearish trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

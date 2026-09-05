@@ -50,3 +50,5 @@ gym validators, walk-forward, real-fills
 ## Pre-existing leaderboard impact
 
 Complements existing candidates that focus on DTE, exit timing, or structural gates; does not conflict with any ratified candidates as it is a pure filter additive on BEARISH_REJECTION_RIDE_THE_RIBBON. May overlap with VIX_BULL_HARD_CAP_UNBLOCK (which deals with bull side) but operates on opposite side.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

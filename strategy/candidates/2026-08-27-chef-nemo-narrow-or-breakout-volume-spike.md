@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements by adding a new trigger type. Existing ORB-related candidates (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) are watcher gates or direction filters, not entry triggers. GAP_AND_GO relies on price gaps, not narrow OR. No overlap in mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

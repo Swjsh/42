@@ -57,3 +57,5 @@ The TRENDLINE_BREAK_RETEST_BEAR candidate aims to capture the edge of bearish tr
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate, by targeting a different aspect of the bearish trend.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

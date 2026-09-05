@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; it introduces a new trigger type (gap fade with volume divergence) distinct from continuation‑based triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

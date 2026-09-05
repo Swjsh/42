@@ -66,3 +66,5 @@ Compared to baseline (unknown), the short time stop (12 min) and tight stop loss
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture > 771). This keeper fails the OP-16 gate and would be rejected at the door per OP-16 rules. No complement to existing candidates; requires major rework to capture J's winner days while preserving loser-day discipline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ The volume filter is applied as a final quality gate after existing triggers (le
 ## Pre-existing leaderboard impact
 
 Complements [WEEKLY_DTE_NOT_0DTE] (Rank ★★) by refining trigger quality without altering DTE; does not conflict with [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) as it operates on different signal dimension (volume vs. structure). Synergistic with [MIDDAY_TRENDLINE_GATE] (Rank 21) as both target spurious entries—volume filter addresses intraday trigger quality, midgate addresses temporal window. No overlap with watcher-only candidates. Would rank between ★ and ★★ if validated, pending final edge_capture/sharpe metrics.
+
+<!-- PROVENANCE-MISSING: test_vol_filter_quality_gate.py -->

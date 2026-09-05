@@ -52,3 +52,5 @@ The mechanism for this candidate involves using the top-performing keepers from 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the SNIPER_LEVEL_BREAK candidate. However, it requires further testing and validation to determine its impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

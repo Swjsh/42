@@ -71,3 +71,5 @@ Per _LEADERBOARD.md status `NEEDS-MORE-DATA`, the 3 remaining steps are:
 ## Confidence
 
 7/10 — Edge capture projection is strong ($982 vs $771 floor) based on directional analysis of J's source-of-truth days. Primary uncertainty is aggregate Sharpe (not yet computed) and whether real-fills diverge materially from watcher observations.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

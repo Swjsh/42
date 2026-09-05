@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard (which contains mostly filter/watcher proposals and exit changes). It does not directly conflict with existing candidates but may overlap in regime assumptions with VIX-based filters (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK). If proven additive, it could complement existing structures by providing a long-biased entry in low-VIX compression environments, though OP-16 anchor focus is bearish; would need to be tested as a put-selling setup (short bias) to align with J's edge. No direct duplication detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

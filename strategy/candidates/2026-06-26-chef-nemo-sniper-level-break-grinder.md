@@ -50,3 +50,5 @@ The pre-merge gate requires a Stage-1 backtest to evaluate the performance of th
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

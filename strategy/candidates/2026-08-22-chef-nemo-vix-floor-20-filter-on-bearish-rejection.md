@@ -57,3 +57,5 @@ Change the VIX condition from "VIX rising OR already above 20" to "VIX >= 20" (a
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard by potentially improving the BEARISH_REJECTION_RIDE_THE_RIBBON strategy (which is not currently on the leaderboard as a standalone candidate because it is the base engine). It does not conflict with any existing candidates as it is a filter change to the core strategy. If successful, it could become a new baseline for future candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

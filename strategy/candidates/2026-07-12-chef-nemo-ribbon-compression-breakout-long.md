@@ -68,3 +68,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new long‑bias trigger that is orthogonal to the existing bearish‑focused setups in the leaderboard (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, various watcher gates). It does not directly modify any of the ranked candidates 1‑9, so it is expected to complement the leaderboard by adding a potential long‑side edge rather than conflicting with current bearish edges. However, without backtest data we cannot confirm whether it adds meaningful edge‑capture or merely introduces noise.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

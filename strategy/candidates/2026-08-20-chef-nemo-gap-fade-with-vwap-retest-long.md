@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing mean-reversion and VWAP-based strategies (e.g., VWAP_CONTINUATION) by adding a specific gap-failure precondition. It does not directly conflict with any leaderboard candidate as it targets a distinct setup (gap up -> VWAP failure -> reclaim) not currently covered. However, it may overlap with gap-and-go logic in opposite direction; requires validation to ensure it doesn't cannibalize existing profitable gap continuation trades. No direct parameter or wiring conflicts expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

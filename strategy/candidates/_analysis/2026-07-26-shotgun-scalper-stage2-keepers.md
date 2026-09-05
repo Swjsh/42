@@ -66,3 +66,5 @@ The shotgun_scalper_stage2 parameter sweep aimed to discover relaxed-gate config
 ## Pre-existing leaderboard impact
 
 The top keeper’s edge_capture (‑36.0) is far below the OP‑16 rejection floor of 771, so it would be **REJECTED** if submitted as a candidate. It conflicts with all current leaderboard entries (which all have positive edge_capture) and would not improve the leaderboard. Any promotion would require a complete redesign that restores winner‑day capture while preserving or improving loser‑day behavior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

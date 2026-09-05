@@ -46,3 +46,5 @@ We require:
 
 ## Pre-existing leaderboard impact
 This change does not directly affect any strategy candidate in the leaderboard. It is a research infrastructure change that may affect which sweeps are run, but it does not alter the P&L of any strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

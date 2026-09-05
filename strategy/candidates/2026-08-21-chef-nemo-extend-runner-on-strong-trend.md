@@ -63,3 +63,5 @@ On strong-trend days (ADX ≥ 25), the BEARISH_REJECTION_RIDE_THE_RIBBON runner 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND (which improves Sharpe) by targeting edge_capture increase on winners. May overlap with MIDDAY_TRENDLINE_GATE (time‑of‑day filter) but operates on different signal (ADX vs time). No direct parameter edits to params.json; only exit logic change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

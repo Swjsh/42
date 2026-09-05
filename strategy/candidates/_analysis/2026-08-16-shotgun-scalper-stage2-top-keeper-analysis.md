@@ -55,3 +55,5 @@ Only then proceed to OOS walk-forward and real-fills validation on top 3 J days.
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND edge_capture=780) because it fails the OP-16 floor. Does not complement any existing candidate; instead, it validates OP-16 as a necessary gate. Promoting it would violate Rule 9 and undermine the J-edge mandate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

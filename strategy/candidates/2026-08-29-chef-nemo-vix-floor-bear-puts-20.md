@@ -60,3 +60,5 @@ Add a pre-entry filter in `gates.py` (or equivalent) that checks the current VIX
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is a filter_change that complements existing quality gates (e.g., STRUCTURE_VETO_DIR_VS_TREND, V14E_BEAR_ONLY_GATE) by adding a macro‑regime condition. It does not conflict with any wired‑in trigger or exit logic, so it can be stacked alongside current promoters. It may overlap with VWAP_CONTINUATION’s optional VIX put‑gate but uses a different threshold (absolute VIX ≥ 20 vs. 5‑bar slope ≥ 0), so they are additive rather than redundant. No known conflicts with top‑9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

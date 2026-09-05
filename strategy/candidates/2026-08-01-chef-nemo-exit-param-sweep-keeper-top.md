@@ -64,3 +64,5 @@ All other parameters (entry filters, position sizing, profit‑lock, etc.) stay 
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door because its edge_capture (670.6) < 771, so it would not appear on the leaderboard. It does not complement any existing leaderboard entries; it would need to improve edge_capture via further refinement before being considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

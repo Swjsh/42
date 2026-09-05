@@ -72,3 +72,5 @@ The parameter combination aims to improve edge capture by tightening stops, incr
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and therefore would not appear on the leaderboard. It does not conflict with existing candidates but requires significant improvement to be competitive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS Sharpe > 0.70, real-fills validation 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing strategies as it is an exit mechanism change. It does not conflict with any specific candidate in the leaderboard, as it is a parameter tweak to the existing profit-lock logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

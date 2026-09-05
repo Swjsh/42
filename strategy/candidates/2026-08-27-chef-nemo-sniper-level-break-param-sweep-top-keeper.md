@@ -51,3 +51,5 @@ Must pass gym validators, walk-forward OOS test with edge_capture ≥ 771 (OP-16
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This proposal would not appear on the leaderboard due to insufficient edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

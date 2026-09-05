@@ -61,3 +61,5 @@ Running a systematic Stage-1 grinder on the full 16-month SPY 5m dataset will su
 ## Pre-existing leaderboard impact
 
 This proposal does not conflict with any current leaderboard entries; it is a meta-process to generate new candidates. It complements existing work by providing a systematic feed of potential ideas for further refinement. No known overlap with candidates 1-25 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

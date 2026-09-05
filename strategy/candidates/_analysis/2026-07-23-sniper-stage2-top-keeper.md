@@ -71,3 +71,5 @@ Exit logic: TP1 at 40% premium, runner to 300% premium, profit lock disabled, ca
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771). This analysis suggests the keeper should NOT be promoted to the leaderboard without passing OOS and real-fills gates; likely remains in the grinder pipeline for further refinement. No direct impact on existing ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

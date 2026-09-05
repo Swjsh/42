@@ -53,3 +53,5 @@ Exit:
    - Blow-up scenario: If the engine's signals fire on the wrong side of a high-volatility move (e.g., bearish signals on a big up day), it could incur large losses per trade.
 
 6. **Concentration:** The top 5 days account for 1.067% of the wide_pnl ($6,688.35), indicating extremely low concentration. However, the J days (4/29, 5/01, 5/04, 5/05, 5/06, 5/07) contribute approximately $8
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Run a Stage-1 walk-forward OOS backtest on the current engine (v15.3 Safe) using
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 This analysis does not propose a strategy change; it is a diagnostic to quantify existing edge. It complements all candidates by providing a baseline measurement of OP-16 anchors. No conflict; rather, it informs whether any candidate improves edge_capture beyond the current baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

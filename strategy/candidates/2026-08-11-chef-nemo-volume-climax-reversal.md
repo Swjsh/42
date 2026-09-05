@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type and does not directly conflict with existing leaderboard entries (which are primarily filters, gates, or alternative trade classes). It may complement volume-aware filters if any exist, but the current leaderboard shows no volume-climax-based strategies. No overlap with existing candidates 1-24 in _LEADERBOARD.md is anticipated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

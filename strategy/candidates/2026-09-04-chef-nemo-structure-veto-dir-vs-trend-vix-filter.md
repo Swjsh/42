@@ -56,3 +56,5 @@ The current structure veto blocks P-in-uptrend (for PUTs) and C-in-downtrend (fo
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding VIX condition to same structure veto logic. Does not conflict with existing candidates; may supersede it if OOS/real-fills validate improved edge_capture. No overlap with watcher-only or exit-change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Since this is a monitoring fix and does not change the trading logic, the expect
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard because it does not alter trading logic, parameters, or strategy rules. It only improves the monitoring and reporting infrastructure. It complements all candidates by ensuring accurate trade detection and reporting.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

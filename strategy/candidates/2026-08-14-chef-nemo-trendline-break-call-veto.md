@@ -61,3 +61,5 @@ We aim to avoid false call entries during bearish market structure by vetoing ca
 ## Pre-existing leaderboard impact
 
 Complements Rank ★ [STRUCTURE_VETO_DIR_VS_TREND] (direction vs trend veto) — this is CALL-specific structure break veto. No conflict; can stack. Updates Rank WS4 from NEEDS-MORE-DATA to PROMISING pending OOS/real-fills verification. Does not affect PUT-side candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON).
+
+<!-- PROVENANCE-MISSING: test_trendline_break_call_veto.py -->

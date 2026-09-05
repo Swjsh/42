@@ -52,3 +52,5 @@ unknown -- requires Stage-1 backtest: need to access `watcher-observations.jsonl
 ## Pre-existing leaderboard impact
 
 If analysis shows N≥15 and deduped WR≥55%, V14E_BEAR_ONLY_GATE remains PROMISING (current status). If thresholds not met, status may revert to NEEDS-MORE-DATA, impacting leaderboard ranking and delaying J ratification. No conflict with other candidates; purely watcher‑gate progression.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

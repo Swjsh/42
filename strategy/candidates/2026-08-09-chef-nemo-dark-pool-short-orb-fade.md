@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new data dimension (dark pool short sale volume) and a fade‑on‑ORB trigger that does not appear in the current leaderboard (candidates 1‑9). It therefore does not conflict with existing entries; rather, it complements the notebook by adding a potential orthogonal source of edge that could be combined with other filters in future iterations. No known overlap or duplication with the listed candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

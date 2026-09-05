@@ -58,3 +58,5 @@ The autoresearch grinder executes a predefined grid of trigger/filter/exit varia
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 The analysis does not propose a new candidate; it summarizes the validation step. If the grinder yields a candidate that beats the current leaderboard, it would be filed as a new candidate and ranked accordingly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

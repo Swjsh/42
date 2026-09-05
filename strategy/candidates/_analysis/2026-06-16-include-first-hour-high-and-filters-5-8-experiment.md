@@ -60,3 +60,5 @@ Testing whether the first‑hour high (the high of the 09:35‑10:35 ET window) 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is an experimental evaluation that may inform future filter‑change or quality‑gate proposals. If the results show a significant edge_capture increase, a new candidate could be filed (e.g., `INCLUDE_FIRST_HOUR_HIGH_GATE` or `DISABLE_FILTERS_5_8`). No current leaderboard entries are affected directly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

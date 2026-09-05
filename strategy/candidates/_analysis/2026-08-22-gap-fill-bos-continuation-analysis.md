@@ -70,3 +70,5 @@ We test whether a gap-fill continuation signal following a break of structure (B
 ## Pre-existing leaderboard impact
 
 Complements GAP_AND_GO (WATCH-ONLY) by adding BOS confirmation filter to reduce false gap fills. Conflicts with VWAP_CONTINUATION detector (both morning-biased) but operates earlier (09:35-10:30 vs VWAP's ≤10:30). No direct overlap with existing candidates; fills morning bearish entry gap left by BEARISH_REJECTION's 10:xx chop zone gate. Does not affect bull setups (PUTS-only).
+
+<!-- PROVENANCE-MISSING: test_gap_fill_bos_continuation.py -->

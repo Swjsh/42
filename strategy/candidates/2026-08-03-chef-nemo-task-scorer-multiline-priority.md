@@ -50,3 +50,5 @@ Unit tests for `task_scorer.py` must pass, including a test for multi-line prior
 ## Pre-existing leaderboard impact
 
 This change does not conflict with any existing candidates; it only improves the scoring mechanism's ability to recognize annotated open items, potentially bringing previously missed items into the leaderboard. It complements all current candidates by ensuring their annotations are properly scored.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

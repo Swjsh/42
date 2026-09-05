@@ -65,3 +65,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard because it is a new trigger based on a unique combination of midday time window, ribbon flatness, VWAP proximity, and RSI bullish divergence. The nearest existing candidate is MIDDAY_TRENDLINE_GATE (rank 21 in the leaderboard), which uses trendline breaks in the midday window. This candidate instead uses ribbon compression and oscillator divergence, a different structural approach. It is complementary in the sense that it targets a different market condition (choppy/mean-reverting vs. trend-following) and could potentially fill gaps in the midday window when trendline gates do not fire. However, note: the leaderboard only shows candidates that have passed the OP-16 edge_capture floor (>=771). Since this candidate is a draft and has not been backtested, we do not know its edge_capture. It may or may not meet the bar. We are only proposing it for Stage-1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

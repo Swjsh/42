@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION (trend-following) by targeting mean-reversion scenarios; no direct conflict with current leaderboard entries as it proposes a new trigger type not represented in ranked candidates. May coexist with structural gates like STRUCTURE_VETO_DIR_VS_TREND if regime filters are additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

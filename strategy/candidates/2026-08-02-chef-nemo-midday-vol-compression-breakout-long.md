@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (volatility‑compression + ORB breakout) not present in the current leaderboard (which contains mostly watcher gates, DTE studies, and existing trigger refinements). It does not directly conflict with any ranked candidate; it may complement existing strategies by providing a distinct entry signal that could be combined with other filters in future A/B testing. No overlap with current top‑9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

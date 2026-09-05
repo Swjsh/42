@@ -68,3 +68,5 @@ The shotgun_scalper strategy captures intraday premium fluctuations via volatili
 ## Pre-existing leaderboard impact
 
 This candidate’s edge_capture (506.55) < 771 OP-16 rejection floor, so it would not appear on the leaderboard. It does not conflict with current leaderboard candidates (all edge_capture ≥ 771) but requires improvement to meet the edge_capture threshold for promotion. Complements exploration of premium-based scalper parameters but needs J-day edge enhancement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

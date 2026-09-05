@@ -62,3 +62,5 @@ J's bearish winners (4/29, 5/01, 5/04) occurred during elevated VIX regimes, whi
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaders; complements STRUCTURE_VETO_DIR_VS_TREND (which removes wrong‑way losers) by potentially increasing winner capture. May overlap with WEEKLY_DTE_NOT_0DTE (DTE lever) but operates on a different dimension (volatility regime). Should be evaluated as an independent filter change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

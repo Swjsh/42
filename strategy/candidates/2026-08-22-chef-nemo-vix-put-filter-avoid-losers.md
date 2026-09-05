@@ -58,3 +58,5 @@ Add a filter that rejects BEARISH_REJECTION_RIDE_THE_RIBBON entries when VIX < 1
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Does not conflict with existing candidates; complements VIX-related gates like V14E_BEAR_ONLY_GATE and F8_BULL_VIX_GATE_REVAL. May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON context filters but is additive (VIX character vs level). No direct duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

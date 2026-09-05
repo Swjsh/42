@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate proposes a novel volatility-based trigger distinct from existing candidates (e.g., unlike BOLLINGER_SQUEEZE which uses Bollinger Bands width, it uses ATR compression and volume-confirmed swing high/low breaks). It does not conflict with current leaderboard entries which focus on structural gates, DTE studies, or watcher proposals. It may complement existing strategies by providing an alternative entry signal during volatility contraction periods, particularly in the midday window where few candidates operate. No direct overlap with ranked candidates observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

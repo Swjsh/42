@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not conflict with existing leaderboard entries (which are primarily watcher quality gates, structural gates, or parameter changes). It complements existing strategies by providing a distinct entry condition (contrarian gap fill with trend confirmation) unlike GAP_AND_GO which trades gap continuation. No overlap in mechanism or anchor-day coverage expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

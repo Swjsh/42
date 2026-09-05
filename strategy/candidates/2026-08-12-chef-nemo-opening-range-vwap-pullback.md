@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing strategy in the leaderboard. It complements existing ORB‑based ideas (e.g., ORB_RETEST_LONG) by adding VWAP pullback and EMA ribbon filters, potentially capturing a different subset of breakout days. No direct conflict with current ranked candidates; however, if proven effective it could reduce reliance on existing ORB watches and shift capital allocation toward this trigger. Further testing required to assess overlap with ORB_RETEST_LONG and other opening‑range strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

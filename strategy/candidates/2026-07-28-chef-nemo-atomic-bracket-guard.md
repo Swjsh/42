@@ -60,3 +60,5 @@ After submitting a parent order via `mcp__alpaca__place_option_order` with `orde
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates by improving execution safety without altering strategy logic. No conflicts with current leaderboard entries (ranks 1-24).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

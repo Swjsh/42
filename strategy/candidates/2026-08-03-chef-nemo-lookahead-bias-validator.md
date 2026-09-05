@@ -54,3 +54,5 @@ Unit tests must pass for common data acquisition patterns (e.g., pandas rolling 
 This validator does not conflict with any existing candidate; it is a safety gate that should be run on all strategy candidates to prevent look-ahead bias from being introduced.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

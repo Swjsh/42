@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates (primarily filters/exits/quality gates). It may complement existing structure by providing a distinct long-biased entry signal for mean-reversion scenarios. No overlap with current leaderboard entries in mechanism or intent.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

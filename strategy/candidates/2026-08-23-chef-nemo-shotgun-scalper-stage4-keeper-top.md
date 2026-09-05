@@ -62,3 +62,5 @@ Entry triggers when volume ratio exceeds 1.2 (current volume > 1.2 × average vo
 ## Pre-existing leaderboard impact
 
 No impact -- keeper's edge_capture (506.55) < 771 leaderboard threshold, so ineligible for leaderboard. Does not conflict with/complement current leaderboard candidates (all have edge_capture ≥ 771). Requires significant improvement to J-edge capture before leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ entry_gate.py computes a composite score from: ribbon alignment (0‑2), level p
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md. The change is a filter_tuning that could complement quality gates like MIDDAY_TRENDLINE_GATE (which already operates in the 11:30‑14:00 window) by adding sensitivity in low‑volume periods outside that window. It does not alter any existing veto or exit logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

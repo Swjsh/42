@@ -50,3 +50,5 @@ The candidate must pass gym validators, walk-forward testing, and real-fills val
 ## Pre-existing leaderboard impact
 
 This candidate complements the STRUCTURE_VETO_DIR_VS_TREND candidate by refining the trend classification logic, potentially improving the engine's ability to capture J's edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS (rank I) by adding a volatility control. It does not conflict with any other candidates in the leaderboard. It is a necessary step before any wiring proposal that would use QQQ divergence confluence as a trigger or filter.
+
+<!-- PROVENANCE-MISSING: test_qqq_divergence_confluence_vol_controlled.py -->

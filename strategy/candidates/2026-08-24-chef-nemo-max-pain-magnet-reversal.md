@@ -55,3 +55,5 @@ The MAX_PAIN_MAGNET_REVERSAL trigger aims to capture intraday reversals that occ
 ## Pre-existing leaderboard impact
 
 This is a brand‑new trigger; it does not directly modify any existing candidate in the leaderboard (ranks 1‑9). It is complementary if it produces orthogonal signals, but could conflict if it fires on the same bars as existing triggers (e.g., VWAP_CONTINUATION) and leads to double‑counting. Impact unknown until backtested and compared to current engine behavior on non‑J days. No immediate conflict with the top‑9 candidates as they are primarily gates, filters, or exit changes.
+
+<!-- PROVENANCE-MISSING: test_max_pain_magnet_reversal_trigger.py, analysis/recommendations/max_pain_magnet_reversal_ab.json -->

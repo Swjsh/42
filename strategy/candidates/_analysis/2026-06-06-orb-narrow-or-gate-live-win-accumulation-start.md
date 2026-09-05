@@ -63,3 +63,5 @@ Accumulate 3 live J-confirmed winning trades logged to journal/orb_narrow_or_win
 
 Supports promotion of ORB_NARROW_OR_GATE (rank 4) by satisfying its OP-21 gate. No conflict with existing candidates; complements watcher-quality-gate candidates (ranks 3, 5, 9, 17). No impact on engine-trigger candidates.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Adding a 1-bar order‑flow imbalance or volume spike confirmation to the pullba
 ## Pre-existing leaderboard impact
 
 This filter_change does not conflict with any existing candidate in the leaderboard; it is orthogonal and could be stacked with other filters (e.g., structure_veto, midday_trendline_gate). It proposes a new confirmation condition that could be combined with the pullback‑hold‑bull trigger (which itself is not a standalone candidate in the leaderboard). No direct impact on current rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

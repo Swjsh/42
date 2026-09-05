@@ -54,3 +54,5 @@ Run walk-forward OOS simulation using the engine's entry/exit logic on 5-minute 
 ## Pre-existing leaderboard impact
 
 This validation does not propose a new candidate; it evaluates the current engine or a specific candidate against OP-16 anchors. Outcome may affect the leaderboard if the evaluated candidate's edge_capture and Sharpe change relative to existing entries. No direct conflict with existing candidates unless a new candidate is introduced based on validation results.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

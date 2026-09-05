@@ -50,3 +50,5 @@ We need to run the walk-forward test script, verify monotonicity and p-values, a
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it is a test to inform potential DTE override proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

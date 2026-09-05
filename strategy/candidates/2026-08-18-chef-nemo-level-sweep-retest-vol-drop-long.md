@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not duplicate any existing trigger in the leaderboard (candidates 1‑9). It is orthogonal to existing quality gates and watchers, and would complement rather than conflict with current strategies pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

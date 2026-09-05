@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by targeting a different time window and direction. No direct conflict with current leaderboard entries as it proposes a new short-biased trigger mechanism untested in the registry. May overlap with MIDDAY_TRENDLINE_GATE in time window but differs in logic (mean reversion vs. trend continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

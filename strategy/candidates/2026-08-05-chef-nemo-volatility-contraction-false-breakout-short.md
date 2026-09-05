@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not appear to conflict with any current leaderboard entries. It introduces a new trigger based on volatility contraction and VWAP‑failed breakout, which is orthogonal to existing candidates such as VWAP_CONTINUATION, MIDDAY_TRENDLINE_GATE, or STRUCTURE_VETO_DIR_VS_TREND. No overlap in mechanics or triggers is evident from the leaderboard descriptions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries (which are primarily watcher quality gates, DTE studies, or specific setup tweaks). It complements VWAP_CONTINUATION by adding pullback requirements and additional filters, creating a distinct mean-reversion-to-VWAP approach rather than pure breakout continuation. No overlap in mechanism or trigger logic with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

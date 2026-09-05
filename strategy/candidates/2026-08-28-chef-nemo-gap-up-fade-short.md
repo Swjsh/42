@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidate in _LEADERBOARD.md; it introduces a new trigger type (gap‑fade short) that is orthogonal to current entries (which focus on trend‑following, VWAP, and structure‑based signals). May complement by providing short‑side edge on gap‑up days that are not captured by current strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

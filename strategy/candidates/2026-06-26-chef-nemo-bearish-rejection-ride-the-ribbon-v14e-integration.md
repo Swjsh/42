@@ -56,3 +56,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, as it focuses on improving the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is a key component of the leaderboard. The integration of the V14E bear-only gate is expected to enhance the edge capture of the original setup, which could lead to improved performance on the OP-16 anchors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

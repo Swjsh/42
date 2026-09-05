@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new long‑side entry trigger** that does not modify any existing gates, filters, or exit logic. It does not conflict with any of the current leaderboard entries (which are primarily gates, DTE overrides, or structural filters). Instead, it could be **additive** as a standalone long‑trigger module, potentially complementary to setups like VWAP_CONTINUATION (which is live but not a candidate) or orthogonal to existing short‑biased gates. No direct overlap or interference is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

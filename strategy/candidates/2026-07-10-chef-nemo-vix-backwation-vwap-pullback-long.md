@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the current top‑9 leaderboard entries (which focus on DTE overrides, VWAP continuation, structure vetoes, and watcher gates). It may complement the existing VWAP_CONTINUATION setup by adding a VIX‑backwardation filter that could improve the quality of VWAP pullback longs without altering the core VWAP logic. No parameter or engine changes are proposed at this stage; the candidate is a pure trigger proposal requiring a fresh backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

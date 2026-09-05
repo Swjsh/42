@@ -61,3 +61,5 @@ Restricting BEARISH_REJECTION_RIDE_THE_RIBBON entries to the 09:35-10:55 ET wind
 ## Pre-existing leaderboard impact
 
 Complements MIDDAY_TRENDLINE_GATE (rank 21) which blocks 11:30-14:00 entries; this candidate blocks 10:55-15:50 ET. No overlap in filtered windows. Does not conflict with STRUCTURE_VETO_DIR_VS_TREND (rank ★) as it operates on entry timing rather than structure veto. May reduce trade count vs BEARISH_REJECTION_RIDE_THE_RIBBON but aims to improve edge_capture by removing losing afternoon trades.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_morning_only_time_filter.py -->

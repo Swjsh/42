@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries because it introduces a new trigger type not currently represented. It may complement existing opening‑range based ideas (e.g., ORB_RETEST_LONG) by providing a counter‑trend fade alternative rather than a retest long. No known overlap in parameter space or execution logic with current candidates 1‑24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

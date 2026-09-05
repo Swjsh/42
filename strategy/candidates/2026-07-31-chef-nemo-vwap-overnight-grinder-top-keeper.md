@@ -78,3 +78,5 @@ Note: The engine's behavior on non-J days is unknown without a full backtest.
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 floor (edge_capture < 771) and would be REJECTED at the door. It does not conflict with current leaderboard candidates (which all have edge_capture >= 771) but is not competitive. It may serve as a starting point for further refinement, but requires significant improvement to be viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

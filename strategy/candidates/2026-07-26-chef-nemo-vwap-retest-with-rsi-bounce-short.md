@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger that does not directly modify any existing rules in the leaderboard. It complements existing VWAP‑based ideas (e.g., VWAP_CONTINUATION) by adding a short‑side mean‑reversion filter, but it conflicts with any long‑only VWAP strategies. It does not alter any params.json keys, so it can be evaluated independently. If successful, it would add a new short‑trigger lane to the strategy mix.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

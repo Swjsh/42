@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture, real
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and would be REJECTED at the door. It does not appear on the current leaderboard. It may complement existing candidates if it trades non-overlapping days, but without OOS validation, impact is unclear.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

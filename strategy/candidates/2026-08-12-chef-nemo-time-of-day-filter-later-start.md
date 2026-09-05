@@ -61,3 +61,5 @@ Modify the BEARISH_REJECTION_RIDE_THE_RIBBON time-of-day context filter from "09
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing time-based filters (e.g., MIDDAY_TRENDLINE_GATE) by tightening early-morning eligibility. No direct conflict with ranked candidates; operates as orthogonal filter layer. May synergize with STRUCTURE_VETO_DIR_VS_TREND by removing low-quality early entries that veto might miss. Does not conflict with WEEKLY_DTE_NOT_0DTE (different mechanism). Safe to test alongside PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

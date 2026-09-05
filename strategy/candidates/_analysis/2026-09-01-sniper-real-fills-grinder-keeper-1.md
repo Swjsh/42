@@ -54,3 +54,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 Unknown -- requires comparison with existing SNIPER-related candidates in the leaderboard (ranks 13, 14, 15, 23). If SNIPER_REAL_FILLS_GRINDER_KEEPER_1 is a duplicate or variant of these, it may conflict; if it is a distinct approach, it may complement. Impact cannot be assessed without the candidate's specifics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

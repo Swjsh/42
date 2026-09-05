@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that builds on the existing BULLISH_RECLAIM_RIDE_THE_RIBBON concept (currently paper‑eligible, not on the leaderboard) by adding a VWAP pullback condition and an above‑average volume filter. It is unlikely to directly conflict with any of the top‑9 leaderboard entries (which are mostly watcher gates, DTE studies, or structural filters) because it proposes a distinct entry logic for long positions. If validated, it could complement existing bullish‑biased setups by capturing additional long‑only opportunities that the current ribbon‑reclaim setup misses due to its lack of a VWAP test. However, until a Stage-1 backtest is run, the actual impact on the leaderboard (edge_capture, Sharpe, final score) remains unknown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

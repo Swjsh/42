@@ -52,3 +52,5 @@ Run the current engine (heartbeat.md + params.json) over the full available hist
 ## Pre-existing leaderboard impact
 
 Does not conflict with any candidate (pure baseline measurement). Complements all future candidates by providing OP-16 anchor ground truth. Required before any candidate can claim J-edge improvement.
+
+<!-- PROVENANCE-MISSING: test_j_anchor_baseline.py -->

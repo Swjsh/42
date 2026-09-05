@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 The candidate does not duplicate any existing trigger in the leaderboard. The closest existing item is `RSI_DIVERGENCE_BULL_WATCHER`, which is a watch‑only gate and does not require a BOS confirmation. This proposal adds the BOS condition and a full entry/exit logic, making it a distinct new_trigger that could complement the watcher by converting its signal into an executable trade.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

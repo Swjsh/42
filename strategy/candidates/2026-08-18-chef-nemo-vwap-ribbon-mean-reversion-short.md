@@ -59,3 +59,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No known conflict with existing candidates in _LEADERBOARD.md; complements strategies by adding short-side mean reversion trigger in ranging conditions (distinct from VWAP_CONTINUATION and LEVEL_SWEEP_SNIPE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

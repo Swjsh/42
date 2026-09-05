@@ -61,3 +61,5 @@ Trigger: For each 3-min bar, compute down-bar volume (close < open) and up-bar v
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) as an additive filter. No direct conflict with ranked candidates as it targets BEARISH_REJECTION_RIDE_THE_RIBBON entry quality. May overlap with VWAP_CONTINUATION but operates on different timeframe/context. Does not affect bull-side candidates. Safe to test alongside current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

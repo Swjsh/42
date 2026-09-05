@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard (which contains mostly filter changes, quality gates, and watcher proposals). It does not directly conflict with existing candidates but would compete for live allocation if proven; complementary to existing ribbon‑riding setups as it trades the squeeze phase rather than the rejection phase.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

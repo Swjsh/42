@@ -67,3 +67,5 @@ Exit logic identical to BULLISH_RECLAIM_RIDE_THE_RIBBON:
 ## Pre-existing leaderboard impact
 
 Complements bearish-focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON variants) by adding long-side exposure. Does not conflict with existing leaderboard candidates as it targets a different direction (calls vs puts). May improve aggregate Sharpe if VIX filter adds uncorrelated long-edge, but requires validation to confirm. Current leaderboard shows no proven long-edge candidates (BULLISH_RECLAIM remains paper-eligible only).
+
+<!-- PROVENANCE-MISSING: test_vix_mean_reversion_long_trigger.py -->

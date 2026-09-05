@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (primarily watches, gates, or VWAP_CONTINUATION trigger); complementary in regime (fades extremes vs continues trends) but targets different market conditions; no direct overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

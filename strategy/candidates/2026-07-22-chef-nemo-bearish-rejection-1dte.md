@@ -62,3 +62,5 @@ This candidate tests a DTE lever on the BEARISH_REJECTION_RIDE_THE_RIBBON setup,
 - WEEKLY_DTE_NOT_0DTE (which studied DTE on VWAP_CONTINUATION signal)
 - STRUCTURE_VETO_DIR_VS_TREND (which adds a structural veto and is PROMISING)
 It does not conflict with any existing leaderboard candidates as it modifies a different setup (BEARISH_REJECTION_RIDE_THE_RIBBON vs VWAP_CONTINUATION). However, if successful, it may supersede the 0DTE version of BEARISH_REJECTION_RIDE_THE_RIBBON in live trading. No current leaderboard candidate tests 1DTE for bearish ribbon ride.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

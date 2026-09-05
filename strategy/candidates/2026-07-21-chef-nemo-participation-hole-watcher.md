@@ -57,3 +57,5 @@ Calculate the 20-bar simple moving average of volume (excluding the current bar)
 ## Pre-existing leaderboard impact
 
 Complements existing watcher quality gates (e.g., ORB_NARROW_OR_GATE, V14E_BEAR_ONLY_GATE) by adding a liquidity dimension orthogonal to range and direction filters. No known conflict with top-9 candidates; may stack additively with volume-neutral gates like MIDDAY_TRENDLINE_GATE.
+
+<!-- PROVENANCE-MISSING: test_participation_hole_watcher.py, analysis/recommendations/participation-hole-watcher-ab.json -->

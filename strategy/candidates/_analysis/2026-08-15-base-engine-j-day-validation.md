@@ -62,3 +62,5 @@ For each OOS window, we will record the engine's P&L on any J days falling withi
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it validates the foundational J-day performance underlying all leaderboard entries. It complements rank ★ (STRUCTURE_VETO_DIR_VS_TREND) by confirming whether its claimed anchor preservation (edge_capture unchanged $780) holds under OOS scrutiny. No impact on existing rankings until validation completes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

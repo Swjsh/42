@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing bearish-focused strategies (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by adding long entries on potentially untouched days. No direct conflict with current leaderboard candidates (all are bearish/gate/structural; this is a new long trigger). Does not duplicate NAMED_LEVEL_WICK_BOUNCE_BULL (NLWB) as it adds volume increase and EMA ribbon conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Extending the vwap_continuation signal to 2DTE ITM-2 options reduces theta decay
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements: does not change core engine logic, only DTE/strike override. Can be implemented as a parameter change (j_vwap_cont_dte_override=2, strike_offset=-2). No conflict with existing PROMISING candidates; may supersede HOLD-ranked VWAPCONT_DTE_OVERRIDE_2DTE (which is ATM) by improving edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

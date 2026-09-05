@@ -51,3 +51,5 @@ Gym validators (≥90% pass), walk-forward OOS Sharpe ≥0.70, real-fills valida
 ## Pre-existing leaderboard impact
 
 This analysis defines the reference baseline; all candidates in the leaderboard are measured against it. No conflict – it is the foundation for evaluating edge_capture and Sharpe improvements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

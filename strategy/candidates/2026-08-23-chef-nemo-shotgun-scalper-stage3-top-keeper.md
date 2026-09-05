@@ -39,3 +39,5 @@ We hypothesize that adjusting exit parameters (take profit, stop loss, time stop
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 *(Note: OP-16 edge_capture requires
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

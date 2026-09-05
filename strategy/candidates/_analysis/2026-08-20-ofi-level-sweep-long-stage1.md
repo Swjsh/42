@@ -57,3 +57,5 @@ The OFI (Order Flow Imbalance) level sweep long strategy aims to capture short-t
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it merely measures an existing signal’s performance. It therefore does not conflict with any candidate in `_LEADERBOARD.md`. If the OFI level sweep long shows sufficient edge_capture and Sharpe, it may inspire a future `new_trigger` candidate, but none exists yet. Impact on leaderboard: neutral.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/ofi_sweep_long_stage1.json -->

@@ -29,3 +29,5 @@
   disclosed, non-gating.
 - **Blocked on J (parked):** Tastytrade PROD-token rotation (any real futures order path);
   new-broker approval would be a net-new vendor (needs explicit OK).
+
+<!-- PROVENANCE-MISSING: automation/state/futures/ssr-shadow-would-be.json -->

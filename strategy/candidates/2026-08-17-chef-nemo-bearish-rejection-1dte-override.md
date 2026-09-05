@@ -57,3 +57,5 @@ gym validators (all tests PASS), walk-forward (WF ratio ≥ 0.70), real-fills ch
 ## Pre-existing leaderboard impact
 
 Complements WEEKLY_DTE_NOT_0DTE (tests same DTE lever on different setup); no conflict with existing candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE). May provide orthogonal edge if DTE effect is signal-agnostic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

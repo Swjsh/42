@@ -68,3 +68,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: adds new short-side trigger orthogonal to current filter/gate candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_ONLY_GATE). No direct conflict with ranked candidates as it proposes a distinct trade class rather than modifying existing logic. May overlap regime sensitivity with VIX-dependent candidates like SNIPER_VIX18_GRINDER but operates on different timing (OR/VWAP vs level breaks).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

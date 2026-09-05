@@ -58,3 +58,5 @@ unknown -- requires Stage-1 backtest
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; could be submitted as a new_exit_change candidate if validation passes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

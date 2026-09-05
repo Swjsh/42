@@ -36,3 +36,5 @@ Entry is allowed only if the trade side matches the intraday trend (P in downtre
 
 1. **Account-size assumption:** $25K+ (qty=15+ requires $25K+; $1K paper realizes ~10% of headline P&L based on +$583 delta from real-fills A/B).
 2. **Sample bias:** Sample size ~540 trading days (OPRA 2025-01-02..2026-06-18), selection method: all available OPRA data, overfit risk: low
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

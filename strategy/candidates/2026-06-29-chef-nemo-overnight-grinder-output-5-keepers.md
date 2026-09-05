@@ -55,3 +55,5 @@ Before merging the keepers into the engine, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 The keepers do not conflict with any existing candidates on the leaderboard, as they represent a new trigger mechanism. However, their performance needs to be evaluated in conjunction with the existing candidates to ensure that they do not negatively impact the overall engine performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The combo must pass: (1) Stage-1 backtest confirming the reported P&L and edge_c
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door per OP-16 (edge_capture <771) and therefore does not appear on the leaderboard. It does not conflict with existing candidates; it merely fails to meet the minimum edge threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

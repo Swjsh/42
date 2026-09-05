@@ -55,3 +55,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a new candidate but evaluates the current keeper parameters. It complements the leaderboard by providing OOS validation for the top strategies on a recent window that does not include the J anchor days. If the walk-forward fails, it may trigger a re-evaluation of the keeper parameters and potentially lead to new candidates to replace them.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ OOS walk-forward WF_ratio >= 0.50, gym validators pass, real-fills on top 3 J da
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; provides baseline SNIPER performance for potential future SNIPER-based candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Bearish PUT entries on J's losing days (5/05, 5/06) occurred under low-VIX or fa
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements quality‑gate candidates like STRUCTURE_VETO_DIR_VS_TREND by adding a volatility regime filter. Could be combined with ORB_NARROW_OR_GATE or V14E_BEAR_ONLY_GATE after individual validation. No direct overlap with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_vix_bear_filter.py -->

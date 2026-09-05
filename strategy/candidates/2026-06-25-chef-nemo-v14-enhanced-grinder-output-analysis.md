@@ -56,3 +56,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates on the leaderboard, but the exact impact is unknown without further analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ Entry trigger remains BEARISH_REJECTION_RIDE_THE_RIBBON (level rejection + EMA r
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements: Does not modify existing params or engine logic; adds a filter that can be stacked with other candidates (e.g., MIDDAY_TRENDLINE_GATE). No direct conflict with ranked candidates as it targets a different setup dimension (VIX regime filter). May conflict with VIX_BULL_HARD_CAP_UNBLOCK if both modify VIX thresholds, but this is bear-side only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

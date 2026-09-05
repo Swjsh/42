@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (run `backtest/aut
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate modifications or structural DTE studies). This is a new trigger logic targeting OR breakouts with volume confirmation, orthogonal to VWAP/ribbon/reclaim setups in leaderboard. Could complement by providing alternative entry signal during morning session when VWAP continuation setups are inactive. No parameter overlap with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/opening_range_volume_imbalance_long.py -->

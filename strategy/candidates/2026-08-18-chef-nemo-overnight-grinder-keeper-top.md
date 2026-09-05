@@ -57,3 +57,5 @@ Runner target fixed at 3.0x premium. All other parameters (chandelier profit-loc
 ## Pre-existing leaderboard impact
 
 This candidate is below the OP-16 edge_capture floor (771) and would be REJECTED at the door, so it does not appear on the leaderboard and has no direct impact on current rankings. If edge_capture were improved above the floor, it would require evaluation for final_score and potential rank contention.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

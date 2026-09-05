@@ -48,3 +48,5 @@ gym validators (all must pass), walk-forward OOS test (profit factor >1.0), real
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates as it modifies the base BEARISH_REJECTION_RIDE_THE_RIBBON setup (not currently listed as a candidate). May complement filter-based candidates like MIDDAY_TRENDLINE_GATE by reducing false positives in choppy conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

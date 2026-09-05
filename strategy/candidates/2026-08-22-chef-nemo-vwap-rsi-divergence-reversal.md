@@ -73,3 +73,5 @@ Complements existing candidates:
 - May synergize with quality gates like `MIDDAY_TRENDLINE_GATE` (filters false reversals in chop)
 - Neutral to `BEARISH_REJECTION_RIDE_THE_RIBBON` (different trigger mechanism; could coexist as separate arm)
 - No changes to existing params/wiring required; stands as new trigger option in setup dispatcher.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/vwap_rsi_divergence_reversal_test.py -->

@@ -62,3 +62,5 @@ The pre-merge gate requires a positive walk-forward performance, a Sharpe ratio 
 ## Pre-existing leaderboard impact
 
 The proposed changes do not conflict with the existing leaderboard candidates. The BEARISH_REJECTION_RIDE_THE_RIBBON setup is already a top-performing candidate, and the proposed changes aim to further improve its performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

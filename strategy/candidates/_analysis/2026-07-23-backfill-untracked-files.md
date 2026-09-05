@@ -31,3 +31,5 @@ All 1,176 files are now version-controlled. No untracked files remain in strateg
 ## Pre-existing leaderboard impact
 
 This operation does not affect the leaderboard. It is a maintenance task.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

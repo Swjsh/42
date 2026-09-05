@@ -78,3 +78,5 @@ Entry triggers on a level break with sufficient volume and body size; exit scale
 ## Pre-existing leaderboard impact
 
 This candidate’s edge_capture (229.63) is well below the 771 threshold required for leaderboard inclusion. It does not conflict with or complement any current leaderboard candidates (all of which exceed the floor). Promotion would require a fundamental redesign to increase winner capture; as‑is, it is **NOT** a viable leaderboard entrant.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

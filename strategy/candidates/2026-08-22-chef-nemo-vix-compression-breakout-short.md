@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger that does not duplicate any existing candidate in _LEADERBOARD.md. It does not conflict with current ranked entries (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, etc.) because it introduces a new entry condition based on VIX, ATR contraction, and volume‑surge breakout. It may complement existing filters or exits if later combined, but as a standalone trigger it is independent of the current leaderboard strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ The shotgun_scalper_stage2 grinder aimed to find parameter combinations that imp
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates as it fails OP-16 anchor requirement (edge_capture < 771). Would be REJECTED at door per leaderboard rules. No complement to existing candidates (all require positive edge_capture). Promoting would violate OP-16 gate. Requires complete rework to capture J winner days before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

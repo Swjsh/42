@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (1-9 in _LEADERBOARD.md) as it is a new trigger type targeting short entries in bearish structure. Complements BEARISH_REJECTION_RIDE_THE_RIBBON by capturing continuation after BOS rather than level rejection, but may compete for same bearish regime trades. No direct overlap in trigger logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

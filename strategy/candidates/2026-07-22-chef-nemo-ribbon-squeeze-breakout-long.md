@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel entry trigger based on volatility contraction and EMA ribbon tightness, which does not appear in the current leaderboard (dominated by watcher quality gates, DTE studies, and structural filters). It complements existing strategies by providing a distinct entry condition focused on breakout-from-squeeze mechanics rather than trend continuation or mean reversion. No direct conflicts identified with candidates 1-24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

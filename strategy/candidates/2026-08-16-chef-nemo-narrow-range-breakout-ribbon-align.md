@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing volatility-based candidates (e.g., VIX_BULL_HARD_CAP_UNBLOCK) by targeting low-vol breakouts; does not conflict with structural gates (e.g., MIDDAY_TRENDLINE_GATE) as it operates on different timeframes and triggers. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Both candidates are watcher‑only quality gates; they do not alter engine entri
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates #1‑9; both are watcher‑only quality gates that coexist with other filters/triggers. They may complement candidates that rely on v14e or ORB observations (e.g., #4 ORB_NARROW_OR_GATE, #17 V14E_BEAR_TIME_OF_DAY_GATE) by improving observation purity. No leaderboard displacement is implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

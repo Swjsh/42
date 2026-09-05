@@ -68,3 +68,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger primitive (cumulative delta imbalance) not used in any current setup. Complements existing ORB-based strategies by focusing exclusively on short-side volume imbalance rather than price retest. No overlap with structural DTE or veto-based candidates. If validated, would occupy new_trigger lane alongside WEEKLY_DTE_NOT_0DTE and VWAPCONT_DTE_OVERRIDE_2DTE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

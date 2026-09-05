@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 complements existing candidates: unlike VWAP_CONTINUATION (price-only), this adds OFI and ribbon confluence as entry filters; does not conflict with any registered quality gates or exits as it defines a new trigger mechanism. May synergize with post-entry filters like MIDDAY_TRENDLINE_GATE or structure-based vetoes. No overlap with current leaderboard ranks 1-9 (which are primarily gates, DTE studies, or watcher proposals).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

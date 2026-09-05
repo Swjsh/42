@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard. It complements existing structures by adding a conditional long trigger with specific market structure and volume filters. Novelty claim vs LEVEL_BREAK_FIRST_STRIKE: our requirement of BOS confirmation and volume filter adds market-structure validation absent in that setup, making it distinct. No known conflicts with watcher/proposal types (e.g., VIX_BULL_HARD_CAP_UNBLOCK, MIDDAY_TRENDLINE_GATE) as they operate on different dimensions. Potential synergy with regime filters (e.g., VIX < 20 condition) but requires backtest validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates; complements by adding a new trigger type that may capture different market conditions (midday continuation vs. morning reversals or afternoon trends) and could diversify the strategy portfolio without overlapping current winner/loser day profiles.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

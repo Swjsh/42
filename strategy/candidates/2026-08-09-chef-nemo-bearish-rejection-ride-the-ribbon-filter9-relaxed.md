@@ -48,3 +48,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture and S
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing BEARISH_REJECTION_RIDE_THE_RIBBON modifications (rank 24: confluence_tolerance, rank 25: max_ribbon_duration) as they target different parameters. May interact additively or antagonistically; combined effects require testing. No direct conflict with current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

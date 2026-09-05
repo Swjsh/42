@@ -63,3 +63,5 @@ Entry logic appears to be a volatility‑expansion breakout trigger (typical of 
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard because the edge_capture (506.55) is below the OP‑16 rejection threshold of 771. It would not appear on the current leaderboard (see _LEADERBOARD.md). If OOS validation were to push edge_capture above the floor, the keeper could be considered as a **filter_change** or **exit_change** candidate type, potentially complementing existing exits (e.g., V14E_PARAM_SWEEP_26K) but would need to demonstrate non‑overlap with current top‑10 candidates. At present, it remains a work‑in‑progress requiring further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

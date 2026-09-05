@@ -56,3 +56,5 @@ The pre-merge gate for the out-of-sample testing includes the following checks:
 ## Pre-existing leaderboard impact
 
 The out-of-sample testing is expected to have a positive impact on the pre-existing leaderboard, as it will provide additional validation for the top 5 keepers and increase confidence in their performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

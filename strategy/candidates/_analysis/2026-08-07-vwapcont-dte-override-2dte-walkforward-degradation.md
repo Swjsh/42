@@ -27,3 +27,5 @@ Introduce a volatility regime filter that disables the 2DTE override when VIX is
 - If results show improved WF (>0.70) and reduced quarterly concentration, advance to OOS validation and real-fills checks.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

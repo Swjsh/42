@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with any ranked 1-9 in _LEADERBOARD.md. This is a new trigger type (gap-based fade) orthogonal to existing volatility/volume/structure-based triggers. May synergize with VWAP_CONTINUATION (same VWAP usage) but operates in opposite direction (fade vs continuation). No direct overlap with structural gates (TRENDLINE_BREAK, LEVEL_MEMORY) or DTE studies. Could conflict with GAP_AND_GO (same gap trigger but opposite bias) but GAP_AND_GO is PUT-only live; this candidate is PUT-only short, so they are mutually exclusive by design (one fades gaps, one continues gaps). No action needed on leaderboard; this candidate stands alone pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

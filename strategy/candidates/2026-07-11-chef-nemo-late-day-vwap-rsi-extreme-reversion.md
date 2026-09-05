@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; this proposal introduces a new trigger type (late‑day VWAP/RSI extreme reversion) that is orthogonal to current VWAP‑continuation, trendline, and structure‑based gates. It may complement existing filters by providing additional short‑term mean‑reversion opportunities in choppy, low‑ADX environments.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

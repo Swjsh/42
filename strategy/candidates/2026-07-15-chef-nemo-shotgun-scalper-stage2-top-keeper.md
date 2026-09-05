@@ -59,3 +59,5 @@ Pass gym validators for the shotgun scalper logic, walk‑forward OOS test with 
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates because edge_capture <771 (OP‑16 floor) would reject it outright; it does not complement any existing candidate as it lacks demonstrable edge on the anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

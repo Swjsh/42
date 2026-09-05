@@ -53,3 +53,5 @@ Specifically: all gym unit tests must pass; walk-forward OOS Sharpe >= 0.70; rea
 ## Pre-existing leaderboard impact
 
 This analysis does not directly modify the leaderboard; it provides the evaluation framework needed to score new candidates. Until Stage-1 backtest results are available, no candidate can be ranked for OP-16 edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

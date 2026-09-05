@@ -58,3 +58,5 @@ Execute the Stage-1 backtest using the autoresearch grinder (which performs grid
 ## Pre-existing leaderboard impact
 
 This validation does not alter the candidate; it assesses existing WEEKLY_DTE_NOT_0DTE (rank ★★). Positive results could increase confidence and leaderboard standing; negative results could trigger re-evaluation. No conflict with other candidates as it is a validation of an existing entry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

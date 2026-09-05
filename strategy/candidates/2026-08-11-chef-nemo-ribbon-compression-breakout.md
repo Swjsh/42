@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (ribbon‑width compression breakout) that does not duplicate any existing gate, filter, or exit change in the current leaderboard (ranks 1‑9). It is orthogonal to the existing watchers, quality gates, and structural triggers, and therefore complements rather than conflicts with the current portfolio of candidates. No direct overlap with the listed strategies (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, etc.) is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Walk-forward: run backtester on 2025-Q3 (IS) and 2026-Q1 (OOS), compute OOS/IS S
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis validates a parameter configuration and does not propose a change to any existing candidate. It complements all candidates by providing validation data that may inform future parameter tuning. No direct conflict with leaderboard candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Stage-1 backtest via autoresearch grinder must compute edge_capture and Sharpe; 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; proposes a filter that can be layered onto BEARISH_REJECTION_RIDE_THE_RIBBON (which is not a candidate in the leaderboard but the underlying setup). Complements VWAP_CONTINUATION and structure-based vetoes by adding a volatility regime filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

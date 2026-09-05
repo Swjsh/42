@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; it is a new trigger type that could complement existing triggers like BULLISH_RECLAIM_RIDE_THE_RIBBON or VWAP_CONTINUATION by capturing early momentum on bullish BOS setups. No overlap in logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

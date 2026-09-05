@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with existing candidates in the leaderboard (which are primarily filters, exit changes, or watcher proposals). It may complement named-level watchers (e.g., NAMED_LEVEL_WICK_BOUNCE_BULL) by adding an RSI divergence filter to increase signal quality. No overlap with existing triggers like QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS (cross-ticker) or LIVE_PRICE_FIRST_BAR_TRIGGER (premarket). If validated, it could serve as a quality gate for named-level strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

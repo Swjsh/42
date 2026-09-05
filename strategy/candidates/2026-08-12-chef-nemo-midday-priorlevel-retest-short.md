@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing trigger, filter, or exit logic. It is orthogonal to existing candidates such as VWAP_CONTINUATION, GAP_AND_GO, and BEARISH_REJECTION_RIDE_THE_RIBBON, which operate in different time windows or with different level concepts. If validated, it could add a short‑bias edge during the midday window, complementing existing long‑biased morning setups. No known conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

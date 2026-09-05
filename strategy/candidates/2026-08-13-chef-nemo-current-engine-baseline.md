@@ -53,3 +53,5 @@ Run the Stage-1 backtest via the autoresearch grinder harness on the current eng
 ## Pre-existing leaderboard impact
 
 This baseline measurement does not conflict with any candidate. It provides the ground truth for the current engine against which all candidates in the leaderboard are measured. It complements the leaderboard by establishing the baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard (which are primarily filter changes, quality gates, or structural proposals). It may complement strategies like GAP_AND_GO by adding an EMA slope confirmation layer, but requires independent validation. No overlap with existing trigger types (e.g., VWAP_CONTINUATION, BEARISH_REJECTION) in mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

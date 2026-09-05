@@ -47,3 +47,5 @@ Not applicable (candidate fails OP-16 floor). If reconsidered for development:
 
 ## Pre-existing leaderboard impact
 No impact — candidate fails OP-16 floor and would not appear on leaderboard. Does not conflict with or complement existing candidates (all leaderboard members satisfy edge_capture ≥ 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

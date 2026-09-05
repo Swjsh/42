@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md; it introduces a distinct trigger based on macro probability data rather than price-action or volatility‑only signals, and could complement existing filters if shown additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

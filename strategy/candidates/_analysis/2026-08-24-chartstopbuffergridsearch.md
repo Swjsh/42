@@ -52,3 +52,5 @@ We need to run the Stage-1 backtest grid search, then walk-forward OOS, then rea
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not conflict with any existing candidate; it is a prerequisite for evaluating a parameter change to chart_stop_buffer_dollars. Candidates like BEARISH_REJECTION_RIDE_THE_RIBBON (implicit in many entries) would be affected by this parameter change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

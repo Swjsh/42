@@ -54,3 +54,5 @@ Specifically:
 ## Pre-existing leaderboard impact
 
 This candidate represents the baseline engine and does not conflict with existing candidates in the leaderboard. It serves as the reference for edge_capture and aggregate_sharpe calculations.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

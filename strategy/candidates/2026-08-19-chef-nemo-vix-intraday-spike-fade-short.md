@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger based on intraday VIX rate-of-change, which does not appear in the current leaderboard (closest is VIX_REGIME_DAYSIDE using VIX level bands). It adds a novel trigger dimension and does not conflict with existing candidates, though it may overlap in regime filtering with VIX-based strategies. Requires Stage-1 backtest to assess edge capture on J days before any leaderboard impact can be estimated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

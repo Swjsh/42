@@ -53,3 +53,5 @@ Gym validators must pass; walk-forward OOS on last 4 months must show WF>=0.70 a
 ## Pre-existing leaderboard impact
 
 This candidate is an internal filter change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup (not currently a leaderboard candidate). No conflict with existing leaderboard candidates; may complement gate/filter candidates by improving underlying setup edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ We seek parameter sets for the SNIPER_LEVEL_BREAK strategy that align real OPRA 
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which require edge_capture ≥ 771). This proposer’s edge_capture is negative (−126) and would be REJECTED at the door. It does not complement existing candidates; it is a separate, underperforming parameter set that needs OOS walk‑forward first. If OOS shows promise, it could be re‑evaluated as a new candidate type, but otherwise remains unsuitable for leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

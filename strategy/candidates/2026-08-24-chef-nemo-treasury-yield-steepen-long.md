@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates. No registered strategy references Treasury yields (nearest is LEVEL_BREAK_FIRST_STRIKE using price levels). This candidate operates on a different macro indicator and may capture edges on days unrelated to current leaderboard strategies (which focus on price/volume/ribbon dynamics). No direct conflict; could add diversification if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

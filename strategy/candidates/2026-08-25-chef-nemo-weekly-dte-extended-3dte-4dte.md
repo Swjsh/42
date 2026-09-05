@@ -62,3 +62,5 @@ Based on WEEKLY_DTE_NOT_0DTE showing monotone OOS exp/tr increase with DTE (0DTE
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements WEEKLY_DTE_NOT_0DTE (same signal, extended DTE). No direct conflict with other candidates as it modifies a parameter (DTE) of an existing signal rather than adding new logic. May subsume WEEKLY_DTE_NOT_0DTE if 3DTE/4DTE outperforms 1DTE/2DTE. Does not affect watchers, quality gates, or exit mechanics. Neutral on OP-16 anchors (like WEEKLY_DTE_NOT_0DTE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

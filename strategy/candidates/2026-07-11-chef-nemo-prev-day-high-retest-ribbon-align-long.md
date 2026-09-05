@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-25 in _LEADERBOARD.md as it introduces a new trigger type (level retest + volume + ribbon). However, may overlap conceptually with WEEKLY_DTE_NOT_0DTE (structural DTE shift) or ORB_RETEST_LONG (opening range retest) but differs in timeframe (prior day vs. opening range) and added volume/ribbon filters. Requires Stage-1 backtest to quantify actual edge and potential overlap/complementarity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

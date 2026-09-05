@@ -66,3 +66,5 @@ We do not have data on how this guard affects the strategy engine. The guard is 
 ## Pre-existing leaderboard impact
 
 This change is to infrastructure and does not directly conflict with any strategy candidate in the leaderboard. It is intended to improve the reliability of the watchdog, which supports all strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

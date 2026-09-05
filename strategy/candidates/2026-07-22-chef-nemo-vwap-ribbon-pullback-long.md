@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION by targeting pullback entries instead of continuation entries. No overlap in trigger logic with current leaderboard entries (which are primarily watcher proposals, DTE studies, or quality gates). Adds diversity to long-side candidates if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

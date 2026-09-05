@@ -53,3 +53,5 @@ Gym validators: 97/98 PASS (no changes to core logic); Walk-forward: OOS Sharpe 
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates as it is a pure filter that skips entire days. It does not conflict with any specific setup logic and can be stacked with any other candidate. It is orthogonal to trigger, exit, and quality-gate changes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

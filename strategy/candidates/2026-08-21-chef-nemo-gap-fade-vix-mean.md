@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing gap-fade candidates (none currently in registry). Differentiates from GAP_AND_GO (which trades gap continuation) by taking opposite bias under high VIX conditions. No direct conflicts with current leaderboard entries as it proposes a new trigger type not represented in existing strategies. May provide diversification if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

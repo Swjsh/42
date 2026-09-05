@@ -61,3 +61,5 @@ The BEARISH_REJECTION_MORNING watcher identifies high-probability bearish entry 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BEARISH_REJECTION_MORNING watcher (which is WATCH-ONLY) by promoting it to an active filter. It does not conflict with any existing live candidates in the leaderboard (ranks 1-23) as it is a new filter. It may interact with other morning gates (e.g., MIDDAY_TRENDLINE_GATE) but operates in an earlier time window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing setup in the leaderboard. It is complementary to existing VWAP‑based triggers (e.g., VWAP_CONTINUATION) but attempts to capture the opposite market bias (fading gaps that fail VWAP). No conflict with current PROMISING or J‑RATIFIED candidates is expected; it would occupy a distinct niche in the trigger‑type lane if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

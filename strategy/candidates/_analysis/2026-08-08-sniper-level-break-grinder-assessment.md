@@ -58,3 +58,5 @@ We examined the top keeper (vol_mult=1.1, body_min_cents=0.02, min_stars=2, stri
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have positive edge_capture projection). This parameter set is worse than baseline and would be rejected immediately for failing OP-16 floor (edge_capture < 771). No complement to existing candidates; suggests SNIPER_LEVEL_BREAK requires fundamental redesign (e.g., different exit logic, regime filters) before parameter tuning yields edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

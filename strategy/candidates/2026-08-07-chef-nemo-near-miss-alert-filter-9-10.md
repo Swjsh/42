@@ -64,3 +64,5 @@ In the engine's decision pipeline, after computing the bull/bear score and befor
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in `_LEADERBOARD.md` because it does not alter entry/exit logic, position sizing, or risk rules. It complements candidates focused on filter changes (e.g., VIX_BULL_HARD_CAP_UNBLOCK, ENTRY_BODY_GATE_BEAR_REVAL) by providing data on near-misses that could inform those debates. It is orthogonal to all current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

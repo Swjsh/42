@@ -62,3 +62,5 @@ Replace all instances of `urllib.request.urlopen(req)` (or similar) with calls t
 ## Pre-existing leaderboard impact
 
 No impact — this is a pure refactor that does not alter any strategy logic, parameters, or exit rules. It complements all candidates by improving data-fetch reliability without changing their edge. No conflicts with existing leaderboard entries.
+
+<!-- PROVENANCE-MISSING: backtest/tools/fred_yield_curve.py, backtest/tools/cboe_bxm_daily.py, backtest/tools/nyse_tick_openbook.py, test_fred_yield_curve.py -->

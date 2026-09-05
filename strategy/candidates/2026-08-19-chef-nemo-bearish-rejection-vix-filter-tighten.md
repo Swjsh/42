@@ -52,3 +52,5 @@ Gym validators must pass; walk-forward OOS must show positive edge_capture and S
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9; complements VIX-related filters like V14E_BEAR_ONLY_GATE and F8_BULL_VIX_GATE_REVAL by adding a VIX floor to bearish entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

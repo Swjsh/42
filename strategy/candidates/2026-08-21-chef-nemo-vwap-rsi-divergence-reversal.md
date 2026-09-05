@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type that does not directly conflict with existing candidates in the leaderboard (e.g., VWAP_CONTINUATION, BEARISH_REJECTION_RIDE_THE_RIBBON). It may complement VWAP_CONTINUATION by providing a reversal signal for choppy/medium-VIX environments, whereas VWAP_CONTINUATION trends with the bias. No overlap in entry logic expected, so likely additive if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

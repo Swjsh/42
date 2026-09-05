@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md; it is a new trigger type targeting a different market state (ribbon contraction/volume squeeze breakout) versus existing triggers (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON requires price reclaim after pullback). Complements by expanding trigger library into unexplored condition space, but must prove edge on OP-16 anchors to justify addition. No overlap with current watcher/gate/exit candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

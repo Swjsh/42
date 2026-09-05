@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Novel trigger type; does not directly conflict with existing candidates (mostly filters/gates). May complement VIX-related filters but requires testing to confirm no adverse interaction with existing BEARISH_REJECTION_RIDE_THE_RIBBON logic. No overlap with current leaderboard candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

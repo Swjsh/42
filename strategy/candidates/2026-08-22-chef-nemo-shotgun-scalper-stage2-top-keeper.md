@@ -62,3 +62,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door per OP-16 (edge_capture < 771). It does not appear on the leaderboard and conflicts with the goal of capturing J's edge. No impact on existing leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

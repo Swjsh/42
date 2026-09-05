@@ -55,3 +55,5 @@ Requires Stage-1 backtest to establish baseline vs shotgun_scalper_stage2, walk-
 ## Pre-existing leaderboard impact
 
 Fails OP-16 edge_capture floor (771) → would be REJECTED. No impact on current leaderboard. If developed to increase J-day edge_capture, could complement existing candidates focused on winner capture (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON). As-is, not viable for leaderboard promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates; GAP_AND_GO trades gap continuation while this candidate fades gaps that fail VWAP, offering a potentially orthogonal trigger. No overlap in leaderboard ranks 1‑9 identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ The top-performing keeper parameters from the leaderboard (e.g., WEEKLY_DTE_NOT_
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a validation step that may lead to promotion of the top keepers to a more confident status (e.g., from PROMISING to J-RATIFIED) if they pass the gates. It complements candidates like WEEKLY_DTE_NOT_0DTE and STRUCTURE_VETO_DIR_VS_TREND by providing the OOS rigor they currently lack. No current leaderboard entry is invalidated by this analysis.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/walkforward_grid.py, analysis/recommendations/walkforward_oos_top_keepers.json, test_walkforward_oos.py -->

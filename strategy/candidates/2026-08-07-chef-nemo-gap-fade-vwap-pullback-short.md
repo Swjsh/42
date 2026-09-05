@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing GAP_AND_GO (which trades gap continuation) by offering opposite-direction logic; no direct conflict with current leaderboard candidates as it targets a different market condition (gap fade vs. gap extend). Does not overlap with any existing trigger types in the registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

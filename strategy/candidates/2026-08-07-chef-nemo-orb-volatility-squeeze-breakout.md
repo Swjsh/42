@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This new trigger strategy does not conflict with existing candidates in the leaderboard (which are primarily gates, exits, or other trigger types). It complements the existing ORB_NARROW_OR_GATE by defining the entry logic itself rather than merely filtering, and differs from ORB_RETEST_LONG by entering on breakout rather than retest. No direct overlap with current ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

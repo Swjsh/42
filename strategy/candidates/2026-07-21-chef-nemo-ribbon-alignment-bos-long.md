@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; does not conflict with current leaderboard entries (primarily watcher quality gates, DTE studies, or exit modifications). Adds new entry signal type that could be combined with existing filters post-validation. No overlap with confirmed candidates like BEARISH_REJECTION_RIDE_THE_RIBBON or VWAP_CONTINUATION.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

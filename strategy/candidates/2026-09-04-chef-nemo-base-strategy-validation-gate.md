@@ -54,3 +54,5 @@ No change to the engine logic. This quality gate is always enabled (i.e., it doe
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it proposes no change to the engine logic. It is complementary in that it seeks to validate the base strategy against which all candidates are measured.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

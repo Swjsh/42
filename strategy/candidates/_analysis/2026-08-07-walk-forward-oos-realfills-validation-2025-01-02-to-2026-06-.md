@@ -56,3 +56,5 @@ The current engine's walk-forward OOS performance over 2025-01-02..2026-06-18 wi
 ## Pre-existing leaderboard impact
 
 This analysis is neutral; it validates the baseline engine against which all candidates in the leaderboard are measured. It does not conflict with any existing candidate but provides the OP-16 floor condition used to reject candidates with edge_capture < 771. If the baseline fails the OOS or real-fills gate, all candidates would need re-evaluation against a corrected baseline. No direct impact on current rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

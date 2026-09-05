@@ -52,3 +52,5 @@ The mechanism involves modifying the VWAP_CONTINUATION setup to incorporate a dy
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in _LEADERBOARD.md, but the exact impact is unknown due to the lack of data and validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

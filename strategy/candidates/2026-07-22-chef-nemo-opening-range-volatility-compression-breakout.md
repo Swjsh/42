@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with any of the top 9 candidates in _LEADERBOARD.md (which are primarily DTE overrides, watcher gates, and trigger revalidations). It may complement existing strategies by providing an alternative entry condition for breakout trades that can be combined with existing quality gates in future work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Exit logic unchanged: chandelier profit-lock arms at +5% favor, trails 0.15 off 
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with STRUCTURE_VETO_DIR_VS_TREND (rank ★) or TRENDLINE_BREAK_CALL_VETO (rank WS4); may subsume their individual benefits. No overlap with DTE or volatility-based candidates (e.g., WEEKLY_DTE_NOT_0DTE). Adds orthogonal filter layer to existing winner-preserving gates like MIDDAY_TRENDLINE_GATE (rank 21).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

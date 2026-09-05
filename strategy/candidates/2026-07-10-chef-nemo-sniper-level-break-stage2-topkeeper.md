@@ -50,3 +50,5 @@ Must pass Stage-1 backtest on J anchor days to compute edge_capture, walk-forwar
 ## Pre-existing leaderboard impact
 
 This candidate does not meet OP-16 edge_capture floor (373.48 < 771) and would be REJECTED if added to leaderboard; it conflicts with the goal of edge capture and would not improve leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing leaderboard entries (which are primarily watches, gates, or exit‑change proposals). It complements trend‑following and breakout‑style strategies by adding a volatility‑conditioned volume spike trigger, potentially overlapping with setups like TBR_HIGH_VOL but differing in its ATR‑compression entry condition. No direct duplication in the registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

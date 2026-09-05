@@ -65,3 +65,5 @@ Without the baseline from sniper_stage2_grinder, we cannot determine which knob 
 This analysis does not propose a new candidate for the leaderboard. The top keeper from sniper_real_fills_grinder underperforms on known winner days and requires further validation before any promotion consideration. It does not conflict with existing leaderboard candidates as it is not being promoted.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

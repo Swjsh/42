@@ -58,3 +58,5 @@ We need to compute edge_capture on the six J anchor days for the current engine 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it is a validation step for the current engine. It does not conflict with or complement existing candidates in `_LEADERBOARD.md`. It informs whether the current engine meets OP‑16 thresholds before any new candidate is considered.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/j_anchor_edge.py -->

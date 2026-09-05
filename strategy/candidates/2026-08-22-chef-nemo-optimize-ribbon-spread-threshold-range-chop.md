@@ -50,3 +50,5 @@ Gym validators: all gym tests must pass for the modified BEARISH_REJECTION_RIDE_
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates in the leaderboard as it is a parameter change to an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON). It complements candidates that are structural changes (e.g., STRUCTURE_VETO_DIR_VS_TREND) by refining the entry condition of a core setup. It may subsume candidates that attempt to modify the ribbon spread threshold via other means (none currently on the leaderboard).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

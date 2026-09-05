@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are long‑biased or volatility‑agnostic). Complements bear‑side strategies by providing a distinct short‑trigger framework based on order‑flow and dealer gamma. No overlap with current leaderboard entries (which focus on bullish reclaim, VWAP, or structural gates). If validated, would add a new short‑side trigger lane to the strategy arsenal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

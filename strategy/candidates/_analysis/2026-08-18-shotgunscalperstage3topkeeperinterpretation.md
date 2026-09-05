@@ -67,3 +67,5 @@ Before any promotion, the keeper must pass:
 ## Pre-existing leaderboard impact
 
 The keeper’s `edge_capture` (285) is below the leaderboard’s inclusion floor of 771, so it would not appear on the current leaderboard even if promoted. It does not conflict with any existing candidate; rather, it highlights the need for a strategy that captures a larger fraction of the J‑day edge. If OOS validation shows sufficient edge_capture, it could be added as a new trigger‑type candidate, but it would need to demonstrate edge_capture ≥ 771 to be ranked.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

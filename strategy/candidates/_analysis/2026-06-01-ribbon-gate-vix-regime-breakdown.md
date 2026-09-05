@@ -64,3 +64,5 @@ Until this analysis is run, all impact estimates are unknown.
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it informs whether RIBBON_GATE (if deployed as a watcher or filter) should be retained as-is or augmented with a VIX regime condition. No leaderboard entries currently reference RIBBON_GATE, so impact is neutral pending results.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

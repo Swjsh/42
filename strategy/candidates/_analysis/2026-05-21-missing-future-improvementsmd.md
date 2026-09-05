@@ -50,3 +50,5 @@ Obtain `markdown/planning/FUTURE-IMPROVEMENTS.md` from the repository, then run 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates; it highlights a blocker that must be resolved before further progress on the original request can be made.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

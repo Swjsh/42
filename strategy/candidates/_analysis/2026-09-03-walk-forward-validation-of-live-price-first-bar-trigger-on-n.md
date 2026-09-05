@@ -65,3 +65,5 @@ We would require:
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate. It is a validation step for the existing candidate LIVE_PRICE_FIRST_BAR_TRIGGER (currently rank 2, NEEDS-MORE-DATA). If the walk-forward shows non-negative expectancy, it may support promoting the candidate to PROMISING (subject to other gates). If it shows negative expectancy, it may lead to rejection.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

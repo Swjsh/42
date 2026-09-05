@@ -69,3 +69,5 @@ After a period of volatility compression (narrow range, low ATR), a break of str
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md (they are primarily watcher quality gates, DTE studies, or structural vetoes). This is a new_trigger that could be stacked as an additional filter alongside existing entries (e.g., requiring the BOS‑vol‑compression trigger in addition to VWAP_CONTINUATION or GAP_AND_GO). If proven additive, it may complement; if redundant, it may dilute edge. No direct parameter changes proposed.
+
+<!-- PROVENANCE-MISSING: test_market_structure_bos_after_vol_compression_long.py -->

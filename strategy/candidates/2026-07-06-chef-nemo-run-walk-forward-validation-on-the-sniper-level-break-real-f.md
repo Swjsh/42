@@ -53,3 +53,5 @@ The validation must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate but validates an existing one (SNIPER_VIX18_GRINDER). If the validation shows stable positive performance, it may lead to the candidate being re-evaluated and potentially promoted in the leaderboard. If it fails, it confirms the artifact invalidation. It does not directly conflict with other candidates but may complement them if it provides an edge in different regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

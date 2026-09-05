@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates in the leaderboard as it introduces a new trigger type. It may complement existing VWAP-based strategies by adding volume and time filters, but could overlap with VWAP_CONTINUATION. However, since it is a new trigger, it would be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

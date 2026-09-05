@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown -- requires Stage-1 backtest to assess overlap or synergy with current leaders (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, etc.). As a new trigger based on opening‑range volume imbalance, it is likely complementary to existing VWAP‑ or structure‑based entries, but potential conflicts (e.g., double‑counting on same bars) can only be determined after back‑testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

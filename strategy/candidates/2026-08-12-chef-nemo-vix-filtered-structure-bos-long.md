@@ -51,3 +51,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly modify any existing candidates in the leaderboard (ranks 1‑9). It complements the existing VIX‑gated setups (F8_BULL_VIX_GATE_REVAL, VIX_BULL_HARD_CAP_UNBLOCK) by adding a structural BOS condition, potentially creating a non‑overlapping signal set. No conflict identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

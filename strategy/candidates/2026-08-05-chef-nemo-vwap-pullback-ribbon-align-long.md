@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly modify any existing rules in the leaderboard. It complements rather than conflicts with the existing VWAP_CONTINUATION setup, as it seeks a different entry condition (pullback to VWAP with ribbon alignment) versus the continuation‑only requirement. No overlap with current ranked candidates is expected; it would occupy a new lane if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 (mostly watcher gates, DTE studies, and quality‑filters). Adds a new long‑trigger lane that could be combined with existing filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK, ORB_NARROW_OR_GATE) to refine entry selection. Complementary to structure‑based vetoes as it operates on early‑session price action independent of trend‑line or level‑memory signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

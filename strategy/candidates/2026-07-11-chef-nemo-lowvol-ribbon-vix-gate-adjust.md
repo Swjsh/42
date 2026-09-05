@@ -63,3 +63,5 @@ During low-volatility, range-bound sessions (VIX < 15 and intraday price range <
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters (e.g., MIDDAY_TRENDLINE_GATE, VWAP_CONTINUATION) by targeting a specific regime not currently addressed. It does not conflict with any ranked candidate in _LEADERBOARD.md as it modifies internal gate thresholds rather than adding new triggers or structural changes. If proven effective, it could be layered atop existing candidates that remain unchanged.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

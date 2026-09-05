@@ -63,3 +63,5 @@ No entry or exit logic is changed; the engine continues to apply filters as norm
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; adds observability without altering edge_capture or Sharpe. No conflict with candidates 1-9 in _LEADERBOARD.md. May surface opportunities that inspire future filter_change or quality_gate proposals.
+
+<!-- PROVENANCE-MISSING: test_near_miss_alert.py -->

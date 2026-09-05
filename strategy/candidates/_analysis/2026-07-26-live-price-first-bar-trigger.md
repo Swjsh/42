@@ -56,3 +56,5 @@ Entry is taken at the next bar open. Exit follows standard BEARISH_REJECTION_RID
 ## Pre-existing leaderboard impact
 
 This analysis does not alter the status of LIVE_PRICE_FIRST_BAR_TRIGGER; it remains NEEDS-MORE-DATA due to zero live fires and lack of real-fills P&L validation. It does not conflict with any existing candidates, as it adds no new trades on J days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

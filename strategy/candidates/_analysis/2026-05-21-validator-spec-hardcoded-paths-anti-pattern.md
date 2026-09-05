@@ -61,3 +61,5 @@ path = STAGE_DIRS["analysis"] / "recommendations" / "v15-final.json"
 Does not conflict with any candidate. Complements existing `stage_dirs.py` central map (L21 fix) by enforcing compliance.
 
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/stage_dirs.py -->

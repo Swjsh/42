@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing candidate in the leaderboard. It may complement structure‑based gates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by adding a momentum‑divergence filter, but no conflict is expected. No changes to current ranked candidates are required.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

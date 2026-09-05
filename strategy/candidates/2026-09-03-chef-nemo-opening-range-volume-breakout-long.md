@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB_RETEST_LONG by using immediate breakout with volume confirmation instead of retest; no direct conflict with current candidates as it targets a different trigger mechanism. Does not overlap with watcher-only or veto-type candidates in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

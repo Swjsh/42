@@ -52,3 +52,5 @@ This keeper fails the OP-16 anchor (edge_capture = -126.0 < 771 floor), so it is
 ## Pre-existing leaderboard impact
 
 This keeper is rejected by OP-16 and would not appear on the leaderboard. It does not conflict with any existing candidate because it is not promoted. The leaderboard currently contains only candidates with edge_capture ≥ 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

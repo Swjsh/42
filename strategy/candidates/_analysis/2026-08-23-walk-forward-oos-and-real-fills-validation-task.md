@@ -59,3 +59,5 @@ We require:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a candidate but rather a validation test. It does not conflict with any candidate. It is a prerequisite for any candidate to be considered for ratification (per OP-20 and OP-16).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

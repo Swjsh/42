@@ -56,3 +56,5 @@ The filter checks the real-time VIX value at the moment of evaluating a bearish 
 ## Pre-existing leaderboard impact
 
 This analysis validates an existing filter (VIX<15) already embedded in the BEARISH_REJECTION_RIDE_THE_RIBBON setup's context filters. It does not conflict with any leaderboard candidates, as it is purely a validation exercise. However, if the filter is found to have blocked winners on J days, it would necessitate a quality_gate change to remove or adjust the VIX<15 threshold, potentially impacting candidates that rely on the current filter (none explicitly listed in leaderboard). No immediate leaderboard impact expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -70,3 +70,5 @@ We propose that a premarket V-shaped reversal (price makes a new intraday low in
 Does not conflict with existing candidates; complements by potentially improving Rank 2 ([LIVE_PRICE_FIRST_BAR_TRIGGER]) if Stage-1 passes OP-16 gates. No overlap with J-anchor days (zero current/future trades on anchors), so no risk of regressing on known winners.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

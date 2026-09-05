@@ -53,3 +53,5 @@ Gym validators (watcher unit tests), walk-forward test (confirm no anchor regres
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; operates at watcher layer orthogonal to structural/exit gates. No conflicts with leaderboard candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

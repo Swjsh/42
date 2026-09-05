@@ -63,3 +63,5 @@ Ran the autorearch grinder Stage-1 backtest on the baseline engine (no candidate
 ## Pre-existing leaderboard impact
 
 This analysis confirms the baseline engine reference point (edge_capture=780, Sharpe=4.340, final_score=3385) used to rank all candidates in _LEADERBOARD.md. No conflict; provides the anchor for computing candidate deltas. Candidates with edge_capture < 771 are rejected (e.g., BEARISH_SWEEP_BLOCKER edge=-$650). The analysis does not change leaderboard rankings but validates the scoring framework.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

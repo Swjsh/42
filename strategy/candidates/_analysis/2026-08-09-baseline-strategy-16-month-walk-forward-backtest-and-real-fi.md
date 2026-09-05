@@ -52,3 +52,5 @@ Gym validators (81/81 PASS), walk-forward OOS positive, real-fills validation on
 ## Pre-existing leaderboard impact
 
 Complements all candidates; serves as baseline for edge_capture/Sharpe comparisons. No conflicts (analysis-only).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

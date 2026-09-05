@@ -63,3 +63,5 @@ If the count exceeds 20, trigger an alert (e.g., Discord notification, log to `S
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates by maintaining a clean `strategy/candidates/` directory. No conflict with trading candidates (types: new_trigger, filter_change, etc.) as this is purely a housekeeping watcher. Supports OP-22 hygiene by preventing candidate sprawl that could obscure valid proposals.
+
+<!-- PROVENANCE-MISSING: automation/overnight/README.md -->

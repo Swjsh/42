@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing leaderboard candidates (primarily filters/exits/watcher proposals). May complement by adding a new entry condition, but potential overlap with ORB_RETEST_LONG requires Stage-1 backtest to clarify. No direct parameter/engine changes proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

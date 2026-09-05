@@ -54,3 +54,5 @@ We ran a Stage-1 backtest on SPY 5m data from 2025-01-02 to 2026-06-18 to evalua
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with top-ranked candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND, VWAPCONT_DTE_OVERRIDE_2DTE) as it targets a different mechanism (ribbon-ride refinement vs. structure/vwap/date overrides). Would likely rank near top if edge_capture=900 and Sharpe=4.50 (est. final_score=4,050). No overlap with rejected candidates (e.g., BEARISH_SWEEP_BLOCKER, CONFLUENCE_MATRIX) as it avoids their known failure modes (quality-lock cascade, confluence misalignment).
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/stage1_wf_oos_20260820.json, analysis/recommendations/stage1_realfills_jdays_20260820.json, backtest/tests/test_gym_validators.py -->

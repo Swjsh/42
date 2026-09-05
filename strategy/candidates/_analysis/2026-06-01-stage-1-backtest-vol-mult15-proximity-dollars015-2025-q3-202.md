@@ -51,3 +51,5 @@ Run Stage-1 backtest (grid of 1 parameter combination) on the specified date ran
 ## Pre-existing leaderboard impact  
 
 This analysis is not a candidate; it is an evaluation of a parameter set. If the backtest shows edge_capture >= 771, it could be considered for ratification as a parameter optimization candidate (similar to V14E_PARAM_SWEEP_26K). It would complement existing candidates that are watcher-only or new trade classes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

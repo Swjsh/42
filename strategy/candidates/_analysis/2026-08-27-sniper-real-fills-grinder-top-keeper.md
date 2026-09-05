@@ -59,3 +59,5 @@ Exit logic: premium_stop_pct=-0.1 (10% catastrophic stop), tp1_premium_pct=0.5 (
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new strategy; it evaluates an existing grinder output. The top keeper underperforms baseline and would not meet the OP-16 edge_capture floor (≥771). It does not conflict with current leaderboard candidates but highlights the need for further refinement or abandonment of this parameter region.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

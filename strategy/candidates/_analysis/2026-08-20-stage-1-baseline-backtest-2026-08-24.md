@@ -52,3 +52,5 @@ Gym validators PASS, walk-forward OOS Sharpe >0.70, real-fills validation diff <
 ## Pre-existing leaderboard impact
 
 This analysis serves as a baseline reference; it does not conflict with existing candidates but provides the ground truth for OP-16 edge_capture calculations. Candidates are evaluated relative to this baseline.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/stage1_baseline_oos.json, analysis/recommendations/stage1_baseline_realfills.json -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it introduces a new trigger mechanism (VWAP slope + EMA stack) not currently present; may complement existing strategies by providing alternative entry signal, but cannot confirm synergy or redundancy without backtest. No direct overlap with current leaderboard entries (which focus on DTE overrides, structural gates, and quality filters).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -63,3 +63,5 @@ We hypothesize that restricting entries to periods when VIX is rising (5‑min s
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing ranked candidate; it is a filter_change that could be layered on top of current entries. It complements quality‑gate candidates (e.g., #3 V14E_BEAR_ONLY_GATE) by adding a regime‑based condition. If ratified, it would likely be evaluated as a separate line item on the leaderboard. No known contradictions with the current top‑10.
+
+<!-- PROVENANCE-MISSING: test_vix_time_filter.py, analysis/recommendations/wf_oos_sharpe_0_70_vix_time_filter.json -->

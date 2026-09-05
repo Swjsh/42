@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger type (opening-range volume spike short) not currently represented. Complements existing volatility/gap-based strategies by targeting mean reversion of weak breakdowns. No overlap with watcher-only or structural gate candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

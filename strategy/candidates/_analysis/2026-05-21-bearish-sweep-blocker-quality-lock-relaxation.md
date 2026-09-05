@@ -103,3 +103,5 @@ With relaxed quality-lock (allowing same-rank wins):
 Does not conflict with existing candidates. Complements BEARISH_SWEEP_BLOCKER by addressing the cascade that the sweep-blocker alone could not fix.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

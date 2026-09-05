@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard. It represents a novel approach combining BOS, VIX, and volume filters. Without backtest data, we cannot determine if it would complement or conflict with existing strategies, but it targets a different market condition (confirmed bearish structure breaks) than most current candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

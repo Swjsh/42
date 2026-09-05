@@ -54,3 +54,5 @@ The proposed candidate must pass the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed candidate may complement or conflict with existing candidates in _LEADERBOARD.md. Further analysis is required to determine the impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

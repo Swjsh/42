@@ -62,3 +62,5 @@ Then, we will perform a walk-forward OOS test (holding out a recent window) and 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate but rather evaluates the current engine (baseline) against the OP-16 anchors. It does not conflict with any existing candidate but may inform the leaderboard if the current engine's edge_capture is computed and found to be above or below the rejection threshold. If edge_capture >= 771, it would qualify for the leaderboard; otherwise, it would be REJECTED at the door. This analysis complements the leaderboard by providing the baseline performance against which candidates are measured.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

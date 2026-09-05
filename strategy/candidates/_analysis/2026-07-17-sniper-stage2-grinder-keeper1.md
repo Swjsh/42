@@ -74,3 +74,5 @@ Entry:**1.1× vol multiplier for entry signal strength
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (none have edge_capture near 373). However, edge_capture <771 (OP-16 floor) so would be REJECTED if promoted. Requires substantial OOS walk-forward to potentially exceed edge floor. Complements existing candidates as a potential filter/trigger idea but needs validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

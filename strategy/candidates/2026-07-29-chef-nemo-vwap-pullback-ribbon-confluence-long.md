@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BULLISH_RECLAIM_RIDE_THE_RIBBON setup by providing an alternative long entry signal focused on VWAP pullbacks rather than reclaims. It does not conflict with any put-side candidates in the leaderboard (ranks 1-24) as it targets long bias. If validated, it could add a new long-trigger lane to the strategy roster.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ For this analysis to be actionable, we require:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a change to the engine. It evaluates the baseline. All candidates in the leaderboard are measured against this baseline. Therefore, it complements all candidates by providing the baseline against which their edge_capture delta is measured.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

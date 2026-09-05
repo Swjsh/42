@@ -63,3 +63,5 @@ Entry logic: A trade fires only if all four gates pass (conjunctive stack). Exit
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it evaluates a stack of already‑validated gates (#21, #22, #17, and a bear‑only direction filter analogous to #3). If the stack shows additive edge, the recommended subset to ratify first is **MIDDAY_TRENDLINE_GATE** (single gate with highest demonstrated per‑trade lift +89% and anchor pass), followed by **RIBBON_MOMENTUM_GATE** as a second‑step complement. The V14E time‑of‑day and bear‑only filters are already watcher‑only deployed; their heartbeat activation would be low‑effort third and fourth steps. No conflict with leaderboard candidates 1‑22.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

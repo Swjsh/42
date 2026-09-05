@@ -56,3 +56,5 @@ We integrate `crypto.lib.market_structure.classify_trend` (5m-sameday) into the 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (which is PROMISING and targets bear-side wrong-way trades). It does not conflict with any J-RATIFIED candidates as it operates on the bull side, which is not scored in OP-16 (anchor days are PUTs). It may synergize with MIDDAY_TRENDLINE_GATE by providing additional structure confirmation.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_structure_veto_bull.py -->

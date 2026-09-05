@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS test must show positive edge, real-fi
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate, so it does not conflict with existing candidates. It is a validation step that could inform future candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

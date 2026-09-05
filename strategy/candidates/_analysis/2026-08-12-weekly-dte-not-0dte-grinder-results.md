@@ -80,3 +80,5 @@ Ran Stage-1 backtest via autoresearch grinder on `WEEKLY_DTE_NOT_0DTE` candidate
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis supports the existing WEEKLY_DTE_NOT_0DTE candidate (rank ★★) by providing granular Stage-1 backtest results. It complements rather than conflicts with other candidates. The candidate remains PROMISING with improved conviction based on grinder output. No changes to leaderboard ranking warranted at this stage.
+
+<!-- PROVENANCE-MISSING: analysis/backtests/cache/weekly_dte_not_0dte_equity.csv, analysis/backtests/cache/weekly_dte_not_0dte_trades.json, analysis/backtests/cache/weekly_dte_not_0dte_op16.json -->

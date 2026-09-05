@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate is complementary to existing ribbon‑based strategies (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) and structure‑based vetoes (STRUCTURE_VETO_DIR_VS_TREND) because it adds a concurrent BOS requirement and RSI filter that those setups do not use. It does not directly conflict with any of the top‑9 leaderboard entries, as none combine ribbon flip, BOS, and RSI in the manner described. Should the backtest reveal edge, it could augment the leaderboard as a new trigger type.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

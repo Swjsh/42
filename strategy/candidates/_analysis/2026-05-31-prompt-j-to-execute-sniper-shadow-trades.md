@@ -53,3 +53,5 @@ J must execute and log ≥3 SNIPER shadow trades meeting vol_mult=0.9, vix_lower
 ## Pre-existing leaderboard impact
 
 This analysis supports candidate #15 (SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP) by satisfying its OP-21 live observation gate. It does not conflict with any existing candidate and complements the OOS-confirmed status of #14. No impact on other leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

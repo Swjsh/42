@@ -62,3 +62,5 @@ We will instrument the Alpaca REST fallback path in `heartbeat.md` to:
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates. Investigation may inform future proposals (e.g., if ceiling-logic delay is found excessive, a `quality_gate` or `exit_change` candidate to reduce it). Does not alter any current strategy logic or parameters.
+
+<!-- PROVENANCE-MISSING: test_alpaca_latency_timeout.py -->

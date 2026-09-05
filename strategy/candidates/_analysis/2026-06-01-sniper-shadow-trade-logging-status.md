@@ -62,3 +62,5 @@ The journal/sniper-shadow-trades.jsonl file is empty or lacks sufficient entries
 ## Pre-existing leaderboard impact
 
 This analysis complements all SNIPER‑class candidates currently blocked on OP‑21 (ranks #14, #15, #13). It does not conflict with any existing leaderboard entries; rather, it enables their promotion by satisfying the live‑observation gate. No changes to non‑SNIPER candidates are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

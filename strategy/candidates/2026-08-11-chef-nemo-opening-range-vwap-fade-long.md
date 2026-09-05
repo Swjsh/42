@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates in the leaderboard. It complements by providing a long bias fade strategy distinct from ORB_RETEST_LONG (which enters on retest of the opening range). No overlap in mechanism or trigger logic with current PROMISING/NEEDS-MORE-DATA candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

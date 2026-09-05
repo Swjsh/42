@@ -59,3 +59,5 @@ Add a time-of-day filter to the BEARISH_REJECTION_RIDE_THE_RIBBON setup: only al
 ## Pre-existing leaderboard impact
 
 This candidate complements the BEARISH_REJECTION_MORNING watcher (rank 20, WATCH-ONLY) by promoting its time window to an active filter. It does not conflict with existing PROMISING candidates like STRUCTURE_VETO_DIR_VS_TREND (rank ★) or WEEKLY_DTE_NOT_0DTE (rank ★★), as it operates on a different axis (time-of-day filter vs. structure veto or DTE change). May synergize with structure veto by further reducing losing trades outside morning window. No direct conflict with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE) as they target different mechanisms.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ We are trying to capture edge by using SNIPER_LEVEL_BREAK triggers with specific
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which require edge_capture ≥ 771). This candidate would be REJECTED at the door per OP-16. Does not complement existing candidates as it fails the edge_capture floor. Requires significant improvement to J anchor day capture before promotion consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

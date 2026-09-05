@@ -59,3 +59,5 @@ The drift-ratchet test must pass (i.e., dominant recent arm matches hardcoded co
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate is a verification test and does not propose any changes to trading logic, parameters, or engine behavior. It therefore does not conflict with any existing candidate. Instead, it complements all candidates by providing an additional safeguard against drift in the exit shape parity studies, ensuring that any strategy changes built upon those studies remain valid.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

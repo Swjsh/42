@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger based on OR and volatility compression, distinct from existing ORB gates (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER, ORB_RETEST_LONG) which are watcher‑only or direction filters. It does not conflict with any ranked candidate; it may complement by providing an alternative entry condition for ORB‑style setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

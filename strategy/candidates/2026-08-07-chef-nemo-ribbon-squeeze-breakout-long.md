@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (ribbon width contraction breakout) that does not overlap with existing candidates in the leaderboard (which are primarily filters, gates, exit tweaks, or watcher proposals). It therefore does not directly conflict with any current top-9 candidates and could be evaluated as a complementary addition if proven effective.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ The keeper's winners_capture=509.55 and losers_added=3.0 yield edge_capture=506.
 ## Pre-existing leaderboard impact
 
 This keeper would be **REJECTED** from the leaderboard due to edge_capture < 771. It does not conflict with any existing candidates because it does not meet the minimum bar for inclusion. It may serve as a negative example showing that further tweaking of tp_premium_pct, stop_premium_pct, and time_stop_min alone is insufficient to capture the J edge without additional structural filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

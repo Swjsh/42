@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidates in _LEADERBOARD.md. This is a novel trigger type (gap‑fade/VWAP pullback) not currently represented. Complements existing volatility‑based filters (e.g., VIX regimes) and could be combined with quality gates like `midday_trendline_gate` or `structure_veto`. No overlap with current trigger types (e.g., `LIVE_PRICE_FIRST_BAR_TRIGGER`, `QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS`).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

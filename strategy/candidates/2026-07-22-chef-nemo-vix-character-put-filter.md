@@ -53,3 +53,5 @@ Stage-1 backtest must pass gym validators; walk-forward OOS Sharpe ratio >= 0.70
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK and similar VIX-related filters by adding a character dimension; may overlap with existing VIX confirmation but is more restrictive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

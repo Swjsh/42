@@ -59,3 +59,5 @@ Adding a CALL VETO based on 5m-close-through-respected-ascending-support structu
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★) which vetoes wrong-way trades; this candidate is CALL-specific structural veto. No conflict: both can run simultaneously (different veto conditions). Would stack with existing leaderboard candidates; expected to improve Rank ★'s final_score by ~165 * aggregate_sharpe. Does not conflict with any REJECTED candidates. Current status: NEEDS-MORE-DATA (per leaderboard WS4) -> this Stage-1 completes the missing data.
+
+<!-- PROVENANCE-MISSING: test_trendline_break_call_veto.py -->

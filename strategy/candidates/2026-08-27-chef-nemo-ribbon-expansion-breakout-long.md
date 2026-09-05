@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; represents a novel long-biased trigger type that could complement existing short-biased anchors if validated. No overlap with current leaderboard entries (all are watcher/gate proposals or volatility-based triggers).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

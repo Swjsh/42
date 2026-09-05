@@ -12,3 +12,5 @@ On 12/10, the session featured an early sweep bar (e.g., 10:30 ET) that triggere
 This explains why 5/04 succeeded: its sweep and confluence occurred on the *same bar* (the rejection bar), so the carve-out found confluence present when evaluating that bar. For 12/10, the sweep and confluence were temporally separated, breaking the carve-out's assumption. The fix requires storing confluence as a setup-level property (e.g., in `key-levels.json` or session state) rather than a per-bar attribute, allowing the carve-out to reference the setup's confluence flag regardless of which bar triggers entry.
 
 Additionally, sweep_block's per-bar design conflates intrabar sweep events with interbar trend continuation. A prior sweep does not invalidate a later retest continuation—yet sweep_block gates the entire bar, discarding valid retest signals. This fundamental incompatibility between sweep_block's bar-level veto and confluence's setup-level nature doomed the carve-out to partial success. Future iterations must decouple sweep detection from bar-level gating or elevate confluence to a session-scoped property. (398 words)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

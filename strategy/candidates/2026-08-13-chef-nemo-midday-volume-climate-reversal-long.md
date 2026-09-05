@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 (BEARISH_SWEEP_BLOCKER through BULLISH_WATCHER_PM_GATE) as it introduces a new temporal trigger (midday volume/VWAP) orthogonal to existing trigger/filter mechanisms. May complement existing structure filters (e.g., STRUCTURE_VETO_DIR_VS_TREND) by providing entry signals that could be gated by quality metrics. However, potential overlap with MIDDAY_TRENDLINE_GATE (rank RV) exists as both operate in 11:30‑14:00 ET window; candidate may generate entries that gate would filter, requiring joint validation. Net impact unknown without Stage-1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

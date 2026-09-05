@@ -63,3 +63,5 @@ The V14E enhancer sweep aimed to improve edge capture by adding the 5/12 anchor 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates as it fails OP-16 gate. Complements research into profit-lock parameters (similar to J-RATIFIED V14E_PARAM_SWEEP_26K) but requires anchor day improvement to be viable. Needs significant rework to increase edge_capture before OOS consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

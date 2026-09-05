@@ -63,3 +63,5 @@ Combining the structure veto (which blocks bearish PUT entries into confirmed 5m
 ## Pre-existing leaderboard impact
 
 Complements ★ [STRUCTURE_VETO_DIR_VS_TREND] (structure veto) and WS4 [TRENDLINE_BREAK_CALL_VETO] (call veto); no conflict as both are already vetted gates. Adds incremental value by combining orthogonal filters. Does not overlap with PROMISING candidates like MIDDAY_TRENDLINE_GATE (different time window) or WEEKLY_DTE_NOT_0DTE (different variable).
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/combined_veto_ab.py, backtest/tests/test_combined_veto.py -->

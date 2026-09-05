@@ -68,3 +68,5 @@ Extending the DTE to 3DTE for BEARISH_REJECTION_RIDE_THE_RIBBON setups reduces t
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements WEEKLY_DTE_NOT_0DTE by extending the DTE variable to 3DTE for the same structural setup. May overlap with VWAPCONT_DTE_OVERRIDE_2DTE if applied to VWAP_CONTINUATION, but this candidate is specific to BEARISH_REJECTION_RIDE_THE_RIBBON trigger. No direct contradiction with J-RATIFIED candidates (BEARISH_SWEEP_BLOCKER rejected, MIDDAY_TRENDLINE_GATE ratified).
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_dte_override.py -->

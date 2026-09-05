@@ -58,3 +58,5 @@ Modify the MIDDAY_TRENDLINE_GATE logic in `heartbeat.md` to exempt entries that 
 ## Pre-existing leaderboard impact
 
 Complements [MIDDAY_TRENDLINE_GATE](2026-05-31-midday-trendline-gate.md) (rank 21) by adding a qualitative exemption; does not conflict with existing candidates. Enhances anchor coverage without altering watcher-only candidates (ranks 3-5, 17-20). Neutral on parameter-optimized candidates (ranks 12-16). No overlap with bullish setups (ranks 8-11) as BEARISH_REVERSAL is bearish-specific.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

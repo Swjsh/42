@@ -64,3 +64,5 @@ Choppy intraday regimes (low 5-minute price range) produce false signals and inc
 ## Pre-existing leaderboard impact
 
 Complements existing filters (e.g., MIDDAY_TRENDLINE_GATE, V14E_CHOP_ZONE_GATE) by targeting different time/regime dimensions. No direct conflict with ranked candidates; adds orthogonal regime filter. May conflict with VOLATILITY_EXPANSION_TRIGGER if proposed, but none currently in leaderboard. Safe to test as additive filter.
+
+<!-- PROVENANCE-MISSING: test_intraday_choppy_filter.py -->

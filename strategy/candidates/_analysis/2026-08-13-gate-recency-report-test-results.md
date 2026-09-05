@@ -53,3 +53,5 @@ All unit tests for gate_recency_report.py must pass (including replay_soundness 
 ## Pre-existing leaderboard impact
 
 No impact -- this is an internal test and analysis block, not a strategy candidate. It does not conflict with or complement any existing candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

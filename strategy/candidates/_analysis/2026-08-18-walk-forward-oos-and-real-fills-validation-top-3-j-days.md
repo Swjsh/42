@@ -55,3 +55,5 @@ We attempted to gather data for the walk-forward OOS test period (2026-07-01 onw
 ## Pre-existing leaderboard impact
 
 This analysis complements all leaderboard entries by highlighting validation gaps. It does not conflict with any candidate; instead, it underscores that J-RATIFIED candidates (e.g., ranks 12, 17, 21) have already satisfied real-fills/OOS gates for historical periods. New candidates must still complete these gates. No impact on existing scores or ranks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

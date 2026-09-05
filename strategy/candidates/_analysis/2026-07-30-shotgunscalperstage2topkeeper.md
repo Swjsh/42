@@ -68,3 +68,5 @@ The top keeper from the shotgun_scalper_stage2 grinder (1458 combos) shows stron
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Conflicts with all leaderboard candidates (which require edge_capture ≥ 771). This keeper's negative edge_capture would be REJECTED at the door per OP-16. No complement; represents anti-edge behavior on mandated days. Not suitable for leaderboard without significant revision to flip winner/loser day performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

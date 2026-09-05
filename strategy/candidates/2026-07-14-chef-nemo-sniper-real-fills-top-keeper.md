@@ -50,3 +50,5 @@ Must pass: gym validators, walk-forward OOS test (WF >= 0.70), real-fills valida
 
 ## Pre-existing leaderboard impact
 Conflicts with leaderboard inclusion criteria (edge_capture < 771 would REJECT this candidate). Does not complement existing candidates as it fails the OP-16 floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

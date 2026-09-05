@@ -54,3 +54,5 @@ Gym validators must pass; walk-forward OOS test required; real-fills validation 
 ## Pre-existing leaderboard impact
 
 Edge_capture < 771 → REJECTED at door per OP-16; does not appear on leaderboard; no impact on existing candidates (all have edge_capture ≥771)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

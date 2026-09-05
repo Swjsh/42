@@ -55,3 +55,5 @@ We have:
 ## Pre-existing leaderboard impact
 
 This promotion request is for the existing candidate V14E_BEAR_ONLY_GATE (rank 3). It does not conflict with other candidates. It complements the existing PROMISING status by moving to J-RATIFIED.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

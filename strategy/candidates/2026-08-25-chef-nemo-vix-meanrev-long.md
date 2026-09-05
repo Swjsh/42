@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing rules in the leaderboard. It complements existing VIX‑based regime filters (e.g., VIX_REGIME_DAYSIDE, VIX_BULL_HARD_CAP_UNBLOCK) by adding an intraday deviation trigger. No known conflict with current top‑10 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

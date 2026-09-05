@@ -60,3 +60,5 @@ If either condition fails, suppress the entry. This filter is applied after the 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing PUT-side candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION, GAP_AND_GO) by adding a quality filter. It does not conflict with any current leaderboard entries as it targets a specific setup filter rather than exit or trigger changes. It may synergize with STRUCTURE_VETO_DIR_VS_TREND (which already improves Sharpe) by further refining entry quality.
+
+<!-- PROVENANCE-MISSING: test_bearish_vix_filter.py -->

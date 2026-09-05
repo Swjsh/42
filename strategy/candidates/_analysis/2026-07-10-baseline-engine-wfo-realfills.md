@@ -49,3 +49,5 @@ Gym validators must pass; walk-forward OOS must show edge_capture >= 771 and Sha
 ## Pre-existing leaderboard impact
 
 No direct conflict; this analysis evaluates the baseline engine against which all candidates are ranked. If baseline degrades OOS, candidate rankings may shift.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -98,3 +98,5 @@ final_score = edge_capture × aggregate_sharpe
 ---
 
 **BLOCKED:** Requires Stage-2 backtest execution. I cannot compute edge_capture without running the backtest. This analysis confirms the validation path; the actual computation requires compute resources to run `run_backtest.py`.
+
+<!-- PROVENANCE-MISSING: analysis/backtests/orb_direction_filter_stage2/results.json -->

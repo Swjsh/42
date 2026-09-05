@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown -- requires Stage-1 backtest to determine complementarity or conflict with existing candidates (e.g., VIX_REGIME_DAYSIDE, structure-based vetoes).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Requires: Stage-1 backtest vs baseline to quantify delta, walk-forward OOS test 
 Does not conflict with current leaderboard candidates (all have positive edge_capture projection); would be rejected at door for edge_capture<771. If promoted, would rank below all existing candidates due to negative projection.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

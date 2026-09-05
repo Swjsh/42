@@ -58,3 +58,5 @@ The ORB_NARROW_OR_GATE mechanism involves the following steps:
 ## Pre-existing leaderboard impact
 
 The ORB_NARROW_OR_GATE trade class complements the existing leaderboard candidates, particularly the ORB_DIRECTION_FILTER candidate. The ORB_NARROW_OR_GATE trade class provides an additional filter to improve the performance of the ORB trade class.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

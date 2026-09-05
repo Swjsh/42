@@ -50,3 +50,5 @@ Run the autoresearch grinder harness in Stage-1 mode over the full historical OP
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it provides a baseline for comparing all candidates in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ This candidate needs to pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BULLISH_RECLAIM_RIDE_THE_RIBBON candidate. It provides an alternative approach to confirming reclaim moves, which could potentially improve the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

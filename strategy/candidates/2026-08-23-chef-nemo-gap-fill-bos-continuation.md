@@ -66,3 +66,5 @@ When SPY gaps at the open and subsequently fills the gap (returns to prior day's
 ## Pre-existing leaderboard impact
 
 Complements existing GAP_AND_GO (which trades immediate gap continuation) by adding a conditional filter for gap fill before continuation; no conflict with trigger-type candidates as it defines a new setup category. May overlap with VWAP_CONTINUATION in morning timeframe but uses distinct gap-fill mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

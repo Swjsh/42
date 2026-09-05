@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new trigger type (gamma-cluster breakout) not represented in current leaderboard (which focuses on price-action, volume, and structural gates). No direct conflict with existing candidates as it operates on a different signal dimension.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

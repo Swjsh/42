@@ -53,3 +53,5 @@ This analysis requires no code changes. To promote, the following must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it serves as a validation of the current engine's performance. It complements all candidates by providing a baseline for comparison.---
+
+<!-- PROVENANCE-MISSING: analysis/backtests/cache/wf_oos_2025-07_to_2026-06.json -->

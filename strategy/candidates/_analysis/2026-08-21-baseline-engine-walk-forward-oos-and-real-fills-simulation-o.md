@@ -54,3 +54,5 @@ We need to run the walk-forward OOS test and real-fills simulation and then vali
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis is of the baseline engine. It does not conflict with any candidate; rather, it provides a baseline against which candidates can be compared. The leaderboard shows candidates that have been tested and have OOS results. We are to run the test on the baseline to get a current baseline for comparison.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

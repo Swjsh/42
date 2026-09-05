@@ -55,3 +55,5 @@ The trigger will evaluate the volume delta (buying volume - selling volume) over
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, exits, or quality gates). It may complement setups like VWAP_CONTINUATION by providing an alternative entry signal, but could also conflict if it triggers on the same bars. Impact on leaderboard is unknown until backtested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

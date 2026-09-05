@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly watcher revalidations, DTE studies, and structural gates); may complement by providing a new short-entry signal distinct from current long-biased setups. No overlap with ranked candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

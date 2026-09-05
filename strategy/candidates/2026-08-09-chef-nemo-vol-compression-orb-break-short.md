@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (mostly filters/gates or other trade classes). Complements ORB_RETEST_LONG by targeting compression breaks instead of retests. May interact with MIDDAY_TRENDLINE_GATE (time filter overlap) and VIX‑based gates; requires joint testing to avoid double‑counting or regime conflicts. No direct duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

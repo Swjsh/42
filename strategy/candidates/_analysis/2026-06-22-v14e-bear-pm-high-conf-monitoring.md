@@ -72,3 +72,5 @@ From watcher-observations.jsonl (2026-05-24 direct query):
 7 / 10 -- Strong OOS WR=100% (N=5) but small sample size; PM signal rarity limits accumulation rate (~1-2/week). Requires more data to confirm elite sub-tier status as N grows. VIX_MODERATE dependency adds regime risk.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

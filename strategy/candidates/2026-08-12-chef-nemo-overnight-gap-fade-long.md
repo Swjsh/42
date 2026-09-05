@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing candidates. Complements morning strategies (VWAP_CONTINUATION, ORB_RETEST_LONG) by targeting gap retracement vs. breakout/continuation. No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

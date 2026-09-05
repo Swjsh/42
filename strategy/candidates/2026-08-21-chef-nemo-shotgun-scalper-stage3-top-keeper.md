@@ -62,3 +62,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which require edge_capture ≥ 771). This candidate would be REJECTED at the door per OP-16 and not appear on leaderboard. No complement to existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

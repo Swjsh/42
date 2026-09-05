@@ -58,3 +58,5 @@ Join the precomputed `qqq_label` (20-bar reclaim/failed/none at signal timestamp
 ## Pre-existing leaderboard impact
 
 Complements and funds the next step for [QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS](2026-07-21-205400-qqq-divergence-confluence-first-pass.md). Does not conflict with existing candidates; provides data to resolve the confound noted in that candidate's status. If successful, may lead to a quality_gate or filter_change candidate incorporating QQQ label with vol control.
+
+<!-- PROVENANCE-MISSING: test_qqq_divergence_confluence_replay.py -->

@@ -53,3 +53,5 @@ Gym validators: 97/98 PASS, guard test: 7/7 PASS, walk-forward OOS positive with
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing TRENDLINE_BREAK_CALL_VETO (WS4) by adding the symmetrical PUT side. It may conflict with the STRUCTURE_VETO_DIR_VS_TREND (★) which already does a bidirectional veto (PUT in uptrend, CALL in downtrend). However, our veto is based on trendline breaks (via market_structure.py) while the STRUCTURE_VETO uses a different trend classification (classify_trend). They may be complementary or redundant; further study is needed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

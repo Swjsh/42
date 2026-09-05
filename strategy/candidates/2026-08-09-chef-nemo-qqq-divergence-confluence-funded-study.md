@@ -55,3 +55,5 @@ unit tests for modified `ribbon_ride_strike_exit_ab.py`, successful replay run (
 ## Pre-existing leaderboard impact
 
 Complements [QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS](2026-07-21-205400-qqq-divergence-confluence-first-pass.md) by funding the next-step real-fills study. No conflict with existing candidates; informs future wiring proposals (e.g., quality_gate or filter_change based on RV-controlled QQQ label).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

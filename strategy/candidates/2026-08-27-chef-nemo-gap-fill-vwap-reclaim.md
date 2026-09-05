@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 Orthogonal to existing candidates (which are primarily filters, gates, DTE overrides, and watcher tweaks). No direct conflict; may complement by providing a new entry trigger that can be combined with existing quality gates after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

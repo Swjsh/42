@@ -66,3 +66,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it proposes a new trigger. It may complement strategies that use similar filters (e.g., VWAP_CONTINUATION) by providing an alternative entry signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

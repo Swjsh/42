@@ -56,3 +56,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change but rather an investigation. It does not conflict with any existing candidate. If the analysis finds a threshold that achieves EC>=771, we may propose a candidate to change the vol_ratio_threshold in the shotgun scalper (type: parameter_change). Such a candidate would complement existing volatility-based filters (e.g., V14E_BEAR_TIME_OF_DAY_GATE) but would need to be checked for overlap with ORB_DIRECTION_FILTER and other watcher gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

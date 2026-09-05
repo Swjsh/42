@@ -67,3 +67,5 @@ The shotgun_scalper strategy aims to capture small, frequent profits via quick s
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture ≥ 771 requirement, so it would be REJECTED at the door and not appear on the leaderboard. It poses no conflict with existing candidates (all of which have edge_capture ≥ 771). If improved to capture more edge on J days, it could complement structural/direction-based candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) by providing a short-term scalping layer.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

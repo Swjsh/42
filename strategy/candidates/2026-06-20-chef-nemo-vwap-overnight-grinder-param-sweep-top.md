@@ -72,3 +72,5 @@ The VWAP overnight grinder strategy seeks to capture mean-reversion opportunitie
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This candidate would be rejected at the door per OP-16 gate. Complements no existing candidates as it represents a distinct (VWAP-based) approach with negligible J-edge contribution. Not suitable for leaderboard consideration without substantial OOS improvement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

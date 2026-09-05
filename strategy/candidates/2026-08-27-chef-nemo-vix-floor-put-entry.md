@@ -63,3 +63,5 @@ Low VIX regimes (<15) produce choppy, mean-reverting price action that generates
 ## Pre-existing leaderboard impact
 
 Does not conflict with current PROMISING candidates (WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND). Complements VOLATILITY_REGIME_FILTER ideas by adding a PUT-specific VIX floor. No direct overlap with existing filters in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

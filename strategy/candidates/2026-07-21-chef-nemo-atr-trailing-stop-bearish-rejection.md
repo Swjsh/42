@@ -50,3 +50,5 @@ Gym validators (all tests pass), walk-forward OOS positive with WF >= 0.70, real
 ## Pre-existing leaderboard impact
 
 This candidate complements existing exit-change candidates (like DYNAMIC_STOP_VS_STATIC which tested various dynamic stops and found static better) but differs by using ATR-based trailing stop specifically for the premium stop in BEARISH_REJECTION. It does not conflict with any existing J-RATIFIED candidates as it targets the same setup's exit logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

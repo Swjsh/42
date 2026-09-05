@@ -76,3 +76,5 @@ The net edge_capture reported is $499.64, derived from winners_capture ($499.64)
 None of the 5 keepers meet the OP‑16 edge_capture floor (≥771). All would be REJECTED at the door. Promoting any to the leaderboard would violate OP‑16 gate. The top keeper’s edge_capture (499.64) is ~35% of the required floor, indicating insufficient edge on J’s source‑of‑truth trades. Before any keeper can be considered, the parameter set must be re‑tuned to increase edge_capture on the three winner days while preserving or improving loser‑day behavior.
 
 **Recommendation:** Do not promote any keeper to the leaderboard. Return to Stage‑1 backtest with a revised objective that directly maximizes edge_capture (or a proxy) rather than wide P&L alone. Consider adding a constraint that engine PnL on each winner day must be ≥ baseline (or ≥0) to avoid regressions like those seen on 4/29, 5/01, 5/04. After such a re‑sweep, re‑evaluate keepers with OOS walk‑forward and real‑fills checks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

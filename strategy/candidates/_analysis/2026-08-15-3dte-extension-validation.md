@@ -55,3 +55,5 @@ Extending the DTE from 0DTE to 3DTE may improve edge capture on J's anchor days 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it is a validation task for the 3DTE extension idea. If results are positive, a future candidate may propose wiring the DTE lever (similar to VWAPCONT_DTE_OVERRIDE_2DTE) for 3DTE. No current leaderboard impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

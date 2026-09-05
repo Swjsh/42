@@ -59,3 +59,5 @@ Entry requires: vol_mult > 1.1, body_min_cents >= 0.02, min_stars >= 2, strike_o
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture >= 771). This candidate would be REJECTED at the door per OP-16 (edge_capture < 771). Complements existing strategies by highlighting the difficulty of capturing J's winner days -- suggests focus should shift to improving trigger sensitivity on 4/29, 5/01, 5/04 setups rather than optimizing non-J day noise.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

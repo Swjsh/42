@@ -29,3 +29,5 @@ Do not promote. The candidate fails the OP-16 edge_capture gate (373.48 < 771) a
 
 ## Confidence
 4 / 10 -- Based on grinder output inconsistencies (by_day shows profits on loser days contradicting losers_added=0.0) and failure to meet OP-16 gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

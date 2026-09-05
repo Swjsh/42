@@ -60,3 +60,5 @@ Before any consideration for promotion, the following must pass:
 This analysis would **conflict** with all current leaderboard candidates because it fails the OP‑16 edge_capture floor (< 771). Promoting it would lower the aggregate edge_capture of the portfolio and is therefore unsuitable for the leaderboard. It requires OOS walk‑forward first; if OOS remains negative, it should be archived.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ The validator must be integrated into the gym's pre-merge checks for any candida
 This validator complements existing candidates by ensuring that any absolute P&L claims are grounded in real fills. It may reject candidates that currently rely on BS sim for absolute P&L (if any exist in the leaderboard).
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

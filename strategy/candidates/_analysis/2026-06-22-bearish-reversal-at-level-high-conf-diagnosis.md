@@ -60,3 +60,5 @@ The watcher's negative expectation stems from:
 
 ## Confidence
 7 / 10 -- Strong evidence from IS loss context and move_from_open correlation. Key uncertainty: whether OOS HIGH conf samples (n=6) will maintain profitability with the new gate (requires OOS validation). SPY-proxy inflation documentation is concrete based on known 0DTE option properties.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

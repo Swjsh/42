@@ -34,3 +34,5 @@
 - **Weekend:** Long-term backtests, param tuning.  
 - **Critical:** Weekend deferral for <8h tasks risks missing “ship now” opportunities (OOS positive + WF ≥0.70 + stable sub-window).  
 - **Action:** Automate parallel work where independent; avoid silent stopping.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Entry: VWAP anchored reclaim/rejection trigger using volume multiplier (1.5), pr
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥771). This candidate would be REJECTED at the door per OP-16 (edge_capture <771). It may serve as a baseline for further VWAP trigger refinement but requires substantial rework before promotion consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

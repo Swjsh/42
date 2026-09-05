@@ -59,3 +59,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (walk‑forward,
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that does not modify any existing logic in the leaderboard. It complements existing VWAP‑based candidates (e.g., VWAP_CONTINUATION) by adding an RSI‑based re‑entry filter, potentially capturing trades that those setups miss. It does not conflict with any current watcher or gate candidates, as it proposes a distinct entry condition rather than a filter or exit change. Should be evaluated independently for its OP‑16 anchor performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Requires walk-forward OOS validation with WF >= 0.70, real-fills confirmation on
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it advises against promoting any of the 5 keepers to the leaderboard without further OOS testing. It conflicts with no existing candidates but reinforces the need for rigorous validation before any SNIPER-based proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

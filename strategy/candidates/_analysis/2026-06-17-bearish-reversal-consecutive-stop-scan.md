@@ -59,3 +59,5 @@ Compare these metrics to days with 0 or 1 BEAR stop (no repeat stops) to evaluat
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not directly conflict with any existing candidate; it informs the hypothesis behind the late-day-reentry-cooldown candidate (2026-06-17). If the scan shows that stopping after the 2nd consecutive stop improves daily P&L, it could support that candidate; if it shows the opposite, it would argue against it. No direct impact on current leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

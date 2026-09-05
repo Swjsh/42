@@ -62,3 +62,5 @@ The SNIPER_OVERNIGHT_GRINDER candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The SNIPER_OVERNIGHT_GRINDER candidate may complement or conflict with existing candidates in the leaderboard. A thorough analysis of the candidate's performance and interaction with other candidates is necessary to determine its potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

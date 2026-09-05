@@ -46,3 +46,5 @@ Breakdown by J anchor days:
      - Worst quarter: 2025-Q3 with -$572.83.
      - Regime dependence: the strategy loses money in low-volatility quarters (2025-Q1 to Q3) and profits in high-volatility quarters (2025-Q4, 2026-Q1 to Q2).
      - Concentration: top5_pct=106.7% indicates that the top 5 days account for more than the total P
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

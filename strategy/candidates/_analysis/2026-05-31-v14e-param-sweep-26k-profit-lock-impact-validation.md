@@ -53,3 +53,5 @@ We will compare the P&L of the V14E_PARAM_SWEEP_26K combo (tp1=0.30, runner=2.5,
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it validates the exit parameters of the RATIFICATION_READY candidate V14E_PARAM_SWEEP_26K. If the analysis confirms that real-fills outperform BS-sim due to profit-lock not being applied (and that this is beneficial in trending regimes), it supports keeping the current profit-lock settings. If it shows the opposite, it may trigger a re-optimization of profit-lock parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

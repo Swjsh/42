@@ -65,3 +65,5 @@ The keeper attempts to refine the shotgun_scalper entry logic by tightening prem
 ## Pre-existing leaderboard impact
 
 The keeper’s edge_capture (506.55) is below the OP‑16 rejection threshold of 771, so it would not appear on the leaderboard. Promoting it would add a strategy that does not meet the minimum edge requirement, potentially diluting the leaderboard’s quality. It conflicts with the leaderboard’s gate logic and should not be merged unless OOS validation demonstrates a genuine edge_capture ≥771. The other four keepers from shotgun_scalper_stage4 lack sufficient data in the provided JSON; each requires the same OOS and real‑fills checks before any assessment can be made.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

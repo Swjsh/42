@@ -50,3 +50,5 @@ Walk-forward testing and real-fills validation are required to pass before ratif
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup, by providing a bullish counterpart. However, the impact on the leaderboard is unknown until the walk-forward testing and real-fills validation are completed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

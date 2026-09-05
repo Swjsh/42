@@ -659,3 +659,5 @@ We are given a task to interpret shotgun_scalper_stage5 grinder output: 5 keeper
         We have 5 keepers, but we are only given the top one in the JSON.
 
         We are to assess the top keeper.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

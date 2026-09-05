@@ -60,3 +60,5 @@ Audit each study in backtest/tools/ that loads real OPRA fills to compute P&L on
 ## Pre-existing leaderboard impact
 
 This update does not change any strategy candidate's logic or parameters. It only changes the way we measure the anchor studies for OP-16 edge_capture. Therefore, it does not conflict with any existing candidate in _LEADERBOARD.md. However, if we re-run the anchor studies for existing candidates with the updated tools, their reported edge_capture may change (which could affect their leaderboard ranking). This impact is outside the scope of this task but should be considered when re-evaluating candidates post-update. No immediate leaderboard impact is expected from the tool update alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -29,3 +29,5 @@ Same as WEEKLY_DTE_NOT_0DTE: identical `vwap_continuation` signal, ITM-2 strike,
 | 5/06 loser | Engine skipped or lost less: -$300 → max(0, loss)=$300 | Engine takes SPY 730P x 10 → -$240 → max(0, loss)=$240 | -$60 |
 | 5/07 loser 1 | Engine skipped or lost less: -$45 → max(0, loss)=$45 | Engine takes SPY 734C x 3 → -$30 → max(0, loss)=$30 | -$15 |
 | 5/07 loser 2 | Engine skipped or lost less:
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

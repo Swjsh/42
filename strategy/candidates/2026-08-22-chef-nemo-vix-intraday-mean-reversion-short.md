@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; none of those candidates use an intraday VIX‑VWAP divergence trigger. This proposal is orthogonal and could complement existing VIX‑regime filters (e.g., VIX_REGIME_DAYSIDE) by adding a short‑term mean‑reversion entry logic. However, it may overlap in intent with VIX‑based gates; final determination requires backtest to see if it captures distinct edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

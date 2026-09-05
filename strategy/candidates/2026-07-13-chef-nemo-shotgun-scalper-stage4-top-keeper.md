@@ -68,3 +68,5 @@ We are trying to capture edge by optimizing exit parameters (take profit, stop l
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED from the leaderboard due to edge_capture < 771 (OP-16 hard floor). No impact on current leaderboard as it fails the anchor gate. Other four keepers from shotgun_scalper_stage4 not analyzed due to lack of data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

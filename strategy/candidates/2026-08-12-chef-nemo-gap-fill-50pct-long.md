@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (full 16‑month
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing volatility‑based entries (e.g., GAP_AND_GO, VWAP_CONTINUATION) because it trades the opposite side of the gap (fill vs. continuation). It does not conflict with any currently ratified candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a distinct signal set and time window (first 30 minutes). However, it may compete for the same intraday capital allocation if multiple triggers fire simultaneously; priority rules would need to be defined. No changes to existing params.json or heartbeat.md are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

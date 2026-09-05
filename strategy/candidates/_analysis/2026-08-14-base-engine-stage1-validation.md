@@ -88,3 +88,5 @@ Compared BS-sim vs real OPRA fills on 4/29, 5/01, 5/04:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 This analysis validates the baseline engine against which all candidates are measured. Candidates like STRUCTURE_VETO_DIR_VS_TREND (rank ★) build on this baseline by improving Sharpe (+9%) while preserving edge_capture. Candidates that reduce edge_capture (e.g., BEARISH_SWEEP_BLOCKER) are rejected per OP-16. No conflict; provides foundation for evaluating all proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -45,3 +45,5 @@ Sweep TP1_premium_pct from 0.10 to 1.00 in 0.10 steps for BEARISH_REJECTION_RIDE
 
 ## Pre-existing leaderboard impact
 No conflict with existing candidates (parameter change for BEARISH_REJECTION_RIDE_THE_RIBBON). May complement filter/exit candidates for other setups. Does not alter anchor-day logic for J's trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

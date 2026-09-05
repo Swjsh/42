@@ -74,3 +74,5 @@ Work is segmented into **live**, **after-4pm**, **premarket**, and **weekend** w
 **Unknowns:**  
 - How to measure "sub-window stability" for autonomous shipping.  
 - Whether WF (work factor) metric is updated in real-time or requires manual input.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

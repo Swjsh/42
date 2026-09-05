@@ -59,3 +59,5 @@ We then verify that each regime has N>=20 in both IS and OOS (or at least combin
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis is informational; does not directly conflict with any candidate. May inform future filter changes (e.g., VIX-based gates).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

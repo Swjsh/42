@@ -53,3 +53,5 @@ Must pass: gym validators (all tests), walk-forward analysis (WF >= 0.70), real-
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ribbon-related filters (e.g., MIDDAY_TRENDLINE_GATE, BEARISH_SWEEP_BLOCKER) by addressing transient flat-ribbon noise. No direct conflict with current leaderboard candidates as it targets a different market condition (flat ribbon vs. trend/midday). However, it may interact with volatility-based filters; simultaneous testing advised.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

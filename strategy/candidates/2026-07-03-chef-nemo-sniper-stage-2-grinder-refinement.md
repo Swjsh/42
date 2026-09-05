@@ -61,3 +61,5 @@ The candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The SNIPER_STAGE_2_GRINDER_REFINEMENT candidate is expected to complement the existing leaderboard candidates, particularly the SNIPER trade class. The refined exit mechanics and volatility filter are designed to improve the overall performance of the SNIPER strategy, which may result in a higher ranking on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

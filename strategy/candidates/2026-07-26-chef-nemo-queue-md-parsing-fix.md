@@ -65,3 +65,5 @@ Improving the parsing of `queue.md` in `task_scorer.py` will eliminate false‑r
 ## Pre-existing leaderboard impact
 
 This change complements all existing candidates by improving the reliability of the scoring pipeline that produces the leaderboard. It does not conflict with any specific candidate; rather, it reduces the chance that a candidate is incorrectly scored due to a parsing artifact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

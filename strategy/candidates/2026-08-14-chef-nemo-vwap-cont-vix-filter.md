@@ -58,3 +58,5 @@ The VWAP_CONTINUATION signal exhibits stronger performance during elevated volat
 ## Pre-existing leaderboard impact
 
 Complements [VWAP_CONTINUATION](playbook.md#vwap-continuation-calls-and-puts) as a filter refinement. Does not conflict with other candidates since it targets the same setup. If ratified, would update live VWAP_CONTINUATION parameters via `j_vwap_cont_vix_filter_threshold`. No impact on watcher-only or structural candidates.
+
+<!-- PROVENANCE-MISSING: test_vwapp_cont_vix_filter.py -->

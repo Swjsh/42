@@ -45,3 +45,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Complements existing candidates as a new trigger type; does not conflict with filter/exit/quality-gate candidates (ranks 1-24) as it provides independent entry signal. May overlap with volatility-based candidates like TBR_HIGH_VOL but uses different proxy (EMA ribbon width vs volume-adjusted trendline break). No direct duplication in registry per novelty claim.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

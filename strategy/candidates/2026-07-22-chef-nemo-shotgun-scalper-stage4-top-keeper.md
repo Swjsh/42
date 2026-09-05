@@ -68,3 +68,5 @@ The shotgun_scalper_stage4 grinder identified parameter combinations that improv
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the current leaderboard. It conflicts with no existing candidates as it fails the OP-16 threshold. Promotion requires improving edge_capture to ≥771 via parameter refinement or strategy redesign.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_shotgun_scalper.py -->

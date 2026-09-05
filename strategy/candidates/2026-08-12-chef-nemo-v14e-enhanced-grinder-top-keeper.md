@@ -67,3 +67,5 @@ The v14_enhanced_grinder sweep identified a parameter combination that improves 
 
 No impact -- edge_capture below OP-16 floor, so not on leaderboard. Does not conflict with current candidates (all require edge_capture ≥ 771).  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

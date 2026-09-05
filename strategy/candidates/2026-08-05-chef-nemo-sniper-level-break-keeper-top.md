@@ -61,3 +61,5 @@ The SNIPER_LEVEL_BREAK strategy with specific parameter tuning (vol_mult=1.3, bo
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates as it fails the OP-16 gate (edge_capture < 771). Would require significant improvement in J-day edge_capture to complement existing candidates like WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND. Currently represents a dead end unless J-day performance can be improved via parameter refinement or regime filtering.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

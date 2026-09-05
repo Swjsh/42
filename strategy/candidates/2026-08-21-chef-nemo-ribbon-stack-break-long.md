@@ -53,3 +53,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It could complement existing bullish setups by providing an alternative entry signal with stricter conditions, potentially reducing overlap and improving diversification. No direct conflict with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a different signal logic. However, if proven effective, it may compete for capital allocation with other intraday long‑bias strategies. No changes to existing watchers, filters, or exits are proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

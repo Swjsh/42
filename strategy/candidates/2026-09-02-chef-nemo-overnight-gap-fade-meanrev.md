@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing GAP_AND_GO (which rides gaps) by offering a fading approach. No direct conflict; GAP_AND_GO is currently WATCH-ONLY and unarmed. This candidate targets the same market phenomenon (opening gaps) with opposing directional logic. If validated, could provide alternative regime edge for gap days. No overlap with current leaderboard candidates' mechanisms.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

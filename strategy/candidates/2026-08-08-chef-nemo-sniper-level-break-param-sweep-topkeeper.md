@@ -55,3 +55,5 @@ The SNIPER_LEVEL_BREAK edge exists when level breaks occur with elevated volume,
 ## Pre-existing leaderboard impact
 
 This candidate complements existing SNIPER‑based efforts (e.g., SNIPER_VIX18_GRINDER, SNIPER_VIX_TREND_OOS_CONFIRMED) by focusing purely on level‑break quality filters rather than VIX regime. It does not conflict with any leaderboard entries; if validated it could add a new quality‑gated SNIPER variant to the arsenal. No current leaderboard candidate uses identical parameter set, so overlap is low.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

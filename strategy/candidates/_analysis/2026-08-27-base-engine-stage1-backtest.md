@@ -57,3 +57,5 @@ Real-fills: top 3 J days confirmed as above; full-period real-fills P&L = +$7,55
 ## Pre-existing leaderboard impact
 
 This analysis confirms the base engine's edge_capture of 780 (exceeding 771 floor), explaining why candidates like STRUCTURE_VETO_DIR_VS_TREND (rank ★) that preserve anchor days are PROMISING. No conflict with existing candidates; rather, it validates the foundation upon which their delta impacts are measured. Candidates that regress anchor days (e.g., BEAR_SCORE_7_RELAXATION) are correctly REJECTED per this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

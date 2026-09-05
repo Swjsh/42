@@ -64,3 +64,5 @@ Entry logic and filters remain baseline; only exit parameters are adjusted.
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates: edge_capture < 771 triggers automatic REJECT per OP-16 (see _LEADERBOARD.md header). Would not appear on leaderboard regardless of Sharpe. Does not complement existing candidates due to fundamental failure on J's source-of-truth winner days. Recommend rejection or significant rework focusing on multi-winner capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

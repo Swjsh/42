@@ -55,3 +55,5 @@ The pre-merge gate for this candidate includes:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trade class. However, it may interact with other strategies that use similar entry or exit logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

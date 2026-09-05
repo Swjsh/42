@@ -66,3 +66,5 @@ We aim to capture edge from bearish reversals triggered by narrow opening range 
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with gate-type candidates (ranks 3-26) or exit-change candidates. Differentiates from [LIVE_PRICE_FIRST_BAR_TRIGGER] (rank 2) by using ORB+RSI divergence instead of premarket levels. May overlap with [VWAP_CONTINUATION] detector but operates earlier in session (9:30-9:45 vs ≤10:30). No direct conflicts; additive trigger candidate for BEARISH_REJECTION setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

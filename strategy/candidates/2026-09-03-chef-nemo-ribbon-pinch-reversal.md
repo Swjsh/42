@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing leaderboard candidates (ranks 1-23) as it introduces a new trigger type. Complementary potential: may capture reversals in low-volatility environments missed by trend-following or volatility-based setups like WEEKLY_DTE_NOT_0DTE or VWAPCONT_DTE_OVERRIDE_2DTE. Does not modify existing rules, filters, or exits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

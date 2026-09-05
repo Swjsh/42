@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (primarily filters, gates, or other trigger types). May complement by adding new short-side trigger. However, without backtest, unknown impact on OP-16 anchors or leaderboard ranking. Does not modify any existing params or automation files per Rule 9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

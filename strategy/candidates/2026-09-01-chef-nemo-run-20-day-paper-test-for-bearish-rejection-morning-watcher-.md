@@ -28,3 +28,5 @@ DRAFT CANDIDATE: **J Edge Source-of-Truth Validation**
 - **Gap**: `edge-master-doctrine.md` lacks quantified edge capture metrics (e.g., bull vs. bear win rates).  
 - **Action**: Append `edge_capture_matrix` to markdown/doctrine/edge-master-doctrine.md with 5-day backtest results.  
 - **Dependency**: Requires `sim-accuracy gate` from 2026-07-16 fold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

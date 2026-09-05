@@ -50,3 +50,5 @@ Gym validators: all tests pass for the modified exit logic. Walk-forward: OOS Sh
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements SNIPER_VIX18_GRINDER et al by addressing their artifact. If validated, may supersede those rejected candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

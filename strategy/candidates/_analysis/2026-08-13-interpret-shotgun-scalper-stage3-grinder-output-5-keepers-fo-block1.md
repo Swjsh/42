@@ -91,3 +91,5 @@
            However, the playbook scales position size with account size, and the minimum is 3 contracts. 
            We assume the backtest used a fixed position size (likely 1 contract per trade) for simplicity, 
            but note the wide_n_trades=1399 and wide_pnl=19
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

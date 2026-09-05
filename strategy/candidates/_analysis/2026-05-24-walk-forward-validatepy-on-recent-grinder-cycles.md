@@ -86,3 +86,5 @@ Run `walk_forward_validate.py` on 3 recent grinder sweep cycles to verify pipeli
 - [x] Real-fills validated where applicable (V14E)
 - [ ] J weekend ratification (V14E pending)
 - [ ] J shadow-trade anchor build (SNIPER pending)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

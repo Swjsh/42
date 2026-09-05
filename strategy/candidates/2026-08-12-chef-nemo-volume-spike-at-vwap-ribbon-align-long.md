@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/exits); complements by adding a new long-trigger mechanism. No known overlap with current leaderboard entries 1-9. Requires Stage-1 backtest to assess actual leaderboard impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

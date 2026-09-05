@@ -50,3 +50,5 @@ This will bring the candidate files under version control, allowing for tracking
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates; it is a housekeeping task.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

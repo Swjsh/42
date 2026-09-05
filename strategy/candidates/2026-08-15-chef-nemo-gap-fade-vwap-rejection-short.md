@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing volatility/gap strategies (e.g., GAP_AND_GO trades gap continuation, this fades gaps) and does not conflict with any current leaderboard entries as it targets a distinct signal. It could potentially coexist with VWAP_CONTINUATION and STRUCTURE_VETO_DIR_VS_TREND as a separate short-biased trigger. No direct overlap with existing candidates in the leaderboard is apparent.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

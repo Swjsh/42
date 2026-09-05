@@ -55,3 +55,5 @@ Gym validators must pass (no crashes, basic logic checks). Walk-forward OOS test
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with existing leaderboard candidates because it fails the OP-16 edge_capture gate (edge_capture < 771) and is therefore ineligible for the leaderboard. It is a parameter optimization of the SNIPER_LEVEL_BREAK trigger, which is also the basis for other SNIPER candidates (e.g., SNIPER_CS_CHART_STOP) that are currently watch-only or needing real-fills. However, unlike those candidates, this one attempts to trade on the J anchor days (but poorly). Promotion would require significant improvement in J anchor capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

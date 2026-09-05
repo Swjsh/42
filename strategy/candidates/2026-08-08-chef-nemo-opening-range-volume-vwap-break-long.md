@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements ORB_RETEST_LONG (watcher) by offering an alternative entry style that does not wait for a retest; it does not conflict with any existing ratified candidates in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

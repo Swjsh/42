@@ -81,8 +81,12 @@ def test_numeric_scorecard_on_disk_promotes(tmp_path, monkeypatch):
     scorecard = repo / "analysis" / "recommendations" / "real-edge-chef-nemo.json"
     scorecard.write_text(json.dumps({"edge_capture": 912.0, "n": 40}), encoding="utf-8")
     cand = cands / "real-edge-chef-nemo.md"
-    cand.write_text(_OP20_TEXT + "\nsee analysis/recommendations/real-edge-chef-nemo.json\n",
-                    encoding="utf-8")
+    cand.write_text(
+        _OP20_TEXT + "\nsee analysis/recommendations/real-edge-chef-nemo.json\n"
+        "\nprovenance: python setup/scripts/runner.py -> "
+        "analysis/recommendations/real-edge-chef-nemo.json\n",
+        encoding="utf-8",
+    )
     result = kr._auto_promote_candidate(cand.name, "validated edge")
     assert result == "promoted", result
     lb_text = (cands / "_LEADERBOARD.md").read_text(encoding="utf-8")
@@ -94,16 +98,33 @@ def test_scorecard_below_floor_does_not_promote(tmp_path, monkeypatch):
     scorecard = repo / "analysis" / "recommendations" / "weak-edge-chef-nemo.json"
     scorecard.write_text(json.dumps({"edge_capture": 100.0}), encoding="utf-8")
     cand = cands / "weak-edge-chef-nemo.md"
-    cand.write_text(_OP20_TEXT, encoding="utf-8")
+    cand.write_text(
+        _OP20_TEXT + "\nsee analysis/recommendations/weak-edge-chef-nemo.json\n"
+        "\nprovenance: python setup/scripts/runner.py -> "
+        "analysis/recommendations/weak-edge-chef-nemo.json\n",
+        encoding="utf-8",
+    )
     result = kr._auto_promote_candidate(cand.name, "weak")
     assert result.startswith("pending"), result
     assert "edge_capture=100" in result and "< 771" in result
 
 
 def test_promote_verdict_capped_to_validate_without_scorecard(tmp_path, monkeypatch):
+    """No scorecard JSON exists anywhere -- the OP-16 floor check must cap this on its
+    own reason ('no numeric scorecard edge_capture'), isolated from the provenance gates
+    by citing an EXISTING (non-JSON) artifact + a provenance: line so neither of those
+    gates fires first."""
     repo, cands = _mk_repo(tmp_path, monkeypatch)
+    context_doc = repo / "analysis" / "recommendations" / "context-note.md"
+    context_doc.write_text("background context, no scorecard here", encoding="utf-8")
     cand = cands / "fake-edge-chef-nemo.md"
-    cand.write_text(_OP20_TEXT + "\ninferred edge_capture=$25000\n", encoding="utf-8")
+    cand.write_text(
+        _OP20_TEXT + "\ninferred edge_capture=$25000 -- see "
+        "analysis/recommendations/context-note.md for background\n"
+        "\nprovenance: python setup/scripts/runner.py -> "
+        "analysis/recommendations/context-note.md\n",
+        encoding="utf-8",
+    )
     verdict, cap_reason = kr._cap_promote_if_unevidenced(
         "PROMOTE", "strategy/candidates/fake-edge-chef-nemo.md")
     assert verdict == "VALIDATE"
@@ -116,7 +137,12 @@ def test_evidenced_promote_not_capped(tmp_path, monkeypatch):
     scorecard = repo / "analysis" / "recommendations" / "real-edge-chef-nemo.json"
     scorecard.write_text(json.dumps({"summary": {"edge_capture": 800}}), encoding="utf-8")
     cand = cands / "real-edge-chef-nemo.md"
-    cand.write_text(_OP20_TEXT, encoding="utf-8")
+    cand.write_text(
+        _OP20_TEXT + "\nsee analysis/recommendations/real-edge-chef-nemo.json\n"
+        "\nprovenance: python setup/scripts/runner.py -> "
+        "analysis/recommendations/real-edge-chef-nemo.json\n",
+        encoding="utf-8",
+    )
     verdict, cap_reason = kr._cap_promote_if_unevidenced("PROMOTE", cand.name)
     assert verdict == "PROMOTE"
     assert cap_reason == ""

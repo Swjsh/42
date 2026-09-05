@@ -62,3 +62,5 @@ The shotgun_scalper_stage4 sweep tests HTF-gated directional scoring combined wi
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard entries because edge_capture < 771 triggers automatic REJECT per OP‑16; would not appear on the leaderboard. Does not complement existing candidates—it fails the core edge requirement. If OOS walk‑forward were to raise edge_capture above 771, it could be reconsidered, but IS evidence shows weak anchor performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ We joined the qqq_label into ribbon_ride_strike_exit_ab.py, added volatility str
 ## Pre-existing leaderboard impact
 
 This analysis directly supports the QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS candidate (Rank I, NEEDS-MORE-DATA) by providing the funded real-fills follow-up. It does not conflict with any existing candidates; rather, it enables promotion of QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS if the OOS walk-forward and real-fills gates clear. No overlap with other candidates in _LEADERBOARD.md (different signal domain).
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/qqq_label_vol_strat_oos.json, test_qqq_label_vol_strat.py, analysis/recommendations/qqq_label_vol_strat_regime.json -->

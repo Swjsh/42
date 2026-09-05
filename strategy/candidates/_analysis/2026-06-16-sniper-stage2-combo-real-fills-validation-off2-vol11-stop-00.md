@@ -50,3 +50,5 @@ We need to run the sniper_real_fills.py with the modified WINNER_COMBO_DICT and 
 ## Pre-existing leaderboard impact
 
 This validation is for the sniper_stage2 top combo, which is not currently a leaderboard candidate. It is a validation step for a potential sniper strategy. It does not directly impact the leaderboard unless it leads to a new candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

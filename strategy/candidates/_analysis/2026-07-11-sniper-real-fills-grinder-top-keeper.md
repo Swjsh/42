@@ -80,3 +80,5 @@ This candidate would be **REJECTED** at the OP‑16 gate (edge_capture < 771) 
 
 ---  
 *Note: The remaining four keepers from the sniper_real_fills_grinder output were not supplied with sufficient data (per‑J‑day P&L, wide_pnl, edge_capture, WR) to perform a similar assessment. Each would require its own Stage‑1 backfill before a meaningful analysis can be produced.*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

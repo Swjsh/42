@@ -61,3 +61,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing candidates 1‑9 in _LEADERBOARD.md. It may complement existing named‑level or mean‑reversion ideas but would need to be evaluated for potential overlap or conflict with current watchers (e.g., NAMED_LEVEL_WICK_BOUNCE_BULL) once a backtest is available. No immediate conflict is anticipated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

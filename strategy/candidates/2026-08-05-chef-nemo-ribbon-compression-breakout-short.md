@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing volatility/gap-based setups (e.g., VWAP_CONTINUATION, GAP_AND_GO) by targeting a different compression-breakout mechanism. No direct conflict with current leaderboard candidates as it uses a novel trigger (ribbon width compression) not present in any existing strategy. May overlap with SNIPER_VIX18_GRINDER in VIX>18 regime but differs in entry logic (ribbon compression vs. level break).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

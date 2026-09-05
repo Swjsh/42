@@ -52,3 +52,5 @@ The SNIPER_LEVEL_BREAK trade class uses a level-break trigger with a chart-stop 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

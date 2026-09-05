@@ -53,3 +53,5 @@ Gym validators for new filter logic must pass; walk-forward OOS Sharpe >=0.70 wi
 ## Pre-existing leaderboard impact
 
 Complements and refines existing STRUCTURE_VETO_DIR_VS_TREND (rank ★). No direct conflict with other candidates; may subsume base structure veto if proven superior. Does not interfere with watcher-only or exit-change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

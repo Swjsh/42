@@ -63,3 +63,5 @@ Ran Stage-1 backtest via `autoresearch/grinder.py` on the current engine configu
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 Baseline analysis does not conflict with any leaderboard candidates. Serves as reference for evaluating all proposals. Candidates must improve upon baseline edge_capture (≥780) and/or Sharpe (≥4.340) to increase final_score. Current leaderboard candidates either leave edge_capture unchanged (e.g., STRUCTURE_VETO_DIR_VS_TREND) or target non-OP-16 objectives (e.g., WEEKLY_DTE_NOT_0DTE). No direct impact on leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

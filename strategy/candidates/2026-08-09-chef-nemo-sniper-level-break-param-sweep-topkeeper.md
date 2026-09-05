@@ -73,3 +73,5 @@ The SNIPER_LEVEL_BREAK setup can produce consistent profits when volume, candle 
 ## Pre-existing leaderboard impact
 
 This candidate **does not meet** the OP‑16 edge_capture threshold (≥ 771) and therefore would be **REJECTED** at the door of the leaderboard. It conflicts with the current leaderboard’s requirement for meaningful J‑day edge capture; it does not complement any existing candidate because it fails the primary gate. Promotion to the leaderboard requires first achieving edge_capture ≥ 771 via OOS‑validated improvements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

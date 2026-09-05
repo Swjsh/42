@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate introduces a new trigger type (ribbon‑flat + BOS/CHoCH) that is not represented in the current leaderboard (ranks 1‑9). It is therefore unlikely to directly conflict with existing candidates; if successful it could complement structural‑veto or quality‑gate strategies by providing additional entry opportunities during regime‑appropriate windows. However, without a Stage‑1 backtest the actual impact on the leaderboard remains unknown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

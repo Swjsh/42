@@ -58,3 +58,5 @@ The shotgun_scalper_stage5 candidate aims to capture explosive intraday momentum
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements TBR_HIGH_VOL (shotgun tier 3) by testing higher volume threshold. If successful, may replace or tier alongside existing shotgun concepts. No overlap with current leaderboard entries (ranks 1-37).
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_stage5.py -->

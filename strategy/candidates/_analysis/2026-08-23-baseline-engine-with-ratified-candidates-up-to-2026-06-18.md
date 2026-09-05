@@ -51,3 +51,5 @@ We require: gym validators pass, walk-forward OOS with Sharpe ratio >= 0.70, rea
 ## Pre-existing leaderboard impact
 
 This analysis is of the baseline engine, which is the reference for all candidates in the leaderboard. It does not conflict with any candidate; rather, it is the basis against which candidates are measured.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

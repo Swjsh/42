@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS Sharpe >= 0.70, real-fills validation
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it outlines the required validation steps for any candidate seeking to appear on the leaderboard. It complements existing candidates by defining the Stage-1 gate they must clear.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

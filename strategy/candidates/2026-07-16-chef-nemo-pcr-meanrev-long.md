@@ -72,3 +72,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing candidates in the leaderboard. It complements existing mean‑reversion‑adjacent ideas (e.g., VWAP_CONTINUATION) by adding an options‑flow sentiment filter. No known conflicts; it would occupy a fresh slot if promoted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

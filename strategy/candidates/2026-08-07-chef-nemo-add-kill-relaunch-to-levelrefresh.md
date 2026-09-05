@@ -54,3 +54,5 @@ Same as the analysis: delta $0 on all J days, but prevents the failure mode of $
 
 ## Pre-existing leaderboard impact
 This candidate does not change any trading strategy or engine logic. It is a reliability improvement for the watchdog. Therefore, it has no direct impact on the leaderboard. However, by preventing silent stalls, it ensures the engine can run and capture the edge on J days as intended.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

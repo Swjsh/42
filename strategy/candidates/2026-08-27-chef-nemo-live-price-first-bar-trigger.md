@@ -62,3 +62,5 @@ The first regular trading hour (RTH) bar that breaks the premarket high (for bul
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it is a new trigger branch that does not fire on J anchor days (OP-16 neutral). It may complement candidates relying on intraday momentum by providing earlier entry signal. No known conflicts with PROMISING or J-RATIFIED candidates. Synergistic with VWAP_CONTINUATION (both use morning bias) but operates on different timeframe (premarket breakout vs VWAP continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

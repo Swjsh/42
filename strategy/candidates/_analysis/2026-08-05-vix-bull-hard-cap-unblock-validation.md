@@ -58,3 +58,5 @@ The proposal removes the VIX bull hard cap (filter 9) that currently blocks bull
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate (VIX_BULL_HARD_CAP_UNBLOCK) is already present in the leaderboard at rank 22. It does not conflict with the top candidates because it is EC-invariant (delta EC = 0) and thus does not affect the OP-16 anchor edge_capture. It complements candidates that improve edge_capture or Sharpe by providing additional P&L without harming the core bear edge. However, note that the candidate's P&L impact (+$471 if unblocked) is additive to the engine's total P&L, which could improve the aggregate Sharpe if the additional trades have a favorable Sharpe ratio.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

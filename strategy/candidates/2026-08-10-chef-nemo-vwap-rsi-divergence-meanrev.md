@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Independent proposal; does not conflict with or modify existing candidates in _LEADERBOARD.md. Complements watcher-based approaches (e.g., RSI_DIVERGENCE_BULL_WATCHER) by adding exact entry/exit rules and VWAP/ATR bands. No overlap with current leaderboard entries (all are watcher/gate/proposal types).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

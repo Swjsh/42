@@ -53,3 +53,5 @@ The walk-forward optimization must pass the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND candidates, by providing an alternative approach to capturing trends.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

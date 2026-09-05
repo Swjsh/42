@@ -60,3 +60,5 @@ In the BEARISH_REJECTION_RIDE_THE_RIBBON setup evaluation, after the existing co
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing VIX-related filters (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK) by tightening the bearish VIX condition. It does not conflict with any ranked candidate because it modifies a different filter (BEARISH_REJECTION_RIDE_THE_RIBBON context) and leaves other logic unchanged. If shown to improve edge_capture, it could be stacked with other filters that pass OP-22 gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

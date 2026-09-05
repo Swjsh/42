@@ -58,3 +58,5 @@ Modify the existing bear_score gate (currently requiring bear_score>=7 for entry
 ## Pre-existing leaderboard impact
 
 Complements `STRUCTURE_VETO_DIR_VS_TREND` (rank ★) by adding selectivity to its veto logic. Conflicts with `BEAR_SCORE_7_RELAXATION` (rejected) as a tighter threshold alternative; may reduce its extreme volatility dependency. Does not overlap with cross-ticker or DTE candidates (e.g., `WEEKLY_DTE_NOT_0DTE`, `QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS`).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -70,3 +70,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new trigger orthogonal to current watchers/filters. Does not conflict with any ranked candidates in _LEADERBOARD.md as it targets a different timeframe (opening range) and uses distinct indicators (VWAP, EMA ribbon, volume). Could potentially synergize with VWAP_CONTINUATION or ORB gates but requires testing to confirm additive value. No direct overlap with existing trigger types (e.g., unlike LIVE_PRICE_FIRST_BAR_TRIGGER which focuses on premarket extremes).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

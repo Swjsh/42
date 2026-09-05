@@ -59,3 +59,5 @@ The first regular trading hour (RTH) bar's relationship to the premarket high (P
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements ORB_NARROW_OR_GATE and VWAP_CONTINUATION by focusing on a different session opening dynamic. If successful, could be promoted to PROMISING after Stage-1 pass. Current leaderboard shows this candidate as NEEDS-MORE-DATA (Stage-2 pending); this analysis assumes Stage-1 is being run now. No overlap with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE).
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

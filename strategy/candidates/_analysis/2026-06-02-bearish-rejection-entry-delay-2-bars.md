@@ -57,3 +57,5 @@ Proposed: skip the initial trigger bar and enter 2 bars later (i.e., on the seco
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate as it is purely exploratory. If the delayed entry shows promise, it could become a candidate of type `exit_change` (modifying the entry timing of BEARISH_REJECTION). It would complement candidates that are watchers or filters affecting the same setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

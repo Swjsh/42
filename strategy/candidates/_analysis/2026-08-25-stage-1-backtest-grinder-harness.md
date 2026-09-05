@@ -54,3 +54,5 @@ We need the Stage-1 backtest to compute edge_capture >= 771 to avoid rejection. 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a strategy change; it is a diagnostic step. It does not conflict with existing candidates but informs whether the current baseline meets OP-16 floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

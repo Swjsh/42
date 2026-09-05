@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Novel trigger distinct from existing ORB gates (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding VIX compression threshold. No direct conflict with leaderboard candidates; complements volatility-regime filters like VIX_BULL_HARD_CAP_UNBLOCK but operates on different timeframe (ORB vs. intraday). May overlap with volatility-based candidates but uniquely combines VIX level, ORB width, and volume expansion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

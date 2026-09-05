@@ -50,3 +50,5 @@ The pre-merge gate requires that the keepers be tested with real fills and out-o
 ## Pre-existing leaderboard impact
 
 The keepers may complement or conflict with existing candidates in the leaderboard, but further analysis is needed to determine their impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

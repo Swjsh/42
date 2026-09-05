@@ -61,3 +61,5 @@ We expect the following tests to pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new strategy candidate, so it does not conflict with or complement any existing candidates in the leaderboard. It is a verification of a risk management fix.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

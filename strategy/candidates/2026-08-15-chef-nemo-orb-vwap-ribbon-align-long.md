@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (ranks 1-24). Complements existing ORB-based watchers (ORB_RETEST_LONG, ORB_NARROW_OR_GATE) by offering an alternative entry logic (initial break vs retest). No overlap in trigger mechanics with ratified candidates (e.g., VWAP_CONTINUATION, MIDDAY_TRENDLINE_GATE). If validated, would occupy new_trigger lane distinct from quality_gate/watchers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

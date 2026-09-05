@@ -59,3 +59,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is an evaluation of an existing gate (structure_veto_enabled). It may inform future decisions about the gate's parameters or usage. It does not conflict with any existing candidate in the leaderboard as it is an analysis, not a wiring proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

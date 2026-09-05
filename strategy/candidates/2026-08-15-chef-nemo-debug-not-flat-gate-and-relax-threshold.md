@@ -68,3 +68,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard. It complements candidates that are focused on entry logic by providing diagnostic information and a potential refinement to the flatness filter. It is orthogonal to exit-change and quality_gate proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

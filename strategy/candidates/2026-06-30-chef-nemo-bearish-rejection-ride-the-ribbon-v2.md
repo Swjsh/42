@@ -53,3 +53,5 @@ The proposed mechanism involves arming a trailing profit-lock at +5% favor, whic
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup and may potentially replace it if the proposed mechanism demonstrates superior performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

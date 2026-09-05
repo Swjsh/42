@@ -58,3 +58,5 @@ Change: In v14_enhanced exit logic, set `profit_lock_threshold_pct` from 0.0 (ar
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements J-RATIFIED v14e param sweep (rank 12) by testing a sensitivity on its profit_lock parameter; does not conflict with any ranked candidate as it is a parameter sweep variant. May improve upon rank 12 if positive threshold shows better OOS robustness. No impact on watcher-only or structural candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

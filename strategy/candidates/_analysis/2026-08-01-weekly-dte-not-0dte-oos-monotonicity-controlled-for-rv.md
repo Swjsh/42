@@ -60,3 +60,5 @@ The OOS expectancy/trade monotonic increase across DTE buckets (0DTE → 1DTE �
 ## Pre-existing leaderboard impact
 
 Complements ★★ WEEKLY_DTE_NOT_0DTE by adding rigor to its OOS claim. Does not conflict with any existing candidate; provides deeper validation that may promote the candidate to higher confidence if RV‑controlled monotonicity holds. No impact on ranks 1‑9 (none are DTE‑lever studies).
+
+<!-- PROVENANCE-MISSING: test_multiday_dte_compare_rv_control.py -->

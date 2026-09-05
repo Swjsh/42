@@ -169,7 +169,10 @@ def test_reviewer_refuses_provenance_missing_file(tmp_path, monkeypatch):
         _OP20_TEXT
         + "\nOOS expectancy +$0.42/trade (n=128); see "
           "analysis/recommendations/qqq_label_vol_strat_oos.json and "
-          "test_qqq_label_vol_strat.py for the full run.\n",
+          "test_qqq_label_vol_strat.py for the full run.\n"
+          "\n## Provenance\n\n"
+          "provenance: python backtest/autoresearch/qqq_label_vol_strat.py -> "
+          "analysis/recommendations/qqq_label_vol_strat_oos.json\n",
         encoding="utf-8",
     )
     verdict, cap_reason = kr._cap_promote_if_unevidenced("PROMOTE", cand.name)
@@ -183,6 +186,32 @@ def test_reviewer_refuses_provenance_missing_file(tmp_path, monkeypatch):
     assert (not lb.exists()) or ("fabricated-chef-nemo" not in lb.read_text(encoding="utf-8"))
 
 
+def test_reviewer_rejects_verdict_missing_provenance_block(tmp_path, monkeypatch):
+    """I3 guard (GOAL-KITCHEN-INTEGRITY-2026-09-05): a verdict with a well-formed,
+    EXISTING citation but no `provenance:` line at all must still be capped -- the
+    chef_nemotron.py CANDIDATE TEMPLATE now requires that line for every numeric claim,
+    and a numeric claim with a real citation but no recorded runner command is exactly
+    the failure shape (fabricated-looking-legitimate) this goal closes. RED-proofs
+    kitchen_reviewer._check_provenance_block / the PROVENANCE-BLOCK-MISSING cap."""
+    repo, cands = _mk_repo(tmp_path, monkeypatch)
+    scorecard = repo / "analysis" / "recommendations" / "no-provenance-line.json"
+    scorecard.write_text(json.dumps({"edge_capture": 2000.0}), encoding="utf-8")
+    cand = cands / "no-provenance-line.md"
+    cand.write_text(
+        _OP20_TEXT + "\nOOS expectancy +$5/trade -- see "
+        "analysis/recommendations/no-provenance-line.json for the scorecard.\n",
+        encoding="utf-8",
+    )
+    verdict, cap_reason = kr._cap_promote_if_unevidenced("PROMOTE", cand.name)
+    assert verdict == "VALIDATE", verdict
+    assert "PROVENANCE-BLOCK-MISSING" in cap_reason, cap_reason
+
+    result = kr._auto_promote_candidate(cand.name, "looks great, cites a real file")
+    assert result.startswith("pending"), result
+    lb = cands / "_LEADERBOARD.md"
+    assert (not lb.exists()) or ("no-provenance-line" not in lb.read_text(encoding="utf-8"))
+
+
 def test_reviewer_allows_provenance_ok_file_through_to_op16_gate(tmp_path, monkeypatch):
     """A candidate whose cited artifact DOES exist should not be capped by the provenance
     gate at all -- it still has to clear the separate OP-16 numeric-edge_capture floor,
@@ -193,7 +222,10 @@ def test_reviewer_allows_provenance_ok_file_through_to_op16_gate(tmp_path, monke
     scorecard.write_text(json.dumps({"edge_capture": 100.0}), encoding="utf-8")
     cand = cands / "real-edge-chef-nemo.md"
     cand.write_text(
-        _OP20_TEXT + "\nsee analysis/recommendations/real-edge-chef-nemo.json\n",
+        _OP20_TEXT + "\nsee analysis/recommendations/real-edge-chef-nemo.json\n"
+        "\n## Provenance\n\n"
+        "provenance: python setup/scripts/real_edge_runner.py -> "
+        "analysis/recommendations/real-edge-chef-nemo.json\n",
         encoding="utf-8",
     )
     verdict, cap_reason = kr._cap_promote_if_unevidenced("PROMOTE", cand.name)

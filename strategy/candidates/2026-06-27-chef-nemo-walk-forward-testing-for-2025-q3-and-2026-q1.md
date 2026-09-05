@@ -50,3 +50,5 @@ The pre-merge gate requires that the walk-forward testing results demonstrate a 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the _LEADERBOARD.md file, as it is a new trigger branch focused on walk-forward testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it is a new trigger type (gap-down fade short) distinct from current triggers (vwap_continuation, gap_and_go, bearish_rejection_morning watcher). May complement VWAP_CONTINUATION by providing short-side entries in gap-down environments where VWAP continuation longs would be invalid. No overlap with existing watchers or structural gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not modify any existing logic in the leaderboard entries 1‑9. It is complementary insofar as it adds a distinct long‑bias setup that could run alongside the existing BEARISH_REJECTION and BULLISH_RECLAIM frameworks without direct parameter overlap. No conflict is anticipated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

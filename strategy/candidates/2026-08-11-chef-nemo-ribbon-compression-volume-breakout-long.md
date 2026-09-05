@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates as a new trigger type; does not conflict with current leaderboard entries (which are primarily filters, exits, or watcher proposals). Adds orthogonal signal dimension to existing ribbon-based strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

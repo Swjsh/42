@@ -37,3 +37,5 @@ ABANDON. The strategy shows no profitability signal in extensive grid sampling, 
 ## Confidence
 
 4 / 10 -- Based on summary statistics from the task description (zero keepers, negative edge_capture samples) and leaderboard #16's TBR_HIGH_VOL real-fills failure. Lack of direct access to rejections.jsonl and grinder script prevents confirmation of anchor-day firing patterns or parameter sensitivity. Confidence would increase with Stage-1 backtest results showing which anchor days were traded and P&L breakdown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

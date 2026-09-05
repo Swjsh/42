@@ -62,3 +62,5 @@ Entry logic remains unchanged from the parent (shotgun_scalper_stage3). Exit log
 
 ## Pre-existing leaderboard impact
 Candidate fails OP-16 edge_capture floor (506.55 < 771) → REJECTED at door per leaderboard rules. No impact on existing leaderboard as ineligible for inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

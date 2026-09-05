@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB-based watchers (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER, ORB_RETEST_LONG) by adding a new_trigger type that uses volume imbalance within the ORB itself rather than price retests. No direct conflict with current leaderboard candidates (mostly filters, gates, or structural vetoes). May provide additive diversification if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

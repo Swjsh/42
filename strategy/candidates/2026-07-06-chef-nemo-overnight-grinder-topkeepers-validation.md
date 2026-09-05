@@ -52,3 +52,5 @@ The mechanism involves running out-of-sample testing and real-fills validation f
 ## Pre-existing leaderboard impact
 
 The overnight_grinder_topkeepers_validation candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND candidates, by providing an additional layer of validation for the topkeepers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

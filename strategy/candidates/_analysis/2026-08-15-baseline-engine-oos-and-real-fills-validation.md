@@ -63,3 +63,5 @@ Candidates must pass:
 ## Pre-existing leaderboard impact
 
 Provides baseline for all leaderboard comparisons. No conflict with existing candidates; serves as reference for edge_capture and aggregate Sharpe calculations. Candidates altering engine behavior will be measured against this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

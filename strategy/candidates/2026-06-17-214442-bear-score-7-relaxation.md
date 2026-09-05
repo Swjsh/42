@@ -117,3 +117,5 @@ improvement. Genuine candidates would show monotone improvement (A1 < A2 < A3) n
 zigzag.
 
 **Status: NEEDS-MORE-DATA (quarterly breakdown required before any promotion)**
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

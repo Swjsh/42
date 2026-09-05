@@ -59,3 +59,5 @@ For BEAR PUT entries triggered by BEARISH_REJECTION_RIDE_THE_RIBBON, require tha
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate complements existing filters (e.g., STRUCTURE_VETO_DIR_VS_TREND) by adding a VIX-based condition. It does not conflict with any ratified candidate as it is a filter_change on BEAR PUT entries only. It may be combined with other quality gates after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

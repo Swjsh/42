@@ -59,3 +59,5 @@ This guard does not directly affect trading strategy performance, so there is no
 ## Pre-existing leaderboard impact
 
 This guard does not conflict with any existing strategy candidates in the leaderboard as it is a development tool and does not alter trading logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -74,3 +74,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). Would be rejected at door due to insufficient edge_capture. Requires significant improvement to capture more of J winner setups (particularly 5/01) before consideration for promotion. Complements structural veto candidates by focusing on entry timing rather than exit/filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

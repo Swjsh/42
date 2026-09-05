@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidate; complements ORB_NARROW_OR_GATE (watcher) and VWAP_CONTINUATION by providing an alternative early‑session trigger that operates before those setups qualify (first 30 min vs. ≤10:30 ET). No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

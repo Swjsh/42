@@ -56,3 +56,5 @@ Stage-1 backtest via autoresearch grinder harness must pass floors, then walk-fo
 ## Pre-existing leaderboard impact
 
 Complements existing candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) by adding entry filter layer; no direct conflicts as it modifies BEARISH_REJECTION_RIDE_THE_RIBBON trigger logic only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

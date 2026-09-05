@@ -52,3 +52,5 @@ The pre-merge gate requires the candidate to pass the walk-forward optimization 
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO candidate, by providing an additional layer of trend-based vetoes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

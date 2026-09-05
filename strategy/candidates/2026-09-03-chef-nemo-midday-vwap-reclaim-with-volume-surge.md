@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if this new trigger conflicts with or complements existing candidates 1-9 in _LEADERBOARD.md (e.g., may overlap with VWAP_CONTINUATION or conflict with midday filters like MIDDAY_TRENDLINE_GATE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

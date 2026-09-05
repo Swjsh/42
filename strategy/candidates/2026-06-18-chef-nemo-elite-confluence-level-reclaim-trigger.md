@@ -71,3 +71,5 @@ Stop‑loss: premium stop at –8% (entry × 0.92) or chart stop (SPY closes a 3
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger branch and does not modify existing watchers, gates, or parameters. It does not conflict with any ranked candidate in _LEADERBOARD.md. It may complement quality gates such as V14E_BEAR_TIME_OF_DAY_GATE (rank 17) by adding a structural confluence filter that could further improve the bearish edge during the 10:xx‑11:xx chop zone. No changes to automation/state/params.json or heartbeat.md are required at this stage; the trigger would be evaluated in the strategy/filters.py module.
+
+<!-- PROVENANCE-MISSING: strategy/filters.py -->

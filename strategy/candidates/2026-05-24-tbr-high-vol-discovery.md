@@ -232,3 +232,5 @@ TBR is the RETEST after the break — not the initial break. These are complemen
 | `6a4a6193` | TBR high-vol walk-forward IS/OOS from watcher-observations | CRITICAL |
 | `615acf43` | SHOTGUN TBR vol_ratio code change (already done — cancel this) | HIGH |
 | `bfa53d82` | SHOTGUN time-stop analysis | HIGH |
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/tbr_hv_vix_filter.py, strategy/candidates/_validator-inbox/v37_tbr_high_vol_gate.json -->

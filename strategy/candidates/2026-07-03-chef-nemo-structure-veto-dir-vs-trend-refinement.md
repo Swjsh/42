@@ -52,3 +52,5 @@ The pre-merge gate requires the candidate to pass the out-of-sample test, walk-f
 ## Pre-existing leaderboard impact
 
 The proposed candidate complements the existing leaderboard candidates, as it provides a new veto primitive that can be used in conjunction with other candidates. The candidate does not conflict with any existing candidates and can be used to further refine the engine's behavior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

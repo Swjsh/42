@@ -68,3 +68,5 @@ Before any promotion, the following must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it interprets grinder output. If any keeper were to be promoted, it would conflict with the OP-16 floor and thus be REJECTED unless edge_capture improves via further refinement. It does not directly impact existing leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

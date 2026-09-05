@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: differs from GAP_AND_GO (trades gap continuation) and VWAP_CONTINUATION (trades with VWAP slope) by fading gaps via VWAP breakdown. No direct conflict with current leaderboard entries (primarily filters/exits/watchers), but may interact with VWAP_CONTINUATION regime filters; requires joint testing to assess overlap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

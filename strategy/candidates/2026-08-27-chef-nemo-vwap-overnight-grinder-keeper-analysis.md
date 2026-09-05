@@ -55,3 +55,5 @@ The candidate must pass: Stage-1 backtest (to quantify baseline and J-day impact
 ## Pre-existing leaderboard impact
 
 This candidate fails the OP-16 edge_capture floor (40.01 < 771) and will be rejected at the door. No impact on current leaderboard. Requires significant rework to improve edge_capture before OOS consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

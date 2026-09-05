@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 No known conflict with current leaderboard candidates (primarily watcher gates, DTE studies, and structural filters); this is a new trigger based on price/volume/ribbon dynamics. However, impact on leaderboard ranks (e.g., whether it complements or conflicts with top 9 candidates) requires Stage-1 backtest to quantify edge_capture and Sharpe contributions.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

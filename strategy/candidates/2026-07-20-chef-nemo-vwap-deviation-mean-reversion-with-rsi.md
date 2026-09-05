@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9; complements VWAP_CONTINUATION by targeting mean‑reversion from extremes rather than continuation in the direction of VWAP. Could provide diversification if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

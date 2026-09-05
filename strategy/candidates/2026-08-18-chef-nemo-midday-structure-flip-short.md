@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate complements existing midday gates (e.g., MIDDAY_TRENDLINE_GATE, rank 21) because it introduces a new short‑side trigger based on change‑of‑character plus EMA filter rather than a filter that blocks entries. It does not conflict with any of the top‑9 leaderboard entries, which are primarily watcher‑only, DTE studies, or structural gates unrelated to intraday CHoCH logic. Should be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

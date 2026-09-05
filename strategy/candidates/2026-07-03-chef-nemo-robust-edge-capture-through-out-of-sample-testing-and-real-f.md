@@ -61,3 +61,5 @@ Before merging this candidate into the production code, we must ensure that the 
 ## Pre-existing leaderboard impact
 
 Our candidate complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also focuses on improving the edge capture. Our candidate provides an additional layer of robustness and validation, which can help improve the overall performance of the trading strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

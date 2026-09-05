@@ -74,3 +74,5 @@ We aim to capture a long edge when SPY breaks above a VWAP-based volatility sque
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if this trigger fires on the same bars as existing candidates (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE) and whether it complements (adds uncorrelated trades) or conflicts (cannibalizes edge, increases concentration). Without backtest, impact on leaderboard rankings cannot be assessed.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/vwap_squeeze_break_long.py, analysis/recommendations/vwap_squeeze_break_long.json -->

@@ -65,3 +65,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (ranked ★) and TRENDLINE_BREAK_CALL_VETO (ranked WS4). It does not conflict with any current leaderboard candidate as it is a new proposal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

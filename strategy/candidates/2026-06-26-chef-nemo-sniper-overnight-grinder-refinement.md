@@ -54,3 +54,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the SNIPER_VIX_TREND_OOS_CONFIRMED candidate, which also uses a similar strategy. However, the refinement proposed in this candidate may improve the performance of the strategy and make it more competitive with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

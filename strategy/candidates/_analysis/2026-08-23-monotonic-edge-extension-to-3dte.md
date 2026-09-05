@@ -54,3 +54,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It is a verification step that may inform a future candidate (e.g., a DTE override for 3DTE). It complements the WEEKLY_DTE_NOT_0DTE candidate by extending the DTE study to 3DTE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

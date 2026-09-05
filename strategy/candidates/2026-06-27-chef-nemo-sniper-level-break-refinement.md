@@ -54,3 +54,5 @@ The candidate must pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the SNIPER_LEVEL_BREAK candidate. The refinement of the SNIPER_LEVEL_BREAK trade class may improve the overall performance of the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

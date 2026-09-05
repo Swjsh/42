@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; this is a new trigger type that does not modify any existing gates or exits, so it can be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

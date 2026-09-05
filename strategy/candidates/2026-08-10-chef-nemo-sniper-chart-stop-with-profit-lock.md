@@ -65,3 +65,5 @@ Prior SNIPER attempts failed due to profit_lock_threshold=0.0 artifact (L99+L100
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: Does not conflict with J-anchor strategies (BEARISH_REJECTION, VWAP_CONTINUATION, GAP_AND_GO) as it trades disjoint setups. May overlap with WEEKLY_DTE_NOT_0DTE on non-J days but uses different entry logic (level break vs. VWAP continuation). No impact on OP-16 anchor edge_capture (delta=0). Could be combined with STRUCTURE_VETO_DIR_VS_TREND as a volatility filter.
+
+<!-- PROVENANCE-MISSING: test_sniper_chart_stop_exit.py -->

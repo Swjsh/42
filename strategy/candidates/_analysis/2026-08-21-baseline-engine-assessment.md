@@ -58,3 +58,5 @@ No change is being proposed; however, any candidate seeking to modify the engine
 ## Pre-existing leaderboard impact
 
 This analysis establishes the reference baseline; it does not conflict with any existing candidate. All leaderboard entries are measured relative to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

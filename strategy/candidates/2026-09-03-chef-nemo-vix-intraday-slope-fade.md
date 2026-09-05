@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is complementary to current leaderboard entries. It introduces a novel entry trigger based on intraday VIX slope and VWAP deviation, which is not represented among the existing filters, gates, or alternative triggers (e.g., QQQ_DIVERGENCE, WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO). It does not conflict with any existing quality‑gate or exit‑change proposals and could be stacked alongside them as an additional entry condition, subject to regime filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

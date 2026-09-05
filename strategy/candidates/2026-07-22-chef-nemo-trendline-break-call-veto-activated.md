@@ -53,3 +53,5 @@ The existing trendline_break_call_veto flag (default OFF) is set to ON. When a 5
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing J-RATIFIED candidates (V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE). Complements STRUCTURE_VETO_DIR_VS_TREND by adding a directional veto where that candidate was non-directional. No overlap in mechanism; can be stacked.
+
+<!-- PROVENANCE-MISSING: test_trendline_engine_call_veto.py -->

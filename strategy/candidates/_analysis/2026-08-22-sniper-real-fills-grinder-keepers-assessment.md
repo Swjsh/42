@@ -62,3 +62,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (which require edge_capture ≥ 771). This keeper's negative edge_capture would be REJECTED at the door. Does not complement any existing strategy as it represents a net degradation of the SNIPER approach. Requires complete redesign before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

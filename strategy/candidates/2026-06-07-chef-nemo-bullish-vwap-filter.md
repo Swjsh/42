@@ -55,3 +55,5 @@ At 09:35 ET, compute the VWAP from the open to the current bar. If the opening p
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing bullish watchers (like BULLISH_WATCHER_PM_GATE) and does not conflict with bearish setups. It is a new filter for the bullish setup, so it may affect candidates that are bullish trade classes. However, there are no bullish OP-16 anchor days (the J winners are all bearish puts), so the impact on OP-16 edge_capture should be neutral or positive if it reduces losses on 5/07.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

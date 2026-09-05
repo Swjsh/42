@@ -63,3 +63,5 @@ Complements live VWAP_CONTINUATION (rank not applicable, infra setup). Does not 
 - STRUCTURE_VETO_DIR_VS_TREND (structure veto)
 - MIDDAY_TRENDLINE_GATE (midday filter)
 Adds orthogonal volume dimension to VWAP_CONTINUATION without changing exit logic. If ratified, would stack with existing live setups.
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_narrow_window.py -->

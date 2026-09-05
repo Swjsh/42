@@ -56,3 +56,5 @@ Change the profit_lock_trail_pct parameter in params.json from 0.15 to 0.20. The
 ## Pre-existing leaderboard impact
 
 This candidate complements the STRUCTURE_VETO_DIR_VS_TREND candidate (which is a veto gate) by focusing on exit optimization. It does not conflict with existing candidates in the leaderboard as it modifies a different component (exit logic vs. entry veto).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

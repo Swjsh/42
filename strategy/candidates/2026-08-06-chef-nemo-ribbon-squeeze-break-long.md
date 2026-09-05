@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any of the current leaderboard candidates (1‑9). It complements existing ribbon‑based setups by adding a squeeze‑break trigger that is orthogonal to the ribbon‑ride logic, potentially capturing moves that the current ribbon‑ride filters miss.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

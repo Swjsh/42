@@ -62,3 +62,5 @@ Before merging this candidate into the production engine, the following tests ne
 ## Pre-existing leaderboard impact
 
 The TRENDLINE_BREAK_RETEST_BULL trade class is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON trade classes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; no direct conflict with leaderboard entries (which are primarily gates, filters, or alternative trade classes). Adds a new long‑bias trigger for high‑volatility days, orthogonal to current mean‑reversion and structure‑based setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

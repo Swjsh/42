@@ -59,3 +59,5 @@ The v14_enhanced strategy can be improved by adopting SNIPER-style profit-lock p
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED outright by the OP‑16 gate (edge_capture < 771) and therefore does not appear on the current leaderboard. It conflicts with the leaderboard’s inclusion criteria; any promotion would first require achieving edge_capture ≥ 771 after OOS refinement and validation. It does not complement existing candidates because it fails the minimum edge threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

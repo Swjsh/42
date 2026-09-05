@@ -65,3 +65,5 @@ The shotgun_scalper_stage4 grinder identified a parameter set that improves edge
 ## Pre-existing leaderboard impact
 
 The candidate’s edge_capture (506.55) is less than the 771 threshold required for leaderboard inclusion, so it would be **REJECTED** at the door. It does not conflict with existing leaderboard entries because it fails the basic edge_capture gate. Promotion to the leaderboard would require first improving edge_capture above 771 via further refinement or confirming that the current estimate is severely underestimated due to simulation bias. At present, the keeper should be treated as a research signal needing OOS walk‑forward and real‑fills checks before any consideration for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

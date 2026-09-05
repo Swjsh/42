@@ -55,3 +55,5 @@ Given the negative edge_capture, this parameter set fails the OP-16 gate (edge_c
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard. The top keeper from the sniper_real_fills_grinder underperforms the baseline and fails the OP-16 edge_capture floor. It conflicts with the goal of improving edge capture and should not be considered for promotion. Resources should be directed toward parameter sets that show positive edge_capture in initial tests.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ The proposed candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The proposed candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate, which has shown similar performance characteristics. The SNIPER_OVERNIGHT_GRINDER candidate can be used in conjunction with the BEARISH_REJECTION_RIDE_THE_RIBBON candidate to create a more diversified trading strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

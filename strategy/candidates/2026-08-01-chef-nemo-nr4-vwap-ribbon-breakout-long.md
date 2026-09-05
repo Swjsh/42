@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements ORB_RETEST_LONG by using NR4 volatility contraction instead of opening range retest. No direct overlap with current leaderboard entries (mostly watcher proposals, gates, or structural filters). May provide alternative long-biased trigger if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

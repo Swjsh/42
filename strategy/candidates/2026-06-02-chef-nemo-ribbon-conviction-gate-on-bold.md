@@ -59,3 +59,5 @@ If all three conditions pass, allow the Bold entry; otherwise skip the signal.
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters (e.g., #22 RIBBON_MOMENTUM_GATE, #17 V14E_BEAR_TIME_OF_DAY_GATE, #21 MIDDAY_TRENDLINE_GATE) by adding a ribbon‑quality gate to Bold’s rule set. No direct conflict; it would stack with other gates that remain in Bold (e.g., VIX cap 30, 09:40 entry gate). If promoted, Bold’s performance would be re‑evaluated against the leaderboard, potentially shifting rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if this new trigger conflicts with or complements existing candidates (1-9) in _LEADERBOARD.md; may overlap with level-based watchers like BEARISH_REJECTION_MORNING or LEVEL_BREAK_FIRST_STRIKE but fades on climax rejection rather than breaking or retesting levels.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

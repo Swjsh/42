@@ -53,3 +53,5 @@ The SHOTGUN_SCALPER strategy will be evaluated on its performance in identifying
 ## Pre-existing leaderboard impact
 
 Complementary to candidates 1-9 in _LEADERBOARD.md, as it targets a different trade class (rejection/reclaim setups at PMH and PML levels)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

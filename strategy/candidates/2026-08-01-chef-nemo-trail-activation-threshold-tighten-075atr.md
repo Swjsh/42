@@ -55,3 +55,5 @@ For entries classified as ELITE ribbon_ride (quality_tier == ELITE), the trail s
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements other exit_change proposals (e.g., dynamic stop vs static) by focusing on a specific parameter tweak for ELITE quality tier. No overlap with watcher or trigger changes. If validated, could be stacked with V14E_BEAR_ONLY_GATE or similar quality gates.
+
+<!-- PROVENANCE-MISSING: test_exit_change_trail_atr_threshold.py -->

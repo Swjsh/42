@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any current leaderboard entries. It complements existing ORB‑based strategies (e.g., ORB_RETEST_LONG) by using a VWAP‑reclaim trigger instead of an OR‑high retest, offering a distinct long‑bias signal that could diversify the long‑side trigger pool. No overlap in entry logic with existing watchers or gates is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

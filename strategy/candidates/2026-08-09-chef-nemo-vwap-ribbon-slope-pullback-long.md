@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate does not appear to conflict with existing candidates in the leaderboard as it is a new trigger type. It complements existing VWAP-based strategies by adding a ribbon slope filter and requiring a touch-and-go pattern.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

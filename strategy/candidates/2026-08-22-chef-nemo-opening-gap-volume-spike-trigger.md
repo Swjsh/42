@@ -72,3 +72,5 @@ Run Stage-1 backtest via grinder on 16-month data, then walk-forward OOS and rea
 ## Pre-existing leaderboard impact
 
 Complements existing `GAP_AND_GO` watcher (which lacks volume filter) and `VWAP_CONTINUATION` (different timeframe). No direct conflict with current leaderboard candidates; may provide additive edge when combined with other filters (e.g., VIX regime). Does not modify any existing params or wiring; proposes a new trigger class.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

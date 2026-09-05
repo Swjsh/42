@@ -41,3 +41,5 @@
 - **Autonomous Operator Rules:**  
   - No automated process may block J’s Claude session (OP-32 scar: 2026-05-22 market-hours firewall lockout).  
   - “Good enough” is a terminal state. BANNED: silent stopping, blocked-on-J-with-no-reason.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

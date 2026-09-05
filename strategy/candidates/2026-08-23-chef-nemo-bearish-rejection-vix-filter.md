@@ -58,3 +58,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup triggers on level rejection, EMA rib
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (Rank ★) by targeting different loser classes (VIX-driven vs trend-driven). No direct conflict with ranked candidates; may replace VIX_BULL_HARD_CAP_UNBLOCK (Rank 22) as a more effective VIX filter for bearish trades. Does not affect bullish setups (BULLISH_RECLAIM_RIDE_THE_RIBBON remains OP-16-tracked).
+
+<!-- PROVENANCE-MISSING: test_vix_filter_ab.py -->

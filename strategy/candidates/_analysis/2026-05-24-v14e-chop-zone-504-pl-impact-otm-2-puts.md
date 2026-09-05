@@ -52,3 +52,5 @@ With chop gate: the 10:05 signal is blocked due to elevated threshold during cho
 ## Pre-existing leaderboard impact
 
 This analysis informs candidate #17 (V14E_BEAR_TIME_OF_DAY_GATE) which is already deployed as a watcher-only change per OP-22. Quantifying the 5/04 impact is relevant for J's consideration of ratifying the chop gate in heartbeat.md (per candidate #17's pre-merge gate). No conflict with existing candidates; purely additive analysis for decision-making.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

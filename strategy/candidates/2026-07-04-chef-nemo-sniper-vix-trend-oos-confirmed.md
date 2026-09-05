@@ -62,3 +62,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trade class. However, it may interact with other candidates that use similar mechanisms or trade in the same market.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

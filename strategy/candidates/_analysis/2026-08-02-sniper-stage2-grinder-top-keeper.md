@@ -76,3 +76,5 @@ Before any promotion to the leaderboard or live consideration, the following mus
 ## Pre‑existing leaderboard impact
 
 This candidate would be **REJECTED** at the door because its edge_capture (373.48) is less than the 771 threshold required for inclusion in the leaderboard. It does not conflict with or complement any existing candidates (1‑9) since it fails the basic OP‑16 gate. No action needed on the leaderboard; the grinder output should be treated as exploratory and discarded unless a subsequent OOS walk‑forward demonstrates adequate edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

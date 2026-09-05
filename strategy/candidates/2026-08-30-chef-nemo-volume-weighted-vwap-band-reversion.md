@@ -66,3 +66,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre‑existing leaderboard impact
 
 No direct conflict with existing candidates; this proposal introduces a new mean‑reversion trigger that could complement the trend‑following VWAP_CONTINUATION (currently disarmed) by providing an alternative logic for range‑bound periods. It does not modify any existing watcher, filter, or exit logic, so it should not interfere with ratified candidates such as WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND. However, it will compete for capital allocation if both strategies fire on the same bar; coexistence logic would need to be evaluated in a combined backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

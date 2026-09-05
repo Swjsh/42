@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is orthogonal to existing leaderboard entries (which are mostly watcher gates, DTE studies, and quality‑filter tweaks). It does not conflict with any of candidates 1‑9; if validated it would add a new trigger‑type strategy to the mix.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

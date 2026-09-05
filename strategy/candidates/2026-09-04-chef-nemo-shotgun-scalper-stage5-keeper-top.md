@@ -66,3 +66,5 @@ We hypothesize that adjusting the shotgun_scalper's exit and trigger parameters 
 ## Pre-existing leaderboard impact
 
 This candidate would likely NOT qualify for the leaderboard in its current state due to insufficient edge_capture on J anchor days (<771). If OOS validation confirms edge_capture >=771, it would compete with existing candidates but may complement them if it captures edge on different market regimes or days. However, without knowing its correlation with current leaderboard candidates, we cannot assess synergy or conflict. It does not appear to conflict with any specific existing candidate based on available data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

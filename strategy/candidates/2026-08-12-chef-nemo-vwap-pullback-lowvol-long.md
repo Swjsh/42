@@ -59,3 +59,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by providing a new long-trigger mechanism in uptrending regimes; no direct conflict with current leaderboard entries (which focus on VWAP_CONTINUATION, DTE variations, and structural gates). May add diversification to long-side exposure.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

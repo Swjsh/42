@@ -58,3 +58,5 @@ Gym validators (all tests pass) + walk-forward OOS test with edge_capture ≥ 77
 ## Pre-existing leaderboard impact
 
 Conflicts with leaderboard eligibility (edge_capture < 771 → REJECTED). Does not complement existing candidates as it fails OP-16 floor. Requires significant improvement in J anchor capture to be viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

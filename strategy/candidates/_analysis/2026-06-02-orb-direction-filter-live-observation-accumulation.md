@@ -64,3 +64,5 @@ Accumulate ≥3 J-confirmed live ORB_DIRECTION_FILTER long-only observations in 
 ## Pre-existing leaderboard impact
 
 Complements ORB_DIRECTION_FILTER candidate (rank 5) by providing live observation data needed for OP-21 promotion. No conflict with other candidates; supports watcher-only gate deployment path.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

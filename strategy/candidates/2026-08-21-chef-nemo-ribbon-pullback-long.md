@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly conflict with existing quality‑gate or exit‑change candidates. It may complement existing ribbon‑riding setups by providing an additional entry condition that could increase trade frequency in trending markets, but it could also increase correlation with existing bullish candidates if both fire on the same bars. No direct duplication with current leaderboard entries is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS ratio ≥ 0.70, real-fills validation
 ## Pre-existing leaderboard impact
 
 This analysis is not a candidate; it's a diagnostic to inform future candidates. It does not conflict with existing leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

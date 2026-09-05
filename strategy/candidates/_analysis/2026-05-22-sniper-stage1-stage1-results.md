@@ -36,3 +36,5 @@ To complete this analysis, we would need to:
 ## Pre-merge gate
 
 Not applicable (this is an analysis, not a candidate).
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/_state/sniper_stage1/progress.json, backtest/autoresearch/_state/sniper_stage1/keepers.json -->

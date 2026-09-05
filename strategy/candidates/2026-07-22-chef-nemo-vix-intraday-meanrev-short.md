@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it is a new trigger based on VIX intraday deviation, which is not currently used in any registered candidate. It may complement existing strategies by providing a short signal during specific intraday conditions. No overlap with current trigger types (e.g., VIX_BULL_HARD_CAP_UNBLOCK and V14E_BEAR_TIME_OF_DAY_GATE are regime filters, not entry signals).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ The strategy must pass the following tests before it can be merged into producti
 ## Pre-existing leaderboard impact
 
 The proposed strategy does not conflict with or complement any existing candidates in the leaderboard. It is a new strategy that has been identified through the overnight_grinder parameter sweep.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

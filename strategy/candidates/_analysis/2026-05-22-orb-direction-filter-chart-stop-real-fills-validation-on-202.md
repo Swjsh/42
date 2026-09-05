@@ -63,3 +63,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This validation supports the ORB_DIRECTION_FILTER candidate (rank #5) by providing independent real-fills evidence on 2025 non-J-anchor days. It does not conflict with any existing candidates; rather, it complements the ORB_NARROW_OR_GATE (#4) by confirming the direction filter's efficacy. No changes to leaderboard ranking are implied pending validation outcome.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

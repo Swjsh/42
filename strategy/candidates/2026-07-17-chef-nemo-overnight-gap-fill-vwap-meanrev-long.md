@@ -69,3 +69,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger condition and does not conflict with existing candidates in _LEADERBOARD.md. It complements structural triggers (e.g., WEEKLY_DTE_NOT_0DTE) by targeting a distinct intraday mean-reversion pattern in the first 30 minutes, whereas existing candidates focus on continuation, structure, or multi-day DTE variations. No overlap in trigger logic or regime assumptions detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

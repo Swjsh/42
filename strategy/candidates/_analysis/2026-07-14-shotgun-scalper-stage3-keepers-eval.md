@@ -55,3 +55,5 @@ The combo uses directional participation scoring with parameters: tp_premium_pct
 ## Pre‑existing leaderboard impact
 
 The top keeper’s edge_capture ($285) is well below the current leaderboard’s minimum ($780 from STRUCTURE_VETO_DIR_VS_TREND). Adding this strategy would not improve the leaderboard’s edge_capture threshold and would likely dilute aggregate Sharpe if blended. It does not complement existing candidates; it fails the core OP‑16 requirement. Recommendation: do **not** promote to leaderboard; require OOS walk‑forward first and only consider if edge_capture exceeds $771. Current keepers should be treated as exploratory and subjected to further validation before any ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

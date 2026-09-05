@@ -58,3 +58,5 @@ Adding a VIX floor of 15 will exclude low-VIX, choppy environments where the BEA
 ## Pre-existing leaderboard impact
 
 This candidate is a filter change that could complement existing rank ★ [STRUCTURE_VETO_DIR_VS_TREND] by further reducing losing trades in low‑VIX regimes, assuming the filter does not harm J's winner days. It does not conflict with any existing leaderboard entries; rather, it stacks as an additional gate. If validated, it could be combined with the structure veto for additive Sharpe gains while preserving edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

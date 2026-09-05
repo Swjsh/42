@@ -68,3 +68,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing candidates in the leaderboard as it is a new trigger type. It may complement existing strategies by providing short signals in choppy markets, but it could also overlap with existing mean-reversion or VWAP-based strategies. No direct conflicts are observed from the leaderboard descriptions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

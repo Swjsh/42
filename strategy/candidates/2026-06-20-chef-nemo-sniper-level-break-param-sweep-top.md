@@ -57,3 +57,5 @@ Entry: SPY breaks above a named ★★+ level by ≥ proximity_dollars (1.5) wit
 ## Pre-existing leaderboard impact
 
 Conflicts with lessons L99+L100 (premium exit invalidation) and similar SNIPER candidates (e.g., SNIPER_VIX18_GRINDER, SNIPER_VIX_TREND_OOS_CONFIRMED) that were artifact-invalidated. Complements search for valid SNIPER exit (e.g., chart-stop) but requires exit redesign before promotion consideration. Does not impact current leaderboard as OP-16 inapplicable until SNIPER anchor days established.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

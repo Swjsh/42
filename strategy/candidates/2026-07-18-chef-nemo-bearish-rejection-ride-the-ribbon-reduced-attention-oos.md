@@ -61,3 +61,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidates as it is a variant of an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON) and is not currently on the leaderboard. It complements the existing setup by proposing an alternative exit mechanism. It does not conflict with any of the ranked candidates 1-24 in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

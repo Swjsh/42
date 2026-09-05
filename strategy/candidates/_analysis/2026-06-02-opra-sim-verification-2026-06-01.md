@@ -48,3 +48,5 @@ Execute simulator_real.py with the current production strategy (heartbeat.md + p
 ## Pre-existing leaderboard impact
 
 This verification does not conflict with any existing candidates; it supports the OP-20 disclosure requirement for all candidates that rely on simulator_real.py for real-fills validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

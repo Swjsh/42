@@ -59,3 +59,5 @@ The VWAP overnight grinder sought to identify VWAP-anchored entry combinations (
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard because the edge_capture (40.01) is well below the 771 rejection threshold. It would be REJECTED if submitted as a candidate. It complements existing research by highlighting that VWAP-anchored entries alone, with these parameters, fail to capture J's source-of-truth edge. No conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

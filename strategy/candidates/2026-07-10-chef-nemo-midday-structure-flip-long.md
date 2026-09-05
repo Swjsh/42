@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are filters/exits/watchers). Complements VWAP-based strategies by capturing midday structure breaks; may overlap with ORB_RETEST_LONG but operates later in day with different trigger logic. No direct duplication in registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

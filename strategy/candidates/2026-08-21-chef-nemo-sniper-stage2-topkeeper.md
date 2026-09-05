@@ -35,3 +35,5 @@ Enter on sniper level break when: volume >= 1.1 * 20-bar average volume, candle 
 1. **Account-size assumption:** qty=10 requires $10K+ account (per playbook position sizing: $10K–$25K account uses 10 contracts; risk per trade capped at 50% of account equity).
 2. **Sample bias:** Stage 2 grinder evaluated an unknown number of combos (parent stage 1 keepers as input) and selected 5 keepers; top keeper selected by wide_pnl. High risk of overfit due to selection bias without OOS validation.
 3. **
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

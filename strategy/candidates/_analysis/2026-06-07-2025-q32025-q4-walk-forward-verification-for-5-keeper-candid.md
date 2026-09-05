@@ -77,3 +77,5 @@ Run walk-forward scripts for each candidate with:
 - Gate: OOS/IS ratio ≥ 0.50
 
 Report results before any 5/01 parameter relaxation proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

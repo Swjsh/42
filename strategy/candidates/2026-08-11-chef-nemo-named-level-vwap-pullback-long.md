@@ -49,3 +49,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with ranked candidates (mostly watcher gates, DTE studies, or structural filters). Complements existing named-level approaches by adding VWAP momentum filter and conviction candle requirement. Does not overlap with any current trigger types in leaderboard (all are watcher quality gates or exit modifications). May provide additive edge if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

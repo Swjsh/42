@@ -30,3 +30,5 @@ DRAFT CANDIDATE: EDGE-VALIDATED STRATEGY MODULE (J-EDGE-2026-07)
 **UNKNOWN**: Exact P&L distribution for bull direction (n=80, WR 1.2%) — requires 2026-07-20 fill audit.  
 **RISK**: Over-reliance on `strike_offset=+1` if VIX regime shifts (C5: VIX *character* > level).  
 **DEPENDENCY**: `FUTURE-IMPROVEMENTS.md` #14 requires SS-B correction (blocked until 2026-07-22).
+
+<!-- PROVENANCE-MISSING: strategy/entry.py -->

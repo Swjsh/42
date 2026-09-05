@@ -54,3 +54,5 @@ Entry triggers on VWAP reclaim/rejection when: volume > vol_mult * 20-bar avg vo
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771 per OP-16) and does not appear on the leaderboard. No impact on existing ranked candidates as it fails the edge_capture gate. If OOS validation shows edge_capture ≥ 771, it would complement structural candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND) by improving entry timing on existing signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

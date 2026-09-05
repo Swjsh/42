@@ -62,3 +62,5 @@ The validation would run the SNIPER_LEVEL_BREAK strategy on 16-month SPY 5m data
 ## Pre-existing leaderboard impact
 
 This analysis evaluates SNIPER_LEVEL_BREAK for potential leaderboard inclusion. If validation passes (edge_capture >= 771 and OOS/IS Sharpe >= 0.50), it would be added as a new candidate. It does not conflict with existing candidates as it evaluates a distinct strategy type (breakout-based entry). However, it may complement or compete with other entry-trigger candidates depending on performance.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/sniper_stage2_grinder.py -->

@@ -63,3 +63,5 @@ The keeper combines a tight stop (35% premium), moderate profit target (150% pre
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture >= 771). This keeper would be REJECTED at the door per OP-16 edge_capture < 771. If anchor edge_capture could be improved via parameter tuning (e.g., looser stop to capture trends), it might complement existing volatility-based candidates like [SNIPER_VIX18_GRINDER] but requires complete redesign. Current loser-day performance (making money on 5/06/5/07) directly violates OP-16 loser-day constraints and must be fixed before consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

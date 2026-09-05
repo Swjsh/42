@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with existing leaderboard entries (e.g., ORB_RETEST_LONG, ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) because it trades the initial breakout with volume and VWAP filters rather than a retest or pure direction filter. It may complement those watcher‑only candidates by providing a tradable long‑only trigger that could be combined with their quality gates in future work. No duplication of existing trigger logic is present.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

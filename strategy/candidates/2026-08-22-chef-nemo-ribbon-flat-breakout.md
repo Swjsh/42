@@ -66,3 +66,5 @@ The RIBBON_FLAT_BREAKOUT trigger identifies periods where the EMA ribbon is comp
 ## Pre-existing leaderboard impact
 
 Complements existing quality gates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_ONLY_GATE) by providing a distinct entry trigger. No direct conflict with current leaderboard candidates as it introduces a new trigger type rather than modifying filters/exits. May overlap with VOLUME_EXPANSION_BREAKOUT concepts but uses ribbon compression as unique precondition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

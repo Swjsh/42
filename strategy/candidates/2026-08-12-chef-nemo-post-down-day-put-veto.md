@@ -62,3 +62,5 @@ After a significant down day in SPY (return < -1.5%), the market often experienc
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements quality gates like V14E_BEAR_ONLY_GATE (Rank 3) and MIDDAY_TRENDLINE_GATE (Rank 21) by adding a temporal filter. Neutral to structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND, Rank ★). May overlap with BEARISH_SWEEP_BLOCKER (Rank 1) in intent but differs in mechanism (temporal vs. price-level sweep). No direct contradiction with J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

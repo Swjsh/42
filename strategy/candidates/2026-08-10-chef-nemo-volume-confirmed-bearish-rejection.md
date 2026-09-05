@@ -57,3 +57,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON trigger currently requires "no volume dive
 ## Pre-existing leaderboard impact
 
 This candidate complements existing volume/gap filters (e.g., ORB_NARROW_OR_GATE, GAP_AND_GO) and does not conflict with structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND). It is orthogonal to DTE changes (e.g., WEEKLY_DTE_NOT_0DTE). If ratified, it would likely stack positively with MIDDAY_TRENDLINE_GATE (different time window) and BEARISH_REJECTION_RIDE_THE_RIBBON core logic. No direct conflicts with current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

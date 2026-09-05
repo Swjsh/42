@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing VWAP‑based ideas (e.g., VWAP_CONTINUATION) by adding a divergence‑and‑volume filter rather than overriding them. No conflict with current top‑9 candidates; it would occupy a distinct niche if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

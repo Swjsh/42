@@ -53,3 +53,5 @@ The VWAP overnight grinder seeks to capture mean-reversion edges where SPY price
 ## Pre-existing leaderboard impact
 
 This candidate complements existing entries as it introduces a VWAP‑anchored mean‑reversion trigger, orthogonal to the current EMA‑ribbon and level‑break setups. It does not conflict with any ranked candidate (1‑9) because it trades a different signal type and can be layered as a quality gate or standalone trigger after further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

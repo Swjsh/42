@@ -42,3 +42,5 @@ Not applicable (analysis only).
 ## Pre-existing leaderboard impact
 
 This analysis does not alter the candidate; it validates an existing J-RATIFIED gate. No change to leaderboard ranking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

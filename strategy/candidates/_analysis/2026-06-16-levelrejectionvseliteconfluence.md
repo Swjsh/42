@@ -51,3 +51,5 @@ Need Stage‑1 backtest on 16‑month SPY 5m data, walk‑forward OOS (May 8‑2
 ## Pre-existing leaderboard impact
 
 No direct conflict; analysis is informational and does not propose a new trigger. It may inform future filter_change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

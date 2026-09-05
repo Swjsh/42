@@ -50,3 +50,5 @@ Gym validators (97/98 PASS, guard 29/29 PASS), walk-forward analysis on 2025-Q3 
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with any top-9 candidates in
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ Thus, only the 5-day lookback achieves OOS WF >= 1.0 on the 120-combo grid.
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidate; complements SNIPER_VIX_TREND_OOS_CONFIRMED (#14) and SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP (#15) by confirming the 5d VIX window uniqueness that underpins their OOS performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

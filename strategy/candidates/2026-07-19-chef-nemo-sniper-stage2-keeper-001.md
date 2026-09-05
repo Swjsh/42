@@ -59,3 +59,5 @@ We are trying to capture edge by refining the SNIPER_LEVEL_BREAK exit parameters
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which all have edge_capture ≥ 771). Does not complement any existing candidate as it fails the OP-16 gate and would be REJECTED at the door. May serve as starting point for further refinement to increase edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

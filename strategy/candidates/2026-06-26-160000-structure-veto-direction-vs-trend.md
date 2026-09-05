@@ -110,3 +110,5 @@ read with `market_structure`.
   - **Prereg name:** `STRUCTURE-VETO-DIR-VS-TREND-STANDING-AB-2026-09-05` (JSON under `analysis/recommendations/`, records: already-live since 2026-06-26, Safe=on/Bold=off, WF=0.00 on OOS/IS ratio, monitors ongoing safe-vs-bold P&L divergence attributable to `SKIP_STRUCTURE_VETO` events).
   - **Shadow task name:** `Gamma_StructureVetoStandingABShadow` (a NEW, distinct task — do not confuse with the existing `Gamma_StructureClassifierShadow`, which monitors the separate classifier-defect question in the 2026-09-05 lift package, not this candidate's dir-vs-trend A/B).
 - UNVERIFIED: whether a distinct standing-A/B shadow task is actually needed given the mechanism already runs in production with its own ledger (`SKIP_STRUCTURE_VETO` rows in `core-decisions.jsonl`) — K9/J should confirm this isn't duplicate instrumentation of something the existing pipeline already logs.
+
+<!-- PROVENANCE-MISSING: tests/test_structure_veto.py -->

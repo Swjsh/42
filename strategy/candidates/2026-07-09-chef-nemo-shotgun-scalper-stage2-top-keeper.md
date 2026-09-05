@@ -66,3 +66,5 @@ The shotgun scalper Stage-2 sweep found a parameter set that produces high wide_
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the current leaderboard. It conflicts with the OP‑16 objective: instead of capturing J’s edge, it increases losses on loser days and ignores winner days. It does not complement any existing candidate; it is orthogonal and inferior. Promotion would require a complete redesign to regain J‑day capture while preserving non‑J expectancy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

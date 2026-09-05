@@ -56,3 +56,5 @@ In the entry decision path (likely `engine_cli.decide_payload` or `gates.py`), a
 No direct P&L impact; enables future filter tuning. Complements fixes 1 and 2 by providing data for validation.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

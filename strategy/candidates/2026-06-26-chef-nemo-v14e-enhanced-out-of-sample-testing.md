@@ -50,3 +50,5 @@ The pre-merge gate requires a successful walk-forward test, a real-fills validat
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup, by providing an alternative approach to capturing winners and reducing losses.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

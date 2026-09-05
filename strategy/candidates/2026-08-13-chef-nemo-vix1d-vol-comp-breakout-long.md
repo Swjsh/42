@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with current leaderboard candidates (mostly watcher gates, structural filters, or parameter tweaks). This is a new trigger type orthogonal to existing quality-gate candidates like ORB_NARROW_OR_GATE or VIX_BULL_HARD_CAP_UNBLOCK. Complements rather than competes with existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

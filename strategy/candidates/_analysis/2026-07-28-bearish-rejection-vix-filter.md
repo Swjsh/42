@@ -51,3 +51,5 @@ gym validators (9/9 PASS), walk-forward OOS positive, real-fills validation on a
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with any top 9 candidates in _LEADERBOARD.md; adds orthogonal VIX dimension to BEARISH_REJECTION_RIDE_THE_RIBBON logic; may synergize with STRUCTURE_VETO_DIR_VS_TREND (Rank ★) which already removes wrong-way trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

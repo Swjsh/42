@@ -65,3 +65,5 @@ Entry logic remains unchanged. Exit logic:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) and V14E_PARAM_SWEEP_26K (rank 12) by improving exit logic without conflicting with their entry/gate mechanisms. May conflict with fixed-profit-lock candidates if any exist; no direct conflicts observed in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

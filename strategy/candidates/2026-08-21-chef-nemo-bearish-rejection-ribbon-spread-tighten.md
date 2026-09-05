@@ -59,3 +59,5 @@ Add a new filter condition in `BEARISH_REJECTION_RIDE_THE_RIBBON` entry logic: r
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (Rank ★) by targeting different loss mechanism (choppy false signals vs wrong-way trades). Conflicts with MAX_RIBBON_DUR_8 (Rank 25) which also tightens ribbon parameters but via duration; this candidate addresses spread width instead. May duplicate intent of VWAP_CONTINUATION's VIX put-gate logic but operates on different timeframe/setup. Does not conflict with any J-RATIFIED candidates as it modifies BEARISH_REJECTION_RIDE_THE_RIBBON entry filter only.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_ribbon_spread_filter.py -->

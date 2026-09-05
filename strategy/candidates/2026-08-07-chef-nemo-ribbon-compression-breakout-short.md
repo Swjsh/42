@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No known conflict; complements existing triggers by targeting low-VIX compression breaks (unlike BEARISH_REJECTION_RIDE_THE_RIBBON which requires ribbon alignment + rejection candle). May overlap with VWAP_CONTINUATION in low-vol regimes but differs in trigger logic (ribbon width vs. VWAP position). Requires Stage-1 backtest to quantify edge capture vs. current leaders.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

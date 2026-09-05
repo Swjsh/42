@@ -61,3 +61,5 @@ The watcher does not interact with trading decisions, order execution, or engine
 ## Pre-existing leaderboard impact
 
 This watcher proposal complements filter_change candidates (e.g., hypothetical RIBBON_SPREAD_MIN_40C) by providing the empirical data needed to tune thresholds without guesswork. It does not conflict with any existing leaderboard candidate, as all current WATCH-ONLY entries (e.g., ORB_RETEST_LONG, VWAP_WATCHER) are passive observers. The logger watcher adds a new diagnostic stream orthogonal to existing watchers, enhancing collective situational awareness without altering system behavior. No changes to heartbeat.md or params.json are required, satisfying Rule 9 constraints.
+
+<!-- PROVENANCE-MISSING: automation/state/ribbon_spread_log.json -->

@@ -61,3 +61,5 @@ The SHOTGUN_SCALPER watcher currently logs TRENDLINE_BREAK_RETEST signals with v
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This proposal enables an existing WATCH-ONLY candidate (TBR_HIGH_VOL, rank 16). It does not directly conflict with top 9 candidates (ranks I-9) as those are either funded studies, PROMISING, or J-RATIFIED with different mechanisms. However, enabling SHOTGUN_SCALPER may add trades that interact with existing filters (e.g., MIDDAY_TRENDLINE_GATE, structure vetoes), potentially causing cascades. Impact on leaderboard candidates is unknown without integrated backtest. Complements volatility-based candidates (e.g., VIX-related) but may conflict with volume-sensitive gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

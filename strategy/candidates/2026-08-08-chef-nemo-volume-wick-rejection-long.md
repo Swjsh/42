@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with current leaderboard candidates (ranks 1‑24). This is a brand‑new trigger type; it does not modify any existing gates, filters, or exits. If validated, it would sit alongside other trigger‑based candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER) and would need to be evaluated for additive edge versus existing strategies. No overlap with J‑ratified strategies (VWAP_CONTINUATION, GAP_AND_GO, MIDDAY_TRENDLINE_GATE, etc.) as it targets a different price‑action pattern.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

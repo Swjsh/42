@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (primarily filters, exits, or quality gates). Complements by providing a new entry signal layer that could be combined with existing vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) or quality gates (e.g., MIDDAY_TRENDLINE_GATE) for improved precision. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

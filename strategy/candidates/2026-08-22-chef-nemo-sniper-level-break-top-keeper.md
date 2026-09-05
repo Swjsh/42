@@ -102,3 +102,5 @@
             | 5/05 loser | unknown -- requires Stage-1 backtest | 126.51 | unknown -- requires Stage-1 backtest |
             | 5/06 loser | unknown -- requires Stage-1 backtest | 0 | unknown -- requires Stage-1 backtest |
             | 5/
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

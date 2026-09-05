@@ -56,3 +56,5 @@ The gate (gates.py #7) blocks a bearish PUT entry when the very next bar (the fi
 ## Pre-existing leaderboard impact
 
 This candidate directly corresponds to the existing leaderboard entry `REQUIRE_BEARISH_FILL_BAR_REVAL` (RV). It proposes the same change (disable the gate) and would inherit its RV status (currently UNBLOCK‑leaning). No conflict with higher‑ranked candidates; it complements filters that target bearish entries (e.g., BEARISH_SCORE_7_RELAXATION) by providing an alternative loosening mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

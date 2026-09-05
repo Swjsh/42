@@ -59,3 +59,5 @@ Entry triggers when: volume ≥ 1.1× 20-bar average, candle body ≥ $0.02, qua
 ## Pre-existing leaderboard impact
 
 This candidate fails the OP-16 floor (edge_capture=373.48 < 771) and would be REJECTED, so it has no impact on the current leaderboard (which only includes candidates with edge_capture ≥ 771). No conflict or complement with existing candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

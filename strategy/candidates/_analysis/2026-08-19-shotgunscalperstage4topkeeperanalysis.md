@@ -63,3 +63,5 @@ Gym validators must pass, walk-forward OOS test with edge_capture ≥ 771, real-
 ## Pre-existing leaderboard impact
 
 Would be REJECTED at the door (edge_capture < 771) and not appear on leaderboard. No conflict with current leaderboard candidates (all have edge_capture ≥ 771). Complements only if re-engineered to improve J-day capture while preserving non-J day edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

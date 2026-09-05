@@ -61,3 +61,5 @@ In the entry logic for BEARISH_REJECTION_RIDE_THE_RIBBON (located in `filters.py
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is a filter_change that could be stacked with existing quality gates (e.g., STRUCTURE_VETO_DIR_VS_TREND). It does not modify parameters or exits, so no direct conflict. Likely complementary if the filter removes losing trades that the veto misses. No overlap with watcher-only or DTE-change candidates. Should be evaluated independently first.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

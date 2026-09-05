@@ -57,3 +57,5 @@ Enable the watcher's paper-trading execution arm by setting `extra_setup_exec_ar
 ## Pre-existing leaderboard impact
 
 This watcher proposal complements existing candidates (especially rank 1 BEARISH_SWEEP_BLOCKER and rank 20 BEARISH_REJECTION_MORNING) by providing a potential entry trigger for the BEARISH_REJECTION_RIDE_THE_RIBBON setup. It does not conflict with any of the top 9 leaderboard candidates, as it adds a signal‑generation layer rather than altering existing triggers, filters, or exits.
+
+<!-- PROVENANCE-MISSING: automation/state/bearish_rejection_morning_journal.json, test_bearish_rejection_morning_watcher.py -->

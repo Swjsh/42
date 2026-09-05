@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if this conflicts with or complements existing candidates (e.g., VWAP_CONTINUATION, structural gates) in _LEADERBOARD.md. Novelty claim suggests structural distinction but interaction effects unknown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

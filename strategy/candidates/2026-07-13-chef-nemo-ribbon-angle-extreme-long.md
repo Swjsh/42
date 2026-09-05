@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type not present in the current leaderboard (candidates 1‑9). It does not directly conflict with any existing trigger, filter, or exit change; it is orthogonal to existing structural and watcher proposals. If shown to add edge, it could complement existing strategies by providing an additional long‑bias signal in trending, low‑VIX regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

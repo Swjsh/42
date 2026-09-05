@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger type. May complement or conflict with existing volatility-based strategies (e.g., volatility regime filters) but impact unknown without backtest. No parameter changes to existing strategies proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

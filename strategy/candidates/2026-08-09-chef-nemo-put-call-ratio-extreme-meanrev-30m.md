@@ -53,3 +53,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger based on Put/Call Ratio and VIX1D, which does not duplicate any existing trigger in the leaderboard (e.g., VWAP_CONTINUATION, GAP_AND_GO, or structural gates). It may complement existing filters by adding an options‑sentiment layer, but it could interact with existing quality gates (e.g., VWAP‑based filters) and would need to be evaluated for overlap or conflict once a Stage‑1 backtest is available. At this stage, no direct conflict is evident.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

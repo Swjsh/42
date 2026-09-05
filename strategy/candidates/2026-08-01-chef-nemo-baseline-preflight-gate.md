@@ -58,3 +58,5 @@ Before entering the main research loop in `autoresearch/loop.py`, run a fixed ba
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; adds a meta-layer to research process. Complements all candidates by preventing launches during degraded baselines. No direct interaction with leaderboard entries as it operates at the loop level.
+
+<!-- PROVENANCE-MISSING: test_baseline_preflight_gate.py -->

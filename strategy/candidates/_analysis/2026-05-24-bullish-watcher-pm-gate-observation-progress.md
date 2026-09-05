@@ -56,3 +56,5 @@ The watcher observes bars in the PM session (defined as 13:00-15:00 ET) and logs
 ## Pre-existing leaderboard impact
 
 This analysis supports the existing [BULLISH_WATCHER_PM_GATE](2026-05-21-bullish-watcher-quality-analysis.md) candidate by providing observation progress. It does not conflict with any other candidates; it complements the data collection effort for candidate #9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

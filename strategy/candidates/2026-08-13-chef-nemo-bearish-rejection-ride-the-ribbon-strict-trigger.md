@@ -53,3 +53,5 @@ Gym validators must pass, walk-forward OOS Sharpe ≥ 0.70, real-fills on top 3 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is the core engine) and does not conflict with any current leaderboard candidates. It is a filter tightener on the same setup, so it would be evaluated as a variant of the base engine. It may conflict with other filter changes that loosen requirements, but none are currently in the leaderboard as active proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

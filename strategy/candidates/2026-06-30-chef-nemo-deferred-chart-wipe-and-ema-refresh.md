@@ -54,3 +54,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger branch that focuses on the timing of the chart wipe and EMA refresh.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -41,3 +41,5 @@ Write `backtest/autoresearch/gex_flip_regime_ab.py` implementing exactly the joi
 ## Disposition
 
 `strategy/candidates/_chef-inbox/2026-07-09-prospector-gex_flip_from_banked_cboe.md` renamed `.DONE` (pre-registration filed; the item's own "bounded FIRST deliverable" is this document, not a backtest). `_LEADERBOARD.md` updated with a `DATA-GATED` row.
+
+<!-- PROVENANCE-MISSING: strategy/candidates/_chef-inbox/2026-07-09-prospector-gex_flip_from_banked_cboe.md, backtest/autoresearch/gex_flip_regime_ab.py -->

@@ -57,3 +57,5 @@ At 09:30 ET, compute the overnight VWAP (using pre-market and after-hours data f
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Unknown; likely complements existing VWAP continuation work but may conflict if filter removes too many trades. Needs evaluation against current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

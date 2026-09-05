@@ -72,3 +72,5 @@ We hypothesize that a trigger combining VWAP continuation bias and EMA ribbon fl
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger proposal; it does not modify any existing candidate in _LEADERBOARD.md. If successful, it could complement existing quality gates or exit changes by providing a directional entry edge on J anchor days. No direct conflict identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

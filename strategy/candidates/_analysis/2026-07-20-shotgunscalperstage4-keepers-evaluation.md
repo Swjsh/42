@@ -74,3 +74,5 @@ Before any consideration for promotion, the following must be completed:
 ## Pre-existing leaderboard impact
 
 The keeper does **not** meet the OP-16 eligibility threshold (edge_capture < 771), so it would be **REJECTED** at the door and would not appear on the leaderboard. It conflicts with none of the current candidates because it fails the mandatory gate; however, it underscores the importance of anchoring any parameter search to OP-16 edge_capture before optimizing aggregate metrics. If future iterations can raise edge_capture above 771 while preserving Sharpe, they could become viable contenders. At present, the keeper should be treated as a **needs OOS walk‑forward first** hypothesis, not a promotion candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

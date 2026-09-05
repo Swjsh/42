@@ -74,3 +74,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate does not appear on the leaderboard because its edge_capture (373.48) is below the 771 floor. It does not conflict with any leaderboard candidate because it is not eligible for the leaderboard. It may complement if used as a filter or exit change in combination with other strategies, but as a standalone strategy it is not ready for the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

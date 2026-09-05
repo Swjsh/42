@@ -61,3 +61,5 @@ Then proceed to OOS walk-forward (hold-out 2026-03-01 to 2026-06-18) and real-fi
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This baseline candidate does not conflict with any existing candidate; it provides the reference point against which all candidates' edge_capture and Sharpe deltas are measured. It complements the leaderboard by enabling accurate attribution of incremental impact. No existing candidate proposes to change the baseline engine parameters, so there is no overlap in mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

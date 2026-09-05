@@ -58,3 +58,5 @@ The gate consumes the `structure_state.json` file written by `market_structure.p
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries. It directly evaluates the gate already described in WS4 (`TRENDLINE_BREAK_CALL_VETO`). It is complementary to `STRUCTURE_VETO_DIR_VS_TREND` (which vetoes trades based on trend‑direction mismatch) because it focuses on a specific structural break (ascending‑support break) and only vetoes CALLs. No changes to params.json or engine code are required beyond adding the enable/disable knob, which is already staged in WS4. The test will inform whether to promote the knob to live (enable) or keep it disabled.
+
+<!-- PROVENANCE-MISSING: backtest/tests/gym_validator.py -->

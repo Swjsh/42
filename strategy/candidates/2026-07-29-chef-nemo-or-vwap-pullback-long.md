@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new long trigger and does not directly conflict with existing leaderboard entries (primarily watcher proposals, gates, or structural changes). It may complement bullish strategies like BULLISH_RECLAIM_RIDE_THE_RIBBON by providing an alternative long entry signal. However, OP-16 anchor days are bearish PUT-focused; we expect minimal trigger overlap on those days (likely zero longs on down days) but require Stage-1 backtest to confirm impact on anchor edge_capture. No known conflicts with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

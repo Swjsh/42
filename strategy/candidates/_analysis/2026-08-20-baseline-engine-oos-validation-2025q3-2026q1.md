@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward test on 2025-Q3+2026-Q1 data must show ed
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine, so it does not conflict with any candidate in the leaderboard. It is a validation of the baseline engine, which is the foundation for all candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

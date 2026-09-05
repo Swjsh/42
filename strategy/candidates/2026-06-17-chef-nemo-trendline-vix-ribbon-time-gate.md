@@ -59,3 +59,5 @@ Entry is taken only if all four conditions pass; otherwise, the signal is skippe
 ## Pre-existing leaderboard impact
 
 Complements existing gates such as MIDDAY_TRENDLINE_GATE (rank 21) and V14E_BEAR_TIME_OF_DAY_GATE (rank 17) by adding additional quality dimensions; unlikely to conflict with rank 1-9 candidates as it operates on TRENDLINE-only subset and does not modify SUPER/ELITE logic. May overlap with ORB_DIRECTION_FILTER (rank 5) in time-of-day but targets different setup class.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

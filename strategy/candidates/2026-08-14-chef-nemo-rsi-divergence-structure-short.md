@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard (as per the provided _LEADERBOARD.md) because it is a new trigger type. It may complement existing filters or quality gates by providing an additional entry signal that can be combined with other conditions (e.g., VIX filter, ribbon slope) to improve signal quality. However, we note that the leaderboard currently contains no candidates of type 'new_trigger' that are RSI-based and bearish; the existing RSI_DIVERGENCE_BULL_WATCHER is bullish and watcher-only, so this candidate is structurally distinct.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

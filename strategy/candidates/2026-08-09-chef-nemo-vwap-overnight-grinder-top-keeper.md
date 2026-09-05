@@ -76,3 +76,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with the current leaderboard because it fails the OP-16 edge_capture floor (40.01 < 771). It would be REJECTED and not appear on the leaderboard. It does not complement any existing candidate because it is a parameter change for VWAP_CONTINUATION, but the current leaderboard does not have a VWAP_CONTINUATION candidate (the existing ones are various gates and structures). However, note that the VWAP_CONTINUATION setup is already live (per the playbook). This candidate is an attempt to optimize its parameters, but it fails to capture J's edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

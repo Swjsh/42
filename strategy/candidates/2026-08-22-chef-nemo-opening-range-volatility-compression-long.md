@@ -68,3 +68,5 @@ On days where the opening range (first 30 minutes) exhibits unusually low volati
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger proposal; it does not modify any existing candidates in the leaderboard. It complements the current suite by adding a potential long‑bias entry filter that could be combined with existing quality gates or exits. No conflict identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

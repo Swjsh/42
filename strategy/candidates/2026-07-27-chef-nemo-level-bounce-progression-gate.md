@@ -65,3 +65,5 @@ Consecutive lower highs at a resistance level indicate weakening bullish momentu
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a confluence condition; no known conflicts with current leaderboard ranks 1-24. Can be combined with trend, volume, or VIX-based gates without overlap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

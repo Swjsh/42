@@ -103,3 +103,5 @@ python -c "import json; rows=[json.loads(l) for l in open('automation/state/watc
 ```
 
 No `params.json`/`heartbeat.md`/generated-surface edits made.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

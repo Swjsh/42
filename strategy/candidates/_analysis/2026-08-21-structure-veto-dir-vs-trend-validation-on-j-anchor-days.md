@@ -319,3 +319,5 @@ We performed Stage-1 backtest using the autoresearch grinder on the STRUCTURE_VE
   Given the leaderboard, many candidates are NEEDS-MORE-DATA.
 
   We'll do:
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

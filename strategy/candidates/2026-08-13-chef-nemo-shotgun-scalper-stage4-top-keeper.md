@@ -65,3 +65,5 @@ Tightening the stop loss to -35% of premium and raising the take profit to +75% 
 ## Pre-existing leaderboard impact
 
 The candidate’s edge_capture (506.55) is below the OP‑16 rejection threshold of 771, so it would not appear on the leaderboard regardless of Sharpe. It does not directly conflict with existing candidates (which all have edge_capture ≥ 771), but it highlights the need for further robustness testing before any parameter change can be promoted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

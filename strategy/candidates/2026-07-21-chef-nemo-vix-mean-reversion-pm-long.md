@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger that does not directly modify any existing setup in the leaderboard (ranks 1‑9). It may complement VIX_BULL_HARD_CAP_UNBLOCK (a VIX‑based gate) by providing an entry signal that uses intraday VIX levels, but it does not conflict with any current trigger, filter, or exit changes. It adds a new trade class that would be evaluated separately for OP‑16 edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

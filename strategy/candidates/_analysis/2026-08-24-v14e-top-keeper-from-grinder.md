@@ -71,3 +71,5 @@ This keeper fails the OP-16 edge_capture gate (499.64 < 771) and is therefore RE
 ## Pre-existing leaderboard impact
 
 This keeper does not meet the OP-16 edge_capture floor and thus would not appear on the leaderboard. It conflicts with no existing candidates because it is rejected outright. It does not complement any candidate as it is not a viable strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

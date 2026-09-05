@@ -61,3 +61,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis is for the existing candidate WS4 [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md). The backtest results will determine if it moves from NEEDS-MORE-DATA to PROMISING or REJECTED.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

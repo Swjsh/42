@@ -68,3 +68,5 @@ The BEARISH_REJECTION_MORNING watcher will then use this archive to check if the
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_REJECTION_MORNING watcher (rank 20) by providing the missing key-levels archive it requires to function. No conflict with existing candidates; enables the watcher to potentially achieve J-rating if backtest validates anchor day capture. Does not affect other watchers or setup types.
+
+<!-- PROVENANCE-MISSING: analysis/keylevels/bearish_rejection_morning.json -->

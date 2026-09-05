@@ -68,3 +68,5 @@ This creates a quick-scalping structure: take partial profits early at +150%, pr
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements existing candidates. Does not conflict with any leaderboard entries as it proposes exit parameter changes rather than new signals or filters. May synergize with structure-based gates (e.g., STRUCTURE_VETO_DIR_VS_TREND) by improving exit timing on winning trades. No overlap with watcher-only candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ All other context filters, trigger requirements, entry/exit logic, and position 
 ## Pre-existing leaderboard impact
 
 Complements existing VIX-gated candidates (e.g., V14E_BEAR_ONLY_GATE, LEVEL_MEMORY_PERCEPTION) by adding confluence; does not conflict with top 9 leaderboard candidates as it targets a different filter layer (VIX confirmation vs. structure/veto gates). May overlap with BEAR_SCORE_7_RELAXATION logic but uses simpler, more transparent trigger.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_watcher.py -->

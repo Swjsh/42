@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing RSI_DIVERGENCE_BULL_WATCHER (rank 11) by providing the bearish counterpart. No direct conflict with current leaderboard candidates as it introduces a new trigger type. Does not overlap with any existing strategies in the leaderboard (all are watchers, structural gates, or other trigger types). Adds diversity to the short-side trigger toolkit.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

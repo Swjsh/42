@@ -65,3 +65,5 @@ No trailing profit-lock or chandelier trailing stop is used; exits are purely ti
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate for the leaderboard; it evaluates a keeper from a parameter sweep. The top keeper's edge_capture ($506.55) is below the leaderboard inclusion threshold ($771), so it would not appear on the current leaderboard. No conflict with existing candidates (all of which have edge_capture > $771). Complements the leaderboard by highlighting the OP-16 gate's effectiveness in filtering strategies that lack anchor-day edge despite attractive wide P&L.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

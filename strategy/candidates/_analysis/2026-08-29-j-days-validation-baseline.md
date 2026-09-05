@@ -50,3 +50,5 @@ Stage-1 backtest must pass, walk-forward OOS must show ratio >=0.70, real-fills 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it is a diagnostic step.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

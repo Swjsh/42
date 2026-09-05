@@ -52,3 +52,5 @@ Not applicable (this is an analysis, not a candidate proposal). For validation, 
 ## Pre-existing leaderboard impact
 
 This analysis does not change the V14E_BEAR_ONLY_GATE candidate itself but provides insight into its progress toward OP-21 promotion. The candidate remains in PROMISING status, awaiting accumulation of ≥100 new bear-only observations with WR≥55%. After the next 50 observations (if projections hold), the candidate will be halfway to the observation count threshold but still require 50 more observations to meet the N≥100 gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

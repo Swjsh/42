@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing candidates (mostly structural filters/exit changes); may complement short-biased setups like BEARISH_REJECTION_RIDE_THE_RIBBON but could overlap in regime. Impact unknown without backtest validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

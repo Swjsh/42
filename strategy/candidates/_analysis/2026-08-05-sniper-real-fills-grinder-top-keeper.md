@@ -60,3 +60,5 @@ This analysis is not a candidate for promotion. The top keeper fails the OP-16 e
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard. It evaluates a keeper from the grinder that fails to meet the edge_capture threshold (OP-16) and would be rejected at the door. No impact on existing leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

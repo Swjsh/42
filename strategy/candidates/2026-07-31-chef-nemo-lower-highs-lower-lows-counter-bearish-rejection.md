@@ -68,3 +68,5 @@ Implementation:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing structure/veto candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND, TRENDLINE_BREAK_CALL_VETO) by adding confluence-based confirmation. No direct conflict with published candidates as it modifies BEARISH_REJECTION scoring rather than adding new triggers/filters. May overlap with BEARISH_REJECTION_MORNING watcher but operates on different timeframe (tick-level bounce tracking vs 5m bars).
+
+<!-- PROVENANCE-MISSING: test_lower_highs_lower_lows_counter.py -->

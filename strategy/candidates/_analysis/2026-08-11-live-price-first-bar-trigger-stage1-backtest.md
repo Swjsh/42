@@ -82,3 +82,5 @@ reduce confidence in the strategy's viability. The motivating case was captured,
 
 This analysis is based on the Stage-1 backtest that was run via the autoresearch grinder harness. 
 The candidate remains in NEEDS-MORE-DATA status until the pre-merge gate is satisfied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

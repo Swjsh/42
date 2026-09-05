@@ -30,3 +30,5 @@
 - **Validation requirement:** Sim strike picker must match production (`strike_offset`) to avoid BS-sim-ignored-strike-offset incident (invalidated weekend of research).  
 - **Direction scope:** Both bullish and bearish setups are active (UNLOCKED 2026-06-28). Per-direction block-filters remain enabled (validated to remove losing cohorts, not directions).  
 - **Live-money arming:** Requires J approval (OP-0 #1). Paper/shadow arms may proceed without J.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

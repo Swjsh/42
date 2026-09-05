@@ -59,3 +59,5 @@ All other filters (time of day ≥09:35 ET, bearish structure via multi-day down
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; does not conflict with any top-9 leaderboard entries as it modifies only the ribbon spread and VIX thresholds of BEARISH_REJECTION_RIDE_THE_RIBBON, which is not currently a leaderboard candidate. May increase sample size for other filters (e.g., midday_trendline_gate) by providing more qualifying trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

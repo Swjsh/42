@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict; complements existing structure by adding an intraday VIX spike long trigger. Does not alter any existing gates or exits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

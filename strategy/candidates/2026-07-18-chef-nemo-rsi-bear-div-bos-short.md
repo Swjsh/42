@@ -61,3 +61,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly structural DTE, VWAP, and watcher gates). May complement structure-based entries but requires backtest to determine additive value or redundancy. Current leaderboard shows no RSI-divergence or pure market-structure BOS triggers, so this explores new signal space.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

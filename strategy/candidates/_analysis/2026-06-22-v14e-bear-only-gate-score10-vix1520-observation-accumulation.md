@@ -41,3 +41,5 @@ We need to accumulate 7 more observations in the score>=10 and VIX in [15,20] bu
 ## Pre-existing leaderboard impact
 
 This analysis supports the existing candidate V14E_BEAR_ONLY_GATE (rank 3, PROMISING) by providing the data accumulation progress required for its promotion path (BEAR_HIGH_CONF+VIX_MODERATE fast-track). It does not conflict with any other candidates in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

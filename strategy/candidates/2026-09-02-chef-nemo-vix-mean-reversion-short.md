@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (mostly filters/exits/watchers). Complements VIX_REGIME_DAYSIDE by using intraday VIX deviation + price-action filters rather than regime-day filtering. No overlap with current leaderboard entries which focus on Bollinger Bands, volume profiles, or structural gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

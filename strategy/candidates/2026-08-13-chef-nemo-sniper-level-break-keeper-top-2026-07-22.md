@@ -66,3 +66,5 @@ Note: Even if all gates pass, the edge_capture (229.63) is below the OP-16 floor
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the edge_capture floor (>=771) and therefore will not appear on the leaderboard. It does not conflict with any existing candidate on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

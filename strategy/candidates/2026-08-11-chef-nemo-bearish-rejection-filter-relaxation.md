@@ -56,3 +56,5 @@ Relaxing two sub-clauses of the BEARISH_REJECTION filter set will increase trade
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filter-based candidates (e.g., BEARISH_SWEEP_BLOCKER, V14E_BEAR_ONLY_GATE) by targeting a different subset of the BEARISH_REJECTION filter set. It does not conflict with any ranked candidate in _LEADERBOARD.md because it modifies filter internals rather than adding new gates or changing exit parameters. However, it may interact with candidates that adjust scoring thresholds (e.g., BEAR_SCORE_7_RELAXATION) and should be tested in combination to avoid double-counting marginal setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

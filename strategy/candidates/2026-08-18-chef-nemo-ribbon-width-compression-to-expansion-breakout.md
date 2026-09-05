@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon-based strategies (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by trading width contraction/expansion rather than ribbon direction. No direct conflict with current leaderboard candidates (types: cross-ticker, DTE study, wiring proposals, structural gates). May overlap with volatility-based candidates but uses distinct trigger mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

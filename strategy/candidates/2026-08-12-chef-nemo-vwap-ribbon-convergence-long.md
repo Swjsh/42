@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This proposal is a new_trigger type and does not directly modify any existing candidate in the leaderboard (ranks 1‑9). It is complementary in the sense that it adds a distinct long‑biased setup, but potential overlap with existing VWAP‑based or trend‑following candidates remains unknown until backtested. No conflict identified at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

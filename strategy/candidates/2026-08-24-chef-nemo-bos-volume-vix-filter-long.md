@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates (e.g., differs from TRENDLINE_BREAK_VOLUME by using swing-point structure not trendlines, and from LEVEL_BREAK_FIRST_STRIKE by adding volume/VIX filters). No direct conflict; occupies distinct trigger niche in low-VIX breakout space. Does not interfere with veto/gate candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND) as it is a standalone entry trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

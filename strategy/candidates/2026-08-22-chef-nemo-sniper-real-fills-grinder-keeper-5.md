@@ -50,3 +50,5 @@ Requires: full keeper disclosure, Stage-1 backtest vs baseline, walk-forward OOS
 ## Pre-existing leaderboard impact
 
 unknown -- requires full keeper evaluation
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

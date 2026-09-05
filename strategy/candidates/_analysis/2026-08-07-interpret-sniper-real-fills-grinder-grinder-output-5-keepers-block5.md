@@ -43,3 +43,5 @@ Requires full combo details and backtest results to define gate.
 ## Pre-existing leaderboard impact
 
 UNKNOWN -- insufficient data to determine impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

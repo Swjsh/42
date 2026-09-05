@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (leaderboard shows no volume-imbalance OR triggers). Complements ORB_RETEST_LONG by using volume bias vs price retest for reversal anticipation. Does not overlap with quality gates or exit changes in top-9. Requires independent validation before leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ The pre-merge gate for the refinement includes the following tests:
 ## Pre-existing leaderboard impact
 
 The refinement is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup, by providing a more refined and regime-dependent edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (VWAP/RSI extreme fade) that does not directly overlap with any existing trigger, filter, or exit change in the leaderboard. If validated, it would likely be complementary to existing strategies (e.g., VWAP_CONTINUATION, BEARISH_REJECTION) by providing additional mean‑reversion signals in choppy regimes. No known conflicts with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

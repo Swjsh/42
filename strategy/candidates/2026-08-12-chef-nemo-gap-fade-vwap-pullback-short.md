@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; does not conflict with current leaderboard entries (primarily gates/exits/other triggers). No direct overlap with gap-continuation (GAP_AND_GO) as this fades gaps rather than continues them. May interact with volume/VIX filters but adds new trigger logic orthogonal to current quality gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

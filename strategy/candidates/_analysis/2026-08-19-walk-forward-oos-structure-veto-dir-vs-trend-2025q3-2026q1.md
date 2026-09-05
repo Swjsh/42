@@ -49,3 +49,5 @@ It uses the existing market_structure.py logic and adds a `_veto_side()` check i
 6. **Concentration:** Top-5 days concentration unknown for this window; full-period concentration was not disclosed in candidate but requires checking
 
 ## Pre-merge gate
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

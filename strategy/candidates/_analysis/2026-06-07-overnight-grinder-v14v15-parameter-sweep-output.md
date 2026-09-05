@@ -84,3 +84,5 @@ This is a **quality-tiered exit structure** — different stop/TP1/qty per quali
 Without OOS validation showing this isn't regime-dependent, this candidate should NOT be promoted. The losers_added=0 is the primary driver, but that could be data-snooping on the 4 loser days.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

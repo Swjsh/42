@@ -70,3 +70,5 @@
 | **Rejected** | 2 | BEARISH_SWEEP_BLOCKER, F8_VIX_FLAT_UNBLOCK |
 
 **Immediate production path:** V14E_BEAR_ONLY_GATE is the fastest path — watcher-only, no engine changes, needs only J ratification. ORB_NARROW_OR_GATE has the highest confidence (9/10) and full validation but requires an engine feature-add before production.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

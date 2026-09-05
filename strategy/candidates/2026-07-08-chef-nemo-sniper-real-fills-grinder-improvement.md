@@ -68,3 +68,5 @@ The original SNIPER_VIX18_GRINDER was artifact-invalidated due to profit_lock_th
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements volatility-regime strategies. If validated, would sit below STRUCTURE_VETO_DIR_VS_TREND (rank ★) due to narrower scope (VIX>=18 only). No direct overlap with BEARISH_REJECTION_RIDE_THE_RIBBON (different trigger logic).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel trigger and does not conflict with any existing candidate in the leaderboard (which focus on morning VWAP continuation, DTE overrides, structural gates, or watcher‑only proposals). It complements existing strategies by targeting a different time frame (close vs. morning) and edge type (mean reversion vs. continuation), but impact on leaderboard scores cannot be determined without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard entries (which are primarily watcher proposals, quality gates, or structural changes). It may complement strategies like VWAP_CONTINUATION by providing additional lunch-period signals, but impact is unknown without backtest. No overlap with top-9 candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

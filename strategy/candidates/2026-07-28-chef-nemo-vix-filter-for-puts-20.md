@@ -60,3 +60,5 @@ Add filter: `j_vwap_cont_put_vix_gate` (already exists in VWAP_CONTINUATION) but
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★★) by targeting different loss mechanism (VIX regime vs trend alignment); does not conflict with existing candidates as it operates on PUT entry filter layer. May duplicate intent of VWAP_CONTINUATION's existing VIX put-gate but extends to BEARISH_REJECTION set. No overlap with WEEKLY_DTE_NOT_0DTE (DTE lever) or MIDDAY_TRENDLINE_GATE (time filter). Safe to test alongside current leaderboard candidates.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_puts_20.py -->

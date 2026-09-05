@@ -62,3 +62,5 @@ The WEEKLY_DTE_NOT_0DTE candidate tests whether extending the duration of the sa
 ## Pre-existing leaderboard impact
 
 Complements the existing WEEKLY_DTE_NOT_0DTE candidate (ranked ★★) by providing the Stage-1 backtest data needed to advance it from PROMISING to J-RATIFIED. Does not conflict with top-9 candidates; instead, it supports the DTE lever as a capability finding that could inform future wiring proposals (e.g., VWAPCONT_DTE_OVERRIDE_2DTE). No overlap with existing live setups (vwap_continuation currently disarmed for execution).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

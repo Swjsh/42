@@ -48,3 +48,5 @@ Obtain automation/state/watcher-observations.jsonl and run the requested counts.
 ## Pre-existing leaderboard impact
 
 This analysis informs the OP-21 promotion timeline for ORB_RETEST_LONG (leaderboard #4). It does not conflict with existing candidates; rather, it supports evaluation of watcher-only gates awaiting live validation.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

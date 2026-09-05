@@ -71,3 +71,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk-fo
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION by adding preconditions (volatility compression, VWAP deficit, ORH break with volume) to avoid low-probability reclamation trades. Differentiates from ORB_RETEST_LONG by targeting initial break (not retest) and adding VWAP/volume filters. No direct overlap with current leaderboard entries (all are structural gates, watchers, or exit changes). If validated, could sit alongside VWAP_CONTINUATION as a quality-gated long-trigger variant.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

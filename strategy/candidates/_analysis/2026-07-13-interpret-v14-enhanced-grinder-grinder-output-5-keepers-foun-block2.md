@@ -40,3 +40,5 @@ Until this data is available, no promotion decision can be made.
 ## Pre-existing leaderboard impact
 
 No impact until data is available for assessment.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Gym validators must pass (100%), walk-forward OOS test must show Sharpe ratio >=
 ## Pre-existing leaderboard impact
 
 This candidate mirrors [V14E_BEAR_ONLY_GATE] (2026-05-21-v14e-quality-filter.md) currently listed as PROMISING. This proposal formalizes the watcher-only approach and seeks ratification per Rule 9. No conflict with existing candidates; complements engine-focused proposals by improving observation quality without altering trade execution.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

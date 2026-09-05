@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates (I-24); complements by adding new short-side trigger logic distinct from ORB_RETEST_LONG/watcher-based approaches; no overlap with quality gates or exit changes in leaderboard
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

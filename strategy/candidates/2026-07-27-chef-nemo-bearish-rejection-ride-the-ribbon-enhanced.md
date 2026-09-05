@@ -68,3 +68,5 @@ Complements existing candidates:
 - Does not conflict with STRUCTURE_VETO_DIR_VS_TREND (Rank ★) as it operates on different logic (level dynamics vs intraday trend)
 - May overlap with MIDDAY_TRENDLINE_GATE (Rank 21) but applies to different time window (morning-focused enhancement)
 - No direct conflict with any J-RATIFIED candidates as it enhances an existing setup rather than adding new triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

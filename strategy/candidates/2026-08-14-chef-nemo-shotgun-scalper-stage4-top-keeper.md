@@ -63,3 +63,5 @@ Gym validators must pass, walk-forward OOS edge_capture ≥ 771, real-fills vali
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED (edge_capture < 771) and does not appear on the current leaderboard. No conflict with existing candidates 1-24. Requires OOS walk-forward to potentially reach PROMISING status if edge_capture clears floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

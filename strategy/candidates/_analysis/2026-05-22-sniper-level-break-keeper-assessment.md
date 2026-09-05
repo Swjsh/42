@@ -103,3 +103,5 @@ Even if edge_capture were above threshold, it would need: (a) Walk-forward PASS 
 The task mentioned 5 keepers but only one keeper's data is fully visible. The partial JSON suggests only the top keeper was provided. Without the other 4 keepers' combo/edge_capture, they cannot be assessed individually. It is likely that the top keeper is the best by edge_capture (229.33). If other keepers have edge_capture ≥ 771, they would warrant review, but given the sweep's design, it's unlikely they exceed 771 if the top is 229.33. Therefore all 5 keepers are probably **REJECTED** by OP-16.
 
 **Recommendation:** Re-run the grinder with `edge_capture` as the primary metric and a floor of 771. If no keeper meets the floor, expand the parameter space or revisit the trigger definition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

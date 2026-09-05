@@ -66,3 +66,5 @@ Gym validators must pass, walk-forward analysis must show a ratio >= 0.70, and r
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any leaderboard candidate because it is rejected by the OP-16 edge_capture floor. It would not appear on the leaderboard. It is orthogonal to the existing candidates, which are focused on other aspects (like QQQ divergence, weekly DTE, etc.). However, given its poor performance on the J days, it is not a viable candidate.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

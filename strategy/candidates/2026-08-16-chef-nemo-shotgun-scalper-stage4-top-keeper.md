@@ -66,3 +66,5 @@ The strategy attempts to capture scalping edges through tight profit targets (75
 Does not conflict with current leaderboard candidates as it fails the OP-16 edge_capture floor (506.55 < 771) and would be REJECTED at the door. Complements exit_change candidates by exploring tighter stops/profit targets, but requires significant redesign to improve J-day capture.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_exit.py -->

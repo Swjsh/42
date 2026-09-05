@@ -67,3 +67,5 @@ The pre-merge gate for this trade class includes:
 ## Pre-existing leaderboard impact
 
 This trade class is expected to complement the existing trade classes, particularly the ORB_DIRECTION_FILTER, and is not expected to conflict with any of the existing candidates in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

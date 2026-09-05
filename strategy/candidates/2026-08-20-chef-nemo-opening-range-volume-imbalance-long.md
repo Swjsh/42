@@ -50,3 +50,5 @@ Gym validators must pass (unit tests for volume imbalance calculation and signal
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it is a new trigger based on opening range volume imbalance. It may complement existing filters (e.g., it could be used as a quality gate for other setups) but is intended as a standalone trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

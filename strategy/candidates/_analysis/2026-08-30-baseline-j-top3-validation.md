@@ -52,3 +52,5 @@ We require: gym test suite PASS, walk-forward OOS with Sharpe ≥ 0.70 and profi
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is a measurement baseline. It does not conflict with any existing candidate in the leaderboard. It may inform future candidates by providing accurate J-day P&L figures.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

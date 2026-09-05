@@ -52,3 +52,5 @@ Locate the test file(s) for `fill_funnel_extra_exec_tally_and_green_flip` (likel
 ## Pre-existing leaderboard impact
 
 N/A (this is a code health check, not a strategy proposal). No impact on leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

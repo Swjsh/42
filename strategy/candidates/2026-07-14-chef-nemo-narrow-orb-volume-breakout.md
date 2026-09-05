@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (mostly filters/exits); complements ORB_RETEST_LONG by trading initial breakout vs retest. May overlap with ORB_NARROW_OR_GATE (watcher) but differs in entry trigger (volume-confirmed breakout vs passive observation) and exit logic. No direct duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ The pre-merge gate requires the candidate strategy to pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate strategy complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to capture the edge identified by J's source-of-truth trades. The walk-forward testing and real-fills check provide additional evidence for the effectiveness of the candidate strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

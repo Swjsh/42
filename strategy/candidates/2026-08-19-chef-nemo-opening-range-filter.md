@@ -62,3 +62,5 @@ Loser J days (5/05, 5/06, 5/07) exhibit choppy intraday price action with narrow
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND by targeting different loser mechanism (chop vs trend misalignment). May overlap with MIDDAY_TRENDLINE_GATE but operates earlier in day. No direct contradictions in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: test_opening_range_filter.py -->

@@ -47,3 +47,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate does not conflict with existing candidates in the leaderboard (as of 2026-07-09) as it introduces a new trigger condition (ribbon squeeze breakout) not currently represented. It may complement existing ribbon-based strategies by capturing a different phase of ribbon dynamics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

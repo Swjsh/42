@@ -57,3 +57,5 @@ Stage-1 backtest with the new OPRA data must pass gym validators, walk-forward s
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate mechanism, so it does not conflict with other candidates. It updates the projected performance of WEEKLY_DTE_NOT_0DTE, which may affect its rank if the new data shows improved or degraded performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

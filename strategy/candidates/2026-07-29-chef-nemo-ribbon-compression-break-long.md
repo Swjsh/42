@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger logic (ATR contraction + EMA ribbon break + volume expansion) that does not directly modify any existing watcher, gate, or exit logic in the leaderboard. It does not conflict with candidates 1‑9; rather, it could complement them as an additional entry filter if validated, but must first pass Stage‑1 backtesting to determine its actual edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

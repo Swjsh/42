@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; those are primarily watcher gates, DTE studies, or structural filters. This proposal introduces a novel entry trigger (ribbon‑stack break long) not represented in the current leaderboard. It is complementary in that it could be added as a new trigger branch alongside existing ones, subject to orthogonal validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

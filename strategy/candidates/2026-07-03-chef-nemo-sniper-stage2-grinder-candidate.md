@@ -55,3 +55,5 @@ The pre-merge gate requires that the proposed strategy pass a series of tests, i
 ## Pre-existing leaderboard impact
 
 The proposed strategy is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON setups, by providing an additional source of alpha and improving overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

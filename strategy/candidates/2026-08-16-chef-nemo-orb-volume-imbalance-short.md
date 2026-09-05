@@ -63,3 +63,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard (which contains watcher gates, DTE studies, and exit‑knob tests). It does not directly conflict with any existing ranked candidate; however, it may complement volume‑based filters if proven additive after backtest. No impact on current rankings until Stage‑1 results are available.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

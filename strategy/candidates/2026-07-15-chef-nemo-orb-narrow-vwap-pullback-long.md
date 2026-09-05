@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate adds a new long trigger and does not modify any existing gates, filters, or exits. It therefore does not conflict with candidates 1‑9 in _LEADERBOARD.md (which are mostly watcher gates, DTE overrides, or structural vetoes). It may complement existing long‑bias setups by providing an alternative entry signal under low‑volatility, narrow‑ORB conditions. No overlap or duplication with current leaderboard entries is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

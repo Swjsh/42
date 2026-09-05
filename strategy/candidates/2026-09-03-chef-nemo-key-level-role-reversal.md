@@ -64,3 +64,5 @@ By tracking the role reversal of key levels (e.g., a broken resistance becoming 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing level-based gates (e.g., BEARISH_REJECTION_MORNING_WATCHER, LEVEL_MEMORY_PERCEPTION) by refining rejection criteria. No direct conflict with ranked candidates as it targets a different logic layer. May interact with TRENDLINE_BREAK_CALL_VETO (rank WS4) but operates independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

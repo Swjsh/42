@@ -65,3 +65,5 @@ We will then compute the win rate (percentage of trades that hit the target befo
 ## Pre-existing leaderboard impact
 
 This validation does not change any existing candidate. It informs the ratification path for ORB_DIRECTION_FILTER (rank 5, NEEDS-MORE-DATA). If validation confirms poor real-fills WR, we may decide against engine ratification. If WR is acceptable, we can proceed to ratify. No conflict with candidates 1-9. Complements ORB_DIRECTION_FILTER by providing real-fills evidence needed for OP-20 disclosure 4.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Exit uses the tighter of caller-defined vs. quality-tier stops (never relaxing c
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture ≥771). This candidate would be REJECTED at the door per OP-16 gate (edge_capture <771). No complement/conflict with current PROMISING/J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

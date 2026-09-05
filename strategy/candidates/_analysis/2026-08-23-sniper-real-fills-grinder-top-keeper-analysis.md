@@ -56,3 +56,5 @@ Not applicable (analysis only). For keeper promotion: would require OOS walk-for
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard (all current candidates have edge_capture ≥771). This analysis rejects the keeper for leaderboard inclusion due to failing OP-16 edge_capture requirement. Recommends discarding or significant rework before re-testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

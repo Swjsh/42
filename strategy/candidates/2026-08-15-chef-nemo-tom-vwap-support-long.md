@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; no direct conflict. Nearest is NAMED_LEVEL_SECOND_TEST (tests second touch of named level) but lacks month-bias, VWAP pullback, and EMA ribbon filters. This candidate introduces new temporal (first day of month) and intraday (VWAP/ribbon) conditions not covered in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

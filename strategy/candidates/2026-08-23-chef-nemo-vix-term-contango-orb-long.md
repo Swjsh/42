@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not modify any existing candidate's logic. It complements watcher-based quality gates (e.g., ORB_NARROW_OR_GATE) by adding a vol-regime condition to ORB breakout entries. No known conflicts with current leaderboard candidates; focuses on long-side breakouts while existing candidates primarily address PUT-side anchors or structural filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

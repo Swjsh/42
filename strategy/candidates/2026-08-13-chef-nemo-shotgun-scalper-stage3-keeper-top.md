@@ -66,3 +66,5 @@ Exit logic:
 This candidate fails the OP-16 edge_capture floor (285 < 771) and would be REJECTED at the door. 
 No impact on current leaderboard (all candidates require edge_capture>=771). 
 If OOS walk-forward shows edge_capture>=771, it would be a new entrant but unlikely to rank highly due to modest edge_capture relative to max possible (1542).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

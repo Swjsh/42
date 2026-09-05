@@ -68,3 +68,5 @@ The thesis is novel relative to the existing registry, but the exit logic is com
 This candidate is a new trigger and does not directly modify any existing rules in the leaderboard. 
 It may be complementary to BEARISH_REJECTION_MORNING (which also looks for bearish ribbon flips in the morning) 
 but
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

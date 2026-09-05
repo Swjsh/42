@@ -59,3 +59,5 @@ Applying a volatility regime filter to the BEARISH_REJECTION_RIDE_THE_RIBBON set
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a live candidate; it evaluates an existing filter concept. If the test passes, it could become a filter_change candidate complementing existing quality gates (e.g., V14E_BEAR_ONLY_GATE, STRUCTURE_VETO_DIR_VS_TREND). No direct conflict with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_volatility_regime_filter.py -->

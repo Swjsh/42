@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements ORB_NARROW_OR_GATE (rank 4) and ORB_DIRECTION_FILTER (rank 5) by adding VIX precondition; conflicts only if both fire same bar (unlikely due to VIX<12 filter). No direct duplication with top 9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

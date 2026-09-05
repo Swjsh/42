@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon-based strategies (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by targeting the exact flip bar with volume confirmation—a condition not currently coded. No known conflict; targets distinct setup timing (no pullback required).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

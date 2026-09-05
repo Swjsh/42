@@ -56,3 +56,5 @@ Total delta edge_capture = +$165. Base edge_capture estimated at 780 (from STRUC
 ## Pre-existing leaderboard impact
 
 Complements and promotes the existing NEEDS-MORE-DATA candidate [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md) by providing the OOS and real-fills validation needed to move it to PROMISING. Does not conflict with any existing J-RATIFIED candidates; additive with STRUCTURE_VETO_DIR_VS_TREND (different mechanism).
+
+<!-- PROVENANCE-MISSING: test_trendline_break_call_veto_enabled.py -->

@@ -61,3 +61,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type and does not modify any existing rules, filters, or exits. It therefore does not conflict with current leaderboard entries (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, etc.). If proven effective, it could complement existing strategies by providing an additional entry signal in the early‑morning window that is orthogonal to the ribbon‑ride and VWAP‑continuation setups. However, until a Stage‑1 backtest is completed, any impact on the leaderboard remains speculative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

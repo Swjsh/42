@@ -65,3 +65,5 @@ In the fleet_rest execution path (fleet accounts), wrap broker API calls in a re
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates (1-24 in _LEADERBOARD.md). Infrastructure improvement complements all strategies by increasing order placement reliability for fleet accounts without altering core logic. Safe for concurrent testing with any candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

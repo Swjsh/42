@@ -52,3 +52,5 @@ Gym validators must pass; 4-month walk-forward OOS must show edge_capture >= 771
 ## Pre-existing leaderboard impact
 
 This analysis verifies the base engine against which all candidates in _LEADERBOARD.md are measured. No conflict; serves as foundation for evaluating candidate edge_capture deltas.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

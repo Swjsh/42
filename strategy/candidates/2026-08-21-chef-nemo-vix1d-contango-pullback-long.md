@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/gates or other trade classes); may complement by providing a new long-entry signal orthogonal to current BEARISH_REJECTION and BULLISH_RECLAIM setups. No direct overlap with leaderboard candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

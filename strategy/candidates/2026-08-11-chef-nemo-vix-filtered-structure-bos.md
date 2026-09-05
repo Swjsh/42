@@ -59,3 +59,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is expected to be **complementary** to existing structure‑based candidates (e.g., TRENDLINE_BREAK_VOLUME, BEARISH_REJECTION_RIDE_THE_RIBBON) because it adds a VIX‑declining filter to market‑structure breaks, a condition not present in any current registry entry. It may **reduce overlap** with volume‑or‑momentum‑driven triggers, potentially lowering trade frequency but increasing edge per trade. No direct conflict with the current top‑9 candidates is anticipated, though simultaneous use would require checking for signal duplication.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -103,3 +103,5 @@ We have the by_day data, so we can fill in the table.
 | 5/06 loser | unknown -- requires Stage-1 backtest | 132.0 | est: +132.0 (which is better than the expected -300 loss by +432) |
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | 291.0 | est: +291.0 (better than expected -165 by +456) |
 | 5/07 loser 2 | unknown --
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

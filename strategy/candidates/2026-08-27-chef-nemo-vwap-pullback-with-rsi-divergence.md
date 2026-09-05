@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard; it is a new trigger type that could complement existing VWAP‑based setups (VWAP_CONTINUATION, VWAP_RECLAIM_FAILED_BREAK) by adding a momentum filter. No known overlap in triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

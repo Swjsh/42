@@ -64,3 +64,5 @@ Exit logic: unchanged from VWAP_CONTINUATION (chart-stop-primary, TP1 at +50% wi
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (rank ★) and [VWAP_CONTINUATION] (live setup). Does not conflict with top candidates; adds orthogonal filter layer to existing VWAP_CONTINUATION signal. If effective, could improve edge_capture without touching core exit/entry logic of either setup.
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_structure_veto.py -->

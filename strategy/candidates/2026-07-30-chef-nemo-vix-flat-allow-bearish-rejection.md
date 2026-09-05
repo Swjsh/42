@@ -70,3 +70,5 @@ to a relaxed rule:
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing leaderboard entries. It complements the VIX_BULL_HARD_CAP_UNBLOCK (rank 22) by addressing the bearish side of the VIX filter. It is orthogonal to structural gates such as MIDDAY_TRENDLINE_GATE (rank 21) and BEARISH_SWEEP_BLOCKER (rank 1). If proven beneficial, it could be combined with other filter‑tuning candidates after due diligence.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

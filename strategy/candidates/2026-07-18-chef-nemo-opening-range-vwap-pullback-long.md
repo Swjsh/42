@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by targeting a distinct intraday window (opening 30 minutes) and different entry condition (gap-induced VWAP pullback vs. first-3-bar VWAP bias). No direct conflict with current leaderboard entries as it proposes a new trigger type not represented in registered candidates. May overlap with ORB_RETEST_LONG watcher but uses VWAP instead of ORH as pullback target and requires initial gap outside OR.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

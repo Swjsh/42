@@ -55,3 +55,5 @@ Entry triggers when the first 5-minute bar after 04:00 ET either reclaims (close
 ## Pre-existing leaderboard impact
 
 This candidate's edge_capture (40.01) is well below the OP-16 floor of 771, so it would be REJECTED if submitted to the leaderboard. As a DRAFT, it does not conflict with existing candidates but highlights the need for further refinement before OOS testing. It may complement other VWAP-related ideas if the mechanism proves robust after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

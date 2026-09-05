@@ -56,3 +56,5 @@ The chart stop logic in `heartbeat.md` uses `chart_stop_buffer_dollars` (params.
 ## Pre-existing leaderboard impact
 
 This candidate is a pure parameter test and does not conflict with any existing candidates in _LEADERBOARD.md. It may inform future exit_change proposals (e.g., if a different buffer value shows superior edge_capture). No current candidate directly tunes chart_stop_buffer_dollars, so impact is neutral pending results.
+
+<!-- PROVENANCE-MISSING: test_chart_stop_buffer_validation.py -->

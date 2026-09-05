@@ -41,3 +41,5 @@ None – the proposal does not meet OP‑16 floor.
 ## Pre‑existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates there have edge_capture ≥771). This analysis recommends against adding any of these keepers to the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

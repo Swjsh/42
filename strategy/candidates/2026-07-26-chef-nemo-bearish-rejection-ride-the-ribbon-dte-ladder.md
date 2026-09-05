@@ -50,3 +50,5 @@ Stage-1 backtest must pass gym validators, walk-forward OOS must show WF >= 0.70
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing WEEKLY_DTE_NOT_0DTE (rank ★★) by focusing on the BEARISH_REJECTION_RIDE_THE_RIBBON setup specifically. It does not conflict with any existing candidates as it is a study that may inform a future parameter change for this setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

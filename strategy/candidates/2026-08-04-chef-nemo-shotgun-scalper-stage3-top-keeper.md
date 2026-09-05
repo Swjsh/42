@@ -26,3 +26,5 @@ Enter on shotgun_scalper directional participation scoring signal with `strike_o
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

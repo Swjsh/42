@@ -401,3 +401,5 @@ _Underlying primitive: `crypto/lib/sweep.py` (canonical implementation)._
 _Underlying validator: `crypto/validators/v14_sweep.py` (5/5 offline + live PASS)._
 _Underlying forensic: `docs/R4-HEARTBEAT-MISALIGNMENT-2026-05-14.md` (the misfire that motivated this)._
 _Stage-3 scorecard: `analysis/recommendations/sweep-blocker-stage3.json`._
+
+<!-- PROVENANCE-MISSING: automation/prompts/heartbeat-v15.2-draft.md, backtest/autoresearch/sweep_blocker_stage2.py, strategy/candidates/_chef-inbox/2026-05-21-sweep-blocker-retune.md, backtest/autoresearch/sweep_blocker_walkforward.py, strategy/candidates/_chef-log.json -->

@@ -62,3 +62,5 @@ The shotgun_scalper uses directional participation scoring to identify intraday 
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP‑16 edge_capture threshold (≥771) and therefore would be REJECTED at the door. It does not conflict with any current leaderboard entries (all of which have edge_capture ≥771). If future OOS testing-day‑could be revisit adds no value to the leaderboard.
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_params.py -->

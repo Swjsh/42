@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify existing filters or exits in the leaderboard. It may complement trend‑following strategies like VWAP_CONTINUATION by providing counter‑trend entries in bullish ribbon regimes, potentially increasing trade frequency without overlapping the same signals. No direct conflict with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as they operate on different axes (DTE, structure veto). However, it could compete for capital allocation if both are live, requiring position‑sizing coordination. No changes to existing leaderboard entries are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; proposes a distinct midday long trigger (CHoCH + VIX fade) vs. MIDDAY_TRENDLINE_GATE (trendline break). May complement by adding alternative entry logic for intraday bounces after 11:30 EST. No overlap with current leaderboard candidates which are primarily filters, gates, or other trade classes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

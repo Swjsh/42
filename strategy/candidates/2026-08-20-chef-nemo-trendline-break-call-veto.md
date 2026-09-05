@@ -41,3 +41,5 @@ Blocking call entries when bearish market structure is confirmed (via 5m-close-t
 1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline (no change to position sizing as this is a quality gate only).
 2. **Sample bias:** Sample size and selection method TBD; overfit risk present until walk-forward OOS and real-fills validation completed.
 3. **Out-of-sample:** NEEDS-OOS (walk-forward OOS test median monthly Sharpe>=0.70 and
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

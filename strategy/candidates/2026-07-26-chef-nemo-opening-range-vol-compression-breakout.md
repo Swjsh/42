@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates as it introduces a new trigger mechanism. May complement ORB_RETEST_LONG by adding volatility/volume filters to reduce false breakouts, but impact unknown without backtest. No direct parameter overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

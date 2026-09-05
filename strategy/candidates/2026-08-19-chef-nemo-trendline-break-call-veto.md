@@ -53,3 +53,5 @@ gym validators (all tests pass), walk-forward OOS (WF>=0.70), real-fills validat
 ## Pre-existing leaderboard impact
 
 complements [STRUCTURE_VETO_DIR_VS_TREND] (which vetoes wrong-way bear PUTs in uptrends) by vetoing wrong-way CALL entries in bearish structures. No conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

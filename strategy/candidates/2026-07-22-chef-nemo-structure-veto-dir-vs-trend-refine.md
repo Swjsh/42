@@ -50,3 +50,5 @@ gym validators (test_structure_veto_refine.py), walk-forward OOS, real-fills on 
 ## Pre-existing leaderboard impact
 
 Complements ★ STRUCTURE_VETO_DIR_VS_TREND by exploring parameter sensitivity; does not conflict with other candidates as it modifies the same gate but with different parameter.
+
+<!-- PROVENANCE-MISSING: test_structure_veto_refine.py -->

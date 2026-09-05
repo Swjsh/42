@@ -55,3 +55,5 @@ We will join the `qqqlabel` (QQQ's simultaneous 20-bar reclaim/failed/none at si
 ## Pre-existing leaderboard impact
 
 Does not modify any existing candidate. Informs whether QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS should advance to wiring proposal (e.g., adding QQQ label as filter or trigger). Complements leaderboard by resolving confound; no conflict with current candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

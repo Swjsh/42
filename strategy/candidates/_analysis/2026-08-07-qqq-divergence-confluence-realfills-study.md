@@ -61,3 +61,5 @@ We will merge the precomputed `qqq_label` (from cached QQQ 5m bars) into the `ri
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md>
 This analysis directly funds the next step for candidate [QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS](2026-07-21-205400-qqq-divergence-confluence-first-pass.md) (Rank I). It does not conflict with any existing candidates; rather, it provides the data needed to evaluate whether that candidate should evolve from a first-pass label study into a wiring proposal (e.g., adding QQQ agreement as a filter or trigger). No impact on current leaderboard rankings until study completes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (ranks 1-24 in _LEADERBOARD.md). This is a new trigger type that would operate alongside existing filters (e.g., VIX gates, trendline gates) rather than replacing them. Potential synergy with volatility-based filters (e.g., VIX < 20 regime hint) but requires A/B testing to confirm complementarity. Does not modify any existing params.json keys or automation/state files.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

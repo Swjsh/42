@@ -53,3 +53,5 @@ Gym validators must pass (all tests), walk-forward OOS Sharpe >= 0.70 with per-m
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing [STRUCTURE_VETO_DIR_VS_TREND] by adding a refinement. It does not conflict with any existing candidate in the leaderboard as it is a stricter condition on the same veto logic. It may improve upon [STRUCTURE_VETO_DIR_VS_TREND] by reducing false positives in choppy markets.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

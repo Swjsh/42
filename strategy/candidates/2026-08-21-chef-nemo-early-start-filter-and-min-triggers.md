@@ -35,3 +35,5 @@ Tightening the catastrophe premium stop from -50% to -20% and delaying entry unt
 | 5/06 loser | Baseline V14E avoided loss (0) | Predicted: $0 (avoids -$300 loss) | +$300 |
 | 5/07 loser 1 | Baseline V14E avoided loss (0) | Predicted: +$115 (half of 5/07 PnL, assuming symmetric allocation to two losers) | +$115 |
 | 5/07 loser 2 | Baseline V14E avoided loss (0) | Predicted: +$115 (half of
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

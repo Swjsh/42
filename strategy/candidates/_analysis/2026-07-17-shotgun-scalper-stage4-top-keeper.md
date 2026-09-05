@@ -71,3 +71,5 @@ Exit logic: TP1 at +75% (sell 2/3), runner trails via chandelier, hard time stop
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it interprets an existing grinder output. The keeper’s edge_capture is below the leaderboard’s inclusion threshold (edge_capture ≥ 771), so it would not appear on the current leaderboard. It complements existing research by showing that HTF‑gated directional scoring alone does not yield sufficient OP‑16 edge; further refinement (e.g., combining with other filters or adjusting exit parameters) would be needed before promotion. No conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

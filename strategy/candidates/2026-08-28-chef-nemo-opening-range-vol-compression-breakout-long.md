@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complementary to existing ORB-based candidates (e.g., ORB_NARROW_OR_GATE, ORB_RETEST_LONG) as it uses similar OR concept but different entry logic (breakout vs retest) and adds volume/VIX filters. No known conflicts in leaderboard; could potentially stack if uncorrelated. Requires joint backtest to verify interaction effects.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

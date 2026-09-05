@@ -61,3 +61,5 @@ At the very start of `task_scorer.py`, before any scoring logic runs, execute a 
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates by maintaining repository hygiene. No conflict: guard is orthogonal to strategy logic and does not alter engine behavior, scoring logic, or candidate evaluations. Supports reliable operation of the scorer used to evaluate candidates on the leaderboard.
+
+<!-- PROVENANCE-MISSING: test_task_scorer_untracked_guard.py, automation/heartbeat.md -->

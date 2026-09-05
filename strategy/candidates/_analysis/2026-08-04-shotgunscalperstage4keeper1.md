@@ -65,3 +65,5 @@ The keeper seeks to improve edge capture by tightening profit-taking and stop-lo
 ## Pre‑existing leaderboard impact
 
 This keeper would be **REJECTED** at the door of the leaderboard because its edge_capture (506.55) < 771 (50% of max possible 1542). It does not complement any existing candidate; rather, it fails the primary OP‑16 gate and would need substantial redesign (e.g., different exit logic or filters) before reconsideration. It conflicts with the leaderboard’s requirement that candidates demonstrate genuine edge on J’s anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

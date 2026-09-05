@@ -85,3 +85,5 @@ Not applicable (fails OP-16 gate). If resubmitted after redesign:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ $771). Would be REJECTED at door if submitted. Complements existing candidates by highlighting the non-negotiable requirement of J-edge capture; any profitable strategy must first clear the OP-16 floor. No overlap in mechanism space as this keeper fails the primary gate that defines leaderboard eligibility.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Add a pre-entry quality gate that checks the real-time VIX value (from the same 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX-related filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK) by adding a bearish-specific VIX floor. May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON's existing VIX confirmation rule (VIX rising or >20) but proposes a simpler static floor. No known duplication in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (mostly watcher proposals, gates, and established trade classes like VWAP_CONTINUATION). Complements regime-filtering approaches but may overlap with volatility-breakout concepts. Novelty claim hinges on NR7 filter uniqueness; must verify against existing strategies in _LEADERBOARD.md via backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

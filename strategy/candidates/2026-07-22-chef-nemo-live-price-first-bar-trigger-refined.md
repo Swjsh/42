@@ -71,3 +71,5 @@ We propose refining the LIVE_PRICE_FIRST_BAR_TRIGGER to capture early momentum b
 Does not conflict with existing candidates; complements VWAP_CONTINUATION by capturing earlier entries. No overlap with ORB gates (different time window).  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type that is orthogonal to existing watchers, filters, and exit‑change candidates in the leaderboard. It does not conflict with any ranked candidate; rather, it could complement strategies that rely on ORB or VWAP‑based signals by providing a conditional fade trigger under opposing VWAP/ribbon conditions. No changes to existing params or automation are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

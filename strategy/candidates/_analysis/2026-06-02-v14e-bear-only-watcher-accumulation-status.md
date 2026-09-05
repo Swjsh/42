@@ -46,3 +46,5 @@ N/A — this is an operational accumulation task, not a candidate proposal
 ## Notes
 
 This analysis block documents the accumulation requirement. The v14e bear-only watcher is already deployed and running. Live observation accumulation is in progress. Next step: check observation count after 2-week window and compute WR vs 55% threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

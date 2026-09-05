@@ -55,3 +55,5 @@
 6. **Concentration:** Top-2 dates = 59.8% of raw P&L (5/04 + 5/15); deduped reduces this significantly
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

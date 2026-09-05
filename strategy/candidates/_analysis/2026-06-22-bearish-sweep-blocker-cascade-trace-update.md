@@ -55,3 +55,5 @@ BEARISH_SWEEP_BLOCKER triggers on intrabar volume spikes (sweep detection) and b
 ## Pre-existing leaderboard impact
 
 Does not conflict with any candidate; updates understanding of why BEARISH_SWEEP_BLOCKER is REJECTED-FINAL. Complements leaderboard notes by providing mechanistic detail for the -$650 regression. No impact on other candidates' rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

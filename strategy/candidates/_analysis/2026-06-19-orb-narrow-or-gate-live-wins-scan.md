@@ -66,3 +66,5 @@ We need to confirm three live J‑confirmed wins for the ORB_NARROW_OR_GATE watc
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it supports the ORB_NARROW_OR_GATE watcher (ranked #4) by fulfilling its OP‑21 promotion gate (3 live J‑confirmed wins). If three wins are found, the watcher may move from `PROMISING` to `J-RATIFIED` pending Rule 9 ratification. If fewer than three wins are found, the watcher remains `PROMISING` with an unmet OP‑21 gate. No impact on other leaderboard entries.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/orb_narrow_or_live_wins.json -->

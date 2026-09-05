@@ -50,3 +50,5 @@ We require a Stage-1 backtest that produces the trigger's P&L on each J anchor a
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine, so it does not conflict with any existing candidate in _LEADERBOARD.md. It is purely a measurement task. If the trigger is found to have insufficient edge_capture, it may motivate a future candidate to modify or remove the trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ The pre-merge gate includes the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed trade class complements the existing leaderboard candidates, as it targets a different market condition (SNIPER_LEVEL_BREAK) and has a distinct parameter set. It does not conflict with any existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

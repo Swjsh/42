@@ -61,3 +61,5 @@ This filter is applied alongside existing context filters (time of day, structur
 ## Pre-existing leaderboard impact
 
 Complements existing bearish filters (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE) by adding volatility regime filter. Does not conflict with bullish-focused candidates as it only affects PUT entries. May overlap with VIX-related candidates like F8_BULL_VIX_GATE_REVAL but in opposite direction (bearish VIX floor vs bullish VIX cap). No direct parameter changes to existing leaderboard items.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

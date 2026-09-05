@@ -52,3 +52,5 @@ Since this is a baseline (no change), no gate is needed for promotion. However, 
 ## Pre-existing leaderboard impact
 
 This candidate defines the baseline engine (zero delta). All existing candidates in `_LEADERBOARD.md` are measured against this baseline. No conflicts; provides reference for edge_capture and Sharpe calculations. Current leaderboard ranks are relative to this baseline's edge_capture=780 and Sharpe=4.340.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/walkforward_oos.py, backtest/data/realfills_j_anchors_20260721.csv -->

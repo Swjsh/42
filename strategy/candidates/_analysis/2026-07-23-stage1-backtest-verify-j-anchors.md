@@ -57,3 +57,5 @@ Calculate the percent difference (real‑fills – BS‑sim) / BS‑sim. Pass if
 ## Pre-existing leaderboard impact
 
 This analysis does not modify any strategy parameter or rule; it is a validation step. It therefore does not conflict with existing candidates in _LEADERBOARD.md. If the verification passes, it increases confidence in the current engine and may support future candidates that rely on accurate simulation. If it fails, it would trigger a re‑calibration of the simulation layer before any further optimization.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

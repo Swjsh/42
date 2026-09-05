@@ -60,3 +60,5 @@ Gym validators (all tests pass), walk-forward OOS positive (Sharpe > 0, profit f
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_REJECTION_MORNING watcher (rank 20) by potentially increasing trigger frequency for the same underlying setup. Does not conflict with existing leaderboard candidates as it targets the BEARISH_REJECTION entry filter directly, while prior parameter changes for this setup (ranks 24: CONFLUENCE_TOL_1_00, 25: MAX_RIBBON_DUR_8) were rejected and thus inactive. No overlap with watcher-only or structural candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

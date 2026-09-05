@@ -58,3 +58,5 @@ Entry trigger remains level_rejection as defined in BEARISH_REJECTION_RIDE_THE_R
 ## Pre-existing leaderboard impact
 
 Complements existing filters (e.g., V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) by adding microstructure quality check. No direct conflict with top candidates; may enhance ELITE/SUPER tier trades surviving baseline blocks. Does not affect watcher-only candidates. If validated, could replace or supplement block_level_rejection=True logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ Before promotion, the following must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing leaderboard entries, as it is a parameter optimization of the shotgun_scalper framework rather than a structural or signal change. It complements the existing quality_gate and exit_change candidates by refining the same strategy core. However, it must demonstrate OOS robustness to surpass the current threshold for leaderboard inclusion (edge_capture > 771). If validated, it could potentially rank highly due to its strong Sharpe projection. No known conflicts with candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

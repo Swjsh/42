@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates in _LEADERBOARD.md; may complement by capturing a distinct opening‑range volume‑imbalance edge that is not covered by current triggers (e.g., GAP_AND_GO, VWAP_CONTINUATION). No overlap in entry logic identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

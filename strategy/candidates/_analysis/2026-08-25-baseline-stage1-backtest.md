@@ -57,3 +57,5 @@ Since this is a baseline backtest, we do not propose any change. However, if we 
 ## Pre-existing leaderboard impact
 
 This analysis is for the baseline engine. It does not conflict with any candidate in the leaderboard because it is the ground truth. Candidates are evaluated relative to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ The proposed behavior is identical to the current engine behavior, as the setup 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it targets a different trade class (BEARISH_REJECTION_RIDE_THE_RIBBON). It does not conflict with any existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

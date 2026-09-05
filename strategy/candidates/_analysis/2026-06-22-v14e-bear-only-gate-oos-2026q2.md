@@ -53,3 +53,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate itself but provides OOS validation. It supports the PROMISING status of V14E_BEAR_ONLY_GATE by confirming the persistence of the edge in the most recent data. It does not conflict with any existing candidates on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ To be LEADERBOARD-eligible, this analysis would require:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing keeper. The keeper's edge_capture (506.55) is below the leaderboard threshold of 771, so it would not appear on the leaderboard. No impact on existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

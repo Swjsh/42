@@ -63,3 +63,5 @@ We propose a bearish entry veto triggered by a bullish market structure break of
 ## Pre-existing leaderboard impact
 
 Complements [STRUCTURE_VETO_DIR_VS_TREND] (rank ★) by adding volume precondition; conflicts with [TRENDLINE_BREAK_CALL_VETO] (rank WS4) as both target structural breaks but opposite directions. Does not conflict with quality gates or exit changes. Would stack with STRUCTURE_VETO_DIR_VS_TREND if both pass OOS (cumulative veto logic).
+
+<!-- PROVENANCE-MISSING: test_vol_compression_bos_bear_veto.py -->

@@ -56,3 +56,5 @@ The backtest script will run the production engine (heartbeat.md) with ORB_DIREC
 ## Pre-existing leaderboard impact
 
 This backtest script evaluates ORB_DIRECTION_FILTER candidate (ranked #5). It does not conflict with other candidates; rather, it provides engine-side validation to promote ORB_DIRECTION_FILTER from NEEDS-MORE-DATA to PROMISING (if edge_capture ≥771 and OP-14 passes) or REJECTED. Complements watcher update by delivering empirical evidence for J ratification per Rule 9. No impact on other leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

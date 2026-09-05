@@ -56,3 +56,5 @@ The following tests need to pass before this candidate can be ratified:
 ## Pre-existing leaderboard impact
 
 This candidate complements existing candidates in _LEADERBOARD.md, particularly those related to level discovery and rejection/reclaim logic. However, the exact impact is unknown and requires further testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

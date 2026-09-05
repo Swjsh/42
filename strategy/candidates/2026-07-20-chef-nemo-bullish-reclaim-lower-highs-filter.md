@@ -57,3 +57,5 @@ Track the last 3 bounce events (price touching a level and reversing) in the cur
 ## Pre-existing leaderboard impact
 
 Complements BULL_SCOPE_LOCK_REVAL (which locks bullish scope to avoid low-quality entries) and VWAP_CONTINUATION (side=bull) by adding a momentum-based filter. No direct conflict; likely additive with scope lock (different logic: scope lock based on trigger count/quality, this based on price structure). Does not affect bearish setups or watchers. Should improve BULLISH_RECLAIM's paper-eligible status by reducing false positives.
+
+<!-- PROVENANCE-MISSING: test_bullish_reclaim_lower_highs_filter.py -->

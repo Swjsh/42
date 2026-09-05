@@ -45,3 +45,5 @@ Exit:
    - Worst day: unknown -- requires Stage-1 backtest (but note: wide_pnl=40656.65 over 234 trades, avg ~$173.75/trade, WR=0.932 suggests losing days are rare).
    - Max drawdown: unknown -- requires equity curve analysis.
    - Blow-up scenario: strategy may fail in low-volatility or choppy markets where SNIPER_LEVEL_BREAK triggers are unreliable or in tr
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

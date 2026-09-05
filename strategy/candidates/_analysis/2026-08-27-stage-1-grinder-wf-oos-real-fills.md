@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture on he
 ## Pre-existing leaderboard impact
 
 Unknown -- requires analysis of grinder output to determine if any new candidate outperforms existing leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

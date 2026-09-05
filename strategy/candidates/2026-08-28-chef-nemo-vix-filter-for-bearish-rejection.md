@@ -74,3 +74,5 @@ Complements/conflicts with existing VIX-gated candidates:
 - Impact on [STRUCTURE_VETO_DIR_VS_TREND](2026-06-26-160000-structure-veto-direction-vs-trend.md) unknown (both are structural filters; potential overlap/redundancy)  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

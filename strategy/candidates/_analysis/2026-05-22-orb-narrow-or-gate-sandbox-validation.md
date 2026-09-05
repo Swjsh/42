@@ -59,3 +59,5 @@ Apply the gate: if or_range < 2.00, the day passes. Record the engine's trade ou
 ## Pre-existing leaderboard impact
 
 This analysis validates ORB_NARROW_OR_GATE's calculation and recent performance. No conflict with existing candidates. Supports candidate #4 if recent WR strong; may indicate re-evaluation needed if weak. Does not alter leaderboard directly (no gate change).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

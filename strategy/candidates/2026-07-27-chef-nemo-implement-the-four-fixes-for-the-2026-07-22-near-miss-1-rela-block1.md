@@ -60,3 +60,5 @@ Does not conflict with existing candidates; complements filter 10 softening (fix
 ---  
 
 **Candidate 2: Soften filter 10's HTF requirement to a score modifier (-1 to score if HTF disagrees)**
+
+<!-- PROVENANCE-MISSING: test_gates.py -->

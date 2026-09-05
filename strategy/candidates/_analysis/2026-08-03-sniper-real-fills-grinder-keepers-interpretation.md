@@ -55,3 +55,5 @@ Examined top keeper (vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_offs
 ## Pre-existing leaderboard impact
 
 Unknown without full assessment. Likely conflicts if edge_capture < 771, but we cannot determine. Complement if edge_capture > 771 and passes gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

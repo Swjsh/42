@@ -74,3 +74,5 @@ Compared to a likely baseline (vol_mult=1.0, body_min_cents=0.0, premium_stop_pc
 ## Pre-existing leaderboard impact
 
 These keepers do not meet the OP‑16 edge_capture floor of 771 (50% of max 1542). They would be REJECTED if added to the leaderboard. They conflict with current PROMISING candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) by offering no edge improvement and adding complexity. No complement; they should remain in the grinder archive unless OOS walk‑forward demonstrates a clear edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

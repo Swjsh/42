@@ -75,3 +75,5 @@ We hypothesize that the current engine configuration (or a specific candidate un
 This verification gate does not conflict with any existing candidate in _LEADERBOARD.md. Instead, it adds a universal requirement that all candidates must satisfy to be considered for promotion. Candidates currently listed (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) would need to pass this gate to maintain or improve their status. No known conflicts; complements existing OP-16 anchor validation by adding OOS and real-fills rigor.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

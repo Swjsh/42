@@ -53,3 +53,5 @@ The pre-merge gate requires that the candidate passes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to capture the edge in the shotgun_scalper_stage5 keeper. However, this candidate has a different approach and may capture a different aspect of the edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

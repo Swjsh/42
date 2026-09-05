@@ -64,3 +64,5 @@ Must pass:
 ## Pre-existing leaderboard impact
 
 This candidate has edge_capture=285 < 771 OP-16 floor, so it would be REJECTED and not appear on the leaderboard. No current impact on ranked candidates. Requires significant improvement to meet edge threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

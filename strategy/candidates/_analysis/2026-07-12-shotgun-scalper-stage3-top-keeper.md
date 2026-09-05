@@ -56,3 +56,5 @@ FAILS OP-16 edge_capture floor (edge_capture=285 < 771 required) → immediate R
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate for the leaderboard because the keeper fails the OP-16 edge_capture floor (285 < 771). It would not appear on the leaderboard and has no impact on current rankings. Promotion would require significant improvement in edge_capture via parameter refinement or mechanism change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

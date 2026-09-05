@@ -57,3 +57,5 @@ The Stage-1 backtest must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate change; it is a diagnostic step. It does not conflict with any existing candidate in _LEADERBOARD.md. Once the backtest is complete, the results can be used to evaluate existing candidates or inform new proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

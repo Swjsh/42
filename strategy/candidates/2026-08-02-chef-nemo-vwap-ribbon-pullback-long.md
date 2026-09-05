@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates 1‑9 in _LEADERBOARD.md. It may complement VWAP_CONTINUATION (LIVE) by capturing pullback entries within the same VWAP‑aligned regime, while VWAP_CONTINUATION focuses on breakout/continuation bars. No overlap in trigger logic detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

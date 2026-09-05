@@ -50,3 +50,5 @@ Stage-1 backtest to confirm J-day behavior, walk-forward OOS with edge_capture >
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture >= 771); this candidate would be REJECTED at the door per OP-16 (edge_capture < 771). Complements none as it fails the anchor test.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

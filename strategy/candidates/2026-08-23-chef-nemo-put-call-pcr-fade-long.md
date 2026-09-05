@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it introduces a novel put/call ratio trigger unused in current candidates. It may complement setups like VWAP_CONTINUATION by adding a flow-based filter to existing price/structure signals. No direct overlap with current trigger types in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

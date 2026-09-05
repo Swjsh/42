@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger that does not duplicate any existing setup in the leaderboard. It complements existing VWAP‑based and opening‑range ideas by adding a specific imbalance‑pullback filter. No direct conflict with current candidates is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ Run the autoresearch grinder harness (Stage-1) on the current engine parameters 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis is an evaluation baseline, not a strategy change. It does not conflict with any existing candidate; rather, it provides the reference point against which all candidates in the leaderboard are measured for edge_capture and Sharpe. Complements the leaderboard by ensuring future proposals are judged against a known baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

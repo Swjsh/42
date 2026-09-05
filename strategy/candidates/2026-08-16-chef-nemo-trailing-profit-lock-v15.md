@@ -70,3 +70,5 @@ Complements existing candidates:
 - Safe to test alongside VWAP_CONTINUATION and GAP_AND_GO as exit-layer change.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_trailing_profit_lock.py -->

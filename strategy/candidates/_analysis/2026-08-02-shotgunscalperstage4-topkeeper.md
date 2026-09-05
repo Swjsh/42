@@ -65,3 +65,5 @@ The top keeper from shotgun_scalper_stage4 attempts to improve edge capture by t
 ## Pre-existing leaderboard impact
 
 This keeper does not meet the OP-16 edge_capture threshold and would be REJECTED if submitted as a candidate. It does not conflict with current leaderboard entries (all of which have edge_capture ≥ 771). It may serve as a baseline for further refinement but requires significant rework before promotion consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

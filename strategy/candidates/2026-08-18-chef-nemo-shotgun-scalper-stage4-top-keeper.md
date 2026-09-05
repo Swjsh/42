@@ -50,3 +50,5 @@ Must pass: gym validators (entry/exit logic), walk-forward OOS test with edge_ca
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture=506.55 < 771) and thus not appear on the leaderboard. It complements existing candidates by demonstrating that exit tightening can improve J-day capture, but further work is needed to raise edge_capture above the threshold before promotion. No direct conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md (all are filters, exits, or watchers; this is a new trigger based on options flow). However, cannot confirm complementarity without backtest as signal may overlap with existing volume/volatility gates. Independent mechanism (Vanna exposure) suggests low correlation with price-action based candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

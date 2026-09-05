@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing candidate in _LEADERBOARD.md. It complements existing watchers (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) by adding a VWAP‑pullback‑within‑trend long bias. No known conflicts; it would occupy a new lane in the leaderboard pending Stage‑1 results.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

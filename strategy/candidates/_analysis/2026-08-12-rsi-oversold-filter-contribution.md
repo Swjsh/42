@@ -50,3 +50,5 @@ The backtest must pass gym validators (all tests pass), and we must verify that 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is an evaluation of an existing filter. It may complement candidates that propose changes to the RSI‑oversold filter by providing a baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

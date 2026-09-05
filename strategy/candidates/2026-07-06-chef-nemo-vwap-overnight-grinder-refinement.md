@@ -50,3 +50,5 @@ The pre-merge gate requires a successful out-of-sample test, a real-fills check 
 ## Pre-existing leaderboard impact
 
 The proposed refinement is expected to complement the existing leaderboard candidates, particularly the BEARISH_SWEEP_BLOCKER and the STRUCTURE_VETO_DIR_VS_TREND, by providing an additional edge capture mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

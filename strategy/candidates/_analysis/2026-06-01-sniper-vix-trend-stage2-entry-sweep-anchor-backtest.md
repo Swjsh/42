@@ -50,3 +50,5 @@ We require: Stage-1 backtest on the seven anchor days to produce the trade count
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it is a verification of candidate #15 (SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP). The results will inform whether candidate #15 remains viable for ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

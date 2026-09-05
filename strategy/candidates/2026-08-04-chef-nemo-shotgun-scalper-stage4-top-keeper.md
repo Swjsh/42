@@ -62,3 +62,5 @@ No scaling out or profit-lock; all-or-nothing exit at TP1 or stop.
 ## Pre-existing leaderboard impact
 
 Complements existing exit parameters (e.g., V14E_PARAM_SWEEP_26K uses TP1=0.30) but conflicts with current doctrine of chart-stop-primary exits; may require re-evaluation of exit hierarchy if promoted. No direct conflicts with top leaderboard candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as they target different levers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

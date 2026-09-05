@@ -52,3 +52,5 @@ The pre-merge gate requires a successful out-of-sample test, real-fills check on
 This candidate complements candidates 1-9 in _LEADERBOARD.md, as it refines the top-5 keepers from stage1 and assesses their genuine edge.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

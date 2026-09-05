@@ -52,3 +52,5 @@ N/A (internal analysis). To promote a candidate from this grinder: gym validator
 This analysis evaluates a poorly performing parameter set (edge_capture=-126.0 << 771 threshold) from sniper_real_fills_grinder. It does not propose a new leaderboard candidate and conflicts with none. It highlights the risk of overfit parameter sweeps without OOS/real-fills validation, reinforcing that edge_capture must exceed 771 for leaderboard consideration.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

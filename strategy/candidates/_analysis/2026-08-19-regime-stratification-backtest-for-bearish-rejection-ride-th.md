@@ -53,3 +53,5 @@ We will execute a backtest using real OPRA fills over the OOS window (2025-01-02
 ## Pre-existing leaderboard impact
 
 This analysis informs but does not conflict with existing candidates. It complements regime-specific proposals (e.g., Rank 25 MAX_RIBBON_DUR_8) by providing granular performance breakdown. No direct impact on leaderboard rankings until backtest results are available.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

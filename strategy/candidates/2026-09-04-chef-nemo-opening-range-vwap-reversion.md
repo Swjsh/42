@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing candidates 1‑9 in _LEADERBOARD.md. It is likely complementary, as it trades a different market microstructure (opening‑range/VWAP reversion) rather than the trends or continuations captured by the current leaders. No conflict is expected, but simultaneous execution would require position‑sizing coordination to avoid exceeding per‑trade risk limits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

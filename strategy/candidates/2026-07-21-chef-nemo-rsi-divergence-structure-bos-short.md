@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk-fo
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with any existing candidates in the leaderboard (which are primarily gates, filters, or alternative triggers). It may complement existing quality gates (e.g., V14E_BEAR_ONLY_GATE, MIDDAY_TRENDLINE_GATE) by providing a distinct entry signal that can be filtered for higher quality. No overlap with current leaderboard strategies 1-9 identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -71,3 +71,5 @@ Low confidence due to lack of OOS/real-fills validation. Prior SNIPER variants f
 Complements existing SNIPER candidates (ranks 13-15) by addressing their core artifact (profit_lock_threshold=0.0). Does not conflict with non-SNIPER candidates as it targets a distinct trade class (level breaks in high VIX). May supersede ranks 13-15 if validation passes, as it uses same core trigger with corrected exit logic and VIX filter. Neutral to watcher/gate candidates (ranks 3-12) as it modifies execution logic, not observation. 
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

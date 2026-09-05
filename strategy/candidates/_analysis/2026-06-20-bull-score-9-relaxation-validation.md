@@ -59,3 +59,5 @@ We will run the existing engine with the bull_score>=9 relaxation enabled, but r
 ## Pre‑existing leaderboard impact
 
 This validation complements existing bear‑focused candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE) by adding bull‑edge capture on J’s PUT loser days. It does not conflict with any current leaderboard entries, as it operates on a separate trade class (CALLs) and leaves PUT logic unchanged. If validated, it could be promoted as a bull‑strategy improvement alongside the bear‑edge baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard. It complements volatility-based filters and may be used alongside existing ribbon-based setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by adding a compression precondition. However, it is novel in its specific compression breakout volume filter and does not duplicate any existing trigger in the registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

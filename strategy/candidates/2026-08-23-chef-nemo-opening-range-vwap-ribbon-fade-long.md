@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Unknown impact -- this is a long-biased mean-reversion trigger while current leaderboard is dominated by bearish structural gates and quality filters. No direct overlap detected with existing candidates (e.g., ORB_RETEST_LONG is long but uses different entry logic), but potential conflict exists if both fire on same bars. Requires Stage-1 backtest to evaluate complementarity or redundancy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

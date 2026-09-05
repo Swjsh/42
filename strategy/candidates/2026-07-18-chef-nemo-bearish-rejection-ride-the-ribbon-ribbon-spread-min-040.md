@@ -57,3 +57,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup currently triggers when the EMA ribb
 ## Pre-existing leaderboard impact
 
 This candidate is a parameter tweak to an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON) and does not conflict with any current leaderboard entries. It complements structural candidates that aim to improve the same setup (e.g., dynamic stops, confluence filters) by providing a cleaner signal baseline. No known overlap or interference with existing filters/gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with current leaderboard candidates (1‑9). The mechanism (intraday VIX deviation + price action) is distinct from existing triggers, filters, or exits, so it is complementary pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

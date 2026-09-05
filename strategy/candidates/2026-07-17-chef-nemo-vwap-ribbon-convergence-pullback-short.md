@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly structural, wiring, or quality gates). It complements the existing VWAP_CONTINUATION by trading in the opposite mean-reversion regime when the ribbon is flat, whereas VWAP_CONTINUATION trades with the trend. No overlap in mechanics or triggers is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

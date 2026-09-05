@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new entry trigger based on opening‑range compression and volume‑expanded breakout. It does not directly conflict with existing gate/filter candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_ONLY_GATE) as it defines a distinct entry condition. It could complement those gates by providing entry signals that are then filtered for quality or regime. No overlap with existing trigger‑type candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER) as the mechanics are unrelated. Therefore, it is likely additive to the leaderboard pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

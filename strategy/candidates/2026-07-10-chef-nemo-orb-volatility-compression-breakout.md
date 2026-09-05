@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidate in _LEADERBOARD.md; introduces a new trigger logic not currently present in the engine. Complementary to existing ORB‑based watchers (e.g., ORB_RETEST_LONG) as it enters on the initial breakout rather than a retest. No overlap with existing entry types.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

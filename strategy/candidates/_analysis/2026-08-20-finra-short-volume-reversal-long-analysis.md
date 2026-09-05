@@ -63,3 +63,5 @@ Note: The exact parameters (strike, etc.) are to be taken from the current param
 ## Notes
 
 This analysis is pending the completion of the Stage-1 backtest with walk-forward OOS and real-fills validation on the top-3 J days. Once the backtest is run, the unknowns will be filled in.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

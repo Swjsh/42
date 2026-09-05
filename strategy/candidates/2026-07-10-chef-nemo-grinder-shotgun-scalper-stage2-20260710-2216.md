@@ -37,3 +37,5 @@
 - OOS validation: walk-forward required before ratification (OP-20)
 - Real-fills: simulator_real.py required before production (OP-20)
 - **DRAFT** — J ratification required per Rule 9 before any heartbeat.md / params.json change
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

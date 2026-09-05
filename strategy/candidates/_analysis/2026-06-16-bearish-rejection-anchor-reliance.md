@@ -56,3 +56,5 @@ We aim to quantify how much BEARISH_REJECTION's edge_capture and Sharpe depend o
 ## Pre-existing leaderboard impact
 
 This analysis does not modify any existing candidate. It informs the community about BEARISH_REJECTION's reliance on anchor days, which may affect future candidate design (e.g., adding filters to improve consistency) but does not conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

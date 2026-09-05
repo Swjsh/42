@@ -21,3 +21,5 @@
 - **PDT enforcement** is a non-negotiable rule for live accounts. Core's PDT checks are verified (2026-07-08 data). Fleet arms lack this, creating a systemic risk if they trade live. 
 - **Priority conflict:** T6 study needs fleet arms to trade freely, but PDT gap is a pre-condition for live arming. No timeline exists for resolving this conflict. 
 - **Recommendation:** Escalate PDT-wiring task to J. If T6 study cannot delay live arming, consider arming only core paths until gap is closed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

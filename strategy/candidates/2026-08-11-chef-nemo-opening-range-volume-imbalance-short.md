@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (opening‑range volume imbalance) that does not directly modify any existing trigger, filter, or exit logic in the leaderboard. It complements current candidates by adding a distinct entry lane that can be combined with existing quality gates or exit mechanisms, assuming it passes Stage‑1 validation. No direct conflict with candidates 1‑9 is anticipated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

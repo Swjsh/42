@@ -68,3 +68,5 @@ Primary exit is TP/SL/time stop; chandelier profit‑lock trails after arming. N
 ## Pre‑existing leaderboard impact
 
 This keeper would **degrade** the leaderboard because its edge_capture is negative (−$36) while all current candidates on the leaderboard have positive edge_capture (the lowest ranked candidate on the leaderboard has edge_capture ≥ $771 per OP‑16 gate). Adding it would lower aggregate edge_capture and thus final_score. It does not complement any existing candidate; it conflicts with the OP‑16 objective of capturing J’s winner days while avoiding loser‑day losses. Promotion to the leaderboard is not warranted without first demonstrating a non‑negative edge_capture and passing OOS/real‑fills gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

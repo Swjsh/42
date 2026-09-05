@@ -65,3 +65,5 @@ The first premarket bar that breaks the prior day's premarket high (for bulls) o
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements: Does not conflict with existing candidates as it operates in premarket window (04:00-09:29 ET), orthogonal to intraday setups like BEARISH_REJECTION. May add value on days where intraday triggers fail due to gap openings. No overlap with J anchor days (zero historical fires on 4/29, 5/01, 5/04, 5/05, 5/06, 5/07). Current leaderboard rank 2 (NEEDS-MORE-DATA) remains unchanged pending OOS and live-fires validation.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

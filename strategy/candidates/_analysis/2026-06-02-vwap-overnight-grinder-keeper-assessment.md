@@ -59,3 +59,5 @@ Even if the grinder intended this as a complementary strategy (not J-anchor-targ
 **Recommendation:** Do not promote. File as rejected analysis. The grinder should be re-run with parameters that target J-anchor overlap, or the sweep should be filtered to combos with edge_capture ≥ 771 before declaring keepers.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

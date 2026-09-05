@@ -58,3 +58,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate is already on the leaderboard at rank 2 (NEEDS-MORE-DATA). Running Stage-1 backtest may promote it to PROMISING if it passes the gates, or keep it as NEEDS-MORE-DATA if data is insufficient. It does not conflict with existing candidates as it is a distinct trigger branch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Entry triggers when: volume ≥ 1.1× 20-bar average, candle body ≥ $0.02, pro
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This candidate fails OP-16 floor and would be rejected at the door. Complements nothing; requires fundamental redesign to capture J's winner days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

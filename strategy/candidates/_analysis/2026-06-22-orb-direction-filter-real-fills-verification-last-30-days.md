@@ -49,3 +49,5 @@ Real-fills verification on last 30 days must show:
 
 ## Pre-existing leaderboard impact
 Complements ORB_NARROW_OR_GATE (#4). If real-fills PASS, ORB_DIRECTION_FILTER can move to PROMISING. No conflict with existing candidates; purely additive watcher quality gate. Does not affect OP-16 anchors (watcher-only).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ The existing structure veto (which blocks P-in-uptrend / C-in-downtrend using `c
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND by adding a volume filter to reduce false vetoes. It does not conflict with any existing candidate in the leaderboard and may be considered for merging after the base structure veto is ratified. The mechanism is orthogonal to DTE overrides and VWAP continuation, enabling potential stacking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

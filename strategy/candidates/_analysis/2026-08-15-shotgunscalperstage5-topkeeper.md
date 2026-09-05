@@ -67,3 +67,5 @@ No scale-out or runner logic; all-or-nothing exit at first trigger.
 ## Pre-existing leaderboard impact
 
 This keeper would NOT appear on the leaderboard due to edge_capture < 771 (OP-16 rejection threshold). It does not impact current ranked candidates (all have edge_capture ≥771). If erroneously considered, it would rank below all existing candidates due to low edge_capture. No conflict with leaderboard; it is fundamentally ineligible for promotion. Resources should not be allocated to OOS testing given the OP-16 failure.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

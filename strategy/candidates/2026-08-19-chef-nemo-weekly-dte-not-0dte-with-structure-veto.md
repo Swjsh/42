@@ -59,3 +59,5 @@ Exit: Identical to WEEKLY_DTE_NOT_0DTE — -8% stop, +30% TP1 (sell 2/3), runner
 ## Pre-existing leaderboard impact
 
 Complements [WEEKLY_DTE_NOT_0DTE] (Rank ★★) and [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★); does not conflict with J-RATIFIED candidates ([V14E_PARAM_SWEEP_26K], [V14E_BEAR_TIME_OF_DAY_GATE], [MIDDAY_TRENDLINE_GATE]) as it modifies different signal dimensions (DTE + structure filter). May subsume [VWAPCONT_DTE_OVERRIDE_2DTE] (HOLD) if structure veto improves its regime robustness.
+
+<!-- PROVENANCE-MISSING: test_vwapcont_dte_override.py -->

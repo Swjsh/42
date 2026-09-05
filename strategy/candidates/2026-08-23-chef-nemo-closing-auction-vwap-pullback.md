@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including OP‑
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that focuses on the closing‑auction window and VWAP mean‑reversion. It does not conflict with any existing candidates in the leaderboard; it complements intraday setups like `VWAP_CONTINUATION` by targeting a different time‑of‑day bias. No overlap in logic or parameters with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

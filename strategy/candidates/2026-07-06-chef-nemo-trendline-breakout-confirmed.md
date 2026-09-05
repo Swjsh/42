@@ -50,3 +50,5 @@ To pass the pre-merge gate, the following tests need to pass: gym validators, wa
 ## Pre-existing leaderboard impact
 
 This candidate complements candidates 1-9 in _LEADERBOARD.md, as it targets a different market structure and trading opportunity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

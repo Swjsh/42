@@ -58,3 +58,5 @@ We propose to add a new quality gate parameter `j_loss_avoidance_enabled` that, 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing J-RATIFIED candidates (V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) as it targets loss avoidance rather than winner enhancement. Complements STRUCTURE_VETO_DIR_VS_TREND by focusing on J-specific losers rather than general wrong-way trades. May overlap with BEAR_SCORE_7_RELAXATION but aims to avoid its pitfalls (losing on 4/29/5/01) via J-day-specific filtering.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

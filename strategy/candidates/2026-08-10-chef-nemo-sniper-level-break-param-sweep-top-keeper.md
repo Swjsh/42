@@ -60,3 +60,5 @@ Entry triggers when: (1) price breaks a named level (horizontal or trendline) by
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture ≥ 771). This candidate would be REJECTED at the door per OP-16 (edge_capture < 771) and thus not appear on leaderboard. Complements existing candidates by exploring SNIPER_LEVEL_BREAK parameter space but fails to capture sufficient J-day edge. No overlap with current leaderboard mechanisms (e.g., VWAP_CONTINUATION, BEARISH_REJECTION).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

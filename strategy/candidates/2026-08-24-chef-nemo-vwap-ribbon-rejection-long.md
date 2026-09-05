@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements BULLISH_RECLAIM_RIDE_THE_RIBBON by adding strict wick‑based rejection filter for VWAP entries to improve timing and avoid false breaks. No conflict with existing candidates; represents new trigger lane distinct from quality/gate/exit changes. Could coexist with VWAP_CONTINUATION detector as separate long trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ The sweep would iterate over 2160 predefined parameter combinations (e.g., entry
 ## Pre-existing leaderboard impact
 
 Does not propose a new candidate; documents sweep process. No conflict with existing candidates (e.g., ranks 1-22 in _LEADERBOARD.md). May inform future proposals if sweep is executed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

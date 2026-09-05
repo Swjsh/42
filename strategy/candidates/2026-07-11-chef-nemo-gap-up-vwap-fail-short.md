@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (no similar gap-fade short in leaderboard); complements GAP_AND_GO (which is gap-continuation long) by providing opposite-direction edge. However, cannot confirm without backtest due to unknown correlation and sample overlap risk.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

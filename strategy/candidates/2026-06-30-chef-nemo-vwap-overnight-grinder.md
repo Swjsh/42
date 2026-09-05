@@ -49,3 +49,5 @@ The pre-merge gate requires that the keepers pass the out-of-sample test and rea
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger branch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

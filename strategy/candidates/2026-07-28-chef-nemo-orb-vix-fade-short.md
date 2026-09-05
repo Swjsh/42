@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB-based strategies (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER, ORB_RETEST_LONG) by providing a fade counterpart conditioned on VIX expansion and OR width. No direct conflict with current leaderboard candidates as it targets a distinct regime (volatile, mean-reverting ORB) vs. continuation or narrow OR setups. Does not overlap with any approved triggers in the registry (per novelty claim).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ Exit logic unchanged: TP1 at +30% premium (or first major support), move runner 
 ## Pre-existing leaderboard impact
 
 Modifies BEARISH_REJECTION_RIDE_THE_RIBBON setup, which underpins watcher candidates #3 (V14E_BEAR_ONLY_GATE), #17 (V14E_BEAR_TIME_OF_DAY_GATE), and #20 (BEARISH_REJECTION_MORNING). Does not conflict with existing candidates but may alter their effectiveness by changing signal volume/quality. Net impact on watcher observation counts and WR unknown without backtest. Complements filter-based candidates (e.g., #22 RIBBON_MOMENTUM_GATE) by potentially increasing valid signals for grading.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

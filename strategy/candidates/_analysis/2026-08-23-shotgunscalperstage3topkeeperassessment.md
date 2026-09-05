@@ -60,3 +60,5 @@ The keeper's combo parameters are: tp_premium_pct=1.5, stop_premium_pct=-0.35, t
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all require edge_capture ≥ 771). This keeper would be REJECTED at the door per OP-16 and cannot appear on leaderboard without significant improvement in J anchor day capture. Complements existing candidates by highlighting the necessity of OP-16 edge_capture as a gatekeeper metric.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

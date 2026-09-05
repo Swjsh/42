@@ -62,3 +62,5 @@ We need to quantify the edge_capture and aggregate Sharpe of the current engine 
 ## Pre-existing leaderboard impact
 
 This analysis is neutral; it measures the baseline engine to compare against existing candidates. It does not conflict with any current leaderboard entry but provides the reference point needed to evaluate edge_capture and Sharpe changes proposed by candidates 1‑9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (intraday VIX spike + bearish engulfing + VWAP filter) absent from the current leaderboard (ranks 1-24). It does not directly conflict with existing candidates as it operates on a distinct signal set (VIX dynamics vs. structural/trendline/ribbon-based triggers). Potential complementarity exists with volatility-regime filters (e.g., VIX<20 condition) but requires Stage-1 testing to confirm additive value. No overlap with existing trigger types like LIVE_PRICE_FIRST_BAR_TRIGGER or ORB_RETEST_LONG.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

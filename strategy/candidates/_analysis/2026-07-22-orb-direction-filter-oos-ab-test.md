@@ -57,3 +57,5 @@ The following must pass before promotion:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates. It complements the ORB_NARROW_OR_GATE (rank 4) by adding a directional bias filter to the same ORB_RETEST_LONG framework. No changes to params.json or engine logic are required; the gate is watcher-only and can be enabled via the existing `orb_direction_filter` knob in `params.json`.
+
+<!-- PROVENANCE-MISSING: test_orb_direction_filter.py -->

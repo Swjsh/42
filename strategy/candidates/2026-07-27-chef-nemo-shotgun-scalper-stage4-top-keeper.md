@@ -68,3 +68,5 @@ Given the edge_capture is below the OP-16 floor of 771, this candidate is not el
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with the leaderboard's requirement of edge_capture >= 771. It does not complement any existing candidate because it fails the core anchor test. It should not be added to the leaderboard in its current form.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

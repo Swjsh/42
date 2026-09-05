@@ -58,3 +58,5 @@ The keeper uses bearish-only parameters: strike_offset_bear=0 (ATM put), min_tri
 ## Pre-existing leaderboard impact
 
 This keeper would be REJECTED at the leaderboard door per OP-16 (edge_capture=499.64 < 771 floor). It does not complement existing candidates as it fails the primary edge requirement. Promotion requires demonstrating genuine edge capture on J winners while limiting loser day losses, which this keeper shows inverse behavior on 5/01 (loss vs. required win). Not suitable for leaderboard without major revision.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

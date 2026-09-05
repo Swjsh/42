@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must be positive, real-fills validati
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the strategy; it is an evaluation of the current engine under a specific parameter setting. It does not conflict with any existing candidate but may inform future filter_change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

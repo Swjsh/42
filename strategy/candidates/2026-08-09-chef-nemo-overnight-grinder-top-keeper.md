@@ -60,3 +60,5 @@ Parameter changes: super_stop=-0.15 (tighter stop), super_tp1=0.75 (higher TP1),
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which all have edge_capture >=771). This candidate would be REJECTED at the door per OP-16 and does not appear on leaderboard. Does not complement any existing candidate as it fails the core edge requirement. Suggests the overnight_grinder's wide_pnl metric is misaligned with OP-16 objectives; future sweeps should incorporate edge_capture as primary filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

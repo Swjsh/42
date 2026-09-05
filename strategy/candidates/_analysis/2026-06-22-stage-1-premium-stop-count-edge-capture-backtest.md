@@ -53,3 +53,5 @@ Run a Stage-1 backtest over the full 16-month SPY 5m dataset, logging each time 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new strategy; it is a diagnostic step to inform future candidates. It does not conflict with existing candidates but may provide data to refine or reject them.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

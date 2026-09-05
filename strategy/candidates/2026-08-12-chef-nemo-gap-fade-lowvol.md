@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with current leaderboard entries (which are primarily filter changes, quality gates, or watcher proposals). GAP_FADE_LOWVOL introduces a new trigger type that could be combined with existing filters (e.g., VIX gates, time‑of‑day gates) and therefore is complementary rather than competitive. It would add a new row to the leaderboard once a Stage‑1 backtest is completed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

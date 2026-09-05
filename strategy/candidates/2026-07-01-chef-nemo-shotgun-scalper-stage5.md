@@ -50,3 +50,5 @@ The pre-merge gate requires that the candidate passes the OOS test, walk-forward
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_CALL_VETO candidate, which also focuses on capturing the edge in the SPY market.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

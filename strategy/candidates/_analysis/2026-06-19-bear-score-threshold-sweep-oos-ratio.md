@@ -62,3 +62,5 @@ Retain thresholds where OOS/IS ratio >=0.70 and the absolute P&L deviation on ea
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not conflict with existing candidates; it informs the evaluation of bear_score threshold relaxations (e.g., candidate #36 BEAR_SCORE_7_RELAXATION) and may lead to a new candidate if a threshold satisfies the OOS/IS and real-fills criteria. It complements the leaderboard by providing a framework for threshold evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

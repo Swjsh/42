@@ -59,3 +59,5 @@ Note: Current engine behavior assumes baseline engine takes all J winners and lo
 ## Pre-existing leaderboard impact
 
 Complements [MIDDAY_TRENDLINE_GATE] (time-based filter) and [STRUCTURE_VETO_DIR_VS_TREND] (structure-based filter). No conflict; targets different losing regime (low-VIX chop). Does not overlap with [BEARISH_SWEEP_BLOCKER] (addresses cascade via different mechanism). May reduce edge_capture on [WEEKLY_DTE_NOT_0DTE] if that strategy relies on low-VIX premium decay (needs joint test).
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_vix_filter_puts_above_20.py -->

@@ -49,3 +49,5 @@ Once the above are known:
 ## Pre-existing leaderboard impact
 
 Not applicable (operational task).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

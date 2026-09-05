@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB-related watchers (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding a volatility-compression precondition and trading the initial breakout directly (vs. waiting for retest). No direct conflict with current leaderboard candidates; could be tested as alternative ORB trigger. Does not affect quality gates or exit logic of existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

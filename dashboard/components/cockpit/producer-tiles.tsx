@@ -325,8 +325,19 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
   const watchers = s(data, "watchers");
   const guards = s(data, "guards");
   const tasks = s(data, "tasks");
+  const righttail = s(data, "righttail");
   const autonomy = s(data, "autonomy");
   const goal = s(data, "goal");
+
+  // Kitchen OP-32 trust gate (I4, GOAL-KITCHEN-INTEGRITY-2026-09-05): rendered on the
+  // Autopilot tile per that goal's DONE-WHEN (c) -- autonomy.engines.kitchen.provenance,
+  // written by gamma_autonomy.py from free_model_audit.py's bar-state file.
+  const kitchenProvenance = ((autonomy?.engines as Record<string, unknown>)?.kitchen as Record<string, unknown>)
+    ?.provenance as Record<string, unknown> | undefined;
+  const kitchenTrustGate = (kitchenProvenance?.trust_gate as string | undefined) ?? undefined;
+  const kitchenFabRate = (kitchenProvenance?.fabricated_artifact_rate as number | undefined) ?? undefined;
+  const kitchenProvMissing = kitchenProvenance?.provenance_missing as number | undefined;
+  const kitchenFilesScored = kitchenProvenance?.files_scored as number | undefined;
 
   // Small local aliases keep the tile arrays below to one line of JSX-glue each.
   const ring = (value: number, color: string) => (
@@ -339,6 +350,7 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
   const shadowLive = (shadow?.live as { name?: string; verdict?: string }[]) || [];
   const watcherRows = (watchers?.watchers as { name?: string; observations?: number; would_be_pnl?: number }[]) || [];
   const guardProblems = (guards?.problems as { name?: string; note?: string }[]) || [];
+  const righttailPerArm = (righttail?.per_arm as Record<string, { n_waves?: number; n_taken?: number; capture_rate?: number | null }>) || {};
   const taskLanes = (tasks?.lanes as { lane?: string; worst?: string; tasks?: { name?: string; state?: string }[] }[]) || [];
   const dayline = taskLanes.flatMap((l) => (l.tasks || []).map((t) => ({ label: t.name || "", fired_today: t.state === "Ready" })));
   const doneWhen = (goal?.done_when as string[]) || [];
@@ -387,6 +399,12 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
   ];
 
   const rigTiles: TileSpec[] = [
+    { key: "righttail", icon: Target, title: "Right-tail capture", verdict: sectionVerdict(righttail, righttail?.verdict), summary: say(righttail), freshness: freshLabel(righttail),
+      graphic: ring(Math.round(((righttail?.book_capture_rate as number | null) ?? 0) * 100), "var(--gc-cyan)"),
+      detail: <DetailList items={[
+        ...Object.entries(righttailPerArm).map(([arm, d]) => `${arm} — ${d.n_taken ?? 0}/${d.n_waves ?? 0} waves (${d.capture_rate != null ? `${(d.capture_rate * 100).toFixed(0)}%` : "N/A"})`),
+        `${(righttail?.cap4_would_refuse_count as number | undefined) ?? 0} waves flagged would_be_refused_under_cap4 (TIGHT-LADDER forward ledger, 09-29 checkpoint)`,
+      ]} /> },
     { key: "guards", icon: ShieldCheck, title: "Guards", verdict: sectionVerdict(guards, guards?.verdict), summary: say(guards), freshness: freshLabel(guards),
       detail: <DetailList items={guardProblems.map((p) => `${p.name ?? "task"} — ${p.note ?? "problem"}`)} /> },
     { key: "tasks", icon: ListChecks, title: "Scheduled tasks", verdict: sectionVerdict(tasks, tasks?.verdict), summary: say(tasks), freshness: freshLabel(tasks),
@@ -394,9 +412,21 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
       detail: <div className="flex flex-col gap-3">{taskLanes.map((l, i) => (
         <div key={i} className="text-[12px] text-[var(--gc-text-2)]"><span className="font-medium text-[var(--gc-text)]">{l.lane}</span> — {l.worst}</div>
       ))}</div> },
-    { key: "autonomy", icon: Bot, title: "Autopilot", verdict: autonomy?.awake ? "green" : "off",
-      summary: autonomy ? `${autonomy.awake ? "Awake" : "Quiet"}${(autonomy.quiet as Record<string, unknown>)?.active ? " — quiet hours" : ""}` : "NO DATA",
-      freshness: freshLabel(autonomy) },
+    { key: "autonomy", icon: Bot, title: "Autopilot",
+      verdict: kitchenTrustGate === "DEGRADED" ? "red" : autonomy?.awake ? "green" : "off",
+      summary: autonomy
+        ? `${autonomy.awake ? "Awake" : "Quiet"}${(autonomy.quiet as Record<string, unknown>)?.active ? " — quiet hours" : ""}`
+          + (kitchenTrustGate ? ` — Kitchen ${kitchenTrustGate}${kitchenFabRate != null ? ` (${(kitchenFabRate * 100).toFixed(1)}%)` : ""}` : "")
+        : "NO DATA",
+      freshness: freshLabel(autonomy),
+      detail: kitchenTrustGate ? (
+        <div className="text-[12px] text-[var(--gc-text-2)]">
+          Kitchen fabricated-artifact rate (30d): <span className="font-medium text-[var(--gc-text)]">
+            {kitchenFabRate != null ? `${(kitchenFabRate * 100).toFixed(2)}%` : "N/A"}
+          </span> ({kitchenProvMissing ?? "?"}/{kitchenFilesScored ?? "?"} files) — trust gate:{" "}
+          <span className="font-medium text-[var(--gc-text)]">{kitchenTrustGate}</span>
+        </div>
+      ) : undefined },
     { key: "goal", icon: Target, title: "Active goal", verdict: goal?.active ? "green" : "off", summary: (goal?.title as string) || "NO DATA",
       freshness: goal?.days_left != null ? `${goal.days_left}d left` : "NO DATA",
       graphic: ring(goalPct, "var(--gc-violet)"),

@@ -61,3 +61,5 @@ Based on VIX regime logic (L40,44,45,73,93,118,133,134,154,162,167 in LESSONS-LE
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements STRUCTURE_VETO_DIR_VS_TREND (Rank ★) as both are quality_gates targeting different failure modes (structure vs. volatility regime). No direct conflict; could stack if both pass independent validation. Does not affect watcher-only candidates (e.g., ORB_NARROW_OR_GATE) or exited candidates (e.g., BEARISH_SWEEP_BLOCKER). May overlap with VIX_BULL_HARD_CAP_UNBLOCK (Rank 22) but operates on puts vs. calls.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

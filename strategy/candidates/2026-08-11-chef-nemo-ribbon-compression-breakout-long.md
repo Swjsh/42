@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (ribbon‑squeeze breakout) that does not appear in the current leaderboard (candidates 1‑9). It therefore does not conflict with existing entries; it may complement them by providing a different entry signal for long‑biased regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

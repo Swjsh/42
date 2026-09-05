@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing leaderboard candidates (which are primarily watcher gates, DTE studies, and structural filters). It may complement ORB-based or RSI-based strategies by adding a novel entry condition combining narrow ORB with RSI divergence on breakout. No direct overlap with current top candidates observed in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

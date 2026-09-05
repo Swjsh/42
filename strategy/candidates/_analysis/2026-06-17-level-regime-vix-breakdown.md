@@ -65,3 +65,5 @@ To validate this analysis, the following must pass:
 ## Pre-existing leaderboard impact
 
 This analysis complements all candidates by providing diagnostic insight into BEARISH_REVERSAL performance. It conflicts with none and may inform future VIX-gated candidates (e.g., if VIX<17.30 is the loss driver, candidates targeting that regime may be redundant with existing VIX_BEAR_THRESHOLD).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

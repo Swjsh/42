@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No known conflict; complements existing VWAP-based setups (e.g., VWAP_CONTINUATION) by targeting a distinct intraday session (midday vs. morning) with volume confirmation additive. Does not overlap with trendline-based gates (e.g., MIDDAY_TRENDLINE_GATE) as it uses VWAP reclaim rather than structure breaks. May synergize with volatility regime filters present in candidates like V14E_BEAR_ONLY_GATE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Real-fills: requires real-fills validation on top 3 J days (if any) or on 2026 Q
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements TBR_HIGH_VOL (rank 16) by providing OOS validation on a specific quarter. If WF ratio passes and concentration improves, may promote TBR_HIGH_VOL from WATCH-ONLY to PROMISING.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

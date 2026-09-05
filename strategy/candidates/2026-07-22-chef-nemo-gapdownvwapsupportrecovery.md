@@ -60,3 +60,5 @@ On bearish PUT winner days (4/29, 5/01, 5/04), SPY often gaps down and then fail
 ## Pre-existing leaderboard impact
 
 This candidate proposes a filter_change that could complement existing quality gates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) by acting earlier in the entry path. It does not conflict with any current leaderboard entries because it introduces a new condition rather than modifying an existing parameter or exit rule. However, it may overlap conceptually with VWAP_CONTINUATION‑related candidates; coordination would be needed to ensure the filters are not contradictory.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

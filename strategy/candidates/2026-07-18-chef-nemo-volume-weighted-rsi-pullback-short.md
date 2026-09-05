@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries; it is a new short‑side trigger that would occupy a distinct niche from the current bullish/bearish ribbon‑ride and VWAP‑continuation setups. It could complement existing strategies by providing additional short signals in ranging, VIX‑moderate environments. No known overlap with candidates 1‑24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

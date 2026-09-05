@@ -56,3 +56,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup currently requires the bearish EMA r
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements filter_change candidates like ORB_NARROW_OR_GATE and V14E_BEAR_TIME_OF_DAY_GATE by exploring a different filter dimension (ribbon duration vs. OR range or time-of-day). If successful, could be merged as a refined filter_change alongside existing gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

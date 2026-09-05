@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type; it does not directly conflict with existing candidates 1‑9 in _LEADERBOARD.md. It may complement them by providing long entries during compression‑breakout conditions that are not captured by the current ribbon‑direction setups (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON). No overlap in trigger logic is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger type; may complement existing strategies if uncorrelated, but impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

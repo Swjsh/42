@@ -58,3 +58,5 @@ Add a pre-entry filter: if the current VIX (as of the entry bar) is below 15, sk
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements V14E_BEAR_ONLY_GATE (which is a watcher) by adding a hard filter to the engine. May overlap with existing VIX confirmation filter in the playbook (but that filter is already advisory; this makes it enforceable).
+
+<!-- PROVENANCE-MISSING: test_vix_filter_bearish_rejection.py -->

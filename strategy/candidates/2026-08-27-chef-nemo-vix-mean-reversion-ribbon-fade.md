@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; orthogonal to VIX_REGIME_DAYSIDE (regime filtering) and BULLISH_RECLAIM_RIDE_THE_RIBBON (ribbon-VWAP reclaim). May complement existing structure by providing counter-trend entries during VIX extremes, but could interfere with trend-following strategies if regime alignment is misjudged. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

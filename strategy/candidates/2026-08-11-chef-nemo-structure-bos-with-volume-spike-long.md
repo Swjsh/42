@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (market-structure break with volume spike) not present in the current leaderboard. It does not conflict with existing candidates (which are primarily watcher gates, quality filters, or other trigger types like TRENDLINE_BREAK_VOLUME). It may complement by providing an alternative long-entry signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

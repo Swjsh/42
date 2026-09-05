@@ -65,3 +65,5 @@ The test script `test_budget_roster_no_silent_failures.py` will:
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing entries by adding a runtime safety guard to the automation infrastructure. It does not conflict with any strategy logic, parameters, or engine behavior, as it operates purely at the automation/validation layer. No leaderboard entries are affected directly.
+
+<!-- PROVENANCE-MISSING: test_budget_roster_no_silent_failures.py -->

@@ -50,3 +50,5 @@ Before merging this proposal, the following tests need to pass: gym validators, 
 ## Pre-existing leaderboard impact
 
 This proposal does not conflict with or complement any existing candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ The candidate modifies the v14e exit structure: tp1=0.30 (exit 1/3 of position a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing J-RATIFIED candidates (e.g., V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) as it modifies exit parameters only. If validated, could replace the base v14e exit in production; otherwise, leaves current J-RATIFIED v14e parameters unchanged. No known duplication with other candidates in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

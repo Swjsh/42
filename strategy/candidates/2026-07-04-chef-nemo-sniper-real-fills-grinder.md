@@ -54,3 +54,5 @@ The candidate must pass the following tests:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. However, the candidate's impact on the leaderboard is unknown until further testing is completed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

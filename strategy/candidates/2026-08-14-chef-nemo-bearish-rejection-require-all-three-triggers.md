@@ -51,3 +51,5 @@ We require: gym validators (all tests pass), walk-forward OOS with profit factor
 ## Pre-existing leaderboard impact
 
 This candidate complements the STRUCTURE_VETO_DIR_VS_TREND candidate (rank ★) which uses market structure to veto wrong-way trades. Our candidate changes the trigger selectivity for BEARISH_REJECTION_RIDE_THE_RIBBON, which is a different lever. No direct conflict seen with current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

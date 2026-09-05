@@ -73,3 +73,5 @@ Validate that the SWEEP_BLOCKER filter with confluence carve-out (lib/filters.py
 ## Pre-existing leaderboard impact
 
    Tests fix for BEARISH_SWEEP_BLOCKER (currently REJECTED). If passes, would update that candidate's edge-capture and Sharpe, potentially improving its leaderboard rank. No direct conflict with other candidates; may affect BEARISH_SWEEP_BLOCKER's position only.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

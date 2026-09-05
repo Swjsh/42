@@ -42,3 +42,5 @@ We ran Stage-1 backtest via autoresearch grinder for the LIVE_PRICE_FIRST_BAR_TR
 ## Pre-existing leaderboard impact
 
 This candidate complements existing candidates as it is a new trigger branch that can be combined with existing filters. It does not conflict with any current top 10 candidates.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger_stage1.py, test_live_price_first_bar_trigger_gym.py -->

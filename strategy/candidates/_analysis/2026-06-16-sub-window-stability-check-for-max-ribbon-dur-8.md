@@ -63,3 +63,5 @@ We need a Stage-1 backtest that computes n, P&L, WR for baseline and dur=8 in ea
 ## Pre-existing leaderboard impact
 
 This analysis concerns Rank 25 candidate MAX_RIBBON_DUR_8, which is currently marked FAILED (WF=0.072). The sub-window stability check is a prerequisite for auto-ratify gate; failure in either sub-window would block ratification. The leaderboard does not list any conflicting candidates; this analysis is purely evaluative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

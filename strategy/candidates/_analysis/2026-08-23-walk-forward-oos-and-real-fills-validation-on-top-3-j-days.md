@@ -59,3 +59,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it is a validation task. It does not conflict with any existing candidate but rather is a prerequisite for evaluating any candidate against the OP-16 anchors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

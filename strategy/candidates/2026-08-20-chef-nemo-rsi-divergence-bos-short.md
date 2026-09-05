@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9; it introduces a new trigger type (RSI divergence + BOS) not represented in the current leaderboard. If validated, it could complement existing filters by providing additional short‑side entries during bearish regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

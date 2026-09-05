@@ -24,3 +24,5 @@
 - **Current Practice:** "Compound, don't accumulate" enforces bounded-task priority: perfect current work → TODOs → future improvements → audit staleness → replays → playbook updates.  
 - **Gap:** Weekend grind tasks (e.g., multi-day backtests) risk deferral if not explicitly timeboxed (e.g., <8h tasks must ship by end of day). No automated guardrails enforce this rule.  
 - **Mitigation:** Add `task_timebox` metadata to all weekend tasks with hard 8h deadline. Auto-escalate unmet deadlines to J via `gamma_alert` (task: `TIMEBOX-ENFORCEMENT`).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

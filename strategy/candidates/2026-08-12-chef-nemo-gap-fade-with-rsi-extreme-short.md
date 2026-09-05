@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with any of the existing candidates 1‑9 in _LEADERBOARD.md. It may complement them by capturing a different class of mean‑reversion opportunities that are not currently addressed by the registered setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

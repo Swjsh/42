@@ -62,3 +62,5 @@ The watcher will, at the end of each trading day:
 ## Pre-existing leaderboard impact
 
 This watcher proposal complements all existing candidates by improving monitoring reliability. It does not conflict with any strategy candidate in _LEADERBOARD.md as it operates orthogonally to engine logic (no changes to params, triggers, exits, or quality gates). It may indirectly benefit candidate evaluation by ensuring accurate trade counting during backtest validation and live operation.
+
+<!-- PROVENANCE-MISSING: automation/state/monitor_audit_YYYY-MM-DD.json, test_monitor_extra_exec_audit.py -->

@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk‑
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any of the current top‑9 candidates in _LEADERBOARD.md. Those candidates involve DTE adjustments, structure‑based vetoes, watcher gates, or parameter tweaks to existing setups. LOW_VIX_RIBBON_PULLBACK introduces a novel entry trigger based on VIX, EMA ribbon, VWAP, and RSI, which is not represented in the leaderboard. It is complementary in the sense that it could be run alongside existing strategies as a separate signal class, provided it passes its own OP‑16 validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

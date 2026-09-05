@@ -64,3 +64,5 @@ The lint script must pass (exit code 0) for all new pre-registration grid files 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard. It is a quality gate that will be run on new grids, so it may prevent some grids from being considered as candidates if they fail the trend confirmation on the anchor bars. It complements existing gates by adding a trend-direction check.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_trend_confirmation_qualifiers.py -->

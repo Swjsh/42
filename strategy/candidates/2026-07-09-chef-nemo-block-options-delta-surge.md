@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict; introduces a new trigger type orthogonal to existing candidates (e.g., WEEKLY_DTE_NOT_0DTE, VWAP_CONTINUATION). Could complement if uncorrelated, but requires Stage-1 backtest to assess edge capture and potential overlap with current winners/losers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

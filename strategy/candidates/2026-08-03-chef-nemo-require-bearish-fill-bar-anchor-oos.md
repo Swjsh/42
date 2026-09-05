@@ -56,3 +56,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate is a more focused version of the existing REQUIRE_BEARISH_FILL_BAR_REVAL (which is currently in the leaderboard with status UNBLOCK and confidence 6/10). It does not conflict with other candidates but may supersede REQUIRE_BEARISH_FILL_BAR_REVAL if we obtain more specific anchor day data. It complements candidates that are trying to improve the engine without changing this gate (e.g., STRUCTURE_VETO_DIR_VS_TREND).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -71,3 +71,5 @@ Exit uses:
 Does not conflict with leaderboard candidates (all have edge_capture ≥ 771). This candidate is REJECTED at the door per OP-16 (edge_capture < 771) and would not appear on the leaderboard. It complements no existing candidates as it fails the anchor gate.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_sniper_level_break.py -->

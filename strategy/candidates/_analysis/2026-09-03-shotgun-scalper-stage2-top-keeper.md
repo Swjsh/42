@@ -80,3 +80,5 @@ This analysis does not propose a new rule or parameter change; it only evaluates
 - Canonical battery: fails OP-16 anchor floor before SS4 gates are reached.
 - Data basis: Kitchen grinder output is BS-synthetic option pricing (Black-Scholes simulated premiums over historical SPY bars), NOT real-fills OPRA evidence -- per memory project_free_kitchen_plan_b_hardened.md ("no free 0DTE data; BS-synthetic only"). Any number in this file's Mechanism/OP-20 sections is Stage-1/grinder-tier at best; none of these files report a completed walk-forward OOS split or a real-fills validation run.
 - Disposition: KILLED. No K9 action.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

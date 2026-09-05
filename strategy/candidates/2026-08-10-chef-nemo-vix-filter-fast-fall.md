@@ -56,3 +56,5 @@ At each potential entry bar, compute the 5-minute VIX change from the prior bar.
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK (rank 22) by adding a dynamic VIX dimension. May overlap with BEAR_SCORE_7_RELAXATION (rank 36) but uses different mechanism (VIX pace vs score threshold). If proven effective, could replace or augment existing VIX-related filters. No direct duplication with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_fast_fall.py -->

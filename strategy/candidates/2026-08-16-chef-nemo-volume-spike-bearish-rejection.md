@@ -56,3 +56,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON trigger currently requires ≥2 of 3: leve
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger that does not modify existing params.json or existing candidates. It complements volume-aware candidates like the VWAP_CONTINUATION setup (which already uses volume implicitly) and could be stacked with existing quality gates. No direct conflict with current leaderboard entries. If validated, it could become a new standalone candidate or be integrated into BEARISH_REJECTION_RIDE_THE_RIBBON as an optional filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -73,3 +73,5 @@ Before any promotion consideration, the following must be satisfied:
 ## Pre-existing leaderboard impact
 
 The candidate’s edge_capture (285) is below the OP‑16 rejection threshold of 771, so it would be excluded from the leaderboard regardless of Sharpe. It does not conflict with or complement any existing candidates (rank 1‑15) because it does not meet the minimum edge requirement for consideration. Any further work must first demonstrate a genuine J‑edge improvement before it can be considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Before any promotion, the following must pass:
 ## Pre-existing leaderboard impact
 
 None of the 5 keepers meet the OP-16 edge_capture floor (≥771). They would be REJECTED if submitted as candidates. They do not complement any existing leaderboard entries (which all have edge_capture ≥771). If any keeper were to show positive edge after OOS validation, it would need to be submitted as a new candidate and undergo the full pre-merge gate. At this stage, the analysis suggests the grinder output should be archived and the sniper_stage2_grinder baseline re-examined for potential improvements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

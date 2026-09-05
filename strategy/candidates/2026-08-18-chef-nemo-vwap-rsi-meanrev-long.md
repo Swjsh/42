@@ -59,3 +59,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaders (e.g., VWAP_CONTINUATION, WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) because it uses a distinct signal set (VWAP deviation + RSI + wick) and is designed for ranging markets where many current triggers are inactive. It may complement the basket by providing long entries in choppy regimes that are currently underserved. No direct overlap with any ranked candidate’s logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

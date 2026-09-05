@@ -57,3 +57,5 @@ Tweaking profit-lock parameters (arming threshold, stop offset) and exit targets
 ## Pre-existing leaderboard impact
 
 Does not meet the edge_capture ≥ 771 requirement; would be REJECTED at the door. Conflicts with current leaderboard candidates that all exceed the floor (e.g., STRUCTURE_VETO_DIR_VS_TREND edge_capture=780). This candidate would not promote; requires OOS walk‑forward first to prove genuine edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; it is a new trigger type that could complement existing watchers/gates (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) by providing an alternative entry condition in the same time window. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

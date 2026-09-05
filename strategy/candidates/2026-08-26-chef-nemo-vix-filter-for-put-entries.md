@@ -57,3 +57,5 @@ Add a filter in the BEARISH_REJECTION_RIDE_THE_RIBBON setup (or in the entry pat
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (which is a veto on wrong-way trades) and may work well with the MIDDAY_TRENDLINE_GATE (which is a filter that improves midday entries). It does not conflict with any J-RATIFIED candidates because it is a new filter that can be enabled or disabled independently. However, if enabled, it may reduce the number of trades taken by the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which could impact candidates that modify that setup (e.g., MAX_RIBBON_DUR_8). We note that MAX_RIBBON_DUR_8 is already rejected due to walk-forward failure, so this is not a concern.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

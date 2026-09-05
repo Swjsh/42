@@ -65,3 +65,5 @@ Low confidence because volume-based filters are notoriously regime-dependent and
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing watchers (e.g., ORB_NARROW_OR_GATE, V14E_BEAR_ONLY_GATE) by adding a volume-based quality filter. No direct conflict with current leaderboard candidates as it is a watcher proposal, not a trigger/exit change. May synergize with WEEKLY_DTE_NOT_0DTE by improving signal quality across DTEs. Does not conflict with J-RATIFIED candidates (V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) as it operates at observation layer initially.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

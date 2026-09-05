@@ -52,3 +52,5 @@ We require: walk-forward OOS profit factor > 1.2, Sharpe > 0.7, edge capture on 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis is neutral; it provides validation data that could promote or demote existing candidates based on outcomes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to assess overlap with existing candidates (e.g., VIX_BULL_HARD_CAP_UNBLOCK) and potential conflicts/complementarities in the leaderboard rankings
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

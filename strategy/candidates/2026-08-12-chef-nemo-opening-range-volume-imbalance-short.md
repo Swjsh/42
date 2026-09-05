@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger and does not modify any existing candidate in the leaderboard. It is intended to be evaluated as a standalone strategy and therefore does not conflict with existing entries. However, its impact on overall portfolio construction (if combined with other strategies) is unknown and requires further study.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

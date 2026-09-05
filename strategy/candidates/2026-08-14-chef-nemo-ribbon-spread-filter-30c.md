@@ -59,3 +59,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup requires a ribbon spread ≥ 30 cent
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding structural conviction filter; no conflict with existing PROMISING candidates (WEEKLY_DTE_NOT_0DTE, MIDDAY_TRENDLINE_GATE). May subsume RIBBON_DUR_8 filters if spread correlates with duration. Does not affect watcher-only candidates (ORB_NARROW_OR_GATE etc.). Neutral to V14E_BEAR_ONLY_GATE (watcher-only). Enhances BEARISH_REJECTION_RIDE_THE_RIBBON fidelity without altering core mechanics.
+
+<!-- PROVENANCE-MISSING: test_ribbon_spread_filter_30c.py -->

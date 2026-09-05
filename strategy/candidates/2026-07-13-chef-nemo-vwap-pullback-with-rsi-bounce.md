@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a new trigger type (VWAP pullback with RSI bounce) not currently represented. Complements existing VWAP-based strategies by adding a conditional long bias layer. No direct overlap with structural gates or exit changes in top ranks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

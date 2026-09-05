@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md as it introduces a novel trigger type (ribbon width dynamics) not covered by any current strategy. Complements existing ribbon-based strategies (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by trading a different signal (width expansion vs. price/ribbon position). No overlap in entry logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

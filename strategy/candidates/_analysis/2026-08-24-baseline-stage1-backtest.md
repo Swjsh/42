@@ -61,3 +61,5 @@ The Stage-1 backtest must pass the gym validators, walk-forward, and real-fills 
 ## Pre-existing leaderboard impact
 
 This analysis is a baseline measurement. It does not conflict with any existing candidate because it is not a strategy change. It provides the baseline edge_capture and wide_pnl against which candidates are measured. The leaderboard's base engine edge_capture of 780 (referenced in candidate STRUCTURE_VETO_DIR_VS_TREND) is used as a provisional anchor pending fresh backtest confirmation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

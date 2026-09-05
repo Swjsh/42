@@ -72,3 +72,5 @@ Must pass:
 Candidate would be REJECTED at door (edge_capture < 771) and does not appear on leaderboard; no impact on existing ranks.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

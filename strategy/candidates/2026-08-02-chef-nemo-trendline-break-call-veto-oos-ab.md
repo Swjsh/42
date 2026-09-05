@@ -60,3 +60,5 @@ We have only the estimate from the leaderboard WS4 entry: CALL VETO yields ~+$16
 ## Pre-existing leaderboard impact
 
 This candidate directly corresponds to WS4 [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md), currently marked **NEEDS-MORE-DATA**. If the OOS A/B test passes the pre‑merge gate, the candidate should move to **PROMISING** (or higher) and complement existing leaderboard entries by providing a structural filter that targets CALL‑side losses without affecting PUT winners. It does not conflict with any existing PROMISING or J‑RATIFIED candidates; rather, it adds a new dimension to the entry‑filter suite.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/trendline_break_call_veto_ab_scorecard.json -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, gates, or structural DTE changes). It could complement existing volatility‑regime filters (e.g., VIX_REGIME_DAYSIDE) by adding an intraday spike layer, but would need to be tested for interaction with existing entry logic. No obvious duplication with current top‑10 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

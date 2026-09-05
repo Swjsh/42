@@ -56,3 +56,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly the ORB_DIRECTION_FILTER candidate, by providing an additional layer of filtering to improve the overall performance of the ORB setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

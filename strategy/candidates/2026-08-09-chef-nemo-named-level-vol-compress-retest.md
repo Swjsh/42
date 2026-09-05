@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not modify any existing logic in candidates 1‑9. It is likely to be **complementary** because it seeks entries during low‑volatility, midday windows that many existing strategies (which often rely on higher‑volatility breakouts or trend‑following) may miss, thereby adding non‑overlapping trades to the ensemble. No conflict with current leaderboard entries is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

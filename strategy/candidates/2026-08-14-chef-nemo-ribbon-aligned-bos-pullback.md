@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing strategy in the leaderboard. It complements existing structural/gate candidates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by providing an alternative long‑side entry logic. No known conflict with current J‑ratified or promising candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

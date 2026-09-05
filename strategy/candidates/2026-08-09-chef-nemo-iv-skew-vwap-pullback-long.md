@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new entry trigger; does not conflict with current leaderboard entries (which are primarily watcher proposals, gates, or structural changes) as it operates independently as a trigger mechanism. Could potentially stack with existing filters like VWAP_CONTINUATION or MIDDAY_TRENDLINE_GATE but requires testing to confirm.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

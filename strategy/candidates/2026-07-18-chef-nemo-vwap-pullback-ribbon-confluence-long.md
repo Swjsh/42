@@ -67,3 +67,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (1-9 in _LEADERBOARD.md) as it introduces a new long-biased trigger structure. Complements bullish-leaning candidates (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by providing an alternative entry mechanism under similar uptrend conditions. No known overlap with current watcher-only or structural gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

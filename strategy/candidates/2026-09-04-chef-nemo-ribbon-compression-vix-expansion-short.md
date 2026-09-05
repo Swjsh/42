@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct conflict with current leaderboard entries (candidates 1‑9). The proposed trigger is orthogonal to existing VWAP_CONTINUATION and structure‑based gates; it could complement them by providing a short‑bias signal during low‑volatility compression phases that other setups do not capture. However, it may compete for the same short‑side capital if both fire concurrently; co‑existence logic would need to be evaluated in a combined A/B test.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

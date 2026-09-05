@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ORB_RETEST_LONG (leaderboard #4) by adding a VWAP re‑entry requirement, bullish EMA ribbon alignment, and RSI<50 filter. While ORB_RETEST_LONG bets on a simple opening‑range retest, this proposal targets a more specific mean‑reversion pullback that occurs after a VWAP test, likely capturing a different subset of trades and reducing overlap with the existing ORB‑based strategy. No direct conflict is expected; rather, it may provide additive diversification if both show positive edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

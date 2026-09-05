@@ -63,3 +63,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-9 in _LEADERBOARD.md as it proposes a new short-trigger mechanism orthogonal to current long-biased setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION). Could complement by providing short-side diversification if validated, but currently unverified and may introduce conflicting signals during overlapping regime conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

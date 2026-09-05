@@ -60,3 +60,5 @@ Only after `hold_minutes >= 20` are these exits re-enabled, subject to their exi
 ## Pre-existing leaderboard impact
 
 This candidate proposes an exit‑logic change that does not introduce new trade classes or watchers. It complements existing exit‑tuning candidates (e.g., V14E_PARAM_SWEEP_26K) and is orthogonal to filter‑based gates. No direct conflict with current leaderboard entries; if validated, it could be stacked with other exit improvements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

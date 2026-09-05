@@ -58,3 +58,5 @@ This change affects the task scorer's parsing of input data (e.g., leaderboard m
 ## Pre-existing leaderboard impact
 
 This change may alter how the task scorer parses the leaderboard markdown itself (if used to generate or update the leaderboard). We must re-run the task scorer on the current leaderboard input with the fix and compare extracted fields (e.g., candidate names, priorities, dates) to ensure no unintended changes. If differences are found, we need to investigate whether they represent corrections (e.g., fixing misparsed multi-line priorities) or regressions. Given the leaderboard's complexity, there is a potential for impact on fields that span multiple lines (e.g., long hypotheses or mechanism descriptions). However, the primary target is priority parentheticals, which are expected to be short and rarely multi-line in practice. We estimate low likelihood of impact but require verification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

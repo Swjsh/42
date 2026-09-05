@@ -58,3 +58,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/gates or bearish setups). May complement by adding a new long-biased trigger, but impact unknown without backtest. No overlap with current leaderboard long setups (BULLISH_RECLAIM_RIDE_THE_RIBBON is paper-eligible but structurally different).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

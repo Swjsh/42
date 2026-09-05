@@ -50,3 +50,5 @@ Pass gym validators for structure_veto module, walk-forward OOS Sharpe >= 0.70, 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND by offering an alternative veto logic. If both are considered, they are mutually exclusive (same gate). Should be evaluated as a replacement for the current STRUCTURE_VETO_DIR_VS_TREND.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

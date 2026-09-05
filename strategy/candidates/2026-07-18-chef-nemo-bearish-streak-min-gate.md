@@ -61,3 +61,5 @@ In the entry path for BEAR (put) setups, compute the current bearish streak (con
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing quality gates (e.g., V14E_BEAR_ONLY_GATE, STRUCTURE_VETO_DIR_VS_TREND) by adding a streak-based filter. No direct conflict identified with current leaderboard candidates (none target bearish_streak_min). However, it may interact with MIDDAY_TRENDLINE_GATE (which blocks midday trendline_rejection entries) as both are timing/quality filters; combined effect requires testing. Does not conflict with structural candidates like WEEKLY_DTE_NOT_0DTE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

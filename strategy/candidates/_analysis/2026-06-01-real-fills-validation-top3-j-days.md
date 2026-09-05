@@ -50,3 +50,5 @@ Realistic OPRA simulator validation on top 3 J days must pass (±20% tolerance).
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a validation gate that must be satisfied before any candidate can be ratified. It complements all candidates by ensuring real-fills fidelity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

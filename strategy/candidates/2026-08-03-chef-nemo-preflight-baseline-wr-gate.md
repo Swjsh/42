@@ -64,3 +64,5 @@ The gate floor and threshold are made configurable via new params in `automation
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates by improving research efficiency. It does not conflict with any trading logic changes (ranks 1-24) as it operates solely in the research automation layer. No impact on leaderboard rankings; may accelerate validation of other candidates by pruning futile sweeps early.
+
+<!-- PROVENANCE-MISSING: test_preflight_baseline_wr_gate.py -->

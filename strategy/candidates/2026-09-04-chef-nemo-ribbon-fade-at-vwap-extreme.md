@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel mean-reversion trigger using VWAP deviation and ribbon slope/flatness. It does not directly conflict with existing trend-following or breakout candidates in the leaderboard. May complement regime filters used by other candidates (e.g., ADX < 20) but adds a distinct entry logic. No overlap with current top candidates (which are either structural DTE studies or veto gates).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Exit: premium_stop_pct=-0.1 (10% stop), tp1_premium_pct=0.5 (50% TP1 selling hal
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidate because it is a parameter set for the sniper strategy, which is not currently represented in the leaderboard (existing sniper candidates are either artifact-invalidated or OOS-failed). However, it does not meet the OP-16 gate and would be rejected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

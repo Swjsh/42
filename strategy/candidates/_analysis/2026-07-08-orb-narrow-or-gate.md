@@ -47,3 +47,5 @@ We require:
   - All gym validators to pass.
   - Walk-forward OOS test in 2025-Q3 and 2026-Q1 to show positive edge_capture (if applicable) or at least non-negative P&L with a Sharpe ratio > 0.5.
   - Real-fills check on the top 3 J days must show <20% difference from BS-simulated P
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

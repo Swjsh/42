@@ -59,3 +59,5 @@ the F8-suppressed bull population loses money under the *new* engine too, so the
 winners" hypothesis is cleanly refuted. The only reason it isn't a 9–10 is the small affected N (3 trades) —
 F8 simply doesn't bite often, because upstream gates (ribbon-BULL-stack, buyer-pressure, bull_min_triggers≥2)
 already exclude most VIX-elevated bull bars. KEEP earns its keep on the margin, not by volume.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/f8_bull_vix_unblock_ab.py -->

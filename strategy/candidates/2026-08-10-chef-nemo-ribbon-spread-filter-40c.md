@@ -60,3 +60,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup currently requires a ribbon spread â
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements quality_gate proposals (e.g., V14E_BEAR_ONLY_GATE) by adding a structural filter. May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON tuning but is distinct as a spread threshold change. No duplication of current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

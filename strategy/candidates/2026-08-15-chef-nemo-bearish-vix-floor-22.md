@@ -67,3 +67,5 @@ The change will be implemented in `v14_enhanced_watcher.py` where the VIX condit
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates as it targets a different filter dimension (VIX floor for bears). May complement structural vetoes like STRUCTURE_VETO_DIR_VS_TREND by adding quality filter. No overlap with bullish VIX candidates (F8_BULL_VIX_GATE_REVAL, VIX_BULL_HARD_CAP_UNBLOCK) as this is bear-specific. If ratified, would require updating params.json and potentially invalidate candidates relying on current VIX behavior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

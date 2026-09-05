@@ -61,3 +61,5 @@ The top 5 parameter combinations currently ranked on the leaderboard (which shar
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate does not propose any change to strategy logic; it merely mandates validation of the current top-ranked parameter set. It complements all existing candidates by ensuring any future promotion is grounded in verified OOS and real-fills performance. No conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

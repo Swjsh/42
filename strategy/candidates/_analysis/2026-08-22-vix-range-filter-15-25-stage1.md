@@ -59,3 +59,5 @@ Apply a pre-entry filter: only allow BEARISH_REJECTION_RIDE_THE_RIBBON setups wh
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis tests a filter change that could complement existing candidates if validated. No direct conflict with current leaderboard entries (which are mostly structural gates or DTE studies), but would require re-scoring any candidate that interacts with VIX filters (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK). If proven effective, could be stacked with MIDDAY_TRENDLINE_GATE (rank 21) or STRUCTURE_VETO_DIR_VS_TREND (rank ★) as an additional regime filter. However, must first clear Stage-1 backtest to avoid polluting leaderboard with unvalidated proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

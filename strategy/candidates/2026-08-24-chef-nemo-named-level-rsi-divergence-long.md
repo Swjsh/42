@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with candidates 1-9 in _LEADERBOARD.md as it introduces a new trigger type rather than modifying existing gates, exits, or quality filters. May complement existing strategies by adding a long‑side entry signal uncorrelated with current short‑side anchors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

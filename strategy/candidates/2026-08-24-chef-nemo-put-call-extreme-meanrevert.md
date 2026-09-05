@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Orthogonal to existing candidates (e.g., VWAP_CONTINUATION, structure-based gates) as it uses options-flow sentiment (put/call ratio) rather than price-VWAP or structural triggers; no direct conflict with current leaderboard entries. Could complement by adding a new trigger dimension for long bias detection.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

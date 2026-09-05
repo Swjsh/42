@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries (ranks 1-9). It introduces a novel trigger (ribbon-flat-to-expansion with RSI pullback) distinct from current ribbon-based strategies (BEARISH_REJECTION_RIDE_THE_RIBBON/BULLISH_RECLAIM_RIDE_THE_RIBBON) which require an active ribbon slope. It may complement existing candidates by capturing different market regimes (low-volatility consolidation breaks vs. trending ribbon rides). No overlap in trigger logic or exit rules is evident from the leaderboard descriptions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

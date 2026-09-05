@@ -57,3 +57,5 @@ Obtain the doc validation script before proceeding with any testing or validatio
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with or complement any strategy candidates in the leaderboard as it addresses infrastructural missing documentation rather than trading strategy mechanics. It is a meta-blocker affecting all validation work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

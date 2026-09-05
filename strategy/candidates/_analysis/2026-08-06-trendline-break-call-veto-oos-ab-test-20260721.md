@@ -58,3 +58,5 @@ Entry trigger: The gate reads `structure-state.json` (updated by `market_structu
 ## Pre-existing leaderboard impact
 
 Complements WS4 (TRENDLINE_BREAK_CALL_VETO) currently ranked WS4 with NEEDS-MORE-DATA status. This analysis provides the OOS real-fills validation required to move WS4 to PROMISING or J-RATIFIED. No conflict with other candidates; structural gate orthogonal to DTE/WVAP/contention-based proposals. Leaderboard impact: WS4 edge_capture projection updates from N/A to +$165 incremental (call-veto only), Sharpe projection +0.11, final score updateable post-validation.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/trendline_break_call_veto_oos_ab.json -->

@@ -56,3 +56,5 @@ The candidate must pass the following tests before merging:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly those focused on overnight trading strategies. However, further analysis is required to determine the specific impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -83,3 +83,5 @@ Before any consideration for promotion, the following must be satisfied:
 ## Pre-existing leaderboard impact
 
 This analysis does **not** produce a tradable candidate; its edge_capture is far below the OP‑16 floor (‑126 ≪ 771). It would be **REJECTED** if submitted as a candidate, leaving the current leaderboard unchanged. It highlights the danger of over‑optimizing sniper parameters without proper OOS gating. No conflict with existing candidates; rather, it reinforces the need for rigorous validation before any parameter change proceeds.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

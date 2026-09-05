@@ -47,3 +47,5 @@ Not applicable (this is observation, not a code change).
 ## Pre-existing leaderboard impact
 
 This analysis supports the promotion of the existing V14E_BEAR_ONLY_GATE candidate from PROMISING to potentially J-RATIFIED upon meeting OP-21 criteria.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

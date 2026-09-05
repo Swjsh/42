@@ -54,3 +54,5 @@ We need to run the scan and produce the tally file.
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis supports candidate #20 BEARISH_REJECTION_MORNING by providing live observation counts needed for OP-21 gate.
+
+<!-- PROVENANCE-MISSING: automation/state/decisions.json -->

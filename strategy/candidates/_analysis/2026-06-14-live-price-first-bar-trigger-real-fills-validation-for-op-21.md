@@ -50,3 +50,5 @@ We need to collect three live-fire instances from heartbeat logs and run real-fi
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate directly but is a prerequisite for promotion. It does not conflict with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

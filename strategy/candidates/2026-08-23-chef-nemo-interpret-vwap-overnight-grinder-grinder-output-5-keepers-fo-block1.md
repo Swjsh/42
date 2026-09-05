@@ -434,3 +434,5 @@
         5. **Failure modes:** 
            - Worst day: from the by_day, the worst day is not a loss (all days are non-negative) but the worst day in terms of missing opportunity is 4/29 and 5/04 where we got 0 instead of the expected winner P&L.
            - Max drawdown: not provided, but note the wide_pnl is positive ($587.72) over 12 trades, so the equity curve is likely increasing. However, without the trade
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

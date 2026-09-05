@@ -56,3 +56,5 @@ Run Stage-1 backtest over full cached history (2025-01-02 to 2026-06-18) using b
 ## Pre-existing leaderboard impact
 
 Complements all ratified candidates (ranks 1★★, 17, 21, etc.) by validating baseline edge. Conflicts with none; provides OP-16 foundation for future proposals. Does not alter any existing candidate's status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

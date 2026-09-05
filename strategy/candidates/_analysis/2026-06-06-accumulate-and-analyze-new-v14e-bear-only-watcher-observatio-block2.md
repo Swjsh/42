@@ -53,3 +53,5 @@ Promotion triggers when:
 - Sustained over 4+ consecutive weekly checks (no single-week WR < 55%)
 
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

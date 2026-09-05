@@ -58,3 +58,5 @@ Note: The gate floor in the print is the edge capture floor (771), not a win rat
 ## Pre-existing leaderboard impact
 
 This change does not propose any new strategy or alter existing ones, so it does not conflict with any candidate in the leaderboard. It is a meta-improvement to the research process.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

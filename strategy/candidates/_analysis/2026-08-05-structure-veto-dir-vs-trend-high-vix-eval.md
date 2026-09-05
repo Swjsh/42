@@ -52,3 +52,5 @@ N/A (no code change; analysis requires slicing existing real-fills A/B by VIX>20
 ## Pre-existing leaderboard impact
 
 N/A (analysis only; does not conflict with or complement existing candidates)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

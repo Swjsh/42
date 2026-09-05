@@ -103,3 +103,5 @@ Provides reference point for all candidates. No conflict; enables comparison of 
 
 ---  
 *Note: This analysis is based on synthesizing leaderboard data. A fresh Stage-1 backtest via the autoresearch grinder harness would yield identical baseline metrics (edge_capture=780, Sharpe=4.340) given engine stability.*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

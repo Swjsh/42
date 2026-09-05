@@ -57,3 +57,5 @@ The SNIPER_LEVEL_BREAK trade class with a chart-stop exit will use the following
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement existing candidates in `_LEADERBOARD.md`. It is a new trade class that requires separate testing and validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

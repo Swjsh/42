@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger and does not modify existing gates, filters, or exits. It does not conflict with any of the current leaderboard entries (which are primarily quality gates, DTE studies, or watcher proposals). It may complement strategies that trade the gap continuation (e.g., GAP_AND_GO) by providing a counter‑trend short side.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

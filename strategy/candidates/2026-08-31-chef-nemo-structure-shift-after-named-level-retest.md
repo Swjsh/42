@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type that complements existing named level ideas (e.g., NAMED_LEVEL_SECOND_TEST, LEVEL_BREAK_FIRST_STRIKE) by adding a market structure confirmation condition. It does not directly conflict with filter/exit/call veto candidates in the leaderboard, as it targets a distinct entry signal. However, it may overlap with structural triggers like TRENDLINE_BREAK_CALL_VETO; further Stage-1 backtest needed to quantify interaction. No immediate conflict with top-ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

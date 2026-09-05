@@ -64,3 +64,5 @@ We are testing a parameter combination from the shotgun_scalper_stage4 grinder t
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 floor (edge_capture < 771) and would not appear on the leaderboard. It does not conflict with any current leaderboard candidate (all require edge_capture ≥ 771). No complement or conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

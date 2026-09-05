@@ -63,3 +63,5 @@ Recent entry triggers PULLBACK-HOLD-BULL-TRIGGER and BEARISH_REJECTION_MORNING i
 ## Pre‑existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries; it is a pure filter change to two specific triggers. It may complement candidates that rely on early entry timing (e.g., any future trigger that benefits from earlier signals) and is orthogonal to exit‑change or quality‑gate proposals. No current leaderboard candidate directly modifies PULLBACK‑HOLD‑BULL‑TRIGGER or BEARISH_REJECTION_MORNING, so there is no overlap.
+
+<!-- PROVENANCE-MISSING: test_pullback_hold_bull_trigger.py, test_bearish_rejection_morning_trigger.py -->

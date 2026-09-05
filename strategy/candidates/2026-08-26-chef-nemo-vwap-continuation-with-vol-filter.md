@@ -56,3 +56,5 @@ The trigger retains all existing VWAP_CONTINUATION context filters (first 3 RTH 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION detector (rank 24 in leaderboard) by attempting to improve its selectivity. May overlap with ORB_NARROW_OR_GATE (rank 4) and MIDDAY_TRENDLINE_GATE (rank 21) in time-of-day filtering but operates on different logic (VWAP alignment vs. ORB/trendline). No direct contradiction with J-RATIFIED candidates (e.g., #12 V14E_PARAM_SWEEP_26K, #17 V14E_BEAR_TIME_OF_DAY_GATE, #31 MIDDAY_TRENDLINE_GATE) as it targets a different setup type.
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_vol_filter.py -->

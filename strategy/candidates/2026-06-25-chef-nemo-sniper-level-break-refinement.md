@@ -52,3 +52,5 @@ The pre-merge gate requires a walk-forward optimization with a Sharpe ratio grea
 ## Pre-existing leaderboard impact
 
 The proposed refinement does not conflict with any existing candidates on the leaderboard. It complements the existing SNIPER_LEVEL_BREAK trade class and provides an alternative exit mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

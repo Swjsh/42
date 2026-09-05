@@ -54,3 +54,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (equity curve, O
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing gate or filter in the leaderboard. It complements existing structure‑based candidates (e.g., MIDDAY_TRENDLINE_GATE, BEARISH_REJECTION_RIDE_THE_RIBBON) by adding a ribbon‑alignment condition to BOS entries. It does not conflict with any ranked candidate because it proposes a distinct entry trigger rather than a parameter tweak or veto. Should it demonstrate positive edge_capture on J anchors, it could become a complementary trigger to be layered with existing quality gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

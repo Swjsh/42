@@ -70,3 +70,5 @@ No engine behavior is modified; this is pure observation to inform future hypoth
 ## Pre-existing leaderboard impact
 
 No conflict; complements BEARISH_REJECTION_MORNING (rank 20) and BEARISH_REVERSAL_AT_LEVEL (implied existing watcher) by adding meta-observation layer. Does not affect any ranked candidate's edge_capture or Sharpe as zero engine changes are proposed. Synergistic with ORB_NARROW_OR_GATE (rank 4) and V14E_BEAR_TIME_OF_DAY_GATE (rank 17) for intraday confluence analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

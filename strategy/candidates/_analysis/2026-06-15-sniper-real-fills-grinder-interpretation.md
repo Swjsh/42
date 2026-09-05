@@ -50,3 +50,5 @@ Since the edge_capture is negative (-126.0), the strategy fails the OP-16 gate (
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it interprets grinder output. It does not conflict with any existing leaderboard candidate. It suggests that the SNIPER_LEVEL_BREAK setup, as tested, should not be promoted to the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

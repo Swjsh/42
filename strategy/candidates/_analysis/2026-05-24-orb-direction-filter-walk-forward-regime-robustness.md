@@ -87,3 +87,5 @@ Assuming per-observation std dev estimated from quarterly variance:
 ## Confidence
 
 6 / 10 — Walk-forward passes gates numerically, but the extreme Q2-2026 concentration (85% of P&L from one quarter) raises regime-sensitivity concern. The filter appears to work exceptionally well in trending bull regimes (Q2-2026) but poorly in mixed/chop regimes (Q1-2025: 0% WR). Recommend monitoring Q3-Q4 2026 for regime robustness validation before full production deployment.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

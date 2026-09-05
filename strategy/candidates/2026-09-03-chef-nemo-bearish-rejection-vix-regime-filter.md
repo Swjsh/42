@@ -59,3 +59,5 @@ Modify the setup's context filters:
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; complements VIX‑BULL‑HARD‑CAP‑UNBLOCK and other VIX‑related filters. Should be evaluated alongside any VIX‑based adjustments to avoid overlap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

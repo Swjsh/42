@@ -60,3 +60,5 @@ Test TP1 premium percentages from 10% to 100% in 10% increments for BEARISH_REJE
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing leaderboard candidates by refining the exit logic of the core bearish setup. It does not conflict with quality gates like STRUCTURE_VETO_DIR_VS_TREND or MIDDAY_TRENDLINE_GATE, as it operates on a different mechanism (exit timing vs. entry filtering). May synergize with DTE-adjusted candidates (e.g., WEEKLY_DTE_NOT_0DTE) if regime-dependent TP1 proves beneficial. No direct overlap with watcher-only proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

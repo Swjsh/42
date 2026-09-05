@@ -59,3 +59,5 @@ Since this is an analysis and not a candidate, there is no pre-merge gate for me
 This analysis provides a baseline for the base engine. It does not conflict with any existing candidate but rather provides the reference point against which candidates are measured (as seen in the leaderboard where candidates report delta vs base).
 
 We note that the leaderboard shows the base engine's edge_capture as 780 (from the STRUCTURE_VETO_DIR_VS_TREND candidate being unchanged vs base). We will update this analysis with the actual per-day breakdown and other metrics upon completion of the Stage-1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

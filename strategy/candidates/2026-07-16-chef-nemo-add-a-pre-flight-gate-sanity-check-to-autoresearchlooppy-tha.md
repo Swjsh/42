@@ -42,3 +42,5 @@
 **Action:** Add `journaler` module with post-trade hook to auto-save `trades.csv` and log session-end timestamp. Fail silently if disk I/O fails (to avoid blocking trade execution).  
 
 **Dependency:** Requires J's approval for `journaler` module deployment (OP-0 #2).
+
+<!-- PROVENANCE-MISSING: test_position_sizing.py, analysis/YYYY-Www.md -->

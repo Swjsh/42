@@ -60,3 +60,5 @@ Exit logic: unchanged from the base strategy (chart stop, chandelier profit-lock
 
 This analysis complements the existing [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md) candidate by providing the OOS and real-fills validation it needed. It does not conflict with any other candidate in the leaderboard, as it is a filter that can be stacked with other improvements (e.g., the STRUCTURE_VETO_DIR_VS_TREND veto). However, note that both filters aim to remove wrong-way trades, so there may be overlap in the trades they remove. A combined effect study would be needed to avoid double-counting.
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

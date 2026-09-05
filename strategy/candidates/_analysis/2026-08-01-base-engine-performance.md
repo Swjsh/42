@@ -53,3 +53,5 @@ We are establishing the baseline performance of the base engine (no active candi
 
 ## Pre-existing leaderboard impact
 Establishes baseline (Rank 0). All candidates in _LEADERBOARD.md are delta-vs-base. No conflict; supports relative evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

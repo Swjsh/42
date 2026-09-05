@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new afternoon‑session long trigger that does not overlap with existing morning‑biased setups (e.g., VWAP_CONTINUATION, BEARISH_REJECTION_RIDE_THE_RIBBON). It is likely complementary, operating in a distinct time window and direction, and would not interfere with current leaderboard entries. No direct conflict with candidates 1‑9 observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

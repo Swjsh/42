@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including gym val
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing leaderboard candidates (which are primarily filters, quality gates, or structural changes). This is a new trigger type that would operate independently; however, it may interact with existing filters (e.g., VIX gates, trend filters) and would require integration testing to ensure no adverse effects on current profitable setups. No direct overlap with candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

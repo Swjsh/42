@@ -54,3 +54,5 @@ We require: Stage-1 grinder to complete with all gates passed (concentration, qu
 ## Pre-existing leaderboard impact
 
 This candidate is for validating the base engine. It does not conflict with any existing candidate; it provides a baseline. All existing candidates are measured against this base.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

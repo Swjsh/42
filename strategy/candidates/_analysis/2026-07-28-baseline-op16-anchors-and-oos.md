@@ -64,3 +64,5 @@ Since this is an analysis, there is no merge. However, to validate the baseline 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis establishes the baseline performance (edge_capture=780, OOS Sharpe=4.340) against which all candidates in the leaderboard are measured. It does not conflict with any candidate; rather, it provides the context for understanding candidate impacts. For example, the STRUCTURE_VETO_DIR_VS_TREND candidate shows delta edge_capture=0 and delta Sharpe=+0.388, which is consistent with this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with current leaderboard entries (ranks 1-24). It complements existing bearish strategies (e.g., BEARISH_REJECTION_MORNING) by providing a distinct entry condition based on gap magnitude and VIX regime rather than price action at named levels. No overlap in trigger mechanics observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

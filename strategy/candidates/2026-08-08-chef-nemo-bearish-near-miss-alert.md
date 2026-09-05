@@ -61,3 +61,5 @@ The alert does not change the skip decision; it only logs the event.
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates (ranks 1-24) as it adds observability without changing P&L, filters, triggers, or exits. No conflicts with any candidate in the leaderboard. Safe to layer atop any strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

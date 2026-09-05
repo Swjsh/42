@@ -64,3 +64,5 @@ We hypothesize that restricting bearish entries to periods of elevated or rising
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (no identical filter_change proposals). Early-morning-vix-filter not explicitly listed in leaderboard; if overlapping parameters exist in codebase, deduplication required before staging. Complements structural filters (e.g., STRUCTURE_VETO_DIR_VS_TREND) by adding volatility regime awareness. No direct overlap with QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS (cross-ticker) or WEEKLY_DTE_NOT_0DTE (DTE lever).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

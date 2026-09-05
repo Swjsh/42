@@ -57,3 +57,5 @@ Exit: Premium stop at `premium_stop_pct` (negative), TP1 at `tp1_premium_pct` of
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (which require edge_capture ≥ 771). This keeper's negative edge_capture would be rejected at the door. No complement; represents a deterioration vs baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ The combo increases sensitivity to high‑volatility, low‑body candles and use
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture = 373.48 < 771) and therefore does not appear on the current leaderboard. It conflicts with the leaderboard’s requirement that any promoted candidate must clear the OP‑16 edge floor; it does not complement any existing candidate because it fails the primary gate. It would need substantial redesign (e.g., tightening loser‑day filters, reducing runner target, adding regime filters) before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

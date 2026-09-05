@@ -42,3 +42,5 @@ Unit tests for task_scorer_multiline_priority_fix must pass (100% success rate) 
 ## Pre-existing leaderboard impact
 
 No impact on the leaderboard, as this is an internal code quality gate unrelated to strategy performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

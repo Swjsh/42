@@ -27,3 +27,5 @@
 - **Live Arming Blocker:** No direction (bullish or bearish) may be armed live without J’s approval (OP-0 #1). Paper/shadow accounts may trade both.  
 - **Validation Gap:** Bullish results (e.g., +$5,586 WR 56%) are SIM-only; live paper fills show 80 WR 1.2% loss (VIX pinned). No plan to revalidate bullish setups until n≥20 episodes (per PROFITABILITY-DEEP-RESEARCH-2026-07-11.md).  
 - **Dependency:** All live-money arming (core/fleet) requires J’s explicit approval. No automated bypass.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

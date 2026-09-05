@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with existing candidates in the leaderboard (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION). It complements existing named-level concepts (NAMED_LEVEL_SECOND_TEST, LEVEL_SWEEP_SNIPE) by adding a volume-dry-up condition as a novel filter for reversal signals. No overlap in mechanism detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

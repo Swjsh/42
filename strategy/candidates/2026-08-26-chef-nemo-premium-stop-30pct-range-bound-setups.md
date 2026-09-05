@@ -63,3 +63,5 @@ For the bollinger_squeeze and vwap_reclaim_failed_break setups, modify the premi
 ## Pre-existing leaderboard impact
 
 This candidate proposes an exit_change for two specific setups (bollinger_squeeze and vwap_reclaim_failed_break) under a range-bound condition. It does not conflict with existing leaderboard candidates, which are primarily structural gates, wiring changes, or other setup modifications. It complements candidates that focus on entry quality or regime identification by refining exit management for range-bound conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

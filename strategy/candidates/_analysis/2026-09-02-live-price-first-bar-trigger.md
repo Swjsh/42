@@ -57,3 +57,5 @@ The candidate triggers on the first premarket bar that breaks the premarket low 
 ## Pre-existing leaderboard impact
 
 Confirms LIVE_PRICE_FIRST_BAR_TRIGGER has zero J-edge (consistent with leaderboard notes). No impact on other candidates' rankings; clarifies why it remains NEEDS-MORE-DATA (OP-16 floor not met). Complements existing analysis by providing Stage-1 backtest basis for OOS/real-fills next steps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

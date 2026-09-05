@@ -61,3 +61,5 @@ On FOMC Day-1 sessions, when the engine's bear score is ≥8 and VIX is declinin
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it validates an existing condition (L162). Therefore, it does not conflict with any candidate in the leaderboard. If the doctrine is confirmed false (i.e., abstention misses winners), a follow‑up candidate could be proposed to relax the VIX condition on FOMC Day-1, which would then be evaluated against the current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

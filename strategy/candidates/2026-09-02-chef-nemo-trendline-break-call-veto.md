@@ -58,3 +58,5 @@ Pass Stage-1 backtest (completed), then OOS walk-forward (WF≥0.70), real-fills
 ## Pre-existing leaderboard impact
 
 Complements existing candidate STRUCTURE_VETO_DIR_VS_TREND (rank ★) which vetoes wrong-way trades via trend classification. This CALL-specific VETO adds granularity for counter-trend CALL suppression without affecting PUT winners. No conflict; additive safety layer. Current leaderboard rank WS4 (NEEDS-MORE-DATA) will update post-OOS.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

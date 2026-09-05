@@ -50,3 +50,5 @@ gym validators, walk-forward, real-fills validation on J anchor days.
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements existing BEARISH_REJECTION_RIDE_THE_RIBBON logic; may interact with HTF_TRIGGER_GATE_SWEEP (rank 33) but that was rejected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

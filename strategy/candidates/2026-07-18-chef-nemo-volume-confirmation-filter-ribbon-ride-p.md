@@ -56,3 +56,5 @@ Entry trigger remains the BEARISH_REJECTION_RIDE_THE_RIBBON setup (level rejecti
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters like MIDDAY_TRENDLINE_GATE (rank 21) and V14E_BEAR_ONLY_GATE (rank 3) by targeting entry quality rather than exit or regime. No direct conflict with top candidates; may synergize with STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding another layer of institutional confirmation. Does not modify automation/prompts/heartbeat*.md or state/params*.json (Rule 9 compliant). If proven effective, could be stacked with existing filters to further improve Sharpe without sacrificing edge_capture on J anchors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Replacing the static -50% premium stop with an ATR-based trailing stop (stop = e
 
 ## Pre-existing leaderboard impact
 Complements existing candidates: does not conflict with any ranked 1-24 proposals (none modify BEARISH_REJECTION exit rules). Would become new baseline for BEARISH_REJECTION if ratified, requiring re-evaluation of all candidates against updated engine. No direct overlap with watcher/gate candidates (e.g., ranks 3-5, 17-21) as they operate orthogonally to exit logic. May improve synergy with structure-based vetoes (ranks ★, WS4) by reducing losing trades they aim to filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Per leaderboard, multiple candidates are blocked on "J building 3+ live SNIPER s
 ## Next Action
 
 Execute `Get-Content journal/sniper-shadow-trades.jsonl -ErrorAction SilentlyContinue` to check if any shadow trades exist. If yes, run validation. If no, surface to J that shadow trade accumulation needs to begin for SNIPER/LBFS/FBW candidates to advance.
+
+<!-- PROVENANCE-MISSING: analysis/shadow-opra-validation.json -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: Unlike GAP_AND_GO (gap continuation), this trades the fade. Distinct from VWAP_RECLAIM_FAILED_BREAK (requires failed VWAP break) by requiring gap down, established ORL, and VWAP reclamation after ≥5 min below VWAP. No conflict with watcher/gate proposals (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it operates in 09:30-11:30 window with different triggers. Does not duplicate any leaderboard strategy's core primitives.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

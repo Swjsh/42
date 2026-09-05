@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates; adds a new short-trigger logic that could complement existing long-biased setups like VWAP_CONTINUATION and GAP_AND_GO by providing a counter‑trend short edge in gap‑up environments. No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

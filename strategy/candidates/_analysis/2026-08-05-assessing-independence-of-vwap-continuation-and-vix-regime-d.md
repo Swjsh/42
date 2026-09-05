@@ -68,3 +68,5 @@ This analysis does not directly affect OP-16 anchors because it is about the ind
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in the leaderboard because it is not a trading strategy proposal. It is a utility and an analysis that might inform future candidates about signal diversification. It complements existing work by providing a tool to assess setup independence.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/vwap_continuation_oos_signals.json, analysis/recommendations/vix_regime_dayside_oos_signals.json -->

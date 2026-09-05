@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION (morning-focused) by targeting a distinct time window (power hour) with different filters (volume/body vs. morning continuation). No direct conflict with leaderboard candidates (mostly watcher quality gates, DTE studies, or structural filters). Could potentially synergize with VIX_BULL_HARD_CAP_UNBLOCK if VIX<25 regime filter is shared.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Modify BEARISH_REJECTION_RIDE_THE_RIBBON entry logic to require simultaneous BEA
 ## Pre-existing leaderboard impact
 
 Complements MIDDAY_TRENDLINE_GATE (adjacent time window) and conflicts with BEARISH_REJECTION_MORNING watcher's WATCH-ONLY status. Does not overlap with existing J-RATIFIED candidates (e.g., V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) as it targets a specific entry confirmation filter. May subsume BEARISH_REJECTION_MORNING if promoted to live execution.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

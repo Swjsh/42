@@ -49,3 +49,5 @@ The pre-merge gate requires that the proposed candidate pass the gym validators,
 ## Pre-existing leaderboard impact
 
 The proposed candidate may complement or conflict with existing candidates in the leaderboard, but the exact impact is unknown due to the lack of information on the OP-16 anchors and OP-20 disclosures.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

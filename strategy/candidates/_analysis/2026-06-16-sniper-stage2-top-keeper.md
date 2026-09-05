@@ -40,3 +40,5 @@ Exit conditions:
 | 5/01 winner | unknown -- requires Stage-1 backtest | 0 | unknown -- requires Stage-1 backtest |
 | 5/04 winner | unknown -- requires Stage-1 backtest | 191.64 | unknown -- requires Stage-1 backtest |
 | 5/05 loser | unknown -- requires Stage-1 backtest | 202.41 | unknown -- requires
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

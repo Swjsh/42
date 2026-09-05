@@ -50,3 +50,5 @@ gym validators, walk-forward OOS positive, real-fills check on top 3 J days, OP-
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup by providing an earlier entry signal on the same days. It does not conflict with any top-9 candidates as it is a new trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

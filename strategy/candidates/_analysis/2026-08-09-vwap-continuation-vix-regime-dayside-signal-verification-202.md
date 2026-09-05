@@ -80,3 +80,5 @@ Complements existing candidates by verifying the correctness of two setups that 
 - vwap_continuation is LIVE (see playbook) and used in multiple candidates (e.g., VWAPCONT_DTE_OVERRIDE_2DTE).
 - vix_regime_dayside appears in VIX-related candidates (e.g., VIX_BULL_HARD_CAP_UNBLOCK, SNIPER_VIX18_GRINDER) as a regime filter; verifying its signal ensures those candidates' logic is sound.
 No conflict with leaderboard; supports ongoing research by ensuring signal foundations are valid.
+
+<!-- PROVENANCE-MISSING: backtest/lib/analysis_helpers.py, backtest/tests/test_vwap_continuation_signal.py, backtest/tests/test_vix_regime_dayside_signal.py, test_simulator_honors_strike_offset.py, backtest/tests/test_pooled_distinct_trials.py -->

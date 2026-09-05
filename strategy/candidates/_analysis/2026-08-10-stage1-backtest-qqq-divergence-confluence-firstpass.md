@@ -51,3 +51,5 @@ We require: gym validators pass, walk-forward OOS positive, real-fills validatio
 ## Pre-existing leaderboard impact
 
 This analysis evaluates the top-ranked candidate (QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS) which is currently NEEDS-MORE-DATA. If the Stage-1 backtest shows sufficient edge capture and OOS performance, it may move to PROMISING or J-RATIFIED. It does not conflict with existing candidates 1-9 in the leaderboard (which are mostly rejected or watcher-only).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

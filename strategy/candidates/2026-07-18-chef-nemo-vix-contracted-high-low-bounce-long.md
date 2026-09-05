@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it introduces a new trigger type (VIX-conditioned structural break) not present in current candidates. It may complement volatility-gated strategies (e.g., F8_BULL_VIX_GATE_REVAL) by adding a structural entry filter, but requires Stage-1 backtest to verify any synergistic or redundant effects with existing approaches.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Stage-1 backtest to confirm anchor day behavior, OOS walk-forward with WF≥0.70
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture floor (771) and would be REJECTED. It does not appear on the current leaderboard. It conflicts with the leaderboard's requirement for edge_capture≥771, so it cannot be promoted without significant revision.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

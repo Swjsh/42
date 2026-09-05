@@ -75,3 +75,5 @@ Before consideration for leaderboard, must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing keeper from grinder output. The keeper's negative edge_capture (-126.0) fails the OP-16 floor (771), so it would be REJECTED if submitted as a candidate. It conflicts with all current leaderboard candidates (which all have edge_capture >771) by demonstrating the importance of anchor day preservation. No complement to existing candidates; serves as a cautionary example of overfit parameter tuning. ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

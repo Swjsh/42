@@ -66,3 +66,5 @@ The shotgun_scalper_stage4 keeper attempts to capture edge via HTF-gated directi
 ## Pre-existing leaderboard impact
 
 Does not impact leaderboard (rejected by OP-16 edge_capture floor < 771). Leaderboard only includes candidates with edge_capture >= 771 (see _LEADERBOARD.md header). This candidate would be REJECTED at the door per OP-16 rules. No conflict with existing PROMISING/J-RATIFIED candidates.
+
+<!-- PROVENANCE-MISSING: test_shotgun_scalper_stage4.py -->

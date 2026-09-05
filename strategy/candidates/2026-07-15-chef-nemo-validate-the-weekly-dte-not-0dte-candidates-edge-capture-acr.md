@@ -34,3 +34,5 @@
 - **Rule:** No automated process may block J’s interactive Claude session (OP-32 scar: 2026-05-22 market-hours firewall lockout).  
 - **Current Compliance:** System compounds (curate/prune/ratify) rather than accumulate. All guards fail open.  
 - **Edge Case:** If `Gamma_Heartbeat` fails during live trading, system must log outcome and alert J via `markdown/planning/FUTURE-IMPROVEMENTS.md` (no silent stops).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard. It may complement existing volatility or breakout-based setups, but without backtest data, the interaction is unknown. It does not appear to overlap with any existing trigger or filter in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

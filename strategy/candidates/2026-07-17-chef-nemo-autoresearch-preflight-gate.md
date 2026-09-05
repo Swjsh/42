@@ -57,3 +57,5 @@ At the start of each iteration in `autoresearch/loop.py`, run a baseline backtes
 ## Pre-existing leaderboard impact
 
 Complements all candidates (1-24) by adding a pre-flight check that prevents autoregresearch from launching when baseline engine performance on J anchors is degraded. No conflicts; enhances robustness of research pipeline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

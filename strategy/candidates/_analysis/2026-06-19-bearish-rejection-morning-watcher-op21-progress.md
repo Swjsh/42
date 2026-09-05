@@ -64,3 +64,5 @@ The watcher itself has passed gym validators (78/78). For promotion to live trad
 ## Pre-existing leaderboard impact
 
 This analysis is about the existing candidate BEARISH_REJECTION_MORNING (rank 20). It does not conflict with other candidates; it is an update on its progress toward promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

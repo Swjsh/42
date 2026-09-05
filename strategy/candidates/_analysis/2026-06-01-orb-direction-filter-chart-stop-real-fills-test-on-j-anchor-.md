@@ -59,3 +59,5 @@ Low confidence due to lack of direct real-fills data on the specific four J-anch
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis supports candidate #5 ORB_DIRECTION_FILTER (filed 2026-05-21), which is currently NEEDS-MORE-DATA. Positive real-fills results on the four J-anchor days would help satisfy its NEEDS-MORE-DATA gate and potentially move it to PROMISING. It does not conflict with other candidates; ORB_DIRECTION_FILTER is a watcher-only change that complements other filters (e.g., ORB_NARROW_OR_GATE) by simplifying the logic. No known conflicts with candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

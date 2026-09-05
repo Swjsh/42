@@ -64,3 +64,5 @@ Gym validators must pass; walk-forward OOS must show positive edge_capture; real
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (edge_capture < 771 would reject at door per OP-16); complements nothing as non-viable for live trading without further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

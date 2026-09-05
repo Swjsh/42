@@ -60,3 +60,5 @@ All other parameters (e.g., chart stop, profit-lock, time stop) remain at baseli
 ## Pre-existing leaderboard impact
 
 This candidate proposes exit‑parameter changes that may overlap with existing exit_change candidates (e.g., V14E_PARAM_SWEEP_26K). It does not conflict directly with structural or watcher candidates, but its poor OP‑16 score would keep it off the leaderboard unless edge_capture improves after OOS validation. It is complementary only if it can raise edge_capture above 771 while maintaining low concentration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

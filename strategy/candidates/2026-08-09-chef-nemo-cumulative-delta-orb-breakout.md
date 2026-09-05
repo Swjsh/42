@@ -58,3 +58,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It may complement existing ORB‑related watchers (e.g., ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding an order‑flow confirmation layer, but it could also conflict if both fire on the same bar and produce contradictory signals. The candidate must be evaluated for interaction with existing ORB gates during the Stage‑1 backtest. It does not affect any non‑ORB strategies (e.g., VWAP_CONTINUATION, BEARISH_REJECTION_RIDE_THE_RIBBON) directly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

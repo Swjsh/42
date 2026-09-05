@@ -54,3 +54,5 @@ Must pass gym validators (basic sanity checks). Must achieve edge_capture >= 771
 
 ## Pre-existing leaderboard impact
 This candidate does not meet the OP-16 edge_capture floor of 771 (current edge_capture=285) and therefore would be REJECTED at the door. It does not impact the current leaderboard as it is not eligible for inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

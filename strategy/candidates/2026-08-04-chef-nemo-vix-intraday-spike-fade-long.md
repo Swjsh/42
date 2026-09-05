@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; those candidates involve VIX level gates (F8_BULL_VIX_GATE_REVAL, VIX_BULL_HARD_CAP_UNBLOCK) or other structures. This proposal introduces an intraday VIX spike fade trigger, which is complementary to existing VIX‑based filters and adds a new trigger lane.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

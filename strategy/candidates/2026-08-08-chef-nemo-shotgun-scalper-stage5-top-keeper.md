@@ -68,3 +68,5 @@ Specifically:
 ## Pre-existing leaderboard impact
 
 Likely conflicts with leaderboard entry criteria: edge_capture < 771 would REJECT this candidate per OP-16. Does not complement existing candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it fails the primary edge gate. Would not appear on leaderboard if submitted today.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

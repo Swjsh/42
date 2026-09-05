@@ -57,3 +57,5 @@ The trigger fires when the first regular trading hour (RTH) bar prints a new pre
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type that does not modify existing filters or exits. It complements existing candidates by adding a pre-entry condition that could reduce false triggers for BEARISH_REJECTION_RIDE_THE_RIBBON (rank 1) and similar setups. No direct conflict with current leaderboard entries; however, if edge_capture remains near zero, it will not improve scores and may be rejected for lack of OP-16 impact. It does not affect any existing J-RATIFIED or PROMISING candidates' mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

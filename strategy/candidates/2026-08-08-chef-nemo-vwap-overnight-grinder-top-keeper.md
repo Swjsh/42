@@ -60,3 +60,5 @@ Parameters from the top keeper: vol_mult=1.5, proximity_dollars=0.15, lookback_b
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and therefore does not appear on the leaderboard. It does not complement any existing candidate because it fails the mandatory OP‑16 threshold; any promotion would require a substantial redesign to capture J’s winner days while avoiding losses on loser days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries (which are primarily watcher quality gates, DTE studies, or structural vetoes). It proposes a new long-entry trigger that could complement existing exit/risk management rules without overlapping scope. No direct duplication with current candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

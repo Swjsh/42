@@ -69,3 +69,5 @@ We need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard because it is a change to the perception layer (key-levels.json) and how we interpret retests. It is complementary to candidates that use level-based signals (like BEARISH_REJECTION_RIDE_THE_RIBBON, LEVEL_MEMORY_PERCEPTION, etc.). However, note that LEVEL_MEMORY_PERCEPTION was rejected as an entry but kept as infrastructure. We are building on that infrastructure.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

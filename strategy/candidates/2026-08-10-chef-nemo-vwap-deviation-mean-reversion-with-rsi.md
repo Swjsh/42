@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly conflict with existing candidates in the leaderboard (e.g., VWAP_CONTINUATION, which trades in the direction of VWAP). It may complement existing strategies by providing mean-reversion signals in choppy markets where trend-following strategies underperform. However, impact on leaderboard rankings cannot be assessed without a Stage-1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

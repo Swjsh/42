@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing rules or parameters in the leaderboard. It does not conflict with existing candidates 1‑9, as it adds a distinct entry logic. However, it may compete for capital allocation if ratified; impact on leaderboard rankings will be determined post‑backtest. No changes to current leaderboard entries are needed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

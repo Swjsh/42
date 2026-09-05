@@ -80,3 +80,5 @@ Since this is a feature implementation (not a strategy change), the existing wal
 9/10 — Implementation is straightforward; prior validation confirms gate value.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

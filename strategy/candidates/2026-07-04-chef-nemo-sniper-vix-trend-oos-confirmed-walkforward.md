@@ -55,3 +55,5 @@ The candidate must pass the following tests before being merged:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate. The SNIPER_VIX_TREND_OOS_CONFIRMED candidate provides an additional edge in the market, especially during periods of high volatility.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

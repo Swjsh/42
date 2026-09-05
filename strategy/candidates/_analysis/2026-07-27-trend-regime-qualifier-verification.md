@@ -72,3 +72,5 @@ If any qualifier is False at the anchor bar while the setup is expected to fire 
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in _LEADERBOARD.md; it is a preparatory step that may inform future candidates (e.g., a qualifier-replacement proposal). It complements candidates that modify entry triggers (e.g., VWAP_CONTINUATION tweaks) by providing anchor-bar validation groundwork. No current leaderboard candidate directly addresses qualifier lag, so there is no overlap.
+
+<!-- PROVENANCE-MISSING: test_trend_regime_qualifier_anchor.py -->

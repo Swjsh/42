@@ -61,3 +61,5 @@ Pending analysis — prior finding suggests high confidence VIX >= 20 is detrime
 ---
 
 **Running analysis now...** (requires ORB watcher observation load + VIX fetch)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

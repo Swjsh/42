@@ -59,3 +59,5 @@ We propose to test looser exits: e.g., increase tp_premium_pct to 1.00, increase
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

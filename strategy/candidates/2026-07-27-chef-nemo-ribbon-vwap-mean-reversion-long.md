@@ -58,3 +58,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/exits/watchers); complements by providing a long-biased mean-reversion entry signal that could coexist with trend-following or volatility-based strategies. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

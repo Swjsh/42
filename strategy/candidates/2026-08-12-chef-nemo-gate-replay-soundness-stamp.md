@@ -59,3 +59,5 @@ Modify `gate-registry-status.json` to include a per-gate `replay_soundness` fiel
 ## Pre-existing leaderboard impact
 
 This infrastructure change does not conflict with any existing candidate. It complements all candidates by ensuring gate promotions are based on sound validation evidence, reducing risk of promoting unsound gates. No impact on leaderboard rankings or candidate statuses.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

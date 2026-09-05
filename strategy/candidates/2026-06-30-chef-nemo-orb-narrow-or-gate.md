@@ -59,3 +59,5 @@ Before merging the ORB_NARROW_OR_GATE trade class into the production engine, th
 ## Pre-existing leaderboard impact
 
 The ORB_NARROW_OR_GATE trade class complements the existing leaderboard candidates, particularly the ORB_DIRECTION_FILTER candidate, which also focuses on long-only trades. However, the narrow OR filter provides an additional layer of discrimination, potentially improving the risk-reward ratio.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

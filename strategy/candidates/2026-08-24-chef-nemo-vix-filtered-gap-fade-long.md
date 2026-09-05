@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Likely complementary as a new trigger that can be combined with existing filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK, MIDDAY_TRENDLINE_GATE) but requires Stage-1 backtest to confirm no adverse interaction with current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

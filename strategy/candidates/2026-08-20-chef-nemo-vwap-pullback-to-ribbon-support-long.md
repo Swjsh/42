@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by adding OR break and tight VWAP band filters; conflicts with none directly as it targets long bias while most OP-16 anchors are bearish. May overlap with BULLISH_RECLAIM_RIDE_THE_RIBBON but differs in entry mechanics (VWAP pullback vs. level reclaim).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

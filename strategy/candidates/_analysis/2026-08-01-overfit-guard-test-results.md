@@ -22,3 +22,5 @@ No action required at this time. The overfit guard is functioning as expected.
 ## Confidence
 
 9 / 10 -- based on the test results and the leaderboard showing multiple candidates rejected due to overfit (e.g., BEAR_SCORE_7_RELAXATION) indicating the guard is active.
+
+<!-- PROVENANCE-MISSING: test_l10_optimization_overfit_guard.py -->

@@ -53,3 +53,5 @@ Add a pre-entry filter to BEARISH_REJECTION_RIDE_THE_RIBBON and any other bearis
 ## Pre-existing leaderboard impact
 
 This candidate proposes a filter_change that does not conflict with any existing candidate in the leaderboard; it complements quality‑gate and exit‑change proposals by tightening entry conditions for bearish setups. It is orthogonal to the DTE‑override and structure‑veto candidates currently marked PROMISING.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

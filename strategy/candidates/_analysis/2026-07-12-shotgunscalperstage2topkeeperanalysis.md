@@ -66,3 +66,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard (Rank 1-24) as it fails OP-16 gate and would be REJECTED. Complements research by showing parameter sweeps optimizing wide_pnl alone are insufficient; future work must anchor to J's edge_capture. No overlap with existing candidates (all leaderboard candidates have positive edge_capture).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -71,3 +71,5 @@ A compressed EMA ribbon (squeeze) indicates low volatility and impending expansi
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger for bearish (put) entries that is orthogonal to existing triggers like BEARISH_REJECTION_RIDE_THE_RIBBON (which relies on level rejection + ribbon flip + confluence) and VWAP_CONTINUATION. It does not conflict with any current leaderboard entrant because it uses a different entry condition (ribbon squeeze breakout) and could complement by providing additional entry opportunities on days where the existing triggers do not fire. No known overlap with watchers or quality gates. If validated, it would be a **new_trigger** type candidate, likely to appear on the leaderboard after backtesting.
+
+<!-- PROVENANCE-MISSING: test_ribbon_squeeze_breakout_short.py -->

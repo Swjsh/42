@@ -59,3 +59,5 @@ In addition to the existing context filters for BEARISH_REJECTION_RIDE_THE_RIBBO
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a volatility filter layer. Does not conflict with J-RATIFIED candidates (BEARISH_SWEEP_BLOCKER is REJECTED, MIDDAY_TRENDLINE_GATE is J-RATIFIED but operates on different logic). May overlap with V14E_BEAR_ONLY_GATE (watcher-only) but this is a direct entry filter. Expected to improve robustness of BEARISH_REJECTION_RIDE_THE_RIBBON without affecting other setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger (ORATS skew) not used in any existing leaderboard strategy. It does not directly conflict with current candidates (which are primarily watcher gates, DTE studies, or VWAP-based). The closest existing setup is VWAP_CONTINUATION, but this relies solely on price/VWAP dynamics without volatility/skew inputs. Potential overlap exists with intraday breakout strategies, but no direct duplication in the current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

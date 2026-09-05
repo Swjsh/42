@@ -63,3 +63,5 @@ The test will be implemented as a parametrized pytest function in `backtest/test
 
 ## Pre-existing leaderboard impact
 Complements all candidates by ensuring automation pipeline reliability; no conflicts with existing trading strategy proposals. Enhances trust in backtest/live execution infrastructure supporting all strategies.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_budget_cap_guard.py, test_budget_cap_guard.py -->

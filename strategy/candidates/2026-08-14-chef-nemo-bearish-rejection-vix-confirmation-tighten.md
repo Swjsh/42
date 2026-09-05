@@ -62,3 +62,5 @@ Add a pre-entry quality gate to BEARISH_REJECTION_RIDE_THE_RIBBON: at the trigge
 - No direct conflict with [WEEKLY_DTE_NOT_0DTE] (Rank ★★) as DTE override operates on different axis.
 - May overlap with [VIX_BULL_HARD_CAP_UNBLOCK] (Rank 22) but inverse direction (bearish VIX floor vs bullish VIX ceiling); combined could define VIX regime filter.
 - Does not conflict with watcher-only candidates (e.g., [ORB_NARROW_OR_GATE] Rank 4) as they operate in separate decision paths.
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_ride_the_ribbon.py -->

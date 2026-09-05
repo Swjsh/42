@@ -58,3 +58,5 @@ Adding a lower-highs counter (tracking the last 3 bounces at any level) and a ro
 ## Pre-existing leaderboard impact
 
 Does not conflict with any ranked candidates (BEARISH_REJECTION_RIDE_THE_RIBBON is a setup, not a candidate). Intended as an enhancement to the existing setup; if validated, would be folded into the setup definition rather than appear as a separate leaderboard entry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

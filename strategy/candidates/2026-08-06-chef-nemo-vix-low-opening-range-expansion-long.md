@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher proposals, quality gates, or exit changes). It complements by adding a new long-biased trigger for low VIX conditions, which is not currently represented.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

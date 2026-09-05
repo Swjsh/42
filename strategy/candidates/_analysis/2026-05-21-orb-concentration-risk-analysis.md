@@ -51,3 +51,5 @@ If a gate is added, the candidate should be re‑submitted with an explicit conc
 
 ## Pre‑existing leaderboard impact  
 Complements ORB_NARROW_OR_GATE (watcher) and V14E_BEAR_ONLY_GATE; conflicts only if promoted without regime gate, which would add a concentrated, regime‑specific strategy to the leaderboard. No direct duplication with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

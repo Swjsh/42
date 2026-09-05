@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly modify any existing rules in the leaderboard. It is intended to be complementary to existing volume‑ or VWAP‑based setups (e.g., VWAP_CONTINUATION) and does not conflict with any current quality gates or exits. No impact on current rankings is expected until a backtest is performed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Gym validators 97/98 PASS, walk-forward OOS Sharpe >=0.70, real-fills validation
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates (filter_change at entry gate). Complements exit/trigger/watcher changes. May interact with other filters (e.g., structure veto, midday trendline gate) by reducing trade flow; recommend isolated testing first.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

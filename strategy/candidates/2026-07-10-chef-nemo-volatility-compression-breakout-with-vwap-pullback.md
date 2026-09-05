@@ -66,3 +66,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard. It does not directly conflict with existing candidates (e.g., VWAP_CONTINUATION uses different entry logic; STAIRSTEP_CONTINUATION is retired). May complement volatility-based filters if proven additive. No known overlap with existing structural gates or quality gates. Impact on leaderboard depends on Stage-1 backtest results.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

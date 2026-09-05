@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; adds a new_trigger type that complements existing watchers and filters (e.g., could run alongside VWAP_CONTINUATION or ORB_RETEST_LONG as a separate entry signal). No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

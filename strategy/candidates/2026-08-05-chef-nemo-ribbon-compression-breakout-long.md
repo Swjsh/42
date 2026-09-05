@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon-based strategies (BEARISH_REJECTION_RIDE_THE_RIBBON, BULLISH_RECLAIM_RIDE_THE_RIBBON) by targeting a distinct market state (low-volatility breakout vs. trend-following ride). No direct conflicts with current leaderboard entries as it introduces a new trigger mechanism not covered by any existing candidate. May overlap conceptually with ORB_RETEST_LONG but differs in entry conditions (ribbon compression vs. opening range retest).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

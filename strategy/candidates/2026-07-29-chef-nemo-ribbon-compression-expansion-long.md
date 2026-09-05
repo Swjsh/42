@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing leaderboard entries as it is a new trigger focusing on compression-expansion cycles. It may complement pullback-based strategies like BULLISH_RECLAIM_RIDE_THE_RIBBON by capturing a different phase of the ribbon cycle (initial breakout vs. reclaim after pullback). No overlap in mechanism or trigger logic with current candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -63,3 +63,5 @@ Running a Stage-1 backtest with OOS walk-forward validation and real-fills recon
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine, so it does not conflict with any candidate in _LEADERBOARD.md. It serves as a diagnostic that may inform future quality‑gate or filter‑change candidates (e.g., if the run reveals anchor‑day overfit, a new quality gate could be added). No existing candidate’s status is altered by this analysis alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

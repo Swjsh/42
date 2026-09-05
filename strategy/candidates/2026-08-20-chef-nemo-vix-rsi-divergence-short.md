@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to assess signal overlap and impact on existing triggers (candidates 1-9 in _LEADERBOARD.md)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

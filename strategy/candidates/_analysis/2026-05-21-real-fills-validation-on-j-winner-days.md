@@ -51,3 +51,5 @@ We ran simulator_real.py (using cached OPRA quotes and realistic bid-ask/slippag
 ## Pre-existing leaderboard impact
 
 This validation does not alter any candidate's status. It is a routine OP-20 disclosure 4 check. The BEARISH_SWEEP_BLOCKER candidate (rank 1) was rejected due to Sharpe degradation (not fill realism), and its real-fills status was already NEEDS-REAL-FILLS per its template. This validation confirms the *baseline engine* passes real-fills on J winners, which is prerequisite for any candidate ratification. No leaderboard changes are implied.
+
+<!-- PROVENANCE-MISSING: automation/state/logs/sweep-blocker-real-fills-validation.json -->

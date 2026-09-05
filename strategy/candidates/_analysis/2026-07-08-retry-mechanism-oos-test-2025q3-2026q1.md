@@ -73,3 +73,5 @@ This analysis does not propose any engine changes, so it does not conflict with 
 candidates by providing OOS validation hygiene. Candidates that modify entry/exit logic (e.g., VWAP_CONT_DTE_OVERRIDE_2DTE, 
 STRUCTURE_VETO_DIR_VS_TREND) should have their OOS performance evaluated in 2025-Q3/2026-Q1 as part of their pre-merge 
 gate; this analysis provides the OOS window for such validation. No direct impact on leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

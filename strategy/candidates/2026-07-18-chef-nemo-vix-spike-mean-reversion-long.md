@@ -45,3 +45,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel trigger not present in the current leaderboard; it complements existing volatility-based filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but does not conflict with any established candidates as it introduces a unique entry condition combining VIX1D spikes, named levels, and bullish engulfing patterns. No direct overlap with existing trigger types in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

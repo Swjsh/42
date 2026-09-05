@@ -61,3 +61,5 @@ Relaxing the Bearish Reversal Morning Watcher filters will increase signal frequ
 ## Pre-existing leaderboard impact
 
 This candidate modifies an existing watcher (Bearish Reversal Morning Watcher) that is not currently listed as a candidate in the leaderboard. It does not directly conflict with any existing leaderboard candidates. However, as it changes the core engine's behavior, it may affect the baseline for other candidates. It complements candidates that are additive (like structure vetoes) but may conflict with candidates that propose to remove or change the same watcher.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

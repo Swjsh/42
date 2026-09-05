@@ -57,3 +57,5 @@ For PUT entries only: require current 1-minute VIX > VIX from 5 minutes ago at t
 ## Pre-existing leaderboard impact
 
 Complements [V14E_BEAR_ONLY_GATE] (rank 3) which filters structural mismatches; this adds temporal VIX dimension. No conflict with top candidates as it targets PUT entry quality. May conflict with [BEARISH_REJECTION_MORNING] if both fire on same bar (would require OR logic testing).
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_vix_rising_filter.py -->

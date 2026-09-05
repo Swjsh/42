@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ribbon‑based setups (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON, BEARISH_REJECTION_RIDE_THE_RIBBON) by adding a distinct entry trigger that requires a volume‑confirmed ribbon flip. It does not conflict with any current leaderboard entries and could provide additive trade opportunities if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

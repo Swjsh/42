@@ -57,3 +57,5 @@ Entry bar volume (3-min bar at trigger) must be > 1.0 × 20-bar average volume (
 ## Pre-existing leaderboard impact
 
 Complements MIDDAY_TRENDLINE_GATE (rank 21) and ORB_NARROW_OR_GATE (rank 4) as a quality filter. No direct conflict; may reduce trade count for BEARISH_REJECTION_RIDE_THE_RIBBON (not explicitly on leaderboard but underlying setup). Does not conflict with J-RATIFIED candidates as it targets a specific setup's entry condition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

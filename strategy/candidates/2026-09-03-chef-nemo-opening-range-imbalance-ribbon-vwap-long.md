@@ -71,3 +71,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including gym val
 ## Pre-existing leaderboard impact
 
 Complements existing bearish-trigger candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by adding a directional long trigger. No direct conflict with current leaderboard entries (primarily DTE studies, veto gates, or quality filters) as it introduces a new trade class rather than modifying existing parameters or filters. Would run alongside existing strategies without overriding their core logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

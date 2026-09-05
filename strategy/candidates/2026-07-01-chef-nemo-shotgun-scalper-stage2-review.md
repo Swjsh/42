@@ -51,3 +51,5 @@ The pre-merge gate requires a successful Stage-1 backtest and out-of-sample test
 The proposed candidate may complement or conflict with existing candidates in the leaderboard, but the exact impact is unknown due to the lack of data.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

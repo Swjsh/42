@@ -78,3 +78,5 @@ Before any LEADERBOARD promotion:
 3. Obtain complete by-day breakdown for all 4 keepers to assess concentration
 
 The parameter change (super_stop -0.15) is directionally sensible but the magnitude of P&L inflation on J-anchor days suggests the simulator is not accurately modeling production behavior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

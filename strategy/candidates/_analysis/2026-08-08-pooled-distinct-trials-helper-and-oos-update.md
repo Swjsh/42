@@ -77,3 +77,5 @@ The current OOS sample size calculations for vwap_continuation and vix_regime_da
   - WEEKLY_DTE_NOT_0DTE (rank ★★) which uses vwap_continuation signal 
   - Any candidate relying on vix_regime_dayside (not visible in leaderboard snippet but may exist in full file) 
 - No action needed on leaderboard unless OOS sample size falls below critical thresholds in gate checks.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/vix_regime_dayside_oos.json -->

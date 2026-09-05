@@ -58,3 +58,5 @@ The 2026-07-30 bearish rejection morning watcher post-mortem identified that fil
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-25). Complements [BEARISH_REJECTION_MORNING](2026-05-24-bearish-rejection-morning-watcher.md) (rank 20) by refining its entry filter logic. No overlap with J-RATIFIED candidates (e.g., [V14E_BEAR_TIME_OF_DAY_GATE](2026-05-24-v14e-bear-time-of-day-gate.md), [MIDDAY_TRENDLINE_GATE](2026-05-31-midday-trendline-gate.md)) as it operates in a different time window (09:35-10:55 ET). May interact with [STRUCTURE_VETO_DIR_VS_TREND](2026-06-26-160000-structure-veto-direction-vs-trend.md) (rank ★) but expected to be complementary (structure veto acts downstream). No known conflicts with top-5 leaderboard candidates.
+
+<!-- PROVENANCE-MISSING: test_filters_relax_bearish_rejection_morning.py -->

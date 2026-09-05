@@ -63,3 +63,5 @@ On 2026-05-13, an early CALL entry (when VIX < 18) stops out without hitting TP1
 ## Pre-existing leaderboard impact
 
 This analysis **complements** rank 1 ([BEARISH_SWEEP_BLOCKER](2026-05-16-bearish-sweep-blocker.md)) by identifying a generalized quality-lock cascade mechanism. It does not conflict with any PROMISING/J-RATIFIED candidates (ranks 3-18) as those are watcher-only or structural changes unrelated to entry quality-lock state. However, it suggests the BEARISH_SWEEP_BLOCKER rejection may stem from this same cascade (not sweep logic), indicating a deeper state-management issue needing resolution before re-evaluating sweep-related candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

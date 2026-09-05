@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it is a new trigger type. It may complement existing strategies by providing long entries in uptrend conditions, but without backtest we cannot confirm synergy or conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

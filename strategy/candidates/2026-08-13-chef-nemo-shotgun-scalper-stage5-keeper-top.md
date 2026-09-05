@@ -66,3 +66,5 @@ Entry triggers when the 5-minute volume ratio exceeds 1.2 (current bar volume / 
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door per OP-16 (edge_capture < 771) and does not appear on the current leaderboard. It conflicts with all ranked candidates which have edge_capture >= 771. If validated, it would only promote if edge_capture exceeds 771 after OOS correction, which seems unlikely given the current deficit.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_shotgun_scalper.py -->

@@ -40,3 +40,5 @@
    | 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
    | 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
    | 5/05 loser | unknown -- requires Stage
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

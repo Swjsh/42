@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; adds a new short‑trigger lane complementary to existing long‑biased setups (e.g., VWAP_CONTINUATION, GAP_AND_GO). No overlap in trigger logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

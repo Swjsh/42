@@ -79,3 +79,5 @@ Rationale:
 - Anchor to J's actual entry times (not overnight VWAP)
 - Require 3+ J winner captures before any candidate consideration
 - Enforce edge_capture ≥ 771 as grinder floor filter
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

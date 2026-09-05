@@ -35,3 +35,5 @@ Baseline comparison data unavailable (shotgun_scalper_stage2 output not provided
 
 ## Confidence
 4 / 10 -- Strong wide_pnl and expectancy offset by critical OP-16 anchor day deficiency and unresolved overfit risks. Anchor day performance is the primary disqualifier per OP-16 doctrine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

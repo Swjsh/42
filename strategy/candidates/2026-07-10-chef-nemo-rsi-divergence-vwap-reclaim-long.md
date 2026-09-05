@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding a new long-trigger mechanism. Does not conflict with any current leaderboard entries as it is a new trigger type. May overlap conceptually with VWAP_CONTINUATION but differs in requiring RSI divergence precondition. No direct parameter or engine changes proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

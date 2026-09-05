@@ -61,3 +61,5 @@ If either condition fails, the bearish entry is skipped. Bullish entries are una
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (rank ★) which removes wrong-way losers. Our candidate aims to avoid losing days entirely. They can be stacked. It does not conflict with any current leaderboard candidate that we are aware of.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

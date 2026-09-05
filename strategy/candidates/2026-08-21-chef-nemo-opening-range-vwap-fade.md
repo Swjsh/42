@@ -63,3 +63,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements ORB_RETEST_LONG by offering a fade alternative to the long retest. No overlap in trigger logic (ORB_RETEST_LONG longs OR retests; this fades VWAP retests after OR breakout). May coexist in live engine as separate setup class.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly watcher gates, DTE studies, or specific setups like VWAP_CONTINUATION). May complement by providing directional long entries during morning sessions, but impact unknown without backtest. Does not overlap with any ranked candidate mechanics in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

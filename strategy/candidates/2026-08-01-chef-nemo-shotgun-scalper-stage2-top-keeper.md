@@ -61,3 +61,5 @@ We are trying to capture small intraday edges via tight profit targets and stops
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (ranks I, ★★, HOLD, WS4, ★, RV, etc.) as it fails OP-16 edge_capture floor (<771). Does not complement any existing candidate; would be REJECTED at door per OP-16. Leaderboard candidates all have positive edge_capture and are OP-16 compliant; this candidate’s negative J-edge capture makes it orthogonal and inferior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

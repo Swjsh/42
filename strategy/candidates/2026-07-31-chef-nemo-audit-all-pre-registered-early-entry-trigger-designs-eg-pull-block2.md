@@ -58,3 +58,5 @@ Proposed design: Enter at the open of the first bar that closes above the pullba
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements PULLBACK-HOLD-BULL-TRIGGER (if present in leaderboard) by refining its trigger logic; no conflict with other candidates as it is specific to pullback-hold trigger. If design not present, this candidate is preparatory for future registration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

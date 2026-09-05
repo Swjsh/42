@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any of the current leaderboard entries (1‑9). It introduces a new trigger type (VWAP‑deviation engulfing) that is orthogonal to the existing VWAP_CONTINUATION, structure‑veto, and DTE‑override candidates. It may complement existing filters (e.g., VIX regime gates) but would need to be tested for interaction effects. No known overlap in logic or parameter space with the listed candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The backtest must pass: gym validators (all tests pass), walk-forward OOS Sharpe
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change; it is a measurement of the current engine. It will inform whether existing candidates meet OP-16 thresholds and help prioritize future work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

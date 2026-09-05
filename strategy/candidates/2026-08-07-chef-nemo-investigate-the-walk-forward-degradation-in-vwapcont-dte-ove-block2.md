@@ -72,3 +72,5 @@ The walk-forward degradation and quarterly losses of the VWAPCONT_DTE_OVERRIDE_2
 ## Pre‑existing leaderboard impact
 
 This candidate proposes a filter change to the existing HOLD candidate `VWAPCONT_DTE_OVERRIDE_2DTE`. It does not conflict with any other leaderboard entries; rather, it seeks to promote the HOLD candidate to PROMISING by addressing its regime‑specific weakness. If successful, it would replace the HOLD slot with a new candidate (or upgrade the existing one). No known complementarity or conflict with current top‑10 candidates.
+
+<!-- PROVENANCE-MISSING: test_vwapcont_dte_override_vix_filter.py -->

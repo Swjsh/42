@@ -42,3 +42,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly filters, exits, or quality gates). It may complement by adding a new entry signal, but could conflict if it triggers on the same bars as existing entries (e.g., BEARISH_REJECTION). Impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

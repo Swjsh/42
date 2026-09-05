@@ -61,3 +61,5 @@ The BEARISH_REJECTION_RIDE_THE_RIBBON setup triggers when: (1) time is 09:35 ET 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filter_change proposals (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE) by tightening entry quality via premium floor. It does not conflict with structural candidates like STRUCTURE_VETO_DIR_VS_TREND or MIDDAY_TRENDLINE_GATE, as it operates on a different dimension (entry premium threshold). However, it may interact negatively with candidates that increase trade frequency (e.g., WEEKLY_DTE_NOT_0DTE) by adding lower-quality edges; combined impact requires joint testing. No direct overlap with existing leaderboard candidates 1-9 in _LEADERBOARD.md, as those are either watcher-only, DTE studies, or structural gates.
+
+<!-- PROVENANCE-MISSING: test_min_premium_floor_filter.py -->

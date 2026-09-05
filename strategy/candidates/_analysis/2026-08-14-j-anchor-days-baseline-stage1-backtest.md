@@ -61,3 +61,5 @@ Run the autoresearch grinder harness for Stage-1 backtest on the current engine 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a candidate but provides the baseline for evaluating all candidates. It complements the leaderboard by providing the source-of-truth J anchor day performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

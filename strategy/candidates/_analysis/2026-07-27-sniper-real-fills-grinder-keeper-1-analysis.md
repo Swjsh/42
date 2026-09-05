@@ -53,3 +53,5 @@ Stage-1 backtest on full dataset to compute edge_capture and other metrics; walk
 ## Pre-existing leaderboard impact
 
 This keeper has negative edge_capture, so it would be rejected at the door (edge_capture < 771). It does not conflict with the leaderboard because it does not meet the bar for inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

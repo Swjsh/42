@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with / complement candidates 1‑9 in _LEADERBOARD.md; it is a new trigger proposal targeting a distinct setup not currently represented.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

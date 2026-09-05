@@ -67,3 +67,5 @@ The candidate fails the OP-16 gate (edge_capture < 771). No further gating is wa
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder keeper. The keeper's negative edge_capture would place it well below the leaderboard floor (edge_capture < 771) and thus it would be REJECTED. It does not conflict with current leaderboard candidates; rather, it highlights the danger of optimizing for wide_pnl without OP-16 anchor constraints. No changes to existing candidates are implied.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

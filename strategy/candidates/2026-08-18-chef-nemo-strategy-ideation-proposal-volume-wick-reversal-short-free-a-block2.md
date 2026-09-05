@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any ranked candidates 1‑24 in _LEADERBOARD.md; adds a new short‑side trigger orthogonal to existing long‑biased setups (e.g., VWAP_CONTINUATION, GAP_AND_GO). If validated, could complement BEARISH_REJECTION_RIDE_THE_RIBBON by providing additional short entries during midday lulls. No overlap with existing watchers or gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

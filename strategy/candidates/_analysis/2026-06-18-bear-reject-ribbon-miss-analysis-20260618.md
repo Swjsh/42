@@ -66,3 +66,5 @@ On 2026-06-18, SPY repeatedly tested the 747.00 level and printed BEAR_REJECT_RI
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a strategy change; it is a diagnostic audit. It neither conflicts with nor complements existing candidates in `_LEADERBOARD.md`. If the audit reveals a actionable filter relaxation, a follow‑on candidate (e.g., `F8_VIX_RELAX_17_00` or `SPREAD_TOLERANCE_25C`) would be filed separately.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

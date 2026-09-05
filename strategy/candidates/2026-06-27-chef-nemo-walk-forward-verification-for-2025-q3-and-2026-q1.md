@@ -53,3 +53,5 @@ The walk-forward verification must pass the following gates:
 ## Pre-existing leaderboard impact
 
 This candidate does not directly impact any existing leaderboard candidates, as it is a verification exercise for the optimized parameters. However, the results may inform future candidates or updates to existing ones.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

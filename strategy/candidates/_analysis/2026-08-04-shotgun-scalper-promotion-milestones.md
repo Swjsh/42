@@ -63,3 +63,5 @@ Promotion occurs only when all three gates clear simultaneously.
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-24). Complements WATCH-ONLY strategies by setting objective promotion bar. SHOTGUN_SCALPER (assumed TBR_HIGH_VOL rank 16) currently WATCH-ONLY with WF ratio=0.866 (meets milestone #2) but fails concentration (milestone #3). Promotes only after concentration cleared and real-fills OOS verified. No impact on leaderboard rankings as no strategy change proposed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

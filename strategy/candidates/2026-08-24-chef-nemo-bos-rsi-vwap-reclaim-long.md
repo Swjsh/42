@@ -70,3 +70,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing bullish-reclamation frameworks (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) by adding a mean-reversion filter (RSI<VWAP pullback) rather than entering on the break itself. It does not conflict with any bearish-focused candidates in the leaderboard (ranks 1-24) as it is strictly long-biased. May overlap with VWAP_CONTINUATION logic but differs in entry trigger (BOS + RSI/VWAP pullback vs. VWAP-aligned continuation bar). No direct parameter or wiring conflicts identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

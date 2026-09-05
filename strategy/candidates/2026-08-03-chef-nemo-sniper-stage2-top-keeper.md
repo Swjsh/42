@@ -55,3 +55,5 @@ Pass gym validators for the strategy logic, achieve edge_capture >= 771 on J day
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 floor (edge_capture < 771) and would be REJECTED at the door. It does not impact the current leaderboard as it fails the basic gate. It may complement other candidates if refined to capture more winner-day edge, but in its current form it is not viable.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

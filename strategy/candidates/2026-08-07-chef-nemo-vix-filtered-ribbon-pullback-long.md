@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including gym v
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new long‑side trigger that does not modify any existing filters, exits, or quality gates in the leaderboard candidates 1‑9. It is complementary as it adds a distinct strategy class (low‑VIX ribbon pullback long) not currently represented. No direct conflict expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing candidates. Complements BEARISH_REJECTION_RIDE_THE_RIBBON by trading expansion phases rather than rejection candles. Does not overlap with any triggered strategies in current leaderboard (all are watcher/gate types or exit modifications). May provide orthogonal short signals during ribbon contraction periods untouched by current entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

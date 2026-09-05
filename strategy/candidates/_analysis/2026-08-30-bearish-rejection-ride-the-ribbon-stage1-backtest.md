@@ -59,3 +59,5 @@ The setup triggers on a bearish rejection of a defined level (premarket high, de
 ## Pre-existing leaderboard impact
 
 This analysis is for the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is not currently in the leaderboard as a candidate. It is the underlying setup for several candidates (e.g., BEARISH_SWEEP_BLOCKER). If confirmed, it could prompt new candidates based on this setup (e.g., adding filters to reduce concentration). It does not conflict with existing candidates but may provide a foundation for future work. The leaderboard currently has no direct bearish setup candidate; this would be a new addition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

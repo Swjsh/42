@@ -50,3 +50,5 @@ Gym validators must pass, walk-forward OOS must be positive, real-fills validati
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements NEEDS-MORE-DATA watchers by providing a potential new trigger class if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements existing volatility-based filters (e.g., VIX-based gates) and does not conflict with any leaderboard candidates. It is orthogonal to structural gates like TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND. It may interact with the BULLISH_RECLAIM_RIDE_THE_RIBBON setup's existing filters (e.g., ribbon spread, VIX confirmation) but is designed to be additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

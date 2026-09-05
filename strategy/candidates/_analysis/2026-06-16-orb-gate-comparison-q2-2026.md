@@ -43,3 +43,5 @@ ORB_NARROW_OR_GATE appears more regime-robust based on quarterly P&L distributio
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it informs the relative merits of ORB_NARROW_OR_GATE (rank 4, PROMISING) and ORB_DIRECTION_FILTER (rank 5, NEEDS-MORE-DATA). No conflict with existing leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -70,3 +70,5 @@ We aim to improve the V14E strategy by tuning profit‑lock parameters to let wi
 ## Pre‑existing leaderboard impact
 
 This candidate would be REJECTED at the door due to edge_capture < 771 and therefore does not appear on the current leaderboard. It conflicts with the leaderboard’s inclusion criterion; if promoted, it would displace no current candidate because it fails the gate. It may complement existing candidates only as a source of ideas for profit‑lock tuning, but in its current form it is not viable for live trading.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

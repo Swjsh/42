@@ -56,3 +56,5 @@ Gym validators must pass (`test_bullish_trendline_reclaim.py`), walk-forward OOS
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by adding bullish symmetry; no conflict with bearish-focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, STRUCTURE_VETO_DIR_VS_TREND) as it trades orthogonal market regimes. Does not affect OP-16 anchor edge_capture (zero delta on J days).
+
+<!-- PROVENANCE-MISSING: test_bullish_trendline_reclaim.py -->

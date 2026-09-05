@@ -1,6 +1,7 @@
 ## Known broken
 
-- [2026-09-05T05:56:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T06:24:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
 - [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
@@ -27,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 05:0x ET] GOAL-KITCHEN-INTEGRITY-2026-09-05 CLOSED -- 3,836 Kitchen files tagged (440 PROVENANCE-MISSING / 3,396 UNVERIFIED-BY-CONSTRUCTION), 24 leaderboard rows -> UNSUPPORTED (provenance), chef prompt + reviewer require a provenance block, trust gate DEGRADED at 11.0% rendered on the cockpit, lesson L310
+One Sonnet chain (I1-I5). Sweep: rows_examined 79, rewritten 24, kept_protected 22 (tonight's adjudicated rows untouched), skipped_malformed 6. RED-proofed reviewer rejection; 252 kitchen/provenance/free_model tests green; safety gate 59 passed. The Kitchen's free-model output is now evidence only when it names a runner command and an artifact that exists. UNVERIFIED: the live Nemotron review loop call site was unit-tested, not exercised with a paid call.
+
 
 ## [2026-09-05 04:0x ET] GOAL-ZERO-ENTER-DAYS-2026-09-03 CLOSED -- zero_enter_autopsy.py built, registered (Gamma_ZeroEnterAutopsy 16:10 ET, Ready), backfilled 5/5 frozen-window days, f10 session-reset prereg filed for 10-30
 One Sonnet chain (Z1-Z6). Inventory: 08-31 SAT_OUT_GATED; 09-01..09-04 regressing. Hand-filled 09-02 matches SIP-VOLMULT exactly (77 bars, 57 blocked by filter 10). Per-bar counterfactual tables now land in analysis/zero-enter/ daily. Most-indicted gate: blocker 10 (vol_baseline_20 session-crossing) fired on 5/5 days, 50.6-74.0% of bars (aggregate 61.9%) -> analysis/recommendations/prereg-f10-vol-baseline-session-reset-10-30-2026-09-03.json, FROZEN_BEFORE_ANY_RESULT, nothing shipped. UNVERIFIED: first live fire is Tue 16:10 ET; the 09-04 "regressing" grade may be inflated by the 09:51-10:46 outage gap (the script treats >3-min gaps as NO_DATA, not yet seen on a live fire). Also tonight: FILL-MODEL step 1 evidence (08e63cdf), 3/4-DTE killed on its null (eefecc8e), 3 feasibility gates killed at n=590 (9abae17c), 1-2 DTE prereg filed, tickers lane E2E probe GREEN on the merged build (535 tests), Kitchen provenance guard (11a45e2d).
@@ -407,3 +412,6 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec v2 and the vendored ui-kit (44 licensed snippets from uiverse / 21st.dev / monet recipes). Verified this session: 269 guard tests + 2 xfail; cockpit_dom_check clean dark+light (tiles=26, sankey_ribbons=10, small_text=0, overflow_x=False); cockpit_exercise 13/13 with 0 console errors (headless CDP, no windows); routing map reads the last trading session end to end. Before/after captures sent to J. Round-3 polish in flight (em-dashes, 1440 px grid reflow, journal titles, light-mode ribbon glow). Revert: `git revert 83d580b4 b9c873ce`.
 
+
+## Kitchen
+Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

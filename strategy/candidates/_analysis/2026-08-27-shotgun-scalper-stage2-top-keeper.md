@@ -67,3 +67,5 @@ Note: The keeper shows losses on 5/05 and gains on 5/06/5/07, indicating it is a
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing keeper from the grinder. If promoted, it would conflict with leaderboard inclusion rules because edge_capture < 771 (reject threshold). It complements existing candidates that aim to improve edge_capture (e.g., STRUCTURE_VETO_DIR_VS_TREND) by highlighting what not to do (tight stops, early exits). No direct conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

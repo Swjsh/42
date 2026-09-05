@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; introduces a new trigger type distinct from GAP_AND_GO (continuation) and other watchers; complements by providing a mean‑reverting gap alternative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

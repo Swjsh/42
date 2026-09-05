@@ -60,3 +60,5 @@ We are testing whether a realistic profit-lock threshold (trailing stop based on
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements exit-change candidates by testing profit-lock mechanism specifically. No overlap with trigger/filter/gate types in current leaderboard (ranks 1-24). If validated, could become new exit_change candidate superseding fixed chandelier parameters.
+
+<!-- PROVENANCE-MISSING: test_profit_lock_realistic.py, analysis/recommendations/profit_lock_realistic_ab.json -->

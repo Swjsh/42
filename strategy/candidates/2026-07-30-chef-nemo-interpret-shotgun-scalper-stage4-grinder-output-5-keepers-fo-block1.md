@@ -60,3 +60,5 @@ The combo’s higher TP1 (+75%) and tighter stop (−35%) aim to capture more of
 ## Pre-existing leaderboard impact  
 
 Does not conflict with current leaderboard (all candidates there have edge_capture ≥771). This proposal would be rejected at the door per OP‑16, so it does not affect ranking. It may serve as a learning point for parameter sensitivity but is not a viable upgrade.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

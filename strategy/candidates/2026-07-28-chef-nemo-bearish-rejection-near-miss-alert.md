@@ -54,3 +54,5 @@ Unit tests for watcher alert logic, integration test verifying 'ALERT' in dashbo
 ## Pre-existing leaderboard impact
 
 No impact on existing candidates' edge capture or Sharpe; pure alerting addition does not alter P&L or trade counts. Complements all candidates by providing diagnostic visibility without modifying core logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

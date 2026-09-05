@@ -60,3 +60,5 @@ The top keeper from sniper_real_fills_grinder (vol_mult=1.1, body_min_cents=0.02
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard (Rank I–24) as edge_capture < 771 (REJECTED threshold). Would be archived if submitted; needs significant revision to approach J edge. Complements no existing candidates due to negative J-edge performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: adds a new long-trigger mechanism for first 90 minutes without conflicting with existing gates/exits/watchers. Does not duplicate ORB_RETEST_LONG (different entry condition: VWAP pullback vs ORH retest). No overlap with veto/quality-gate candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE) as it operates in distinct time window and logic. Safe to test alongside VWAP_CONTINUATION (different trigger: VWAP continuation vs ORB breakout+VWAP pullback).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

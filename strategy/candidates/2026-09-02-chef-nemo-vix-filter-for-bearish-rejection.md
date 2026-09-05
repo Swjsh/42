@@ -52,3 +52,5 @@ Gym validators must pass, walk-forward OOS test must show Sharpe >= 0.70 and pos
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK (which deals with call side) and may interact with STRUCTURE_VETO_DIR_VS_TREND (which uses market structure). No direct overlap.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

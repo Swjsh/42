@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing triggers by focusing on a midday EMA ribbon flip with volume confirmation, differing from trendline‑based entries (e.g., MIDDAY_TRENDLINE_GATE) and from VWAP‑continuation. It does not conflict with any current leaderboard candidate as it targets a different time window and signal type. However, it may overlap with BULL_SCOPE_LOCK_REVAL in bullish bias; combined effect requires joint testing. No direct conflict with bearish‑only gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

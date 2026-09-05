@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly watchers, gates, or long-biased triggers). Complements ORB_RETEST_LONG by providing short-biased ORB edge with volume confirmation, a condition absent in current registry. No overlap with existing trigger types in leaderboard (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing rules in the leaderboard. It may complement VWAP_CONTINUATION by providing a reversal signal, but it does not conflict with any of the top‑9 candidates (which are primarily gates, wiring proposals, or structural findings). No parameter changes are proposed, so it can be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

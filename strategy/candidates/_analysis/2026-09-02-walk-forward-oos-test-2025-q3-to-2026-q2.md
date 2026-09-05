@@ -67,3 +67,5 @@ Running a walk-forward out-of-sample (OOS) test from 2025-Q3 through 2026-Q2 wil
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is a validation gate. It therefore does not conflict with any existing candidate in `_LEADERBOARD.md`. Successful completion could unlock future candidates that rely on a proven non‑negative edge_capture baseline.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/wf_oos_2025q3_2026q2.json -->

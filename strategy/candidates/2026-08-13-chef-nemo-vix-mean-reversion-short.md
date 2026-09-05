@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing rules or gates in the leaderboard. It neither conflicts with nor explicitly complements the current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE). Its impact on the leaderboard can only be assessed after a Stage-1 backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

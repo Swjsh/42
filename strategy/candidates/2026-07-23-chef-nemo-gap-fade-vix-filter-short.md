@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger proposal and does not conflict with existing leaderboard entries (which are primarily watcher proposals, quality gates, or structural changes). It may complement by providing a short-bias edge in high-VIX gap environments not currently captured. No overlap with existing trigger types (e.g., GAP_AND_GO is gap-continuation long; this is gap-fade short).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

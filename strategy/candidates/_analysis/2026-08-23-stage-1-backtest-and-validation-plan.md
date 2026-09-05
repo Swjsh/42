@@ -58,3 +58,5 @@ Running the Stage-1 backtest via the autoresearch grinder will generate new stra
 ## Pre-existing leaderboard impact
 
 This analysis does not modify any existing candidate; it outlines the validation process for new grinder output.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

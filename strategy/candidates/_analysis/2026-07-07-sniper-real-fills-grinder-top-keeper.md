@@ -63,3 +63,5 @@ The mechanism is the SNIPER_LEVEL_BREAK entry logic with the specified parameter
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new strategy; it evaluates a parameter set from a grinder. The negative edge_capture means it would be REJECTED if submitted as a candidate (edge_capture < 771). It conflicts with all leaderboard candidates by underperforming on J days. No complementarity; suggests the SNIPER_LEVEL_BREAK framework may need redesign for J's edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

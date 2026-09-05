@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate adds a new long trigger that does not directly modify any existing leaderboard entries; it may complement bullish setups such as BULLISH_RECLAIM_RIDE_THE_RIBBON by providing an alternative entry condition, and does not conflict with any current top‑9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

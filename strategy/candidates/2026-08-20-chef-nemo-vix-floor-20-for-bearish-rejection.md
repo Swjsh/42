@@ -56,3 +56,5 @@ The existing BEARISH_REJECTION_RIDE_THE_RIBBON setup triggers on level rejection
 ## Pre-existing leaderboard impact
 
 This candidate complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is not explicitly on the leaderboard as a standalone candidate but is the underlying pattern for many). It does not conflict with existing leaderboard candidates as it is a filter layer. It may interact with candidates that also use VIX (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but those are for bullish setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

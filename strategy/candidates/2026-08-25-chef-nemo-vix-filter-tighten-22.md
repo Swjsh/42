@@ -70,3 +70,5 @@ Tightening the VIX confirmation threshold for BEARISH_REJECTION_RIDE_THE_RIBBON 
 - Requires re-evaluation against all filter_change/exit_change candidates in leaderboard due to potential interaction effects
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

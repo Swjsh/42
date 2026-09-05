@@ -60,3 +60,5 @@ All other context filters, trigger, entry, stop, and target logic remain unchang
 ## Pre‑existing leaderboard impact
 
 This candidate complements existing VIX‑related filters (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK) and does not conflict with any ranked candidate. It isolates the BEARISH_REJECTION setup, so it can be stacked with quality‑gate candidates like STRUCTURE_VETO_DIR_VS_TREND or MIDDAY_TRENDLINE_GATE. No overlap with watcher‑only or structural‑DTE candidates. If successful, it may replace or augment the current VIX confirmation logic in the BEARISH_REJECTION_RIDE_THE_RIBBON playbook entry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

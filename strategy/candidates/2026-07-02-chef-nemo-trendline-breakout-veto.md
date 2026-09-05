@@ -58,3 +58,5 @@ The TRENDLINE_BREAKOUT_VETO gate requires out-of-sample testing and real-fills t
 ## Pre-existing leaderboard impact
 
 The TRENDLINE_BREAKOUT_VETO gate is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup, by removing trades that break out above a descending trendline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

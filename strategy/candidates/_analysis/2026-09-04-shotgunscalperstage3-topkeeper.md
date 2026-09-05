@@ -49,3 +49,5 @@ Without baseline comparison, specific improvements cannot be attributed. The gri
 
 ## Pre-existing leaderboard impact
 This analysis does not propose a new candidate, so there is no direct impact on the leaderboard. However, it highlights that the top keeper from shotgun_scalper_stage3 does not meet the edge_capture threshold for leaderboard inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly modify existing candidates 1‑9 in _LEADERBOARD.md. It complements existing continuation‑type strategies (e.g., GAP_AND_GO) by offering a mean‑reduction alternative, potentially providing diversification if validated. No known conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

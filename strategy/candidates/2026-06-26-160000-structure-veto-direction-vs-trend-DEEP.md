@@ -369,3 +369,5 @@ The new v51 validator must be written and gym must pass before shipping `structu
 - OR: live engine fires on a wrong-way trade (as happened today) and the veto would have caught it.
   Today's incident is the closest case. Wire the veto, verify it would have fired on today's
   SKIP_STRUCTURE_VETO before placing the −$237 entry.
+
+<!-- PROVENANCE-MISSING: backtest/lib/structure_gate.py -->

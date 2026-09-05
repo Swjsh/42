@@ -62,3 +62,5 @@ The sniper stage2 grinder top keeper improves the SNIPER_LEVEL_BREAK setup by ti
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Does not conflict with current leaderboard candidates (all are structural/watchers/proven edges). This sniper parameter change is untested on J anchors; if OOS validates edge_capture >= 771, it could complement as a new trigger/exit variant. Currently rejected due to edge_capture < 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

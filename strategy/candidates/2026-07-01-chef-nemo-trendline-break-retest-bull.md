@@ -60,3 +60,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it targets a different trade class and market scenario. The TRENDLINE_BREAK_RETEST_BULL trade class has the potential to capture additional edge in bullish retests, which is not currently addressed by the existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ The setup must pass the following tests before being merged into production:
 ## Pre-existing leaderboard impact
 
 The setup is expected to complement the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND and ORB_NARROW_OR_GATE candidates. The setup's focus on technical indicators and market structure is expected to provide a unique edge in the market.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

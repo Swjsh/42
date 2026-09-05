@@ -57,3 +57,5 @@ Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TR
 
 ---  
 *Note: Full 16-month OOS real-fills A/B test (control vs. treatment on call-veto knob) is required to complete OP-20 disclosures. This analysis reports only J anchor days and structural assumptions; candidate remains NEEDS-MORE-DATA pending full backtest.*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including gym val
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly conflict with current leaderboard entries (which are primarily watcher revalidations, DTE studies, or structural gates). It may complement by adding a late-day mean-reversion signal uncorrelated with morning-biased setups like VWAP_CONTINUATION or BEARISH_REJECTION_MORNING. No overlap detected with existing candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

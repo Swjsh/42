@@ -57,3 +57,5 @@ We aim to reduce false entries during counter-trend chop traps by enhancing the 
 ## Pre-existing leaderboard impact
 
 This proposal modifies the BEARISH_REJECTION_RIDE_THE_RIBBON setup (currently OBSERVATION, demoted 2026-W28). It does not conflict with any candidate in the leaderboard (which only includes edge_capture >= 771 proposals) as the base setup is not currently ranked. It complements structural filters like STRUCTURE_VETO_DIR_VS_TREND (Rank ★) by adding contextual awareness to rejection quality. No known conflicts with existing PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

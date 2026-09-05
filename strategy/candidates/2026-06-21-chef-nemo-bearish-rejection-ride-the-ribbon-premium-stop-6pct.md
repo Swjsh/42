@@ -62,3 +62,5 @@ Change `params.json#premium_stop_pct_bear` from -0.08 to -0.06 for BEARISH_REJEC
 Does not conflict with existing candidates. Complements exit-change candidates like V14E_PARAM_SWEEP_26K (Rank 12) by targeting different mechanism (catastrophe cap vs profit-lock structure). No overlap with watcher gates or new trade classes. May interact with MAX_RIBBON_DUR_8 (Rank 25) if ribbon duration affects time to hit premium stop.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

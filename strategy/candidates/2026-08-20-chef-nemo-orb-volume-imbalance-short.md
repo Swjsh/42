@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No known conflict with current leaderboard entries; this is a novel trigger type that does not modify existing gates, exits, or watchers. It would be evaluated independently for its own edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

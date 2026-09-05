@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; complements structural/gate candidates (e.g., TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND) by adding a novel entry trigger based on ribbon+structure confluence. No overlap with watcher-only or exit-change proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

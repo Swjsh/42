@@ -59,3 +59,5 @@ where `current_equity = starting_of_day_equity + unrealized_pnl + realized_pnl_t
 ## Pre-existing leaderboard impact
 
 This candidate complements existing quality gates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) by refining the core risk logic rather than adding new filters. It does not conflict with any leaderboard candidates as it operates at a different layer (risk capital allocation vs. signal generation). However, it may interact with position sizing logic in params.json; care must be taken to ensure the risk cap and position sizing tiers are compatible (e.g., the 30% cap should not override the min-3-contract floor). No changes to params.json are proposed here.
+
+<!-- PROVENANCE-MISSING: test_risk_gate_equity_scaling.py -->

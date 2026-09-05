@@ -50,3 +50,5 @@ The pre-merge gate for this candidate includes the need for further analysis to 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates on the leaderboard, but it may complement some of the existing candidates, such as the BEARISH_REJECTION_RIDE_THE_RIBBON candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

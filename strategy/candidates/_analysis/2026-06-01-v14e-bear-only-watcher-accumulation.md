@@ -42,3 +42,5 @@ We cannot compute the win rate without accumulating 100 new bear-only observatio
 ## Pre-existing leaderboard impact
 
 This analysis supports candidate #3 (V14E_BEAR_ONLY_GATE) by providing the data needed for its OP-21 promotion gate. It does not conflict with any existing candidate.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

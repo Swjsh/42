@@ -50,3 +50,5 @@ The current engine operates under the BEARISH_REJECTION_RIDE_THE_RIBBON playbook
 ## Pre-existing leaderboard impact
 
 This baseline analysis serves as the reference for all candidates in _LEADERBOARD.md; it does not conflict with or complement any specific candidate but provides the ground truth for edge_capture and Sharpe calculations. Candidates are ranked relative to this baseline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

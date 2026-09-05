@@ -51,3 +51,5 @@ Audit the scripts for how they read core-decisions.jsonl and count orders. Updat
 ## Pre-existing leaderboard impact
 
 No direct impact on the leaderboard as this is a monitoring fix. Indirectly, accurate monitoring may lead to better strategy evaluation and potentially different candidate ratings over time.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

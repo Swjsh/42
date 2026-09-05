@@ -59,3 +59,5 @@ The TRENDLINE_BREAKOUT_VETO candidate needs to pass the following pre-merge gate
 ## Pre-existing leaderboard impact
 
 The TRENDLINE_BREAKOUT_VETO candidate is expected to complement the existing candidates in the leaderboard, particularly the TRENDLINE_BREAKOUT candidate. The veto is expected to reduce the number of false trendline breakout trades, resulting in a more accurate and reliable trading signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

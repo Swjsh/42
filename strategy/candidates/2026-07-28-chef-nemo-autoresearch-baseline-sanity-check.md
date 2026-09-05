@@ -63,3 +63,5 @@ Before any sweep iteration in autoresearch/loop.py:
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements all by adding a protective gate to the research process. No changes to engine logic or params.json, so zero impact on current leaderboard rankings. Safe to merge alongside any candidate.
+
+<!-- PROVENANCE-MISSING: test_autoresearch_loop_sanity_check.py -->

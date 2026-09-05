@@ -56,3 +56,5 @@ Entry/exit logic remains unchanged; only the labeling and control variable are a
 ## Pre-existing leaderboard impact
 
 This candidate is a study, not a knob/wiring proposal, so it does not directly conflict with or complement any existing leaderboard entries (1-9). It may inform future filter_change candidates if the volume-controlled QQQ label proves informative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

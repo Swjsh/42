@@ -61,3 +61,5 @@ Confidence
 Pre-existing leaderboard impact
 
 No conflict; complements all candidates by providing visibility into participation funnel health without altering engine logic. Safe to run alongside existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

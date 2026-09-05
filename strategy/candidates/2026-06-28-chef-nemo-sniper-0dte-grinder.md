@@ -60,3 +60,5 @@ To pass the pre-merge gate, the following tests need to be completed:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON setups. The SNIPER_0DTE_GRINDER strategy may provide an additional edge in capturing level breaks and riding momentum.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

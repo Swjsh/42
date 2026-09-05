@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (ranks 1-24) as it is a new trigger type. May complement existing volatility-based filters if validated, but currently adds untested complexity. No overlap with existing candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

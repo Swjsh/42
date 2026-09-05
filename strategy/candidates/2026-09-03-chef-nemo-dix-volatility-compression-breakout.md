@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; adds new trigger lane orthogonal to existing quality gates, filters, and exit changes. Complements structural candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND) by providing directional entry signal based on dark‑pool flow and volatility compression/breakout dynamics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

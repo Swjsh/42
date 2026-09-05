@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard entries; complements ORB_RETEST_LONG (watch‑only) by adding a VWAP retest and volume filter, aiming to turn the setup into an actionable trigger. No overlap with existing ratified candidates (e.g., VWAP_CONTINUATION, MIDDAY_TRENDLINE_GATE) as it operates in a different time window and uses distinct logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -116,3 +116,5 @@ def validate_v14e_bear_entry(observation: dict) -> tuple[bool, str]:
 3. If Stage-1 shows improvement, promote to CANDIDATE with gym validator rule
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

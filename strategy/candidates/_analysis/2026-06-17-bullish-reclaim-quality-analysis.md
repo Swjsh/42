@@ -50,3 +50,5 @@ Requires Stage-1 backtest of BULLISH_RECLAIM_RIDE_THE_RIBBON IS performance brok
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (none are BULLISH_RECLAIM_RIDE_THE_RIBBON). Could complement bullish-focused candidates like #11 RSI_DIVERGENCE_BULL_WATCHER or #19 FBW_MORNING_MID if a quality gate is identified, but impact is unknown without IS data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

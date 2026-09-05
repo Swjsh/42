@@ -654,3 +654,5 @@ We are given a task to interpret the shotgun_scalper_stage3 grinder output: 5 ke
    Note: the type is "quality_gate".
 
    We'll set confidence: 3/10 -- because the
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

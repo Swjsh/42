@@ -57,3 +57,5 @@ Entry logic remains identical to BEARISH_REJECTION_RIDE_THE_RIBBON (level reject
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing structure-based candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND) by refining exit timing. It conflicts with any candidate that relies on the current $0.50 buffer as a critical filter (none identified in leaderboard). No direct duplication of existing exit_change types in top ranks.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_exit_change_stop_buffer.py -->

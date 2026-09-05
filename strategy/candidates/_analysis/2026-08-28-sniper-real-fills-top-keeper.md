@@ -70,3 +70,5 @@ Compared to the baseline from sniper_stage2_grinder (unknown due to truncation),
 ## Pre-existing leaderboard impact
 
 Does not conflict with any leaderboard candidates because it fails the OP-16 edge_capture floor (<771). It would be rejected outright. No complement to existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

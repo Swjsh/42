@@ -23,3 +23,5 @@
 **Status:** Pre-approval pending edge_capture ≥ 771 (50% of 1542 max) and VIX regime validation  
 **Next Steps:** Simulate strike_offset alignment with production (per CLAUDE.md#sim-accuracy-gate) and compute edge_capture from `markdown/doctrine/edge-master-doctrine.md`  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Exit/entry logic remains unchanged; only post-execution accounting and verdict d
 ## Pre-existing leaderboard impact
 
 No known conflict with existing candidates (ranks 1-24). Complements any candidate relying on accurate verdict accounting by eliminating blind spot in secondary execution path tracking. Does not alter P&L or anchor-day behavior, so no impact on OP-16 edge_capture or leaderboard rankings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

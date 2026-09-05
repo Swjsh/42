@@ -56,3 +56,5 @@ On each potential bearish entry signal (from the existing engine), we check the 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters (e.g., STRUCTURE_VETO_DIR_VS_TREND) by adding a volatility regime layer. It does not conflict with any current leaderboard candidate as it operates on a different dimension (VIX) and is additive. It may be combined with STRUCTURE_VETO_DIR_VS_TREND for cumulative edge.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/vix_confirmation_filter_wf.json, analysis/recommendations/vix_confirmation_filter_real_fills.json, test_vix_confirmation_filter.py -->

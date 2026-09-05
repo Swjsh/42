@@ -53,3 +53,5 @@ Gym validators (all tests pass), walk-forward OOS with ratio >=0.70, real-fills 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change; it validates the current engine. It does not conflict with any candidate in the leaderboard but rather confirms the cumulative effect of ratified candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

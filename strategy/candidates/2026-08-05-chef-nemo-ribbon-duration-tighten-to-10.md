@@ -59,3 +59,5 @@ Entry trigger remains the BEARISH_REJECTION_RIDE_THE_RIBBON setup (level rejecti
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate proposes a filter_change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is not currently listed as a candidate in the leaderboard (the setup is live via playbook). It does not directly conflict with any existing candidate but may interact with other filters (e.g., midday_trendline_gate, structure_veto). Complementary to structure_veto (which removes wrong-way trades) as both aim to improve trade selection without removing winners. No known conflict with leaderboard entries.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_ribbon_duration.py -->

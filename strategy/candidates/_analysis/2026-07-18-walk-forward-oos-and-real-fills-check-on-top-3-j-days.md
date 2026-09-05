@@ -57,3 +57,5 @@ We require <20% relative deviation in both tests for stability.
 ## Pre-existing leaderboard impact
 
 This analysis validates the engine's core performance on J days. If passed, it supports all candidates relying on stable J day edge_capture (current leaderboard top candidates). If failed, it would necessitate engine investigation and could invalidate edge_capture projections for all candidates. No direct conflict with existing candidates; serves as foundation for their validity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

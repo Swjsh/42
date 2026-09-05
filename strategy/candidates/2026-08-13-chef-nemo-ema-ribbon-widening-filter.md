@@ -57,3 +57,5 @@ At the trigger bar (where level rejection, EMA ribbon flip bearish, and confluen
 ## Pre-existing leaderboard impact
 
 This candidate is a filter_change that complements existing quality gates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION). It does not conflict with any ranked candidate because it targets a different signal (ribbon spread derivative) and can be stacked with other filters. No known overlap with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_ema_ribbon_widening_filter.py -->

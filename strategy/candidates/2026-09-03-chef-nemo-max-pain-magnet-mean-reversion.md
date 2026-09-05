@@ -64,3 +64,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger based on live max‑pain, which is not represented in the current leaderboard (entries focus on VWAP, structure, DTE, etc.). It does not directly conflict with any existing candidate; rather, it could complement existing filters (e.g., VIX regime, time‑of‑day) if proven effective. No overlap with the top‑9 ranked candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

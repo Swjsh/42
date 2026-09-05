@@ -60,3 +60,5 @@ The BODY_IN_LOWER_40PCT condition (body must reside in lower 40% of candle range
 ## Pre-existing leaderboard impact
 
 This filter_change complements BEARISH_REJECTION_FILTER_9 modifications but conflicts with any candidate that tightens body shape requirements (none current in leaderboard). Does not directly conflict with top-9 candidates (mostly structural gates, exits, or watcher proposals). May interact with BEARISH_SWEEP_BLOCKER (rank 1) by altering sweep detection logic, but no direct overlap in mechanism. Requires re-evaluation against all filter-based candidates post-backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

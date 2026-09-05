@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION by adding ribbon alignment and volume-spike filters. No direct conflict with current leaderboard candidates (all are watcher proposals, DTE studies, or structural gates); this is a new trigger type for live trading consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

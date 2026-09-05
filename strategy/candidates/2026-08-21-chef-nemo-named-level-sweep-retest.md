@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (which are primarily filters, gates, or other trade classes). Adds a new entry trigger that could complement existing exits or quality gates if validated. No overlap with current leaderboard entries 1‑24 in type or mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

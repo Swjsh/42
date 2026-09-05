@@ -65,3 +65,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP‑16 edge_capture ≥771 requirement for leaderboard inclusion. It conflicts with the current leaderboard’s edge floor and would be REJECTED at the door. It may complement existing exit‑change candidates if future OOS testing shows a genuine edge, but at present it should remain in the grinder output for further investigation rather than being promoted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -71,3 +71,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md (which are primarily filters, exits, or other setups like WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND, etc.). May complement by providing a new long‑biased entry signal that could be combined with existing quality gates or exits after validation. No overlap with current trigger‑type candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER is unrelated).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

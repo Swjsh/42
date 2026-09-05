@@ -60,3 +60,5 @@ All other parameters (e.g., chart stop, profit-lock, qty tiers) stay at baseline
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED from the leaderboard due to edge_capture < 771, so it does not conflict with current rankings. However, as an exit_change, it overlaps with the knob space of existing exit_change candidates (e.g., dynamic stop tests). If promoted, it would require disentangling whether its purported edge is additive or redundant with those candidates. Given its current shortcomings, it should not be merged without substantial OOS walk-forward evidence.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

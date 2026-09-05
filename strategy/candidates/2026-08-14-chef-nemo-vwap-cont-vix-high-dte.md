@@ -53,3 +53,5 @@ Gym validators (9/9 PASS), walk-forward OOS Sharpe ≥0.70, real-fills on top 3 
 ## Pre-existing leaderboard impact
 
 Complements WEEKLY_DTE_NOT_0DTE (which showed DTE=2 helps) and VIX_BULL_HARD_CAP_UNBLOCK (which showed VIX>18 bullish scope). May conflict if VIX filter removes too many trades; overlaps with MIDDAY_TRENDLINE_GATE mechanism but different timeframe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

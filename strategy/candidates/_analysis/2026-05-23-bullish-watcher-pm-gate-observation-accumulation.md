@@ -43,3 +43,5 @@ To promote the watcher to PROMISING status, we need:
 
 ## Pre-existing leaderboard impact
 This analysis supports the existing candidate #9 (BULLISH_WATCHER_PM_GATE) by providing the data needed to meet its OP-21 promotion gate. It does not conflict with any other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

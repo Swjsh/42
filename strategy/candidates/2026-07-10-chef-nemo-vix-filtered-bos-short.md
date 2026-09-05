@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher quality gates, DTE overrides, etc.). It complements by adding a short‑side trigger that operates under different conditions (VIX>20, afternoon session) and may capture edge on days not covered by existing long‑biased setups. No overlap with current J‑ratified candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE) as it targets a distinct regime and direction.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

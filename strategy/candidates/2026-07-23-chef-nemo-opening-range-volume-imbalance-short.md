@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the top‑9 leaderboard entries because it introduces a new short‑only trigger based on opening‑range volume imbalance, a dimension not covered by existing ORB‑related watchers (ORB_RETEST_LONG, ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) or the quality gates currently deployed. It is complementary to existing volatility‑based filters (e.g., VIX > 18 condition) and could be combined with the existing chart‑stop exit logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

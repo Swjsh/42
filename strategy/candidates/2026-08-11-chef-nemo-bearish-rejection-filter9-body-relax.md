@@ -68,3 +68,5 @@ All other conditions (time of day, structure, VIX, etc.) remain unchanged. The f
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filter-based candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) by relaxing a bearish entry condition. No direct conflict with leaderboard entries as it modifies an internal filter, not a watcher or trigger. May synergize with BEARISH_REJECTION_MORNING watcher by increasing morning signal density. Does not affect bullish candidates. Impact on leaderboard TBD pending backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the VWAP_CONTINUATION setup by potentially improving its entry timing. It may conflict with any candidate that relies on the current VWAP_CONTINUATION trigger behavior (e.g., VWAPCONT_DTE_OVERRIDE_2DTE) but since that candidate is currently HOLD, the impact is low. It does not directly conflict with other J-RATIFIED candidates like MIDDAY_TRENDLINE_GATE or V14E_BEAR_TIME_OF_DAY_GATE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger that does not duplicate any existing setup in the leaderboard. It complements the existing pool by offering a short‑bias, gap‑fade logic that is orthogonal to the trend‑following and VWAP‑continuation strategies currently ranked. No direct conflict is expected; however, it will need to prove its own edge capture to earn a rank.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

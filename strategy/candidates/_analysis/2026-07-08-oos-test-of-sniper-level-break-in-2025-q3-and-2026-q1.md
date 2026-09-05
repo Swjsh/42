@@ -56,3 +56,5 @@ We need to run the backtest and verify:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It is a test to inform future candidate proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

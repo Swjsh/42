@@ -48,3 +48,5 @@ When the grinder finishes (estimated 45‑60 min on the free tier), we will ha
 9/10 – The grinder harness is battle‑tested (see recent runs for WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, etc.). The only uncertainty is the exact wall‑clock time on the free‑tier instance, but the artifacts will be produced correctly.
 
 ---
+
+<!-- PROVENANCE-MISSING: automation/state/stage1_grinder/progress.json, analysis/backtests/stage1_summary.csv -->

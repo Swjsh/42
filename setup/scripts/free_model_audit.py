@@ -130,6 +130,11 @@ except Exception:  # noqa: BLE001 -- this metric must never block the rest of th
     _kitchen_candidate_files = None
     _kitchen_run_audit = None
 
+try:
+    from status_known_broken import upsert as _status_upsert  # noqa: E402
+except Exception:  # noqa: BLE001 -- STATUS.md write must never block the rest of the audit run
+    _status_upsert = None
+
 STATE = REPO / "automation" / "state"
 HISTORY = STATE / "free-model-audit-history.jsonl"
 BAR_STATE_PATH = STATE / "free-model-audit-state.json"
@@ -431,6 +436,43 @@ def save_bar_state(all_state: dict, path: Optional[Path] = None) -> None:
 
 KITCHEN_METRIC_WINDOW_DAYS = 30
 
+# OP-32 trust-gate threshold (GOAL-KITCHEN-INTEGRITY-2026-09-05 I4, DONE-WHEN (c)):
+# 30d fabricated_artifact_rate >= this -> the Kitchen touchpoint is DEGRADED.
+KITCHEN_DEGRADED_RATE_THRESHOLD = 0.05
+_STATUS_MARKER = "KITCHEN_FABRICATED_ARTIFACT_RATE:"
+
+
+def kitchen_trust_gate(metric: Optional[dict]) -> str:
+    """OP-32 trust-gate verdict for the Kitchen touchpoint: HEALTHY, DEGRADED, or
+    UNKNOWN (metric unavailable -- fails open, never claims DEGRADED without evidence).
+    """
+    if metric is None or metric.get("fabricated_artifact_rate") is None:
+        return "UNKNOWN"
+    return "DEGRADED" if metric["fabricated_artifact_rate"] >= KITCHEN_DEGRADED_RATE_THRESHOLD else "HEALTHY"
+
+
+def update_kitchen_status_known_broken(metric: Optional[dict], verdict: str) -> None:
+    """Upsert (DEGRADED) or clear (HEALTHY/UNKNOWN) the STATUS.md 'Known broken'
+    line for the Kitchen fabrication-rate gate. Fails open -- a STATUS.md write
+    failure must never fail the audit run."""
+    if _status_upsert is None:
+        return
+    try:
+        if verdict == "DEGRADED" and metric is not None:
+            ts = metric.get("computed_at", et_now().isoformat())
+            line = (
+                f"- [{ts}] {_STATUS_MARKER} DEGRADED -- 30d fabricated_artifact_rate="
+                f"{metric['fabricated_artifact_rate']} >= {KITCHEN_DEGRADED_RATE_THRESHOLD} "
+                f"({metric['provenance_missing']}/{metric['files_scored']} files, "
+                f"window={metric['window_days']}d). See analysis/kitchen-review/PROVENANCE-AUDIT.md."
+            )
+            _status_upsert(_STATUS_MARKER, line)
+        else:
+            _status_upsert(_STATUS_MARKER, None)
+    except Exception as exc:  # noqa: BLE001 -- fail open, OP-25
+        print(f"[free_model_audit] WARN STATUS.md upsert failed: {type(exc).__name__}: {exc}",
+              file=sys.stderr)
+
 
 def kitchen_fabricated_artifact_rate(days: int = KITCHEN_METRIC_WINDOW_DAYS) -> Optional[dict]:
     """PROVENANCE-MISSING / total-scored over the last `days` days of Kitchen candidate/
@@ -702,17 +744,20 @@ def main() -> int:
     # Deterministic, $0, always-cheap -- runs every fire regardless of --subject/--force,
     # since it is not on the per-subject cadence gate (no LLM grading involved).
     kitchen_metric = kitchen_fabricated_artifact_rate()
+    kitchen_verdict = kitchen_trust_gate(kitchen_metric)
     if kitchen_metric is not None:
         all_state = load_bar_state()
         all_state["kitchen_fabricated_artifact_rate"] = kitchen_metric
+        all_state["kitchen_trust_gate"] = kitchen_verdict
         save_bar_state(all_state)
         print(f"[free_model_audit] kitchen_fabricated_artifact_rate="
              f"{kitchen_metric['fabricated_artifact_rate']} "
              f"({kitchen_metric['provenance_missing']}/{kitchen_metric['files_scored']} "
-             f"over {kitchen_metric['window_days']}d)")
+             f"over {kitchen_metric['window_days']}d) trust_gate={kitchen_verdict}")
     else:
         print("[free_model_audit] kitchen_fabricated_artifact_rate: UNAVAILABLE (provenance "
              "audit module failed to load) -- not counted as a failure", file=sys.stderr)
+    update_kitchen_status_known_broken(kitchen_metric, kitchen_verdict)
     return exit_code
 
 

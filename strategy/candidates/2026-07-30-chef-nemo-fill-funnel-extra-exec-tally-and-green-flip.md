@@ -62,3 +62,5 @@ All other evaluation logic (RED/YELLOW thresholds) remains unchanged.
 ## Pre-existing leaderboard impact
 
 Complements all candidates by improving internal metric accuracy. No conflicts -- does not alter trade execution, entry/exit logic, or strategy parameters. Safe to merge alongside any existing candidate.
+
+<!-- PROVENANCE-MISSING: test_fill_funnel_extra_exec.py -->

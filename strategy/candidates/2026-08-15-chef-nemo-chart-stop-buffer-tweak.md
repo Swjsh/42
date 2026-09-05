@@ -52,3 +52,5 @@ gym validators must pass, walk-forward OOS test must show positive Sharpe and ed
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEARISH_REJECTION_RIDE_THE_RIBBON by refining its exit logic. No overlap with watcher-only or directional gate candidates. May improve edge_capture for the BEARISH_REJECTION set without affecting bull setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

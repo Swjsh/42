@@ -64,3 +64,5 @@ Note: This validation script does not modify engine behavior; it only validates 
 
 ## Pre-existing leaderboard impact
 No impact: validation script only; does not propose strategy/watcher changes. Complements all candidates by providing validation tooling. No conflict with leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ The TRENDLINE_BREAK_CALL_VETO gate must pass the following tests:
 ## Pre-existing leaderboard impact
 
 The TRENDLINE_BREAK_CALL_VETO gate does not conflict with or complement any existing candidates in _LEADERBOARD.md. It is a new gate that aims to capture a specific edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

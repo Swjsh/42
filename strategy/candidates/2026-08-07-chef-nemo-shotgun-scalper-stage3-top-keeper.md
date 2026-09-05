@@ -33,3 +33,5 @@ We are trying to capture edge by optimizing take-profit, stop-loss, time stop, s
 | 5/05 loser | unknown -- requires Stage-1 backtest | -180.0 | unknown -- requires Stage-1 backtest |
 | 5/06 loser | unknown -- requires Stage-1 backtest | 132.0 | unknown -- requires Stage-1 backtest |
 | 5/07 loser 1 | unknown -- requires Stage-1
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

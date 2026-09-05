@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No structural conflict with existing candidates; nearest relative is PRE_FOMC_DERISK_DRIFT (event-based) but this candidate uses persistent low-VIX regime filters rather than event windows. Complements leaderboard by adding a new trend-continuation trigger for low-VIX environments not currently covered. No overlap with existing trigger types in top-20 leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

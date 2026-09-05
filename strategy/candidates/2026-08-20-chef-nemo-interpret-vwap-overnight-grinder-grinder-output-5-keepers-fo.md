@@ -223,3 +223,5 @@ Entry triggers when: (1) price reclaims or rejects the prior session's VWAP anch
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the current leaderboard. It conflicts with no existing candidates as it fails the OP-16 floor requirement outright. Pursuit is not recommended without significant OOS validation showing edge_capture > 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

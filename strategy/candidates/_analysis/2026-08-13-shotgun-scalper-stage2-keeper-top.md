@@ -72,3 +72,5 @@ The candidate must pass:
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with the leaderboard's requirement of edge_capture >= 771. It does not complement any existing candidate because it is rejected on the primary OP-16 metric. The leaderboard currently shows no candidates with negative edge_capture, and this candidate would be REJECTED at the door per OP-16 rules.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

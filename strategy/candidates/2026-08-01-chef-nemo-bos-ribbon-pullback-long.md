@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are bearish/PUT-focused or watcher proposals); complements bullish regime development but requires isolation testing to avoid interference with BEARISH_REJECTION_RIDE_THE_RIBBON logic. No direct parameter overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

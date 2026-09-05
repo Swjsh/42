@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This proposal complements existing candidates such as VWAP_CONTINUATION (trend‑following) by offering a counter‑part mean‑reversion long trigger. It does not directly conflict with any of the top‑9 leaderboard entries, as those are either watcher‑only, structural gates, or other trend‑based setups. If validated, it could provide additive edge on days where the VWAP_CONTINUATION trigger is inactive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

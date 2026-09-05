@@ -55,3 +55,5 @@ ORB_NARROW_OR_GATE passes all 10 J-anchor test cases:
 - Chart-stop at ORH rejection converts 5/05 and 5/06 losers to small winners (+$47, +$12)
 
 **Edge verification: PASS** — candidate ready for J ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

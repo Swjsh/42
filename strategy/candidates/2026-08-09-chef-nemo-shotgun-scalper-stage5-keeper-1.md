@@ -18,3 +18,5 @@ We are testing a parameter combination for the SHOTGUN_SCALPER strategy that tig
 
 **Entry trigger:** Based on shotgun_scalper_stage5's proprietary entry logic (volume breakout + volatility expansion + EMA alignment).  
 **Exit logic:**
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

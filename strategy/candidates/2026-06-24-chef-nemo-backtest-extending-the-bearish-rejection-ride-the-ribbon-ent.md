@@ -53,3 +53,5 @@ Gym validators must pass (v45+), walk-forward OOS/IS ratio >= 0.70, real-fills v
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_REJECTION_MORNING watcher (rank 20) by extending the trading window into the afternoon; does not conflict with any J-ratified candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it modifies a different setup's entry condition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

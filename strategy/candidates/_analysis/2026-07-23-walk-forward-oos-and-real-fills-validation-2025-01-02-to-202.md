@@ -60,3 +60,5 @@ No mechanism change; we are validating the existing strategy. The walk-forward O
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis validates the base strategy against which all candidates in the leaderboard are measured. It does not conflict with any candidate; rather, it provides the foundation for evaluating candidate deltas. Candidates that modify the base strategy (e.g., STRUCTURE_VETO_DIR_VS_TREND) are evaluated relative to this validated base. No conflicts identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, but its impact is unknown due to the lack of backtest results.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

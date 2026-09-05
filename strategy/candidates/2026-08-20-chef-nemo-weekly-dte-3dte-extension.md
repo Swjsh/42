@@ -56,3 +56,5 @@ Implementation: Modify the per-setup DTE override (`j_vwap_cont_dte_override`) t
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements WEEKLY_DTE_NOT_0DTE by extending the DTE dimension. No overlap with STRUCTURE_VETO_DIR_VS_TREND (different mechanism). May require new OPRA cache generation for 3DTE options (tools/expand_opra_cache.py).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

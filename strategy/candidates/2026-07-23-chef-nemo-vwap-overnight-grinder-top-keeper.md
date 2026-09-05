@@ -56,3 +56,5 @@ The VWAP overnight grinder identified a parameter combination that produces posi
 ## Pre-existing leaderboard impact
 
 This candidate’s projected edge_capture (40.01) is well below the 771 threshold required for leaderboard inclusion; it does not conflict with or complement any existing candidates. It would be REJECTED at the door per OP‑16 unless OOS walk‑forward reveals substantially higher edge.
+
+<!-- PROVENANCE-MISSING: test_vwap_overnight_grinder.py -->

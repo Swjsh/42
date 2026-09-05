@@ -55,3 +55,5 @@ The pre-merge gate requires a successful out-of-sample test, a real-fills valida
 ## Pre-existing leaderboard impact
 
 The BULLISH_RECLAIM_RIDE_THE_RIBBON candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. It provides a new trade class with a different edge capture mechanism, which can potentially improve the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Since this is a system maintenance script and not a trading strategy, it does no
 
 ## Pre-existing leaderboard impact
 This candidate does not conflict with any existing trading strategy candidates in the leaderboard because it is a system maintenance tool and not a trading strategy. It complements all candidates by ensuring the state files they depend on are fresh.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (walk-forward, reg
 ## Pre-existing leaderboard impact
 
 This candidate complements existing mean-reversion and volatility-filter strategies (e.g., ORB_RETEST_LONG, VWAP_CONTINUATION) by targeting a distinct low-VIX/contraction regime. No direct conflicts with current leaderboard candidates (which focus on trend-following, breakout, or structure-based entries). Could potentially synergize with VOLATILITY_REGIME_FILTER if developed. Does not overlap with existing VIX-triggered strategies (SNIPER_VIX18_GRINDER targets high VIX).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -68,3 +68,5 @@ We hypothesize that a volatility contraction (compression) followed by an expans
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger; it does not directly conflict with any existing ranked candidate. It could complement existing filters (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) by providing an alternative entry signal for BEARISH_REJECTION‑type setups. No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

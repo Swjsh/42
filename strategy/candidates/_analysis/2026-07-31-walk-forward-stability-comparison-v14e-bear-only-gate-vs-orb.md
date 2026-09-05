@@ -70,3 +70,5 @@ Both candidates are watcher-only; they do not change engine entries or exits on 
 - V14E_BEAR_ONLY_GATE ranks #3 as PROMISING; confirming walk-forward stability would solidify its standing, but current evidence is weaker than ORB_DIRECTION_FILTER’s.
 
 **Conclusion:** Based on available evidence, ORB_DIRECTION_FILTER shows superior walk-forward stability (explicit WF PASS) compared to V14E_BEAR_ONLY_GATE (no WF PASS noted). ORB_DIRECTION_FILTER is the more regime-robust candidate for 2026 Q1 quarterly windows. However, both lack granular quarterly walk‑forward scores; a dedicated Stage‑1 backtest splitting 2026 Q1 into monthly or weekly windows is required for a definitive ranking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

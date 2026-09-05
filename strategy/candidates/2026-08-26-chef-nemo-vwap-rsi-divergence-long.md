@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 This candidate adds a new long-trigger strategy. It does not modify existing bearish triggers, gates, or exits in the leaderboard (ranks 1-24). Therefore, it does not conflict with current candidates. It may complement by providing long-side exposure on days not captured by bearish setups (e.g., bullish trend days), but concurrent firing with bearish triggers on same day requires Stage-1 analysis to assess net impact on engine behavior. No known overlap with existing long-setup candidates (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON remains paper-eligible).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

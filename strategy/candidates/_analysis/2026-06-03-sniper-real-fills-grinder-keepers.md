@@ -82,3 +82,5 @@ This is the opposite of what we want. The SNIPER strategy family has struggled w
 1. Revisit SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP (leaderboard #15) — that had positive OOS ($2,713) and may be the only viable SNIPER path
 2. Focus on entry-condition refinement rather than exit-parameter tuning
 3. Require OOS walk-forward BEFORE real-fills validation for any future SNIPER candidates
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

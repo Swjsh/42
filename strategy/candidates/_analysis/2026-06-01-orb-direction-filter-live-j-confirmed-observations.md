@@ -50,3 +50,5 @@ The candidate ORB_DIRECTION_FILTER should be moved from NEEDS-MORE-DATA to PROMI
 ## Pre-existing leaderboard impact
 
 This analysis supports promoting the ORB_DIRECTION_FILTER candidate from NEEDS-MORE-DATA to PROMISING. It does not conflict with any existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -21,3 +21,5 @@ The combination of parameters (tp_premium_pct=0.75, stop_premium_pct=-0.35, time
 **Exit:**  
 - Take profit at 75% premium gain (tp_premium_pct=0.75)  
 - Stop loss at 35% premium loss (stop_premium
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

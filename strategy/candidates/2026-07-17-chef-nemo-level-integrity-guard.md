@@ -58,3 +58,5 @@ This change does not directly affect the trading engine's behavior on the J anch
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard because it is not a trading strategy change. It is a data integrity guard that supports the infrastructure. It should complement all candidates by ensuring the data they rely on is consistent.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 This candidate is a new trigger and does not directly modify existing candidates in the leaderboard; it may complement existing filters if combined, but conflicts are unknown without backtest  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

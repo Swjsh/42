@@ -55,3 +55,5 @@ All gym validators passed (102/102). Walk-forward OOS edge_capture > 0 and ratio
 ## Pre-existing leaderboard impact
 
 This analysis is a pure verification gate; it proposes no strategy change. It complements all leaderboard candidates by confirming the baseline engine does not regress on J anchors. No conflict with existing candidates.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/stage1_grinder.py -->

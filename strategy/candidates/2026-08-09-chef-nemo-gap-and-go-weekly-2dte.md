@@ -61,3 +61,5 @@ Combining the GAP_AND_GO setup (opening gap continuation) with weekly options (2
 ## Pre-existing leaderboard impact
 
 Complements [WEEKLY_DTE_NOT_0DTE] (rank ★★) by isolating 2DTE as the optimal DTE bucket for GAP_AND_GO signal. Does not conflict with [STRUCTURE_VETO_DIR_VS_TREND] (rank ★) — can be stacked. No overlap with watcher-only candidates. Reinforces [GAP_AND_GO] (rank 4) by improving its risk/return profile via DTE extension.
+
+<!-- PROVENANCE-MISSING: test_gap_and_go_weekly_2dte.py -->

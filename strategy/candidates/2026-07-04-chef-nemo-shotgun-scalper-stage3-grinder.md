@@ -52,3 +52,5 @@ The mechanism involves refining the trigger and exit logic to capture the edge r
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in the leaderboard, but the impact is unknown due to the lack of information on the current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

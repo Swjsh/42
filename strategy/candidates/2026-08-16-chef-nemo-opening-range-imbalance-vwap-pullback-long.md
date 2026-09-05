@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules or gates in the leaderboard. It is complementary to existing volatility‑ and structure‑based candidates (e.g., VWAP_CONTINUATION, GAP_AND_GO) as it targets a different intraday bias mechanism. No known conflict with candidates 1‑9; however, simultaneous activation would require capital‑allocation coordination to avoid overlapping exposure during the same time window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

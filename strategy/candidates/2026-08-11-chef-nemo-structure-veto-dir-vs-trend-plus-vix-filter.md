@@ -58,3 +58,5 @@ The existing `structure_veto_enabled` gate blocks bear-side entries when the 5m 
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements `STRUCTURE_VETO_DIR_VS_TREND` (rank ★) by adding a conditional layer. No overlap with watcher-only or DTE candidates. If validated, could improve edge_capture beyond 780 while preserving Sharpe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

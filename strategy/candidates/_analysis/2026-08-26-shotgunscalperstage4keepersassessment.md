@@ -65,3 +65,5 @@ The shotgun_scalper_stage4 grinder identified a parameter set that increases tak
 ## Pre-existing leaderboard impact
 
 This candidate would not appear on the current leaderboard because its edge_capture (506.55) fails the OP‑16 gate (<771). Therefore it has no direct impact on the ranked list. If future OOS validation pushes edge_capture above the floor, it would need to be evaluated against existing candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) for potential promotion. At present, it represents a separate line of inquiry that requires further validation before any leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Gym validators must pass (current guard: 97/98 PASS), walk-forward OOS must show
 ## Pre-existing leaderboard impact
 
 This candidate is orthogonal to the existing PUT-focused candidates in the leaderboard (ranks 1-9) as it only vetoes CALL entries. It does not conflict with any of them and may complement by reducing losses on CALL days (specifically 5/07) without affecting PUT winner days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

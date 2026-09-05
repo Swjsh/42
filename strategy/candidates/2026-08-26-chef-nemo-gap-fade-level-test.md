@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly watcher proposals, gates, or structural filters); may complement by providing an alternative entry condition for mean-reversion scenarios, but impact unknown without backtest. Does not appear to overlap with current leaderboard candidates' mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

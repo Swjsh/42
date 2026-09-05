@@ -47,3 +47,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel volume-based trigger distinct from existing ORB_RETEST_LONG (which focuses on price retesting). It does not directly conflict with leaderboard candidates (mostly watcher gates, DTE studies, or setup refinements) but may share conceptual overlap with opening range strategies; uniqueness lies in using internal OR volume imbalance as entry trigger rather than price retest or breakout alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -36,3 +36,5 @@ The candidate fails the walk-forward OOS gate (WF<0.70) and shows concentration 
 ## Recommendation
 
 REJECT due to walk-forward OOS failure and concentration. Do not proceed to live trading.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing leaderboard candidates as it is a filter change to an existing setup (BEARISH_REJECTION). However, it may impact the performance of any candidate that builds upon BEARISH_REJECTION (none currently on the leaderboard appear to be direct modifications of this setup's filters). It complements candidates that are structural or directional in nature (e.g., STRUCTURE_VETO_DIR_VS_TREND) by potentially increasing the flow of valid bearish setups. It does not conflict with watcher-only candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

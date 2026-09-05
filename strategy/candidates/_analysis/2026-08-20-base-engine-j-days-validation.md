@@ -52,3 +52,5 @@ Walk-forward OOS: expanding window training (2025-01-02 to 2025-12-31) testing o
 ## Pre-existing leaderboard impact
 
 Complements candidates that improve loser-day avoidance (e.g., STRUCTURE_VETO_DIR_VS_TREND) but conflicts with any candidate that reduces winner-day capture (e.g., BEAR_SCORE_7_RELAXATION loses on 4/29/5/01). No direct conflict with current PROMISING candidates as this is a validation of base state.
+
+<!-- PROVENANCE-MISSING: test_j_walkforward_oos.py, test_j_realfills_ab.py -->

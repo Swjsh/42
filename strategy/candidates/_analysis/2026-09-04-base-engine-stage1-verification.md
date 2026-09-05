@@ -37,3 +37,5 @@ N/A (verification, not a proposal)
 8 / 10 -- Based on leaderboard data and existing guards. Anchor preservation confirmed via multiple candidate controls; Sharpe from published base metrics. OOS and concentration gaps noted.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

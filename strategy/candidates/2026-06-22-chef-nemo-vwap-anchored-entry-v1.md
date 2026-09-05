@@ -58,3 +58,5 @@ Entering on VWAP reclaim or rejection after the first three RTH closes are all o
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP‑16 edge_capture threshold (≥771) and therefore would not appear on the leaderboard. It neither conflicts with nor complements existing candidates 1‑23; it is a standalone VWAP‑anchored entry idea that requires substantial validation before further consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

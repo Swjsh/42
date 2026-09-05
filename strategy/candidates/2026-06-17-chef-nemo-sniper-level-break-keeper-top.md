@@ -75,3 +75,5 @@ The SNIPER_LEVEL_BREAK trigger with ★★+ level breaks (min_stars=2) captures 
 Does not conflict with current leaderboard candidates (all are watcher gates or J-ratified exits). However, due to failing OP-16 edge_capture gate, it would be REJECTED if submitted. Not suitable for leaderboard promotion without significant redesign to capture J's bearish reversal edge.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

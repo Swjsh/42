@@ -56,3 +56,5 @@ The proposed change will require the following pre-merge gates to pass:
 ## Pre-existing leaderboard impact
 
 The proposed change may complement or conflict with existing candidates on the leaderboard, particularly those related to the BEARISH_REJECTION_RIDE_THE_RIBBON setup. Further analysis is required to determine the potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

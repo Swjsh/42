@@ -59,3 +59,5 @@ Entry: For bearish setups, trigger when the first RTH bar breaks below the prema
 ## Pre-existing leaderboard impact
 
 This candidate is a re-evaluation of the existing LIVE_PRICE_FIRST_BAR_TRIGGER (rank 2 in leaderboard). It does not conflict with other candidates but may complement them by adding a new trigger branch that fires outside the J anchor days. It is currently NEEDS-MORE-DATA and this Stage-1 backtest (via the premarket scan) is a step toward gathering more data.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

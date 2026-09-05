@@ -61,3 +61,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (including walk�
 ## Pre-existing leaderboard impact
 
 This candidate proposes a new trigger type (CHoCH + VWAP rejection + bearish close) that does not appear in the current leaderboard (ranks 1‑24). It does not directly modify any existing trigger, filter, or exit logic, so it does not conflict with candidates 1‑9. It may complement existing structural watches (e.g., TRENDLINE_BREAK_CALL_VETO, BEARISH_REJECTION_MORNING) by offering an alternative short entry condition, but it must prove its own edge via Stage‑1 backtest before any integration consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

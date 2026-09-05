@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate modifications or structural DTE changes). Complements VWAP_CONTINUATION by adding OR/VWAP divergence filter to morning long bias detection. No overlap with bearish-focused setups in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

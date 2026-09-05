@@ -54,3 +54,5 @@ Real-fills: On the top 3 J days, the real-fill P&L must be within ±20% of the s
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the strategy. It is a validation of the current baseline. Therefore, it does not conflict with any existing candidate. It complements the leaderboard by providing an updated validation of the baseline parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

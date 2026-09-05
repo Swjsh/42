@@ -56,3 +56,5 @@ The top keeper uses: vol_mult=1.1, body_min_cents=0.02, min_stars=2, strike_offs
 ## Pre-existing leaderboard impact
 
 Below OP-16 edge_capture floor (771) -- would not appear on leaderboard. No direct conflict with existing candidates (all above floor). If edge_capture improved via parameter tuning, could complement strategies focused on different regimes (e.g., VWAP_CONTINUATION, BEARISH_REJECTION). Current form requires rejection or major revision.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

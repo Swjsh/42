@@ -53,3 +53,5 @@ Run the existing engine (as defined in heartbeat.md and filters.py) on the 5-min
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a prerequisite for evaluating any candidate's effect on J anchors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

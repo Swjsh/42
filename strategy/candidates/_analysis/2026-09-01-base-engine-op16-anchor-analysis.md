@@ -52,3 +52,5 @@ We ran the Stage-1 backtest via the autoresearch grinder harness on the full 16-
 ## Pre-existing leaderboard impact
 
 This analysis provides the baseline edge_capture (780) and Sharpe (4.340) against which all candidates in the leaderboard are measured. Candidates with edge_capture < 771 are rejected; this baseline is just above the floor. Any candidate must improve edge_capture and/or Sharpe to increase final_score (edge_capture × Sharpe). Current leaderboard top candidate (STRUCTURE_VETO_DIR_VS_TREND) improves Sharpe to 4.728 (+9%) with unchanged edge_capture, yielding final_score=3,688 vs base 3,385.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

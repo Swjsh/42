@@ -58,3 +58,5 @@ The keeper combines a high TP1 (150% gain) with a relatively tight stop (35% los
 ## Pre‑existing leaderboard impact
 
 The keeper would be REJECTED at the door per OP‑16 (edge_capture < 771) and therefore cannot appear on the current leaderboard. It does not complement any existing candidate because it fails the primary edge‑capture gate. Promotion to the leaderboard is not warranted until OOS walk‑forward demonstrates edge_capture ≥ 771 and real‑fills checks pass.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

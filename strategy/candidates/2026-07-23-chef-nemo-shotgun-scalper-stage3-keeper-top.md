@@ -68,3 +68,5 @@ We require:
 This candidate's projected edge_capture (285) is below the OP-16 floor of 771, so it would be REJECTED at the door and does not conflict with current leaderboard candidates (which all have edge_capture >= 771). It does not complement any existing candidate as it fails the basic edge requirement.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

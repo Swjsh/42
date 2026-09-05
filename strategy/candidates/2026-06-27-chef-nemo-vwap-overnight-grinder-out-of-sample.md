@@ -52,3 +52,5 @@ The mechanism involves using a combination of technical indicators, such as the 
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the VWAP_CONTINUATION candidate, by providing an alternative approach to capturing the VWAP edge. However, further analysis is needed to determine the potential conflicts or synergies between this candidate and the existing leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

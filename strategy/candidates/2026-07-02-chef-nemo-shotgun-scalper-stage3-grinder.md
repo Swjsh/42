@@ -57,3 +57,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard, as it represents a new strategy (SHOTGUN_SCALPER_STAGE3_GRINDER) that is not currently deployed. The candidate complements the existing candidates, as it provides a new source of edge capture that can be combined with existing strategies to improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

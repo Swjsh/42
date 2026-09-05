@@ -61,3 +61,5 @@ The engine uses these to set stop-loss and take-profit levels for entries classi
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the current leaderboard because its edge_capture (670.6) is below the OP-16 floor of 771. It does not conflict with existing candidates (all have edge_capture ≥ 771), as it would be rejected at the door per OP-16. Promoting it would violate Rule 9 (no changes to params.json without ratification) and OP-16 (edge_capture < 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

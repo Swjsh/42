@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with top 9 candidates (QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, TRENDLINE_BREAK_CALL_VETO, STRUCTURE_VETO_DIR_VS_TREND, REQUIRE_BEARISH_FILL_BAR_REVAL, ENTRY_BODY_GATE_BEAR_REVAL, UNBLOCK_MIDDAY_TRENDLINE_GATE, BULL_SCOPE_LOCK_REVAL). Complements by adding a new long entry signal focused on early morning VWAP slope reversals, though may interact with existing vetoes like TRENDLINE_BREAK_CALL_VETO if enabled.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

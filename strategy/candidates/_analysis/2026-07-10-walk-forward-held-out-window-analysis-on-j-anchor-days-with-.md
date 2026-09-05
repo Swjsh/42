@@ -33,3 +33,5 @@ gym validators, walk-forward, real-fills
 ## Pre-existing leaderboard impact
 
 This analysis confirms the base engine's edge_capture is 780, establishing the benchmark for candidate improvements. Candidates must achieve edge_capture > 780 to demonstrate meaningful edge capture over the baseline. No conflict with existing leaderboard; serves as reference for OP-16 scoring.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

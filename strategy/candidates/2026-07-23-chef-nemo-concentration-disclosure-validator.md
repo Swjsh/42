@@ -63,3 +63,5 @@ This will be implemented in a new test file: `backtest/tests/test_concentration_
 ## Pre-existing leaderboard impact
 
 This validator does not conflict with any existing strategy in _LEADERBOARD.md because it only validates reporting, not strategy logic. It complements all candidates by ensuring their reports include concentration disclosure, improving transparency. No strategy will be rejected or promoted based solely on this validator's output (it's a gate on report quality, not edge_capture or Sharpe).
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_concentration_disclosure.py, test_concentration_disclosure.py -->

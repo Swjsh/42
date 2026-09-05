@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; introduces new trigger logic orthogonal to current leaderboard entries (which are primarily filter/gate adjustments or watcher proposals). Complements structural approaches by adding a mean-reversion trigger for midday VAP reversion. No overlap in mechanism with top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

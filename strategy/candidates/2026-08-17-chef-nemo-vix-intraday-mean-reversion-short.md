@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type and does not directly conflict with existing quality gates, filters, or exit changes in the leaderboard. It complements structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE) by providing an entry signal that could be combined with those vetoes. No overlap with existing trigger‑type candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER, QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS). If successful, it would add a new entry‑logic lane to the strategy mix.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

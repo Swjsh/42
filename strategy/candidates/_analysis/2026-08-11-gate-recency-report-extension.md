@@ -61,3 +61,5 @@ This change does not directly affect the trading engine or the OP-16 anchors. It
 ## Pre-existing leaderboard impact
 
 This change does not affect any strategy candidate in the leaderboard. It is a tooling change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

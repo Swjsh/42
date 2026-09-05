@@ -57,3 +57,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also aims to capture a genuine edge in the market. The overnight_grinder parameter sweep provides a new perspective on the market and can be used to refine and improve the existing strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The pre-merge gate requires that the walk-forward testing be completed and the r
 ## Pre-existing leaderboard impact
 
 The candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger branch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

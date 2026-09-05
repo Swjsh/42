@@ -56,3 +56,5 @@ Entry trigger remains BEARISH_REJECTION_RIDE_THE_RIBBON (level rejection + EMA r
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEARISH_REJECTION_RIDE_THE_RIBBON by potentially improving its edge_capture and Sharpe. No overlap with other filter_change proposals in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

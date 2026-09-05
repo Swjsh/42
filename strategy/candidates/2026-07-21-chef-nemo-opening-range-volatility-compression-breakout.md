@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct overlap with existing candidates (1‑9). The proposal adds a volatility‑conditioned ORB breakout trigger, which complements existing ORB‑related watchers (e.g., ORB_RETEST_LONG, ORB_NARROW_OR_GATE) by filtering for low‑volatility environments before the breakout. It does not conflict with any current structural or exit‑change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

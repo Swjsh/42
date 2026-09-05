@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly conflict with any existing candidates in the leaderboard. It complements ORB‑based watchers (e.g., ORB_RETEST_LONG) by adding a VWAP mean‑reversion filter, but it must first demonstrate OP‑16 anchor performance to be considered for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

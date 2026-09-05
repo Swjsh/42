@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; trades opposite direction of GAP_AND_GO (continuation vs fill reversal). May complement if gap-fill reversions occur on different days than continuations. Impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

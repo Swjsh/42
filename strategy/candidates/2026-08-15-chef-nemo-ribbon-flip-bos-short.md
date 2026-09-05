@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon-based candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by capturing a different trigger condition (ribbon flip + BOS vs rejection candle); does not conflict with non-ribbon strategies in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

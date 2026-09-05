@@ -71,3 +71,5 @@ Proposed fix:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Complements MIDDAY_TRENDLINE_GATE (rank 21) by improving early entry timing without conflicting with midday filters. No direct conflict with existing candidates as it targets a specific trigger not currently leaderboarded. May interact with VWAP_CONTINUATION (live setup) if both fire on same bar; requires coexistence testing.
+
+<!-- PROVENANCE-MISSING: test_pullback_hold_bull_trigger.py -->

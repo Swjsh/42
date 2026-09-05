@@ -52,3 +52,5 @@ Gym validators must pass; walk-forward OOS test with Sharpe ≥0.7 and positive 
 ## Pre-existing leaderboard impact
 
 Edge_capture below OP-16 floor (771) would REJECT this candidate; does not appear on current leaderboard. Complements by exploring SNIPER_LEVEL_BREAK parameter space; may improve if combined with other filters or regime conditioning.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -95,3 +95,5 @@ This candidate has edge_capture = $40.01, which is **5.2% of the minimum thresho
 Do not file as a candidate. The grinder found noise, not signal. The OP-16 floor exists precisely to catch this pattern: strategies that optimize aggregate metrics while missing the strategically-important trades.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

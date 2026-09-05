@@ -57,3 +57,5 @@ The SNIPER_VIX_TREND strategy enters on SNIPER_LEVEL_BREAK signals when VIX >= 1
 ## Pre-existing leaderboard impact
 
 Complements and supersedes #14 SNIPER_VIX_TREND_OOS_CONFIRMED. Does not conflict with any existing candidates (different trade class). Enhances the SNIPER_VIX_TREND framework currently blocked on J anchor build. If ratified, would replace vol_mult=1.1 as the Stage 1 baseline for SNIPER_VIX_TREND. No impact on non-SNIPER candidates (e.g., V14E, ORB, etc.).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

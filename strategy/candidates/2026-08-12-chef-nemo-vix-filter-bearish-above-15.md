@@ -52,3 +52,5 @@ gym validators (all unit tests PASS), walk-forward OOS positive, real-fills vali
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements by potentially improving edge_capture for any bearish strategy. No direct conflict with ranks 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

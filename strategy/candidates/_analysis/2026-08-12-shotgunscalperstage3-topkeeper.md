@@ -64,3 +64,5 @@ All exits are evaluated on a 5‑minute bar close.
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door because edge_capture < 771 (50% of max 1,542). It does not appear on the current leaderboard and therefore does not conflict with or complement any existing ranked candidates. Promotion to the leaderboard requires first clearing the OP‑16 edge_capture gate, which this keeper does not satisfy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

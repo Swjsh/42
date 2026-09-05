@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (mostly filters/gaps); potential complement if validated as alternative gap-fade signal vs GAP_AND_GO continuation. Impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

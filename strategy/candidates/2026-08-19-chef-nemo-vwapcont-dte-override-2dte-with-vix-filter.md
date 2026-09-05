@@ -59,3 +59,5 @@ We retain the core mechanism of WEEKLY_DTE_NOT_0DTE: for the vwap_continuation s
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>This candidate complements the WEEKLY_DTE_NOT_0DTE candidate by adding a regime filter. It does not conflict with any existing ratified candidates (like the V14E_PARAM_SWEEP_26K or MIDDAY_TRENDLINE_GATE) because it is a separate approach. It may overlap in mechanism with the VIX_BULL_HARD_CAP_UNBLOCK candidate (which is about unblocking a VIX filter for bulls), but that candidate is for a different setup (v14e bull branch). We expect this candidate to be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

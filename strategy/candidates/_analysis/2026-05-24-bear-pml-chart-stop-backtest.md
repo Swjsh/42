@@ -53,3 +53,5 @@ Exit: Chart-stop exit when SPY closes a 5-minute bar above PML + $0.50 buffer (a
 ## Pre-existing leaderboard impact
 
 This is a new trigger branch. It does not directly conflict with existing candidates but may overlap in time with other triggers. It complements the ORB_DIRECTION_FILTER by providing an alternative entry signal. No direct conflict with candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

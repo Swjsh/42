@@ -62,3 +62,5 @@ The current chandelier profit-lock uses a fixed trail percentage (0.15) which ma
 ## Pre-existing leaderboard impact
 
 This candidate complements existing exit-change candidates (like DYNAMIC_STOP_VS_STATIC which was rejected) by focusing on the trail rather than the stop. It does not conflict with quality gates or trigger changes. It may conflict with other exit-change proposals if they modify the same logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

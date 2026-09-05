@@ -59,3 +59,5 @@ All other triggers, context filters, entry/exit logic, and position sizing remai
 This proposal modifies the BEARISH_REJECTION_RIDE_THE_RIBBON setup (core engine logic), not a standalone candidate. It does not conflict with existing leaderboard candidates (which are filters/triggers built atop this setup) but may alter their performance. Candidates like MIDDAY_TRENDLINE_GATE or VWAP_CONTINUATION that rely on BEARISH_REJECTION_RIDE_THE_RIBBON signals would inherit changes. No known conflicts; impact requires re-evaluation of all dependent strategies post-change.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

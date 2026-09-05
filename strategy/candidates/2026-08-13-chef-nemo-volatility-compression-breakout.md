@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-25 in _LEADERBOARD.md) as it introduces a novel trigger mechanism (ATR compression + volume breakout) not present in any current setup. Complements structural/gate candidates by providing an alternative entry logic that could be combined with existing filters (e.g., structure_veto_enabled) in future iterations. No overlap with watcher-only or exit-change candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

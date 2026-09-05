@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if this complements or conflicts with existing candidates (1-9 in _LEADERBOARD.md). Likely orthogonal to structural/gate candidates as it's a pure trigger-based long strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

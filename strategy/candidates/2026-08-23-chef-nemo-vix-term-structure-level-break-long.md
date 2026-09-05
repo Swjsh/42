@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with existing leaderboard entries (which are primarily watches, gates, or parameter changes). It complements existing VIX‑based strategies (e.g., VIX_REGIME_DAYSIDE) by adding a term‑structure slope filter combined with volume‑conditioned breakout logic—a combination not present in the current leaderboard or killed list. No overlap with ranked candidates 1‑9 detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

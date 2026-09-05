@@ -50,3 +50,5 @@ The pre-merge gate requires that the proposed strategy pass a set of tests, incl
 ## Pre-existing leaderboard impact
 
 The proposed strategy may complement or conflict with existing candidates in the leaderboard, but the exact impact is unknown due to the lack of information on the strategy's mechanics and performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

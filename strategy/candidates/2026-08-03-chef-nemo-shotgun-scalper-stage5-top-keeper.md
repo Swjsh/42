@@ -58,3 +58,5 @@ Enter on a signal (trigger not specified in keeper data, assumed to be the shotg
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED because edge_capture < 771. It does not appear on the leaderboard and would not conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ No specific mechanism; this is a procedural step to gather data before proposing
 ## Pre-existing leaderboard impact
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

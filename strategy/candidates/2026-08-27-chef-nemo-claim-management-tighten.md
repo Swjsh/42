@@ -68,3 +68,5 @@ These changes live in `heartbeat_core.py` in the `_check_claim_and_order_state` 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing quality‑gate and filter candidates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) by operating at the claim‑management layer rather than the signal‑generation layer. It does not conflict with any top‑9 leaderboard entries; instead, it may reduce redundant skips that those gates currently treat as lost opportunities, potentially increasing their realized edge. No changes to params.json or automation/state/* are proposed, satisfying Rule 9.
+
+<!-- PROVENANCE-MISSING: test_claim_management_tighten.py -->

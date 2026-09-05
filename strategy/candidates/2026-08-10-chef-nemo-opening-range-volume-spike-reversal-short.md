@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new trigger type and does not conflict with existing candidates (which are primarily filters, gates, or other trade classes like VWAP_CONTINUATION or GAP_AND_GO). It complements ORB_RETEST_LONG by providing a short-bias alternative to OR breakouts. No direct overlap with current leaderboard entries; integration would require testing for signal collisions with existing intraday strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

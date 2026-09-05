@@ -60,3 +60,5 @@ Running the unit test `test_score_peak_passed_field_present` and the script `bac
 ## Pre-existing leaderboard impact
 
 No impact on the leaderboard; this verification is a quality gate that does not alter strategy logic, parameters, or performance projections. It does not conflict with or complement any existing candidates in `_LEADERBOARD.md`. It is a prerequisite for ensuring that future changes to the fleet arms replay do not introduce regressions.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_score_peak.py, analysis/baselines/replay_fleet_arms_baseline.json -->

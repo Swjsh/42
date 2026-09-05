@@ -60,3 +60,5 @@ The alert system will monitor the `decisions.jsonl` file (or watcher-specific lo
 ## Pre-existing leaderboard impact
 
 This alert system does not conflict with any existing candidates in _LEADERBOARD.md. It complements the BEARISH_REJECTION_MORNING watcher (rank 20) by accelerating its path to promotion. No overlap with strategy-type candidates as it is purely an observability tool. Supports the promotion of rank 20 without altering any engine logic.
+
+<!-- PROVENANCE-MISSING: automation/state/alert_log.json, automation/state/alert_queue.json, test_bearish_rejection_morning_alert.py -->

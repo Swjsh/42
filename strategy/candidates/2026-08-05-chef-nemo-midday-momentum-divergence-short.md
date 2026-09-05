@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with / complements candidates 1-9 in _LEADERBOARD.md; introduces new short-bias trigger orthogonal to existing watchers and gates (e.g., complements MIDDAY_TRENDLINE_GATE by targeting divergence rather than trendline breaks). No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

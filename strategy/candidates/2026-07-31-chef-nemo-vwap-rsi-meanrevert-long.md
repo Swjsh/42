@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new long-side mean-reversion trigger. It does not conflict with existing candidates (which are primarily bearish triggers, watcher gates, or structural filters). It complements the leaderboard by adding a novel entry logic uncorrelated with current strategies, potentially diversifying the strategy pool if validated. No overlap with existing trigger types in the registry (nearest analogue VWAP_CONTINUATION trades with VWAP slope, not against it).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

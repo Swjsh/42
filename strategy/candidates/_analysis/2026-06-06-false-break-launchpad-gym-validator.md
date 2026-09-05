@@ -65,3 +65,5 @@ The gym validator will:
 ## Pre-existing leaderboard impact
 
 Complements existing watchers (e.g., V14E_BEAR_TIME_OF_DAY_GATE, ORB_NARROW_OR_GATE) by adding a pre-market open-bar filter. No direct conflicts with leaderboard candidates as it's a validation tool, not a strategy change. If validated, could evolve into a quality_gate type candidate. Current leaderboard candidates remain unaffected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

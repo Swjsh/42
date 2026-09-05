@@ -65,3 +65,5 @@ We need to ensure that the `refresh_data()` function correctly triggers a freshn
 ## Pre-existing leaderboard impact
 
 No impact. This is a test-only change that does not modify strategy logic, parameters, or execution behavior. It complements all existing candidates by improving test reliability without altering their projected performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

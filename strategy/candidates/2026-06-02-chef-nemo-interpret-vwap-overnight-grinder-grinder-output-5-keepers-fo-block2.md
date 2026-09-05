@@ -53,3 +53,5 @@ N/A — REJECTED at analysis stage.
 ## Pre-existing leaderboard impact
 
 None — this grinder output does not meet OP-16 gates and should not be added to leaderboard. The grinder itself may need re-tuning to target J-anchor-overlapping parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

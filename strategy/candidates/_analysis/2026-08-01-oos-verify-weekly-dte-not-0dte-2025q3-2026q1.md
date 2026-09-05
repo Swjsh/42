@@ -52,3 +52,5 @@ We need to pass: gym validators for the candidate, walk-forward OOS on 2025-Q3+2
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; serves as verification step for WEEKLY_DTE_NOT_0DTE which is currently PROMISING.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

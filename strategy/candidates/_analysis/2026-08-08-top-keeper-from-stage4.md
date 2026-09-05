@@ -65,3 +65,5 @@ The keeper uses the following parameters: tp_premium_pct=0.75 (take profit at 75
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Unknown without knowing the exact strategy type and parameters. The keeper appears to be a variant of a scalper with profit-lock and volume filter, which may complement or conflict with existing candidates. Further analysis required.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

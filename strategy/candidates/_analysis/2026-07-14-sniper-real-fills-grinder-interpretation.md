@@ -57,3 +57,5 @@ The sniper strategy (SNIPER_LEVEL_BREAK) uses volatility-adjusted entry triggers
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate; it evaluates existing grinder output. The sniper strategy as tested does not meet OP-16 thresholds and should not be promoted to the leaderboard. It conflicts with the goal of edge capture and suggests revisiting the sniper approach or exploring alternative setups. No direct impact on current leaderboard candidates (which are structural or gate-based).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

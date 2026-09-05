@@ -60,3 +60,5 @@ Gym validators (78/78 PASS baseline), walk-forward OOS validation (WF >= 0.70), 
 ## Pre-existing leaderboard impact
 
 Complements rank 20 BEARISH_REJECTION_MORNING watcher by providing historical validation path; does not conflict with any existing candidates as it is purely an analysis proposal. If Stage-1 backtest confirms anchor day capture, may support promotion of BEARISH_REJECTION_MORNING from WATCH-ONLY to PROMISING status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

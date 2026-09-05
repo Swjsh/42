@@ -51,3 +51,5 @@ Gym validators (all tests pass), walk-forward OOS positive (WF ≥ 0.70), real-f
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing leaderboard candidates (all are bearish-focused or watcher proposals). Complements by adding a bullish trigger candidate, but OP-16 anchor impact unknown; may regress if long strategy loses on bearish J winner days. Requires Stage-1 backtest to assess complementarity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Modify the level detection/update logic in `key-levels.json` handling: when a le
 ## Pre-existing leaderboard impact
 
 Complements candidates that rely on level accuracy (e.g., LEVEL_MEMORY_PERCEPTION, CONFLUENCE_MATRIX). No direct conflict with existing leaderboard candidates; targets a different mechanism (level role flag) than structural gates or filters. May synergize with BEARISH_REJECTION_MORNING watcher by improving its signal quality during retests.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

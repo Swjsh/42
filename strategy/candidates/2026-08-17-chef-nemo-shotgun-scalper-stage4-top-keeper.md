@@ -54,3 +54,5 @@ N/A (candidate rejected due to insufficient edge_capture)
 
 ## Pre-existing leaderboard impact
 This candidate does not meet the OP-16 gate and therefore does not impact the leaderboard. It is rejected at the door.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

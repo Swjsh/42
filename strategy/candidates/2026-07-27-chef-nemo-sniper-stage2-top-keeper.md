@@ -75,3 +75,5 @@ The SNIPER_LEVEL_BREAK setup with a volume filter (vol_mult=1.1), minimum body s
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries because it is a SNIPER‑specific parameter refinement that has not been validated for OP‑16 edge. It would need to clear the OOS and real‑fills gates before being considered for promotion. If validated, it could complement existing SNAPER‑related work (e.g., SNIPER_CS_CHART_STOP) by providing a tighter exit profile, but until then it remains speculative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -97,3 +97,5 @@ Scorecard: `analysis/recommendations/ribbon-gate-oos-extension.md`
 - Historical window 2025-01 to 2026-05; OOS = Oct 2025 onward (8 months).
 - Anchor 4/29: not captured (pre-existing VIX filter block, not this gate).
 - Post-research OOS (2026-05-23..06-15): n=1 MOMENTUM trade (choppy window, N insufficient alone).
+
+<!-- PROVENANCE-MISSING: backtest/tools/ribbon_signal.py -->

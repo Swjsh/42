@@ -59,3 +59,5 @@ Compare to predefined floors (e.g., WR floor = 40%, trade min = 10, expectancy f
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard. It is a process change that affects how future candidates are evaluated via autoresearch sweeps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

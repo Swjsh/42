@@ -50,3 +50,5 @@ Pass gym validators for VWAP_CONTINUATION trigger, walk-forward OOS Sharpe >=0.7
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAPCONT_DTE_OVERRIDE_2DTE by focusing on trigger efficacy rather than DTE override. May be redundant if VWAP_CONTINUATION trigger already armed for both sides; this candidate isolates bearish PUT side.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

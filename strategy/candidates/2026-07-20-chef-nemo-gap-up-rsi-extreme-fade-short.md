@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (e.g., GAP_AND_GO trades gap continuations; this fades gaps). Complements structural catalysts like BEARISH_REJECTION_RIDE_THE_RIBBON by targeting a different intraday pattern (gap reversals vs. rejection candles). No overlap in trigger logic or regime filters observed in current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

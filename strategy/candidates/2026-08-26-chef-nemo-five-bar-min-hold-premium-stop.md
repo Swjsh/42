@@ -53,3 +53,5 @@ Gym validators must pass (all existing tests), walk-forward OOS test must show p
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (ranks 1-24) as none modify premium-stop exit logic for extra_exec trades. Complements exit-related candidates by adding a temporal guard to catastrophe cap. No overlap with trigger, filter, or quality_gate types in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

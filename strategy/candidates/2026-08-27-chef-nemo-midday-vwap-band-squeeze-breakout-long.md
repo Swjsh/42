@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; as a new trigger, it can be combined with existing quality gates and exit rules. It does not replace or invalidate any current leaderboard entries but may offer an orthogonal signal source for further strategy development.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

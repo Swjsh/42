@@ -50,3 +50,5 @@ Gym validators must pass for all gates; walk-forward OOS/IS ratio >= 0.5; real-f
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it evaluates the combined effect of already-deployed gates (ranks 4,17,21,22). If the combined backtest shows edge_capture >= 771, it validates the stacked gates; otherwise, may require gate tuning or removal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

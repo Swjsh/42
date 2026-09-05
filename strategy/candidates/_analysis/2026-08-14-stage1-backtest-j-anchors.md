@@ -50,3 +50,5 @@ We ran the Stage-1 backtest via the autoresearch grinder harness to compute edge
 
 This analysis does not conflict with any candidate; it is a diagnostic step to evaluate the baseline engine against OP-16 anchors. If the baseline fails edge_capture < 771, it highlights the need for new candidates. If it passes, it sets a benchmark for improvement.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

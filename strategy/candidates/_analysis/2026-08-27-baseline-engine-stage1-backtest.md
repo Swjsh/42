@@ -632,3 +632,5 @@ On winner days:
   5/01: +$470 (full)
   5/04: +$730 (full)
   So W = 1,5
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

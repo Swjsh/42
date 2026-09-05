@@ -59,3 +59,5 @@ The strategy must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The strategy may complement existing candidates in the leaderboard, but further analysis is required to determine its impact on the overall portfolio.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -33,3 +33,5 @@
 - **Exact PDT violation impact** if fleet arms go live (paper → live money transition).  
 - **Bullish direction profitability** under SS-B + corrected strike tier (requires 20+ episodes).  
 - **Edge capture threshold** (771) vs. historical performance (current WR 56% on 4/29 SPY 710P ×6).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

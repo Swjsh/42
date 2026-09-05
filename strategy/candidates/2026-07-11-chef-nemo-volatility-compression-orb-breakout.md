@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate introduces a new trigger type not present in current leaderboard. No direct conflict with existing candidates (e.g., ORB_RETEST_LONG, GAP_AND_GO) as it adds a volatility precondition rather than modifying existing ORB logic. May complement ORB-based strategies by filtering for higher-quality breakouts, but impact unknown without backtest. Does not interfere with quality gates or exit changes in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

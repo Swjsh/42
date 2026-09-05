@@ -56,3 +56,5 @@ The proposed mechanism requires the following pre-merge gates to pass:
 ## Pre-existing leaderboard impact
 
 The proposed mechanism may complement existing candidates, such as the TRENDLINE_BREAK_CALL_VETO and STRUCTURE_VETO_DIR_VS_TREND, by ensuring that potential trades are not missed due to data gaps. However, further analysis is required to determine the exact impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

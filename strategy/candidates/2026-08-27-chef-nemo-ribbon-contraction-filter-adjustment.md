@@ -50,3 +50,5 @@ Gym validators for ribbon contraction/expansion filter must pass; walk-forward O
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEARISH_REJECTION_RIDE_THE_RIBBON by refining its entry filter. No known overlap with top leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

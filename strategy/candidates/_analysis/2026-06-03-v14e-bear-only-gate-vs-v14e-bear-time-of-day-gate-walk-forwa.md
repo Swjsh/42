@@ -45,3 +45,5 @@ For ratification: V14E_BEAR_TIME_OF_DAY_GATE requires J Rule 9 weekend approval 
 ## Pre-existing leaderboard impact
 
 V14E_BEAR_TIME_OF_DAY_GATE is ranked #17 with PROMISING status; V14E_BEAR_ONLY_GATE is ranked #3 also PROMISING. Prioritizing the former for ratification would not conflict; both can proceed, but time-of-day gate shows stronger regime robustness evidence.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

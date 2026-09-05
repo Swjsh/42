@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not duplicate any existing trigger in the leaderboard (candidates 1‑9). It introduces a new entry condition based on VIX‑filtered opening‑range mean reversion, which is orthogonal to the existing ORB_RETEST_LONG watcher and the various quality gates. No direct conflict is expected; it may complement existing filters by providing additional entry opportunities in low‑VIX, tight‑range conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

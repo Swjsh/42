@@ -51,3 +51,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger that does not directly modify any existing gate, watcher, or exit logic in the current leaderboard (candidates 1‑9). It therefore does not conflict with those entries; rather, it adds a new short‑side trigger that could run alongside existing long‑biased strategies. If proven effective, it would be evaluated independently for its OP‑16 edge‑capture and Sharpe contribution.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

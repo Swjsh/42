@@ -292,3 +292,5 @@ root blocker and was never resolved.
 `grep -ril "live.price.first.bar\|v15_3_first_bar\|LIVE_PRICE_FIRST_BAR_TRIGGER" strategy/candidates/_analysis/` (38 hits, all inspected as template drafts)
 
 No production/FROZEN_TRADING_PATH files touched. Leaderboard row update deferred to K9.
+
+<!-- PROVENANCE-MISSING: automation/prompts/heartbeat-v15.3-draft.md -->

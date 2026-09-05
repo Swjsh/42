@@ -63,3 +63,5 @@ Entries are triggered by the existing v14/v15 logic (unchanged). Exits use the c
 ## Pre-existing leaderboard impact
 
 This candidate does not appear on the leaderboard because its edge_capture (670.6) is below the 771 threshold. It does not conflict with or complement any existing leaderboard candidate, as it fails the mandatory anchor gate. Promotion to the leaderboard requires first achieving edge_capture >= 771 through further refinement or walk-forward validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Modify the BEARISH_REJECTION_RIDE_THE_RIBBON trigger logic in `gates.py` to requ
 ## Pre-existing leaderboard impact
 
 Complements existing filters like STRUCTURE_VETO_DIR_VS_TREND (rank ★) by refining entry timing rather than vetoing direction. No direct conflict; likely additive when combined. Does not affect watcher‑only candidates. Would sit near top of leaderboard if ratified.
+
+<!-- PROVENANCE-MISSING: test_early_entry_filter_2026_07_22.py -->

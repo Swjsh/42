@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the current leaderboard entries (ranks 1‑9). It introduces a novel trigger based on the 0DTE put/call ratio, which is orthogonal to the existing signals (ribbon‑ride, VWAP continuation, level‑break, etc.). It may complement strategies that rely on price‑only or volatility‑only filters by adding a sentiment‑extreme precondition. No parameter or wiring changes are proposed that would interfere with existing approved candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

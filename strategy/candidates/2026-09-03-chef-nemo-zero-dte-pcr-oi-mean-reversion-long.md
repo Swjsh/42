@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new options‑flow trigger (PCR_OI mean reversion) that does not overlap with any existing candidate in the leaderboard. It is structurally distinct from VWAP_CONTINUATION and other price‑only setups, so it complements rather than conflicts with current rankings. No known conflicts with candidates 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

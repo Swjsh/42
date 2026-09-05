@@ -56,3 +56,5 @@ Entry triggers on a level break with volume confirmation (vol_mult=1.1), requiri
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder keeper. The keeper's negative edge_capture would place it well below the OP-16 floor of 771, so it would be REJECTED if submitted as a candidate. It conflicts with any candidate that relies on similar sniper mechanics, as it demonstrates that the tested parameter set fails to capture J's edge. No direct impact on current leaderboard candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) because those are orthogonal structural or DTE changes, not sniper parameter tweaks. However, it reinforces that sniper-style level-break entries require further refinement (e.g., chart-stop exits, VIX conditioning) before they can be considered for live deployment.
+
+<!-- PROVENANCE-MISSING: test_sniper_entry.py, test_sniper_exit.py -->

@@ -61,3 +61,5 @@ The **after-4pm work block** (16:00–23:59 ET) is designated for **Phase 2 modu
 
 **Unknown**:  
 - Whether current `sim-accuracy` checks already enforce this.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_edge_master.py -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by focusing exclusively on end-of-day close condition rather than intraday VWAP slope. No direct conflict with leaderboard entries as it targets a different time window and uses distinct filters (RSI + ribbon + volume). May overlap with momentum-based watchers but requires independent validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

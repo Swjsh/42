@@ -77,3 +77,5 @@ Complements existing candidates:
 * May overlap with BEARISH_REJECTION_RIDE_THE_RIBBON on 4/29/5/04 but uses different trigger (volume spike vs. ribbon flip) → potential additive or redundant; requires joint testing  
 * No direct conflict with current leaderboard candidates (all are watcher/gate proposals or DTE studies) as this is a new trigger type.  
 * If validated, could sit alongside VWAP_CONTINUATION as a morning session enhancer.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

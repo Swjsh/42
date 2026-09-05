@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger that does not directly modify any existing rule in the leaderboard. It is likely complementary to existing volatility‑ or regime‑based filters (e.g., could be combined with the existing BEARISH_REJECTION_RIDE_THE_RIBBON or VWAP_CONTINUATION setups) but would need to be tested for overlap and potential conflicts. No direct conflict with current PROMISING or J‑RATIFIED candidates is anticipated, but a Stage‑1 backtest will reveal any redundancy or interference.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

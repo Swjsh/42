@@ -59,3 +59,5 @@ The VWAP overnight grinder seeks to capture short-term mean-reversion or continu
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP‑16 edge_capture ≥ 771 threshold and would be REJECTED at the door. It does not conflict with any current leaderboard entries (all have edge_capture ≥ 771 or are watcher‑only). It would need to demonstrate a substantial edge_capture lift via OOS walk‑forward before consideration for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

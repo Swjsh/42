@@ -61,3 +61,5 @@ We will first run the SHOTGUN_SCALPER (TBR_HIGH_VOL) backtest over the full 2025
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard. It promotes the TBR_HIGH_VOL candidate (rank 16) from WATCH-ONLY to a live trader by changing the gate. It complements the existing MIDDAY_TRENDLINE_GATE (rank 21) which is live and gates the 11:30-14:00 window, as this candidate targets the 09:30-10:30 window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

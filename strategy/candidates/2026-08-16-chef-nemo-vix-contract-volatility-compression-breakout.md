@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements volatility‑based filters (e.g., V14E_BEAR_ONLY_GATE) by adding a VIX‑low precondition. No overlap with existing trigger types in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

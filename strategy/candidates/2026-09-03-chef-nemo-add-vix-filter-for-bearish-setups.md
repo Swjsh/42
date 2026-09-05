@@ -66,3 +66,5 @@ Complements existing candidates:
 - No impact on bullish setups (filter bearish-only).
 - Neutral on watcher-only proposals (e.g., `BEARISH_REJECTION_MORNING`). 
 - If ratified, would likely rank near top due to improved edge_capture from loss avoidance on loser days.
+
+<!-- PROVENANCE-MISSING: test_vix_range_filter.py -->

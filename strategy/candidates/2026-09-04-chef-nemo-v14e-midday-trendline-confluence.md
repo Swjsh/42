@@ -65,3 +65,5 @@ Combining the V14E bear-only condition (which filters bullish false positives) w
 ## Pre-existing leaderboard impact
 
 Complements [V14E_BEAR_ONLY_GATE](2026-05-21-v14e-quality-filter.md) (Rank 3) and [MIDDAY_TRENDLINE_GATE](2026-05-31-midday-trendline-gate.md) (Rank 21). Does not conflict with J-RATIFIED candidates; may subsume their individual benefits if synergistic. Neutral to watcher-only candidates (e.g., [VIX_BULL_HARD_CAP_UNBLOCK](2026-06-26-vix-bull-hard-cap-revalidate.md)).
+
+<!-- PROVENANCE-MISSING: test_v14e_midday_confluence_trigger.py -->

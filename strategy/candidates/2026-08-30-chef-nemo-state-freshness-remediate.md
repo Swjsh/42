@@ -61,3 +61,5 @@ The script `setup/scripts/state_freshness_remediate.py` will:
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates 1-24 in _LEADERBOARD.md; this is a maintenance utility that supports all strategies by keeping state fresh. It complements any candidate that relies on state files (e.g., watchers, triggers).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

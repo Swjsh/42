@@ -61,3 +61,5 @@ Calculate 5-day historical volatility (using close prices of the past 5 trading 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding a regime filter to its volatility-agnostic veto; does not conflict with WEEKLY_DTE_NOT_0DTE (rank ★★) as DTE lever operates orthogonally; may conflict with VWAPCONT_DTE_OVERRIDE_2DTE (rank HOLD) if both filters reduce trade frequency excessively (needs joint A/B test). No direct param changes to existing leaderboard candidates; additive filter.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

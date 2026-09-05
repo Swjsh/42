@@ -59,3 +59,5 @@ The pre-merge gate consists of the following tests:
 The proposed strategy does not conflict with or complement any existing candidates in the leaderboard, as it is an out-of-sample validation of an existing strategy.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

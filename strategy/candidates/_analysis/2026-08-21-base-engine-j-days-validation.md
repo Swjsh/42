@@ -55,3 +55,5 @@ No change is proposed, so no gate is required. For any future change, we would r
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate. It confirms the base engine's edge_capture is above the OP-16 floor, which is the reference for all candidates in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -145,3 +145,5 @@ ORB_DIRECTION_FILTER ratification would:
 - Add first J-RATIFIED candidate to leaderboard
 - Establish watcher-quality-gate pattern for future candidates (#3, #4, #9)
 - NOT conflict with any existing candidates (all others are WATCH-ONLY or REJECTED)
+
+<!-- PROVENANCE-MISSING: backtest/stage3_verify.py, automation/heartbeat.md -->

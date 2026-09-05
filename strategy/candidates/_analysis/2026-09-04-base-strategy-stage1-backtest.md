@@ -64,3 +64,5 @@ We also recorded per-J-day P&L to validate anchor behavior.
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis evaluates the base strategy itself. It does not conflict with any candidate; rather, it provides the reference point against which all candidates are measured (edge_capture delta, Sharpe delta). Candidates that alter the base strategy are ranked relative to this baseline. No conflict.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/base_strategy_wf.json -->

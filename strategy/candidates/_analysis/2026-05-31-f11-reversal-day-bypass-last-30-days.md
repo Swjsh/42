@@ -56,3 +56,5 @@ We need to run a Stage-1 backtest on the last 30 days of heartbeat logs to colle
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is merely a data-gathering exercise. The candidate F11_REVERSAL_DAY_BYPASS is already in the leaderboard as WATCH-ONLY.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Adding a requirement that VIX must be rising over the prior 5 minutes before ent
 ## Pre-existing leaderboard impact
 
 This candidate is a **filter_change** that operates on the BEARISH_REJECTION_RIDE_THE_RIBBON setup. It does not conflict with existing watcher‑only candidates (e.g., ORB_NARROW_OR_GATE, VWAP_CONTINUATION) and is orthogonal to the structure‑veto family (e.g., STRUCTURE_VETO_DIR_VS_TREND). It may complement those filters by adding an options‑market confirmation layer. No known duplication with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_vix_rising_5min_confirmation.py -->

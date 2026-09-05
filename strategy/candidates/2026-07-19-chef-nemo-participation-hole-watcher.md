@@ -70,3 +70,5 @@ Note: This watcher does not alter trading behavior; it only observes and alerts.
 ## Pre-existing leaderboard impact
 
 This watcher_proposal does not conflict with any existing candidates in _LEADERBOARD.md as it is purely observational and does not alter trading logic. It complements all candidates by providing meta-monitoring of signal-to-order conversion efficiency. No known conflicts.
+
+<!-- PROVENANCE-MISSING: automation/state/participation_hole_alerts.json -->

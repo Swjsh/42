@@ -61,3 +61,5 @@ We will execute participation_cascade.py on the selected 5-day window and inspec
 ## Pre-existing leaderboard impact
 
 This validation does not propose any changes to the engine or strategy parameters, so it has no direct impact on the leaderboard. It is a sanity check on an existing instrument. If the validation fails, it may indicate a bug that, when fixed, could affect strategy performance (but that is a separate candidate).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

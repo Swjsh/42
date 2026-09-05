@@ -57,3 +57,5 @@ Before any candidate emerging from this validation can be considered for merging
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It is a meta-procedure that can be applied to evaluate new candidates. It complements the leaderboard by ensuring that candidates undergo rigorous validation before consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ Based on Rank 25 analysis: dur=8 helps April (+$2,584 OOS) but hurts May (-$2,42
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements Rank 25 (MAX_RIBBON_DUR_8) by refining its regime-dependent mechanism. No direct conflict with top candidates (1-9) as they address different facets (e.g., Rank 4 ORB gate, Rank 17 V14E time gate). May synergize with Rank 3 V14E_BEAR_ONLY_GATE (both VIX-conditioned filters). Does not affect watcher-only candidates (ranks 3, 4, 5, 8, 9, 10, 11, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

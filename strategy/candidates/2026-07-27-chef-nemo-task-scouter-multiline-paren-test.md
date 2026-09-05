@@ -54,3 +54,5 @@ The test will scan `queue.md` for lines matching the pattern '^- \[ \]\s+\S+\s+\
 ## Pre-existing leaderboard impact
 
 No impact; this test does not change any strategy, engine, or parameters. It only ensures the quality of the task queue metadata.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_task_scorer_multiline_paren.py -->

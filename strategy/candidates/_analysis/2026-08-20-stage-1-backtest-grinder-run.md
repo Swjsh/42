@@ -50,3 +50,5 @@ Grinder must complete Stage-1 backtest, produce edge_capture and wide_pnl; then 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it outlines the process to evaluate candidates. No conflict with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

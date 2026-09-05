@@ -225,3 +225,5 @@ block, per the original framing).
 
 No production/FROZEN_TRADING_PATH files touched. Leaderboard row + shadow-task registration
 deferred to K9 per this goal's scope.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/qqq_label_vol_strat_oos.json, analysis/recommendations/qqq_label_vol_strat_regime.json, test_qqq_label_vol_strat.py -->

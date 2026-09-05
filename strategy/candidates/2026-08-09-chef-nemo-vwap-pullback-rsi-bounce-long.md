@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; no direct conflict with current leaderboard entries (which focus on gates, filters, or other triggers like VWAP_CONTINUATION that lack impulse requirement and RSI gate). This proposal introduces a novel trigger combination not present in registry or killed list.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

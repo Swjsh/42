@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates; adds a new long‑side trigger that is orthogonal to current short‑biased anchors. May complement existing VWAP‑based or ribbon‑based filters if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

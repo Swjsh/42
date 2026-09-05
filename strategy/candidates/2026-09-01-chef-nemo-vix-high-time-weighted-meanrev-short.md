@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing VIX‑based filters (e.g., VIX_REGIME_DAYSIDE) but adds a distinct intraday mean‑reversion edge. There is no direct conflict with current top‑10 candidates, as it proposes a separate entry logic that would need to be evaluated for additive edge when combined with existing strategies. No changes to automation/prompts/heartbeat*.md or params*.json are proposed, satisfying Rule 9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

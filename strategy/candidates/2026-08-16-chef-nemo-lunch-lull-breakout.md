@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel time‑window trigger (lunch‑period volatility contraction) distinct from existing triggers such as ORB_NARROW_OR_GATE (opening‑range focus) and VWAP_CONTINUATION (morning VWAP alignment). It does not directly conflict with any ranked candidate; if validated it could complement existing morning‑biased setups by capturing afternoon breakout opportunities. No overlap with watcher‑only or gate‑only proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

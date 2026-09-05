@@ -131,3 +131,5 @@ No params changes; no new validator needed.
 lever. The finding is useful (now we know evaluate_bearish_setup is never the blocker with
 vix_soft=True), but the hypothesis is disproved. Next candidates should target the quality
 escalation lock or the countertrend REVERSAL class, not score-threshold gates.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/gate_sweep_htf_triggers.py -->

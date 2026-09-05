@@ -42,3 +42,5 @@ We cannot compute the exact numbers without access to the live data. We will sta
 ## Pre-existing leaderboard impact
 
 This analysis does not change the leaderboard directly. It informs whether the V14E_BEAR_ONLY_GATE candidate can be promoted from PROMISING to a higher status (if it meets OP-21) or if it needs more data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

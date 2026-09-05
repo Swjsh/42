@@ -78,3 +78,5 @@ The sniper_stage2_grinder refined top‑5 stage‑1 keepers for the SNIPER_LEVEL
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard; it evaluates an existing grinder output. Because the keeper’s edge_capture ($373.48) is well below the $771 rejection floor, it would not qualify for the leaderboard under OP‑16. No conflict with current candidates (ranks 1‑24) is expected; the find simply reinforces that SNIPER_LEVEL_BREAK refinements thus far have not captured J’s bearish edge. Further work should either abandon this parameter region or add regime‑specific filters (e.g., VIX‑trend) before re‑entering the grinder.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Complements existing structural candidates (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND) by adding a precise entry trigger for trend continuation. No direct conflict with current leaderboard entries as it introduces a new trigger type not present in registry. May synergize with EMA ribbon alignment filters already validated in candidates like STRUCTURE_VETO_DIR_VS_TREND.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing volatility-based filters (e.g., V14E_BEAR_ONLY_GATE) but conflicts with pure price-action triggers like STAIRSTEP_CONTINUATION (retired). Does not duplicate any active candidate's mechanism; represents a new trigger class targeting exhaustion signals post-compression. If validated, could synergize with existing regime filters (VIX, time-of-day) but requires isolation testing to avoid interference with proven setups like BEARISH_REJECTION_RIDE_THE_RIBBON.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

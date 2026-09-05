@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by targeting a different market condition (gap openings) than trend-following or mean-reversion setups; no direct conflict with current leaderboard entries (which focus on VWAP, structure, or DTE variations). Does not overlap with GAP_AND_GO (which trades gap continuation) as this candidate fades gaps. May provide diversification if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

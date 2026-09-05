@@ -50,3 +50,5 @@ The candidate must first achieve an edge_capture of at least 771 (50% of the OP-
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the edge_capture gate and thus does not appear on the leaderboard. It conflicts with the goal of capturing J's edge and would need significant revision to complement existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

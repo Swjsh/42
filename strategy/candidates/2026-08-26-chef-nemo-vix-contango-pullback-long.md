@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 This candidate is a new trigger and does not conflict with existing candidates in the leaderboard (which are primarily watcher quality gates, DTE studies, or structural gates). It complements the existing arsenal by adding a VIX term-structure filter to a pullback long setup. No direct overlap with current candidates (e.g., VIX_REGIME_DAYSIDE uses absolute VIX levels only, not contango).  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

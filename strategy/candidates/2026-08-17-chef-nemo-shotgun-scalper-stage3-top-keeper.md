@@ -60,3 +60,5 @@ The strategy attempts to capture gamma scalping opportunities via premium-based 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771). This candidate would be rejected at the door per OP-16 and not appear on leaderboard. If improved to capture J edge, could complement structural veto candidates by adding a premium-scalping layer, but current form lacks J-day alignment.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -44,3 +44,5 @@ Prevents selection of candidates that rely on aggregate improvements without del
 8 / 10 -- The fix is straightforward and aligns with existing OP-16 scoring function; risk of missing edge cases is moderate.
 
 ---
+
+<!-- PROVENANCE-MISSING: test_l01_aggregate_metric_gate.py -->

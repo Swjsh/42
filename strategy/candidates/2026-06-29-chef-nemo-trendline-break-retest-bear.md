@@ -58,3 +58,5 @@ Before merging this proposal, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This proposal complements candidate 1-9 in _LEADERBOARD.md by providing an additional bearish setup that can be used in conjunction with existing setups to improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

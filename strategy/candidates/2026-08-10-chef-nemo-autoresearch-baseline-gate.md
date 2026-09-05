@@ -63,3 +63,5 @@ At the start of `autoresearch/loop.py`, before any candidate generation or backt
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates by adding a safety layer to the autoresearch process. It does not conflict with any specific candidate in _LEADERBOARD.md as it operates at the loop level, not the strategy level. It may prevent the launch of candidates that would have been rejected by OP-16 gates anyway, saving computational resources. No known conflicts.
+
+<!-- PROVENANCE-MISSING: test_autoresearch_baseline_gate.py -->

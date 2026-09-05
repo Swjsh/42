@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel short-biased trigger that does not directly conflict with existing leaderboard entries (which focus on watcher revalidations, DTE studies, structural gates, and long-biased setups). It may complement bearish strategies like BEARISH_REJECTION_RIDE_THE_RIBBON by providing an alternative short entry mechanism, but could conflict if both fire simultaneously on the same bar (requiring further analysis of signal overlap and correlation). No direct duplication with current candidates exists.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

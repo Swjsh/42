@@ -74,3 +74,5 @@ We hypothesize that adding a volume confirmation filter to the BEARISH_REJECTION
 ## Pre-existing leaderboard impact
 
 This analysis complements existing bearish‑only candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, STRUCTURE_VETO_DIR_VS_TREND) by adding a volume‑based quality gate. It does not conflict with bullish‑only candidates because it is PUT‑only. If the volume filter proves beneficial, it could be merged as a filter_change to improve the win‑rate of existing bearish setups without reducing winner capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

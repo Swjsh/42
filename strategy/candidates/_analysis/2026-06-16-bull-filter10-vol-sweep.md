@@ -50,3 +50,5 @@ Stage-1 backtest for each vol_mult must pass gym validators, followed by walk-fo
 ## Pre-existing leaderboard impact
 
 This sweep is an analysis of an existing filter (filter_10) and does not conflict with any current leaderboard candidates. It may inform a future filter_change candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

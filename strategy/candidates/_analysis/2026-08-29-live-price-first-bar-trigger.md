@@ -69,3 +69,5 @@ The hypothesis is that the first RTH bar showing a reversal from the premarket e
 This candidate is currently ranked II with status `NEEDS-MORE-DATA`. Running Stage-1 backtest will clarify whether it meets the bar for `PROMISING`. It complements existing candidates as it targets a distinct time window (premarket-open) and does not conflict with any anchor-day strategies. If promoted, it would add a new trigger branch to the engine.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

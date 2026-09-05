@@ -49,3 +49,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Does not conflict with existing candidates (all are watcher gates, DTE studies, or structural filters). Complements VWAP_CONTINUATION by targeting different market state (post-compression breakouts vs. VWAP-aligned continuation). No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

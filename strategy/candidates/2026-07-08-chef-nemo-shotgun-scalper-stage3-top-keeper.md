@@ -59,3 +59,5 @@ Entry logic remains unchanged from baseline shotgun_scalper (directional partici
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (which require edge_capture >= 771). This candidate's edge_capture (285) is below the 50% floor, so it would be REJECTED at the door. Does not complement existing candidates as it fails the core OP-16 requirement. Requires significant rework to capture more of J's winners (e.g., increase 4/29 capture from 54 to 342, 5/01 from 234 to 470, 5/04 from 177 to 730) while maintaining or improving loser day performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

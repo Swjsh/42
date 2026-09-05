@@ -58,3 +58,5 @@ The `pooled_distinct_trials()` helper function takes two sets of trial identifie
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate in the leaderboard. It is a tool for validating combined signals and may inform future candidates that attempt to combine vwap_continuation with VIX-based filters. It complements candidates like VWAPCONT_DTE_OVERRIDE_2DTE (which tests DTE overrides on vwap_continuation) and any future VIX-regime combined strategies. No current leaderboard candidate directly quantifies the OOS signal overlap between these two specific signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

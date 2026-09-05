@@ -61,3 +61,5 @@ Add a pre-entry filter that calculates the ribbon spread (slow EMA - fast EMA) o
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: does not conflict with any ranked candidate (1-9) as it targets a specific context filter for BEARISH_REJECTION_RIDE_THE_RIBBON. May synergize with quality gates like STRUCTURE_VETO_DIR_VS_TREND (rank ★) by removing chop-induced false signals. No overlap with watcher-only or bull-side candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

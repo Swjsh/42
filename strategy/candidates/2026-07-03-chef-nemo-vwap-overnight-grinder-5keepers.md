@@ -50,3 +50,5 @@ The pre-merge gate for this candidate includes a Stage-1 backtest to determine t
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in the leaderboard, but the exact impact is unknown and requires further analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -68,3 +68,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (1-9 in _LEADERBOARD.md) as it is a new trigger type focused on short entries during specific intraday windows. Complements bearish-oriented candidates by providing an alternative entry signal for PUT strategies. No direct overlap with existing watchers or gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

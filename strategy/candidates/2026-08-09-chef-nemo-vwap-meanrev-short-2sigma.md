@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION (which trades continuation of deviations) by fading deviations. No direct conflict with current leaderboard candidates (all are watcher gates, structural filters, or other trade classes). Would occupy novel trigger niche if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

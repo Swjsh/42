@@ -61,3 +61,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not change the strategy, so it does not conflict with any existing candidates. It is a validation step for the existing candidate QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS. If the analysis confirms the hypothesis, it may strengthen the case for this candidate; if not, it may lead to its rejection or refinement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

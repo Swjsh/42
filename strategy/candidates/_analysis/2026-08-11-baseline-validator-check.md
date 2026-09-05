@@ -36,3 +36,5 @@ No code change proposed; this analysis is a readiness check. If any future candi
 ## Pre-existing leaderboard impact
 
 None. This validation check does not alter any candidate’s edge‑capture, Sharpe, or status. It ensures the evaluation environment remains correct for future proposals.
+
+<!-- PROVENANCE-MISSING: test_autoresearch_baseline_gate.py -->

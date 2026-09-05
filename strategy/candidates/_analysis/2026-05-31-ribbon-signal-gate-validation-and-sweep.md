@@ -66,3 +66,5 @@ The RIBBON_SIGNAL_GATE (rmom>=5 + rdur<=20 + midday_tl gate) captures institutio
 ## Pre-existing leaderboard impact
 
 Complements MIDDAY_TRENDLINE_GATE (rank 21) by filtering early-morning ribbon noise; conflicts with BEARISH_SWEEP_BLOCKER (rank 1) only if sweep_blocker logic interferes with ribbon_duration calculation (requires joint gym validation). No direct overlap with existing watcher-only candidates (ranks 3-5, 8-11, 13-16, 18-20).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

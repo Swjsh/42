@@ -69,3 +69,5 @@ Reuse the existing VWAP_CONTINUATION exit: chart stop at the session extreme opp
 ## Pre-existing leaderboard impact
 
 This candidate adds a new trigger that can be combined with the existing VWAP_CONTINUATION setup. It does not modify any existing candidate’s logic and therefore does not conflict with current leaderboard entries. If successful, it would likely increase the edge_capture of VWAP_CONTINUATION‑based trades by filtering for higher‑quality breakout conditions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

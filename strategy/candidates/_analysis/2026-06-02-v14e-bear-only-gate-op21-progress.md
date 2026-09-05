@@ -53,3 +53,5 @@ Accumulate 100+ new bear-only observations and verify WR >= 55%.
 ## Pre-existing leaderboard impact
 
 This analysis complements the existing V14E_BEAR_ONLY_GATE candidate (rank 3) by tracking its OP-21 progress; no conflict with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

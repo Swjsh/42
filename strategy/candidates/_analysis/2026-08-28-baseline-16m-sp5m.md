@@ -58,3 +58,5 @@ Run Stage-1 backtest on the current engine (as of the latest ratified version) o
 ## Pre-existing leaderboard impact
 
 This baseline will define the reference edge_capture and aggregate Sharpe for all candidates in _LEADERBOARD.md. Current projected values (e.g., STRUCTURE_VETO_DIR_VS_TREND at edge_capture=780, Sharpe=4.728) are relative to an implicit baseline; this analysis will provide the absolute baseline values. No conflict with existing candidates -- it establishes the ground truth for OP-16 scoring.
+
+<!-- PROVENANCE-MISSING: test_heartbeat_core.py -->

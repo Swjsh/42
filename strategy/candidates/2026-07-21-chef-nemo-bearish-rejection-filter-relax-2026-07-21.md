@@ -59,3 +59,5 @@ The 'body in lower 40%' sub-clause of BEARISH_REJECTION filter 9 is overly restr
 ## Pre‑existing leaderboard impact
 
 No direct conflict with current leaderboard candidates (none modify BEARISH_REJECTION filters). Complements structural‑only candidates like WEEKLY_DTE_NOT_0DTE and VWAPCONT_DTE_OVERRIDE_2DTE by potentially increasing trade frequency on the same core signal. Should be evaluated before any exit‑change or quality‑gate proposals that alter the same setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

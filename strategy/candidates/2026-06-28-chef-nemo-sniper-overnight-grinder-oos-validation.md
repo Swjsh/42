@@ -59,3 +59,5 @@ The strategy requires the following pre-merge gates to be passed:
 ## Pre-existing leaderboard impact
 
 The strategy may complement existing candidates on the leaderboard, particularly those focused on overnight trading sessions. However, its impact on the leaderboard is unknown until further testing is conducted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

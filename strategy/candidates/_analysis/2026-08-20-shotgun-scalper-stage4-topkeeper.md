@@ -37,3 +37,5 @@ OOS walk-forward test showing edge_capture >= 771, real-fills validation on top 
 
 ## Pre-existing leaderboard impact
 Does not conflict with leaderboard candidates (all have edge_capture >= 771); this keeper is currently ineligible for the leaderboard due to insufficient edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard. It complements by providing a long-trigger mechanism based on ribbon compression, which is distinct from existing ribbon-ride strategies (which are bearish and require an expanded ribbon). No overlap in trigger logic with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

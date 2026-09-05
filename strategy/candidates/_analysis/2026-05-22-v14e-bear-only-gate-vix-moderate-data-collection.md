@@ -58,3 +58,5 @@ We will accumulate these observations until we have at least 15 new live bars sp
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It supports the V14E_BEAR_ONLY_GATE candidate (currently ranked #3, PROMISING) by providing the data needed for its potential promotion to WATCH-STABLE. It complements the leaderboard by advancing a promising watcher gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

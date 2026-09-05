@@ -70,3 +70,5 @@ We will identify the threshold that yields the highest edge proxy while maintain
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is purely diagnostic. It may inform future filter_change or quality_gate candidates (e.g., a confidence-based veto for V14E_BEAR_ONLY_GATE). It complements the existing V14E_BEAR_ONLY_GATE watcher (rank #3) by suggesting potential refinements. No impact on ranked candidates' edge_capture or Sharpe projections.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

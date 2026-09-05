@@ -62,3 +62,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard entries (which are primarily filters, gates, or other trade classes). It complements ORB_RETEST_LONG (price-based OR retest) and VWAP_CONTINUATION (trend-VWAP cross) by adding volume-skew as primary trigger. No overlap in logic with current PROMISING or J-RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

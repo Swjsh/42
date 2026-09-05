@@ -67,3 +67,5 @@ Note: The leaderboard shows #12 V14E_PARAM_SWEEP_26K already swept tp1=0.30, run
 ---
 
 ---
+
+<!-- PROVENANCE-MISSING: backtest/v14_enhanced_walkforward.py, backtest/simulator_real.py -->

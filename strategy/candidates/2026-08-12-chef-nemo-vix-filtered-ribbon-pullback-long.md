@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard. It is complementary to existing trend‑following and mean‑reversion candidates (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON, MIDDAY_TRENDLINE_GATE) because it operates under a distinct low‑VIX, pullback‑to‑ribbon regime. There is no direct conflict with any current top‑20 candidate; however, if proven effective it could reduce reliance on pure breakout or reclamation setups in low‑volatility environments. No changes to params.json or automation files are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

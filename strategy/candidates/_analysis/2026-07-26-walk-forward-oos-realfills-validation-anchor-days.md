@@ -63,3 +63,5 @@ This analysis does not modify the engine, so it conflicts with no candidates. It
 - Establish baseline edge_capture and Sharpe for OP-16 scoring.
 - Inform future candidate hypotheses by revealing actual engine behavior on anchor days (e.g., if engine currently skips 5/04 winner, candidates targeting that day gain priority).  
 Complements leaderboard by adding anchor-day transparency; does not replace existing OOS/real-fills gates in candidate evaluations.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates in _LEADERBOARD.md; this introduces a new trigger type (gap fade) distinct from current gap continuation (GAP_AND_GO) and other strategies. Complements existing watchers by adding a short-bias gap-fade mechanism not currently covered.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

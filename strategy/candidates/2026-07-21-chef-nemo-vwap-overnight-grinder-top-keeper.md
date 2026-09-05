@@ -57,3 +57,5 @@ The trigger uses VWAP as an anchor, requiring: (1) volume above `vol_mult` times
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED by OP-16 (edge_capture < 771) and thus does not appear on the leaderboard. It does not conflict with existing candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it is a distinct trigger type, but would require significant improvement in edge_capture to be considered for promotion. No complementarity detected without further backtesting.
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_trigger.py -->

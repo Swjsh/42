@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates (primarily filters/gates); complements by adding new entry trigger that could layer with existing exits/filters (e.g., MIDDAY_TRENDLINE_GATE, structure veto) but requires isolation testing to avoid interference. No overlap with current leaderboard trade classes (e.g., BEARISH_REJECTION, VWAP_CONTINUATION).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

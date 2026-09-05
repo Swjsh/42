@@ -68,3 +68,5 @@ We are testing whether a refined SNIPER_LEVEL_BREAK parameter set can capture ed
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries (all are either bull/bearish rejection, VWAP continuation, or structural gates). It proposes a distinct sniper parameter set that would need to prove its own edge before consideration for promotion. Given the negative performance, it is unlikely to impact the leaderboard unless radically revised.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with any existing candidates in _LEADERBOARD.md; all current candidates rely on price/volume/technical triggers, none use the Unusual Whales options‑flow feed. This candidate introduces a distinct primitive and would complement the leaderboard if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

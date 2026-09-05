@@ -62,3 +62,5 @@ Since this is purely a monitoring and alerting change with no effect on order ge
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing strategy candidate in the leaderboard because it does not alter order generation, P&L, or strategy logic. It complements all candidates by providing enhanced monitoring that can help detect issues early, regardless of which strategy is active.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

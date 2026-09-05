@@ -58,3 +58,5 @@ The first 5-minute bar after market open (09:30 ET) that breaks the premarket hi
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION (different timeframe) and BEARISH_REJECTION_RIDE_THE_RIBBON (different trigger). May provide orthogonal entry filter for other setups. No direct overlap with leaderboard ranks 1-24.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

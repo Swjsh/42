@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing leaderboard entries (primarily filters, exits, or watchers). It complements strategies like MIDDAY_TRENDLINE_GATE by providing a distinct entry signal based on EMA ribbon compression and volume breakout, potentially additive if proven effective. No overlap with existing trigger types in the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

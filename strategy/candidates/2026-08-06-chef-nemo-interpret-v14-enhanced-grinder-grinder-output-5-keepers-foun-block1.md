@@ -86,3 +86,5 @@
         But note: the system prompt says: "If the task implies multiple deliverables, output each as its own block, separated by exactly `---` on its own line."
         We have only one keeper to assess (though the text said 5 keepers, we are only given one in the JSON). 
         We assume the task is
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger distinct from VWAP_CONTINUATION (which enters on VWAP reclaim after a break). It complements existing VWAP‑based ideas by focusing on pull‑backs within a bullish EMA ribbon and declining volume, likely adding non‑overlapping trades. No direct conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

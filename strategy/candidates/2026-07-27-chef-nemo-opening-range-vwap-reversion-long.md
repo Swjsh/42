@@ -60,3 +60,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct duplicate in the current leaderboard (candidates 1‑9). The idea complements existing VWAP‑based candidates (e.g., VWAP_CONTINUATION) by focusing on opening‑range break reversion rather than session‑continuation. It does not conflict with any ratified trigger or filter; it is a new trigger proposal that would be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

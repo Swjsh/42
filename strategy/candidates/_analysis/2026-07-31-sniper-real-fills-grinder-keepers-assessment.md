@@ -68,3 +68,5 @@ Note: The top keeper did not trade on 5/06 and 5/07 (pnl=0) which is good for av
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate; it assesses existing grinder output. None of the 5 keepers meet the OP-16 edge_capture floor, so they would not appear on the leaderboard. They conflict in the sense that they are not viable candidates and should not be promoted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

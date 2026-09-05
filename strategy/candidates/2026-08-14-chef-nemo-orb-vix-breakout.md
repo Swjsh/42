@@ -59,3 +59,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ORB-related watchers (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by adding a VIX contraction filter and using 15-minute close bias. No direct conflict with current leaderboard entries (which are primarily watcher quality gates, DTE studies, and structural gates). Would require backtest to assess additive value.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

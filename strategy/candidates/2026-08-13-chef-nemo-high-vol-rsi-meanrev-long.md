@@ -51,3 +51,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; this proposal introduces a new trigger type (RSI + volume + VWAP) that is orthogonal to the existing divergence, structure‑veto, and watcher‑gate strategies. It could complement the current arsenal by providing an additional long‑bias signal in ranging or mildly bullish conditions, subject to validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

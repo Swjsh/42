@@ -55,3 +55,5 @@ For any keeper to advance: need walk-forward OOS positive, real-fills validation
 
 ## Pre-existing leaderboard impact  
 None; all keepers fail OP-16 edge_capture floor.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

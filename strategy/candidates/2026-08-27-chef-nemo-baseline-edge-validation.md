@@ -53,3 +53,5 @@ Gym validators must pass (all 81/81), walk-forward OOS must show edge_capture >=
 ## Pre-existing leaderboard impact
 
 This candidate does not propose any change to the engine; it is a validation of the baseline. It does not conflict with any existing candidate but provides a baseline for comparison. Candidates that change the engine (e.g., STRUCTURE_VETO_DIR_VS_TREND, WEEKLY_DTE_NOT_0DTE) should be evaluated relative to this baseline. If the baseline edge_capture is confirmed >=771, all leaderboard candidates remain valid for comparison; if <771, the leaderboard would be empty and all candidates would need to demonstrate edge_capture >=771 to be considered.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

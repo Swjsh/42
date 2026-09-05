@@ -75,3 +75,5 @@ Before any promotion, the keeper must:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates existing grinder output. No conflict with current leaderboard candidates. If any parameter set from this sweep were to be promoted, it would require a full OOS walk‑forward and real‑fills re‑check, likely resulting in rejection due to negative edge_capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

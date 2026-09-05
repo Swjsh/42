@@ -66,3 +66,5 @@ Exit uses:
 ## Pre-existing leaderboard impact
 
 This candidate is a parameter variant of the sniper level break, which currently has no ratified entries in the leaderboard (prior sniper candidates were artifact‑invalidated due to profit_lock_threshold=0.0). If the OOS walk‑forward shows positive edge_capture, it could complement existing strategies (e.g., V14E_BEAR_ONLY_GATE, MIDDAY_TRENDLINE_GATE) by capturing trending breakout moves on different days. It does not conflict with any existing watcher‑only or quality‑gate candidates. Should be evaluated for potential synergy with the BEARISH_REJECTION_RIDE_THE_RIBBON setup on days where both signals coexist.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/sniper_level_break_keeper_ab_scorecard.json -->

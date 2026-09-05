@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (e.g., ORB_RETEST_LONG is a retest-of-breakout long bias; this is a fade of extreme open/VWAP divergence). Complements watcher‑only ORB_RETEST_LONG by offering an opposing mean‑reversion logic. No overlap in trigger logic with current leaderboard entries 1‑9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

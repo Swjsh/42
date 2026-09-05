@@ -44,3 +44,5 @@ Baseline parameters unknown. Top keeper uses: vol_mult=1.3 (volume filter), body
 
 ## Pre-existing leaderboard impact
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). Would complement if edge_capture improved, but as-is fails to meet inclusion criteria. No overlap with existing candidates (different strategy type: SNIPER_LEVEL_BREAK vs. vwap_continuation, structure_veto, etc.).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

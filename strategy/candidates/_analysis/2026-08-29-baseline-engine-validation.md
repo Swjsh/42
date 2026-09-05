@@ -65,3 +65,5 @@ The baseline engine's edge capture on J days exceeds the OP-16 floor of 771 and 
 ## Pre-existing leaderboard impact
 
 This analysis validates the baseline engine used as the reference point for all candidates in `_LEADERBOARD.md`. It does not conflict with any existing candidate; rather, it provides the ground‑truth IS/OOS/real‑fills numbers against which proposals are measured. Candidates that change the engine (e.g., `STRUCTURE_VETO_DIR_VS_TREND`) should be evaluated relative to these validated baseline numbers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

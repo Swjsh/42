@@ -64,3 +64,5 @@ We will compute win rate, average P&L per trade, total P&L, and compare the two 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis validates the ORB_DIRECTION_FILTER candidate (ranked #5 in leaderboard) and does not conflict with any existing candidates. It complements ORB_NARROW_OR_GATE (#4) by confirming the exit rule for long-only ORB signals. If chart-stop-only is confirmed optimal, it will strengthen the case for ORB_DIRECTION_FILTER promotion. If -10% premium stop is found superior, we would need to reconsider the exit rule for ORB long signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

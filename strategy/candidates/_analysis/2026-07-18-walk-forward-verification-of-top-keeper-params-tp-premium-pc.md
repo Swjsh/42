@@ -57,3 +57,5 @@ Run a walk-forward analysis: split the period 2025-07-01 to 2026-06-30 into mont
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis evaluates the current keeper parameters; if OOS shows instability, may prompt replacement by a higher-ranking candidate (e.g., WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND). If stable, reinforces keeper status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

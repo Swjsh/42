@@ -63,3 +63,5 @@ Untracked markdown files under strategy/candidates/ risk being lost if not commi
 ## Pre-existing leaderboard impact
 
 No impact; this is a housekeeping change that does not alter any strategy logic, parameters, or backtest results. It does not conflict with or complement any existing candidates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ Overall, the combination of tighter stops (premium_stop -10%, profit_lock thresh
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing keeper from the sniper grinder. It conflicts with the leaderboard’s premise that candidates must improve edge_capture (≥771). Since this keeper degrades edge_capture, it would not qualify for the leaderboard and should remain in the grinder’s reject pile unless further analysis reveals a misinterpretation (e.g., the grinder optimizing for a different objective that still satisfies OP-16 after OOS). No impact on current ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

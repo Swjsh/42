@@ -61,3 +61,5 @@ Exit: Premium stop at -10% of entry premium, TP1 at +50% of entry premium for 50
 ## Pre-existing leaderboard impact
 
 This candidate is not intended for leaderboard inclusion due to failing OP-16 gate (edge_capture < 771). It serves as a negative result in the SNIPER parameter search space, helping to identify ineffective parameter combinations and avoid overfit. No conflict with existing candidates; complements efforts to refine SNIPER strategy by highlighting parameter sets that do not work.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

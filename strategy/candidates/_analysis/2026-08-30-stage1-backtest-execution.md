@@ -61,3 +61,5 @@ Running the Stage-1 backtest via the autoresearch grinder will generate unbiased
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to any strategy logic; it is a meta‑evaluation that will inform the ranking of existing candidates. It complements the leaderboard by providing the data needed to move candidates from `NEEDS-MORE-DATA` to `PROMISING` or `REJECTED`. No conflict with current ranked candidates.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/run_grinder.py, analysis/recommendations/stage1_backtest_scorecard.json -->

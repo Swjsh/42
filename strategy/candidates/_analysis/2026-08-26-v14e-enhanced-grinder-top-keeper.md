@@ -66,3 +66,5 @@ Requires OOS walk-forward test with positive edge_capture and WF ratio ≥0.70, 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate for the leaderboard. It evaluates a keeper from a parameter sweep. No impact on existing leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

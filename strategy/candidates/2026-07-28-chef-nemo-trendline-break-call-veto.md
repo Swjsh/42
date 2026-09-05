@@ -66,3 +66,5 @@ Complements existing candidates:
 - Synergistic with STRUCTURE_VETO_DIR_VS_TREND (both structure-based, different axes) 
 - Updates WS4 leaderboard entry with Stage-1 derived metrics (currently HOLD due to WF degradation) 
 - No impact on pure PUT candidates (e.g., MIDDAY_TRENDLINE_GATE) as CALL-only veto
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/trendline_break_call_veto_ab.json -->

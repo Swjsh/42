@@ -63,3 +63,5 @@ Entry triggers when price reclaims (for bullish bias) or rejects (for bearish bi
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement existing leaderboard entries because its projected edge_capture (<771) would place it below the rejection threshold and thus not appear on the leaderboard. It is orthogonal to current structural gates and filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

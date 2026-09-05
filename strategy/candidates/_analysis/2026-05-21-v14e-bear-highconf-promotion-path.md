@@ -188,3 +188,5 @@ The OP-21 promotion gate is now tracking unique-bar observations only:
 - Output: `analysis/recommendations/v14e-highconf-vix-monitor.json`
 
 **L67 encoded:** lesson inbox item queued at `strategy/candidates/_lesson-inbox/2026-05-21-watcher-obs-dedup-inflates-wr.md`
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/v14e_bear_highconf_fingerprint.py, strategy/candidates/_lesson-inbox/2026-05-21-watcher-obs-dedup-inflates-wr.md -->

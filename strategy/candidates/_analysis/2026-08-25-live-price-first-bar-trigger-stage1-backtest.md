@@ -82,3 +82,5 @@ This analysis does not conflict with any existing candidates in the leaderboard.
 - Number of trades: 38
 
 Note: These results are from the Stage-1 backtest and require OOS validation and real-fills verification on the top trades.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

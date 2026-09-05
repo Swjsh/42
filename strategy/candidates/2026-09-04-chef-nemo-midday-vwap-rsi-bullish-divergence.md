@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/gates or alternative trade classes). Complements by adding a new long trigger for midday mean-reversion; may synergize with existing VWAP-based watchers (e.g., VWAP_CONTINUATION) but operates in different time window. No overlap with bearish anchor-focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

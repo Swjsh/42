@@ -55,3 +55,5 @@ The pre-merge gate for this strategy includes the following tests:
 ## Pre-existing leaderboard impact
 
 The proposed strategy complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON strategies. The compounding edge capture strategy can be used in conjunction with these strategies to improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

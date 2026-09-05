@@ -62,3 +62,5 @@ We hypothesize that tightening the premium stop to 20% (from the baseline 50%) w
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED by the OP-16 edge_capture filter (edge_capture < 771) and does not appear on the leaderboard. No conflict with existing candidates as it fails the basic gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -61,3 +61,5 @@ A 5‑minute close‑through‑respected‑ascending‑support (trendline break)
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing WS4 ([TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md)) by providing the missing OOS and real‑fills validation. It does not conflict with any higher‑ranked candidates; it is a pure filter that only affects CALL entries, leaving all PUT‑side logic (including the top‑ranked BEARISH_REJECTION_RIDE_THE_RIBBON and MIDDAY_TRENDLINE_GATE) untouched. If validated, it would likely sit near the WS4 rank (currently NEEDS‑MORE‑DATA) and could be promoted once the pre‑merge gate clears.
+
+<!-- PROVENANCE-MISSING: test_call_veto_trendline_break.py -->

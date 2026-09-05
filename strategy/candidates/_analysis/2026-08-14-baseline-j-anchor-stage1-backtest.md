@@ -58,3 +58,5 @@ Run the Stage-1 backtest via the autoresearch grinder harness on the six J ancho
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it provides the baseline edge_capture and Sharpe against which all candidates in the leaderboard (ranks 1-9) are measured. Once computed, it will allow re-scoring of candidates' edge_capture and final_score per OP-16. No current candidate's status changes until the baseline is established.
+
+<!-- PROVENANCE-MISSING: test_j_anchor_backtest.py -->

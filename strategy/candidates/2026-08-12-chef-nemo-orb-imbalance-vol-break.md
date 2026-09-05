@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No conflict with top 9 candidates in _LEADERBOARD.md (QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS through BULL_SCOPE_LOCK_REVAL), as they are primarily filter changes, quality gates, or wiring proposals, whereas this is a new_trigger. May complement existing strategies by providing an alternative entry signal that could be combined with their filters (e.g., VIX regime, time-of-day gates) to improve trade quality. No overlap in mechanism or annotations observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing leaderboard candidates (which are primarily filters, exits, or watchers). It may complement trend-following or VWAP-based strategies by providing a specific long-entry condition in uptrends, but could overlap with VWAP_CONTINUATION if not properly differentiated. No immediate conflicts observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

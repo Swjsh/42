@@ -63,3 +63,5 @@ Change the VIX confirmation filter in the BEARISH_REJECTION_RIDE_THE_RIBBON setu
 - Complements: Does not conflict with existing candidates; operates on same BEARISH_REJECTION foundation as base engine.
 - Conflicts: None directly; may interact with VIX_BULL_HARD_CAP_UNBLOCK (rank 22) if VIX regimes overlap, but that candidate is bull-side only.
 - Notes: Base BEARISH_REJECTION_RIDE_THE_RIBBON is live; this is a parameter tweak to its VIX filter. If ratified, would require updating `automation/state/params.json` (bear VIX threshold) post-J review per Rule 9. No impact on watcher-only candidates. May affect correlation with STRUCTURE_VETO_DIR_VS_TREND (rank ★) if VIX 18-20
+
+<!-- PROVENANCE-MISSING: test_bearish_rejection_ride_the_ribbon.py -->

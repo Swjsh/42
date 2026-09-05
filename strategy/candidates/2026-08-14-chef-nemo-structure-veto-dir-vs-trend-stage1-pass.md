@@ -53,3 +53,5 @@ We need to pass: gym validators (already passed for the base structure_veto), wa
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard by providing a structural veto that improves the bear edge without affecting the existing J winners. It does not conflict with any existing candidate because it is a new gate that can be stacked on top of existing filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

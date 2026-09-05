@@ -104,3 +104,5 @@ Full day-level trade extraction from the best WF-pass combo (buf=0.75, tp1=2.5, 
 - `backtest/autoresearch/sniper_cs_sweep.py` — 64-combo sweep
 - `analysis/recommendations/sniper-cs-sweep.json` — full sweep results
 - `markdown/doctrine/LESSONS-LEARNED.md#L101` — full lesson write-up
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/sniper_cs_evaluator.py, backtest/autoresearch/sniper_cs_sweep.py -->

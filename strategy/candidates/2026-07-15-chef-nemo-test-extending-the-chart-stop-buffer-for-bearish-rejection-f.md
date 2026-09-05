@@ -48,3 +48,5 @@ DRAFT CANDIDATE: COMPOUND VS ACCUMULATE DOCTRINE
 - Is weekend grind reserved for 24h+ pipelines (e.g., full backtest grids)?  
 **Gap:** No explicit guard in code to prevent "accumulate" behavior (e.g., unbounded task retention).  
 **Fix:** Add retention cap in `markdown/planning/FUTURE-IMPROVEMENTS.md` with pruning logic for task queues.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

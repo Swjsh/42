@@ -47,3 +47,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate does not conflict with existing candidates in the leaderboard as it is a new trigger type. It may complement existing filters if shown to be uncorrelated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

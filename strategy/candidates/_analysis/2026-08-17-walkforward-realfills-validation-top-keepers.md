@@ -64,3 +64,5 @@ We require:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a new candidate; it validates existing top keepers. It complements the leaderboard by ensuring that the ranked candidates have passed OOS and real-fills checks. No conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

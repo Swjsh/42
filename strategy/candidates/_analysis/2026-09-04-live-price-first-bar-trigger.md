@@ -62,3 +62,5 @@ The LIVE_PRICE_FIRST_BAR_TRIGGER captures edge from premarket gap reversals wher
 - May complement filter/exit candidates by increasing trade frequency on non-J days, but note: zero impact on J anchor days (OP-16 edge_capture unchanged).  
 - Potential synergy with structure-based filters (e.g., TRENDLINE_BREAK_CALL_VETO) to avoid false reversals in choppy markets.  
 - No overlap with existing watchers or quality gates (pure trigger addition).
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

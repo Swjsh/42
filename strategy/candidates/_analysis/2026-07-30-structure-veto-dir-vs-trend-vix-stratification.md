@@ -64,3 +64,5 @@ To proceed with this analysis, we must:
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a change to the engine; it seeks to evaluate an existing candidate (STRUCTURE_VETO_DIR_VS_TREND, currently ranked ★ with status PROMISING). It complements the candidate by providing deeper insight into its robustness. It does not conflict with any other candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ The keepers must pass a pre-merge gate, which includes:
 ## Pre-existing leaderboard impact
 
 The keepers may complement or conflict with existing candidates on the leaderboard. Further analysis is needed to determine their potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

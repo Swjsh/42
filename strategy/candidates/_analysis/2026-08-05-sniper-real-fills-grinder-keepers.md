@@ -74,3 +74,5 @@ These changes collectively reduce risk exposure (lower qty, tighter stops) and a
 ## Pre-existing leaderboard impact
 
 These candidates would rank below the rejection threshold (edge_capture < 771) and thus would not appear on the leaderboard. They conflict with the current leaderboard's emphasis on edge_capture ≥ 771; promoting them would violate OP‑16 gating. They are best treated as exploration data requiring OOS validation before any further consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

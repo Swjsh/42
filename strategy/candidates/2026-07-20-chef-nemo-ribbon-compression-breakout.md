@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly filters/gates); may complement or compete with BEARISH_REJECTION_RIDE_THE_RIBBON but operates on different principle (breakout from compression vs. riding ribbon post-rejection). Impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

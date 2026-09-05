@@ -56,3 +56,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9 in _LEADERBOARD.md; the approach uses a distinct data source (dark‑pool short‑sale ratio) not currently represented in the leaderboard. If successful, it could complement existing strategies by providing an additional short‑side trigger in choppy‑to‑mildly‑trending regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

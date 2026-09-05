@@ -60,3 +60,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the ORB_DIRECTION_FILTER candidate. The ORB_NARROW_OR_GATE strategy may provide an additional edge by filtering out wide OR ranges, which could lead to improved performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

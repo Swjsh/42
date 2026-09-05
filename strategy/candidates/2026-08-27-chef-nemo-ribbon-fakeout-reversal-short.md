@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly modify any existing rules in the leaderboard (candidates 1‑9). It complements the existing BEARISH_REJECTION_RIDE_THE_RIBBON by targeting a different intraday pattern (fakeout vs clean rejection) and therefore is unlikely to conflict. If proven effective, it could add a non‑overlapping source of edge, but until a Stage‑1 backtest is run the impact on the leaderboard remains unknown.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

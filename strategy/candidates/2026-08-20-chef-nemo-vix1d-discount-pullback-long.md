@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (VIX1D/VIX ratio) absent from all existing leaderboard candidates. It does not conflict with current candidates and may complement them as a standalone entry filter or potential combination with other quality gates. No overlap in mechanism with ranked strategies 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

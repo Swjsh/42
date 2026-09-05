@@ -51,3 +51,5 @@ We ran an A/B test disabling the REQUIRE_BEARISH_FILL_BAR gate (set require_bear
 
 ## Pre-existing leaderboard impact
 This analysis supports the candidate [REQUIRE_BEARISH_FILL_BAR_REVAL] (2026-06-26-094331-unblock-require-bearish-fill-bar-bold.md) which is currently UNBLOCK-leaning. The analysis confirms that the gate suppresses a net-winner set (IS +$917) and does not regress anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

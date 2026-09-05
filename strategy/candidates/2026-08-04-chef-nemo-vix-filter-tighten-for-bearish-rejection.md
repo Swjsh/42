@@ -60,3 +60,5 @@ Modify the VIX confirmation filter in BEARISH_REJECTION_RIDE_THE_RIBBON entry lo
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements BEARISH_REJECTION_RIDE_THE_RIBBON by refining its filter. May overlap with VIX_BULL_HARD_CAP_UNBLOCK (rank 22) but applies to bearish puts only. No direct contradiction with J-RATIFIED candidates (ranks 12, 17, 21).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

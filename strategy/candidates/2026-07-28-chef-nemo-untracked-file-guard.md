@@ -61,3 +61,5 @@ The guard is designed to fail open: it never blocks execution, only warns.
 ## Pre-existing leaderboard impact
 
 No conflict; this is a tooling/quality guard that does not alter any candidate or engine behavior. It complements all existing candidates by maintaining repo hygiene.
+
+<!-- PROVENANCE-MISSING: automation/state/queuehealth.json, test_unTracked_file_guard.py -->

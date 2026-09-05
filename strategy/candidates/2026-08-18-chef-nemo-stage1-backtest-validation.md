@@ -57,3 +57,5 @@ We need to quantify the edge captured by the current engine on J's source-of-tru
 ## Pre-existing leaderboard impact
 
 This candidate is a validation gate, not a strategy change. It does not conflict with any existing leaderboard entries; rather, it provides the OP‑16‑compliant edge_capture and OOS metrics that future candidates must meet to appear on the leaderboard. It complements the leaderboard by establishing the baseline against which all candidates are measured.
+
+<!-- PROVENANCE-MISSING: test_walkforward_ratio.py -->

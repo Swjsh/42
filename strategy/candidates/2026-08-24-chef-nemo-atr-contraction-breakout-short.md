@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if this short-trigger strategy conflicts with or complements existing candidates (which are predominantly filters, exits, or long-biased structural gates). No insight without backtest data on interaction with current leaderboard strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

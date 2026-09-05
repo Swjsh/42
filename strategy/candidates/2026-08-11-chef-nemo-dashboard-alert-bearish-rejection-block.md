@@ -62,3 +62,5 @@ During the evaluation of a BEARISH_REJECTION_RIDE_THE_RIBBON setup (in `gates.py
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries. It is purely observational and adds no new trading logic, so it complements all current candidates by providing diagnostic transparency without altering their reported performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

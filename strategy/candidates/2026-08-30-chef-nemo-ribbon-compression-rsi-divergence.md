@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is orthogonal to existing triggers in the leaderboard (e.g., QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS, WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) because it introduces a novel entry condition based on EMA ribbon compression combined with hidden RSI divergence, rather than relying on VWAP, DTE, or market‑structure vetoes. It does not conflict with any current top‑9 candidates and could complement them by capturing setups that occur during low‑volatility consolidation periods not flagged by the existing triggers. If validated, it would be a new_trigger type additive to the strategy pool.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

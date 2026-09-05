@@ -69,3 +69,5 @@ The VWAP Overnight Grinder Refinement aims to improve edge capture on J's anchor
 ## Pre-existing leaderboard impact
 
 Not currently on leaderboard; if validated, would be a new_trigger candidate. No known conflict with existing candidates (e.g., VWAPCONT_DTE_OVERRIDE_2DTE, MIDDAY_TRENDLINE_GATE) as it focuses on overnight VWAP rather than intraday VWAP continuation or DTE overrides. Could complement by providing additional entry filter for early-morning setups.
+
+<!-- PROVENANCE-MISSING: test_vwap_overnight_grinder.py -->

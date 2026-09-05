@@ -68,3 +68,5 @@ Must pass:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 No impact: edge_capture=-36.0 < 771 OP-16 floor → candidate would be REJECTED and not appear on leaderboard. Does not complement or conflict with existing candidates (all have edge_capture>=771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

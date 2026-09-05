@@ -57,3 +57,5 @@ The grinder swept these knobs across a 432‑combo grid, retaining the top 5 by 
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates. SNIPER_LEVEL_BREAK remains OP‑16 inapplicable (see SNIPER_CS_CHART_STOP, etc.). No current leaderboard entry for SNIPER_LEVEL_BREAK; this analysis indicates that further parameter tuning is unlikely to yield edge without first identifying SNIPER‑specific anchor days and conducting proper OOS validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

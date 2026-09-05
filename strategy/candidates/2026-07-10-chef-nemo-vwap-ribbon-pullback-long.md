@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type not present in the current leaderboard (ranks 1‑9). It does not duplicate or directly conflict with any existing candidate; it can be evaluated as an orthogonal addition to the strategy pool. If successful, it would complement existing structural and trigger‑based candidates by providing a VWAP‑ribbon‑pullback long bias.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

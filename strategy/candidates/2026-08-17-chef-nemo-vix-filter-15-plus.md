@@ -61,3 +61,5 @@ Add a pre-entry filter: only allow BEARISH_REJECTION_RIDE_THE_RIBBON entries whe
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing volatility-based filters (e.g., F8_BULL_VIX_GATE_REVAL, V14E_BEAR_TIME_OF_DAY_GATE) but conflicts with any candidate that relies on low-VIX entries. It is orthogonal to structural vetoes (e.g., STRUCTURE_VETO_DIR_VS_TREND) and could be stacked. No direct conflict with current leaderboard candidates as it is a filter change, not a wiring or trigger change. However, it may subsume or duplicate the intent of VIX-specific gates like F8_BULL_VIX_GATE_REVAL (which is bull-specific); this bearish VIX filter would be additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ The gate REQUIRE_BEARISH_FILL_BAR (gates.py #7) currently checks that the fill b
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard because it is tuning a gate that is currently under revalidation (REQUIRE_BEARISH_FILL_BAR_REVAL). It complements the revalidation by providing a middle ground between keeping the gate (true) and removing it (false). It does not conflict with the J-RATIFIED candidates (like V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) because it is a filter change on a different gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ The high-WR regime appears in Q3-2025 (68% WR, +$1,650). Q1-2025 (0% WR) is an o
     "or_range_estimation": "or_range values not available per signal; distribution inferred from counts."
   }
 }
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

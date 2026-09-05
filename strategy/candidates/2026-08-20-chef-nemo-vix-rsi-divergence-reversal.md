@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing candidates in the leaderboard (which are mostly watchers, gates, or other structural changes). It may complement existing strategies by providing an additional entry signal, but without backtest we cannot confirm.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

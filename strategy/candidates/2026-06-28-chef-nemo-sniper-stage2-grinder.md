@@ -54,3 +54,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it refines the top-5 keepers from stage1 and identifies new parameters that can improve the edge capture. However, the impact on the existing leaderboard candidates is unknown, as the output does not provide information on the comparison with other candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

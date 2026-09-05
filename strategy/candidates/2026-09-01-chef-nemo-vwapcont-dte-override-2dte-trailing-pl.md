@@ -68,3 +68,5 @@ Replacing the fixed +50% TP1 exit with a trailing profit lock that arms at +30% 
 ## Pre-existing leaderboard impact
 
 This candidate proposes to replace the exit logic of the existing HOLD candidate `VWAPCONT_DTE_OVERRIDE_2DTE`. If validated, it could supersede that candidate and move to PROMISING or higher. It does not directly conflict with other candidates but may alter the performance profile of the VWAP continuation setup family.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

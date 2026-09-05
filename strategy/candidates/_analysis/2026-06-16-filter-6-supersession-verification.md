@@ -46,3 +46,5 @@ Stage-1 backtest verifying:
 ## Pre-existing leaderboard impact
 
 This analysis complements and supersedes the filter-6 20c threshold research. The RIBBON_MOMENTUM_GATE candidate (rank 22) already demonstrates the momentum gate's validity as an entry filter. No conflict with existing candidates; reinforces the rationale for RIBBON_MOMENTUM_GATE's ratification readiness. The 20c threshold research should not be ratified separately as the momentum gate provides superior discrimination.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

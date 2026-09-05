@@ -70,3 +70,5 @@ The grinder will test various combinations of these parameters to find the optim
 The candidate complements the existing leaderboard candidates, but its impact is unknown -- requires Stage-1 backtest and validation.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ We will sweep profit_lock_threshold_pct from 0.05 to 0.20 in steps of 0.05, prof
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements the existing sniper candidates by attempting to fix the profit_lock_threshold=0.0 artifact. It does not directly conflict with any non-sniper candidates. It may complement the STRUCTURE_VETO_DIR_VS_TREND candidate if the sniper strategy captures different market regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

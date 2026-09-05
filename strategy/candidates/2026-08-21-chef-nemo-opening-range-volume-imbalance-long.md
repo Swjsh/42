@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB_RETEST_LONG by entering earlier (no retest wait) but conflicts with VWAP_CONTINUATION and GAP_AND_GO in overlapping time window (09:30-10:30); does not conflict with watcher-only candidates. If validated, would occupy new_trigger niche distinct from current leaderboard entries (which are primarily filters, gates, or exit changes).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

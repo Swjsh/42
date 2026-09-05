@@ -31,3 +31,5 @@ The grinder harness replays the engine logic over the in-sample period (2025-01-
 | 5/05 loser | -$248.2 | -$248.2 (no change) | $0.0 |
 | 5/06 loser | -$286.4 | -$286.4 (no change) | $0.0 |
 | 5/07 loser 1 (734C) | -$43.0 | -$43.0 (no change) | $0
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

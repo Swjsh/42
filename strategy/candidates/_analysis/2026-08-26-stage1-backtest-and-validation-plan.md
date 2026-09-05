@@ -59,3 +59,5 @@ Running a Stage-1 backtest on 16-month SPY 5m data via the autoresearch grinder 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new strategy candidate, so it does not directly affect the leaderboard. However, the results of the Stage-1 backtest and validation may inform future candidate proposals or lead to the rejection of the current engine configuration if edge_capture < 771.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

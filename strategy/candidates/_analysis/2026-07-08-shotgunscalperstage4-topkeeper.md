@@ -67,3 +67,5 @@ Exit logic combines premium stop/tp, time stop, and chandelier trailing profit-l
 ## Pre-existing leaderboard impact
 
 This candidate would NOT appear on the current leaderboard because its edge_capture (506) is below the 771 threshold required for inclusion. It does not complement existing candidates (e.g., WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND) that achieve edge_capture > 770. Promoting it would dilute the leaderboard with a strategy that fails the OP-16 anchor gate. It requires OOS walk-forward and real-fills validation before any further consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: Does not conflict with any ranked candidates in _LEADERBOARD.md as it is a new long-biased trigger (current leaderboard is dominated by bearish/gate proposals). May provide diversification if validated, but requires Stage-1 backtest to assess edge capture and potential overlap with existing long setups (none currently J-ratified for longs). No direct duplication with watchers or gates in registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

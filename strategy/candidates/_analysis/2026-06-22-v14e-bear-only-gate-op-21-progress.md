@@ -57,3 +57,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate; it only reports progress toward the OP-21 gate for the existing candidate V14E_BEAR_ONLY_GATE. It complements the leaderboard entry by providing an update on the promotion gate status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

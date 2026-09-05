@@ -52,3 +52,5 @@ The pre-merge gate requires that the walk-forward analysis demonstrates regime s
 ## Pre-existing leaderboard impact
 
 The proposed candidate complements the existing leaderboard candidates, as it provides a more rigorous verification of the top keeper parameters. The results of the walk-forward analysis will help to inform the development of new candidates and improve the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ We will modify the vwap_continuation setup to select DTE based on a regime filte
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 We note that there is a HOLD candidate [VWAPCONT_DTE_OVERRIDE_2DTE] which is a fixed 2DTE override. Our candidate is different because it uses a regime to choose between 0DTE and 2DTE. We do not expect to conflict with it; rather, we hope to improve upon it. We also note that the [WEEKLY_DTE_NOT_0DTE] candidate (which is promising) showed that longer DTE (1-2 days) can improve the signal, but that was fixed DTE. Our candidate is adaptive. We do not see a direct conflict with any existing candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

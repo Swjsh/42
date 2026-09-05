@@ -64,3 +64,5 @@ The top keeper from the shotgun_scalper_stage3 sweep (972 combos) attempts to ca
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 edge_capture threshold (285.0 < 771) and is therefore ineligible for the leaderboard. It does not impact current leaderboard rankings as only candidates with edge_capture ≥ 771 appear. No conflict or complement with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with candidates 1-9 in _LEADERBOARD.md. Those candidates involve DTE overrides, structure vetoes, and quality gates; this proposal introduces a new trigger based on intraday VIX/VWAP deviation. Complementary potential as it operates on a different signal dimension.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

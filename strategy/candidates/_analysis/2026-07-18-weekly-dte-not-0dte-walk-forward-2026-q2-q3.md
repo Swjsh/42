@@ -60,3 +60,5 @@ Before this analysis can be considered complete, the following must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate itself but provides additional validation. If the walk-forward shows the DTE edge persists in both volatile and calm regimes, it will strengthen the candidate's case for promotion. If the edge disappears in one regime, it may lead to a refinement (e.g., conditional DTE selection). It does not conflict with any existing candidate in the leaderboard; rather, it supports the WEEKLY_DTE_NOT_0DTE candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

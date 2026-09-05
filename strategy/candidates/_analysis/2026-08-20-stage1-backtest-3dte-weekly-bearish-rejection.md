@@ -68,3 +68,5 @@ Based on WEEKLY_DTE_NOT_0DTE results showing monotone OOS exp/tr improvement fro
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements WEEKLY_DTE_NOT_0DTE (which studied 1DTE/2DTE for vwap_continuation) by extending DTE analysis to 3DTE for BEARISH_REJECTION_RIDE_THE_RIBBON. Does not conflict with any ranked candidate as it is a pure data backtest (no engine changes). If edge_capture ≥ 771 and Sharpe improvement >0, could become new PROMISING candidate (Type: data_backtest → potential wiring proposal if validated). Current leaderboard shows base engine edge_capture=780 (0DTE); this analysis seeks to determine if 3DTE weekly options can exceed 771 edge_capture with improved Sharpe. No impact on existing candidates' status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

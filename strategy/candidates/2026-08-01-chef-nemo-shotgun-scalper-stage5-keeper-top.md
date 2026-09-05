@@ -64,3 +64,5 @@ Exit on TP1, stop, time stop, or chandelier trail whichever occurs first.
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates (which require edge_capture >= 771); fails OP-16 gate and would be REJECTED at door. Does not complement existing candidates due to anchor deficiency.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Replace the "first 3 RTH closes all same side of session VWAP" confirmation qual
 ## Pre-existing leaderboard impact
 
 This candidate proposes a filter change to the live VWAP_CONTINUATION setup. It does not conflict with any ranked candidate in _LEADERBOARD.md (none directly target VWAP_CONTINUATION filters). It complements live‑only setups (e.g., VWAP_CONTINUATION, GAP_AND_GO) and could be tested alongside them. No known overlap with existing filter_change candidates. If ratified, it would replace the current VWAP_CONTINUATION confirmation qualifier in params.json.
+
+<!-- PROVENANCE-MISSING: test_vwap_continuation_intraday_confirm.py -->

@@ -55,3 +55,5 @@ The VWAP_RSI_DIVERGENCE_REVERSAL setup captures short-term mean-reversion when p
 ## Pre‑existing leaderboard impact
 
 This candidate does not conflict with existing ranked candidates; it proposes a new trigger that can be evaluated independently. If successful, it would complement existing VWAP‑based strategies (e.g., VWAP_CONTINUATION) by adding a mean‑reversal layer. No overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

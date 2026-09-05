@@ -44,3 +44,5 @@ DRAFT CANDIDATE: REJECTED (INSUFFICIENT DATA)
 - **Reason**: Edge_capture < 771 (50% threshold) cannot be verified due to missing historical P&L data.  
 - **Final Score**: Cannot compute (requires edge_capture × aggregate_sharpe).  
 - **Action**: REJECT per OP-16 rule until data is available.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

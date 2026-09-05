@@ -53,3 +53,5 @@ Gym validators (all tests pass), walk-forward OOS positive (WF ratio >= 0.70), r
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing candidate in the leaderboard as it is a filter change to GAP_AND_GO, which is not currently in the leaderboard (as a armed setup). However, note that GAP_AND_GO is described in the playbook as WATCH-ONLY. This candidate would arm it with a VIX filter. It may complement candidates that are already armed (like BEARISH_REJECTION_RIDE_THE_RIBBON) by providing an alternative signal on gap days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

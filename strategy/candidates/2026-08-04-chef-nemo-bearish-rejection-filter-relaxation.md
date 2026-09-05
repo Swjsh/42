@@ -64,3 +64,5 @@ By removing the body clause and converting the HTF disagreement from a block to 
 ## Pre-existing leaderboard impact
 
 This candidate does not directly conflict with any existing leaderboard candidates as it modifies the BEARISH_REJECTION setup itself, which is not currently listed as a candidate (it is part of the base engine). However, it may affect the performance of other candidates that interact with BEARISH_REJECTION (e.g., filters that are downstream or upstream). Specifically, it may complement candidates that are designed to work with BEARISH_REJECTION (like the MIDDAY_TRENDLINE_GATE) by increasing the pool of trades they can filter. It may conflict with candidates that propose alternative bearish entry logic (e.g., BEARISH_REJECTION_MORNING watcher) by altering the base setup they observe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Bearish entries (BEARISH_REJECTION_RIDE_THE_RIBBON) exhibit higher edge when VIX
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements V14E_BEAR_ONLY_GATE and similar VIX-conditioned filters. May overlap with F8_BULL_VIX_GATE_REVAL but opposite direction (bearish vs bullish). Expected to be additive if thresholds are non-overlapping.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

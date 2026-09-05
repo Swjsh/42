@@ -60,3 +60,5 @@ This change will be implemented in `v14_enhanced_watcher.py` where the VIX condi
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) which already improves Sharpe without touching edge_capture. No direct conflict with J-RATIFIED candidates (MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as it targets a different filter dimension. May conflict with BEAR_SCORE_7_RELAXATION (rank 36) which relaxed bear score -- this tightens VIX conditions. Does not affect watcher-only candidates (e.g., BEARISH_REJECTION_MORNING). Safe to test alongside existing live filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ This analysis corresponds to leaderboard rank #2 (LIVE_PRICE_FIRST_BAR_TRIGGER).
 
 ---  
 *Note: Actual Stage-1 backtest results will populate this analysis upon grinder completion. All projections above are placeholders.*
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

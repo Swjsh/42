@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including OP-16 a
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are trigger/filter/watcher modifications; this is a new trigger type). May complement strategies that underperform in low-volatility environments by providing entry signals during compression phases. No overlap with current leaderboard candidates' logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

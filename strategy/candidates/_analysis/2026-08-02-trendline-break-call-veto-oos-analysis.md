@@ -55,3 +55,5 @@ The `trendline_break_call_veto` knob (default OFF) reads the `structure-state.js
 ## Pre-existing leaderboard impact
 
 This analysis supports the existing candidate WS4 [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md). Upon successful OOS A/B completion, the candidate's status should be updated from NEEDS-MORE-DATA to PROMISING or J-RATIFIED based on OP-16 edge_capture and final_score. No conflict with other candidates; complements structure-based vetoes like STRUCTURE_VETO_DIR_VS_TREND (rank ★).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

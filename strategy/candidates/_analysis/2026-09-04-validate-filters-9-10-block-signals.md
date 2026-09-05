@@ -58,3 +58,5 @@ Filters 9 (VIX bull hard cap) and 10 (min_triggers_bull) correctly block BULLISH
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; validates existing filter logic used by multiple ranked candidates (e.g., VIX_BULL_HARD_CAP_UNBLOCK, BULL_MIN_TRIGGERS_FLOOR_REVAL). Complementary to quality‑gate proposals that rely on filters 9/10 behaving as documented. No changes to params or engine; pure validation.
+
+<!-- PROVENANCE-MISSING: test_filters_9_10_block_logic.py -->

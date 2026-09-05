@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (mostly watches/gaps/other setups). Conceptually contrasts with GAP_AND_GO (which trades gap continuation) but GAP_AND_GO is currently WATCH-ONLY/unarmed, so no active overlap. Complements regime filters by adding a VWAP-based fade logic distinct from level-based or ribbon-based approaches.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

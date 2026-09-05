@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing rules in the leaderboard (candidates 1‑9). It is likely complementary, as it targets a different market condition (large gaps with VIX > 20) and could coexist with existing strategies that trade other setups. No conflict is anticipated unless the strategy begins to take trades on the same anchor days, which would require backtest to determine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

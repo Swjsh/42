@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION (LIVE) by targeting mean-reversion vs. continuation; does not conflict with structural gates (e.g., MIDDAY_TRENDLINE_GATE) as it operates on different time-of-day bias (morning deviation vs. midday structure). No overlap with existing trigger types in leaderboard (all are continuation/breakout based). May conflict with VOLATILITY_REGIME filters if VIX gate is too restrictive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

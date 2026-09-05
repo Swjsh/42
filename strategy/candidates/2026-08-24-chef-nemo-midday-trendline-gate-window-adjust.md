@@ -61,3 +61,5 @@ The original MIDDAY_TRENDLINE_GATE (11:30-14:00 ET) shows strong performance but
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements rank 21 (MIDDAY_TRENDLINE_GATE) by refining its window; no conflict with J-RATIFIED candidates (ranks 17, 21, 12) as it targets same setup class with parameter adjustment. Does not overlap with cross-ticker or DTE-focused candidates (ranks I, ★★). May interact with veto gates (ranks ★, RV) but operates on different time window.
+
+<!-- PROVENANCE-MISSING: test_midday_trendline_gate_window_adjust.py -->

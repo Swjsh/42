@@ -65,3 +65,5 @@ We will assess monotonicity of exp/tr and Sharpe across DTE buckets within each 
 ## Pre-existing leaderboard impact
 
 This analysis does not change the WEEKLY_DTE_NOT_0DTE candidate itself but informs its robustness. If regime checks reveal non-monotonic DTE lift (e.g., 2DTE underperforms 0DTE in high-VIX sideways), the candidate may require a regime-conditioned DTE override (e.g., only use 2DTE in low/medium VIX or trending markets). It complements the existing candidate by adding a regime-sensitivity lens; conflicts only if analysis shows the DTE lift is an artifact of specific regimes (e.g., driven solely by low-VIX periods). Current leaderboard ranks it ★★ (PROMISING) based on aggregate OOS exp/tr; this analysis could downgrade to NEEDS-MORE-DATA if regime weaknesses are found.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

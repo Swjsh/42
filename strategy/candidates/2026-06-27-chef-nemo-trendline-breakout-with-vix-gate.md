@@ -52,3 +52,5 @@ The mechanism involves identifying a trendline breakout on the 5-minute chart an
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAKOUT candidate. The VIX gate adds an additional layer of filtering, potentially improving the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

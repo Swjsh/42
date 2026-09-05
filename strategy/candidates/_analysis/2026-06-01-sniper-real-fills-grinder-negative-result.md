@@ -84,3 +84,5 @@ J's documented edge is **breakdown entries** (price below prior structure), not 
 **Recommendation:** Do not promote. The SNIPER strategy should continue with the existing leaderboard #15 parameters (`vol_mult=0.9, vix_lower=18.0, min_stars=2, prox=2.0`) which showed OOS-positive results. The real-fills grinder explored a different direction (require_break_above_open) that is structurally incompatible with J's documented edge.
 
 **Next step:** If J wants to continue SNIPER real-fills validation, explore tighter `vol_mult` (0.7-0.8) or different `premium_stop_pct` values, but **do not** add `require_break_above_open` filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

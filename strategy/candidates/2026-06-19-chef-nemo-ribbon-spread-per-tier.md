@@ -53,3 +53,5 @@ Gym validators must pass (all 67/67), walk-forward OOS/IS ratio >=0.70, real-fil
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements quality-gate candidates by adding a tier-specific filter. No known conflicts with candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -67,3 +67,5 @@ Before any promotion, the keeper must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates a grinder output. The top keeper’s edge_capture (506.55) would place it below the rejection threshold (771) on the leaderboard, so it would not appear. It conflicts with any candidate that relies on similar knob settings if those settings are shown to be overfit. No direct complement to existing leaderboard entries is evident without further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

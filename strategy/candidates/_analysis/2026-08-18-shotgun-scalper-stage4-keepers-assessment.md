@@ -63,3 +63,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This keeper would be REJECTED at the door per OP-16 rules and should not appear on leaderboard until edge_capture exceeds 771 via anchor-focused revisions. Complements existing candidates by highlighting the danger of optimizing for wide_pnl without anchor constraints.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

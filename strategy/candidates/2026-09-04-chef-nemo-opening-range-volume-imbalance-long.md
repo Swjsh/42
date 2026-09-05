@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with top 9 candidates in _LEADERBOARD.md (none use opening-range volume imbalance as primary trigger without price breakout requirement). May complement by adding alternative long-bias trigger for low-volatility, range-open sessions, distinct from ORB_RETEST_LONG which requires retest of breakout. Structural novelty reduces overlap risk with existing volatility/volume/gate candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

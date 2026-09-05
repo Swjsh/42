@@ -65,3 +65,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 This candidate is a new_trigger and does not directly conflict with any existing candidates in the leaderboard (which are mostly watcher gates, DTE studies, and exit changes). It may complement strategies that rely on volatility breakouts, but we must check for overlap in trade signals with existing triggers like the BEARISH_REJECTION_RIDE_THE_RIBBON. Without backtest, we cannot determine if it conflicts or complements. We note that the leaderboard's top candidates are mostly gates and structural changes, so this trigger may add a new source of trades.
 
 However, we must be honest: we do not know the impact without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

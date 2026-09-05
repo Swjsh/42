@@ -50,3 +50,5 @@ The pre-merge gate requires out-of-sample testing and real-fills testing to vali
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it represents a new trigger logic that can be combined with existing candidates to improve the overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

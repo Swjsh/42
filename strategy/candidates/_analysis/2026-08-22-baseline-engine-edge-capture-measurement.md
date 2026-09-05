@@ -61,3 +61,5 @@ Run the Stage-1 backtest via the autoresearch grinder harness on the current eng
 ## Pre-existing leaderboard impact
 
 This analysis establishes the baseline for all candidates in _LEADERBOARD.md. It does not conflict with any candidate; rather, it provides the reference point against which candidate edge_capture deltas are measured. All candidates currently list projected edge_capture relative to this baseline (e.g., STRUCTURE_VETO_DIR_VS_TREND shows delta=0). If our measurement differs from 780, all projected values in the leaderboard require rebasing.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/baseline_engine_edge_capture.json -->

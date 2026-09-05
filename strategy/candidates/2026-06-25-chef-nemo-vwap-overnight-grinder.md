@@ -53,3 +53,5 @@ The candidate needs to pass the following tests before merging:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate. The VWAP overnight grinder candidate provides a new trigger mechanism that can be used in conjunction with the existing candidates to improve overall performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

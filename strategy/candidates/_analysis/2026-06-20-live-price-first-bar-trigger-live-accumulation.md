@@ -65,3 +65,5 @@ To satisfy the OP-21 gate for LIVE_PRICE_FIRST_BAR_TRIGGER, we require:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new strategy that trades; it is a data collection effort to promote an existing candidate (LIVE_PRICE_FIRST_BAR_TRIGGER). It does not conflict with any existing candidates in the leaderboard. Instead, it supports the promotion of LIVE_PRICE_FIRST_BAR_TRIGGER from NEEDS-MORE-DATA to PROMISING by satisfying its OP-21 gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -60,3 +60,5 @@ The proposed mechanism must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The proposed mechanism may complement or conflict with existing candidates in the leaderboard, depending on their specific mechanisms and performance characteristics. Further analysis is needed to determine the potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

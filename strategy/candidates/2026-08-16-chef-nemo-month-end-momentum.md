@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with any existing candidates in the leaderboard. It complements time-based filters (e.g., V14E_BEAR_TIME_OF_DAY_GATE) by adding a calendar-day condition. It may overlap with watcher-only proposals like ORB_RETEST_LONG but operates on a different timeframe and trigger logic. No direct parameter or wiring changes are proposed that would interfere with existing live strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ Gym validators, walk-forward OOS test (WF ≥ 0.70), real-fills validation on to
 ## Pre-existing leaderboard impact
 
 This filter_change complements existing candidates (e.g., MIDDAY_TRENDLINE_GATE, VWAP_CONTINUATION) by adding a volatility condition; no direct conflict with top-9 leaderboard entries. It may interact with VOLATILITY-based candidates but remains orthogonal to structural gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

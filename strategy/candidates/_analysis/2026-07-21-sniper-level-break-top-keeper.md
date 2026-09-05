@@ -55,3 +55,5 @@ The sniper_overnight_grinder swept SNIPER_LEVEL_BREAK parameters to find a combi
 ## Pre‑existing leaderboard impact
 
 This analysis does not propose a new candidate; it interprets a grinder output. The top keeper would be REJECTED at the leaderboard door due to edge_capture < $771, so it does not conflict with any current leaderboard entries. It highlights the need to refocus on parameter sets that improve edge_capture on J’s anchor days rather than chasing wide‑sample P&L alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -35,3 +35,5 @@ NLWB should remain WATCH-ONLY until:
 3. Minimum 3 live wins accumulated per OP-21 gate
 
 The 5/20 loss is attributable to soft level selection (round-$5), not chart-stop configuration. Proper NLWB requires hard key levels.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

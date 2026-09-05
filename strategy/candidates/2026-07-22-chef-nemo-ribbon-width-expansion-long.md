@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates in _LEADERBOARD.md# (which are primarily watcher proposals, gates, or structural changes). It complements ribbon-based strategies (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON, BEARISH_REJECTION_RIDE_THE_RIBBON) by using ribbon width expansion as a momentum filter rather than price reclaim/rejection. No overlap in mechanism detected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

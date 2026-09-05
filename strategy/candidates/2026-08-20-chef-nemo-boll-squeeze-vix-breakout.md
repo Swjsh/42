@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates -- does not conflict with any current leaderboard entries. While BOLLINGER_SQUEEZE exists conceptually, this variant adds rising VIX and volume confirmation filters making it distinct. No overlap in trigger logic with current top candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE). May provide orthogonal edge if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

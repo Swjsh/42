@@ -70,3 +70,5 @@ This enforces the playbook's VIX confirmation rule as a hard gate. Uses existing
 - Does not affect bullish setups (ranks 12-15, 22-23) as filter is bear-side only
 - Neutral to [WEEKLY_DTE_NOT_0DTE] (Rank ★★) as DTE override operates post-entry
 </what tests need to pass: gym validators, walk-forward, real-fills>
+
+<!-- PROVENANCE-MISSING: test_bearish_vix_filter.py -->

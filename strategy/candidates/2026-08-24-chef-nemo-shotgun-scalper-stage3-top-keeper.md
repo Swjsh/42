@@ -62,3 +62,5 @@ Gym validators (all/81 PASS), walk-forward OOS validation (WF ≥ 0.70), real-fi
 ## Pre-existing leaderboard impact
 
 Would be REJECTED at door (edge_capture < 771) and not appear on leaderboard; no conflict with existing candidates (all have edge_capture ≥ 771) but adds no value due to OP-16 failure. Requires OOS walk-forward first to verify robustness before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

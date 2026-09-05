@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is independent of current leaderboard entries. It does not modify any existing trigger, filter, or exit logic; it proposes a new long‑only trigger that coexists with strategies like VWAP_CONTINUATION (which trades VWAP breaks in trending markets). No direct conflict identified; potential complement if it captures different market states.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

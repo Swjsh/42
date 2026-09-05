@@ -62,3 +62,5 @@ The filter is placed after the existing quality-lock and before the final entry 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing J-RATIFIED filters such as `MIDDAY_TRENDLINE_GATE` (rank 21) and `V14E_BEAR_TIME_OF_DAY_GATE` (rank 17) by addressing a different market regime (volatility level/trend). It does not conflict with them, as they operate on time-of-day and trendline dimensions. It may overlap conceptually with `VIX_BULL_HARD_CAP_UNBLOCK` (rank 22) but that filter applies to bullish entries only; our filter is bearish-specific, so they are orthogonal. No known conflicts with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_vix_confirmation_bear_entry_filter.py -->

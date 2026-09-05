@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (which use fixed named levels, VWAP, or structural levels); may complement by providing alternative mean-reversion signal in similar market conditions. No overlap in mechanism with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

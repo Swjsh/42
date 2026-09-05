@@ -55,3 +55,5 @@ When a bear setup signal (side=="P") fires, check the 5m VIX: if VIX is not risi
 ## Pre-existing leaderboard impact
 
 Complements `STRUCTURE_VETO_DIR_VS_TREND` (rank ★) by adding VIX character to bear entry veto; no overlap in mechanism (structure vs VIX). Does not conflict with any existing candidate; can be stacked after structure veto for additive effect.
+
+<!-- PROVENANCE-MISSING: test_vix_rising_bear_entry.py -->

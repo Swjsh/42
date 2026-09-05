@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** that does not directly modify any existing rules in the leaderboard. It complements existing VWAP‑based approaches (e.g., VWAP_CONTINUATION) by taking the opposite mean‑reversion side, potentially adding diversification. No direct conflict with current PROMISING or J‑RATIFIED candidates, but it will need to prove unique edge beyond those setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

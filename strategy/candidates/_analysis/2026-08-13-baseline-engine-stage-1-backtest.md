@@ -42,3 +42,5 @@
 ## Notes
 
 This analysis captures baseline performance for comparison with proposed changes. Edge capture of 780 is just above the 50% OP-16 floor (771), leaving little margin for degradation. Aggregate Sharpe of 4.340 is derived from the STRUCTURE_VETO_DIR_VS_TREND candidate's base value. Missing walk-forward OOS ratio and real-fills validation on the top-3 J days (4/29, 5/01, 5/04) prevent firm readiness assessment. Running the Stage-1 backtest via autoresearch grinder will fill these gaps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

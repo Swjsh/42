@@ -57,3 +57,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not modify existing strategies. It is complementary to bearish setups like BEARISH_REJECTION_RIDE_THE_RIBBON but targets gap-fill mean reversion rather than structural breaks. Without backtest data, overlap and potential conflicts with current leaderboard candidates (ranks 1-24) remain unknown. Intended to add uncorrelated short-biased trades rather than replace existing edges.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The pre-merge gate for this candidate includes the need for a Stage-1 backtest t
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the _LEADERBOARD.md file, as it is a new trigger branch. However, it may potentially impact the performance of other candidates that rely on the sniper real-fills validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

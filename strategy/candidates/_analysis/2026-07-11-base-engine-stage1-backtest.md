@@ -57,3 +57,5 @@ The base engine is the current production engine without any candidate changes. 
 ## Pre-existing leaderboard impact
 
 <Provides baseline for all candidate rankings. No conflict; establishes reference point for edge_capture and Sharpe comparisons.>
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

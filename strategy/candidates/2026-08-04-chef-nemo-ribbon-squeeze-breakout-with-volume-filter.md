@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; adds a new trigger type distinct from VWAP_CONTINUATION, GAP_AND_GO, and structure‑based gates. May complement existing filters if volume‑confirmed breakouts align with higher‑quality entries. No overlap with current watcher‑only or exit‑change proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; it is a new trigger type. It complements existing VIX‑gated entries (e.g., F8_BULL_VIX_GATE_REVAL) and RSI divergence watchers (RSI_DIVERGENCE_BULL_WATCHER) by requiring both conditions simultaneously and adding VWAP filter, offering a short‑side alternative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

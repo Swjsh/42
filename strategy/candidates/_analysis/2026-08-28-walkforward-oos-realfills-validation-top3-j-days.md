@@ -58,3 +58,5 @@ Running walk-forward out-of-sample (OOS) and real-fills validation on the three 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change to the engine; it is a validation step that complements existing candidates by providing OOS and real-fills measurements for the top 3 J days. It conflicts with no current leaderboard entry and can be used to validate or refute candidates that claim edge on J days. Results will inform future candidate ratings.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

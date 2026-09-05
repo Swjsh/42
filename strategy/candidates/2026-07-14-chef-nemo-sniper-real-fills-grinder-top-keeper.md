@@ -55,3 +55,5 @@ Gym validators must pass, walk-forward OOS test with Sharpe > 0 and profit facto
 ## Pre-existing leaderboard impact
 
 Unknown -- requires comparison to current leaderboard candidates. Likely conflicts due to negative edge_capture (auto-reject per OP-16) and lack of OOS validation. Does not complement existing candidates; would degrade performance if merged.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

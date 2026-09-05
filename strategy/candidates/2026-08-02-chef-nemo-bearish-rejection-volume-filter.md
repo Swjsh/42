@@ -54,3 +54,5 @@ Gym validators must pass, walk-forward OOS must be positive, real-fills validati
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate complements the existing BEARISH_REJECTION_RIDE_THE_RIBBON setup (which is the core strategy, not explicitly in the leaderboard as a candidate but underlying many). It does not conflict with any current leaderboard candidate as it is a filter on an existing setup. It may overlap with the MIDDAY_TRENDLINE_GATE and V14E_BEAR_TIME_OF_DAY_GATE, but those are time-based filters while this is volume-based. No direct conflict with top 9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

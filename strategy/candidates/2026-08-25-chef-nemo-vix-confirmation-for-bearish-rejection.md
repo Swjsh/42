@@ -56,3 +56,5 @@ Add a pre-entry filter that checks the current VIX value (from the same bar's VI
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX_BULL_HARD_CAP_UNBLOCK (rank 22) which addresses bull‑side VIX gating. Orthogonal to structural gates (e.g., MIDDAY_TRENDLINE_GATE, BEARISH_REJECTION_MORNING_WATCHER) and likely additive if VIX regime is independent of those filters. No expected interference with J‑ratified candidates (e.g., V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

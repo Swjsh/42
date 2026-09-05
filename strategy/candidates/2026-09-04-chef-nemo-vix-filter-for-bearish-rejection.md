@@ -55,3 +55,5 @@ Entry trigger remains unchanged: require level rejection + EMA ribbon flip (fast
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate proposes a filter change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which underlies many watcher-quality-gate candidates (e.g., V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE). It does not conflict directly as it modifies the base entry logic rather than adding a new watcher; however, it may interact with existing quality gates (e.g., could be redundant with VIX_BULL_HARD_CAP_UNBLOCK for puts). Complementary to candidates that rely on VIX regime (e.g., VIX_BULL_HARD_CAP_UNBLOCK) but may duplicate effect. No direct conflict with leaderboard ranks as it is a new filter_change type.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

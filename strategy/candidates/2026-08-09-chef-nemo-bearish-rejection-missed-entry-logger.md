@@ -56,3 +56,5 @@ The watcher will monitor for the BEARISH_REJECTION_RIDE_THE_RIBBON setup trigger
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard candidates as it is a watcher proposal for logging missed entries, not a direct engine change. It complements candidates that aim to improve entry logic (e.g., BEARISH_REJECTION_MORNING) by providing data on missed opportunities.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

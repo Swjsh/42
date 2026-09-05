@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (opening‑range/VWAP/ribbon/volume break) that does not overlap with any of the existing top‑9 candidates (which are primarily structural, DTE, or watcher‑gate proposals). It is complementary and does not conflict with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

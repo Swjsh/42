@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (evening‑session ribbon‑reversal short) that does not overlap with existing triggers such as BEARISH_REJECTION_RIDE_THE_RIBBON (morning‑session level rejection) or VWAP_CONTINUATION (morning VWAP‑aligned breakout/pullback). It complements the current library by targeting a different time‑of‑day and pattern class, so it does not conflict with any ranked candidate. Should it prove effective, it could add a new orthogonal edge to the ensemble.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

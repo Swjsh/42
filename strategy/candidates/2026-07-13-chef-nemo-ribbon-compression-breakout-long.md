@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-24 in _LEADERBOARD.md as it introduces a new trigger type (ribbon compression breakout) not currently represented. May complement existing volatility/regime filters if proven effective.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

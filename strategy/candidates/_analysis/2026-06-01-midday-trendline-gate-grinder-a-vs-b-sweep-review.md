@@ -47,3 +47,5 @@ Per leaderboard status, the grinder A vs B sweep was the remaining gate. The can
 9/10 — The grinder sweep confirms the gate delivers material improvement. The midday autopsy provides mechanistic explanation (1-trigger trendline entries during 11:30-14:00 are the loss driver). Anchor preservation verified. Only gym validation remains before J ratification.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ No mechanism change – this analysis reflects the engine as‑is (params.json r
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis is neutral; it does not propose any change to the engine. It serves as a baseline against which all candidates in the leaderboard are measured. No conflict – it is the reference point for edge_capture and aggregate_sharpe calculations used to rank candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing candidate in the leaderboard. It complements existing VWAP‑based ideas (e.g., VWAP_CONTINUATION) by adding filters, but conflicts are unknown until backtested. No current leaderboard entries claim exclusivity over VWAP‑pullback logic, so likely no direct conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

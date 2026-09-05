@@ -58,3 +58,5 @@ From the leaderboard, we know the baseline engine's edge_capture on J days is 78
 
 This analysis provides baseline context for all candidates. No conflict; complements leaderboard by highlighting missing validation data needed to assess proposed changes against OP-16 anchors.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

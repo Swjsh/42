@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly modify any existing gate, filter, or exit logic in the leaderboard. It complements existing watchers (e.g., ORB_RETEST_LONG) by offering an alternative entry condition that does not require a retest. No known conflict with current PROMISING or J‑RATIFIED candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

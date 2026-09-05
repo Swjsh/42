@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9 in _LEADERBOARD.md; introduces a new trigger based on VIX intraday mean reversion not present in current registry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

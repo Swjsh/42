@@ -51,3 +51,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate/structural proposals). Complements by adding a new trigger class for short entries, but requires validation to avoid redundancy with existing short-setup logic (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON). No overlap in trigger mechanics with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

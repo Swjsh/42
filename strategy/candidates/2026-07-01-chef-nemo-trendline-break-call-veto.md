@@ -52,3 +52,5 @@ The gate checks for a bearish structure confirmation after a trendline break. If
 ## Pre-existing leaderboard impact
 
 Complements candidates 1-9 in _LEADERBOARD.md, particularly STRUCTURE_VETO_DIR_VS_TREND.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

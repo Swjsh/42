@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by adding stricter entry filters; does not conflict with structural or regime-based candidates in leaderboard. May overlap with BULLISH_RECLAIM_RIDE_THE_RIBBON but differs in entry trigger (VWAP pullback vs. break above ribbon). No direct conflict with top-ranked candidates as it targets a different intraday window (09:45-12:00 EST vs. all-day for some).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

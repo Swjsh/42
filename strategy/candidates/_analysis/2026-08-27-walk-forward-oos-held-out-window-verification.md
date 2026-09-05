@@ -61,3 +61,5 @@ To verify, we would run a walk-forward out-of-sample backtest using the engine's
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change, so it does not conflict with existing candidates. It complements the leaderboard by providing a unified verification criterion (zero trades on loser days + slippage <20%) that could be used to evaluate future candidates. No current leaderboard candidate explicitly reports this joint verification over the last 4 months.
+
+<!-- PROVENANCE-MISSING: test_walkforward_oos_held_out.py -->

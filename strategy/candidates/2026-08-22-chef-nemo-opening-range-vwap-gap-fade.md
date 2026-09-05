@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger that complements existing strategies (e.g., GAP_AND_GO trades gap continuation; this fades gaps). No direct conflict with current leaderboard entries as it targets a different market behavior (mean reversion vs. momentum). Would occupy a distinct niche in the strategy pool if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

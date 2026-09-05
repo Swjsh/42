@@ -39,3 +39,5 @@ The **work cadence windows** defined in the doctrine (Live, After-4pm, Premarket
 **Unknown:** How often do theta/delta factors cause edge capture to diverge from SPY price trends? Are there regime-specific adjustments (e.g., VIX levels) to rebalance option exposure?  
 
 **Conclusion:** C3 highlights a critical gap: the doctrine assumes SPY price edge is a proxy for option edge, but **no mechanism** exists to dynamically adjust for theta/delta asymmetry. This could lead to overexposure in volatile regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ We need to quantify the engine's edge capture and concentration on the three J w
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a strategy change; it is a validation routine to quantify existing engine edge on J days. It complements all candidates by providing a standardized measurement of OP-16 edge capture and concentration. No conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

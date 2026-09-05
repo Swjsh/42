@@ -58,3 +58,5 @@ Grinder Stage‑1 must produce a candidate that passes:
 ## Pre-existing leaderboard impact
 
 This filter complements existing VIX‑related candidates (e.g., V14E_BEAR_ONLY_GATE, VIX_BULL_HARD_CAP_UNBLOCK) and can be stacked with them. It does not conflict with top‑ranked candidates like BEARISH_SWEEP_BLOCKER (rejected) or LIVE_PRICE_FIRST_BAR_TRIGGER (different trigger type). It may overlap with watcher‑only proposals (e.g., ORB_NARROW_OR_GATE) but operates as a direct filter change, so it is orthogonal and likely additive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

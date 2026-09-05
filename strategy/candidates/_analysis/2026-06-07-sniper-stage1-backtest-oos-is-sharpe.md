@@ -70,3 +70,5 @@ We hypothesize that the sniper strategy (SNIPER_LEVEL_BREAK + VIX>=18 + VIX>5d_a
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it provides the baseline OOS/IS Sharpe ratio needed to evaluate whether the sniper strategy (e.g., SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP) meets promotion thresholds. If the OOS/IS Sharpe ratio is sufficiently high, the sniper candidate can advance to RATIFICATION_READY; otherwise, further refinement is required.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

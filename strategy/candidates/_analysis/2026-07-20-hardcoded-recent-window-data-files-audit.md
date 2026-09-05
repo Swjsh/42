@@ -59,3 +59,5 @@ Replace all hardcoded references to recent-window CSV files (e.g., patterns like
 ## Pre-existing leaderboard impact
 
 No conflict with existing candidates; this is a purity fix that improves backtest integrity for all strategies. May resolve false "data-blocked" rejections in candidates that relied on recent-window data (if any exist). Complements all candidates by ensuring fair evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -64,3 +64,5 @@ The structure veto (Rank ★) removes wrong-way trades by blocking PUT entries i
 - No conflict with Rank 21 (MIDDAY_TRENDLINE_GATE): different filter logic (structure vs trendline); can stack.
 - Neutral on Rank 12 (V14E_PARAM_SWEEP_26K): operates on different setup (v14e vs ribbon ride).
 - Does not affect watcher-only candidates (ranks 3-11, 13-20).
+
+<!-- PROVENANCE-MISSING: test_midday_structure_veto.py -->

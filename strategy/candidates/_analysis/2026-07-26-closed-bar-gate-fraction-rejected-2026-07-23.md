@@ -52,3 +52,5 @@ We need to run the backtest on 2026-07-23 using the level-family harness and ver
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidates; it is a diagnostic tool.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

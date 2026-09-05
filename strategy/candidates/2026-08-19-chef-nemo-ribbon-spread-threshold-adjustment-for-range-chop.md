@@ -66,3 +66,5 @@ Low confidence because the analysis is based on a single day's range-chop period
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate does not directly conflict with any existing leaderboard candidates as it is a filter adjustment. It may complement candidates that rely on ribbon spread (e.g., MAX_RIBBON_DUR_8) by providing a dynamic threshold.
+
+<!-- PROVENANCE-MISSING: test_ribbon_spread_filter_threshold.py -->

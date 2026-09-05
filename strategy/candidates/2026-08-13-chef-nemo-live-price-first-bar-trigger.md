@@ -51,3 +51,5 @@ Grinder harness Stage-1 completion (min 80% pass rate), walk-forward OOS positiv
 ## Pre-existing leaderboard impact
 
 Complements existing NEEDS-MORE-DATA candidates; does not conflict with PROMISING/J-RATIFIED items. Aims to promote this candidate from NEEDS-MORE-DATA to PROMISING upon successful validation. No overlap with active triggers (e.g., VWAP_CONTINUATION, GAP_AND_GO) as it operates in premarket/RTH transition window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

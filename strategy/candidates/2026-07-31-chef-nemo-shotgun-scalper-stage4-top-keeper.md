@@ -66,3 +66,5 @@ The shotgun_scalper_stage4 grinder identified a parameter combination that impro
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard (all candidates have edge_capture ≥771). This candidate fails OP-16 floor and requires OOS walk-forward before reconsideration. Complements structure_veto_dir_vs_trend (Rank ★) by focusing on exit/entry timing rather than structural veto. No overlap with existing live-eligible candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

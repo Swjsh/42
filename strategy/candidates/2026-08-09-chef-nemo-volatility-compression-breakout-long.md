@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not duplicate any existing trigger in the leaderboard (ranks 1‑9). It complements existing volatility‑based gates (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) by adding a volatility‑squeeze precondition. No direct conflict identified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

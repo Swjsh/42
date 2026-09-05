@@ -55,3 +55,5 @@ The LIVE_PRICE_FIRST_BAR_TRIGGER is a new trigger branch that enters on the firs
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is currently at rank 2 on the leaderboard with status NEEDS-MORE-DATA. If walk-forward passes, it may move up. It does not conflict with other candidates as it is a new trigger branch.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

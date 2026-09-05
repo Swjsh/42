@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates in the leaderboard as it is a new trigger based on VWAP squeeze breakout, distinct from VWAP_CONTINUATION (which trades VWAP reclaims after a pullback). It may complement existing strategies by providing additional long entries in low-volatility environments. No known overlap with current leaderboard entries 1-24.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

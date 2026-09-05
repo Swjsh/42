@@ -64,3 +64,5 @@ The SNIPER_LEVEL_BREAK trigger with tightened parameters (higher vol_mult, stric
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with the leaderboard's OP-16 gate: its edge_capture (229.63) is well below the 771 threshold required for inclusion. It would be REJECTED if evaluated on J anchors. It does not complement existing candidates because it degrades performance on the source-of-truth days that the leaderboard is designed to protect. It may be useful as a regime filter for non-J days only, but would require a quality gate that disables it on J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

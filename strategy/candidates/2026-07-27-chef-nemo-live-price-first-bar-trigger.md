@@ -56,3 +56,5 @@ gym validators (9/9 PASS), walk-forward OOS positive (exp/tr > $0.50), real-fill
 ## Pre-existing leaderboard impact
 
 Direct update to #2 LIVE_PRICE_FIRST_BAR_TRIGGER (currently NEEDS-MORE-DATA). Complements existing candidates; no conflict with top-5. Adds trigger diversity without altering core logic. If validated, could replace lower-confidence triggers like V14E_BEAR_ONLY_GATE (watcher-only).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

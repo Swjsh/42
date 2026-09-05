@@ -67,3 +67,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing leaderboard candidates as it introduces a distinct trigger condition (VIX-low level sweep with volume/close filters). It may complement existing strategies by providing additional entry signals in low-VIX choppy conditions (e.g., unlike WEEKLY_DTE_NOT_0DTE which is a structural DTE finding, or VWAPCONT_DTE_OVERRIDE_2DTE which is a wiring proposal), but would require integration testing to ensure no interference when running concurrently. Currently, no overlap in trigger logic with top leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

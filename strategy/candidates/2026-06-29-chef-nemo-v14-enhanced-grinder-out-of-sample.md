@@ -53,3 +53,5 @@ The v14_enhanced_grinder strategy can be improved by running out-of-sample testi
 ## Pre-existing leaderboard impact
 
 This candidate complements candidates 1-9 in _LEADERBOARD.md, as it is a new trigger branch for the v14_enhanced_grinder strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

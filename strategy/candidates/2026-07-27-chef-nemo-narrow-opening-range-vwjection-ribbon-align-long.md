@@ -82,3 +82,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates as it introduces a new trigger type. May complement ORB_NARROW_OR_GATE (which focuses solely on OR range) by adding VWAP rejection and ribbon alignment conditions. No direct overlap with current leaderboard entries 1-25.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

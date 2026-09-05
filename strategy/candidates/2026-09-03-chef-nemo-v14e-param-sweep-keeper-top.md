@@ -62,3 +62,5 @@ We are trying to capture edge by tightening profit-taking and exit parameters in
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥771). This keeper’s OP-16 edge_capture of 473.77 is below rejection threshold. If J day performance were improved via complementary filters (e.g., volatility regime detection), it could potentially supplement structure-based vetoes but requires significant rework. Current form is not leaderboard-eligible.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

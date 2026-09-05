@@ -51,3 +51,5 @@
 - **Unknowns**  
   - No detail on **how** weekly metrics are computed (e.g., use of paper vs. live data).  
   - Unclear if **monthly rule reviews** include stakeholder input or are unilaterally updated.
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

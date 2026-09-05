@@ -56,3 +56,5 @@ The hypothesis is that increasing entry quality filters (higher volume multiplie
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to compute edge_capture; if edge_capture <771 (OP-16 rejection floor) candidate would not appear on leaderboard; if ≥771 would be ranked by final_score = edge_capture × aggregate_sharpe. Current leaderboard shows no candidates with edge_capture below 771, suggesting this candidate likely underperforms the rejection threshold given losing performance on 4/29 and missing 5/01 data. ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

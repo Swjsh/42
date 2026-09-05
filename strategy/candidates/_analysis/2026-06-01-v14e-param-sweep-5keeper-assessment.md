@@ -105,3 +105,5 @@ If further v14e parameter exploration is desired:
 3. Do not count 5/12 as OP-16 progress — it's outside the J source-of-truth
 
 **No candidate file should be written for this grinder output.**
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

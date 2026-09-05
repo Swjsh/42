@@ -60,3 +60,5 @@ The trigger fires on the bar where both conditions are satisfied and the BEARISH
 ## Pre-existing leaderboard impact
 
 This candidate complements existing watcher‑quality gates (e.g., ORB_NARROW_OR_GATE, V14E_BEAR_ONLY_GATE) by adding a trigger‑level filter rather than a watcher‑level filter. It does not conflict with any ranked candidate in the leaderboard, as none currently combine narrow ORB with bearish RSI divergence for BEARISH_REJECTION entries. It may be stacked alongside existing gates after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

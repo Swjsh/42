@@ -65,3 +65,5 @@ The 2DTE override for VWAP continuation (which shifts entries from 0DTE to 2DTE 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements VWAPCONT_DTE_OVERRIDE_2DTE (rank HOLD) by adding a regime filter to potentially rescue its degraded performance. Does not conflict with top-ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it targets a different setup (VWAP continuation). May conflict if VIX filter proves ineffective, wasting complexity.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

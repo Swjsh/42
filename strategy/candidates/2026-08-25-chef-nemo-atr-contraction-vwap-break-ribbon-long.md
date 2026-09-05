@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type with no overlap in mechanics with existing candidates (e.g., VWAP_CONTINUATION, BEARISH_REJECTION). It does not modify any existing gates or filters, so no direct conflict. Impact on leaderboard depends entirely on Stage-1 backtest results showing edge capture on J's anchor days. If it shows positive edge on winners and reduced loss on losers, it could complement existing strategies; if not, it remains independent. No known redundancy with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

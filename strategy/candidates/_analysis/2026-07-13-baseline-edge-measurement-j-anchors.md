@@ -53,3 +53,5 @@ Run a Stage-1 backtest of the current engine (no parameter or logic changes) ove
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change; it serves as a measurement baseline. It complements all existing candidates by providing the ground-truth edge_capture against which their delta can be assessed. No conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ gym validators (all tests pass), walk-forward OOS positive with WF >= 0.70, real
 ## Pre-existing leaderboard impact
 
 Complements existing WEEKLY_DTE_NOT_0DTE (1DTE and 2DTE) candidates; does not conflict with any current leaderboard entries. Extends the DTE spectrum study.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

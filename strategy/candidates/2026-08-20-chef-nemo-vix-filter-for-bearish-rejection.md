@@ -58,3 +58,5 @@ Entry logic: existing BEARISH_REJECTION_RIDE_THE_RIBBON trigger (level rejection
 ## Pre-existing leaderboard impact
 
 This candidate complements existing BEARISH_REJECTION_RIDE_THE_RIBBON‑related work (e.g., BEARISH_SWEEP_BLOCKER, MIDDAY_TRENDLINE_GATE) by adding a regime filter. It does not conflict with any leaderboard candidate because it modifies only the entry condition of an existing setup, not a new trigger or exit. It may stack with quality‑gate candidates (e.g., V14E_BEAR_ONLY_GATE) if both are enabled.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_for_bearish_rejection.py -->

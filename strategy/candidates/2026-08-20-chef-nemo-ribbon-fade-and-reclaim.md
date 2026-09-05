@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger type distinct from existing entries (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON requires a rejection candle before entry). It does not conflict with current leaderboard candidates (which are primarily filters, exits, or other trigger variations) and could complement them by adding a mean-reversion entry signal. No overlap detected with candidates 1-24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

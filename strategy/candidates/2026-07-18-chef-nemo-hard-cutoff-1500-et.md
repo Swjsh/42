@@ -50,3 +50,5 @@ Gym validators must pass (specifically, we will add a test for the time cut-off)
 ## Pre-existing leaderboard impact
 
 This candidate complements existing candidates by adding a time-based filter that does not conflict with signal-based filters (e.g., VWAP continuation, structure veto). It is orthogonal to most candidates in the leaderboard and should not cause conflicts.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

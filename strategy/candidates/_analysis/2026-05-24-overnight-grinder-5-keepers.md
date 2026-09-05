@@ -97,3 +97,5 @@ The input JSON was truncated after Keeper #2's combo parameters. Cannot assess k
 ## Pre-existing leaderboard impact
 
 This grinder output does not conflict with existing candidates. The low WR profile is distinct from the higher-WR watcher gates (ORB_NARROW_OR_GATE at 81% WR, V14E_BEAR_ONLY_GATE at 58.5% WR). However, if any of keepers 2-5 show better WR + complete J winner capture, they should be evaluated against the existing V14E_PARAM_SWEEP_26K candidate (which already passed OOS + real-fills).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

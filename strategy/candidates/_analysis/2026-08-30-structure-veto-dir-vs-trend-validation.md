@@ -45,3 +45,5 @@ We ran the Stage-1 backtest via the autoresearch grinder harness for the candida
 ## Impact on leaderboard
 
 This candidate is currently ranked ★ with status PROMISING. Validation confirms the projected edge_capture and Sharpe improvement. No conflict with existing candidates; complements by improving risk-adjusted returns without affecting J anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

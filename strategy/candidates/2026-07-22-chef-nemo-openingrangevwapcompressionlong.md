@@ -65,3 +65,5 @@ Exit logic:
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with bearish-focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) as it is long-only. It may complement bullish candidates like BULLISH_RECLAIM_RIDE_THE_RIBBON if it captures different market conditions. However, it does not address the OP-16 anchor days (which are bearish) and thus would not improve edge_capture for those days without additional bearish logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

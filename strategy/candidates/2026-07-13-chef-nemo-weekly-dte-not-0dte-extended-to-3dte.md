@@ -59,3 +59,5 @@ Same directional signal (vwap_continuation) as base candidate: enter at next bar
 ## Pre-existing leaderboard impact
 
 Complements [WEEKLY_DTE_NOT_0DTE](2026-07-07-193737-weekly-dte-not-0dte.md) by extending DTE study beyond 2DTE bucket. No engine changes proposed; purely analytical candidate. Does not conflict with any existing candidate (all are engine modifications or watchers). May inform future DTE override proposals (e.g., VWAPCONT_DTE_OVERRIDE_3DTE) if monotone trend holds. Shares same gym validators and OP-16 anchor re-score methodology as base candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

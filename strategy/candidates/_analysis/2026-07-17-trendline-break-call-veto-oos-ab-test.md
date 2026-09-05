@@ -55,3 +55,5 @@ Total estimated edge_capture increase: +$165.
 ## Pre-existing leaderboard impact
 
 This candidate currently ranks WS4 with status NEEDS-MORE-DATA. If OOS test shows positive edge_capture increase and passes gates, it may move to PROMISING. It does not conflict with existing J-RATIFIED candidates; complements them by filtering losing CALLs.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

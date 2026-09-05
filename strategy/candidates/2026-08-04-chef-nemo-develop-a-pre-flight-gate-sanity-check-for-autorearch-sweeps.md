@@ -91,3 +91,5 @@ Before launching a full parameter sweep, run a limited pilot (e.g., 10 random pa
 ## Pre-existing leaderboard impact
 
 No conflict — this candidate is a research‑automation safeguard and does not modify any existing strategy logic, indicators, or risk rules. It complements all current candidates by preventing futile sweeps that would otherwise dilute leaderboard signal.
+
+<!-- PROVENANCE-MISSING: test_autoresearch_preflight_gate.py -->

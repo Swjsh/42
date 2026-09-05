@@ -60,3 +60,5 @@ Modify the EXIT_ALL_RIBBON_FLIP_BACK logic in the v14e evaluator:
 ## Pre-existing leaderboard impact
 
 This candidate proposes an exit_change to the existing BEARISH_REJECTION_RIDE_THE_RIBBON (and potentially bull) logic. It does not introduce a new trade class or modify entry triggers, so it should not conflict with existing watcher‑only candidates (e.g., ORB_NARROW_OR_GATE, V14E_BEAR_TIME_OF_DAY_GATE). It may complement candidates that refine entry quality (e.g., MIDDAY_TRENDLINE_GATE) by improving exit discipline. No direct overlap with current leaderboard entries is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

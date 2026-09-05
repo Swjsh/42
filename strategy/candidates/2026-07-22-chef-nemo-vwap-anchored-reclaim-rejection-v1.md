@@ -50,3 +50,5 @@ gym validators must pass; walk-forward OOS test with edge_capture > 0; real-fill
 ## Pre-existing leaderboard impact
 
 This candidate's edge_capture (40.01) is far below the 771 threshold for leaderboard inclusion; it would be REJECTED at the door. It does not conflict with existing leaders but offers no meaningful edge capture on J's anchor days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

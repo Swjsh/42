@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any current leaderboard entries. It introduces a new trigger type (bearish RSI divergence + EMA ribbon cross) that is not represented in the existing watchers or filters. It may complement the existing `RSI_DIVERGENCE_BULL_WATCHER` by adding the bearish counterpart with an additional ribbon‑confirmation filter, potentially providing a symmetric short‑side edge if validated. No overlap with existing quality gates, exit changes, or watcher proposals is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

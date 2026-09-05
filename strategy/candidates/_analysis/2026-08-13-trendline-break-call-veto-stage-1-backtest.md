@@ -66,3 +66,5 @@ The TRENDLINE_BREAK_CALL_VETO filter avoids counter-trend CALL entries on bearis
 - Complements ★ [STRUCTURE_VETO_DIR_VS_TREND] (Rank ★): Both use market_structure.py but different veto logic (this blocks CALLs on bearish breaks; that blocks P-in-uptrend/C-in-downtrend). No conflict; can stack.
 - Complements WS4 [TRENDLINE_BREAK_CALL_VETO] (Rank WS4): This is the same candidate; analysis validates its NEEDS-MORE-DATA status.
 - No conflict with top-ranked candidates (I, ★★, HOLD) as they operate on different signals (QQQ divergence, DTE override, VWAP continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

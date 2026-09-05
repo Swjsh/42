@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not directly conflict with existing candidates in _LEADERBOARD.md; it introduces a new trigger class (ATR‑based compression + ribbon alignment + volume filter) distinct from the current triggers (e.g., QQQ divergence, VWAP continuation, structure veto). If validated, it could complement existing strategies by providing entries in low‑volatility regimes where other triggers may be silent.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

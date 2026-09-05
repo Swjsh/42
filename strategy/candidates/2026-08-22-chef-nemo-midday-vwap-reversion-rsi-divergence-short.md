@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger that does not modify any existing watcher, gate, or exit logic. It operates independently of the candidates currently ranked 1‑9 in _LEADERBOARD.md (which are mostly watcher re‑validations, DTE studies, and structural gates). Therefore it is orthogonal and does not conflict with any existing leaderboard entry; it could complement the portfolio if proven to add uncorrelated short‑side edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

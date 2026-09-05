@@ -65,3 +65,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new long‑side trigger that does not modify any existing watcher, filter, or exit rule. It therefore does not conflict with the current leaderboard entries (which are predominantly watcher quality gates, structural filters, or parameter tweaks). If validated, it would add a distinct long‑side strategy that could complement existing short‑biased setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by providing diversification across direction and setup type. No direct overlap with any ranked candidate 1‑9 is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

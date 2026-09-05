@@ -53,3 +53,5 @@ Not applicable for analysis block.
 ## Pre-existing leaderboard impact
 
 This analysis establishes the baseline (edge_capture=780, Sharpe=4.340) against which all leaderboard candidates are measured. It confirms the baseline exceeds the OP-16 edge_capture floor of 771 (50% of 1,542) and provides the reference point for delta calculations in candidate proposals. No conflict exists; it is the foundational reference for the leaderboard's ranking logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

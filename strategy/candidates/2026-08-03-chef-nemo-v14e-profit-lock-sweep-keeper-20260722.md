@@ -51,3 +51,5 @@ Need to pass: walk-forward OOS Sharpe ≥0.70, real-fills validation on top 3 J 
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates as it fails edge_capture floor; would be REJECTED if submitted. Complements quality-gate candidates by exploring exit mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (gap‑fade with VWAP/RSI) that is distinct from existing triggers in the leaderboard. The closest existing idea is GAP_AND_GO, which trades gap continuation rather than fade. Therefore, GAP_FADE_WITH_VWAP_RETEST_AND_RSI_DIVERGENCE is likely complementary—it would add a contrasting logic set for gap environments without directly overriding or conflicting with current top‑ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND). No parameter or wiring changes to existing proposals are implied, so leaderboard impact is neutral pending empirical validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

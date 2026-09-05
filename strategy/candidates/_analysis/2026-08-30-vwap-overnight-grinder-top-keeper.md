@@ -43,3 +43,5 @@ No clear improvement drivers; changes appear to overfit to non-anchor day noise.
 
 ## Pre-existing leaderboard impact
 No impact — candidate rejected at OP-16 gate (edge_capture < 771) per leaderboard rules. Does not conflict with existing candidates (all have edge_capture ≥ 771). Would not appear on leaderboard even if promoted (fails threshold). Complements existing research by highlighting VWAP_overnight approach's inability to capture J's structural edge without significant refinement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

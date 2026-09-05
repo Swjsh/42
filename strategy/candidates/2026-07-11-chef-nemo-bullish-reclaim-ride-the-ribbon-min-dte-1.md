@@ -50,3 +50,5 @@ gym validators (for DTE≥1 contract selection logic), walk-forward OOS test, re
 ## Pre-existing leaderboard impact
 
 complements general DTE findings (e.g., WEEKLY_DTE_NOT_0DTE) by applying the DTE lever to the BULLISH_RECLAIM_RIDE_THE_RIBBON setup; no direct conflict with existing candidates (different setup scope)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

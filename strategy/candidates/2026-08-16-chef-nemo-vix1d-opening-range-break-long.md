@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing ORB_RETEST_LONG (watcher-only) by taking an initial breakout approach with VIX1D/volume filters rather than retest. No direct conflict with current leaderboard candidates (which are primarily watcher proposals, DTE studies, or structural gates). Adds a new long-trigger candidate to the pipeline.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

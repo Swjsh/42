@@ -51,3 +51,5 @@
 ## Pre-existing leaderboard impact  
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 This analysis characterizes the baseline engine against which all leaderboard candidates are ranked. It does not conflict with any candidate; rather, it provides the reference point for edge_capture, Sharpe, and final_score calculations. Candidates are evaluated relative to this baseline (e.g., STRUCTURE_VETO_DIR_VS_TREND reports baseline edge_capture=780, Sharpe=4.340). No impact on leaderboard rankings; serves as implicit foundation for all open candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

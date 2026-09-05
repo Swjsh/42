@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION by trading mean reversion vs. continuation. No overlap in trigger logic with current leaderboard entries (which are primarily watcher revalidations, DTE studies, and structural gates). May provide directional diversity if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

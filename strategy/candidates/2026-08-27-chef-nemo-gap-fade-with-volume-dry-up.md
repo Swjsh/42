@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements GAP_AND_GO (watcher-only) by providing inverse logic; conflicts with none in leaderboard as it targets gap fading vs. continuation. No direct overlap with existing trigger-based candidates (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER). May compete for similar market conditions but offers orthogonal edge hypothesis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

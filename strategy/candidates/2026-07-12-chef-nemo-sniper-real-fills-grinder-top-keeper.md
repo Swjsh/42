@@ -50,3 +50,5 @@ Gym validators must pass; walk-forward OOS test with Sharpe ≥0.70 and positive
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have positive edge_capture); this combo underperforms baseline and would be rejected at OP-16 edge_capture <771 floor; complements only as a negative example of what not to do.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ To consider this analysis actionable, the following must be completed:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new strategy candidate; it merely evaluates an existing parameter set. It therefore does not conflict with or complement any candidates on the leaderboard. Its purpose is to close the loop on the SNIPER Stage‑2 grinder outcome and inform whether the keeper params should be archived as regime‑overfit. No changes to the leaderboard are required.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

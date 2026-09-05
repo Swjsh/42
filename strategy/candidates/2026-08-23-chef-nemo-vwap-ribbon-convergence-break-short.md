@@ -64,3 +64,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements VWAP_CONTINUATION (rank HOLD) by trading the opposite mean-reversion edge when ribbon is compressed and price is extended; no direct conflict with top-9 candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

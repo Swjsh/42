@@ -62,3 +62,5 @@ It captures P&L primarily on 5/04 ($670.6) and two entries on 5/07 ($74.29 each)
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate but evaluates an existing grinder keeper. Since the keeper's edge_capture (670.6) is below the OP-16 floor of 771, it would be rejected at the door of the leaderboard and not appear in the rankings. It does not conflict with current leaderboard candidates as it does not meet the inclusion criteria.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

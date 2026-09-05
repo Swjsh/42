@@ -65,3 +65,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing leaderboard entries as a new trigger mechanism. It does not conflict with current candidates (which are primarily filters, gates, or alternative trade classes like VWAP_CONTINUATION or ORB-based setups). The mechanism is distinct from ORB_RETEST_LONG by requiring VWAP reclamation with volume spike and EMA alignment, adding institutional confirmation layers not present in the registry. No direct overlap with ranked candidates 1-17 observed in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

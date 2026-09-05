@@ -73,3 +73,5 @@ Exit rules:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This is a new trigger type, not a filter or exit change. It does not directly conflict with existing candidates (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_ONLY_GATE) but could complement them as an additional entry signal. For example, combining this trigger with existing quality gates (like structure-based filters) may improve specificity. However, it is independent and would need A/B testing against baseline to determine incremental value. No known conflicts with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: test_bearish_lower_highs_distribution_trigger.py -->

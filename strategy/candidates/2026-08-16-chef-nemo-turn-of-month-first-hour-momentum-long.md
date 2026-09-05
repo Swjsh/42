@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel temporal trigger and does not conflict with existing candidates in the leaderboard (which are primarily watcher quality gates, DTE studies, and structural filters). It complements by adding a new seasonal trigger orthogonal to existing volatility- or event-driven strategies. No overlap with ranked candidates 1-24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -59,3 +59,5 @@ Gym validators must pass; walk-forward OOS test must show edge_capture > 0 and W
 ## Pre-existing leaderboard impact
 
 No impact: edge_capture=285 < 771 floor excludes from leaderboard. Does not conflict with current leaderboard candidates (all have edge_capture >= 771). Would require significant improvement to edge_capture to compete.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

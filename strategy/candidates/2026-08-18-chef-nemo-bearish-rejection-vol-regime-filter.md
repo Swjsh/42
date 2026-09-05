@@ -61,3 +61,5 @@ Add a volatility regime filter as a hard gate: only allow BEARISH_REJECTION_RIDE
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing proposals. It does not conflict with any leaderboard candidates because it is a filter validation for an existing setup (BEARISH_REJECTION_RIDE_THE_RIBBON), not a new trigger or wiring change. It may inform future filter_change candidates (e.g., if the VIX filter proves ineffective, we might test alternative volatility regimes). No direct overlap with candidates ranked 1-9.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/bearish_rejection_vol_regime_filter_ab.json -->

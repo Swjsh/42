@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing bearish candidates (leaderboard dominated by PUT strategies); proposes a new bullish trigger targeting different market conditions; may complement if bullish edge exists separately but OP-16 anchors are bearish PUT winners so direct anchor impact is zero by design; no overlap with current leaderboard candidates' mechanics (ribbon compression + BOS filter unique)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

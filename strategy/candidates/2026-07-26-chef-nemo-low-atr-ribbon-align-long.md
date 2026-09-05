@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing volatility-based candidates (e.g., VWAP_CONTINUATION) by adding a distinct low-ATR filter; does not conflict with structural gates (e.g., MIDDAY_TRENDLINE_GATE) as it operates on different entry logic. No overlap with existing trigger types in leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

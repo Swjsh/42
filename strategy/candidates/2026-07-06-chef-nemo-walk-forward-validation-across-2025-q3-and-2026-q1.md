@@ -50,3 +50,5 @@ The pre-merge gate requires completion of the walk-forward validation and review
 ## Pre-existing leaderboard impact
 
 The candidate is expected to complement the existing leaderboard candidates, as it aims to verify regime stability and improve the overall performance of the trading strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

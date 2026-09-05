@@ -58,3 +58,5 @@ We will extract the per-quarter performance metrics (net P&L, win-rate, Sharpe, 
 ## Pre-existing leaderboard impact
 
 This analysis does not modify ORB_DIRECTION_FILTER itself. If quarterly stability is confirmed, the candidate may be promoted to PROMISING (freeing a NEEDS-MORE-DATA slot). If instability is found, the candidate remains NEEDS-MORE-DATA and may inspire a follow-up proposal for regime-adaptive parameters (e.g., quarterly ORB_DIRECTION_FILTER thresholds). No conflict with existing leaderboard candidates; complementary to efforts seeking to improve watcher gate robustness.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

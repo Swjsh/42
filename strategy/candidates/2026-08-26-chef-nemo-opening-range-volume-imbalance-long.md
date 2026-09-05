@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates. No current long trigger uses opening range break with volume imbalance filter. ORB_NARROW_OR_GATE and ORB_DIRECTION_FILTER are watcher-only gates; this proposal adds an active entry trigger. Does not conflict with existing top candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as it operates on a different timeframe and trigger logic. May synergize with VIX-regime filters from candidates like V14E_BEAR_TIME_OF_DAY_GATE.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

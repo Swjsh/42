@@ -59,3 +59,5 @@ The BEARISH_REJECTION_MORNING watcher identifies morning ribbon-flip-at-level be
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing BEARISH_REJECTION_MORNING watcher (rank 20) by arming it for execution. It does not conflict with any J-RATIFIED candidates (e.g., V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE, MIDDAY_TRENDLINE_GATE) as it operates on a different time window and trigger. It may overlap with the MIDDAY_TRENDLINE_GATE (which covers 11:30-14:00 ET) but the windows are disjoint.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

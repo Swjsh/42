@@ -58,3 +58,5 @@ Gap is **documented** and **non-live** (paper accounts). Must close before any f
 - **Monthly:** Rule review to confirm PDT-gap closure is prioritized over edge-capture refinements.  
 
 ---
+
+<!-- PROVENANCE-MISSING: analysis/YYYY-Www.md -->

@@ -52,3 +52,5 @@ Before merging this candidate into the production environment, the following tes
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as the data used to generate the keepers is not provided.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

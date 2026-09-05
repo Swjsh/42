@@ -57,3 +57,5 @@ The pre-merge gate requires that the setup passes the out-of-sample test, with a
 ## Pre-existing leaderboard impact
 
 The BEARISH_REJECTION_RIDE_THE_RIBBON setup is expected to complement the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIR_VS_TREND candidate, which also captures a bearish edge in the SPY 0DTE options market.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

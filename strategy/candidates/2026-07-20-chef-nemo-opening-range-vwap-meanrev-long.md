@@ -56,3 +56,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel trigger type not present in the current leaderboard (which contains structural, filter, and watcher proposals). It complements existing ORB-based ideas by adding VWAP mean-reversion logic and does not conflict with any ratified candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

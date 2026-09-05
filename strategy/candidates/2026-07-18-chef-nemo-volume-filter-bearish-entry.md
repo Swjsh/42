@@ -58,3 +58,5 @@ For the BEARISH_REJECTION_RIDE_THE_RIBBON setup (and potentially other bearish s
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate is a filter_change that complements volume-agnostic candidates. It does not conflict with structural candidates (like WEEKLY_DTE_NOT_0DTE) but may interact with other filter changes. It is complementary to candidates that rely on volume confirmation (e.g., TBR_HIGH_VOL) but operates at the entry gate level rather than as a trade class. No direct conflict with current leaderboard top candidates, as it is a new filter to be tested.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

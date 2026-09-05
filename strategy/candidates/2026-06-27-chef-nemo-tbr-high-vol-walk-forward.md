@@ -62,3 +62,5 @@ The candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the TRENDLINE_BREAK_RETEST candidate. The TBR_HIGH_VOL candidate is designed to capture additional edge on high-volume days, which may not be captured by the existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

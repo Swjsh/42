@@ -30,3 +30,5 @@ Upon completion, the WEEKLY_DTE_NOT_0DTE candidate will be re-scored for edge_ca
 ## Next Steps
 
 After backfill completion, trigger the OP-16 re-score for WEEKLY_DTE_NOT_0DTE and update the leaderboard accordingly.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

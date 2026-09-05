@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger not present in the current leaderboard (candidates 1‑9). It does not directly conflict with any existing trigger; it may complement VWAP_CONTINUATION by capturing a different class of VWAP‑related setups. No known overlap with existing quality gates, filters, or exit changes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -46,3 +46,5 @@ Without baseline delta, these are speculative; Stage-1 comparison needed.
 ## Confidence
 
 3 / 10 -- Low confidence due to sub-par edge_capture, missing winner day, and lack of OOS/real-fills validation. High WR and wide PNL are likely artifacts of overfit to non-J days. Requires Stage-1 backtest vs baseline and anchor-day focus to improve.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

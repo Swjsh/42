@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not directly conflict with any existing candidates in the leaderboard (ranks 1‑9). It may complement existing strategies by providing an additional entry filter during the midday window, potentially increasing trade quality without altering existing exit or position‑sizing logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

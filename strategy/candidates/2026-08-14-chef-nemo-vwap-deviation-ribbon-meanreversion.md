@@ -48,3 +48,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 Complements existing VWAP-based strategies (e.g., VWAP_CONTINUATION) by targeting mean-reversion in flat-ribbon regimes rather than trend continuation. No direct conflict with current leaderboard candidates (primarily filters/exits/watchers); additive potential if validated. Does not supersede or invalidate any ratified strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

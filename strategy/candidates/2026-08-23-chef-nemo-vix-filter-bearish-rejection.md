@@ -60,3 +60,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (which is a veto on wrong-way trades) by focusing on regime filtering for the bearish setup. It does not conflict with any existing candidate in the leaderboard as it is a filter change to a specific setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

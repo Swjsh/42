@@ -61,3 +61,5 @@ J's 5/15 manual trade was a counter-trend chop trap bullish entry that occurred 
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters (e.g., MIDDAY_TRENDLINE_GATE, V14E_CHOP_ZONE_GATE) by targeting chop detection earlier in the day. It does not conflict with direction-based filters (like V14E_BEAR_ONLY_GATE) as it operates within the BEARISH_REJECTION_RIDE_THE_RIBBON setup. If successful, it could reduce losses on loser days without affecting winners, similar to how STRUCTURE_VETO_DIR_VS_TREND removed wrong-way losers. However, unlike structure-based vetoes, this is purely price-action based and may add value in chop regimes where structure filters are neutral. No overlap with current leaderboard candidates that modify exits or triggers; purely a filter addition to an existing setup.
+
+<!-- PROVENANCE-MISSING: test_lower_highs_counter.py, test_role_reversal_flag.py -->

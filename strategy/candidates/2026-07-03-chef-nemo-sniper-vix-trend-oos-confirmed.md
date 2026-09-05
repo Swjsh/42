@@ -57,3 +57,5 @@ Before merging this candidate into the production environment, the following tes
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard by introducing a new trade class that focuses on level breaks with a VIX trend filter. It does not directly conflict with any existing candidates but may interact with them in complex ways that require further analysis.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

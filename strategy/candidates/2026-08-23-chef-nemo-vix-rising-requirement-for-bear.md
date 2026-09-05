@@ -62,3 +62,5 @@ Modify the BEARISH_REJECTION_RIDE_THE_RIBBON setup's VIX confirmation filter:
 ## Pre-existing leaderboard impact
 
 Complements [MIDDAY_TRENDLINE_GATE] (rank 21) which filters midday entries; this targets VIX regime timing. No conflict with [STRUCTURE_VETO_DIR_VS_TREND] (rank ★) as it operates on different filter layer (VIX vs structure). May overlap with [V14E_BEAR_TIME_OF_DAY_GATE] (rank 17) but addresses orthogonal regime dimension. Does not affect bullish setups (filter only applies to bearish path). Safe to test alongside existing PROMISING candidates.
+
+<!-- PROVENANCE-MISSING: test_vix_rising_bear_filter.py -->

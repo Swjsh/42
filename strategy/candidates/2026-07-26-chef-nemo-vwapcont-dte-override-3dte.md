@@ -62,3 +62,5 @@ We modify the existing `j_vwap_cont_dte_override` parameter (or introduce it if 
 ## Pre-existing leaderboard impact
 
 This candidate complements the HOLD VWAPCONT_DTE_OVERRIDE_2DTE by testing the next DTE step. It does not conflict with existing candidates as it isolates a single parameter (DTE) without altering signal logic or exits. If successful, it may supersede the 2DTE candidate; if not, it reinforces that 0DTE is optimal for this signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

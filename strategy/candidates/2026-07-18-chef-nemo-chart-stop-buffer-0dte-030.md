@@ -56,3 +56,5 @@ Change `params.json#chart_stop_buffer_dollars` from 0.50 to 0.30. The chart stop
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates; does not conflict with any ranked candidate as it modifies a different parameter (chart stop buffer vs. DTE, veto gates, etc.). May interact with MIDDAY_TRENDLINE_GATE (rank 21) and BEARISH_REJECTION_RIDE_THE_RIBBON setup logic. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

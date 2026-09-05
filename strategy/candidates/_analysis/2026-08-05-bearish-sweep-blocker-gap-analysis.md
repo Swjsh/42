@@ -60,3 +60,5 @@ We require:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis complements the BEARISH_SWEEP_BLOCKER candidate (rank #1) by providing a methodological framework to understand its rejection. It does not conflict with any other candidate on the leaderboard, as it is an analytical study rather than a trading strategy change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

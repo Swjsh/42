@@ -61,3 +61,5 @@ The strategy must pass the following tests before it can be merged:
 ## Pre-existing leaderboard impact
 
 The strategy may complement or conflict with existing candidates in the leaderboard. Further analysis is needed to determine the impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

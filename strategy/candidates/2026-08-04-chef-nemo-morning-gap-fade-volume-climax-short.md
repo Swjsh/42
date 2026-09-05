@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing morning bearish watchers (BEARISH_REJECTION_MORNING) by providing alternative short trigger based on gap/volume dynamics rather than level rejection. Does not conflict with existing candidates as it operates in a distinct time window (09:30-10:00) and uses different entry logic. May overlap with VWAP_CONTINUATION or GAP_AND_GO setups but targets short bias specifically. No direct parameter conflicts with existing leaderboard candidates (all are gates/filters or other trade classes). Requires cross-validation with BEARISH_REJECTION_MORNING to avoid duplicate entries on same bar.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

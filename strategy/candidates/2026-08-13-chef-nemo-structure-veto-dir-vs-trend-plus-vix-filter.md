@@ -60,3 +60,5 @@ The existing STRUCTURE_VETO_DIR_VS_TREND veto blocks entries when the 5m same-da
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND (rank ★) by adding a conditional layer. No overlap with other filter_change proposals. If successful, could improve the edge_capture and Sharpe of the base veto candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

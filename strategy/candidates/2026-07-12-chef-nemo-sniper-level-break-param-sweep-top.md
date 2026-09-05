@@ -67,3 +67,5 @@ Must pass:
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture >= 771). This candidate is OP-16 REJECTED and would not appear on leaderboard. Complements structural research (e.g., WEEKLY_DTE_NOT_0DTE) by highlighting SNIPER_LEVEL_BREAK's inability to capture J-edge with current parameters. Suggests redirecting research toward setups with proven J-day capture (BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) or DTE extensions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

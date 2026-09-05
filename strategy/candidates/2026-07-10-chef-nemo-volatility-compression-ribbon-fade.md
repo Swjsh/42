@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ribbon strategies: BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON trade WITH the ribbon slope; this candidate trades AGAINST the slope during compression, creating orthogonal edge. No direct conflict; may provide diversification during low-volatility periods where directional ribbon strategies underperform. Does not replace any existing candidate; additive proposal requiring independent validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

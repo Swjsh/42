@@ -56,3 +56,5 @@ Entry trigger remains the existing BEARISH_REJECTION_RIDE_THE_RIBBON logic (leve
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements `STRUCTURE_VETO_DIR_VS_TREND` (which already improves Sharpe) by directly targeting edge_capture on J anchor days. If successful, could become a new quality‑gate layer additive to current veto logic. No overlap with watcher‑only or exit‑change proposals.
+
+<!-- PROVENANCE-MISSING: test_vix_confirm_filter.py -->

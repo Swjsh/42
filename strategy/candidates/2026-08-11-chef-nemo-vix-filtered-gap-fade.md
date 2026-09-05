@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly modify any existing logic in the leaderboard. It does not conflict with current candidates (e.g., GAP_AND_GO, which trades gap continuations) because it proposes the opposite fade under a VIX filter. It could complement existing strategies by providing signals in regimes where GAP_AND_GO may underperform (high‑VIX fade environments). No known duplication or interference with the top‑9 ranked candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

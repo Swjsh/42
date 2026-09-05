@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (which focus on bearish PUT edge capture on J anchor days) as this is a long-biased trigger. May complement existing strategies by providing long entries in bullish/neutral regimes, but OP-16 anchor days are all PUT winners so direct anchor impact is unknown. No overlap with existing watcher gates or DTE studies in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ No conflict with current leaderboard (all candidates have edge_capture ≥ $771)
 
 ## Confidence
 3/10 -- Low confidence in genuine edge due to winner-day/loser-day misalignment and high parameter count. Primary value is as negative example: demonstrates need for OP-16-aligned optimization in grinder stages.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

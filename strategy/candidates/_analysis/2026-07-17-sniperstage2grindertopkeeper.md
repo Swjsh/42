@@ -63,3 +63,5 @@ To be considered for leaderboard promotion, this keeper must:
 ## Pre-existing leaderboard impact
 
 This keeper does not meet OP-16 anchor requirement and would be REJECTED at the door (not appear on leaderboard). It conflicts with no existing leaderboard candidates as it is ineligible for promotion. If improved to meet edge_capture threshold,
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

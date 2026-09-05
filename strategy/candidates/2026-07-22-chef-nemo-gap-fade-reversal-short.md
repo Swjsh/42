@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new trigger type and does not conflict with any existing candidates in the leaderboard. It complements the existing set by offering a short bias opportunity in gap scenarios, which is not currently covered by any trigger in the leaderboard (existing gap-related setups focus on continuation or retest).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

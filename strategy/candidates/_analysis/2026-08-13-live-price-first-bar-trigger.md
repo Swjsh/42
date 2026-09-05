@@ -67,3 +67,5 @@ Testing whether the first premarket bar breaking the premarket low (for bears) o
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements by adding a premarket-triggered orthogonal signal. However, edge_capture projection of 0 (due to zero J anchor day triggers) places it below OP-16 rejection floor (771), making it unsuitable for live trading under current OP-16 framework. May be revisited if premarket data coverage improves or if OP-16 anchor days are expanded to include premarket-sensitive setups.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py -->

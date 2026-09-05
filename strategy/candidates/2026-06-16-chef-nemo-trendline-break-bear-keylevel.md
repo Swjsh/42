@@ -77,3 +77,5 @@ We propose to use the existing BEARISH_REJECTION_RIDE_THE_RIBBON management rule
 
 This candidate complements existing trendline-based candidates (e.g., MIDDAY_TRENDLINE_GATE, TBR_HIGH_VOL) by focusing on bearish entries with key level confluence. It does not conflict with any existing candidate as it introduces a new trigger condition. It may overlap with BEARISH_REVERSAL_AT_LEVEL but differs in the trigger (trendline break vs. horizontal level rejection) and the ribbon condition (we require BULL/MIXED and do not wait for BEAR flip).  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

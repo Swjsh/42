@@ -68,3 +68,5 @@ The shotgun_scalper_stage5 parameter sweep identified a parameter combination (T
 This candidate has edge_capture=506.55 < 771, so it is REJECTED at the door per OP-16 and does not appear on the leaderboard. It does not impact or conflict with existing leaderboard candidates (all of which have edge_capture ≥ 771).  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

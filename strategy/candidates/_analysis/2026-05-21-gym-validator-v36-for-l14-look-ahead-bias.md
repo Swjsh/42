@@ -61,3 +61,5 @@ Look-ahead bias in level detection occurs when the level-detection function acce
 ## Pre-existing leaderboard impact
 
 This validator is complementary to all leaderboard candidates (1‑9). It does not propose any strategy change but ensures that any backtest used to evaluate those candidates is free of L14 look‑ahead bias, thereby increasing confidence in reported edge‑capture and Sharpe metrics. No conflict; it strengthens the validation pipeline for every candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

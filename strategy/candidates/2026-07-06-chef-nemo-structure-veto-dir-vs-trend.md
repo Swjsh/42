@@ -60,3 +60,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, as it provides a new perspective on the trading strategy and has the potential to improve the overall performance of the trading system.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

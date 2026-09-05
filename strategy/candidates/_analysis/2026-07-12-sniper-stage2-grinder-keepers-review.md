@@ -62,3 +62,5 @@ These changes collectively tighten entry criteria (higher vol_mult, proximity_do
 
 ## Confidence
 4 / 10 — The high win rate and perfect J‑day capture are intriguing, but the edge_capture is too low to clear the OP‑16 gate, and the sample has not been validated out‑of‑sample or with real fills. Without those checks, the result remains speculative.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

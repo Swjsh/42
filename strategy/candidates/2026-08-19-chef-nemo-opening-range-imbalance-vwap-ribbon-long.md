@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates: does not conflict with structural gates (e.g., STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE) as it operates earlier in the day (10:00-12:00) and uses different primitives (OR imbalance vs. trendline breaks). May overlap with VWAP_CONTINUATION but differs in entry trigger (OR imbalance + VWAP + ribbon vs. VWAP continuation alone). No direct conflict with top-9 leaderboard candidates as they are primarily watcher/gate proposals or DTE studies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

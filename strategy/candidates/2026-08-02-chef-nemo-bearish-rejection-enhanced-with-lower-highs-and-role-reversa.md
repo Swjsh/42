@@ -69,3 +69,5 @@ This candidate enhances the BEARISH_REJECTION_RIDE_THE_RIBBON setup (defined in 
 - No overlap with trigger/exit candidates (e.g., VWAPCONT_DTE_OVERRIDE_2DTE, STRUCTURE_VETO_DIR_VS_TREND)
 - Neutral to watcher-only candidates (e.g., VISION_CHART_OBSERVER, SNIPER_CS_CHART_STOP)
 - Does not modify existing leaderboard candidates (all are independent modules)
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

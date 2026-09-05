@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly gates, DTE overrides, structural changes); complements by adding a new long-entry trigger for midday uptrend continuations, distinct from existing VWAP/ORB/structure-based entries in leaderboard. No direct overlap with current top candidates' logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

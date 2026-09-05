@@ -54,3 +54,5 @@ Requires: (1) OOS walk-forward with edge_capture > 771 (OP-16 floor), (2) real-f
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771). This keeper would be REJECTED at the door per OP-16 (edge_capture < 771) and thus not appear on leaderboard. Complements existing candidates by highlighting failed approach (premium-based exits vs. chart-stop doctrine).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

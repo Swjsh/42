@@ -58,3 +58,5 @@ Gym validators must pass, walk-forward OOS must show positive edge_capture, real
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (new trigger type). May complement filters/quality gates if shown orthogonal to current strategies (e.g., VWAP continuation, structure veto). No overlap with current PUT-focused anchors as this is a long trigger.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

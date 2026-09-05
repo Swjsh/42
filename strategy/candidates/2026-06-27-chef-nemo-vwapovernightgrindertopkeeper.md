@@ -55,3 +55,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard. It is a new trigger candidate that requires further testing and evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

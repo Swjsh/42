@@ -393,6 +393,18 @@ def _check_provenance(candidate_file: Path) -> tuple[str, list[str]]:
         return "UNAVAILABLE", []
 
 
+_PROVENANCE_LINE_RE = re.compile(r"provenance:\s*\S.*->\s*\S", re.IGNORECASE)
+
+
+def _check_provenance_block(candidate_text: str) -> bool:
+    """True iff the candidate carries at least one `provenance: <command> -> <artifact>`
+    line, per the chef_nemotron.py CANDIDATE TEMPLATE `## Provenance` section (added
+    2026-09-05, GOAL-KITCHEN-INTEGRITY-2026-09-05 I3). A verdict with numeric claims and
+    no such line never had its runner command recorded at all -- reject outright rather
+    than rely solely on the after-the-fact citation-existence check below."""
+    return bool(_PROVENANCE_LINE_RE.search(candidate_text))
+
+
 def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
     """OP-33: PROMOTE requires numeric scorecard evidence on disk; else cap at VALIDATE.
 
@@ -404,14 +416,23 @@ def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
     if candidate_file is None:
         return "VALIDATE", f"capped: candidate file not found: {out_path}"
 
-    # Provenance gate FIRST: a file that cites artifacts that don't exist on disk is a
-    # fabrication risk regardless of what the OP-16 edge_capture check finds (that check
-    # can itself be fooled by a fabricated-but-well-formed scorecard reference).
+    text = candidate_file.read_text(encoding="utf-8", errors="replace")
+
+    # Provenance-BLOCK gate: chef's prompt template requires a `provenance:` line naming
+    # the runner + artifact for every numeric claim. No such line at all -> reject before
+    # even checking whether a cited path happens to exist (I3 guard).
+    if not _check_provenance_block(text):
+        return "VALIDATE", "capped:PROVENANCE-BLOCK-MISSING: no `provenance:` line in candidate"
+
+    # Provenance gate: a file that cites artifacts that don't exist on disk (or cites none
+    # at all) is a fabrication risk regardless of what the OP-16 edge_capture check finds
+    # (that check can itself be fooled by a fabricated-but-well-formed scorecard reference).
     prov_status, prov_missing = _check_provenance(candidate_file)
     if prov_status == "PROVENANCE-MISSING":
         return "VALIDATE", f"capped:PROVENANCE-MISSING:{','.join(prov_missing[:5])}"
+    if prov_status == "NO-ARTIFACT-CITED":
+        return "VALIDATE", "capped:NO-ARTIFACT-CITED: numeric verdict cites zero artifacts (UNVERIFIED-BY-CONSTRUCTION)"
 
-    text = candidate_file.read_text(encoding="utf-8", errors="replace")
     op16_ok, op16_reason = _check_op16_floor(candidate_file, text)
     if op16_ok:
         return verdict, ""
@@ -433,6 +454,23 @@ def _auto_promote_candidate(out_path_str: str, rationale: str) -> str:
 
     op20_ok, missing = _check_op20_disclosures(text)
     op16_ok, op16_reason = _check_op16_floor(candidate_file, text)
+
+    # Provenance gates (I3, GOAL-KITCHEN-INTEGRITY-2026-09-05): a candidate missing its
+    # `provenance:` line, or one whose cited artifacts are missing/absent, must never take
+    # the direct auto-promote branch below -- OP-20/OP-16 passing is not evidence that the
+    # numbers behind them are real. Folded into op16_ok/op16_reason so a single false value
+    # routes the file to pending exactly like any other failed gate.
+    prov_block_ok = _check_provenance_block(text)
+    prov_status, prov_missing = _check_provenance(candidate_file)
+    prov_ok = prov_block_ok and prov_status not in ("PROVENANCE-MISSING", "NO-ARTIFACT-CITED")
+    if not prov_ok:
+        if not prov_block_ok:
+            op16_reason = "PROVENANCE-BLOCK-MISSING: no `provenance:` line in candidate"
+        elif prov_status == "PROVENANCE-MISSING":
+            op16_reason = f"PROVENANCE-MISSING:{','.join(prov_missing[:5])}"
+        else:
+            op16_reason = "NO-ARTIFACT-CITED: numeric verdict cites zero artifacts (UNVERIFIED-BY-CONSTRUCTION)"
+        op16_ok = False
 
     if op20_ok and op16_ok:
         # Full auto-promote

@@ -52,3 +52,5 @@ The adaptive morning gating mechanism will be based on a combination of technica
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the ORB_NARROW_OR_GATE and ORB_DIRECTION_FILTER candidates. The adaptive morning gating mechanism can potentially improve the performance of these candidates by reducing false positives and improving the timing of the trades.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

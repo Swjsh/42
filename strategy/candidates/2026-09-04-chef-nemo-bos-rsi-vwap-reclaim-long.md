@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new long‑side trigger logic that does not duplicate any existing entry in the leaderboard (which is dominated by watcher gates, vetoes, and DTE studies). It is likely complementary, as it adds a distinct entry criterion that could capture bullish momentum not currently exploited by the existing short‑biased candidates. No direct conflict with ranks 1‑9 is anticipated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

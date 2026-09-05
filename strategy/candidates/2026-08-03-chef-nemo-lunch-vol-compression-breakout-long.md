@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No known conflict with existing candidates in _LEADERBOARD.md; this is a new trigger type that may complement existing watcher gates and quality filters by providing additional long-bias entry signals during midday low-volatility windows.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

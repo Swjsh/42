@@ -64,3 +64,5 @@ The top keeper from the v14_enhanced_grinder sweep attempts to improve P&L by ti
 ## Pre-existing leaderboard impact
 
 This keeper resembles a parameter tweak on the v14_enhanced exit structure (similar to V14E_PARAM_SWEEP_26K, which is currently RATIFICATION_READY). It does not conflict with existing watcher/gate candidates (ranks 3-9, 12-21) as it modifies the core engine logic rather than adding a filter. However, due to its low edge_capture projection, it would be REJECTED at the door per OP-16 if promoted as a candidate. It should remain an analysis item unless OOS walk-forward demonstrates a significant edge_capture improvement above the rejection threshold.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

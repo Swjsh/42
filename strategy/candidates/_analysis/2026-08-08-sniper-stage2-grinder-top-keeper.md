@@ -79,3 +79,5 @@ The sniper_stage2_grinder refines entry filters for the SNIPER_LEVEL_BREAK setup
 ## Pre-existing leaderboard impact
 
 This candidate’s edge_capture (373.48) is below the 771 threshold required for leaderboard inclusion, so it would be REJECTED at the door. It does not conflict with any existing leaderboard entries (all of which have edge_capture ≥771). If future OOS validation lifts edge_capture above the floor, it could be promoted as a new_trigger candidate, but it would need to demonstrate meaningful aggregate Sharpe improvement to rank.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

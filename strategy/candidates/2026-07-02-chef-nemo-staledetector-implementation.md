@@ -43,3 +43,5 @@ The StaleDetector will monitor the TV data feed for three consecutive SKIP_TV_DA
 
 ## Pre-existing leaderboard impact
 This candidate does not conflict with or complement existing candidates in _LEADERBOARD.md, as it addresses a specific infrastructure issue rather than a trading strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -65,3 +65,5 @@ Exit logic:
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (#1-22). SNIPER_LEVEL_BREAK is the base for artifact-invalidated candidates #13-15 (due to profit_lock_threshold=0.0 artifact), but this exit_change addresses the premium-stop mechanics issue noted in those candidates' analysis. Complements watcher-only candidates by providing a potentially viable exit logic for SNIPER-based setups. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

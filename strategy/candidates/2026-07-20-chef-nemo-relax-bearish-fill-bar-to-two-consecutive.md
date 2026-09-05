@@ -53,3 +53,5 @@ Gym validators (all tests pass), walk-forward OOS positive (WF >= 0.70), real-fi
 ## Pre-existing leaderboard impact
 
 Complements REQUIRE_BEARISH_FILL_BAR_REVAL (which tested false) by testing a middle-ground value (2 vs 1). Does not conflict with top candidates like WEEKLY_DTE_NOT_0DTE or STRUCTURE_VETO_DIR_VS_TREND as it modifies a different filter. May interact with MIDDAY_TRENDLINE_GATE (already J-RATIFIED) but operates on different timeframe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

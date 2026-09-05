@@ -59,3 +59,5 @@ The gate reads the `structure-state.json` file (updated by `market_structure.py`
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: does not conflict with structural filters (e.g., MIDDAY_TRENDLINE_GATE, STRUCTURE_VETO_DIR_VS_TREND). Adds orthogonal veto layer on call entries only. No overlap with put-side gates. Ranked WS4; expected to move to PROMISING if OOS walk-forward clears. No conflict with top-3 candidates (WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE, STRUCTURE_VETO_DIR_VS_TREND).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

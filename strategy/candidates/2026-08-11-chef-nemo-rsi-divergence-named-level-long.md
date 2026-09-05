@@ -65,3 +65,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates. Complements RSI_DIVERGENCE_BULL_WATCHER (watch-only bull exit/filter) by providing a potential long entry signal; however, the watcher has zero OP-16 anchor coverage, so any synergy requires further testing. No overlap in mechanism or triggers with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

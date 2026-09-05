@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing entries in _LEADERBOARD.md. It introduces a new trigger class based on options‑implied volatility skew, which is not used by any current strategy (the nearest analog, TRENDLINE_BREAK_VOLUME, relies solely on price‑volume). It is therefore additive and can be evaluated independently for inclusion in the leaderboard after backtesting.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

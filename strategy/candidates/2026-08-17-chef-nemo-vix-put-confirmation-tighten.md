@@ -53,3 +53,5 @@ Gym v45 validators for the new filter (all must pass) + Stage-1 backtest via aut
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing STRUCTURE_VETO_DIR_VS_TREND (which removes wrong-way trades) and V14E_BEAR_TIME_OF_DAY_GATE (which time-of-day gates) by adding a VIX regime filter. It does not conflict with any live candidates as it is a new filter. It may overlap with the VIX_BULL_HARD_CAP_UNBLOCK (which is bull-side) but that is on the opposite side.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

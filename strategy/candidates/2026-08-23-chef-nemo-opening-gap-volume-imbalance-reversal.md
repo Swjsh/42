@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard entries (which are primarily watcher quality gates, DTE studies, or structural filters). It may complement by providing a distinct short-entry trigger for gap-up reversal scenarios, potentially adding diversity to the short-side toolkit. No overlap with current candidates 1-9 observed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -48,3 +48,5 @@ To promote the BULLISH_WATCHER_PM_GATE, we require:
 ## Pre-existing leaderboard impact
 
 This analysis supports the candidate BULLISH_WATCHER_PM_GATE (currently rank 9, NEEDS-MORE-DATA). If the analysis shows the gate meets the OP-21 threshold, then the candidate's status can be updated to PROMISING (or higher) per OP-22.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

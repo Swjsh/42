@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not conflict with existing leaderboard entries (which are primarily watcher proposals, quality gates, or structural filters). It complements the midday trendline gate (rank 21) by providing a volumetric breakout alternative during compression periods. No direct overlap in mechanism or timing with current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

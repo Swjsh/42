@@ -50,3 +50,5 @@ The pre-merge gate for this candidate requires out-of-sample testing and real-fi
 ## Pre-existing leaderboard impact
 
 This candidate may complement or conflict with existing candidates in the leaderboard, but the specific impact is not specified in the provided text.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -129,3 +129,5 @@ The 64.3% proxy WR is promising but N=14 (and N=2 with the recommended guard) is
 - `backtest/lib/filters.py` — F11 implementation
 - `automation/state/params.json` — production F11 parameters (DO NOT EDIT without J ratification)
 - `crypto/validators/v25_filter_gates.py` — F11 regression test (must remain green)
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/f11_reversal_bypass_analysis.py -->

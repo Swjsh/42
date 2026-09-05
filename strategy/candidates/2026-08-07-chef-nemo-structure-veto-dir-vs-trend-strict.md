@@ -56,3 +56,5 @@ The current `STRUCTURE_VETO_DIR_VS_TREND` blocks a PUT entry when the 5m‑samed
 ## Pre-existing leaderboard impact
 
 This candidate builds on the existing `STRUCTURE_VETO_DIR_VS_TREND` (rank ★, PROMISING). It does not conflict directly but proposes a parameter/behavior change to that veto. If validated, it could replace or augment the current veto; otherwise, the existing veto remains the better option. No known conflict with other leaderboard candidates.
+
+<!-- PROVENANCE-MISSING: test_structure_veto_strict.py -->

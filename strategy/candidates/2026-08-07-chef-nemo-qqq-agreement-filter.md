@@ -50,3 +50,5 @@ gym validators (filter logic), walk-forward OOS test with vol binning/stratifica
 ## Pre-existing leaderboard impact
 
 Complements QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS by converting study into actionable filter; no conflict with top-9 candidates (new filter type); may interact with structure_veto or other filters -- requires combination testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

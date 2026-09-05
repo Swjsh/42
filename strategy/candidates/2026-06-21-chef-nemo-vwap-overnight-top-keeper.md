@@ -58,3 +58,5 @@ Gym validators must pass, walk-forward OOS must demonstrate edge_capture ≥ 771
 ## Pre-existing leaderboard impact
 
 This candidate is a parameter optimization for VWAP_CONTINUATION. It does not appear on the leaderboard due to edge_capture < 771. It complements the existing VWAP_CONTINUATION setup by providing an alternative parameter set but requires OOS walk-forward and real-fills validation before consideration for promotion. No direct conflict with current leaderboard candidates as it is ineligible for ranking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

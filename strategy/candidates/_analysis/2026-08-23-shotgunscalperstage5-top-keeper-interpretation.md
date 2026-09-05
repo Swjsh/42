@@ -68,3 +68,5 @@ Before any consideration for promotion, the keeper must:
 ## Pre-existing leaderboard impact
 
 The keeper’s edge_capture (506.55) is below the 771 floor required for leaderboard inclusion, so it would be REJECTED at the door and would not appear on the leaderboard. It does not conflict with existing candidates; rather, it highlights the need for a strategy that preserves the shotgun_scalper’s statistical edge while selectively increasing exposure to the bearish rejection structure that defines J’s winners. A promising direction would be to add a quality gate (e.g., structure_veto or trendline_confirm) that retains the high‑frequency volume‑filtered trades but boosts position size or relaxes stops on confirmed BEARISH_REJECTION_SETUP days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

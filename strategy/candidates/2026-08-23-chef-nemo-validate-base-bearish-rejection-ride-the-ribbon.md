@@ -53,3 +53,5 @@ Gym validators: all unit tests in `backtest/tests/` must pass; walk-forward OOS:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidate in the leaderboard because it is validating the base engine. It complements all candidates by providing a ground truth for edge_capture and Sharpe of the base setup. Candidates that propose changes should be measured against this base.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

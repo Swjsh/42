@@ -52,3 +52,5 @@ Requires: full keeper disclosure, Stage-1 backtest vs baseline, walk-forward OOS
 unknown -- requires full keeper evaluation
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -44,3 +44,5 @@ In fill_funnel.py:
 ## Pre-existing leaderboard impact
 
 This change does not affect any strategy candidate; it is an internal health monitoring update.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

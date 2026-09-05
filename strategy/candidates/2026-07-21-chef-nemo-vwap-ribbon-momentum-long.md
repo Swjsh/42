@@ -61,3 +61,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger type and does not directly modify any existing logic in the leaderboard entries 1‑9. It is likely complementary if it proves additive, but could conflict if it triggers on the same bars as existing entries and alters exposure. Impact remains unknown until a Stage‑1 backtest is completed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger that does not directly conflict with any existing armed setups in the leaderboard (which are mostly watcher proposals, gates, or other trigger setups like VWAP_CONTINUATION and GAP_AND_GO). It may complement by providing a short-side gap fade strategy, but impact on leaderboard rankings is unknown until backtested and compared.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

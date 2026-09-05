@@ -62,3 +62,5 @@ The ENTRY_BODY_GATE_BEAR_REVAL currently blocks bear doji entries (side=="P") th
 ## Pre‑existing leaderboard impact
 
 This candidate proposes the exact action described in the existing leaderboard entry [ENTRY_BODY_GATE_BEAR_REVAL](2026-06-26-113700-entry-body-gate-bear-revalidation.md) (currently UNBLOCK). Disabling the gate is complementary to that entry’s recommendation and does not conflict with other top‑9 candidates (which focus on different gates, triggers, or exits). It may interact with other bear‑side filters (e.g., V14E_BEAR_ONLY_GATE) but those are watcher‑only and do not affect order placement.
+
+<!-- PROVENANCE-MISSING: test_entry_body_gate_bear_reval.py -->

@@ -52,3 +52,5 @@ Increase the TV reload timeout from its current value to a higher value (e.g., 3
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly those focused on improving the engine's performance and reducing errors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

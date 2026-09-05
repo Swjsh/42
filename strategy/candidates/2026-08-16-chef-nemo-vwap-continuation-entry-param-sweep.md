@@ -62,3 +62,5 @@ Gym validators, walk-forward OOS test, real-fills check on top 3 J days, anchor 
 ## Pre-existing leaderboard impact
 
 This candidate has edge_capture=40.01 < 771, so it would be REJECTED and not appear on the leaderboard. It does not conflict with any existing candidate on the leaderboard (as it fails to meet the edge_capture floor for inclusion). However, note that it proposes changes to the VWAP_CONTINUATION entry parameters, which is distinct from other leaderboard candidates (e.g., WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE) that address different aspects.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with existing candidates in the leaderboard (which are primarily filters, exit changes, or other trigger types). It may complement by providing an additional entry signal for mean-reversion opportunities. No direct overlap with current top candidates (e.g., WEEKLY_DTE_NOT_0DTE, MIDDAY_TRENDLINE_GATE).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

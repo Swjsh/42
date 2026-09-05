@@ -70,3 +70,5 @@ The alert resets to normal state when conditions are no longer met (to avoid spa
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates by providing a monitoring layer to detect overly restrictive filters. It does not conflict with any current leaderboard entries as it does not alter entry/exit logic or parameters. It may help inform future filter_change or quality_gate proposals by highlighting near-miss events.
+
+<!-- PROVENANCE-MISSING: test_bearish_reversal_near_miss_alert.py, test_watcher_alert_integration.py -->

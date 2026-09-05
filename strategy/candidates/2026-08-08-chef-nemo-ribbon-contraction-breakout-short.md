@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; it is a new trigger that could complement existing filters (e.g., structure_veto, midday_trendline_gate) by providing additional short entries. No overlap with current leaderboard entries which are mostly watchers, gates, or parameter tweaks.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

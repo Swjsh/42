@@ -65,3 +65,5 @@ The initial QQQ_DIVERGENCE_CONFLUENCE_FIRSTPASS study showed that QQQ_AGREEMENT_
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing leaderboard entries. It is a pure analysis/watcher proposal that funds the next step (the real‑fills SS‑B replay with vol control). It complements the ranked candidates by providing a cleaner basis for any future QQQ‑based wiring proposal. No changes to engine parameters, triggers, filters, or exits are proposed.
+
+<!-- PROVENANCE-MISSING: test_qqq_divergence_confluence_vol_controlled.py -->

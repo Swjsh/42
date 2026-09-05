@@ -65,3 +65,5 @@ Both conditions must be true for entry to proceed. The lower-highs counter is ev
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements existing structural filters (e.g., MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) by adding intra-trend structure checks. It does not conflict with any ranked candidates as it modifies only the BEARISH_REJECTION_RIDE_THE_RIBBON entry logic, which is not currently a leaderboard candidate (it is in the playbook as OBSERVATION status). No overlap with watcher-only or gate-only proposals in the leaderboard. If ratified, would require re-scoring of the BEARISH_REJECTION_RIDE_THE_RIBBON setup against OP-16 anchors, potentially promoting it from OBSERVATION if edge_capture improves sufficiently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

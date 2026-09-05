@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a novel trigger type not present in the current leaderboard (which contains watcher quality gates, DTE studies, and structural gates). It does not conflict with existing candidates and complements the framework by adding an intraday bearish trigger based on market structure and VWAP. No overlap with existing trigger types like TRENDLINE_BREAK_VOLUME (uses different entry logic and time filters).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

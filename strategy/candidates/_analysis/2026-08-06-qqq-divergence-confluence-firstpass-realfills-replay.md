@@ -39,3 +39,5 @@ None (this is an analysis, not a strategy change).
 ## Confidence
 
 4/10 -- Analysis contingent on unreplayed replay results; confidence pending data receipt.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

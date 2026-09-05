@@ -52,3 +52,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel trigger (ATR contraction + VWAP reclaim) distinct from existing entries like BOLLINGER_SQUEEZE (which uses Bollinger Band width). It does not conflict with current ranked candidates and could complement the trigger‑type lane if proven effective. No overlap with existing watcher‑only or gate‑only proposals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

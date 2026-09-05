@@ -46,3 +46,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing candidates. Complements ORB_RETEST_LONG by offering alternative entry timing (breakout vs retest). May overlap with VWAP_CONTINUATION in capturing morning momentum but uses different trigger (ORB volume imbalance vs VWAP alignment). Adds diversity to trigger library without duplicating existing logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

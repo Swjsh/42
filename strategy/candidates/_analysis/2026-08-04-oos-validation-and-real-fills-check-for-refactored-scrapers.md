@@ -69,3 +69,5 @@ This analysis does not alter engine behavior, so OP-16 anchor impact is neutral.
 ## Pre-existing leaderboard impact
 
 This analysis supports data integrity for all candidates. No conflict; complements existing OOS/real-fills gates in leaderboard (e.g., ranks ★, ★★, 21). If validation passes, it reinforces trust in historical backtests; if fails, triggers re-evaluation of affected candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

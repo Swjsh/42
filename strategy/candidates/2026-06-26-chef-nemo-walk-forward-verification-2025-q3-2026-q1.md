@@ -52,3 +52,5 @@ The pre-merge gate for this candidate involves verifying that the walk-forward v
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly those focused on optimizing parameters for specific market regimes. The walk-forward verification will provide a more comprehensive understanding of the engine's performance and help identify areas for further improvement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements GAP_AND_GO (which trades gap continuation) by fading gaps instead. No direct conflict with existing candidates; mechanism differs from all leaderboard entries (which focus on VWAP continuation, structure breaks, or DTE variations). May overlap with VWAP_CONTINUATION detector but uses different entry logic (gap fade vs. trend continuation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

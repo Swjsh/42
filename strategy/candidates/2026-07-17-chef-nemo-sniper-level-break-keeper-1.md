@@ -73,3 +73,5 @@ We are testing a parameter combination for the SNIPER_LEVEL_BREAK trigger that a
 ## Pre-existing leaderboard impact
 
 Conflicts with all current leaderboard candidates (ranks 1-24) as edge_capture < 771 triggers automatic REJECT per OP-16. Does not complement existing candidates; would need substantial improvement to reach PROMISING status. Current leaderboard requires edge_capture ≥ 771 for inclusion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

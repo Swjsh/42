@@ -58,3 +58,5 @@ At each bar after 10:05 ET, compute the high of the 09:30-10:00 RTH range from p
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements existing candidates: adds a new level type that could enhance ORB_RETEST_LONG (#4) and BEARISH_REJECTION_MORNING (#20) by providing additional confirmation levels. No direct conflict with watcher-only candidates (#3, #5, #8, #9, #10, #11, #13, #14, #15, #16, #17, #18, #19). Does not affect parameter-optimized candidates (#12). May conflict with quality gates if first-hour high levels generate low-quality signals (requires walk-forward validation).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

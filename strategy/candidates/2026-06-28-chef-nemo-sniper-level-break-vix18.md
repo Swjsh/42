@@ -60,3 +60,5 @@ The candidate must pass the following pre-merge gates:
 ## Pre-existing leaderboard impact
 
 The candidate does not conflict with or complement any existing candidates in the leaderboard. It is a new trade class that targets a specific market condition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

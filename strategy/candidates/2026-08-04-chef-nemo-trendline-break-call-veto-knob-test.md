@@ -56,3 +56,5 @@ The knob reads the `trendline_break_call_veto` flag from `structure-state.json` 
 ## Pre-existing leaderboard impact
 
 This test directly supports the existing candidate **WS4 [TRENDLINE_BREAK_CALL_VETO](2026-06-26-144946-trendline-break-structure-signal.md)** (currently NEEDS-MORE-DATA). It will provide the required OOS real-fills data to move that candidate toward PROMISING or REJECTED. No conflict with other leaderboard entries; it complements the structural gate research stream.
+
+<!-- PROVENANCE-MISSING: test_trendline_break_call_veto.py -->

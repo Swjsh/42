@@ -50,3 +50,5 @@ We require: Stage-1 backtest to produce keepers.jsonl and results.jsonl, then OO
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates as it is an analysis of a grinder that is not yet on the leaderboard. If the keepers are validated, they may become a new candidate (SNIPER_LEVEL_BREAK) but note that OP-16 is inapplicable until 3+ live SNIPER trades are observed (per leaderboard notes on #13/#14/#15). Any promotion would require shadow-trade anchor build first.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

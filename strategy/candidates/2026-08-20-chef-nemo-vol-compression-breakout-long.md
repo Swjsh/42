@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 unknown -- requires Stage-1 backtest to determine if conflicts with or complements existing candidates (e.g., BULLISH_RECLAIM_RIDE_THE_RIBBON) in _LEADERBOARD.md
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

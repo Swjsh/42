@@ -50,3 +50,5 @@ gym validators (all tests pass), walk-forward OOS positive, real-fills validatio
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (edge_capture < 771 floor); would be REJECTED at door per OP-16. Complements research by identifying VWAP reclaim/rejection as a potential signal framework needing further refinement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

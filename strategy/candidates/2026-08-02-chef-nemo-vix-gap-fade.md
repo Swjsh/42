@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing gap strategies (e.g., GAP_AND_GO) by offering an opposite directional bias under elevated VIX; no direct conflict with current leaderboard candidates as it targets a distinct regime condition. Does not interfere with watchers or quality gates in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

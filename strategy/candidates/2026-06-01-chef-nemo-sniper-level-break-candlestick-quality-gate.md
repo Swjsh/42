@@ -53,3 +53,5 @@ Gym validators (67/67 PASS), walk-forward OOS (2025-11..2026-05) with WF ratio â
 ## Pre-existing leaderboard impact
 
 Complements existing SNIPER_VIX_TREND candidates (#14, #15) by improving base signal quality; no conflict with non-SNIPER candidates (e.g., ORB gates, V14E filters) as it scopeds to SNIPER_LEVEL_BREAK watcher only. May reduce signal count for downstream SNIPER strategies but should improve their win rate. Does not affect J-RATIFIED candidates (none currently).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

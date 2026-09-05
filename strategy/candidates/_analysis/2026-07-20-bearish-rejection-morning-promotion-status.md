@@ -48,3 +48,5 @@ Not applicable until three live J-confirmed entries are collected.
 ## Pre-existing Leaderboard Impact
 
 This analysis does not propose a new candidate but evaluates the promotion path for an existing watcher. It does not conflict with any candidates in the leaderboard. It complements the promotion of watchers to live-eligible status.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

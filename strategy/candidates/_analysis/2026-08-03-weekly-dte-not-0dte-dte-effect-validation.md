@@ -60,3 +60,5 @@ Run real-fills replay using `ribbon_ride_strike_exit_ab.py`'s per-strike SS-B re
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements WEEKLY_DTE_NOT_0DTE (rank ★★) by validating its core DTE hypothesis. If validated, reinforces its PROMISING status and may enable promotion to J-RATIFIED after OP-16 re-score. If invalidated (DTE effect explained by QQQ label), would require re-evaluation of WEEKLY_DTE_NOT_0DTE as a vol-proxy artifact, potentially moving it to NEEDS-MORE-DATA or REJECTED. No conflict with other candidates; uses orthogonal validation method.
+
+<!-- PROVENANCE-MISSING: test_qqq_label_join_integrity.py -->

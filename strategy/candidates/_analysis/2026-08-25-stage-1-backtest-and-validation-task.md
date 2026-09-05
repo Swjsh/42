@@ -56,3 +56,5 @@ To consider this analysis complete and proceed with strategy proposals:
 ## Pre-existing leaderboard impact
 
 This analysis does not modify the leaderboard; it only reports on task execution status. Any strategy candidates proposed after backtest completion will be evaluated against the current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

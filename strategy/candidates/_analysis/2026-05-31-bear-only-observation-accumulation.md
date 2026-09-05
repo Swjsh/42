@@ -50,3 +50,5 @@ Gym validators must pass for the watcher code. No walk-forward or real-fills req
 ## Pre-existing leaderboard impact
 
 This analysis supports candidate #3 (V14E_BEAR_ONLY_GATE) and does not conflict with any other candidates. It is complementary to the goal of promoting candidate #3.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

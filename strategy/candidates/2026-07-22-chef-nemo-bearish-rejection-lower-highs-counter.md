@@ -59,3 +59,5 @@ When evaluating a BEARISH_REJECTION trigger (level rejection + EMA ribbon flip +
 ## Pre-existing leaderboard impact
 
 This candidate is a filter_change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup and does not modify any existing candidate in the leaderboard. It complements structural filters like the midday_trendline_gate and structure_veto by adding a micro‑structure condition on the tested level. No known conflicts; if shown to improve edge_capture without harming anchor days, it could be stacked with other passing filters.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_lower_highs_counter.py -->

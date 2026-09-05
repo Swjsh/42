@@ -69,3 +69,5 @@ For each, the leaderboard shows projected edge_capture and Sharpe gains, but the
 - Does not conflict with existing top candidates; rather, it seeks to explain why certain keepers (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) show strong projected scores and where further refinement may be possible.  
 - Complements filter‑change candidates like BULL_SCOPE_LOCK_REVAL, BULL_MIN_TRIGGERS_FLOOR_REVAL, and F8_BULL_VIX_GATE_REVAL by highlighting their sensitivity to parameter thresholds.  
 - No direct duplication of current proposals; instead, it provides a meta‑view for prioritizing parameter‑tuning work over entirely new signal generation.
+
+<!-- PROVENANCE-MISSING: test_vix_bull_threshold.py -->

@@ -50,3 +50,5 @@ Needs Stage-1 backtest to confirm per-day P&L, OOS walk-forward with WF>=0.70, r
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; edge_capture far below floor, so would be REJECTED at door if submitted.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

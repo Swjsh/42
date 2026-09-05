@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; adds a new short‑side trigger that could complement existing long‑side setups if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

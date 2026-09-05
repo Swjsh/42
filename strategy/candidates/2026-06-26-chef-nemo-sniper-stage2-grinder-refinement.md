@@ -62,3 +62,5 @@ The candidate requires the following pre-merge gates to pass:
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, particularly the SNIPER_VIX_TREND_OOS_CONFIRMED candidate, which also focuses on high-VIX environments. The candidate's refined entry conditions and VIX-trend filter may provide a more precise edge capture than the existing candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

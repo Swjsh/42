@@ -66,3 +66,5 @@ We are testing whether a tight stop (35% of premium), 150% take profit, chandeli
 Does not meet OP-16 floor (edge_capture < 771) → ineligible for leaderboard. No direct conflict with current candidates. If improved to meet floor, would compete based on edge_capture and sharpe; current edge_capture too low for meaningful comparison.  
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

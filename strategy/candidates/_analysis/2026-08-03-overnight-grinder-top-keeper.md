@@ -69,3 +69,5 @@ These changes aim to capture more profit on trend days while limiting losses via
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture ≥771). This keeper would be REJECTED at the door per OP-16 (edge_capture <771) and requires OOS walk-forward and real-fills validation before reconsideration. Even if validated, concentration and anchor-day misses likely prevent promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

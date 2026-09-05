@@ -47,3 +47,5 @@ Exit rules:
 1. **Account-size assumption:** qty=10 requires account size ≥ $10,000 per risk-rules.md position sizing schedule ($10K–$25K tier: 10 contracts). For $1.00 entry premium, 10 contracts = $1,000 deployed; 50% risk cap requires $2,000 account. Actual account size must satisfy 50% per-trade risk cap given entry premium and stop distance.
 2. **Sample bias:** 16-month sample, wide_n_trades=208 trades. Parameter sweep over 10+ dimensions; top keeper selected from 5 keepers. High overfit risk due to multiple comparisons without OOS validation.
 3. **
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

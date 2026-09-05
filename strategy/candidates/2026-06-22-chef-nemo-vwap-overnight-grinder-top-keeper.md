@@ -62,3 +62,5 @@ Gym validators must pass, walk-forward OOS test must show positive edge_capture 
 ## Pre-existing leaderboard impact
 
 This candidate conflicts with leaderboard inclusion because its edge_capture (40.01) is below the 771 OP-16 rejection floor. It would be REJECTED at the door and does not complement any existing candidate, as it lacks viability for J's source-of-truth days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

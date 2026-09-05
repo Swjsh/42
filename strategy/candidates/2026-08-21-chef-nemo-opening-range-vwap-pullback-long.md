@@ -61,3 +61,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any of the current leaderboard entries (ranks 1‑9). Those are primarily watcher quality gates, DTE studies, or structural filters; this proposal introduces a new entry trigger based on opening range and VWAP pullback, targeting a distinct setup type not represented in the leaderboard. It would therefore be additive if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

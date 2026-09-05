@@ -55,3 +55,5 @@ Must pass gym validators (backtest/autoresearch/*_test.py), require walk-forward
 ## Pre-existing leaderboard impact
 
 This candidate does not meet the OP-16 floor (edge_capture=506.55 < 771) and would be REJECTED at the door. It does not impact the current leaderboard as it is not eligible for inclusion. It represents a direction that may require significant rework to become competitive.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

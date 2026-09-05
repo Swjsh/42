@@ -61,3 +61,5 @@ This candidate fails the OP-16 edge_capture floor (<771) and requires:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder output. It conflicts with no leaderboard candidates directly but reinforces the need for rigorous OOS validation before promotion (as seen in candidates like WEEKLY_DTE_NOT_0DTE and STRUCTURE_VETO_DIR_VS_TREND). The negative edge_capture confirms this keeper would be REJECTED if submitted as a candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

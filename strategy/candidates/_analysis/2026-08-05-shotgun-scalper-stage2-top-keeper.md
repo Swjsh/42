@@ -66,3 +66,5 @@ Relative to a baseline (unknown from the provided data), the combination uses a 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate for the leaderboard; it evaluates a keeper from an internal sweep. If mistakenly promoted, it would conflict with all existing leaderboard entries (which all have positive edge_capture ≥ 771) and would be immediately rejected under OP-16. The keeper's negative edge_capture places it far below the acceptance floor, so it should not be added to the leaderboard or considered for promotion without substantial rework and re‑validation. At present, it serves as a cautionary example of overfit in a relaxed‑gate sweep.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

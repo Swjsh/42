@@ -60,3 +60,5 @@ To promote this keeper to the leaderboard, it must first pass:
 ## Pre-existing leaderboard impact
 
 This keeper does not currently meet the OP-16 edge_capture floor of 771 (based on the reported edge_capture of 506.55, assuming it is comparable). Even if the OP-16 edge_capture were higher, it would require validation. It does not conflict with existing leaderboard candidates as it is not yet qualified for the leaderboard. Assessment of the other 4 keepers from the shotgun_scalper_stage4 output is not possible with the provided input data.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

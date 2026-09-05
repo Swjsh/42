@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB-related gates (ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER) by offering a long-only trigger alternative; conflicts with ORB_RETEST_LONG (not in leaderboard but referenced in novelty claim) as it enters on initial breakout vs retest. No direct overlap with top leaderboard candidates (WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE) as it operates on different timeframe and trigger logic. Would require evaluation against MIDDAY_TRENDLINE_GATE for midday signal competition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

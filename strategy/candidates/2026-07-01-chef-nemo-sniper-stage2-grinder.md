@@ -49,3 +49,5 @@ Before merging this candidate, we need to conduct a Stage-1 backtest to validate
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it represents a new trigger mechanism that has not been previously explored.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

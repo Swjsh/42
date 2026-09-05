@@ -34,3 +34,5 @@ As of the latest check, the V14E_BEAR_ONLY_GATE watcher is active and accumulati
 ## Pre-existing leaderboard impact
 
 This analysis does not change the leaderboard status of V14E_BEAR_ONLY_GATE. It remains PROMISING until the OP-21 gate is met.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

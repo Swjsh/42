@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict identified with current leaderboard candidates. Existing volatility-based ideas (e.g., VOLATILITY_COMPRESSION in registry) lack the prior-day extreme breakout direction filter and volume surge requirement, suggesting novelty. However, potential overlap with ORB_RETEST_LONG (watcher-only) or TRENDLINE_BREAK_CALL_VETO exists; further analysis needed post-backtest to confirm distinct edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

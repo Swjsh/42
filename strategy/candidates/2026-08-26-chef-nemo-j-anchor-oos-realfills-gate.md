@@ -58,3 +58,5 @@ For each candidate:
 ## Pre-existing leaderboard impact
 
 This gate does not conflict with existing candidates; it adds a mandatory validation step that all current and future candidates must pass before promotion. It complements the leaderboard by ensuring any displayed candidate has already cleared the OOS and real‑fills hurdle, reducing false positives. No current leaderboard entry would be invalidated by this gate (they have already passed analogous checks per their files).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

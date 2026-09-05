@@ -60,3 +60,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 does not conflict with existing candidates; introduces a new short‑biased ORB trigger with volume condition not present in ORB_RETEST_LONG, ORB_NARROW_OR_GATE, or ORB_DIRECTION_FILTER. May complement existing ORB‑related watchers by adding a short‑side signal.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

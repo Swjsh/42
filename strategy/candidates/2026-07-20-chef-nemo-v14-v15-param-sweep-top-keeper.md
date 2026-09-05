@@ -54,3 +54,5 @@ Gym validators (Stage-1 backtest) must show edge_capture >= 771, walk-forward OO
 ## Pre-existing leaderboard impact
 
 Does not appear on leaderboard due to edge_capture < 771. If promoted, would be a new candidate type (parameter change) but likely conflicts with existing parameter-optimized candidates (none currently on leaderboard due to OP-16 floor).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

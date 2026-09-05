@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk-fo
 ## Pre-existing leaderboard impact
 
 Complements existing NAMED_LEVEL_SECOND_TEST concept by adding direction (short bias) and specific filters (VIX > 20, bearish rejection candle). No direct conflict with current leaderboard candidates (which are primarily filters, exits, or quality gates), but may overlap in named-level logic space. Requires differentiation testing to confirm additive value.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

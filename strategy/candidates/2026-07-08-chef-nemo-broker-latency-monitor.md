@@ -59,3 +59,5 @@ Add a timer in the order-gateway module around the order submission and acknowle
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates as it does not alter trading logic. It complements the leaderboard by providing system health monitoring that can support all strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ Gym validators must pass; walk-forward validation must show WF ratio >= 0.50 (to
 ## Pre-existing leaderboard impact
 
 This analysis evaluates the base SNIPER_LEVEL_BREAK parameter set. The leaderboard currently contains SNIPER candidates with VIX filters (e.g., #13 SNIPER_VIX18_GRINDER, #14 SNIPER_VIX_TREND_OOS_CONFIRMED, #15 SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP). If validated, this base parameter set would complement existing SNIPER_VIX_TREND candidates by providing a non-filtered baseline. It does not conflict with current leaderboard entries as no base SNIPER_LEVEL_BREAK candidate is listed (all SNIPER candidates in leaderboard incorporate VIX regime filters). Validation could enable a new candidate for the SNIPER_LEVEL_BREAK trade class without VIX filters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

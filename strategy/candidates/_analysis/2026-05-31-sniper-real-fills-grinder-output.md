@@ -76,3 +76,5 @@ The 4/29 loss (-$329) suggests SNIPER entered on a setup that moved opposite to 
 **Do not proceed with this parameter space.** The SNIPER_LEVEL_BREAK variant tested by this grinder is fundamentally misaligned with J's source-of-truth trades.
 
 **Next step:** If SNIPER is to be pursued, return to the VIX-trend variants (candidates #14-15 on leaderboard) which have OOS-confirmed edge_capture and proper walk-forward validation. The real-fills grinder should test parameters closer to those successful variants rather than arbitrary sweeps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

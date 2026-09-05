@@ -52,3 +52,5 @@ Walk-forward OOS analysis was conducted on the top keepers from the leaderboard 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>  
 Analysis confirms top keepers (ranks ★★, ★, 3, 4, 17, 21, 22, 23, RV BULL_SCOPE_LOCK_REVAL, RV BULL_MIN_TRIGGERS_FLOOR_REVAL, RV F8_BULL_VIX_GATE_REVAL) maintain or improve OP-16 edge_capture above 771 on OOS J days where data exists. Candidates requiring Stage-1 backtest (WEEKLY_DTE_NOT_0DTE, V14E_PARAM_SWEEP_26K, MIDDAY_TRENDLINE_GATE) do not conflict but need validation. No impact on leaderboard rankings; analysis supports PROMISING/J-RATIFIED status for invariant gates. Complements by validating edge_capture preservation. No contradiction with existing leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

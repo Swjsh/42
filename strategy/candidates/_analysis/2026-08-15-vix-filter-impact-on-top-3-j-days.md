@@ -54,3 +54,5 @@ We will validate by:
 
 ## Pre-existing leaderboard impact
 This analysis does not propose a change to the engine. It is a validation of an existing filter (F8). The candidate F8_BULL_VIX_GATE_REVAL is currently in the leaderboard with status KEEP. This analysis supports the decision to keep the filter (since it has no impact on the J anchor days, which are critical for OP-16). We do not conflict with any existing candidate; we are merely providing validation that the filter is inert on the top 3 J winner days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

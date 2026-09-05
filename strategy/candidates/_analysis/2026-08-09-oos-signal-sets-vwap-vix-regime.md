@@ -66,3 +66,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This analysis does not directly conflict with any existing candidate in the leaderboard. It is a meta-analysis that could inform the combination of these two setups or the use of one as a filter for the other. It does not propose a change to the engine, so it does not affect the leaderboard rankings of existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

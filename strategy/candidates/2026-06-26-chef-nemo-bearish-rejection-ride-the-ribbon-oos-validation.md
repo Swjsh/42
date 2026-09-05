@@ -52,3 +52,5 @@ The setup uses a combination of level rejection, EMA ribbon flip, and confluence
 ## Pre-existing leaderboard impact
 
 The proposed behavior does not conflict with or complement any existing candidates in the leaderboard. It is a new trigger branch that requires OOS validation and real-fills validation before ratification.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

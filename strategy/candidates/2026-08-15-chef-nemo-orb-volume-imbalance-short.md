@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements ORB_NARROW_OR_GATE (watcher-only long bias) by adding short-side ORB trigger; conflicts with ORB_RETEST_LONG (long retest) as opposing directional bias; no direct duplication in registry per novelty claim.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

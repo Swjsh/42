@@ -57,3 +57,5 @@ The VWAP overnight grinder sweep identified a parameter combo that isolates VWAP
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; fails OP-16 gate so would be REJECTED if submitted. No complement to current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

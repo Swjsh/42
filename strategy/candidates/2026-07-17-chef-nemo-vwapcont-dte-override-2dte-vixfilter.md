@@ -56,3 +56,5 @@ Gym validators (all tests pass), walk-forward OOS Sharpe ratio > 0.70, real-fill
 ## Pre-existing leaderboard impact
 
 This candidate modifies the existing HOLD candidate (VWAPCONT_DTE_OVERRIDE_2DTE) by adding a filter. It does not conflict with other candidates in the leaderboard; it is an attempt to resurrect a staged proposal by addressing its primary weaknesses (WF degradation, quarterly inconsistency). If successful, it could replace the HOLD candidate with a PROMISING status. No known conflicts with candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

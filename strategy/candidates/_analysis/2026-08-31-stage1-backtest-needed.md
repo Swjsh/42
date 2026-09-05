@@ -34,3 +34,5 @@ Stage-1 backtest must pass gym validators, walk-forward OOS must show positive e
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with existing candidates; it is a prerequisite for evaluating any new candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

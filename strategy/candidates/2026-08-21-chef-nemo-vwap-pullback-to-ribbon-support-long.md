@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing strategies by adding a long-biased trigger for uptrend conditions. Does not conflict with bearish-focused candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) as it targets opposite market direction. May overlap with VWAP_CONTINUATION but adds tighter VWAP band, EMA ribbon, and engulfing candle filters. No direct duplication in current leaderboard (all candidates are bearish/PUT focused or watcher-only).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

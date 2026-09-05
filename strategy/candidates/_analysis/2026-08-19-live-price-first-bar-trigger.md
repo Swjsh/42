@@ -54,3 +54,5 @@ We need: Stage-1 backtest (grinder) to pass, then OOS walk-forward with WF>=0.70
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This candidate is already in the leaderboard at rank 2 as NEEDS-MORE-DATA. Running Stage-1 backtest will help determine if it should be promoted to PROMISING or rejected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (midday range sweep reversal) that does not directly modify any existing candidate in the leaderboard. It is orthogonal to current watchers, filters, and exits, so it does not conflict with candidates 1‑9. If successful, it could complement existing strategies by adding a distinct entry logic that operates in a different time window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

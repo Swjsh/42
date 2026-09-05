@@ -64,3 +64,5 @@ Exit:
 ## Pre-existing leaderboard impact
 
 Complements existing candidates by focusing on SNIPER_LEVEL_BREAK exit tuning. Does not conflict with leaderboard candidates (all have edge_capture ≥ 771; this candidate targets that threshold). If validated, could add a new exit_change variant to the leaderboard. Current leaderboard relies on v14e and structural gates; this explores premium-exit optimization for SNIPER setups.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

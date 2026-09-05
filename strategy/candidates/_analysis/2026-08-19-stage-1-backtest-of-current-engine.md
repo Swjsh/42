@@ -58,3 +58,5 @@ No mechanism change; this analysis measures the existing engine's performance on
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose any engine change; it merely seeks to establish baseline performance. It does not conflict with any candidate. Once baseline numbers are known, candidates can be re-scored against the updated edge_capture and Sharpe values. No immediate leaderboard update is possible until the backtest is run.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

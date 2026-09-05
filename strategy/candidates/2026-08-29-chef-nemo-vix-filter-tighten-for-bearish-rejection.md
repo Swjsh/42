@@ -62,3 +62,5 @@ This ensures entries only occur when fear is elevated and increasing, or at extr
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VIX-related filters (e.g., F8_BULL_VIX_GATE_REVAL, VIX_BULL_HARD_CAP_UNBLOCK). May overlap with BEAR_SCORE_7_RELAXATION (which failed due to 5/04 dependency) but uses different mechanism. No direct impact on leaderboard ranks as it is a new proposal.
+
+<!-- PROVENANCE-MISSING: test_vix_filter_tighten_bearish_rejection.py -->

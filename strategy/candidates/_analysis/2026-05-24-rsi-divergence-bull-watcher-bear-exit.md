@@ -64,3 +64,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 Complements RSI_DIVERGENCE_BULL_WATCHER (rank 11) by testing its bear-exit utility. No conflict with existing candidates as it's an analytical enhancement to an existing watcher. Would require new candidate if watcher update is approved (type: exit_change). Current leaderboard impact: neutral (analysis-only).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

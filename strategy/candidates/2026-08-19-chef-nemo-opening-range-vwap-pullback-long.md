@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This proposal introduces a new long-biased trigger mechanism. It does not directly conflict with existing candidates (which are predominantly watcher proposals, gates, or structural filters) but may compete for capital allocation with other long strategies. As a novel trigger type, it would be evaluated independently on its own merits.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ This candidate requires a Stage-1 backtest to evaluate its performance on the J 
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with or complement any existing candidates in the leaderboard, as it is a new trigger based on the sniper_overnight_grinder output.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

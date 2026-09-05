@@ -55,3 +55,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are filters, gates, or watcher proposals). Complements by providing a new trigger type that could be layered with existing quality gates (e.g., V14E_BEAR_ONLY_GATE) or used as alternative entry to VWAP_CONTINUATION. No overlap with current leaderboard entries which focus on vetoes, DTE studies, or watcher refinements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

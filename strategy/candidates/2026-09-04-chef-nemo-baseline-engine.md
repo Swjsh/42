@@ -59,3 +59,5 @@ For this baseline measurement, we require:
 ## Pre-existing leaderboard impact
 
 This baseline measurement does not conflict with any candidate; it provides the reference point (edge_capture_baseline, Sharpe_baseline) against which all candidates are measured. It complements the leaderboard by providing the anchor for OP-16 calculations.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by targeting inverse gap behavior; conflicts with GAP_AND_GO which trades gap continuation. No direct parameter overlap with current leaderboard entries (all are structural gates or watchers). Would add new trigger branch to heartbeat.md if ratified.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

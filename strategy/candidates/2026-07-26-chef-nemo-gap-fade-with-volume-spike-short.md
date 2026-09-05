@@ -52,3 +52,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not conflict with existing leaderboard candidates (which are primarily filters, exits, or quality gates). It may complement existing strategies by providing a distinct entry signal that could be combined with current exit logic or filters after validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

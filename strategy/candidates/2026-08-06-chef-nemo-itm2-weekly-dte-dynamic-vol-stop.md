@@ -65,3 +65,5 @@ We hypothesize that replacing the fixed -8% premium stop with a dynamic stop sca
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with current leaderboard candidates; it is an exit_change on the WEEKLY_DTE_NOT_0DTE idea. It complements WEEKLY_DTE_NOT_0DTE by addressing its 57% fewer contracts blocker. It may conceptually conflict with DYNAMIC_STOP_VS_STATIC (which rejected dynamic stops) but tests a different hypothesis: dynamic stop to maintain contract count, not to optimize stop level. No direct parameter/engine edits proposed; remains a capability finding pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

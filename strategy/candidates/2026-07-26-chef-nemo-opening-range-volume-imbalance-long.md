@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (mostly watcher quality gates, exits, or other triggers like VWAP_CONTINUATION). Complements ORB_RETEST_LONG watcher by using volume imbalance *within* the OR as entry signal instead of waiting for a retest of an OR breakout. No overlap in mechanism or timing with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -52,3 +52,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP_CONTINUATION (which trades VWAP pulls in trends) by adding gap condition and opposite VWAP relationship; conflicts with GAP_AND_GO (which trades gap continuation) as it fades gaps under specific conditions. No direct duplication in leaderboard (no similar gap-fade VWAP mean reversion candidate present). Should be evaluated independently before considering interactions.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

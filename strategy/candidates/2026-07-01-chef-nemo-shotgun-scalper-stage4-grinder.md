@@ -56,3 +56,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides a new perspective on the keeper strategies and their potential for improving trading performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

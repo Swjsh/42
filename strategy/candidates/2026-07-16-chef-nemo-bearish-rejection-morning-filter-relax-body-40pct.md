@@ -60,3 +60,5 @@ The BEARISH_REJECTION_MORNING watcher (currently WATCH-ONLY) evaluates multiple 
 ## Pre-existing leaderboard impact
 
 Complements existing WATCH-ONLY candidates (ranks 16-23); no direct conflict as it modifies only BEARISH_REJECTION_MORNING watcher (rank 20). Does not alter engine behavior or params.json. If later promoted to live trigger, would need re-evaluation against structural candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) but currently isolated watcher change. No overlap with active engine triggers (e.g., VWAP_CONTINUATION, GAP_AND_GO).
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_bearish_rejection_morning_watcher.py -->

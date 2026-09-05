@@ -58,3 +58,5 @@ In `heartbeat_core.decide_payload` (or the equivalent signal‑generation functi
 ## Pre-existing leaderboard impact
 
 This candidate is neutral/complementary to existing leaderboard entries. It does not alter any strategy parameters, triggers, or exits; it merely adds a timing guard. Therefore it should not conflict with any of the current candidates (ranks 1‑9 in _LEADERBOARD.md) and may provide a small safety benefit without affecting their reported edge_capture or Sharpe.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -51,3 +51,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not directly conflict with existing quality‑gate or exit‑change candidates. It may complement strategies that rely on level‑based entries (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) by providing an alternative long‑bias trigger. No overlap with current watcher‑only or structural‑gate candidates. If proven effective, it could be added as a new trade class alongside existing bullish setups, pending OP‑21 confirmation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

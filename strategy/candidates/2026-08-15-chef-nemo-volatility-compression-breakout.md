@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with candidates 1-9 in _LEADERBOARD.md. Complements existing structural gates (e.g., MIDDAY_TRENDLINE_GATE, BEARISH_REJECTION_RIDE_THE_RIBBON) by targeting a different setup type (volatility compression breakout vs. trend/structure-based). No overlap in trigger logic with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

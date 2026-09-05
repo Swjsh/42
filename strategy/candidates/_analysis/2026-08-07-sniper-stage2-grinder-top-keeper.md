@@ -73,3 +73,5 @@ These changes collectively tighten entry criteria (higher vol_mult, body_min, mi
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771). This analysis suggests the sniper_stage2_grinder output does not meet OP-16 thresholds and should not be promoted; further refinement or alternative signal needed. No duplication with existing candidates 1-24 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

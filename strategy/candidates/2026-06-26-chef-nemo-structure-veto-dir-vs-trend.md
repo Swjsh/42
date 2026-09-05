@@ -53,3 +53,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, as it provides an additional layer of risk management and potentially improves the overall performance of the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

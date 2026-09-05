@@ -54,3 +54,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This new trigger does not conflict with existing candidates (mostly gates/filters/VWAP/ORB). No direct overlap with current leaderboard entries which lack ATR compression breakout with volume spike logic. May complement existing volatility-based strategies if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

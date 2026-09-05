@@ -54,3 +54,5 @@ The candidate's OOS WF ratio is reported as 1.084 overall (from the leaderboard)
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis is for candidate #15. It does not directly conflict with other candidates but highlights a regime concentration risk (2026-Q1 driving all OOS P&L) that may affect robustness.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

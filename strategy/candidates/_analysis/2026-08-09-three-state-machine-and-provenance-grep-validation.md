@@ -64,3 +64,5 @@ We hypothesize that the three-state machine (idle → armed → triggered) and p
 ## Pre-existing leaderboard impact
 
 No impact -- this is a validation analysis, not a strategy change. Complements all candidates by ensuring engine logic is sound before evaluating new proposals. Conflicts with none in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_three_state_machine.py, backtest/tests/test_provenance_grep.py, test_three_state_machine.py, test_provenance_grep.py -->

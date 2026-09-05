@@ -61,3 +61,5 @@ All metrics will be recorded and compared to the OP‑16 acceptance criteria.
 ## Pre-existing leaderboard impact
 
 This analysis does not propose any engine change; it merely evaluates the current state. Therefore it does not conflict with any existing candidate (ranks 1‑9). It complements the leaderboard by providing a baseline against which future candidates can be measured. If the current engine fails to clear the OP‑16 floor, candidates that improve edge_capture become more valuable; if it passes, the bar for new candidates is higher. No direct impact on the ranking of existing candidates.
+
+<!-- PROVENANCE-MISSING: test_heartbeat_cli.py, test_exit_manager.py -->

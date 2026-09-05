@@ -55,3 +55,5 @@ The guard must be applied to all watcher scripts in the repo, and a test must ve
 This guard does not conflict with any existing candidate; it is a data acquisition hygiene improvement that should be applied to all watchers to ensure reliable observation collection.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

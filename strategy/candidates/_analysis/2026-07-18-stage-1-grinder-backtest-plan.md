@@ -54,3 +54,5 @@ Grinder must pass:
 ## Pre-existing leaderboard impact
 
 This analysis is purely meta; it does not alter any existing candidate's status. Its purpose is to quantify edge_capture, max drawdown, and concentration for each candidate so that Chef can promote/demote based on OP-16 floors and other gates. No conflict with current leaderboard entries.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/grinder.py -->

@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VWAP-based candidates (e.g., VWAP_CONTINUATION) by targeting a different session opening dynamic; no direct conflict with structural DTE or watcher gates in leaderboard. Does not overlap with existing gap continuation (GAP_AND_GO) as it specifically requires VWAP failure for entry.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

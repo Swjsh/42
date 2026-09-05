@@ -71,3 +71,5 @@ This maintains structural integrity while adding sensitivity to reclaims in tren
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-24). Complements TRENDLINE_BREAK_CALL_VETO (rank WS4) by providing alternative bullish trigger. May overlap with BULL_MIN_TRIGGERS_FLOOR_REVAL (rank RV) but operates on different mechanism (level_state vs trigger count). No direct contradictions in _LEADERBOARD.md.
+
+<!-- PROVENANCE-MISSING: test_detect_level_reclaim_decoupled.py -->

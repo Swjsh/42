@@ -60,3 +60,5 @@ Adding the structure veto (which blocks trades against the intraday trend) to th
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing WEEKLY_DTE_NOT_0DTE (rank ★★) and STRUCTURE_VETO_DIR_VS_TREND (rank ★) by combining them. It does not conflict with any existing candidate in the leaderboard because it is a new combination. It may supersede the individual components if it proves superior.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -66,3 +66,5 @@ All other parameters (e.g., position sizing, risk caps) remain at baseline.
 ## Pre-existing leaderboard impact
 
 This candidate would be **REJECTED** at the door per leaderboard rules (`edge_capture < 771`). It does not conflict with any existing leaderboard entries because it fails the minimum edge threshold. If OOS validation were to lift edge_capture above the floor, it would need to be evaluated against current leaders (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) for potential promotion. At present, it represents a dead‑end direction unless the exit logic is radically retuned.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

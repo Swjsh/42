@@ -64,3 +64,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type (midday level sweep reversal) that does not overlap with existing candidates in the leaderboard. It complements existing quality gates and watchers by providing a distinct entry logic focused on intraday liquidity sweeps, and therefore should not conflict with any current ranked candidates. If proven effective, it could be added as a new trigger alongside existing ones like VWAP_CONTINUATION or GAP_AND_GO.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

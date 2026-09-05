@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing ORB_RETEST_LONG watcher by adding VWAP/volume filters; does not conflict with any ranked candidates in _LEADERBOARD.md as it is a new trigger type. May provide orthogonal edge if validated.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

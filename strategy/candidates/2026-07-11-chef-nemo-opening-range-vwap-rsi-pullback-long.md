@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger long-biased setup for the first 90 minutes and does not directly conflict with existing leaderboard candidates (which are primarily structural, wiring, or watcher proposals). It may complement by adding a novel morning mean-reversion long approach to the strategy suite, pending validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

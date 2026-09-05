@@ -67,3 +67,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** type and does not directly modify any existing candidate in the leaderboard (ranks 1‑9). It is complementary in that it provides a short‑bias signal that could fire on days where the current long‑biased setups (e.g., VWAP_CONTINUATION, GAP_AND_GO) are inactive or reversed, potentially adding orthogonal edge without conflicting with existing long‑only rules. No parameter or engine changes are proposed at this stage.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

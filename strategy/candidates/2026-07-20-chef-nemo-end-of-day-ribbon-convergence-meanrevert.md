@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (type=new_trigger). Complements mean-reversion approaches but differs from ribbon-riding strategies (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) by trading convergence/divergence exhaustion rather than directional continuation. No direct overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

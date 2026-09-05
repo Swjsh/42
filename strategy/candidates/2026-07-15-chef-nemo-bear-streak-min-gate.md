@@ -56,3 +56,5 @@ Compute the current bearish streak (consecutive bearish bars) at the time of a B
 ## Pre-existing leaderboard impact
 
 Complements existing BEARISH_REJECTION_RIDE_THE_RIBBON setup by adding a quality filter. Does not conflict with any ranked candidates in _LEADERBOARD.md (all are either structural, watcher-only, or revalidations). May interact with streak-based gates in quality miner (e.g., if bearish_streak_min is already used elsewhere, this gate would be redundant; but current quality miner uses streak>=3 as a positive signal, not a blocker).
+
+<!-- PROVENANCE-MISSING: test_bearish_streak_min_gate.py -->

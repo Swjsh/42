@@ -67,3 +67,5 @@ This candidate should NOT be promoted to the leaderboard. It fails the fundament
 **Recommended action:** Run OOS walk-forward to confirm the overfit hypothesis, then discard this candidate. The prior Stage 1 combo (rank 15) with vol_mult=0.9 remains the best SNIPER variant.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

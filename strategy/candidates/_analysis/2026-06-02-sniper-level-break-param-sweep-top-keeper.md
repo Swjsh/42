@@ -51,3 +51,5 @@ The improvement in wide_pnl likely comes from the combination of tighter stops (
    - Max drawdown: unknown without equity curve.
    - Blow-up scenario: A series of loser day trades with large losses (e.g., if the strategy takes multiple large losing trades on days like 5/05, 5/06, 5/07) could quickly deplete account.
 6. **Concentration:** Top-5 days: 5/04 ($115.98), 5/07 ($147.13), 5/07_2 ($147.13), 5/05 ($126.51), 4/29 ($113.65) -> sum = $650.40. Total wide_pnl=$24,696.4
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

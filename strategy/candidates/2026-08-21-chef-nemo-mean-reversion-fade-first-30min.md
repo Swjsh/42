@@ -78,3 +78,5 @@ After an extreme directional move in the first 30 minutes of RTH, SPY exhibits m
 This candidate is orthogonal to existing trend-following and structure-based candidates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION) as it fades early momentum rather than riding it. No direct parameter conflicts as it introduces a new trigger mechanism. May complement volatility-based candidates by providing short-term countertrend exposure during high-VOL regimes where trend followers struggle. Does not conflict with any watcher-only candidates as it proposes execution-armed logic.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_mean_reversion_fade_first_30min.py -->

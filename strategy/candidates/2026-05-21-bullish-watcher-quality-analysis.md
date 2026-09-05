@@ -227,3 +227,5 @@ never met — a structural limitation this doc itself diagnosed and nothing sinc
 · counted `watcher_name`-matched `bullish` rows in that file → 5 (2026-09-02/03 only)
 
 No production/FROZEN_TRADING_PATH files touched. Leaderboard row update deferred to K9.
+
+<!-- PROVENANCE-MISSING: automation/state/watcher-observations.json -->

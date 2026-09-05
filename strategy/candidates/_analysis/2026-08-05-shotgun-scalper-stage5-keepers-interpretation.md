@@ -72,3 +72,5 @@ Before any promotion to LEADERBOARD or WATCH, the following must be completed:
 ## Pre‑existing leaderboard impact
 
 The top keeper’s edge_capture (506.55) is below the rejection threshold of 771, so it would not appear on the leaderboard as a standalone candidate. It could potentially act as a **filter_change** or **quality_gate** when combined with other strategies (e.g., as a volatility‑based entry filter for VWAP_CONTINUATION or BEARISH_REJECTION). It does not directly conflict with any existing top‑10 leaderboard entries, as those are all anchored on OP‑16‑relevant days and have edge_capture >771. If further tuned to raise edge_capture above 771, it could complement existing strategies by providing additional trade frequency during non‑anchor periods.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

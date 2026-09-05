@@ -59,3 +59,5 @@ All other context filters, trigger requirements, entry/exit logic, and position 
 ## Pre-existing leaderboard impact
 
 Complements BEARISH_REJECTION_RIDE_THE_RIBBON (no conflict); may conflict with candidates that loosen VIX conditions (e.g., VIX_BULL_HARD_CAP_UNBLOCK inverse for bulls). Does not duplicate existing PROMISING candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND works on different mechanism).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

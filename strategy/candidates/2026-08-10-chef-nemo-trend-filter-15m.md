@@ -64,3 +64,5 @@ Veto PUT entries in uptrend, veto CALL entries in downtrend. Uses existing EMA/A
 ## Pre-existing leaderboard impact
 
 Complements STRUCTURE_VETO_DIR_VS_TREND (Rank ★) by targeting different timeframe (15m vs 5m) and error type (trend misalignment vs intrabar structure). No direct conflict; may be stacked if both pass orthogonal validation. Does not conflict with MIDDAY_TRENDLINE_GATE (Rank 21) as time windows differ (15m trend persistent vs 11:30-14:00 specific). Risks overlap with VWAP_CONTINUATION if both use trend filters; requires A/B testing to ensure additive effects.
+
+<!-- PROVENANCE-MISSING: test_15m_trend_filter.py -->

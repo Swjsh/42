@@ -58,3 +58,5 @@ We require:
 ## Pre-existing leaderboard impact
 
 This candidate proposes a change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup, which is the underlying strategy for many candidates. It may complement candidates that are structural (like STRUCTURE_VETO_DIR_VS_TREND) but could conflict with candidates that modify the VIX confirmation (like F8_BULL_VIX_GATE_REVAL, which is for bulls). Since we are only changing the bearish VIX filter, it should not directly conflict with bull-specific candidates. However, it may affect the performance of any candidate that relies on the BEARISH_REJECTION_RIDE_THE_RIBBON setup.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Add a pre-entry filter that checks the current VIX value (from the same data fee
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; acts as a complementary filter that may improve edge_capture for multiple strategies (e.g., BEARISH_REJECTION, BULLISH_RECLAIM, VWAP_CONTINUATION). No overlap with existing filter changes in leaderboard. Safe to test alongside current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

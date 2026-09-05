@@ -64,3 +64,5 @@ Real-fills: NEEDS-REAL-FILLS
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a candidate, so it does not conflict with the leaderboard. It suggests that the VWAP overnight grinder approach, as parameterized in the top keeper, is not suitable for capturing the J edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

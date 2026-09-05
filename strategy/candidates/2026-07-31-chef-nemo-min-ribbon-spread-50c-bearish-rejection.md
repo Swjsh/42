@@ -58,3 +58,5 @@ Raising the minimum ribbon spread requirement from 30 cents to 50 cents for BEAR
 ## Pre-existing leaderboard impact
 
 This candidate does not directly modify any existing candidate in the leaderboard (ranks 1‑9). It may interact with other BEARISH_REJECTION‑related filters (e.g., `MAX_RIBBON_DUR_8`, `CONFLUENCE_TOL_1_00`) but no direct conflict is identified. It should be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

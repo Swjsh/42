@@ -50,3 +50,5 @@ Since no candidates were generated, no gate is needed. If candidates were genera
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate, so it does not conflict with existing candidates. It reports that the Stage-1 backtest yielded no candidates worthy of further validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

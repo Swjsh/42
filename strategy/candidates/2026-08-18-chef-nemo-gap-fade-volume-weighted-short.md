@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre‑existing leaderboard impact
 
 This candidate does not conflict with any of the current top‑9 entries in _LEADERBOARD.md_. The registry contains GAP_AND_GO (continuation) and various level‑based sweeps, but no gap‑fade strategy that filters on low initial volume. It is therefore novel and complementary, assuming it passes validation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

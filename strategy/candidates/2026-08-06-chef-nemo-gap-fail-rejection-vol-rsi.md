@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with candidates 1‑9 in _LEADERBOARD.md; the setup is orthogonal (new trigger combining gap, VWAP, volume, RSI). It may complement existing filters by providing additional short‑side signals in elevated volatility regimes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

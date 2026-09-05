@@ -60,3 +60,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 This candidate is a **new_trigger** and does not appear to conflict with any existing candidates in the leaderboard. It is complementary to existing bearish setups (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) and could be run alongside them provided the regime filters are respected. No direct duplication of logic is present in the current leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -62,3 +62,5 @@ Gym validators, walk-forward OOS test, real-fills validation on top 3 J days, OP
 ## Pre-existing leaderboard impact
 
 Complements existing candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) by adding a directional filter layer; no direct conflict as it targets a different signal generation approach.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

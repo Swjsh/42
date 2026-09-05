@@ -55,3 +55,5 @@ Real-fills simulation: top 3 J days must show < ±20% deviation from BS-sim.
 ## Pre-existing leaderboard impact
 
 This candidate is currently ranked ★★ in the leaderboard as PROMISING. Ratifying it would move it to J-RATIFIED, complementing existing J-RATIFIED candidates like V14E_PARAM_SWEEP_26K, V14E_BEAR_TIME_OF_DAY_GATE, and MIDDAY_TRENDLINE_GATE. It does not conflict with existing candidates as it modifies DTE rather than signal or exit logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

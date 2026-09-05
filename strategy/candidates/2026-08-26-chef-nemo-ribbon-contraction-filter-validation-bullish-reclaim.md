@@ -69,3 +69,5 @@ This candidate does not conflict with any existing leaderboard candidates becaus
 However, note that the leaderboard does not have any candidate for the BULLISH_RECLAIM_RIDE_THE_RIBBON trigger. Therefore, this candidate is independent.
 
 But note: the leaderboard has candidates that are filters (like the V14E_BEAR_ONLY_GATE, ORB_NARROW_OR_GATE, etc.). This candidate is a filter for a different trigger, so it should not conflict.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

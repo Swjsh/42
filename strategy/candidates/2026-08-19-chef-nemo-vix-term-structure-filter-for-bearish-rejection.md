@@ -61,3 +61,5 @@ Pre-existing leaderboard impact: Must not degrade edge_capture on J anchor days 
 This candidate complements the BEARISH_REJECTION_RIDE_THE_RIBBON setup (core strategy) and is intended as an additive filter. It does not conflict with any existing candidate in the leaderboard (ranks 1-24) because it targets the same setup as the foundation. It is orthogonal to structural gates like STRUCTURE_VETO_DIR_VS_TREND (rank ★) and could potentially stack with them. No known overlap with watcher-only candidates or DTE studies. If successful, it would likely be deployed as a new filter key in params.json (e.g., `vix_term_structure_contango_required`) alongside the existing VIX confirmation filter.  
 
 ---
+
+<!-- PROVENANCE-MISSING: test_vix_term_structure_filter.py -->

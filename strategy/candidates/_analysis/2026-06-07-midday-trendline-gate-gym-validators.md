@@ -50,3 +50,5 @@ Gym validators must pass (all 32 midday losers suppressed for the 1-trig trendli
 ## Pre-existing leaderboard impact
 
 This analysis evaluates the MIDDAY_TRENDLINE_GATE candidate currently ranked #21 on the leaderboard; results will inform its ratification readiness. No conflict with existing candidates; complements the V14E_BEAR_TIME_OF_DAY_GATE (rank 17) by covering an adjacent time window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

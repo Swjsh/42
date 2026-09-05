@@ -62,3 +62,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates in _LEADERBOARD.md; introduces a new trigger type (volatility‑compression ORB break) that is orthogonal to current quality‑gates, exit‑changes, and watcher proposals. No overlap with approved triggers (LIVE_PRICE_FIRST_BAR_TRIGGER, etc.). Should be evaluated independently.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

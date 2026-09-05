@@ -65,3 +65,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type and does not directly modify any existing logic in the leaderboard. It complements the existing VWAP_CONTINUATION detector by adding a more restrictive entry condition (hammer + low RSI) within a bullish EMA stack, potentially reducing false positives. No known conflict with current candidates 1‑9, 11‑24, or the J‑ratified strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

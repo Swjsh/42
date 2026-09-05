@@ -57,3 +57,5 @@ Entry trigger: The entry logic remains the VWAP_CONTINUATION signal: the first â
 ## Pre-existing leaderboard impact
 
 Complements the live VWAP_CONTINUATION setup (not currently on leaderboard as it is live). Does not conflict with any ranked candidate in _LEADERBOARD.md as it is a new filter layer. May subsume some candidates that attempt to modify VWAP_CONTINUATION (e.g., VWAPCONT_DTE_OVERRIDE_2DTE) by providing a more robust volatility/volume-based adjustment.
+
+<!-- PROVENANCE-MISSING: test_vwap_cont_vol_filter.py -->

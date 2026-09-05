@@ -64,3 +64,5 @@ The exit logic remains unchanged.
 ## Pre-existing leaderboard impact
 
 Complements existing J-RATIFIED candidates (e.g., STRUCTURE_VETO_DIR_VS_TREND, MIDDAY_TRENDLINE_GATE) by refining trigger timing for bearish setup. No conflicts; targets different market structure (morning rejection vs. trend-veto or midday trendline). Adds orthogonal improvement to trigger quality without altering exit logic or existing vetoes.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

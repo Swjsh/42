@@ -65,3 +65,5 @@ This parameter set aims to capture edge on J anchor days by tightening stops and
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing keeper from the shotgun_scalper_stage5 grinder. The keeper's edge_capture (506.55) is below the OP-16 floor of 771, so it would not qualify for the leaderboard regardless of other metrics. It conflicts with no current leaderboard candidates (all have edge_capture ≥ 780) but offers no complementary value due to inadequate edge capture. Recommendation: do not promote to leaderboard; requires significant redesign to improve J-day edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

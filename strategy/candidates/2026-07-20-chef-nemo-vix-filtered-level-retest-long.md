@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger and does not conflict with existing candidates in the leaderboard (which are primarily structural, gating, or exit changes). It complements by adding a new long-side trigger for low-VIX environments, currently unrepresented in the leaderboard. No direct overlap with ranked candidates 1-17.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

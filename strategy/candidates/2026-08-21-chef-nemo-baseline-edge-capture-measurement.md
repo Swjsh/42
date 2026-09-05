@@ -58,3 +58,5 @@ We need a quantified baseline edge_capture for the current engine to evaluate fu
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with existing candidates; it provides a baseline edge_capture measurement against which all other candidates in the leaderboard can be compared. It complements the leaderboard by enabling objective assessment of edge_capture improvements.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

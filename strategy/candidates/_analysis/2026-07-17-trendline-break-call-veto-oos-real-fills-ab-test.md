@@ -62,3 +62,5 @@ The call-veto knob in TRENDLINE_BREAK_CALL_VETO blocks CALL entries when bearish
 ## Pre-existing leaderboard impact
 
 Directly impacts candidate WS4 (TRENDLINE_BREAK_CALL_VETO). If OOS test confirms ~$165 incremental EC, candidate status upgrades to PROMISING. If not, may require refinement or rejection. Does not conflict with higher-ranked candidates (WEEKLY_DTE_NOT_0DTE, VWAPCONT_DTE_OVERRIDE_2DTE) as it tests a different mechanism. Complements STRUCTURE_VETO_DIR_VS_TREND (which addresses wrong-way trades via trend alignment).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

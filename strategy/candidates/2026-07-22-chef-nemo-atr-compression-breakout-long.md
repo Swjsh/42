@@ -53,3 +53,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new_trigger and does not directly conflict with existing leaderboard entries (which are primarily watcher quality gates, DTE studies, or structural filters). It complements by adding a novel entry trigger based on intraday ATR compression and volume-confirmed breakout, orthogonal to existing VWAP, ORB, or structure-based approaches. No overlap with current candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

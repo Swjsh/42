@@ -55,3 +55,5 @@ Entry triggers when: volume > vol_mult × 20-bar average volume, candle body ≥
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (parameter optimization on existing SNIPER trigger). Unlikely to promote due to edge_capture <771. May complement SNIPER_VIX_TREND candidates if OOS validates improved J-edge capture. Current leaderboard SNIPER candidates (#13-15) are OP-16 inapplicable due to insufficient live anchors.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

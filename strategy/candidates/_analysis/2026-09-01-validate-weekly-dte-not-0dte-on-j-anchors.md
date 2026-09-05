@@ -46,3 +46,5 @@ The validation must pass:
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate. It is a validation step for the top-ranked candidate (WEEKLY_DTE_NOT_0DTE). If the validation passes, we will promote this candidate to a formal proposal for merging into the engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -47,3 +47,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 This candidate is a new_trigger and does not conflict with existing candidates in the leaderboard. It proposes a novel entry signal based on ATR compression and volume-filtered breakout, which is not present in the current registry. Complements existing structural gates (e.g., trendline, level breaks) by adding a volatility-based trigger. No direct overlap with current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

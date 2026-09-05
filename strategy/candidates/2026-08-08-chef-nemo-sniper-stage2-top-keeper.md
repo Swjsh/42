@@ -54,3 +54,5 @@ Gym validators must pass (all tests in backtest/tests/), walk-forward OOS must b
 ## Pre-existing leaderboard impact
 
 This candidate has edge_capture=373.48 < 771, so it would be REJECTED at the door and not appear on the leaderboard. It does not conflict with existing candidates because it fails the OP-16 gate. However, if the OOS walk-forward were to show promise, it might complement existing strategies by providing a different trigger (SNIPER_LEVEL_BREAK) but only after achieving sufficient edge_capture.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

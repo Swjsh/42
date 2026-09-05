@@ -55,3 +55,5 @@ For PUT entries, the engine will check the current VIX value (from the real-time
 ## Pre-existing leaderboard impact
 
 This candidate proposes a filter_change that may complement existing candidates that do not conflict with PUT entry logic (e.g., exit changes, watcher gates). It does not conflict with the J-RATIFIED candidates [V14E_PARAM_SWEEP_26K] (exit structure) or [MIDDAY_TRENDLINE_GATE] (midday filter) as they operate on different logic. However, it may overlap with other PUT-focused filters (e.g., [BEARISH_SCORE_7_RELAXATION] is REJECTED, so no conflict). No known conflicts with current PROMISING candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

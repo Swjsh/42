@@ -59,3 +59,5 @@ Before merging this candidate, the following tests need to pass:
 ## Pre-existing leaderboard impact
 
 This candidate is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate, by providing a bullish counterpart. However, further analysis is required to determine the exact impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

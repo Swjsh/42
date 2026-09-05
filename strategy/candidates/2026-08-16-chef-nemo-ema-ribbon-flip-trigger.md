@@ -58,3 +58,5 @@ The EMA ribbon flip (fast EMA crossing below pivot EMA and slow EMA) is a reliab
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements VWAP_CONTINUATION and GAP_AND_GO by providing a structural bearish trigger. Overlaps with BEARISH_REJECTION_RIDE_THE_RIBBON logic but isolates EMA ribbon flip as sole trigger. If validated, could replace or augment current bearish entry logic in heartbeat.md. No direct conflict with leaderboard ranks 1-25.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

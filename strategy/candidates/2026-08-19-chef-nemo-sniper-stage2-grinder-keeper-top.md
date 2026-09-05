@@ -58,3 +58,5 @@ Entry: Triggered when volume > 1.1 * 20-bar avg volume, body size >= 0.02, and a
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate has edge_capture=373.48 which is below the OP-16 floor of 771, so it would be REJECTED and not appear on the leaderboard. It does not conflict with current leaderboard candidates (which all have edge_capture >= 771). It is a new trigger type but fails the OP-16 requirement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

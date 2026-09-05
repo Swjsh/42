@@ -50,3 +50,5 @@ We need the Stage-1 backtest to pass gym validators, walk-forward, and real-fill
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it is a prerequisite for evaluating them.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ The grinder refined entry parameters (vol_mult, body_min_cents, min_stars, proxi
 **REJECT per OP-16.** The candidate fails edge_capture threshold (373 < 771).
 
 **Path forward:** Stage-3 needs to test `require_break_above_open=false` variant to capture 5/01-style entries. Without 5/01 coverage, no parameter combination can meet OP-16.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

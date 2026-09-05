@@ -57,3 +57,5 @@ We require the walk-forward CV to be run and the results to be recorded. Additio
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not conflict with any existing candidate. It is an analysis of the base BEARISH_REJECTION_RIDE_THE_RIBBON setup. The existing candidates in the leaderboard are mostly watchers, gates, or parameter changes for this setup. This analysis would inform whether the base setup is robust and if any parameter changes or gates are needed.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger type and does not directly conflict with existing candidates in the leaderboard (which are mostly watcher proposals, DTE studies, or quality gates). It complements existing VWAP-based strategies by adding ribbon and volume filters. No known conflicts with candidates 1-9 in _LEADERBOARD.md.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

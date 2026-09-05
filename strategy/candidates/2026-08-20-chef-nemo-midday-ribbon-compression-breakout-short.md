@@ -50,3 +50,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates 1‑9; adds a new short‑side trigger that could complement existing long‑biased strategies by providing diversification during midday chop. However, it may overlap with existing short‑side gates (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON) and would need to be evaluated for redundancy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

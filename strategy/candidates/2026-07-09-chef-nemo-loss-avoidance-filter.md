@@ -53,3 +53,5 @@ Stage-1 backtest showing edge_capture >= 771, walk-forward OOS positive, real-fi
 ## Pre-existing leaderboard impact
 
 This candidate complements existing filters by focusing on loser-day avoidance. It does not conflict with current leaderboard candidates as it is a new filter type. However, it may overlap with existing veto mechanisms (e.g., STRUCTURE_VETO_DIR_VS_TREND) and should be tested in combination.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

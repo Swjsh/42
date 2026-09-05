@@ -65,3 +65,5 @@ Unit tests for the three‑state machine and provenance grep must pass; gym vali
 ## Pre-existing leaderboard impact
 
 This candidate complements all existing candidates by adding a provenance safety layer that prevents misrepresenting any setup as new/first‑live. It does not conflict with any current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

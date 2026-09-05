@@ -57,3 +57,5 @@ This analysis block evaluates an existing parameter set; it does not propose a n
 ## Pre-existing Leaderboard Impact
 
 This analysis validates the top keeper from an unspecified SNIPER_LEVEL_BREAK Stage-2 grinder run. If the WF ratio passes (≥0.50), it may supersede current SNIPER leaderboard entries (#13-15) pending J anchor shadow-trade validation (OP-16 requires 3+ live SNIPER trades). If WF ratio <0.50, the top keeper is rejected for further consideration. No direct conflict with non-SNIPER candidates (e.g., ORB gates, V14E filters) as they operate on different signal sets.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -45,3 +45,5 @@ NEEDS-OOS walk-forward first. The keeper's edge_capture is below the OP-16 rejec
 
 ## Pre-existing leaderboard impact
 Does not conflict with current leaderboard candidates (all have edge_capture >= 771). This keeper would be rejected at the door due to edge_capture < 771, so it does not impact the leaderboard ranking.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

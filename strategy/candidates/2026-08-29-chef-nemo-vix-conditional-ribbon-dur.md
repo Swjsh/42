@@ -63,3 +63,5 @@ All other aspects of the setup (trigger, exit, etc.) remain unchanged. This chan
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This candidate complements the [STRUCTURE_VETO_DIR_VS_TREND] candidate (which is a quality gate on entries) by refining an exit/management parameter of the BEARISH_REJECTION_RIDE_THE_RIBBON setup. It does not conflict with any existing candidate as it targets a different mechanism. It may be combined with [STRUCTURE_VETO_DIR_VS_TREND] for additive effects.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

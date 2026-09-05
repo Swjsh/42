@@ -51,3 +51,5 @@ We leveraged existing OOS validation from the SNIPER_VIX_TREND_OOS_CONFIRMED can
 ## Pre-existing leaderboard impact
 
 Complements and validates [SNIPER_VIX_TREND_OOS_CONFIRMED](2026-05-24-sniper-vix-trend-oos-confirmed.md) (rank 14). No conflict; reinforces that 5d is the correct window for this trade class. Does not affect other candidates as analysis is isolated to SNIPER_LEVEL_BREAK VIX-trend filter mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

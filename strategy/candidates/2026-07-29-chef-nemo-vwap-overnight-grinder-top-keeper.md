@@ -67,3 +67,5 @@ Exit logic: Standard VWAP_CONTINUATION management (chart-stop-primary, TP1 at +5
 ## Pre-existing leaderboard impact
 
 Does not conflict with leaderboard candidates (all have edge_capture ≥ 771). Would be rejected at door per OP-16 (edge_capture < 771). Complements only as exploratory parameter study; not competitive for promotion without significant edge_capture improvement.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

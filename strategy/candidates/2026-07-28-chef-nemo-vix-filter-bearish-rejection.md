@@ -59,3 +59,5 @@ Adding a VIX rising confirmation filter to BEARISH_REJECTION_RIDE_THE_RIBBON ent
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements STRUCTURE_VETO_DIR_VS_TREND (which already passes J anchors). May overlap with VIX_BULL_HARD_CAP_UNBLOCK (different direction). No direct contradiction with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

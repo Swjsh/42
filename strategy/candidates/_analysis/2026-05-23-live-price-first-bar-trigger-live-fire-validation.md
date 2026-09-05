@@ -55,3 +55,5 @@ To validate the LIVE_PRICE_FIRST_BAR_TRIGGER for OP-21, we need:
 ## Pre-existing leaderboard impact
 
 This analysis supports the existing candidate LIVE_PRICE_FIRST_BAR_TRIGGER. It does not conflict with other candidates. It is intended to move the candidate from NEEDS-MORE-DATA to PROMISING upon completion of the real-fills validation.---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

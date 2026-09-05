@@ -65,3 +65,5 @@ Requires:
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (all have edge_capture ≥ 771). However, this candidate would be REJECTED at the door per OP-16 (edge_capture < 771). Complements candidates focused on non-J day edge (e.g., VWAP_CONTINUATION) but fails to capture the core J edge that Project Gamma prioritizes. If OOS validates wide_pnl stability, could serve as a complementary regime filter—but only after fixing J anchor day regression.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

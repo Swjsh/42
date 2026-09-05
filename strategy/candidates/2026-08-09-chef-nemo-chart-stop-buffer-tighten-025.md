@@ -57,3 +57,5 @@ For BEARISH_REJECTION_RIDE_THE_RIBBON PUT entries, the chart stop is triggered w
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements those working on entry logic (e.g., VWAP_CONTINUATION, GAP_AND_GO) by refining exit behavior for BEARISH_REJECTION_RIDE_THE_RIBBON PUTs. No overlap with watcher-only or bull‑side proposals. If successful, could raise edge_capture on J winners while reducing losses on losers, improving final_score.
+
+<!-- PROVENANCE-MISSING: analysis/recommendations/chart_stop_buffer_tighten_0.25.json -->

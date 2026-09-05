@@ -25,3 +25,5 @@ The ORB_DIRECTION_FILTER gate, when enabled in the watcher, suppresses all short
 | 4/29 winner | Takes put winner (+$342) | Skips put winner (long-only filter blocks put signals) -> 0 P&L | -$342 |
 | 5/01 winner | Takes put winner (+$470) | Skips put winner -> 0 P&L | -$470 |
 | 5/04 winner |
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

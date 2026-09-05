@@ -55,3 +55,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with current leaderboard entries (which focus on DTE variations, structure vetoes, and watcher gates). It complements existing VWAP-based strategies (VWAP_CONTINUATION, VWAPCONT_DTE_OVERRIDE) by capturing a different VWAP interaction pattern (wick rejection vs. price continuation/breakout). No direct overlap in trigger logic with ranked candidates 1-9.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

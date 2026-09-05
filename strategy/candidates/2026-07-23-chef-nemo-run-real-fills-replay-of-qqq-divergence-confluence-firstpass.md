@@ -41,3 +41,5 @@ DRAFT ANALYSIS: **ECOS v1.2 meets edge_capture threshold but requires bullish WR
 - **Weakness**: Bullish WR inconsistency (prior 1.2% vs current 4.7%) → risk of overfitting  
 - **Action**: Deploy ECOS v1.2 with bull WR monitoring (n≥20) and VIX character guards (C5)  
 - **Next Step**: 2026-08-08: Submit A/B scorecard for after-4pm param tuning
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

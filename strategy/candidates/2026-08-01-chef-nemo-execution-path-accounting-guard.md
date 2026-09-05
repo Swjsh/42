@@ -59,3 +59,5 @@ The guard will statically analyze the specified execution monitor/funnel files (
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard as it is a non-trading code quality guard. It complements all candidates by helping ensure that future trading strategy changes (candidates 1-25) do not introduce blind spots in execution accounting.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

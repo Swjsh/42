@@ -54,3 +54,5 @@ The setup uses a combination of level rejection, EMA ribbon flip, and confluence
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_SWEEP_BLOCKER and ORB_NARROW_OR_GATE candidates, by providing an alternative approach to capturing the bearish rejection edge.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

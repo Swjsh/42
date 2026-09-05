@@ -56,3 +56,5 @@ N/A (candidate not promoted due to negative edge_capture failing OP-16 anchor ga
 ## Pre-existing leaderboard impact
 
 This candidate would be REJECTED at the door (edge_capture < 771) and does not appear on the leaderboard. It conflicts with the leaderboard by underperforming the baseline engine (edge_capture=780) and all current candidates. No complementarity; it represents a degraded strategy.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

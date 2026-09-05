@@ -64,3 +64,5 @@ Audit all Python files in backtest/tools/ for direct urllib usage (e.g., urllib.
 ## Pre-existing leaderboard impact
 
 This change complements all candidates in _LEADERBOARD.md by improving data-fetching reliability for any strategy that relies on the scraped data. No conflicts; pure tooling uplift.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

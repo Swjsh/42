@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing VIX/ORB candidates (e.g., VIX_REGIME_DAYSIDE, ORB_RETEST_LONG) by adding quantitative OR expansion threshold and direct breakout entry. No direct conflict with ranked candidates; distinct trigger logic. May overlap with WATCH-ONLY candidates like TBR_HIGH_VOL but differs in regime filter (VIX>25) and exit structure. No impact on J-RATIFIED candidates as it targets new edge capture.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

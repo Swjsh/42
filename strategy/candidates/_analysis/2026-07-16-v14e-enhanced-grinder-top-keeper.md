@@ -79,3 +79,5 @@ To consider this keeper for promotion, it would need to:
 ## Pre-existing leaderboard impact
 
 This keeper does not meet the OP-16 floor (edge_capture < 771), so it would not be eligible for the leaderboard. It does not conflict with any existing candidate because it is not eligible for promotion.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

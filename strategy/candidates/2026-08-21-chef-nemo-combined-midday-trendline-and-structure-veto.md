@@ -62,3 +62,5 @@ Combining the midday trendline gate (which suppresses low-quality trendline re-e
 ## Pre-existing leaderboard impact
 
 Complements rank 21 (MIDDAY_TRENDLINE_GATE) and rank ★ (STRUCTURE_VETO_DIR_VS_TREND); does not conflict with existing J-RATIFIED candidates as it refines shared entry logic; may subsume partial functionality of both if synergistic. No overlap with cross-ticker or bullish-focused candidates (ranks I, ★★, RV series).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a new trigger that does not directly modify any existing rules in the leaderboard (candidates 1‑9). It is likely complementary, as it targets a distinct intraday bearish divergence setup after 11:30 ET, whereas existing triggers focus on opening‑drive, VWAP continuation, or structural breaks. No conflict is anticipated; it would add a new signal pool for evaluation.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

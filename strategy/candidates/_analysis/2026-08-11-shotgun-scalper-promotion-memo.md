@@ -32,3 +32,5 @@ This memo summarizes autonomous gate suite execution. Full backtest artifacts ar
 OP-20 disclosures for the underlying candidate must be verified separately in its candidate file.  
 ---  
 *This analysis is auto-generated upon gate suite completion. No further action required from Chef unless gates fail.*
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/shotgun_scalper_wf.json, backtest/autoresearch/shotgun_scalper_real_fills.json, backtest/autoresearch/shotgun_scalper_n_write_rate.json -->

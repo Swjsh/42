@@ -56,3 +56,5 @@ Same vwap_continuation signal (ITM-2 strike, -8%/+30% exit) as used in WEEKLY_DT
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Complements WEEKLY_DTE_NOT_0DTE (rank ★★) by extending DTE study to 3DTE. No conflict with other candidates; may inform future wiring proposals if OOS exp/tr continues to improve. Does not affect anchor edge_capture directly (data-gated).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -55,3 +55,5 @@ To pass the pre-merge gate, the following tests need to be completed:
 ## Pre-existing leaderboard impact
 
 This candidate may conflict with or complement existing candidates in the leaderboard, such as the TRENDLINE_BREAK_OOS candidate. Further analysis is required to determine the potential impact on the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -75,3 +75,5 @@ Compared to baseline SNIPER_LEVEL_BREAK (inferred from leaderboard entries like 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis evaluates a failed grinder keeper. It does not propose a new candidate for the leaderboard. The keeper's negative edge_capture (-$126.0) is below the 771 rejection threshold, so it would not appear on the leaderboard. No conflict with existing candidates (all have edge_capture >=771 or are watcher-only). Reinforces need for profit-lock redesign (per L24 lessons) before further SNIPER parameter sweeps.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

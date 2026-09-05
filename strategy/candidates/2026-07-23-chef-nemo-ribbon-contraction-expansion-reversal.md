@@ -53,3 +53,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard (which contains filters, exits, and watchers). It does not directly conflict with existing candidates 1-9 as it trades a different signal (ribbon width contraction/expansion reversal vs. ribbon rides, VWAP continuation, or structural gates). However, it may interact with existing regime filters (e.g., VIX gates) and would require combined testing to assess additive value. No obvious duplication or contradiction with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

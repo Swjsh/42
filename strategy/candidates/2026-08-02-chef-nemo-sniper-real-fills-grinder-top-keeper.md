@@ -54,3 +54,5 @@ Gym validators must pass, walk-forward OOS Sharpe >0.70 with sub-window stabilit
 ## Pre-existing leaderboard impact
 
 Conflicts with all leaderboard candidates due to negative edge_capture (auto-reject per OP-16). Does not complement any existing strategy as it degrades performance on structurally critical J days. Requires complete redesign before reconsideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

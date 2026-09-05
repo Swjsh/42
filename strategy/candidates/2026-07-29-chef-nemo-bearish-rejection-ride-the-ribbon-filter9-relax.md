@@ -54,3 +54,5 @@ Must pass: gym validators (all tests), walk-forward OOS with Sharpe ≥ 0.70, re
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; complements filter_change types like [V14E_BEAR_ONLY_GATE] (watcher-only) and [ORB_NARROW_OR_GATE] (watcher-only). No overlap with live proposals as it targets a specific filter in BEARISH_REJECTION_RIDE_THE_RIBBON. May interact with [BEARISH_REJECTION_MORNING] watcher if both fire, but no direct conflict. Safe to test as isolated change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

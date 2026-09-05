@@ -54,3 +54,5 @@ We will compute the set of (date, side) pairs where each strategy generates an O
 ## Pre-existing leaderboard impact
 
 Does not conflict with any candidate; provides meta-information for evaluating combined strategies.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

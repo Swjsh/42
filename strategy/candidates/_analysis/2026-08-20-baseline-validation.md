@@ -63,3 +63,5 @@ Here we assume the baseline engine takes all J days (both winners and losers) ba
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any existing candidate; it provides the reference baseline against which all candidates in _LEADERBOARD.md are measured (edge_capture and Sharpe are reported as deltas to this baseline). Candidates that change engine behavior will be evaluated relative to these validated baseline numbers. No updates to the leaderboard are required from this analysis alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

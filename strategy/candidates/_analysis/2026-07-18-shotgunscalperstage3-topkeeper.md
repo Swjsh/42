@@ -61,3 +61,5 @@ Given the edge_capture is less than 50% of the maximum possible (1,542), this ca
 ## Pre-existing leaderboard impact
 
 This candidate would be **REJECTED** during leaderboard ingestion due to insufficient edge_capture (<771). It does not complement or conflict with any current leaderboard candidates (all of which have edge_capture ≥771) and poses no impact to the existing leaderboard hierarchy. Promotion requires either: (a) significant parameter revision to improve J-day edge capture, or (b) new evidence showing the current edge_capture measurement is in error (unlikely given by_day data).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

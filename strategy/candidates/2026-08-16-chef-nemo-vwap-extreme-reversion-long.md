@@ -54,3 +54,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is independent of the current leaderboard entries (1‑9). It introduces a new trigger type (VWAP extreme reversion) that does not overlap with the existing VWAP_CONTINUATION, ORB, or structural gates, so it is unlikely to conflict and may complement by capturing a different market condition.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

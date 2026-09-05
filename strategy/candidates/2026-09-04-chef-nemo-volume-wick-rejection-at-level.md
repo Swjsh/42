@@ -48,3 +48,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Pre-existing leaderboard impact
 No direct conflict with existing candidates (mostly filters/exits/quality gates). This is a new trigger that could complement existing strategies by providing additional entry signals. Does not modify existing trigger/exit logic. No overlap with candidates 1-9 in _LEADERBOARD.md (which are primarily structural/gate refinements). May conflict with BEARISH_REJECTION_RIDE_THE_RIBBON if both fire on same bar, but mechanisms differ (ours requires low volume + specific wick %). Impact unknown without backtest.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

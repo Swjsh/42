@@ -58,3 +58,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate introduces a novel entry trigger (opening‑range compression breakout with volume spike) that does not appear to duplicate any existing candidate in the leaderboard (ranks 1‑9). It complements existing work by providing a distinct intraday expansion‑entry logic that could add diversification to the strategy suite, assuming it passes validation. No direct conflict is expected.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

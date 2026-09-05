@@ -66,3 +66,5 @@ Exit uses premium_stop_pct (-0.14) as catastrophe cap, TP1 at tp1_premium_pct (0
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 No conflict; edge_capture <771 excludes this candidate from the leaderboard per OP-16. It does not complement any existing candidate because it fails to capture J's winner days.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

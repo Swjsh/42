@@ -59,3 +59,5 @@ The trigger fires when the first RTH bar shows a reversal from a premarket extre
 ## Pre-existing leaderboard impact
 
 This analysis complements Rank 2 (LIVE_PRICE_FIRST_BAR_TRIGGER) by providing Stage-1 edge_capture measurement. It does not conflict with existing candidates as it evaluates a trigger that currently shows zero J anchor day impact. If edge_capture remains near zero, it reinforces the candidate's NEEDS-MORE-DATA status due to insufficient live fires (OP-21 gate failure). If edge_capture becomes positive (unexpected), it would promote the candidate toward PROMISING pending OOS/walk-forward validation. No overlap with top-ranked candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as they operate on different signals/DTE regimes.
+
+<!-- PROVENANCE-MISSING: test_live_price_first_bar_trigger.py, backtest/autoresearch/walkforward_live_price_first_bar_trigger.py -->

@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (all are watcher/gate/structural types). Complements by adding a new short-trigger class orthogonal to VWAP-continuation and gap-and-go. No overlap with J-RATIFIED candidates 11-17 (which are watcher-only or parameter studies). May compete with BEARISH_REJECTION_RIDE_THE_RIBBON for bearish edge but uses different trigger (squeeze breakout vs level rejection).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

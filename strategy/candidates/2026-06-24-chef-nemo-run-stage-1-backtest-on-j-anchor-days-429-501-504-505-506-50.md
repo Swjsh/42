@@ -52,3 +52,5 @@ Gym validators must pass, walk-forward validation (OOS/IS Sharpe ratio >=0.7) mu
 ## Pre-existing leaderboard impact
 
 This analysis does not conflict with any candidate; it provides the baseline edge_capture needed to evaluate all candidates' impact on J days. It complements the leaderboard by establishing the source-of-truth benchmark.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

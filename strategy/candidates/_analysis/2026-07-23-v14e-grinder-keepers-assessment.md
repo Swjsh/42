@@ -70,3 +70,5 @@ OP-16 floor = $771 (50% of max) → **edge_capture < floor → REJECTED per OP-1
 
 ## Conclusion
 Top keeper fails OP-16 anchor requirement (edge_capture=$499.64 < $771 floor) and requires OOS walk-forward before further consideration. Other 4 keepers lack data for assessment. **None of the 5 keepers are ready for leaderboard promotion; all require Stage-1 backtest and OOS validation.** Recommend discarding top keeper for failing anchor days and treating all keepers as hypothesis-generating only pending rigorous OOS testing.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

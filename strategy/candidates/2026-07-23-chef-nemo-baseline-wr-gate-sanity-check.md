@@ -62,3 +62,5 @@ In `autoresearch/loop.py`, before initiating a parameter sweep for a candidate:
 ## Pre-existing leaderboard impact
 
 Complements all candidates by preventing wasted compute on sweeps when baseline is weak. No conflicts; enhances efficiency of existing research loop. Does not alter any candidate's logic or parameters.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

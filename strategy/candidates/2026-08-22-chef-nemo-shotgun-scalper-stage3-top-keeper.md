@@ -36,3 +36,5 @@ Exit occurs on TP1 hit, stop-loss hit, time stop, or chandelier_arm profit-lock 
 | 5/06 loser | unknown -- requires Stage-1 backtest | $132.0 | unknown -- requires Stage-1 backtest |
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | $291.0 | unknown -- requires Stage-1 backtest |
 | 5/07 loser 2 |
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

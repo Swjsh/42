@@ -51,3 +51,5 @@ gym validators, walk-forward OOS (ratio >= 0.70), real-fills validation on top 3
 
 This candidate is already in the leaderboard at rank 2 (NEEDS-MORE-DATA). Running Stage-1 will provide the edge_capture and wide_pnl needed to score it. If edge_capture >= 771, it may move up the leaderboard; if not, it will be REJECTED.  
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

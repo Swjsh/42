@@ -55,3 +55,5 @@ The candidate needs to pass the following tests before it can be merged:
 ## Pre-existing leaderboard impact
 
 The candidate may conflict with the TRENDLINE_BREAK_CALL_VETO candidate, as both candidates are based on similar technical indicators. However, the SNIPER_STAGE2_GRINDER candidate has a more refined entry condition and incorporates a VIX-trend regime filter, which may improve its performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

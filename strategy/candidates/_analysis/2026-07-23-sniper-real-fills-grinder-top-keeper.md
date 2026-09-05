@@ -30,3 +30,5 @@ Baseline parameters are unknown, so precise attribution is impossible. However, 
 ## (4) Recommendation: promote to LEADERBOARD or needs OOS walk-forward first?
 
 **Do not promote.** The keeper fails the OP-16 gate (edge_capture < 771) and shows clear signs of overfit. It requires OOS walk-forward validation and real-fills checks on J's anchor days before any further consideration. Even if OOS were positive, the negative edge_capture on the source-of-truth J days would reject it per OP-16. The appropriate path is to archive this keeper and investigate why the grinder is retaining negative-edge candidates (e.g., review filter thresholds).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

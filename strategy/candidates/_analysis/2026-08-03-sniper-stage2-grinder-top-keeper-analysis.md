@@ -75,3 +75,5 @@ Before any consideration for promotion, the following must be completed:
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates an existing grinder output. The keeper’s edge_capture ($373.48) is below the leaderboard’s inclusion threshold of $771, so it would not appear on the leaderboard even if promoted. It conflicts with the leaderboard’s emphasis on edge_capture as the primary filter (OP-16). No direct impact on current ranked candidates, but it highlights the danger of promoting high‑WR, low‑edge scalping tactics from grinder sweeps without rigorous OOS gating.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

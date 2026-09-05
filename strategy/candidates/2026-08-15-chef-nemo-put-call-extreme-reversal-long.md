@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Complements existing candidates; does not conflict with any in _LEADERBOARD.md_. Unlike VWAP_CONTINUATION or ORB_RETEST_LONG, this uses 0DTE put/call ratio as primary sentiment filter. No overlap with existing triggers (e.g., LIVE_PRICE_FIRST_BAR_TRIGGER, V14E_BEAR_ONLY_GATE) as it operates exclusively in 9:30-10:00 window with distinct entry conditions. Could potentially synergize with quality gates like MIDDAY_TRENDLINE_GATE but operates in earlier time window.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

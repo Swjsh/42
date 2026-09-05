@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 complements existing level-based watchers (BEARISH_REJECTION_MORNING, ORB_RETEST_LONG) by adding volatility-contraction filter; conflicts with pure sweep/breakout strategies (LEVEL_SWEEP_SNIPE) by requiring level respect rather than penetration; no direct overlap with ratified candidates (MIDDAY_TRENDLINE_GATE, V14E_BEAR_TIME_OF_DAY_GATE) as those are structural/gap-based while this is volatility-conditioned level rejection.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

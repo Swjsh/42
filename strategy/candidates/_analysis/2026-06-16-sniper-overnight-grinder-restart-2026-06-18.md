@@ -66,3 +66,5 @@ The sniper_overnight_grinder evaluates each combo using the following logic (as 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new strategy candidate; it is an operational task to complete the sniper_overnight_grinder sweep. It does not conflict with any existing leaderboard entries (ranks 1‑28). Any emerging combo from the grinder would need to undergo full OP-20 disclosure and OP-16 EC≥771 before being considered for the leaderboard.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

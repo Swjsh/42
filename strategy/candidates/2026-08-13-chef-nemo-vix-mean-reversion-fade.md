@@ -68,3 +68,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates in _LEADERBOARD.md; this proposal introduces a novel VIX‑threshold mean‑reversion trigger that complements current volatility‑based filters (e.g., VIX_BULL_HARD_CAP_UNBLOCK) by adding a directional‑fade component rather than merely adjusting exposure.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

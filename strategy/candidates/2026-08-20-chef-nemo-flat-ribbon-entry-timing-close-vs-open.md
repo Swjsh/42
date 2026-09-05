@@ -57,3 +57,5 @@ When the ribbon spread (Fast EMA - Slow EMA) is ≥30c and ≤50c, the engine wi
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates; this is a trigger‑timing tweak that can be layered onto any setup (e.g., BEARISH_REJECTION_RIDE_THE_RIBBON, VWAP_CONTINUATION). It complements quality‑gate candidates by refining entry execution rather than filtering signals. No known overlap with current leaderboard entries.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -56,3 +56,5 @@ At 15:50 ET exactly, the heartbeat loop will issue a market-on-close (MOC) order
 ## Pre-existing leaderboard impact
 
 Complements all existing candidates by adding a uniform exit guard. No conflict with entry-based candidates (e.g., VWAP_CONTINUATION, GAP_AND_GO). May interact with exit-change candidates (e.g., dynamic stop proposals) but those are currently rejected. Safe to layer atop any strategy.
+
+<!-- PROVENANCE-MISSING: test_time_stop_enforcement.py -->

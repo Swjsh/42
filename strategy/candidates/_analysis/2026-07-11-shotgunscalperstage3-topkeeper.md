@@ -55,3 +55,5 @@ Baseline parameters unknown -- requires Stage-1 backtest. However, compared to t
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥771). This keeper would be REJECTED at the door per OP-16 and not appear on leaderboard. Complements existing research by highlighting the danger of optimizing for wide_pnl without OP-16 anchor focus; suggests future work should prioritize edge_capture over aggregate metrics in early sweep stages. No overlap with current candidates (e.g., WEEKLY_DTE_NOT_0DTE, STRUCTURE_VETO_DIR_VS_TREND) as those are structural/DTE or veto proposals, not parameter tweaks to core engine.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

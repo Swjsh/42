@@ -62,3 +62,5 @@ The validation script `validate_morning_sign_gate_v2.py` would:
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a change to the engine; it validates an existing watcher concept (BEARISH_REJECTION_MORNING, rank 20). It complements the existing candidate by providing a validation framework. It does not conflict with any ranked candidate because it is an analysis, not a strategy change.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

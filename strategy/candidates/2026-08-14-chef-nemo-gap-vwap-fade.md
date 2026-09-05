@@ -62,3 +62,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness before any furth
 ## Pre-existing leaderboard impact
 
 No direct conflict with existing candidates (1‑9 in _LEADERBOARD.md). The leaderboard contains volatility‑based, structural, and watcher proposals but no gap‑to‑VWAP mean‑reversion trigger. This candidate would complement existing strategies by adding a distinct opening‑gap fade logic.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

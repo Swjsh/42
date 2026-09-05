@@ -56,3 +56,5 @@ Existing unit tests for task_scorer.py must pass, plus a new test verifying that
 ## Pre-existing leaderboard impact
 
 This change does not conflict with any existing candidate in the leaderboard. It ensures that all candidates are properly scored, potentially revealing previously dropped items. Any newly visible candidates will undergo the existing ratification process per Rule 9. No current leaderboard rankings are altered by this tooling fix alone.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

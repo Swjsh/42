@@ -49,3 +49,5 @@ The leaderboard shows gated +7.2/trade already achieved. The task is to:
 The real-fills OOS result (+7.2/trade gated) already passes the +7.2 threshold. The question is whether variant A or B achieves this, or if a hybrid is needed.
 
 ---
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -57,3 +57,5 @@ The current block (vix_bull_max=18) prevents bull entries when VIX >= 18.0. The 
 ## Pre-existing leaderboard impact
 
 This analysis does not change the candidate itself but validates it. If the stratified OOS validation shows the unblock's edge is regime-dependent or hurts anchor days, we may downgrade the candidate's status. If it confirms the edge is consistent and anchor-safe, we may increase confidence. The candidate is currently PROMISING with 8/10 confidence; this analysis aims to validate that confidence through stratified OOS.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

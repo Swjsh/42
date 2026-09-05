@@ -75,3 +75,5 @@ We are trying to capture edge by tightening exit parameters to take profits earl
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard candidates (top candidates are QQQ divergence study, weekly DTE, VWAP-cont DTE override). Competes with other exit-change candidates (e.g., dynamic stop vs static) but uses distinct profit-lock/trailing approach. No overlap in parameter space with existing live-eligible candidates (V14E param sweep, midday trendline gate, etc.). Would require OOS walk-forward before leaderboard consideration.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

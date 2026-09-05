@@ -51,3 +51,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1‑9; complements GAP_AND_GO (which trades gap continuation) by offering a mean‑reversion alternative for gaps that fail to respect VWAP. May overlap with VWAP_CONTINUATION but trades opposite direction (short vs. long) and uses different entry conditions (gap‑open vs. first‑bar VWAP continuation). No direct duplication of triggers.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

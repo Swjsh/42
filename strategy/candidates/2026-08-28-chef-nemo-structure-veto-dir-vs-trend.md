@@ -50,3 +50,5 @@ gym validators (all must pass), walk-forward OOS positive, real-fills validation
 ## Pre-existing leaderboard impact
 
 This candidate is already ranked ★ (PROMISING) in _LEADERBOARD.md with edge_capture=780, Sharpe=4.728, final_score=3,688. This proposal confirms it has cleared Stage-1 backtest, walk-forward OOS, and real-fills validation on top 3 J days per OP-20. No conflict; complements other structural filters (e.g., midday_trendline_gate) by targeting different failure mode.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

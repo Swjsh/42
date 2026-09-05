@@ -56,3 +56,5 @@ TBD pending grinder results. Will define entry bars/indicators, exit logic, and 
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 Unknown; will evaluate after grinder output. May conflict with existing candidates if similar mechanics.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

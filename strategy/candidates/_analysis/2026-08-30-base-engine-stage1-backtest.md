@@ -55,3 +55,5 @@ N/A (this is an analysis, not a candidate for merge; validation requires gym val
 ## Pre-existing leaderboard impact
 
 This analysis confirms the base engine's edge_capture=780 and Sharpe=4.340 as the reference point for all leaderboard candidates. No conflicts; supports delta calculations for proposed modifications.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

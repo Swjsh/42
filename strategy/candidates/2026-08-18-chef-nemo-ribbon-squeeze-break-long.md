@@ -59,3 +59,5 @@ The ribbon squeeze (EMA ribbon compression <30c) followed by a directional break
 ## Pre-existing leaderboard impact
 
 Complements Rank ★ (STRUCTURE_VETO_DIR_VS_TREND) by adding a new trigger layer; no conflict as it targets different market conditions (squeeze-break vs structure veto). Does not overlap with existing candidates in _LEADERBOARD.md (all are filter/exit changes or watcher proposals). Would stack additively if uncorrelated.
+
+<!-- PROVENANCE-MISSING: test_ribbon_squeeze_break_long.py -->

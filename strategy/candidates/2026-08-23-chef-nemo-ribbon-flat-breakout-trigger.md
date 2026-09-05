@@ -54,3 +54,5 @@ Define ribbon flat as (slow EMA - fast EMA) < 0.15 (15 cents) on the 5m chart. A
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (ranks 1-25). Complements BEARISH_REJECTION_RIDE_THE_RIBBON and BULLISH_RECLAIM_RIDE_THE_RIBBON by providing an alternative entry signal during low-volatility precursors to those setups. May reduce reliance on strict level rejection/confluence filters. No overlap with watcher-only or gate-only candidates. If ratified, would be evaluated as a new trigger branch alongside VWAP_CONTINUATION and GAP_AND_GO.
+
+<!-- PROVENANCE-MISSING: test_ribbon_flat_breakout.py -->

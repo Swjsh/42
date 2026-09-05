@@ -101,3 +101,5 @@ This candidate fails the fundamental gate before any other consideration. The gr
 1. Run OOS walk-forward on remaining 4 keepers to confirm pattern
 2. If any keeper shows edge_capture ≥ 771, promote to candidate
 3. Consider this grinder complete — 5 keepers found, top combo fails OP-16
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

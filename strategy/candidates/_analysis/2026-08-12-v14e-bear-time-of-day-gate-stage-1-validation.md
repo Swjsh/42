@@ -60,3 +60,5 @@ The candidate has already passed all pre-merge gates and is J-RATIFIED (see lead
 ## Pre-existing leaderboard impact
 
 This analysis confirms the Stage-1 validity of an existing candidate (rank 17, J-RATIFIED). It does not conflict with any other candidate; rather, it complements them by providing a time-based filter that can be used alongside other gates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

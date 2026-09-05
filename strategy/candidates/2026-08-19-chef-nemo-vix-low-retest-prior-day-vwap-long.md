@@ -70,3 +70,5 @@ Needs a Stage‑1 backtest via the autoresearch grinder harness (e.g., `backtest
 ## Pre-existing leaderboard impact
 
 This candidate introduces a new trigger type that is orthogonal to existing entries in the leaderboard. It does not conflict with any current top‑10 candidates (e.g., it differs from VIX_REGIME_DAYSIDE by coupling low VIX with a specific prior‑day VWAP retest and EMA ribbon condition, and from NAMED_LEVEL_SECOND_TEST by fixing the level to the prior day’s VWAP). It may complement existing VIX‑based filters if proven additive, but its impact on the leaderboard remains unknown until a Stage‑1 backtest is completed.
+
+<!-- PROVENANCE-MISSING: backtest/autoresearch/vix_low_retest_prior_day_vwap_long.py -->

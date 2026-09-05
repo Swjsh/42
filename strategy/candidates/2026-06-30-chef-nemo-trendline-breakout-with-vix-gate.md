@@ -58,3 +58,5 @@ The mechanism will involve the following steps:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON candidate. The TRENDLINE_BREAKOUT_WITH_VIX_GATE candidate can potentially capture additional edge in the SPY market by exploiting trendline breakouts with a VIX gate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

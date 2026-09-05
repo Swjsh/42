@@ -63,3 +63,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness (including walk-fo
 ## Pre-existing leaderboard impact
 
 Complements existing RSI_DIVERGENCE_BULL_WATCHer (#11) by providing a tradable trigger with concrete entry/exit rules and VWAP filter, rather than watcher-only. No direct conflict as it adds a new trigger type; may overlap in signal generation but differs in execution logic. Should be evaluated independently for OP-16 impact.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

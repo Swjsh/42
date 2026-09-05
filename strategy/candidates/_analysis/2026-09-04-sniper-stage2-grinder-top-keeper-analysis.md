@@ -67,3 +67,5 @@ Compared to the baseline (unknown), these settings likely increase trade frequen
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a new candidate; it evaluates a keeper from the grinder. The keeper's edge_capture (373.48) is below the OP-16 rejection floor of 771, so it would not appear on the leaderboard. It conflicts with no existing candidates because it is not promoted. However, if the parameters were adopted, they would likely underperform relative to current leaderboard candidates (which all have edge_capture >= 771).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -69,3 +69,5 @@ Needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is a novel trigger type not present in the current leaderboard. It does not directly conflict with existing candidates (which are primarily watcher quality gates, DTE studies, or structural filters) but may complement them by providing an additional long-biased entry signal during elevated VIX regimes. It could potentially be combined with regime filters like VIX_REGIME_DAYSIDE or structure-based vetoes to improve specificity. No direct duplication with existing triggers (e.g., no current setup uses VIX spike + gap down + bullish engulfing confluence).
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

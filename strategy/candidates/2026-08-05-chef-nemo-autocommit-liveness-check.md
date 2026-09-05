@@ -68,3 +68,5 @@ All steps are wrapped in try/catch blocks to prevent crashes, with detailed logg
 ## Pre-existing leaderboard impact
 
 No impact -- this candidate modifies automation infrastructure only and does not alter any trading strategy, parameters, or engine logic tracked in the leaderboard. It complements all existing candidates by improving the reliability of the commit process without affecting their projected performance.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

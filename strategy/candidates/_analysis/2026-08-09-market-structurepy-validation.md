@@ -58,3 +58,5 @@ We are validating the existing `market_structure.py` module as used in the curre
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis validates the baseline engine. All candidates in the leaderboard are tested against this baseline. No conflict; serves as foundation for evaluating proposed changes. Complements candidates like [STRUCTURE_VETO_DIR_VS_TREND] which build on the baseline.
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_market_structure.py -->

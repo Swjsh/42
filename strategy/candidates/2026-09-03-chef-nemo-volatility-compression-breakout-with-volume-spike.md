@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate complements existing Bollinger Band-based strategies (e.g., BOLLINGER_SQUEEZE) by adding volume and trend-filters to reduce false breakouts. It does not conflict with any current leaderboard candidates as it proposes a novel trigger mechanism. If validated, it could potentially enhance strategies relying on volatility expansion signals.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

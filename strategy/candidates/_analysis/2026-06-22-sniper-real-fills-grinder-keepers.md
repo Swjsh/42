@@ -57,3 +57,5 @@ The grinder swept 13 parameters: vol_mult, body_min_cents, min_stars, strike_off
 
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 This analysis does not propose a new candidate; it evaluates existing grinder output. No direct impact on the leaderboard. If any keeper were to be promoted, it would need to clear the OP‑16 edge_capture ≥ 771 threshold, which these keepers fail.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -47,3 +47,5 @@ In high volatility regimes (VIX > 25), the engine's winning trades on J's winner
 
 <what tests need to pass: gym validators, walk-forward, real-fills>
 - Gym validators:
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -54,3 +54,5 @@ The pre-merge gate for this candidate includes the following tests:
 ## Pre-existing leaderboard impact
 
 This candidate does not conflict with any existing candidates in the leaderboard, as it is a new trade class with a new exit mechanism. However, it may complement some of the existing candidates, such as the ORB_NARROW_OR_GATE candidate, which also uses a chart-stop exit mechanism.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

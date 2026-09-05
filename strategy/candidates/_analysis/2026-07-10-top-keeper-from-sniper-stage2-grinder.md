@@ -62,3 +62,5 @@ Note: Keeper's by_day shows 5/07 traded twice (235.4 each), likely corresponding
 ## Pre-existing leaderboard impact
 
 Does not conflict with current leaderboard (all candidates have edge_capture ≥ 771 per OP-16). If reworked to improve J anchor performance, could complement existing candidates by focusing on different market regimes or entry types. Current form is ineligible for leaderboard due to OP-16 floor failure.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

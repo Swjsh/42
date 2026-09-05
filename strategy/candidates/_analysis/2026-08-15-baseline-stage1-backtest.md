@@ -57,3 +57,5 @@ Since this is a baseline measurement, the pre-merge gate is to run the Stage-1 b
 <does this conflict with / complement candidates 1-9 in _LEADERBOARD.md?>
 
 This analysis does not propose a change to the engine; it is a measurement of the baseline. It complements all candidates by providing the reference point against which their edge_capture and Sharpe are compared. It does not conflict with any candidate.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

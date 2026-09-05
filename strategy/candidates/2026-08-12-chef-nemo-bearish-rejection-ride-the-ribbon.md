@@ -55,3 +55,5 @@ gym validators, walk-forward, real-fills on top 3 J days
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates (BEARISH_REJECTION_RIDE_THE_RIBBON is a setup, not a gate/filter in leaderboard). May complement quality gates (e.g., MIDDAY_TRENDLINE_GATE) or filters that could be applied to this setup's entry logic. No direct overlap with current leaderboard candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

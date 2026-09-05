@@ -50,3 +50,5 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 ## Pre-existing leaderboard impact
 
 This candidate is short-biased and does not appear to conflict with existing long-biased or neutral strategies in the leaderboard (candidates 1-9). However, without a backtest we cannot confirm non-overlap in signals. It may complement existing long strategies by providing a short hedge in distribution environments. Verification requires checking for signal overlap with existing candidates.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

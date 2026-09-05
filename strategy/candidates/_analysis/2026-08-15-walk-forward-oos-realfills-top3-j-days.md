@@ -55,3 +55,5 @@ walk-forward OOS test must pass (WF Sharpe ratio > 0.70), real-fills validation 
 ## Pre-existing leaderboard impact
 
 This analysis does not propose a change; it provides data needed to complete OP-20 disclosures for any candidate. It complements all candidates by enabling accurate disclosures.
+
+<!-- UNVERIFIED-BY-CONSTRUCTION -->

@@ -58,3 +58,5 @@ We aim to capture edge from high-volume trendline break retests in the SHOTGUN t
 ## Pre-existing leaderboard impact
 
 Does not conflict with existing candidates 1-24 in _LEADERBOARD.md; may complement if it captures a distinct trade class (high-volume trendline retests) not covered by current watchers or triggers. No overlap with J-RATIFIED candidates on anchor days (unknown until backtest).
+
+<!-- PROVENANCE-MISSING: backtest/tests/test_shotgun_scalper_stage3_grinder.py -->
