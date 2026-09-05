@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 04:42 ET",
-  "action": "closed_ladder_empty",
-  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
-  "active_goal_id": null,
-  "next_item": null,
+  "checked_at_et": "2026-09-05 04:43 ET",
+  "action": "opened",
+  "reason": "opened next eligible ladder entry",
+  "active_goal_id": "GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
+  "next_item": "T1 -- Extend the fleet-gate-leak producer to log `min_triggers` / `require_confluence_or_sequence`",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -76,9 +76,15 @@
       "state": "done",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
     }
   ],
-  "last_opened": "GOAL-GATE-NET-COST-2026-09-05",
+  "last_opened": "GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
   "last_closed": "GOAL-GATE-NET-COST-2026-09-05",
   "error": null
 }
