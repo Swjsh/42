@@ -1918,8 +1918,11 @@ def check_live_watch_field_completeness(now, path=None) -> list[str]:
     so it must never classify BROKEN (see _problem_is_broken; no BROKEN-keyword substring
     used here on purpose). Fail-open: a missing/unreadable file, or live_watch's own
     REQUIRED_POSITION_FIELDS import failing, returns [] -- freshness/liveness of the
-    live-watch.json tick itself is owned by other surfaces (engine-health.json), not this
-    check."""
+    live-watch.json tick itself is owned by check_live_watch_liveness (self-audit gap batch
+    2026-09-01 item 6) below, NOT by engine-health.json as this docstring previously claimed:
+    grepped engine_health.py and dead_mans_switch.py on 2026-09-05, zero live_watch
+    references in either -- the writer had NO dead-man switch anywhere until that check
+    shipped."""
     p = path or (STATE / "live-watch.json")
     try:
         snap = json.loads(p.read_text(encoding="utf-8"))
@@ -1943,6 +1946,49 @@ def check_live_watch_field_completeness(now, path=None) -> list[str]:
             out.append(f"LIVE-WATCH INCOMPLETE ({arm_id}): {missing} null on a real "
                        f"in-trade position -- WS7 completeness promise unenforced.")
     return out
+
+
+def check_live_watch_liveness(now, path=None) -> list[str]:
+    """LIVE-WATCH WRITER LIVENESS -- self-audit gap batch 2026-09-01 item 6 ("Live-watch
+    writer has no dead-man switch ... if a real position is open and the writer dies,
+    nothing alerts") + the swarm's failure-mode #1 on the same batch ("the guard reads
+    stale state ... reports GREEN. The position is now blind but the audit says it's fine").
+
+    VERIFIED gap, not assumed: check_live_watch_field_completeness's own docstring (until
+    this fire) claimed live-watch.json freshness was "owned by other surfaces
+    (engine-health.json)". Grepped setup/scripts/engine_health.py and dead_mans_switch.py --
+    ZERO live_watch references in either. Nothing anywhere checked whether Gamma_LiveWatch
+    (cadence ~1/min, 09:25-16:10 ET) was still alive; a dead writer freezes live-watch.json
+    at its last tick forever, and check_live_watch_field_completeness happily reports clean
+    fields off that frozen snapshot with no disclosure that the snapshot itself stopped
+    moving.
+
+    RTH-gated with the window's own 3-minute startup slack (mirrors check_dress_rehearsal /
+    check_engine_tradeability's existing pattern -- give the 09:25 first-tick its own grace
+    before judging staleness). Threshold 4 minutes: the writer's cadence is <=60s, so 4
+    consecutive missed ticks is unambiguous death, not scheduler jitter (proportionally
+    tighter than QUOTE-RECORDER's 8m vs a <=60s cadence, because live-watch is the ONLY
+    surface watching real in-trade positions tick-by-tick). RED (BROKEN, matches the
+    QUOTE-RECORDER RED precedent in _problem_is_broken): a dead in-trade watcher during RTH
+    is a real visibility outage, not a data-quality nuance. Fail-open: outside the RTH
+    window, or the file simply not yet existing this session (pre-09:25), returns []."""
+    if now.weekday() >= 5:
+        return []
+    hm = now.strftime("%H:%M")
+    if hm < "09:28" or hm > "16:10":
+        return []  # give the 09:25 first tick its own slack; window matches Gamma_LiveWatch
+    p = path or (STATE / "live-watch.json")
+    if not p.exists():
+        return [f"LIVE-WATCH WRITER RED: {p.name} does not exist during RTH ({hm} ET) -- "
+                f"Gamma_LiveWatch has never ticked today. No in-trade position is being "
+                f"watched."]
+    age = _age_min(p)
+    if age is not None and age > 4:
+        return [f"LIVE-WATCH WRITER RED: {p.name} is {age:.0f}m stale during RTH (cadence "
+                f"is ~1/min, 09:25-16:10 ET) -- Gamma_LiveWatch has stopped. Every consumer "
+                f"(WS7 field-completeness check, any in-trade dashboard) is now reading a "
+                f"frozen snapshot with no disclosure. Relaunch Gamma_LiveWatch."]
+    return []
 
 
 def run() -> dict:
@@ -2135,6 +2181,11 @@ def run() -> dict:
     # scheduled_task_staleness.py's own verdict -- never recomputed here. Silent until that
     # task has fired at least once.
     problems.extend(check_task_staleness(now))
+
+    # 23. LIVE-WATCH WRITER LIVENESS -- self-audit gap batch 2026-09-01 item 6: the
+    # dead-man switch check_live_watch_field_completeness's own docstring claimed already
+    # existed on engine-health.json did not exist anywhere. Closes it.
+    problems.extend(check_live_watch_liveness(now))
 
     verdict = "GREEN" if not problems else ("BROKEN" if any(_problem_is_broken(p) for p in problems) else "DEGRADED")
     result = {"ts_et": now.strftime("%Y-%m-%dT%H:%M:%S"), "verdict": verdict, "problems": problems, "rth": rth,

@@ -28,6 +28,21 @@
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
 
+## [2026-09-05 16:11 ET] conductor WEEKEND: OK -- self-audit gap 2026-09-01#6 (live-watch dead-man switch) FIXED, real gap confirmed by grep -- REVOKE surface
+
+**Picked via STAGE 0 budget gate PROCEED ($1.51/$30, 3/8 fires before this fire) + market closed (Sat) + engine-health.json RED only on the already-actioned `rth_tick_gaps` stale flag (09-04 box-crash gap, re-confirmed unchanged tonight). Active goal `GOAL-SILENT-RIG-2026-09-05` has no assignable item -- its only open QUEUE line (R3) is explicitly reserved for Fable ("workers never enable a scheduled task"), so I flagged that and fell through per the priority order's own instruction. `desk_allocator.py`'s SPY-0DTE #1 pick and `task_scorer.py`'s #1 (`FLEET-SIGNAL-UNREADABLE-WITH-POSITION`) are both already `status:verified-bundle-candidate`/frozen for the 09-29 checkpoint -- nothing left to do now. Fell through to tier 3: oldest FULLY untriaged self-audit batch = 2026-09-01T17:31:48 (12 gap-lines; the 2026-09-02 batch that follows it already got a PARTIAL pass 2026-09-03, so it was not the true oldest).**
+
+**Live-checked all 12 against real code (recovered the swarm-consult JSON's full text where the synthesis truncated bullets with "[...]"), not re-derived from prose. 1 was a GENUINE gap, VERIFIED and FIXED this fire; the rest were duplicate/by-design/already-adjudicated/scope-bounded:**
+
+**(6) FIXED -- Live-watch writer had NO dead-man switch anywhere.** `check_live_watch_field_completeness`'s own docstring claimed freshness/liveness "is owned by other surfaces (engine-health.json)" -- grepped `engine_health.py` and `dead_mans_switch.py`: **zero** `live_watch` references in either. A dead `Gamma_LiveWatch` writer would freeze `live-watch.json` at its last tick forever, and the existing field-completeness check would keep reporting clean fields off that frozen snapshot with no disclosure -- exactly the swarm's named failure mode ("the guard reads stale state ... reports GREEN. The position is now blind but the audit says it's fine"). Added `check_live_watch_liveness` as `self_check.py` check #23: RTH-gated (09:28-16:10 ET weekdays, matching the file's own startup-slack pattern), RED at >4m stale (cadence is <=60s so 4 missed ticks is unambiguous death) or file missing during RTH. Corrected the false docstring claim on the sibling check to point here instead.
+
+**(7)-(12) disposed without code changes** (full text in `analysis/self-audit/new-gaps-flagged.md`'s TRIAGED block): (7) schema-migration risk already fail-open by construction (try/except + isinstance guards, checked live). (8) theta-clock single-producer dependency acknowledged as a real but separate follow-on, not scope-crept into this fire. (9) "formalize a VISIBILITY-ONLY OP" considered, not adopted -- the term is already consistently enforced in code across 4+ docstrings, which is the part that matters. (10)-(12) theta-decay/alert-fatigue restate the SAME finding already substantively adjudicated in the very next batch's 2026-09-03 triage (theta_clock is VISIBILITY-ONLY, no live decision path, auto-exit-on-stall would be a new trading-path rule blocked by the freeze anyway) -- not re-litigated. (1) meta-concern about same-fire DONE-marking is by-design (every prior TRIAGED block does this). (2) conductor_outcome metric decomposition filed as a genuine small follow-on. (3) TWIN-DOCTRINE-FIRST-DEPLOY checksum concern: STATUS.md has since rolled past the entry with no incident in 4 days -- low-urgency, not pursued. (4)/(5) preview-diff archive gap unchanged since its 2026-08-30 disposition (needs a new producer) -- duplicate observations of the same still-true fact, not new findings.
+
+**Verified, quoted (OP-33):** new guard `backtest/tests/test_self_check_live_watch_liveness_2026_09_05.py` -> **9 passed**. RED-proofed live via a scoped `git stash push -- setup/scripts/self_check.py` (never tree-wide, per C34 -- this checkout carries other sessions' in-flight state): reverted, re-ran -> **7 of 9 failed with `AttributeError: module 'self_check' has no attribute 'check_live_watch_liveness'`** (the exact missing-gap signature), popped the stash, `git diff --stat` confirmed the fix restored identically. Sibling suite unaffected: both together **19 passed**. Broader `pytest tests/ -k self_check -q` -> **284 passed, 13420 deselected**. `python -m py_compile setup/scripts/self_check.py` -> COMPILE OK. Curated safety gate `python tests/run_safety_gate.py` -> **59 passed, PASS**. `git status --porcelain` scoped to the 3 touched paths before staging confirmed exactly `self_check.py` (M) + the new test (A) + `new-gaps-flagged.md` (M) -- no stray edits absorbed from the many other dirty state files in this shared checkout.
+
+**Rail (observation/monitoring organ -- read-only on `live-watch.json`, places no order, touches no exit rule, same VISIBILITY-ONLY class as the WS7 check it extends; not on the September freeze's 10-file trading-path list):** guard = the 9 RED-proofed tests (a); revert = `git revert <this commit>` (additive-only diff on `self_check.py` + docstring correction + one new test file) (b); this entry is the REVOKE report (c).
+
+
 ## [2026-09-05 14:5x ET] conductor AFTERHOURS: OK -- GOAL-SILENT-RIG R3 half-DONE (Gamma_LaunchRate registered, disabled) -- REVOKE surface
 
 **Picked via STAGE 0 budget gate PROCEED ($0.76/$30, 2/8 fires before this) + market closed (Sat, digest-confirmed) + engine-health.json RED only on `rth_tick_gaps` (the already-actioned 2026-09-04 box-crash gap, nothing further). Active goal (priority 2a) is `GOAL-SILENT-RIG-2026-09-05` (J's "stop the popups" order) -- its QUEUE had exactly one open item, R3, tagged partly "Fable:" (register a task + review-gated re-enables). No collision: other sessions' goals in the same ladder (RIG-SIGNAL-HYGIENE, GATE-EXPIRY-RECONCILE, FUTURES-YELLOWS) are already CLOSED per STATUS; WAVE-DAY-CONDITIONS is a different goal file.**
@@ -190,35 +205,6 @@ Appended `status`+`adjudicated_at_et`+`evidence` to all 10 EXIT/STOP-MECHANISM f
 
 **Not actioned this fire (scope discipline, noted so it isn't silently dropped):** `prereg-ladder-x-premium-2026-08-09` (one of the 4 pre-existing hygiene-FLAGGED entries) says it was explicitly BLOCKED on the risky-3 forward result adjudicated this fire (now KILL) -- it is unblocked and could close in a future fire (P9 final sweep). Goal's own P3 (dynamic-exits/TP-target family, 5 files) is next.
 
-## [2026-09-04 17:21 ET] COCKPIT v3 SHIPPED: command center rebuilt on shadcn/ui + Magic UI + Recharts at http://localhost:3000/cockpit (commit 9760fcca; revert = git revert 9760fcca)
-J's 11th design ask ("crayons... use a real plugin/skill, not native tools"). Backend untouched (gamma_home.py -> payload.json). Verified: tsc 0 errors, next build green, /api/cockpit 200, headless captures analysis/home/screens/final-command-*.png. Launcher: LAUNCH-COMMAND-CENTER.vbs. Open: blind-panel score on v3 not run (UNVERIFIED); old generated analysis/home/index.html still produced by Gamma_Home as fallback.
-
-## [2026-09-04T16:35 ET] conductor AFTERHOURS: GOAL-TICKERS-LANE T7 autopsy -- root-caused + fixed the 144-row TICK_ERROR outage (commit `7ebbeeec`)
-
-Picked up GOAL-TICKERS-LANE-2026-09-04's last open item (T7: day-one autopsy). Found the exact
-mechanism 15dbf12b's own fuzzer couldn't reach: `multi/lib/context.py::update_level_states`
-built `bounce_history` as bare FLOATS; both the fork's and production's (FROZEN)
-`detect_sequence_rejection`/`_reclaim` subscript each entry (`e["high_reached"]`), matching
-`backtest/lib/orchestrator.py`'s dict reference shape -- a bare float raised the exact live
-error, `TypeError: 'float' object is not subscriptable`, 144 times across tickers-1/2/3 today.
-Only reproducible via a multi-tick state-accumulation simulation (3+ bounces at a broken
-role), which explains why single-shot fuzzing never hit it. **Fixed** (append the 2 required
-dict keys, nothing invented), **guard test RED-proofed** via `git stash`/`pop` against the
-identical TypeError (`backtest/tests/test_level_state_bounce_history_shape_2026_09_04.py`,
-3 tests), **full suite green** (551 passed, `-k "multi or tickers or level_state"`). Not on
-`FROZEN_TRADING_PATH`. Revert: `git revert 7ebbeeec`.
-
-Autopsy also confirmed (broker-truth): all 3 arms fired exactly 1 fill, qty always 3, never
->1 concurrent position, no entry after 14:30 ET, flat by EOD, 0 SPY symbols anywhere, and the
-1% kill switch correctly latched all 3 arms after their loss and stayed latched through close
--- every day-one clamp held as designed. Scorer parity: 0/3 action disagreements sampled
-(production vs fork) on an EOD snapshot. One real, undersized (n=3) finding filed as a queue
-follow-up, not acted on: all 3 `theta_budget` exits overshot the configured 30% bleed cap
-(38-71% actual) -- needs 15-20+ more fills before concluding cadence vs spread vs both.
-
-GOAL-TICKERS-LANE-2026-09-04's QUEUE now has 0 bare `[ ]` items (T0-T7 all done) --
-`goal_autopilot` should close it and open the next queued goal on its next 30-min pass.
-
 
 ## Kitchen
-Kitchen: alive, queue 63 pending, last cook 0 min ago, today $0.00, model=?
+Kitchen: alive, queue 50 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

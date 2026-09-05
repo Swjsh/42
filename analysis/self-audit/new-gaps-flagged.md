@@ -1527,6 +1527,109 @@ reading as open; the next fire's oldest-untriaged pointer advances to 2026-09-01
 - Operational Continuous "ALERT ONLY" messages flood the operator's view, creating cognitive overload and desensitization. The operator eventually ignores warnings until a crisis point (margin call, forced liquidation) forces reactive [...]
 - Systemic The live-watch field-completeness fix is sound, but the
 
+<!-- TRIAGED 2026-09-05 16:11 ET (conductor, WEEKEND). Oldest fully-untriaged batch (the
+2026-09-02 batch that follows this one already got a PARTIAL pass 2026-09-03; this one had
+zero prior action). Re-read the fuller-text swarm-consult JSON
+(analysis/swarm-consult/2026-09-01-173002-...json) to recover every bullet the synth
+truncated with "[...]" before disposing -- live-checked each against current code, not
+re-derived from prose.
+
+(6) "Live-watch writer has no dead-man switch" -- TRUE and GENUINE, FIXED this fire. Grepped
+setup/scripts/engine_health.py and setup/scripts/dead_mans_switch.py: ZERO live_watch
+references in either -- so check_live_watch_field_completeness's own docstring claim that
+freshness/liveness "is owned by other surfaces (engine-health.json)" was FALSE; nothing
+anywhere checked whether Gamma_LiveWatch (~1/min, 09:25-16:10 ET) was still alive. This is
+exactly the swarm's failure-mode #1: a dead writer freezes live-watch.json at its last tick
+and the field-completeness check happily reports clean fields off the frozen snapshot with
+no disclosure. Added `check_live_watch_liveness` (self_check.py check #23): RTH-gated
+(09:28-16:10 ET weekdays, mirrors the existing startup-slack pattern), RED at >4m stale
+(cadence is <=60s, so 4 missed ticks is unambiguous death) or file missing entirely during
+RTH. Corrected the false docstring claim in check_live_watch_field_completeness to point at
+the new check instead. Read-only, VISIBILITY-ONLY (places no order, touches no exit rule),
+not on the September freeze's 10-file list.
+
+(7) "self_check.py schema-migration blast radius" -- CHECKED, already adequately guarded:
+check_live_watch_field_completeness wraps json.loads in try/except (returns [] on
+malformed/unreadable), checks isinstance(dict) before iterating, and imports
+REQUIRED_POSITION_FIELDS in its own try/except -- a renamed/restructured live-watch.json
+schema degrades to silent [] (fail-open), it cannot crash heartbeat or self_check. No code
+change; the VISIBILITY-ONLY contract already tolerates this failure mode by design.
+
+(8) "Theta clock is the de facto live-watch substitute, a single-producer dependency" --
+ACKNOWLEDGED, real but a SEPARATE follow-on (theta-clock's own liveness is not covered by
+this fire's fix, which is scoped to live-watch only per OP judgment-guards scope discipline).
+Filed as a candidate future self-audit item rather than scope-creeping this fire; the new
+check_live_watch_liveness is a template any future theta-clock liveness check can copy
+directly.
+
+(9) "Unnamed OP for VISIBILITY-ONLY contract" -- considered, NOT adopted this fire: a
+one-paragraph doctrine formalization for a term already used consistently across 4+
+docstrings (WS7, check #21, the new check #23) is a documentation nice-to-have, not a
+bounded engine fix; the term's meaning (places no order, touches no exit rule, DEGRADED
+never BROKEN unless explicitly noted) is already load-bearing and consistently applied in
+code, which is the part that actually enforces it.
+
+(10)-(12) "Unchecked negative theta decay / ALERT ONLY cognitive overload / live-watch fix
+sound but truncated" -- these three (from the liquid/lfm-2.5 perspective, mostly duplicate
+content across 3 section headers) restate the SAME finding already substantively
+adjudicated in the very next batch's triage (2026-09-03T03:53 ET, this file, batch
+2026-09-02T17:31:15 item 1): theta_clock is VISIBILITY-ONLY by its own docstring, no code
+path feeds theta_component_est into a live decision (heartbeat_core's actual time-stop is a
+hardcoded wall-clock ceiling, structurally independent), and a RED-on-stall auto-exit rule
+would be a NEW trading-path decision needing J ratification -- correctly blocked by the
+active September freeze regardless. Not re-litigated; same disposition stands.
+
+(1) meta ("new-gaps-flagged.md touched in the same fire that fixes the gap") -- BY DESIGN,
+not a bug: every prior TRIAGED block in this file (WS7, 2026-08-30, 2026-08-31 batches) does
+exactly this and the "oldest untriaged batch" pointer has correctly advanced past all of
+them. No action.
+
+(2) "conductor_outcome trend=regressing, decompose cost_per_drained vs cost_per_fire" --
+`conductor_outcome.py metric` was re-run this fire (see this fire's own record below);
+decomposing the metric into two fields is a genuine but separate small enhancement, not
+bundled into this fire to keep the diff scoped to the live-watch fix. Filed as a follow-on,
+not re-raised as a fresh gap (duplicate of this exact bullet).
+
+(3) "TWIN-DOCTRINE-FIRST-DEPLOY suppression checked against STATUS.md, no checksum" --
+STATUS.md has since rolled past this entry entirely (grepped, zero hits 2026-09-05) with no
+incident reported, i.e. the feared failure mode (a truncated/wrong entry silently collapsing
+the suppression window) has not manifested in the 4 days since this was flagged. Hardening
+with a checksum remains a real but low-urgency idea; not pursued this fire (scope
+discipline).
+
+(4) "preview-diff forward-testing archive parked a 2nd time" -- unchanged since the
+2026-08-30 batch's own disposition ("genuine but out-of-scope, needs a new producer, filed
+as candidate future work") -- this bullet is a duplicate observation of that same still-true
+fact, not a new finding requiring separate action.
+
+(5) "WS1 preview diff NOT_EXERCISED, 30-day-stale date-scope" -- checked `monday_verify.py`:
+NOT_EXERCISED here means the specific preview file (`MONDAY-PREVIEW-2026-08-03.md`) is
+date-scoped to one Friday and simply doesn't apply to a Tuesday run -- this is the check's
+own documented, correct behavior ("NOT_EXERCISED means the item's precondition never fired
+this run"), not a silent producer death. No new preview-diff file has been generated since
+because the producer itself is a one-off diagnostic, not a recurring job -- consistent with
+(4)'s "needs a new producer" framing, same underlying gap, not two separate ones.
+
+Verified, quoted (OP-33): new guard `backtest/tests/test_self_check_live_watch_liveness_2026_09_05.py`
+-- **9 passed**. RED-proofed live via a scoped `git stash push -- setup/scripts/self_check.py`
+(never a tree-wide stash, per C34 -- this checkout carries other sessions' in-flight state):
+reverted, re-ran the same 9 tests -- **7 failed with `AttributeError: module 'self_check' has
+no attribute 'check_live_watch_liveness'`** (the exact missing-gap signature), popped the
+stash, fix restored (`git diff --stat` confirmed identical to pre-stash). Sibling suite
+`test_self_check_live_watch_field_completeness_2026_09_01.py` unaffected -- both together
+**19 passed**. Broader `pytest tests/ -k self_check -q` -- **284 passed, 13420 deselected**.
+`python -m py_compile setup/scripts/self_check.py` -> COMPILE OK; live import confirms
+`hasattr(self_check, 'check_live_watch_liveness') == True`. Curated safety gate
+`python tests/run_safety_gate.py` -> **59 passed, PASS**.
+
+Rail (observation/monitoring organ, read-only on live-watch.json, places no order, touches
+no exit rule -- same VISIBILITY-ONLY class as the WS7 module it extends; not on the
+September freeze's 10-file trading-path list): guard = the 9 RED-proofed tests (a); revert =
+`git revert <this commit>` (2 files, additive-only diff on self_check.py plus a docstring
+correction, one new test file) (b); this DONE marker + the matching STATUS.md entry are the
+REVOKE report (c). -->
+
+
 ## 2026-09-02T17:31:15 -- 12 new gap(s) Gamma self-identified
 - WS11 label-vs-expectancy inversion (above) — any consumer reading `bear_verdict` string without reading `bear_expectancy_per_trade` is now inverted.
 - Monday-verifier truncation trust if `monday_verify.py` writes its results JSON with the same truncation it displays, every downstream dashboard reading `monday-verify.json` will see a *different* `fills` array length depending on terminal [...]
@@ -1542,3 +1645,31 @@ reading as open; the next fire's oldest-untriaged pointer advances to 2026-09-01
 - No consumer test for `today-bias.json#regime_context.stamp_date` against session date at point-of-use. WS6 checks the *file* has matching dates at 08:40 ET. It does not check that the position sizer or bias injector reading [...]
 
 <!-- PARTIAL 2026-09-03T03:53 ET conductor (commit dc800a5f) :: TRIAGED 2 of 6 gaps in this batch, cross-referenced against the fuller-text 2026-09-02-173001 swarm-consult JSON for the truncated bullets. (1) "Theta cockpit still sqrt_time_decay_model_est" / "Pilot is making time-stop decisions against an unverified model" (lines 1536-1537): REFUTED the core claim -- heartbeat_core.py's "theta kills after 3pm" doctrine is a hardcoded wall-clock entry ceiling (_past_entry_ceiling, v15.1), structurally independent of theta_clock.py's theta_component_est; no code path feeds the estimate into a live decision. theta_clock.py is VISIBILITY-ONLY by its own docstring and already discloses n_broker/n_est/sources_seen per row (greeks-probe-stats.json: 4803 empty/0 nonempty, confirmed live). The audit's proposed fix (Monday verifier RED-on-zero-broker-rows) was considered and NOT adopted -- it would manufacture a PERMANENT un-clearable RED for a disclosed, non-gating estimate (the endpoint has never once returned a value in 4803 probes), the same persistently-RED-masks-new-problems class this project already paid for once. No code change; disposition recorded. (2) "status_retention reader-fixed, writer-untouched" (line 1539): CONFIRMED and FIXED -- status_known_broken.py (the shared writer, built same night) still used a naive text.index(heading) substring search, never ported the 2026-09-02 reader-side exact-line-match fix. Reproduced live: a decoy prose line quoting "## Known broken" mid-sentence (a shape this project's own STATUS entries write constantly) swallowed a fresh upsert() write, orphaning it above the real section. Fixed via _find_real_heading() (compiled MULTILINE exact-line regex, mirrors status_retention.py's _is_pinned_heading_line contract) in both _known_broken_body_bounds and the recreate-if-missing check. 2 new RED-proofed tests, 53/53 across the 4 related test files, curated safety gate 59/59. Full REVOKE report: STATUS.md 2026-09-03T03:53 ET entry. REMAINING, NOT triaged this fire: WS11 label/expectancy inversion (line 1538, needs a probe_stats.py verdict-ladder read before deciding if it's a real inconsistency or a separate concentration axis), TRENDLINE-DRAW-HEADLESS "fix already written" (line 1540), Monday-verifier truncation (line 1541), today-bias read-time invariant (line 1542). -->
+
+## 2026-09-03T17:31:34 -- 12 new gap(s) Gamma self-identified
+- Direction is fine direction comes from J's anchor days (4/29 + 5/01 + 5/04 winners, 5/05-5/07 losers) which are frozen and not touched by any of the audit's proposed work.
+- Missed-trade risk from the `ROSTER-LIVENESS` lane being DEAD: `p::m` is 404/archived. "Roles are falling through to their next lane or the local floor" — if a shadow lane that Pilot currently depends on (for confidence weighting, veto [...]
+- Implicit OP violation risk: no documented OP for "what counts as a NOT_EXERCISED verdict in a pass/fail aggregate." The footer note (`a check passing because nothing happened is not GREEN`) is a comment, not an enforceable rule. If an OP [...]
+- Minor: `MCP_AUDIT_YELLOW` (03:37 ET) — `mcp_procs=FAIL, 0 alpaca-mcp-server process(es) found` if any Pilot decision path actually depends on the MCP server (which "mcp_procs" implies), this is a latent infrastructure dependency with no [...]
+- `auto_commit_candidates.py` L242 prevention guard (commit fe5754b7) — the L242 guard exists because something has previously tried to auto-commit strategy changes from a non-ratified path. The guard is reactive. There is no proactive check [...]
+- The fleet-gate-leak finding ("5.6-15% of safe-gated ticks" bypass safe gates, bypass P&L is noise) combined with FLEET-STRATEGIES-BYPASS-SAFE-GATES ("safe-3 does NOT inherit safe-only gates, veto flip scope = safe-2 only") means: if J ever [...]
+- Per-minute SPY underlying tape (commit ddb4e9d7) readers are verified tolerant, but no consumer is wired yet. This is a foundation for a future post-mortem tool that doesn't exist. Dead infrastructure is worse than no infrastructure [...]
+- `quote_recorder` writing `kind=option` rows option rows are now landing in the same stream as underlying rows. If any downstream consumer assumes `kind ∈ {underlying, ...}` and iterates without filtering, it'll start double-counting [...]
+- Structure-classifier shadow (commit 06653790) — `naive swap already fails the bar` means the candidate has been pre-rejected by its own forward eval on 2026-08-06. It still got registered at registry slot 169. There's no auto-prune for [...]
+- No autonomous restart of the Alpaca‑MCP server MCP_AUDIT_YELLOW shows 0 alpaca‑mcp‑server processes; the system only logs the issue.
+- No autonomous healing of dead lanes in model‑roster ROSTER‑LIVENESS reports permanently DEAD lanes; lanes are left to fall through manually.
+- No autonomous retry/resolution of gate‑expiry RED failures filter‑8‑bear‑sole and filter‑10‑bull‑sole gate checks remain RED; no auto‑run of postfix_gate_costing.py to ratify.
+
+## 2026-09-04T17:31:31 -- 12 new gap(s) Gamma self-identified
+- The multi-tick state-accumulation bug class is not closed. The bounce_history fix (7ebbeeec) patched one instance. Every component that accumulates state across ticks — level states, regime context, theta clock, live-watch position [...]
+- autonomy-report.json was frozen for 19 days before anyone noticed. The fix (3961257d) regenerates it fail-open on every Gamma_Home fire. But there's no *staleness watchdog* — no systematic check that every output file is fresh. What else [...]
+- Cockpit v3 + old fallback = dual source of truth. If J's bookmark points to the old index.html, or if an automated tool reads the fallback instead of /cockpit, decisions are made on stale data. The fallback should be removed or the cockpit [...]
+- n=3 conclusions are noise treated as signal. "0/3 action disagreements" and "kill switch correctly latched" are being reported as GREEN/verified. With n=3, the confidence interval on "0 disagreements" includes substantial disagreement [...]
+- Kill switch latching all 3 arms from one arm's loss is this intended? If safe-2 loses, bold-2 and safe-3 also die? With $5K accounts and 0.30 affordability cap, the system is structurally fragile: one bad exit (inflated by the theta model [...]
+- theta_budget model is unvalidated and systematically overshooting stop deferring, recalibrate or gate exits on actual fill P&L not estimated theta
+- No multi-tick state-accumulation test harness the fuzzer is structurally blind to the bug class that just caused 144 errors
+- No staleness watchdog on output files autonomy-report was frozen 19 days; scan every output for freshness every cycle
+- Cockpit v3 shipped UNVERIFIED with active fallback run the blind-panel score or revert; kill the dual-path
+- Kill switch over-latches across all arms from one arm's loss confirm this is intended; if one arm's model-driven overshoot kills the whole day, the system is one bad exit away from zero daily trades
+- No minimum-n gate before classifying findings as confirmed n=3 "0 disagreements" is not GREEN; it's "insufficient data"
+- Alpaca greeks endpoint has never worked 41/41 calls returned empty or unavailable; either fix the integration or formally accept the model-only path and document the calibration chain
