@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 03:46 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
-  "active_goal_id": "GOAL-GATE-NET-COST-2026-09-05",
-  "next_item": "N1 -- Inventory refusals: every ENTER-eligible tick refused by a gate, 2026-08-01 -> today,",
+  "checked_at_et": "2026-09-05 04:42 ET",
+  "action": "closed_ladder_empty",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -73,12 +73,12 @@
     },
     {
       "id": "GOAL-GATE-NET-COST-2026-09-05",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-GATE-NET-COST-2026-09-05",
-  "last_closed": "GOAL-FLEET-CAPTURE-GAP-2026-09-05",
+  "last_closed": "GOAL-GATE-NET-COST-2026-09-05",
   "error": null
 }
