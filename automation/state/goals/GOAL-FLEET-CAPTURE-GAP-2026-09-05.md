@@ -50,7 +50,7 @@ fix filed as a normal engine bug with a RED-proofed guard -- defects are not fro
   `analysis/recommendations/prereg-fleet-capture-<mechanism>-10-30-2026-09-05.json` (frozen hypothesis,
   the exact knob, kill criteria on the right-tail ledger's forward window, revert line). Add each to
   `setup/scripts/checkpoint_packet.py`'s inventory so the 10-30 packet reads it.
-- [~] F5 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Render: capture rate per arm + top mechanism per arm on the cockpit right-tail tile
+- [ ] F5 -- Render: capture rate per arm + top mechanism per arm on the cockpit right-tail tile
   (payload via gamma_home.py; DOM read quoted).
 
 ## J-DECISIONS
@@ -58,5 +58,6 @@ fix filed as a normal engine bug with a RED-proofed guard -- defects are not fro
 
 ## PROGRESS LOG
 - 2026-09-05 06:5x ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 03:32 ET — opened by goal_autopilot
 ## HONEST STATE
 Queued. Nothing started.

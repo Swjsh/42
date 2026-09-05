@@ -1,9 +1,9 @@
 {
   "checked_at_et": "2026-09-05 03:32 ET",
-  "action": "ladder_empty",
-  "reason": "no eligible queued ladder entry",
-  "active_goal_id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
-  "next_item": null,
+  "action": "opened",
+  "reason": "opened next eligible ladder entry",
+  "active_goal_id": "GOAL-FLEET-CAPTURE-GAP-2026-09-05",
+  "next_item": "F5 -- Render: capture rate per arm + top mechanism per arm on the cockpit right-tail tile",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -61,9 +61,9 @@
     },
     {
       "id": "GOAL-FLEET-CAPTURE-GAP-2026-09-05",
-      "state": "queued",
-      "eligible": false,
-      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
     },
     {
       "id": "GOAL-CHECKPOINT-REDUCTION-PACKAGES-2026-09-05",
@@ -72,7 +72,7 @@
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
-  "last_opened": "GOAL-CHECKPOINT-PACKET-2026-09-29",
+  "last_opened": "GOAL-FLEET-CAPTURE-GAP-2026-09-05",
   "last_closed": "GOAL-CHECKPOINT-PACKET-2026-09-29",
   "error": null
 }
