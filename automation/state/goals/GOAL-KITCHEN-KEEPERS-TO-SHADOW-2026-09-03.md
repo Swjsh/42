@@ -104,7 +104,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   -backtest`) — these are all under 24h old so age_bucket is optional, but each already
   ran a WF/OOS pass per its own filename; read and fold the verdict into the same
   worklist JSON rather than re-running.
-- [ ] K9 — Register any SHIP-CANDIDATE from K3-K8 as an actual shadow instrument
+- [~] K9 (WIP 2026-09-05 02:0x ET, Fable EOD-audit session -- blocked on the K3-K8 workers; runs as one pass once their verdicts land) — Register any SHIP-CANDIDATE from K3-K8 as an actual shadow instrument
   following the `install-<name>-shadow.ps1` pattern (cite the exact candidate/prereg
   name in the task name, e.g. `Gamma_<Name>Shadow`), add its SCHEDULED-TASKS.md row,
   and re-render the leaderboard Status column for every adjudicated row to read
@@ -120,6 +120,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
 - 2026-09-03 18:07 ET — authored by Sonnet (A4 of GOAL-GAMMA-AUTONOMY); queued on the
   ladder, not yet opened.
 - 2026-09-05 00:57 ET — opened by goal_autopilot
+- 2026-09-05 02:0x ET — K9 claimed (stop-hook continuation 3/3); waiting on K1+K2 / K3+K4 / K5-K7 / K8 workers.
 - 2026-09-05 01:5x ET — K1-K8 claimed WIP by the Fable EOD-audit session (4 Sonnet fan-outs; K9 after they land).
 ## HONEST STATE
 Queued. Nothing started.
