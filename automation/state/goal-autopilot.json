@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 01:59 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
-  "active_goal_id": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
-  "next_item": "R1 -- Define the wave: write `backtest/lib/right_tail_waves.py::find_waves(date)` composing",
+  "checked_at_et": "2026-09-05 03:09 ET",
+  "action": "closed_opened",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
+  "next_item": "C6 -- Hand-check (added by Fable 2026-09-05 06:1x ET): the C2 scorers are a first-pass read of each",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -43,24 +43,24 @@
     },
     {
       "id": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
-      "state": "queued",
+      "state": "active",
       "eligible": true,
       "why": "ok"
     },
     {
       "id": "GOAL-KITCHEN-INTEGRITY-2026-09-05",
       "state": "queued",
-      "eligible": true,
-      "why": "ok"
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
-  "last_opened": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
-  "last_closed": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
+  "last_opened": "GOAL-CHECKPOINT-PACKET-2026-09-29",
+  "last_closed": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
   "error": null
 }

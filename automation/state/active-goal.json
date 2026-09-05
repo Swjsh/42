@@ -1,10 +1,10 @@
 {
-  "id": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
+  "id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
   "active": true,
-  "opened_at_et": "2026-09-05T01:59:33",
+  "opened_at_et": "2026-09-05T03:09:16",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-RIGHT-TAIL-CAPTURE-2026-09-05.md",
-  "queue_id": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
+  "file": "automation/state/goals/GOAL-CHECKPOINT-PACKET-2026-09-29.md",
+  "queue_id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
   "max_continuations_per_session": 3,
   "last_next_item": null
 }

@@ -114,6 +114,7 @@ with the five August big days reproducing the numbers already in edge-master-doc
   3 of 8 anchors' peak multiples exceed doctrine's realized-exit numbers because SPY genuinely
   kept drifting for hours past every arm's own exit that day -- a real existence-vs-capture
   gap, in scope for R2/future work, not a remaining R4 bug.
-
+- 2026-09-05 03:09 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 R1-R6 all DONE. R4's detector now anchors on the engine's own `verdict` field (ENTER_BULL/ENTER_BEAR + doctrine setup name) unioned across both core accounts, instead of a persistent score/blockers proxy that drifted off the real entry tick -- all 8 doctrine anchors across the 5 August big days reproduce within 2 ticks and clear 1.3x (backtest/tests/test_right_tail_waves.py 10/10 green, RED-proofed). Backfill + cockpit tile numbers (67% 20-session book capture, 8 cap-4 flags) are now final, not provisional. Three wave peaks legitimately exceed doctrine's quoted realized-exit numbers due to verified continued SPY drift after arms' own exits -- a flagged existence-vs-capture gap for R2, not a remaining detector bug.
+AUTOPILOT CLOSE 2026-09-05 03:09 ET: queue fully terminal (no bare '- [ ] ' item left)
