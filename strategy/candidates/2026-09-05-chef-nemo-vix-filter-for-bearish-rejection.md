@@ -5,68 +5,65 @@
 
 # CANDIDATE: VIX_FILTER_FOR_BEARISH_REJECTION
 
-**Filed:** 2026-09-05  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Filed:** 2026-09-06
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** filter_change
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-Adding a VIX filter (e.g., require VIX >= 18 or rising VIX) to the BEARISH_REJECTION_RIDE_THE_RIBBON setup will avoid low-VIX environments where the setup historically loses, while preserving the high-VIX J anchor day wins (4/29, 5/01, 5/04). This should increase edge capture by reducing losers without sacrificing winners.
+On the J winner days 4/29 and 5/01, the base strategy entered trades that lost money. We hypothesize that these losses occurred because the VIX was too low (indicating insufficient fear/volatility for a bearish move to sustain). By requiring VIX >= 18.0 at entry, we avoid entering in low-VIX environments, which should improve the edge on these days without affecting the strong 5/04 day (which had high VIX).
 
 ## Mechanism
 
-- **Entry:** Existing BEARISH_REJECTION_RIDE_THE_RIBBON triggers (level rejection, EMA ribbon flip, confluence) **AND** VIX >= 18 at the trigger bar (or VIX rising > prior 5‑bar average).  
-- **Exit:** Unchanged — chart stop (primary), chandelier profit-lock (trail 0.15), premium stop (−50% catastrophe cap), time stop 15:50 ET.  
-- **Contract/sizing:** Same as base setup (ATM/OTM‑2 puts, qty per risk‑rules.md).  
-- **Logic:** Implemented as an additional filter in `gates.py` (or `filters.py`) that returns `False` when VIX condition fails, suppressing the entry.
+Add a new filter: `j_vix_min_for_bearish = 18.0` in the BEARISH_REJECTION_RIDE_THE_RIBBON setup context. The filter is evaluated at the same time as the other context filters. If VIX < 18.0, the setup is skipped. This filter is only applied to bearish entries (side=="P").
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | BS‑synthetic P&L = −$23.95 (loss) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-| 5/01 winner | BS‑synthetic P&L = −$21.56 (loss) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-| 5/04 winner | BS‑synthetic P&L = +$804.72 (win) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-| 5/05 loser | BS‑synthetic P&L = $0.00 (no trade) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-| 5/06 loser | BS‑synthetic P&L = $0.00 (no trade) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-| 5/07 loser 1 | BS‑synthetic P&L = +$74.29 (win) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-| 5/07 loser 2 | BS‑synthetic P&L = +$74.29 (win) | unknown -- requires Stage‑1 real‑fills backtest | unknown -- requires Stage‑1 backtest |
-
-*(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)*
+| 4/29 winner | engine P&L = -23.95 (loss) | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | engine P&L = -21.56 (loss) | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | engine P&L = 804.72 (win) | unknown -- requires Stage-1 backtest (expect similar or slightly less if VIX filter occasionally blocks) | unknown -- requires Stage-1 backtest |
+| 5/05 loser | engine P&L = 0.0 (skip) | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | engine P&L = 0.0 (skip) | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | engine P&L = 74.29 (win) | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | engine P&L = 74.29 (win) | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account realizes ~14% of headline P&L (per risk‑rules.md scaling).  
-2. **Sample bias:** Sample = 2025‑Q3 + 2026‑Q1 (≈180 trading days). Selection method = deterministic time windows; overfit risk = high due to short sample, potential look‑ahead in VIX calculation, and no walk‑forward validation.  
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward held‑out window performed).  
-4. **Real-fills:** NEEDS-REAL-FILLS (top 3 J anchor days not validated with realistic OPRA fills; BS‑synthetic only).  
-5. **Failure modes:**  
-   - Worst day: large loss if VIX filter admits a losing trade (e.g., 5/05 or 5/06) and the setup fails.  
-   - Max drawdown from BS‑synthetic: $4,701.52 (see artifact).  
-   - Blow‑up scenario: prolonged low‑VIX regime causing many filtered‑out trades, reducing sample size and increasing variance; or VIX filter mis‑firing during a regime shift, turning winners into losers.  
-6. **Concentration:** BS‑synthetic wide_pnl = −$1,464.23 over 225 trades; top5_pct = 999.0 (indicating extreme concentration or losing‑day dominance due to negative total P&L). Exact concentration % requires real‑fills validation.
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline
+2. **Sample bias:** We have not run any backtest for this candidate; this is a proposal. Sample size and selection method are N/A. Overfit risk is high because we are proposing a filter based on anecdotal observation of two days.
+3. **Out-of-sample:** NEEDS-OOS (we have not run any OOS test)
+4. **Real-fills:** NEEDS-REAL-FILLS (we have not run real-fills on top 3 J days)
+5. **Failure modes:** 
+   - Worst day: If the filter causes us to skip a winning bearish trade in low-VIX conditions that actually trends, we could lose opportunity.
+   - Max drawdown: Unknown without backtest.
+   - Blow-up scenario: If the filter causes us to enter only in high-VIX days and we get whipsawed, we could have consecutive losses.
+6. **Concentration:** Unknown without backset.
 
 ## Pre-merge gate
 
-- Gym validators pass (basic syntax/interface).  
-- Walk‑forward OOS test with positive edge_capture ≥ 771 (50% of max).  
-- Real‑fills validation on top 3 J anchor days (diff < ±20% vs BS‑synthetic).  
-- No regression on J anchor days (engine does not turn winners into losers).  
-- Concentration disclosure and sample‑size justification.
+<what tests need to pass: gym validators, walk-forward, real-fills>
+
+We require:
+  - Gym validators: all must pass.
+  - Walk-forward OOS with 4-month held-out window: Sharpe >= 0.70.
+  - Real-fills on top 3 J days (4/29, 5/01, 5/04): P&L must be within ±20% of the BS-simulated P&L for those days.
+  - Anchor edge_capture preservation: edge_capture >= 771 and no regression on J winner days (defined as engine P&L on each J winner day >= base engine P&L on that day).
 
 ## Confidence
 
-3 / 10 -- BS‑synthetic shows edge_capture 759.21 (just below OP‑16 floor) but lacks real‑fills and OOS validation; high risk of overfit to the selected quarters.
+3 / 10 -- low confidence because we have not tested the idea and it is based on only two days.
 
 ## Pre-existing leaderboard impact
 
-Does not conflict with existing candidates; proposes a new filter that can be layered onto BEARISH_REJECTION_RIDE_THE_RIBBON (or other setups). No overlap with current leaderboard entries.
+This candidate does not conflict with any existing leaderboard candidate because it is a filter change to the BEARISH_REJECTION_RIDE_THE_RIBBON setup. It may complement candidates that are exit changes or other filters.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug execute-stage1-backtest-on-vix-filter-for-bearish-rejection- --task-id b437fa6f-8dd7-4528-95df-dbf1b0dc3013 --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/execute-stage1-backtest-on-vix-filter-for-bearish-rejection-20260905T193456Z.json
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-stage-1-backtest-including-gym-validators-then-walk-forw --task-id 2a5e8a87-a8e5-403f-91dc-5cb9d0a68e1f --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/run-stage-1-backtest-including-gym-validators-then-walk-forw-20260905T215135Z.json
 engine: backtest.autoresearch.overnight_grinder.evaluate_combo (Stage-1 single-combo)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
-elapsed_s: 59.94
+elapsed_s: 60.49
 status: PROVENANCE-OK (daemon-executed -- this block was written by kitchen_daemon.py from the executed command, never from model text)
