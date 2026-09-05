@@ -3,7 +3,6 @@
   "frozen_at_et": "2026-07-28T19:0x",
   "frozen_before_any_run": true,
   "authority": "J 2026-07-28 post-close: 'TP1 fifty percent... being up twenty two percent and then going to zero sucks. Should we put a trailing stop loss or something?' Market CLOSED -- normal after-hours work block, no rule-9 waiver needed.",
-
   "the_incident_that_motivates_it": {
     "trade": "2026-07-28 Bold, 5x SPY260728C00741000, level_reclaim @741.0",
     "entry_premium": 1.38,
@@ -16,7 +15,6 @@
     "status_of_the_knob": "exit_manager.py:73-81 documents ARM_SCOPE_FULL as expressible-but-never-armed: 'NOTHING declares full until a live-machine scorecard + STOP-B arms it.' This pre-reg IS that scorecard.",
     "prior_art_warning": "The 2026-07-09 scope-mismatch finding: simulator_real arms the lock pre-TP1, this live core arms post-TP1, so EVERY sim scorecard crediting profit_lock overstated live protection. Therefore this test MUST run through exit_manager_walk at LIVE scope, never simulate_trade_real, and must not credit a same-bar ratchet (look-ahead)."
   },
-
   "cells_frozen_entire_search_space": [
     "CONTROL: live config as-is (arm_scope=post_tp1, tp1=1.0)",
     "E1: profit_lock_arm_scope=full (arm the existing trail at +5% favor, pre-TP1). ONE key.",
@@ -24,9 +22,7 @@
     "E3: E1+E2 combined"
   ],
   "no_other_knobs": "trail_pct stays 0.15, arm_pct stays 0.05, catastrophe cap stays -0.50, stop_mode stays structure. Not swept. If E1 passes, trail_pct tuning is a SEPARATE future pre-reg.",
-
   "population": "The 390-day full-history replay population, entries UNCHANGED from control (this is an exit-only test -- same trades, different exit walk). Exits re-derived through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL live exit core) at live scope. entry+1 convention. Real-OPRA-only P&L; synthetic counted+excluded.",
-
   "gates_frozen": [
     "G1 positive aggregate delta vs CONTROL",
     "G2 majority of changed trades positive",
@@ -36,5 +32,8 @@
     "G6 today's 2026-07-28 trade must improve materially under E1 (the motivating case; signal-level check, OPRA for today may be uncached -- disclose)"
   ],
   "arming_rule": "Arm ONLY the single best-performing cell that clears G1-G6. If two cells clear, prefer the SIMPLER (fewer keys changed). Arm flag-gated per-strategy in the registry shape, guard tests RED-proofed, REVOKE = revert the key. If none clear: record the null, arm nothing, and the exit leak goes back to the queue with what we learned.",
-  "kill_criteria_post_arm": "Forward 10 sessions or n>=8 fills: if realized expectancy is worse than the counterfactual control behavior, revert."
+  "kill_criteria_post_arm": "Forward 10 sessions or n>=8 fills: if realized expectancy is worse than the counterfactual control behavior, revert.",
+  "status": "KILL",
+  "adjudicated_at_et": "2026-09-05 00:15 ET",
+  "evidence": "Own scorecard analysis/recommendations/exit-armscope-tp1-ab-2026-07-28.md VERDICT: ARM NOTHING -- no cell (E1 arm_scope=full, E2 tp1=0.5, E3 both) cleared all required gates; the runner-cohort gate (G4, n=35) failed on EVERY cell (-$7,758.85 / -$5,615.70 / -$9,448.40). First iteration of the pre-TP1 profit-lock arming axis -- the -$7,758.85 G4 number this and all three subsequent iterations cite as their own worst-case baseline. Permanent graveyard, opening entry for the whole family."
 }

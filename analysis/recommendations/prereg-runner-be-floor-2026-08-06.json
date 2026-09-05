@@ -4,11 +4,8 @@
   "frozen_at_et": "2026-08-06T18:55 ET (clock verified via setup/scripts/et_clock.py: 2026-08-06 18:46:29 Thursday EDT, market_hours=False)",
   "committed_before_runner": true,
   "author_lane": "LANE 3 -- HOLD OUR WINNERS (J's explicit ask: 'good days where we hold our winners')",
-
   "hypothesis": "Managing the POST-TP1 runner with a fixed breakeven floor (profit_lock_mode='fixed') instead of the chandelier trail (profit_lock_mode='trailing') increases net P&L over the full real-fills population INCLUDING losers. Exhibit: 2026-08-04, risky-1's fixed-floor runner rode 1.39->4.87 (+250%) while all four trailing arms were evicted on an ordinary 3.00->2.53 pullback; winners-only delta was +$1,912 (original, NON-REPRODUCIBLE due to hardcoded literals) / +$2,229.70 (independent re-derivation, same sign).",
-
   "scope_guard": "POST-TP1 runner management ONLY. profit_lock_arm_scope stays 'post_tp1' in EVERY cell. This is mechanically disjoint from the FIVE-TIMES-DEAD pre-TP1 profit-lock arming cell (arm_scope='full', last killed on live machine n=190: G4 runner cohort -$7,758.85, 22 worse / 0 better -- PERMANENT graveyard). With arm_scope='post_tp1', exit_manager.plan_exit_actions consults profit_lock_mode ONLY in the post-TP1 branch (automation/state/fleet/exit_manager.py:514), so no cell here can touch pre-TP1 behavior by construction.",
-
   "population_frozen": {
     "source": "automation/state/fills-ledger.jsonl, attribution=='engine', is_option, not is_crypto, ALL arms (safe-1, safe-2, safe-3, risky-1, risky-3, bold-2)",
     "reconstruction": "exit_shape_parity_study.reconstruct_positions (the repo's single canonical position definition); closed positions only (exit_fills non-empty)",
@@ -19,7 +16,6 @@
     "opra_coverage_verified_before_freeze": "all 71 contract-days present in backtest/data/opra_1m_cache (real Alpaca OPRA 1-min); zero fetches required",
     "includes_losers": true
   },
-
   "mechanism_frozen": {
     "exit_engine": "backtest/lib/exit_manager_walk.walk_exit_manager -> automation/state/fleet/exit_manager.plan_exit_actions (the REAL live decision core). NEVER simulator_real (2026-07-09 scar).",
     "walk_cadence": "1-min real OPRA bars; point-sample convention (bar open as best/worst) per walk_exit_manager's documented live-NBBO analog",
@@ -29,23 +25,45 @@
     "ribbon_flip": "NOT modeled (ribbon_tick_df=None) -- disclosed limitation; 8 ribbon_flip exits exist in core ledger history. Identical omission in all cells; deltas are within-model.",
     "frame": "et-v2 with naive true-ET timestamps; entire population is EDT (summer) so wall-v1==et-v2 for every row"
   },
-
   "control_shape_resolution_frozen": "Per position: join to the arm's own entry row (fleet arms: automation/state/fleet/<arm>/decisions.jsonl ENTER rows; core arms: automation/state/core-decisions.jsonl PLACED rows) by symbol + date + nearest entry-time within 5 minutes. The row supplies setup_name, trigger_level, stop_mode. The exit shape = strategies.py registry ExitShape for that setup (ribbon_ride family / vwap_continuation / vwap_reclaim_failed_break), overlaid with the arm's accounts.json params_patch.exit_patch (risky-1: tp1 0.5 + structure; risky-3: structure + trailing + trail 0.2; safe-3: structure + trailing); core armed extra setups use heartbeat_core._SETUP_EXIT_OVERRIDES params keys (isolated stop/tp1/tq/plmode/trail/runner). The row's placement tp fields are NOT trusted for core arms (D4 CORE-TP1-DISPLAY-DIVERGENCE: display logs params tp while the armed shape comes from the registry). Unjoined positions fall back to the ribbon_ride registry shape and are counted + disclosed as attribution_fallback.",
-
   "cells_frozen": [
-    {"cell": "CONTROL", "change": "resolved live shape as-is"},
-    {"cell": "B_BE_FLOOR", "change": "profit_lock_mode='fixed'; every other resolved field unchanged (trail_pct becomes inert; runner_target_pct stays the shape's own value, including ribbon_ride's 99.0 sentinel -- interaction disclosed in report)"},
-    {"cell": "C_BE_FLOOR_TGT25", "change": "EXPLORATORY ONLY, declared before running, no arming decision reads it: profit_lock_mode='fixed' AND runner_target_pct=2.5 where the resolved shape's runner_target_pct >= 99.0 (doctrine-parity finite target for ribbon_ride)"}
+    {
+      "cell": "CONTROL",
+      "change": "resolved live shape as-is"
+    },
+    {
+      "cell": "B_BE_FLOOR",
+      "change": "profit_lock_mode='fixed'; every other resolved field unchanged (trail_pct becomes inert; runner_target_pct stays the shape's own value, including ribbon_ride's 99.0 sentinel -- interaction disclosed in report)"
+    },
+    {
+      "cell": "C_BE_FLOOR_TGT25",
+      "change": "EXPLORATORY ONLY, declared before running, no arming decision reads it: profit_lock_mode='fixed' AND runner_target_pct=2.5 where the resolved shape's runner_target_pct >= 99.0 (doctrine-parity finite target for ribbon_ride)"
+    }
   ],
-
   "stratification_frozen": {
     "library": "analysis/regime-library/day-archetypes.json via backtest/lib/regime_slice.py",
-    "trend_like": ["trend-up", "trend-down", "gap-go"],
-    "chop_like": ["range-chop", "pin-day", "gap-fade", "V-reversal", "inverted-V"],
+    "trend_like": [
+      "trend-up",
+      "trend-down",
+      "gap-go"
+    ],
+    "chop_like": [
+      "range-chop",
+      "pin-day",
+      "gap-fade",
+      "V-reversal",
+      "inverted-V"
+    ],
     "note": "same buckets as stop_width_population_grid (frozen there first); 2026-08-06 untagged at freeze time -> builder re-run before scoring, else bucketed UNTAGGED and disclosed",
-    "also_reported": ["per-archetype", "per-day", "per-arm", "winners-cohort vs losers-cohort", "n_reached_tp1", "suppression counts"]
+    "also_reported": [
+      "per-archetype",
+      "per-day",
+      "per-arm",
+      "winners-cohort vs losers-cohort",
+      "n_reached_tp1",
+      "suppression counts"
+    ]
   },
-
   "decision_gates_frozen": {
     "G1_overall": "B_BE_FLOOR total minus CONTROL total > 0",
     "G2_chop_survival": "B minus CONTROL >= 0 on the CHOP_LIKE rollup",
@@ -54,12 +72,13 @@
     "ship_rule": "ALL of G1-G4 pass -> ARM-ELIGIBLE; ships only with guard tests + RED-proof + one-line revert + REVOKE entry per the after-hours paper-autonomy bar. G1 pass + G2 fail -> label REGIME-CONDITIONAL(trend), DO_NOT_ARM (no lookahead-safe live archetype classifier exists at entry -- STOPPED-THEN-PAID 2026-08-04 settled that entry-time regime knowledge is unknowable: classifier 20.9% vs 39.1%).",
     "no_repick_clause": "cells, buckets, gates, and population are frozen by this commit. Any cell/gate/bucket added after seeing results is a NEW prereg. Cell C reads descriptively only; promoting C requires its own future prereg."
   },
-
   "secondary_audit_descriptive_only": "runner_target reconciliation: CLAUDE.md doctrine says 'runner target 2.5x'; strategies.py RIBBON_RIDE ships runner_target_pct=99.0 (the SS-B cell's deliberate tgt-none, per its own comment); vwap shapes use the 2.5 default; live behavior evidence: fleet ledgers show trail exits 34/39/18 per arm vs runner_target exactly 1 (risky-1) + 1 (risky-3), core ledger runner_target 0. No gate; report which surface is real and what the doctrine line should say.",
-
   "artifacts": [
     "backtest/tools/hold_winners_runner_ab_2026_08_06.py (runner, committed after this prereg)",
     "analysis/deep-research/HOLD-WINNERS-2026-08-06.md",
     "analysis/deep-research/HOLD-WINNERS-2026-08-06.json"
-  ]
+  ],
+  "status": "KILL",
+  "adjudicated_at_et": "2026-09-05 00:15 ET",
+  "evidence": "Own scorecard analysis/deep-research/HOLD-WINNERS-2026-08-06.md VERDICT: REGIME-CONDITIONAL (trend). DO NOT ARM -- per the prereg's own pre-committed rule (G1 pass + G2 fail -> REGIME_CONDITIONAL_TREND__DO_NOT_ARM). G1 overall delta passed (+$4,026.15) but the chop-survival gate (G2) failed, and no look-ahead-safe live regime classifier exists at entry time (STOPPED-THEN-PAID 2026-08-04 already settled that entry-time regime knowledge is unknowable: classifier 20.9% vs realized 39.1%). Not a raw-dollar refutation -- the mechanism is real but unreachable without an entry-time classifier this repo does not have and has already tried and failed to build. Re-open only if a validated look-ahead-safe regime classifier ships (see C22 lesson cluster on backward-looking classifiers)."
 }

@@ -5,14 +5,12 @@
   "frozen_before_any_config_change": true,
   "window": "Sunday after-hours (rule 9 compliant: doctrine/param changes happen on weekends, in writing, with a documented reason). Takes effect at Monday 2026-08-10 open.",
   "money": "PAPER ONLY. Alpaca paper account PA3V7JT25H6Z. No live-money arming is proposed, implied, or permitted by this document (OP-0 #1 untouched).",
-
   "why_this_exists": {
     "finding": "The 96-cell entry x exit matrix + its /fable-too-good audit + a pre-registered confirmatory A/B (prereg 2a36724a, results stop-mode-structure-vs-premium-2026-08-09.json) established that flipping exit stop_mode structure -> premium is worth +$24-61/trade on a 399-day replay, 8/8 entry rows positive, ALL 16 premium cells surviving BH-FDR at q=0.10, with the mechanism signature (expectancy UP while win rate DOWN) holding 8/8.",
     "the_contradiction_this_resolves": "On the 26-day REAL-FILLS book the same comparison is positive in dollars in 4/4 rows but has ZERO BH survivors and the MECHANISM SIGNATURE FAILS 0/4 -- win rate does NOT fall. A second, independently-written instrument (setup/scripts/stop_mode_shadow_ledger.py, paired per-trade walk) reproduced exactly that: +$26.55/trade with win rate RISING. Two implementations, same contradiction. Replay says one thing about the mechanism; real fills say another.",
     "why_a_live_arm_and_not_more_backtesting": "Both retrospective readings are now exhausted -- they disagree, and re-running them cannot break the tie because they share the same 26-day fill book. The only discriminating evidence is FORWARD real fills executing under premium mode. The fleet exists precisely for this (per-arm exit A/B, ratified 2026-07-20).",
     "the_gap_this_closes": "VERIFIED THIS SESSION: every fleet arm currently resolves stop_mode='structure' (safe-3/risky-3/bold-2 patched explicitly, risky-1 + core via the ribbon_ride registry default), AND params.structure_stop_enabled=true on both core and aggressive params. So the entire live book is chart-stop-primary and the premium-stop lane has ZERO live representation. This A/B is not adding a variant to a crowded field; it is measuring an arm of the comparison that has never once traded."
   },
-
   "the_change": {
     "arm": "risky-3 (FLEET-LOOSE-R, PA3V7JT25H6Z, live:true, fidelity real_fills, execution fleet_rest)",
     "why_this_arm": "Loosest gate in the fleet (gate_override min_triggers=1) => highest fill frequency => fastest n, which is the binding constraint on every forward clock we run. It is already the designated experimental/probe arm. Its outgoing ZONE-RIDE lane is, by its own accounts.json note, an ADMITTED PROXY ('trail_pct=0.20 here is the disclosed proxy') for a reference-level stop knob that does not exist and was closed NO-SHIP -- so the lane being replaced is the weakest-evidence lane in the fleet, not a validated one.",
@@ -28,7 +26,6 @@
     "resulting_shape": "ribbon_ride registry exit verbatim EXCEPT stop_mode=premium. Because the registry already carries premium_stop_pct=-0.20, the operative stop becomes a hard -20% premium stop. Dropping trail_pct 0.20 back to the registry 0.15 REMOVES a second variable rather than adding one -- this is deliberately a ONE-VARIABLE change against the registry.",
     "mechanism_verified_live_not_assumed": "fleet_executor._exit_shape_dict shallow-merges params_patch.exit_patch OVER the registry ExitShape at every ENTER call site; exit_manager.ExitState.from_entry resolves structure stops as (shape_mode=='structure' AND caller structure_stop_enabled) -- an AND. Setting shape_mode='premium' therefore disables the structure stop for THIS ARM ONLY, with no global flag change and no effect on any sibling arm. Keys are validated against fleet_executor.EXIT_PATCH_ALLOWED_KEYS and raise ValueError on load AND at merge (fail-loud, C14/L201)."
   },
-
   "_corrections": [
     {
       "at_et": "2026-08-09 ~18:40 EDT, BEFORE any forward data existed",
@@ -42,15 +39,12 @@
       "does_this_change_the_experiment": "No. The change made to risky-3 is unaffected and remains a clean one-variable flip against the registry. Only the CONTROL attribution in this document was wrong, and correcting it upgrades the design: the paired shadow clock is a within-trade control, which is what this question actually needed."
     }
   ],
-
   "hypothesis": "Over forward real fills, risky-3 under premium mode produces higher per-trade expectancy than the SAME fills would have produced under the shipped structure-mode exit, as priced within-trade by the paired shadow clock.",
   "mechanism_under_test": "Structure/ribbon invalidation is a LAGGING exit (already C28: L139,141,156,157,175,243). The claim is that it exits winners early on flip-back noise AND rides losers past -20% before invalidating. FALSIFIABLE SIGNATURE: risky-3's win rate must FALL relative to its own history while per-trade expectancy RISES. If win rate rises too, the replay mechanism story is WRONG even if the dollars look good -- and that is exactly the reading the retrospective real-fills layer already produced twice.",
-
   "evidence_layers": [
     "PRIMARY -- live forward fills: risky-3 (premium) vs risky-1 (registry-verbatim control) on the SAME shared signal, same fleet tick, per-trade expectancy + win rate.",
     "SECONDARY -- the paired shadow clock (stop_mode_shadow_ledger.py, folded into nightly Gamma_WinnerAutopsy) which prices BOTH exits on EVERY arm's fills, including arms that never trade premium mode. The live arm and the shadow clock are independent readings of the same question and must agree before anything is proposed."
   ],
-
   "gates": [
     "n >= 20 trading days AND n >= 30 risky-3 fills under premium mode (whichever is later).",
     "Per-trade expectancy of premium-mode risky-3 > its own pre-change trailing baseline AND > risky-1 over the same forward window.",
@@ -58,24 +52,24 @@
     "Drop-best-day: the expectancy edge survives removing the single best forward day. The current book's entire 27-day bull P&L is one Tuesday; a one-day forward result proves nothing.",
     "No kill-switch breach attributable to the exit change."
   ],
-
   "kill_criteria": [
     "Expectancy negative AND below risky-1 over n >= 20 days -> REVERT.",
     "Any daily kill-switch breach where the premium stop is the proximate cause -> REVERT immediately, do not wait for n.",
     "Mechanism signature fails forward (win rate does not fall while dollars rise) -> the result is UNEXPLAINED; it does not advance to any other arm regardless of P&L, and the divergence itself becomes the finding.",
     "The live arm and the shadow clock disagree in sign -> report the disagreement, propose nothing."
   ],
-
   "ship_rule": {
     "this_changes_ONE_PAPER_ARM_and_nothing_else": true,
     "does_not_touch": "params.json, aggressive/params.json, filters.py, exit_manager.py, strategies.py, heartbeat_core.py, or any other arm's config. structure_stop_enabled stays TRUE globally.",
     "what_a_pass_would_buy": "Permission to run a pre-registered multi-arm proposal -- NOT an automatic fleet-wide flip. Reaching a bar is permission to TEST, never to ship.",
     "revert_one_line": "In automation/state/fleet/accounts.json, arm risky-3, set params_patch.exit_patch back to {\"stop_mode\": \"structure\", \"profit_lock_mode\": \"trailing\", \"trail_pct\": 0.20} and exit_profile back to \"ZONE-RIDE\". Byte-identical restore, takes effect next tick, no process restart required."
   },
-
   "guards": [
     "automation/state/fleet/test_exit_patch_overlay.py (existing) -- the merge contract",
     "backtest/tests/test_stop_mode_live_arm_risky3_2026_08_09.py (new, this fire) -- vary-and-assert that risky-3 resolves premium mode, that structure resolution goes False for it, and that every sibling arm still resolves structure (blast-radius pin)"
   ],
-  "reporting_rule": "Forward result reported whatever it says. A revert is a successful experiment, not a failure -- the unrecorded-null habit (dynamic_stop_ab.py 2026-07-07) cost weeks of rediscovery and is the specific failure mode this program is trying to stop repeating."
+  "reporting_rule": "Forward result reported whatever it says. A revert is a successful experiment, not a failure -- the unrecorded-null habit (dynamic_stop_ab.py 2026-07-07) cost weeks of rediscovery and is the specific failure mode this program is trying to stop repeating.",
+  "status": "KILL",
+  "adjudicated_at_et": "2026-09-05 00:15 ET",
+  "evidence": "Live paper arm (risky-3, stop_mode=premium) RETIRED 2026-08-28 (accounts.json retired_reason) on exactly the kill criteria this prereg pre-committed to: 'Expectancy negative AND below risky-1 over n>=20 days -> REVERT.' Lifetime risky-3 -$590 while the other four fleet cells are positive; cleanest single proof 2026-08-28: bold-2 (stop_mode=structure) and risky-3 (stop_mode=premium) bought the IDENTICAL contract (SPY 773C) 65 seconds apart -- bold-2 rode it to +195%, risky-3 was stopped out at -19% two minutes in. Second independent indictment: min_triggers=1 (1-trigger 35.9% WR/-1.9% ROI vs 2-trigger 41.2% WR/+17.5% ROI). The mechanism-signature gate this prereg required (win rate must FALL while dollars rise) never held forward -- consistent with the paired shadow ledger (see STOP-MODE-STRUCTURE-VS-PREMIUM adjudication, same fire). Account since re-tasked to weekly-1 non-SPY lane; premium-stop-vs-structure-stop question is CLOSED, do not re-arm."
 }

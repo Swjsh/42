@@ -26,12 +26,42 @@
   "candidate_grid": {
     "grid_selection_rule": "THREE axes, each chosen by a stated rule, never hand-picked to fit results (results have not been seen at the time this file is written): (1) TRAIL axis alone (tp1_qty_fraction held at control 0.667) -- trail_pct steps of +0.05 from control (0.15) up to the dojo-evidence ceiling (0.30), the same step size the codebase's own prior exit_variant_ab.py candidate (trail_pct=0.25) already used once: {0.20, 0.25, 0.30}. (2) TP1-SIZE axis alone (trail_pct held at control 0.15) -- the two smaller sell-fractions reachable under Rule 6's min-3-contracts floor (2-of-3 sold today -> 1-of-2 -> 1-of-3): {0.5, 0.333}. (3) ONE bundle cell replaying the dojo sim's EXACT RIDE profile verbatim (trail_pct=0.30, tp1_premium_pct=0.50, tp1_qty_fraction=0.5) -- justified because that IS the literal cell the hypothesis originated from; testing it directly on real fills is the most direct confirm/falsify test available. All other ExitShape fields (premium_stop_pct, profit_lock_mode, runner_target_pct, stop_mode, catastrophe_stop_pct, profit_lock_arm_pct/scope) stay byte-identical to control for every candidate, isolating exactly the named axis/axes.",
     "candidates": {
-      "TRAIL-20":    {"trail_pct": 0.20, "tp1_qty_fraction": null, "tp1_premium_pct": null, "note": "trail axis alone, step 1 of 3"},
-      "TRAIL-25":    {"trail_pct": 0.25, "tp1_qty_fraction": null, "tp1_premium_pct": null, "note": "trail axis alone, step 2 of 3 (matches exit_variant_ab.py's prior synthetic-population candidate)"},
-      "TRAIL-30":    {"trail_pct": 0.30, "tp1_qty_fraction": null, "tp1_premium_pct": null, "note": "trail axis alone, step 3 of 3 -- the dojo-evidence ceiling"},
-      "TP1Q-050":    {"trail_pct": null, "tp1_qty_fraction": 0.5,   "tp1_premium_pct": null, "note": "TP1-size axis alone, sell half instead of two-thirds"},
-      "TP1Q-033":    {"trail_pct": null, "tp1_qty_fraction": 0.333, "tp1_premium_pct": null, "note": "TP1-size axis alone, sell one-third instead of two-thirds"},
-      "RIDE-BUNDLE": {"trail_pct": 0.30, "tp1_qty_fraction": 0.5,   "tp1_premium_pct": 0.50, "note": "the dojo sim's exact RIDE cell, replayed verbatim on real fills"}
+      "TRAIL-20": {
+        "trail_pct": 0.2,
+        "tp1_qty_fraction": null,
+        "tp1_premium_pct": null,
+        "note": "trail axis alone, step 1 of 3"
+      },
+      "TRAIL-25": {
+        "trail_pct": 0.25,
+        "tp1_qty_fraction": null,
+        "tp1_premium_pct": null,
+        "note": "trail axis alone, step 2 of 3 (matches exit_variant_ab.py's prior synthetic-population candidate)"
+      },
+      "TRAIL-30": {
+        "trail_pct": 0.3,
+        "tp1_qty_fraction": null,
+        "tp1_premium_pct": null,
+        "note": "trail axis alone, step 3 of 3 -- the dojo-evidence ceiling"
+      },
+      "TP1Q-050": {
+        "trail_pct": null,
+        "tp1_qty_fraction": 0.5,
+        "tp1_premium_pct": null,
+        "note": "TP1-size axis alone, sell half instead of two-thirds"
+      },
+      "TP1Q-033": {
+        "trail_pct": null,
+        "tp1_qty_fraction": 0.333,
+        "tp1_premium_pct": null,
+        "note": "TP1-size axis alone, sell one-third instead of two-thirds"
+      },
+      "RIDE-BUNDLE": {
+        "trail_pct": 0.3,
+        "tp1_qty_fraction": 0.5,
+        "tp1_premium_pct": 0.5,
+        "note": "the dojo sim's exact RIDE cell, replayed verbatim on real fills"
+      }
     }
   },
   "gates": {
@@ -53,5 +83,8 @@
     "NO trading-path file is written by the runner: strategies.py, params.json, exit_manager.py all READ-ONLY.",
     "NO broker import, NO network call at replay time -- every input is a local cached CSV/JSONL (backtest/data/options/*.csv, backtest/data/spy_5m_2026-05-19_2026-07-21.csv, automation/state/fills-ledger.jsonl) already on disk.",
     "NO git commit/push performed by this study or its runner."
-  ]
+  ],
+  "status": "KILL",
+  "adjudicated_at_et": "2026-09-05 00:15 ET",
+  "evidence": "Own scorecard analysis/recommendations/trail-width-exit-2026-07-21.md: all 6 candidate cells (TRAIL-20/25/30, TP1Q-050/033, RIDE-BUNDLE) verdict CONTROL_HOLDS against the real-fills anchor (n=113, 2026-06-26..07-17). TRAIL-25 shows a nominally-significant BH-FDR p=0.077 (+$363.05 net) but FAILS the ex-top3 concentration check (delta ex-top3 = -$18.25, does not survive) -- exactly the concentration-artifact pattern this repo's honesty gates exist to catch. No candidate beats the shipped shape (trail_pct=0.15, tp1_qty_fraction=0.667) once concentration is controlled for."
 }
