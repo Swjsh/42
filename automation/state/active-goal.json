@@ -1,10 +1,12 @@
 {
   "id": "GOAL-TP1-FRACTION-AB-2026-09-05",
-  "active": true,
+  "active": false,
   "opened_at_et": "2026-09-05T06:04:01",
   "expires_at_et": "2026-09-19",
   "file": "automation/state/goals/GOAL-TP1-FRACTION-AB-2026-09-05.md",
   "queue_id": "GOAL-TP1-FRACTION-AB-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null
+  "last_next_item": null,
+  "closed_at_et": "2026-09-05 06:19 ET",
+  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
 }

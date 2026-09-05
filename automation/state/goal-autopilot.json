@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 06:04 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
+  "checked_at_et": "2026-09-05 06:26 ET",
+  "action": "ladder_empty",
+  "reason": "no eligible queued ladder entry",
   "active_goal_id": "GOAL-TP1-FRACTION-AB-2026-09-05",
-  "next_item": "A1 -- Entry set: every real ribbon_ride entry (core + fleet) since 2026-06-28 from the fills",
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -97,12 +97,12 @@
     },
     {
       "id": "GOAL-TP1-FRACTION-AB-2026-09-05",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-TP1-FRACTION-AB-2026-09-05",
-  "last_closed": "GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05",
+  "last_closed": "GOAL-TP1-FRACTION-AB-2026-09-05",
   "error": null
 }
