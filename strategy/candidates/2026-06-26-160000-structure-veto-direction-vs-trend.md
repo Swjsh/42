@@ -93,3 +93,20 @@ read with `market_structure`.
 
 **Tool (read-only, reusable):** `backtest/autoresearch/structure_veto_ab.py`.
 **Output:** `analysis/recommendations/structure-veto-ab-2026-06-26.json`.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: SHADOW-FILED-CANDIDATE — but note this is ALREADY-LIVE in production, not a pending ship decision.**
+
+**Evidence:**
+- `backtest/tests/test_structure_veto.py` re-run fresh this session: `29 passed in 0.46s` (`cd backtest && .venv/Scripts/python.exe -m pytest tests/test_structure_veto.py -q`). This is a unit/guard suite for code correctness, NOT a walk-forward stability ratio — it does not by itself satisfy "WF ≥ 0.70".
+- No numeric walk-forward ratio (OOS-benefit / IS-benefit) has ever been computed for this candidate anywhere in `strategy/candidates/_analysis/` — every dated re-run (2026-07-08 through 2026-09-03, ~30 files) is a free-tier Nemotron draft whose per-quarter/per-anchor-day tables are literally filled with the placeholder string "unknown -- requires Stage-1 backtest". The one real, code-produced number set is `analysis/recommendations/structure-veto-ab-2026-06-26.json`: `train_delta_pnl=$582.90` (2025 in-sample), `oos_delta_pnl=$0.0` (2026 OOS). Computed as a ratio, WF = 0/582.90 = **0.00, well below the 0.70 gate** — the entire measured benefit is in-sample; OOS contributes nothing.
+- However: `automation/state/params.json:314` — `"structure_veto_enabled": true` — confirms this candidate is **already shipped and live in production** for Safe (account safe-2), ratified 2026-06-26 per `structure-veto-ab-2026-06-26.json`'s own `"recommendation": "IMPROVE_SHIP"`. `automation/state/aggressive/params.json:52` sets it explicitly `false` for Bold (documented 2026-08-12 decision, guarded by `test_structure_veto_explicit_2026_08_12.py`). This Safe-on/Bold-off split is a real, ongoing, $0-incremental-cost forward comparison already running in production real fills — the honest description of "shadow" evidence going forward is this standing divergence, not a fresh backtest.
+- CAVEAT already on the leaderboard row and reproduced here: "OOS-2026 Δ=$0" — the veto's benefit is a robustness/safety improvement (removes 2 wrong-way losers, 0 winners touched, anchor edge_capture unchanged $780), not a forward-tested edge. Treat as risk-reduction, not alpha.
+- Separately in flight (NOT part of this candidate, do not conflate): `analysis/recommendations/structure-veto-lift-package-2026-09-05/README.md` — a same-week, unrelated **contested Rule-9 decision** about a *classifier defect* (5m-sameday trend misclassification on 2026-09-03) that questions whether to widen/flip the classifier. That package is explicitly "not applied," status contested, and belongs to Sunday's separate Rule-9 review — it does not change this candidate's already-live status or this verdict.
+
+**K9 handoff:**
+- Because the mechanism is already live (not a new instrument to arm), K9 should file a documentation-only prereg — no code/param change — naming the standing production A/B:
+  - **Prereg name:** `STRUCTURE-VETO-DIR-VS-TREND-STANDING-AB-2026-09-05` (JSON under `analysis/recommendations/`, records: already-live since 2026-06-26, Safe=on/Bold=off, WF=0.00 on OOS/IS ratio, monitors ongoing safe-vs-bold P&L divergence attributable to `SKIP_STRUCTURE_VETO` events).
+  - **Shadow task name:** `Gamma_StructureVetoStandingABShadow` (a NEW, distinct task — do not confuse with the existing `Gamma_StructureClassifierShadow`, which monitors the separate classifier-defect question in the 2026-09-05 lift package, not this candidate's dir-vs-trend A/B).
+- UNVERIFIED: whether a distinct standing-A/B shadow task is actually needed given the mechanism already runs in production with its own ledger (`SKIP_STRUCTURE_VETO` rows in `core-decisions.jsonl`) — K9/J should confirm this isn't duplicate instrumentation of something the existing pipeline already logs.
