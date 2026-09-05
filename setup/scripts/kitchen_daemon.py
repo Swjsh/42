@@ -1304,7 +1304,10 @@ def _run_grinder_task(task_state: dict) -> dict:
                 "deferred": True}
 
     hours = float(task_state.get("grinder_hours", info.get("default_hours", 2.0)))
-    workers = int(task_state.get("grinder_workers", GRINDER_MAX_WORKERS))
+    # GRINDER_MAX_WORKERS is a CEILING, not a default: queued task_state rows written before
+    # 2026-09-05 still carry grinder_workers=4 and were spawning 4 workers on J's box after
+    # the cap was lowered to 2 (GOAL-SILENT-RIG-2026-09-05 L2).
+    workers = min(int(task_state.get("grinder_workers", GRINDER_MAX_WORKERS)), GRINDER_MAX_WORKERS)
     module = info["module"]
     state_dir = Path(info["state_dir"])
     progress_file = state_dir / "progress.json"
