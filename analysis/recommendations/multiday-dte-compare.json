@@ -1,0 +1,129 @@
+{
+  "generated": "chef 2026-07-07 offline",
+  "family": "vwap_continuation",
+  "fixed_config": {
+    "strike_offset": -2,
+    "premium_stop": -0.08,
+    "tp1_pct": 0.3
+  },
+  "window": "2025-01-02..2026-06-16",
+  "oos_year": 2026,
+  "n_null_iters": 200,
+  "buckets": [
+    {
+      "dte": 0,
+      "n": 159,
+      "fill_rate": 0.958,
+      "wr": 45.3,
+      "exp": 49.83,
+      "oos_n": 50,
+      "oos_exp": 37.15,
+      "oos_wr": 40.0,
+      "drop3_exp": 43.74,
+      "held_overnight_pct": 0.0,
+      "total_pnl": 7924.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 159,
+        "cache_miss": 7,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 0.958
+      },
+      "null_exp": 0.85,
+      "p_null": 0.005
+    },
+    {
+      "dte": 1,
+      "n": 166,
+      "fill_rate": 1.0,
+      "wr": 42.8,
+      "exp": 67.25,
+      "oos_n": 51,
+      "oos_exp": 59.02,
+      "oos_wr": 41.2,
+      "drop3_exp": 59.05,
+      "held_overnight_pct": 0.0,
+      "total_pnl": 11163.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 166,
+        "cache_miss": 0,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 1.0
+      },
+      "null_exp": -1.96,
+      "p_null": 0.01
+    },
+    {
+      "dte": 2,
+      "n": 165,
+      "fill_rate": 0.994,
+      "wr": 42.4,
+      "exp": 71.57,
+      "oos_n": 50,
+      "oos_exp": 66.13,
+      "oos_wr": 42.0,
+      "drop3_exp": 58.94,
+      "held_overnight_pct": 1.2,
+      "total_pnl": 11809.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 165,
+        "cache_miss": 0,
+        "no_expiry_listed": 1,
+        "sim_none": 0,
+        "fill_rate": 0.994
+      },
+      "null_exp": -2.23,
+      "p_null": 0.0448
+    },
+    {
+      "dte": 3,
+      "n": 165,
+      "fill_rate": 0.994,
+      "wr": 43.6,
+      "exp": 72.07,
+      "oos_n": 50,
+      "oos_exp": 95.43,
+      "oos_wr": 46.0,
+      "drop3_exp": 49.08,
+      "held_overnight_pct": 4.2,
+      "total_pnl": 11891.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 165,
+        "cache_miss": 0,
+        "no_expiry_listed": 1,
+        "sim_none": 0,
+        "fill_rate": 0.994
+      },
+      "null_exp": 21.48,
+      "p_null": 0.3035
+    },
+    {
+      "dte": 4,
+      "n": 163,
+      "fill_rate": 0.982,
+      "wr": 38.7,
+      "exp": 19.47,
+      "oos_n": 49,
+      "oos_exp": 106.1,
+      "oos_wr": 38.8,
+      "drop3_exp": -19.34,
+      "held_overnight_pct": 8.6,
+      "total_pnl": 3174.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 163,
+        "cache_miss": 1,
+        "no_expiry_listed": 2,
+        "sim_none": 0,
+        "fill_rate": 0.982
+      },
+      "null_exp": 9.55,
+      "p_null": 0.4328
+    }
+  ]
+}

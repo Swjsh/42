@@ -119,6 +119,11 @@ DTE_DIRS = {
     0: REPO / "data" / "options",        # 0DTE baseline (same-day expiry)
     1: REPO / "data" / "options_1dte",
     2: REPO / "data" / "options_2dte",
+    # 3/4-DTE backfilled 2026-07-07 (options_3dte_4dte_backfill_manifest.json,
+    # ok=2958/2961); same naming/loader convention as 1/2-DTE (SPY{expiry}{side}{strike}.csv,
+    # bars are entry-day-T only). Wired in 2026-09-05 per candidate adjudication.
+    3: REPO / "data" / "options_3dte",
+    4: REPO / "data" / "options_4dte",
 }
 
 # Per-DTE in-memory loader cache (mirrors option_pricing_real._CONTRACT_BAR_CACHE,

@@ -1,0 +1,138 @@
+{
+  "generated": "gamma-research-tooling 2026-09-05",
+  "purpose": "Extend multiday_dte_compare.py to DTE buckets [0,1,2,3,4] using the options_3dte/options_4dte OPRA cache backfilled 2026-07-07 (options_3dte_4dte_backfill_manifest.json, ok=2958/2961) per strategy/candidates/2026-07-07-193737-weekly-dte-not-0dte.md ## ADJUDICATION 2026-09-05.",
+  "family": "vwap_continuation",
+  "fixed_config": {
+    "strike_offset": -2,
+    "premium_stop": -0.08,
+    "tp1_pct": 0.3
+  },
+  "window": "2025-01-02..2026-06-16",
+  "oos_year": 2026,
+  "n_null_iters": 200,
+  "buckets": [
+    {
+      "dte": 0,
+      "n": 159,
+      "fill_rate": 0.958,
+      "wr": 45.3,
+      "exp": 49.83,
+      "oos_n": 50,
+      "oos_exp": 37.15,
+      "oos_wr": 40.0,
+      "drop3_exp": 43.74,
+      "held_overnight_pct": 0.0,
+      "total_pnl": 7924.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 159,
+        "cache_miss": 7,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 0.958
+      },
+      "null_exp": 0.85,
+      "p_null": 0.005
+    },
+    {
+      "dte": 1,
+      "n": 166,
+      "fill_rate": 1.0,
+      "wr": 42.8,
+      "exp": 67.25,
+      "oos_n": 51,
+      "oos_exp": 59.02,
+      "oos_wr": 41.2,
+      "drop3_exp": 59.05,
+      "held_overnight_pct": 0.0,
+      "total_pnl": 11163.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 166,
+        "cache_miss": 0,
+        "no_expiry_listed": 0,
+        "sim_none": 0,
+        "fill_rate": 1.0
+      },
+      "null_exp": -1.96,
+      "p_null": 0.01
+    },
+    {
+      "dte": 2,
+      "n": 165,
+      "fill_rate": 0.994,
+      "wr": 42.4,
+      "exp": 71.57,
+      "oos_n": 50,
+      "oos_exp": 66.13,
+      "oos_wr": 42.0,
+      "drop3_exp": 58.94,
+      "held_overnight_pct": 1.2,
+      "total_pnl": 11809.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 165,
+        "cache_miss": 0,
+        "no_expiry_listed": 1,
+        "sim_none": 0,
+        "fill_rate": 0.994
+      },
+      "null_exp": -2.23,
+      "p_null": 0.0448
+    },
+    {
+      "dte": 3,
+      "n": 165,
+      "fill_rate": 0.994,
+      "wr": 43.6,
+      "exp": 72.07,
+      "oos_n": 50,
+      "oos_exp": 95.43,
+      "oos_wr": 46.0,
+      "drop3_exp": 49.08,
+      "held_overnight_pct": 4.2,
+      "total_pnl": 11891.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 165,
+        "cache_miss": 0,
+        "no_expiry_listed": 1,
+        "sim_none": 0,
+        "fill_rate": 0.994
+      },
+      "null_exp": 21.48,
+      "p_null": 0.3035
+    },
+    {
+      "dte": 4,
+      "n": 163,
+      "fill_rate": 0.982,
+      "wr": 38.7,
+      "exp": 19.47,
+      "oos_n": 49,
+      "oos_exp": 106.1,
+      "oos_wr": 38.8,
+      "drop3_exp": -19.34,
+      "held_overnight_pct": 8.6,
+      "total_pnl": 3174.0,
+      "coverage": {
+        "signals": 166,
+        "filled": 163,
+        "cache_miss": 1,
+        "no_expiry_listed": 2,
+        "sim_none": 0,
+        "fill_rate": 0.982
+      },
+      "null_exp": 9.55,
+      "p_null": 0.4328
+    }
+  ],
+  "too_good_checks": {
+    "a_lookahead": "PASS -- simulate_dte_trade manages ONLY day-T option bars (loop breaks when spy_time.date() != entry_day); overnight/multi-day life is settled via _sessions_between() walking each intervening session's real SPY open IN ORDER, then expiry-day SPY close for intrinsic settlement. No bar past the entry day is read during day-T management. Structurally same code path already used (and accepted) for the 1/2-DTE buckets.",
+    "b_weekend_gaps_priced": "PASS -- day_open_close is built only from real SPY trading-day bars, so _sessions_between() naturally skips weekends (a Friday entry's next session in the dict is Monday) and prices ONE gap across the weekend, not a fabricated Sat/Sun gap. held_overnight_pct rises monotonically with DTE (0.0% / 0.0% / 1.2% / 4.2% / 8.6%) as expected -- more calendar days held = more exposure to the overnight/weekend gap mechanism.",
+    "c_cost_model_assumption": "CAVEAT, NOT VERIFIED SAFE -- entry/exit slippage is held at the SAME $0.02/contract flat constant (DEFAULT_ENTRY_SLIPPAGE / DEFAULT_EXIT_SLIPPAGE) across every DTE bucket, copied verbatim from the 0DTE convention. Real bid-ask spreads widen for less-liquid weekly/monthly contracts vs the highest-volume 0DTE strikes; this model does NOT capture that widening, so 3/4-DTE costs are likely UNDERSTATED relative to 0/1/2-DTE, biasing the apparent 3/4-DTE edge upward.",
+    "d_random_null_verdict": "FAILS at 3/4-DTE -- this is the decisive finding. p_null clears significance at 0/1/2-DTE (p=0.005, 0.01, 0.0448: the real signal beats a random-entry-same-exit null in >=95% of shuffles) but FAILS at 3-DTE (p=0.3035) and 4-DTE (p=0.4328): a random entry into the same tape matches or beats the real vwap_continuation trigger 30-43% of the time. Combined with 4-DTE's negative drop-top3 ($-19.34, full sample) while its headline OOS exp is the highest of all buckets ($106.10), the apparent 'monotone OOS lift into 3/4-DTE' looks like a small-sample OOS concentration/generic-uptrend-drift artifact, NOT signal-specific edge -- the textbook /fable-too-good pattern: an extraordinary number (highest OOS exp of the whole sweep) sitting on the weakest statistical support (highest null p-value, negative full-sample drop-top3) of the whole sweep."
+  },
+  "recommended_leaderboard_status": "Stays BLOCKED-ON-DATA -> should NOT be upgraded to a validated OP-16 re-score ratification on this run. The 3/4-DTE extension of the SAME signal fails the random-entry null (p=0.30, p=0.43) that 0/1/2-DTE clear, and 4-DTE's full-sample drop-top3 is negative -- i.e. the only reason 3/4-DTE 'looks better' is a handful of concentrated OOS days plus an unmodeled cost break (flat slippage on wider real-world spreads). Recommend the leaderboard row move to something like NEEDS-MORE-VALIDATION / NULL-FAILS-AT-3-4-DTE, with the 1-2 DTE portion of the original candidate (which DOES clear its own null) treated as the only validated finding from this thesis; do not spec the engine change for 3/4-DTE off this run.",
+  "caveat": "This assessment does not itself edit the leaderboard row per the task's hard rule -- orchestrator/J review required before the status changes."
+}
