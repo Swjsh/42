@@ -389,3 +389,53 @@ Source: `journal/trades.csv` real fills 2026-08-03..08-31 (318 fills, 20 session
 - Operational: quiet mode restored the fleet at 00:17 ET (168 Ready / 19 Disabled, Gamma_Premarket + Gamma_HeartbeatCore + fleet Ready); level feed was fresh on 09-04 (22 levels). The 09-04 55-minute outage was a power loss, not engine.
 
 **Verdict:** the big days were the ordinary two-trigger bull reclaim taken early and held to 2x, multiplied across arms. Nothing that produced them has been removed. The only knob that could shave them is the 4-round-trip cap, and it is on the checkpoint agenda with its cost quantified.
+
+### 2026-09-05 -- gate net-of-losers verdict table (GOAL-GATE-NET-COST-2026-09-05 N5)
+
+Full table + methodology: `analysis/gate-net-cost/GATE-NET-COST-2026-09-05.md` (+ `.json`).
+Built by walking every gate-refused wave since 2026-08-01 (N1 inventory, N2 exit-shape walk
+through the real `ribbon_ride` exit shape on OPRA bars, N3 net aggregation) through the
+arm's REAL exit shape and netting the refused WINNERS against the refused LOSERS the same
+gate also kept out -- not the raw refused-winner ceiling this doctrine's earlier revisions
+and the 10-30 preregs cited. Winner := `realized_if_taken_dollars > 0`; loser := `<= 0`; net
+= winners + losers. Verdict: net < 0 = EARNING (the gate saved money), net > 0 = COSTING
+(the gate cost money), n < 10 waves = UNDERPOWERED.
+
+| Gate | Arms | Waves (full) | Net $ (full) | Waves (frozen 08-31+) | Net $ (frozen) | Verdict (full) |
+|---|---|---|---|---|---|---|
+| NOT_FLAT | bold-2, risky-1, risky-3, safe-2, safe-3 | 99 | +$7,543.00 | 14 | -$631.00 | COSTING |
+| SKIP_MIN_PREMIUM_FLOOR | bold-2, risky-1, risky-3, safe-3 | 50 | +$1,398.00 | 7 | -$788.00 | COSTING |
+| min_triggers | risky-1, safe-3 | 20 | +$516.00 | 3 | +$230.00 | COSTING |
+| SKIP_STALE_TRIGGER | safe-2 | 1 | +$898.00 | 0 | $0.00 | UNDERPOWERED |
+| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY | bold-2 | 21 | -$296.00 | 3 | -$17.00 | EARNING |
+| SKIP_STRUCTURE_VETO | safe-2 | 7 | -$155.00 | 3 | -$57.00 | UNDERPOWERED |
+| SKIP_LATE_ENTRY | safe-2 | 9 | -$102.00 | 1 | -$3.00 | UNDERPOWERED |
+| settlement_cap | bold-2, risky-1, risky-3, safe-2, safe-3 | 9 | -$1,331.00 | 6 | -$1,175.00 | UNDERPOWERED |
+| require_confluence_or_sequence | risky-1, safe-3 | 13 | -$1,806.00 | 2 | +$139.00 | EARNING |
+
+**Cockpit top-costing / top-earning (right-tail tile, `gamma_cockpit_righttail.build()`
+additive fields `top_costing_gate` / `top_earning_gate`, non-UNDERPOWERED gates only,
+quoted 2026-09-05 via `gamma_home.build(quiet=True)['righttail']`):** top costing =
+`NOT_FLAT` (net +$7,543.00, 99 waves, but concentrated -- ex-best-day net is only
++$2,759.00, the single 2026-08-04 wave-day contributing $4,784.00, over 50% of the net --
+see the `/fable-too-good` disclosure in `GATE-NET-COST-2026-09-05.md` before citing this
+figure). Top earning = `require_confluence_or_sequence` (net -$1,806.00, 13 waves,
+ex-best-day -$2,700.00, i.e. earning MORE once its own best day is dropped -- not
+concentration-driven).
+
+**Reads on the two 10-30 preregs and the standing structure-veto A/B (evidence appended
+verbatim to each prereg's own `evidence_2026_09_05_net_of_losers` block, not restated
+here):** mechanism-1's two knobs disagree net-of-losers (`min_triggers` COSTING +$516,
+`require_confluence_or_sequence` EARNING -$1,806, combined -$1,290 = net EARNING) --
+loosening both together, as the prereg proposes, would very likely trade a real EARNING
+gate's protection for a smaller COSTING gate's upside. Mechanism-6 (`SKIP_MIN_PREMIUM_FLOOR`,
+bold-2 only) is EARNING net -$851.00 across 14 waves, 12 of them losers -- new evidence
+against loosening the floor. `SKIP_STRUCTURE_VETO` (the standing A/B's gate) is UNDERPOWERED
+both windows (n=7, n=3) but reads slightly EARNING in both, consistent with (not yet
+confirming) its own frozen_hypothesis of a risk-reduction gate rather than an alpha source.
+
+**Caveats (full text in `GATE-NET-COST-2026-09-05.md`):** 5-min OPRA bar resolution (1-min
+hand-check subset within 10%); 50 of 355 refused rows are `walk_error` (36 no-side source
+rows, 14 no cached OPRA contract) and excluded, not zero-filled; this is a counterfactual
+walk through the real exit shape, not a full gate-stack replay -- same proxy caveat class as
+`gate_expiry_check.py`'s own sole-blocker filter-8/filter-10 checks.

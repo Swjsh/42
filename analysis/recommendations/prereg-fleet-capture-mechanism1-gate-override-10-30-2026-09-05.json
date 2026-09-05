@@ -25,5 +25,221 @@
   "extend_criterion": "If the forward window shows >=10 new GATE-mechanism missed waves for this slice AND a dry-run replay of the loosened setting against those same forward ticks shows a positive-or-neutral CI-lower(2.5%) for the newly-admitted cohort, this becomes a 2026-10-30 checkpoint SHIP candidate for the conductor.",
   "reversible_action": "Revert: set gate_override.min_triggers back to 2 / require_confluence_or_sequence back to true on the changed arm(s) -- one-line, byte-identical revert, matches the pattern of every other gate_override edit already documented in accounts.json.",
   "does_this_ship_anything": "No. accounts.json is untouched by this fire. This is a frozen proposal only.",
-  "consumer": "2026-10-30 config-freeze checkpoint (setup/scripts/checkpoint_packet.py row 'fleet-capture-gap-mechanism1-gate-override', analysis/recommendations/checkpoint-2026-09-29-inventory.json)."
+  "consumer": "2026-10-30 config-freeze checkpoint (setup/scripts/checkpoint_packet.py row 'fleet-capture-gap-mechanism1-gate-override', analysis/recommendations/checkpoint-2026-09-29-inventory.json).",
+  "evidence_2026_09_05_net_of_losers": {
+    "_doc": "Appended by setup/scripts/gate_net_cost_prereg_append.py, GOAL-GATE-NET-COST-2026-09-05 N4. Append-only -- does not alter any field above this key.",
+    "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table, walked from analysis/gate-net-cost/walk-2026-09-05.json N2, 305/355 walk_ok)",
+    "definition": "winner := realized_if_taken_dollars > 0; loser := realized_if_taken_dollars <= 0; net := sum(realized_if_taken_dollars) over walk_ok rows == winners + losers.",
+    "caveats": [
+      "5-min OPRA resolution bias: the walk (setup/scripts/gate_net_cost_walk.py) prices most refused ticks off 5-min-cached OPRA bars (a 1-min hand-check subset is within 10% of real fills, see backtest/tests/test_gate_net_cost_walk_2026_09_05.py); exact stage timing/price for any single row can be off by up to one 5-min bar.",
+      "50 of 355 refused rows are walk_error (fail-open, not fabricated): 36 have no usable side on the source decision row (side=None, a real data gap) and 14 have no cached OPRA contract near the target strike -- excluded from every $ figure below, not zero-filled.",
+      "Winner/loser $ uses realized_if_taken_dollars (the walked exit price), NOT the peak_multiple >= 1.3x ceiling N1/right-tail work used -- a wave can peak above 1.3x and still reverse before the walked exit stage fires; n_waves_peak_ge_1p3x is reported alongside as the alternate/ceiling metric so the two are never conflated.",
+      "Net figures are PROXY, not a ratifying replay: the same class of proxy caveat gate_expiry_check.py's own sole-blocker checks (filter-8/filter-10) carry -- this is a counterfactual walk through the arm's real exit shape, not a full gate-stack re-simulation."
+    ],
+    "gates_covered": [
+      "min_triggers (risky-1, safe-3)",
+      "require_confluence_or_sequence (risky-1, safe-3)"
+    ],
+    "full_window": {
+      "min_triggers": {
+        "n_arm_rows": 34,
+        "n_waves": 20,
+        "n_waves_peak_ge_1p3x": 14,
+        "winners_dollars": 2791.0,
+        "n_winners": 13,
+        "losers_dollars": -2275.0,
+        "n_losers": 21,
+        "net_dollars": 516.0,
+        "best_day": "2026-08-20",
+        "best_day_dollars": 582.0,
+        "ex_best_day_net_dollars": -66.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 398.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-08-20|2026-08-20T12:57:04.912671-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260820P00766000",
+            "side": "P",
+            "entry_px": 0.69,
+            "exit_stage": "trail",
+            "exit_px": 1.58,
+            "realized_if_taken_dollars": 343.0,
+            "peak_multiple": 2.4638
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T13:07:05.182451-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260817P00775000",
+            "side": "P",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.55,
+            "realized_if_taken_dollars": 314.0,
+            "peak_multiple": 2.0879
+          }
+        ]
+      },
+      "require_confluence_or_sequence": {
+        "n_arm_rows": 20,
+        "n_waves": 13,
+        "n_waves_peak_ge_1p3x": 5,
+        "winners_dollars": 1669.0,
+        "n_winners": 6,
+        "losers_dollars": -3475.0,
+        "n_losers": 14,
+        "net_dollars": -1806.0,
+        "best_day": "2026-08-17",
+        "best_day_dollars": 894.0,
+        "ex_best_day_net_dollars": -2700.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-26|2026-08-26T09:46:05.694333-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260826C00766000",
+            "side": "C",
+            "entry_px": 1.84,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.86,
+            "realized_if_taken_dollars": -490.0,
+            "peak_multiple": 1.0435
+          },
+          {
+            "wave_id": "2026-08-28|2026-08-28T09:46:05.569169-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 2.15,
+            "exit_stage": "structure_stop",
+            "exit_px": 1.18,
+            "realized_if_taken_dollars": -485.0,
+            "peak_multiple": 0.9395
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T09:46:05.543303-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260817P00776000",
+            "side": "P",
+            "entry_px": 0.93,
+            "exit_stage": "trail",
+            "exit_px": 2.48,
+            "realized_if_taken_dollars": 455.0,
+            "peak_multiple": 3.0753
+          }
+        ]
+      },
+      "combined_net_dollars": -1290.0,
+      "combined_verdict": "EARNING"
+    },
+    "frozen_window": {
+      "min_triggers": {
+        "n_arm_rows": 6,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 694.0,
+        "n_winners": 2,
+        "losers_dollars": -464.0,
+        "n_losers": 4,
+        "net_dollars": 230.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 366.0,
+        "ex_best_day_net_dollars": -136.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 398.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 296.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:40:06.058048-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.61,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.2,
+            "realized_if_taken_dollars": -205.0,
+            "peak_multiple": 0.5738
+          }
+        ]
+      },
+      "require_confluence_or_sequence": {
+        "n_arm_rows": 4,
+        "n_waves": 2,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 475.0,
+        "n_winners": 2,
+        "losers_dollars": -336.0,
+        "n_losers": 2,
+        "net_dollars": 139.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": 475.0,
+        "ex_best_day_net_dollars": -336.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-02|2026-09-02T09:51:05.704486-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.41,
+            "exit_stage": "trail",
+            "exit_px": 1.36,
+            "realized_if_taken_dollars": 244.0,
+            "peak_multiple": 4.9756
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T09:51:05.704486-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.41,
+            "exit_stage": "trail",
+            "exit_px": 1.36,
+            "realized_if_taken_dollars": 231.0,
+            "peak_multiple": 4.9756
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:52:05.774618-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.83,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.41,
+            "realized_if_taken_dollars": -210.0,
+            "peak_multiple": 0.5181
+          }
+        ]
+      },
+      "combined_net_dollars": 369.0,
+      "combined_verdict": "UNDERPOWERED (both gates n<10 waves in the frozen window)"
+    },
+    "reading": "The $4,354.92 refused-WINNER ceiling this prereg was filed on (safe-3+risky-1 gate_override slice) nets to $-1,290.00 full-window once the gate's refused LOSERS are walked through the real exit shape: min_triggers alone is COSTING (+$516, 20 waves) but require_confluence_or_sequence alone is EARNING (-$1,806, 13 waves) -- the two knobs this prereg proposes loosening TOGETHER point in opposite directions net-of-losers. The frozen window (08-31 onward) is UNDERPOWERED for both (n=3, n=2 waves) -- too few waves since the config freeze to read a verdict; the full-window combined net is negative (EARNING/saved money) mainly because require_confluence_or_sequence's losers outweigh its winners. This does not kill the prereg (kill/extend criteria are unchanged, frozen text above) -- it is new evidence for the 2026-10-30 checkpoint read, appended per this goal's DONE-WHEN."
+  }
 }

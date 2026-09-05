@@ -467,13 +467,69 @@ def _score_catastrophe_cap_and_day_throttle(row: dict, today: str) -> dict:
     }
 
 
+# GOAL-GATE-NET-COST-2026-09-05 N4: which GATE-NET-COST-2026-09-05.json gate row(s) each
+# `mechanism_codes` entry maps to. "GATE" (mechanism-1's right-tail-ledger code) is generic
+# across both fleet gate_override knobs; the sizing-floor code is a direct 1:1 gate-name match.
+_NET_COST_TABLE_PATH = REPO / "analysis" / "gate-net-cost" / "GATE-NET-COST-2026-09-05.json"
+_MECHANISM_CODE_TO_NET_COST_GATES = {
+    "GATE": ["min_triggers", "require_confluence_or_sequence"],
+    "SKIP_MIN_PREMIUM_FLOOR": ["SKIP_MIN_PREMIUM_FLOOR"],
+}
+
+
+def _net_of_losers_for_mechanism(arms: set[str], codes: set[str]) -> dict | None:
+    """GOAL-GATE-NET-COST-2026-09-05 N4: sum the wave-deduped-per-arm NET $ (winners +
+    losers walked through the real exit shape, NOT the raw refused-winner ceiling) from
+    `GATE-NET-COST-2026-09-05.json`'s `gate_arm_rows` for every (gate, arm) this mechanism
+    covers. Returns None (never raises) if the table is missing -- callers must fail open."""
+    if not _NET_COST_TABLE_PATH.exists():
+        return None
+    table = json.loads(_NET_COST_TABLE_PATH.read_text(encoding="utf-8"))
+    gate_names: set[str] = set()
+    for code in codes:
+        gate_names.update(_MECHANISM_CODE_TO_NET_COST_GATES.get(code, [code]))
+    full_net = 0.0
+    frozen_net = 0.0
+    n_waves_full = 0
+    n_waves_frozen = 0
+    matched_rows = []
+    for r in table.get("gate_arm_rows", []):
+        if r["gate"] not in gate_names:
+            continue
+        if arms and r["arm"] not in arms:
+            continue
+        full_net += r["full_window"]["net_dollars"]
+        frozen_net += r["frozen_window"]["net_dollars"]
+        n_waves_full += r["full_window"]["n_waves"]
+        n_waves_frozen += r["frozen_window"]["n_waves"]
+        matched_rows.append({"gate": r["gate"], "arm": r["arm"],
+                              "net_dollars": r["full_window"]["net_dollars"]})
+    if not matched_rows:
+        return None
+    return {
+        "net_of_losers_dollars_full_window": round(full_net, 2),
+        "net_of_losers_dollars_frozen_window": round(frozen_net, 2),
+        "n_waves_full_window": n_waves_full,
+        "n_waves_frozen_window": n_waves_frozen,
+        "matched_gate_arm_rows": matched_rows,
+        "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table)",
+    }
+
+
 def _score_capture_gap_mechanism(row: dict, today: str) -> dict:
-    """GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4. Generic scorer for both mechanism-1
-    (gate_override) and mechanism-6 (sizing floor) preregs: counts forward-window
-    (date > the prereg's filed_at, i.e. after 2026-09-05) missed (wave, arm) rows in
-    analysis/right-tail/ledger.jsonl whose `arm` is in the row's `mechanism_arms` and
-    whose `refused_by_gate` code (text before ':') is in `mechanism_codes`. INSUFFICIENT
-    N below `min_n` (default 10, matching each prereg's own extend_criterion)."""
+    """GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4 (extended GOAL-GATE-NET-COST-2026-09-05 N4).
+    Generic scorer for both mechanism-1 (gate_override) and mechanism-6 (sizing floor)
+    preregs: counts forward-window (date > the prereg's filed_at, i.e. after 2026-09-05)
+    missed (wave, arm) rows in analysis/right-tail/ledger.jsonl whose `arm` is in the row's
+    `mechanism_arms` and whose `refused_by_gate` code (text before ':') is in
+    `mechanism_codes`. INSUFFICIENT N below `min_n` (default 10, matching each prereg's own
+    extend_criterion).
+
+    N4 fix: `numbers` now also carries `net_of_losers_dollars_full_window` /
+    `_frozen_window`, read from GATE-NET-COST-2026-09-05.json's per-(gate,arm) NET (winners
+    + losers walked through the real exit shape) -- NOT the prereg's raw refused-winner
+    CEILING figure (`dollar_figure`, $4,354.92 / $1,664.00), which this scorer never reads
+    and the packet must not surface as if it were the decision-relevant number."""
     ledger_path = REPO / (row.get("ledger_path") or "analysis/right-tail/ledger.jsonl")
     arms = set(row.get("mechanism_arms", []))
     codes = set(row.get("mechanism_codes", []))
@@ -495,19 +551,26 @@ def _score_capture_gap_mechanism(row: dict, today: str) -> dict:
         matches.append(r)
     n = len(matches)
     verdict = VERDICT_INSUFFICIENT_N if n < min_n else VERDICT_NOT_MET
+    numbers = {
+        "forward_missed_matching_rows": n, "min_n": min_n,
+        "forward_window_start": forward_start,
+        "sample_dates": sorted({r.get("date") for r in matches})[:5],
+    }
+    net = _net_of_losers_for_mechanism(arms, codes)
+    if net is not None:
+        numbers.update(net)
     return {
         "verdict": verdict,
         "n": n,
-        "numbers": {
-            "forward_missed_matching_rows": n, "min_n": min_n,
-            "forward_window_start": forward_start,
-            "sample_dates": sorted({r.get("date") for r in matches})[:5],
-        },
+        "numbers": numbers,
         "note": "Forward-window count of missed waves still attributable to this "
                 "mechanism after 2026-09-05, per this prereg's own extend_criterion. "
                 "RULE MET is never emitted by this generic scorer -- the dry-run P&L "
                 "replay in each prereg's kill_criterion/extend_criterion is a separate, "
-                "not-yet-built step; INSUFFICIENT N / NOT MET only reflect the count gate.",
+                "not-yet-built step; INSUFFICIENT N / NOT MET only reflect the count gate. "
+                "net_of_losers_dollars_* (when present) is the backfill-window NET read "
+                "from GATE-NET-COST-2026-09-05.json, NOT the ceiling -- read it, not "
+                "dollar_figure, when citing a $ number for this row.",
     }
 
 

@@ -1,35 +1,2842 @@
 {
-  "_doc": "GOAL-GATE-NET-COST-2026-09-05 -- N1 COMPLETE, N2/N3 NOT COMPUTED THIS PASS (honest partial; see .md). N4/N5 not started -- correctly withheld because they would consume N2/N3's per-wave dollar walk as their evidentiary basis, and that walk was not built this pass.",
-  "session": "a16e320c-a486-4631-89c2-5204d7f6926c",
-  "generated_et": "2026-09-05 03:5x EDT (et_clock.py, quoted in session)",
-  "window": {"full": "2026-08-01..2026-09-05", "frozen": "2026-08-31..2026-09-05"},
-  "n1_status": "DONE -- see analysis/gate-net-cost/refusals-2026-09-05.json (setup/scripts/gate_net_cost_inventory.py). Cross-check vs the right-tail 46-missed-pair attribution: strict_subset=true, 24/24 present within the 30-minute wave-gap tolerance.",
-  "n2_status": "NOT_COMPUTED -- per-wave exit-shape walk (walk_exit_manager over OPRA option bars + 5-min SPY + ribbon ticks, per refusing arm's real exit params) was not built this pass. Requires assembling opt_df/ribbon_tick_df/five_min_spy_df per (wave, arm) for ~340 waves across 7 core gates + 5 fleet-reason gates x up to 4 arms -- a multi-hour build, not safely completable to the goal's own hand-check standard (2 examples verified against real same-day fills) inside this bounded pass. Flagging rather than fabricating: no dollar figure below is a walked figure.",
-  "n3_status": "NOT_COMPUTED -- the per-gate net table below reports ONLY the N1 wave/row counts (real, quoted) and explicitly leaves winners$/losers$/net/ex-best-day blank pending N2.",
-  "n4_status": "NOT_STARTED -- correctly withheld; the three preregs (prereg-fleet-capture-mechanism1-gate-override-10-30, prereg-fleet-capture-mechanism6-sizing-floor-10-30, prereg-structure-veto-standing-ab-2026-09-05) and checkpoint_packet.py's net-vs-ceiling swap both need N2's real numbers as input -- appending an evidence_2026_09_05_net_of_losers block with no walked evidence would be fabrication.",
-  "n5_status": "NOT_STARTED -- cockpit tile + doctrine append both cite the top costing/earning gate, which does not exist without N2/N3.",
-  "gates": {
-    "SKIP_STRUCTURE_VETO": {"n_refusal_rows": 93, "n_waves": 15, "n_waves_frozen": 4, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "SKIP_LATE_ENTRY": {"n_refusal_rows": 86, "n_waves": 10, "n_waves_frozen": 2, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "SKIP_STALE_TRIGGER": {"n_refusal_rows": 314, "n_waves": 30, "n_waves_frozen": 5, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK"},
-    "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": {"n_refusal_rows": 121, "n_waves": 23, "n_waves_frozen": 5, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK"},
-    "SKIP_MIN_PREMIUM_FLOOR_core": {"n_refusal_rows": 51, "n_waves": 15, "n_waves_frozen": 7, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "settlement_cap_core": {"n_refusal_rows": 33, "n_waves": 5, "n_waves_frozen": 3, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "NOT_FLAT_core": {"n_refusal_rows": 449, "n_waves": 48, "n_waves_frozen": 10, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK"},
-    "min_triggers__risky-1": {"n_refusal_rows": 112, "n_waves": 16, "n_waves_frozen": 5, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "require_confluence_or_sequence__risky-1": {"n_refusal_rows": 204, "n_waves": 9, "n_waves_frozen": 4, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "min_triggers__safe-3": {"n_refusal_rows": 180, "n_waves": 22, "n_waves_frozen": 5, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK"},
-    "require_confluence_or_sequence__safe-3": {"n_refusal_rows": 284, "n_waves": 15, "n_waves_frozen": 4, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "SKIP_MIN_PREMIUM_FLOOR__risky-1": {"n_refusal_rows": 41, "n_waves": 6, "n_waves_frozen": 1, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "SKIP_MIN_PREMIUM_FLOOR__risky-3": {"n_refusal_rows": 235, "n_waves": 34, "n_waves_frozen": 0, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK (0 in frozen window -- risky-3 retired 2026-08-28 per accounts.json)"},
-    "SKIP_MIN_PREMIUM_FLOOR__safe-3": {"n_refusal_rows": 39, "n_waves": 5, "n_waves_frozen": 1, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "NOT_FLAT__risky-1": {"n_refusal_rows": 347, "n_waves": 37, "n_waves_frozen": 5, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK"},
-    "NOT_FLAT__risky-3": {"n_refusal_rows": 216, "n_waves": 25, "n_waves_frozen": 0, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK (retired arm, 0 frozen)"},
-    "NOT_FLAT__safe-3": {"n_refusal_rows": 258, "n_waves": 33, "n_waves_frozen": 5, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "NO_WALK"},
-    "settlement_cap__risky-1": {"n_refusal_rows": 32, "n_waves": 3, "n_waves_frozen": 3, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "settlement_cap__risky-3": {"n_refusal_rows": 5, "n_waves": 1, "n_waves_frozen": 0, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "settlement_cap__safe-3": {"n_refusal_rows": 32, "n_waves": 3, "n_waves_frozen": 3, "winners_$": null, "losers_$": null, "net_$": null, "ex_best_day_net_$": null, "verdict": "UNDERPOWERED_NO_WALK"},
-    "filter_8_filter_10": {"status": "NOT_COMPUTED", "reason": "blocker codes fire on the large majority of ticks regardless of other-blocker state; isolating true ENTER-eligible-but-for-this-blocker-alone requires a full filters.py gate-stack replay, out of scope this pass."}
+  "_doc": "gate_net_cost_table.py -- GOAL-GATE-NET-COST-2026-09-05 N3.\n\nAggregates `analysis/gate-net-cost/walk-2026-09-05.json` (N2's exit-shape walk, 305 walk_ok /\n50 walk_error rows) into the per-gate NET table the goal's DONE-WHEN asks for: winners $,\nlosers $, net $, ex-best-day net $, per (gate, arm) row AND per gate deduped to waves, over\nthe full window (2026-08-01..today) AND the frozen window (2026-08-31..today), plus a verdict\n(EARNING / COSTING / UNDERPOWERED).\n\nDEFINITION USED FOR $ (goal: \"state which definition you use and why, use\nrealized_if_taken_dollars as the money number\"):\n  - winner  := a walked row with `realized_if_taken_dollars > 0` (the wave, walked through the\n    arm's REAL exit shape, actually made money along that path).\n  - loser   := a walked row with `realized_if_taken_dollars <= 0`.\n  - net_$   := sum(realized_if_taken_dollars) over all walk_ok rows for that gate/arm (or gate,\n    across arms, when deduped to waves) == winners_$ + losers_$ by construction -- this keeps\n    the three numbers arithmetically consistent instead of winners_$ using one definition\n    (peak_multiple >= 1.3, the CEILING metric N1/right-tail work used) and losers_$ using a\n    different one. WHY realized over peak: a wave can peak above 1.3x and still reverse before\n    the walked exit stage fires (a real risk in a 0DTE structure/ribbon-flip/time-stop exit\n    shape) -- crediting it as a \"winner\" at its peak price would double-count a reversal this\n    same walk already priced honestly. The `n_waves_peak_ge_1p3x` column is reported alongside\n    as a disclosure of the alternate (ceiling) definition, per the goal's own DONE-WHEN wording\n    (\"refused waves that later printed >= 1.3x\"), so a reader can see both.\n  - ex_best_day_net_$ := net_$ with the single best (highest positive-sum) WAVE-DAY dropped, per\n    the goal's concentration-disclosure requirement (memory project_engine_edge_right_tail_2026\n    _08_18: waves are the honest denominator; disclose concentration on every net).\n\nVerdict (per the goal's own wording): a gate whose net_$ < 0 means refusing it, net of the\nlosers it also refused, SAVED money -- EARNING. net_$ > 0 means refusing it COST money net of\nthe losers -- COSTING. n_waves < 10 (either window) -> UNDERPOWERED regardless of sign.\n\nWAVE DEDUPE: `n_waves` counts unique `wave_id` values per gate (one wave may appear under\nseveral arms, e.g. a fleet gate refusing the same signal on both safe-3 and risky-1); `n_arm_rows`\ncounts the per-(gate,arm) walked rows (the raw table rows). Both are reported per the goal's\nexplicit instruction (\"report waves AND arm-rows\").\n\nCLI: python setup/scripts/gate_net_cost_table.py\n",
+  "generated_at": "2026-09-05T02:30:43.230376",
+  "source_walk": "analysis\\gate-net-cost\\walk-2026-09-05.json",
+  "definition": {
+    "winner": "realized_if_taken_dollars > 0",
+    "loser": "realized_if_taken_dollars <= 0",
+    "net": "sum(realized_if_taken_dollars) over all walk_ok rows == winners_dollars + losers_dollars",
+    "why_realized_not_peak": "a wave can peak >= 1.3x and still reverse before the walked exit stage fires; using realized (not peak) avoids crediting a reversal as a win. n_waves_peak_ge_1p3x is reported alongside as the alternate/ceiling metric.",
+    "underpowered_floor_waves": 10,
+    "verdict_rule": "net_dollars < 0 -> EARNING (refusing saved money); net_dollars > 0 -> COSTING (refusing lost money); n_waves < floor -> UNDERPOWERED regardless of sign."
   },
-  "hand_checks": {"status": "NOT_DONE -- requires N2's walk; no example walked this pass, so none is quoted. Do not treat any number above as a walked $ figure -- every winners_$/losers_$/net_$ cell is null by construction."}
+  "n_walk_ok_rows": 305,
+  "n_walk_error_rows": 50,
+  "gate_arm_rows": [
+    {
+      "gate": "NOT_FLAT",
+      "arm": "bold-2",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 12,
+        "n_waves": 12,
+        "n_waves_peak_ge_1p3x": 7,
+        "winners_dollars": 867.0,
+        "n_winners": 6,
+        "losers_dollars": -325.0,
+        "n_losers": 6,
+        "net_dollars": 542.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 284.0,
+        "ex_best_day_net_dollars": 258.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:07:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 0.33,
+            "exit_stage": "trail",
+            "exit_px": 0.76,
+            "realized_if_taken_dollars": 284.0,
+            "peak_multiple": 3.2424
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T11:27:05",
+            "arm": "bold-2",
+            "contract": "SPY260804C00769000",
+            "side": "C",
+            "entry_px": 0.55,
+            "exit_stage": "trail",
+            "exit_px": 1.08,
+            "realized_if_taken_dollars": 226.0,
+            "peak_multiple": 2.0545
+          },
+          {
+            "wave_id": "2026-08-27|2026-08-27T11:54:04",
+            "arm": "bold-2",
+            "contract": "SPY260827C00772000",
+            "side": "C",
+            "entry_px": 0.31,
+            "exit_stage": "trail",
+            "exit_px": 0.49,
+            "realized_if_taken_dollars": 153.0,
+            "peak_multiple": 2.6129
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 284.0,
+        "n_winners": 1,
+        "losers_dollars": -195.0,
+        "n_losers": 2,
+        "net_dollars": 89.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 284.0,
+        "ex_best_day_net_dollars": -195.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:07:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 0.33,
+            "exit_stage": "trail",
+            "exit_px": 0.76,
+            "realized_if_taken_dollars": 284.0,
+            "peak_multiple": 3.2424
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T11:20:05",
+            "arm": "bold-2",
+            "contract": "SPY260902C00768000",
+            "side": "C",
+            "entry_px": 0.37,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.12,
+            "realized_if_taken_dollars": -125.0,
+            "peak_multiple": 0.6486
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T11:57:04",
+            "arm": "bold-2",
+            "contract": "SPY260902C00768000",
+            "side": "C",
+            "entry_px": 0.2,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.06,
+            "realized_if_taken_dollars": -70.0,
+            "peak_multiple": 0.9
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "NOT_FLAT",
+      "arm": "risky-1",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 37,
+        "n_waves": 37,
+        "n_waves_peak_ge_1p3x": 19,
+        "winners_dollars": 8306.0,
+        "n_winners": 18,
+        "losers_dollars": -4620.0,
+        "n_losers": 19,
+        "net_dollars": 3686.0,
+        "best_day": "2026-08-04",
+        "best_day_dollars": 1953.0,
+        "ex_best_day_net_dollars": 1733.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:44:03.812734-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00752000",
+            "side": "C",
+            "entry_px": 1.29,
+            "exit_stage": "time_stop",
+            "exit_px": 6.09,
+            "realized_if_taken_dollars": 1176.0,
+            "peak_multiple": 5.0465
+          },
+          {
+            "wave_id": "2026-08-28|2026-08-28T10:23:05.698823-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 1.48,
+            "exit_stage": "trail",
+            "exit_px": 3.41,
+            "realized_if_taken_dollars": 875.0,
+            "peak_multiple": 2.75
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T11:28:05.337509-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260804C00767000",
+            "side": "C",
+            "entry_px": 1.37,
+            "exit_stage": "trail",
+            "exit_px": 4.51,
+            "realized_if_taken_dollars": 832.0,
+            "peak_multiple": 4.1898
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 5,
+        "n_waves": 5,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 546.0,
+        "n_winners": 1,
+        "losers_dollars": -785.0,
+        "n_losers": 4,
+        "net_dollars": -239.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 221.0,
+        "ex_best_day_net_dollars": -460.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:08:05.782615-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 1.93,
+            "exit_stage": "trail",
+            "exit_px": 2.86,
+            "realized_if_taken_dollars": 546.0,
+            "peak_multiple": 1.8031
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:43:05.130752-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.98,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.33,
+            "realized_if_taken_dollars": -325.0,
+            "peak_multiple": 0.8776
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T11:18:06.268967-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260902C00766000",
+            "side": "C",
+            "entry_px": 0.98,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.53,
+            "realized_if_taken_dollars": -225.0,
+            "peak_multiple": 1.0306
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "NOT_FLAT",
+      "arm": "risky-3",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 25,
+        "n_waves": 25,
+        "n_waves_peak_ge_1p3x": 11,
+        "winners_dollars": 2349.0,
+        "n_winners": 10,
+        "losers_dollars": -1460.0,
+        "n_losers": 15,
+        "net_dollars": 889.0,
+        "best_day": "2026-08-04",
+        "best_day_dollars": 796.0,
+        "ex_best_day_net_dollars": 93.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-28|2026-08-28T10:23:05.698823-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260828C00773000",
+            "side": "C",
+            "entry_px": 0.57,
+            "exit_stage": "trail",
+            "exit_px": 1.77,
+            "realized_if_taken_dollars": 537.0,
+            "peak_multiple": 4.2456
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T12:29:06.083233-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260804C00771000",
+            "side": "C",
+            "entry_px": 0.53,
+            "exit_stage": "trail",
+            "exit_px": 1.55,
+            "realized_if_taken_dollars": 408.0,
+            "peak_multiple": 4.3962
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:43:03.522051-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260803C00754000",
+            "side": "C",
+            "entry_px": 0.42,
+            "exit_stage": "trail",
+            "exit_px": 1.53,
+            "realized_if_taken_dollars": 396.0,
+            "peak_multiple": 4.2381
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 0,
+        "n_waves": 0,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 0,
+        "best_day": null,
+        "best_day_dollars": null,
+        "ex_best_day_net_dollars": 0,
+        "top3_by_abs_dollars": []
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "NOT_FLAT",
+      "arm": "safe-2",
+      "walk_error_count": 1,
+      "full_window": {
+        "n_arm_rows": 35,
+        "n_waves": 35,
+        "n_waves_peak_ge_1p3x": 14,
+        "winners_dollars": 3087.0,
+        "n_winners": 12,
+        "losers_dollars": -2301.0,
+        "n_losers": 23,
+        "net_dollars": 786.0,
+        "best_day": "2026-08-04",
+        "best_day_dollars": 674.0,
+        "ex_best_day_net_dollars": 112.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-28|2026-08-28T10:22:03",
+            "arm": "safe-2",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 1.48,
+            "exit_stage": "trail",
+            "exit_px": 3.41,
+            "realized_if_taken_dollars": 643.0,
+            "peak_multiple": 2.75
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T12:36:03",
+            "arm": "safe-2",
+            "contract": "SPY260804C00769000",
+            "side": "C",
+            "entry_px": 1.73,
+            "exit_stage": "trail",
+            "exit_px": 2.95,
+            "realized_if_taken_dollars": 560.0,
+            "peak_multiple": 2.2775
+          },
+          {
+            "wave_id": "2026-08-27|2026-08-27T09:42:03",
+            "arm": "safe-2",
+            "contract": "SPY260827C00768000",
+            "side": "C",
+            "entry_px": 1.51,
+            "exit_stage": "trail",
+            "exit_px": 2.55,
+            "realized_if_taken_dollars": 428.0,
+            "peak_multiple": 2.0861
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 6,
+        "n_waves": 6,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 296.0,
+        "n_winners": 1,
+        "losers_dollars": -564.0,
+        "n_losers": 5,
+        "net_dollars": -268.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 83.0,
+        "ex_best_day_net_dollars": -351.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:03",
+            "arm": "safe-2",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 296.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:39:03",
+            "arm": "safe-2",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.93,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.22,
+            "realized_if_taken_dollars": -213.0,
+            "peak_multiple": 0.6022
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:42:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.98,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.33,
+            "realized_if_taken_dollars": -195.0,
+            "peak_multiple": 0.8776
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "NOT_FLAT",
+      "arm": "safe-3",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 33,
+        "n_waves": 33,
+        "n_waves_peak_ge_1p3x": 15,
+        "winners_dollars": 4076.0,
+        "n_winners": 14,
+        "losers_dollars": -2436.0,
+        "n_losers": 19,
+        "net_dollars": 1640.0,
+        "best_day": "2026-08-04",
+        "best_day_dollars": 1135.0,
+        "ex_best_day_net_dollars": 505.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:43:03.522051-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260803C00752000",
+            "side": "C",
+            "entry_px": 1.29,
+            "exit_stage": "time_stop",
+            "exit_px": 6.09,
+            "realized_if_taken_dollars": 772.0,
+            "peak_multiple": 5.0465
+          },
+          {
+            "wave_id": "2026-08-28|2026-08-28T10:23:05.698823-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 1.48,
+            "exit_stage": "trail",
+            "exit_px": 3.41,
+            "realized_if_taken_dollars": 643.0,
+            "peak_multiple": 2.75
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T11:28:05.337509-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260804C00767000",
+            "side": "C",
+            "entry_px": 1.37,
+            "exit_stage": "trail",
+            "exit_px": 4.51,
+            "realized_if_taken_dollars": 610.0,
+            "peak_multiple": 4.1898
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 5,
+        "n_waves": 5,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 258.0,
+        "n_winners": 1,
+        "losers_dollars": -471.0,
+        "n_losers": 4,
+        "net_dollars": -213.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 63.0,
+        "ex_best_day_net_dollars": -276.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:08:05.782615-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 1.93,
+            "exit_stage": "premium_stop",
+            "exit_px": 2.79,
+            "realized_if_taken_dollars": 258.0,
+            "peak_multiple": 1.8031
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:43:05.130752-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.98,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.33,
+            "realized_if_taken_dollars": -195.0,
+            "peak_multiple": 0.8776
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T11:18:06.268967-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260902C00766000",
+            "side": "C",
+            "entry_px": 0.98,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.53,
+            "realized_if_taken_dollars": -135.0,
+            "peak_multiple": 1.0306
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "arm": "bold-2",
+      "walk_error_count": 2,
+      "full_window": {
+        "n_arm_rows": 21,
+        "n_waves": 21,
+        "n_waves_peak_ge_1p3x": 8,
+        "winners_dollars": 729.0,
+        "n_winners": 7,
+        "losers_dollars": -1025.0,
+        "n_losers": 14,
+        "net_dollars": -296.0,
+        "best_day": "2026-08-06",
+        "best_day_dollars": 210.0,
+        "ex_best_day_net_dollars": -506.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-05|2026-08-05T11:54:36",
+            "arm": "bold-2",
+            "contract": "SPY260805P00769000",
+            "side": "P",
+            "entry_px": 0.87,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.31,
+            "realized_if_taken_dollars": -280.0,
+            "peak_multiple": 1.1839
+          },
+          {
+            "wave_id": "2026-08-06|2026-08-06T10:31:54",
+            "arm": "bold-2",
+            "contract": "SPY260806P00769000",
+            "side": "P",
+            "entry_px": 1.07,
+            "exit_stage": "premium_stop",
+            "exit_px": 1.49,
+            "realized_if_taken_dollars": 210.0,
+            "peak_multiple": 1.5888
+          },
+          {
+            "wave_id": "2026-08-21|2026-08-21T09:51:07",
+            "arm": "bold-2",
+            "contract": "SPY260821P00763000",
+            "side": "P",
+            "entry_px": 0.62,
+            "exit_stage": "ribbon_flip",
+            "exit_px": 0.2,
+            "realized_if_taken_dollars": -210.0,
+            "peak_multiple": 0.871
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 163.0,
+        "n_winners": 1,
+        "losers_dollars": -180.0,
+        "n_losers": 2,
+        "net_dollars": -17.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 68.0,
+        "ex_best_day_net_dollars": -85.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:21:05",
+            "arm": "bold-2",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.25,
+            "exit_stage": "trail",
+            "exit_px": 0.54,
+            "realized_if_taken_dollars": 163.0,
+            "peak_multiple": 3.72
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:49:06",
+            "arm": "bold-2",
+            "contract": "SPY260901P00759000",
+            "side": "P",
+            "entry_px": 0.26,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.07,
+            "realized_if_taken_dollars": -95.0,
+            "peak_multiple": 0.3462
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:51:06",
+            "arm": "bold-2",
+            "contract": "SPY260903P00773000",
+            "side": "P",
+            "entry_px": 0.45,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.28,
+            "realized_if_taken_dollars": -85.0,
+            "peak_multiple": 0.6667
+          }
+        ]
+      },
+      "verdict_full_window": "EARNING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_LATE_ENTRY",
+      "arm": "safe-2",
+      "walk_error_count": 1,
+      "full_window": {
+        "n_arm_rows": 9,
+        "n_waves": 9,
+        "n_waves_peak_ge_1p3x": 3,
+        "winners_dollars": 162.0,
+        "n_winners": 3,
+        "losers_dollars": -264.0,
+        "n_losers": 6,
+        "net_dollars": -102.0,
+        "best_day": "2026-08-26",
+        "best_day_dollars": 63.0,
+        "ex_best_day_net_dollars": -165.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-26|2026-08-26T15:51:03",
+            "arm": "safe-2",
+            "contract": "SPY260826C00766000",
+            "side": "C",
+            "entry_px": 1.26,
+            "exit_stage": "structure_stop",
+            "exit_px": 1.72,
+            "realized_if_taken_dollars": 138.0,
+            "peak_multiple": 1.381
+          },
+          {
+            "wave_id": "2026-08-13|2026-08-13T15:11:04",
+            "arm": "safe-2",
+            "contract": "SPY260813C00778000",
+            "side": "C",
+            "entry_px": 0.55,
+            "exit_stage": "time_stop",
+            "exit_px": 0.24,
+            "realized_if_taken_dollars": -93.0,
+            "peak_multiple": 0.8364
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T15:06:03",
+            "arm": "safe-2",
+            "contract": "SPY260804C00773000",
+            "side": "C",
+            "entry_px": 0.8,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.55,
+            "realized_if_taken_dollars": -75.0,
+            "peak_multiple": 0.9125
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -3.0,
+        "n_losers": 1,
+        "net_dollars": -3.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -3.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T15:01:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.2,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.19,
+            "realized_if_taken_dollars": -3.0,
+            "peak_multiple": 1.05
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "arm": "bold-2",
+      "walk_error_count": 1,
+      "full_window": {
+        "n_arm_rows": 14,
+        "n_waves": 14,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 249.0,
+        "n_winners": 2,
+        "losers_dollars": -1100.0,
+        "n_losers": 12,
+        "net_dollars": -851.0,
+        "best_day": "2026-08-27",
+        "best_day_dollars": 153.0,
+        "ex_best_day_net_dollars": -1004.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:39:05",
+            "arm": "bold-2",
+            "contract": "SPY260901P00759000",
+            "side": "P",
+            "entry_px": 0.51,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.07,
+            "realized_if_taken_dollars": -220.0,
+            "peak_multiple": 0.5098
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:21:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.63,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.23,
+            "realized_if_taken_dollars": -200.0,
+            "peak_multiple": 0.9841
+          },
+          {
+            "wave_id": "2026-08-27|2026-08-27T11:51:04",
+            "arm": "bold-2",
+            "contract": "SPY260827C00772000",
+            "side": "C",
+            "entry_px": 0.31,
+            "exit_stage": "trail",
+            "exit_px": 0.49,
+            "realized_if_taken_dollars": 153.0,
+            "peak_multiple": 2.6129
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 6,
+        "n_waves": 6,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -780.0,
+        "n_losers": 6,
+        "net_dollars": -780.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -105.0,
+        "ex_best_day_net_dollars": -675.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:39:05",
+            "arm": "bold-2",
+            "contract": "SPY260901P00759000",
+            "side": "P",
+            "entry_px": 0.51,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.07,
+            "realized_if_taken_dollars": -220.0,
+            "peak_multiple": 0.5098
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:21:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.63,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.23,
+            "realized_if_taken_dollars": -200.0,
+            "peak_multiple": 0.9841
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:56:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.47,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.18,
+            "realized_if_taken_dollars": -145.0,
+            "peak_multiple": 0.9574
+          }
+        ]
+      },
+      "verdict_full_window": "EARNING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "arm": "risky-1",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 6,
+        "n_waves": 6,
+        "n_waves_peak_ge_1p3x": 4,
+        "winners_dollars": 2176.0,
+        "n_winners": 4,
+        "losers_dollars": -90.0,
+        "n_losers": 2,
+        "net_dollars": 2086.0,
+        "best_day": "2026-08-03",
+        "best_day_dollars": 2091.0,
+        "ex_best_day_net_dollars": -5.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:43:03.522051-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00752000",
+            "side": "C",
+            "entry_px": 1.29,
+            "exit_stage": "time_stop",
+            "exit_px": 6.09,
+            "realized_if_taken_dollars": 1176.0,
+            "peak_multiple": 5.0465
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T12:32:03.783722-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00756000",
+            "side": "C",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.75,
+            "realized_if_taken_dollars": 372.0,
+            "peak_multiple": 2.7033
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T11:52:03.820044-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00756000",
+            "side": "C",
+            "entry_px": 0.73,
+            "exit_stage": "trail",
+            "exit_px": 1.75,
+            "realized_if_taken_dollars": 369.0,
+            "peak_multiple": 3.3699
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -5.0,
+        "n_losers": 1,
+        "net_dollars": -5.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -5.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T15:02:06.354397-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.2,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.19,
+            "realized_if_taken_dollars": -5.0,
+            "peak_multiple": 1.05
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "arm": "risky-3",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 34,
+        "n_waves": 34,
+        "n_waves_peak_ge_1p3x": 11,
+        "winners_dollars": 571.0,
+        "n_winners": 9,
+        "losers_dollars": -1135.0,
+        "n_losers": 25,
+        "net_dollars": -564.0,
+        "best_day": "2026-08-19",
+        "best_day_dollars": 159.0,
+        "ex_best_day_net_dollars": -723.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-28|2026-08-28T13:33:06.182466-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260828P00767000",
+            "side": "P",
+            "entry_px": 0.46,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.15,
+            "realized_if_taken_dollars": -155.0,
+            "peak_multiple": 0.3696
+          },
+          {
+            "wave_id": "2026-08-19|2026-08-19T10:42:05.066627-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260819C00773000",
+            "side": "C",
+            "entry_px": 0.23,
+            "exit_stage": "trail",
+            "exit_px": 0.4,
+            "realized_if_taken_dollars": 130.0,
+            "peak_multiple": 2.6087
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T13:07:05.182451-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260817P00773000",
+            "side": "P",
+            "entry_px": 0.17,
+            "exit_stage": "trail",
+            "exit_px": 0.33,
+            "realized_if_taken_dollars": 101.0,
+            "peak_multiple": 3.3529
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 0,
+        "n_waves": 0,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 0,
+        "best_day": null,
+        "best_day_dollars": null,
+        "ex_best_day_net_dollars": 0,
+        "top3_by_abs_dollars": []
+      },
+      "verdict_full_window": "EARNING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "arm": "safe-3",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 5,
+        "n_waves": 5,
+        "n_waves_peak_ge_1p3x": 3,
+        "winners_dollars": 781.0,
+        "n_winners": 3,
+        "losers_dollars": -54.0,
+        "n_losers": 2,
+        "net_dollars": 727.0,
+        "best_day": "2026-08-03",
+        "best_day_dollars": 730.0,
+        "ex_best_day_net_dollars": -3.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T12:32:03.783722-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260803C00756000",
+            "side": "C",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.75,
+            "realized_if_taken_dollars": 274.0,
+            "peak_multiple": 2.7033
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T13:17:03.919499-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260803C00757000",
+            "side": "C",
+            "entry_px": 0.63,
+            "exit_stage": "trail",
+            "exit_px": 1.28,
+            "realized_if_taken_dollars": 255.0,
+            "peak_multiple": 2.5397
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T11:52:03.820044-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260803C00756000",
+            "side": "C",
+            "entry_px": 0.73,
+            "exit_stage": "trail",
+            "exit_px": 1.75,
+            "realized_if_taken_dollars": 252.0,
+            "peak_multiple": 3.3699
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -3.0,
+        "n_losers": 1,
+        "net_dollars": -3.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -3.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T15:02:06.354397-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.2,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.19,
+            "realized_if_taken_dollars": -3.0,
+            "peak_multiple": 1.05
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_STALE_TRIGGER",
+      "arm": "safe-2",
+      "walk_error_count": 29,
+      "full_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 898.0,
+        "n_winners": 1,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 898.0,
+        "best_day": "2026-08-03",
+        "best_day_dollars": 898.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:30:04",
+            "arm": "safe-2",
+            "contract": "SPY260803C00751000",
+            "side": "C",
+            "entry_px": 1.83,
+            "exit_stage": "time_stop",
+            "exit_px": 7.09,
+            "realized_if_taken_dollars": 898.0,
+            "peak_multiple": 4.0984
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 0,
+        "n_waves": 0,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 0,
+        "best_day": null,
+        "best_day_dollars": null,
+        "ex_best_day_net_dollars": 0,
+        "top3_by_abs_dollars": []
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_STRUCTURE_VETO",
+      "arm": "safe-2",
+      "walk_error_count": 8,
+      "full_window": {
+        "n_arm_rows": 7,
+        "n_waves": 7,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 241.0,
+        "n_winners": 3,
+        "losers_dollars": -396.0,
+        "n_losers": 4,
+        "net_dollars": -155.0,
+        "best_day": "2026-08-17",
+        "best_day_dollars": 148.0,
+        "ex_best_day_net_dollars": -303.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-07|2026-08-07T12:36:03",
+            "arm": "safe-2",
+            "contract": "SPY260807C00772000",
+            "side": "C",
+            "entry_px": 1.26,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.4,
+            "realized_if_taken_dollars": -258.0,
+            "peak_multiple": 0.7857
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T13:06:03",
+            "arm": "safe-2",
+            "contract": "SPY260817P00775000",
+            "side": "P",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.55,
+            "realized_if_taken_dollars": 148.0,
+            "peak_multiple": 2.0879
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:56:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -129.0,
+            "peak_multiple": 1.0194
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 78.0,
+        "n_winners": 1,
+        "losers_dollars": -135.0,
+        "n_losers": 2,
+        "net_dollars": -57.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -57.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:56:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -129.0,
+            "peak_multiple": 1.0194
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:11:04",
+            "arm": "safe-2",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 0.97,
+            "exit_stage": "premium_stop",
+            "exit_px": 1.23,
+            "realized_if_taken_dollars": 78.0,
+            "peak_multiple": 1.8454
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T15:21:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 0.61,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.59,
+            "realized_if_taken_dollars": -6.0,
+            "peak_multiple": 1.0
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "min_triggers",
+      "arm": "risky-1",
+      "walk_error_count": 2,
+      "full_window": {
+        "n_arm_rows": 14,
+        "n_waves": 14,
+        "n_waves_peak_ge_1p3x": 5,
+        "winners_dollars": 1371.0,
+        "n_winners": 5,
+        "losers_dollars": -1195.0,
+        "n_losers": 9,
+        "net_dollars": 176.0,
+        "best_day": "2026-08-20",
+        "best_day_dollars": 368.0,
+        "ex_best_day_net_dollars": -192.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 398.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-08-20|2026-08-20T12:57:04.912671-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260820P00766000",
+            "side": "P",
+            "entry_px": 0.69,
+            "exit_stage": "trail",
+            "exit_px": 1.58,
+            "realized_if_taken_dollars": 343.0,
+            "peak_multiple": 2.4638
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T13:07:05.182451-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260817P00775000",
+            "side": "P",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.55,
+            "realized_if_taken_dollars": 314.0,
+            "peak_multiple": 2.0879
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 398.0,
+        "n_winners": 1,
+        "losers_dollars": -290.0,
+        "n_losers": 2,
+        "net_dollars": 108.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 193.0,
+        "ex_best_day_net_dollars": -85.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 398.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:40:06.058048-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.61,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.2,
+            "realized_if_taken_dollars": -205.0,
+            "peak_multiple": 0.5738
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:52:05.694165-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903P00773000",
+            "side": "P",
+            "entry_px": 0.45,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.28,
+            "realized_if_taken_dollars": -85.0,
+            "peak_multiple": 0.6667
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "min_triggers",
+      "arm": "safe-3",
+      "walk_error_count": 2,
+      "full_window": {
+        "n_arm_rows": 20,
+        "n_waves": 20,
+        "n_waves_peak_ge_1p3x": 9,
+        "winners_dollars": 1420.0,
+        "n_winners": 8,
+        "losers_dollars": -1080.0,
+        "n_losers": 12,
+        "net_dollars": 340.0,
+        "best_day": "2026-08-11",
+        "best_day_dollars": 345.0,
+        "ex_best_day_net_dollars": -5.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-06|2026-08-06T10:32:04.804726-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260806P00771000",
+            "side": "P",
+            "entry_px": 2.04,
+            "exit_stage": "premium_stop",
+            "exit_px": 3.04,
+            "realized_if_taken_dollars": 300.0,
+            "peak_multiple": 1.5637
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 296.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-08-05|2026-08-05T11:48:04.581792-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260805P00771000",
+            "side": "P",
+            "entry_px": 1.35,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.58,
+            "realized_if_taken_dollars": -231.0,
+            "peak_multiple": 1.4074
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 296.0,
+        "n_winners": 1,
+        "losers_dollars": -174.0,
+        "n_losers": 2,
+        "net_dollars": 122.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 173.0,
+        "ex_best_day_net_dollars": -51.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 296.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:40:06.058048-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.61,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.2,
+            "realized_if_taken_dollars": -123.0,
+            "peak_multiple": 0.5738
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:52:05.694165-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903P00773000",
+            "side": "P",
+            "entry_px": 0.45,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.28,
+            "realized_if_taken_dollars": -51.0,
+            "peak_multiple": 0.6667
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "require_confluence_or_sequence",
+      "arm": "risky-1",
+      "walk_error_count": 2,
+      "full_window": {
+        "n_arm_rows": 7,
+        "n_waves": 7,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 683.0,
+        "n_winners": 2,
+        "losers_dollars": -1705.0,
+        "n_losers": 5,
+        "net_dollars": -1022.0,
+        "best_day": "2026-08-17",
+        "best_day_dollars": 439.0,
+        "ex_best_day_net_dollars": -1461.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-26|2026-08-26T09:46:05.694333-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260826C00766000",
+            "side": "C",
+            "entry_px": 1.84,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.86,
+            "realized_if_taken_dollars": -490.0,
+            "peak_multiple": 1.0435
+          },
+          {
+            "wave_id": "2026-08-28|2026-08-28T09:46:05.569169-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 2.15,
+            "exit_stage": "structure_stop",
+            "exit_px": 1.18,
+            "realized_if_taken_dollars": -485.0,
+            "peak_multiple": 0.9395
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T09:46:05.543303-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260817P00776000",
+            "side": "P",
+            "entry_px": 0.93,
+            "exit_stage": "trail",
+            "exit_px": 2.48,
+            "realized_if_taken_dollars": 439.0,
+            "peak_multiple": 3.0753
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 2,
+        "n_waves": 2,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 244.0,
+        "n_winners": 1,
+        "losers_dollars": -210.0,
+        "n_losers": 1,
+        "net_dollars": 34.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": 244.0,
+        "ex_best_day_net_dollars": -210.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-02|2026-09-02T09:51:05.704486-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.41,
+            "exit_stage": "trail",
+            "exit_px": 1.36,
+            "realized_if_taken_dollars": 244.0,
+            "peak_multiple": 4.9756
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:52:05.774618-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.83,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.41,
+            "realized_if_taken_dollars": -210.0,
+            "peak_multiple": 0.5181
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "require_confluence_or_sequence",
+      "arm": "safe-3",
+      "walk_error_count": 2,
+      "full_window": {
+        "n_arm_rows": 13,
+        "n_waves": 13,
+        "n_waves_peak_ge_1p3x": 3,
+        "winners_dollars": 986.0,
+        "n_winners": 4,
+        "losers_dollars": -1770.0,
+        "n_losers": 9,
+        "net_dollars": -784.0,
+        "best_day": "2026-08-17",
+        "best_day_dollars": 455.0,
+        "ex_best_day_net_dollars": -1239.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-17|2026-08-17T09:46:05.543303-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260817P00776000",
+            "side": "P",
+            "entry_px": 0.93,
+            "exit_stage": "trail",
+            "exit_px": 2.48,
+            "realized_if_taken_dollars": 455.0,
+            "peak_multiple": 3.0753
+          },
+          {
+            "wave_id": "2026-08-05|2026-08-05T09:58:04.790807-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260805C00777000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.67,
+            "realized_if_taken_dollars": -306.0,
+            "peak_multiple": 0.9586
+          },
+          {
+            "wave_id": "2026-08-26|2026-08-26T09:46:05.694333-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260826C00766000",
+            "side": "C",
+            "entry_px": 1.84,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.86,
+            "realized_if_taken_dollars": -294.0,
+            "peak_multiple": 1.0435
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 2,
+        "n_waves": 2,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 231.0,
+        "n_winners": 1,
+        "losers_dollars": -126.0,
+        "n_losers": 1,
+        "net_dollars": 105.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": 231.0,
+        "ex_best_day_net_dollars": -126.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-02|2026-09-02T09:51:05.704486-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.41,
+            "exit_stage": "trail",
+            "exit_px": 1.36,
+            "realized_if_taken_dollars": 231.0,
+            "peak_multiple": 4.9756
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:52:05.774618-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.83,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.41,
+            "realized_if_taken_dollars": -126.0,
+            "peak_multiple": 0.5181
+          }
+        ]
+      },
+      "verdict_full_window": "EARNING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "settlement_cap",
+      "arm": "bold-2",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 50.0,
+        "n_winners": 1,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 50.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 50.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:34:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.4,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.5,
+            "realized_if_taken_dollars": 50.0,
+            "peak_multiple": 1.3
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 50.0,
+        "n_winners": 1,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 50.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 50.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:34:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.4,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.5,
+            "realized_if_taken_dollars": 50.0,
+            "peak_multiple": 1.3
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "settlement_cap",
+      "arm": "risky-1",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -715.0,
+        "n_losers": 3,
+        "net_dollars": -715.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -55.0,
+        "ex_best_day_net_dollars": -660.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -445.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:57:05.549506-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -215.0,
+            "peak_multiple": 1.0194
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T14:23:05.680471-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.89,
+            "exit_stage": "time_stop",
+            "exit_px": 0.78,
+            "realized_if_taken_dollars": -55.0,
+            "peak_multiple": 1.0112
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -715.0,
+        "n_losers": 3,
+        "net_dollars": -715.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -55.0,
+        "ex_best_day_net_dollars": -660.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -445.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:57:05.549506-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -215.0,
+            "peak_multiple": 1.0194
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T14:23:05.680471-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.89,
+            "exit_stage": "time_stop",
+            "exit_px": 0.78,
+            "realized_if_taken_dollars": -55.0,
+            "peak_multiple": 1.0112
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "settlement_cap",
+      "arm": "risky-3",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -60.0,
+        "n_losers": 1,
+        "net_dollars": -60.0,
+        "best_day": "2026-08-28",
+        "best_day_dollars": -60.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-28|2026-08-28T13:28:06.520763-04:00",
+            "arm": "risky-3",
+            "contract": "SPY260828P00767000",
+            "side": "P",
+            "entry_px": 0.27,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.15,
+            "realized_if_taken_dollars": -60.0,
+            "peak_multiple": 1.1481
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 0,
+        "n_waves": 0,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 0,
+        "best_day": null,
+        "best_day_dollars": null,
+        "ex_best_day_net_dollars": 0,
+        "top3_by_abs_dollars": []
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "settlement_cap",
+      "arm": "safe-2",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 4,
+        "n_waves": 4,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -177.0,
+        "n_losers": 4,
+        "net_dollars": -177.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -81.0,
+        "ex_best_day_net_dollars": -96.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-12|2026-08-12T12:56:04",
+            "arm": "safe-2",
+            "contract": "SPY260812C00773000",
+            "side": "C",
+            "entry_px": 0.72,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.53,
+            "realized_if_taken_dollars": -57.0,
+            "peak_multiple": 0.9722
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:52:03",
+            "arm": "safe-2",
+            "contract": "SPY260903P00773000",
+            "side": "P",
+            "entry_px": 0.45,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.28,
+            "realized_if_taken_dollars": -51.0,
+            "peak_multiple": 0.6667
+          },
+          {
+            "wave_id": "2026-08-12|2026-08-12T13:49:04",
+            "arm": "safe-2",
+            "contract": "SPY260812P00773000",
+            "side": "P",
+            "entry_px": 0.68,
+            "exit_stage": "ribbon_flip",
+            "exit_px": 0.55,
+            "realized_if_taken_dollars": -39.0,
+            "peak_multiple": 0.8382
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 2,
+        "n_waves": 2,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -81.0,
+        "n_losers": 2,
+        "net_dollars": -81.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -81.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:52:03",
+            "arm": "safe-2",
+            "contract": "SPY260903P00773000",
+            "side": "P",
+            "entry_px": 0.45,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.28,
+            "realized_if_taken_dollars": -51.0,
+            "peak_multiple": 0.6667
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T14:36:04",
+            "arm": "safe-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.28,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.18,
+            "realized_if_taken_dollars": -30.0,
+            "peak_multiple": 1.0
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "settlement_cap",
+      "arm": "safe-3",
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -429.0,
+        "n_losers": 3,
+        "net_dollars": -429.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -33.0,
+        "ex_best_day_net_dollars": -396.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -267.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:57:05.549506-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -129.0,
+            "peak_multiple": 1.0194
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T14:23:05.680471-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.89,
+            "exit_stage": "time_stop",
+            "exit_px": 0.78,
+            "realized_if_taken_dollars": -33.0,
+            "peak_multiple": 1.0112
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -429.0,
+        "n_losers": 3,
+        "net_dollars": -429.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -33.0,
+        "ex_best_day_net_dollars": -396.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -267.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:57:05.549506-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -129.0,
+            "peak_multiple": 1.0194
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T14:23:05.680471-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.89,
+            "exit_stage": "time_stop",
+            "exit_px": 0.78,
+            "realized_if_taken_dollars": -33.0,
+            "peak_multiple": 1.0112
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    }
+  ],
+  "gate_rows_deduped_to_waves": [
+    {
+      "gate": "NOT_FLAT",
+      "arms_touched": [
+        "bold-2",
+        "risky-1",
+        "risky-3",
+        "safe-2",
+        "safe-3"
+      ],
+      "walk_error_count": 1,
+      "full_window": {
+        "n_arm_rows": 142,
+        "n_waves": 99,
+        "n_waves_peak_ge_1p3x": 66,
+        "winners_dollars": 18685.0,
+        "n_winners": 60,
+        "losers_dollars": -11142.0,
+        "n_losers": 82,
+        "net_dollars": 7543.0,
+        "best_day": "2026-08-04",
+        "best_day_dollars": 4784.0,
+        "ex_best_day_net_dollars": 2759.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:44:03.812734-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00752000",
+            "side": "C",
+            "entry_px": 1.29,
+            "exit_stage": "time_stop",
+            "exit_px": 6.09,
+            "realized_if_taken_dollars": 1176.0,
+            "peak_multiple": 5.0465
+          },
+          {
+            "wave_id": "2026-08-28|2026-08-28T10:23:05.698823-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 1.48,
+            "exit_stage": "trail",
+            "exit_px": 3.41,
+            "realized_if_taken_dollars": 875.0,
+            "peak_multiple": 2.75
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T11:28:05.337509-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260804C00767000",
+            "side": "C",
+            "entry_px": 1.37,
+            "exit_stage": "trail",
+            "exit_px": 4.51,
+            "realized_if_taken_dollars": 832.0,
+            "peak_multiple": 4.1898
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 19,
+        "n_waves": 14,
+        "n_waves_peak_ge_1p3x": 4,
+        "winners_dollars": 1384.0,
+        "n_winners": 4,
+        "losers_dollars": -2015.0,
+        "n_losers": 15,
+        "net_dollars": -631.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": 343.0,
+        "ex_best_day_net_dollars": -974.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:08:05.782615-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 1.93,
+            "exit_stage": "trail",
+            "exit_px": 2.86,
+            "realized_if_taken_dollars": 546.0,
+            "peak_multiple": 1.8031
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:43:05.130752-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.98,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.33,
+            "realized_if_taken_dollars": -325.0,
+            "peak_multiple": 0.8776
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:03",
+            "arm": "safe-2",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 296.0,
+            "peak_multiple": 2.6333
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "EARNING"
+    },
+    {
+      "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "arms_touched": [
+        "bold-2"
+      ],
+      "walk_error_count": 2,
+      "full_window": {
+        "n_arm_rows": 21,
+        "n_waves": 21,
+        "n_waves_peak_ge_1p3x": 8,
+        "winners_dollars": 729.0,
+        "n_winners": 7,
+        "losers_dollars": -1025.0,
+        "n_losers": 14,
+        "net_dollars": -296.0,
+        "best_day": "2026-08-06",
+        "best_day_dollars": 210.0,
+        "ex_best_day_net_dollars": -506.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-05|2026-08-05T11:54:36",
+            "arm": "bold-2",
+            "contract": "SPY260805P00769000",
+            "side": "P",
+            "entry_px": 0.87,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.31,
+            "realized_if_taken_dollars": -280.0,
+            "peak_multiple": 1.1839
+          },
+          {
+            "wave_id": "2026-08-06|2026-08-06T10:31:54",
+            "arm": "bold-2",
+            "contract": "SPY260806P00769000",
+            "side": "P",
+            "entry_px": 1.07,
+            "exit_stage": "premium_stop",
+            "exit_px": 1.49,
+            "realized_if_taken_dollars": 210.0,
+            "peak_multiple": 1.5888
+          },
+          {
+            "wave_id": "2026-08-21|2026-08-21T09:51:07",
+            "arm": "bold-2",
+            "contract": "SPY260821P00763000",
+            "side": "P",
+            "entry_px": 0.62,
+            "exit_stage": "ribbon_flip",
+            "exit_px": 0.2,
+            "realized_if_taken_dollars": -210.0,
+            "peak_multiple": 0.871
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 163.0,
+        "n_winners": 1,
+        "losers_dollars": -180.0,
+        "n_losers": 2,
+        "net_dollars": -17.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 68.0,
+        "ex_best_day_net_dollars": -85.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:21:05",
+            "arm": "bold-2",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.25,
+            "exit_stage": "trail",
+            "exit_px": 0.54,
+            "realized_if_taken_dollars": 163.0,
+            "peak_multiple": 3.72
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:49:06",
+            "arm": "bold-2",
+            "contract": "SPY260901P00759000",
+            "side": "P",
+            "entry_px": 0.26,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.07,
+            "realized_if_taken_dollars": -95.0,
+            "peak_multiple": 0.3462
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:51:06",
+            "arm": "bold-2",
+            "contract": "SPY260903P00773000",
+            "side": "P",
+            "entry_px": 0.45,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.28,
+            "realized_if_taken_dollars": -85.0,
+            "peak_multiple": 0.6667
+          }
+        ]
+      },
+      "verdict_full_window": "EARNING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_LATE_ENTRY",
+      "arms_touched": [
+        "safe-2"
+      ],
+      "walk_error_count": 1,
+      "full_window": {
+        "n_arm_rows": 9,
+        "n_waves": 9,
+        "n_waves_peak_ge_1p3x": 3,
+        "winners_dollars": 162.0,
+        "n_winners": 3,
+        "losers_dollars": -264.0,
+        "n_losers": 6,
+        "net_dollars": -102.0,
+        "best_day": "2026-08-26",
+        "best_day_dollars": 63.0,
+        "ex_best_day_net_dollars": -165.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-26|2026-08-26T15:51:03",
+            "arm": "safe-2",
+            "contract": "SPY260826C00766000",
+            "side": "C",
+            "entry_px": 1.26,
+            "exit_stage": "structure_stop",
+            "exit_px": 1.72,
+            "realized_if_taken_dollars": 138.0,
+            "peak_multiple": 1.381
+          },
+          {
+            "wave_id": "2026-08-13|2026-08-13T15:11:04",
+            "arm": "safe-2",
+            "contract": "SPY260813C00778000",
+            "side": "C",
+            "entry_px": 0.55,
+            "exit_stage": "time_stop",
+            "exit_px": 0.24,
+            "realized_if_taken_dollars": -93.0,
+            "peak_multiple": 0.8364
+          },
+          {
+            "wave_id": "2026-08-04|2026-08-04T15:06:03",
+            "arm": "safe-2",
+            "contract": "SPY260804C00773000",
+            "side": "C",
+            "entry_px": 0.8,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.55,
+            "realized_if_taken_dollars": -75.0,
+            "peak_multiple": 0.9125
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -3.0,
+        "n_losers": 1,
+        "net_dollars": -3.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -3.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T15:01:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.2,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.19,
+            "realized_if_taken_dollars": -3.0,
+            "peak_multiple": 1.05
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_MIN_PREMIUM_FLOOR",
+      "arms_touched": [
+        "bold-2",
+        "risky-1",
+        "risky-3",
+        "safe-3"
+      ],
+      "walk_error_count": 1,
+      "full_window": {
+        "n_arm_rows": 59,
+        "n_waves": 50,
+        "n_waves_peak_ge_1p3x": 20,
+        "winners_dollars": 3777.0,
+        "n_winners": 18,
+        "losers_dollars": -2379.0,
+        "n_losers": 41,
+        "net_dollars": 1398.0,
+        "best_day": "2026-08-03",
+        "best_day_dollars": 2893.0,
+        "ex_best_day_net_dollars": -1495.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:43:03.522051-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00752000",
+            "side": "C",
+            "entry_px": 1.29,
+            "exit_stage": "time_stop",
+            "exit_px": 6.09,
+            "realized_if_taken_dollars": 1176.0,
+            "peak_multiple": 5.0465
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T12:32:03.783722-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00756000",
+            "side": "C",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.75,
+            "realized_if_taken_dollars": 372.0,
+            "peak_multiple": 2.7033
+          },
+          {
+            "wave_id": "2026-08-03|2026-08-03T11:52:03.820044-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260803C00756000",
+            "side": "C",
+            "entry_px": 0.73,
+            "exit_stage": "trail",
+            "exit_px": 1.75,
+            "realized_if_taken_dollars": 369.0,
+            "peak_multiple": 3.3699
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 8,
+        "n_waves": 7,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": -788.0,
+        "n_losers": 8,
+        "net_dollars": -788.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -105.0,
+        "ex_best_day_net_dollars": -683.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:39:05",
+            "arm": "bold-2",
+            "contract": "SPY260901P00759000",
+            "side": "P",
+            "entry_px": 0.51,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.07,
+            "realized_if_taken_dollars": -220.0,
+            "peak_multiple": 0.5098
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:21:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.63,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.23,
+            "realized_if_taken_dollars": -200.0,
+            "peak_multiple": 0.9841
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:56:04",
+            "arm": "bold-2",
+            "contract": "SPY260903C00774000",
+            "side": "C",
+            "entry_px": 0.47,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.18,
+            "realized_if_taken_dollars": -145.0,
+            "peak_multiple": 0.9574
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_STALE_TRIGGER",
+      "arms_touched": [
+        "safe-2"
+      ],
+      "walk_error_count": 29,
+      "full_window": {
+        "n_arm_rows": 1,
+        "n_waves": 1,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 898.0,
+        "n_winners": 1,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 898.0,
+        "best_day": "2026-08-03",
+        "best_day_dollars": 898.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-03|2026-08-03T09:30:04",
+            "arm": "safe-2",
+            "contract": "SPY260803C00751000",
+            "side": "C",
+            "entry_px": 1.83,
+            "exit_stage": "time_stop",
+            "exit_px": 7.09,
+            "realized_if_taken_dollars": 898.0,
+            "peak_multiple": 4.0984
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 0,
+        "n_waves": 0,
+        "n_waves_peak_ge_1p3x": 0,
+        "winners_dollars": 0,
+        "n_winners": 0,
+        "losers_dollars": 0,
+        "n_losers": 0,
+        "net_dollars": 0,
+        "best_day": null,
+        "best_day_dollars": null,
+        "ex_best_day_net_dollars": 0,
+        "top3_by_abs_dollars": []
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "SKIP_STRUCTURE_VETO",
+      "arms_touched": [
+        "safe-2"
+      ],
+      "walk_error_count": 8,
+      "full_window": {
+        "n_arm_rows": 7,
+        "n_waves": 7,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 241.0,
+        "n_winners": 3,
+        "losers_dollars": -396.0,
+        "n_losers": 4,
+        "net_dollars": -155.0,
+        "best_day": "2026-08-17",
+        "best_day_dollars": 148.0,
+        "ex_best_day_net_dollars": -303.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-07|2026-08-07T12:36:03",
+            "arm": "safe-2",
+            "contract": "SPY260807C00772000",
+            "side": "C",
+            "entry_px": 1.26,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.4,
+            "realized_if_taken_dollars": -258.0,
+            "peak_multiple": 0.7857
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T13:06:03",
+            "arm": "safe-2",
+            "contract": "SPY260817P00775000",
+            "side": "P",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.55,
+            "realized_if_taken_dollars": 148.0,
+            "peak_multiple": 2.0879
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:56:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -129.0,
+            "peak_multiple": 1.0194
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 3,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 78.0,
+        "n_winners": 1,
+        "losers_dollars": -135.0,
+        "n_losers": 2,
+        "net_dollars": -57.0,
+        "best_day": "2026-09-03",
+        "best_day_dollars": -57.0,
+        "ex_best_day_net_dollars": 0.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:56:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -129.0,
+            "peak_multiple": 1.0194
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:11:04",
+            "arm": "safe-2",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 0.97,
+            "exit_stage": "premium_stop",
+            "exit_px": 1.23,
+            "realized_if_taken_dollars": 78.0,
+            "peak_multiple": 1.8454
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T15:21:03",
+            "arm": "safe-2",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 0.61,
+            "exit_stage": "structure_stop",
+            "exit_px": 0.59,
+            "realized_if_taken_dollars": -6.0,
+            "peak_multiple": 1.0
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "min_triggers",
+      "arms_touched": [
+        "risky-1",
+        "safe-3"
+      ],
+      "walk_error_count": 4,
+      "full_window": {
+        "n_arm_rows": 34,
+        "n_waves": 20,
+        "n_waves_peak_ge_1p3x": 14,
+        "winners_dollars": 2791.0,
+        "n_winners": 13,
+        "losers_dollars": -2275.0,
+        "n_losers": 21,
+        "net_dollars": 516.0,
+        "best_day": "2026-08-20",
+        "best_day_dollars": 582.0,
+        "ex_best_day_net_dollars": -66.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 398.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-08-20|2026-08-20T12:57:04.912671-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260820P00766000",
+            "side": "P",
+            "entry_px": 0.69,
+            "exit_stage": "trail",
+            "exit_px": 1.58,
+            "realized_if_taken_dollars": 343.0,
+            "peak_multiple": 2.4638
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T13:07:05.182451-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260817P00775000",
+            "side": "P",
+            "entry_px": 0.91,
+            "exit_stage": "trail",
+            "exit_px": 1.55,
+            "realized_if_taken_dollars": 314.0,
+            "peak_multiple": 2.0879
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 6,
+        "n_waves": 3,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 694.0,
+        "n_winners": 2,
+        "losers_dollars": -464.0,
+        "n_losers": 4,
+        "net_dollars": 230.0,
+        "best_day": "2026-09-01",
+        "best_day_dollars": 366.0,
+        "ex_best_day_net_dollars": -136.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 398.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T13:22:05.492073-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260901P00762000",
+            "side": "P",
+            "entry_px": 0.9,
+            "exit_stage": "trail",
+            "exit_px": 1.84,
+            "realized_if_taken_dollars": 296.0,
+            "peak_multiple": 2.6333
+          },
+          {
+            "wave_id": "2026-09-01|2026-09-01T14:40:06.058048-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260901P00760000",
+            "side": "P",
+            "entry_px": 0.61,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.2,
+            "realized_if_taken_dollars": -205.0,
+            "peak_multiple": 0.5738
+          }
+        ]
+      },
+      "verdict_full_window": "COSTING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "require_confluence_or_sequence",
+      "arms_touched": [
+        "risky-1",
+        "safe-3"
+      ],
+      "walk_error_count": 4,
+      "full_window": {
+        "n_arm_rows": 20,
+        "n_waves": 13,
+        "n_waves_peak_ge_1p3x": 5,
+        "winners_dollars": 1669.0,
+        "n_winners": 6,
+        "losers_dollars": -3475.0,
+        "n_losers": 14,
+        "net_dollars": -1806.0,
+        "best_day": "2026-08-17",
+        "best_day_dollars": 894.0,
+        "ex_best_day_net_dollars": -2700.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-08-26|2026-08-26T09:46:05.694333-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260826C00766000",
+            "side": "C",
+            "entry_px": 1.84,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.86,
+            "realized_if_taken_dollars": -490.0,
+            "peak_multiple": 1.0435
+          },
+          {
+            "wave_id": "2026-08-28|2026-08-28T09:46:05.569169-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260828C00771000",
+            "side": "C",
+            "entry_px": 2.15,
+            "exit_stage": "structure_stop",
+            "exit_px": 1.18,
+            "realized_if_taken_dollars": -485.0,
+            "peak_multiple": 0.9395
+          },
+          {
+            "wave_id": "2026-08-17|2026-08-17T09:46:05.543303-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260817P00776000",
+            "side": "P",
+            "entry_px": 0.93,
+            "exit_stage": "trail",
+            "exit_px": 2.48,
+            "realized_if_taken_dollars": 455.0,
+            "peak_multiple": 3.0753
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 4,
+        "n_waves": 2,
+        "n_waves_peak_ge_1p3x": 2,
+        "winners_dollars": 475.0,
+        "n_winners": 2,
+        "losers_dollars": -336.0,
+        "n_losers": 2,
+        "net_dollars": 139.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": 475.0,
+        "ex_best_day_net_dollars": -336.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-02|2026-09-02T09:51:05.704486-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.41,
+            "exit_stage": "trail",
+            "exit_px": 1.36,
+            "realized_if_taken_dollars": 244.0,
+            "peak_multiple": 4.9756
+          },
+          {
+            "wave_id": "2026-09-02|2026-09-02T09:51:05.704486-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260902C00765000",
+            "side": "C",
+            "entry_px": 0.41,
+            "exit_stage": "trail",
+            "exit_px": 1.36,
+            "realized_if_taken_dollars": 231.0,
+            "peak_multiple": 4.9756
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T09:52:05.774618-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00770000",
+            "side": "C",
+            "entry_px": 0.83,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.41,
+            "realized_if_taken_dollars": -210.0,
+            "peak_multiple": 0.5181
+          }
+        ]
+      },
+      "verdict_full_window": "EARNING",
+      "verdict_frozen_window": "UNDERPOWERED"
+    },
+    {
+      "gate": "settlement_cap",
+      "arms_touched": [
+        "bold-2",
+        "risky-1",
+        "risky-3",
+        "safe-2",
+        "safe-3"
+      ],
+      "walk_error_count": 0,
+      "full_window": {
+        "n_arm_rows": 12,
+        "n_waves": 9,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 50.0,
+        "n_winners": 1,
+        "losers_dollars": -1381.0,
+        "n_losers": 11,
+        "net_dollars": -1331.0,
+        "best_day": "2026-08-28",
+        "best_day_dollars": -60.0,
+        "ex_best_day_net_dollars": -1271.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -445.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -267.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:57:05.549506-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -215.0,
+            "peak_multiple": 1.0194
+          }
+        ]
+      },
+      "frozen_window": {
+        "n_arm_rows": 9,
+        "n_waves": 6,
+        "n_waves_peak_ge_1p3x": 1,
+        "winners_dollars": 50.0,
+        "n_winners": 1,
+        "losers_dollars": -1225.0,
+        "n_losers": 8,
+        "net_dollars": -1175.0,
+        "best_day": "2026-09-02",
+        "best_day_dollars": -88.0,
+        "ex_best_day_net_dollars": -1087.0,
+        "top3_by_abs_dollars": [
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -445.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T11:23:06.299365-04:00",
+            "arm": "safe-3",
+            "contract": "SPY260903C00772000",
+            "side": "C",
+            "entry_px": 1.69,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.8,
+            "realized_if_taken_dollars": -267.0,
+            "peak_multiple": 1.0592
+          },
+          {
+            "wave_id": "2026-09-03|2026-09-03T13:57:05.549506-04:00",
+            "arm": "risky-1",
+            "contract": "SPY260903C00773000",
+            "side": "C",
+            "entry_px": 1.03,
+            "exit_stage": "premium_stop",
+            "exit_px": 0.6,
+            "realized_if_taken_dollars": -215.0,
+            "peak_multiple": 1.0194
+          }
+        ]
+      },
+      "verdict_full_window": "UNDERPOWERED",
+      "verdict_frozen_window": "UNDERPOWERED"
+    }
+  ]
 }

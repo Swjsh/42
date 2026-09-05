@@ -1,111 +1,82 @@
 # GATE-NET-COST-2026-09-05
 
-Session a16e320c, 2026-09-05 ~03:5x ET (`et_clock.py` quoted: `2026-09-05 03:54:48 Saturday EDT`).
+N3 -- per-gate net-of-losers table, GOAL-GATE-NET-COST-2026-09-05. Built from `analysis\gate-net-cost\walk-2026-09-05.json` (305 walk_ok / 50 walk_error rows) by `setup/scripts/gate_net_cost_table.py`.
 
-## Status: N1 DONE, N2/N3 NOT COMPUTED, N4/N5 NOT STARTED (honest partial)
+## Definition used for the $ number
 
-This goal asked for a full per-gate NET (winners $ minus losers $, walked through each
-refusing arm's real exit shape on OPRA bars) so the two 10-30 preregs and the standing
-structure-veto A/B could be decided net-of-losers instead of on the refused-winners CEILING
-alone. **Only the refusal inventory (N1) was completed this pass.** The exit-shape walk (N2),
-the resulting net table (N3), the prereg evidence appends + `checkpoint_packet.py` swap (N4),
-and the cockpit tile + doctrine append (N5) were **not** completed, and are reported that way
-rather than filled in with invented numbers.
+- **Winner:** `realized_if_taken_dollars > 0`. **Loser:** `realized_if_taken_dollars <= 0`.
+- **Net:** `sum(realized_if_taken_dollars) over all walk_ok rows == winners_dollars + losers_dollars`.
+- **Why realized, not peak:** a wave can peak >= 1.3x and still reverse before the walked exit stage fires; using realized (not peak) avoids crediting a reversal as a win. n_waves_peak_ge_1p3x is reported alongside as the alternate/ceiling metric.
+- **Verdict rule:** net_dollars < 0 -> EARNING (refusing saved money); net_dollars > 0 -> COSTING (refusing lost money); n_waves < floor -> UNDERPOWERED regardless of sign. (UNDERPOWERED floor = 10 waves.)
 
-**Why stopped here, stated honestly:** N2 requires assembling, per refused wave, per arm
-(up to 4 arms x ~340 waves across the 20 gate/arm buckets below), the option-bar series +
-ribbon-tick series + 5-min SPY series `backtest/lib/exit_manager_walk.walk_exit_manager`
-needs, then running that arm's REAL `exit_shape` (read-only from
-`automation/state/fleet/strategies.py`/`exit_manager.py`) tick-by-tick, plus the goal's
-mandatory 2 hand-checked examples against real same-day fills in `journal/trades.csv`. That
-is a multi-hour build (data assembly + the walk + the hand-check verification), not something
-that can be done credibly -- to the goal's own "quote both hand-checks" bar -- inside this
-bounded pass without either skipping the verification step or fabricating numbers. Per the
-project's own anti-fabrication rule (no placeholder/fake data in any real code path, especially
-one three pre-registered decisions read from), the responsible move is to ship N1 real and
-flag N2-N5 for a dedicated follow-up session, not to synthesize a "net" figure.
+## Per gate, deduped to WAVES (one signal, up to 4 arms collapsed) -- full window 2026-08-01..today
 
-## N1 -- refusal inventory (DONE, quoted from `setup/scripts/gate_net_cost_inventory.py` /
-`analysis/gate-net-cost/refusals-2026-09-05.json`)
+| Gate | Arms touched | Waves | Waves peak>=1.3x | Winners $ | Losers $ | Net $ | Ex-best-day net $ | walk_error | Verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| NOT_FLAT | bold-2, risky-1, risky-3, safe-2, safe-3 | 99 | 66 | $18,685.00 | $-11,142.00 | $7,543.00 | $2,759.00 | 1 | COSTING |
+| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY | bold-2 | 21 | 8 | $729.00 | $-1,025.00 | $-296.00 | $-506.00 | 2 | EARNING |
+| SKIP_LATE_ENTRY | safe-2 | 9 | 3 | $162.00 | $-264.00 | $-102.00 | $-165.00 | 1 | UNDERPOWERED |
+| SKIP_MIN_PREMIUM_FLOOR | bold-2, risky-1, risky-3, safe-3 | 50 | 20 | $3,777.00 | $-2,379.00 | $1,398.00 | $-1,495.00 | 1 | COSTING |
+| SKIP_STALE_TRIGGER | safe-2 | 1 | 1 | $898.00 | $0.00 | $898.00 | $0.00 | 29 | UNDERPOWERED |
+| SKIP_STRUCTURE_VETO | safe-2 | 7 | 2 | $241.00 | $-396.00 | $-155.00 | $-303.00 | 8 | UNDERPOWERED |
+| min_triggers | risky-1, safe-3 | 20 | 14 | $2,791.00 | $-2,275.00 | $516.00 | $-66.00 | 4 | COSTING |
+| require_confluence_or_sequence | risky-1, safe-3 | 13 | 5 | $1,669.00 | $-3,475.00 | $-1,806.00 | $-2,700.00 | 4 | EARNING |
+| settlement_cap | bold-2, risky-1, risky-3, safe-2, safe-3 | 9 | 1 | $50.00 | $-1,381.00 | $-1,331.00 | $-1,271.00 | 0 | UNDERPOWERED |
 
-Window: 2026-08-01 -> 2026-09-05. Frozen window: 2026-08-31 -> 2026-09-05. Waves are
-deduped using the same 30-minute same-episode grouping `backtest/lib/right_tail_waves.py`
-uses (`WAVE_GAP_MINUTES = 30`).
+## Per gate, deduped to WAVES -- frozen window 2026-08-31..today
 
-| Gate / arm | Source | Refusal rows | Waves (full) | Waves (frozen) |
-|---|---|---|---|---|
-| SKIP_STRUCTURE_VETO (core) | core-decisions.jsonl verdict | 93 | 15 | 4 |
-| SKIP_LATE_ENTRY (core) | core-decisions.jsonl verdict | 86 | 10 | 2 |
-| SKIP_STALE_TRIGGER (core) | core-decisions.jsonl verdict | 314 | 30 | 5 |
-| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY (core) | core-decisions.jsonl verdict | 121 | 23 | 5 |
-| SKIP_MIN_PREMIUM_FLOOR (core) | core-decisions.jsonl verdict | 51 | 15 | 7 |
-| settlement cap (core, RISK_DENY_SETTLEMENT) | core-decisions.jsonl verdict | 33 | 5 | 3 |
-| NOT_FLAT (core) | core-decisions.jsonl verdict | 449 | 48 | 10 |
-| min_triggers, risky-1 | fleet decisions.jsonl reason "gate: 1 triggers < 2" | 112 | 16 | 5 |
-| require_confluence_or_sequence, risky-1 | fleet decisions.jsonl reason | 204 | 9 | 4 |
-| min_triggers, safe-3 | fleet decisions.jsonl reason | 180 | 22 | 5 |
-| require_confluence_or_sequence, safe-3 | fleet decisions.jsonl reason | 284 | 15 | 4 |
-| SKIP_MIN_PREMIUM_FLOOR, risky-1 | fleet decisions.jsonl reason | 41 | 6 | 1 |
-| SKIP_MIN_PREMIUM_FLOOR, risky-3 | fleet decisions.jsonl reason | 235 | 34 | 0 |
-| SKIP_MIN_PREMIUM_FLOOR, safe-3 | fleet decisions.jsonl reason | 39 | 5 | 1 |
-| NOT_FLAT, risky-1 | fleet decisions.jsonl reason | 347 | 37 | 5 |
-| NOT_FLAT, risky-3 | fleet decisions.jsonl reason | 216 | 25 | 0 |
-| NOT_FLAT, safe-3 | fleet decisions.jsonl reason | 258 | 33 | 5 |
-| settlement cap, risky-1 | fleet decisions.jsonl reason | 32 | 3 | 3 |
-| settlement cap, risky-3 | fleet decisions.jsonl reason | 5 | 1 | 0 |
-| settlement cap, safe-3 | fleet decisions.jsonl reason | 32 | 3 | 3 |
+| Gate | Waves | Waves peak>=1.3x | Winners $ | Losers $ | Net $ | Ex-best-day net $ | Verdict |
+|---|---|---|---|---|---|---|---|
+| NOT_FLAT | 14 | 4 | $1,384.00 | $-2,015.00 | $-631.00 | $-974.00 | EARNING |
+| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY | 3 | 1 | $163.00 | $-180.00 | $-17.00 | $-85.00 | UNDERPOWERED |
+| SKIP_LATE_ENTRY | 1 | 0 | $0.00 | $-3.00 | $-3.00 | $0.00 | UNDERPOWERED |
+| SKIP_MIN_PREMIUM_FLOOR | 7 | 0 | $0.00 | $-788.00 | $-788.00 | $-683.00 | UNDERPOWERED |
+| SKIP_STALE_TRIGGER | 0 | 0 | $0.00 | $0.00 | $0.00 | $0.00 | UNDERPOWERED |
+| SKIP_STRUCTURE_VETO | 3 | 1 | $78.00 | $-135.00 | $-57.00 | $0.00 | UNDERPOWERED |
+| min_triggers | 3 | 2 | $694.00 | $-464.00 | $230.00 | $-136.00 | UNDERPOWERED |
+| require_confluence_or_sequence | 2 | 2 | $475.00 | $-336.00 | $139.00 | $-336.00 | UNDERPOWERED |
+| settlement_cap | 6 | 1 | $50.00 | $-1,225.00 | $-1,175.00 | $-1,087.00 | UNDERPOWERED |
 
-**fleet gate_override (`min_triggers`/`require_confluence_or_sequence`) is NOT tracked by
-`fleet-gate-leak-ledger.jsonl`** -- that ledger only instruments 4 different gates
-(`require_bearish_fill_bar`, `structure_veto_enabled`, `block_bull_1100_1200`,
-`block_conf_lvl_rec_afternoon`), confirmed by tallying its `gate_param_key` values this
-session (`require_bearish_fill_bar` 364, `structure_veto_enabled` 220,
-`block_bull_1100_1200` 212, `block_conf_lvl_rec_afternoon` 204, none named `min_triggers`).
-The two selectivity gates the goal actually named only surface as free-text `reason` strings
-in each fleet arm's own `decisions.jsonl` (`"gate: 1 triggers < 2"`,
-`"gate: requires confluence/sequence"`) -- this is a real gap in the shadow ledger's coverage,
-worth its own follow-up, not something this pass can silently paper over.
+## Per gate x arm rows (raw table rows, NOT wave-deduped -- full window)
 
-**filter 8 / filter 10** (bear/bull min-triggers volume-multiplier blockers): NOT COMPUTED.
-Verified this session that blocker code 10 (bull) fires on 4,288 of 6,068 core-decisions rows
-since 2026-08-01, and code 8 (bear) on 5,896 of 6,068 -- i.e. these blockers are present on
-the large majority of every tick regardless of whether the tick was otherwise ENTER-eligible.
-Isolating "ENTER-eligible but for this blocker alone" needs a full replay of
-`backtest/lib/filters.py`'s per-side gate stack at each tick (score AND every OTHER blocker
-state), which is out of scope for this pass and would risk a wrong number if rushed.
+| Gate | Arm | Arm rows | Waves | Winners $ | Losers $ | Net $ | Ex-best-day net $ | walk_error | Verdict |
+|---|---|---|---|---|---|---|---|---|---|
+| NOT_FLAT | bold-2 | 12 | 12 | $867.00 | $-325.00 | $542.00 | $258.00 | 0 | COSTING |
+| NOT_FLAT | risky-1 | 37 | 37 | $8,306.00 | $-4,620.00 | $3,686.00 | $1,733.00 | 0 | COSTING |
+| NOT_FLAT | risky-3 | 25 | 25 | $2,349.00 | $-1,460.00 | $889.00 | $93.00 | 0 | COSTING |
+| NOT_FLAT | safe-2 | 35 | 35 | $3,087.00 | $-2,301.00 | $786.00 | $112.00 | 1 | COSTING |
+| NOT_FLAT | safe-3 | 33 | 33 | $4,076.00 | $-2,436.00 | $1,640.00 | $505.00 | 0 | COSTING |
+| SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY | bold-2 | 21 | 21 | $729.00 | $-1,025.00 | $-296.00 | $-506.00 | 2 | EARNING |
+| SKIP_LATE_ENTRY | safe-2 | 9 | 9 | $162.00 | $-264.00 | $-102.00 | $-165.00 | 1 | UNDERPOWERED |
+| SKIP_MIN_PREMIUM_FLOOR | bold-2 | 14 | 14 | $249.00 | $-1,100.00 | $-851.00 | $-1,004.00 | 1 | EARNING |
+| SKIP_MIN_PREMIUM_FLOOR | risky-1 | 6 | 6 | $2,176.00 | $-90.00 | $2,086.00 | $-5.00 | 0 | UNDERPOWERED |
+| SKIP_MIN_PREMIUM_FLOOR | risky-3 | 34 | 34 | $571.00 | $-1,135.00 | $-564.00 | $-723.00 | 0 | EARNING |
+| SKIP_MIN_PREMIUM_FLOOR | safe-3 | 5 | 5 | $781.00 | $-54.00 | $727.00 | $-3.00 | 0 | UNDERPOWERED |
+| SKIP_STALE_TRIGGER | safe-2 | 1 | 1 | $898.00 | $0.00 | $898.00 | $0.00 | 29 | UNDERPOWERED |
+| SKIP_STRUCTURE_VETO | safe-2 | 7 | 7 | $241.00 | $-396.00 | $-155.00 | $-303.00 | 8 | UNDERPOWERED |
+| min_triggers | risky-1 | 14 | 14 | $1,371.00 | $-1,195.00 | $176.00 | $-192.00 | 2 | COSTING |
+| min_triggers | safe-3 | 20 | 20 | $1,420.00 | $-1,080.00 | $340.00 | $-5.00 | 2 | COSTING |
+| require_confluence_or_sequence | risky-1 | 7 | 7 | $683.00 | $-1,705.00 | $-1,022.00 | $-1,461.00 | 2 | UNDERPOWERED |
+| require_confluence_or_sequence | safe-3 | 13 | 13 | $986.00 | $-1,770.00 | $-784.00 | $-1,239.00 | 2 | EARNING |
+| settlement_cap | bold-2 | 1 | 1 | $50.00 | $0.00 | $50.00 | $0.00 | 0 | UNDERPOWERED |
+| settlement_cap | risky-1 | 3 | 3 | $0.00 | $-715.00 | $-715.00 | $-660.00 | 0 | UNDERPOWERED |
+| settlement_cap | risky-3 | 1 | 1 | $0.00 | $-60.00 | $-60.00 | $0.00 | 0 | UNDERPOWERED |
+| settlement_cap | safe-2 | 4 | 4 | $0.00 | $-177.00 | $-177.00 | $-96.00 | 0 | UNDERPOWERED |
+| settlement_cap | safe-3 | 3 | 3 | $0.00 | $-429.00 | $-429.00 | $-396.00 | 0 | UNDERPOWERED |
 
-**Cross-check (goal DONE-WHEN for N1):** the right-tail 46-missed-pair attribution
-(`analysis/right-tail/CAPTURE-GAP-2026-09-05.json` / `capture-gap-join-2026-09-05.json`, 24
-unique wave ids) is a **strict subset** of this inventory: `n_present_in_my_inventory: 24,
-n_missing: 0, strict_subset: true` (join method: a capture-gap wave id counts as present if
-any refusal tick this script found on the same date falls within the same 30-minute
-`WAVE_GAP_MINUTES` tolerance right_tail_waves.py itself uses -- an exact-string match on
-`wave_start_et` under-matches because the refusal tick's own timestamp is the SKIP tick, not
-the ENTER tick on the arm that DID take the wave).
+## /fable-too-good disclosure -- gates with |net| > $3,000 (full window)
 
-## N2 -- exit-shape walk: NOT COMPUTED. No hand-checks quoted (goal requires 2; zero done).
+### NOT_FLAT -- net $7,543.00 (ex-best-day $2,759.00, best day 2026-08-04 contributed $4,784.00)
+**CONCENTRATION FLAG:** the single best wave-day contributes >= 50% of this gate's net -- one day dominates; treat the aggregate with suspicion per `/fable-too-good`.
 
-## N3 -- per-gate net table: all `winners_$`/`losers_$`/`net_$`/`ex_best_day_net_$` cells are
-`null` in `GATE-NET-COST-2026-09-05.json` by construction -- see that file. No gate is called
-EARNING or COSTING; every row is `UNDERPOWERED_NO_WALK` (n < 10 waves) or `NO_WALK` (n >= 10
-waves but not walked) rather than assigning a verdict this pass cannot support.
+| Wave id | Arm | Contract | Side | Entry $ | Exit stage | Exit $ | Realized $ | Peak x |
+|---|---|---|---|---|---|---|---|---|
+| 2026-08-03|2026-08-03T09:44:03.812734-04:00 | risky-1 | SPY260803C00752000 | C | 1.29 | time_stop | 6.09 | $1,176.00 | 5.0465 |
+| 2026-08-28|2026-08-28T10:23:05.698823-04:00 | risky-1 | SPY260828C00771000 | C | 1.48 | trail | 3.41 | $875.00 | 2.75 |
+| 2026-08-04|2026-08-04T11:28:05.337509-04:00 | risky-1 | SPY260804C00767000 | C | 1.37 | trail | 4.51 | $832.00 | 4.1898 |
 
-## N4 / N5 -- NOT STARTED
 
-No prereg was touched. No `checkpoint_packet.py` edit was made. No cockpit change was made.
-No doctrine append was made. These all consume N2/N3's numbers as their evidentiary basis;
-touching decision-facing files (preregs gating a 10-30 packet, `checkpoint_packet.py`,
-`edge-master-doctrine.md`) with unwalked numbers would be worse than leaving them untouched.
+## N1 coverage notes (carried forward from `refusals-2026-09-05.json` / prior revision of this file -- unchanged by N3)
 
-## Recommendation
-
-Continue N2-N5 as a dedicated follow-up fire with its own budget: build a small
-`gate_net_cost_walker.py` that, per (gate, arm, wave) row in `refusals-2026-09-05.json`,
-loads `option_pricing_real.load_contract_bars` for the ATM/near-ATM contract at the wave's
-strike (same convention as `zero_enter_autopsy.py`), the matching 5-min SPY series, and a
-ribbon-tick series, resolves that arm's real `exit_shape` from
-`automation/state/fleet/strategies.py` (READ-ONLY), and calls
-`backtest/lib/exit_manager_walk.walk_exit_manager(..., all_exits_market=True)` per the goal's
-OPERATING RULES; hand-check 2 walked rows against `journal/trades.csv` fills on the same
-day/side before trusting the aggregate; only then touch the 3 preregs / `checkpoint_packet.py`
-/ cockpit / doctrine.
+- **fleet gate_override (`min_triggers`/`require_confluence_or_sequence`) is NOT tracked by `fleet-gate-leak-ledger.jsonl`** -- that ledger only instruments 4 other gates (`require_bearish_fill_bar`, `structure_veto_enabled`, `block_bull_1100_1200`, `block_conf_lvl_rec_afternoon`); the two selectivity gates this goal names were recovered instead from each fleet arm's own `decisions.jsonl` free-text `reason` strings (`"gate: 1 triggers < 2"`, `"gate: requires confluence/sequence"`) -- a real ledger-coverage gap, disclosed rather than papered over.
+- **filter 8 / filter 10** (bear/bull min-triggers volume-multiplier blockers) were NOT COMPUTED by N1's wave inventory (fire on the large majority of every tick regardless of ENTER-eligibility -- isolating the true refusal population needs a full `backtest/lib/filters.py` gate-stack replay, out of scope for this goal). The SIDE-TASK fix in this same session touches `gate_expiry_check.py`'s OWN separate sole-blocker instrument for filter-8/filter-10 (its `_stop_level_for_row` side-blind bug) -- that check remained RED after the fix (re-run below) for reasons independent of the fix (the sole-blocker path is a `NOT_REPLAYED` proxy that never calls `_stop_level_for_row`).

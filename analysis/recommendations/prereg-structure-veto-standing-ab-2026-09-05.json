@@ -20,5 +20,114 @@
   "extend_criterion": "If the counterfactual stays neutral-to-positive (veto still correctly blocking net-losing setups) at n>=20, EXTEND as-is through the 2026-10-30 checkpoint -- no action needed, already live.",
   "does_this_ship_anything": "No. Documentation-only prereg naming an already-live, already-instrumented production gate. No params.json / heartbeat.md / filters.py / generated-surface edit made by this prereg.",
   "consumer": "2026-10-30 config-freeze checkpoint review + this goal's DONE-WHEN clause.",
-  "revoke": "delete this file (Gamma_FleetGateLeakShadow itself predates and is independent of this prereg -- revoking this file does not touch that task)."
+  "revoke": "delete this file (Gamma_FleetGateLeakShadow itself predates and is independent of this prereg -- revoking this file does not touch that task).",
+  "evidence_2026_09_05_net_of_losers": {
+    "_doc": "Appended by setup/scripts/gate_net_cost_prereg_append.py, GOAL-GATE-NET-COST-2026-09-05 N4. Append-only -- does not alter any field above this key.",
+    "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table, walked from analysis/gate-net-cost/walk-2026-09-05.json N2, 305/355 walk_ok)",
+    "definition": "winner := realized_if_taken_dollars > 0; loser := realized_if_taken_dollars <= 0; net := sum(realized_if_taken_dollars) over walk_ok rows == winners + losers.",
+    "caveats": [
+      "5-min OPRA resolution bias: the walk (setup/scripts/gate_net_cost_walk.py) prices most refused ticks off 5-min-cached OPRA bars (a 1-min hand-check subset is within 10% of real fills, see backtest/tests/test_gate_net_cost_walk_2026_09_05.py); exact stage timing/price for any single row can be off by up to one 5-min bar.",
+      "50 of 355 refused rows are walk_error (fail-open, not fabricated): 36 have no usable side on the source decision row (side=None, a real data gap) and 14 have no cached OPRA contract near the target strike -- excluded from every $ figure below, not zero-filled.",
+      "Winner/loser $ uses realized_if_taken_dollars (the walked exit price), NOT the peak_multiple >= 1.3x ceiling N1/right-tail work used -- a wave can peak above 1.3x and still reverse before the walked exit stage fires; n_waves_peak_ge_1p3x is reported alongside as the alternate/ceiling metric so the two are never conflated.",
+      "Net figures are PROXY, not a ratifying replay: the same class of proxy caveat gate_expiry_check.py's own sole-blocker checks (filter-8/filter-10) carry -- this is a counterfactual walk through the arm's real exit shape, not a full gate-stack re-simulation."
+    ],
+    "gate_covered": "SKIP_STRUCTURE_VETO (core, safe-2 only)",
+    "full_window": {
+      "n_arm_rows": 7,
+      "n_waves": 7,
+      "n_waves_peak_ge_1p3x": 2,
+      "winners_dollars": 241.0,
+      "n_winners": 3,
+      "losers_dollars": -396.0,
+      "n_losers": 4,
+      "net_dollars": -155.0,
+      "best_day": "2026-08-17",
+      "best_day_dollars": 148.0,
+      "ex_best_day_net_dollars": -303.0,
+      "top3_by_abs_dollars": [
+        {
+          "wave_id": "2026-08-07|2026-08-07T12:36:03",
+          "arm": "safe-2",
+          "contract": "SPY260807C00772000",
+          "side": "C",
+          "entry_px": 1.26,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.4,
+          "realized_if_taken_dollars": -258.0,
+          "peak_multiple": 0.7857
+        },
+        {
+          "wave_id": "2026-08-17|2026-08-17T13:06:03",
+          "arm": "safe-2",
+          "contract": "SPY260817P00775000",
+          "side": "P",
+          "entry_px": 0.91,
+          "exit_stage": "trail",
+          "exit_px": 1.55,
+          "realized_if_taken_dollars": 148.0,
+          "peak_multiple": 2.0879
+        },
+        {
+          "wave_id": "2026-09-03|2026-09-03T13:56:03",
+          "arm": "safe-2",
+          "contract": "SPY260903C00773000",
+          "side": "C",
+          "entry_px": 1.03,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.6,
+          "realized_if_taken_dollars": -129.0,
+          "peak_multiple": 1.0194
+        }
+      ]
+    },
+    "frozen_window": {
+      "n_arm_rows": 3,
+      "n_waves": 3,
+      "n_waves_peak_ge_1p3x": 1,
+      "winners_dollars": 78.0,
+      "n_winners": 1,
+      "losers_dollars": -135.0,
+      "n_losers": 2,
+      "net_dollars": -57.0,
+      "best_day": "2026-09-03",
+      "best_day_dollars": -57.0,
+      "ex_best_day_net_dollars": 0.0,
+      "top3_by_abs_dollars": [
+        {
+          "wave_id": "2026-09-03|2026-09-03T13:56:03",
+          "arm": "safe-2",
+          "contract": "SPY260903C00773000",
+          "side": "C",
+          "entry_px": 1.03,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.6,
+          "realized_if_taken_dollars": -129.0,
+          "peak_multiple": 1.0194
+        },
+        {
+          "wave_id": "2026-09-03|2026-09-03T11:11:04",
+          "arm": "safe-2",
+          "contract": "SPY260903C00772000",
+          "side": "C",
+          "entry_px": 0.97,
+          "exit_stage": "premium_stop",
+          "exit_px": 1.23,
+          "realized_if_taken_dollars": 78.0,
+          "peak_multiple": 1.8454
+        },
+        {
+          "wave_id": "2026-09-03|2026-09-03T15:21:03",
+          "arm": "safe-2",
+          "contract": "SPY260903C00773000",
+          "side": "C",
+          "entry_px": 0.61,
+          "exit_stage": "structure_stop",
+          "exit_px": 0.59,
+          "realized_if_taken_dollars": -6.0,
+          "peak_multiple": 1.0
+        }
+      ]
+    },
+    "reading": "SKIP_STRUCTURE_VETO's refused-wave net is $-155.00 full-window (7 waves, verdict UNDERPOWERED -- UNDERPOWERED by the n>=10 floor) and $-57.00 frozen-window (3 waves, also UNDERPOWERED). Both windows read slightly net-negative (refusing the veto's blocked ticks would have cost slightly more in losers than it gave up in winners), consistent with this prereg's own frozen_hypothesis that the veto is a net-neutral-to-positive robustness gate rather than a forward alpha source -- but n is too small in both windows to move the kill_criterion's n>=20 forward-accrual bar on its own; Gamma_FleetGateLeakShadow (the standing instrument this prereg names) remains the authority for that n>=20 read. Appended per this goal's DONE-WHEN; decision/kill/extend criteria above are unchanged."
+  }
 }

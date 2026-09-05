@@ -24,5 +24,114 @@
   "extend_criterion": "If the forward window shows >=10 new SKIP_MIN_PREMIUM_FLOOR missed waves for bold-2 AND the dry-run replay shows a positive-or-neutral CI-lower(2.5%) for the newly-admitted cohort, this becomes a 2026-10-30 checkpoint SHIP candidate for the conductor.",
   "reversible_action": "Revert: set min_entry_premium back to 0.3 in automation/state/aggressive/params.json -- one-line, byte-identical revert (the key's own _min_entry_premium_doc already documents 'Revert: set this key to 0, or delete it' for the OFF case; reverting to 0.3 is the equivalent one-line action for this specific change).",
   "does_this_ship_anything": "No. aggressive/params.json is untouched by this fire. This is a frozen proposal only.",
-  "consumer": "2026-10-30 config-freeze checkpoint (setup/scripts/checkpoint_packet.py row 'fleet-capture-gap-mechanism6-sizing-floor', analysis/recommendations/checkpoint-2026-09-29-inventory.json)."
+  "consumer": "2026-10-30 config-freeze checkpoint (setup/scripts/checkpoint_packet.py row 'fleet-capture-gap-mechanism6-sizing-floor', analysis/recommendations/checkpoint-2026-09-29-inventory.json).",
+  "evidence_2026_09_05_net_of_losers": {
+    "_doc": "Appended by setup/scripts/gate_net_cost_prereg_append.py, GOAL-GATE-NET-COST-2026-09-05 N4. Append-only -- does not alter any field above this key.",
+    "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table, walked from analysis/gate-net-cost/walk-2026-09-05.json N2, 305/355 walk_ok)",
+    "definition": "winner := realized_if_taken_dollars > 0; loser := realized_if_taken_dollars <= 0; net := sum(realized_if_taken_dollars) over walk_ok rows == winners + losers.",
+    "caveats": [
+      "5-min OPRA resolution bias: the walk (setup/scripts/gate_net_cost_walk.py) prices most refused ticks off 5-min-cached OPRA bars (a 1-min hand-check subset is within 10% of real fills, see backtest/tests/test_gate_net_cost_walk_2026_09_05.py); exact stage timing/price for any single row can be off by up to one 5-min bar.",
+      "50 of 355 refused rows are walk_error (fail-open, not fabricated): 36 have no usable side on the source decision row (side=None, a real data gap) and 14 have no cached OPRA contract near the target strike -- excluded from every $ figure below, not zero-filled.",
+      "Winner/loser $ uses realized_if_taken_dollars (the walked exit price), NOT the peak_multiple >= 1.3x ceiling N1/right-tail work used -- a wave can peak above 1.3x and still reverse before the walked exit stage fires; n_waves_peak_ge_1p3x is reported alongside as the alternate/ceiling metric so the two are never conflated.",
+      "Net figures are PROXY, not a ratifying replay: the same class of proxy caveat gate_expiry_check.py's own sole-blocker checks (filter-8/filter-10) carry -- this is a counterfactual walk through the arm's real exit shape, not a full gate-stack re-simulation."
+    ],
+    "gate_covered": "SKIP_MIN_PREMIUM_FLOOR (bold-2 only, per this prereg's own arm scope)",
+    "full_window": {
+      "n_arm_rows": 14,
+      "n_waves": 14,
+      "n_waves_peak_ge_1p3x": 2,
+      "winners_dollars": 249.0,
+      "n_winners": 2,
+      "losers_dollars": -1100.0,
+      "n_losers": 12,
+      "net_dollars": -851.0,
+      "best_day": "2026-08-27",
+      "best_day_dollars": 153.0,
+      "ex_best_day_net_dollars": -1004.0,
+      "top3_by_abs_dollars": [
+        {
+          "wave_id": "2026-09-01|2026-09-01T14:39:05",
+          "arm": "bold-2",
+          "contract": "SPY260901P00759000",
+          "side": "P",
+          "entry_px": 0.51,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.07,
+          "realized_if_taken_dollars": -220.0,
+          "peak_multiple": 0.5098
+        },
+        {
+          "wave_id": "2026-09-03|2026-09-03T11:21:04",
+          "arm": "bold-2",
+          "contract": "SPY260903C00774000",
+          "side": "C",
+          "entry_px": 0.63,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.23,
+          "realized_if_taken_dollars": -200.0,
+          "peak_multiple": 0.9841
+        },
+        {
+          "wave_id": "2026-08-27|2026-08-27T11:51:04",
+          "arm": "bold-2",
+          "contract": "SPY260827C00772000",
+          "side": "C",
+          "entry_px": 0.31,
+          "exit_stage": "trail",
+          "exit_px": 0.49,
+          "realized_if_taken_dollars": 153.0,
+          "peak_multiple": 2.6129
+        }
+      ]
+    },
+    "frozen_window": {
+      "n_arm_rows": 6,
+      "n_waves": 6,
+      "n_waves_peak_ge_1p3x": 0,
+      "winners_dollars": 0,
+      "n_winners": 0,
+      "losers_dollars": -780.0,
+      "n_losers": 6,
+      "net_dollars": -780.0,
+      "best_day": "2026-09-02",
+      "best_day_dollars": -105.0,
+      "ex_best_day_net_dollars": -675.0,
+      "top3_by_abs_dollars": [
+        {
+          "wave_id": "2026-09-01|2026-09-01T14:39:05",
+          "arm": "bold-2",
+          "contract": "SPY260901P00759000",
+          "side": "P",
+          "entry_px": 0.51,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.07,
+          "realized_if_taken_dollars": -220.0,
+          "peak_multiple": 0.5098
+        },
+        {
+          "wave_id": "2026-09-03|2026-09-03T11:21:04",
+          "arm": "bold-2",
+          "contract": "SPY260903C00774000",
+          "side": "C",
+          "entry_px": 0.63,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.23,
+          "realized_if_taken_dollars": -200.0,
+          "peak_multiple": 0.9841
+        },
+        {
+          "wave_id": "2026-09-03|2026-09-03T13:56:04",
+          "arm": "bold-2",
+          "contract": "SPY260903C00774000",
+          "side": "C",
+          "entry_px": 0.47,
+          "exit_stage": "premium_stop",
+          "exit_px": 0.18,
+          "realized_if_taken_dollars": -145.0,
+          "peak_multiple": 0.9574
+        }
+      ]
+    },
+    "reading": "The $1,664.00 refused-WINNER ceiling this prereg was filed on nets to $-851.00 full-window (14 waves, verdict EARNING) once bold-2's refused SKIP_MIN_PREMIUM_FLOOR losers are walked through the real exit shape -- the gate is EARNING its keep net-of-losers over the full window: 12 of 14 refused waves would have lost money, dominated by 2 large premium_stop losses ($-220, $-200). The frozen window (6 waves, all losers, net $-780.00) is UNDERPOWERED by the n>=10 floor but every single frozen-window wave is a loser -- directionally consistent with, not contradicting, the full-window EARNING read. This is new evidence against loosening the floor, appended per this goal's DONE-WHEN; kill/extend criteria above are unchanged."
+  }
 }
