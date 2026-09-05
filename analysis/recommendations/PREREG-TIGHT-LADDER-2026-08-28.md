@@ -298,3 +298,33 @@ Replay of controls #4 and #5 on `journal/trades.csv` real fills 2026-08-01..09-0
 - Control #5 `-$400/arm/day` realized stop would have blocked 8 entries: net -$1,601 (1 winner +$347 / 7 losers -$1,948). Fires only on 08-05, 08-07, 08-14 -- all losing days. Consistent with Addendum 2 S2.1.
 
 Per this prereg's own peeking rule nothing is changed. Checkpoint 2026-09-29 question, stated now: does the forward window show control #4 refusing any entry that would have exited >=1.3x? If yes, the churn control is costing the right tail the whole book depends on (edge-master-doctrine.md, August big-day anatomy) and 4->5 is reverted (one line, both params files, REVERT line already in the key's doc). If no, it stays.
+
+---
+
+## Interim evidence (peeking record, NOT a config change) -- 2026-09-05 ~02:2x ET, GOAL-RIGHT-TAIL-CAPTURE-2026-09-05 R6
+
+The standing forward instrument this checkpoint question needed now exists: `setup/scripts/
+right_tail_capture.py` (fired daily 16:20 ET by `Gamma_RightTailCapture`, per-arm/per-wave
+taken-vs-refused-by-gate scoring, backfilled 2026-08-01 -> 2026-09-04 --
+`analysis/right-tail/SUMMARY.md`, `analysis/right-tail/ledger.jsonl`). It answers the checkpoint
+question directly rather than by hand-replay:
+
+- **13 wave-events across the backfill carry `would_be_refused_under_cap4: true`** (this arm's
+  entry was its 5th+ same-day round trip on a date before the cap went live 2026-08-31). Of these,
+  **7 were taken** (the arm entered anyway, cap not yet live) and **6 were not taken** -- but ALL 6
+  non-takes were attributed to a DIFFERENT gate (`NOT_FLAT`: position already open, or no fleet
+  decision row found for that arm near the wave at all) -- **zero** were attributed to
+  `FLEET_SETTLEMENT_CAP` itself, because the cap was not live yet on any of those dates.
+- **Post-08-31 (cap actually live), 16 wave-events were scored across safe-2/bold-2/safe-3/risky-1;
+  1 was not taken (safe-2, 2026-09-02, "no matching fleet decision row found") and zero were
+  refused by the settlement-cap gate.** No >=1.3x right-tail wave has been refused by
+  `max_same_day_roundtrips=4` in the forward window through 2026-09-04.
+- This extends (does not merely repeat) the 09-03 hand-check cited in the prior interim-evidence
+  block above: the forward ledger now covers every trading day through 09-04, not just the day the
+  cap first bound, and the answer is unchanged -- **the cap has still refused zero real waves.**
+
+**Checkpoint 2026-09-29 status, updated**: as of 2026-09-04, the answer to "does the forward window
+show control #4 refusing any entry that would have exited >=1.3x?" remains **NO**. The cap stays.
+This block does not change that decision -- it is the evidence base the 09-29 checkpoint will read,
+kept current by `Gamma_RightTailCapture`'s daily fire between now and then. No FROZEN_TRADING_PATH
+file or config was touched to produce this evidence.

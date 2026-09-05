@@ -1,0 +1,143 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-28",
+  "n_waves_all": 2,
+  "n_waves_meeting_threshold": 1,
+  "waves": [
+    {
+      "date": "2026-08-28",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-28T10:15:00-04:00",
+      "side": "C",
+      "n_ticks_in_wave": 1,
+      "computed": true,
+      "symbol": "SPY260828C00771000",
+      "strike": 771,
+      "entry_bar_et": "2026-08-28T10:20:00",
+      "entry_premium": 1.67,
+      "peak_high": 4.46,
+      "peak_time_et": "2026-08-28T11:00:00",
+      "peak_multiple": 2.6707,
+      "meets_threshold": true
+    },
+    {
+      "date": "2026-08-28",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-28T10:55:00-04:00",
+      "side": "bull",
+      "n_ticks_in_wave": 1,
+      "computed": false,
+      "symbol": "SPY260828C00775000",
+      "reason": "no OPRA option cache for SPY260828C00775000",
+      "peak_multiple": null,
+      "peak_time_et": null
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-28T10:15:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-28T10:21:04.571859",
+          "entry_symbol": "SPY260828C00771000",
+          "latency_minutes": 6.1,
+          "exit_multiple": 2.0517,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6707
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-28T10:15:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-28T10:21:06.959292",
+          "entry_symbol": "SPY260828C00773000",
+          "latency_minutes": 6.1,
+          "exit_multiple": 2.9452,
+          "held_to_tp1": true,
+          "runner_ran": true,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6707
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-28T10:15:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-28T10:22:07.213836",
+          "entry_symbol": "SPY260828C00771000",
+          "latency_minutes": 7.1,
+          "exit_multiple": 2.0489,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6707
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-28T10:15:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-28T10:22:09.222008",
+          "entry_symbol": "SPY260828C00771000",
+          "latency_minutes": 7.2,
+          "exit_multiple": 1.9297,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.6707
+        }
+      ],
+      "second_wave": {
+        "present": false,
+        "reason": "fewer than 2 waves this day"
+      },
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
+    }
+  }
+}

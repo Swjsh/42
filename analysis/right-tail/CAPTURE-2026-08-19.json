@@ -1,0 +1,227 @@
+{
+  "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
+  "schema_version": 1,
+  "date": "2026-08-19",
+  "n_waves_all": 3,
+  "n_waves_meeting_threshold": 2,
+  "waves": [
+    {
+      "date": "2026-08-19",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-19T10:35:00-04:00",
+      "side": "C",
+      "n_ticks_in_wave": 1,
+      "computed": true,
+      "symbol": "SPY260819C00771000",
+      "strike": 771,
+      "entry_bar_et": "2026-08-19T10:40:00",
+      "entry_premium": 1.16,
+      "peak_high": 1.93,
+      "peak_time_et": "2026-08-19T11:00:00",
+      "peak_multiple": 1.6638,
+      "meets_threshold": true
+    },
+    {
+      "date": "2026-08-19",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-19T11:40:00-04:00",
+      "side": "C",
+      "n_ticks_in_wave": 1,
+      "computed": true,
+      "symbol": "SPY260819C00770000",
+      "strike": 770,
+      "entry_bar_et": "2026-08-19T11:45:00",
+      "entry_premium": 1.21,
+      "peak_high": 2.19,
+      "peak_time_et": "2026-08-19T12:15:00",
+      "peak_multiple": 1.8099,
+      "meets_threshold": true
+    },
+    {
+      "date": "2026-08-19",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-19T12:30:00-04:00",
+      "side": "C",
+      "n_ticks_in_wave": 1,
+      "computed": true,
+      "symbol": "SPY260819C00771000",
+      "strike": 771,
+      "entry_bar_et": "2026-08-19T12:35:00",
+      "entry_premium": 0.68,
+      "peak_high": 0.67,
+      "peak_time_et": "2026-08-19T12:35:00",
+      "peak_multiple": 0.9853,
+      "meets_threshold": false
+    }
+  ],
+  "arms": {
+    "safe-2": {
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-19T10:35:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T10:41:05.091094",
+          "entry_symbol": "SPY260819C00771000",
+          "latency_minutes": 6.1,
+          "exit_multiple": 0.8,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6638
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-19T11:40:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T12:36:05.000661",
+          "entry_symbol": "SPY260819C00771000",
+          "latency_minutes": 56.1,
+          "exit_multiple": 1.6727,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8099
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-19T11:40:00-04:00",
+        "gap_minutes_from_first": 65.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "bold-2": {
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-19T10:35:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T10:41:07.765012",
+          "entry_symbol": "SPY260819C00771000",
+          "latency_minutes": 6.1,
+          "exit_multiple": 0.8125,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6638
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-19T11:40:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T11:49:05.790703",
+          "entry_symbol": "SPY260819C00770000",
+          "latency_minutes": 9.1,
+          "exit_multiple": 1.2826,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8099
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-19T11:40:00-04:00",
+        "gap_minutes_from_first": 65.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "safe-3": {
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-19T10:35:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T10:42:09.588320",
+          "entry_symbol": "SPY260819C00771000",
+          "latency_minutes": 7.2,
+          "exit_multiple": 0.9238,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6638
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-19T11:40:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T11:50:07.805070",
+          "entry_symbol": "SPY260819C00770000",
+          "latency_minutes": 10.1,
+          "exit_multiple": 1.6053,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8099
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-19T11:40:00-04:00",
+        "gap_minutes_from_first": 65.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    },
+    "risky-1": {
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-19T10:35:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T10:42:10.228376",
+          "entry_symbol": "SPY260819C00771000",
+          "latency_minutes": 7.2,
+          "exit_multiple": 0.9151,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.6638
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-19T11:40:00-04:00",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-19T11:50:09.995323",
+          "entry_symbol": "SPY260819C00770000",
+          "latency_minutes": 10.2,
+          "exit_multiple": 1.625,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8099
+        }
+      ],
+      "second_wave": {
+        "present": true,
+        "second_wave_start_et": "2026-08-19T11:40:00-04:00",
+        "gap_minutes_from_first": 65.0
+      },
+      "n_waves": 2,
+      "n_taken": 2,
+      "capture_rate": 1.0
+    }
+  }
+}

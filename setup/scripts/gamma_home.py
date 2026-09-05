@@ -705,7 +705,8 @@ def build(quiet: bool = False) -> dict:
     # IMPORT itself is guarded here (ImportError included, since a sibling
     # workstream's module may not exist on disk yet) -- each builder owns its
     # own internal NO DATA shape once it lands. Never a raise reaches the page.
-    for _key, _mod in (("funnel", "gamma_cockpit_funnel"), ("costpulse", "gamma_cockpit_costpulse")):
+    for _key, _mod in (("funnel", "gamma_cockpit_funnel"), ("costpulse", "gamma_cockpit_costpulse"),
+                       ("righttail", "gamma_cockpit_righttail")):
         try:
             sys.path.insert(0, str(REPO / "setup" / "scripts"))
             payload[_key] = __import__(_mod).build()

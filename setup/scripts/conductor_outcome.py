@@ -241,14 +241,43 @@ def trading_function_snapshot(
 
 
 # --- zero-enter day grading --------------------------------------------------
+def _row_day(r: dict[str, Any]) -> str:
+    """A row's calendar day, preferring the explicit ``date`` field but
+    falling back to ``ts_et[:10]`` when ``date`` is absent.
+
+    ROOT-CAUSE FIX (2026-09-05, GOAL-RIGHT-TAIL-CAPTURE): heartbeat_core.py's
+    ``_log()`` only started injecting a ``date`` key on 2026-08-25 (DEFECT-A
+    fix) -- every row written before that date carries ``ts_et`` only. A
+    reader that filters strictly on ``r.get("date")`` (the previous body of
+    `_decisions_for_day` below) therefore silently returns ZERO rows for any
+    day before 2026-08-26, even though the file holds the row on disk --
+    exactly the "LATENT trap" heartbeat_core.py's own fix docstring warned
+    about ("no live consumer currently does this ... closes a LATENT trap
+    before it bites"). `right_tail_waves.py._core_decisions_has_date()` was
+    that trap being sprung: it read core-decisions.jsonl's min ``date`` field
+    as 2026-08-26 and treated every earlier day (including the 2026-08-04
+    fixture day, which has 776 real ts_et rows) as having no core-decisions
+    coverage at all, routing it into FLEET_FALLBACK mode instead of the
+    correct CORE_SCORE mode. This is a field-presence bug, not a truncated
+    read -- `_iter_jsonl_reversed` already loads the whole file into memory.
+    Guard: `backtest/tests/test_right_tail_waves.py`."""
+    d = str(r.get("date", "") or "")
+    if d:
+        return d
+    ts = str(r.get("ts_et", "") or "")
+    return ts[:10] if len(ts) >= 10 else ""
+
+
 def _decisions_for_day(day: str, decisions_file: Path) -> list[dict[str, Any]]:
-    """All core-decisions.jsonl rows (both accounts) whose ``date`` field equals
-    ``day``. Best-effort; a missing/unreadable file or empty day yields []."""
+    """All core-decisions.jsonl rows (both accounts) whose calendar day
+    (``date`` field, or ``ts_et[:10]`` when ``date`` is absent -- see
+    `_row_day`) equals ``day``. Best-effort; a missing/unreadable file or
+    empty day yields []."""
     if not day:
         return []
     return [
         r for r in _iter_jsonl_reversed(decisions_file)
-        if str(r.get("date", "") or "") == day
+        if _row_day(r) == day
     ]
 
 
