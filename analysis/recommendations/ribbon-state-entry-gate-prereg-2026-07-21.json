@@ -3,24 +3,46 @@
   "frozen_at": "2026-07-21T00:00:00-04:00",
   "hypothesis_id": "ribbon-state-entry-gate",
   "source": "markdown/doctrine/DOJO-HARVEST-2026-07-21.md, LANE B #1, quantified finding block (n=2 real-fill entries lost / n=3 real-fill entries won, both 2026-07-17, same trigger family)",
-
   "motivating_observation": {
     "date": "2026-07-17",
     "trigger_family": "level_rejection + confluence (same setup: BEARISH_REJECTION_RIDE_THE_RIBBON, side=PUT)",
     "losers": [
-      {"time_et": "11:06", "ribbon_at_entry_described": "bullish, price riding it UP", "hold_min": "5-16", "pnl": -37},
-      {"time_et": "11:40", "ribbon_at_entry_described": "bullish, price riding it UP", "hold_min": "5-16", "pnl": -102}
+      {
+        "time_et": "11:06",
+        "ribbon_at_entry_described": "bullish, price riding it UP",
+        "hold_min": "5-16",
+        "pnl": -37
+      },
+      {
+        "time_et": "11:40",
+        "ribbon_at_entry_described": "bullish, price riding it UP",
+        "hold_min": "5-16",
+        "pnl": -102
+      }
     ],
     "winners": [
-      {"time_et": "13:01", "ribbon_at_entry_described": "rolled over at the highs", "hold_min": "40-96", "pnl": 241},
-      {"time_et": "13:51", "ribbon_at_entry_described": "rolled over at the highs", "hold_min": "40-96", "pnl": 191},
-      {"time_et": "13:52", "ribbon_at_entry_described": "rolled over at the highs", "hold_min": "40-96", "pnl": 233}
+      {
+        "time_et": "13:01",
+        "ribbon_at_entry_described": "rolled over at the highs",
+        "hold_min": "40-96",
+        "pnl": 241
+      },
+      {
+        "time_et": "13:51",
+        "ribbon_at_entry_described": "rolled over at the highs",
+        "hold_min": "40-96",
+        "pnl": 191
+      },
+      {
+        "time_et": "13:52",
+        "ribbon_at_entry_described": "rolled over at the highs",
+        "hold_min": "40-96",
+        "pnl": 233
+      }
     ],
     "note": "these 5 timestamps are the LIVE broker-fill journal entries (1-min tick cadence). This pre-reg's population reconstruction runs the backtest engine's normal 5-min bar cadence (same convention as every other population study in this codebase, e.g. elite_bear_level_reject_gate_ab.py) -- entry timestamps in the reconstructed population will therefore be 5-min-bar-quantized and will NOT exactly reproduce these 5 live timestamps. This is a DIFFERENT, complementary population (many days, bar-cadence signal detection), not a literal replay of these 5 trades. The already-filed backtest/tools/exit_manager_replay.py is the exact 1-min literal replay of 2026-07-17 alone; this study is the broader multi-day generalization test the harvest doc calls for."
   },
-
   "hypothesis": "Among bear (PUT) entries of BEARISH_REJECTION_RIDE_THE_RIBBON whose triggers_fired include BOTH level_rejection AND confluence (the exact trigger family in the motivating observation, regardless of resulting tier label), entries where the Saty ribbon is BULL-stacked and its spread is still widening at the moment of entry (ribbon fighting the trade direction, still trending against it) underperform entries where the ribbon is NOT in that state (BEAR-stacked, MIXED, or BULL-but-no-longer-widening -- i.e. 'rolled over').",
-
   "feature_definition": {
     "primitive": "backtest/lib/ribbon.py:compute_ribbon() -- the SAME Saty Pivot Ribbon (Fast EMA 13 / Pivot EMA 20 / Slow EMA 48, fingerprinted from J's live chart, backtest/lib/ribbon_config.json) that heartbeat_core.py (live engine, via lib.ribbon import) and backtest/lib/orchestrator.py (backtest engine, line 810: ribbon_df = compute_ribbon(spy_df['close'])) both already compute and both already gate on today (min_ribbon_momentum_cents / max_ribbon_duration_bars / block_bull_ribbon_flip / trendline_requires_ribbon_flip in backtest/lib/engine/gates.py). NOT a new indicator -- reuses the exact live primitive per task instruction.",
     "stack_at_entry": "ribbon_at(ribbon_df, entry_bar_idx).stack -- one of BULL/BEAR/MIXED, evaluated at the SAME bar index the engine's own filters.py evaluated the trigger on (orchestrator.py line 906: ribbon_state = ribbon_at(ribbon_df, idx); entry_bar_idx == idx for the non-pullback path, which is the only path this population uses -- see population_definition.pullback_variants_excluded).",
@@ -28,7 +50,6 @@
     "rising_bull_at_entry": "boolean feature = (stack_at_entry == 'BULL') AND (ribbon_momentum_3bar > 0). ZERO free parameters -- a strict sign/equality test, not a magnitude threshold. This is the deliberate anti-overfit choice: no cents cutoff is fit to this data. Chosen over a thresholded version specifically to avoid the post-hoc-tuning failure mode this pre-reg exists to prevent.",
     "price_riding_up_at_entry": "boolean feature = spy_close(entry_bar_idx) > spy_close(entry_bar_idx - 3) -- reuses the SAME 3-bar lookback as ribbon_momentum_3bar (no new window parameter introduced). Operationalizes J's literal phrase 'price riding it UP' for candidate B (see candidates)."
   },
-
   "population_definition": {
     "setup": "BEARISH_REJECTION_RIDE_THE_RIBBON",
     "side": "P (PUT / bear only -- the motivating observation is bear-side only; bull-side is explicitly out of scope for this pre-reg)",
@@ -38,12 +59,10 @@
     "date_range_available": "backtest/data/options/ 5-min OPRA cache spans 382 distinct trading dates, 2025-01-02 through 2026-07-17 (verified this session via directory listing: min=250102, max=260717, 62 contracts for 260717 alone matching the task's cited figure). This CAPS the usable OOS window at 2026-07-17 -- no cached option data exists past that date as of this run.",
     "opra_coverage_skips": "any matched signal-population trade whose (date, strike, side) OCC symbol has no cached CSV in backtest/data/options/ is DROPPED from the walked population and counted separately as an opra_coverage_skip -- never silently absorbed into either control or candidate totals."
   },
-
   "control": {
     "description": "current production Safe config, faithful to automation/state/params.json as read fresh this session (2026-07-21) -- verified byte-identical on every checked knob to the SAFE_BASE dict already audited in backtest/tools/elite_bear_level_reject_gate_ab.py (block_elite_bull, block_level_rejection, entry_bar_body_pct_min, block_bull_1100_1200, vix_bear_hard_cap, tp1_premium_pct, tp1_qty_fraction, min_ribbon_momentum_cents=null, max_ribbon_duration_bars=999, structure_stop_enabled=true, premium_stop_pct=-0.5 both sides). No new gate live today conditions on ribbon-state-at-entry for bear entries -- this pre-reg's candidates would be NET NEW.",
     "exit_mechanism": "the REAL exit_manager (automation/state/fleet/exit_manager.py plan_exit_actions) walked tick-by-tick via backtest/lib/exit_manager_walk.py:walk_exit_manager, exit_shape = automation/state/fleet/strategies.py by_name('ribbon_ride').exit.to_dict() (the shape heartbeat_core.py actually registers for ribbon_ride entries -- NOT params.json's top-level exit knobs, which is the documented divergence exit_manager_walk.py was built to fix), structure_stop_enabled=True, trigger_level = the trade's rejection_level, time_stop_et = params.json time_stop_et (15:40), cadence = 5-minute (the only cadence backtest/data/options/ supports for this multi-day population; 1-min highres coverage is single-day-scoped and cannot serve a multi-day study)."
   },
-
   "candidates": [
     {
       "id": "A_suppress",
@@ -61,24 +80,26 @@
       "matches_finding": "operationalizes J's literal 'price riding it UP' phrase beyond ribbon-only; DISCLOSED / EXPLORATORY -- not gated for ship (population will be very small, a strict subset of A's already-small population), reported for completeness only."
     }
   ],
-
   "metric": {
     "primary": "per-episode real-fill P&L via backtest/lib/exit_manager_walk.py:walk_exit_manager (see control.exit_mechanism) -- this is the metric every ship gate below is computed on.",
     "secondary_disclosed_only": "orchestrator/simulate_trade_real's own reported dollar_pnl for the same trades, reported side-by-side to show and disclose the magnitude of the KNOWN sim-vs-live-exit divergence (never used to gate)."
   },
-
   "windows": {
-    "IS_2025": ["2025-01-02", "2025-12-31"],
-    "OOS_2026": ["2026-01-02", "2026-07-17"],
+    "IS_2025": [
+      "2025-01-02",
+      "2025-12-31"
+    ],
+    "OOS_2026": [
+      "2026-01-02",
+      "2026-07-17"
+    ],
     "discovery_day": "2026-07-17",
     "OOS_2026_ex_discovery_day": "OOS_2026 with 2026-07-17 removed -- the true out-of-sample generalization window, since 2026-07-17 is the day that GENERATED this hypothesis and cannot also validate it (circularity)."
   },
-
   "confound_handling": {
     "time_of_day": "the population's ribbon-state split will be cross-tabbed against an AM (<12:00 ET) / PM (>=12:00 ET) bucket for every candidate, reporting rising_bull_at_entry rate AND mean pnl WITHIN each bucket separately, not just pooled -- the motivating observation's own losers (11:06, 11:40) are AM and winners (13:01, 13:51, 13:52) are PM, so ribbon-state and time-of-day are structurally confounded in the n=2-day source data and may remain confounded in the full population given expected small n. If per-bucket n is too small (<3 in either bucket) to say anything about the ribbon-state effect WITHIN a fixed time bucket, this pre-reg commits to disclosing that plainly ('could not separate the confound, n too small') rather than presenting the pooled result as if the confound were resolved.",
     "relationship_to_trend_alignment_study": "analysis/recommendations/trend-alignment-correlation.md (twice-confirmed KILL, P1 OOS rho=-0.150 p=0.157, P2 real-engine rho=-0.143 p=0.137, both non-significant vs shuffle-null) measured MULTI-TIMEFRAME alignment (daily+hourly+15m trend agreement vs the trade's own side) as a correlate of P&L and found no usable signal. THIS study measures a DIFFERENT, SAME-TIMEFRAME feature: the 5-min ribbon's own stack state and its local 3-bar momentum at the instant of entry -- not a cross-timeframe agreement score. The two studies are related (both are 'does some notion of trend context at entry predict outcome') but not the same measurement, and this pre-reg's result does NOT get to inherit the trend-alignment KILL's verdict by association; it must clear its OWN gates independently. If this study also comes back null/KILL, that would be corroborating (two independently-defined trend-context features both failing), not merely redundant."
   },
-
   "ship_gate": {
     "g1_aggregate": "candidate total real-fill pnl (walk_exit_manager) over the FULL gate-eligible population (IS_2025 + OOS_2026_ex_discovery_day, i.e. discovery day excluded) is STRICTLY GREATER than control total real-fill pnl over the same population.",
     "g2_majority_of_days": "restricted to days containing >=1 entry actually flagged by the candidate rule: count(days where that day's candidate-minus-control delta >= 0) > count(days where delta < 0).",
@@ -91,6 +112,16 @@
     ],
     "verdict_rule": "SHIP-CANDIDATE only if g1 AND g2 AND g3 AND g4 hold for that specific candidate. NO_EDGE / PARK if any of g1-g4 fail. If population n is too thin for the day-level gates (g2/g4) to be computed meaningfully (e.g. <3 days with a flagged entry, or an empty IS or OOS_ex_discovery cell), the verdict is INSUFFICIENT_N, stated plainly with the exact n, NOT forced into NO_EDGE or SHIP either way."
   },
-
-  "no_repick_clause": "The feature definition (rising_bull_at_entry, price_riding_up_at_entry), the population filter (setup/side/trigger pair), the three candidates, the windows, and the 5 ship-gate conditions above are FIXED as of frozen_at. If the population run reveals these definitions were structurally broken (e.g. a lookahead bug, a data alignment bug), the fix must be a NEW dated pre-reg version with the bug explicitly named, never a silent edit to this file's already-frozen definitions to chase a better-looking number."
+  "no_repick_clause": "The feature definition (rising_bull_at_entry, price_riding_up_at_entry), the population filter (setup/side/trigger pair), the three candidates, the windows, and the 5 ship-gate conditions above are FIXED as of frozen_at. If the population run reveals these definitions were structurally broken (e.g. a lookahead bug, a data alignment bug), the fix must be a NEW dated pre-reg version with the bug explicitly named, never a silent edit to this file's already-frozen definitions to chase a better-looking number.",
+  "status": "NULL -- hypothesis structurally impossible under current live filters",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "summary": "Runner ran to completion per the frozen spec; result file (analysis/recommendations/ribbon-state-entry-gate-2026-07-21.md) returns INSUFFICIENT_N for all 3 candidates because n_flagged=0/27 -- the flagged condition (BULL-stacked ribbon on a level_rejection+confluence bear entry) cannot occur under Filter 5, which already hard-blocks that exact combination.",
+    "commands": [
+      "cat analysis/recommendations/ribbon-state-entry-gate-2026-07-21.md"
+    ],
+    "numbers": "Full-history population (2025-01-02..2026-07-17, 382 OPRA-covered dates): n_walked=27 (side=PUT, level_rejection+confluence). rising_bull_at_entry fires on 0/27 -- every entry in this population shows stack=BEAR at signal time. All 3 candidates (A_suppress, B_detier_half_size, C_price_confirmed_suppress) return n_flagged=0, control_total==candidate_total==$+2,977.65, verdict INSUFFICIENT_N.",
+    "ground_truth_correction": "Cross-checking the motivating 2026-07-17 observation against the live engine's own core-decisions.jsonl log found the harvest doc's original framing was WRONG: the 2 losers fired with ribbon=BEAR (bear_score=10, strongly stacked, not weak/turning), and the 3 winners fired via a DIFFERENT trigger (trendline_rejection ONLY, bear_score 7-9, the trendline-only-bypass relaxation) -- not a ribbon-stack-state discriminator at all. The correctly-framed hypothesis (trigger TIER, not ribbon stack) is already filed and tested: analysis/recommendations/elite-bear-level-reject-gate-ab-2026-07-17.json, verdict PARK_INSUFFICIENT_REGIME_SHIFT (IS delta -$532.80, OOS delta +$683.14, WF gate FAILED).",
+    "rationale": "The as-specified feature (rising_bull_at_entry on this exact trigger pair) is a logical impossibility under the current, unchanged filter set -- confirmed two independent ways (full-history reconstruction AND the live log itself). No candidate can ever clear its gates while Filter 5 stands. NULL is the honest terminal state; re-testing requires either a filter change (out of scope, config freeze) or a different, already-tracked hypothesis (trigger tier, separately PARKed)."
+  }
 }

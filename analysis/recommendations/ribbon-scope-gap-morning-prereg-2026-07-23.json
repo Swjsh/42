@@ -6,9 +6,7 @@
   "runner": "backtest/tools/ribbon_scope_gap_morning_ab.py",
   "results_output": "analysis/edge-matrix/ribbon-scope-gap-morning-results-2026-07-23.json",
   "episodes_output": "analysis/edge-matrix/ribbon-scope-gap-morning-episodes-2026-07-23.json",
-
   "hypothesis": "RIBBON-SESSION-SCOPE-DIVERGENCE (automation/overnight/queue.md 2026-07-23): J's TV chart computes the Saty ribbon over extended-hours bars; the live engine/backtest ribbon is RTH-only (deliberate 2026-06-25 parity design). analysis/recommendations/eth-ribbon-parity-2026-07-23.md validated an ETH-inclusive ribbon (backtest/tools/eth_ribbon.py) against 30 fresh TV Bar-Replay reads: stack concordance vs TV is 90% (ETH) vs 43% (RTH-only) -- the scope fix is directionally real. This study asks the DOWNSTREAM question: for the LIVE bear-rejection family's actual entries, does substituting ETH-scope ribbon state for RTH-scope change entries/outcomes specifically ON GAP MORNINGS, walked through the real production exit_manager at real OPRA fills?",
-
   "population": {
     "day_inventory": "analysis/edge-matrix/day-inventory-2026-07-23.json",
     "gap_threshold": {
@@ -22,14 +20,65 @@
     "opra_requirement": "day must be in day-inventory opra_days (real OPRA option coverage for fills -- no BS-synthetic pricing anywhere in this study, matching the parent bear-level-rejection family's dollars.authority clause).",
     "gap_population": {
       "n_days": 24,
-      "dates": ["2026-03-16","2026-03-19","2026-03-23","2026-03-24","2026-03-25","2026-03-26","2026-03-30","2026-03-31","2026-04-02","2026-04-08","2026-04-17","2026-04-22","2026-05-06","2026-05-15","2026-05-26","2026-06-05","2026-06-08","2026-06-09","2026-06-16","2026-06-18","2026-06-23","2026-06-25","2026-07-08","2026-07-17"]
+      "dates": [
+        "2026-03-16",
+        "2026-03-19",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-30",
+        "2026-03-31",
+        "2026-04-02",
+        "2026-04-08",
+        "2026-04-17",
+        "2026-04-22",
+        "2026-05-06",
+        "2026-05-15",
+        "2026-05-26",
+        "2026-06-05",
+        "2026-06-08",
+        "2026-06-09",
+        "2026-06-16",
+        "2026-06-18",
+        "2026-06-23",
+        "2026-06-25",
+        "2026-07-08",
+        "2026-07-17"
+      ]
     },
     "heldout_definition": {
       "rule": "last ceil(25%) of the 24-day gap_population BY DATE (matches the precedent edge_matrix_bear_level_rejection.py --fullhist mode already uses when a population changes: recompute heldout as last-25%-by-date rather than inherit a global split). Inheriting the PARENT bear-level-rejection study's global heldout_days (last 25% of ALL 386 opra_days by date, i.e. 2026-02-25..2026-07-17) against THIS population produces a degenerate 8-tuning/30-heldout split (most full-ETH-coverage days happen to fall late in the overall date range) -- backwards from held-out's purpose. A fresh split proper to this population is the honest choice, disclosed here before any results are read.",
       "n_tuning": 18,
-      "tuning_dates": ["2026-03-16","2026-03-19","2026-03-23","2026-03-24","2026-03-25","2026-03-26","2026-03-30","2026-03-31","2026-04-02","2026-04-08","2026-04-17","2026-04-22","2026-05-06","2026-05-15","2026-05-26","2026-06-05","2026-06-08","2026-06-09"],
+      "tuning_dates": [
+        "2026-03-16",
+        "2026-03-19",
+        "2026-03-23",
+        "2026-03-24",
+        "2026-03-25",
+        "2026-03-26",
+        "2026-03-30",
+        "2026-03-31",
+        "2026-04-02",
+        "2026-04-08",
+        "2026-04-17",
+        "2026-04-22",
+        "2026-05-06",
+        "2026-05-15",
+        "2026-05-26",
+        "2026-06-05",
+        "2026-06-08",
+        "2026-06-09"
+      ],
       "n_heldout": 6,
-      "heldout_dates": ["2026-06-16","2026-06-18","2026-06-23","2026-06-25","2026-07-08","2026-07-17"]
+      "heldout_dates": [
+        "2026-06-16",
+        "2026-06-18",
+        "2026-06-23",
+        "2026-06-25",
+        "2026-07-08",
+        "2026-07-17"
+      ]
     },
     "normal_day_bucket_for_disagreement_rate": {
       "purpose": "calibration-only population for the disagreement-rate deliverable (NOT part of the trading A/B) -- same opra + full-ETH-coverage requirements, |gap_pct| < 0.57.",
@@ -37,17 +86,14 @@
     },
     "small_n_disclosure_committed_in_advance": "18 tuning days is small even before signal/fill attrition; expect n_real_fills per cell well below the OP-16 advisory evidence floor (15). This is disclosed BEFORE running: a small-n result here is a CALIBRATION finding about scope sensitivity, not a promotion-track SHIP/KILL verdict. honest_null applies (no post-hoc population widening after seeing results)."
   },
-
   "level_source": {
     "engine": "backtest/lib/watchers/level_memory.py LevelMemory, IDENTICAL to the committed bear-level-rejection baseline (lookback_days=10, memory_score>=20.0) over the RTH-only continuous frame.",
     "note": "Level SOURCE is NOT the thing under test here -- only the RIBBON gate scope varies across cells (queue.md Part B frames this precisely as a ribbon-scope question, not a level-scope question). Level detection stays RTH-scope in all 3 cells."
   },
-
   "detector_definition": {
     "base": "IDENTICAL to the committed bear-level-rejection LIVE-BASELINE cell (band0.00|nth1|close_below): bar.high > level AND bar.close < level, max rejected level, no touch-count requirement, per-episode dedupe $0.35. Reused verbatim from backtest/tools/edge_matrix_bear_level_rejection.py's detect_cell_day with Cell(band=0.0, nth=1, confirm='close_below') -- not re-implemented, imported.",
     "ribbon_gate_variant_by_cell": "the ONLY axis that varies across the 3 cells -- see 'cells' below."
   },
-
   "cells": {
     "RTH": {
       "label": "control, live",
@@ -66,7 +112,6 @@
       "rationale": "isolates the ENTRY-FILTER effect of requiring cross-scope agreement, holding exit mechanics fixed and identical to the control -- answers 'does an agreement filter improve on the live baseline' without conflating it with also re-scoping exits. This is a deliberate, pre-committed asymmetry vs the ETH cell (which re-scopes both sides) -- disclosed here, not discovered after seeing results."
     }
   },
-
   "fixed_not_tuned": {
     "entry_window": "[09:35, 15:00) ET wall -- params.json entry_no_trade_before_et/entry_no_trade_after_et, read fresh, matching the parent bear-level-rejection prereg.",
     "side": "P (puts only)",
@@ -76,11 +121,9 @@
     "min_entry_premium": "0.30 (params.json) -- identical to the parent study.",
     "exits": "the LIVE RIBBON_RIDE shape via sim_executor._resolve_exit_shape(safe arm, 'ribbon_ride', None), walked through backtest/lib/exit_manager_walk.walk_exit_manager (the REAL production exit_manager core) -- identical mechanics across all 3 cells; only the ribbon_tick_df SOURCE (RTH vs ETH scope) varies per the cells table above. structure_stop_enabled=True, time_stop=15:40 (params.json)."
   },
-
   "dollars": {
     "authority": "real OPRA fills only (backtest/data/options via option_pricing_real.load_contract_bars). NO Black-Scholes synthetic anywhere. Uncached-contract signals excluded from fills, counted/disclosed as NO_OPRA skips."
   },
-
   "gates": {
     "standing_4_gate_bar": "IDENTICAL definition to the parent bear-level-rejection study's cell_metrics: [g1: tuning total_pnl > 0] [g2: day majority -- winning days > covered days/2] [g3: survives ex-top1 -- total minus single best trade > 0] [g4: held-out positive -- >=1 held-out fill AND held_out_total > 0].",
     "evidence_floor": "n_real_fills < 15 labeled below_evidence_floor_n15 (advisory, OP-16) -- expected to fire given the small tuning population disclosed above; does not suppress the gate computation, only labels it.",
@@ -90,21 +133,27 @@
       "rule": "sort p_(1) <= p_(2) <= p_(3); reject H0 (declare significant) for all cells with rank i such that p_(i) <= (i/3)*alpha, up to the largest such i."
     }
   },
-
   "disagreement_rate_deliverable": {
     "purpose": "the Part-1 whisper/brief flag's calibration number (queue.md: 'how often the two ribbons disagree in the first hour on gap days vs normal days').",
     "definition": "for every RTH bar in the FIRST HOUR (09:30-10:25 ET wall, 12 bars) of each day in {gap_population (24 days), normal_population (59 days)}, compute RTH-scope stack vs ETH-scope stack via backtest/tools/ribbon_scope_compare.py -- disagreement = stacks differ (including either side being WARMUP/None vs a resolved stack). Report disagreement RATE (disagreements / bars checked) per bucket, plus the same rate restricted to bars that are ALSO within the entry window (09:35-10:25) for a directly trade-relevant cut.",
     "not_part_of_the_trading_gates": "purely descriptive/calibration; does not feed g1-g4 or the BH correction above."
   },
-
   "causality": "C6 -- LevelMemory and both ribbon scopes are causal by construction (guard-tested: test_level_memory.py, test_ribbon_scope_compare.py); this runner additionally reuses the parent study's causality_audit pattern (truncated-frame recompute on a sampled subset of baseline-cell signal bars) rather than re-deriving it.",
-
   "rail_4_clear": "research tool + JSON outputs. Touches NO params/orders/filters/heartbeat_core/strategies.py/CLAUDE.md. No broker import (guard-tested). No git operations. No live wiring. dojo/whisper.py orchestrator wiring is explicitly OUT OF SCOPE for this fire (Part C ships the standalone comparator only; 'the orchestrator wires the whisper/brief flag after' per the mission spec).",
-
   "disclosures_committed_in_advance": {
     "small_n": "see population.small_n_disclosure_committed_in_advance above.",
     "not_full_engine_replication": "same disclosure as the parent bear-level-rejection study -- this isolates the ribbon-gate + level-rejection detector with the two structural gates that define the family; VIX gates, volume filter, HTF modifier, entry-bar body, and tier blocks are not replicated. Constant across all 3 cells, so within-grid comparisons stay clean.",
     "honest_null": "if no cell clears gates, or if BH correction finds no cell significant, that is the result. No post-hoc population widening, no gate relaxation after seeing results.",
     "eth_dollar_level_caveat": "per eth-ribbon-parity-2026-07-23.md, ETH-scope stack classification carries a measured ~10% disagreement rate vs TV's own live render even within the validated coverage regime (structural SIP-vs-BATS premarket feed noise, not an engine bug) -- the ETH and AGREE_ONLY cells' entries should be read with that calibration in mind, not as a claim of pixel-exact J-eye parity."
+  },
+  "status": "NULL",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "summary": "Runner ran to completion per the frozen spec; results file exists (analysis/edge-matrix/ribbon-scope-gap-morning-results-2026-07-23.json) with all 3 cells failing the standing 4-gate bar and no BH-FDR survivor.",
+    "commands": [
+      "cat analysis/edge-matrix/ribbon-scope-gap-morning-results-2026-07-23.json"
+    ],
+    "numbers": "RTH (control/live): 1/4 gates pass (g1 only), total $390.90 (n=26 fills), held_out_total -$820.84. ETH (full re-scope): 0/4 gates pass, total -$1,337.45 (n=29 fills). AGREE_ONLY (cross-scope agreement filter): 1/4 gates pass (g1 only), total $1,154.23 (n=19 fills), held_out_total -$2,392.11. BH-FDR across all 3: none significant (smallest p_raw=0.44, all fail their BH threshold). Disagreement-rate calibration: gap-day first-hour ribbon disagreement 46.5% vs normal-day 43.4% (not materially different).",
+    "rationale": "None of the 3 cells (RTH control, full ETH re-scope, AGREE_ONLY cross-scope filter) clears even 2 of the 4 pre-registered gates, and no cell is statistically significant after correction. The ETH-scope substitution (validated as more TV-concordant in the sibling eth-ribbon-parity study) does NOT translate into better trading outcomes when walked through the real exit_manager on gap mornings -- production stays on RTH-scope, correctly, with evidence now attached rather than assumption."
   }
 }

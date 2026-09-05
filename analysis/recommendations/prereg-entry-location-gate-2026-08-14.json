@@ -1,38 +1,50 @@
 {
- "prereg_id": "ENTRY-LOCATION-GATE-2026-08-14",
- "frozen_at_et": "2026-08-14 11:39:08 Friday EDT",
- "frozen_at_git_head": "5eaae71d222ebc12127a00703dd9b9da140eb2ed",
- "frozen_before_any_runner": true,
- "origin": {
-  "trigger": "2026-08-14 09:46 entry: 778C bought at the top of a 1.1-pt morning range, into INTRADAY_RTH_HIGH (778.78), under the prior day's high (779.37), after a +3.14 prior day, on a PRIOR_DAY_CLOSE 'reclaim' that was range oscillation. -$1,569. J: 'why did we buy calls if we ran up all day yesterday?'",
-  "why_a_gate_and_not_a_score": "The 2026-08-13 deep review proved the engine cannot GRADE a bull setup: bull_score is hard-capped at 11 and was 11 on every bull event, winners and losers; quality tier is ELITE on 903/903 fleet rows. There is no headroom to threshold. A LOCATION veto is the only lever that does not require a new scoring model."
- },
- "the_hypothesis": "A bull entry whose trigger sits within X of the running intraday high (and/or within Y of a prior-day extreme, and/or after a prior-day run > Z) has materially worse expectancy than the unconditional bull population. The gate would veto those entries.",
- "why_the_prior_is_MIXED": "C20: proximity gates anti-correlate with BREAKOUT setups -- a genuine breakout through the high is exactly what a top-proximity veto blocks. The 09:51 winner on 2026-08-13 (+$1,985) entered NEAR the then-intraday high and ran. The honest expectation is a trade-off, not a free lunch; the study must price the blocked winners, not only the blocked losers.",
- "cells_preregistered": {
-  "proximity_to_intraday_high_pct_of_range": [
-   0.1,
-   0.2,
-   0.3
-  ],
-  "prior_day_run_points": [
-   2.0,
-   3.0
-  ],
-  "combined": "each proximity band alone, each run-filter alone, and the AND of each pair -- 3+2+6=11 cells, ALL reported",
-  "population": "every historical bull ENTER (core + fleet) reconstructible from ledgers + the 391-day replay population; per-cell n>=30 or NOT-RUN"
- },
- "metrics": "delta expectancy per trade of GATED vs UNGATED cohorts on real-fills first, replay second; BH-FDR q=0.10 across the 11 cells; drop-best-day; report blocked-winner cost explicitly as its own column",
- "validity_gates": {
-  "G1": "control reproduces the published per-trade P&L of the unconditional population exactly",
-  "G2": "vary-and-assert: gated-cohort size must change monotonically with band width",
-  "G3": "the 2026-08-14 09:46 entry MUST be in the gated cohort of at least one cell (anchor), and the 2026-08-13 09:51 winner's cell membership must be REPORTED, not hidden",
-  "G4": "read-only; arms nothing; a positive result produces a shadow counter first (V-d1 pattern), never a live gate"
- },
- "ship_rule": {
-  "ships_on_completion": false,
-  "path": "study -> shadow counter on live ticks >=5 sessions -> then and only then a live-veto decision with its own revert key",
-  "re_arm_link": "min_contracts_equity_scaled stays FALSE until this gate (or a better entry-quality instrument) is validated -- the revert commit named this as the re-arm condition"
- },
- "execution_note": "runner is AFTER-HOURS work (population replay); nothing before 16:00 ET. Stream + checkpoint around the 5-min reaper."
+  "prereg_id": "ENTRY-LOCATION-GATE-2026-08-14",
+  "frozen_at_et": "2026-08-14 11:39:08 Friday EDT",
+  "frozen_at_git_head": "5eaae71d222ebc12127a00703dd9b9da140eb2ed",
+  "frozen_before_any_runner": true,
+  "origin": {
+    "trigger": "2026-08-14 09:46 entry: 778C bought at the top of a 1.1-pt morning range, into INTRADAY_RTH_HIGH (778.78), under the prior day's high (779.37), after a +3.14 prior day, on a PRIOR_DAY_CLOSE 'reclaim' that was range oscillation. -$1,569. J: 'why did we buy calls if we ran up all day yesterday?'",
+    "why_a_gate_and_not_a_score": "The 2026-08-13 deep review proved the engine cannot GRADE a bull setup: bull_score is hard-capped at 11 and was 11 on every bull event, winners and losers; quality tier is ELITE on 903/903 fleet rows. There is no headroom to threshold. A LOCATION veto is the only lever that does not require a new scoring model."
+  },
+  "the_hypothesis": "A bull entry whose trigger sits within X of the running intraday high (and/or within Y of a prior-day extreme, and/or after a prior-day run > Z) has materially worse expectancy than the unconditional bull population. The gate would veto those entries.",
+  "why_the_prior_is_MIXED": "C20: proximity gates anti-correlate with BREAKOUT setups -- a genuine breakout through the high is exactly what a top-proximity veto blocks. The 09:51 winner on 2026-08-13 (+$1,985) entered NEAR the then-intraday high and ran. The honest expectation is a trade-off, not a free lunch; the study must price the blocked winners, not only the blocked losers.",
+  "cells_preregistered": {
+    "proximity_to_intraday_high_pct_of_range": [
+      0.1,
+      0.2,
+      0.3
+    ],
+    "prior_day_run_points": [
+      2.0,
+      3.0
+    ],
+    "combined": "each proximity band alone, each run-filter alone, and the AND of each pair -- 3+2+6=11 cells, ALL reported",
+    "population": "every historical bull ENTER (core + fleet) reconstructible from ledgers + the 391-day replay population; per-cell n>=30 or NOT-RUN"
+  },
+  "metrics": "delta expectancy per trade of GATED vs UNGATED cohorts on real-fills first, replay second; BH-FDR q=0.10 across the 11 cells; drop-best-day; report blocked-winner cost explicitly as its own column",
+  "validity_gates": {
+    "G1": "control reproduces the published per-trade P&L of the unconditional population exactly",
+    "G2": "vary-and-assert: gated-cohort size must change monotonically with band width",
+    "G3": "the 2026-08-14 09:46 entry MUST be in the gated cohort of at least one cell (anchor), and the 2026-08-13 09:51 winner's cell membership must be REPORTED, not hidden",
+    "G4": "read-only; arms nothing; a positive result produces a shadow counter first (V-d1 pattern), never a live gate"
+  },
+  "ship_rule": {
+    "ships_on_completion": false,
+    "path": "study -> shadow counter on live ticks >=5 sessions -> then and only then a live-veto decision with its own revert key",
+    "re_arm_link": "min_contracts_equity_scaled stays FALSE until this gate (or a better entry-quality instrument) is validated -- the revert commit named this as the re-arm condition"
+  },
+  "execution_note": "runner is AFTER-HOURS work (population replay); nothing before 16:00 ET. Stream + checkpoint around the 5-min reaper.",
+  "status": "NULL -- naive global location gate decisively refuted, no live-arming evidence",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "summary": "The prereg's own shadow ledger (n=23) is under its n>=30 floor, but a much larger, independently-run study on the same underlying mechanism (chase-at-range-extreme) already exists and answers the hypothesis cleanly: NULL.",
+    "commands": [
+      "wc -l analysis/entry-quality/entry-location-shadow.jsonl",
+      "cat analysis/deep-research/2026-09-03-money/entry-location.md"
+    ],
+    "numbers": "entry-location-shadow.jsonl: n=23 (below the prereg's n>=30 floor for its 3 proximity bands x 2 run-filters x combos = 11 cells). Superseding evidence: analysis/deep-research/2026-09-03-money/entry-location.md (2026-09-03T10:24 ET), n=186 real-fills positions from analysis/pain-ledger/mae-mfe.json, testing chase-at-range-extreme (a closely related, more general operationalization of 'entry near the intraday extreme'). Threshold sweep 0.75/0.25, 0.80/0.20, 0.90/0.10: every chase-vs-rest CI crosses zero, and the SIGN FLIPS between 0.80/0.20 (-$31.53) and 0.90/0.10 (+$16.64) -- not threshold-robust. Refusing all chase entries nets -$218 [CI -3757,+3220] to +$509 [CI -2955,+3869] depending on threshold -- statistically indistinguishable from zero at every cut.",
+    "g3_anchor_check": "The prereg's own G3 anchor trades are both present in the superseding study's population and decisive: applying the naive rule to 2026-08-13 blocks 6 trades (5 winners, $1,895) and turns a +$1,748 day into a -$147 LOSS day; 2026-08-14's 09:46/09:47 small-range losers ARE captured but at the cost of killing a named winning day. This satisfies the prereg's own G3 requirement (anchor trade cell membership reported) and is disqualifying for any global gate per the prereg's stated ship_rule discipline.",
+    "rationale": "The literal pre-registered cells (bands 0.1/0.2/0.3 on proximity-to-intraday-high x run-filters 2.0/3.0) were never run at floor-n (still NOT-RUN by the prereg's own n>=30 rule), but the superseding study tests the identical underlying mechanism at n=186 with a threshold sweep and a decisive G3-anchor-day kill-test, and finds no signal that clears even 'worth shadow-tracking further as a live veto.' The prereg's own ship_rule already gated any live change behind exactly this kind of shadow evidence; the evidence now says NULL. INSTRUMENT_ONLY (promote money_entry_location.py to a nightly refresh, re-test only once BULLISH_RECLAIM chase n>=150 with a trend-quality co-signal) is the recommended next step per that study, not a live gate -- consistent with config freeze (no gate ships regardless)."
+  }
 }

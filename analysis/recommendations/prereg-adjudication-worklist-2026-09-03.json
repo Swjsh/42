@@ -64,8 +64,8 @@
       "filed": "2026-08-13T02:36:41",
       "hypothesis": "(no hypothesis field found -- read the file)",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "EXTEND",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "SLIPPAGE-REBASELINE-2026-08-12",
@@ -73,8 +73,8 @@
       "filed": "2026-08-12 22:10:36 Wednesday ED",
       "hypothesis": "(no hypothesis field found -- read the file)",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "NULL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "RIBBON-CONFIRM-2026-08-11",
@@ -109,8 +109,8 @@
       "filed": "2026-08-09 evening (Sunday), aft",
       "hypothesis": "Setting filter_10_min_triggers_bull from 2 to 1 (parity with bear) admits a cohort of bull entries whose per-trade expectancy is not worse than the currently-admitted bull cohort -- i.e. the second-trigger requirement...",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "KILL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "CATASTROPHE-CAP-DECISION-2026-08-09",
@@ -118,8 +118,8 @@
       "filed": "2026-08-09 18:45:06 Sunday EDT",
       "hypothesis": "(no hypothesis field found -- read the file)",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "NULL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "STOP-MODE-LIVE-ARM-RISKY3-2026-08-09",
@@ -163,8 +163,8 @@
       "filed": "2026-08-09 (Sunday, market close",
       "hypothesis": "Frozen pre-registration for ENTRY-EXIT-MATRIX-2026-08-09, committed BEFORE the runner script exists (git-provable via git log / git merge-base --is-ancestor against the runner commit). J's /goal 2026-08-09: 'dynamic e...",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "NULL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "dynamic-exits-prereg-2026-08-09",
@@ -181,8 +181,8 @@
       "filed": "2026-08-08 (filename)",
       "hypothesis": "FROZEN PRE-REGISTRATION -- committed BEFORE backtest/tools/gate_revalidation_ab.py's replay/outcome pass runs. J's directive tonight: 'why do we still have gates blocking profitable trades?' Runs the pre-registered re...",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "KILL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "SCORE-LADDER-V2-DEMERIT-2026-08-07",
@@ -190,8 +190,8 @@
       "filed": "2026-08-07T12:35:00-04:00",
       "hypothesis": "(no hypothesis field found -- read the file)",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "KILL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "fleet-same-bar-cooldown-prereg-2026-08-06",
@@ -199,8 +199,8 @@
       "filed": "2026-08-06T19:05:00-04:00",
       "hypothesis": "SAMEBAR -- fleet same-bar re-entry cooldown (core-parity wiring)",
       "source": "SHADOW.md no status field",
-      "status": null,
-      "adjudicated_at_et": null
+      "status": "KILL",
+      "adjudicated_at_et": "2026-09-05 00:38"
     },
     {
       "prereg_id": "prereg-runner-be-floor-2026-08-06",

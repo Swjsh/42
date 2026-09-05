@@ -105,5 +105,17 @@
   },
   "execution_note": "The break dataset is 67MB / ~52,833 break rows. The Windows reaper kills project python > 5 min (see CLAUDE.md debugging section), so the runner MUST stream the JSONL and checkpoint, or run as an exempt long-grind task. A runner killed mid-scan that writes a partial table is the exact silent-truncation failure this repo keeps repeating.",
   "frozen_at_et": "2026-08-13 14:22:46 Thursday EDT",
-  "frozen_at_git_head": "c12f6dcd064c8b702dba32778b99b8ec3510696f"
+  "frozen_at_git_head": "c12f6dcd064c8b702dba32778b99b8ec3510696f",
+  "status": "NULL",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "summary": "Runner was written and run (one day after freeze) per the prereg's own frozen spec; result file exists and is decisive: 0/72 cells survive BH-FDR.",
+    "commands": [
+      "cat analysis/recommendations/TRENDLINE-BREAK-AT-LEVEL-2026-08-14.md",
+      "cat analysis/recommendations/trendline-break-at-level-2026-08-14.json"
+    ],
+    "numbers": "Population 50,132 breaks over 376 trading days. 72 cells (6 bands x 4 family-kind x 3 horizons), all measured, none NOT-RUN. 0 of 72 survive BH-FDR q=0.10; smallest p=0.408. All validity gates G0-G5 PASS (G0 DST-frame join verified to <1 cent on 376/379 dates; G3 monotonic cohort scaling verified).",
+    "artifact_hunt_disclosed": "The runner's FIRST execution reported 72/72 surviving at p=0.001 (a too-good sweep); root-caused to a NaN-permutation bug (breaks with no forward bars produced abs(nan)>=abs(nan)==False, collapsing every p-value to the floor). Fixed, guarded with a TOO_GOOD_TRIPWIRE that reads TRIPPED:false on the corrected run -- this is exactly the /fable-too-good discipline the goal's OPERATING RULES expect.",
+    "rationale": "This is the second location-based entry hypothesis killed by its own pre-registered date-shuffle null in two days (companion: ENTRY-LOCATION-GATE). The naively-positive at-level effect (e.g. +26% relative MFE/MAE improvement, body_support band<=1.00 H90) reproduces 41% of the time under date-shuffling -- a distance/mid-range artifact, not confluence. C20 (proximity gates anti-correlate with breakout setups) holds again."
+  }
 }

@@ -21,7 +21,11 @@
   "forward_window": {
     "clock": "starts first RTH session after wiring ships (expected 2026-08-07)",
     "review_at": "10 sessions OR first session with >=1 blocked entry, whichever first",
-    "metrics": ["blocked entries per (arm,setup,bar)", "counterfactual P&L of blocked legs on real fills", "days harmed"]
+    "metrics": [
+      "blocked entries per (arm,setup,bar)",
+      "counterfactual P&L of blocked legs on real fills",
+      "days harmed"
+    ]
   },
   "kill_criteria": [
     "any single session where the cooldown blocks an entry that would have been a winner > +$150 (real-fills counterfactual)",
@@ -36,5 +40,14 @@
     "analysis/deep-research/LEVER-ENTRY-COUNT-2026-08-06.md#2d",
     "analysis/deep-research/KEEP-LOSSES-SMALL-2026-08-06.md ladder #1 (SHIP-ELIGIBLE)",
     "backtest/tests/test_extra_signal_churn_cooldown_2026_07_20.py (core-lane contract)"
-  ]
+  ],
+  "status": "KILL -- shipped disarmed, kill criterion met day-0 per commit 7598c20d",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "commit": "git log: '7598c20d feat(fleet): FLEET-SAME-BAR-COOLDOWN wiring, shipped DISARMED -- ship-gate replay on PRODUCTION trigger_bar_et killed the arm (blocks Tue 09:57 +$524 winner, blocks nothing Wed; study's wall-clock bar mapping doesn't transfer, L251 class). Prereg 55880b45 pre-dates wiring; kill criterion met day-0; flag default False pinned by guard; trigger_bar_et signal plumbing ships additive'",
+    "current_state": "automation/state/fleet/fleet_live.py:281 FLEET_SAME_BAR_COOLDOWN = False (grepped this fire; consult site L534/540 and stamp site L680 both gate on the flag).",
+    "guard_command": "backtest/.venv/Scripts/python.exe -m pytest automation/state/fleet/test_fleet_same_bar_cooldown.py -q",
+    "guard_output": "8 passed in 18.27s",
+    "reasoning": "Matches the prereg's own kill criterion #1 verbatim ('any single session where the cooldown blocks an entry that would have been a winner > +$150') -- the ship-gate replay on the real trigger_bar_et found it blocks the week's own Tuesday 09:57 +$524 winner, so the wiring shipped with the flag defaulted False and pinned by a guard test. No forward window ever opened because the arm never armed."
+  }
 }

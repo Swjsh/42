@@ -4,27 +4,22 @@
   "frozen_at_et_source": "python setup/scripts/et_clock.py, run this session",
   "frozen_before_any_runner": true,
   "money": "PAPER ONLY. No live-money change is proposed or implied.",
-
   "why_this_exists": {
     "j_directive": "2026-08-09: 'we need to play both sides of the market, period.' Restating ratified doctrine -- CLAUDE.md OP-16: 'direction is NOT a scope, validation is.'",
     "what_the_audit_found": "analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09.md -- FOUR of four asymmetric numeric knobs in live config make CALLS harder than PUTS, and not one makes a put harder. This is the largest of them and the one at the top of the entry funnel.",
     "the_specific_asymmetry": "automation/state/params.json: filter_10_min_triggers_bull = 2 vs filter_10_min_triggers_bear = 1. A call must show TWICE the confirming triggers a put must show, on the same engine, same bar, same levels."
   },
-
   "hypothesis": "Setting filter_10_min_triggers_bull from 2 to 1 (parity with bear) admits a cohort of bull entries whose per-trade expectancy is not worse than the currently-admitted bull cohort -- i.e. the second-trigger requirement is filtering on a criterion that does not discriminate winners from losers on the bull side.",
   "the_null_that_would_kill_it": "The added single-trigger bull cohort is materially WORSE than the 2-trigger cohort, meaning the second trigger IS doing real quality work on bull and the asymmetry is EARNED. That is a perfectly good outcome and closes the question -- it converts an inherited asymmetry into a chosen one.",
-
   "why_this_knob_first": [
     "It is ONE INTEGER -- the cheapest possible test of the largest asymmetry.",
     "It sits at the TOP of the entry funnel, so it gates volume, and volume is the binding constraint on the $100-200/day/account target (the core binary population is ~1.4 trades/day; no per-trade edge reaches the target at that rate).",
     "Its bear counterpart is ALREADY 1 and has been trading at 1 the whole time -- so the counterfactual is not exotic; it is the setting the other direction already runs."
   ],
-
   "populations": [
     "A: the 399-day replay, bull entries only, filter_10 at min_triggers 2 (control) vs 1 (parity). Sequential one-position NOT_FLAT walk, real cached OPRA fills, exits via exit_manager_walk.walk_exit_manager ONLY (never simulator_real).",
     "B: the ADDED cohort in isolation -- bull entries admitted at 1 trigger that would have been REFUSED at 2. This is the cohort whose quality is actually in question; reporting only the blended total would hide it."
   ],
-
   "gates": [
     "G_ADDED_COHORT: the ADDED bull cohort's own per-trade expectancy > 0. This is the primary gate -- a blended improvement driven entirely by the pre-existing 2-trigger trades proves nothing about the knob.",
     "G_NO_DEGRADE: total bull expectancy at parity >= expectancy at 2 triggers",
@@ -33,20 +28,26 @@
     "G_TUESDAY: no degradation of 2026-08-04, reported per cell and marked NOT EVALUABLE rather than passed if that date is absent from the cohort",
     "BH-FDR q=0.10 across every cell this study tests"
   ],
-
   "kill_criteria": [
     "G_ADDED_COHORT fails -> the second trigger is earning its keep on bull; CLOSE the question and record the asymmetry as VALIDATED rather than inherited.",
     "Added cohort is positive ONLY on the blended number -> treated as a fail, not a pass.",
     "Sub-window sign flip -> killed."
   ],
-
   "ship_rule": {
     "ships_from_this_document": false,
     "what_a_pass_buys": "A pre-registered single-arm forward trial (one paper arm, one integer, documented one-line revert) -- the same shape as the risky-3 stop_mode arming. NOT a fleet-wide or core-account flip.",
     "explicitly_not_authorized": "Changing filter_10_min_triggers_bull on automation/state/params.json (core Safe, J's primary account) on the strength of a replay study alone.",
     "revert_if_ever_armed": "set filter_10_min_triggers_bull back to 2 -- one integer, byte-identical, next tick."
   },
-
   "sequencing_note": "This is INDEPENDENT of the risky-3 stop_mode trial and of prereg LADDER-X-PREMIUM (which is blocked on it). It touches the ENTRY admission side, not the exit shape, so it can be measured without waiting on the stop_mode forward result. If both eventually pass they must be re-tested JOINTLY before any combined arming -- stacking two separately-validated changes without measuring their interaction is how the 0-for-12 happened.",
-  "reporting_rule": "Every cell reported including failures. If the added cohort is negative, that result is written down and the asymmetry is relabelled VALIDATED -- an unrun or quietly-dropped pre-registration is indistinguishable from a hidden negative."
+  "reporting_rule": "Every cell reported including failures. If the added cohort is negative, that result is written down and the asymmetry is relabelled VALIDATED -- an unrun or quietly-dropped pre-registration is indistinguishable from a hidden negative.",
+  "status": "KILL -- G_ADDED_COHORT structurally empty (n=0), asymmetry VALIDATED not inherited",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "reused_evidence": "analysis/recommendations/gate-revalidation-min_triggers_bull-2026-08-08.json (GATE-REVALIDATION-2026-08-08 CELL_3, same knob filter_10_min_triggers_bull safe 2->1, full ledger 2026-06-25..2026-08-07)",
+    "numbers": "correction_finding.corrected_population_n=0: ALL 275 naive sole-blocked-11 rows carry bull_triggers_raw==[] (zero real triggers); across the FULL ledger there are exactly 81 Safe rows with len(bull_triggers_raw)==1, and NONE of those 81 have bull_blockers==[11] alone -- every one co-fires with >=1 other filter (chiefly filter 10 buyer-pressure, 60/81). g_battery verdict: NOT-UNBLOCK-ELIGIBLE (STRUCTURAL-NULL), pval=1.0.",
+    "reasoning": "TRIGGER-PARITY-BULL's own gate G_ADDED_COHORT requires evaluating 'the ADDED bull cohort in isolation -- bull entries admitted at 1 trigger that would have been REFUSED at 2'. This IS the exact population GATE-REVALIDATION CELL_3 (filed the day before, same knob, same account, overlapping ledger) mechanically determined to be EMPTY: relaxing filter_10_min_triggers_bull from 2 to 1 changes the verdict on ZERO historical ticks, because every Safe tick with exactly one real trigger is independently blocked by a different, unrelaxed filter. A cohort of n=0 cannot have positive per-trade expectancy, so G_ADDED_COHORT fails by construction -- matching this prereg's own stated kill criterion language ('G_ADDED_COHORT fails -> the second trigger is earning its keep on bull; CLOSE the question and record the asymmetry as VALIDATED rather than inherited').",
+    "no_new_run": "No new backtest was run. Command that would reproduce the reused evidence (not re-run here, evidence already on disk): backtest/.venv/Scripts/python.exe backtest/tools/gate_revalidation_ab.py",
+    "caveat": "GATE-REVALIDATION's window (2026-06-25..2026-08-07, ~6 weeks) is narrower than TRIGGER-PARITY's proposed 399-day population; the structural co-blocker relationship (filter 10 buyer-pressure dominating the 1-trigger cohort) is a mechanism fact about ribbon_flip-only bull triggers, not a date-range artifact, so it is treated as applicable to the full history, but this is stated as an inference from a narrower window, not a fresh full-history mining pass."
+  }
 }

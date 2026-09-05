@@ -25,8 +25,15 @@
     "live_parity_caveat": "Live engine refits every 5 min on a rolling window ending now (IEX feed); study refits at trigger-bar close on the SIP/IEX cache patchwork (DATA-PROVENANCE.md). Same detector code, same N_DAYS=5, same families. Feed seams disclosed, not resolved here."
   },
   "cell_definitions": {
-    "TOL": 0.10,
-    "bands_dollars": {"primary": 1.0, "sensitivity": [0.5, 2.0], "existence": "ANY (no distance cap, same-side existence)"},
+    "TOL": 0.1,
+    "bands_dollars": {
+      "primary": 1.0,
+      "sensitivity": [
+        0.5,
+        2.0
+      ],
+      "existence": "ANY (no distance cap, same-side existence)"
+    },
     "band_provenance": "Primary $1.00 = the standing carry-proximity doctrine distance ('within $1 of a Carry level'); NOT hand-fit to this data. $0.50/$2.00 are halving/doubling sensitivity cells declared up front. ANY-distance is the no-knob existence variant.",
     "aligned": {
       "bull_C": "exists ACTIVE support line with ref - B <= current_value <= ref + TOL (support at/below price within band)",
@@ -36,7 +43,12 @@
       "bull_C": "exists ACTIVE resistance line with ref - TOL <= current_value <= ref + B (overhead rail the trade buys into)",
       "bear_P": "exists ACTIVE support line with ref - B <= current_value <= ref + TOL (defended floor the trade shorts into)"
     },
-    "mutually_exclusive_cells_reported": ["ALIGNED_ONLY", "OPPOSING_ONLY", "BOTH_SIDES", "NO_LINE"],
+    "mutually_exclusive_cells_reported": [
+      "ALIGNED_ONLY",
+      "OPPOSING_ONLY",
+      "BOTH_SIDES",
+      "NO_LINE"
+    ],
     "per_cell_reporting": "n, total $, $/trade, WR, plus overlap count with the intraday 'trendline_rejection' trigger tag (7/66 trades carry it -- a DIFFERENT single-day detector; disclosed per cell so the two mechanisms are never conflated)."
   },
   "contrasts_and_stats": {
@@ -44,8 +56,16 @@
       "C1: any-ALIGNED vs not-ALIGNED (binary over cohort)",
       "C2: any-OPPOSING vs not-OPPOSING (binary over cohort)"
     ],
-    "strata": ["FULL (all 66)", "R2026 (trades dated >= 2026-01-01; recent window FIRST-CLASS, expected n~35)"],
-    "band_variants": ["B=1.00 (primary)", "B=0.50", "B=2.00", "ANY-distance"],
+    "strata": [
+      "FULL (all 66)",
+      "R2026 (trades dated >= 2026-01-01; recent window FIRST-CLASS, expected n~35)"
+    ],
+    "band_variants": [
+      "B=1.00 (primary)",
+      "B=0.50",
+      "B=2.00",
+      "ANY-distance"
+    ],
     "test_count": "2 contrasts x 2 strata x 4 band variants = 16 tests",
     "statistic": "difference in mean dollar_pnl per trade (cell minus complement)",
     "test": "two-sided permutation test, 20000 permutations, python random.Random(seed=42), label-shuffle within the stratum; p = (1 + #{|perm_diff| >= |obs_diff|}) / (1 + 20000)",
@@ -73,5 +93,15 @@
     "analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.json",
     "analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.md"
   ],
-  "sibling_deliverable_not_gated_by_this_study": "WS8 visibility: automation/state/trendline-watch.json producer + one premarket brief line. Ships regardless of study outcome."
+  "sibling_deliverable_not_gated_by_this_study": "WS8 visibility: automation/state/trendline-watch.json producer + one premarket brief line. Ships regardless of study outcome.",
+  "status": "NULL",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "summary": "Runner ran to completion per the frozen spec; result files exist (analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.{json,md}) with an explicit NULL verdict.",
+    "commands": [
+      "cat analysis/deep-research/TRENDLINE-CONTEXT-CONDITIONING-2026-08-01.md"
+    ],
+    "numbers": "Population n=66 structure-stop level-anchored trades (+$6,894.85 real OPRA, anchor-verified). 16 pre-registered tests (2 contrasts x 2 strata x 4 band variants), 0 survive BH-FDR q*=0.10; smallest p=0.1342 (C1_aligned|FULL|B1.00, +$149.36/tr) -- reported as an honest near-miss, explicitly NOT proposed per the prereg's no-soft-propose clause. ANY-distance existence tests are degenerate (66/66 and 35/35 trades have >=1 active same-side line -- multi-day trendline existence is structurally constant, not a signal).",
+    "rationale": "Per the prereg's own frozen decision_rule_frozen: NULL means the trendline program is VISIBILITY-ONLY, no further trendline-entry research on THIS axis without a new evidence class. Confirms the same conclusion independently reached by TRENDLINE-ENGINE-VALIDATION-2026-08-09's CELL_C (proximity admissibility, also KILL) eight days later on a different, larger population -- two independent proximity/context measurements both null."
+  }
 }

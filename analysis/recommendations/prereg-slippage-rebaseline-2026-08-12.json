@@ -4,15 +4,12 @@
   "frozen_at_et_source": "backtest/.venv/Scripts/python.exe setup/scripts/et_clock.py, run this session",
   "frozen_before_any_comparison_run": true,
   "frozen_at_git_head": "e8e7913d",
-
   "why_now": "backtest/lib/simulator_real.py:107-108 and backtest/lib/simulator_credit.py:70-71 default DEFAULT_ENTRY_SLIPPAGE = DEFAULT_EXIT_SLIPPAGE = 0.02. Measured reality for SPY 0DTE is $0.0104/side, established two independent ways on 2026-08-12: (a) Roll(1984) effective-spread estimator over 554,198 RTH ticks on the 30 near-ATM SPY 0DTE contracts -> median effective spread $0.0208, min observed tick $0.010 on ALL 30 contracts (SPY 0DTE is quoted at the PENNY FLOOR); (b) the v5 harness calibration regressed against 182 real broker fills landed on 0.01. Evidence: analysis/deep-research/2026-08-12-churn/OPTION-QUOTES-ORDERBOOK-MEMO-2026-08-12.md and analysis/deep-research/2026-08-11-audit/HARNESS-CALIBRATION.md. Every study that consumed the default therefore ran ~2x pessimistic on friction.",
-
   "the_hazard_this_prereg_exists_to_contain": {
     "mechanism": "Halving slippage shifts roughly +$0.02/contract/round-trip into EVERY historical cell simultaneously. Cells previously KILLED can flip positive on a CONFIG EDIT rather than on new evidence. That is how a kill decision gets laundered, and this repo has a documented history of exactly this class of error (OP-16 sim-accuracy gate; C4 disclosure lessons).",
     "the_rule_that_binds_me": "A SIGN FLIP IS NOT A RESURRECTION. No cell is re-armed, un-killed, or described as 'now profitable' by this study. The maximum output for any flipped cell is: 'candidate for re-validation through the normal gates (OOS positive AND WF >= 0.70 AND sub-window stable AND anchor no-regression AND A/B scorecard filed)'.",
     "pre_committed_null": "The most likely honest outcome is that MOST of the affected set is NOT re-runnable today (input data rot), and that among those that are, few or no verdicts flip. I am writing that expectation down BEFORE running so that a thin result cannot be retro-framed as a rich one."
   },
-
   "population": {
     "definition": "Every .py file in the live tree (worktrees, .git, node_modules, .venv, dashboard excluded) that calls simulate_trade_real / simulate_trade_real_trailing / simulate_credit_trade / simulate_debit_trade WITHOUT an explicit slippage kwarg, AND writes an artifact under analysis/ or strategy/candidates/ that EXISTS on disk today.",
     "enumeration_method": "AST walk (not grep) over all call sites; a call counts as default-consuming when neither entry_slippage nor exit_slippage nor slippage nor slip appears in its keywords.",
@@ -29,13 +26,11 @@
     },
     "honest_correction_to_the_work_order": "The '241 studies' figure is a raw grep over a tree that includes .claude/worktrees copies and comment text. The verdict-bearing population is 78 scripts, not 241. This is reported as a finding, not quietly substituted."
   },
-
   "excluded_and_why": {
     "backtest/tools/multileg_exit_walk.py": "The calibration-v5 harness carries its OWN slippage knob defaulting to 0.0, and the v5 calibration passed 0.01 explicitly. It never consumed the 0.02 module default, so it is NOT part of the affected set. Named here so its absence is not read as an oversight.",
     "unit_tests_passing_0.0": "test_simulator_credit.py / test_simulator_debit.py deliberately pin zero-friction arithmetic. Not verdicts.",
     "automation/state writers": "backtest/autoresearch/recency_check.py writes automation/state/recency-confirmation.json. It is RUN but every write is redirected into a sandbox; live state is never touched."
   },
-
   "comparison": {
     "arms": {
       "CONTROL_002": "the shipped default, slippage forced to 0.02 on every simulator entry point",
@@ -45,7 +40,6 @@
     "mechanism": "The module constants are bound into each function's __defaults__ at def time, so patching the constant post-import is a no-op. The runner instead wraps the function object and kwarg-injects the value, re-binding it in sys.modules BEFORE the target script imports it. No file in the repo is edited.",
     "write_sandbox": "All writes under analysis/, automation/, strategy/, journal/ are redirected to a scratch mirror. Published verdicts and live state are never overwritten by this study. This is enforced in the runner, not by convention."
   },
-
   "validity_gate_that_must_pass_before_any_delta_is_published": {
     "gate": "REPRODUCTION. The CONTROL_002 re-run must reproduce the PUBLISHED on-disk artifact's headline numbers (n, win-rate, total P&L, verdict). Only scripts that pass this gate are eligible to have a 0.01-vs-0.02 delta reported.",
     "why_this_gate_is_mandatory": "A smoke test run before this freeze already caught the failure mode: backtest/autoresearch/orb_real_fills_validate.py re-runs clean today with 'Test cases: 0 total' and emits verdict FAIL at n=0, while the published artifact records n=10. Its inputs have rotted. Reporting 'still FAIL at 0.01' from that run would be a fabricated finding dressed as a confirmation (C7: silent success is failure -- audit outputs, not exit codes).",
@@ -56,34 +50,25 @@
       "ERROR / TIMEOUT / NO_RESULT: not re-runnable -> reported with the exact reason"
     ]
   },
-
   "AMENDMENT_1": {
     "amended_at_et": "2026-08-12 22:35 Wednesday EDT",
     "amended_after_seeing": "Control-arm results for the first ~18 of 78 scripts, plus a reconstruction experiment. NO treatment (0.01) arm result influenced this amendment, and the anti-laundering rule is TIGHTENED by it, not loosened. Declared openly rather than applied silently.",
-
     "what_I_found_that_the_freeze_did_not_anticipate": "The dominant failure is not slowness or non-determinism, it is INPUT ROT with a single root cause. automation/state/watcher-observations.jsonl -- the trade population for a large family of these studies -- is a ROLLING file. setup/scripts/heal-engine.ps1 rotates it into automation/state/archive/ once it exceeds 1MB, so the live file holds only the CURRENT DAY (102 rows, all 2026-08-12). Studies from May/June therefore see an empty population, run clean, and emit n=0 verdicts with no error. Two confirmed: orb_real_fills_validate.py (published n=10, re-runs n=0) and v14e_chart_stop_research.py (published n_stopped_obs=100, re-runs n=0).",
-
     "recovery_attempted": "Per the standing lesson (commit e8e7913d: check whether the PRODUCER can re-run, not just whether the OUTPUT was stored) the archives were checked. History IS recoverable: archive/watcher-observations-rotated-2026-06-22.jsonl alone holds 4,914 rows back to 2025-01-02 including v14_enhanced_watcher (563) and orb_watcher (402). A read-only reconstruction (union of 6 archives + the live file, keyed on observation-event identity, graded copy wins) yields 7,681 rows over 376 dates, 2025-01-02..2026-08-12. The live file is never modified.",
-
     "why_the_reconstruction_is_NOT_a_reproduction": "The reconstruction is a SUPERSET, not a restoration of the historical snapshot. v14e_chart_stop_research re-runs on it with n_stopped_obs=132 against a published 100, because observations kept accruing after the study was published (and the SPY 5m master CSV has since been re-merged to a later end date). The original population is unrecoverable -- nothing snapshotted it.",
-
     "the_two_tier_design_this_forces": {
       "TIER_A_prereg_eligible": "Control@0.02 reproduces the published artifact's headline numbers. The 0.01-vs-0.02 delta is directly comparable to the PUBLISHED VERDICT. Only Tier A can ever produce a 'CANDIDATE FOR RE-VALIDATION' line.",
       "TIER_B_paired_arm_only": "The script runs with a non-empty population, but on a DRIFTED or RECONSTRUCTED population that does not match the published snapshot. Control and treatment share a byte-identical population and code path, so the SLIPPAGE EFFECT is validly measured -- but the result says NOTHING about whether the published verdict was right, and CANNOT revisit any kill. Reported separately and labelled on every row.",
       "TIER_C_not_runnable": "Vacuous even after reconstruction, or ERROR / TIMEOUT. Reported with the exact reason and no numbers."
     },
-
     "how_this_TIGHTENS_rather_than_loosens_the_anti_laundering_rule": "The original freeze had one gate. This adds a second, strictly narrower one: a cell can only be nominated for re-validation from TIER A, and Tier A additionally now requires that the control reproduce the published numbers -- which the rot makes RARE. Tier B is explicitly barred from nominating anything, no matter how large or positive its delta. If Tier A turns out to be empty, the honest headline is 'the affected verdict set is not reproducible today', and that is a reportable result, not a failure to be worked around.",
-
     "vary_and_assert_requirement_added": "C14 (dead/translated-but-unapplied knobs) requires proving the injected knob BINDS. A treatment run that produces byte-identical output to control is only acceptable when the population is empty. For every non-empty cell, control-vs-treatment MUST differ in at least one numeric, or the cell is classified PATCH_DID_NOT_BIND and investigated -- never reported as 'no effect'. This was added after v14e_chart_stop_research initially appeared to show 'no change' when in fact it had zero trades."
   },
-
   "direction_sanity_check": {
     "assertion": "Lower friction is strictly less cost. For any given trade population, slippage=0.01 must produce total P&L GREATER THAN OR EQUAL TO slippage=0.02.",
     "if_violated": "Any cell that gets WORSE at 0.01 indicates a BUG in that harness -- a sign error, a slippage applied in the wrong direction, or a path-dependent exit whose trigger ordering is being changed by the fill price. This is pre-registered as a MORE VALUABLE finding than the re-baseline itself and will be reported loudly rather than smoothed over.",
     "known_legitimate_exception_to_check_before_calling_it_a_bug": "Path dependence: a better entry fill can change WHICH exit fires first (e.g. a stop no longer breached), so a single trade can legitimately end worse. This is only acceptable at the individual-trade level; a NEGATIVE AGGREGATE across a whole cell is a bug until proven otherwise, and any such cell will be inspected trade-by-trade before classification."
   },
-
   "what_would_make_me_RECOMMEND_revisiting_a_killed_cell": {
     "all_must_hold": [
       "The cell's CONTROL_002 run REPRODUCES the published verdict (validity gate above)",
@@ -100,19 +85,28 @@
       "Any improvement in a cell that was killed for a NON-P&L reason (look-ahead, concentration, frequency floor). Friction was never that cell's binding constraint and lower friction does not address it."
     ]
   },
-
   "aggregate_to_quantify": [
     "Total dollars of baked-in pessimism across the reproducing set = sum(P&L@0.01) - sum(P&L@0.02)",
     "Count of cells whose sign flips, as a fraction of the reproducing set",
     "Per-cell $/trade shift, checked against the arithmetic expectation of ~$0.02/contract/round-trip * contracts"
   ],
-
   "ship_rule": {
     "ships_tonight": false,
     "what_this_produces": "A before/after table and this scorecard. NOTHING is armed, un-killed, or re-config'd by this study.",
     "module_defaults": "NOT changed by this work. Re-baselining the module constants to 0.01 is a SEPARATE prereg'd commit and is explicitly out of scope here.",
     "live_config": "automation/state/* is read-only for this study."
   },
-
-  "reporting_rule": "Every script in the 78 is reported with its classification, including the ones that could not be run and why. No top-N truncation, no dropping of the vacuous majority. Nulls and rot are written down."
+  "reporting_rule": "Every script in the 78 is reported with its classification, including the ones that could not be run and why. No top-N truncation, no dropping of the vacuous majority. Nulls and rot are written down.",
+  "status": "NULL -- no published KILL overturned, blocked pending FILL-MODEL-UNIFICATION",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "results_files": [
+      "analysis/recommendations/slippage-rebaseline-2026-08-12.json",
+      "analysis/deep-research/2026-08-12-churn/SLIPPAGE-REBASELINE-2026-08-12.md"
+    ],
+    "numbers": "Population correction: verdict-bearing population is 78 scripts (not the work order's claimed ~241). Coverage: MEASURED 49, VACUOUS(empty population) 17, NO_PNL_EFFECT 5, NOT_RUNNABLE 4, PATCH_DID_NOT_BIND 3. Reproduction vs published: REPRODUCES 10 / DIFFERS 47 / VACUOUS 5 / ERROR 4 / NO_ARTIFACT 12. Of the 3 killed cells whose control run reproduces published numbers EXACTLY (TIER_A), ALL 3 hold their KILL at slippage=0.01 -- no sign flips, no cells advance.",
+    "reasoning": "The study's own headline: 'No published KILL is overturned... the re-baseline is not the important finding' -- it found the harness is non-monotonic in slippage (stop fills bypass exit_slippage, the exact fill-model bug FILL-MODEL-UNIFICATION-2026-08-13 was later filed to fix) and most measured deltas are exit-path reclassification, not friction, so 'a clean re-baseline is blocked until the bug is fixed'. Module defaults were NOT changed (ships_tonight=false, explicitly out of scope). This closes as a completed, definitive NULL: the hypothesis (halving slippage would reveal baked-in pessimism) could not be honestly tested because of the FILL-MODEL-UNIFICATION-2026-08-13 confound this same study surfaced.",
+    "cross_reference": "This study is the one that discovered and filed FILL-MODEL-UNIFICATION-2026-08-13 (adjudicated EXTEND above, in this same fire) as its own blocker -- the two preregs are sequentially dependent, not independent findings.",
+    "no_new_run": "No new run performed; study already complete and closed on 2026-08-12."
+  }
 }

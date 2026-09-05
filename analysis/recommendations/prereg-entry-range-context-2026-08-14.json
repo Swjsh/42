@@ -1,43 +1,54 @@
 {
- "prereg_id": "ENTRY-RANGE-CONTEXT-2026-08-14",
- "frozen_at_et": "2026-08-14 18:43:39 Friday EDT",
- "frozen_at_git_head": "327661f3c22a2c364cb2e320ff646a371f982eb8",
- "frozen_before_any_runner": true,
- "origin": {
-  "generated_by": "The ENTRY-LOCATION-GATE anchors (2026-08-14). Location was REFUTED on the bull side -- the tightest proximity band blocked the +$1,985 winner and allowed the -$1,198 loser. The two days separated instead on the day's ESTABLISHED RANGE at entry: 2.74pt (winner) vs 0.81pt (loser, 16 min into a dead session).",
-  "why_this_needs_its_own_prereg": "That observation comes from looking at TWO DAYS after seeing their outcomes -- the definition of a post-hoc pattern. Testing it on the same anchors that generated it would be circular. It is frozen here BEFORE any run against the 173-trade population, whose data I have not sliced on range."
- },
- "the_hypothesis": "An entry taken while the session's established range (high_so_far - low_so_far, causal) is BELOW some threshold has materially worse expectancy than one taken with a developed range. Mechanism: a small range means no directional information has been produced yet, so a 'reclaim'/'rejection' trigger is firing on noise -- and 0DTE premium pays theta + spread while the underlying does nothing.",
- "why_the_prior_is_MIXED": "C22: backward-looking regime/chop classifiers ANTI-correlate with recovery days -- a range filter will also sit out the compression that precedes a real expansion move, which is exactly when the biggest 0DTE winners start. Expect a trade-off table, not a free lunch. Also confounded with TIME-OF-DAY: range is mechanically small early in the session, so a range gate is partly an open-avoidance gate. The time-decomposition cell below exists to separate them; if it cannot, the finding is reported as CONFOUNDED, not as a range effect.",
- "cells_preregistered": {
-  "range_pts_thresholds": [
-   0.75,
-   1.0,
-   1.5,
-   2.0
-  ],
-  "gate_rule": "REFUSE the entry when range_pts < threshold (causal: bars strictly before the entry bar)",
-  "sides": "BOTH (C and P), reported separately -- never pooled",
-  "confound_decomposition": "for each threshold, ALSO report the same cells restricted to entries at or after 10:30 ET, where a small range is no longer a mechanical artifact of session age. A range effect that vanishes in that subset is a TIME effect and must be reported as such.",
-  "total_cells": "4 thresholds x 2 sides x 2 (all / >=10:30) = 16, ALL reported"
- },
- "metrics": {
-  "primary": "delta expectancy per trade (gated cohort mean vs kept cohort mean), two-sided permutation test, 20k iterations",
-  "correction": "Benjamini-Hochberg FDR q=0.10 across all measured cells",
-  "mandatory_columns": "blocked-winner count and dollars per cell (C20 discipline, carried over from the location study where it did the decisive work)",
-  "n_floor": "n_gated >= 30 or the cell is NOT-RUN, never a null result"
- },
- "validity_gates": {
-  "G1": "same population and same causal feature function as the location study (imported, not re-implemented); its published baseline must reproduce",
-  "G2": "vary-and-assert: gated cohort size must increase monotonically with the threshold",
-  "G3": "the 2026-08-14 09:46 anchor (range 0.81) must land in the gated cohort of at least the 1.00 threshold, AND the 2026-08-13 09:51 anchor (range 2.74) must be reported for every threshold -- if a threshold gates the winner too, that is the headline, not a footnote",
-  "G4": "if the >=10:30 subset kills the effect, the verdict is CONFOUNDED-WITH-TIME and no range gate is proposed",
-  "G5": "read-only; arms nothing"
- },
- "ship_rule": {
-  "ships_on_completion": false,
-  "path": "study -> shadow counter (range_pts is ALREADY recorded by entry_location_shadow.py) -> >=5 sessions -> only then a live-veto decision",
-  "re_arm_link": "min_contracts_equity_scaled remains disarmed regardless of this study's outcome unless a gate actually validates and ships"
- },
- "declared_expectation": "Given C22 and the time confound, the honest prior is that this is either NULL or CONFOUNDED. It is being run because the anchors pointed at it, not because it is expected to work."
+  "prereg_id": "ENTRY-RANGE-CONTEXT-2026-08-14",
+  "frozen_at_et": "2026-08-14 18:43:39 Friday EDT",
+  "frozen_at_git_head": "327661f3c22a2c364cb2e320ff646a371f982eb8",
+  "frozen_before_any_runner": true,
+  "origin": {
+    "generated_by": "The ENTRY-LOCATION-GATE anchors (2026-08-14). Location was REFUTED on the bull side -- the tightest proximity band blocked the +$1,985 winner and allowed the -$1,198 loser. The two days separated instead on the day's ESTABLISHED RANGE at entry: 2.74pt (winner) vs 0.81pt (loser, 16 min into a dead session).",
+    "why_this_needs_its_own_prereg": "That observation comes from looking at TWO DAYS after seeing their outcomes -- the definition of a post-hoc pattern. Testing it on the same anchors that generated it would be circular. It is frozen here BEFORE any run against the 173-trade population, whose data I have not sliced on range."
+  },
+  "the_hypothesis": "An entry taken while the session's established range (high_so_far - low_so_far, causal) is BELOW some threshold has materially worse expectancy than one taken with a developed range. Mechanism: a small range means no directional information has been produced yet, so a 'reclaim'/'rejection' trigger is firing on noise -- and 0DTE premium pays theta + spread while the underlying does nothing.",
+  "why_the_prior_is_MIXED": "C22: backward-looking regime/chop classifiers ANTI-correlate with recovery days -- a range filter will also sit out the compression that precedes a real expansion move, which is exactly when the biggest 0DTE winners start. Expect a trade-off table, not a free lunch. Also confounded with TIME-OF-DAY: range is mechanically small early in the session, so a range gate is partly an open-avoidance gate. The time-decomposition cell below exists to separate them; if it cannot, the finding is reported as CONFOUNDED, not as a range effect.",
+  "cells_preregistered": {
+    "range_pts_thresholds": [
+      0.75,
+      1.0,
+      1.5,
+      2.0
+    ],
+    "gate_rule": "REFUSE the entry when range_pts < threshold (causal: bars strictly before the entry bar)",
+    "sides": "BOTH (C and P), reported separately -- never pooled",
+    "confound_decomposition": "for each threshold, ALSO report the same cells restricted to entries at or after 10:30 ET, where a small range is no longer a mechanical artifact of session age. A range effect that vanishes in that subset is a TIME effect and must be reported as such.",
+    "total_cells": "4 thresholds x 2 sides x 2 (all / >=10:30) = 16, ALL reported"
+  },
+  "metrics": {
+    "primary": "delta expectancy per trade (gated cohort mean vs kept cohort mean), two-sided permutation test, 20k iterations",
+    "correction": "Benjamini-Hochberg FDR q=0.10 across all measured cells",
+    "mandatory_columns": "blocked-winner count and dollars per cell (C20 discipline, carried over from the location study where it did the decisive work)",
+    "n_floor": "n_gated >= 30 or the cell is NOT-RUN, never a null result"
+  },
+  "validity_gates": {
+    "G1": "same population and same causal feature function as the location study (imported, not re-implemented); its published baseline must reproduce",
+    "G2": "vary-and-assert: gated cohort size must increase monotonically with the threshold",
+    "G3": "the 2026-08-14 09:46 anchor (range 0.81) must land in the gated cohort of at least the 1.00 threshold, AND the 2026-08-13 09:51 anchor (range 2.74) must be reported for every threshold -- if a threshold gates the winner too, that is the headline, not a footnote",
+    "G4": "if the >=10:30 subset kills the effect, the verdict is CONFOUNDED-WITH-TIME and no range gate is proposed",
+    "G5": "read-only; arms nothing"
+  },
+  "ship_rule": {
+    "ships_on_completion": false,
+    "path": "study -> shadow counter (range_pts is ALREADY recorded by entry_location_shadow.py) -> >=5 sessions -> only then a live-veto decision",
+    "re_arm_link": "min_contracts_equity_scaled remains disarmed regardless of this study's outcome unless a gate actually validates and ships"
+  },
+  "declared_expectation": "Given C22 and the time confound, the honest prior is that this is either NULL or CONFOUNDED. It is being run because the anchors pointed at it, not because it is expected to work.",
+  "status": "EXTEND",
+  "adjudicated_at_et": "2026-09-05 00:38 ET",
+  "evidence": {
+    "summary": "Shadow counter is live and logging range_pts per the prereg's own ship_rule (path: study -> shadow counter -> >=5 sessions -> live-veto decision), but n is far below the pre-registered n_floor>=30/cell.",
+    "commands": [
+      "wc -l analysis/entry-quality/entry-location-shadow.jsonl"
+    ],
+    "numbers": "analysis/entry-quality/entry-location-shadow.jsonl has 23 total rows (all since 2026-08-13/08-14, 21 sessions elapsed per automation/state/trendline-tier-rail.json-adjacent forward clocks). Every one of the 4 pre-registered thresholds (0.75/1.0/1.5/2.0 pts) x 2 sides x 2 time-cuts = 16 cells would each need >=30 gated rows; 23 TOTAL rows cannot fill even one cell. No dedicated range-magnitude study exists in analysis/deep-research/2026-09-03-money/ (that batch's entry-location.md/range-extreme-dead.md test RANGE POSITION/location-in-range, a different feature from range MAGNITUDE at entry).",
+    "cross_checks": "G3 anchor rows are present and visible in the raw shadow log: 2026-08-13 09:51 entry (range_pts=2.74, the winner, dollar_pnl=+332) and 2026-08-14 09:47 entries (range_pts=0.81, dollar_pnl -468/-72, the small-range losers) both appear, consistent with the motivating anecdote, but n is nowhere near the floor to test the 16 pre-registered cells honestly.",
+    "rationale": "Per OPERATING RULES ('do not invent a new backtest pass'), this hypothesis has no reusable ledger/runner producing a scored cell at floor n; the honest verdict per the prereg's own G4/n_floor rule is NOT-RUN for every cell, which rolls up to EXTEND (keep collecting; readjudicate once any cell reaches n>=30, likely several more weeks at current fire rate of the trendline_rejection/level-anchored family)."
+  }
 }
