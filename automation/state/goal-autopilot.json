@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 06:26 ET",
-  "action": "ladder_empty",
-  "reason": "no eligible queued ladder entry",
-  "active_goal_id": "GOAL-TP1-FRACTION-AB-2026-09-05",
-  "next_item": null,
+  "checked_at_et": "2026-09-05 06:27 ET",
+  "action": "opened",
+  "reason": "opened next eligible ladder entry",
+  "active_goal_id": "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05",
+  "next_item": "R1 -- Map the loop: seeder -> daemon task -> chef_nemotron -> candidate file -> reviewer ->",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -100,9 +100,15 @@
       "state": "done",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05",
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
     }
   ],
-  "last_opened": "GOAL-TP1-FRACTION-AB-2026-09-05",
+  "last_opened": "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05",
   "last_closed": "GOAL-TP1-FRACTION-AB-2026-09-05",
   "error": null
 }
