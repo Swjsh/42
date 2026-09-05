@@ -137,7 +137,10 @@ def test_garbled_rows_are_skipped_not_fatal(tmp_path):
                  + "\n" + json.dumps({"fired_at": f"{DAY}T02:00:00", "cost_usd": 2.0}) + "\n",
                  encoding="utf-8")
     s = spend_today(DAY, p)
-    assert s["fires"] == 2 and s["raw_usd"] == 2.0
+    # 2026-09-05 (test_conductor_budget_fire_source_2026_09_05.py): a legacy row with no
+    # `source` counts as a fire only when it reports cost > 0, so the "NaNish" row is skipped
+    # from the COUNT as well as the sum -- the not-fatal property this test pins is unchanged.
+    assert s["fires"] == 1 and s["raw_usd"] == 2.0
 
 
 def test_missing_config_uses_safe_defaults(tmp_path):

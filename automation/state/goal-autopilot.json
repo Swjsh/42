@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 08:14 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
+  "checked_at_et": "2026-09-05 11:55 ET",
+  "action": "ladder_empty",
+  "reason": "no eligible queued ladder entry",
   "active_goal_id": "GOAL-FIRST-FIRES-2026-09-08",
-  "next_item": "V1 -- (after 16:30 ET 09-08) zero-enter + right-tail + tickers day-check + rth_tick_gaps evidence, quoted.",
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -127,15 +127,15 @@
     },
     {
       "id": "GOAL-FIRST-FIRES-2026-09-08",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "queued",
+      "eligible": false,
+      "why": "not before 2026-09-08 (today 2026-09-05)"
     },
     {
       "id": "GOAL-SEPT-MIDWINDOW-READ-2026-09-15",
       "state": "queued",
-      "eligible": true,
-      "why": "ok"
+      "eligible": false,
+      "why": "not before 2026-09-15 (today 2026-09-05)"
     }
   ],
   "last_opened": "GOAL-FIRST-FIRES-2026-09-08",

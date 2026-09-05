@@ -215,6 +215,32 @@ def _stamp_to_et_date(stamp: str) -> Optional[str]:
         return None
 
 
+def _counts_as_fire(row: dict, cost: float) -> bool:
+    """Does this ledger row represent a SPAWNED conductor fire (the thing max_fires caps)?
+
+    INCIDENT THIS FIXES (2026-09-05, Saturday): every row in conductor-outcomes.jsonl was
+    counted as a fire. An interactive Fable session closing 17 goals overnight wrote 29
+    `record` rows at $0, and each rail-0 PRECHECK rejection wrote ANOTHER row -- so by
+    08:00 ET the governor read "37 fires >= max_fires 8" at $0.76 of the $30 cap and the
+    scheduled Gamma_ConductorWeekend never spawned all day (self-reinforcing: each
+    rejection added to the count that caused it). The cost cap is unaffected -- every
+    row's cost_usd is still summed.
+
+    Rules: PRECHECK-* rows are never fires. Rows stamped `source` (2026-09-05+, set by
+    conductor_outcome.record from GAMMA_CONDUCTOR_FIRE=1 exported by run-conductor*.ps1
+    at the spawn point) count iff source == "conductor". Legacy rows with no `source`
+    count iff they reported cost > 0 -- measured on the 09-03/09-04 ledger, every real
+    spawned fire self-reports a positive cost and every interactive/worker record is 0.0.
+    """
+    task_id = str(row.get("task_id") or "")
+    if task_id.startswith("PRECHECK-"):
+        return False
+    source = row.get("source")
+    if source is not None:
+        return str(source) == "conductor"
+    return cost > 0.0
+
+
 def spend_today(day: Optional[str] = None, path: Optional[Path] = None) -> dict:
     """Corrected spend + fire count for `day` (ET). Never raises."""
     day = day or _et_today()
@@ -240,11 +266,13 @@ def spend_today(day: Optional[str] = None, path: Optional[Path] = None) -> dict:
                 elif day not in stamp:
                     # Fail-open fallback for an unparseable stamp: old substring behavior.
                     continue
-                fires += 1
                 try:
-                    raw_usd += float(row.get("cost_usd") or 0.0)
+                    cost = float(row.get("cost_usd") or 0.0)
                 except (TypeError, ValueError):
-                    pass
+                    cost = 0.0
+                raw_usd += cost
+                if _counts_as_fire(row, cost):
+                    fires += 1
     except OSError:
         return {"day": day, "fires": 0, "raw_usd": 0.0, "corrected_usd": 0.0,
                 "readable": False}

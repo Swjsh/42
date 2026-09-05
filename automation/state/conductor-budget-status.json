@@ -1,0 +1,16 @@
+{
+  "day": "2026-09-05",
+  "verdict": "PROCEED",
+  "reason": "$0.76 of $30.00 used, 2/8 fires, $29.24 paced allowance this fire (2 slots left)",
+  "raw_usd": 0.35,
+  "corrected_usd": 0.76,
+  "daily_cap_usd": 30.0,
+  "max_fires": 8,
+  "expected_fires_per_day": 4,
+  "min_allowance_usd": 0.0,
+  "slots_used": 2,
+  "slots_remaining": 2,
+  "reserve_for_future_usd": 0.0,
+  "allowance_next_usd": 29.24,
+  "checked_at_utc": "2026-09-05T15:53:15.146117Z"
+}

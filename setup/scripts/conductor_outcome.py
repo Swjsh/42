@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -407,6 +408,16 @@ def _filtered_for_trend(
 
 
 # --- 1) RECORD ---------------------------------------------------------------
+def fire_source() -> str:
+    """Who is writing this outcome row: "conductor" when run inside a scheduled
+    conductor spawn (run-conductor*.ps1 exports GAMMA_CONDUCTOR_FIRE=1 at the spawn
+    point, inherited by the Claude process and its subagents), else "interactive"
+    (a Claude desktop/CLI session, a worker, a hand run). conductor_budget.py counts
+    only "conductor" rows toward max_fires -- see its _counts_as_fire for the
+    2026-09-05 lockout this prevents."""
+    return "conductor" if os.environ.get("GAMMA_CONDUCTOR_FIRE") == "1" else "interactive"
+
+
 def record(
     task_id: str = "",
     *,
@@ -420,6 +431,7 @@ def record(
     fired_at: str | None = None,
     outcomes_file: Path | None = None,
     function_snapshot: dict[str, Any] | None = None,
+    source: str | None = None,
 ) -> dict[str, Any] | None:
     """Append one structured fire-outcome row to conductor-outcomes.jsonl.
 
@@ -450,6 +462,7 @@ def record(
         "tests_delta": int(tests_delta or 0),
         "regressions": int(regressions or 0),
         "note": str(note or ""),
+        "source": str(source or fire_source()),
         "trading_day": str(snap.get("trading_day", "") or ""),
         "enters_last_trading_day": int(snap.get("enters_last_trading_day", 0) or 0),
         "orders_accepted": int(snap.get("orders_accepted", 0) or 0),

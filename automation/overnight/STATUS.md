@@ -1,6 +1,14 @@
+## [2026-09-05 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 6 passed in 0.43s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
+
 ## Known broken
 
-- [2026-09-05T12:13:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T15:57:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T07:15:52.162347] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1106 >= 0.05 (443/4005 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md. | since 2026-09-05 (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).
 - [2026-09-05 05:45:04 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
@@ -28,6 +36,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 11:57 ET] CONDUCTOR DARK ALL SATURDAY MORNING -- self-inflicted budget lockout, FIXED (Fable): conductor_budget counted every conductor-outcomes.jsonl row as a "fire" -- the 29 goal records the overnight Fable session wrote at $0 plus 9 PRECHECK rejection rows read "37 fires >= max_fires 8" at $0.76 of $30, so Gamma_ConductorWeekend never spawned (08:00, 10:00 ET; each rejection added to the count that caused it). Fix: PRECHECK rows never count; rows now carry `source` (conductor_outcome.record stamps it from GAMMA_CONDUCTOR_FIRE=1, exported by run-conductor*.ps1 at the spawn point) and only source=conductor counts; legacy rows count iff cost > 0. Dollar cap untouched. Fresh check: `2026-09-05 PROCEED $0.76 of $30.00 used, 2/8 fires`. 8 new tests + 1 legacy assertion relabelled.
+Second autonomy hole closed in the same pass: the ladder had no "not yet" grammar, so GOAL-FIRST-FIRES-2026-09-08 (Tuesday evidence) became the ACTIVE goal on Saturday and would have burned a weekend fire every 2h saying "not yet" while starving any real goal behind it. LADDER lines now accept ` :: not_before:YYYY-MM-DD` (skipped + logged until that ET date); FIRST-FIRES and SEPT-MIDWINDOW-READ are re-queued behind their dates; ensure reads `ladder_empty: no eligible queued ladder entry` with both rows `not before ...`. 6 tests. Weekend engine goals follow in the next entry.
+
 
 ## [2026-09-05 08:13 ET] GOAL-OPRA-1MIN-COVERAGE-2026-09-05 CLOSED -- 1-min OPRA coverage for every contract the gate walk + right-tail ledger touch: 79/98 -> 98/98 pairs, +0.32 MB, $0 (Alpaca options bars via an existing paper key, cache-first); re-walk at 1-min: 305/305 ok, mean delta +$8.61/row; right-tail peak multiples +0.006 mean, 0/140 taken flips; NO checkpoint verdict moved
 Resolution flag added (default 5-min unchanged, byte-identical); checkpoint scorers prefer the -1min files when present (RED-proofed); RETENTION row for the cache; missing 1-min pair logs, never crashes. Disclosed side-fix: a pre-existing DST-frame guard classification for gate_net_cost_resolution_bias.py was allowlisted SAFE (OPRA-only branches). 110 gate/right-tail/checkpoint tests green.
@@ -469,7 +481,7 @@ Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec 
 
 
 ## Kitchen
-Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 71 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: prereg-hygiene 2026-09-05T03:41:06
 - 21 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):

@@ -92,7 +92,8 @@ DEFAULT_MAX_CONTINUATIONS = 3
 DEFAULT_EXPIRES_DAYS = 14
 
 _LADDER_LINE = re.compile(
-    r"^-\s*\[([ x~])\]\s*(GOAL-\S+?)\s*::\s*(.*?)\s*::\s*file:\s*(\S+)\s*::\s*expires_days:(\d+)\s*$"
+    r"^-\s*\[([ x~])\]\s*(GOAL-\S+?)\s*::\s*(.*?)\s*::\s*file:\s*(\S+)\s*::\s*expires_days:(\d+)"
+    r"(?:\s*::\s*not_before:(\d{4}-\d{2}-\d{2}))?\s*$"
 )
 _HEADING_LINE = re.compile(r"^\s*#{1,6}\s+(.*)$")
 
@@ -105,6 +106,10 @@ LADDER_HEADER = """# LADDER.md -- the goal-autopilot's ordered queue of durable 
 >
 > Line grammar (ONE line per entry, grep-able, no continuation prose):
 >   `- [ ] GOAL-<ID> :: <one line> :: file: automation/state/goals/GOAL-<ID>.md :: expires_days:14`
+>   optional trailing ` :: not_before:YYYY-MM-DD` -- the entry is NOT eligible before that ET
+>   calendar date (skipped, logged), so a goal whose evidence cannot exist yet (e.g. "the
+>   first live fires on Tuesday") never becomes the active goal early and never burns a
+>   conductor fire recording "not yet" (added 2026-09-05 after exactly that happened).
 >
 > Markers: `[ ]` queued (not yet opened) -- `[~]` active (this IS today's
 > active-goal.json pointer) -- `[x]` done/closed (its DONE-WHEN was met, or it was
@@ -148,7 +153,7 @@ def parse_ladder(text: str) -> list[dict]:
         m = _LADDER_LINE.match(line)
         if not m:
             continue
-        marker, goal_id, desc, file_rel, expires_days = m.groups()
+        marker, goal_id, desc, file_rel, expires_days, not_before = m.groups()
         out.append({
             "line_index": i,
             "marker": marker,
@@ -156,6 +161,7 @@ def parse_ladder(text: str) -> list[dict]:
             "desc": desc,
             "file": file_rel,
             "expires_days": int(expires_days),
+            "not_before": not_before,
         })
     return out
 
@@ -206,6 +212,21 @@ def goal_is_terminal(goal_md: Optional[str]) -> bool:
     return all(m in ("x", "B", "B-J") for m in markers)
 
 
+def not_before_blocks(entry: dict, now_et: dt.datetime) -> Optional[str]:
+    """Reason string when the ladder entry's `not_before:` date has not arrived (ET
+    calendar date compare), else None. A malformed date never blocks (fail-open, C7)."""
+    raw = entry.get("not_before")
+    if not raw:
+        return None
+    try:
+        gate = dt.date.fromisoformat(str(raw))
+    except ValueError:
+        return None
+    if now_et.date() < gate:
+        return f"not before {gate.isoformat()} (today {now_et.date().isoformat()})"
+    return None
+
+
 def goal_file_eligible(text: Optional[str]) -> tuple[bool, str, Optional[str]]:
     """(eligible, reason, next_open_item). `text` is None when the file is
     missing. Eligible requires BOTH a `## DONE-WHEN` heading present AND a
@@ -234,7 +255,8 @@ def flip_ladder_marker(text: str, goal_id: str, new_marker: str) -> str:
     for line in text.splitlines():
         m = _LADDER_LINE.match(line)
         if m and m.group(2) == goal_id and not changed:
-            out_lines.append(f"- [{new_marker}] {m.group(2)} :: {m.group(3)} :: file: {m.group(4)} :: expires_days:{m.group(5)}")
+            tail = f" :: not_before:{m.group(6)}" if m.group(6) else ""
+            out_lines.append(f"- [{new_marker}] {m.group(2)} :: {m.group(3)} :: file: {m.group(4)} :: expires_days:{m.group(5)}{tail}")
             changed = True
         else:
             out_lines.append(line)
@@ -459,6 +481,9 @@ class Autopilot:
                 continue
             goal_text = self._read_goal_text(entry["file"])
             eligible, reason, item = goal_file_eligible(goal_text)
+            gated = not_before_blocks(entry, self.now_et)
+            if eligible and gated:
+                eligible, reason = False, gated
             if not eligible:
                 self.events.append(f"skipped {entry['id']}: {reason}")
                 continue
@@ -506,6 +531,9 @@ class Autopilot:
         for entry in entries:
             goal_text = self._read_goal_text(entry["file"])
             eligible, reason, _item = goal_file_eligible(goal_text)
+            gated = not_before_blocks(entry, self.now_et)
+            if eligible and gated:
+                eligible, reason = False, gated
             out.append({
                 "id": entry["id"],
                 "state": state_name.get(entry["marker"], "unknown"),

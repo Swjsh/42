@@ -197,6 +197,12 @@ try {
     # Sonnet, high effort, full $10 budget -- same as the after-hours full loop. The prompt's
     # `Task: conductor-weekend` header selects WEEKEND mode (STAGE 1 twin/kitchen nudge);
     # everything else is the identical STAGE 0->5 machinery.
+    # Marks every conductor_outcome.py record row written by this spawn (and its
+    # subagents) as source=conductor, so conductor_budget.py's max_fires counts real
+    # spawns only -- not interactive-session goal records or PRECHECK rejections
+    # (2026-09-05 Saturday lockout: 37 "fires" at $0.76 kept the conductor dark all day).
+    $env:GAMMA_CONDUCTOR_FIRE = "1"
+
     $exitCode = Invoke-ClaudeWithRetry `
         -PromptFile $promptFile `
         -TaskName $task `
