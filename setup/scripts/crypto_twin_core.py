@@ -138,6 +138,23 @@ BREAKER_PATH = TWIN_DIR / "breaker.json"
 
 CRYPTO_SYMBOL = "BTC/USD"
 
+# DUST-VS-EXPOSURE THRESHOLD (2026-09-05, RESILIENCE-LEDGER-DUST-RECONCILIATION).
+# resilience-ledger.jsonl's two real process_kill_mid_position drills (2026-08-16,
+# 2026-08-23) both left the broker reporting 9e-09 / 1e-09 BTC after a full sell-to-flat
+# -- float noise from repeated market-sell rounding, not a real position (one TRADED unit
+# is 0.0008 BTC, so this dust is ~5-6 orders of magnitude below anything the broker's own
+# order-size granularity could ever represent). The prior `broker_qty > 0` check treated
+# that noise as a real orphan (classify_recovery -> ORPHANED_POSITION_NO_RECORD, an
+# INCIDENT), and separately `manage_positions` never checked the broker AT ALL when its
+# own disk record was empty -- so a genuine untracked position of ANY size, dust or real,
+# was invisible to every tick forever (the "opposite failure direction" the 07-15
+# CLOSE_FAILED fix's docstring already named but did not close). DUST_EPSILON_BTC draws
+# the line: below it, noise (silently ignored, matches production's financial reality);
+# at or above it, a genuine untracked exposure worth one loud journal line every tick
+# until it clears. 1e-6 BTC ~= $0.06-0.09 notional -- 800x below one real unit, 100x+
+# above the noise observed twice in the ledger.
+DUST_EPSILON_BTC = 1e-6
+
 
 # --- config ---------------------------------------------------------------------------
 @dataclass(frozen=True)
@@ -594,6 +611,33 @@ def _journal_exit_fill(cfg: TwinConfig, *, creds: dict, order_id: Optional[str],
                 error=f"{type(e).__name__}: {e}")
 
 
+def _reconcile_untracked_exposure(cfg: TwinConfig, creds: Optional[dict]) -> list[dict]:
+    """LOG-ONLY reconciliation for the flat-on-disk path (2026-09-05,
+    RESILIENCE-LEDGER-DUST-RECONCILIATION -- see DUST_EPSILON_BTC's docstring for the
+    finding this closes). Previously `manage_positions` returned [] immediately whenever
+    exit-state.json had no record, WITHOUT ever asking the broker whether that was true --
+    a genuine untracked position (any size) was structurally invisible forever. This is
+    intentionally NOT a sell/adopt/auto-heal: with no local entry record there is no
+    entry_price, exit_shape, or scenario to manage it against, so the only safe action is
+    to surface it loudly (C7: silent success is failure) and let a human or a follow-up
+    fix decide. Fail-open: creds=None or any broker-call exception is a quiet no-op, never
+    a crash -- this function must never be the reason a real tick fails."""
+    if creds is None:
+        return []
+    try:
+        qty = broker.get_crypto_position_qty(creds, cfg.symbol)
+    except Exception:  # noqa: BLE001 -- reconciliation must never break the real tick
+        return []
+    if qty is None or qty <= DUST_EPSILON_BTC:
+        return []
+    _journal(cfg, "UNTRACKED_BROKER_EXPOSURE", symbol=cfg.symbol, broker_qty=qty,
+            dust_epsilon_btc=DUST_EPSILON_BTC,
+            note="broker reports a position above the dust floor with no local disk "
+                 "record -- not auto-sold or auto-adopted (no entry_price/exit_shape "
+                 "to manage it against); needs a human or a follow-up fix.")
+    return [{"symbol": cfg.symbol, "open_qty": qty, "action": "UNTRACKED_BROKER_EXPOSURE"}]
+
+
 # --- exit management (T2) -- mirrors fleet's exit_actuator.manage_tick shape -------------
 def _make_ribbon_flip_fn(ribbon_stack: Optional[str]):
     if not ribbon_stack:
@@ -635,7 +679,7 @@ def manage_positions(cfg: TwinConfig, *, creds: Optional[dict], now_utc: datetim
     """
     positions = _load_positions(cfg)
     if not positions:
-        return []
+        return _reconcile_untracked_exposure(cfg, creds)
     results: list[dict] = []
     changed = False
     flip_fn = _make_ribbon_flip_fn(ribbon_stack)

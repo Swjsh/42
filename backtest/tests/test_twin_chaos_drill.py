@@ -131,6 +131,22 @@ def test_classify_recovery_corrupt_state_file_is_an_incident_regardless_of_broke
     assert (verdict, path) == ("INCIDENT", "STATE_FILE_CORRUPTED_ON_KILL")
 
 
+def test_classify_recovery_dust_below_epsilon_is_not_an_incident():
+    """2026-09-05 RESILIENCE-LEDGER-DUST-RECONCILIATION: 9e-09 BTC is the exact float-
+    noise magnitude two real 2026-08-16/08-23 drill reps left behind after a full
+    sell-to-flat -- it must classify as closed-cleanly, not ORPHANED_POSITION_NO_RECORD."""
+    verdict, path = tcd.classify_recovery(disk_position=None, broker_qty=9e-9, state_file_valid=True)
+    assert (verdict, path) == ("RECOVERED", "POSITION_CLOSED_CLEANLY")
+
+
+def test_classify_recovery_real_qty_above_epsilon_is_still_an_incident():
+    """The dust floor must not swallow a genuine orphan -- 0.002 BTC (a real unit-sized
+    qty, same value the pre-existing consistent-position test uses) stays an INCIDENT."""
+    verdict, path = tcd.classify_recovery(disk_position=None, broker_qty=0.002, state_file_valid=True)
+    assert (verdict, path) == ("INCIDENT", "ORPHANED_POSITION_NO_RECORD")
+    assert 0.002 > tcd.ctc.DUST_EPSILON_BTC  # sanity: the fixture value really is above the floor
+
+
 # ============================================================================
 # ledger writer
 # ============================================================================

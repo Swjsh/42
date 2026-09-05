@@ -158,11 +158,19 @@ def classify_recovery(*, disk_position: Optional[dict], broker_qty: float,
     Returns (verdict, recovery_path):
       verdict is "RECOVERED" or "INCIDENT" (mirrors crypto_twin_scenarios._grade's own
       GREEN/INCIDENT vocabulary so a reader scanning both ledgers recognizes the shape).
+
+    DUST FLOOR (2026-09-05, RESILIENCE-LEDGER-DUST-RECONCILIATION): `broker_qty > 0` used
+    to be the "has_broker" test, which misclassified the 9e-09 / 1e-09 BTC float noise
+    observed in two real 2026-08-16/08-23 reps (a full sell-to-flat rounding artifact,
+    ~5-6 orders of magnitude below one traded unit) as an ORPHANED_POSITION_NO_RECORD
+    INCIDENT. `ctc.DUST_EPSILON_BTC` is the SAME threshold `_reconcile_untracked_exposure`
+    now uses in production, so the drill's verdict and the live mechanism's own definition
+    of "a real untracked position" can never silently diverge again.
     """
     if not state_file_valid:
         return "INCIDENT", "STATE_FILE_CORRUPTED_ON_KILL"
     has_disk = disk_position is not None
-    has_broker = broker_qty > 0
+    has_broker = broker_qty > ctc.DUST_EPSILON_BTC
     if has_disk and has_broker:
         return "RECOVERED", "STATE_CONSISTENT_WITH_BROKER"
     if not has_disk and not has_broker:

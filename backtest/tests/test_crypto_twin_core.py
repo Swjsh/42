@@ -664,6 +664,68 @@ def test_manage_positions_blocked_no_account_when_creds_none(tmp_path, fake_brok
     assert not fake_broker.sells and not fake_broker.closes  # zero broker calls attempted
 
 
+# ============================================================================
+# 2026-09-05 RESILIENCE-LEDGER-DUST-RECONCILIATION: untracked broker exposure when
+# exit-state.json has no record at all (the branch manage_positions never checked before)
+# ============================================================================
+def test_manage_positions_no_local_record_no_creds_is_a_quiet_noop(tmp_path, fake_broker):
+    """Flat on disk + creds=None: unchanged pre-existing behaviour, zero broker calls."""
+    cfg = _twin_cfg(tmp_path)
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    results = ctc.manage_positions(cfg, creds=None, now_utc=now, live=True)
+    assert results == []
+
+
+def test_manage_positions_no_local_record_broker_flat_is_a_quiet_noop(tmp_path, fake_broker):
+    """Flat on disk AND flat at the broker: the ordinary all-day case. No journal row."""
+    cfg = _twin_cfg(tmp_path)
+    fake_broker.position_qty = 0.0
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert results == []
+    journal_path = cfg.state_dir / "journal.jsonl"
+    assert not journal_path.exists()
+
+
+def test_manage_positions_no_local_record_dust_is_ignored(tmp_path, fake_broker):
+    """9e-09 BTC (the exact float-noise magnitude observed live 2026-08-16/08-23) sits
+    below DUST_EPSILON_BTC -- must stay a quiet no-op, not a flagged incident."""
+    cfg = _twin_cfg(tmp_path)
+    fake_broker.position_qty = 9e-9
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert results == []
+
+
+def test_manage_positions_no_local_record_real_qty_is_flagged_loudly(tmp_path, fake_broker):
+    """A genuine untracked position (above the dust floor) must be surfaced -- never
+    silently dropped, never auto-sold (no entry_price/exit_shape exists to manage it)."""
+    cfg = _twin_cfg(tmp_path)
+    fake_broker.position_qty = 0.002  # a real unit-sized qty, not noise
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert len(results) == 1
+    assert results[0]["action"] == "UNTRACKED_BROKER_EXPOSURE"
+    assert results[0]["open_qty"] == pytest.approx(0.002)
+    assert not fake_broker.sells and not fake_broker.closes  # never auto-trades
+    journal = [json.loads(l) for l in (cfg.state_dir / "journal.jsonl").read_text().splitlines()]
+    assert journal[0]["event"] == "UNTRACKED_BROKER_EXPOSURE"
+    assert journal[0]["broker_qty"] == pytest.approx(0.002)
+
+
+def test_manage_positions_no_local_record_broker_error_is_a_quiet_noop(tmp_path, fake_broker, monkeypatch):
+    """A broker exception during reconciliation must never break the real tick -- fail
+    open, same discipline as every other broker call in this module."""
+    cfg = _twin_cfg(tmp_path)
+
+    def boom(creds, symbol="BTC/USD"):
+        raise RuntimeError("network blip")
+    monkeypatch.setattr(ctc.broker, "get_crypto_position_qty", boom)
+    now = datetime(2026, 9, 5, 12, 0, tzinfo=timezone.utc)
+    results = ctc.manage_positions(cfg, creds=_CREDS, now_utc=now, live=True)
+    assert results == []
+
+
 def test_run_tick_bear_verdict_never_places_short(tmp_path, fake_broker):
     """Alpaca crypto is cash/long-only -- an ENTER_BEAR verdict must be logged but
     never sent to the broker."""
