@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
-  "active": false,
-  "opened_at_et": "2026-09-05T07:49:41",
-  "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-OPRA-1MIN-COVERAGE-2026-09-05.md",
-  "queue_id": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
+  "id": "GOAL-FIRST-FIRES-2026-09-08",
+  "active": true,
+  "opened_at_et": "2026-09-05T08:14:50",
+  "expires_at_et": "2026-09-26",
+  "file": "automation/state/goals/GOAL-FIRST-FIRES-2026-09-08.md",
+  "queue_id": "GOAL-FIRST-FIRES-2026-09-08",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 08:13 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }

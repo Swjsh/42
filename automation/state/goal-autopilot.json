@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 08:13 ET",
-  "action": "closed_ladder_empty",
-  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
-  "active_goal_id": null,
-  "next_item": null,
+  "checked_at_et": "2026-09-05 08:14 ET",
+  "action": "opened",
+  "reason": "opened next eligible ladder entry",
+  "active_goal_id": "GOAL-FIRST-FIRES-2026-09-08",
+  "next_item": "V1 -- (after 16:30 ET 09-08) zero-enter + right-tail + tickers day-check + rth_tick_gaps evidence, quoted.",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -124,9 +124,21 @@
       "state": "done",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-FIRST-FIRES-2026-09-08",
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-SEPT-MIDWINDOW-READ-2026-09-15",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
     }
   ],
-  "last_opened": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
+  "last_opened": "GOAL-FIRST-FIRES-2026-09-08",
   "last_closed": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
   "error": null
 }
