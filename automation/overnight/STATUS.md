@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T06:24:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T07:08:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 06:1x ET] GOAL-CHECKPOINT-PACKET-2026-09-29 OPEN -- packet generator + Gamma_CheckpointPacket (23:30 ET, Ready) shipped; markdown/planning/CHECKPOINT-2026-09-29.md + -10-30.md are GENERATED nightly; C6 hand-check pending
+9 decisions inventoried (3 expansion -> 10-30, 2 reduction -> 09-29 eligible, 3 shadow-read, 1 tooling). First read: score-ladder shadow retirement RULE MET (n=38, reduction, 09-29 eligible); cap-4 PROVISIONAL (right-tail R4 open); f10 session reset / VIX-bull shadow / 1-2 DTE INSUFFICIENT N. Two rows read RULE NOT MET in a way that conflicts with the real-fills replay (the -$400 stop; catastrophe-cap+day-throttle shadows) -- scorer math is first-pass, so C6 hand-checks every MET/NOT-MET row before 09-28. Cockpit Autopilot tile shows the counts with links. Also tonight: right-tail capture instrument built (Gamma_RightTailCapture Ready) but its wave detector does not yet reproduce the August doctrine days -- R4 reopened, numbers PROVISIONAL, root-cause worker running.
+
 
 ## [2026-09-05 05:0x ET] GOAL-KITCHEN-INTEGRITY-2026-09-05 CLOSED -- 3,836 Kitchen files tagged (440 PROVENANCE-MISSING / 3,396 UNVERIFIED-BY-CONSTRUCTION), 24 leaderboard rows -> UNSUPPORTED (provenance), chef prompt + reviewer require a provenance block, trust gate DEGRADED at 11.0% rendered on the cockpit, lesson L310
 One Sonnet chain (I1-I5). Sweep: rows_examined 79, rewritten 24, kept_protected 22 (tonight's adjudicated rows untouched), skipped_malformed 6. RED-proofed reviewer rejection; 252 kitchen/provenance/free_model tests green; safety gate 59 passed. The Kitchen's free-model output is now evidence only when it names a runner command and an artifact that exists. UNVERIFIED: the live Nemotron review loop call site was unit-tested, not exercised with a paid call.

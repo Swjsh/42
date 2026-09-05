@@ -397,6 +397,39 @@ def build(now: dt.datetime | None = None) -> dict:
         # silently swallowed by an unrelated daemon-liveness gap).
         kitchen = {"alive": None, "provenance": kitchen_provenance}
     prospector = None
+    # THE CHECKPOINT PACKET (GOAL-CHECKPOINT-PACKET-2026-09-29 C5). Reads the LATEST
+    # generated analysis/recommendations/checkpoint-packet-<date>.json (never re-derives
+    # verdicts here -- checkpoint_packet.py is the sole authority) and rolls up verdict
+    # counts (met / not met / insufficient) for the Autonomy tile, plus a link to the
+    # generated markdown file the tile points at. Fails open to None on any read error --
+    # absence must read as "not generated yet", never a fabricated zero.
+    checkpoint_packet = None
+    try:
+        packet_files = sorted(
+            (REPO / "analysis" / "recommendations").glob("checkpoint-packet-*.json")
+        )
+        if packet_files:
+            praw2 = _read_json(packet_files[-1]) or {}
+            rows2 = praw2.get("rows") or []
+            counts: dict[str, int] = {}
+            for r in rows2:
+                v = r.get("verdict") or "UNKNOWN"
+                counts[v] = counts.get(v, 0) + 1
+            checkpoint_packet = {
+                "generated_at_et": praw2.get("generated_at_et"),
+                "generation_date": praw2.get("generation_date"),
+                "row_count": praw2.get("row_count"),
+                "met": counts.get("RULE MET", 0),
+                "not_met": counts.get("RULE NOT MET", 0),
+                "insufficient_n": counts.get("INSUFFICIENT N", 0),
+                "provisional": counts.get("PROVISIONAL", 0),
+                "unknown": counts.get("UNKNOWN", 0),
+                "file_0929": "markdown/planning/CHECKPOINT-2026-09-29.md",
+                "file_1030": "markdown/planning/CHECKPOINT-2026-10-30.md",
+            }
+    except Exception:
+        checkpoint_packet = None
+
     praw = _read_json(REPO / "analysis" / "prospector" / "state.json")
     if praw:
         prospector = {
@@ -459,6 +492,7 @@ def build(now: dt.datetime | None = None) -> dict:
         "goal": goal,
         "autopilot": autopilot,
         "engines": {"kitchen": kitchen, "prospector": prospector},
+        "checkpoint_packet": checkpoint_packet,
     }
 
 

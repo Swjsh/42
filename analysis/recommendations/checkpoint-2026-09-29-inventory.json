@@ -1,0 +1,117 @@
+{
+  "_doc": "GOAL-CHECKPOINT-PACKET-2026-09-29 C1. Inventory of every prereg/decision that names the 2026-09-29 or 2026-10-30 checkpoint, tagged reduction|expansion|shadow-read|tooling. Classification rule (per goal): a change that can ONLY reduce risk/exposure (retire a shadow, tighten, remove) is 09-29-eligible; anything that adds entries/size/loosens a gate is an EXPANSION routed to 10-30 regardless of its numbers. Consumed by setup/scripts/checkpoint_packet.py -- hand-maintained, not generated.",
+  "generated_by": "human inventory pass (Sonnet, GOAL-CHECKPOINT-PACKET-2026-09-29 C1), 2026-09-05",
+  "method": "grep -l '09-29\\|10-30' analysis/recommendations/*.json *.md, cross-referenced against the nine decisions named verbatim in automation/state/goals/GOAL-CHECKPOINT-PACKET-2026-09-29.md DONE-WHEN.",
+  "rows": [
+    {
+      "row_id": "tight-ladder-control-4-roundtrip-cap",
+      "prereg_path": "analysis/recommendations/PREREG-TIGHT-LADDER-2026-08-28.md",
+      "ledger_path": "analysis/right-tail/ledger.jsonl",
+      "scorer": "tight_ladder_control4",
+      "classification": "expansion",
+      "classification_reason": "Question is whether to REVERT max_same_day_roundtrips from 4 back to 5 -- that loosens a gate (more same-day entries admitted), so per the goal's routing rule it is an expansion and goes to 10-30 regardless of how the evidence reads.",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "Does the forward window show control #4 (max_same_day_roundtrips=4, live since 2026-08-31) refusing any entry that would have exited >=1.3x? If yes, the churn control is costing the right tail and 4->5 is reverted. If no, it stays.",
+      "decision_rule_verbatim": "PREREG-TIGHT-LADDER-2026-08-28.md interim evidence (2026-09-05 ~02:2x ET): 'the answer to does the forward window show control #4 refusing any entry that would have exited >=1.3x? remains NO. The cap stays.' Scored by right_tail_capture.py's would_be_refused_under_cap4 flag, post-08-31 (cap live) subset only.",
+      "reversible_action": "Revert one line in both automation/state/params.json and aggressive/params.json (max_same_day_roundtrips 4->5) -- REVERT line already documented in the key's own doc. EXPANSION, so even a clean revert-would-help finding waits for 10-30."
+    },
+    {
+      "row_id": "tight-ladder-control-5-dollar-stop",
+      "prereg_path": "analysis/recommendations/PREREG-TIGHT-LADDER-2026-08-28.md",
+      "ledger_path": "journal/trades.csv",
+      "scorer": "tight_ladder_control5",
+      "classification": "shadow-read",
+      "classification_reason": "Confirms KEEPING an existing catastrophe-adjacent control (-$400/arm/day realized stop) -- no config change either direction, pure evidence read.",
+      "checkpoint": "2026-09-29",
+      "frozen_hypothesis": "Would a -$400/arm/day realized-loss stop have net-helped over the study window?",
+      "decision_rule_verbatim": "Addendum 2 (2026-08-28 evening) + interim evidence (2026-09-05 01:18 ET): 'Control #5 -$400/arm/day realized stop would have blocked 8 entries: net -$1,601 (1 winner +$347 / 7 losers -$1,948). Fires only on 08-05, 08-07, 08-14 -- all losing days.' Verdict as filed: keep.",
+      "reversible_action": "No action -- control #5 is not shipped; this is a standing keep/no-ship read reconfirmed each generation."
+    },
+    {
+      "row_id": "score-ladder-v2-shadow-retirement",
+      "prereg_path": "analysis/recommendations/prereg-score-ladder-v2-2026-08-07.json",
+      "ledger_path": "analysis/arm-ladder/ladder-rung-shadow-ledger.jsonl",
+      "scorer": "score_ladder_v2_retirement",
+      "classification": "reduction",
+      "classification_reason": "Retiring a shadow instrument (Gamma_BoldTierRail / ladder-rung shadow) that measured a KILLED hypothesis -- pure removal, cannot loosen or add anything.",
+      "checkpoint": "2026-09-29",
+      "frozen_hypothesis": "Does score-ladder rung admission (adjusted_score >= rung, demotable-filter demerit scheme) beat the binary control on RISKY arms?",
+      "decision_rule_verbatim": "status field: 'KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 frozen arm-bar criteria'. _ship_gates_frozen_before_looking required all 3 to pass; ladger shows extras -$13.8K/arm over 28 sessions.",
+      "reversible_action": "Retire Gamma_BoldTierRail scheduled task + stop appending to ladder-rung-shadow-ledger.jsonl. git revert restores the task if evidence is later disputed."
+    },
+    {
+      "row_id": "f10-vol-baseline-session-reset",
+      "prereg_path": "analysis/recommendations/prereg-f10-vol-baseline-session-reset-10-30-2026-09-03.json",
+      "ledger_path": "analysis/zero-enter/ZERO-ENTER-INVENTORY-2026-09-03.json",
+      "scorer": "f10_vol_baseline_reset",
+      "classification": "expansion",
+      "classification_reason": "Resetting the f10 vol_baseline gate per-session would admit entries currently blocked by a stale cross-session baseline -- a loosening change, filename itself is scoped '10-30'.",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "Does f10 (vol_baseline blocker) fire on stale cross-session baselines rather than genuine same-session compression, and would a per-session reset recover blocked entries without admitting noise?",
+      "decision_rule_verbatim": "status: 'FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate'. Aggregated evidence from z5 backfill named in file as the evidence source; question_for_10_30 field states the open question verbatim.",
+      "reversible_action": "None shipped -- prereg only, evidence accrues in analysis/zero-enter/ZERO-ENTER-*.json nightly."
+    },
+    {
+      "row_id": "vix-bull-hard-cap-unblock-shadow",
+      "prereg_path": "analysis/recommendations/prereg-vix-bull-hard-cap-unblock-shadow-2026-09-05.json",
+      "ledger_path": "analysis/recommendations/vix-bull-hard-cap-unblock-shadow-summary.json",
+      "scorer": "vix_bull_hard_cap_shadow",
+      "classification": "expansion",
+      "classification_reason": "An 'unblock' of a hard-cap VIX gate is by definition a loosening -- admits entries the live gate currently vetoes.",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "Would unblocking bull entries in the 18.0-22.0 VIX band (currently hard-capped) show positive forward edge?",
+      "decision_rule_verbatim": "summary.decision_rule: 'Forward CI-lower bootstrap PF > 1.0 over n>=15 matched round trips before this is cited as confirming evidence at the 2026-10-30 config-freeze checkpoint; n<15 stays UNVERIFIED/insufficient regardless of sign.'",
+      "reversible_action": "None shipped -- SHADOW-FILED, Gamma_VixBullHardCapUnblockShadow accrues nightly, n_matched_round_trips=0 as of filing."
+    },
+    {
+      "row_id": "spy-signal-1-2dte-via-weekly-lane",
+      "prereg_path": "analysis/recommendations/prereg-spy-signal-1-2dte-via-weekly-lane-2026-09-05.json",
+      "ledger_path": "analysis/recommendations/prereg-spy-signal-1-2dte-via-weekly-lane-2026-09-05.json",
+      "scorer": "spy_signal_weekly_lane",
+      "classification": "expansion",
+      "classification_reason": "Adds a new SPY entry signal path (1-2 DTE via the weekly-options lane) -- a new source of entries is an addition, not a reduction, regardless of sign.",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "Does the weekly-lane's signal generalize to SPY at 1-2 DTE (vs 0DTE core)?",
+      "decision_rule_verbatim": "status: 'FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate'. n_needed + kill_criteria fields hold the frozen statistical bar (read from file at generation time).",
+      "reversible_action": "None shipped -- prereg only, no instrument armed yet."
+    },
+    {
+      "row_id": "fill-model-unification-step2-prereq",
+      "prereg_path": "analysis/recommendations/prereg-fill-model-unification-2026-08-13.json",
+      "ledger_path": "analysis/recommendations/prereg-fill-model-unification-2026-08-13.json",
+      "scorer": "fill_model_unification_step2",
+      "classification": "tooling",
+      "classification_reason": "This is a study-fidelity prerequisite (exit_manager_walk fill-model fix, STEP 1) gating whether ANY of this prereg's before/after tables can be trusted -- it ships nothing and reduces/expands nothing by itself.",
+      "checkpoint": "2026-09-29",
+      "frozen_hypothesis": "Is exit_manager_walk's fill model unified with the live executor's before any comparison table from this study is published?",
+      "decision_rule_verbatim": "status: 'EXTEND -- mandatory STEP 1 (exit_manager_walk fill-model fix) still not executed'. ship_rule.ships_on_completion: false -- 'NOTHING is armed, un-killed, or re-config'd by this study.'",
+      "reversible_action": "No action pending -- STEP 1 execution is a code-fidelity fix, tracked here so its still-pending state is visible at both checkpoints rather than re-derived by hand."
+    },
+    {
+      "row_id": "tickers-theta-budget-cadence",
+      "prereg_path": "analysis/recommendations/prereg-tickers-theta-budget-cadence-2026-09-05.json",
+      "ledger_path": "automation/state/tickers",
+      "scorer": "tickers_theta_budget_cadence",
+      "classification": "reduction",
+      "classification_reason": "The only action this decision_rule authorizes (ACT_tighten_cadence_or_limit_exit) TIGHTENS cadence / limits exit -- both reduce exposure. NO_ACTION is status quo. Neither branch loosens anything.",
+      "checkpoint": "2026-09-29",
+      "frozen_hypothesis": "Does theta_budget-stage exit overshoot on the tickers lane reproduce as cadence-lag + slippage, material and lane-wide (>=2 of 3 arms), once minimum fills are met?",
+      "decision_rule_verbatim": "decision_rule.ACT_tighten_cadence_or_limit_exit: 'median (fired_tick_bleed - last_clean_check_bleed) > 10pp AND median (fill_bleed - fired_tick_bleed) > 3pp, consistently across >=2 of the 3 arms.' statistics.min_additional_fills=15, min_additional_trading_days=10.",
+      "reversible_action": "On ACT: DRAFT param change (tick_cadence.minutes / exit-order-type) written up for next weekend ratification (Rule 9) -- never applied mid-week. On NO_ACTION: leave tickers-lane exits exactly as configured."
+    },
+    {
+      "row_id": "catastrophe-cap-and-day-throttle-forward-shadows",
+      "prereg_path": "analysis/recommendations/catastrophe-cap-decision-2026-08-09.json",
+      "ledger_path": "analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl,analysis/recommendations/day-throttle-shadow-ledger.jsonl",
+      "scorer": "catastrophe_cap_and_day_throttle",
+      "classification": "shadow-read",
+      "classification_reason": "Both instruments are already-live forward measurement only (catastrophe-cap: -50% stop counterfactual tracker; day-throttle: T-2/T-6 would-block measurement) -- neither ships a config change from this read, they are the accruing evidence base for a future prereg.",
+      "checkpoint": "2026-09-29",
+      "frozen_hypothesis": "Is the -50% catastrophe cap and the day-throttle (T-2/T-6 realized-loss re-entry block) net-helping or net-hurting on live fills, accruing forward?",
+      "decision_rule_verbatim": "day_throttle_shadow.py: 'SHADOW ONLY. Neither threshold refuses anything live. This script writes measurements.' catastrophe-cap-shadow-ledger.jsonl rows carry would_have_been_better_held / delta_vs_actual per stopped trade -- read as an aggregate, no frozen n-threshold ships a change by itself.",
+      "reversible_action": "None shipped -- both remain measurement-only; any indicted tightening is filed as a fresh prereg for 09-29 (reduction) or 10-30, never applied from this read directly."
+    }
+  ],
+  "extras_found_not_in_named_nine": [],
+  "count": 9
+}

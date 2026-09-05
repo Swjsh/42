@@ -38,6 +38,10 @@
 > real OPRA data tier, a phone-reachable HALT, a whole-engine null study, an after-tax target.
 > **Execution order for every session until 10-30:** [`OPUS-WORK-ORDER-2026-09.md`](OPUS-WORK-ORDER-2026-09.md)
 > (phases, review/audit/test list, drills, the freeze-to-10-30 decision, J's items).
+> **Checkpoint packets (2026-09-05):** the two dates above now have a mechanical read, GENERATED
+> nightly (never hand-written) by `setup/scripts/checkpoint_packet.py` from the frozen preregs:
+> [`CHECKPOINT-2026-09-29.md`](CHECKPOINT-2026-09-29.md) (kill-type reductions only) and
+> [`CHECKPOINT-2026-10-30.md`](CHECKPOINT-2026-10-30.md) (the full checkpoint, expansions included).
 
 ## 1. The destination
 

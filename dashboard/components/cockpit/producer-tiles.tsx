@@ -339,6 +339,12 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
   const kitchenProvMissing = kitchenProvenance?.provenance_missing as number | undefined;
   const kitchenFilesScored = kitchenProvenance?.files_scored as number | undefined;
 
+  // Checkpoint packet (GOAL-CHECKPOINT-PACKET-2026-09-29 C5): verdict counts written
+  // by checkpoint_packet.py -> gamma_autonomy.py's checkpoint_packet block. Rendered
+  // on the same Autopilot tile with a link to the GENERATED markdown file -- never
+  // re-derived here, this is a pure display of the packet's own numbers.
+  const checkpointPacket = autonomy?.checkpoint_packet as Record<string, unknown> | undefined;
+
   // Small local aliases keep the tile arrays below to one line of JSX-glue each.
   const ring = (value: number, color: string) => (
     <div className="flex justify-start">
@@ -417,14 +423,34 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
       summary: autonomy
         ? `${autonomy.awake ? "Awake" : "Quiet"}${(autonomy.quiet as Record<string, unknown>)?.active ? " — quiet hours" : ""}`
           + (kitchenTrustGate ? ` — Kitchen ${kitchenTrustGate}${kitchenFabRate != null ? ` (${(kitchenFabRate * 100).toFixed(1)}%)` : ""}` : "")
+          + (checkpointPacket ? ` — Checkpoint ${checkpointPacket.met ?? 0}✓/${checkpointPacket.not_met ?? 0}✗/${checkpointPacket.insufficient_n ?? 0}⋯` : "")
         : "NO DATA",
       freshness: freshLabel(autonomy),
-      detail: kitchenTrustGate ? (
-        <div className="text-[12px] text-[var(--gc-text-2)]">
-          Kitchen fabricated-artifact rate (30d): <span className="font-medium text-[var(--gc-text)]">
-            {kitchenFabRate != null ? `${(kitchenFabRate * 100).toFixed(2)}%` : "N/A"}
-          </span> ({kitchenProvMissing ?? "?"}/{kitchenFilesScored ?? "?"} files) — trust gate:{" "}
-          <span className="font-medium text-[var(--gc-text)]">{kitchenTrustGate}</span>
+      detail: (kitchenTrustGate || checkpointPacket) ? (
+        <div className="flex flex-col gap-2">
+          {kitchenTrustGate ? (
+            <div className="text-[12px] text-[var(--gc-text-2)]">
+              Kitchen fabricated-artifact rate (30d): <span className="font-medium text-[var(--gc-text)]">
+                {kitchenFabRate != null ? `${(kitchenFabRate * 100).toFixed(2)}%` : "N/A"}
+              </span> ({kitchenProvMissing ?? "?"}/{kitchenFilesScored ?? "?"} files) — trust gate:{" "}
+              <span className="font-medium text-[var(--gc-text)]">{kitchenTrustGate}</span>
+            </div>
+          ) : null}
+          {checkpointPacket ? (
+            <div className="text-[12px] text-[var(--gc-text-2)]">
+              Checkpoint packet ({(checkpointPacket.generation_date as string) ?? "?"}, {(checkpointPacket.row_count as number) ?? 0} rows):{" "}
+              <span className="font-medium text-[var(--gc-text)]">{(checkpointPacket.met as number) ?? 0} met</span>
+              {" / "}
+              <span className="font-medium text-[var(--gc-text)]">{(checkpointPacket.not_met as number) ?? 0} not met</span>
+              {" / "}
+              <span className="font-medium text-[var(--gc-text)]">{(checkpointPacket.insufficient_n as number) ?? 0} insufficient</span>
+              {(checkpointPacket.provisional as number) ? <> {" / "}<span className="font-medium text-[var(--gc-text)]">{checkpointPacket.provisional as number} provisional</span></> : null}
+              {" — "}
+              <a href={`/${(checkpointPacket.file_0929 as string) ?? ""}`} className="underline hover:text-[var(--gc-text)]">09-29</a>
+              {" · "}
+              <a href={`/${(checkpointPacket.file_1030 as string) ?? ""}`} className="underline hover:text-[var(--gc-text)]">10-30</a>
+            </div>
+          ) : null}
         </div>
       ) : undefined },
     { key: "goal", icon: Target, title: "Active goal", verdict: goal?.active ? "green" : "off", summary: (goal?.title as string) || "NO DATA",
