@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-FIRST-FIRES-2026-09-08",
-  "active": false,
-  "opened_at_et": "2026-09-05T08:14:50",
-  "expires_at_et": "2026-09-26",
-  "file": "automation/state/goals/GOAL-FIRST-FIRES-2026-09-08.md",
-  "queue_id": "GOAL-FIRST-FIRES-2026-09-08",
+  "id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+  "active": true,
+  "opened_at_et": "2026-09-05T12:01:20",
+  "expires_at_et": "2026-09-19",
+  "file": "automation/state/goals/GOAL-RIG-SIGNAL-HYGIENE-2026-09-05.md",
+  "queue_id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 11:55",
-  "closed_reason": "deferred by Fable: ladder not_before:2026-09-08 gate added (opened early on Saturday; evidence cannot exist before Tuesday)"
+  "last_next_item": null
 }

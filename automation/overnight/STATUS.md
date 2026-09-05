@@ -1,14 +1,6 @@
-## [2026-09-05 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
-
-- **no-console-popups** -- closes: console flash regression class
-  - code: guard-enforced
-  - guard: 1 failed, 6 passed in 0.43s
-
-Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
-
 ## Known broken
 
-- [2026-09-05T15:57:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T16:04:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T07:15:52.162347] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1106 >= 0.05 (443/4005 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md. | since 2026-09-05 (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).
 - [2026-09-05 05:45:04 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
@@ -36,6 +28,17 @@ Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident rost
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 12:01 ET] WEEKEND GOALS OPENED (Fable, Saturday): GOAL-RIG-SIGNAL-HYGIENE (wake-watcher churn on re-stamped Known-broken lines, phantom-account test RED, GuardsFull freshness disagreement, dead roster lane), GOAL-GATE-EXPIRY-RECONCILE (dollar verdict for the two proxy GATE-EXPIRY REDs via postfix_gate_costing + the real-fills walk; instrument self-escalates), GOAL-WAVE-DAY-CONDITIONS (what August's 2x mornings looked like before 09:41 vs zero-wave days, n=5 hypothesis only -> INFORMATIONAL prereg + $0 daily premarket row), GOAL-FUTURES-YELLOWS (attribute the stray-exposure RED, root-cause transport/fills_recency). Ladder order = priority; the two dated goals wait behind not_before gates. First two are running as Sonnet chains from this session.
+
+
+## [2026-09-05 09:30 ET] RED -- INCIDENT FIX ROSTER REGRESSED (1 RED, 0 unguarded)
+
+- **no-console-popups** -- closes: console flash regression class
+  - code: guard-enforced
+  - guard: 1 failed, 6 passed in 0.43s
+
+Source: `setup/scripts/incident_fix_status.py --alert` (2026-08-14 incident roster). Re-run it to reproduce.
 
 ## [2026-09-05 11:57 ET] CONDUCTOR DARK ALL SATURDAY MORNING -- self-inflicted budget lockout, FIXED (Fable): conductor_budget counted every conductor-outcomes.jsonl row as a "fire" -- the 29 goal records the overnight Fable session wrote at $0 plus 9 PRECHECK rejection rows read "37 fires >= max_fires 8" at $0.76 of $30, so Gamma_ConductorWeekend never spawned (08:00, 10:00 ET; each rejection added to the count that caused it). Fix: PRECHECK rows never count; rows now carry `source` (conductor_outcome.record stamps it from GAMMA_CONDUCTOR_FIRE=1, exported by run-conductor*.ps1 at the spawn point) and only source=conductor counts; legacy rows count iff cost > 0. Dollar cap untouched. Fresh check: `2026-09-05 PROCEED $0.76 of $30.00 used, 2/8 fires`. 8 new tests + 1 legacy assertion relabelled.
 Second autonomy hole closed in the same pass: the ladder had no "not yet" grammar, so GOAL-FIRST-FIRES-2026-09-08 (Tuesday evidence) became the ACTIVE goal on Saturday and would have burned a weekend fire every 2h saying "not yet" while starving any real goal behind it. LADDER lines now accept ` :: not_before:YYYY-MM-DD` (skipped + logged until that ET date); FIRST-FIRES and SEPT-MIDWINDOW-READ are re-queued behind their dates; ensure reads `ladder_empty: no eligible queued ladder entry` with both rows `not before ...`. 6 tests. Weekend engine goals follow in the next entry.
@@ -475,47 +478,6 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
-## [2026-09-04 04:40 ET] GOAL DELIVERED: GOAL-COCKPIT-REDESIGN-2026-09-03 -- "Glow Command" live (J's AetherOps reference), blind panel 3/2/2 -> 7/8/8
-
-Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec v2 and the vendored ui-kit (44 licensed snippets from uiverse / 21st.dev / monet recipes). Verified this session: 269 guard tests + 2 xfail; cockpit_dom_check clean dark+light (tiles=26, sankey_ribbons=10, small_text=0, overflow_x=False); cockpit_exercise 13/13 with 0 console errors (headless CDP, no windows); routing map reads the last trading session end to end. Before/after captures sent to J. Round-3 polish in flight (em-dashes, 1440 px grid reflow, journal titles, light-mode ribbon glow). Revert: `git revert 83d580b4 b9c873ce`.
-
 
 ## Kitchen
-Kitchen: alive, queue 71 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: prereg-hygiene 2026-09-05T03:41:06
-- 21 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-05T07:20:23Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
-  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
-  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
-  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-05T07:20:23Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
-  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
-  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-
-### BROKEN: prereg-hygiene 2026-09-05T05:56:01
-- 22 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-05T09:46:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
-  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
-  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
-  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-05T09:46:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
-  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
-  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-
-- [2026-09-05 04:00:02] scheduled-tasks audit RED -- see automation/state/scheduled-tasks-audit.json
-
-- [2026-09-05 04:00:02] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
-
-[2026-09-05 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-09-05.md
-
-### BROKEN: self-check 2026-09-05T06:39:56
-- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 2 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
+Kitchen: alive, queue 66 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free

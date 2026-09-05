@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 11:55 ET",
-  "action": "ladder_empty",
-  "reason": "no eligible queued ladder entry",
-  "active_goal_id": "GOAL-FIRST-FIRES-2026-09-08",
-  "next_item": null,
+  "checked_at_et": "2026-09-05 12:01 ET",
+  "action": "opened",
+  "reason": "opened next eligible ladder entry",
+  "active_goal_id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+  "next_item": "H1 -- Known-broken upsert keeps the stamp on unchanged payload + wake watcher keys on content hash; 2 RED-proofed tests; watermark quoted stable across two engine_health runs.",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -126,6 +126,30 @@
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
+      "id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-GATE-EXPIRY-RECONCILE-2026-09-05",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-WAVE-DAY-CONDITIONS-2026-09-05",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-FUTURES-YELLOWS-2026-09-05",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
       "id": "GOAL-FIRST-FIRES-2026-09-08",
       "state": "queued",
       "eligible": false,
@@ -138,7 +162,7 @@
       "why": "not before 2026-09-15 (today 2026-09-05)"
     }
   ],
-  "last_opened": "GOAL-FIRST-FIRES-2026-09-08",
+  "last_opened": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
   "last_closed": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
   "error": null
 }
