@@ -130,3 +130,37 @@ REJECTED — 0/10.
 - `backtest/lib/orchestrator.py`: `include_bearish_reversal_bypass`, `fhh_quality_proximity`, `fhh_above_max_prior_min` kwargs thread to `evaluate_bearish_setup()`
 - `backtest/tests/test_graduated_guards.py`: 4 guards (24/24 passing): bypass_fires_at_fhh, bypass_no_regression_loser_days, v4_proximity_antipattern, v4_gapup_preserves_501_filters_508
 - Kitchen: Real-fills for 6-day v4 subset enqueued
+
+---
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (confirming this file's own 2026-06-17 verdict — number: 17-month OOS
+delta dn=+23, dpnl=-$1,901; OOS Stage-2 subset N=2, WR=0%, P&L=-$133).**
+
+This candidate was already REJECTED by its own author on 2026-06-17, root cause L103
+"wrong-bar anti-pattern": the FHH bypass fires at the 5/01 11:50 FHH-rejection bar, but J's
+actual +$470 real win on 5/01 was a **trendline_rejection at 13:36** — a different bar,
+trigger, and time entirely. Empirical confirmation already in this file: enabling
+`include_first_hour_high=True, include_bearish_reversal_bypass=True` regresses 5/01 from
+-$56 → -$420 (Δ-$364) in BS-sim — the bypass identifies the right day but the wrong entry.
+17-month OOS (v3, base vs FHH+bypass): dn=+23 additional bars, dpnl=-$1,901 net negative.
+The best-tuned variant (v4, gap-up discriminator) still only gets bypass drag from -$1,901
+to -$257 — improved but still negative — and Stage-2 real-fills OOS (2026-05-08..22) shows
+N=2 new trades, WR=0%, P&L=-$133.
+
+This is the K1 worklist's own age/family mis-tag: the leaderboard's `NEEDS-MORE-DATA` status
+text is stale relative to the candidate's own file, which has carried `REJECTED` /
+`include_bearish_reversal_bypass` defaulting to `False` since 2026-06-17. No new evidence
+changes this; the fix that WOULD capture J's 5/01 trade (trendline-rejection path with
+filter_5 softened for midday, per L95) is a structurally different mechanism, not a tuning
+of this one, and is out of this adjudication's scope.
+
+**Commands run this adjudication:** none — verdict rests entirely on evidence already
+recorded in this file's own "REJECTION RATIONALE (2026-06-17)" and "Stage-2 OOS Results"
+sections (re-read, not re-derived).
+
+No production/FROZEN_TRADING_PATH files touched (`include_bearish_reversal_bypass` already
+defaults False in `backtest/lib/filters.py`/`orchestrator.py`, per this file's own
+Implementation Status). Leaderboard `NEEDS-MORE-DATA` → `KILLED (-$1,901 OOS / L103
+wrong-bar)` status-column correction deferred to K9.
