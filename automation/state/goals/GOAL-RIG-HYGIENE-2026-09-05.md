@@ -1,6 +1,6 @@
 # GOAL: RIG-HYGIENE-2026-09-05
 
-> Opened by Fable 2026-09-05 15:xx ET. Two leftovers from the weekend loop that keep the rig honest
+> Opened by Fable 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock). Two leftovers from the weekend loop that keep the rig honest
 > without touching the engine: (1) the 24/7 Kitchen daemon (pid 15576) is still running pre-ship code
 > after GOAL-KITCHEN-RUNNER-IN-LOOP because restarting it would kill a 6h grinder job -- the keepalive
 > needs a restart-when-idle rule so shipped code goes live within one idle window instead of "whenever
@@ -73,7 +73,7 @@ by directory with counts).
 - None. Everything is revertible (gitignore lines; archives are moves, not deletes).
 
 ## PROGRESS LOG
-- 2026-09-05 15:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 07:21 ET — opened by goal_autopilot
 - 2026-09-05 07:37 ET -- H1-H4 all DONE by Sonnet worker chain (session a16e320c). 168 pytest
   passed (-k "keepalive or retention or kitchen"), safety gate 59 passed, 0 regressions.

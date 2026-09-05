@@ -1,6 +1,6 @@
 # GOAL: KITCHEN-RUNNER-IN-LOOP-2026-09-05
 
-> Opened by Fable 2026-09-05 13:xx ET. The provenance audit (commit 11a45e2d; GOAL-KITCHEN-INTEGRITY)
+> Opened by Fable 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock). The provenance audit (commit 11a45e2d; GOAL-KITCHEN-INTEGRITY)
 > scored 4,193 Kitchen verdict files: 357 cite an artifact that exists, 440 cite artifacts that do
 > not, 3,396 cite none. The reviewer now refuses the last two classes, which means the Kitchen's
 > free-model loop currently produces almost nothing the rig can use. Root cause is structural: the
@@ -120,7 +120,7 @@ first 10 daemon cycles after shipping, the share of new candidate files classifi
 - None. Revert = `git revert <sha>`; the daemon's prior prompt path is restored by the revert.
 
 ## PROGRESS LOG
-- 2026-09-05 13:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 06:27 ET — opened by goal_autopilot
 - 2026-09-05 07:18 ET -- R1-R5 shipped by Sonnet worker (session a16e320c). Stage-1-in-the-loop
   wired end-to-end; 3 real daemon cycles run against the live queue (`run-once

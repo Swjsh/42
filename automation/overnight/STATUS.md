@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T11:38:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T11:40:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T07:15:52.162347] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1106 >= 0.05 (443/4005 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md. | since 2026-09-05 (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).
 - [2026-09-05 05:45:04 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
@@ -28,6 +28,9 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 07:40 ET] TIME-STAMP CORRECTION (Fable, self-caught): several goal-file and STATUS stamps written this session as "2026-09-05 09:xx..15:xx ET" were inferred, not read; the real clock at the last check is 2026-09-05 07:40 ET. Those tokens now read "~05:00-07:40 ET (stamp corrected)". Entries that quoted et_clock directly are unaffected. Root cause: the orchestrator estimated elapsed time from work volume instead of calling et_clock per stamp (memory feedback_read_et_clock_every_timestamp_2026_09_03 re-violated -> graduated: every STATUS/goal stamp in this session's scripts now comes from et_clock).
+
 
 ## [2026-09-05 07:38 ET] GOAL-RIG-HYGIENE-2026-09-05 CLOSED -- keepalive now restarts the Kitchen daemon when idle AND its code is newer than its start (RED-proofed; daemon was busy all session so the restart is still pending its next idle 5-min tick); retention policy written (markdown/infra/RETENTION.md) and applied: 1,193 untracked generated files archived by MOVE into <dir>/_archive/YYYY-MM/, gitignore for pure-state dirs, guard test fails on any undocumented generated directory
 Evidence dirs untouched (right-tail, zero-enter, gate-net-cost, doctrine-parity, recommendations, kitchen-review reports). 168 keepalive/retention/kitchen tests green. UNVERIFIED: kitchen-status.json daemon_pid (23904) differs from the pid file (15576) -- orchestrator checking for a duplicate daemon now.

@@ -1,6 +1,6 @@
 # GOAL: EXIT-SHAPE-PARITY-2026-09-05
 
-> Opened by Fable 2026-09-05 10:xx ET. GOAL-RIGHT-TAIL-FOLLOWUPS found three sources disagreeing on
+> Opened by Fable 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock). GOAL-RIGHT-TAIL-FOLLOWUPS found three sources disagreeing on
 > the core engine's runner exit: `automation/state/params.json` (runner_target 0.125, profit_lock
 > "fixed"), `automation/state/fleet/strategies.py` RIBBON_RIDE (runner_target_pct 99.0 = unconstrained,
 > trail 0.15), and CLAUDE.md doctrine text ("runner target 2.5x, chandelier trailing profit-lock arms at
@@ -49,7 +49,7 @@ for 09-29 if setting a finite target would be a risk REDUCTION -- decide from th
 - None. Doc corrections are revertible; any value change waits for its checkpoint.
 
 ## PROGRESS LOG
-- 2026-09-05 10:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 05:12 ET — opened by goal_autopilot
 - 2026-09-05 05:26 ET -- E1-E5 all done in one Sonnet chain (session a16e320c). markdown/0dte/EXIT-SHAPE-TRUTH.md written; CLAUDE.md corrected + linked; backtest/tests/test_exit_shape_parity_2026_09_05.py RED-proofed + passing; E5 adjudicated (a) trail-only-by-design, no reduction prereg needed. No params/code VALUE changes (FROZEN_TRADING_PATH untouched).
 - 2026-09-05 05:37 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)

@@ -1,6 +1,6 @@
 # GOAL: DOCTRINE-CODE-PARITY-SWEEP-2026-09-05
 
-> Opened by Fable 2026-09-05 11:xx ET. GOAL-EXIT-SHAPE-PARITY found two doctrine claims the code does
+> Opened by Fable 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock). GOAL-EXIT-SHAPE-PARITY found two doctrine claims the code does
 > not honour (runner target 2.5x; TP1 0.8 on Safe "ratified 2026-06-28, pk-2026-06-28-001") and one
 > params surface (top-level exit keys) that is vestigial on the live path. Lesson class C14 says
 > such knobs are found one at a time, months late. This goal sweeps ALL of them once and leaves a
@@ -70,7 +70,7 @@ cap pct, veto flag), RED-proofed against a mutated copy of the text.
 - None. Doc corrections revertible; preregs wait for their checkpoint.
 
 ## PROGRESS LOG
-- 2026-09-05 11:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 05:38 ET — opened by goal_autopilot
 - 2026-09-05 05:38-06:05 ET -- Sonnet session a16e320c ran P1-P5 end to end. CLAUDE.md context
   budget: pre-edit not re-measured; first-draft edits pushed it to RED (9111/9000 tiktoken), trimmed

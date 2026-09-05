@@ -1,6 +1,6 @@
 # GOAL: TP1-FRACTION-AB-2026-09-05
 
-> Opened by Fable 2026-09-05 12:xx ET. The doctrine sweep re-filed pk-2026-06-28-001 (tp1_qty_fraction
+> Opened by Fable 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock). The doctrine sweep re-filed pk-2026-06-28-001 (tp1_qty_fraction
 > 0.8 on Safe, ratified 2026-06-28 on edge_capture $1,692 / OOS +$56.86 per trade n=85) as a 09-29
 > REDUCTION prereg (analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json)
 > because it never reached strategies.py (live 0.667 on all arms). Its packet row reads UNKNOWN: the
@@ -62,7 +62,7 @@ hand-checks (a real fill where the walker's control leg matches the recorded TP1
 - None. Application waits for 09-29 under Gamma-decides with a revert line.
 
 ## PROGRESS LOG
-- 2026-09-05 12:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 06:04 ET — opened by goal_autopilot
 - 2026-09-05 06:19 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 - 2026-09-05 06:4x ET -- Sonnet session a16e320c: confirms A1-A4+H1 all DONE. VERDICT: RULE NOT MET

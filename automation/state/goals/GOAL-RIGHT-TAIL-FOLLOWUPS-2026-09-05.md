@@ -1,6 +1,6 @@
 # GOAL: RIGHT-TAIL-FOLLOWUPS-2026-09-05
 
-> Opened by Fable 2026-09-05 09:xx ET from the close of GOAL-GATE-NET-COST: three loose ends that
+> Opened by Fable 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) from the close of GOAL-GATE-NET-COST: three loose ends that
 > each make the 10-30 read more honest. None changes a config.
 
 ## DONE-WHEN
@@ -45,7 +45,7 @@ time-stop) and appended to GATE-NET-COST-2026-09-05.md so the net table carries 
 - None.
 
 ## PROGRESS LOG
-- 2026-09-05 09:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
+- 2026-09-05 ~05:00-07:40 ET (stamp corrected: earlier value was inferred, not read from et_clock) -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 04:43 ET — opened by goal_autopilot
 - 2026-09-05 04:50-05:08 ET -- Sonnet worker ran T1-T4 in order, one chain, no other session picked
   this goal up. T1: extended fleet_gate_leak_shadow.py's ledger with a new fleet_gate cohort (9 new
