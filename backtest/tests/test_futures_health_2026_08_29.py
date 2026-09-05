@@ -367,6 +367,53 @@ def test_self_check_registered_in_main_aggregator():
     assert "problems.extend(check_futures_health(now))" in src
 
 
+# ---------------------------------------------------------------------------
+# no_stray_exposure: session count must reflect the EVENT date, not the
+# reconciler's journal-append (`at_et`) date (differential filed 2026-09-05:
+# a backfill run journaled 09-01 + 09-02 fills all under one at_et=09-03 stamp,
+# undercounting "1 session" when 2 real sessions were affected).
+# ---------------------------------------------------------------------------
+def test_stray_exposure_session_count_uses_fill_event_date_not_journal_date(tmp_path):
+    p = tmp_path / "anomalies.jsonl"
+    # All 8 rows share the SAME at_et (one reconciler backfill run) but the underlying
+    # fills happened on two different ET calendar dates -- exactly the 2026-09-03 shape.
+    rows = [
+        {"at_et": "2026-09-03T00:43:02", "event": "unattributed_closing_fill",
+         "symbol": "MES",
+         "fill": {"filled_at": "2026-09-01T08:08:47.540000+00:00"}},
+        {"at_et": "2026-09-03T00:43:02", "event": "unattributed_closing_fill",
+         "symbol": "MES",
+         "fill": {"filled_at": "2026-09-01T20:00:11.968000+00:00"}},
+        {"at_et": "2026-09-03T00:43:03", "event": "unattributed_closing_fill",
+         "symbol": "MES",
+         "fill": {"filled_at": "2026-09-02T15:45:34.073000+00:00"}},
+        {"at_et": "2026-09-03T00:43:03", "event": "unattributed_closing_fill",
+         "symbol": "MES",
+         "fill": {"filled_at": "2026-09-02T20:00:07.533000+00:00"}},
+    ]
+    _append_jsonl(p, rows)
+    now = dt.datetime(2026, 9, 5, 6, 0, 0)
+    result = fh.check_no_stray_exposure(now, anomalies_path=p)
+    assert result["status"] == "RED"
+    # Both real event sessions (09-01 and 09-02, derived from the UTC fill time
+    # converted to ET) must be counted -- not the single 09-03 journal-append date.
+    assert "2 session(s)" in result["detail"]
+    assert "4 stray-exposure anomaly row(s)" in result["detail"]
+
+
+def test_stray_exposure_falls_back_to_at_et_when_no_fill_payload(tmp_path):
+    """flatten_cancel_incomplete / post_exit_not_flat rows carry no `fill` -- must still
+    bucket (by at_et) instead of raising or being silently dropped."""
+    p = tmp_path / "anomalies.jsonl"
+    rows = [{"at_et": "2026-09-03T00:43:02", "event": "flatten_cancel_incomplete",
+            "symbol": "MES", "working_orders": []}]
+    _append_jsonl(p, rows)
+    now = dt.datetime(2026, 9, 5, 6, 0, 0)
+    result = fh.check_no_stray_exposure(now, anomalies_path=p)
+    assert result["status"] == "RED"
+    assert "1 session(s)" in result["detail"]
+
+
 if __name__ == "__main__":  # pragma: no cover
     import pytest
     raise SystemExit(pytest.main([__file__, "-q"]))

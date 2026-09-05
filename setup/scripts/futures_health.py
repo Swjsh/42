@@ -82,7 +82,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -92,6 +92,7 @@ OUT_FILE = STATE / "futures" / "health.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from et_clock import et_now  # noqa: E402
+from et_clock import et_offset_hours  # noqa: E402
 
 for _p in ("backtest",):
     _pp = str(REPO / _p)
@@ -541,6 +542,34 @@ STRAY_EXPOSURE_RED_EVENTS = {"unattributed_closing_fill", "flatten_cancel_incomp
 ANOMALY_LOOKBACK_SESSIONS = RECENT_SESSIONS_WINDOW  # reuse fills_recency's own window
 
 
+def _anomaly_event_date_et(row: dict) -> Optional[str]:
+    """The ET calendar date the underlying broker EVENT actually happened on --
+    NOT the date the reconciler script happened to be running when it journaled the
+    row. `at_et` is the append-time timestamp; a backfill/catch-up run (e.g. the
+    reconciler's `get_recent_fills(days_back=3)` sweep) can journal several real
+    sessions' worth of stale fills in one run, all sharing the SAME `at_et` minute --
+    that would otherwise undercount `no_stray_exposure`'s own "N session(s)" figure
+    (filed 2026-09-05 differential: 8 rows from 2026-09-01 AND 2026-09-02 fills were
+    all stamped at_et=2026-09-03T00:43, reporting as "1 session" when 2 real sessions
+    were actually affected). Prefer the row's own `fill.filled_at` (UTC, from the
+    broker) when present; fall back to `at_et` for anomaly kinds with no fill payload
+    (flatten_cancel_incomplete, post_exit_not_flat, sibling_leg_cancelled)."""
+    filled_at = ((row.get("fill") or {}).get("filled_at")
+                 if isinstance(row.get("fill"), dict) else None)
+    if filled_at:
+        try:
+            dt_utc = datetime.fromisoformat(str(filled_at))
+            if dt_utc.tzinfo is None:
+                dt_utc = dt_utc.replace(tzinfo=timezone.utc)
+            offset = et_offset_hours(dt_utc.astimezone(timezone.utc))
+            dt_et = dt_utc.astimezone(timezone.utc) + timedelta(hours=offset)
+            return dt_et.date().isoformat()
+        except (TypeError, ValueError):
+            pass
+    at_et = row.get("at_et")
+    return str(at_et)[:10] if at_et else None
+
+
 def check_no_stray_exposure(now_et: datetime, anomalies_path: Optional[Path] = None) -> dict:
     """RED on any recent unattributed closing fill, incomplete flatten-cancel sweep, or
     post-exit not-flat assertion -- all three are evidence a bracket leg (no native OCO --
@@ -563,7 +592,7 @@ def check_no_stray_exposure(now_et: datetime, anomalies_path: Optional[Path] = N
                     "anomalies.jsonl present but no parseable dated rows")
     by_date: dict = {}
     for r in dated:
-        d = str(r["at_et"])[:10]
+        d = _anomaly_event_date_et(r) or str(r["at_et"])[:10]
         by_date.setdefault(d, []).append(r)
     recent_dates = sorted(by_date)[-ANOMALY_LOOKBACK_SESSIONS:]
 
