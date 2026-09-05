@@ -286,9 +286,9 @@ export function Tile({ spec }: { spec: TileSpec }) {
 
 /* ---------- group heading ---------- */
 
-function GroupHeading({ children }: { children: React.ReactNode }) {
+function GroupHeading({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
-    <div className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--gc-text-3)]">
+    <div id={id} className="mb-2 scroll-mt-6 text-[13px] font-semibold uppercase tracking-wider text-[var(--gc-text-3)]">
       {children}
     </div>
   );
@@ -413,7 +413,7 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
     <div className="flex flex-col gap-6">
       {groups.map((g) => (
         <section key={g.label}>
-          <GroupHeading>{g.label}</GroupHeading>
+          <GroupHeading id={String(g.label).toLowerCase() === "rig" ? "rig" : undefined}>{g.label}</GroupHeading>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {g.tiles.map((t, i) => (
               <BlurFade key={t.key} delay={i * 0.05} inView>

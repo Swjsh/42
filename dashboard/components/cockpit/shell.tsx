@@ -14,6 +14,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -154,7 +155,7 @@ export function CockpitShell({ children, data, onFireTop, companionOnline = true
   ];
 
   return (
-    <div className="cockpit min-h-screen flex">
+    <div className="cockpit h-screen flex overflow-hidden">
       <aside
         className={cn(
           "sticky top-0 h-screen shrink-0 flex flex-col gc-glass border-r border-[var(--gc-line)] overflow-hidden transition-[width] duration-300 relative",
@@ -277,12 +278,13 @@ export function CockpitShell({ children, data, onFireTop, companionOnline = true
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-8">
+        <main className="flex-1 min-h-0 overflow-y-auto px-6 py-6 flex flex-col gap-8">
           {children}
         </main>
       </div>
 
       <CommandDialog open={paletteOpen} onOpenChange={setPaletteOpen}>
+        <Command>
         <CommandInput placeholder="Jump to a section or a card..." />
         <CommandList>
           <CommandEmpty>No matches.</CommandEmpty>
@@ -319,6 +321,7 @@ export function CockpitShell({ children, data, onFireTop, companionOnline = true
               ))}
           </CommandGroup>
         </CommandList>
+        </Command>
       </CommandDialog>
     </div>
   );

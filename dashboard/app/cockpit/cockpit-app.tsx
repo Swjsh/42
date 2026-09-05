@@ -60,16 +60,16 @@ export default function CockpitApp({ companionOnline }: { companionOnline: boole
     >
       <section id="command" className="space-y-4">
         <KpiRow data={data} />
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(340px,1fr)]">
+        <div id="journal" className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(340px,1fr)]">
           <RoutingMap data={data} />
           <NeedsYou data={data} limit={5} />
         </div>
         <div id="army" className="grid gap-4 xl:grid-cols-3">
           <ArmyPanel data={data} />
-          <AgentHealth data={data} />
+          <div id="kitchen" className="contents"><AgentHealth data={data} /></div>
           <CostPulse data={data} />
         </div>
-        <SystemAlerts data={data} />
+        <div id="answers"><SystemAlerts data={data} /></div>
       </section>
 
       <section id="research" className="mt-8">

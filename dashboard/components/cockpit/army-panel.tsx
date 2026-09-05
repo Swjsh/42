@@ -125,6 +125,8 @@ function useArmyLive(seedPulses: ArmyPulse[]) {
     seedPulses.length ? seedPulses[seedPulses.length - 1].ts : ""
   );
   const failedRef = React.useRef(0);
+  const gammaToken = () =>
+    (document.querySelector('meta[name="gamma-token"]') as HTMLMetaElement | null)?.content ?? "";
 
   React.useEffect(() => {
     let stopped = false;
@@ -135,7 +137,11 @@ function useArmyLive(seedPulses: ArmyPulse[]) {
       try {
         const r = await fetch(
           `${COMPANION}/api/army?since=${encodeURIComponent(cursorRef.current)}`,
-          { cache: "no-store" }
+          {
+            cache: "no-store",
+            // server.js authed(): every /api/* call must carry the page token.
+            headers: { "x-gamma-token": gammaToken() },
+          }
         );
         if (!r.ok) throw new Error(String(r.status));
         const j = await r.json();
