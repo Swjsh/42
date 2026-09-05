@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 07:21 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
-  "active_goal_id": "GOAL-RIG-HYGIENE-2026-09-05",
-  "next_item": "H1 -- Keepalive restart-when-idle (spec above); RED-proofed test; observed restart or an honest",
+  "checked_at_et": "2026-09-05 07:38 ET",
+  "action": "closed_ladder_empty",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -109,12 +109,12 @@
     },
     {
       "id": "GOAL-RIG-HYGIENE-2026-09-05",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-RIG-HYGIENE-2026-09-05",
-  "last_closed": "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05",
+  "last_closed": "GOAL-RIG-HYGIENE-2026-09-05",
   "error": null
 }
