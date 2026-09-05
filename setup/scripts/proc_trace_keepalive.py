@@ -99,7 +99,9 @@ def find_tracer_pid(process_table_text: str) -> Optional[int]:
     records) and return the ProcessId of the first record whose CommandLine matches
     is_tracer_process_line, or None if no such record exists."""
     current: dict[str, str] = {}
-    for raw in process_table_text.splitlines():
+    # wmic LIST ends every line with \r\r\n; str.splitlines() treats the lone \r as a line
+    # break and splits every record before ProcessId (2026-09-05: 12 tracers spawned).
+    for raw in process_table_text.replace("\r", "").split("\n"):
         line = raw.strip()
         if not line:
             if is_tracer_process_line(current.get("CommandLine", "")):

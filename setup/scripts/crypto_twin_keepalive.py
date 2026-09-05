@@ -147,7 +147,10 @@ def find_loop_pid(process_table_text: str) -> Optional[int]:
     `_recorder_alive`) but pulled out as a pure function so it is directly unit-testable
     without any real subprocess call."""
     current: dict[str, str] = {}
-    for raw in process_table_text.splitlines():
+    # wmic LIST ends every line with \r\r\n; str.splitlines() treats the lone \r as a line
+    # break and inserts a blank line BETWEEN fields, splitting every record before its
+    # ProcessId is read (2026-09-05: 34 twin loops spawned, one per keepalive fire).
+    for raw in process_table_text.replace("\r", "").split("\n"):
         line = raw.strip()
         if not line:
             if is_loop_process_line(current.get("CommandLine", "")):
