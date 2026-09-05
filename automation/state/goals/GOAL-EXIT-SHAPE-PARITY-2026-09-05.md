@@ -39,24 +39,11 @@ for 09-29 if setting a finite target would be a risk REDUCTION -- decide from th
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] E1 (WIP 2026-09-05 10:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain E1-E5 -- other sessions do not pick up) -- Evidence: per arm, count exit stages on real fills since 08-01 (tp1, trail, runner_target,
-  premium_stop/catastrophe, structure_stop, ribbon_flip, time_stop, eod_flatten) from the fills ledger;
-  quote the table. If a `runner_target` stage never fired while `trail` fired on every runner, the
-  target is dead in practice.
-- [~] E2 (WIP 2026-09-05 10:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain E1-E5 -- other sessions do not pick up) -- Code trace: for each arm, the exact code path from signal to exit (heartbeat_core ->
-  exit_manager / strategies RIBBON_RIDE / exit_actuator; fleet_executor for safe-3/risky-1), the
-  constants in force, and for every params key that CLAIMS to set an exit element, a vary-and-assert
-  (change the key in a COPY of params loaded into the function under test, prove it is or is not
-  read). READ-ONLY on the frozen files.
-- [~] E3 (WIP 2026-09-05 10:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain E1-E5 -- other sessions do not pick up) -- Write markdown/0dte/EXIT-SHAPE-TRUTH.md; link it from markdown/README.md and from CLAUDE.md's
-  strategy paragraph (the paragraph's numbers corrected to the truth; one sentence pointing at the
-  doc); context-budget verdict quoted.
-- [~] E4 (WIP 2026-09-05 10:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain E1-E5 -- other sessions do not pick up) -- Guard: test_exit_shape_parity_2026_09_05.py parses the CLAUDE.md paragraph's numbers and
-  asserts them against the code constants per arm; RED-proof by running it against the pre-edit
-  CLAUDE.md text (git show HEAD:CLAUDE.md piped to the parser) -- quote fail/pass.
-- [ ] E5 -- Decide runner_target_pct 99.0: (a) or (b) per DONE-WHEN, with the C30 citation and the
-  right-tail ledger numbers (tape peaks vs trail exits) as evidence; if (b), file the 09-29 prereg and
-  add it to the checkpoint inventory (regenerate via checkpoint_packet.py).
+- [x] E1 (DONE 2026-09-05 05:26 ET, real fills-ledger evidence: trail fired 54-103x/arm since 08-01, runner_target fired ONCE across all 4 arms combined (risky-1) and zero times on core -- dead in practice, matches prior prereg-runner-finite-tgt-candidate-2026-08-06.json's "2 fleet / 0 core, ever")
+- [x] E2 (DONE 2026-09-05 05:26 ET, code trace: heartbeat_core.py's non-_xov branch calls strategies.by_name("ribbon_ride").exit.to_dict() with NO params arg; fleet_executor._exit_shape_dict merges the same registry shape + accounts.json exit_patch, neither safe-3's nor risky-1's patch touches runner_target_pct/trail_pct/profit_lock_arm_pct; vary-and-assert run live -- mutating a params copy leaves the returned shape byte-identical, confirmed printed output in EXIT-SHAPE-TRUTH.md)
+- [x] E3 (DONE 2026-09-05 05:26 ET, markdown/0dte/EXIT-SHAPE-TRUTH.md written + linked from markdown/README.md's 0dte row + from CLAUDE.md's strategy paragraph; CLAUDE.md corrected in place (runner target 2.5x -> UNCONSTRAINED 99.0x/C30, tp1_qty_fraction 0.8/0.667 split -> 0.667 shared); context-budget verdict quoted: YELLOW 8921/9000 tok (99%), down from 8991 pre-edit since the correction is net-neutral in length)
+- [x] E4 (DONE 2026-09-05 05:26 ET, backtest/tests/test_exit_shape_parity_2026_09_05.py: 6/6 pass against corrected CLAUDE.md; RED-proofed against the REAL `git show HEAD:CLAUDE.md` committed text -- parsed claim runner_target=2.5x vs live strategies.py=99.0x, confirmed mismatch (fails); pre-edit tp1_qty_fraction claim {safe:0.8,bold:0.667} also confirmed != live shared 0.667)
+- [x] E5 (DONE 2026-09-05 05:26 ET, adjudicated (a) -- deliberate trail-only runner. strategies.py's own comment ports the SS-B validated cell verbatim ("tgt-none, runner exits via structure/trail/EOD only"); C30 citation applies (unconstrained target is fine when the runner is designed to exit some other way, which E1's real-fills evidence confirms it does); a finite target caps UPSIDE not downside risk, so DONE-WHEN's "(b) risk REDUCTION" fork does not apply -- no reduction prereg filed, no checkpoint regen needed. Cited the existing EXPANSION sibling (prereg-runner-target-vs-tape-peak-10-30-2026-09-05.json, filed same day) and the NULL-adjudicated 2026-08-06 sibling.
 
 ## J-DECISIONS
 - None. Doc corrections are revertible; any value change waits for its checkpoint.
@@ -64,5 +51,14 @@ for 09-29 if setting a finite target would be a risk REDUCTION -- decide from th
 ## PROGRESS LOG
 - 2026-09-05 10:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 05:12 ET — opened by goal_autopilot
+- 2026-09-05 05:26 ET -- E1-E5 all done in one Sonnet chain (session a16e320c). markdown/0dte/EXIT-SHAPE-TRUTH.md written; CLAUDE.md corrected + linked; backtest/tests/test_exit_shape_parity_2026_09_05.py RED-proofed + passing; E5 adjudicated (a) trail-only-by-design, no reduction prereg needed. No params/code VALUE changes (FROZEN_TRADING_PATH untouched).
+
 ## HONEST STATE
-Queued. Nothing started.
+DONE. All 5 queue items closed this fire. VERIFIED this session: real fills-ledger exit-stage
+counts (script run against automation/state/core-decisions.jsonl + fleet/{safe-3,risky-1}/decisions.jsonl),
+live vary-and-assert (printed output, not inspection-only), pytest 6/6 pass on the new guard,
+RED-proof against the actual `git show HEAD:CLAUDE.md` text (not a hand-typed stand-in), and the
+context-budget script's fresh verdict. UNVERIFIED / not run yet this fire: the full
+`pytest backtest/tests/ -k "parity or exit_shape or checkpoint"` sweep and `run_safety_gate.py`
+were kicked off in the background (120s timeout) and conductor_outcome.py has not yet been called --
+both close out in this same fire before it ends.

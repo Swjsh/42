@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T09:11:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T09:36:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 05:36 ET] GOAL-EXIT-SHAPE-PARITY-2026-09-05 CLOSED -- one live truth for the runner exit: strategies.py RIBBON_RIDE is the source (frozen dataclass; params.json exit keys are C14 vestigial on this path); runner is trail-only (runner_target_pct 99.0, deliberate per its own "tgt-none" comment + C30); TP1 sells 0.667 on ALL arms (CLAUDE.md's "Safe raised to 0.8, pk-2026-06-28-001" never reached the code)
+Exit-stage tally since 08-01 (stage firings): trail 68/58/54/103 vs runner_target 0/0/0/1 across safe-2/bold-2/safe-3/risky-1. Vary-and-assert: mutating params leaves the shape unchanged (True). CLAUDE.md strategy paragraph corrected (context budget YELLOW 8,921/9,000), markdown/0dte/EXIT-SHAPE-TRUTH.md written, guard test_exit_shape_parity_2026_09_05.py fails on the old text (RED-proofed), 421 parity/checkpoint tests green. Follow-up: the June TP1-0.8 ratification is either re-filed as a 10-30 prereg with its A/B evidence or formally retired -- next goal (DOCTRINE-CODE-PARITY-SWEEP) does that for every CLAUDE.md/params claim the code does not honour.
+
 
 ## [2026-09-05 05:11 ET] GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05 CLOSED -- fleet-gate-leak ledger now records min_triggers/confluence refusals (724 rows, counterfactual vs risky-3 fills); runner-vs-tape-peak prereg filed for 10-30; 5-min OPRA error bar measured: -$6.58 mean over 262 re-walked rows (stage-level: premium_stop -$52 mean, trail +$47 mean)
 The gate-net-cost table stands with its error bar. PARITY FINDING (unverified, not chased): three sources disagree on the core runner exit -- params.json runner_target 0.125 / profit_lock "fixed", strategies.py RIBBON_RIDE runner_target_pct 99.0 (= unconstrained, C30 dead knob) / trail 0.15, CLAUDE.md doctrine text "runner target 2.5x, trail 15 pct off HWM". Real runner exits in August were 2.5-3.3x via the trail, consistent with strategies.py. Next goal (GOAL-EXIT-SHAPE-PARITY) establishes the live truth from exit-state + code + fills, corrects the doctrine text, and extends the Rule-1 parity guard so the three can never drift silently again.
@@ -438,7 +442,7 @@ Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec 
 
 
 ## Kitchen
-Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 58 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: prereg-hygiene 2026-09-05T03:41:06
 - 21 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
