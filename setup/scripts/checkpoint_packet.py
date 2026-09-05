@@ -129,22 +129,35 @@ def _et_date_str() -> str:
 def _score_tight_ladder_control4(row: dict, today: str) -> dict:
     """Reuses right_tail_capture.py's own ledger (analysis/right-tail/ledger.jsonl) --
     never re-walks trades.csv. Reads the CAP4_LIVE_DATE-gated would_be_refused flag the
-    instrument already computes per wave-event."""
+    instrument already computes per wave-event.
+
+    HAND-CHECK FIX (2026-09-05, GOAL-CHECKPOINT-PACKET-2026-09-29 C6): the ledger mixes
+    two row shapes -- one per-(date,arm) ROLLUP row (`second_wave_summary`/`capture_rate`,
+    no wave fields at all) and one per-WAVE row (`wave_start_et` + `would_be_refused_
+    under_cap4` + `exit_multiple`). The prior version filtered post-cap rows by date
+    alone, which silently counted rollup rows as "wave events" (n=36 for 08-31..09-04,
+    vs the real 16 actual wave rows in that window -- confirmed by direct read,
+    2026-09-05 hand-check). Rollup rows can never carry `would_be_refused_under_cap4`,
+    so the verdict itself did not change, but the reported n overstated the evidence
+    base by 2.25x. Filter to real wave rows via `"wave_start_et" in r`. The multiple
+    field is also `exit_multiple` (ledger's actual key), not `wave_multiple_at_exit`
+    (a field that has never existed in this ledger) -- fall back to
+    `peak_multiple_on_tape` (the highest multiple seen on tape, the conservative /
+    stricter reading for "would have exited >=1.3x") if `exit_multiple` is absent.
+    """
     ledger_path = REPO / row["ledger_path"]
     if not ledger_path.exists():
         return {"verdict": VERDICT_INSUFFICIENT_N, "n": 0, "numbers": {}, "note": "ledger not found"}
     rows = _read_jsonl(ledger_path)
+    wave_rows = [r for r in rows if "wave_start_et" in r]
     cap4_live = "2026-08-31"
-    post_cap = [r for r in rows if r.get("date", "") >= cap4_live]
-    refused_ge13x = [
-        r for r in post_cap
-        if r.get("would_be_refused_under_cap4") is True and r.get("wave_multiple_at_exit", 0) not in (None,)
-        and (r.get("wave_multiple_at_exit") or 0) >= 1.3
-    ]
-    # Fall back to the field name the instrument actually documents (per_wave rows may
-    # not carry wave_multiple_at_exit at top level -- treat presence of the refusal flag
-    # alone as the conservative signal when the multiple field is absent).
+    post_cap = [r for r in wave_rows if r.get("date", "") >= cap4_live]
     refused_any = [r for r in post_cap if r.get("would_be_refused_under_cap4") is True]
+    refused_ge13x = [
+        r for r in refused_any
+        if (r.get("exit_multiple") if r.get("exit_multiple") is not None else r.get("peak_multiple_on_tape")) is not None
+        and (r.get("exit_multiple") if r.get("exit_multiple") is not None else r.get("peak_multiple_on_tape")) >= 1.3
+    ]
     n = len(post_cap)
     verdict = VERDICT_INSUFFICIENT_N if n == 0 else (
         VERDICT_NOT_MET if len(refused_ge13x) == 0 and len(refused_any) == 0 else VERDICT_MET
@@ -160,7 +173,13 @@ def _score_tight_ladder_control4(row: dict, today: str) -> dict:
         "note": (
             "RULE NOT MET here means the cap has refused zero qualifying waves -- i.e. "
             "the case for reverting (expansion) is NOT supported; the cap STAYS at 4. "
-            "This is still an expansion-classified row per goal routing regardless."
+            "This is still an expansion-classified row per goal routing regardless. "
+            "hand_check: confirmed 2026-09-05 (direct ledger read filtered to real "
+            "wave-event rows via presence of wave_start_et, n=16 post-08-31, "
+            "refused_under_cap4_any=0) -- matches PREREG-TIGHT-LADDER-2026-08-28.md's "
+            "own interim-evidence conclusion verbatim ('the answer ... remains NO. "
+            "The cap stays.') and GOAL-RIGHT-TAIL-CAPTURE-2026-09-05.md R4-closed note "
+            "('cap-4 would-refuse flags 11' total backfill, 0 of them post-08-31)."
         ),
     }
 
@@ -168,7 +187,27 @@ def _score_tight_ladder_control4(row: dict, today: str) -> dict:
 def _score_tight_ladder_control5(row: dict, today: str) -> dict:
     """No standing instrument computes this hypothetical live; it is a one-time replay
     already frozen in the prereg's own interim-evidence text. Read the numbers back out
-    of the prereg markdown (no re-replay -- the numbers are already committed evidence)."""
+    of the prereg markdown (no re-replay -- the numbers are already committed evidence).
+
+    HAND-CHECK FIX (2026-09-05, GOAL-CHECKPOINT-PACKET-2026-09-29 C6): the prior version
+    hardcoded VERDICT_NOT_MET with a note claiming "the stop would have net-HURT
+    (-$1,601)" -- backwards. `daily_loss_kill_switch_dollars: 400` is ALREADY SHIPPED
+    and LIVE (automation/state/params.json, armed 2026-08-29 per PREREG-TIGHT-LADDER
+    Addendum 2 S2.1) -- this row is a standing reconfirmation of a live control, not a
+    ship/no-ship threshold on something pending. The -$1,601 is the net P&L of the 8
+    ENTRIES THE STOP BLOCKS, not the stop's own effect: blocking net-loss-making entries
+    is a BENEFIT, sign-flipped to +$1,601 avoided-loss, which is exactly how
+    params.json's own doc states it verbatim: "this exact -$400/arm/day figure blocked
+    $347 of winners vs $1,948 of losers blocked (net +$1,601)". Independently
+    reproduced by a second method (direct read of journal/trades.csv, grouped
+    date+account_id+time_entry, running-total walk per arm-day, 2026-08-01..09-04):
+    n=8 blocked, 1 winner +$347 / 7 losers -$1,948, net -$1,601 of blocked-entry P&L =
+    +$1,601 avoided, fires only 08-05/08-07/08-14 (script:
+    setup/scripts/_hand_check_control5.py). hand_check: confirmed 2026-09-05 (direct
+    ledger read, +$1,601 avoided-loss reproduced exactly) -- verdict corrected to
+    RULE MET (the standing 'keep' decision IS supported by the evidence; the prior
+    NOT_MET reading would have been misread by anyone skimming the table as
+    "evidence says don't keep it", the exact opposite of what the numbers show)."""
     md_path = REPO / row["prereg_path"]
     text = md_path.read_text(encoding="utf-8", errors="ignore")
     marker = "Control #5"
@@ -177,22 +216,51 @@ def _score_tight_ladder_control5(row: dict, today: str) -> dict:
     # n = 8 entries blocked, as filed. This is a frozen replay result, not an accruing
     # forward ledger -- report it as such rather than pretending it updates nightly.
     return {
-        "verdict": VERDICT_NOT_MET,
+        "verdict": VERDICT_MET,
         "n": 8,
-        "numbers": {"entries_blocked": 8, "net_pnl_if_shipped": -1601.0, "winners_blocked": 1, "losers_blocked": 7},
+        "numbers": {
+            "entries_blocked": 8,
+            "net_pnl_of_blocked_entries": -1601.0,
+            "net_pnl_avoided_by_stop": 1601.0,
+            "winners_blocked": 1,
+            "losers_blocked": 7,
+        },
         "note": (
             "Frozen one-time replay result (2026-08-28..09-05), not a nightly-accruing "
-            "ledger. RULE NOT MET = the stop would have net-HURT (-$1,601) over the "
-            "study window -- consistent with 'keep' (do not ship this stop)."
+            "ledger. RULE MET = the -$400/arm/day stop (ALREADY SHIPPED, params.json "
+            "daily_loss_kill_switch_dollars=400) blocked entries that would have net-LOST "
+            "$1,601 -- i.e. it avoided a $1,601 loss, consistent with keep. Decision rule "
+            "verbatim (Addendum 2 S2.1 + params.json doc): 'a DOLLAR stop is the shape "
+            "that does not cost money -- this exact -$400/arm/day figure blocked $347 of "
+            "winners vs $1,948 of losers blocked (net +$1,601)'. hand_check: confirmed "
+            "2026-09-05 (second method: direct read of journal/trades.csv via "
+            "setup/scripts/_hand_check_control5.py, grouped date+account_id+time_entry, "
+            "running-total walk per arm-day, 2026-08-01..09-04 -> n=8, net -1601.0, "
+            "1 winner +347.0 / 7 losers -1948.0, fires 2026-08-05/08-07/08-14 -- exact "
+            "match to the prereg's own quoted numbers)."
         ),
     }
 
 
 def _score_score_ladder_v2_retirement(row: dict, today: str) -> dict:
+    """HAND-CHECK FIX (2026-09-05, C6): n was distinct (date, arm_id) pairs, which
+    collapses same-day double-scored rows and undercounts each arm (19 distinct dates
+    vs 28 actual ledger rows/arm -- 2 dates, 08-07 and 08-13, carry 2 rows each,
+    confirmed by direct read). That gave n=38 total where the prereg's own adjudicated
+    status text says 'n=28 sessions/arm' (56 rows total, 28 per arm -- the prereg's
+    'session' = one ledger row/event, not one calendar day). Switched to a plain row
+    count, which matches the prereg's own units exactly and does not change the
+    verdict (both readings clear the n>=15 floor; the verdict is driven by the
+    already-adjudicated terminal KILL status either way)."""
     ledger_path = REPO / row["ledger_path"]
     prereg_path = REPO / row["prereg_path"]
     rows = _read_jsonl(ledger_path) if ledger_path.exists() else []
-    n_sessions = len({(r.get("date"), r.get("arm_id")) for r in rows if r.get("date")})
+    n_rows = len(rows)
+    rows_per_arm: dict[str, int] = {}
+    for r in rows:
+        arm = r.get("arm_id")
+        if arm:
+            rows_per_arm[arm] = rows_per_arm.get(arm, 0) + 1
     total_delta = sum((r.get("delta_pnl") or 0.0) for r in rows)
     status = None
     if prereg_path.exists():
@@ -203,13 +271,26 @@ def _score_score_ladder_v2_retirement(row: dict, today: str) -> dict:
     verdict = VERDICT_UNKNOWN
     if status and (TERMINAL_STATUS_RE.search(status or "") or ADJUDICATION_STATUS_RE.match(status or "")):
         verdict = VERDICT_MET  # "KILL" verdict already adjudicated -> retirement rule is MET
-    elif n_sessions < 15:
+    elif n_rows < 15:
         verdict = VERDICT_INSUFFICIENT_N
     return {
         "verdict": verdict,
-        "n": n_sessions,
-        "numbers": {"sessions_or_arm_days": n_sessions, "total_delta_pnl": round(total_delta, 2), "status": status},
-        "note": "Retirement rule MET = the prereg's own adjudicated status is a terminal KILL.",
+        "n": n_rows,
+        "numbers": {
+            "ledger_rows": n_rows,
+            "rows_per_arm": rows_per_arm,
+            "total_delta_pnl": round(total_delta, 2),
+            "status": status,
+        },
+        "note": (
+            "Retirement rule MET = the prereg's own adjudicated status is a terminal "
+            "KILL ('KILL -- forward shadow ledger (n=28 sessions/arm) fails all 3 "
+            "frozen arm-bar criteria'). hand_check: confirmed 2026-09-05 (direct ledger "
+            "read: risky-1=28 rows, risky-3=28 rows, total_delta_pnl=-27345.0 -- matches "
+            "the goal's own 'extras -$13.8K/arm over 28 sessions' to within the "
+            "aggregation the goal text describes; status field itself is the terminal "
+            "KILL that drives the verdict)."
+        ),
     }
 
 
@@ -288,7 +369,17 @@ def _score_fill_model_unification_step2(row: dict, today: str) -> dict:
         "verdict": verdict,
         "n": 1 if step1_done else 0,
         "numbers": {"status": status, "step1_execution_evidence_present": step1_done},
-        "note": "Tooling prerequisite -- MET means STEP 1 has run (evidence field populated), NOT MET means it is still blocking.",
+        "note": (
+            "Tooling prerequisite -- MET means STEP 1 has run (evidence field "
+            "populated), NOT MET means it is still blocking. The prereg's top-level "
+            "`status` string is stale ('EXTEND -- mandatory STEP 1 ... still not "
+            "executed') -- it was not updated when `step1_execution_evidence` was "
+            "appended the same night; this scorer correctly reads the evidence field, "
+            "not the stale status string. hand_check: confirmed 2026-09-05 (second "
+            "method: `pytest backtest/tests/test_exit_fill_model_unification_2026_09_05.py -q` "
+            "-> '22 passed in 0.42s', the guard suite step1_execution_evidence itself "
+            "names as proof of the STEP-1 run)."
+        ),
     }
 
 
@@ -326,6 +417,23 @@ def _score_tickers_theta_budget_cadence(row: dict, today: str) -> dict:
 
 
 def _score_catastrophe_cap_and_day_throttle(row: dict, today: str) -> dict:
+    """HAND-CHECK FIX (2026-09-05, C6): the prior version hardcoded VERDICT_NOT_MET for
+    any n>=15, which misrepresents this row -- its OWN decision_rule_verbatim (C1
+    inventory) states plainly: 'no frozen n-threshold ships a change by itself' and
+    day_throttle_shadow.py's own docstring says 'SHADOW ONLY. Neither threshold
+    refuses anything live.' There IS NO pass/fail rule registered for this row to be
+    MET or NOT MET against -- reporting NOT MET reads, to a skimmer, as 'the shadow
+    failed a test', when no test exists; it is pure accruing evidence with no ship
+    gate. Corrected to PROVISIONAL (the vocabulary this packet already defines for
+    exactly this case: 'never cited as confirming evidence'), which matches the row's
+    own text instead of contradicting it. n and the per-instrument numbers are
+    unchanged -- only the verdict label changes.
+
+    n=620 is FILLS, not ticks: verified n breaks down as 39 catastrophe-cap-shadow
+    rows (one row per STOPPED real trade, `actual_realized_pnl` populated) + 581
+    day-throttle rows (one row per TRADE ENTRY, `pnl` field on each) = 620 real fill
+    events across both instruments, confirmed by direct read of both jsonl files
+    (2026-09-05 hand-check)."""
     cap_path = REPO / "analysis" / "recommendations" / "catastrophe-cap-shadow-ledger.jsonl"
     throttle_path = REPO / "analysis" / "recommendations" / "day-throttle-shadow-ledger.jsonl"
     cap_rows = _read_jsonl(cap_path) if cap_path.exists() else []
@@ -335,7 +443,7 @@ def _score_catastrophe_cap_and_day_throttle(row: dict, today: str) -> dict:
     t2_blocks = sum(1 for r in throttle_rows if r.get("would_block_T-2") is True)
     t6_blocks = sum(1 for r in throttle_rows if r.get("would_block_T-6") is True)
     n = len(cap_rows) + len(throttle_rows)
-    verdict = VERDICT_INSUFFICIENT_N if n < 15 else VERDICT_NOT_MET
+    verdict = VERDICT_INSUFFICIENT_N if n < 15 else VERDICT_PROVISIONAL
     return {
         "verdict": verdict,
         "n": n,
@@ -347,7 +455,15 @@ def _score_catastrophe_cap_and_day_throttle(row: dict, today: str) -> dict:
             "t2_would_block": t2_blocks,
             "t6_would_block": t6_blocks,
         },
-        "note": "Shadow-read only -- no frozen ship threshold in scope for this row; numbers are the accruing evidence base.",
+        "note": (
+            "Shadow-read only -- no frozen ship threshold in scope for this row; "
+            "numbers are the accruing evidence base, PROVISIONAL by construction "
+            "(never cite as confirming evidence for a config change). hand_check: "
+            "confirmed 2026-09-05 (direct read of both jsonl files: cap_rows=39 "
+            "(better_held=15/worse_held=24), throttle_rows=581 (T-2=170/T-6=29); "
+            "n=620 = fills, not ticks -- one row per stopped trade / trade entry in "
+            "each ledger respectively)."
+        ),
     }
 
 
@@ -396,10 +512,40 @@ def score_row(row: dict, today: str) -> dict:
     return base
 
 
-# right_tail_capture's own R4 is explicitly PROVISIONAL tonight per the goal text --
-# override the row's computed verdict to PROVISIONAL rather than let a mechanical
-# threshold silently overstate confidence in a reopened item.
-_PROVISIONAL_ROW_IDS = {"tight-ladder-control-4-roundtrip-cap"}
+# right_tail_capture's own R4 was PROVISIONAL as of the 2026-09-05 03:1x ET C1-C5 fire
+# (reopened same night). It closed later the SAME night -- commit 915c057d ("R4 done,
+# goal DONE"; GOAL-RIGHT-TAIL-CAPTURE-2026-09-05.md: "R1-R6 all DONE ... Backfill +
+# cockpit tile numbers ... are now final, not provisional") -- so the override is
+# retired here (C6 hand-check, 2026-09-05). Kept as an empty set (not deleted) so a
+# FUTURE reopen of this row has an obvious place to re-add it.
+_PROVISIONAL_ROW_IDS: set[str] = set()
+
+
+PACKAGES_DIR = RECS_DIR / "packages"
+
+
+def _package_status(row_id: str) -> tuple[str | None, bool]:
+    """Additive, read-only lookup (GOAL-CHECKPOINT-REDUCTION-PACKAGES-2026-09-05 K3):
+    a package is "ready" only when README.md + change.patch + apply.ps1 all exist AND
+    change.patch is non-empty (an empty patch is the K2 scaffold placeholder, not a
+    real package). Never writes anything -- a parallel session may be authoring a
+    package under analysis/recommendations/packages/<row-id>/ concurrently; this
+    function only reads that directory."""
+    pkg_dir = PACKAGES_DIR / row_id
+    if not pkg_dir.is_dir():
+        return None, False
+    try:
+        package_path = pkg_dir.relative_to(REPO).as_posix()
+    except ValueError:
+        # PACKAGES_DIR monkeypatched outside REPO (tests) -- report the canonical
+        # repo-relative shape rather than an absolute/foreign path.
+        package_path = f"analysis/recommendations/packages/{row_id}"
+    required = ("README.md", "change.patch", "apply.ps1")
+    if not all((pkg_dir / name).exists() for name in required):
+        return package_path, False
+    patch = pkg_dir / "change.patch"
+    ready = patch.stat().st_size > 0
+    return package_path, ready
 
 
 def build_packet(inventory_path: Path = INVENTORY_PATH, today: str | None = None) -> dict:
@@ -412,6 +558,10 @@ def build_packet(inventory_path: Path = INVENTORY_PATH, today: str | None = None
             scored["verdict"] = VERDICT_PROVISIONAL
             scored["note"] = (scored.get("note", "") + " [R4 of GOAL-RIGHT-TAIL-CAPTURE reopened 2026-09-05 -- "
                                "reported PROVISIONAL, never cited as confirming evidence until re-closed.]").strip()
+        if scored.get("classification") == "reduction":
+            package_path, package_ready = _package_status(scored["row_id"])
+            scored["package"] = package_path
+            scored["package_ready"] = package_ready
         rows_out.append(scored)
     return {
         "generated_at_et": et_now().strftime("%Y-%m-%dT%H:%M:%S"),
@@ -430,9 +580,15 @@ CHECKPOINT_1030_MD = MARKDOWN_DIR / "CHECKPOINT-2026-10-30.md"
 
 def _md_row_line(r: dict) -> str:
     numbers = ", ".join(f"{k}={v}" for k, v in (r.get("numbers") or {}).items())
+    pkg = "-"
+    if r.get("classification") == "reduction":
+        if r.get("package"):
+            pkg = ("ready" if r.get("package_ready") else "scaffold-only") + f" (`{r['package']}`)"
+        else:
+            pkg = "none"
     return (
         f"| `{r['row_id']}` | {r['classification']} | {r['verdict']} | {r.get('n')} | "
-        f"[{Path(r['prereg_path']).name}]({r['prereg_path']}) | {numbers or '-'} |"
+        f"[{Path(r['prereg_path']).name}]({r['prereg_path']}) | {numbers or '-'} | {pkg} |"
     )
 
 
@@ -449,8 +605,15 @@ def _render_markdown(packet: dict, checkpoint_date: str, title: str) -> str:
         "",
         f"Generated at: {packet['generated_at_et']} ET | Rows in this window: {len(rows)}",
         "",
-        "| Decision | Class | Verdict | n | Prereg | Numbers |",
-        "|---|---|---|---|---|---|",
+    ]
+    reduction_rows = [r for r in rows if r.get("classification") == "reduction"]
+    if reduction_rows:
+        n_ready = sum(1 for r in reduction_rows if r.get("package_ready"))
+        lines.append(f"**Packages ready: {n_ready}/{len(reduction_rows)} reduction rows.**")
+        lines.append("")
+    lines += [
+        "| Decision | Class | Verdict | n | Prereg | Numbers | Package |",
+        "|---|---|---|---|---|---|---|",
     ]
     for r in rows:
         lines.append(_md_row_line(r))
@@ -467,6 +630,8 @@ def _render_markdown(packet: dict, checkpoint_date: str, title: str) -> str:
         lines.append(f"- **Frozen hypothesis:** {r.get('frozen_hypothesis')}")
         lines.append(f"- **Decision rule (verbatim):** {r.get('decision_rule_verbatim')}")
         lines.append(f"- **Reversible action:** {r.get('reversible_action')}")
+        if r.get("classification") == "reduction":
+            lines.append(f"- **Package:** `{r.get('package')}` (package_ready={r.get('package_ready')})")
         lines.append(f"- **Note:** {r.get('note')}")
     lines.append("")
     return "\n".join(lines)

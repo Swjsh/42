@@ -67,15 +67,40 @@ tickers theta_budget cadence; catastrophe-cap + day-throttle forward shadows (al
   "Autopilot" tile (dashboard/components/cockpit/producer-tiles.tsx). `npx tsc --noEmit` -> clean
   (exit 0). Headless DOM read (Claude Browser `find`, dashboard dev server, /cockpit route) ->
   `Awake — Kitchen DEGRADED (11.0%) — Checkpoint 2✓/2✗/4⋯` rendered live.
-- [~] C6 (WIP 2026-09-05 06:4x ET, Fable EOD-audit session a16e320c: one Sonnet hand-check worker -- other sessions do not pick up) -- Hand-check (added by Fable 2026-09-05 06:1x ET): the C2 scorers are a first-pass read of each
-  prereg's rule (worker-labelled UNVERIFIED). Two verdicts conflict with tonight's replay on real fills
-  (PREREG-TIGHT-LADDER "Interim evidence": the -$400 stop blocked 8 entries net -$1,601 = keeps money,
-  yet the packet reads RULE NOT MET; catastrophe-cap + day-throttle shadows read RULE NOT MET at n=620).
-  For every row whose verdict is RULE MET / RULE NOT MET: open the prereg, quote its rule verbatim,
-  recompute the number by a second method (the prereg's own scorer or a direct ledger read), and
-  either confirm the packet or fix the scorer + add the case to test_checkpoint_packet. DONE-WHEN:
-  each MET/NOT-MET row in CHECKPOINT-2026-09-29.md carries a `hand_check: confirmed <date>` note
-  and no verdict contradicts the prereg's own interim-evidence section.
+- [x] C6 (DONE 2026-09-05 03:2x ET, Sonnet worker session a16e320c) -- Hand-checked every MET/NOT-MET row (5 of 9: control-4, control-5,
+  score-ladder-v2, fill-model-step2, catastrophe-cap+day-throttle) against a second method, quoting
+  each prereg's rule verbatim. Two real bugs found and fixed in `setup/scripts/checkpoint_packet.py`
+  (RED-proofed): (1) control-5's verdict was hardcoded RULE NOT MET with a backwards note ("the stop
+  would have net-HURT") when the -$400 stop is ALREADY SHIPPED (`daily_loss_kill_switch_dollars: 400`
+  in params.json) and its own doc states the same numbers as "net +$1,601" avoided-loss -- corrected
+  to RULE MET, second-method reproduced exactly via `setup/scripts/_hand_check_control5.py`
+  (direct journal/trades.csv walk: n=8, net -1601.0, 1 winner +347/7 losers -1948, fires
+  08-05/08-07/08-14). (2) catastrophe-cap+day-throttle was hardcoded RULE NOT MET despite its own
+  decision_rule_verbatim stating "no frozen n-threshold ships a change by itself" -- corrected to
+  PROVISIONAL (matches the vocabulary's own "never cited as confirming evidence" definition);
+  n=620 confirmed FILLS not ticks (39 catastrophe-cap rows + 581 day-throttle rows, one row per
+  stopped-trade/entry respectively). (3) control-4 (cap-4 roundtrip): R4 of GOAL-RIGHT-TAIL-CAPTURE
+  closed the same night (commit 915c057d, "R4 done, goal DONE") so the PROVISIONAL override was
+  retired; the scorer itself had a second bug (counted per-(date,arm) rollup rows as "wave events",
+  inflating n to 36 when only 16 real wave rows exist post-08-31) -- fixed to filter on
+  `"wave_start_et" in r`; final read n=16 post-08-31, 0 cap4-refusals, verdict RULE NOT MET,
+  matching the prereg's own interim-evidence text verbatim ("the answer ... remains NO. The cap
+  stays."), still classification=expansion routed to 2026-10-30. (4) score-ladder-v2 and
+  fill-model-step2 confirmed correct (n-counting units fixed for score-ladder to match the
+  prereg's own "sessions/arm" language; fill-model's stale `status` string flagged in the note
+  but the scorer already reads the real evidence field, confirmed green via
+  `pytest test_exit_fill_model_unification_2026_09_05.py -q` -> 22 passed). All 5 rows now carry
+  `hand_check: confirmed 2026-09-05 (...)` text in their Note field (verified: grep -c hand_check
+  across both generated files = 5). RED-PROOFED the cap-4 fix: reverted checkpoint_packet.py to
+  HEAD, new test failed (`assert 'PROVISIONAL' == 'RULE NOT MET'`), restored fix, same test passed.
+  Full suite: `pytest backtest/tests/test_checkpoint_packet_2026_09_05.py -q` -> 7 passed. NOTE:
+  analysis/right-tail/ledger.jsonl was under ACTIVE CONCURRENT REWRITE by another process during
+  this fire (line count churned 244->92->124->224->0->244 over ~2 minutes) -- waited for a
+  20+-second-stable read (settled at 244 lines, 144 wave rows, matching the goal doc's own "36
+  waves/arm" x 4 arms and "cap-4 flags 11" exactly) before taking the final hand-check number and
+  regenerating; did not write to that file. Regenerated both CHECKPOINT-*.md via
+  `checkpoint_packet.py` (never hand-edited) and re-ran `gamma_home.py` (cockpit payload
+  autonomy.checkpoint_packet now met=3/not_met=1/insufficient_n=4/provisional=1).
 
 ## J-DECISIONS
 - None now. On 09-29 J reads the packet; reductions ship under Gamma-decides with revert lines,
@@ -91,21 +116,40 @@ tickers theta_budget cadence; catastrophe-cap + day-throttle forward shadows (al
   State=Ready, 13/13 tests -> C5 cockpit Autopilot tile renders checkpoint verdict
   counts + links, tsc clean, headless DOM read confirmed live.
 - 2026-09-05 03:09 ET — opened by goal_autopilot
+- 2026-09-05 03:2x ET -- Sonnet worker session a16e320c: C6 done. Hand-checked all 5
+  MET/NOT-MET/PROVISIONAL rows against a second method; found + fixed 2 real scorer
+  bugs (control-5's backwards sign convention, catastrophe-cap/day-throttle's
+  category-error NOT_MET-with-no-rule) and 1 stale-override bug (control-4's
+  PROVISIONAL override outliving R4's same-night closure, plus a nested schema bug
+  that inflated its n from 16 to 36). RED-proofed the control-4 fix. Regenerated both
+  CHECKPOINT-*.md + gamma_home.py. Final verdicts: met=3, not_met=1, insufficient_n=4,
+  provisional=1 -- 0 remaining contradictions against any prereg's own interim-evidence
+  text.
 ## HONEST STATE
-- VERIFIED this session: 9-row inventory built from real prereg/ledger files (not
-  invented); checkpoint_packet.py scores all 9 rows with 0 UNKNOWN on the real
-  inventory (met=2, not_met=2, insufficient_n=4, provisional=1); pytest
-  `13 passed in 0.83s` (checkpoint_packet + scheduled-tasks-doc + install-times-match);
-  `Get-ScheduledTask -TaskName Gamma_CheckpointPacket` -> State Ready, test-fire
-  LastTaskResult=0; `npx tsc --noEmit` exit 0; cockpit tile string
-  "Checkpoint 2/2/4" read live off the dashboard dev server via headless DOM query.
-- UNVERIFIED / not attempted this session: the individual per-row scorer MATH is a
-  first-pass reasonable read of each prereg's own frozen rule, not independently
-  re-derived/audited against a second method -- if the 09-29 read disagrees with a
-  hand-check, trust the hand-check and file a fix, don't assume the generator is
-  right by construction. The tickers_theta_budget_cadence scorer's per-fill
-  bleed-decomposition (the ACT/NO_ACTION math itself) is explicitly NOT re-derived
-  here once n clears the floor -- that belongs to the tickers lane's own scorer.
+- VERIFIED this session: hand-checked all 5 MET/NOT-MET/PROVISIONAL rows against a second
+  method (independent script for control-5, direct ledger reads for control-4/score-ladder/
+  catastrophe-cap, guard-suite rerun for fill-model); `pytest
+  backtest/tests/test_checkpoint_packet_2026_09_05.py -q` -> `7 passed in 0.22s`;
+  `pytest backtest/tests/test_exit_fill_model_unification_2026_09_05.py -q` -> `22 passed
+  in 0.42s`; RED-proof quoted (reverted checkpoint_packet.py to HEAD, new control-4 test
+  failed with `assert 'PROVISIONAL' == 'RULE NOT MET'`, restored fix, same test passed);
+  `python setup/scripts/checkpoint_packet.py` regenerated both CHECKPOINT-*.md files
+  (met=3/not_met=1/insufficient_n=4/provisional=1); `python setup/scripts/gamma_home.py`
+  ran clean, payload.json's autonomy.checkpoint_packet block matches
+  (met=3/not_met=1/insufficient_n=4/provisional=1); grep -c hand_check across both
+  generated .md files = 5 (every MET/NOT-MET/PROVISIONAL row).
+- UNVERIFIED / not attempted this session: the tickers_theta_budget_cadence scorer's
+  per-fill bleed-decomposition (the ACT/NO_ACTION math itself) is still NOT re-derived
+  here (it's INSUFFICIENT N, out of this fire's MET/NOT-MET scope, and belongs to the
+  tickers lane's own scorer per the prior session's note). analysis/right-tail/
+  ledger.jsonl was observed under active concurrent rewrite by another process during
+  this fire (line count churned across several full-rewrite cycles over ~2 minutes,
+  settling three separate times at the SAME final numbers: 244 total rows / 144 wave
+  rows / 16 post-08-31 / 11 total cap4 flags / 0 post-08-31 flags) -- waited for a
+  20+-second-stable read before taking the final number; did not write to that file,
+  and cannot rule out a FOURTH concurrent rewrite happening after this fire closes
+  (the next `Gamma_CheckpointPacket` 23:30 ET fire will pick up whatever is on disk
+  then, which is the intended nightly-refresh behavior, not a bug).
 - No FROZEN_TRADING_PATH file was opened for write at any point (verified: only
   reads inside every scorer + the packet script; git diff shows no automation/state/
   fleet/*, no params.json, no filters.py/risk_gate.py/heartbeat_core.py changes).

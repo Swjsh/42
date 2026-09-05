@@ -137,13 +137,26 @@ def test_build_packet_end_to_end_against_real_inventory_has_no_crash_and_nine_ro
         assert row["verdict"] is not None
 
 
-def test_provisional_override_applies_to_right_tail_control4_row():
-    """The goal text is explicit: R4 of GOAL-RIGHT-TAIL-CAPTURE is reopened and this
-    row must read PROVISIONAL, never cited as confirming evidence, regardless of what
-    the mechanical threshold alone would say."""
+def test_right_tail_control4_row_reads_mechanical_verdict_now_r4_is_closed():
+    """UPDATED 2026-09-05 (C6 hand-check): R4 of GOAL-RIGHT-TAIL-CAPTURE-2026-09-05
+    reopened AND closed the same night (commit 915c057d, 'R4 done, goal DONE';
+    GOAL-RIGHT-TAIL-CAPTURE-2026-09-05.md: 'Backfill + cockpit tile numbers ... are
+    now final, not provisional') -- the PROVISIONAL override that applied while R4
+    was still open has been retired (_PROVISIONAL_ROW_IDS is now empty). This row
+    must read the scorer's own mechanical verdict: direct read of
+    analysis/right-tail/ledger.jsonl filtered to real wave-event rows (presence of
+    `wave_start_et`) shows 16 wave events post-08-31 (cap-4 live) with ZERO
+    would_be_refused_under_cap4 flags -- matching PREREG-TIGHT-LADDER-2026-08-28.md's
+    own interim-evidence conclusion verbatim ('the answer ... remains NO. The cap
+    stays.') -- so verdict is RULE NOT MET (no qualifying refusal found = no case to
+    revert), classification stays 'expansion' routed to 2026-10-30 regardless."""
     packet = cp.build_packet()
     row = next(r for r in packet["rows"] if r["row_id"] == "tight-ladder-control-4-roundtrip-cap")
-    assert row["verdict"] == cp.VERDICT_PROVISIONAL
+    assert row["verdict"] == cp.VERDICT_NOT_MET
+    assert row["n"] == 16
+    assert row["numbers"]["refused_under_cap4_any"] == 0
+    assert row["classification"] == "expansion"
+    assert row["checkpoint"] == "2026-10-30"
 
 
 def test_every_row_has_classification_and_checkpoint_routing():
