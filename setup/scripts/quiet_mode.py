@@ -41,6 +41,11 @@ if os.path.basename(sys.executable).lower().startswith("pythonw"):
 ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = ROOT / "automation" / "state"
 RESTORE_FILE = STATE_DIR / "quiet-mode-restore.json"
+# Tasks a human/orchestrator turned OFF on purpose. Quiet mode must never bring them back:
+# 2026-09-05 the 15:17 ET restore re-enabled Gamma_CryptoTwin (replaced by its resident loop)
+# and Gamma_TickersLane (J's call pending) that Fable had disabled by hand an hour earlier.
+# Format: {"never_restore": ["Gamma_X", ...], "note": "..."}. Missing/garbled file = empty set.
+NEVER_RESTORE_FILE = STATE_DIR / "quiet-mode-never-restore.json"
 STATUS_FILE = STATE_DIR / "quiet-mode.json"
 HOLD_FILE = STATE_DIR / "quiet-hold.json"
 PRESENCE_FILE = STATE_DIR / "quiet-presence.json"
@@ -596,20 +601,38 @@ def _set_tasks(names: list[str], enable: bool) -> int:
     return ok
 
 
+def _never_restore() -> set[str]:
+    """Names quiet mode must never re-enable (see NEVER_RESTORE_FILE). Fail-open to empty."""
+    if not NEVER_RESTORE_FILE.exists():
+        return set()
+    try:
+        raw = json.loads(NEVER_RESTORE_FILE.read_text(encoding="utf-8-sig"))
+        return {str(n) for n in raw.get("never_restore", []) if n}
+    except (OSError, ValueError, AttributeError) as exc:
+        _log(f"WARN unreadable never-restore file ({exc}) -- treating as empty")
+        return set()
+
+
 def _load_restore_list() -> list[str]:
     if not RESTORE_FILE.exists():
         return []
     try:
-        return list(json.loads(RESTORE_FILE.read_text(encoding="utf-8")).get("restore_to_ready", []))
+        names = list(json.loads(RESTORE_FILE.read_text(encoding="utf-8")).get("restore_to_ready", []))
     except (OSError, ValueError) as exc:
         _log(f"WARN unreadable restore file ({exc}) -- treating as empty")
         return []
+    skip = _never_restore()
+    dropped = [n for n in names if n in skip]
+    if dropped:
+        _log(f"never-restore: skipping {dropped}")
+    return [n for n in names if n not in skip]
 
 
 def _save_restore_list(names: list[str]) -> None:
+    skip = _never_restore()
     RESTORE_FILE.write_text(json.dumps({
         "recorded_at": dt.datetime.now(ET).isoformat(),
-        "restore_to_ready": sorted(set(names)),
+        "restore_to_ready": sorted(set(n for n in names if n not in skip)),
     }, indent=2), encoding="utf-8")
 
 
