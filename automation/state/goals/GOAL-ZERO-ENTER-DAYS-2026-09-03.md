@@ -55,7 +55,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] Z1 — Inventory: for every trading day 2026-08-31 → today, run the existing
+- [~] Z1 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Inventory: for every trading day 2026-08-31 → today, run the existing
   `_grade_zero_enter_day` logic (via a small read-only script, or by reading
   `conductor-outcomes.jsonl`'s `function_latest.zero_enter_day_grade` if a conductor
   fire already graded that day) and list every day graded `SAT_OUT_GATED` or
@@ -65,7 +65,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   (SIP-VOLMULT day) explicitly as the known case. DONE-WHEN: the file lists every
   frozen-window weekday with a grade, cross-checked against `journal/calendar-data.json`
   for which days were actual trading days.
-- [ ] Z2 — Define the JSON schema for `analysis/zero-enter/ZERO-ENTER-<date>.json`:
+- [~] Z2 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Define the JSON schema for `analysis/zero-enter/ZERO-ENTER-<date>.json`:
   per-bar rows `{ts_et, bar_close, dominant_blocker, blocker_detail (e.g.
   vol_baseline_20 + bar.volume for filter 10), bear_score, bull_score, would_have_
   entered: bool}`, plus a day-level summary `{thesis_verbatim (from that day's
@@ -75,7 +75,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   writing any code, so the schema is proven against a real day first. DONE-WHEN: a
   hand-filled `analysis/zero-enter/ZERO-ENTER-2026-09-02.json` validates and its
   numbers match `analysis/entry-quality/SIP-VOLMULT-2026-09-02.md`.
-- [ ] Z3 — Build `setup/scripts/zero_enter_autopsy.py`: for a given date, pull
+- [~] Z3 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Build `setup/scripts/zero_enter_autopsy.py`: for a given date, pull
   `core-decisions.jsonl` rows (reuse `_decisions_for_day`-equivalent logic), the day's
   premarket thesis (`journal/YYYY-MM-DD.md` or `today-bias.json` snapshot if archived),
   compute the per-bar table per the Z2 schema, price the counterfactual thesis payoff
@@ -86,18 +86,18 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   test_zero_enter_autopsy.py` that runs it against the 2026-09-02 fixture and asserts
   the output matches the Z2 hand-filled file. DONE-WHEN: test passes, RED-proofed
   (breaks when the blocker-detection logic is reverted).
-- [ ] Z4 — Register `zero_enter_autopsy.py` as a scheduled task following
+- [~] Z4 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Register `zero_enter_autopsy.py` as a scheduled task following
   `setup/scripts/install-task-staleness.ps1`'s installer pattern (pure Python, $0,
   CREATE_NO_WINDOW, fires once daily after EOD flatten — check `Gamma_EodFlatten`'s
   15:55 ET slot in `automation/state/SCHEDULED-TASKS.md` and schedule after it, e.g.
   16:10 ET) and add its row to `SCHEDULED-TASKS.md` per that file's existing
   documentation protocol (name, cadence, purpose, $0 cost note). DONE-WHEN:
   `Get-ScheduledTask Gamma_ZeroEnterAutopsy` returns `State=Ready`.
-- [ ] Z5 — Backfill: run `zero_enter_autopsy.py` for every day identified in Z1
+- [~] Z5 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Backfill: run `zero_enter_autopsy.py` for every day identified in Z1
   (2026-08-31 onward) and confirm every one produces a
   `analysis/zero-enter/ZERO-ENTER-<date>.json` file. DONE-WHEN: `ls analysis/zero-enter/
   | wc -l` matches the Z1 inventory count (SAT_OUT_GATED + regressing days only).
-- [ ] Z6 — Write the prereg for whatever gate the backfill most frequently indicts
+- [~] Z6 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Write the prereg for whatever gate the backfill most frequently indicts
   (SIP-VOLMULT-2026-09-02's own research already names the live candidate: per-session
   `vol_baseline_20` reset instead of the current session-spanning 20-bar trailing
   window — "Candidate for a 10-30 prereg, not before" per its own note). File
@@ -111,6 +111,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   `Unregister-ScheduledTask Gamma_ZeroEnterAutopsy`.
 
 ## PROGRESS LOG
+- 2026-09-05 03:1x ET — Z1-Z6 claimed WIP by the Fable EOD-audit session (single Sonnet build chain).
 - 2026-09-03 18:07 ET — authored by Sonnet (A4 of GOAL-GAMMA-AUTONOMY); queued on the
   ladder, not yet opened.
 - 2026-09-05 01:29 ET — opened by goal_autopilot
