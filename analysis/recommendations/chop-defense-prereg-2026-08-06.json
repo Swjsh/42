@@ -114,5 +114,11 @@
     "contract": "MEASUREMENT ONLY. Reads fills-ledger.jsonl + 5m bars; writes automation/state/chop-exposure-{date}.json; renders one nightly line in firm-brief.md (cached-artifact read, fail-open, additive -- firm_brief's sections/verdicts unchanged). Never blocks anything, never touches params, never places or cancels orders.",
     "line_reports": "n_entries | ordinal>=4 | against V-d1 (last closed 5m bar disagrees, flat counts as disagree -- identical semantics to lever_entry_count c6_block) | zero-structure-event entries | max consec-loss run | fleet pooled realized floor + would_trip_at_-600",
     "fail_open": "If the 5m bar fetch fails, bar-dependent columns render n/a with a DEGRADED note; ledger-derived columns still report. A missing artifact renders 'meter has not run' in firm_brief, never an exception."
+  },
+  "status": "EXTEND",
+  "adjudicated_at_et": "2026-09-05 (Sat)",
+  "evidence": {
+    "command": "Glob analysis/**/*chop* + Glob automation/state/chop-exposure*.json (P3 fire 2026-09-05)",
+    "result": "12-cell fresh battery runner (backtest/tools/chop_admissibility_2026_08_06.py) not executed -- no results file found in analysis/; battery cells (Family A consecutive-loss, Family B RR-ratio, Family C structure-timing) remain unscored. verdict_cap_battery_wide=PREREG (SHIP structurally unreachable). chop_exposure_meter.py has accrued 28 sessions (2026-08-06..2026-09-04), past 10-session minimum for lever-prereqs. Config freeze 2026-08-31..2026-10-30 blocks all shipping. EXTEND: battery runner needs execution against current fills-ledger.jsonl to score 12 cells; lever-prereq forward clocks met (28 sessions) and warrant chop-exposure-last.json read to check BRK600 would_trip vs day-end-green kill criteria. Re-adjudicate at next available conductor fire."
   }
 }

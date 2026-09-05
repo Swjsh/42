@@ -128,5 +128,11 @@
 
   "give_back_accounting": "REQUIRED (task honesty clause, matching shakeout_ab precedent): each candidate reports extra captured on trades where it beat control, separately from extra given back on trades where it lost MORE than control -- both sides of the ledger, never just the net.",
 
-  "rules": "READ-ONLY: no params.json/exit_manager.py/strategies.py/heartbeat_core.py edit during this analysis phase. If a candidate clears the auto-ratify bar, the SHIP step is a SEPARATE, disclosed, guarded follow-up commit (new ExitShape field additions to strategies.py, flag-gated, with RED-proof + one-line revert + REVOKE per the task's SHIP RULE) -- never silently bundled into this analysis commit. No trading-path file is touched by dynamic_exits_2026_08_09.py itself. Verdict reported honestly even if every candidate is CONTROL_HOLDS -- no forced ship, no softened gate."
+  "rules": "READ-ONLY: no params.json/exit_manager.py/strategies.py/heartbeat_core.py edit during this analysis phase. If a candidate clears the auto-ratify bar, the SHIP step is a SEPARATE, disclosed, guarded follow-up commit (new ExitShape field additions to strategies.py, flag-gated, with RED-proof + one-line revert + REVOKE per the task's SHIP RULE) -- never silently bundled into this analysis commit. No trading-path file is touched by dynamic_exits_2026_08_09.py itself. Verdict reported honestly even if every candidate is CONTROL_HOLDS -- no forced ship, no softened gate.",
+  "status": "NULL",
+  "adjudicated_at_et": "2026-09-05 (Sat)",
+  "evidence": {
+    "command": "Read analysis/recommendations/dynamic-exits-forward-prereg-2026-08-09.json which_gate_failed_per_candidate (P3 fire 2026-09-05)",
+    "result": "All 5 candidates CONTROL_HOLDS. DYN-ATR-CAT: G1 fail -$815.87 historical, ex-Tuesday real -$2950.45. DYN-STRUCT-CAT: G1 fail -$850.97 historical, ex-Tuesday real -$2229.97, 58.6% coverage. DYN-TP-ATR: G1 fail -$1617.08 AND G4 HARD fail (runner cohort halved $15774->$7707). DYN-TRAIL-ATR: G1 fail -$728.03 historical despite ex-Tuesday real +$1111.78 on thin 4/26 day coverage. DYN-ALL: worst -$2510.31, fails Tuesday. No candidate cleared auto-ratify bar (g1 AND g3 AND g4_runner AND sub_window_stable AND drop_best_day AND WF AND tuesday_hard all required). Memory note feedback_dynamic_exits_kill_fixed_cap_2026_08_09.md confirmed A/B ran and null was never logged -- this is that null."
+  }
 }

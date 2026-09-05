@@ -36,5 +36,11 @@
 
   "forward_clock": "Evaluate against the NEXT n>=20 real trading days' fills (a genuinely new real-fill-book slice, e.g. everything after 2026-08-07) OR a freshly-regenerated historical population's newly-added trailing slice, WHICHEVER ARRIVES FIRST. Do not shortcut by re-running today's exact 191-trade / 2026-06-26..08-07 populations against the new k-values -- that is a re-pick, not a forward test.",
 
-  "rules": "READ-ONLY until a forward-clock cell clears the SAME auto-ratify bar dynamic-exits-prereg-2026-08-09.json defined (g1 AND g3_ex_best AND g4_runner_cohort_anchor_no_regression AND sub_window_stable AND drop_best_day AND walk_forward_gate AND tuesday_hard_gate, all pre-registered before that run). No gate softened. No forced ship."
+  "rules": "READ-ONLY until a forward-clock cell clears the SAME auto-ratify bar dynamic-exits-prereg-2026-08-09.json defined (g1 AND g3_ex_best AND g4_runner_cohort_anchor_no_regression AND sub_window_stable AND drop_best_day AND walk_forward_gate AND tuesday_hard_gate, all pre-registered before that run). No gate softened. No forced ship.",
+  "status": "NULL",
+  "adjudicated_at_et": "2026-09-05 (Sat)",
+  "evidence": {
+    "command": "Glob analysis/**/*dynamic-exits* + check for forward runner existence (P3 fire 2026-09-05)",
+    "result": "No forward runner was built for the 3 proposed candidates (DYN-ATR-CAT-TIGHT k in {0.75,1.0}, DYN-STRUCT-CAT-EXTENDED-LOOKBACK, DYN-TRAIL-ATR-REFINED k in {0.5,0.75,1.5}). Forward clock n>=20 real trading days after 2026-08-07 is met (~20+ elapsed) but no forward test ran. Graveyard additions close DYN-TP-ATR-any-k-near-1.0 and DYN-ALL-bundling permanently. Config freeze 2026-08-31..2026-10-30 blocks shipping. Forward candidates lack evidence; if warranted post-10-30, requires fresh runner against must_not_reuse population (new trailing slice only, never the 191-trade/2026-06-26..08-07 seen populations)."
+  }
 }

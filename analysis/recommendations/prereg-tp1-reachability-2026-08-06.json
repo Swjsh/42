@@ -100,5 +100,11 @@
     "analysis/deep-research/TP1-REACHABILITY-2026-08-06.md",
     "analysis/deep-research/TP1-REACHABILITY-2026-08-06.json",
     "analysis/recommendations/tp1-reachability-2026-08-06.json (the A/B scorecard, every cell disclosed)"
-  ]
+  ],
+  "status": "KILL",
+  "adjudicated_at_et": "2026-09-05 (Sat)",
+  "evidence": {
+    "command": "Read analysis/deep-research/TP1-REACHABILITY-2026-08-06.json (existing results file, P3 fire 2026-09-05)",
+    "result": "All 28 ribbon+vwap cells fail auto-ratify bar. Best cell R_tp100_f50 passes G1 (+$910.05), G2 (+$725.10), G3 (+$628.05), G5 (+$725.10), G6 (week +$593.95), G7 (+$593.95), G8 (BH p=0.002617), OOS_positive (+$347.9), WF=0.80 -- but FAILS G4 sub_window_stable (only 2 of 4 sub-windows have n_changed>=5, gate requires passing in >=3 qualifying windows; +100% TP1 fire rate 0.2042 leaves insufficient dispersion across sub-windows). All other ribbon cells negative on G1 and runner anchor. All vwap cells ship_eligible=false. Forward clock expired: prereg stated 2026-09-05 as deadline. Config freeze 2026-08-31..2026-10-30 blocks shipping regardless. 0/28 cells cleared full bar."
+  }
 }

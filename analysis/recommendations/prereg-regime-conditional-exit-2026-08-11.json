@@ -49,5 +49,11 @@
   ],
 
   "explicitly_not_licensed": "No entry gate, no skip rule, no ladder arm/disarm, no params.json change, no accounts.json change. This document authorises MEASUREMENT ONLY. risky-3 remains governed by its own prereg (n>=20 days, 2 elapsed).",
-  "reporting_rule": "Every forward day reported, including low-ER days that print green -- those are the ones that kill the hypothesis, so they get named."
+  "reporting_rule": "Every forward day reported, including low-ER days that print green -- those are the ones that kill the hypothesis, so they get named.",
+  "status": "EXTEND",
+  "adjudicated_at_et": "2026-09-05 (Sat)",
+  "evidence": {
+    "command": "Count trading days 2026-08-12..2026-09-04 (P3 fire 2026-09-05)",
+    "result": "Forward G1 requires n>=25 trading days from 2026-08-11; approximately 17 trading days elapsed (2026-08-12..2026-09-04). G1 not yet reachable. No ER30 shadow ledger file found in available analysis/ paths confirming the shadow instrument is accruing. Config freeze 2026-08-31..2026-10-30 blocks any live regime-gated change regardless. EXTEND: re-adjudicate when n>=25 (~2026-09-16) OR if G5 fires (>30% of low-ER days green -> discriminator DEAD, close as KILL). If shadow instrument was never built, close as NULL at that review."
+  }
 }
