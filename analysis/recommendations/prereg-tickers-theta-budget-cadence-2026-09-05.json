@@ -1,0 +1,104 @@
+{
+  "rule_id": "prereg-tickers-theta-budget-cadence-2026-09-05",
+  "title": "Does the tickers-lane theta_budget exit overshoot its configured 30% bleed cap because of 2-minute tick cadence + market-order execution, or something else -- and is there a cheap fix?",
+  "status": "FROZEN_BEFORE_ANY_ADDITIONAL_RESULT",
+  "frozen_at_et": "2026-09-05T00:0x",
+  "frozen_by": "Sonnet worker-tier session, GAMMA_TickersLane T7 follow-up audit (2026-09-04 day-one autopsy filed this as a queue item, n=3 too thin to act on -- commit 7ebbeeec)",
+  "_no_results_seen_beyond_day_one": "Written after reconstructing day one's 3 fills tick-by-tick from the ledgers and reading multi/lib/exits.py + multi/execute.py end to end. No day-two-or-later fill is known to the author.",
+  "day_one_reconstruction": {
+    "method": "Per-arm ledger.jsonl rows between ENTRY_FILLED and EXIT_FILLED, cross-checked against day-2026-09-04.json fills[] (broker-truth fill prices) and multi/lib/tickers_execute_support.py's worst=bid / best=ask sourcing (confirmed in multi/core.py:manage_open_positions, worst_premium=quote['bid']).",
+    "tickers_1": {
+      "contract": "AMZN260904C00260000",
+      "entry_ts": "09:43:17",
+      "entry_premium": 0.79,
+      "detection_gap": "3 consecutive TICK_ERROR rows (09:45:24, 09:47:18, 09:49:17) -- TypeError: 'float' object is not subscriptable, ALREADY ROOT-CAUSED AND FIXED in commit 7ebbeeec (multi/lib/context.py bounce_history bare-float bug). No exit evaluation ran for ~8 minutes post-entry.",
+      "first_successful_check": "09:51:13, bid=0.30 (seen bleed 62.0% vs entry, already past the 30% cap by the time the check finally ran)",
+      "fired_stage": "theta_budget",
+      "exit_ts": "09:51:24",
+      "fill_price": 0.27,
+      "realized_bleed_pct": 65.8,
+      "attribution": "Overshoot here is EXPLAINED BY THE NOW-FIXED bounce_history bug, not by cadence alone -- without those 3 dropped ticks the next scheduled check would have landed ~09:45, likely much closer to the 30% line. Residual ~3.8pp between the 09:51:13 seen bid (62.0%) and the 09:51:24 fill (65.8%) is execution slippage over an 11-second market SELL_ALL."
+    },
+    "tickers_2": {
+      "contract": "AVGO260904P00355000",
+      "entry_ts": "14:16:28",
+      "entry_premium": 0.81,
+      "detection_gap": "NONE -- normal 2-minute cadence throughout the hold (hold ticks logged 14:17:44 bid=0.74 [8.6% bleed], 14:19:35 bid=0.61 [24.7% bleed], both under the 30% cap).",
+      "first_check_over_cap": "14:21:40, bid=0.52 (35.8% bleed on bid -- crossed the cap SOMEWHERE in the ~2:05 gap since the 24.7%-bleed tick; no code error, purely inter-tick polling gap on a fast-moving 0DTE put)",
+      "fired_stage": "theta_budget",
+      "exit_ts": "14:22:00",
+      "fill_price": 0.5,
+      "realized_bleed_pct": 38.3,
+      "attribution": "NOT explained by the bounce_history bug or any other TICK_ERROR (none occurred in this arm's 14:12-14:36 window). Pure 2-minute-cadence detection lag (~6pp of the overshoot, 29.0%->35.8% bid move between checks) plus ~20 seconds of market-order slippage on the fill (2.5pp, 35.8%->38.3%). This is the cleanest single-arm evidence that CADENCE ALONE, with no code defect, produces meaningful overshoot on this option class."
+    },
+    "tickers_3": {
+      "contract": "QQQ260904C00720000",
+      "entry_ts": "09:51:35",
+      "entry_premium": 1.87,
+      "detection_gap": "TOTAL SILENCE 09:53-10:47 ET (56 minutes, ~28 missed 2-minute cycles) -- not even a TICK_ERROR row, unlike tickers_1/2's caught exceptions. Immediately before (09:35-09:51) and after (10:49 onward) the arm ticks normally on the expected ~2-minute cadence, so this is a full-process outage window, not a per-symbol exception swallowed by the widened handler.",
+      "first_successful_check": "10:47:32, bid=0.53 (71.7% bleed on bid -- the position was already catastrophically past the cap the instant monitoring resumed)",
+      "fired_stage": "theta_budget",
+      "exit_ts": "10:47:38",
+      "fill_price": 0.55,
+      "realized_bleed_pct": 70.6,
+      "attribution": "UNEXPLAINED by the bounce_history fix (no TICK_ERROR logged in this window for ANY of the 3 arms -- checked tickers-1/2's TICK_ERROR timestamp lists too, none fall in 09:53-10:47). Root cause of THIS specific 56-minute silence is NOT YET DIAGNOSED -- candidates are a Windows Task Scheduler miss/skip for those cycles, a wall-clock budget exhaustion swallowing the whole tick before any row is logged, or a crash upstream of exits.py/execute.py's own try/except. Flagged here as the single largest open question; NOT fixed in this pass because it could not be reproduced or pinned to a code line with the evidence on hand (see open_questions)."
+    }
+  },
+  "reporting_bug_found_and_fixed_separately": {
+    "not_part_of_this_prereg": "multi/execute.py's day['kill_tripped'] field was only written BEFORE the exits loop each tick, so the tick whose own exit trips the 1% kill switch persisted a stale kill_tripped:false to day-2026-09-04.json (all 3 arms) even though the in-memory recompute correctly blocked later entries (proven by 25 'daily kill switch already tripped' BLOCKED rows across the 3 arms' ledgers). Fixed directly (mechanical, deterministic, no A/B needed) -- see commit for this session. Guard: backtest/tests/test_tickers_theta_budget_overshoot_2026_09_05.py."
+  },
+  "provenance": {
+    "why": "Two of three day-one overshoots (tickers-2 cleanly, tickers-3 partially) are NOT explained by the already-fixed TypeError bug, meaning the 30% theta_budget cap is inherently soft under a 2-minute polling cadence + market-order exit on fast-decaying/gapping 0DTE single-name options. n=3 is far too thin to conclude the cadence itself needs to change (could be regime-specific, contract-specific, or a one-day artifact), and OP-16/judgment-guards forbid tuning exit knobs mid-window on this evidence.",
+    "exits_py_semantics_confirmed_correct": "multi/lib/exits.py:335-342 computes premium_bleed_pct off worst_premium, and multi/core.py:manage_open_positions passes worst_premium=float(quote['bid']) -- the conservative, correct choice for a long holder's sell value. NOT a threshold-semantics bug; theta_budget.fires_before_catastrophe_cap ordering (multi/lib/exits.py:380-384) also behaves as documented. The cap is checked against the right number at the right priority -- it is simply checked too infrequently relative to how fast these names' premiums can move."
+  },
+  "prior_working_against_this_hypothesis": [
+    "n=3 fills, 1 per arm, all on the SAME day (2026-09-04) -- indistinguishable from a single unusually volatile session for these 3 specific 0DTE contracts.",
+    "The parent prereg (prereg-tickers-lane-production-scorer-2026-09-04.json, known_limitations_stated_upfront) already disclosed 'A -50% catastrophe cap checked every 2 minutes can overshoot on a fast name' BEFORE any fill -- this is a known, accepted design tradeoff, not a surprise defect.",
+    "Shortening the tick interval increases Alpaca API call volume 1.5-6x across 3 accounts with no evidence yet that it would have prevented tickers-3's 56-minute silence (a full-tick-miss, which a shorter interval does not fix if the same failure mode recurs)."
+  ],
+  "design": {
+    "candidate_fixes_NOT_yet_applied": [
+      "Tighten tick_cadence.minutes (currently 2) for THIS lane only -- more API calls, narrower detection-lag window, does not address tickers-3's total-silence failure mode.",
+      "Switch theta_budget's exit order type from market SELL_ALL to a marketable limit anchored to bid minus a small buffer -- reduces the ~2-4pp execution-slippage component seen in all 3 fills, does not address detection lag.",
+      "Lower max_premium_bleed_pct_without_progress below 30% to leave headroom for the 2-minute polling gap -- a blunt instrument that reduces overshoot by moving the trigger point, not the cause; would also fire theta_budget earlier on legitimate holds."
+    ],
+    "diagnosis_still_open": "The tickers-3 56-minute total-silence window (09:53-10:47 ET) is not explained by any mechanism found in multi/execute.py, multi/core.py, or multi/lib/exits.py during this pass. Needs Windows Task Scheduler run-history / execute-last-run.log archives from that exact window (not retained past the latest run as of this audit) before any cadence fix can be scoped correctly -- fixing cadence without knowing whether tickers-3's gap was a cadence problem at all risks solving the wrong problem."
+  },
+  "statistics": {
+    "min_additional_fills": 15,
+    "min_additional_trading_days": 10,
+    "_below_the_bar": "Fewer than 15 more theta_budget-stage exits (or fewer than 10 more trading days) across the 3 arms is INSUFFICIENT_EVIDENCE -- report descriptively (observed overshoot range, tick-error/silence incidence) but no cadence or exit-order-type change ships off it.",
+    "per_fill_measurement": "For every theta_budget SELL_ALL: (a) bleed_pct at the LAST successful check before the fired tick, (b) bleed_pct AT the fired tick, (c) bleed_pct at fill, (d) whether a TICK_ERROR or multi-tick silence occurred inside the position's hold window. This decomposes overshoot into detection-lag vs slippage vs code-defect on every future fill, not just day one's 3."
+  },
+  "decision_rule": {
+    "_committed_in_advance": true,
+    "ACT_tighten_cadence_or_limit_exit": "After the minimums: median (fired_tick_bleed - last_clean_check_bleed) > 10pp AND median (fill_bleed - fired_tick_bleed) > 3pp, consistently across >=2 of the 3 arms -- i.e. cadence AND slippage both reproduce as material and lane-wide, not a single-name artifact.",
+    "NO_ACTION_insufficient_signal": "After the minimums, overshoot is small (<5pp median) or concentrated in one arm/symbol -- treat as normal 0DTE noise, no param change.",
+    "ESCALATE_scheduler_investigation": "Any further total-silence window (no TICK_ERROR, no HOLD row) >= 20 minutes during 09:35-14:55 ET on ANY arm, at ANY point before the fill minimums are met -- this is an operational outage, not a cadence-tuning question, and gets its own root-cause pass immediately rather than waiting for n=15.",
+    "what_a_ACT_verdict_authorizes": "A DRAFT param change (tick_cadence.minutes and/or an exit-order-type change) written up with before/after evidence for the next weekend ratification window (Rule 9) -- never applied mid-week, never applied silently.",
+    "what_NO_ACTION_authorizes": "Leaving tickers-lane exits exactly as configured; the known_limitations disclosure in the parent prereg stands as the final word."
+  },
+  "kill_list": {
+    "forbidden_inside_the_window": [
+      "Changing exits.theta_budget.max_premium_bleed_pct_without_progress, tick_cadence.minutes, or the exit order type in automation/state/tickers/params.json before the decision_rule's minimums are met.",
+      "Reading day-2026-09-04's 3 fills as if they already answered the question -- they are the DAY ONE trigger for this prereg, not its evidence base.",
+      "Conflating tickers-3's unexplained 56-minute silence with the (separately fixed) bounce_history TypeError -- they are different failure signatures and must not be closed together."
+    ]
+  },
+  "known_limitations_stated_upfront": [
+    "The indicative options feed (no OPRA agreement) means every bid/ask read is already one step removed from the true NBBO; some of the 'overshoot' may be feed staleness rather than polling cadence.",
+    "3 different underlyings (AMZN, AVGO, QQQ) with different day-one volatility profiles -- day one alone cannot separate a lane-wide cadence effect from a name-specific one.",
+    "tickers-3's silent-gap root cause is unresolved by this document; if it recurs, ESCALATE_scheduler_investigation fires before the statistics minimums are reached."
+  ],
+  "freeze_compliance": {
+    "frozen_paths_touched": "none",
+    "_doc": "This prereg touches no FROZEN_TRADING_PATH file. The reporting-side kill_tripped fix (multi/execute.py) is a separate, already-applied, deterministic bug fix -- not a param or threshold change and not gated by this document."
+  },
+  "output": {
+    "ledgers": "automation/state/tickers/<arm>/ledger.jsonl + day-<date>.json fills[]",
+    "verdict": "analysis/deep-research/TICKERS-THETA-BUDGET-CADENCE-VERDICT-<date>.md (written once the statistics minimums are met)",
+    "exits_module": "multi/lib/exits.py (unchanged this pass)",
+    "executor": "multi/execute.py"
+  },
+  "silent_gap_2026_09_04_root_cause": "RESOLVED by the Fable EOD audit (automation/overnight/STATUS.md entry 2026-09-05 00:02 ET): the box lost power at 09:51:05 ET (Windows System log Kernel-Power 41 + EventLog 6008), rebooted 10:01 ET, and every Gamma_* task is LogonType=Interactive so nothing ran until the user logon at 10:45 ET; first hidden-chain launch 10:46:01 ET. The 09:53-10:47 tickers-3 gap is that outage, not a scheduler or engine defect -- the ESCALATE_scheduler_investigation branch is NOT triggered by it. The lane-level lesson stands: with a 2-min cadence and market SELL_ALL, any dark window turns the 30% theta cap into whatever the market did meanwhile."
+}

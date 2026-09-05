@@ -881,8 +881,22 @@ def run_arm(arm: str, lane_params: dict, bars: dict, attention: dict, *,
     summary["exits"] = n_exits
 
     # re-read the kill state in case an exit's realized P&L just tripped it this same tick
+    kill_was_persisted = bool(day.get("kill_tripped"))
     kill_tripped = realized <= -kill_pct * sod_equity
     summary["kill"] = kill_tripped
+    day["kill_tripped"] = kill_tripped
+    if kill_tripped and not kill_was_persisted:
+        # BUG FIX (2026-09-05, tickers-lane day-one theta-budget/kill-switch audit): the
+        # only earlier write of day["kill_tripped"] was made at step 5, BEFORE this tick's
+        # own exit(s) could update realized_pnl_today -- so a tick whose exit is what trips
+        # the switch persisted kill_tripped=False that tick, and (since no LATER tick that
+        # day has a fill of its own to trigger another save_day_file call) the day-*.json
+        # file never gets the corrected value even though the in-memory recompute above is
+        # right every tick and KILL_BLOCKED entries prove the trading path enforces it
+        # correctly. Persist the transition the instant it happens so the reporting side
+        # (tickers_day_check.py, STATUS/day-check-eod.json consumers) matches broker truth
+        # instead of staying stuck on the pre-trip snapshot. Never touches order placement.
+        save_day_file(arm_day_path(arm, date_str), day)
 
     # 9. ACT ON ENTRIES -------------------------------------------------------------------
     last_entry_et = parse_hhmm(lane_params["tick_cadence"]["last_entry_et"])
