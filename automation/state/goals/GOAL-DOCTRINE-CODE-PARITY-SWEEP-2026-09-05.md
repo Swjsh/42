@@ -78,6 +78,7 @@ cap pct, veto flag), RED-proofed against a mutated copy of the text.
   `python` (has tiktoken, accurate) and `backtest/.venv/Scripts/python.exe` (falls back to a
   byte/3.6 estimate, under-reports) -- noted in the parity doc so future budget checks use the
   right interpreter.
+- 2026-09-05 06:02 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 P1-P5 complete. 4 DOC-DRIFT rows corrected in CLAUDE.md (context budget YELLOW, not RED, after
 trim). 1 UNAPPLIED-RATIFICATION re-filed as a 09-29 prereg (pure reduction) and folded into the
@@ -85,3 +86,4 @@ checkpoint inventory + regenerated CHECKPOINT files. Guard test green (15/15 doc
 full repo `-k parity` also confirmed green post-close: 396 passed/4 skipped/0 failed). One open
 item: C15 (playbook.md/risk-rules.md numeric cross-check) was not completed -- flagged UNVERIFIED
 in the parity doc rather than claimed done.
+AUTOPILOT CLOSE 2026-09-05 06:02 ET: queue fully terminal (no bare '- [ ] ' item left)
