@@ -35,22 +35,22 @@ fix filed as a normal engine bug with a RED-proofed guard -- defects are not fro
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] F1 -- Join: for each (wave, arm) in `analysis/right-tail/ledger.jsonl` with taken=false, pull
+- [~] F1 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Join: for each (wave, arm) in `analysis/right-tail/ledger.jsonl` with taken=false, pull
   the arm's `automation/state/fleet/<arm>/decisions.jsonl` rows within +/-3 min of the wave anchor
   (bold-2 is a core account: use core-decisions.jsonl `account=="bold"`), the fills-ledger state
   (open position?), and `automation/state/engine-gaps` findings for that window. Write the join to
   `analysis/right-tail/capture-gap-join-2026-09-05.json`. DONE-WHEN: row count == number of missed
   (wave, arm) pairs; zero rows without evidence.
-- [ ] F2 -- Attribute: classify every row into mechanisms 1-7 with the quoted row; compute the dollar
+- [~] F2 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Attribute: classify every row into mechanisms 1-7 with the quoted row; compute the dollar
   figure per mechanism per arm. DONE-WHEN: the .md table sums to the missed-wave count per arm.
-- [ ] F3 -- Defects: any mechanism-5 (cadence/race) or stale-read finding is a bug -- root cause in one
+- [~] F3 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Defects: any mechanism-5 (cadence/race) or stale-read finding is a bug -- root cause in one
   sentence, fix in the fleet executor's NON-frozen periphery or the scheduler, RED-proofed guard.
   If the fix touches a FROZEN file, file it as a kill-type prereg for 09-29 instead and say so.
-- [ ] F4 -- Preregs: for each mechanism 1/2/4/6 above the $1,000 line, write
+- [~] F4 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Preregs: for each mechanism 1/2/4/6 above the $1,000 line, write
   `analysis/recommendations/prereg-fleet-capture-<mechanism>-10-30-2026-09-05.json` (frozen hypothesis,
   the exact knob, kill criteria on the right-tail ledger's forward window, revert line). Add each to
   `setup/scripts/checkpoint_packet.py`'s inventory so the 10-30 packet reads it.
-- [ ] F5 -- Render: capture rate per arm + top mechanism per arm on the cockpit right-tail tile
+- [~] F5 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Render: capture rate per arm + top mechanism per arm on the cockpit right-tail tile
   (payload via gamma_home.py; DOM read quoted).
 
 ## J-DECISIONS

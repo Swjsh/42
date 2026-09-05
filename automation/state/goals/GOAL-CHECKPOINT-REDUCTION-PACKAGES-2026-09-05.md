@@ -31,17 +31,17 @@ generator links each reduction row to its package path. Nothing is applied befor
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] K1 -- Score-ladder shadow retirement package: identify every organ the rung shadow owns
+- [~] K1 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Score-ladder shadow retirement package: identify every organ the rung shadow owns
   (`Gamma_BoldTierRail` / `Gamma_ConvictionC4Sidecar`? -- read analysis/arm-ladder/ and
   automation/state/SCHEDULED-TASKS.md to name the exact task(s) + scripts + ledger writers), produce
   the patch that unregisters the task(s), tombstones the registry rows, and stops the ledger writer;
   guard test asserts the task is absent and the ledger no longer grows; README with RED-proof; apply.ps1.
   DONE-WHEN: `apply.ps1 -DryRun` prints the plan and exits 0 without changing anything.
-- [ ] K2 -- Package scaffold: `setup/scripts/checkpoint_package.py new <row-id>` creates the folder
+- [~] K2 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Package scaffold: `setup/scripts/checkpoint_package.py new <row-id>` creates the folder
   layout + README template + apply.ps1 from a template, so later packages are mechanical; test.
-- [ ] K3 -- Packet link: `checkpoint_packet.py` reduction rows carry `package:` path + `package_ready:
+- [~] K3 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Packet link: `checkpoint_packet.py` reduction rows carry `package:` path + `package_ready:
   true/false` (README + patch + apply.ps1 present); regenerate both CHECKPOINT files (via the script).
-- [ ] K4 -- Cockpit: the Autopilot/Checkpoint tile shows "packages ready n/m" (DOM read quoted).
+- [~] K4 (WIP 2026-09-05 07:0x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Cockpit: the Autopilot/Checkpoint tile shows "packages ready n/m" (DOM read quoted).
 
 ## J-DECISIONS
 - None. Packages are inert until the checkpoint; revert lines inside each README.
