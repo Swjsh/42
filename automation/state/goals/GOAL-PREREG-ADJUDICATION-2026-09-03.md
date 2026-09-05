@@ -62,7 +62,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   `feedback_dynamic_exits_kill_fixed_cap_2026_08_09.md` says the A/B already ran and the
   null was never logged — that null likely closes 2 of these as `NULL` directly; verify
   against `day_throttle_shadow.py`'s ledger before writing status. DONE-WHEN: same as P2.
-- [ ] P4 — Adjudicate the ENTRY-GATE/RISK-DECISION family (8 files:
+- [~] P4 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Adjudicate the ENTRY-GATE/RISK-DECISION family (8 files:
   TRIGGER-PARITY-BULL-2026-08-09, CATASTROPHE-CAP-DECISION-2026-08-09,
   GATE-REVALIDATION-2026-08-08, SCORE-LADDER-V2-DEMERIT-2026-08-07,
   fleet-same-bar-cooldown-prereg-2026-08-06, FILL-MODEL-UNIFICATION-2026-08-13,
@@ -72,7 +72,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   `project_entry_exit_matrix_stop_a_2026_07_08.md` ("loses real fills; superseded by
   SS-B") — that one is very likely a `KILL` on sight, cite the superseding file.
   DONE-WHEN: same as P2.
-- [ ] P5 — Adjudicate the ENTRY-LOCATION/TRENDLINE/STRUCTURE family (9 files:
+- [~] P5 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Adjudicate the ENTRY-LOCATION/TRENDLINE/STRUCTURE family (9 files:
   ENTRY-RANGE-CONTEXT-2026-08-14, ENTRY-LOCATION-GATE-2026-08-14,
   TRENDLINE-BREAK-AT-LEVEL-2026-08-13, RIBBON-CONFIRM-2026-08-11,
   TRENDLINE-ENGINE-VALIDATION-2026-08-09, prereg-trendline-context-conditioning
@@ -83,7 +83,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   `prereg-g2-trendline-bypass-2026-08-01` against memory note
   `project_trendline_engine_skill.md` ("CALL-veto never validated, shadow-only") before
   writing a verdict. DONE-WHEN: same as P2.
-- [ ] P6 — Adjudicate the STRUCTURE-SHIFT/REGIME/CANDLESTICK family (10 files:
+- [~] P6 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Adjudicate the STRUCTURE-SHIFT/REGIME/CANDLESTICK family (10 files:
   prereg-structure-shift-cascade-2026-07-28, prereg-regime-conditioning-2026-07-28,
   prereg-structure-shift-confirmation-2026-07-28, prereg-paired-ribbon-2026-08-01,
   prereg-filter5-ribbon-2026-07-31, prereg-wick-lane-2026-07-31,
@@ -93,7 +93,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   backward-looking-classifier lesson class (CLAUDE.md Lessons index C22, L118-146) —
   several of these are structurally the same anti-pattern already documented; a repeat
   of that shape adjudicates to `KILL` citing the existing L#. DONE-WHEN: same as P2.
-- [ ] P7 — Adjudicate the BULL-REQUALIFICATION/PULLBACK-HOLD + misc-fleet family (6
+- [~] P7 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Adjudicate the BULL-REQUALIFICATION/PULLBACK-HOLD + misc-fleet family (6
   files: bull-requalification-prereg-2026-07-22, pullback-hold-bull-prereg-v2
   -2026-07-22, pullback-hold-bull-prereg-2026-07-22,
   fleet-vwap-reclaim-extension-prereg-2026-08-04, atm-tier-extension-2k10k-prereg
@@ -105,7 +105,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   `project_pipeline_audit_2026_07_01.md`-adjacent note on the same trigger (mentioned in
   the skill doc as the hidden-queue-grammar bug case study) before closing. DONE-WHEN:
   same as P2.
-- [ ] P8 — Vocabulary check: read `setup/scripts/prereg_hygiene.py`'s
+- [~] P8 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Vocabulary check: read `setup/scripts/prereg_hygiene.py`'s
   `PENDING_STATUS_RE`/`TERMINAL_STATUS_RE` (current vocabulary: FROZEN/PENDING/PARKED/
   CANDIDATE ONLY/NOT RUN/NOT SHIPPED/NOT IMPLEMENTED/NOT BUILT for pending;
   RUN_COMPLETE/RETIRED/KILLED/CLOSED_KILL/SUPERSEDED/EARNS_RIGHTS/
@@ -139,6 +139,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   - **NULL** prereg-exit-policy-beats-null-2026-08-23 (own scorecard VERDICT=UNDERPOWERED, cf_time_stop_pnl 0% populated -- schema placeholder never wired, hypothesis literally untested), prereg-giveback-ratchet-2026-08-10 (own scorecard self-flags the raw grid as harness-inflated/fable-too-good; the "PASS -- stays live" line in that doc answers a different question about an already-shipped mechanism, not this prereg's new-ratchet ask; verified by code grep -- no giveback/ratchet knob exists anywhere on the trading path, no forward shadow instrument was ever filed).
   - Ran `stop_mode_shadow_ledger.py` fresh this fire (not reused stale numbers) as the deciding evidence for the two stop-mode preregs. `prereg_hygiene.py` re-run: still 4 flagged (the pre-existing DONE-WHEN-named FROZEN/NOT-RUN class, none of the 10 P2 files), confirming none of the 10 remain flagged. `git diff --stat` on the 10 files: all touched, evidence appended.
   - **Not actioned this fire (out of P2's scope, noted for a later pass):** `prereg-ladder-x-premium-2026-08-09` (one of the 4 pre-existing FLAGGED entries) says it was explicitly BLOCKED on this exact risky-3 forward result, which just resolved KILL -- it is now unblocked and could be closed NULL/KILL-by-inheritance in a future fire (P9 final sweep or a dedicated pass), not this one.
+- 2026-09-05 00:4x ET — P4-P8 claimed WIP by the Fable EOD-audit session (three Sonnet fan-outs + P8 regex); a second Fable/conductor session did P2/P3 in parallel -- lanes now explicit to avoid double-adjudication.
 - 2026-09-05 00:32 ET — P3 done (Fable, stop-hook continuation 2/3): all 5 dynamic-exits/TP-target preregs adjudicated, `status`+`adjudicated_at_et`+`evidence` appended. 1 KILL, 2 NULL, 2 EXTEND: **KILL** prereg-tp1-reachability-2026-08-06 (0/28 ribbon+vwap cells clear auto-ratify bar; best cell R_tp100_f50 passes G1/G2/G3/G5/G6/G7/G8/OOS_positive/WF=0.80 but fails G4 sub_window_stable -- at tp1=1.0 fire rate=0.204 leaves n_changed<5 in 2 of 4 sub-windows; forward clock expired 2026-09-05). **NULL** dynamic-exits-prereg-2026-08-09 (CONTROL_HOLDS all 5 candidates: DYN-ATR-CAT G1 fail -$815; DYN-STRUCT-CAT G1 fail -$851; DYN-TP-ATR G1 fail -$1,617 + G4 HARD runner halved $15,774→$7,707; DYN-TRAIL-ATR G1 fail historical, thin real-fills; DYN-ALL worst -$2,510 -- this is the long-missing logged null per memory feedback_dynamic_exits_kill_fixed_cap_2026_08_09.md). **NULL** dynamic-exits-forward-prereg-2026-08-09 (forward clock n≥20 met but no forward runner built; graveyard: DYN-TP-ATR-any-k-near-1.0 + DYN-ALL-bundling permanently closed). **EXTEND** prereg-regime-conditional-exit-2026-08-11 (~17/25 forward days, G1 not reachable; re-adjudicate ~2026-09-16 or if G5 fires). **EXTEND** chop-defense-prereg-2026-08-06 (battery runner chop_admissibility_2026_08_06.py not run, no results file on disk; verdict_cap=PREREG; lever-prereq forward clocks met at 28 sessions; CHOP-DEFENSE-2026-08-06.json hygiene reference doesn't exist). Commit: `e52abc73`.
 
 ## HONEST STATE
