@@ -692,3 +692,131 @@ class TestDispatchRosterSingleSource:
                 f"which does not exist on SetupDispatcher."
             )
             assert callable(getattr(d, method_name))
+
+
+# ===========================================================================
+# (g) today-bias.json READ-TIME DATE INVARIANT (2026-09-05, self-audit gap
+#     2026-09-02#today-bias): _get_prior_rth_close must not trust a stale
+#     today-bias.json whose own `date` field disagrees with the session date
+#     the CURRENT tick is actually processing (derived from the payload's
+#     sameday_5m_bars, never wall-clock). WS6 (self_check.py) only checks this
+#     file's date once, at 08:40 ET write-time -- a crashed/missed refresh
+#     later in the day would leave every later tick silently reading
+#     yesterday's prior_day_close with no disclosure. This class proves the
+#     mismatch is caught and falls through, and that the matching-date /
+#     no-session-date-available paths are unaffected (no regression).
+# ===========================================================================
+
+class TestPriorRthCloseDateInvariant:
+    """_get_prior_rth_close must reject a today-bias.json whose `date` disagrees
+    with the tick's own session date, and must fall through to prior-rth-close.json
+    (or None) rather than silently using the stale value."""
+
+    def _payload_for_date(self, date: str) -> dict:
+        return _make_payload(sameday_bars=[
+            _bar_row(9, 30, date=date),
+            _bar_row(9, 35, date=date),
+        ])
+
+    def test_matching_date_uses_today_bias_value(self, tmp_path, monkeypatch) -> None:
+        """Baseline (no regression): today-bias.json dated the SAME session ->
+        its prior_day_close is used exactly as before this fix."""
+        import setup_dispatch as sd
+
+        state = tmp_path / "automation" / "state"
+        state.mkdir(parents=True)
+        (state / "today-bias.json").write_text(
+            json.dumps({"date": "2026-01-07", "prior_day_close": 601.23}), encoding="utf-8"
+        )
+        monkeypatch.setattr(sd, "_REPO", tmp_path)
+        d = SetupDispatcher({}, self._payload_for_date("2026-01-07"))
+        assert d._get_prior_rth_close() == pytest.approx(601.23)
+
+    def test_stale_date_is_rejected_falls_through_to_prior_rth_close_file(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """today-bias.json is dated YESTERDAY (a missed intraday refresh) while
+        the tick is processing TODAY -- the stale prior_day_close must NOT be
+        used. The dedicated prior-rth-close.json (independently dated/refreshed
+        by level_memory_producer) is the correct fallback and must win instead."""
+        import setup_dispatch as sd
+
+        state = tmp_path / "automation" / "state"
+        state.mkdir(parents=True)
+        (state / "today-bias.json").write_text(
+            json.dumps({"date": "2026-01-06", "prior_day_close": 555.55}), encoding="utf-8"
+        )
+        (state / "prior-rth-close.json").write_text(
+            json.dumps({"prior_rth_close": 601.23}), encoding="utf-8"
+        )
+        monkeypatch.setattr(sd, "_REPO", tmp_path)
+        d = SetupDispatcher({}, self._payload_for_date("2026-01-07"))
+        result = d._get_prior_rth_close()
+        assert result == pytest.approx(601.23), (
+            f"expected the stale today-bias.json value (555.55) to be rejected and the "
+            f"prior-rth-close.json fallback (601.23) used instead, got {result}"
+        )
+
+    def test_stale_date_with_no_fallback_file_returns_none(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """No prior-rth-close.json fallback available -> None (SKIP_NO_FEED
+        downstream), never the stale today-bias.json value."""
+        import setup_dispatch as sd
+
+        state = tmp_path / "automation" / "state"
+        state.mkdir(parents=True)
+        (state / "today-bias.json").write_text(
+            json.dumps({"date": "2026-01-06", "prior_day_close": 555.55}), encoding="utf-8"
+        )
+        monkeypatch.setattr(sd, "_REPO", tmp_path)
+        d = SetupDispatcher({}, self._payload_for_date("2026-01-07"))
+        assert d._get_prior_rth_close() is None
+
+    def test_missing_session_date_fails_open_uses_today_bias_value(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """No sameday_5m_bars in the payload -> session date cannot be derived ->
+        fail OPEN (cannot verify != proven stale): the existing today-bias.json
+        behavior is preserved unchanged, matching this function's pre-existing
+        fail-open contract."""
+        import setup_dispatch as sd
+
+        state = tmp_path / "automation" / "state"
+        state.mkdir(parents=True)
+        (state / "today-bias.json").write_text(
+            json.dumps({"date": "2026-01-06", "prior_day_close": 555.55}), encoding="utf-8"
+        )
+        monkeypatch.setattr(sd, "_REPO", tmp_path)
+        d = SetupDispatcher({}, {"sameday_5m_bars": []})
+        assert d._get_prior_rth_close() == pytest.approx(555.55)
+
+    def test_missing_bias_date_field_fails_open_uses_value(
+        self, tmp_path, monkeypatch
+    ) -> None:
+        """today-bias.json itself has no `date` key (older/malformed file) ->
+        cannot compare -> fail OPEN, same as the missing-session-date case."""
+        import setup_dispatch as sd
+
+        state = tmp_path / "automation" / "state"
+        state.mkdir(parents=True)
+        (state / "today-bias.json").write_text(
+            json.dumps({"prior_day_close": 555.55}), encoding="utf-8"
+        )
+        monkeypatch.setattr(sd, "_REPO", tmp_path)
+        d = SetupDispatcher({}, self._payload_for_date("2026-01-07"))
+        assert d._get_prior_rth_close() == pytest.approx(555.55)
+
+    def test_session_date_str_derives_from_last_sameday_bar(self) -> None:
+        """_session_date_str reads the LAST sameday_5m_bars entry's timestamp_iso,
+        not the first -- proves it tracks the trigger bar, not session open."""
+        payload = _make_payload(sameday_bars=[
+            _bar_row(9, 30, date="2026-01-06"),
+            _bar_row(15, 55, date="2026-01-07"),
+        ])
+        d = SetupDispatcher({}, payload)
+        assert d._session_date_str() == "2026-01-07"
+
+    def test_session_date_str_none_when_no_bars(self) -> None:
+        d = SetupDispatcher({}, {"sameday_5m_bars": []})
+        assert d._session_date_str() is None

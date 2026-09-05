@@ -581,28 +581,57 @@ class SetupDispatcher:
     # Helpers
     # ------------------------------------------------------------------
 
+    def _session_date_str(self) -> Optional[str]:
+        """Session date (YYYY-MM-DD) for THIS tick, derived from the payload's own
+        sameday_5m_bars (the trigger day) -- never wall-clock, never assumed. Returns
+        None when the payload carries no bars yet (fail-open: callers must treat a
+        missing session date as "cannot verify", not as an error)."""
+        bars = self._payload.get("sameday_5m_bars") or []
+        if not bars:
+            return None
+        try:
+            return str(bars[-1]["timestamp_iso"])[:10]
+        except (KeyError, TypeError, IndexError):
+            return None
+
     def _get_prior_rth_close(self) -> Optional[float]:
         """Prior RTH close for gap_and_go. Source order:
           1. today-bias.json keys (the historical premarket source), then
           2. the dedicated prior-rth-close.json (V2 fix, 2026-07-08): level_memory_producer
              derives it from TIMESTAMPED SPY bars and writes it every ~10min, because today-bias
              stopped carrying prior_day_close -> gap_and_go was 100% SKIP_NO_FEED (F22/F25).
-        Returns None only when BOTH are absent. Fail-open per source."""
+        Returns None only when BOTH are absent. Fail-open per source.
+
+        READ-TIME DATE INVARIANT (2026-09-05, self-audit gap 2026-09-02#today-bias):
+        today-bias.json's OWN `date` field is checked against this tick's session date
+        (derived from the payload, never wall-clock) before its prior_day_close-family
+        keys are trusted. WS6 (self_check.py) already checks this file's date at
+        08:40 ET write-time; that is a PRODUCER check and cannot catch a file that goes
+        stale AFTER 08:40 (a missed refresh, a crashed premarket run) and is then read
+        by every later tick all day. A session-date mismatch here is silent-corruption
+        risk exactly like the one the down-day key-levels staleness lesson named: a
+        stale prior close would compute a gap_and_go signal against yesterday's number
+        with no disclosure. Mismatch -> the today-bias source is skipped (not raised),
+        falling through to the separately-dated prior-rth-close.json fallback below, or
+        to SKIP_NO_FEED (never a silent stale trade)."""
         import json
         state = _REPO / "automation" / "state"
+        session_date = self._session_date_str()
         try:
             bias_path = state / "today-bias.json"
             if bias_path.exists():
                 bias = json.loads(bias_path.read_text(encoding="utf-8"))
-                for key in ("prior_day_close", "prior_close", "prev_close", "prev_rth_close", "prior_rth_close"):
-                    v = bias.get(key)
-                    if v is not None:
-                        return float(v)
-                kl = bias.get("key_levels") or {}
-                for key in ("prior_day_close", "prev_close", "prior_close", "pdc"):
-                    v = kl.get(key)
-                    if v is not None:
-                        return float(v)
+                bias_date = bias.get("date")
+                if session_date is None or bias_date is None or bias_date == session_date:
+                    for key in ("prior_day_close", "prior_close", "prev_close", "prev_rth_close", "prior_rth_close"):
+                        v = bias.get(key)
+                        if v is not None:
+                            return float(v)
+                    kl = bias.get("key_levels") or {}
+                    for key in ("prior_day_close", "prev_close", "prior_close", "pdc"):
+                        v = kl.get(key)
+                        if v is not None:
+                            return float(v)
         except Exception:  # noqa: BLE001
             pass
         try:

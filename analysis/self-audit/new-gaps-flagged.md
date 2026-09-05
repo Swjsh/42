@@ -1646,6 +1646,56 @@ REVOKE report (c). -->
 
 <!-- PARTIAL 2026-09-03T03:53 ET conductor (commit dc800a5f) :: TRIAGED 2 of 6 gaps in this batch, cross-referenced against the fuller-text 2026-09-02-173001 swarm-consult JSON for the truncated bullets. (1) "Theta cockpit still sqrt_time_decay_model_est" / "Pilot is making time-stop decisions against an unverified model" (lines 1536-1537): REFUTED the core claim -- heartbeat_core.py's "theta kills after 3pm" doctrine is a hardcoded wall-clock entry ceiling (_past_entry_ceiling, v15.1), structurally independent of theta_clock.py's theta_component_est; no code path feeds the estimate into a live decision. theta_clock.py is VISIBILITY-ONLY by its own docstring and already discloses n_broker/n_est/sources_seen per row (greeks-probe-stats.json: 4803 empty/0 nonempty, confirmed live). The audit's proposed fix (Monday verifier RED-on-zero-broker-rows) was considered and NOT adopted -- it would manufacture a PERMANENT un-clearable RED for a disclosed, non-gating estimate (the endpoint has never once returned a value in 4803 probes), the same persistently-RED-masks-new-problems class this project already paid for once. No code change; disposition recorded. (2) "status_retention reader-fixed, writer-untouched" (line 1539): CONFIRMED and FIXED -- status_known_broken.py (the shared writer, built same night) still used a naive text.index(heading) substring search, never ported the 2026-09-02 reader-side exact-line-match fix. Reproduced live: a decoy prose line quoting "## Known broken" mid-sentence (a shape this project's own STATUS entries write constantly) swallowed a fresh upsert() write, orphaning it above the real section. Fixed via _find_real_heading() (compiled MULTILINE exact-line regex, mirrors status_retention.py's _is_pinned_heading_line contract) in both _known_broken_body_bounds and the recreate-if-missing check. 2 new RED-proofed tests, 53/53 across the 4 related test files, curated safety gate 59/59. Full REVOKE report: STATUS.md 2026-09-03T03:53 ET entry. REMAINING, NOT triaged this fire: WS11 label/expectancy inversion (line 1538, needs a probe_stats.py verdict-ladder read before deciding if it's a real inconsistency or a separate concentration axis), TRENDLINE-DRAW-HEADLESS "fix already written" (line 1540), Monday-verifier truncation (line 1541), today-bias read-time invariant (line 1542). -->
 
+<!-- TRIAGED (remainder) 2026-09-05 18:xx ET conductor (WEEKEND). Closes the 2026-09-02 batch --
+all 6 gaps now disposed. Live-checked all 4 remaining lines against current code, not re-derived
+from prose. (3) WS11 label/expectancy inversion (line 1538): REFUTED -- this is the
+GREEN_CONCENTRATED/RED_CONCENTRATED ladder (core_strategy_recency.py, shipped 2026-08-23, BEFORE
+this 2026-09-02 gap was even flagged) working exactly as designed: a concentration-carried verdict
+is a label about BREADTH, not magnitude, so RED -> RED_CONCENTRATED while expectancy improves is not
+a contradiction. Checked every consumer for the "bare label, no expectancy" failure mode the gap
+named: monday_verify.check_ws11_core_recency's `observed` string always pairs verdict with
+`exp=$.../tr` (setup/scripts/monday_verify.py:707-713); firm_brief.render_core_recency_lines has an
+explicit "HONESTY RAILS" docstring pinned by test_firm_brief_core_recency_section.py stating
+"every direction prints verdict AND n .. an n-free verdict is the oversell OP-33 bans" and its code
+does exactly that (line 692); gate_expiry_check's STATUS.md alarm matches the literal string "RED"
+only, so RED_CONCENTRATED structurally cannot false-trip it. No consumer reads the verdict string
+alone. No code change. (4) TRENDLINE-DRAW-HEADLESS (line 1540): CONFIRMED already fixed, pre-dating
+this batch -- `Gamma_TrendlineHeadlessDraw` (registered 2026-09-03, SCHEDULED-TASKS.md) runs
+trendline_headless_draw.py deterministically ($0, no LLM/MCP) every 30 min 08:40-16:10 ET weekdays,
+verified live-fired with real chart draws the day it was built. Nothing left to do. (5)
+Monday-verifier truncation (line 1541): REFUTED -- `_short()` (monday_verify.py:879-881) is used
+ONLY in `_render_status_block`'s markdown table (line 905), a fixed deterministic 300-char cut, NOT
+terminal-width-dependent as the gap claimed; the JSON writer (`OUT_JSON.write_text(json.dumps(report
+...))`, line 974) serializes the untruncated `report` dict straight from `_finish()` -- every
+downstream consumer of monday-verify.json (the documented "Full detail" pointer in the same
+STATUS.md row) sees the full string. No truncation-vs-JSON divergence exists. No code change. (6)
+today-bias read-time invariant (line 1542): CONFIRMED and FIXED -- `setup_dispatch._get_prior_rth_close`
+(the gap_and_go dispatcher's prior-close reader) trusted today-bias.json's prior_day_close-family
+keys unconditionally, with no check that the file's own `date` field matched the CURRENT tick's
+session date; WS6 (self_check.py) only checks this at 08:40 ET write-time, so a missed intraday
+refresh would leave every later tick silently reading a stale prior close all day, exactly the
+down-day key-levels staleness failure class this project already named once (project memory
+`project_downday_keylevels_staleness`). Added `SetupDispatcher._session_date_str()` (derives the
+session date from the payload's own `sameday_5m_bars`, never wall-clock) and gated
+`_get_prior_rth_close`'s today-bias.json branch on `bias_date == session_date` (missing/unavailable
+either side fails OPEN, unchanged behavior -- "cannot verify" is not "proven stale"); a mismatch
+falls through to the separately-dated prior-rth-close.json fallback or None (SKIP_NO_FEED), never a
+silent stale trade. `setup_dispatch.py` is NOT on the September freeze's frozen-trading-path list
+(`setup/hooks/doctrine.py:FROZEN_TRADING_PATH`) -- confirmed by direct read before editing. 6 new
+tests in `TestPriorRthCloseDateInvariant` (backtest/tests/test_setup_dispatch.py): matching-date
+no-regression, stale-date-falls-through-to-fallback-file, stale-date-no-fallback-returns-None,
+missing-session-date-fails-open, missing-bias-date-fails-open, session-date-derivation. RED-PROOFED
+LIVE: `git stash push -- setup/scripts/setup_dispatch.py` -> 3 of 34 failed with the exact
+mechanism (stale 555.55 used instead of the correct 601.23 fallback; `_session_date_str`
+AttributeError x2) -> `git stash pop` restored, re-ran -> 34/34 green again. Broader
+`pytest backtest/tests/ -k "setup_dispatch or gap_and_go"` -> 65 passed, 1 skipped (unrelated
+network-marked test). Curated safety gate `backtest/tests/run_safety_gate.py` -> 59 passed, PASS.
+`python -m py_compile setup/scripts/setup_dispatch.py` -> COMPILE OK. Rail: additive-only diff
+(new helper method + a date-gate on one branch of one private method), never touches sizing/entry/
+exit logic, gap_and_go remains flag-gated OFF by default; guard = the 6 new RED-proofed tests;
+revert = `git revert <this commit>`; this entry + the matching STATUS.md line are the REVOKE
+report. -->
+
 ## 2026-09-03T17:31:34 -- 12 new gap(s) Gamma self-identified
 - Direction is fine direction comes from J's anchor days (4/29 + 5/01 + 5/04 winners, 5/05-5/07 losers) which are frozen and not touched by any of the audit's proposed work.
 - Missed-trade risk from the `ROSTER-LIVENESS` lane being DEAD: `p::m` is 404/archived. "Roles are falling through to their next lane or the local floor" — if a shadow lane that Pilot currently depends on (for confidence weighting, veto [...]
@@ -1673,3 +1723,17 @@ REVOKE report (c). -->
 - Kill switch over-latches across all arms from one arm's loss confirm this is intended; if one arm's model-driven overshoot kills the whole day, the system is one bad exit away from zero daily trades
 - No minimum-n gate before classifying findings as confirmed n=3 "0 disagreements" is not GREEN; it's "insufficient data"
 - Alpaca greeks endpoint has never worked 41/41 calls returned empty or unavailable; either fix the integration or formally accept the model-only path and document the calibration chain
+
+## 2026-09-05T17:31:21 -- 12 new gap(s) Gamma self-identified
+- Status-preamble drift is one Markdown edit away from re-discarding three guards for two months. Pin with a *content* test, not just a structural one — assert the exact set of producer names appears under `## Known broken` in the rendered [...]
+- `github_audit.py --history` has been broken (cp1252 UnicodeDecodeError + None diff_output) since at least 2026-09-03. Six paper keys shipped to a public repo while this scanner was offline. Fix and run end-to-end before the next push; add [...]
+- Provenance guardrail shipped at 11% fabricated rate with `usable_rate_since_ship=0.0039`. Either block kitchen output until usable rate ≥ 95%, or rename the metric to "fabrication rate" and ship a hard kill switch. The current "degraded" [...]
+- Three gates are currently YELLOW with `best_day_share` ≤ 8 and ex_best_day ≤ 0 (filter-8-bear-sole, filter-10-bull-sole, and likely others). Pilot should treat YELLOW-with-concentrated-edge as RED until proven otherwise — the current [...]
+- Wave-day conditions shipped INFORMATIONAL with 6 of N conditions failing to separate and n=25. Either expand to a prereg-hygiene minimum (n ≥ 100 with ≥ 5/condition) or mark it explicitly NOT-A-SIGNAL in the cockpit, not "INFORMATIONAL."
+- The shadow signal `compute_catalyst_context` has been a C7 unregistered producer for ≥ 24 hours. Either wire it into a real decision path with a preregistered consumer, or delete it. Leaving a detector that nothing reads is exactly the [...]
+- Intervention counter at 2 with $338 realized vs. September target of ZERO the engine is auto-exiting positions mid-trade, which is a Pilot failure mode that will compound with any guard-loss above. Add a daily cap that fires RED in STATUS, [...]
+- No central registry answers "what is scheduled to run at HH:MM ET on Day-of-week." TickersLane, WaveDayConditions, CryptoTwin (now off), ProcTraceKeepalive, HealthBeacon, and the presence-gated conductor all live in different install [...]
+- No popups or lockouts (good — self-healing > delayed J-flag is respected).
+- Quiet-mode keeps the console silent , so J won't see anything until a weekend review or until a live-trade anomaly forces a human in.
+- The SECRETS-ON-PUBLIC-REMOTE pattern is the real operator-risk template paper keys are now rotated, but the `pre-commit` guard (`ef7e4aed`) only scans **staged** content. A future bypass (`--no-verify`, a push from a hook-disabled clone, [...]
+- Game interruption risk is near-zero , but **Discord/notification spam risk is non-trivial**: 426–507 process launches/hour during 07–09 ET windows today, which is the exact window J is most likely awake and active. Presence-gating helps [...]
