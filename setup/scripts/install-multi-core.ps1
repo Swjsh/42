@@ -20,6 +20,7 @@ $TaskName = "Gamma_MultiCore"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $Root "multi\core.py"
 foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
@@ -29,7 +30,7 @@ foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
 
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`""
+  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$Root`" -- `"$sysPythonw`" `"$worker`""
 
 # 09:35 ET start mirrors the SPY engine's own entry gate (never the opening auction), repeating
 # every 15 min until 15:45 so the last tick still leaves room before the flatten window.

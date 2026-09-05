@@ -40,7 +40,8 @@ def _untracked_files() -> set[Path]:
     untracked generated files" problem GOAL-RIG-HYGIENE-2026-09-05 names.
     """
     out = subprocess.run(
-        ["git", "status", "--porcelain"], cwd=REPO, capture_output=True, text=True, check=True
+        ["git", "status", "--porcelain"], cwd=REPO, capture_output=True, text=True, check=True,
+        creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),  # no console flash (C8)
     ).stdout
     paths = set()
     for line in out.splitlines():

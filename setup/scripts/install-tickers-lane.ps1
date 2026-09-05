@@ -33,6 +33,7 @@ $TaskName = "Gamma_TickersLane"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $Root "multi\execute.py"
 foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
@@ -49,7 +50,7 @@ $logDir = Join-Path $Root "automation\state\tickers"
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Force $logDir | Out-Null }
 $logFile = Join-Path $logDir "execute-last-run.log"
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`" --once"
+  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$Root`" -- `"$sysPythonw`" `"$worker`" --once"
 
 $trigger = New-ScheduledTaskTrigger -Daily -At "07:35" -DaysInterval 1
 $trigger.Repetition = (New-ScheduledTaskTrigger -Once -At "07:35" `

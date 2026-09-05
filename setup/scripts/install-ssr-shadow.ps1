@@ -46,6 +46,7 @@ $script       = Join-Path $root "setup\scripts\ssr_shadow.py"
 $etz          = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 $taskName     = "Gamma_SsrShadow"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 
 foreach ($p in @($vbs, $pythonwVenv, $script, $sysPythonw, $runCmdHidden)) {
@@ -69,7 +70,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 
 # wscript -> run_exe_hidden.vbs -> system pythonw -> run_cmd_hidden.py --cwd <repo>
 #   -- backtest venv pythonw -> ssr_shadow.py --once
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" --once"
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`" --once"
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

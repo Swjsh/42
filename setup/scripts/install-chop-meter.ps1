@@ -33,6 +33,7 @@ $TaskName = "Gamma_ChopMeter"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $ScriptsDir "chop_exposure_meter.py"
 foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
@@ -40,7 +41,7 @@ foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) 
 }
 
 Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$Root`" -- `"$pythonw`" `"$worker`""
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$Root`" -- `"$sysPythonw`" `"$worker`""
 # DailyTrigger, NOT a one-time/interval trigger (scar: project_scheduled_task_onetime_trigger_dark).
 # Weekend fires are harmless: a no-entry day writes an honest "no engine entries" artifact.
 $trigger = New-ScheduledTaskTrigger -Daily -At "14:08" -DaysInterval 1

@@ -20,6 +20,7 @@ $TaskName = "Gamma_MultiOutcomes"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $Root "multi\outcomes.py"
 foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
@@ -33,7 +34,7 @@ Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction Silent
 # combination hid a real crash in Gamma_MultiEvaluate on its first fire.
 $logFile = Join-Path $Root "automation\state\multi\outcomes-last-run.log"
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --cwd `"$Root`" -- `"$pythonw`" -m multi.outcomes"
+  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$Root`" -- `"$sysPythonw`" -m multi.outcomes"
 
 # 14:45 LOCAL = 16:45 ET. Do not "correct" this to 16:45.
 # WEEKDAYS ONLY -- nothing to stamp on a day with no session.

@@ -74,6 +74,7 @@ $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $script       = Join-Path $root "setup\scripts\trend_cache_producer.py"
 $taskName     = "Gamma_TrendCacheProducer"
 
@@ -89,7 +90,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 # pythonw (reaper-exempt: outside Stop-StaleClaudeProcesses's Name filter + backtest\.venv
 # path match, same verified pattern install-context-bundle.ps1/install-crypto-twin.ps1 use)
 # -> trend_cache_producer.py --once
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" --once"
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`" --once"
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

@@ -92,7 +92,11 @@ def test_known_broken_new_entry_detected(tmp_path, monkeypatch):
     monkeypatch.setattr(cww, "STATUS_MD", status)
     found, marker = cww.scan_known_broken(None)
     assert found is True
-    assert marker == "2026-07-18T12:00:00-04:00"
+    # H1 (GOAL-RIG-SIGNAL-HYGIENE-2026-09-05): marker is now a content hash of the
+    # payload with the [stamp] stripped, not the raw timestamp token -- see
+    # scan_known_broken's docstring for why (a re-stamped-but-unchanged finding must
+    # NOT read as a new event).
+    assert marker == cww._content_hash("MCP_AUDIT_RED: something broke")
 
 
 def test_known_broken_same_marker_is_not_a_new_event(tmp_path, monkeypatch):
@@ -102,9 +106,42 @@ def test_known_broken_same_marker_is_not_a_new_event(tmp_path, monkeypatch):
         encoding="utf-8",
     )
     monkeypatch.setattr(cww, "STATUS_MD", status)
-    found, marker = cww.scan_known_broken("2026-07-11T18:30:04")
+    prev = cww._content_hash("MCP_AUDIT_RED: TradingView unresponsive")
+    found, marker = cww.scan_known_broken(prev)
     assert found is False
-    assert marker == "2026-07-11T18:30:04"
+    assert marker == prev
+
+
+def test_known_broken_restamped_unchanged_finding_is_not_a_new_event(tmp_path, monkeypatch):
+    """RED-proofed case (H1): the SAME finding re-stamped with a fresh timestamp every
+    tick (engine_health.py's RTH-TICK-GAP re-stamp behaviour) must not look like a new
+    event just because the leading [timestamp] token changed."""
+    status = tmp_path / "STATUS.md"
+    status.write_text(
+        "## Known broken\n- [2026-09-05T09:22:00Z] RTH-TICK-GAP: gap 09:15-09:20, 3 missing bars.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cww, "STATUS_MD", status)
+    found1, marker1 = cww.scan_known_broken(None)
+    assert found1 is True
+
+    # Re-stamp: same payload, new timestamp -- simulates the next 5-min tick.
+    status.write_text(
+        "## Known broken\n- [2026-09-05T09:27:00Z] RTH-TICK-GAP: gap 09:15-09:20, 3 missing bars.\n",
+        encoding="utf-8",
+    )
+    found2, marker2 = cww.scan_known_broken(marker1)
+    assert found2 is False, "a re-stamped-but-unchanged finding must not fire a new event"
+    assert marker2 == marker1
+
+    # Discriminator: a genuinely different finding (payload changed) MUST still fire.
+    status.write_text(
+        "## Known broken\n- [2026-09-05T09:32:00Z] RTH-TICK-GAP: gap 09:40-09:45, 5 missing bars.\n",
+        encoding="utf-8",
+    )
+    found3, marker3 = cww.scan_known_broken(marker2)
+    assert found3 is True
+    assert marker3 != marker2
 
 
 def test_no_known_broken_header_is_clean(tmp_path, monkeypatch):

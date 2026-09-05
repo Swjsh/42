@@ -53,12 +53,13 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$venvPython   = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\checkpoint_packet.py"
 $taskName     = "Gamma_CheckpointPacket"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 
-foreach ($p in @($vbs, $venvPython, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -68,7 +69,12 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 
 # checkpoint_packet.py defaults its generation date to today (ET, via et_clock)
 # internally when --date is omitted, so the fire command is a fixed argument list.
-$wscriptArgs = "//nologo `"$vbs`" `"$venvPython`" `"$runCmdHidden`" --cwd `"$root`" -- `"$venvPython`" `"$script`""
+# 2026-09-05 SILENT-RIG fix: both hops now run the SYSTEM pythonw (GUI subsystem, no console
+# window under any circumstance) -- backtest\.venv\Scripts\pythonw.exe is a launcher STUB
+# whose base executable is console python.exe (GetConsoleWindow() != 0 under the stub, proven
+# 2026-09-05) and was the root cause of the 730-window flash. Dependencies from the venv
+# reach the script via --env PYTHONPATH, not via the venv's own pythonw.exe.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

@@ -45,13 +45,17 @@ $ErrorActionPreference = "Stop"
 $repo = "C:\Users\jackw\Desktop\42"
 $vbs = Join-Path $repo "setup\scripts\run_exe_hidden.vbs"
 $pyw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
-$pywVenv = Join-Path $repo "backtest\.venv\Scripts\pythonw.exe"
 $runCmdHidden = Join-Path $repo "setup\scripts\run_cmd_hidden.py"
 $script = Join-Path $repo "setup\scripts\earnings_calendar.py"
+$pythonPath = Join-Path $repo "backtest\.venv\Lib\site-packages"
 
-if (-not (Test-Path $pywVenv)) { throw "backtest venv pythonw.exe not found at $pywVenv" }
+if (-not (Test-Path $pyw)) { throw "system pythonw.exe not found at $pyw" }
 
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$vbs`" `"$pyw`" `"$runCmdHidden`" --cwd `"$repo`" -- `"$pywVenv`" `"$script`""
+# 2026-09-05 SILENT-RIG fix: both hops now run SYSTEM pythonw -- backtest\.venv\Scripts\pythonw.exe
+# is a launcher STUB whose base executable is console python.exe (GetConsoleWindow() != 0 under
+# the stub, proven 2026-09-05) and was a root cause of the 730-window flash. yfinance (the reason
+# venv pythonw was used here) reaches the script via --env PYTHONPATH instead.
+$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "//nologo `"$vbs`" `"$pyw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$repo`" -- `"$pyw`" `"$script`""
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "05:50"
 # -Weekly triggers come back with a null .Repetition CIM instance -- steal one from a
 # throwaway -Once trigger built with the repetition params (documented PS workaround;

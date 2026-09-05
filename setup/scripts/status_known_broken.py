@@ -104,6 +104,32 @@ def _known_broken_body_bounds(text: str, heading: str = MARKER_HEADING) -> "tupl
     return body_start, body_end
 
 
+def _marker_payload(bullet_line: Optional[str], marker: str) -> Optional[str]:
+    """Return the text after `marker` for a single '- [stamp] MARKERrest' bullet line, or
+    None if `bullet_line` is None, doesn't match the bullet shape, or its text-after-'] '
+    doesn't start with `marker`. Used to compare a NEW payload against an EXISTING one with
+    the [stamp] deliberately excluded from the comparison (see upsert's stamp-stability note)."""
+    if bullet_line is None:
+        return None
+    stripped = bullet_line[:-1] if bullet_line.endswith("\n") else bullet_line
+    m = _BULLET_LINE_RE.match(stripped)
+    if not m or not m.group(1).startswith(marker):
+        return None
+    return m.group(1)[len(marker):]
+
+
+def _marker_lines(body: str, marker: str) -> list[str]:
+    """Return every existing bullet line in `body` matching `marker`, in file order.
+    `body` uses '\\n' line endings (already normalized by the caller)."""
+    out = []
+    for raw_line in body.splitlines(keepends=True):
+        stripped = raw_line[:-1] if raw_line.endswith("\n") else raw_line
+        m = _BULLET_LINE_RE.match(stripped)
+        if m and m.group(1).startswith(marker):
+            out.append(stripped)
+    return out
+
+
 def _strip_marker_lines(body: str, marker: str) -> str:
     """Remove every bullet line in `body` whose text-after-'] ' starts with `marker`.
 
@@ -145,6 +171,29 @@ def _upsert_impl(marker: str, line: Optional[str], status_path: Path) -> bool:
 
     body_start, body_end = _known_broken_body_bounds(norm)
     body = norm[body_start:body_end]
+
+    if line is not None:
+        # STAMP-STABILITY (H1, GOAL-RIG-SIGNAL-HYGIENE-2026-09-05): if the section is
+        # ALREADY collapsed to exactly one line for this marker (the steady state every
+        # producer settles into after its first fire) and that line's payload after
+        # `marker` is byte-identical to the incoming payload, this is a re-stamp of an
+        # UNCHANGED finding, not a new event -- keep the existing line (and its [stamp])
+        # untouched rather than bumping the timestamp. Generic: every upsert producer
+        # (engine_health's RTH-TICK-GAP, roster_liveness, mcp_audit, ...) benefits without
+        # a per-caller change. Without this, a producer that re-runs on a fixed cadence
+        # with the same finding advances the stamp every tick, which makes
+        # conductor_wake_watch.py's "new entry" detector fire forever on nothing (the bug
+        # this goal was opened to fix). If MORE than one line already matches (pre-existing
+        # duplicates from before this dedup writer existed), fall through to the normal
+        # collapse-to-one-with-newest-stamp path below -- only the already-clean case is a
+        # true no-op.
+        existing_lines = _marker_lines(body, marker)
+        if len(existing_lines) == 1:
+            new_payload = _marker_payload(line, marker)
+            existing_payload = _marker_payload(existing_lines[0], marker)
+            if new_payload is not None and existing_payload == new_payload:
+                return False  # true no-op: unchanged finding, keep the existing stamp
+
     stripped_body = _strip_marker_lines(body, marker)
 
     if line is not None:

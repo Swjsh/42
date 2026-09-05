@@ -25,6 +25,44 @@ SHIM_BASENAME = "mcp_stdio_hidden.py"
 HOME_CFG = Path.home() / ".claude.json"
 STAMP = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
 
+# 2026-09-05 SILENT-RIG S4 addition: plugin-supplied .mcp.json files. Verified live this
+# session: discord@claude-plugins-official 0.0.4's own .mcp.json declares
+# "command": "bun" -- a bare console launcher -- and its process tree evidence (bun.exe
+# pid 17564, parent claude.exe pid 4088 directly, NOT the pythonw shim) confirms it spawns
+# unwrapped. This file was previously invisible to this patcher (it only knew about the
+# checked-in .mcp.json + ~/.claude.json + ~/.claude/settings.json) -- same blind-spot shape
+# audit_window_leak_compliance.py's check 6 already documented for plugin HOOKS ("the
+# command lives in the plugin's own cache directory, overwritten on every plugin update").
+# Unlike a hook, an MCP server's launch command IS something we can fix here today (this
+# file, not a stub inside plugin logic) -- it just needs re-patching after every plugin
+# update, which is why this is now a repeatable pass over ALL installed plugins, not a
+# one-off hand-edit of the discord entry alone.
+PLUGINS_MANIFEST = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
+
+
+def _installed_plugin_mcp_files() -> list[Path]:
+    """<installPath>/.mcp.json for every INSTALLED plugin (manifest's own installPath,
+    mirrors audit_window_leak_compliance._installed_plugin_hook_files()). Only installed
+    plugins -- the marketplace catalog holds configs that never run."""
+    out: list[Path] = []
+    try:
+        manifest = json.loads(PLUGINS_MANIFEST.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return out
+    for entries in (manifest.get("plugins") or {}).values():
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            install_path = entry.get("installPath")
+            if not isinstance(install_path, str) or not install_path.strip():
+                continue
+            mcp_json = Path(install_path) / ".mcp.json"
+            if mcp_json.is_file():
+                out.append(mcp_json)
+    return out
+
 
 def is_wrapped(cfg: dict) -> bool:
     args = cfg.get("args") or []
@@ -107,8 +145,14 @@ def main() -> int:
     patch_file_mcp_json(REPO / ".mcp.json")
     patch_home_claude_json()
     patch_file_mcp_json(Path.home() / ".claude" / "settings.json")
+    plugin_mcp_files = _installed_plugin_mcp_files()
+    print(f"Patching {len(plugin_mcp_files)} installed-plugin .mcp.json file(s):")
+    for p in plugin_mcp_files:
+        patch_file_mcp_json(p)
     print("Done. New `claude` processes (heartbeat ticks, EOD, interactive restarts) "
-          "will spawn MCP servers windowless.")
+          "will spawn MCP servers windowless. NOTE: plugin .mcp.json files are re-patched "
+          "on every run of this script but are OVERWRITTEN by a plugin update -- re-run "
+          "after any `claude plugin update`/`claude plugin install`.")
     return 0
 
 

@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import re
 import subprocess
@@ -73,6 +74,10 @@ WAKE_DEBOUNCE_MIN = 180  # max 1 event-fire per 3h
 RED_PATTERN = re.compile(r"\b(BROKEN|KILL_SWITCH|CRITICAL)\b|\U0001F6A8")
 KNOWN_BROKEN_HEADER = "## Known broken"
 TS_TOKEN = re.compile(r"\[([0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9:.+\-Z]{5,25})\]")
+# ENTRY_LINE_RE matches a Known-broken bullet's full text ("- [stamp] MARKER: payload"),
+# same bullet shape status_known_broken.py's _BULLET_LINE_RE uses, capturing everything
+# AFTER the "[stamp] " prefix in group(1).
+ENTRY_LINE_RE = re.compile(r"^-?\s*\[[^\]\n]*\][ \t]*(.*)$", re.MULTILINE)
 
 RTH_TASK = "Gamma_ConductorRTH"
 AFTERHOURS_TASK = "Gamma_Conductor"
@@ -131,8 +136,30 @@ def scan_outbox_for_red(lines_seen: int) -> tuple[bool, int, str]:
     return False, total, ""
 
 
+def _content_hash(payload: str) -> str:
+    """Stable short hash of a Known-broken entry's payload (marker + text), with its
+    [stamp] already stripped by the caller -- so a re-stamp of the SAME finding hashes
+    identical and a genuinely NEW finding hashes different, regardless of what the
+    producer put in the timestamp."""
+    return hashlib.sha256(payload.strip().encode("utf-8")).hexdigest()[:16]
+
+
 def scan_known_broken(prev_marker: str | None) -> tuple[bool, str | None]:
-    """Returns (new_entry_found, latest_marker_token_or_prev)."""
+    """Returns (new_entry_found, latest_marker_token_or_prev).
+
+    H1 FIX (GOAL-RIG-SIGNAL-HYGIENE-2026-09-05): this used to key "new entry" on the
+    newest bullet's leading [timestamp] token (TS_TOKEN). status_known_broken.py's
+    producers (engine_health.py's RTH-TICK-GAP in particular) re-stamp their line every
+    tick even when the underlying finding hasn't changed, so a timestamp-keyed watermark
+    read every re-stamp as a fresh event and woke the conductor every
+    WAKE_DEBOUNCE_MIN on nothing (live evidence: "EVENT (known-broken) but DEBOUNCED"
+    x30 the morning of 2026-09-05, 09:22-12:01 ET). Now keyed on a content hash of the
+    newest entry's payload with its [stamp] stripped -- an unchanged finding hashes the
+    same across ticks even if H1's OTHER fix (status_known_broken.upsert keeping the old
+    stamp) somehow didn't already stop the timestamp from moving. `known_broken_marker`
+    keeps its name (schema migration, not a rename) -- a pre-existing watermark holding an
+    old raw-timestamp string simply won't equal any hash and costs exactly one harmless
+    extra wake-fire on the first tick after this ships, never a crash."""
     if not STATUS_MD.exists():
         return False, prev_marker
     try:
@@ -146,10 +173,10 @@ def scan_known_broken(prev_marker: str | None) -> tuple[bool, str | None]:
     if idx == -1:
         return False, prev_marker
     section = text[idx: idx + 4000]  # first ~4KB after the header is plenty for the newest entry
-    m = TS_TOKEN.search(section)
+    m = ENTRY_LINE_RE.search(section)
     if not m:
         return False, prev_marker
-    latest = m.group(1)
+    latest = _content_hash(m.group(1))
     if latest == prev_marker:
         return False, prev_marker
     return True, latest

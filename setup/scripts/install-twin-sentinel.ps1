@@ -71,6 +71,7 @@ $script       = Join-Path $root "setup\scripts\twin_sentinel.py"
 # 2026-08-07: relay through run_cmd_hidden.py for real exit-code visibility -- see
 # VBS-WRAPPER-EXIT-CODE-BLIND-SPOT / Gamma_CryptoTwin drift finding, queue.md.
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 
 if (-not (Test-Path $pythonwVenv)) { throw "backtest venv pythonw.exe not found at $pythonwVenv" }
@@ -86,7 +87,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 #   -- backtest-venv pythonw -> twin_sentinel.py
 # (flash-free chain; backtest-venv pythonw is BOTH the reaper-exempt-by-path launcher
 # AND the interpreter that already has et_clock/swarm_client importable cleanly).
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`""
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 15 min, 24/7 -- no day/time restriction (crypto never closes; matches

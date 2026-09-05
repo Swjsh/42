@@ -45,12 +45,13 @@ $ErrorActionPreference = "Stop"
 
 $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$venvPython   = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $script       = Join-Path $root "setup\scripts\right_tail_capture.py"
 $taskName     = "Gamma_RightTailCapture"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 
-foreach ($p in @($vbs, $venvPython, $runCmdHidden, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -61,7 +62,9 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 # --date defaults to today (ET, via et_clock.et_today_str -- never Bash/system-local
 # TZ) inside right_tail_capture.py itself when omitted, so the fire command is a
 # plain fixed argument list -- no fragile at-fire-time date injection needed.
-$wscriptArgs = "//nologo `"$vbs`" `"$venvPython`" `"$runCmdHidden`" --cwd `"$root`" -- `"$venvPython`" `"$script`""
+# 2026-09-05 SILENT-RIG fix: both hops now run SYSTEM pythonw (never the venv stub, which
+# is console-subsystem underneath); venv deps reach the script via --env PYTHONPATH.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`""
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

@@ -49,7 +49,8 @@ $root         = "C:\Users\jackw\Desktop\42"
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
-$venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$venvPythonw  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"  # kept for -Test-Path guard only; no longer used as a launch target
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 
 if (-not (Test-Path $vbs))          { throw "run_exe_hidden.vbs not found at $vbs" }
 if (-not (Test-Path $sysPythonw))   { throw "system pythonw.exe not found at $sysPythonw" }
@@ -107,9 +108,15 @@ foreach ($name in $targets.Keys) {
         continue
     }
 
-    $cmdParts = @("`"$venvPythonw`"", "`"$targetPath`"") + ($cfg.Args | ForEach-Object { "`"$_`"" })
+    # 2026-09-05 SILENT-RIG fix (J: "everything must be silent" -- 730-window flash):
+    # the inner hop now runs SYSTEM pythonw too, never $venvPythonw -- that stub's base
+    # executable is console python.exe (GetConsoleWindow() != 0 under the stub, proven
+    # 2026-09-05), the confirmed root cause of the flash class this script used to
+    # re-introduce on every idempotent re-run. Venv deps reach the target via --env
+    # PYTHONPATH instead of via the venv's own pythonw.exe.
+    $cmdParts = @("`"$sysPythonw`"", "`"$targetPath`"") + ($cfg.Args | ForEach-Object { "`"$_`"" })
     $cmdTail = $cmdParts -join " "
-    $newArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- $cmdTail"
+    $newArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- $cmdTail"
     $newAction = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $newArgs -WorkingDirectory $root
 
     Set-ScheduledTask -TaskName $name -Action $newAction | Out-Null

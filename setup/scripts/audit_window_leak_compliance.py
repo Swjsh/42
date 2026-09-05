@@ -118,6 +118,37 @@ HOOK_CONFIG_SOURCES = [
 PLUGINS_MANIFEST = HOME / ".claude" / "plugins" / "installed_plugins.json"
 
 
+def _installed_plugin_mcp_files() -> list[Path]:
+    """<installPath>/.mcp.json for every INSTALLED plugin (added 2026-09-05,
+    GOAL-SILENT-RIG S4). Same blind spot as _installed_plugin_hook_files() below, but for
+    MCP server launch commands instead of hook commands: check (3)'s MCP_CONFIG_SOURCES
+    only ever looked at the checked-in .mcp.json + ~/.claude.json + ~/.claude/settings.json,
+    never inside an installed plugin's own cache. Verified live this session: the discord
+    plugin's .mcp.json declared "command": "bun" (bare, unwrapped) and its process tree
+    (bun.exe pid 17564, parent claude.exe pid 4088 -- NOT the pythonw shim) confirmed it
+    spawned that way. Fixed via setup/mcp/patch_mcp_hidden.py (which gained the matching
+    scan); this audit-side twin exists so a future plugin update (which overwrites the
+    cache file and un-fixes it) shows up RED instead of silently reverting."""
+    out: list[Path] = []
+    try:
+        manifest = json.loads(PLUGINS_MANIFEST.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return out
+    for entries in (manifest.get("plugins") or {}).values():
+        if not isinstance(entries, list):
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            install_path = entry.get("installPath")
+            if not isinstance(install_path, str) or not install_path.strip():
+                continue
+            mcp_json = Path(install_path) / ".mcp.json"
+            if mcp_json.is_file():
+                out.append(mcp_json)
+    return out
+
+
 def _installed_plugin_hook_files() -> list[Path]:
     """hooks/hooks.json for every INSTALLED plugin, from the manifest's own installPath."""
     out: list[Path] = []
@@ -141,6 +172,7 @@ def _installed_plugin_hook_files() -> list[Path]:
 
 
 HOOK_CONFIG_SOURCES.extend(_installed_plugin_hook_files())
+MCP_CONFIG_SOURCES.extend((p, "TOP") for p in _installed_plugin_mcp_files())
 # A hook command is compliant when it is launched by pythonw (GUI subsystem -> no console of
 # its own) AND routed through a wrapper that applies CREATE_NO_WINDOW to the real child.
 HOOK_APPROVED_WRAPPERS = {"run_hook_hidden.py", "hidden_hook.py"}
@@ -440,6 +472,153 @@ def _audit_live_task_registry() -> list[dict]:
     return flags
 
 
+# --- SURFACE 7: TASK/INSTALLER VENV-PYTHONW STUB (added 2026-09-05, GOAL-SILENT-RIG) ---
+# Root cause of the 730-window flash (2026-09-05): backtest\.venv\Scripts\pythonw.exe LOOKS
+# like a GUI-subsystem launcher (it is named pythonw.exe, same as the compliant SYSTEM
+# pythonw) but is actually a venv launcher STUB whose base executable is the CONSOLE
+# python.exe -- proven live this session: GetConsoleWindow() != 0 when run under the stub,
+# 0 under C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe. Checks 1-4
+# above never caught this because the stub is wrapped correctly (wscript -> vbs -> pythonw
+# -> run_cmd_hidden.py -- a fully "hidden chain" shape by every existing classifier) right
+# up until its own basename lies about which subsystem it targets. 23-24 tasks and their
+# install-*.ps1 registration scripts carried this for weeks.
+#
+# Unlike check 4 (_audit_live_task_registry), this check does NOT skip Disabled tasks --
+# GOAL-SILENT-RIG's whole point is these tasks stay disabled while their ACTIONS get fixed,
+# so a Disabled-only scan would report false-GREEN on exactly the tasks this fire exists to
+# catch. It also does not delegate to audit_scheduled_tasks._is_hidden() -- that classifier
+# is about launcher SHAPE (hidden vs bare console), which the stub already satisfies; this
+# is a narrower, additive check for the specific bad INTERPRETER regardless of shape.
+VENV_PYTHONW_STUB_RE = re.compile(r"\.venv\\Scripts\\pythonw?\.exe", re.IGNORECASE)
+
+
+def _audit_task_venv_interpreter() -> list[dict]:
+    """Check (7a): no LIVE task action (enabled OR disabled) may reference the venv
+    pythonw/python stub as either hop of its launch chain."""
+    try:
+        sys.path.insert(0, str(SCRIPTS_DIR))
+        import audit_scheduled_tasks as ast  # noqa: E402
+    except Exception as e:
+        return [{
+            "file": "setup/scripts/audit_scheduled_tasks.py", "line": 0,
+            "flag": "TASK_VENV_INTERPRETER_SCAN_IMPORT_FAILED",
+            "detail": f"{type(e).__name__}: {e}",
+            "fix": "audit_scheduled_tasks.py must import cleanly for this check to run.",
+        }]
+    try:
+        tasks = ast._registered_tasks()
+    except Exception as e:
+        return [{
+            "file": "setup/scripts/_list-gamma-tasks-json.ps1", "line": 0,
+            "flag": "TASK_VENV_INTERPRETER_SCAN_FAILED",
+            "detail": f"{type(e).__name__}: {e}",
+            "fix": "PowerShell task enumeration raised -- Task Scheduler may be unreachable; "
+                   "treat as unverified, not clean.",
+        }]
+    if not tasks:
+        return [{
+            "file": "setup/scripts/_list-gamma-tasks-json.ps1", "line": 0,
+            "flag": "TASK_VENV_INTERPRETER_SCAN_EMPTY",
+            "detail": "0 scheduled tasks returned -- treating as a scan FAILURE, not a clean box.",
+            "fix": "Run `Get-ScheduledTask -TaskName Gamma_*` by hand and compare.",
+        }]
+    flags: list[dict] = []
+    for t in tasks:
+        name = t.get("name", "?")
+        execute = t.get("execute", "") or ""
+        arguments = t.get("arguments", "") or ""
+        if VENV_PYTHONW_STUB_RE.search(execute) or VENV_PYTHONW_STUB_RE.search(arguments):
+            flags.append({
+                "file": f"scheduled-task:{name}", "line": 0,
+                "flag": "TASK_VENV_INTERPRETER",
+                "detail": f"state={t.get('state')!r} execute={execute!r} "
+                          f"args={arguments[:160]!r}",
+                "fix": "Set-ScheduledTask -TaskName "
+                       f"{name} -Action <system pythonw + --env PYTHONPATH=...\\backtest\\"
+                       ".venv\\Lib\\site-packages, both hops>. See GOAL-SILENT-RIG-2026-09-05.md S1.",
+            })
+    return flags
+
+
+_PS1_VAR_ASSIGN_RE = re.compile(r"^\s*\$(\w+)\s*=")
+_PS1_ACTION_LINE_RE = re.compile(
+    r"New-ScheduledTaskAction|-Argument\b|wscriptArgs\s*=|\$newArgs\s*=|\$cmdParts\s*=|\$cmdTail\s*="
+)
+
+
+def _audit_installer_venv_interpreter() -> list[dict]:
+    """Check (7b): no install-*.ps1 / task-registration script may EMIT the venv
+    pythonw/python stub as a launch target -- otherwise a re-install silently
+    reintroduces the leak that (7a) + S1 just removed from the live registry.
+
+    Two shapes both get caught: (1) the stub path written literally inline in the
+    action-building line, and (2) the far more common shape in this repo -- a variable
+    (`$pythonwVenv`, `$venvPython`, `$pywVenv`, ...) assigned the stub path earlier in the
+    file, then interpolated by NAME into the action/wscriptArgs line. A pure per-line
+    literal-text scan misses (2) entirely -- every install-*.ps1 this box actually shipped
+    used variable indirection, not an inline literal -- so this does a first pass to learn
+    which variable names were assigned the stub path, then flags any action-building line
+    that references one of those names.
+    """
+    flags: list[dict] = []
+    if not SCRIPTS_DIR.exists():
+        return flags
+    candidates = list(SCRIPTS_DIR.glob("install-*.ps1")) + [
+        SCRIPTS_DIR / "fix-venv-pythonw-console-leak.ps1",
+    ]
+    for ps1 in candidates:
+        if not ps1.exists():
+            continue
+        try:
+            text = ps1.read_text(encoding="utf-8", errors="replace")
+        except Exception as e:
+            flags.append({"file": str(ps1.relative_to(REPO)), "line": 0,
+                          "flag": "READ_ERROR", "detail": str(e)})
+            continue
+        lines = text.splitlines()
+
+        # Pass 1: which variable names were ever assigned the venv stub path?
+        stub_vars: set[str] = set()
+        for line in lines:
+            if line.lstrip().startswith("#"):
+                continue
+            m = _PS1_VAR_ASSIGN_RE.match(line)
+            if m and VENV_PYTHONW_STUB_RE.search(line):
+                stub_vars.add(m.group(1))
+
+        if not stub_vars and not VENV_PYTHONW_STUB_RE.search(text):
+            continue
+
+        stub_var_use_re = (
+            re.compile(r"\$(" + "|".join(re.escape(v) for v in stub_vars) + r")\b")
+            if stub_vars else None
+        )
+
+        # Pass 2: flag every action-building line that either (a) names the stub path
+        # literally, or (b) references a variable known (from pass 1) to hold it.
+        for i, line in enumerate(lines, start=1):
+            stripped = line.lstrip()
+            if stripped.startswith("#"):
+                continue
+            if not _PS1_ACTION_LINE_RE.search(line):
+                continue
+            literal_hit = VENV_PYTHONW_STUB_RE.search(line)
+            var_hit = stub_var_use_re.search(line) if stub_var_use_re else None
+            if not literal_hit and not var_hit:
+                continue
+            flags.append({
+                "file": str(ps1.relative_to(REPO)),
+                "line": i,
+                "flag": "INSTALLER_VENV_INTERPRETER",
+                "detail": line.strip()[:220],
+                "fix": "Launch target must be the SYSTEM pythonw "
+                       "(C:\\Users\\jackw\\AppData\\Local\\Programs\\Python\\Python313\\"
+                       "pythonw.exe) on both hops, with --env PYTHONPATH=<repo>\\backtest\\"
+                       ".venv\\Lib\\site-packages so venv deps still resolve.",
+            })
+    return flags
+
+
 # --- LIVE hider-liveness check (6) ----------------------------------------------------
 # WHY THIS CHECK EXISTS (2026-08-30, J: "first priority is stopping all popups").
 #
@@ -660,6 +839,8 @@ def main() -> int:
     py_flags = _audit_py_missing_creationflags()
     mcp_flags = _audit_mcp_configs()
     task_flags = _audit_live_task_registry()
+    task_venv_flags = _audit_task_venv_interpreter()
+    installer_venv_flags = _audit_installer_venv_interpreter()
     hook_flags, hooks_scanned = _audit_hook_commands()
     hider_flags = _audit_hiders_running()
     coverage = _scan_coverage()
@@ -695,8 +876,8 @@ def main() -> int:
             "fix": "Verify HOOK_CONFIG_SOURCES paths resolve and the settings files parse.",
         })
 
-    all_flags = (ps1_flags + py_flags + mcp_flags + task_flags + hook_flags
-                 + hider_flags + empty_scan_flags)
+    all_flags = (ps1_flags + py_flags + mcp_flags + task_flags + task_venv_flags
+                 + installer_venv_flags + hook_flags + hider_flags + empty_scan_flags)
     # Health is driven ONLY by findings someone can act on. Informational findings stay in
     # the report (never silently dropped) but must not hold the audit permanently RED.
     violations = [f for f in all_flags if f.get("severity") != "info"]
@@ -709,6 +890,8 @@ def main() -> int:
         "py_subprocess_no_creationflags_count": len(py_flags),
         "mcp_unwrapped_launcher_count": len(mcp_flags),
         "live_task_registry_count": len(task_flags),
+        "task_venv_interpreter_count": len(task_venv_flags),
+        "installer_venv_interpreter_count": len(installer_venv_flags),
         "hook_bare_console_count": len(hook_flags),
         "hider_not_running_count": len(hider_flags),
         "scan_coverage": coverage,
@@ -727,6 +910,8 @@ def main() -> int:
     print(f"  Py subprocess w/o creationflags:  {report['py_subprocess_no_creationflags_count']}")
     print(f"  MCP servers w/o pythonw shim:     {report['mcp_unwrapped_launcher_count']}")
     print(f"  LIVE task registry violations:    {report['live_task_registry_count']}")
+    print(f"  Task venv-pythonw stub (7a):      {report['task_venv_interpreter_count']}")
+    print(f"  Installer venv-pythonw stub (7b): {report['installer_venv_interpreter_count']}")
     print(f"  Hook cmds w/o hidden wrapper:     {report['hook_bare_console_count']} "
           f"({coverage['hook_commands_scanned']} scanned)")
     print(f"  Live hiders down / unkept:        {report['hider_not_running_count']} "

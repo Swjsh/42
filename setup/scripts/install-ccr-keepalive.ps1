@@ -32,6 +32,25 @@
   To verify after running: Get-ScheduledTask -TaskName Gamma_CcrKeepalive
 #>
 [CmdletBinding()] param([switch]$Uninstall)
+
+# ==============================================================================
+# TOMBSTONE 2026-08-23 -- DO NOT REGISTER Gamma_CcrKeepalive. RETIRED PERMANENTLY.
+#
+# This installer resurrects the local claude-code-router gateway on 127.0.0.1:3456,
+# whose Router.default is "ollama,qwen3.6:35b" with NO Anthropic provider. That has
+# now locked J out of his own Claude twice:
+#   2026-07-14  ~/.claude/settings.json routed through it -> a full workday lost.
+#   2026-08-23  the task was re-enabled -> Claude Desktop (which now has its OWN
+#               "Connection: Gateway" setting, invisible to the settings.json guard)
+#               failed on every restart: "gateway couldn't serve claude-sonnet-4-5".
+#
+# Nothing in production routes through 3456 -- kitchen / swarm / free-model veto reach
+# ollama and OpenRouter on their own ports. The gateway is pure liability.
+# Guard: backtest/tests/test_ccr_keepalive.py (REDs if the task is registered again).
+# ==============================================================================
+Write-Error "install-ccr-keepalive.ps1 is RETIRED (2026-08-23, interactive-surface lockout scar #2). Do not register Gamma_CcrKeepalive. See backtest/tests/test_ccr_keepalive.py."
+exit 1
+
 $ErrorActionPreference = "Stop"
 
 $root      = "C:\Users\jackw\Desktop\42"

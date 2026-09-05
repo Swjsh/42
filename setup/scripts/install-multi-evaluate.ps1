@@ -27,6 +27,7 @@ $TaskName = "Gamma_MultiEvaluate"
 $pythonw = Join-Path $Root "backtest\.venv\Scripts\pythonw.exe"
 $runExeHidden = Join-Path $ScriptsDir "run_exe_hidden.vbs"
 $sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath = Join-Path $Root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $ScriptsDir "run_cmd_hidden.py"
 $worker = Join-Path $Root "multi\evaluate.py"
 foreach ($p in @($pythonw, $runExeHidden, $sysPythonw, $runCmdHidden, $worker)) {
@@ -48,7 +49,7 @@ $logDir = Join-Path $Root "automation\state\multi"
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Force $logDir | Out-Null }
 $logFile = Join-Path $logDir "evaluate-last-run.log"
 $action = New-ScheduledTaskAction -Execute "wscript.exe" `
-  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --cwd `"$Root`" -- `"$pythonw`" -m multi.evaluate --top 8"
+  -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runCmdHidden`" --log `"$logFile`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$Root`" -- `"$sysPythonw`" -m multi.evaluate --top 8"
 
 # ============================================================================================
 # TIMES BELOW ARE **LOCAL (MOUNTAIN)**, NOT ET.  ET = local + 2.

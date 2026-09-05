@@ -73,7 +73,9 @@ $ErrorActionPreference = "Stop"
 
 $root        = "C:\Users\jackw\Desktop\42"
 $vbs         = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
-$pythonwVenv = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
+$sysPythonw  = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
+$pythonPath  = Join-Path $root "backtest\.venv\Lib\site-packages"
 $script      = Join-Path $root "setup\scripts\j_intent_executor.py"
 $etz         = [System.TimeZoneInfo]::FindSystemTimeZoneById('Eastern Standard Time')
 $taskName    = "Gamma_JIntentExecutor"
@@ -86,7 +88,7 @@ if ($Uninstall) {
     return
 }
 
-foreach ($p in @($vbs, $pythonwVenv, $script)) {
+foreach ($p in @($vbs, $sysPythonw, $runCmdHidden, $script)) {
     if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
 }
 
@@ -105,8 +107,11 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
     Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-# wscript -> run_exe_hidden.vbs -> backtest venv pythonw -> j_intent_executor.py --daemon
-$wscriptArgs = "//nologo `"$vbs`" `"$pythonwVenv`" `"$script`" --daemon"
+# 2026-09-05 SILENT-RIG fix: was a single-hop wscript -> vbs -> venv-pythonw chain (the
+# console-subsystem stub, root cause of the 730-window flash). Now two-hop like every other
+# task in this registry: wscript -> vbs -> SYSTEM pythonw -> run_cmd_hidden.py -- SYSTEM
+# pythonw j_intent_executor.py --daemon, with --env PYTHONPATH so venv deps still resolve.
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`" --daemon"
 
 $action = New-ScheduledTaskAction `
     -Execute "wscript.exe" `

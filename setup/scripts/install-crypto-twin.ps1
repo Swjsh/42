@@ -102,6 +102,7 @@ if ($Uninstall) {
 
 $vbs          = Join-Path $root "setup\scripts\run_exe_hidden.vbs"
 $sysPythonw   = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+$pythonPath   = Join-Path $root "backtest\.venv\Lib\site-packages"
 $runCmdHidden = Join-Path $root "setup\scripts\run_cmd_hidden.py"
 $pythonwVenv  = Join-Path $root "backtest\.venv\Scripts\pythonw.exe"
 $script       = Join-Path $root "setup\scripts\crypto_twin_health.py"
@@ -120,7 +121,7 @@ if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
 # (2026-08-07 fix -- see WIRING PATTERN note above: this is the durable, source-of-truth
 # version of the relay fix fix-venv-pythonw-console-leak.ps1 applied imperatively on
 # 2026-07-14 and this script's own re-registration silently undid on 2026-08-01.)
-$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --cwd `"$root`" -- `"$pythonwVenv`" `"$script`" `"--live`""
+$wscriptArgs = "//nologo `"$vbs`" `"$sysPythonw`" `"$runCmdHidden`" --env `"PYTHONPATH=$pythonPath`" --cwd `"$root`" -- `"$sysPythonw`" `"$script`" `"--live`""
 $action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument $wscriptArgs -WorkingDirectory $root
 
 # Every 1 min, 24/7 -- crypto never closes, no day/time restriction (unlike RTH tasks).
