@@ -91,7 +91,7 @@ fix filed as a normal engine bug with a RED-proofed guard -- defects are not fro
   scratchpad/backfill_right_tail.py (same 46 missed / 144 scored pairs as SUMMARY.md -- only
   refused_by_gate text changed, capture rates unchanged). 2 preregs filed + checkpoint packet
   regenerated via script. Cockpit tile carries top_mechanism per arm, verified end-to-end.
-
+- 2026-09-05 03:45 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 1. F1-F5 all closed this fire with quoted evidence for every number; nothing here is a stub.
 2. UNVERIFIED: the dollar figures for mechanism 8 (2 waves, $2,186.21) and for any row where no arm
@@ -100,3 +100,4 @@ fix filed as a normal engine bug with a RED-proofed guard -- defects are not fro
    into the realized-fill figures.
 3. The 2 preregs are FROZEN_BEFORE_ANY_RESULT and correctly score INSUFFICIENT N (n=0) in this fire's
    own checkpoint-packet run -- no result is claimed for either until the forward window accrues.
+AUTOPILOT CLOSE 2026-09-05 03:45 ET: queue fully terminal (no bare '- [ ] ' item left)
