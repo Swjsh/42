@@ -1,0 +1,44 @@
+{
+  "generated_at": "2026-09-05T10:41:06+00:00",
+  "slug": "r2-guard-test-ok",
+  "task_id": "r2-test-ok",
+  "combo": {},
+  "engine": "backtest.autoresearch.overnight_grinder.evaluate_combo",
+  "engine_note": "MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.",
+  "elapsed_s": 64.79,
+  "command": "backtest/.venv/Scripts/python.exe setup/scripts/kitchen_stage1_runner.py --combo-json '{}' --slug r2-guard-test-ok",
+  "result": {
+    "combo": {},
+    "pnl_4_29": -23.95,
+    "pnl_5_04": 804.72,
+    "by_day": {
+      "2026-04-29": -23.95,
+      "2026-05-01": -21.56,
+      "2026-05-04": 804.72,
+      "2026-05-05": 0.0,
+      "2026-05-06": 0.0,
+      "2026-05-07": 74.29,
+      "2026-05-07_2": 74.29
+    },
+    "winners_capture": 759.21,
+    "losers_added": 0.0,
+    "edge_capture": 759.21,
+    "wide_pnl": -1464.23,
+    "wide_n_trades": 225,
+    "wide_wr": 0.187,
+    "top5_pct": 999.0,
+    "quarter_pnl": {
+      "2025-Q1": -1300.5,
+      "2025-Q2": 769.79,
+      "2025-Q3": -1134.66,
+      "2025-Q4": -1246.16,
+      "2026-Q1": 1548.89,
+      "2026-Q2": -101.59
+    },
+    "positive_quarters": 2,
+    "quarter_count": 6,
+    "max_drawdown": 4701.52,
+    "passed_floors": true,
+    "regressions": []
+  }
+}

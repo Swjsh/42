@@ -46,6 +46,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -71,11 +72,15 @@ sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from chef_nemotron import (  # noqa: E402
     CHEF_SYSTEM_PROMPT,
     MODEL_LADDER,
+    CANDIDATES_DIR,
     _call_with_ladder,
     _write_candidate,
     _slugify,
     _gather_common_inputs,
 )
+# Stage-1-in-the-loop: the runner's engine-provenance note, imported (not duplicated) so
+# both files stay byte-identical about what the numbers mean.
+from kitchen_stage1_runner import ENGINE_NOTE as STAGE1_ENGINE_NOTE  # noqa: E402
 
 # Free lane-pool client (Groq/Cerebras/Gemini/OpenRouter + local Ollama floor).
 # Optional: cooks route through this first; if it is unavailable or fails, _run_task
@@ -98,6 +103,17 @@ PAID_TIER_DAILY_CAP_USD = 3.00       # if breached, refuse tier-3 paid calls for
 SLEEP_AFTER_RATE_LIMIT_S = 600       # 10 min when free tiers all 429 (upper bound only — see D4)
 MAX_TOKENS_PER_COOK = 10_000
 HEARTBEAT_STATUS_INTERVAL_S = 60     # rewrite kitchen-status.json this often even if idle
+
+# ── Stage-1-in-the-loop (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05) ────────────
+# The cook path (_run_task) MUST execute this runner on the candidate's own knobs BEFORE
+# any model call that could produce a numeric verdict. On runner failure/timeout the
+# daemon writes a RUNNER-FAILED candidate directly (no model call, no numbers) -- see
+# _write_runner_failed_candidate(). On success the artifact's own numbers (never model
+# text) back the `## Provenance` block -- see _inject_daemon_provenance().
+STAGE1_RUNNER_SCRIPT = REPO / "setup" / "scripts" / "kitchen_stage1_runner.py"
+STAGE1_PYTHON = REPO / "backtest" / ".venv" / "Scripts" / "python.exe"
+STAGE1_TIMEOUT_S = 480.0  # matches kitchen_stage1_runner.py DEFAULT_TIMEOUT_S
+STAGE1_SUBPROCESS_TIMEOUT_S = 540.0  # subprocess-level cap, slightly above the runner's own
 TIER_429_COOLDOWN_S = 300.0          # D4: per-tier 429 cooldown (5 min)
 
 PRIORITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3}
@@ -458,6 +474,12 @@ def _load_queue(queue_file: Optional[Path] = None) -> dict[str, dict]:
                     state["script_name"] = ev.get("script_name", "")
                     state["grinder_hours"] = float(ev.get("hours", 2.0))
                     state["grinder_workers"] = int(ev.get("workers", GRINDER_MAX_WORKERS))
+                    # Stage-1-in-the-loop: the candidate's own knobs, if the enqueuer
+                    # (seeder/Claude/pipeline-chain) already knows them. Absent for plain
+                    # free-text brainstorm tasks -- those get a baseline {} Stage-1 run
+                    # (still an EXECUTED artifact, just of the do-nothing baseline, never
+                    # a fabricated number).
+                    state["combo"] = ev.get("combo") if isinstance(ev.get("combo"), dict) else {}
                 elif kind == "claim":
                     state["status"] = "in_progress"
                     state["claimed_at"] = ev.get("ts")
@@ -779,15 +801,160 @@ def _strip_code_fence(content: str) -> str:
     return content
 
 
+def _run_stage1(combo: dict, slug: str, task_id: str) -> dict:
+    """Execute kitchen_stage1_runner.py SYNCHRONOUSLY, single worker, before any model
+    call (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05). The daemon awaits this subprocess --
+    it cannot start a second cook's Stage-1 run while this one is in flight, and
+    kitchen_stage1_runner.py's own file lock guards against a second daemon process
+    racing it directly.
+
+    Returns {"ok": bool, "artifact": str|None, "reason": str|None, "elapsed_s": float,
+    "command": str}. Never raises -- a subprocess launch failure is itself a
+    RUNNER-FAILED reason, not a daemon crash.
+    """
+    combo_json = json.dumps(combo or {}, sort_keys=True)
+    cmd = [
+        str(STAGE1_PYTHON), str(STAGE1_RUNNER_SCRIPT),
+        "--combo-json", combo_json, "--slug", slug, "--task-id", task_id,
+        "--timeout-s", str(STAGE1_TIMEOUT_S),
+    ]
+    command_str = " ".join(cmd)
+    t0 = time.time()
+    try:
+        proc = subprocess.run(
+            cmd, cwd=str(REPO), capture_output=True, text=True,
+            timeout=STAGE1_SUBPROCESS_TIMEOUT_S,
+            creationflags=_CREATE_NO_WINDOW,
+        )
+    except subprocess.TimeoutExpired:
+        elapsed = round(time.time() - t0, 2)
+        return {"ok": False, "artifact": None,
+                "reason": f"subprocess_timeout>{STAGE1_SUBPROCESS_TIMEOUT_S}s",
+                "elapsed_s": elapsed, "command": command_str}
+    except OSError as exc:
+        elapsed = round(time.time() - t0, 2)
+        return {"ok": False, "artifact": None,
+                "reason": f"subprocess_launch_failed: {exc}",
+                "elapsed_s": elapsed, "command": command_str}
+    elapsed = round(time.time() - t0, 2)
+    stdout = (proc.stdout or "").strip()
+    for line in stdout.splitlines():
+        if line.startswith("STAGE1_OK "):
+            return {"ok": True, "artifact": line[len("STAGE1_OK "):].strip(), "reason": None,
+                    "elapsed_s": elapsed, "command": command_str}
+        if line.startswith("STAGE1_FAILED "):
+            return {"ok": False, "artifact": None,
+                    "reason": line[len("STAGE1_FAILED "):].strip(),
+                    "elapsed_s": elapsed, "command": command_str}
+    reason = f"runner_exit_{proc.returncode}_no_marker (stderr: {(proc.stderr or '')[:200]})"
+    return {"ok": False, "artifact": None, "reason": reason, "elapsed_s": elapsed,
+            "command": command_str}
+
+
+_PROVENANCE_SECTION_RE = re.compile(
+    r"\n##\s*Provenance\b.*?(?=\n##\s|\Z)", re.IGNORECASE | re.DOTALL
+)
+
+
+def _inject_daemon_provenance(content: str, *, command: str, artifact: str, elapsed_s: float) -> str:
+    """Strip ANY `## Provenance` section the model wrote (never trust model text for
+    this -- CLAUDE.md hallucination guard) and append the daemon-authored one, built
+    ONLY from the command this process actually executed and the artifact it verified
+    exists. This is what makes a fabricated-but-plausible provenance line structurally
+    impossible: the daemon's block always wins, is always last, and is never model-
+    generated text.
+    """
+    stripped = _PROVENANCE_SECTION_RE.sub("", content).rstrip()
+    block = (
+        "\n\n## Provenance\n\n"
+        f"provenance: {command} -> {artifact}\n"
+        "engine: backtest.autoresearch.overnight_grinder.evaluate_combo (Stage-1 single-combo)\n"
+        f"engine_note: {STAGE1_ENGINE_NOTE}\n"
+        f"elapsed_s: {elapsed_s}\n"
+        "status: PROVENANCE-OK (daemon-executed -- this block was written by "
+        "kitchen_daemon.py from the executed command, never from model text)\n"
+    )
+    return stripped + block
+
+
+def _write_runner_failed_candidate(task_desc: str, slug: str, stage1: dict) -> Path:
+    """Write a DRAFT candidate carrying ZERO numeric verdict content -- the runner
+    failed or timed out, so per DONE-WHEN no numbers may appear anywhere in this file.
+    Written directly by the daemon; NO model call happens on this path (also keeps the
+    failure path at $0 cost).
+    """
+    today = _et_now().strftime("%Y-%m-%d")
+    target = CANDIDATES_DIR / f"{today}-chef-nemo-{slug}.md"
+    reason = stage1.get("reason", "unknown")
+    command = stage1.get("command", "")
+    body = (
+        f"# CANDIDATE: {slug}\n\n"
+        f"**Filed:** {today}\n"
+        "**Filer:** kitchen-daemon (Stage-1-gated cook, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05)\n"
+        "**Status:** DRAFT (RUNNER-FAILED -- NEEDS-RATIFICATION per Rule 9)\n\n"
+        "## Hypothesis\n\n"
+        f"{task_desc}\n\n"
+        "## Provenance\n\n"
+        f"provenance: {command} -> RUNNER-FAILED ({reason})\n"
+        f"status: RUNNER-FAILED ({reason})\n"
+        f"engine_note: {STAGE1_ENGINE_NOTE}\n\n"
+        "NO NUMBERS ARE PRESENT IN THIS FILE. Per GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05 a "
+        "verdict or numeric claim cannot be written unless the Stage-1 runner executed "
+        "successfully and produced an artifact. Cross-check: "
+        "automation/state/kitchen-stage1-run-log.jsonl.\n\n"
+        "## Pre-merge gate\n\n"
+        "N/A -- runner failed, no evidence exists to gate on. Re-enqueue after the failure "
+        "is understood (see reason above); do not hand-write numbers in to unblock this.\n"
+    )
+    target.write_text(body, encoding="utf-8")
+    return target
+
+
 def _run_task(task_state: dict, *, paid_tier_blocked: bool) -> dict:
-    """Execute one cook. Returns a result dict with ok/cost/output_path/tier/model."""
+    """Execute one cook. Returns a result dict with ok/cost/output_path/tier/model.
+
+    STAGE-1-IN-THE-LOOP (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): the candidate's own
+    knobs (task_state["combo"], {} if the enqueuer didn't supply any) are run through
+    the Stage-1 runner BEFORE any model call. Runner failure/timeout short-circuits
+    straight to a RUNNER-FAILED candidate with zero model calls and zero numbers --
+    a verdict literally cannot be produced without an executed artifact backing it.
+    """
     task_desc = task_state.get("task", "")
     if not task_desc:
         return {"ok": False, "error": "empty_task_description"}
 
-    prompt = _build_prompt_for_task(task_desc)
     slug = _slugify(task_desc[:80])
     cook_task_id = f"kitchen.cook.{slug[:30]}"
+    combo = task_state.get("combo") or {}
+
+    stage1 = _run_stage1(combo, slug, task_state.get("task_id", cook_task_id))
+    if not stage1["ok"]:
+        target = _write_runner_failed_candidate(task_desc, slug, stage1)
+        _log(f"STAGE1 RUNNER-FAILED task_id={task_state.get('task_id', '?')[:8]} "
+             f"reason={stage1.get('reason')} elapsed_s={stage1.get('elapsed_s')} "
+             f"-> {target.relative_to(REPO)}")
+        return {
+            "ok": True,  # the cook COMPLETES (a candidate was written); it just carries
+                         # no numbers. This is the intended terminal state, not a queue
+                         # retry loop -- a bad knob set is a finding, not a system fault.
+            "output_path": str(target.relative_to(REPO)),
+            "tier": -3, "model": "none (RUNNER-FAILED, no model call)", "cost_usd": 0.0,
+        }
+
+    artifact = stage1["artifact"]
+    try:
+        artifact_summary = json.loads((REPO / artifact).read_text(encoding="utf-8"))["result"]
+    except (OSError, json.JSONDecodeError, KeyError) as exc:
+        artifact_summary = {"_read_error": str(exc)}
+
+    prompt = (
+        _build_prompt_for_task(task_desc)
+        + "\n\n## EXECUTED Stage-1 result (use these numbers -- do not invent others)\n\n"
+        + f"Command: {stage1['command']}\n"
+        + f"Artifact: {artifact}\n"
+        + f"Engine note: {STAGE1_ENGINE_NOTE}\n"
+        + f"Result JSON: {json.dumps(artifact_summary, default=str)}\n"
+    )
 
     # FREE POOL FIRST: route cooks through the lane pool (chef role -> Groq-70B /
     # OpenRouter-Nemotron / Groq-gpt-oss — all no-train, big-ctx for ~31K-token cook
@@ -802,6 +969,10 @@ def _run_task(task_state: dict, *, paid_tier_blocked: bool) -> dict:
             )
             if env.get("ok") and (env.get("content") or "").strip():
                 content = _strip_code_fence((env.get("content") or "").strip())
+                content = _inject_daemon_provenance(
+                    content, command=stage1["command"], artifact=artifact,
+                    elapsed_s=stage1["elapsed_s"],
+                )
                 target = _write_candidate(content, slug, model=env.get("lane", "pool"),
                                           cost_usd=0.0, ladder_used=-2)
                 _log(f"COOK via pool lane={env.get('lane')} elapsed={env.get('elapsed_s')}s "
@@ -858,6 +1029,9 @@ def _run_task(task_state: dict, *, paid_tier_blocked: bool) -> dict:
     model = result.get("model", "unknown")
     cost = float(result.get("cost_usd", 0.0) or 0.0)
     tier = int(result.get("ladder_used", -1))
+    content = _inject_daemon_provenance(
+        content, command=stage1["command"], artifact=artifact, elapsed_s=stage1["elapsed_s"],
+    )
     target = _write_candidate(content, slug, model=model, cost_usd=cost, ladder_used=tier)
     return {
         "ok": True,
@@ -1356,6 +1530,90 @@ def _start_status_heartbeat() -> threading.Thread:
 # ────────────────────────────────────────────────────────────────────────────
 
 
+def run_single_cycle() -> dict:
+    """The daemon's single-cycle entry point (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05 R4:
+    "run 3 daemon cycles manually via the daemon's own single-cycle entry point"). Same
+    dispatch body as one iteration of main()'s while-loop -- reap stale claims, pick the
+    next task, run it (Stage-1-gated for llm_cook), append complete/fail -- but with NO
+    pid file, NO signal handlers, NO sleep-and-loop: it processes AT MOST one task and
+    returns. Callers (manual verification runs, tests) are responsible for not racing the
+    real 24/7 daemon -- see the `--refuse-if-daemon-alive` CLI guard below.
+
+    Returns {"status": "idle"} if the queue was empty, else
+    {"status": "ok"|"fail", "task_id": ..., "result": {...}}.
+    """
+    queue = _load_queue()
+    reaped = _reap_stale_claims(queue)
+    if reaped:
+        _log(f"reaped {reaped} stale claim(s)")
+        queue = _load_queue()
+
+    paid_spend = _today_paid_spend(queue)
+    paid_blocked = paid_spend >= PAID_TIER_DAILY_CAP_USD
+    if paid_blocked:
+        _log(f"PAID TIER BLOCKED today_spend=${paid_spend:.4f} >= cap=${PAID_TIER_DAILY_CAP_USD:.2f}")
+
+    task = _pick_next_task(queue)
+    _write_status_snapshot(queue, idle=(task is None), current_task=(task["task_id"] if task else None))
+    if task is None:
+        _log("run_single_cycle: queue empty")
+        return {"status": "idle"}
+
+    _log(f"run_single_cycle: claim task_id={task['task_id'][:8]} priority={task.get('priority')} "
+         f"desc={(task.get('task') or '')[:80]}")
+    _append_event({"event": "claim", "task_id": task["task_id"], "by_pid": os.getpid()})
+
+    try:
+        task_type = task.get("task_type", "llm_cook")
+        if task_type == "pipeline_scorecard":
+            result = _run_pipeline_scorecard(task)
+        elif task_type == "grinder_sweep":
+            high_prio_llm = sum(
+                1 for s in queue.values()
+                if s.get("status") == "pending"
+                and s.get("task_type", "llm_cook") != "grinder_sweep"
+                and PRIORITY_ORDER.get(s.get("priority", "medium"), 99) <= PRIORITY_ORDER["high"]
+            )
+            if high_prio_llm >= GRINDER_MIN_FREE_BEFORE_SKIP:
+                _log(f"run_single_cycle: GRINDER_SWEEP deferred, {high_prio_llm} high-prio LLM tasks ahead")
+                _append_event({"event": "requeue", "task_id": task["task_id"],
+                               "reason": f"deferred: {high_prio_llm} high-priority LLM tasks ahead"})
+                return {"status": "deferred", "task_id": task["task_id"]}
+            result = _run_grinder_task(task)
+        else:
+            result = _run_task(task, paid_tier_blocked=paid_blocked)
+    except SystemExit as exc:
+        _log(f"run_single_cycle: SYSTEMEXIT in dispatch code={exc.code}\n{traceback.format_exc()[:1500]}")
+        result = {"ok": False, "error": f"SystemExit({exc.code})"}
+    except Exception as exc:  # noqa: BLE001
+        _log(f"run_single_cycle: EXCEPTION in dispatch: {exc}\n{traceback.format_exc()[:1500]}")
+        result = {"ok": False, "error": f"exception: {type(exc).__name__}: {str(exc)[:300]}"}
+
+    cook_finish_ts = _et_now()
+    cook_model = result.get("model") or "?"
+    cook_cost = float(result.get("cost_usd", 0.0) or 0.0)
+
+    if result["ok"]:
+        _log(f"run_single_cycle: OK task={task['task_id'][:8]} tier={result.get('tier')} "
+             f"cost=${cook_cost:.4f} -> {result.get('output_path')}")
+        _append_event({
+            "event": "complete", "task_id": task["task_id"],
+            "output_path": result.get("output_path"), "cost_usd": cook_cost,
+            "model": cook_model, "tier": result.get("tier"),
+        })
+        status = "ok"
+    else:
+        err = result.get("error", "unknown")
+        _log(f"run_single_cycle: FAIL task={task['task_id'][:8]} error={err}")
+        _append_event({"event": "fail", "task_id": task["task_id"], "error": err,
+                       "tier": result.get("tier", -1)})
+        status = "fail"
+
+    queue = _load_queue()
+    _update_status_md(queue, last_cook_model=cook_model, last_cook_cost=cook_cost, last_cook_ts=cook_finish_ts)
+    return {"status": status, "task_id": task["task_id"], "result": result}
+
+
 def main() -> int:
     if _existing_daemon_alive():
         _log("another daemon is already alive; exiting")
@@ -1511,11 +1769,18 @@ def enqueue_task(
     script_name: str = "",
     hours: float = 2.0,
     workers: int = GRINDER_MAX_WORKERS,
+    combo: Optional[dict] = None,
 ) -> str:
     """Public API: append a CREATE event for a new task. Returns task_id.
 
     For grinder_sweep tasks, also pass task_type="grinder_sweep", script_name=<name>,
     and optionally hours + workers (defaults: 2h / 4 workers).
+
+    For llm_cook tasks, pass `combo` (a dict of orchestrator knob overrides) when the
+    enqueuer already knows the candidate's own knobs (e.g. a grinder keeper being
+    promoted, or Claude steering with a specific knob set) -- Stage-1-in-the-loop
+    (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05) runs this exact dict through the base
+    engine BEFORE any model call. Omitted/None means {} (baseline Stage-1 run).
     """
     task_id = str(uuid.uuid4())
     event: dict = {
@@ -1531,6 +1796,8 @@ def enqueue_task(
         event["script_name"] = script_name
         event["hours"] = hours
         event["workers"] = workers
+    if combo:
+        event["combo"] = combo
     _append_event(event)
     return task_id
 
@@ -1541,6 +1808,18 @@ if __name__ == "__main__":
     sub = p.add_subparsers(dest="cmd")
 
     sub.add_parser("run", help="Run the daemon loop (default)")
+
+    once = sub.add_parser(
+        "run-once",
+        help="Process AT MOST one cook (run_single_cycle) and exit -- the daemon's "
+             "single-cycle entry point for manual verification runs (R4, "
+             "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05). Refuses to run if the real "
+             "24/7 daemon (Gamma_KitchenDaemonKeepalive) is already alive, so a manual "
+             "verification run never races the production one.",
+    )
+    once.add_argument("--allow-concurrent-daemon", action="store_true",
+                       help="DANGEROUS: skip the _existing_daemon_alive() guard. Never use "
+                            "against the live queue while the real daemon may also be running.")
 
     enq = sub.add_parser("enqueue", help="Enqueue a single task and exit")
     enq.add_argument("--task", required=True)
@@ -1555,6 +1834,9 @@ if __name__ == "__main__":
                      help="For grinder_sweep: max runtime in hours")
     enq.add_argument("--workers", type=int, default=GRINDER_MAX_WORKERS,
                      help="For grinder_sweep: parallel worker count")
+    enq.add_argument("--combo-json", type=str, default="",
+                     help="For llm_cook: JSON dict of the candidate's own orchestrator knobs "
+                          "-- run through kitchen_stage1_runner.py before any model call")
 
     sub.add_parser("status", help="Print kitchen-status.json + queue summary, then exit")
 
@@ -1562,6 +1844,7 @@ if __name__ == "__main__":
     cmd = args.cmd or "run"
 
     if cmd == "enqueue":
+        _combo = json.loads(args.combo_json) if getattr(args, "combo_json", "") else None
         tid = enqueue_task(
             args.task,
             priority=args.priority,
@@ -1570,6 +1853,7 @@ if __name__ == "__main__":
             script_name=args.script_name,
             hours=args.hours,
             workers=args.workers,
+            combo=_combo,
         )
         print(f"enqueued task_id={tid} type={args.task_type}")
         sys.exit(0)
@@ -1585,6 +1869,15 @@ if __name__ == "__main__":
             by_status[s.get("status")] = by_status.get(s.get("status"), 0) + 1
         for k, v in sorted(by_status.items()):
             print(f"  {k}: {v}")
+        sys.exit(0)
+    if cmd == "run-once":
+        if not args.allow_concurrent_daemon and _existing_daemon_alive():
+            print("REFUSED: the real kitchen daemon (Gamma_KitchenDaemonKeepalive) is "
+                  "already alive -- run-once would race it. Pass --allow-concurrent-daemon "
+                  "only if you have positively confirmed no other daemon is running.")
+            sys.exit(1)
+        outcome = run_single_cycle()
+        print(f"run-once outcome: {json.dumps(outcome, default=str)}")
         sys.exit(0)
 
     sys.exit(main())

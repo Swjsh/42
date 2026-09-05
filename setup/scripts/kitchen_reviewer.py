@@ -405,6 +405,70 @@ def _check_provenance_block(candidate_text: str) -> bool:
     return bool(_PROVENANCE_LINE_RE.search(candidate_text))
 
 
+# ── R3 (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): the daemon-run-log cross-check ─────────
+# kitchen_provenance_audit only proves a cited artifact EXISTS on disk. It cannot prove
+# THIS candidate's provenance line names a command the DAEMON actually ran for THIS
+# candidate -- a model could copy a real command + real artifact path from a different
+# run. kitchen_stage1_runner.py appends every command it executes (PROVENANCE-OK rows
+# only -- RUNNER-FAILED rows never back a numeric claim) to this run log; a candidate's
+# provenance command must appear there verbatim.
+_PROVENANCE_LINE_FULL_RE = re.compile(
+    r"^\s*provenance:\s*(.+?)\s*->\s*(\S.*?)\s*$", re.IGNORECASE | re.MULTILINE
+)
+
+
+def _stage1_run_log_path() -> Path:
+    """Computed from the module-level REPO each call (not a frozen module constant) so
+    tests that monkeypatch `kr.REPO` to a tmp_path fixture correctly redirect this too."""
+    return REPO / "automation" / "state" / "kitchen-stage1-run-log.jsonl"
+
+
+def _executed_commands_from_run_log() -> set:
+    """Set of commands the daemon's OWN Stage-1 runner actually executed (PROVENANCE-OK
+    rows only). Read-only; fails open (empty set) on any I/O/parse error -- an audit-side
+    failure must never crash the reviewer, only under-clear (fail closed on the caller's
+    side, since an empty set makes every cross-check fail RUN-LOG-MISMATCH, capping to
+    VALIDATE rather than silently promoting)."""
+    commands: set = set()
+    try:
+        run_log = _stage1_run_log_path()
+        if not run_log.exists():
+            return commands
+        with run_log.open(encoding="utf-8", errors="replace") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if row.get("status") == "PROVENANCE-OK" and row.get("command"):
+                    commands.add(row["command"])
+    except OSError:
+        pass
+    return commands
+
+
+def _check_run_log_executed(candidate_text: str) -> tuple:
+    """True iff every `provenance: <command> -> <artifact>` command line in the
+    candidate matches a command in the daemon's own kitchen-stage1-run-log.jsonl.
+    A `provenance: NONE -- no runner executed` line (the honest-abstention form the
+    chef prompt template allows) is exempt -- it makes no execution claim to cross-check.
+    """
+    matches = _PROVENANCE_LINE_FULL_RE.findall(candidate_text)
+    if not matches:
+        return False, "no provenance command line to cross-check"
+    executed = _executed_commands_from_run_log()
+    for command, _artifact in matches:
+        command = command.strip()
+        if command.upper().startswith("NONE"):
+            continue
+        if command not in executed:
+            return False, f"RUN-LOG-MISMATCH: command not in daemon's own run log: {command[:160]}"
+    return True, ""
+
+
 def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
     """OP-33: PROMOTE requires numeric scorecard evidence on disk; else cap at VALIDATE.
 
@@ -432,6 +496,15 @@ def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
         return "VALIDATE", f"capped:PROVENANCE-MISSING:{','.join(prov_missing[:5])}"
     if prov_status == "NO-ARTIFACT-CITED":
         return "VALIDATE", "capped:NO-ARTIFACT-CITED: numeric verdict cites zero artifacts (UNVERIFIED-BY-CONSTRUCTION)"
+
+    # R3 run-log cross-check (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): the artifact
+    # existing on disk only proves SOMETHING produced it, not that the daemon's OWN
+    # Stage-1 runner produced it FOR THIS candidate. Checked last, after the cheaper/
+    # broader existence checks above, so an already-fabricated file is capped for the
+    # more specific reason it fails first.
+    run_log_ok, run_log_reason = _check_run_log_executed(text)
+    if not run_log_ok:
+        return "VALIDATE", f"capped:{run_log_reason}"
 
     op16_ok, op16_reason = _check_op16_floor(candidate_file, text)
     if op16_ok:
@@ -462,14 +535,21 @@ def _auto_promote_candidate(out_path_str: str, rationale: str) -> str:
     # routes the file to pending exactly like any other failed gate.
     prov_block_ok = _check_provenance_block(text)
     prov_status, prov_missing = _check_provenance(candidate_file)
-    prov_ok = prov_block_ok and prov_status not in ("PROVENANCE-MISSING", "NO-ARTIFACT-CITED")
+    run_log_ok, run_log_reason = _check_run_log_executed(text)
+    prov_ok = (
+        prov_block_ok
+        and prov_status not in ("PROVENANCE-MISSING", "NO-ARTIFACT-CITED")
+        and run_log_ok
+    )
     if not prov_ok:
         if not prov_block_ok:
             op16_reason = "PROVENANCE-BLOCK-MISSING: no `provenance:` line in candidate"
         elif prov_status == "PROVENANCE-MISSING":
             op16_reason = f"PROVENANCE-MISSING:{','.join(prov_missing[:5])}"
-        else:
+        elif prov_status == "NO-ARTIFACT-CITED":
             op16_reason = "NO-ARTIFACT-CITED: numeric verdict cites zero artifacts (UNVERIFIED-BY-CONSTRUCTION)"
+        else:
+            op16_reason = run_log_reason
         op16_ok = False
 
     if op20_ok and op16_ok:

@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-05T06:23:12+00:00",
-  "files_scanned": 4801,
-  "files_scored": 4198,
+  "generated_at": "2026-09-05T11:17:26+00:00",
+  "files_scanned": 4813,
+  "files_scored": 4209,
   "totals": {
-    "PROVENANCE-OK": 358,
-    "PROVENANCE-MISSING": 440,
-    "NO-ARTIFACT-CITED": 3400,
-    "NOT-A-VERDICT": 603
+    "PROVENANCE-OK": 361,
+    "PROVENANCE-MISSING": 443,
+    "NO-ARTIFACT-CITED": 3405,
+    "NOT-A-VERDICT": 604
   },
-  "fabricated_artifact_rate": 0.1048,
+  "fabricated_artifact_rate": 0.1053,
   "rows": [
     {
       "path": "strategy/candidates/_analysis/2026-05-21-2026-05-21-v14e-promotion-path.md",
@@ -9697,6 +9697,15 @@
         "test_filters_9_10_block_logic.py"
       ],
       "mtime": "2026-09-05T06:02:35+00:00"
+    },
+    {
+      "path": "strategy/candidates/_analysis/2026-09-05-stage1-baseline-results.md",
+      "status": "PROVENANCE-OK",
+      "cited": [
+        "analysis/kitchen-review/stage1-runs/run-stage-1-backtest-via-autoresearch-grinder-to-compute-edg-20260905T105809Z.json"
+      ],
+      "missing": [],
+      "mtime": "2026-09-05T10:58:49+00:00"
     },
     {
       "path": "strategy/candidates/_analysis/2026-09-05-vwapcont-dte-override-2dte-oos-2025q3-2026q2-validation.md",
@@ -36654,11 +36663,27 @@
       "mtime": "2026-09-05T06:12:52+00:00"
     },
     {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-disable-midday-trendline-gate-afternoon.md",
+      "status": "PROVENANCE-OK",
+      "cited": [
+        "analysis/kitchen-review/stage1-runs/perform-stage-1-backtest-via-autoresearch-grinder-to-estimat-20260905T111037Z.json"
+      ],
+      "missing": [],
+      "mtime": "2026-09-05T11:11:43+00:00"
+    },
+    {
       "path": "strategy/candidates/2026-09-05-chef-nemo-grinder-opening-drive-fade-grinder-20260905-0039.md",
       "status": "NOT-A-VERDICT",
       "cited": [],
       "missing": [],
       "mtime": "2026-09-05T04:39:31+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-grinder-shotgun-scalper-grinder-20260905-0517.md",
+      "status": "NOT-A-VERDICT",
+      "cited": [],
+      "missing": [],
+      "mtime": "2026-09-05T09:17:45+00:00"
     },
     {
       "path": "strategy/candidates/2026-09-05-chef-nemo-grinder-vwap-overnight-grinder-20260905-0210.md",
@@ -36675,6 +36700,13 @@
       "mtime": "2026-09-05T06:16:15+00:00"
     },
     {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-ribbon-dur-6-filter.md",
+      "status": "NO-ARTIFACT-CITED",
+      "cited": [],
+      "missing": [],
+      "mtime": "2026-09-05T09:27:04+00:00"
+    },
+    {
       "path": "strategy/candidates/2026-09-05-chef-nemo-shotgun-scalper-stage4-top-keeper.md",
       "status": "NO-ARTIFACT-CITED",
       "cited": [],
@@ -36682,11 +36714,81 @@
       "mtime": "2026-09-05T06:02:35+00:00"
     },
     {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vanna-gamma-divergence.md",
+      "status": "NO-ARTIFACT-CITED",
+      "cited": [],
+      "missing": [],
+      "mtime": "2026-09-05T09:28:22+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vix-filter-bearish-rejection.md",
+      "status": "NO-ARTIFACT-CITED",
+      "cited": [],
+      "missing": [],
+      "mtime": "2026-09-05T09:22:27+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vix-filter-for-j-days.md",
+      "status": "PROVENANCE-MISSING",
+      "cited": [
+        "test_vix_filter_for_j_days.py"
+      ],
+      "missing": [
+        "test_vix_filter_for_j_days.py"
+      ],
+      "mtime": "2026-09-05T09:25:43+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vix-floor-15-for-bearish-rejection.md",
+      "status": "PROVENANCE-MISSING",
+      "cited": [
+        "test_vix_floor_15_for_bearish_rejection.py"
+      ],
+      "missing": [
+        "test_vix_floor_15_for_bearish_rejection.py"
+      ],
+      "mtime": "2026-09-05T09:24:13+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vix-term-structure-filter.md",
+      "status": "PROVENANCE-MISSING",
+      "cited": [
+        "test_vix_term_structure_filter.py"
+      ],
+      "missing": [
+        "test_vix_term_structure_filter.py"
+      ],
+      "mtime": "2026-09-05T09:21:04+00:00"
+    },
+    {
       "path": "strategy/candidates/2026-09-05-chef-nemo-vix1d-spike-fade.md",
       "status": "NO-ARTIFACT-CITED",
       "cited": [],
       "missing": [],
       "mtime": "2026-09-05T06:02:35+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vwap-mean-reversion-with-rsi-divergence.md",
+      "status": "NO-ARTIFACT-CITED",
+      "cited": [],
+      "missing": [],
+      "mtime": "2026-09-05T09:32:31+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vwap-overnight-grinder-top-keeper.md",
+      "status": "NO-ARTIFACT-CITED",
+      "cited": [],
+      "missing": [],
+      "mtime": "2026-09-05T09:31:17+00:00"
+    },
+    {
+      "path": "strategy/candidates/2026-09-05-chef-nemo-vwapcont-dte-override-dynamic.md",
+      "status": "PROVENANCE-OK",
+      "cited": [
+        "analysis/kitchen-review/stage1-runs/evaluate-top-5-combos-for-edge-capture-771-after-walk-forwar-20260905T110016Z.json"
+      ],
+      "missing": [],
+      "mtime": "2026-09-05T11:09:09+00:00"
     }
   ]
 }

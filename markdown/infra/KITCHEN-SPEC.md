@@ -59,3 +59,63 @@
     - Bypassing the model ladder by hard-coding paid MiniMax in new cook scripts.
     - Writing to `_LEADERBOARD.md` from the daemon/seeder/reviewer (only Claude curates it per the protocol above).
     - Adding fourth scheduled task without registry entry in `automation/state/SCHEDULED-TASKS.md` (audit script catches this).
+
+    **STAGE-1-IN-THE-LOOP (added 2026-09-05, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05).** The
+    provenance audit (GOAL-KITCHEN-INTEGRITY, commit 11a45e2d) found 81% of Kitchen verdict
+    files cited no artifact and 10% cited artifacts that did not exist -- the chef-cook path
+    (`kitchen_daemon._run_task`) asked a free model for a verdict + numbers without RUNNING
+    anything. Fix: the daemon now executes an EXISTING Stage-1 evaluator on the candidate's own
+    knobs BEFORE any model call, and writes the `## Provenance` block itself from the executed
+    command -- never from model text.
+
+    - **Runner:** `setup/scripts/kitchen_stage1_runner.py` -- a thin CLI wrapper (NO new backtest
+      engine) around `backtest.autoresearch.overnight_grinder.evaluate_combo`, the same
+      single-combo evaluator the grinder sweeps already call per-combo. Invoked with ONE knob
+      dict (`--combo-json`), single worker, synchronous. Measured wall time for an empty combo
+      (wide window 2025-01-01..2026-05-22 + the 7 J-day cells): ~65s (~1.1 CPU-min) -- far under
+      the 5-min grind-reaper threshold (`setup/scripts/_shared.ps1#Stop-StaleClaudeProcesses`),
+      so this script needs NO reaper exemption; it always finishes before the reaper's window
+      opens. A hard wall-clock watchdog (`--timeout-s`, default 480s) still guards against a
+      pathological combo hanging the daemon. Data: BS-synthetic option pricing over historical
+      SPY/VIX bars (`lib.pricing.black_scholes`) -- MECHANISM EVIDENCE ONLY, never real-fills
+      evidence; every artifact says so (`ENGINE_NOTE`, per memory
+      `project_free_kitchen_plan_b_hardened.md`).
+    - **Wiring (`kitchen_daemon._run_task`):** the candidate's knobs (`task_state["combo"]`, `{}`
+      if the enqueuer didn't supply any -- a legitimate baseline Stage-1 run, never a fabricated
+      number) run through the Stage-1 runner via `_run_stage1()` (a synchronous subprocess call
+      -- the daemon awaits it before any model call, so it cannot start a second Stage-1 run
+      concurrently; the runner's own file lock at `automation/state/kitchen-stage1-runner.lock`
+      additionally guards against a second daemon process racing it directly). Runner
+      failure/timeout short-circuits to `_write_runner_failed_candidate()` -- a DRAFT candidate
+      with `status: RUNNER-FAILED (<reason>)`, ZERO model calls, ZERO numbers, written directly
+      by the daemon ($0 cost). Runner success feeds the artifact's own result numbers into the
+      model prompt and, regardless of what the model writes, `_inject_daemon_provenance()`
+      strips ANY `## Provenance` section the model produced and appends the daemon-authored one
+      (`provenance: <executed command> -> <verified-existing artifact>`) -- a fabricated
+      provenance line pointing at a fake/foreign artifact cannot survive.
+    - **Enqueueing with known knobs:** `kitchen_daemon.enqueue_task(..., combo={...})` or CLI
+      `kitchen_daemon.py enqueue --task "..." --combo-json '{"super_stop": -0.1}'` -- for a
+      grinder keeper being promoted to a cook task, or Claude steering with a specific knob set.
+    - **Reviewer cross-check (R3):** `kitchen_reviewer._check_run_log_executed()` requires every
+      candidate's `provenance:` command to appear, verbatim, as a `PROVENANCE-OK` row in
+      `automation/state/kitchen-stage1-run-log.jsonl` -- the daemon's own record of what it
+      actually ran. An artifact existing on disk (the pre-existing `kitchen_provenance_audit.py`
+      check) only proves SOMETHING produced it; this proves the DAEMON produced it FOR THIS
+      candidate. Wired into both `_cap_promote_if_unevidenced` and `_auto_promote_candidate`.
+    - **Manual verification / single-cycle entry point:** `kitchen_daemon.py run-once` (backed by
+      `run_single_cycle()`) processes at most one queued task and exits -- no pid file, no signal
+      handlers, no sleep loop. Refuses to run if the real 24/7 daemon
+      (`Gamma_KitchenDaemonKeepalive`) is alive unless `--allow-concurrent-daemon` is passed (only
+      safe when you have independently verified the live daemon is not touching the queue file
+      right now, e.g. it is blocked inside a long `grinder_sweep` subprocess wait-loop).
+    - **Measurement:** `kitchen_provenance_audit.py --since YYYY-MM-DD` computes
+      `usable_rate_since_ship` over candidate files written on/after that date, written to
+      `analysis/kitchen-review/provenance-audit-since.json`, alongside (never blended with) the
+      all-time/30-day `fabricated_artifact_rate` baseline in `provenance-audit.json`. Note: a
+      calendar-date cut is coarse when a fix ships mid-day -- it counts every same-day file,
+      including cooks from before the fix landed. `free_model_audit.py#kitchen_fabricated_
+      artifact_rate()` folds `usable_rate_since_ship` (when the since-report exists) into the
+      SAME bar-state entry the 30-day metric already lives in, which both the STATUS.md
+      `KITCHEN_FABRICATED_ARTIFACT_RATE` Known-broken line (`update_kitchen_status_known_broken`)
+      and the cockpit `engines.kitchen.provenance` tile (`gamma_autonomy.build()`) surface --
+      always as two separate numbers, never averaged together.

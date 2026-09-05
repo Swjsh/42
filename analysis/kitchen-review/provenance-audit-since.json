@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-09-05T11:17:04+00:00",
+  "since": "2026-09-05",
+  "files_scanned": 3865,
+  "files_scored": 3863,
+  "totals": {
+    "PROVENANCE-OK": 15,
+    "PROVENANCE-MISSING": 443,
+    "NO-ARTIFACT-CITED": 3405,
+    "NOT-A-VERDICT": 2
+  },
+  "usable_rate_since_ship": 0.0039,
+  "baseline_fabricated_artifact_rate_30d": 0.1053
+}

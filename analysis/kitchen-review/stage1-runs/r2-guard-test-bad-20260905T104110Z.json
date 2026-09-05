@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-09-05T10:41:10+00:00",
+  "slug": "r2-guard-test-bad",
+  "task_id": "r2-test-bad",
+  "combo": {
+    "super_stop": "not-a-number"
+  },
+  "engine": "backtest.autoresearch.overnight_grinder.evaluate_combo",
+  "engine_note": "MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.",
+  "elapsed_s": 4.01,
+  "command": "backtest/.venv/Scripts/python.exe setup/scripts/kitchen_stage1_runner.py --combo-json '{\"super_stop\": \"not-a-number\"}' --slug r2-guard-test-bad",
+  "result": {
+    "combo": {
+      "super_stop": "not-a-number"
+    },
+    "error": "TypeError(\"'>' not supported between instances of 'str' and 'float'\")",
+    "trace": "Traceback (most recent call last):\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\overnight_grinder.py\", line 193, in evaluate_combo\n    _, m = _runner.run_with_params(params, d, d, spy_j, vix_j)\n           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\autoresearch\\runner.py\", line 287, in run_with_params\n    result = run_backtest(spy_df, vix_df, **kwargs)\n  File \"C:\\Users\\jackw\\Desktop\\42\\backtest\\lib\\orchestrator.py\", line 1863, in run_backtest\n    effective_premium_stop = max(side_premium_stop, quality_stop)\nTypeError: '>' not supported between instances of 'str' and 'float'\n",
+    "passed_floors": false,
+    "regressions": [
+      "execution_error"
+    ]
+  }
+}

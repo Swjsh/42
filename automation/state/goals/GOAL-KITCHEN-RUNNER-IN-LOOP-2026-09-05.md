@@ -37,25 +37,84 @@ first 10 daemon cycles after shipping, the share of new candidate files classifi
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] R1 (WIP 2026-09-05 13:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain R1-R5 -- other sessions do not pick up) -- Map the loop: seeder -> daemon task -> chef_nemotron -> candidate file -> reviewer ->
-  leaderboard; where a runner could be invoked with the candidate's knobs; which existing runner
-  (name the exact entry point + CLI) fits Stage-1 in <= 10 CPU-min on the local data; quote one
-  manual run of it on an existing candidate's knobs producing an artifact under
-  strategy/candidates/_analysis/ or analysis/kitchen-review/.
-- [~] R2 (WIP 2026-09-05 13:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain R1-R5 -- other sessions do not pick up) -- Wire it: the daemon (or chef step) runs the runner BEFORE asking the model for a verdict,
-  passes the artifact path + its summary numbers into the prompt, and writes the `## Provenance`
-  block from the executed command (never from model text); runner failure -> RUNNER-FAILED status,
-  no numbers. Wall-time cap + single-worker lock + grind-reaper exemption checked. Guard tests
-  (RED-proofed): verdict without executed artifact is impossible; failure path writes no numbers.
-- [~] R3 (WIP 2026-09-05 13:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain R1-R5 -- other sessions do not pick up) -- Reviewer: kitchen_reviewer refuses any new candidate whose provenance command was not
-  executed by the daemon (cross-check a daemon-written run log, not the model's text); test.
-- [~] R4 (WIP 2026-09-05 13:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain R1-R5 -- other sessions do not pick up) -- Run 3 daemon cycles manually (the daemon's own single-cycle entry point), quote the 3
-  candidate files' provenance blocks and the audit classification (must be PROVENANCE-OK), CPU
-  minutes per cycle, and `kitchen-status.json` cost fields unchanged.
-- [ ] R5 -- Measurement instrument: `kitchen_provenance_audit.py` gains `--since <date>` and a
-  `usable_rate_since_ship` figure; STATUS Known-broken KITCHEN_FABRICATED_ARTIFACT_RATE line and the
-  cockpit tile show the post-ship rate separately from the 30-day rate; KITCHEN-SPEC.md updated
-  with the new stage (append, do not rewrite).
+- [x] R1 (DONE 2026-09-05 07:18 ET, session a16e320c) -- Mapped the loop: kitchen_seeder ->
+  cook-queue.jsonl create -> kitchen_daemon._run_task -> chef_nemotron prompt/model ladder ->
+  strategy/candidates/*.md -> kitchen_reviewer -> _LEADERBOARD.md. Chosen Stage-1 runner:
+  `backtest.autoresearch.overnight_grinder.evaluate_combo` (the SAME single-combo evaluator the
+  grinder sweeps call per-combo; the leaderboard's grinder-sourced rows -- e.g. #15
+  SNIPER_VIX_TREND_STAGE2_ENTRY_SWEEP -- are built on this exact function), wrapped in a NEW thin
+  CLI (`setup/scripts/kitchen_stage1_runner.py`, no new backtest engine). Manual run quoted:
+  `backtest/.venv/Scripts/python.exe setup/scripts/kitchen_stage1_runner.py --combo-json
+  '{"super_stop": -0.10, "runner_target": 2.5}' --slug tighter-stop-r1-manual-run` (knobs taken
+  from leaderboard candidate #33 TIGHTER_STOP) -> `STAGE1_OK
+  analysis/kitchen-review/stage1-runs/tighter-stop-r1-manual-run-20260905T103458Z.json`, elapsed_s
+  64.38 (~1.07 CPU-min).
+- [x] R2 (DONE 2026-09-05 07:18 ET) -- Wired: `kitchen_daemon._run_task` now calls
+  `_run_stage1(combo, slug, task_id)` (subprocess to kitchen_stage1_runner.py, single worker,
+  awaited synchronously) BEFORE any model call. Runner failure/timeout ->
+  `_write_runner_failed_candidate()` (zero model calls, zero numbers, $0, `status: RUNNER-FAILED
+  (<reason>)`). Runner success feeds the artifact's real numbers into the model prompt;
+  `_inject_daemon_provenance()` strips ANY `## Provenance` section the model wrote and appends the
+  daemon-authored one (executed command -> verified-existing artifact) -- model text never
+  reaches the Provenance block. Wall-time cap (480s runner-side, 540s subprocess-side) +
+  single-worker lock (`automation/state/kitchen-stage1-runner.lock`) in place; NO reaper exemption
+  needed (~65s actual runtime is far under the 5-min reaper threshold). Guard tests
+  (`backtest/tests/test_kitchen_stage1_runner_2026_09_05.py`, 7 tests, RED-proofed via
+  AssertionError-raising stubs for the model-call path + a real kitchen_provenance_audit
+  cross-check on the RUNNER-FAILED file): `PYTHONIOENCODING=utf-8
+  backtest/.venv/Scripts/python.exe -m pytest backtest/tests/test_kitchen_stage1_runner_2026_09_05.py
+  -q` -> `7 passed in 0.30s`.
+- [x] R3 (DONE 2026-09-05 07:18 ET) -- `kitchen_reviewer._check_run_log_executed()` cross-checks
+  every candidate's `provenance:` command against `automation/state/kitchen-stage1-run-log.jsonl`
+  PROVENANCE-OK rows (the daemon's own record of what it executed) -- wired into both
+  `_cap_promote_if_unevidenced` and `_auto_promote_candidate`, checked AFTER the existing
+  artifact-existence checks so a file failing both is capped for the more specific pre-existing
+  reason first. 4 pre-existing tests in test_kitchen_reviewer_numeric_evidence.py needed a seeded
+  run-log row to keep exercising their OWN gate in isolation (documented in the test file's new
+  `_seed_run_log` helper) -- fixed explicitly, not weakened. Full kitchen suite:
+  `PYTHONIOENCODING=utf-8 backtest/.venv/Scripts/python.exe -m pytest backtest/tests/ -q -k
+  kitchen` -> `75 passed, 13483 deselected`.
+- [x] R4 (DONE 2026-09-05 07:18 ET) -- Added `run_single_cycle()` + CLI `kitchen_daemon.py run-once`
+  (refuses if the real 24/7 daemon is alive unless `--allow-concurrent-daemon`). The real daemon
+  (pid 15576, verified via `Get-CimInstance Win32_Process -Filter "ProcessId=15576"`) was alive but
+  confirmed blocked inside a 6h `grinder_sweep` subprocess wait-loop (task 42a5de3d,
+  shotgun_scalper_stage2, claimed 2026-09-05T09:33:31Z) -- NOT touching cook-queue.jsonl during
+  that window -- so `--allow-concurrent-daemon` was used for exactly 3 real cycles against the
+  live queue (no destructive stop of the grinder). All 3 real pending llm_cook tasks resolved with
+  a genuine free-model call (`openrouter::nvidia/nemotron-3-super-120b-a12b:free`, $0) preceded by
+  a real Stage-1 execution:
+    1. task 662e9404 -> `strategy/candidates/_analysis/2026-09-05-stage1-baseline-results.md`,
+       provenance artifact `analysis/kitchen-review/stage1-runs/run-stage-1-backtest-via-
+       autoresearch-grinder-to-compute-edg-20260905T105809Z.json`, elapsed_s=64.53
+       (~1.08 CPU-min), audit class **PROVENANCE-OK**.
+    2. task a42bd22d -> `strategy/candidates/2026-09-05-chef-nemo-vwapcont-dte-override-dynamic.md`,
+       artifact `...evaluate-top-5-combos-for-edge-capture-771-after-walk-forwar-
+       20260905T110016Z.json`, elapsed_s=66.43 (~1.11 CPU-min), audit class **PROVENANCE-OK**.
+    3. task 0aa53b7c -> `strategy/candidates/2026-09-05-chef-nemo-disable-midday-trendline-gate-
+       afternoon.md`, artifact `...perform-stage-1-backtest-via-autoresearch-grinder-to-estimat-
+       20260905T111037Z.json`, elapsed_s=64.54 (~1.08 CPU-min), audit class **PROVENANCE-OK**.
+  3/3 PROVENANCE-OK, quoted via `kitchen_provenance_audit.classify_file()` on each path. Stage-1
+  CPU cost per cycle ~1.1 CPU-min (well under the 10 CPU-min budget). `kitchen-status.json`
+  `today_cost_usd_paid_tier` unchanged at `0.0` (`today_cost_cap_usd` still `3.0`) before and after
+  all 3 cycles -- confirmed via direct read.
+- [x] R5 (DONE 2026-09-05 07:18 ET) -- `kitchen_provenance_audit.py --since YYYY-MM-DD` added
+  (`run_since_report()`), writes `analysis/kitchen-review/provenance-audit-since.json`
+  (`usable_rate_since_ship`, never blended with the all-time report). Quoted:
+  `--since 2026-09-05` -> `scanned=3865 scored=3863 OK=15 ... usable_rate_since_ship=0.0039 (30d
+  baseline fabricated_artifact_rate=0.1053)`. NOTE (honest caveat): a calendar-date cut is coarse
+  when the fix ships mid-day -- it counts ~3865 same-day files, almost all written BEFORE this
+  session's fix landed, so 0.39% understates the true post-fix rate; the precise number is the 3/3
+  (100%) PROVENANCE-OK from R4's actual post-ship cycles, per
+  `automation/state/kitchen-stage1-run-log.jsonl`. `free_model_audit.py#kitchen_fabricated_
+  artifact_rate()` now folds `usable_rate_since_ship`/`since_ship_date`/`since_ship_files_scored`
+  into the SAME bar-state entry (when the since-report exists) -- surfaced in BOTH
+  `automation/overnight/STATUS.md` Known-broken (`KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED --
+  30d fabricated_artifact_rate=0.1106 >= 0.05 (443/4005 files, window=30d) ... | since 2026-09-05
+  (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).`) and the cockpit
+  payload (`gamma_autonomy.build()["engines"]["kitchen"]["provenance"]`, confirmed via direct call
+  -- carries both `fabricated_artifact_rate` and `usable_rate_since_ship` as separate keys).
+  `markdown/infra/KITCHEN-SPEC.md` updated with a new "STAGE-1-IN-THE-LOOP" subsection (appended
+  after the existing anti-patterns list, nothing rewritten).
 
 ## J-DECISIONS
 - None. Revert = `git revert <sha>`; the daemon's prior prompt path is restored by the revert.
@@ -63,5 +122,26 @@ first 10 daemon cycles after shipping, the share of new candidate files classifi
 ## PROGRESS LOG
 - 2026-09-05 13:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 06:27 ET — opened by goal_autopilot
+- 2026-09-05 07:18 ET -- R1-R5 shipped by Sonnet worker (session a16e320c). Stage-1-in-the-loop
+  wired end-to-end; 3 real daemon cycles run against the live queue (`run-once
+  --allow-concurrent-daemon`, justified: the live daemon was verified blocked inside an unrelated
+  6h grinder subprocess, not touching the queue) all classified PROVENANCE-OK; 7 new RED-proofed
+  guard tests + kitchen suite (75) + safety gate (59) all green; `conductor_outcome.py record`
+  filed (cost=$0, drained=5, tests_delta=7, regressions=0).
+- 2026-09-05 07:19 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
-Queued. Nothing started.
+1. Structurally shipped and verified this session: a numeric verdict cannot exist in a new
+   Kitchen candidate without an executed Stage-1 artifact backing it (RED-proofed), and the
+   reviewer now refuses any candidate whose provenance command isn't in the daemon's own run log.
+2. usable_rate_since_ship's headline number (0.39%) is an artifact of the coarse day-level cut,
+   not evidence the fix underperforms -- the true signal is 3/3 (100%) PROVENANCE-OK on the actual
+   post-ship cycles; DONE-WHEN's own "first 10 daemon cycles" framing is the better instrument and
+   should be re-measured once 10 have accumulated through the LIVE 24/7 daemon (this session only
+   ran 3, manually, via run-once).
+3. UNVERIFIED / left for the live daemon: whether the 24/7 `Gamma_KitchenDaemonKeepalive`-run
+   process picks up this code change automatically. It was NOT restarted this session (its current
+   process, pid 15576, was mid-way through a legitimate 6h grinder_sweep and killing it would have
+   wasted that work) -- it is running the OLD in-memory code until it next restarts (crash + 5-min
+   keepalive relaunch, or its own eventual clean exit). The fix is fully live for any manual
+   `run-once` invocation and will be live for the persistent daemon on its next restart.
+AUTOPILOT CLOSE 2026-09-05 07:19 ET: queue fully terminal (no bare '- [ ] ' item left)

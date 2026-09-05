@@ -460,11 +460,22 @@ def update_kitchen_status_known_broken(metric: Optional[dict], verdict: str) -> 
     try:
         if verdict == "DEGRADED" and metric is not None:
             ts = metric.get("computed_at", et_now().isoformat())
+            since_clause = ""
+            if metric.get("usable_rate_since_ship") is not None:
+                # R5 (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): the post-Stage-1-in-the-loop
+                # rate, ALWAYS shown separately from the window_days baseline above -- never
+                # blended into one number.
+                since_clause = (
+                    f" | since {metric.get('since_ship_date')} (Stage-1-in-the-loop ship): "
+                    f"usable_rate_since_ship={metric['usable_rate_since_ship']} "
+                    f"({metric.get('since_ship_files_scored')} files scored)."
+                )
             line = (
                 f"- [{ts}] {_STATUS_MARKER} DEGRADED -- 30d fabricated_artifact_rate="
                 f"{metric['fabricated_artifact_rate']} >= {KITCHEN_DEGRADED_RATE_THRESHOLD} "
                 f"({metric['provenance_missing']}/{metric['files_scored']} files, "
                 f"window={metric['window_days']}d). See analysis/kitchen-review/PROVENANCE-AUDIT.md."
+                f"{since_clause}"
             )
             _status_upsert(_STATUS_MARKER, line)
         else:
@@ -488,13 +499,28 @@ def kitchen_fabricated_artifact_rate(days: int = KITCHEN_METRIC_WINDOW_DAYS) -> 
             if p.exists() and datetime.fromtimestamp(p.stat().st_mtime).astimezone() >= cutoff
         ]
         report = _kitchen_run_audit(recent)
-        return {
+        result = {
             "window_days": days,
             "files_scored": report["files_scored"],
             "provenance_missing": report["totals"]["PROVENANCE-MISSING"],
             "fabricated_artifact_rate": report["fabricated_artifact_rate"],
             "computed_at": et_now().isoformat(),
         }
+        # R5 (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): fold in usable_rate_since_ship if
+        # `kitchen_provenance_audit.py --since <date>` has been run (writes
+        # analysis/kitchen-review/provenance-audit-since.json) -- lets the cockpit tile
+        # show the post-Stage-1-in-the-loop rate separately from the window-days baseline
+        # above, without this function knowing anything about how that file gets written.
+        try:
+            since_path = REPO / "analysis" / "kitchen-review" / "provenance-audit-since.json"
+            if since_path.exists():
+                since_report = json.loads(since_path.read_text(encoding="utf-8"))
+                result["usable_rate_since_ship"] = since_report.get("usable_rate_since_ship")
+                result["since_ship_date"] = since_report.get("since")
+                result["since_ship_files_scored"] = since_report.get("files_scored")
+        except (OSError, json.JSONDecodeError, KeyError):
+            pass  # fail open -- the window-days metric above still returns
+        return result
     except Exception as exc:  # noqa: BLE001 -- fail open
         print(f"[free_model_audit] WARN kitchen_fabricated_artifact_rate failed: "
              f"{type(exc).__name__}: {exc}", file=sys.stderr)

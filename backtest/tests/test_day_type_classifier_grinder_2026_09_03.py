@@ -125,6 +125,7 @@ def _load_kitchen_daemon():
             if name == "chef_nemotron":
                 mod.CHEF_SYSTEM_PROMPT = "stub"
                 mod.MODEL_LADDER = []
+                mod.CANDIDATES_DIR = Path(".")
                 mod._call_with_ladder = lambda *a, **k: {"ok": False, "error": "stub"}
                 mod._write_candidate = lambda *a, **k: Path(".")
                 mod._slugify = lambda s: "stub"

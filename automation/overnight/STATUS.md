@@ -1,8 +1,8 @@
 ## Known broken
 
-- [2026-09-05T10:26:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T11:20:01Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T07:15:52.162347] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1106 >= 0.05 (443/4005 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md. | since 2026-09-05 (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).
 - [2026-09-05 05:45:04 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
-- [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
 - [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 07:20 ET] GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05 CLOSED -- the Kitchen now executes the existing Stage-1 evaluator (overnight_grinder.evaluate_combo via kitchen_stage1_runner.py) BEFORE any model call; provenance is written by the daemon from the executed command; reviewer refuses anything not in the daemon run log
+3 live cycles via `kitchen_daemon.py run-once`: all PROVENANCE-OK, ~1.1 CPU-min each, paid-tier cost unchanged at $0. Runner failure -> RUNNER-FAILED, zero model calls, zero numbers. 129 kitchen/provenance tests green; KITCHEN-SPEC appended. UNVERIFIED: the 24/7 daemon (pid 15576) still runs the pre-ship code until its next restart (left alone -- it is inside a 6h grinder job); GOAL-RIG-HYGIENE adds restart-when-idle to the keepalive. usable_rate_since_ship on the coarse day-cut reads 0.0039 because it counts pre-fix files from today; the true post-ship number is 3/3.
+
 
 ## [2026-09-05 06:26 ET] GOAL-TP1-FRACTION-AB-2026-09-05 CLOSED -- RULE NOT MET: TP1 0.8 vs 0.667 is a mechanical no-op at Safe's real 3-lot (int(3x0.8)=int(3x0.667)=2 contracts); the June ratification could never have changed a Safe fill
 235 real ribbon_ride waves since 06-28 re-walked under the live shape (all 235 walk_ok; walker reproduces two recorded premium-stop legs exactly): safe-2 delta $0.00 (44/49 waves at qty 3), safe-3 -$182 (CI-lower -$8.82), controls bold-2 +$165 / risky-1 -$369 (untouched arms, variance floor). Packet row tp1-qty-fraction-safe-0-8 -> RULE NOT MET n=116; no package; prereg closes on its own SHAPE_MISMATCH kill-nail. Playbook/risk-rules parity leftover closed: TP1 +100 pct (was +50), liquidity-gate section tombstoned (CONFIRMED_DEAD 08-29); the H1 pass also wrote trail 0.125 from the vestigial params key -- re-corrected to the live 0.15 (strategies.py:143) by the orchestrator. Also today: futures no_stray_exposure RED root-caused (flatten once left resting bracket legs alive; fixed 09-03; broker flat now) 8b8ccfeb.
@@ -450,7 +454,7 @@ Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec 
 
 
 ## Kitchen
-Kitchen: alive, queue 58 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 65 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
 
 ### BROKEN: prereg-hygiene 2026-09-05T03:41:06
 - 21 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
@@ -483,3 +487,8 @@ Kitchen: alive, queue 58 pending, last cook 0 min ago, today $0.00, model=openro
 - [2026-09-05 04:00:02] window-leak compliance RED -- bare python or subprocess w/o creationflags found; see automation/state/window-leak-compliance-audit.json
 
 [2026-09-05 04:00:02] crypto-daily PASS -- digest: crypto/data/scorecards/daily/2026-09-05.md
+
+### BROKEN: self-check 2026-09-05T06:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 2 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards

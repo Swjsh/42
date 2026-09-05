@@ -319,6 +319,52 @@ def tag_files(report: dict, apply: bool = False, repo_root: Optional[Path] = Non
     return counts
 
 
+_SINCE_JSON = REVIEW_DIR / "provenance-audit-since.json"
+
+
+def run_since_report(since_iso: str, *, repo_root: Optional[Path] = None) -> dict:
+    """R5 (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): measure the usable-output rate ONLY
+    over candidate files written on/after `since_iso` (a YYYY-MM-DD date), separately
+    from the all-time/30-day baseline `run_audit()` reports. This is the instrument that
+    proves (or disproves) Stage-1-in-the-loop actually moved the needle -- the DONE-WHEN
+    clause asks for "the share of new candidate files classified PROVENANCE-OK ... vs
+    the 30-day baseline (~8 pct), quoted" over the first cycles after shipping.
+
+    Returns a dict with since/files_scanned/files_scored/totals/usable_rate_since_ship.
+    Pure function -- callers decide whether/where to persist it.
+    """
+    repo_root = repo_root if repo_root is not None else REPO
+    since_dt = datetime.strptime(since_iso, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    candidates_dir = repo_root / "strategy" / "candidates"
+    analysis_dir = candidates_dir / "_analysis"
+    files: list[Path] = []
+    if analysis_dir.exists():
+        files.extend(sorted(analysis_dir.glob("*.md")))
+    if candidates_dir.exists():
+        for p in sorted(candidates_dir.glob("*.md")):
+            if p.name.startswith("_"):
+                continue
+            files.append(p)
+    since_files = [
+        p for p in files
+        if datetime.fromtimestamp(p.stat().st_mtime, tz=timezone.utc) >= since_dt
+    ]
+    report = run_audit(since_files)
+    t = report["totals"]
+    usable_rate = (
+        round(t["PROVENANCE-OK"] / report["files_scored"], 4) if report["files_scored"] else None
+    )
+    return {
+        "generated_at": report["generated_at"],
+        "since": since_iso,
+        "files_scanned": report["files_scanned"],
+        "files_scored": report["files_scored"],
+        "totals": t,
+        "usable_rate_since_ship": usable_rate,
+        "baseline_fabricated_artifact_rate_30d": None,  # filled in by main() from the full-corpus report
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--json-only", action="store_true", help="skip writing the markdown table")
@@ -328,6 +374,12 @@ def main() -> int:
              "(dry-run by default -- pass --apply together with --tag to actually write)",
     )
     ap.add_argument("--apply", action="store_true", help="with --tag, actually write the tag blocks")
+    ap.add_argument(
+        "--since", type=str, default=None, metavar="YYYY-MM-DD",
+        help="also compute usable_rate_since_ship over candidate files written on/after this "
+             "date (R5, GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05) -> "
+             f"{_SINCE_JSON.relative_to(REPO)}",
+    )
     args = ap.parse_args()
 
     report = run_audit()
@@ -352,6 +404,22 @@ def main() -> int:
             f"PROVENANCE-MISSING={tag_counts['PROVENANCE-MISSING']} "
             f"NO-ARTIFACT-CITED={tag_counts['NO-ARTIFACT-CITED']} "
             f"already_tagged={tag_counts['already_tagged']} errors={tag_counts['errors']}"
+        )
+
+    if args.since:
+        since_report = run_since_report(args.since)
+        since_report["baseline_fabricated_artifact_rate_30d"] = report["fabricated_artifact_rate"]
+        _SINCE_JSON.parent.mkdir(parents=True, exist_ok=True)
+        _SINCE_JSON.write_text(json.dumps(since_report, indent=2), encoding="utf-8")
+        st = since_report["totals"]
+        print(
+            f"[kitchen_provenance_audit] --since {args.since}: "
+            f"scanned={since_report['files_scanned']} scored={since_report['files_scored']} "
+            f"OK={st['PROVENANCE-OK']} MISSING={st['PROVENANCE-MISSING']} "
+            f"NO-ARTIFACT={st['NO-ARTIFACT-CITED']} "
+            f"usable_rate_since_ship={since_report['usable_rate_since_ship']} "
+            f"(30d baseline fabricated_artifact_rate={report['fabricated_artifact_rate']}) "
+            f"-> {_SINCE_JSON.relative_to(REPO)}"
         )
 
     return 0

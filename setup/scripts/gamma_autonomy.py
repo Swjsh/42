@@ -365,13 +365,17 @@ def build(now: dt.datetime | None = None) -> dict:
     # DEGRADED/HEALTHY/UNKNOWN verdict, written by free_model_audit.py into the SAME
     # bar-state file every other audited touchpoint lives in -- never re-computed here.
     bar_state = _read_json(STATE / "free-model-audit-state.json") or {}
+    _kfar = bar_state.get("kitchen_fabricated_artifact_rate") or {}
     kitchen_provenance = {
-        "fabricated_artifact_rate": (bar_state.get("kitchen_fabricated_artifact_rate") or {}).get(
-            "fabricated_artifact_rate"),
-        "provenance_missing": (bar_state.get("kitchen_fabricated_artifact_rate") or {}).get(
-            "provenance_missing"),
-        "files_scored": (bar_state.get("kitchen_fabricated_artifact_rate") or {}).get("files_scored"),
+        "fabricated_artifact_rate": _kfar.get("fabricated_artifact_rate"),
+        "provenance_missing": _kfar.get("provenance_missing"),
+        "files_scored": _kfar.get("files_scored"),
         "trust_gate": bar_state.get("kitchen_trust_gate"),
+        # R5 (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): the post-Stage-1-in-the-loop rate,
+        # shown SEPARATELY from the window-days baseline above -- never blended into it.
+        "usable_rate_since_ship": _kfar.get("usable_rate_since_ship"),
+        "since_ship_date": _kfar.get("since_ship_date"),
+        "since_ship_files_scored": _kfar.get("since_ship_files_scored"),
     }
     if kraw:
         qs = (kraw.get("queue_summary") or {}).get("by_status") or {}

@@ -64,6 +64,20 @@ def _mk_repo(tmp_path, monkeypatch):
     return tmp_path, cands
 
 
+def _seed_run_log(repo, command: str) -> None:
+    """R3 (GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05): kitchen_reviewer now cross-checks a
+    candidate's `provenance:` command against automation/state/kitchen-stage1-run-log.jsonl
+    -- the daemon's own record of what it actually executed. Existing fixtures below write
+    a `provenance:` line WITHOUT ever having run anything (that's the point of the tests --
+    they exercise the OP-16/citation gates in isolation), so they must now also seed a
+    matching PROVENANCE-OK run-log row or the NEW run-log gate caps them for a reason those
+    tests aren't about. This mirrors what kitchen_stage1_runner.py itself appends."""
+    log_path = repo / "automation" / "state" / "kitchen-stage1-run-log.jsonl"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with log_path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps({"status": "PROVENANCE-OK", "command": command}) + "\n")
+
+
 def test_llm_dollar_string_does_not_promote(tmp_path, monkeypatch):
     repo, cands = _mk_repo(tmp_path, monkeypatch)
     cand = cands / "fake-edge-chef-nemo.md"
@@ -78,6 +92,7 @@ def test_llm_dollar_string_does_not_promote(tmp_path, monkeypatch):
 
 def test_numeric_scorecard_on_disk_promotes(tmp_path, monkeypatch):
     repo, cands = _mk_repo(tmp_path, monkeypatch)
+    _seed_run_log(repo, "python setup/scripts/runner.py")
     scorecard = repo / "analysis" / "recommendations" / "real-edge-chef-nemo.json"
     scorecard.write_text(json.dumps({"edge_capture": 912.0, "n": 40}), encoding="utf-8")
     cand = cands / "real-edge-chef-nemo.md"
@@ -95,6 +110,7 @@ def test_numeric_scorecard_on_disk_promotes(tmp_path, monkeypatch):
 
 def test_scorecard_below_floor_does_not_promote(tmp_path, monkeypatch):
     repo, cands = _mk_repo(tmp_path, monkeypatch)
+    _seed_run_log(repo, "python setup/scripts/runner.py")
     scorecard = repo / "analysis" / "recommendations" / "weak-edge-chef-nemo.json"
     scorecard.write_text(json.dumps({"edge_capture": 100.0}), encoding="utf-8")
     cand = cands / "weak-edge-chef-nemo.md"
@@ -115,6 +131,7 @@ def test_promote_verdict_capped_to_validate_without_scorecard(tmp_path, monkeypa
     by citing an EXISTING (non-JSON) artifact + a provenance: line so neither of those
     gates fires first."""
     repo, cands = _mk_repo(tmp_path, monkeypatch)
+    _seed_run_log(repo, "python setup/scripts/runner.py")
     context_doc = repo / "analysis" / "recommendations" / "context-note.md"
     context_doc.write_text("background context, no scorecard here", encoding="utf-8")
     cand = cands / "fake-edge-chef-nemo.md"
@@ -134,6 +151,7 @@ def test_promote_verdict_capped_to_validate_without_scorecard(tmp_path, monkeypa
 
 def test_evidenced_promote_not_capped(tmp_path, monkeypatch):
     repo, cands = _mk_repo(tmp_path, monkeypatch)
+    _seed_run_log(repo, "python setup/scripts/runner.py")
     scorecard = repo / "analysis" / "recommendations" / "real-edge-chef-nemo.json"
     scorecard.write_text(json.dumps({"summary": {"edge_capture": 800}}), encoding="utf-8")
     cand = cands / "real-edge-chef-nemo.md"
