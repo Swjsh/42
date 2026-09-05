@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
-  "active": false,
-  "opened_at_et": "2026-09-05T01:29:50",
+  "id": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
+  "active": true,
+  "opened_at_et": "2026-09-05T01:59:33",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-ZERO-ENTER-DAYS-2026-09-03.md",
-  "queue_id": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
+  "file": "automation/state/goals/GOAL-RIGHT-TAIL-CAPTURE-2026-09-05.md",
+  "queue_id": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 01:57 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }
