@@ -67,7 +67,7 @@ tickers theta_budget cadence; catastrophe-cap + day-throttle forward shadows (al
   "Autopilot" tile (dashboard/components/cockpit/producer-tiles.tsx). `npx tsc --noEmit` -> clean
   (exit 0). Headless DOM read (Claude Browser `find`, dashboard dev server, /cockpit route) ->
   `Awake — Kitchen DEGRADED (11.0%) — Checkpoint 2✓/2✗/4⋯` rendered live.
-- [ ] C6 -- Hand-check (added by Fable 2026-09-05 06:1x ET): the C2 scorers are a first-pass read of each
+- [~] C6 (WIP 2026-09-05 06:4x ET, Fable EOD-audit session a16e320c: one Sonnet hand-check worker -- other sessions do not pick up) -- Hand-check (added by Fable 2026-09-05 06:1x ET): the C2 scorers are a first-pass read of each
   prereg's rule (worker-labelled UNVERIFIED). Two verdicts conflict with tonight's replay on real fills
   (PREREG-TIGHT-LADDER "Interim evidence": the -$400 stop blocked 8 entries net -$1,601 = keeps money,
   yet the packet reads RULE NOT MET; catastrophe-cap + day-throttle shadows read RULE NOT MET at n=620).
