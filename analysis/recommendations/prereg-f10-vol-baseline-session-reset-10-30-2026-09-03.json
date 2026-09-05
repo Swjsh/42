@@ -1,0 +1,47 @@
+{
+  "_doc": "GOAL-ZERO-ENTER-DAYS-2026-09-03 Z6 -- 10-30 checkpoint prereg for the gate the Z1-Z5 backfill most frequently indicts. FROZEN BEFORE ANY RESULT. This file proposes NOTHING for the live config now (CONFIG FREEZE 2026-08-31 -> 2026-10-30) -- it registers the question, the population, and the analysis method in advance of the 10-30 checkpoint, per the goal's OPERATING RULES.",
+  "label": "F10-VOL-BASELINE-SESSION-RESET",
+  "frozen_at_et": "2026-09-05T01:51:41-04:00",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate",
+  "gate_indicted": {
+    "blocker_id": 10,
+    "function": "buyer_pressure_bar_v11 (backtest/lib/filters.py) -- green-bar + volume >= f10_vol_mult * vol_baseline_20 check, f10_vol_mult=0.7",
+    "mechanism_under_question": "vol_baseline_20bar computes a 20-bar trailing SMA of volume over a CONTINUOUS, RTH-only, multi-day series with NO per-day reset (backtest/lib/filters.py:131-135, mirrored at setup/scripts/heartbeat_core.py:928) -- for the first ~20 RTH bars of any trading day (09:35-~11:15 ET) the lookback reaches into the PRIOR day's RTH tail. Candidate change (NOT proposed for shipping now): reset the 20-bar baseline at each session open instead of carrying it across days."
+  },
+  "why_this_gate_and_not_blocker_8": {
+    "blocker_8_note": "Filter 8 (VIX floor, mirrored bull/bear forms) was the DOMINANT (first-listed) blocker on 3 of 5 backfilled days (2026-08-31, 09-01, 09-04 -- all BEAR-thesis days, 64-77 bars each). It is EXCLUDED from this prereg to avoid duplicating existing coverage: the bear-side VIX floor already has a live, dated prereg + accruing shadow ledger -- analysis/recommendations/VIX-FLOOR-SHADOW-PREREG-2026-08-27.md, vix-floor-shadow-ledger.jsonl, vix-floor-shadow-summary.json -- filed 2026-08-27, before this goal existed. Filing a second prereg for the same mechanism would violate the Obsidian-brain dedup rule (check for prior coverage before building; fold into the existing living doc, never a parallel one). New Z5 evidence on blocker 8 should be FOLDED into that existing prereg's evidence base by a follow-up fire, not duplicated here.",
+    "blocker_10_note": "Filter 10 (f10 volume/buyer-pressure) has NO existing prereg or shadow instrument (verified: analysis/recommendations/ has no f10/vol-baseline-specific prereg predating this one) and, measured by DIRECT MEMBERSHIP (blocker id present anywhere in the thesis side's blocker list for that bar -- the same method SIP-VOLMULT-2026-09-02.md and the Z2 hand-fill both used, not just 'first-listed'), fires on EVERY ONE of the 5 backfilled days at 50.6%-74.0% of bars -- a more consistent cross-day signal than blocker 8's day-level dominance count. This is also the SAME gate the goal's own SIP-VOLMULT-2026-09-02 research already flagged as 'a candidate for a 10-30 prereg, not before' -- this file executes that flag using the fuller 5-day backfill instead of the single day it was based on."
+  },
+  "aggregated_evidence_from_z5_backfill": {
+    "method": "For each of the 5 in-scope days (analysis/zero-enter/ZERO-ENTER-INVENTORY-2026-09-03.json), count unique RTH 5-min bars (account=safe, dedup by trigger_bar_et, last occurrence kept -- SIP-VOLMULT-2026-09-02.md's own method) where blocker id 10 is present anywhere in the day's dominant-thesis-side blocker list.",
+    "per_day": [
+      {"trading_day": "2026-08-31", "thesis_side": "bear", "grade": "SAT_OUT_GATED", "n_bars": 77, "f10_fires": 39, "pct": 0.506},
+      {"trading_day": "2026-09-01", "thesis_side": "bear", "grade": "regressing", "n_bars": 77, "f10_fires": 47, "pct": 0.610},
+      {"trading_day": "2026-09-02", "thesis_side": "bull", "grade": "regressing", "n_bars": 77, "f10_fires": 57, "pct": 0.740, "cross_checked_against": "analysis/entry-quality/SIP-VOLMULT-2026-09-02.json reproduction.core_decisions_unique_bar_check (n_blocked_by_f10_live=57) -- EXACT MATCH"},
+      {"trading_day": "2026-09-03", "thesis_side": "bull", "grade": "regressing", "n_bars": 77, "f10_fires": 49, "pct": 0.636},
+      {"trading_day": "2026-09-04", "thesis_side": "bear", "grade": "regressing", "n_bars": 67, "f10_fires": 40, "pct": 0.597, "note": "n_bars=67 not 77 -- 2026-09-04 has a 09:51-10:46 ET power-outage gap (rows absent, not a gate); treated as NO_DATA, never misread as gated"}
+    ],
+    "aggregate": {
+      "total_bars": 375,
+      "total_f10_fires": 232,
+      "pct_blocked": 0.619,
+      "days_where_f10_fired_at_all": 5,
+      "days_out_of_5": 5
+    }
+  },
+  "question_for_10_30": "Does resetting vol_baseline_20bar's 20-bar SMA at each RTH session open (instead of the current cross-day continuous trailing window) materially change (a) blocker-10's fire rate on the days it currently indicts, and (b) the OOS-validated PF/expectancy of the setups it would newly admit -- net of the same realistic cost model (backtest/lib/simulator_real.py slippage) this goal's own autopsy instrument uses? SIP-VOLMULT-2026-09-02.md's own sensitivity check (same-day-only baseline) showed SIP and IEX agree on 50/50 identical blocked bars once cross-session contamination is removed, vs 55-58/77 with it -- i.e. the session-reset change would ONLY affect ~5-8 bars/day (the session-crossing residual), not the bulk of the day's blocking (which is real low-turnover volume, not a computation artifact).",
+  "explicitly_scoped": "10-30 checkpoint ONLY. NOT proposed, NOT shipped, NOT config-changed now. CONFIG FREEZE 2026-08-31 -> 2026-10-30 is in effect; this file is read-only research registration, not a filters.py edit.",
+  "sources": [
+    "analysis/zero-enter/ZERO-ENTER-INVENTORY-2026-09-03.json",
+    "analysis/zero-enter/ZERO-ENTER-2026-08-31.json",
+    "analysis/zero-enter/ZERO-ENTER-2026-09-01.json",
+    "analysis/zero-enter/ZERO-ENTER-2026-09-02.json",
+    "analysis/zero-enter/ZERO-ENTER-2026-09-03.json",
+    "analysis/zero-enter/ZERO-ENTER-2026-09-04.json",
+    "analysis/entry-quality/SIP-VOLMULT-2026-09-02.md",
+    "analysis/entry-quality/SIP-VOLMULT-2026-09-02.json",
+    "backtest/tools/f10_volume_reproduce.py",
+    "backtest/lib/filters.py (vol_baseline_20bar, buyer_pressure_bar_v11 -- read-only reference)"
+  ],
+  "revoke": "Delete this file. No live config touched by filing it."
+}

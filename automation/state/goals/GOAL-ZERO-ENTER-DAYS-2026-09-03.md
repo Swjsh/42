@@ -55,7 +55,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] Z1 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Inventory: for every trading day 2026-08-31 → today, run the existing
+- [x] Z1 (DONE 2026-09-05 01:52 ET, Sonnet worker a16e320c: `analysis/zero-enter/ZERO-ENTER-INVENTORY-2026-09-03.json` lists all 5 in-scope days 2026-08-31..2026-09-04, all graded SAT_OUT_GATED/regressing via unmodified `_grade_zero_enter_day`, cross-checked against journal/calendar-data.json + core-decisions.jsonl tick counts) — Inventory: for every trading day 2026-08-31 → today, run the existing
   `_grade_zero_enter_day` logic (via a small read-only script, or by reading
   `conductor-outcomes.jsonl`'s `function_latest.zero_enter_day_grade` if a conductor
   fire already graded that day) and list every day graded `SAT_OUT_GATED` or
@@ -65,7 +65,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   (SIP-VOLMULT day) explicitly as the known case. DONE-WHEN: the file lists every
   frozen-window weekday with a grade, cross-checked against `journal/calendar-data.json`
   for which days were actual trading days.
-- [~] Z2 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Define the JSON schema for `analysis/zero-enter/ZERO-ENTER-<date>.json`:
+- [x] Z2 (DONE 2026-09-05 01:56 ET, Sonnet worker a16e320c: hand-filled `analysis/zero-enter/ZERO-ENTER-2026-09-02.json` validated EXACTLY against SIP-VOLMULT-2026-09-02.md/.json -- n_bars=77==77, n_blocked_f10=57==57) — Define the JSON schema for `analysis/zero-enter/ZERO-ENTER-<date>.json`:
   per-bar rows `{ts_et, bar_close, dominant_blocker, blocker_detail (e.g.
   vol_baseline_20 + bar.volume for filter 10), bear_score, bull_score, would_have_
   entered: bool}`, plus a day-level summary `{thesis_verbatim (from that day's
@@ -75,7 +75,7 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   writing any code, so the schema is proven against a real day first. DONE-WHEN: a
   hand-filled `analysis/zero-enter/ZERO-ENTER-2026-09-02.json` validates and its
   numbers match `analysis/entry-quality/SIP-VOLMULT-2026-09-02.md`.
-- [~] Z3 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Build `setup/scripts/zero_enter_autopsy.py`: for a given date, pull
+- [x] Z3 (DONE 2026-09-05 02:xx ET, Sonnet worker a16e320c: `setup/scripts/zero_enter_autopsy.py` + `backtest/tests/test_zero_enter_autopsy.py` (9/9 GREEN); RED-proofed by removing the script -- "3 failed, 1 passed, 5 errors") — Build `setup/scripts/zero_enter_autopsy.py`: for a given date, pull
   `core-decisions.jsonl` rows (reuse `_decisions_for_day`-equivalent logic), the day's
   premarket thesis (`journal/YYYY-MM-DD.md` or `today-bias.json` snapshot if archived),
   compute the per-bar table per the Z2 schema, price the counterfactual thesis payoff
@@ -86,18 +86,18 @@ counterfactual finding the new instrument must produce mechanically, not by hand
   test_zero_enter_autopsy.py` that runs it against the 2026-09-02 fixture and asserts
   the output matches the Z2 hand-filled file. DONE-WHEN: test passes, RED-proofed
   (breaks when the blocker-detection logic is reverted).
-- [~] Z4 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Register `zero_enter_autopsy.py` as a scheduled task following
+- [x] Z4 (DONE 2026-09-05 02:xx ET, Sonnet worker a16e320c: `Gamma_ZeroEnterAutopsy` registered 16:10 ET weekdays, `Get-ScheduledTask` returns `State: Ready`, SCHEDULED-TASKS.md row + count 176->177 added, pytest 15/15 GREEN) — Register `zero_enter_autopsy.py` as a scheduled task following
   `setup/scripts/install-task-staleness.ps1`'s installer pattern (pure Python, $0,
   CREATE_NO_WINDOW, fires once daily after EOD flatten — check `Gamma_EodFlatten`'s
   15:55 ET slot in `automation/state/SCHEDULED-TASKS.md` and schedule after it, e.g.
   16:10 ET) and add its row to `SCHEDULED-TASKS.md` per that file's existing
   documentation protocol (name, cadence, purpose, $0 cost note). DONE-WHEN:
   `Get-ScheduledTask Gamma_ZeroEnterAutopsy` returns `State=Ready`.
-- [~] Z5 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Backfill: run `zero_enter_autopsy.py` for every day identified in Z1
+- [x] Z5 (DONE 2026-09-05 02:xx ET, Sonnet worker a16e320c: 5 ZERO-ENTER-<date>.json files produced (08-31,09-01,09-02,09-03,09-04) == Z1's 5 in-scope days; `ls analysis/zero-enter | wc -l` = 6 (5 per-day + 1 inventory)) — Backfill: run `zero_enter_autopsy.py` for every day identified in Z1
   (2026-08-31 onward) and confirm every one produces a
   `analysis/zero-enter/ZERO-ENTER-<date>.json` file. DONE-WHEN: `ls analysis/zero-enter/
   | wc -l` matches the Z1 inventory count (SAT_OUT_GATED + regressing days only).
-- [~] Z6 (WIP 2026-09-05 03:1x ET, Fable EOD-audit session a16e320c: one Sonnet worker runs Z1-Z6 as a chain -- other sessions do not pick up) — Write the prereg for whatever gate the backfill most frequently indicts
+- [x] Z6 (DONE 2026-09-05 02:xx ET, Sonnet worker a16e320c: filed `prereg-f10-vol-baseline-session-reset-10-30-2026-09-03.json` for blocker 10 -- NOT blocker 8, which is dominant on 3/5 days but already covered by the pre-existing VIX-FLOOR-SHADOW-PREREG-2026-08-27; blocker 10 fires on all 5/5 days by membership count (61.9% aggregate) and matches SIP-VOLMULT's own named candidate; listed in SHADOW.md after regen) — Write the prereg for whatever gate the backfill most frequently indicts
   (SIP-VOLMULT-2026-09-02's own research already names the live candidate: per-session
   `vol_baseline_20` reset instead of the current session-spanning 20-bar trailing
   window — "Candidate for a 10-30 prereg, not before" per its own note). File
@@ -115,5 +115,19 @@ counterfactual finding the new instrument must produce mechanically, not by hand
 - 2026-09-03 18:07 ET — authored by Sonnet (A4 of GOAL-GAMMA-AUTONOMY); queued on the
   ladder, not yet opened.
 - 2026-09-05 01:29 ET — opened by goal_autopilot
+- 2026-09-05 ~02:0x ET — Z1-Z6 completed end-to-end by Sonnet worker a16e320c: inventory (5
+  in-scope days) -> Z2 hand-fill (exact SIP-VOLMULT match) -> zero_enter_autopsy.py + 9/9
+  test (RED-proofed) -> Gamma_ZeroEnterAutopsy registered (State=Ready, 15/15 pytest) ->
+  backfill (5/5 files) -> prereg-f10-vol-baseline-session-reset-10-30-2026-09-03.json filed
+  (blocker 10, not blocker 8 -- already covered by the 2026-08-27 VIX-floor prereg) and
+  confirmed on SHADOW.md after regen.
+
 ## HONEST STATE
-Queued. Nothing started.
+All six Z1-Z6 items are DONE and independently verified this session (command output
+quoted for each: pytest counts, RED-proof failure counts, `Get-ScheduledTask` State=Ready,
+file counts, SHADOW.md grep). The instrument is read-only and registered on the schedule;
+nothing in FROZEN_TRADING_PATH was touched. Open follow-up (not blocking this goal): the
+new prereg's evidence should eventually be cross-referenced from the pre-existing
+VIX-FLOOR-SHADOW-PREREG-2026-08-27.md too, since 3 of 5 backfilled days were dominated by
+that same gate on the bear side -- flagged, not done here, to keep this goal's diff scoped
+to what it owns (a new instrument), not editing an unrelated live prereg's evidence base.

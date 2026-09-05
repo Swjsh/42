@@ -1,0 +1,716 @@
+{
+  "_doc": "zero_enter_autopsy.py output -- per-bar counterfactual table + day summary. Read-only autopsy, never a gate change. Schema matches analysis/zero-enter/ZERO-ENTER-2026-09-02.json (Z2, hand-validated).",
+  "schema_version": 1,
+  "bars": [
+    {
+      "ts_et": "2026-08-31T15:55:00-04:00",
+      "bar_close": 766.87,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T09:30:00-04:00",
+      "bar_close": 761.91,
+      "dominant_blocker": 1,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T09:35:00-04:00",
+      "bar_close": 761.8,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T09:40:00-04:00",
+      "bar_close": 761.93,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T09:45:00-04:00",
+      "bar_close": 762.06,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T09:50:00-04:00",
+      "bar_close": 761.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T09:55:00-04:00",
+      "bar_close": 762.02,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:00:00-04:00",
+      "bar_close": 762.2,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:05:00-04:00",
+      "bar_close": 762.88,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:10:00-04:00",
+      "bar_close": 763.02,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:15:00-04:00",
+      "bar_close": 763.305,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:20:00-04:00",
+      "bar_close": 763.695,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:25:00-04:00",
+      "bar_close": 763.76,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:30:00-04:00",
+      "bar_close": 764.415,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:35:00-04:00",
+      "bar_close": 764.27,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:40:00-04:00",
+      "bar_close": 764.16,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:45:00-04:00",
+      "bar_close": 763.935,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:50:00-04:00",
+      "bar_close": 763.59,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T10:55:00-04:00",
+      "bar_close": 763.465,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:00:00-04:00",
+      "bar_close": 763.12,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:05:00-04:00",
+      "bar_close": 762.79,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:10:00-04:00",
+      "bar_close": 763.05,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:15:00-04:00",
+      "bar_close": 763.29,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:20:00-04:00",
+      "bar_close": 763.445,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:25:00-04:00",
+      "bar_close": 763.59,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:30:00-04:00",
+      "bar_close": 763.635,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:35:00-04:00",
+      "bar_close": 764.04,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:40:00-04:00",
+      "bar_close": 764.23,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:45:00-04:00",
+      "bar_close": 764.57,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:50:00-04:00",
+      "bar_close": 764.51,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T11:55:00-04:00",
+      "bar_close": 764.275,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:00:00-04:00",
+      "bar_close": 764.26,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:05:00-04:00",
+      "bar_close": 763.865,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:10:00-04:00",
+      "bar_close": 763.54,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:15:00-04:00",
+      "bar_close": 763.01,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:20:00-04:00",
+      "bar_close": 762.845,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:25:00-04:00",
+      "bar_close": 762.54,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:30:00-04:00",
+      "bar_close": 761.7,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:35:00-04:00",
+      "bar_close": 762.205,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:40:00-04:00",
+      "bar_close": 761.71,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:45:00-04:00",
+      "bar_close": 761.955,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:50:00-04:00",
+      "bar_close": 761.89,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T12:55:00-04:00",
+      "bar_close": 762.32,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:00:00-04:00",
+      "bar_close": 761.7,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:05:00-04:00",
+      "bar_close": 761.725,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:10:00-04:00",
+      "bar_close": 762.0,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:15:00-04:00",
+      "bar_close": 761.62,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:20:00-04:00",
+      "bar_close": 761.62,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:25:00-04:00",
+      "bar_close": 761.68,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:30:00-04:00",
+      "bar_close": 761.945,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:35:00-04:00",
+      "bar_close": 761.915,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:40:00-04:00",
+      "bar_close": 762.065,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:45:00-04:00",
+      "bar_close": 761.72,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:50:00-04:00",
+      "bar_close": 761.52,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T13:55:00-04:00",
+      "bar_close": 761.82,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:00:00-04:00",
+      "bar_close": 761.61,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:05:00-04:00",
+      "bar_close": 761.655,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:10:00-04:00",
+      "bar_close": 761.36,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:15:00-04:00",
+      "bar_close": 761.75,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:20:00-04:00",
+      "bar_close": 761.69,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:25:00-04:00",
+      "bar_close": 761.21,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:30:00-04:00",
+      "bar_close": 760.77,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-01T14:35:00-04:00",
+      "bar_close": 760.54,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:40:00-04:00",
+      "bar_close": 759.86,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-01T14:45:00-04:00",
+      "bar_close": 760.175,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:50:00-04:00",
+      "bar_close": 760.27,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T14:55:00-04:00",
+      "bar_close": 760.74,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:00:00-04:00",
+      "bar_close": 761.15,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:05:00-04:00",
+      "bar_close": 761.12,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:10:00-04:00",
+      "bar_close": 761.43,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:15:00-04:00",
+      "bar_close": 761.4,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:20:00-04:00",
+      "bar_close": 761.28,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:25:00-04:00",
+      "bar_close": 761.43,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:30:00-04:00",
+      "bar_close": 761.13,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:35:00-04:00",
+      "bar_close": 760.83,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:40:00-04:00",
+      "bar_close": 761.05,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-01T15:45:00-04:00",
+      "bar_close": 761.26,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-09-01",
+    "account": "safe",
+    "thesis_verbatim": "---\ndate: 2026-09-01\npnl_book: 77.45\nlegs: 7\nengine_ticks: 772\nflat_at_write: true\ngenerated: 2026-09-01 23:28:41 Tuesday EDT\npnl_safe2: 217.70\npnl_bold2: -140.25\npnl_safe3: 0.00\npnl_risky1: 0.00\npnl_risky3: 0.00\n---\n# Trading Journal -- 2026-09-01\n\n<!-- QUANT:BEGIN (deterministic; code-generated by fill_funnel.py; do not hand-edit) -->\n## Quantitative (deterministic -- computed from ledgers, not LLM)\n\nSource ledgers: `core-decisions.jsonl` + `fleet/*/decisions.jsonl` + trades CSVs. Generated 2026-09-01T16:01:00 ET. Funnel verdict: **GREEN**.\n\n| account | ticks | signals | ENTER | rule-blocked | attempted | accepted | filled | exited |\n|---|---|---|---|---|---|---|---|---|\n| core:bold CORE-BOLD (U67N) | 386 | 9 | 4 | 0 | 1 | 1 | 1 | 1 |\n| core:safe CORE-SAFE (46VG) | 386 | 9 | 9 | 0 | 2 | 2 | 2 | 2 |\n| fleet:risky-1 FLEET-FULLSEND-R (V0A4) | 384 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |\n| fleet:safe-3 FLEET-TIGHT-S (T20H) | 384 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |\n| **TOTAL** | 1540 | 18 | 13 | 0 | 3 | 3 | 3 | 3 |\n\n**Why each arm did / did not trade:**\n\n| account | traded | dominant cause | detail |\n|---|---|---|---|\n| core:bold CORE-BOLD (U67N) | yes | `TRADED` | TRADED -- 1 filled / 1 exited (1 from 4 primary ENTER verdicts); also blocked 14x (11x ENTRY_GATE_SKIP, 2x SKIP_MIN_PREMIUM_FLOOR, 1x NOT_FLAT) |\n| core:safe CORE-SAFE (46VG) | yes | `TRADED` | TRADED -- 2 filled / 2 exited (2 from 9 primary ENTER verdicts); also blocked 13x (7x NOT_FLAT, 6x ENTRY_GATE_SKIP) |\n| fleet:risky-1 FLEET-FULLSEND-R (V0A4) | **no** | `ARM_GATE` | DID NOT TRADE -- dominant cause ARM_GATE (9x): blocked by this arm's own gate_override. 375 of 384 ticks had no setup at all. e.g. \"gate: 1 triggers < 2\" x9 |\n| fleet:safe-3 FLEET-TIGHT-S (T20H) | **no** | `ARM_GATE` | DID NOT TRADE -- dominant cause ARM_GATE (9x): blocked by this arm's own gate_override. 375 of 384 ticks had no setup at all. e.g. \"gate: 1 triggers < 2\" x9 |\n\n**ENTER events (13):**\n- 13:21 ET [core:safe] ENTER_BEAR SPY260901P00762000 x3 -> ACCEPTED (order 7bf7eb14) -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 13:22 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 13:23 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:39 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:39 ET [core:bold] ENTER_BEAR SPY260901P00759000 x? -> SKIP_MIN_PREMIUM_FLOOR [premium=0.23, min_entry_premium=0.3] -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:40 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:40 ET [core:bold] ENTER_BEAR SPY260901P00759000 x? -> SKIP_MIN_PREMIUM_FLOOR [premium=0.21, min_entry_premium=0.3] -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:44 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:44 ET [core:bold] ENTER_BEAR SPY260901P00759000 x5 -> ACCEPTED (order d398d8c6) -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:45 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:45 ET [core:bold] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:49 ET [core:safe] ENTER_BEAR SPY260901P00760000 x3 -> ACCEPTED (order b6e0d9d6) -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n- 14:50 ET [core:safe] ENTER_BEAR ? x? -> NOT_ATTEMPTED -- BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)\n\n**Secondary-setup placements (extra_exec, 0 PLACED):**\n- [core:safe] gap_and_go: 5x WATCH_NOT_ARMED\n\n**PLACE_FAIL reasons (verbatim from broker):**\n- none\n\n**Funnel flags:**\n- none\n\n**P&L (source: pnl-statement.json (T1, broker-truth)):**\n- [bold-2 CORE-BOLD (U67N)] 1 round trip(s): -140 (engine -140 / manual +0)\n- [safe-2 CORE-SAFE (46VG)] 3 round trip(s): +218 (engine +218 / manual +0)\n- **Total recorded P&L: +78**\n\n<!-- QUANT:END -->\n\n<!-- FREE-TIER PRIMARY: this file was generated by a free-tier model. -->\n<!-- Task: eod-summary  Date: 2026-09-01  Model: nvidia/nemotron-3-super-120b-a12b:free  Cost: $0.0000 -->\n<!-- Omitted features (tool-dependent, skipped on free-tier path): Dark-pool aggregation step, Auto-merge with existing journal file (output is appended verbatim by wrapper), Shadow diff scorecard step -->\n\n## EOD Reflection  \nThe deterministic funnel shows **13 ENTER signals** across all accounts, with **3 filled trades** (all bearish puts) and **0 rule\u2011blocked** attempts. This yields a taken\u2011to\u2011signal ratio of **3/13 \u2248 23%**, indicating that most setups were filtered out\u2014primarily by the MIN_PREMIUM_FLOOR rule (see core:bold skips at 14:39 and 14:40 ET) or by NOT_ATTEMPTED outcomes when premium or gate conditions failed. No PLACE_FAIL reasons were recorded, and the rule\u2011blocked column is zero for every arm, so no explicit rule breaks were observed today.  \n\nThe morning bias issued in *today\u2011bias.json* was **bearish**. All three executed trades were bearish put spreads (core:bold 1\u00d7, core:safe 2\u00d7), so the bias call is **matched** to the actual tape.  \n\n**Regime observations** (derived from the bias and quant data):  \n1. The session opened with a **gap\u2011down** (\u20110.66%) and remained confined to a choppy band roughly between 761 and 765, consistent with the falsifiable prediction of intraday chop absent a catalyst.  \n2. A **persistently bearish ribbon** (fast\u202f<\u202fpivot\u202f<\u202fslow, spread 154c) aligned with the bias, but premium\u2011floor constraints limited execution despite numerous ENTER_BEAR signals.  \n3. **VIX stayed flat in the MID regime** (15.89) with no scheduled macro news, contributing to low\u2011volatility conditions that kept premiums near the entry floor.  \n\n**Pre\u2011market verification for tomorrow:** check whether SPY opens above the prior day\u2019s close (767.05) or below the intraday PML support level (762.15); a clear break either way will likely reset the bias and affect the premium\u2011floor filter for the first batch of ENTER signals.\n\n---\n\n### Engine Misses Today\n\n**Total opportunities on the chart: 33 missed setups, +$971 paper P&L left on the table.**\n**Engine captured: 7% of available edge (engine took 4 trade(s), $78.00).**\n\n| Time | Level | Type | Setup | Dir | Strike | Would-be P&L | Hold | Why missed |\n|---|---|---|---|---|---|---|---|---|\n| 11:55 ET | 764.30 | Rejection | BEAR_REJECT_RIBBON | PUT | 764 | +$382 | 165m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 11:55 ET | 764.67 | Rejection | BEAR_REJECT_RIBBON | PUT | 764 | +$382 | 165m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:45 ET | 759.48 | Rejection | BULL_RECLAIM_RIBBON | CALL | 760 | +$197 | 240m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 12:20 ET | 763.16 | Rejection | BEAR_REJECT_RIBBON | PUT | 763 | +$172 | 240m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:55 ET | 760.58 | Reclaim | BULL_RECLAIM_RIBBON | CALL | 761 | +$141 | 240m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:15 ET | 763.16 | Break | SHOTGUN_T3 | CALL | 764 | +$116 | 15m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:45 ET | 764.30 | Rejection | BEAR_REJECT_RIBBON | PUT | 764 | +$71 | 55m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 10:35 ET | 764.30 | Rejection | BEAR_REJECT_RIBBON | PUT | 764 | +$64 | 70m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 11:15 ET | 763.16 | Break | SHOTGUN_T3 | CALL | 764 | +$45 | 12m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 09:30 ET | 761.32 | Rejection | SHOTGUN_T1 | CALL | 763 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:35 ET | 764.30 | Rejection | SHOTGUN_T2 | PUT | 763 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 10:45 ET | 764.30 | Rejection | SHOTGUN_T2 | PUT | 763 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 11:00 ET | 763.16 | Rejection | SHOTGUN_T2 | PUT | 762 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 11:55 ET | 764.30 | Rejection | SHOTGUN_T2 | PUT | 763 | +$0 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 11:55 ET | 764.67 | Rejection | SHOTGUN_T2 | PUT | 763 | +$0 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 12:20 ET | 763.16 | Rejection | SHOTGUN_T2 | PUT | 762 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 13:25 ET | 761.32 | Rejection | SHOTGUN_T2 | CALL | 763 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:25 ET | 761.32 | Break | SHOTGUN_T3 | PUT | 760 | +$0 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:45 ET | 759.48 | Rejection | SHOTGUN_T2 | CALL | 761 | +$0 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:10 ET | 761.45 | Rejection | BEAR_REJECT_RIBBON | PUT | 761 | -$33 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 13:25 ET | 761.32 | Rejection | BULL_RECLAIM_RIBBON | CALL | 762 | -$34 | 30m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:15 ET | 761.32 | Rejection | BULL_RECLAIM_RIBBON | CALL | 762 | -$34 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 14:15 ET | 761.45 | Break | SNIPER_BREAK | CALL | 762 | -$34 | 5m | SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers |\n| 11:00 ET | 763.16 | Rejection | BEAR_REJECT_RIBBON | PUT | 763 | -$35 | 15m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 09:30 ET | 761.32 | Rejection | BULL_RECLAIM_RIBBON | CALL | 762 | -$36 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 11:10 ET | 763.16 | Rejection | BEAR_REJECT_RIBBON | PUT | 763 | -$38 | 5m | Heartbeat closed-bar gate or ribbon/VIX filter blocked entry |\n| 11:45 ET | 764.30 | Break | SHOTGUN_T3 | CALL | 766 | -$38 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:10 ET | 761.45 | Rejection | SHOTGUN_T2 | PUT | 760 | -$39 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:15 ET | 761.32 | Rejection | SHOTGUN_T2 | CALL | 763 | -$41 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:15 ET | 761.45 | Break | SHOTGUN_T3 | CALL | 763 | -$41 | 10m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 11:10 ET | 763.16 | Rejection | SHOTGUN_T2 | PUT | 762 | -$44 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:40 ET | 760.58 | Break | SHOTGUN_T3 | PUT | 759 | -$46 | 5m | SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) |\n| 14:40 ET | 760.58 | Break | SNIPER_BREAK | PUT | 760 | -$106 | 10m | SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers |\n\n**Root causes (deduplicated):**\n- SHOTGUN_SCALPER not yet live (DRAFT WATCH-ONLY) (18 of 33)\n- Heartbeat closed-bar gate or ribbon/VIX filter blocked entry (13 of 33)\n- SNIPER DRAFT WATCH-ONLY; not in heartbeat live triggers (2 of 33)",
+    "thesis_direction": "BEAR",
+    "thesis_payoff_if_taken_net_of_costs": {
+      "computed": false,
+      "reason": "no OPRA option cache for SPY260901P00761000 -- cannot price this day's counterfactual (fail-open null, not a fabricated number)",
+      "payoff_usd": null,
+      "symbol": "SPY260901P00761000"
+    },
+    "dominant_blocker_day": 8,
+    "blocker_fire_count": 74,
+    "n_bars": 77,
+    "grade": "regressing",
+    "grade_reason": "14 of 190 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss"
+  }
+}

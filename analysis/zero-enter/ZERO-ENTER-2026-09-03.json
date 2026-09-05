@@ -1,0 +1,728 @@
+{
+  "_doc": "zero_enter_autopsy.py output -- per-bar counterfactual table + day summary. Read-only autopsy, never a gate change. Schema matches analysis/zero-enter/ZERO-ENTER-2026-09-02.json (Z2, hand-validated).",
+  "schema_version": 1,
+  "bars": [
+    {
+      "ts_et": "2026-09-02T15:55:00-04:00",
+      "bar_close": 765.13,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T09:30:00-04:00",
+      "bar_close": 768.99,
+      "dominant_blocker": 1,
+      "blocker_detail": null,
+      "bear_score": 3,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T09:35:00-04:00",
+      "bar_close": 769.735,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T09:40:00-04:00",
+      "bar_close": 769.79,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T09:45:00-04:00",
+      "bar_close": 769.64,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T09:50:00-04:00",
+      "bar_close": 769.59,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T09:55:00-04:00",
+      "bar_close": 769.54,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=277865, bar.volume=337396, ratio=1.214",
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:00:00-04:00",
+      "bar_close": 768.16,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=294530, bar.volume=704437, ratio=2.392",
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:05:00-04:00",
+      "bar_close": 767.78,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=329633, bar.volume=1018175, ratio=3.089",
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:10:00-04:00",
+      "bar_close": 768.37,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T10:15:00-04:00",
+      "bar_close": 768.87,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=397736, bar.volume=279988, ratio=0.704",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:20:00-04:00",
+      "bar_close": 768.865,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=410502, bar.volume=265934, ratio=0.648",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:25:00-04:00",
+      "bar_close": 768.67,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:30:00-04:00",
+      "bar_close": 767.96,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:35:00-04:00",
+      "bar_close": 768.2,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=451996, bar.volume=250760, ratio=0.555",
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:40:00-04:00",
+      "bar_close": 768.19,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=463160, bar.volume=202237, ratio=0.437",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:45:00-04:00",
+      "bar_close": 768.75,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=470883, bar.volume=253805, ratio=0.539",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:50:00-04:00",
+      "bar_close": 768.62,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T10:55:00-04:00",
+      "bar_close": 769.265,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:00:00-04:00",
+      "bar_close": 770.445,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T11:05:00-04:00",
+      "bar_close": 770.73,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:10:00-04:00",
+      "bar_close": 771.5,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:15:00-04:00",
+      "bar_close": 772.02,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:20:00-04:00",
+      "bar_close": 772.11,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:25:00-04:00",
+      "bar_close": 772.93,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T11:30:00-04:00",
+      "bar_close": 772.855,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:35:00-04:00",
+      "bar_close": 772.465,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:40:00-04:00",
+      "bar_close": 772.58,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:45:00-04:00",
+      "bar_close": 772.935,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T11:50:00-04:00",
+      "bar_close": 773.145,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=445301, bar.volume=341281, ratio=0.766",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T11:55:00-04:00",
+      "bar_close": 773.3,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=438337, bar.volume=288190, ratio=0.657",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:00:00-04:00",
+      "bar_close": 772.79,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:05:00-04:00",
+      "bar_close": 772.545,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:10:00-04:00",
+      "bar_close": 772.69,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 11,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-03T12:15:00-04:00",
+      "bar_close": 772.77,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=452935, bar.volume=219214, ratio=0.484",
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:20:00-04:00",
+      "bar_close": 772.525,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:25:00-04:00",
+      "bar_close": 772.45,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:30:00-04:00",
+      "bar_close": 772.46,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=451164, bar.volume=324705, ratio=0.720",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:35:00-04:00",
+      "bar_close": 772.95,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=454825, bar.volume=238875, ratio=0.525",
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:40:00-04:00",
+      "bar_close": 773.14,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=417324, bar.volume=195117, ratio=0.468",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:45:00-04:00",
+      "bar_close": 773.05,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:50:00-04:00",
+      "bar_close": 772.84,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T12:55:00-04:00",
+      "bar_close": 772.88,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:00:00-04:00",
+      "bar_close": 772.77,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=324021, bar.volume=136446, ratio=0.421",
+      "bear_score": 6,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:05:00-04:00",
+      "bar_close": 772.43,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=302148, bar.volume=216354, ratio=0.716",
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:10:00-04:00",
+      "bar_close": 772.39,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=286894, bar.volume=181003, ratio=0.631",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:15:00-04:00",
+      "bar_close": 772.335,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=264599, bar.volume=152434, ratio=0.576",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:20:00-04:00",
+      "bar_close": 772.295,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=252935, bar.volume=149647, ratio=0.592",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:25:00-04:00",
+      "bar_close": 772.64,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=244984, bar.volume=160057, ratio=0.653",
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:30:00-04:00",
+      "bar_close": 772.85,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:35:00-04:00",
+      "bar_close": 773.01,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=229391, bar.volume=307678, ratio=1.341",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:40:00-04:00",
+      "bar_close": 773.07,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=230365, bar.volume=159404, ratio=0.692",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:45:00-04:00",
+      "bar_close": 773.0,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=219750, bar.volume=190890, ratio=0.869",
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:50:00-04:00",
+      "bar_close": 773.4,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T13:55:00-04:00",
+      "bar_close": 773.26,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=204333, bar.volume=167424, ratio=0.819",
+      "bear_score": 4,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:00:00-04:00",
+      "bar_close": 773.75,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:05:00-04:00",
+      "bar_close": 773.795,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:10:00-04:00",
+      "bar_close": 773.89,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:15:00-04:00",
+      "bar_close": 773.72,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=210210, bar.volume=390890, ratio=1.860",
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:20:00-04:00",
+      "bar_close": 773.71,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=217811, bar.volume=209168, ratio=0.960",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:25:00-04:00",
+      "bar_close": 773.72,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=218514, bar.volume=163307, ratio=0.747",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:30:00-04:00",
+      "bar_close": 773.855,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:35:00-04:00",
+      "bar_close": 773.81,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=217144, bar.volume=241967, ratio=1.114",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:40:00-04:00",
+      "bar_close": 773.6,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:45:00-04:00",
+      "bar_close": 773.76,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:50:00-04:00",
+      "bar_close": 773.57,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=225619, bar.volume=275022, ratio=1.219",
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T14:55:00-04:00",
+      "bar_close": 773.67,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:00:00-04:00",
+      "bar_close": 773.59,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=239303, bar.volume=569160, ratio=2.378",
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:05:00-04:00",
+      "bar_close": 773.56,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:10:00-04:00",
+      "bar_close": 773.39,
+      "dominant_blocker": 10,
+      "blocker_detail": "vol_baseline_20=271455, bar.volume=246688, ratio=0.909",
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:15:00-04:00",
+      "bar_close": 773.59,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 10,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:20:00-04:00",
+      "bar_close": 773.18,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:25:00-04:00",
+      "bar_close": 773.415,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:30:00-04:00",
+      "bar_close": 773.33,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:35:00-04:00",
+      "bar_close": 773.43,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:40:00-04:00",
+      "bar_close": 773.235,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-03T15:45:00-04:00",
+      "bar_close": 773.26,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 9,
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-09-03",
+    "account": "safe",
+    "thesis_verbatim": "---\ndate: 2026-09-03\npnl_book: 730.34\nlegs: 37\nengine_ticks: 772\nflat_at_write: true\ngenerated: 2026-09-03 22:09:39 Thursday EDT\npnl_safe2: -312.66\npnl_bold2: 128.00\npnl_safe3: 604.00\npnl_risky1: 311.00\npnl_risky3: 0.00\n---\n# 2026-09-03",
+    "thesis_direction": "BULL",
+    "thesis_payoff_if_taken_net_of_costs": {
+      "computed": true,
+      "symbol": "SPY260903C00770000",
+      "strike": 770,
+      "side": "C",
+      "entry_bar_et": "2026-09-03T09:35:00",
+      "entry_premium_net_of_slippage": 0.82,
+      "exit_bar_et": "2026-09-03T15:50:00",
+      "exit_premium_net_of_slippage": 3.23,
+      "qty": 3,
+      "cost_model": {
+        "entry_slippage": 0.02,
+        "exit_slippage": 0.02,
+        "commission": 0.0,
+        "source": "backtest.lib.simulator_real.DEFAULT_ENTRY_SLIPPAGE/DEFAULT_EXIT_SLIPPAGE (Alpaca paper = $0 commission)"
+      },
+      "payoff_usd": 723.0
+    },
+    "dominant_blocker_day": 11,
+    "blocker_fire_count": 60,
+    "n_bars": 77,
+    "grade": "regressing",
+    "grade_reason": "124 of 626 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss"
+  }
+}

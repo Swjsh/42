@@ -1,0 +1,812 @@
+{
+  "_doc": "Z2 -- hand-filled per the schema this file defines, validated against analysis/entry-quality/SIP-VOLMULT-2026-09-02.md's published block-rate numbers (core_decisions_unique_bar_check: 57/77 bars blocked by f10 live).",
+  "schema_version": 1,
+  "schema": {
+    "bar_row": {
+      "ts_et": "5-min bar timestamp (ET, from trigger_bar_et)",
+      "bar_close": "SPY underlying price at this bar (core-decisions.jsonl 'spy' field)",
+      "dominant_blocker": "the (first-listed) blocker id on the higher-scoring side this bar, or null",
+      "blocker_detail": "human-readable reconstruction of the blocker mechanism, or null",
+      "bear_score": "int",
+      "bull_score": "int",
+      "would_have_entered": "bool -- side_score >= 9 AND zero blockers on that side"
+    },
+    "day_summary": {
+      "thesis_verbatim": "premarket/journal thesis text for the day, or null if absent",
+      "thesis_direction": "ribbon/bias direction at session open",
+      "thesis_payoff_if_taken_net_of_costs": "$ counterfactual payoff net of slippage+commission, or a label explaining why not computed",
+      "dominant_blocker_day": "the blocker id firing most often across all bars",
+      "blocker_fire_count": "count of bars that blocker fired on",
+      "grade": "SAT_OUT_GATED | regressing (from conductor_outcome._grade_zero_enter_day)"
+    }
+  },
+  "bars": [
+    {
+      "ts_et": "2026-09-01T15:55:00-04:00",
+      "bar_close": 761.63,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T09:30:00-04:00",
+      "bar_close": 762.39,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 6,
+      "dominant_blocker": 1,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T09:35:00-04:00",
+      "bar_close": 762.45,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T09:40:00-04:00",
+      "bar_close": 762.8,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T09:45:00-04:00",
+      "bar_close": 762.1,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 5,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T09:50:00-04:00",
+      "bar_close": 762.44,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 6,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T09:55:00-04:00",
+      "bar_close": 763.035,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:00:00-04:00",
+      "bar_close": 763.53,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:05:00-04:00",
+      "bar_close": 763.73,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 7,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:10:00-04:00",
+      "bar_close": 764.265,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 8,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:15:00-04:00",
+      "bar_close": 764.855,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:20:00-04:00",
+      "bar_close": 765.185,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 10,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:25:00-04:00",
+      "bar_close": 765.23,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:30:00-04:00",
+      "bar_close": 765.53,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 10,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:35:00-04:00",
+      "bar_close": 765.74,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 10,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:40:00-04:00",
+      "bar_close": 766.29,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:45:00-04:00",
+      "bar_close": 765.825,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:50:00-04:00",
+      "bar_close": 765.43,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T10:55:00-04:00",
+      "bar_close": 765.32,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:00:00-04:00",
+      "bar_close": 765.42,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:05:00-04:00",
+      "bar_close": 765.45,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:10:00-04:00",
+      "bar_close": 765.53,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 11,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-02T11:15:00-04:00",
+      "bar_close": 765.975,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:20:00-04:00",
+      "bar_close": 765.91,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:25:00-04:00",
+      "bar_close": 766.305,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:30:00-04:00",
+      "bar_close": 766.02,
+      "side_scored": "bull",
+      "bear_score": 8,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:35:00-04:00",
+      "bar_close": 765.84,
+      "side_scored": "bull",
+      "bear_score": 8,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:40:00-04:00",
+      "bar_close": 765.67,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:45:00-04:00",
+      "bar_close": 765.06,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T11:50:00-04:00",
+      "bar_close": 765.29,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 11,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-02T11:55:00-04:00",
+      "bar_close": 765.9,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 10,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:00:00-04:00",
+      "bar_close": 765.81,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:05:00-04:00",
+      "bar_close": 765.66,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:10:00-04:00",
+      "bar_close": 765.69,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:15:00-04:00",
+      "bar_close": 765.465,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 10,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:20:00-04:00",
+      "bar_close": 764.98,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:25:00-04:00",
+      "bar_close": 764.81,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:30:00-04:00",
+      "bar_close": 765.16,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:35:00-04:00",
+      "bar_close": 765.14,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:40:00-04:00",
+      "bar_close": 764.7,
+      "side_scored": "bull",
+      "bear_score": 8,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:45:00-04:00",
+      "bar_close": 764.845,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 8,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:50:00-04:00",
+      "bar_close": 765.14,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 10,
+      "dominant_blocker": 11,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T12:55:00-04:00",
+      "bar_close": 764.92,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 8,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:00:00-04:00",
+      "bar_close": 765.465,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 11,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-02T13:05:00-04:00",
+      "bar_close": 764.63,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:10:00-04:00",
+      "bar_close": 764.95,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:15:00-04:00",
+      "bar_close": 764.6,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:20:00-04:00",
+      "bar_close": 764.63,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:25:00-04:00",
+      "bar_close": 764.685,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 10,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:30:00-04:00",
+      "bar_close": 764.39,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:35:00-04:00",
+      "bar_close": 764.475,
+      "side_scored": "bull",
+      "bear_score": 3,
+      "bull_score": 9,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:40:00-04:00",
+      "bar_close": 764.8,
+      "side_scored": "bull",
+      "bear_score": 3,
+      "bull_score": 9,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:45:00-04:00",
+      "bar_close": 764.98,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:50:00-04:00",
+      "bar_close": 764.99,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T13:55:00-04:00",
+      "bar_close": 765.16,
+      "side_scored": "bull",
+      "bear_score": 3,
+      "bull_score": 8,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:00:00-04:00",
+      "bar_close": 765.22,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 8,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:05:00-04:00",
+      "bar_close": 765.12,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:10:00-04:00",
+      "bar_close": 765.18,
+      "side_scored": "bull",
+      "bear_score": 3,
+      "bull_score": 8,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:15:00-04:00",
+      "bar_close": 765.61,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 11,
+      "dominant_blocker": null,
+      "blocker_detail": null,
+      "would_have_entered": true
+    },
+    {
+      "ts_et": "2026-09-02T14:20:00-04:00",
+      "bar_close": 765.48,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 7,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:25:00-04:00",
+      "bar_close": 765.29,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:30:00-04:00",
+      "bar_close": 765.26,
+      "side_scored": "bull",
+      "bear_score": 7,
+      "bull_score": 9,
+      "dominant_blocker": 10,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:35:00-04:00",
+      "bar_close": 764.81,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 8,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:40:00-04:00",
+      "bar_close": 764.72,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 8,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:45:00-04:00",
+      "bar_close": 764.88,
+      "side_scored": "bull",
+      "bear_score": 3,
+      "bull_score": 9,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:50:00-04:00",
+      "bar_close": 764.8,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T14:55:00-04:00",
+      "bar_close": 764.79,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 5,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:00:00-04:00",
+      "bar_close": 764.9,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 9,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:05:00-04:00",
+      "bar_close": 765.2,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 9,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:10:00-04:00",
+      "bar_close": 765.39,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 9,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:15:00-04:00",
+      "bar_close": 765.41,
+      "side_scored": "bull",
+      "bear_score": 4,
+      "bull_score": 9,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:20:00-04:00",
+      "bar_close": 765.23,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:25:00-04:00",
+      "bar_close": 765.43,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 8,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:30:00-04:00",
+      "bar_close": 765.305,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 8,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:35:00-04:00",
+      "bar_close": 765.08,
+      "side_scored": "bull",
+      "bear_score": 6,
+      "bull_score": 7,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:40:00-04:00",
+      "bar_close": 765.345,
+      "side_scored": "bull",
+      "bear_score": 3,
+      "bull_score": 9,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-09-02T15:45:00-04:00",
+      "bar_close": 765.375,
+      "side_scored": "bull",
+      "bear_score": 5,
+      "bull_score": 8,
+      "dominant_blocker": 6,
+      "blocker_detail": "f10 buyer_pressure_bar_v11 (volume < 0.7x vol_baseline_20) -- see SIP-VOLMULT-2026-09-02.md for the reconstructed vol_baseline_20/ratio (core-decisions.jsonl rows carry no vol_baseline_20/bar-volume field themselves, confirmed absent by that research).",
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-09-02",
+    "thesis_verbatim": "---\ndate: 2026-09-02\npnl_book: -701.53\nlegs: 24\nengine_ticks: 772\nflat_at_write: true\ngenerated: 2026-09-02 16:45:02 Wednesday EDT\npnl_safe2: -126.43\npnl_bold2: -15.50\npnl_safe3: -213.60\npnl_risky1: -346.00\npnl_risky3: 0.00\n---\n# 2026-09-02",
+    "thesis_direction": "BULL",
+    "thesis_payoff_if_taken_net_of_costs": "NOT COMPUTED IN THIS HAND-FILL -- Z3's zero_enter_autopsy.py computes this mechanically via the real OPRA option cache + backtest/lib/simulator_real.py's DEFAULT_ENTRY_SLIPPAGE/DEFAULT_EXIT_SLIPPAGE cost model (reused, not hand-rolled). This file's job (Z2) is schema validation against SIP-VOLMULT-2026-09-02.md's already-published block-rate numbers, not a fresh payoff computation.",
+    "dominant_blocker_day": 10,
+    "blocker_fire_count": 57,
+    "grade": "regressing",
+    "validation_against_SIP_VOLMULT_2026_09_02": {
+      "expected_n_unique_bars": 77,
+      "actual_n_unique_bars": 77,
+      "n_unique_bars_match": true,
+      "expected_n_blocked_by_f10": 57,
+      "actual_n_blocked_by_f10": 57,
+      "n_blocked_f10_match": true
+    }
+  }
+}

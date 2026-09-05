@@ -1,6 +1,6 @@
 # 🎛️ Gamma — HOME
 
-> Auto-generated `2026-09-05 00:56:03 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
+> Auto-generated `2026-09-05 01:53:47 Saturday EDT` · market **CLOSED** · regenerate: `python setup/scripts/obsidian_vault_sync.py`
 > Nothing here is hand-maintained. If a number looks stale, the producer behind it is stale.
 
 ## Position & P&L
@@ -32,7 +32,7 @@
 
 ## Today's levels
 
-*as of `2026-09-05T00:53:36-04:00`*
+*as of `2026-09-05T01:53:36-04:00`*
 
 - **731.22** — PRIOR_CLOSE_2026-06-26
 - **734.52** — PML_2026-06-29
@@ -59,7 +59,7 @@
 
 ### 📈 Futures (MES · two lanes: fillsim = book, tastytrade SANDBOX = real fills)
 
-- **lane health** `RED` (as of `2026-09-05 00:30:01`) — [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']
+- **lane health** `RED` (as of `2026-09-05 01:30:02`) — [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']
 - **book lane** (fillsim) `HOLD` — last tick `2026-09-04T16:00:01` · session GLOBEX
 - **broker lane** (tastytrade SANDBOX, REAL fills) `HOLD` — last tick `2026-09-04T16:00:01` · session GLOBEX
 - **sim book** equity $1,595.86 (start $2,000.00) · day $-256.24 · 11 trades

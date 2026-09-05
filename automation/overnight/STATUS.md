@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T05:29:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T05:56:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
 - [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
@@ -27,6 +27,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 04:0x ET] GOAL-ZERO-ENTER-DAYS-2026-09-03 CLOSED -- zero_enter_autopsy.py built, registered (Gamma_ZeroEnterAutopsy 16:10 ET, Ready), backfilled 5/5 frozen-window days, f10 session-reset prereg filed for 10-30
+One Sonnet chain (Z1-Z6). Inventory: 08-31 SAT_OUT_GATED; 09-01..09-04 regressing. Hand-filled 09-02 matches SIP-VOLMULT exactly (77 bars, 57 blocked by filter 10). Per-bar counterfactual tables now land in analysis/zero-enter/ daily. Most-indicted gate: blocker 10 (vol_baseline_20 session-crossing) fired on 5/5 days, 50.6-74.0% of bars (aggregate 61.9%) -> analysis/recommendations/prereg-f10-vol-baseline-session-reset-10-30-2026-09-03.json, FROZEN_BEFORE_ANY_RESULT, nothing shipped. UNVERIFIED: first live fire is Tue 16:10 ET; the 09-04 "regressing" grade may be inflated by the 09:51-10:46 outage gap (the script treats >3-min gaps as NO_DATA, not yet seen on a live fire). Also tonight: FILL-MODEL step 1 evidence (08e63cdf), 3/4-DTE killed on its null (eefecc8e), 3 feasibility gates killed at n=590 (9abae17c), 1-2 DTE prereg filed, tickers lane E2E probe GREEN on the merged build (535 tests), Kitchen provenance guard (11a45e2d).
+
 
 ## [2026-09-05 03:0x ET] GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03 CLOSED -- 22 stale leaderboard rows adjudicated (15 KILLED / 2 SHADOW-FILED / 3 EXTEND / 1 BLOCKED-ON-DATA), DONE-WHEN grep = 0
 Fable + 6 Sonnet workers. Registered Gamma_VixBullHardCapUnblockShadow (16:57 ET, Ready; the 18->22 cap already shipped 06-26, so the shadow accrues forward P&L on the unblocked band). STRUCTURE_VETO standing A/B = existing Gamma_FleetGateLeakShadow (n=220 SKIP_STRUCTURE_VETO rows), zero duplicate tasks. WEEKLY_DTE_NOT_0DTE: 3/4-dte data landed 07-07 but DTE_BUCKETS stops at 2 -- real engineering item. Kitchen integrity: provenance audit shipped (11a45e2d) -- 440/4193 verdict files cite nonexistent artifacts, 3396 cite none; reviewer now caps PROMOTE on PROVENANCE-MISSING. Owed: re-run the 3 EXTEND feasibility gates at n=593. Next on the ladder: GOAL-ZERO-ENTER-DAYS-2026-09-03.

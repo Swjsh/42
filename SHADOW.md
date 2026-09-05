@@ -1,6 +1,6 @@
 # 🕰️ Shadow & Prereg Board
 
-> Auto-generated `2026-09-05 00:56:03 Saturday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
+> Auto-generated `2026-09-05 01:53:47 Saturday EDT` by obsidian_vault_sync.py. Shadow tallies update nightly; a missing tally means that instrument has not fired yet.
 
 ## Live shadow instruments
 
@@ -12,8 +12,12 @@
 - **Direction symmetry** (16:25 fold) — **RED**: 2 asymmetric knobs, 4 gates on stale evidence, 26 phantom documented knobs → [[analysis/deep-research/DIRECTION-SYMMETRY-AUDIT-2026-08-09]]
 - **Trendline shadow** (`Gamma_TrendlineShadow`, 14:22 MT) — latest verdict 2026-09-02: 73 sessions, n=1451, +0.0386 pts/trade, session-clustered 95% CI [-0.0301, 0.1177] (straddles zero), top-3 sessions 105% of profit — NOT a green light; promotion bar: [[analysis/trendlines/shadow-verdict.json]]
 
-## Frozen preregs — auto-discovered (53 non-terminal)
+## Frozen preregs — auto-discovered (57 non-terminal)
 
+- `prereg-f10-vol-baseline-session-reset-10-30-2026-09-03` — [[analysis/recommendations/prereg-f10-vol-baseline-session-reset-10-30-2026-09-03]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate`
+- `PREREG-SPY-SIGNAL-1-2DTE-VIA-WEEKLY-LANE-2026-09-05` — [[analysis/recommendations/prereg-spy-signal-1-2dte-via-weekly-lane-2026-09-05]] · `FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate`
+- `prereg-vix-bull-hard-cap-unblock-shadow-2026-09-05` — [[analysis/recommendations/prereg-vix-bull-hard-cap-unblock-shadow-2026-09-05]] · `SHADOW-FILED -- new $0 forward instrument registered (Gamma_VixBull...`
+- `prereg-structure-veto-standing-ab-2026-09-05` — [[analysis/recommendations/prereg-structure-veto-standing-ab-2026-09-05]] · `EXTEND -- accruing on Gamma_FleetGateLeakShadow. No new task regist...`
 - `prereg-tickers-theta-budget-cadence-2026-09-05` — [[analysis/recommendations/prereg-tickers-theta-budget-cadence-2026-09-05]] · `FROZEN_BEFORE_ANY_ADDITIONAL_RESULT`
 - `prereg-tickers-lane-production-scorer-2026-09-04` — [[analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04]] · `FROZEN_BEFORE_ANY_RESULT`
 - `prereg-catalyst-direction-2026-09-03` — [[analysis/recommendations/prereg-catalyst-direction-2026-09-03]] · `FROZEN_BEFORE_ANY_RESULT`

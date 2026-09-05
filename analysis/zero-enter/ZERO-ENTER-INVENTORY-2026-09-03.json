@@ -1,0 +1,83 @@
+{
+  "_doc": "Z1 -- inventory of every frozen-window (2026-08-31 onward) trading day graded SAT_OUT_GATED or regressing by conductor_outcome._grade_zero_enter_day (reused unmodified, not reimplemented). QUIET/None-graded days are listed for visibility but excluded from zero-enter scope per the goal's own definition.",
+  "window_start": "2026-08-31",
+  "generated_by": "setup/scripts/_zero_enter_inventory_build.py",
+  "score_threshold": 9,
+  "min_rth_ticks": 100,
+  "days": [
+    {
+      "trading_day": "2026-08-31",
+      "core_rth_ticks": 772,
+      "grade": "SAT_OUT_GATED",
+      "high_score_ticks": 174,
+      "reason": "blocker 8 refused 110/174 ticks scored >= 9 (0 enters, 772 RTH ticks) -- a ratified gate, not a funnel miss",
+      "included_in_zero_enter_scope": true,
+      "cross_check": {
+        "in_fleet_calendar_fill_days": false,
+        "calendar_generated_et": "2026-09-04T18:00:01.215820",
+        "trading_day_confirmed_by": "core-decisions.jsonl has 772 RTH ticks for this date (calendar-data.json last generated 2026-09-04T18:00:01.215820, may predate this day's fleet-fill regeneration)"
+      }
+    },
+    {
+      "trading_day": "2026-09-01",
+      "core_rth_ticks": 772,
+      "grade": "regressing",
+      "high_score_ticks": 190,
+      "reason": "14 of 190 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss",
+      "included_in_zero_enter_scope": true,
+      "cross_check": {
+        "in_fleet_calendar_fill_days": true,
+        "calendar_generated_et": "2026-09-04T18:00:01.215820",
+        "trading_day_confirmed_by": "fleet calendar fill-day record"
+      }
+    },
+    {
+      "trading_day": "2026-09-02",
+      "core_rth_ticks": 772,
+      "grade": "regressing",
+      "high_score_ticks": 396,
+      "reason": "40 of 396 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss",
+      "included_in_zero_enter_scope": true,
+      "cross_check": {
+        "in_fleet_calendar_fill_days": true,
+        "calendar_generated_et": "2026-09-04T18:00:01.215820",
+        "trading_day_confirmed_by": "fleet calendar fill-day record"
+      }
+    },
+    {
+      "trading_day": "2026-09-03",
+      "core_rth_ticks": 772,
+      "grade": "regressing",
+      "high_score_ticks": 626,
+      "reason": "124 of 626 ticks scored >= 9 with NO gate blocker recorded (0 enters, 772 RTH ticks) -- possible funnel miss",
+      "included_in_zero_enter_scope": true,
+      "cross_check": {
+        "in_fleet_calendar_fill_days": true,
+        "calendar_generated_et": "2026-09-04T18:00:01.215820",
+        "trading_day_confirmed_by": "fleet calendar fill-day record"
+      }
+    },
+    {
+      "trading_day": "2026-09-04",
+      "core_rth_ticks": 664,
+      "grade": "regressing",
+      "high_score_ticks": 386,
+      "reason": "14 of 386 ticks scored >= 9 with NO gate blocker recorded (0 enters, 664 RTH ticks) -- possible funnel miss",
+      "included_in_zero_enter_scope": true,
+      "cross_check": {
+        "in_fleet_calendar_fill_days": false,
+        "calendar_generated_et": "2026-09-04T18:00:01.215820",
+        "trading_day_confirmed_by": "core-decisions.jsonl has 664 RTH ticks for this date (calendar-data.json last generated 2026-09-04T18:00:01.215820, may predate this day's fleet-fill regeneration)"
+      }
+    }
+  ],
+  "in_scope_days": [
+    "2026-08-31",
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "in_scope_count": 5,
+  "known_case_2026_09_02_present": true
+}

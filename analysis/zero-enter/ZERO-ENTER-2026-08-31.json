@@ -1,0 +1,715 @@
+{
+  "_doc": "zero_enter_autopsy.py output -- per-bar counterfactual table + day summary. Read-only autopsy, never a gate change. Schema matches analysis/zero-enter/ZERO-ENTER-2026-09-02.json (Z2, hand-validated).",
+  "schema_version": 1,
+  "bars": [
+    {
+      "ts_et": "2026-08-28T15:55:00-04:00",
+      "bar_close": 769.28,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T09:30:00-04:00",
+      "bar_close": 766.37,
+      "dominant_blocker": 1,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T09:35:00-04:00",
+      "bar_close": 766.33,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T09:40:00-04:00",
+      "bar_close": 765.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T09:45:00-04:00",
+      "bar_close": 766.14,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T09:50:00-04:00",
+      "bar_close": 766.475,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T09:55:00-04:00",
+      "bar_close": 766.22,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:00:00-04:00",
+      "bar_close": 765.76,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:05:00-04:00",
+      "bar_close": 765.54,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:10:00-04:00",
+      "bar_close": 765.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:15:00-04:00",
+      "bar_close": 765.99,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:20:00-04:00",
+      "bar_close": 765.0,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:25:00-04:00",
+      "bar_close": 764.93,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:30:00-04:00",
+      "bar_close": 764.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:35:00-04:00",
+      "bar_close": 765.535,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:40:00-04:00",
+      "bar_close": 765.75,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:45:00-04:00",
+      "bar_close": 765.4,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:50:00-04:00",
+      "bar_close": 765.835,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T10:55:00-04:00",
+      "bar_close": 765.93,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:00:00-04:00",
+      "bar_close": 765.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:05:00-04:00",
+      "bar_close": 765.68,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:10:00-04:00",
+      "bar_close": 765.67,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:15:00-04:00",
+      "bar_close": 765.71,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:20:00-04:00",
+      "bar_close": 766.035,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:25:00-04:00",
+      "bar_close": 765.92,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:30:00-04:00",
+      "bar_close": 765.71,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:35:00-04:00",
+      "bar_close": 765.545,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:40:00-04:00",
+      "bar_close": 765.835,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:45:00-04:00",
+      "bar_close": 765.86,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:50:00-04:00",
+      "bar_close": 766.07,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T11:55:00-04:00",
+      "bar_close": 765.36,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:00:00-04:00",
+      "bar_close": 765.105,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:05:00-04:00",
+      "bar_close": 765.19,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:10:00-04:00",
+      "bar_close": 765.72,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:15:00-04:00",
+      "bar_close": 765.43,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:20:00-04:00",
+      "bar_close": 765.435,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:25:00-04:00",
+      "bar_close": 765.86,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:30:00-04:00",
+      "bar_close": 765.82,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:35:00-04:00",
+      "bar_close": 765.36,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:40:00-04:00",
+      "bar_close": 765.425,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:45:00-04:00",
+      "bar_close": 765.84,
+      "dominant_blocker": 7,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:50:00-04:00",
+      "bar_close": 765.81,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T12:55:00-04:00",
+      "bar_close": 765.89,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:00:00-04:00",
+      "bar_close": 765.65,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:05:00-04:00",
+      "bar_close": 765.585,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:10:00-04:00",
+      "bar_close": 765.87,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:15:00-04:00",
+      "bar_close": 765.73,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:20:00-04:00",
+      "bar_close": 765.8,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:25:00-04:00",
+      "bar_close": 765.47,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:30:00-04:00",
+      "bar_close": 765.29,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 9,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:35:00-04:00",
+      "bar_close": 765.84,
+      "dominant_blocker": 8,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:40:00-04:00",
+      "bar_close": 766.21,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:45:00-04:00",
+      "bar_close": 766.31,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:50:00-04:00",
+      "bar_close": 766.755,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T13:55:00-04:00",
+      "bar_close": 766.51,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:00:00-04:00",
+      "bar_close": 766.625,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:05:00-04:00",
+      "bar_close": 766.67,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:10:00-04:00",
+      "bar_close": 766.72,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:15:00-04:00",
+      "bar_close": 766.7,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 5,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:20:00-04:00",
+      "bar_close": 766.63,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:25:00-04:00",
+      "bar_close": 766.31,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:30:00-04:00",
+      "bar_close": 766.03,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:35:00-04:00",
+      "bar_close": 765.47,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:40:00-04:00",
+      "bar_close": 765.345,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:45:00-04:00",
+      "bar_close": 765.42,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 6,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:50:00-04:00",
+      "bar_close": 765.66,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T14:55:00-04:00",
+      "bar_close": 765.68,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:00:00-04:00",
+      "bar_close": 765.815,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:05:00-04:00",
+      "bar_close": 766.025,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:10:00-04:00",
+      "bar_close": 766.18,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 6,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:15:00-04:00",
+      "bar_close": 766.04,
+      "dominant_blocker": 6,
+      "blocker_detail": null,
+      "bear_score": 8,
+      "bull_score": 5,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:20:00-04:00",
+      "bar_close": 766.42,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:25:00-04:00",
+      "bar_close": 766.67,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 8,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:30:00-04:00",
+      "bar_close": 766.4,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:35:00-04:00",
+      "bar_close": 766.63,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 7,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:40:00-04:00",
+      "bar_close": 767.03,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 4,
+      "bull_score": 9,
+      "would_have_entered": false
+    },
+    {
+      "ts_et": "2026-08-31T15:45:00-04:00",
+      "bar_close": 766.87,
+      "dominant_blocker": 5,
+      "blocker_detail": null,
+      "bear_score": 7,
+      "bull_score": 7,
+      "would_have_entered": false
+    }
+  ],
+  "day_summary": {
+    "trading_day": "2026-08-31",
+    "account": "safe",
+    "thesis_verbatim": "---\ndate: 2026-08-31\npnl_book: -0.19\nlegs: 0\nengine_ticks: 772\nflat_at_write: true\ngenerated: 2026-08-31 16:45:02 Monday EDT\npnl_safe2: -0.19\npnl_bold2: 0.00\npnl_safe3: 0.00\npnl_risky1: 0.00\npnl_risky3: 0.00\n---\n# 2026-08-31",
+    "thesis_direction": "BEAR",
+    "thesis_payoff_if_taken_net_of_costs": {
+      "computed": false,
+      "reason": "no bar this day scored >= threshold with zero blockers on the thesis side -- nothing to counterfactually price",
+      "payoff_usd": null
+    },
+    "dominant_blocker_day": 8,
+    "blocker_fire_count": 77,
+    "n_bars": 77,
+    "grade": "SAT_OUT_GATED",
+    "grade_reason": "blocker 8 refused 110/174 ticks scored >= 9 (0 enters, 772 RTH ticks) -- a ratified gate, not a funnel miss"
+  }
+}
