@@ -150,7 +150,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.0879
         }
@@ -172,7 +172,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 5.3662
         },
@@ -182,7 +182,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 1.9346
         },
@@ -192,7 +192,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.0879
         }
@@ -213,7 +213,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 5.3662
         },
@@ -223,7 +223,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 1.9346
         },
@@ -233,7 +233,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.0879
         }

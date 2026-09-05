@@ -62,7 +62,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_LATE_ENTRY: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 3.0882
         }
@@ -98,7 +98,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 3.0882
         }
@@ -119,7 +119,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.561
         },
@@ -150,7 +150,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.561
         },

@@ -1,0 +1,719 @@
+{
+  "_doc": "GOAL-FLEET-CAPTURE-GAP-2026-09-05 F1. One row per missed (wave, arm) pair, joined from analysis/right-tail/ledger.jsonl. Row count MUST equal the number of missed (wave, arm) pairs (taken=false, scored=true).",
+  "generated_from": "analysis/right-tail/ledger.jsonl (post-F3-fix rerun of scratchpad/backfill_right_tail.py, this session)",
+  "row_count": 46,
+  "rows": [
+    {
+      "date": "2026-08-04",
+      "wave_start_et": "2026-08-04T12:26:03",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 4,
+      "mechanism_label": "risk_gate deny (a named risk/veto code)",
+      "evidence_code": "RISK_DENY_PDT",
+      "evidence_row_quoted": "RISK_DENY_PDT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 3.0137,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 2.4737
+      }
+    },
+    {
+      "date": "2026-08-05",
+      "wave_start_et": "2026-08-05T11:46:03",
+      "arm": "bold-2",
+      "side": "P",
+      "mechanism": 4,
+      "mechanism_label": "risk_gate deny (a named risk/veto code)",
+      "evidence_code": "VETOED_BY_MODELS",
+      "evidence_row_quoted": "VETOED_BY_MODELS: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.4628,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 1.5503
+      }
+    },
+    {
+      "date": "2026-08-05",
+      "wave_start_et": "2026-08-05T11:46:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.4628,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 1.5503
+      }
+    },
+    {
+      "date": "2026-08-06",
+      "wave_start_et": "2026-08-06T10:31:03",
+      "arm": "bold-2",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.8543,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 2.1172
+      }
+    },
+    {
+      "date": "2026-08-06",
+      "wave_start_et": "2026-08-06T10:31:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.8543,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 2.1172
+      }
+    },
+    {
+      "date": "2026-08-07",
+      "wave_start_et": "2026-08-07T09:46:03",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 4,
+      "mechanism_label": "risk_gate deny (a named risk/veto code)",
+      "evidence_code": "RISK_DENY_PDT",
+      "evidence_row_quoted": "RISK_DENY_PDT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.5033,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 0.8571
+      }
+    },
+    {
+      "date": "2026-08-11",
+      "wave_start_et": "2026-08-11T11:51:04",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 3.175,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 0.8
+      }
+    },
+    {
+      "date": "2026-08-11",
+      "wave_start_et": "2026-08-11T13:31:05",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.4714,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 2.5306
+      }
+    },
+    {
+      "date": "2026-08-12",
+      "wave_start_et": "2026-08-12T13:16:05",
+      "arm": "safe-2",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_STRUCTURE_VETO",
+      "evidence_row_quoted": "SKIP_STRUCTURE_VETO: structure-veto: P entry blocked \u2014 price structure is 'uptrend' (wrong-way entry)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.3636,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 2.0897
+      }
+    },
+    {
+      "date": "2026-08-12",
+      "wave_start_et": "2026-08-12T13:16:05",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.3636,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 2.0897
+      }
+    },
+    {
+      "date": "2026-08-12",
+      "wave_start_et": "2026-08-12T14:16:04",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_CONF_LVL_REC_AFTERNOON",
+      "evidence_row_quoted": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.3846,
+      "best_taking_arm": {
+        "arm": "safe-3",
+        "exit_multiple": 1.5
+      }
+    },
+    {
+      "date": "2026-08-12",
+      "wave_start_et": "2026-08-12T14:16:04",
+      "arm": "safe-2",
+      "side": "C",
+      "mechanism": 2,
+      "mechanism_label": "settlement / same-day-entries cap",
+      "evidence_code": "RISK_DENY_SETTLEMENT",
+      "evidence_row_quoted": "RISK_DENY_SETTLEMENT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.3846,
+      "best_taking_arm": {
+        "arm": "safe-3",
+        "exit_multiple": 1.5
+      }
+    },
+    {
+      "date": "2026-08-13",
+      "wave_start_et": "2026-08-13T11:41:04",
+      "arm": "safe-2",
+      "side": "C",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_BULL_1100_1200",
+      "evidence_row_quoted": "SKIP_BULL_1100_1200: blocked by entry gate block_bull_1100_1200",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.6739,
+      "best_taking_arm": {
+        "arm": "bold-2",
+        "exit_multiple": 0.8247
+      }
+    },
+    {
+      "date": "2026-08-13",
+      "wave_start_et": "2026-08-13T14:36:04",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_CONF_LVL_REC_AFTERNOON",
+      "evidence_row_quoted": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.7045,
+      "best_taking_arm": {
+        "arm": "safe-3",
+        "exit_multiple": 3.4923
+      }
+    },
+    {
+      "date": "2026-08-14",
+      "wave_start_et": "2026-08-14T12:14:04",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.8889,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 0.8776
+      }
+    },
+    {
+      "date": "2026-08-14",
+      "wave_start_et": "2026-08-14T12:14:04",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.8889,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 0.8776
+      }
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T13:06:04",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.6989,
+      "best_taking_arm": {
+        "arm": "bold-2",
+        "exit_multiple": 2.0833
+      }
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T13:06:04",
+      "arm": "safe-2",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_STRUCTURE_VETO",
+      "evidence_row_quoted": "SKIP_STRUCTURE_VETO: structure-veto: P entry blocked \u2014 price structure is 'uptrend' (wrong-way entry)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.6989,
+      "best_taking_arm": {
+        "arm": "bold-2",
+        "exit_multiple": 2.0833
+      }
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T13:06:04",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.6989,
+      "best_taking_arm": {
+        "arm": "bold-2",
+        "exit_multiple": 2.0833
+      }
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T15:01:03",
+      "arm": "bold-2",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.9231,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T15:01:03",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 8,
+      "mechanism_label": "NO EVIDENCE -- no gate/risk/NOT_FLAT/sizing/lateness row found in-window on any source AND the fleet tick was confirmed ticking every minute (ruling out mechanism 5's literal cadence-outage reading); the fleet strategy registry itself never recognized this setup. Does not cleanly match 1-7 -- reported honestly as its own bucket rather than force-fit.",
+      "evidence_code": "NO_ROW",
+      "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+      "fleet_tick_ran_within_2min": true,
+      "peak_multiple_on_tape": 1.9231,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T15:01:03",
+      "arm": "safe-2",
+      "side": "P",
+      "mechanism": 7,
+      "mechanism_label": "took it late (>2 ticks) and it no longer cleared 1.3x from the late entry -- or was SKIPPED outright as too-late to qualify",
+      "evidence_code": "SKIP_LATE_ENTRY",
+      "evidence_row_quoted": "SKIP_LATE_ENTRY: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.9231,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-17",
+      "wave_start_et": "2026-08-17T15:01:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 8,
+      "mechanism_label": "NO EVIDENCE -- no gate/risk/NOT_FLAT/sizing/lateness row found in-window on any source AND the fleet tick was confirmed ticking every minute (ruling out mechanism 5's literal cadence-outage reading); the fleet strategy registry itself never recognized this setup. Does not cleanly match 1-7 -- reported honestly as its own bucket rather than force-fit.",
+      "evidence_code": "NO_ROW",
+      "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+      "fleet_tick_ran_within_2min": true,
+      "peak_multiple_on_tape": 1.9231,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-18",
+      "wave_start_et": "2026-08-18T14:36:03",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.561,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9677
+      }
+    },
+    {
+      "date": "2026-08-18",
+      "wave_start_et": "2026-08-18T14:36:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.561,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9677
+      }
+    },
+    {
+      "date": "2026-08-18",
+      "wave_start_et": "2026-08-18T15:31:03",
+      "arm": "bold-2",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 3.0882,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-18",
+      "wave_start_et": "2026-08-18T15:31:03",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 8,
+      "mechanism_label": "NO EVIDENCE -- no gate/risk/NOT_FLAT/sizing/lateness row found in-window on any source AND the fleet tick was confirmed ticking every minute (ruling out mechanism 5's literal cadence-outage reading); the fleet strategy registry itself never recognized this setup. Does not cleanly match 1-7 -- reported honestly as its own bucket rather than force-fit.",
+      "evidence_code": "NO_ROW",
+      "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+      "fleet_tick_ran_within_2min": true,
+      "peak_multiple_on_tape": 3.0882,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-18",
+      "wave_start_et": "2026-08-18T15:31:03",
+      "arm": "safe-2",
+      "side": "P",
+      "mechanism": 7,
+      "mechanism_label": "took it late (>2 ticks) and it no longer cleared 1.3x from the late entry -- or was SKIPPED outright as too-late to qualify",
+      "evidence_code": "SKIP_LATE_ENTRY",
+      "evidence_row_quoted": "SKIP_LATE_ENTRY: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 3.0882,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-18",
+      "wave_start_et": "2026-08-18T15:31:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 8,
+      "mechanism_label": "NO EVIDENCE -- no gate/risk/NOT_FLAT/sizing/lateness row found in-window on any source AND the fleet tick was confirmed ticking every minute (ruling out mechanism 5's literal cadence-outage reading); the fleet strategy registry itself never recognized this setup. Does not cleanly match 1-7 -- reported honestly as its own bucket rather than force-fit.",
+      "evidence_code": "NO_ROW",
+      "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+      "fleet_tick_ran_within_2min": true,
+      "peak_multiple_on_tape": 3.0882,
+      "best_taking_arm": null
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T12:56:03",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 5.3662,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9857
+      }
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T12:56:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 5.3662,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9857
+      }
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T14:01:04",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.9346,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.5577
+      }
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T14:01:04",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.9346,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.5577
+      }
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T14:56:03",
+      "arm": "bold-2",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+      "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.0879,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 0.8861
+      }
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T14:56:03",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.0879,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 0.8861
+      }
+    },
+    {
+      "date": "2026-08-20",
+      "wave_start_et": "2026-08-20T14:56:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.0879,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 0.8861
+      }
+    },
+    {
+      "date": "2026-08-21",
+      "wave_start_et": "2026-08-21T12:26:03",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 6,
+      "mechanism_label": "sizing SIZE_BELOW_MIN / affordability",
+      "evidence_code": "SKIP_MIN_PREMIUM_FLOOR",
+      "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.3133,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 2.0808
+      }
+    },
+    {
+      "date": "2026-08-21",
+      "wave_start_et": "2026-08-21T13:34:04",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 6,
+      "mechanism_label": "sizing SIZE_BELOW_MIN / affordability",
+      "evidence_code": "SKIP_MIN_PREMIUM_FLOOR",
+      "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.0,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 4.9048
+      }
+    },
+    {
+      "date": "2026-08-21",
+      "wave_start_et": "2026-08-21T13:34:04",
+      "arm": "safe-2",
+      "side": "C",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "SKIP_STRUCTURE_VETO",
+      "evidence_row_quoted": "SKIP_STRUCTURE_VETO: structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.0,
+      "best_taking_arm": {
+        "arm": "risky-1",
+        "exit_multiple": 4.9048
+      }
+    },
+    {
+      "date": "2026-08-25",
+      "wave_start_et": "2026-08-25T13:16:03",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 6,
+      "mechanism_label": "sizing SIZE_BELOW_MIN / affordability",
+      "evidence_code": "SKIP_MIN_PREMIUM_FLOOR",
+      "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.0678,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 0.7143
+      }
+    },
+    {
+      "date": "2026-08-27",
+      "wave_start_et": "2026-08-27T12:31:03",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 3,
+      "mechanism_label": "NOT_FLAT -- still holding a prior position",
+      "evidence_code": "NOT_FLAT",
+      "evidence_row_quoted": "NOT_FLAT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.5,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9577
+      }
+    },
+    {
+      "date": "2026-08-27",
+      "wave_start_et": "2026-08-27T12:31:03",
+      "arm": "risky-1",
+      "side": "C",
+      "mechanism": 3,
+      "mechanism_label": "NOT_FLAT -- still holding a prior position",
+      "evidence_code": "NOT_FLAT",
+      "evidence_row_quoted": "NOT_FLAT: risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.5,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9577
+      }
+    },
+    {
+      "date": "2026-08-27",
+      "wave_start_et": "2026-08-27T12:31:03",
+      "arm": "safe-3",
+      "side": "C",
+      "mechanism": 3,
+      "mechanism_label": "NOT_FLAT -- still holding a prior position",
+      "evidence_code": "NOT_FLAT",
+      "evidence_row_quoted": "NOT_FLAT: risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.5,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 1.9577
+      }
+    },
+    {
+      "date": "2026-09-01",
+      "wave_start_et": "2026-09-01T13:21:03",
+      "arm": "risky-1",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.8152,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 2.2553
+      }
+    },
+    {
+      "date": "2026-09-01",
+      "wave_start_et": "2026-09-01T13:21:03",
+      "arm": "safe-3",
+      "side": "P",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "evidence_code": "GATE",
+      "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 2.8152,
+      "best_taking_arm": {
+        "arm": "safe-2",
+        "exit_multiple": 2.2553
+      }
+    },
+    {
+      "date": "2026-09-02",
+      "wave_start_et": "2026-09-02T13:06:03",
+      "arm": "bold-2",
+      "side": "C",
+      "mechanism": 6,
+      "mechanism_label": "sizing SIZE_BELOW_MIN / affordability",
+      "evidence_code": "SKIP_MIN_PREMIUM_FLOOR",
+      "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+      "fleet_tick_ran_within_2min": null,
+      "peak_multiple_on_tape": 1.6667,
+      "best_taking_arm": {
+        "arm": "safe-3",
+        "exit_multiple": 0.9223
+      }
+    }
+  ]
+}

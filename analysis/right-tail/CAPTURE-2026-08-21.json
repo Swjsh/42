@@ -109,7 +109,7 @@
           "side": "C",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_STRUCTURE_VETO: structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.0
         }
@@ -146,7 +146,7 @@
           "side": "C",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 1.3133
         },
@@ -156,7 +156,7 @@
           "side": "C",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 2.0
         }

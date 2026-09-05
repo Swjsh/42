@@ -79,7 +79,71 @@ def _fills_for_arm_day(all_fills: list[dict[str, Any]], arm: str, day: str) -> l
     return rows
 
 
+# mcp_heartbeat-executed core arms have NO automation/state/fleet/<arm>/decisions.jsonl
+# (that file is fleet_rest-only -- confirmed 2026-09-05: safe-2/bold-2's fleet dirs hold
+# only entry-claim/exit-state/flat-streak, never decisions.jsonl). Before this fix,
+# `_fleet_decisions_for_arm_day` returned [] for these two arms unconditionally, so
+# EVERY missed wave for safe-2/bold-2 fell through to the generic "no matching fleet
+# decision row found (fail-open)" label even when core-decisions.jsonl had a fully
+# informative HOLD/SKIP_* row at that exact tick. Fix (GOAL-FLEET-CAPTURE-GAP-2026-09-05
+# F3): read core-decisions.jsonl (`account` safe|bold) for these two arms instead, and
+# reshape each row into the same {ts_et, reason, risk_code} shape _refusal_reason reads,
+# using the row's own `verdict` as the risk_code substitute (None only for a genuine
+# no-signal HOLD with no blockers -- everything else, e.g. SKIP_STRUCTURE_VETO, carries
+# real attribution). See test_right_tail_capture_core_account_fallback.py.
+CORE_ACCOUNT_FOR_ARM = {"safe-2": "safe", "bold-2": "bold"}
+CORE_DECISIONS_PATH = REPO / "automation" / "state" / "core-decisions.jsonl"
+
+
+# SECOND fix discovered while attributing the missed rows this reshape produced (F1/F2
+# fire, same session): `verdict` only records what the SIGNAL layer wanted to do
+# (ENTER_BULL/ENTER_BEAR/HOLD) -- it does NOT record what happened downstream at the
+# execution layer. Real example, account=bold 2026-08-04T12:26:55: verdict=ENTER_BULL,
+# reason="...passed scoring + all entry gates (tier ELITE)" (reads as a clean entry),
+# but the row's own top-level `action` field is "RISK_DENY_PDT" and `exec.status` is
+# "RISK_DENY_PDT" / reason "bold: 3 day-trades in 5d at equity $5,478 < $25,000 -- PDT
+# rule blocks a 4th day-trade" -- the trade the goal's own DONE-WHEN calls mechanism (4)
+# risk_gate deny. The v1 reshape above used `verdict` as risk_code and would have
+# labeled this row "ALLOW" (filtered out as a non-refusal), hiding a real PDT denial
+# behind a false-clean ENTER_BULL. `action` is the authoritative post-gate outcome
+# (HOLD / SKIP_<gate-name> / RISK_DENY_<code> / PLACE_FAIL / PLACED / VETOED_BY_MODELS)
+# and is what this function now reads. Guard:
+# test_right_tail_capture_core_action_field_not_verdict.
+_CORE_NO_SIGNAL_ACTIONS = frozenset({"HOLD"})
+_CORE_REAL_ENTRY_ACTIONS = frozenset({"PLACED"})
+
+
+def _core_decisions_reshaped_for_arm_day(arm: str, day: str) -> list[dict[str, Any]]:
+    account = CORE_ACCOUNT_FOR_ARM[arm]
+    rows = _load_jsonl(CORE_DECISIONS_PATH)
+    out = []
+    for r in rows:
+        ts = r.get("ts_et", "")
+        if r.get("account") != account or not str(ts).startswith(day):
+            continue
+        action = r.get("action")
+        reason = r.get("reason")
+        # bull_blockers/bear_blockers are populated on EVERY tick (they're the running
+        # "why this side isn't eligible right now" scoring detail, not a gate EVENT) --
+        # verified against a real 2026-08-04 HOLD row carrying bull_blockers=[10, 11]
+        # while doing nothing else notable. `action` alone is the real event marker.
+        if action in _CORE_NO_SIGNAL_ACTIONS:
+            risk_code = None  # genuine "no setup fired" -- not an attributable gate
+        elif action in _CORE_REAL_ENTRY_ACTIONS:
+            risk_code = "ALLOW"
+        else:
+            # every SKIP_*/RISK_DENY_*/PLACE_FAIL/VETOED_BY_MODELS/None-with-blockers
+            # action is real, named attribution -- pass it through verbatim.
+            risk_code = action or "CORE_HOLD_WITH_BLOCKERS"
+        out.append({"ts_et": ts, "reason": reason or action, "risk_code": risk_code,
+                     "action": action, "exec_status": (r.get("exec") or {}).get("status")})
+    out.sort(key=lambda r: r.get("ts_et", ""))
+    return out
+
+
 def _fleet_decisions_for_arm_day(arm: str, day: str) -> list[dict[str, Any]]:
+    if arm in CORE_ACCOUNT_FOR_ARM:
+        return _core_decisions_reshaped_for_arm_day(arm, day)
     rows = _load_jsonl(FLEET_DIR / arm / "decisions.jsonl")
     out = [r for r in rows if str(r.get("ts_et", "")).startswith(day)]
     out.sort(key=lambda r: r.get("ts_et", ""))
@@ -171,6 +235,20 @@ def _exit_multiple_for_fill(entry_fill: dict[str, Any], fills: list[dict[str, An
     return round(best, 4), best >= TP1_MULTIPLE, best >= RUNNER_MULTIPLE
 
 
+# Bug fixed 2026-09-05 (GOAL-FLEET-CAPTURE-GAP-2026-09-05 F3, discriminating evidence:
+# safe-3/risky-1 decisions.jsonl carry risk_code=None on EVERY min_triggers/confluence
+# gate rejection -- e.g. {"risk_code": None, "reason": "gate: 1 triggers < 2"} -- because
+# risk_code is only ever populated on the risk_gate.py path (NOT_FLAT / SKIP_MIN_PREMIUM_
+# FLOOR / FLEET_SETTLEMENT_CAP / ALLOW), never on the earlier fleet_executor gate_override
+# check. The old `risk_code not in (None, "ALLOW")` filter therefore discarded ALL 938
+# gate-rejection rows across safe-3+risky-1 (223+286 safe-3, 155+206 risky-1, counted this
+# session), which is exactly the goal's named "dominant refusal bucket" mechanism -- it was
+# being systematically mislabeled "no matching fleet decision row found" instead of
+# attributed to the real gate. Fix: also admit a reason starting with "gate:" or
+# "A+ gate:" regardless of risk_code. Guard: test_right_tail_capture_gate_reason_recovery.
+_GATE_REASON_PREFIXES = ("gate:", "a+ gate:")
+
+
 def _refusal_reason(decisions: list[dict[str, Any]], after: dt.datetime,
                      window_min: float = 90.0, lookback_min: float = 10.0) -> str | None:
     """Best (most informative) HOLD-with-reason row for this arm within the
@@ -185,8 +263,12 @@ def _refusal_reason(decisions: list[dict[str, Any]], after: dt.datetime,
         if -lookback_min <= gap_min <= window_min:
             reason = r.get("reason")
             risk_code = r.get("risk_code")
-            if reason and risk_code not in (None, "ALLOW"):
-                candidates.append((ts, reason, risk_code))
+            if not reason:
+                continue
+            is_gate_reason = str(reason).strip().lower().startswith(_GATE_REASON_PREFIXES)
+            if risk_code not in (None, "ALLOW") or is_gate_reason:
+                effective_code = risk_code if risk_code not in (None, "ALLOW") else "GATE"
+                candidates.append((ts, reason, effective_code))
     if not candidates:
         return None
     candidates.sort(key=lambda c: c[0])

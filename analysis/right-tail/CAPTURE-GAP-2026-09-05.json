@@ -1,0 +1,524 @@
+{
+  "_doc": "GOAL-FLEET-CAPTURE-GAP-2026-09-05 F2. Mechanism 1-8 classification + dollar table per arm. Dollar formula: (best-taking-arm exit_multiple - 1.0) * missing arm's own median real-fill/ENTER notional; falls back to (peak_multiple_on_tape - 1.0) * notional (labeled proxy=true, UNVERIFIED tape-truth not a realized fill) when no arm captured the wave.",
+  "standard_notional_per_arm": {
+    "safe-2": 406.5,
+    "bold-2": 360.0,
+    "safe-3": 246.0,
+    "risky-1": 480.0
+  },
+  "per_arm_mechanism": {
+    "safe-2": {
+      "1": {
+        "n": 4,
+        "dollars": 2399.36,
+        "rows": [
+          {
+            "date": "2026-08-12",
+            "wave_start_et": "2026-08-12T13:16:05",
+            "evidence_row_quoted": "SKIP_STRUCTURE_VETO: structure-veto: P entry blocked \u2014 price structure is 'uptrend' (wrong-way entry)",
+            "dollars": 442.96,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-13",
+            "wave_start_et": "2026-08-13T11:41:04",
+            "evidence_row_quoted": "SKIP_BULL_1100_1200: blocked by entry gate block_bull_1100_1200",
+            "dollars": -71.26,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T13:06:04",
+            "evidence_row_quoted": "SKIP_STRUCTURE_VETO: structure-veto: P entry blocked \u2014 price structure is 'uptrend' (wrong-way entry)",
+            "dollars": 440.36,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-21",
+            "wave_start_et": "2026-08-21T13:34:04",
+            "evidence_row_quoted": "SKIP_STRUCTURE_VETO: structure-veto: C entry blocked \u2014 price structure is 'downtrend' (wrong-way entry)",
+            "dollars": 1587.3,
+            "proxy": false
+          }
+        ]
+      },
+      "2": {
+        "n": 1,
+        "dollars": 203.25,
+        "rows": [
+          {
+            "date": "2026-08-12",
+            "wave_start_et": "2026-08-12T14:16:04",
+            "evidence_row_quoted": "RISK_DENY_SETTLEMENT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+            "dollars": 203.25,
+            "proxy": false
+          }
+        ]
+      },
+      "7": {
+        "n": 2,
+        "dollars": 1224.09,
+        "rows": [
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T15:01:03",
+            "evidence_row_quoted": "SKIP_LATE_ENTRY: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+            "dollars": 375.24,
+            "proxy": true
+          },
+          {
+            "date": "2026-08-18",
+            "wave_start_et": "2026-08-18T15:31:03",
+            "evidence_row_quoted": "SKIP_LATE_ENTRY: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+            "dollars": 848.85,
+            "proxy": true
+          }
+        ]
+      }
+    },
+    "bold-2": {
+      "4": {
+        "n": 3,
+        "dollars": 677.2,
+        "rows": [
+          {
+            "date": "2026-08-04",
+            "wave_start_et": "2026-08-04T12:26:03",
+            "evidence_row_quoted": "RISK_DENY_PDT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+            "dollars": 530.53,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-05",
+            "wave_start_et": "2026-08-05T11:46:03",
+            "evidence_row_quoted": "VETOED_BY_MODELS: BEARISH_REJECTION_RIDE_THE_RIBBON passed scoring + all entry gates (tier TRENDLINE)",
+            "dollars": 198.11,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-07",
+            "wave_start_et": "2026-08-07T09:46:03",
+            "evidence_row_quoted": "RISK_DENY_PDT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+            "dollars": -51.44,
+            "proxy": false
+          }
+        ]
+      },
+      "1": {
+        "n": 6,
+        "dollars": 2522.49,
+        "rows": [
+          {
+            "date": "2026-08-06",
+            "wave_start_et": "2026-08-06T10:31:03",
+            "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+            "dollars": 402.19,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-12",
+            "wave_start_et": "2026-08-12T14:16:04",
+            "evidence_row_quoted": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
+            "dollars": 180.0,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-13",
+            "wave_start_et": "2026-08-13T14:36:04",
+            "evidence_row_quoted": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
+            "dollars": 897.23,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T15:01:03",
+            "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+            "dollars": 332.32,
+            "proxy": true
+          },
+          {
+            "date": "2026-08-18",
+            "wave_start_et": "2026-08-18T15:31:03",
+            "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+            "dollars": 751.75,
+            "proxy": true
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T14:56:03",
+            "evidence_row_quoted": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY: blocked by entry gate require_bearish_fill_bar",
+            "dollars": -41.0,
+            "proxy": false
+          }
+        ]
+      },
+      "6": {
+        "n": 4,
+        "dollars": 1664.0,
+        "rows": [
+          {
+            "date": "2026-08-21",
+            "wave_start_et": "2026-08-21T12:26:03",
+            "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+            "dollars": 389.09,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-21",
+            "wave_start_et": "2026-08-21T13:34:04",
+            "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+            "dollars": 1405.73,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-25",
+            "wave_start_et": "2026-08-25T13:16:03",
+            "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+            "dollars": -102.85,
+            "proxy": false
+          },
+          {
+            "date": "2026-09-02",
+            "wave_start_et": "2026-09-02T13:06:03",
+            "evidence_row_quoted": "SKIP_MIN_PREMIUM_FLOOR: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier SUPER)",
+            "dollars": -27.97,
+            "proxy": false
+          }
+        ]
+      },
+      "3": {
+        "n": 1,
+        "dollars": 344.77,
+        "rows": [
+          {
+            "date": "2026-08-27",
+            "wave_start_et": "2026-08-27T12:31:03",
+            "evidence_row_quoted": "NOT_FLAT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
+            "dollars": 344.77,
+            "proxy": false
+          }
+        ]
+      }
+    },
+    "safe-3": {
+      "1": {
+        "n": 12,
+        "dollars": 2140.48,
+        "rows": [
+          {
+            "date": "2026-08-05",
+            "wave_start_et": "2026-08-05T11:46:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 135.37,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-06",
+            "wave_start_et": "2026-08-06T10:31:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 274.83,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-11",
+            "wave_start_et": "2026-08-11T11:51:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": -49.2,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-11",
+            "wave_start_et": "2026-08-11T13:31:05",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 376.53,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-12",
+            "wave_start_et": "2026-08-12T13:16:05",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 268.07,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-14",
+            "wave_start_et": "2026-08-14T12:14:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": -30.11,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T13:06:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 266.49,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-18",
+            "wave_start_et": "2026-08-18T14:36:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 238.05,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T12:56:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 242.48,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T14:01:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 137.19,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T14:56:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": -28.02,
+            "proxy": false
+          },
+          {
+            "date": "2026-09-01",
+            "wave_start_et": "2026-09-01T13:21:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 308.8,
+            "proxy": false
+          }
+        ]
+      },
+      "8": {
+        "n": 2,
+        "dollars": 740.78,
+        "rows": [
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T15:01:03",
+            "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+            "dollars": 227.08,
+            "proxy": true
+          },
+          {
+            "date": "2026-08-18",
+            "wave_start_et": "2026-08-18T15:31:03",
+            "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+            "dollars": 513.7,
+            "proxy": true
+          }
+        ]
+      },
+      "3": {
+        "n": 1,
+        "dollars": 235.59,
+        "rows": [
+          {
+            "date": "2026-08-27",
+            "wave_start_et": "2026-08-27T12:31:03",
+            "evidence_row_quoted": "NOT_FLAT: risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+            "dollars": 235.59,
+            "proxy": false
+          }
+        ]
+      }
+    },
+    "risky-1": {
+      "1": {
+        "n": 7,
+        "dollars": 2214.44,
+        "rows": [
+          {
+            "date": "2026-08-14",
+            "wave_start_et": "2026-08-14T12:14:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": -58.75,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T13:06:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 519.98,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-18",
+            "wave_start_et": "2026-08-18T14:36:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 464.5,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T12:56:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 473.14,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T14:01:04",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 267.7,
+            "proxy": false
+          },
+          {
+            "date": "2026-08-20",
+            "wave_start_et": "2026-08-20T14:56:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": -54.67,
+            "proxy": false
+          },
+          {
+            "date": "2026-09-01",
+            "wave_start_et": "2026-09-01T13:21:03",
+            "evidence_row_quoted": "GATE: gate: 1 triggers < 2",
+            "dollars": 602.54,
+            "proxy": false
+          }
+        ]
+      },
+      "8": {
+        "n": 2,
+        "dollars": 1445.43,
+        "rows": [
+          {
+            "date": "2026-08-17",
+            "wave_start_et": "2026-08-17T15:01:03",
+            "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+            "dollars": 443.09,
+            "proxy": true
+          },
+          {
+            "date": "2026-08-18",
+            "wave_start_et": "2026-08-18T15:31:03",
+            "evidence_row_quoted": "no matching fleet decision row found (fail-open)",
+            "dollars": 1002.34,
+            "proxy": true
+          }
+        ]
+      },
+      "3": {
+        "n": 1,
+        "dollars": 459.7,
+        "rows": [
+          {
+            "date": "2026-08-27",
+            "wave_start_et": "2026-08-27T12:31:03",
+            "evidence_row_quoted": "NOT_FLAT: risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+            "dollars": 459.7,
+            "proxy": false
+          }
+        ]
+      }
+    }
+  },
+  "summary_table": [
+    {
+      "arm": "safe-2",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "n_missed_waves": 4,
+      "dollar_estimate": 2399.36
+    },
+    {
+      "arm": "safe-2",
+      "mechanism": 2,
+      "mechanism_label": "settlement / same-day-entries cap",
+      "n_missed_waves": 1,
+      "dollar_estimate": 203.25
+    },
+    {
+      "arm": "safe-2",
+      "mechanism": 7,
+      "mechanism_label": "took it late (>2 ticks) and it no longer cleared 1.3x from the late entry -- or was SKIPPED outright as too-late to qualify",
+      "n_missed_waves": 2,
+      "dollar_estimate": 1224.09
+    },
+    {
+      "arm": "bold-2",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "n_missed_waves": 6,
+      "dollar_estimate": 2522.49
+    },
+    {
+      "arm": "bold-2",
+      "mechanism": 3,
+      "mechanism_label": "NOT_FLAT -- still holding a prior position",
+      "n_missed_waves": 1,
+      "dollar_estimate": 344.77
+    },
+    {
+      "arm": "bold-2",
+      "mechanism": 4,
+      "mechanism_label": "risk_gate deny (a named risk/veto code)",
+      "n_missed_waves": 3,
+      "dollar_estimate": 677.2
+    },
+    {
+      "arm": "bold-2",
+      "mechanism": 6,
+      "mechanism_label": "sizing SIZE_BELOW_MIN / affordability",
+      "n_missed_waves": 4,
+      "dollar_estimate": 1664.0
+    },
+    {
+      "arm": "safe-3",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "n_missed_waves": 12,
+      "dollar_estimate": 2140.48
+    },
+    {
+      "arm": "safe-3",
+      "mechanism": 3,
+      "mechanism_label": "NOT_FLAT -- still holding a prior position",
+      "n_missed_waves": 1,
+      "dollar_estimate": 235.59
+    },
+    {
+      "arm": "safe-3",
+      "mechanism": 8,
+      "mechanism_label": "NO EVIDENCE -- no gate/risk/NOT_FLAT/sizing/lateness row found in-window on any source AND the fleet tick was confirmed ticking every minute (ruling out mechanism 5's literal cadence-outage reading); the fleet strategy registry itself never recognized this setup. Does not cleanly match 1-7 -- reported honestly as its own bucket rather than force-fit.",
+      "n_missed_waves": 2,
+      "dollar_estimate": 740.78
+    },
+    {
+      "arm": "risky-1",
+      "mechanism": 1,
+      "mechanism_label": "fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence) -- or, for the two core (non-gate_override) arms, this account's OWN entry gate (structure veto / quality-lock / time-window filter) blocked it on this account's own tick while the OTHER core account's ribbon fired",
+      "n_missed_waves": 7,
+      "dollar_estimate": 2214.44
+    },
+    {
+      "arm": "risky-1",
+      "mechanism": 3,
+      "mechanism_label": "NOT_FLAT -- still holding a prior position",
+      "n_missed_waves": 1,
+      "dollar_estimate": 459.7
+    },
+    {
+      "arm": "risky-1",
+      "mechanism": 8,
+      "mechanism_label": "NO EVIDENCE -- no gate/risk/NOT_FLAT/sizing/lateness row found in-window on any source AND the fleet tick was confirmed ticking every minute (ruling out mechanism 5's literal cadence-outage reading); the fleet strategy registry itself never recognized this setup. Does not cleanly match 1-7 -- reported honestly as its own bucket rather than force-fit.",
+      "n_missed_waves": 2,
+      "dollar_estimate": 1445.43
+    }
+  ],
+  "mechanism_totals_dollars": {
+    "1": 9276.77,
+    "2": 203.25,
+    "7": 1224.09,
+    "3": 1040.06,
+    "4": 677.2,
+    "6": 1664.0,
+    "8": 2186.21
+  },
+  "total_missed_waves": 46,
+  "join_row_count": 46,
+  "row_count_matches_missed": true
+}

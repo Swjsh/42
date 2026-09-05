@@ -1,0 +1,28 @@
+{
+  "id": "PREREG-FLEET-CAPTURE-MECHANISM6-SIZING-FLOOR-2026-09-05",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)",
+  "goal": "GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4",
+  "filed_by": "Sonnet worker, GOAL-FLEET-CAPTURE-GAP-2026-09-05 F1-F4 fire, 2026-09-05",
+  "source_evidence": "analysis/right-tail/CAPTURE-GAP-2026-09-05.json + .md (F1/F2), built from analysis/right-tail/ledger.jsonl (right_tail_capture.py, F3-fixed this session).",
+  "mechanism": "6 -- sizing SIZE_BELOW_MIN / affordability",
+  "dollar_figure": 1664.0,
+  "n_missed_waves": 4,
+  "arm": "bold-2",
+  "evidence_rows_quoted": [
+    "bold-2: 4 missed waves, e.g. {\"refused_by_gate\": \"SKIP_MIN_PREMIUM_FLOOR: ...\"} (analysis/right-tail/ledger.jsonl)",
+    "setup/scripts/heartbeat_core.py:2729 return {\"status\": \"SKIP_MIN_PREMIUM_FLOOR\", ...} -- the core-engine admission check that fires this code for account=bold",
+    "automation/state/aggressive/params.json:44 \"min_entry_premium\": 0.3 -- the floor bold-2 reads (config_source for bold-2 per accounts.json)",
+    "automation/state/aggressive/params.json's own _min_entry_premium_doc: floor is ENGINE-WIDE (both heartbeat_core._execute and fleet_executor.finalize), shipped 2026-07-09 on T3 n=157 evidence that the floor RESCUED ~$685 of real losses by refusing sub-$0.20 toxic fills -- this prereg proposes touching a knob that was itself shipped on real, if dated, evidence of doing its job."
+  ],
+  "frozen_hypothesis": "Does lowering bold-2's min_entry_premium floor (0.30 -> e.g. 0.20, matching the floor's own documented toxic-fill line) recover a material share of the $1,664.00 this window attributes to SKIP_MIN_PREMIUM_FLOOR, without reintroducing the sub-$0.20 toxic-spread cohort the floor was shipped to remove (T2 mechanism finding: sub-$0.20 fills read as ~2-tick stops / ~42% spread proxy, not price action)?",
+  "the_exact_knob": {
+    "file": "automation/state/aggressive/params.json",
+    "path": "min_entry_premium: 0.3 -> a lower value strictly >= 0.20 (never below the floor's own documented toxic-fill line)",
+    "note": "aggressive/params.json is in FROZEN_TRADING_PATH -- this prereg does NOT apply the change; it is a proposal for the conductor to apply on 2026-10-30 IF the packet reads RULE MET."
+  },
+  "kill_criterion": "At the 2026-10-30 checkpoint, if a dry-run replay of the lowered floor against the forward window (2026-09-05 -> 10-30) of core-decisions.jsonl (account=bold) shows the newly-admitted sub-0.30/above-new-floor cohort has a bootstrap CI-lower(2.5%) P&L <= 0 (i.e. it re-admits the toxic sub-$0.20-class spread noise the floor was built to filter), this prereg is KILLED -- floor stays at 0.30.",
+  "extend_criterion": "If the forward window shows >=10 new SKIP_MIN_PREMIUM_FLOOR missed waves for bold-2 AND the dry-run replay shows a positive-or-neutral CI-lower(2.5%) for the newly-admitted cohort, this becomes a 2026-10-30 checkpoint SHIP candidate for the conductor.",
+  "reversible_action": "Revert: set min_entry_premium back to 0.3 in automation/state/aggressive/params.json -- one-line, byte-identical revert (the key's own _min_entry_premium_doc already documents 'Revert: set this key to 0, or delete it' for the OFF case; reverting to 0.3 is the equivalent one-line action for this specific change).",
+  "does_this_ship_anything": "No. aggressive/params.json is untouched by this fire. This is a frozen proposal only.",
+  "consumer": "2026-10-30 config-freeze checkpoint (setup/scripts/checkpoint_packet.py row 'fleet-capture-gap-mechanism6-sizing-floor', analysis/recommendations/checkpoint-2026-09-29-inventory.json)."
+}

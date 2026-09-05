@@ -356,7 +356,7 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
   const shadowLive = (shadow?.live as { name?: string; verdict?: string }[]) || [];
   const watcherRows = (watchers?.watchers as { name?: string; observations?: number; would_be_pnl?: number }[]) || [];
   const guardProblems = (guards?.problems as { name?: string; note?: string }[]) || [];
-  const righttailPerArm = (righttail?.per_arm as Record<string, { n_waves?: number; n_taken?: number; capture_rate?: number | null }>) || {};
+  const righttailPerArm = (righttail?.per_arm as Record<string, { n_waves?: number; n_taken?: number; capture_rate?: number | null; top_mechanism?: string | null }>) || {};
   const taskLanes = (tasks?.lanes as { lane?: string; worst?: string; tasks?: { name?: string; state?: string }[] }[]) || [];
   const dayline = taskLanes.flatMap((l) => (l.tasks || []).map((t) => ({ label: t.name || "", fired_today: t.state === "Ready" })));
   const doneWhen = (goal?.done_when as string[]) || [];
@@ -408,7 +408,7 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
     { key: "righttail", icon: Target, title: "Right-tail capture", verdict: sectionVerdict(righttail, righttail?.verdict), summary: say(righttail), freshness: freshLabel(righttail),
       graphic: ring(Math.round(((righttail?.book_capture_rate as number | null) ?? 0) * 100), "var(--gc-cyan)"),
       detail: <DetailList items={[
-        ...Object.entries(righttailPerArm).map(([arm, d]) => `${arm} — ${d.n_taken ?? 0}/${d.n_waves ?? 0} waves (${d.capture_rate != null ? `${(d.capture_rate * 100).toFixed(0)}%` : "N/A"})`),
+        ...Object.entries(righttailPerArm).map(([arm, d]) => `${arm} — ${d.n_taken ?? 0}/${d.n_waves ?? 0} waves (${d.capture_rate != null ? `${(d.capture_rate * 100).toFixed(0)}%` : "N/A"})${d.top_mechanism ? ` — top miss: ${d.top_mechanism}` : ""}`),
         `${(righttail?.cap4_would_refuse_count as number | undefined) ?? 0} waves flagged would_be_refused_under_cap4 (TIGHT-LADDER forward ledger, 09-29 checkpoint)`,
       ]} /> },
     { key: "guards", icon: ShieldCheck, title: "Guards", verdict: sectionVerdict(guards, guards?.verdict), summary: say(guards), freshness: freshLabel(guards),

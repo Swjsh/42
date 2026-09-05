@@ -150,7 +150,7 @@
           "side": "C",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "NOT_FLAT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
           "would_be_refused_under_cap4": true,
           "peak_multiple_on_tape": 1.5
         }

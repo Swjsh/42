@@ -1,0 +1,29 @@
+{
+  "id": "PREREG-FLEET-CAPTURE-MECHANISM1-GATE-OVERRIDE-2026-09-05",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)",
+  "goal": "GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4",
+  "filed_by": "Sonnet worker, GOAL-FLEET-CAPTURE-GAP-2026-09-05 F1-F4 fire, 2026-09-05",
+  "source_evidence": "analysis/right-tail/CAPTURE-GAP-2026-09-05.json + .md (F1/F2), built from analysis/right-tail/ledger.jsonl (right_tail_capture.py, F3-fixed this session).",
+  "mechanism": "1 -- fleet gate_override refused it (min_triggers 2 / require_confluence_or_sequence)",
+  "scope_note": "The full mechanism-1 total across all 4 arms is $9,276.77, but that number bundles two structurally different things (see CAPTURE-GAP-2026-09-05.md 'Mechanism 1 is two structurally different things'). THIS prereg covers ONLY the safe-3 + risky-1 slice ($2,140.48 + $2,214.44 = $4,354.92), the genuine single-knob gate_override case. The safe-2/bold-2 slice ($4,921.85) is a per-account core-engine structure-veto/time-window divergence with no single override knob and no prereg is filed for it (see the .md).",
+  "dollar_figure": 4354.92,
+  "n_missed_waves_this_slice": 19,
+  "evidence_rows_quoted": [
+    "safe-3: 12 missed waves, e.g. {\"refused_by_gate\": \"GATE: gate: 1 triggers < 2\"} (analysis/right-tail/ledger.jsonl)",
+    "risky-1: 7 missed waves, e.g. {\"refused_by_gate\": \"GATE: gate: requires confluence/sequence\"} (analysis/right-tail/ledger.jsonl)",
+    "automation/state/fleet/accounts.json arms[safe-3].gate_override == {\"min_triggers\": 2, \"require_confluence_or_sequence\": true}",
+    "automation/state/fleet/accounts.json arms[risky-1].gate_override == {\"full_send\": true, \"min_triggers\": 2, \"require_confluence_or_sequence\": true} (the full_send experiment layers UNDER these two selectivity keys per the arm's own _gate_restore_2026_08_12 doc -- they are orthogonal, confirmed this session by re-reading that doc field verbatim)"
+  ],
+  "frozen_hypothesis": "Does loosening safe-3's and risky-1's gate_override (min_triggers 2 -> 1, OR require_confluence_or_sequence true -> false) recover a material share of the $4,354.92 this window attributes to that gate, WITHOUT a proportional increase in losing entries that the tighter gate was itself installed to filter out (accounts.json's own grid docs frame the tight gate as the deliberate selectivity axis of the safe x tight / risky x FULL-SEND cells -- loosening it is not a free lunch, it is trading selectivity for participation)?",
+  "the_exact_knob": {
+    "file": "automation/state/fleet/accounts.json",
+    "path_safe3": "arms[id=safe-3].gate_override.min_triggers: 2 -> 1  (or require_confluence_or_sequence: true -> false)",
+    "path_risky1": "arms[id=risky-1].gate_override.min_triggers: 2 -> 1  (or require_confluence_or_sequence: true -> false)",
+    "note": "accounts.json is in FROZEN_TRADING_PATH -- this prereg does NOT apply the change; it is a proposal for the conductor to apply on 2026-10-30 IF the packet reads RULE MET."
+  },
+  "kill_criterion": "At the 2026-10-30 checkpoint, if the forward window (2026-09-05 -> 10-30) of analysis/right-tail/ledger.jsonl shows fewer than 10 new GATE-mechanism missed waves for safe-3+risky-1 combined (i.e. the gate is not the ongoing bottleneck it was in the backfill window), OR if applying either loosened setting in a dry-run replay against the SAME forward window's core-decisions.jsonl shows the loosened gate would have ALSO admitted a majority-losing cohort (bootstrap CI-lower(2.5%) of the newly-admitted trades' P&L <= 0), this prereg is KILLED -- gate stays as-is.",
+  "extend_criterion": "If the forward window shows >=10 new GATE-mechanism missed waves for this slice AND a dry-run replay of the loosened setting against those same forward ticks shows a positive-or-neutral CI-lower(2.5%) for the newly-admitted cohort, this becomes a 2026-10-30 checkpoint SHIP candidate for the conductor.",
+  "reversible_action": "Revert: set gate_override.min_triggers back to 2 / require_confluence_or_sequence back to true on the changed arm(s) -- one-line, byte-identical revert, matches the pattern of every other gate_override edit already documented in accounts.json.",
+  "does_this_ship_anything": "No. accounts.json is untouched by this fire. This is a frozen proposal only.",
+  "consumer": "2026-10-30 config-freeze checkpoint (setup/scripts/checkpoint_packet.py row 'fleet-capture-gap-mechanism1-gate-override', analysis/recommendations/checkpoint-2026-09-29-inventory.json)."
+}

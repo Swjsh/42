@@ -95,7 +95,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_STRUCTURE_VETO: structure-veto: P entry blocked \u2014 price structure is 'uptrend' (wrong-way entry)",
           "would_be_refused_under_cap4": true,
           "peak_multiple_on_tape": 1.3636
         },
@@ -105,7 +105,7 @@
           "side": "C",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "RISK_DENY_SETTLEMENT: BULLISH_RECLAIM_RIDE_THE_RIBBON passed scoring + all entry gates (tier ELITE)",
           "would_be_refused_under_cap4": true,
           "peak_multiple_on_tape": 1.3846
         }
@@ -141,7 +141,7 @@
           "side": "C",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "refused_by_gate": "SKIP_CONF_LVL_REC_AFTERNOON: blocked by entry gate block_conf_lvl_rec_afternoon",
           "would_be_refused_under_cap4": true,
           "peak_multiple_on_tape": 1.3846
         }
@@ -162,7 +162,7 @@
           "side": "P",
           "scored": true,
           "taken": false,
-          "refused_by_gate": "NOT_FLAT: risk_gate denied: PA32T7Q1O20H: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
+          "refused_by_gate": "GATE: gate: 1 triggers < 2",
           "would_be_refused_under_cap4": false,
           "peak_multiple_on_tape": 1.3636
         },

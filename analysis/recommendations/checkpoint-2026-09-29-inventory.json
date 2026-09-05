@@ -1,5 +1,5 @@
 {
-  "_doc": "GOAL-CHECKPOINT-PACKET-2026-09-29 C1. Inventory of every prereg/decision that names the 2026-09-29 or 2026-10-30 checkpoint, tagged reduction|expansion|shadow-read|tooling. Classification rule (per goal): a change that can ONLY reduce risk/exposure (retire a shadow, tighten, remove) is 09-29-eligible; anything that adds entries/size/loosens a gate is an EXPANSION routed to 10-30 regardless of its numbers. Consumed by setup/scripts/checkpoint_packet.py -- hand-maintained, not generated.",
+  "_doc": "GOAL-CHECKPOINT-PACKET-2026-09-29 C1. Inventory of every prereg/decision that names the 2026-09-29 or 2026-10-30 checkpoint, tagged reduction|expansion|shadow-read|tooling. Classification rule (per goal): a change that can ONLY reduce risk/exposure (retire a shadow, tighten, remove) is 09-29-eligible; anything that adds entries/size/loosens a gate is an EXPANSION routed to 10-30 regardless of its numbers. Consumed by setup/scripts/checkpoint_packet.py -- hand-maintained, not generated. [2026-09-05 GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4: +2 rows, fleet-capture-gap-mechanism1-gate-override + fleet-capture-gap-mechanism6-sizing-floor, both checkpoint=2026-10-30.]",
   "generated_by": "human inventory pass (Sonnet, GOAL-CHECKPOINT-PACKET-2026-09-29 C1), 2026-09-05",
   "method": "grep -l '09-29\\|10-30' analysis/recommendations/*.json *.md, cross-referenced against the nine decisions named verbatim in automation/state/goals/GOAL-CHECKPOINT-PACKET-2026-09-29.md DONE-WHEN.",
   "rows": [
@@ -110,6 +110,47 @@
       "frozen_hypothesis": "Is the -50% catastrophe cap and the day-throttle (T-2/T-6 realized-loss re-entry block) net-helping or net-hurting on live fills, accruing forward?",
       "decision_rule_verbatim": "day_throttle_shadow.py: 'SHADOW ONLY. Neither threshold refuses anything live. This script writes measurements.' catastrophe-cap-shadow-ledger.jsonl rows carry would_have_been_better_held / delta_vs_actual per stopped trade -- read as an aggregate, no frozen n-threshold ships a change by itself.",
       "reversible_action": "None shipped -- both remain measurement-only; any indicted tightening is filed as a fresh prereg for 09-29 (reduction) or 10-30, never applied from this read directly."
+    },
+    {
+      "row_id": "fleet-capture-gap-mechanism1-gate-override",
+      "prereg_path": "analysis/recommendations/prereg-fleet-capture-mechanism1-gate-override-10-30-2026-09-05.json",
+      "ledger_path": "analysis/right-tail/ledger.jsonl",
+      "scorer": "capture_gap_mechanism",
+      "mechanism_arms": [
+        "safe-3",
+        "risky-1"
+      ],
+      "mechanism_codes": [
+        "GATE"
+      ],
+      "min_n": 10,
+      "forward_window_start": "2026-09-05",
+      "classification": "expansion",
+      "classification_reason": "Loosening safe-3/risky-1's gate_override (min_triggers 2->1 or dropping require_confluence_or_sequence) admits MORE entries -- an expansion, routed to 10-30 regardless of the backfill's $4,354.92 attributed figure.",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "See prereg's frozen_hypothesis field verbatim.",
+      "decision_rule_verbatim": "See prereg's kill_criterion / extend_criterion fields verbatim.",
+      "reversible_action": "Revert gate_override.min_triggers/require_confluence_or_sequence to their current values in automation/state/fleet/accounts.json -- one-line, byte-identical."
+    },
+    {
+      "row_id": "fleet-capture-gap-mechanism6-sizing-floor",
+      "prereg_path": "analysis/recommendations/prereg-fleet-capture-mechanism6-sizing-floor-10-30-2026-09-05.json",
+      "ledger_path": "analysis/right-tail/ledger.jsonl",
+      "scorer": "capture_gap_mechanism",
+      "mechanism_arms": [
+        "bold-2"
+      ],
+      "mechanism_codes": [
+        "SKIP_MIN_PREMIUM_FLOOR"
+      ],
+      "min_n": 10,
+      "forward_window_start": "2026-09-05",
+      "classification": "expansion",
+      "classification_reason": "Lowering bold-2's min_entry_premium floor admits MORE entries -- an expansion, routed to 10-30 regardless of the backfill's $1,664.00 attributed figure.",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "See prereg's frozen_hypothesis field verbatim.",
+      "decision_rule_verbatim": "See prereg's kill_criterion / extend_criterion fields verbatim.",
+      "reversible_action": "Revert min_entry_premium to 0.3 in automation/state/aggressive/params.json -- one-line, byte-identical."
     }
   ],
   "extras_found_not_in_named_nine": [],

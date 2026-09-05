@@ -15,10 +15,17 @@ CONTRACT (fixed -- dashboard/components/cockpit/producer-tiles.tsx renders
 directly off this):
     build(path=None, sessions=20) -> {
         ok, path, stamp_et, verdict ("green"/"amber"/"off"),
-        sessions_counted, per_arm: {arm: {n_waves, n_taken, capture_rate}},
+        sessions_counted, per_arm: {arm: {n_waves, n_taken, capture_rate, top_mechanism}},
         book_capture_rate, cap4_would_refuse_count,
         say,
     }
+
+`top_mechanism` (added GOAL-FLEET-CAPTURE-GAP-2026-09-05 F5) is the most frequent
+`refused_by_gate` code (text before ':') among this arm's missed waves in the trailing
+window, e.g. "GATE" / "HOLD" / "SKIP_MIN_PREMIUM_FLOOR" / "NOT_FLAT" -- None when the
+arm has no missed waves in the window. Purely descriptive (not a mechanism-number
+lookup -- see analysis/right-tail/CAPTURE-GAP-2026-09-05.json for the full 1-8
+classification); additive field, does not change any existing key's shape.
 """
 from __future__ import annotations
 
@@ -76,6 +83,7 @@ def build(path: Path | None = None, sessions: int = 20) -> dict[str, Any]:
     trailing_dates = set(dates[-sessions:])
 
     per_arm: dict[str, dict[str, Any]] = {a: {"n_waves": 0, "n_taken": 0} for a in ARMS}
+    mechanism_counts: dict[str, dict[str, int]] = {a: {} for a in ARMS}
     cap4_count = 0
     for r in rows:
         if r.get("date") not in trailing_dates:
@@ -87,11 +95,16 @@ def build(path: Path | None = None, sessions: int = 20) -> dict[str, Any]:
             per_arm[arm]["n_waves"] += 1
             if r.get("taken"):
                 per_arm[arm]["n_taken"] += 1
+            elif r.get("refused_by_gate"):
+                code = str(r["refused_by_gate"]).split(":", 1)[0].strip()
+                mechanism_counts[arm][code] = mechanism_counts[arm].get(code, 0) + 1
             if r.get("would_be_refused_under_cap4"):
                 cap4_count += 1
 
     for arm, d in per_arm.items():
         d["capture_rate"] = round(d["n_taken"] / d["n_waves"], 4) if d["n_waves"] else None
+        counts = mechanism_counts[arm]
+        d["top_mechanism"] = max(counts, key=counts.get) if counts else None
 
     total_waves = sum(d["n_waves"] for d in per_arm.values())
     total_taken = sum(d["n_taken"] for d in per_arm.values())

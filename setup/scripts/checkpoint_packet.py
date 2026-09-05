@@ -467,7 +467,52 @@ def _score_catastrophe_cap_and_day_throttle(row: dict, today: str) -> dict:
     }
 
 
+def _score_capture_gap_mechanism(row: dict, today: str) -> dict:
+    """GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4. Generic scorer for both mechanism-1
+    (gate_override) and mechanism-6 (sizing floor) preregs: counts forward-window
+    (date > the prereg's filed_at, i.e. after 2026-09-05) missed (wave, arm) rows in
+    analysis/right-tail/ledger.jsonl whose `arm` is in the row's `mechanism_arms` and
+    whose `refused_by_gate` code (text before ':') is in `mechanism_codes`. INSUFFICIENT
+    N below `min_n` (default 10, matching each prereg's own extend_criterion)."""
+    ledger_path = REPO / (row.get("ledger_path") or "analysis/right-tail/ledger.jsonl")
+    arms = set(row.get("mechanism_arms", []))
+    codes = set(row.get("mechanism_codes", []))
+    min_n = row.get("min_n", 10)
+    rows = _read_jsonl(ledger_path)
+    forward_start = row.get("forward_window_start", "2026-09-05")
+    matches = []
+    for r in rows:
+        if "wave_start_et" not in r or "taken" not in r:
+            continue
+        if r.get("taken") or r.get("date", "") <= forward_start:
+            continue
+        if arms and r.get("arm") not in arms:
+            continue
+        refused = r.get("refused_by_gate") or ""
+        code = refused.split(":", 1)[0].strip()
+        if codes and code not in codes:
+            continue
+        matches.append(r)
+    n = len(matches)
+    verdict = VERDICT_INSUFFICIENT_N if n < min_n else VERDICT_NOT_MET
+    return {
+        "verdict": verdict,
+        "n": n,
+        "numbers": {
+            "forward_missed_matching_rows": n, "min_n": min_n,
+            "forward_window_start": forward_start,
+            "sample_dates": sorted({r.get("date") for r in matches})[:5],
+        },
+        "note": "Forward-window count of missed waves still attributable to this "
+                "mechanism after 2026-09-05, per this prereg's own extend_criterion. "
+                "RULE MET is never emitted by this generic scorer -- the dry-run P&L "
+                "replay in each prereg's kill_criterion/extend_criterion is a separate, "
+                "not-yet-built step; INSUFFICIENT N / NOT MET only reflect the count gate.",
+    }
+
+
 _SCORERS: dict[str, Callable[[dict, str], dict]] = {
+    "capture_gap_mechanism": _score_capture_gap_mechanism,
     "tight_ladder_control4": _score_tight_ladder_control4,
     "tight_ladder_control5": _score_tight_ladder_control5,
     "score_ladder_v2_retirement": _score_score_ladder_v2_retirement,

@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T07:31:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T07:45:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 03:45 ET] GOAL-FLEET-CAPTURE-GAP-2026-09-05 CLOSED -- 46/46 missed (wave, arm) pairs attributed; gates are the cost: $9,277 ceiling of right-tail refused over 25 days (fleet gate_override $4,355 on safe-3/risky-1; core structure/time gates $4,922 on safe-2/bold-2); 2 attribution defects fixed; 2 preregs filed for 10-30
+Other mechanisms: NOT_FLAT $1,040, bold-2 min-premium floor $1,664 (prereg filed), late entry $1,224 (safe-2), settlement $203, risk_gate deny $677, no-evidence bucket $2,186 (proxy, 2 waves missed by all arms). Top mechanism per arm on the cockpit right-tail tile: safe-2 SKIP_STRUCTURE_VETO, bold-2 SKIP_MIN_PREMIUM_FLOOR, safe-3/risky-1 GATE. CAVEAT (fable-too-good): these are missed-WINNER ceilings (the wave paid on another arm x the missing arm's size); the same gates also refused losers. Net gate cost = next goal (GOAL-GATE-NET-COST) before any 10-30 prereg is decidable. Defects: right_tail_capture discarded every `gate:`-prefixed fleet rejection (no risk_code) and read core arms from an empty fleet file -- fixed, 6 guard tests. 96 right-tail/checkpoint tests green.
+
 
 ## [2026-09-05 07:3x ET] GOAL-CHECKPOINT-PACKET-2026-09-29 CLOSED -- hand-check done: 3 RULE MET / 1 NOT MET / 1 PROVISIONAL / 4 INSUFFICIENT N, every MET/NOT-MET row carries a second-method hand_check, packages ready 1/2
 The two verdicts Fable flagged were scorer bugs, now fixed + RED-proofed: the -$400/arm/day stop reads RULE MET (direct trades.csv walk: 8 blocks, net -$1,601 avoided, exact match to the prereg interim block; it is already live as daily_loss_kill_switch_dollars=400); the catastrophe-cap/day-throttle row was a category error (no rule to fail; 620 fills not ticks) -> PROVISIONAL; cap-4 row now reads the valid right-tail ledger: 16 post-08-31 waves, 0 refused by the cap -> RULE NOT MET, still an EXPANSION routed to 10-30. Score-ladder shadow retirement RULE MET (56 rows, total delta -$27,345) with its package ready (analysis/recommendations/packages/score-ladder-v2-shadow-retirement/, apply.ps1 needs GAMMA_FREEZE_OVERRIDE, dry-run clean, nothing applied). markdown/planning/CHECKPOINT-2026-09-29.md and -10-30.md regenerate nightly (Gamma_CheckpointPacket 23:30 ET). Ladder now: FLEET-CAPTURE-GAP running; REDUCTION-PACKAGES done.
@@ -427,3 +431,16 @@ Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec 
 
 ## Kitchen
 Kitchen: alive, queue 53 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: prereg-hygiene 2026-09-05T03:41:06
+- 21 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-05T07:20:23Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-05T07:20:23Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
+  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
