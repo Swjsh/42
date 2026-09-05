@@ -72,7 +72,7 @@ CANDIDATE-ONLY by design); adjudicate them too since DONE-WHEN requires FLAGGED 
   `project_entry_exit_matrix_stop_a_2026_07_08.md` ("loses real fills; superseded by
   SS-B") — that one is very likely a `KILL` on sight, cite the superseding file.
   DONE-WHEN: same as P2.
-- [~] P5 (WIP 2026-09-05 00:4x ET, Fable EOD-audit session a16e320c: Sonnet workers on P4/P5/P6+P7 in parallel, P8 in the orchestrator -- do not pick up from another session) — Adjudicate the ENTRY-LOCATION/TRENDLINE/STRUCTURE family (9 files:
+- [x] P5 (DONE 2026-09-05 01:0x ET, Sonnet worker: 9 files -> 1 KILL TRENDLINE-ENGINE-VALIDATION (Cell B n=2,411 -$27,378 p=0.0012), 7 NULL, 1 EXTEND ENTRY-RANGE-CONTEXT n=23<30; commit aec30513) — Adjudicate the ENTRY-LOCATION/TRENDLINE/STRUCTURE family (9 files:
   ENTRY-RANGE-CONTEXT-2026-08-14, ENTRY-LOCATION-GATE-2026-08-14,
   TRENDLINE-BREAK-AT-LEVEL-2026-08-13, RIBBON-CONFIRM-2026-08-11,
   TRENDLINE-ENGINE-VALIDATION-2026-08-09, prereg-trendline-context-conditioning
