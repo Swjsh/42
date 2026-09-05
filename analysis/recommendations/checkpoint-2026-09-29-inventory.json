@@ -1,5 +1,5 @@
 {
- "_doc": "GOAL-CHECKPOINT-PACKET-2026-09-29 C1. Inventory of every prereg/decision that names the 2026-09-29 or 2026-10-30 checkpoint, tagged reduction|expansion|shadow-read|tooling. Classification rule (per goal): a change that can ONLY reduce risk/exposure (retire a shadow, tighten, remove) is 09-29-eligible; anything that adds entries/size/loosens a gate is an EXPANSION routed to 10-30 regardless of its numbers. Consumed by setup/scripts/checkpoint_packet.py -- hand-maintained, not generated. [2026-09-05 GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4: +2 rows, fleet-capture-gap-mechanism1-gate-override + fleet-capture-gap-mechanism6-sizing-floor, both checkpoint=2026-10-30.] [2026-09-05 GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05 T4: +1 row, runner-target-vs-tape-peak, checkpoint=2026-10-30.] [2026-09-05 GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05 W2: +1 row, not-flat-second-wave, checkpoint=2026-10-30.]",
+ "_doc": "GOAL-CHECKPOINT-PACKET-2026-09-29 C1. Inventory of every prereg/decision that names the 2026-09-29 or 2026-10-30 checkpoint, tagged reduction|expansion|shadow-read|tooling. Classification rule (per goal): a change that can ONLY reduce risk/exposure (retire a shadow, tighten, remove) is 09-29-eligible; anything that adds entries/size/loosens a gate is an EXPANSION routed to 10-30 regardless of its numbers. Consumed by setup/scripts/checkpoint_packet.py -- hand-maintained, not generated. [2026-09-05 GOAL-FLEET-CAPTURE-GAP-2026-09-05 F4: +2 rows, fleet-capture-gap-mechanism1-gate-override + fleet-capture-gap-mechanism6-sizing-floor, both checkpoint=2026-10-30.] [2026-09-05 GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05 T4: +1 row, runner-target-vs-tape-peak, checkpoint=2026-10-30.] [2026-09-05 GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05 W2: +1 row, not-flat-second-wave, checkpoint=2026-10-30.] [2026-09-05 GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G2: +1 row, filter10-bull-sole-unblock, checkpoint=2026-10-30.]",
  "generated_by": "human inventory pass (Sonnet, GOAL-CHECKPOINT-PACKET-2026-09-29 C1), 2026-09-05",
  "method": "grep -l '09-29\\|10-30' analysis/recommendations/*.json *.md, cross-referenced against the nine decisions named verbatim in automation/state/goals/GOAL-CHECKPOINT-PACKET-2026-09-29.md DONE-WHEN.",
  "rows": [
@@ -187,10 +187,23 @@
    "frozen_hypothesis": "Does a second, independently-triggered wave (>=60min after the first entry, fresh two-trigger ENTER, first position at/past TP1) taken as a separate min-size lot have positive expectancy net of the extra catastrophe exposure, on the forward right-tail ledger?",
    "decision_rule_verbatim": "status: 'FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)'. kill_criteria: frozen-window net_dollars<=0 OR ex-best-day net_dollars<=0 OR top-day concentration>=0.5, evaluated at n>=20 forward second-wave refusals on the right-tail ledger; any one failure kills. Disclosed backward evidence (GATE-NET-COST-2026-09-05.json NOT_FLAT gate, deduped to waves): full-window net_dollars=7543.0 over 99 waves with 2026-08-04 alone = 4784.0 (63.4% of net, ex-that-day 2759.0); frozen window (2026-08-31-onward) net_dollars=-631.0 over 14 waves -- opposite sign from the full window.",
    "reversible_action": "None shipped -- prereg only, no params.json/strategies.py/heartbeat_core.py edit made by this filing (W1, GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05). NOT_FLAT stays a hard refusal."
+  },
+  {
+   "row_id": "filter10-bull-sole-unblock",
+   "prereg_path": "analysis/recommendations/prereg-filter10-bull-sole-unblock-10-30-2026-09-05.json",
+   "ledger_path": "analysis/recommendations/gate-postfix-costing-sole-b8b10-2026-09-05.json (backward); core-decisions.jsonl HOLD rows sole-blocked on bull filter 10 (forward accrual)",
+   "scorer": "filter10_bull_sole_unblock",
+   "classification": "expansion",
+   "classification_reason": "Lifting filter 10 on the bull door admits entries the checklist currently refuses -- a gate loosening, so per the goal routing rule it is an expansion and goes to 10-30 regardless of how positive the evidence reads.",
+   "checkpoint": "2026-10-30",
+   "frozen_hypothesis": "Do bull-side sole-blocker-on-filter-10 refusals have positive expectancy net of the losers they also refused, in both the August and frozen windows, surviving a drop-best-day concentration check?",
+   "decision_rule_verbatim": "GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G2 (2026-09-05): August window n=49, net +$1,895.10 (safe qty) / +$3,453.70 (bold qty), WR 40.8%, best_day_share 0.815, ex-best-day still positive (+$349.70). Frozen window n=10 (meets floor), net +$580.70 (safe qty) / +$1,044.40 (bold qty), best_day_share 0.835, ex-best-day still positive (+$96.00). Verdict: COST -- refusals are winners net in both windows; RED stays in STATUS.md Known broken with the $ quoted; prereg filed for 10-30, kill criteria on the forward right-tail/postfix ledger (frozen net <=0 OR concentration >=0.5 OR ex-best-day net <=0, n>=20).",
+   "reversible_action": "Remove filter 10 from the bull door blocker list in backtest/lib/filters.py (FROZEN_TRADING_PATH -- no edit before 10-30). EXPANSION, so even a clean positive-evidence finding waits for 10-30.",
+   "scorer_detail": "backtest/tools/postfix_gate_costing.py Part B (bull_filter10_safe / bull_filter10_bold cells)"
   }
  ],
  "extras_found_not_in_named_nine": [
   "tp1-qty-fraction-safe-0-8 -- found by GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05, not one of the original nine named in GOAL-CHECKPOINT-PACKET-2026-09-29.md's DONE-WHEN; added per this goal's P3 instruction to fold into the checkpoint inventory."
  ],
- "count": 14
+ "count": 15
 }

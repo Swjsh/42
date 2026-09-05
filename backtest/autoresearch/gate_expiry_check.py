@@ -67,9 +67,22 @@ violation. `evaluate_gate_pnl` now replays every armed gate's refused cohort thr
 `exit_manager.plan_exit_actions` core) instead -- the exact sound path
 `analysis/recommendations/GATE-REVALIDATION-RESULTS-2026-08-08.md` /
 `backtest/tools/gate_revalidation_ab.py` proved out the same night. This module's own
-mining/attribution layer (`load_decision_rows`, `cluster_events`, `bar_idx_for_ts`,
-`_stop_level_for_row`) was independently audited SOUND and is UNCHANGED -- only the
-forward-replay call inside `evaluate_gate_pnl` moved. Every EV record `evaluate_gate_pnl`
+mining/attribution layer (`load_decision_rows`, `cluster_events`, `bar_idx_for_ts`) was
+independently audited SOUND at the time and is UNCHANGED here -- only the forward-replay
+call inside `evaluate_gate_pnl` moved.
+
+SIDE-BLIND STOP-LEVEL FIX (2026-09-05, found during GOAL-GATE-NET-COST-2026-09-05 N2's
+hand-check, NOT the 2026-08-08 audit above -- that audit's "independently SOUND" claim on
+`_stop_level_for_row` did not catch this): the field-priority fallback (`trigger_level_exact`
+-> `bull_reclaim_level_raw` -> `bear_rejection_level_raw`, checked in that FIXED order
+regardless of `side`) returns a BULL-side level for a BEAR/put trade whenever
+`bull_reclaim_level_raw` happens to be populated on a put-side row -- reproduced concretely by
+`setup/scripts/gate_net_cost_walk.py`'s hand-check of the 2026-09-01 safe-2 762P real fill,
+where the naive order mistriggered a structure_stop within 5 minutes of entry against a trade
+that really held 82 minutes to TP1. Fixed by porting `gate_net_cost_walk._stop_level_for_wave_row`'s
+side-aware order (prefer `trigger_level_exact`, else the SIDE-MATCHING raw field only, never the
+other side's, else `_swing_stop`) into this module's `_stop_level_for_row`, RED-proofed in
+`backtest/tests/test_gate_expiry_check_side_aware_2026_09_05.py`. Every EV record `evaluate_gate_pnl`
 produces now carries `replay_engine`/`replay_soundness` provenance stamps so a future reader
 never mistakes a recomputed number for the old unsound one again. `simulate_event` (the old
 simulate_trade_real-backed replay) is kept, UNCHANGED, purely because
@@ -106,6 +119,7 @@ if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
 import argparse
 import datetime as dt
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -228,10 +242,21 @@ def bar_idx_for_ts(spy_ts: pd.Series, ts: dt.datetime) -> tuple[int | None, bool
 
 
 def _stop_level_for_row(row: dict, spy: pd.DataFrame, bar_idx: int, side: str) -> float:
-    for key in ("trigger_level_exact", "bull_reclaim_level_raw", "bear_rejection_level_raw"):
-        v = row.get(key)
-        if v is not None:
-            return float(v)
+    """SIDE-AWARE trigger level (fixed 2026-09-05 -- see module docstring "SIDE-BLIND
+    STOP-LEVEL FIX"). Was previously a fixed field-priority fallback (`trigger_level_exact`
+    -> `bull_reclaim_level_raw` -> `bear_rejection_level_raw`, checked in that order
+    regardless of `side`) that could hand a BEAR/put trade a BULL-side level. Now prefers
+    `trigger_level_exact`, else the SIDE-MATCHING raw field only (`bear_rejection_level_raw`
+    for "P", `bull_reclaim_level_raw` for "C" -- never the other side's), else `_swing_stop`.
+    Ported verbatim from `setup/scripts/gate_net_cost_walk._stop_level_for_wave_row`, which
+    found and fixed this same defect first while hand-checking a real 2026-09-01 bear fill."""
+    exact = row.get("trigger_level_exact")
+    if exact is not None:
+        return float(exact)
+    side_key = "bear_rejection_level_raw" if side == "P" else "bull_reclaim_level_raw"
+    v = row.get(side_key)
+    if v is not None:
+        return float(v)
     return _swing_stop(spy, bar_idx, side)
 
 
@@ -786,7 +811,67 @@ def sole_blocker_top5(sole_blocker_report: dict[str, dict]) -> dict[str, list[di
     return out
 
 
-def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: int) -> dict[str, dict]:
+def escalate_sole_blocker_costing(door: str, filt: int, start: dt.date, end: dt.date,
+                                   spy: pd.DataFrame, spy_ts: pd.Series, floor: int) -> dict:
+    """GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G3: invoked ONLY when the cheap NOT_REPLAYED proxy
+    has already tripped RED (n_cost >= floor) for one of the two flagship sole-blocker watches
+    -- turns that directional smoke alarm into a dollar verdict by calling
+    postfix_gate_costing.sole_blocker_cohort_costing (Part B's own sim path: sole_blocker_rows
+    selector -> cross-account dedupe -> replay_event -> walk_exit_manager, the SAME sound
+    production exit-manager core check_gate/evaluate_gate_pnl already use above) over [start,
+    end] -- the trailing sole-blocker rolling window main() already resolved for the mining
+    pass, so no second window is invented here.
+
+    Verdict (mirrors GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G2's own decision rule, so the
+    escalation and a human doing G2 by hand always agree):
+      COST         -- n >= floor AND net safe-qty dollars > 0 AND ex-best-day net dollars > 0
+                      (refusals are winners net, and not merely one lucky day carrying the
+                      whole read -- G2's own bull-10 verdict explicitly required "ex-best-day
+                      still positive" in BOTH windows before calling it COST, matching the
+                      registry gates' own CONCENTRATION_DROP_TOP_N safeguard above). RED stays,
+                      now with a $ figure instead of a proxy.
+      KEEP         -- n >= floor AND net safe-qty dollars <= 0 (refusals are losers net; RED
+                      clears).
+      CONCENTRATED -- n >= floor AND net > 0 BUT ex-best-day net <= 0 (the positive read does
+                      NOT survive dropping its single best day -- one day is doing all the
+                      work; not a robust COST claim, watch continues rather than confirming).
+      INSUFFICIENT -- n < floor in this trailing window (too few replayed episodes to trust the
+                      $ read yet; proxy-RED stands as a watch, not a costing verdict).
+
+    Fail-open (OP-25): any exception from the replay layer is caught by the caller
+    (sole_blocker_flagship_results), which falls back to the bare NOT_REPLAYED proxy reason --
+    an escalation failure must never crash the nightly run or hide the proxy RED."""
+    pgc = _postfix_module()
+    rows = [r for r in load_decision_rows(CORE_DECISIONS, start)
+            if r.get("ts_et", "")[:10] <= end.isoformat() and r.get("armed") is True]
+    holds_by_account = {
+        account: [r for r in rows if r.get("account") == account and r.get("verdict") == "HOLD"]
+        for account in ("safe", "bold")
+    }
+    cell = pgc.sole_blocker_cohort_costing(door, filt, start, end, holds_by_account, spy, spy_ts)
+    m = cell["replayed_as_safe_qty_exit_shape"]
+    n = m.get("n", 0)
+    net = m.get("total_dollar")
+    best_day = m.get("best_day")
+    ex_best_day = (round(net - best_day, 2)) if (net is not None and best_day is not None) else None
+    if n < floor:
+        verdict = "INSUFFICIENT"
+    elif net is None or net <= 0:
+        verdict = "KEEP"
+    elif ex_best_day is not None and ex_best_day <= 0:
+        verdict = "CONCENTRATED"
+    else:
+        verdict = "COST"
+    return {
+        "verdict": verdict, "n": n, "net_dollars_safe_qty": net,
+        "ex_best_day_net_dollars_safe_qty": ex_best_day,
+        "best_day_share": m.get("best_day_share"), "window": cell["window"],
+        "replay_engine": cell["replay_engine"], "replay_soundness": cell["replay_soundness"],
+    }
+
+
+def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: int,
+                                   escalate_ctx: dict | None = None) -> dict[str, dict]:
     """The two named watches (bear sole-[8] VIX floor, bull sole-[10] buyer pressure) folded
     into a gate-result-shaped dict (id/category/overall/pnl_check) so they can be merged into
     `results` before compute_newly_red/flag_status_md -- reusing that transition-only, no-respam
@@ -822,6 +907,8 @@ def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: i
             n_cost = sum(v["n_cost_money"] for v in cells)
             n_saved = sum(v["n_saved_money"] for v in cells)
             unit = "bar-event"
+        costing = "NOT_REPLAYED"
+        escalation: dict | None = None
         if n_episodes == 0:
             overall, reason = "GREEN", (f"{door} sole-[{filt}]: 0 refusal {unit}s in window "
                                         f"({n_events_raw} raw account-row(s))")
@@ -832,6 +919,50 @@ def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: i
                       f"cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional "
                       f"smoke alarm, not a dollar costing verdict; a full replay via "
                       f"backtest/tools/postfix_gate_costing.py is the ratifying instrument)")
+            # GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G3: the proxy just tripped -- escalate to
+            # the real $ costing NOW instead of leaving a bare-proxy RED to sit unratified
+            # (the origin finding: filter-8-bear-sole / filter-10-bull-sole sat RED on this
+            # exact proxy for 3 nights). Fail-open: an escalation exception falls back to the
+            # proxy reason above, never crashes the run.
+            if escalate_ctx is not None:
+                try:
+                    escalation = escalate_sole_blocker_costing(
+                        door, filt, escalate_ctx["start"], escalate_ctx["end"],
+                        escalate_ctx["spy"], escalate_ctx["spy_ts"], floor,
+                    )
+                    costing = "REPLAYED"
+                    v, n_r, net_r, share_r, win_r = (escalation["verdict"], escalation["n"],
+                                                      escalation["net_dollars_safe_qty"],
+                                                      escalation["best_day_share"], escalation["window"])
+                    ex_r = escalation.get("ex_best_day_net_dollars_safe_qty")
+                    if v == "COST":
+                        overall = "RED"
+                        reason = (f"{door} sole-[{filt}]: REPLAYED costing over {win_r} -- "
+                                  f"n={n_r} distinct episode(s), net ${net_r:+.2f} (safe qty), "
+                                  f"ex_best_day ${ex_r:+.2f}, best_day_share={share_r} -- "
+                                  f"refusals are WINNERS net (COST). RED stays -- ratifying "
+                                  f"instrument: backtest/tools/postfix_gate_costing.py")
+                    elif v == "KEEP":
+                        overall = "GREEN"
+                        reason = (f"{door} sole-[{filt}]: REPLAYED costing over {win_r} -- "
+                                  f"n={n_r} distinct episode(s), net ${net_r:+.2f} (safe qty) -- "
+                                  f"refusals are LOSERS net (KEEP). RED clears -- ratifying "
+                                  f"instrument: backtest/tools/postfix_gate_costing.py")
+                    elif v == "CONCENTRATED":
+                        overall = "YELLOW"
+                        reason = (f"{door} sole-[{filt}]: REPLAYED costing over {win_r} -- "
+                                  f"n={n_r} distinct episode(s), net ${net_r:+.2f} (safe qty) but "
+                                  f"ex_best_day ${ex_r:+.2f} <= 0, best_day_share={share_r} -- "
+                                  f"CONCENTRATED, one day is doing all the work; not a robust "
+                                  f"COST read, RED downgrades to watch, not cleared")
+                    else:  # INSUFFICIENT
+                        overall = "YELLOW"
+                        reason = (f"{door} sole-[{filt}]: REPLAYED costing over {win_r} -- "
+                                  f"n={n_r} < floor {floor} distinct episode(s) -- INSUFFICIENT, "
+                                  f"proxy-RED stands as a watch only, not yet a costing verdict "
+                                  f"(net ${net_r if net_r is not None else 'n/a'} so far)")
+                except Exception as exc:  # noqa: BLE001 -- OP-25 fail-open, see docstring
+                    reason += f" [escalation failed: {exc}]"
         elif n_cost > 0:
             overall = "YELLOW"
             reason = (f"{door} sole-[{filt}]: {n_cost} cost_money read(s) of {n_episodes} "
@@ -844,13 +975,14 @@ def sole_blocker_flagship_results(sole_blocker_report: dict[str, dict], floor: i
         results[gate_id] = {
             "id": gate_id, "category": "sole_blocker_watch", "evidence_age_days": None,
             "revalidation_interval_days": None, "evidence_stale": False,
-            "pnl_check": {"verdict": overall, "reason": reason, "costing": "NOT_REPLAYED",
+            "pnl_check": {"verdict": overall, "reason": reason, "costing": costing,
                           # "n_events" kept for backward compat -- now the value that DRIVES
                           # the verdict (distinct when available, legacy sum otherwise).
                           "n_events": n_episodes, "n_cost_money": n_cost, "n_saved_money": n_saved,
                           # additive disclosure
                           "n_events_raw": n_events_raw,
-                          "n_episodes_distinct": n_episodes if has_distinct else None},
+                          "n_episodes_distinct": n_episodes if has_distinct else None,
+                          "escalation": escalation},
             "overall": overall,
         }
     return results
@@ -868,10 +1000,54 @@ def compute_newly_red(results: dict[str, dict], prior_gates: dict) -> list[dict]
     return new_red
 
 
-def flag_status_md(new_red: list[dict]) -> None:
+def compute_newly_escalated(results: dict[str, dict], prior_gates: dict) -> list[dict]:
+    """GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G3: gates that just produced a REPLAYED $ verdict
+    THIS run AND whose Known-broken line is now stale -- either (a) the prior run was still
+    NOT_REPLAYED (the proxy's first-ever $ verdict), or (b) the prior run was ALREADY REPLAYED
+    but the costed verdict itself moved (e.g. COST -> CONCENTRATED on a later, more-complete
+    trailing window -- caught live 2026-09-05: bear-8/bull-10 both read COST on one run then
+    CONCENTRATED on the very next, same-day rerun once the ex-best-day safeguard was added; a
+    transition-only NOT_REPLAYED->REPLAYED check alone left that stale COST line sitting in
+    STATUS.md even though gate-registry-status.json had already moved on). This is genuinely
+    new, actionable information EVEN WHEN `overall` stays RED both runs (a bare-proxy RED and a
+    $-costed RED are not the same claim), so it is tracked separately from compute_newly_red's
+    RED-transition-only set and the line gets REWRITTEN (not merely appended) in place. No
+    respam once BOTH the costing status AND the verdict/reason stop changing run to run."""
+    newly_escalated = []
+    for gate_id, r in results.items():
+        prior = prior_gates.get(gate_id, {})
+        prior_pnl = prior.get("pnl_check", {})
+        was_replayed = prior_pnl.get("costing") == "REPLAYED"
+        is_replayed = r.get("pnl_check", {}).get("costing") == "REPLAYED"
+        if not is_replayed:
+            continue
+        if not was_replayed:
+            newly_escalated.append(r)
+            continue
+        # already REPLAYED last run too -- only re-flag if the reading itself actually moved
+        # (verdict or reason text differs); otherwise this is the intended no-respam steady
+        # state and must NOT re-append/rewrite an identical line every nightly run.
+        prior_verdict = (prior_pnl.get("escalation") or {}).get("verdict")
+        this_verdict = (r["pnl_check"].get("escalation") or {}).get("verdict")
+        if prior_verdict != this_verdict or prior_pnl.get("reason") != r["pnl_check"].get("reason"):
+            newly_escalated.append(r)
+    return newly_escalated
+
+
+def flag_status_md(new_red: list[dict], escalated: list[dict] | None = None) -> None:
     """Append ONE loud line per newly-RED gate under '## Known broken' -- byte-for-byte the
-    same transition-only, no-respam pattern as setup/guard_runner_slow.py::_flag_status_md."""
-    if not new_red:
+    same transition-only, no-respam pattern as setup/guard_runner_slow.py::_flag_status_md.
+    `escalated` (GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G3, additive) gates instead get their
+    EXISTING Known-broken line (matched by `GATE-EXPIRY \\S+ :: {gate_id} ::`, if one is
+    present) REPLACED with the freshly-costed line, so a $ verdict never sits duplicated next
+    to the stale bare-proxy line it supersedes; if no existing line is found (e.g. a first-ever
+    run that escalates immediately) the costed line is appended, same as a normal new-RED line.
+    A gate present in both `new_red` and `escalated` is written ONCE, via the escalated path
+    (the costed line always supersedes the plain RED-transition line for the same gate)."""
+    escalated = escalated or []
+    escalated_ids = {g["id"] for g in escalated}
+    new_red = [g for g in new_red if g["id"] not in escalated_ids]
+    if not new_red and not escalated:
         return
     try:
         text = STATUS_MD.read_text(encoding="utf-8")
@@ -887,7 +1063,24 @@ def flag_status_md(new_red: list[dict]) -> None:
             f"- [{_now()}] GATE-EXPIRY RED :: {g['id']} :: {reason} :: "
             f"re-check: backtest\\.venv\\Scripts\\python.exe backtest\\autoresearch\\gate_expiry_check.py --gate {g['id']}"
         )
+    for g in escalated:
+        reason = g["pnl_check"].get("reason", "")
+        label = {"RED": "RED", "GREEN": "CLEARED", "YELLOW": "YELLOW"}.get(g["overall"], g["overall"])
+        lines.append(
+            f"- [{_now()}] GATE-EXPIRY {label} :: {g['id']} :: {reason} :: "
+            f"re-check: backtest\\.venv\\Scripts\\python.exe backtest\\autoresearch\\gate_expiry_check.py --gate {g['id']}"
+        )
     head, _, tail = text.partition(marker + "\n")
+    if escalated:
+        # G3: an escalated gate's OLD line (bare-proxy or a prior costed read) is being
+        # superseded by the fresh line above -- drop every existing "## Known broken" bullet
+        # for that gate id out of `tail` so the two never sit duplicated. Only the
+        # `GATE-EXPIRY ... :: {gate_id} ::` bullet format is touched; every other line
+        # (other gates, other checkers, prose) is left byte-identical.
+        escalated_ids = {g["id"] for g in escalated}
+        pattern = re.compile(r"^- \[.*?\] GATE-EXPIRY \S+ :: (" +
+                              "|".join(re.escape(i) for i in escalated_ids) + r") ::")
+        tail = "\n".join(ln for ln in tail.split("\n") if not pattern.match(ln))
     block = "\n".join(lines)
     STATUS_MD.write_text(f"{head}{marker}\n\n{block}\n{tail.lstrip(chr(10))}", encoding="utf-8")
 
@@ -969,7 +1162,13 @@ def main() -> int:
             sole_blocker_report = mine_sole_blockers(sb_start, sb_end, p1_by_day=p1_by_day)
             sole_blocker_session_report = mine_sole_blockers(session_start, session_start, p1_by_day=p1_by_day)
             sole_blocker_top5_20 = sole_blocker_top5(sole_blocker_report)
-            flagship_results = sole_blocker_flagship_results(sole_blocker_report, args.floor)
+            # GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G3: escalation context reuses the spy/spy_ts
+            # frame this run already loaded above (no second SPY+VIX load) -- costed replay only
+            # runs for a cohort whose proxy has just tripped RED, over the SAME trailing
+            # sole-blocker window (sb_start..sb_end) the mining pass above just used.
+            escalate_ctx = {"start": sb_start, "end": sb_end, "spy": spy, "spy_ts": spy_ts}
+            flagship_results = sole_blocker_flagship_results(sole_blocker_report, args.floor,
+                                                              escalate_ctx=escalate_ctx)
             results.update(flagship_results)
             for gid, r in flagship_results.items():
                 print(f"[gate-expiry] {gid:38s} overall={r['overall']:18s} pnl={r['pnl_check']['verdict']}", flush=True)
@@ -981,6 +1180,7 @@ def main() -> int:
                                               "costing": "NOT_REPLAYED"}}
 
     new_red = compute_newly_red(results, prior_gates)
+    newly_escalated = compute_newly_escalated(results, prior_gates)
 
     summary = {
         "checker": "gate-expiry instrument (J directive 2026-07-31)",
@@ -1011,7 +1211,7 @@ def main() -> int:
     }
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
-    flag_status_md(new_red)
+    flag_status_md(new_red, escalated=newly_escalated)
 
     n_red = sum(1 for r in results.values() if r["overall"] == "RED")
     n_naive_red = sum(1 for r in results.values() if r["overall"] == "NAIVE_RED_CONCENTRATED")

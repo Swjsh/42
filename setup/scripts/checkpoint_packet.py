@@ -734,6 +734,47 @@ def _score_not_flat_second_wave(row: dict, today: str) -> dict:
     }
 
 
+def _score_filter10_bull_sole_unblock(row: dict, today: str) -> dict:
+    """GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G2: the bull-side 11-filter-checklist
+    sole-blocker-on-filter-10 unblock candidate. Same FROZEN_BEFORE_ANY_RESULT shape as
+    `_score_not_flat_second_wave` above, reused rather than re-invented: verdict stays
+    INSUFFICIENT N (no forward-scored sample yet -- the backward reads below are the
+    evidence the prereg was FILED on, not the forward n>=20 the kill/extend bar needs)
+    until the prereg's own `status` field turns terminal/adjudicated. Backward numbers
+    are read straight from analysis/recommendations/gate-postfix-costing-sole-b8b10-
+    2026-09-05.json's 'filter-10-bull-sole' cohort (G1's postfix_gate_costing.py Part B
+    replay, walk_exit_manager) for disclosure only -- never re-walked here."""
+    prereg_path = REPO / row["prereg_path"]
+    d = _read_json(prereg_path)
+    status = _status_field(d)
+    verdict = VERDICT_INSUFFICIENT_N
+    if status and TERMINAL_STATUS_RE.search(status or ""):
+        verdict = VERDICT_MET
+    elif status and ADJUDICATION_STATUS_RE.match(status or ""):
+        verdict = VERDICT_MET
+    numbers: dict[str, Any] = {"status": status}
+    g1_path = REPO / "analysis" / "recommendations" / "gate-postfix-costing-sole-b8b10-2026-09-05.json"
+    if g1_path.exists():
+        g1 = json.loads(g1_path.read_text(encoding="utf-8"))
+        cohort = g1.get("cohorts", {}).get("filter-10-bull-sole", {})
+        for wname in ("august", "frozen"):
+            cell = cohort.get(wname, {}).get("replayed_as_safe_qty_exit_shape")
+            if cell:
+                numbers[f"{wname}_window_net_dollars_safe_qty"] = cell.get("total_dollar")
+                numbers[f"{wname}_window_n"] = cell.get("n")
+                numbers[f"{wname}_window_best_day_share"] = cell.get("best_day_share")
+    return {
+        "verdict": verdict,
+        "n": 0,
+        "numbers": numbers,
+        "note": "FROZEN_BEFORE_ANY_RESULT -- no forward-scored sole-blocked-on-filter-10 "
+                "sample yet; n>=20 forward episodes (post-2026-09-05) is the frozen floor "
+                "(kill_criteria). august_window/frozen_window numbers above are the "
+                "BACKWARD read this prereg was filed on (G1's postfix_gate_costing.py "
+                "Part B replay), never citable as the forward bar.",
+    }
+
+
 _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "capture_gap_mechanism": _score_capture_gap_mechanism,
     "tight_ladder_control4": _score_tight_ladder_control4,
@@ -748,6 +789,7 @@ _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "runner_target_vs_tape_peak": _score_runner_target_vs_tape_peak,
     "tp1_qty_fraction_safe_0_8": _score_tp1_qty_fraction_safe_0_8,
     "not_flat_second_wave": _score_not_flat_second_wave,
+    "filter10_bull_sole_unblock": _score_filter10_bull_sole_unblock,
 }
 
 

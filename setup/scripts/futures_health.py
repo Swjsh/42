@@ -540,6 +540,11 @@ ANOMALY_TAIL_BYTES = 200_000
 STRAY_EXPOSURE_RED_EVENTS = {"unattributed_closing_fill", "flatten_cancel_incomplete",
                              "post_exit_not_flat"}
 ANOMALY_LOOKBACK_SESSIONS = RECENT_SESSIONS_WINDOW  # reuse fills_recency's own window
+# GOAL-FUTURES-YELLOWS-2026-09-05 F1: calendar-day age-out. anomalies.jsonl only gains new
+# ROWS on new incidents, so bounding by "last N distinct anomaly-dates in the file" alone
+# never rolls forward on a clean lane (see check_no_stray_exposure docstring). This bound
+# ages a row out purely from elapsed time, independent of whether anything new was logged.
+ANOMALY_MAX_AGE_DAYS = 5
 
 
 def _anomaly_event_date_et(row: dict) -> Optional[str]:
@@ -576,7 +581,20 @@ def check_no_stray_exposure(now_et: datetime, anomalies_path: Optional[Path] = N
     see futures_broker_reconciler.py) or a flatten left the account exposed after this lane
     believed it was done. Read-only against anomalies.jsonl (written by
     futures_broker_reconciler.py / futures_trader_core.py); this check adds no producer of
-    its own."""
+    its own.
+
+    AGE-OUT FIX (GOAL-FUTURES-YELLOWS-2026-09-05 F1, filed 2026-09-05): anomalies.jsonl is
+    an append-only INCIDENT log -- a row is written ONLY when something goes wrong, never on
+    a clean session. The prior "last N DISTINCT anomaly-dates" windowing therefore never
+    rolled forward on its own once the underlying bug was fixed and no new rows landed: with
+    only 2 distinct dates ever written (2026-09-01, 2026-09-02, both from the already-fixed
+    09-03 flatten cascade), `sorted(by_date)[-N:]` kept returning those SAME 2 dates
+    indefinitely, RED forever, regardless of how much calendar time passed. Fixed by ALSO
+    bounding the window by elapsed calendar days from `now_et` (ANOMALY_MAX_AGE_DAYS), which
+    ages a row out purely from the passage of time -- no new anomaly rows required. A cutoff
+    of 5 calendar days means the 09-01/09-02 cascade rows age out starting 2026-09-08 (5
+    days past the newer of the two event dates, 09-02): still counted through 09-07, excluded
+    from 09-08 on."""
     name = "no_stray_exposure"
     path = anomalies_path if anomalies_path is not None else (
         STATE / "futures" / "trader-broker" / "anomalies.jsonl")
@@ -594,7 +612,17 @@ def check_no_stray_exposure(now_et: datetime, anomalies_path: Optional[Path] = N
     for r in dated:
         d = _anomaly_event_date_et(r) or str(r["at_et"])[:10]
         by_date.setdefault(d, []).append(r)
-    recent_dates = sorted(by_date)[-ANOMALY_LOOKBACK_SESSIONS:]
+
+    cutoff_date = (now_et.date() - timedelta(days=ANOMALY_MAX_AGE_DAYS)).isoformat()
+    unaged_dates = sorted(d for d in by_date if d >= cutoff_date)
+    recent_dates = unaged_dates[-ANOMALY_LOOKBACK_SESSIONS:]
+
+    if not recent_dates:
+        aged_out = sorted(by_date)
+        return _chk(name, "GREEN",
+                    f"no stray-exposure anomaly rows within the last {ANOMALY_MAX_AGE_DAYS} "
+                    f"calendar day(s) (cutoff {cutoff_date}) -- {len(aged_out)} older dated "
+                    f"row-date(s) aged out: {aged_out}")
 
     hits = [r for d in recent_dates for r in by_date[d]
            if r.get("event") in STRAY_EXPOSURE_RED_EVENTS]

@@ -1,0 +1,81 @@
+{
+  "id": "PREREG-FILTER10-BULL-SOLE-UNBLOCK-10-30-2026-09-05",
+  "prereg_id": "PREREG-FILTER10-BULL-SOLE-UNBLOCK-10-30-2026-09-05",
+  "frozen_at_et": "2026-09-05",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION -- lifting a filter admits MORE entries)",
+  "filed_by": "Sonnet worker, GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G2",
+  "opened_from": "GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G1/G2: the standing GATE-EXPIRY RED `filter-10-bull-sole` (STATUS.md Known broken, first flagged 2026-09-02T23:45:49) was carried for 3 nights on the NOT_REPLAYED directional proxy (the day's own P1 win/loss, not a dollar figure). A full replay via backtest/tools/postfix_gate_costing.py's Part B sim path (walk_exit_manager, the sound production exit-manager core) now gives it a dollar verdict.",
+  "config_freeze_note": "CONFIG FREEZE 2026-08-31 -> 2026-10-30 (project_september_clean_window_plan_2026_08_29.md): this file is a PREREG ONLY. No params.json / strategies.py / exit_manager.py / heartbeat.md / heartbeat_core.py / risk_gate/filters.py edit is made by this filing. It freezes the question, the instrument, and the kill/extend criteria BEFORE any change is proposed. Lifting filter 10 is an EXPANSION (admits entries the checklist currently refuses) -- 10-30 at the earliest, never before, regardless of how positive this evidence reads.",
+  "evidence_this_prereg_is_built_on": {
+    "source": "analysis/recommendations/gate-postfix-costing-sole-b8b10-2026-09-05.json, cohort 'filter-10-bull-sole' (bull-side 11-filter checklist rows sole-blocked on filter 10 -- buyer-pressure -- combined across safe+bold into one cross-account episode cohort, byte-identical dedupe to gate_expiry_check.py's episodes_distinct), replayed via postfix_gate_costing.py's Part B sim path (backtest/lib/exit_manager_walk.walk_exit_manager, the production exit_manager.plan_exit_actions core -- same sound engine gate_expiry_check.py's own nightly pass uses).",
+    "definition_used": "net_dollars = sum(pnl) over all walk_ok replayed episodes for the cohort, at the account's own qty/exit-shape cfg (reported at BOTH safe qty=3 and bold qty=5 -- never summed together, since the same refused episode would otherwise be double-counted at two sizes).",
+    "august_window_2026_08_03_to_2026_08_28": {
+      "n_raw_sole_blocker_rows_per_account": {
+        "safe": 450,
+        "bold": 452
+      },
+      "n_distinct_episodes": 49,
+      "n_replayed_ok": 49,
+      "n_days": 14,
+      "wr_pct": 40.8,
+      "net_dollars_safe_qty": 1895.1,
+      "net_dollars_bold_qty": 3453.7,
+      "exp_per_trade_safe_qty": 38.68,
+      "best_day": 1545.4,
+      "best_day_share_of_net_safe_qty": 0.815,
+      "best_day_share_of_net_bold_qty": 0.796,
+      "ex_best_day_net_dollars_safe_qty": 349.7,
+      "ex_best_day_still_positive": true,
+      "verdict": "COSTING (refusing this filter cost money net, and survives dropping its single best day -- thinner but does not flip sign)"
+    },
+    "frozen_window_2026_08_31_to_2026_09_05": {
+      "n_raw_sole_blocker_rows_per_account": {
+        "safe": 67,
+        "bold": 67
+      },
+      "n_distinct_episodes": 10,
+      "n_replayed_ok": 10,
+      "n_days": 2,
+      "wr_pct": 40.0,
+      "net_dollars_safe_qty": 580.7,
+      "net_dollars_bold_qty": 1044.4,
+      "exp_per_trade_safe_qty": 58.07,
+      "best_day": 484.7,
+      "best_day_share_of_net_safe_qty": 0.835,
+      "best_day_share_of_net_bold_qty": 0.847,
+      "ex_best_day_net_dollars_safe_qty": 96.0,
+      "ex_best_day_still_positive": true,
+      "verdict": "COSTING (n=10 meets floor 10 exactly; positive net, survives dropping its one best day, but n_days=2 -- thin calendar breadth)",
+      "floor_note": "n=10 exactly equals CONFIRM_N_FLOOR (10) -- meets the floor, not below it, but the goal's INSUFFICIENT branch does not apply here (that branch is reserved for below-floor reads; this cohort clears the bar in both windows)."
+    },
+    "cross_check_vs_gate_net_cost_walk": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json / walk-2026-09-05-1min.json's `gate` values are {NOT_FLAT, SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY, SKIP_LATE_ENTRY, SKIP_MIN_PREMIUM_FLOOR, SKIP_STALE_TRIGGER, SKIP_STRUCTURE_VETO, min_triggers, require_confluence_or_sequence, settlement_cap} -- the 11-filter bull/bear checklist's HOLD-row sole-blocker cohorts (filter-8-bear-sole, filter-10-bull-sole) are NOT among them; that walk only covers SKIP_*-verdict gates and 3 named fleet/structural checks, never the checklist's per-filter blocker lists. Overlap = 0 rows. Delta = N/A (disjoint miners, not a discrepancy to reconcile) -- this is the FIRST dollar-costed read either instrument has produced for this cohort."
+  },
+  "hypothesis": "H1: bull-side sole-blocker refusals attributable to filter 10 (buyer pressure) alone have positive expectancy net of the losers they also refused, in BOTH the August and frozen windows, and the positive mean survives dropping its single best day in both windows (not a one-day artifact).",
+  "what_this_is_NOT": [
+    "NOT a change to params.json, strategies.py, exit_manager.py, heartbeat.md, heartbeat_core.py, filters.py, or risk_gate -- config freeze holds through 2026-10-30. Filter 10 stays a hard blocker on the bull checklist until a checkpoint proposal (if any) is separately ratified.",
+    "NOT permission to widen anything before 2026-10-30 -- this is a pre-registration, not a proposal to ship.",
+    "NOT a full G-battery ratification (OOS split + BH-FDR + bootstrap null vs random entry, backtest/tools/gate_revalidation_ab.py) -- that remains the ratifying instrument before any actual params/filters.py flip, exactly as gate_expiry_check.py's own costing_verdict says for its SKIP-gate RED reads. This prereg freezes the question and the forward kill/extend bar; it does not ratify the change.",
+    "NOT a claim the concentration is benign -- best_day_share 0.80-0.85 in BOTH windows is disclosed, not hidden; the kill criteria below gate on it explicitly."
+  ],
+  "the_spec": {
+    "current_shape_under_test": "Bull-side 11-filter checklist: a signal sole-blocked by filter 10 (buyer pressure) alone is refused outright (HOLD verdict), regardless of any other filter's read.",
+    "candidate_finite_change": "Lift filter 10 on the bull door only (bear door / filter 8 unaffected -- see the companion KEEP verdict for filter-8-bear-sole in this same goal) so a signal sole-blocked on filter 10 alone is admitted at the checklist's normal size, unchanged in every other respect.",
+    "instrument": "backtest/tools/postfix_gate_costing.py Part B (bull_filter10_{safe,bold} cells) for the backward read; a forward-accruing ledger keyed the same way (core-decisions.jsonl HOLD rows sole-blocked on filter 10, day's real fills as the eventual dollar outcome once un-blocked, or the same postfix replay walked forward week over week while still blocked) for the kill/extend bar below.",
+    "unit_of_measure": "per sole-blocked episode (cross-account deduped): realized pnl dollars had the refused signal been taken as a normal-size entry, from the production exit_manager.plan_exit_actions walked exit shape."
+  },
+  "kill_criteria": {
+    "primary_kill": "frozen-window (2026-08-31-onward, forward-accruing) net_dollars <= 0, evaluated at n>=20 sole-blocked-on-filter-10 episodes.",
+    "concentration_kill": "best_day_share_of_net >= 0.5 on the same forward n>=20 sample (this filing's own August/frozen reads are already 0.80-0.85 -- ABOVE this bar; the checkpoint sample must show the concentration has genuinely thinned, not just accrued more of the same one-day pattern).",
+    "ex_best_day_kill": "ex-best-day net_dollars <= 0 on the same forward n>=20 sample.",
+    "either_kill_closes_the_candidate": "Any one of the three (frozen net <=0, concentration >=0.5, ex-best-day net <=0) is sufficient to KILL the candidate; it proceeds to a 2026-10-30 checkpoint SHADOW-FILE proposal only if none of the three fire."
+  },
+  "extend_criterion": "If n<20 forward sole-blocked-on-filter-10 episodes exist by 2026-10-30, the checkpoint reports UNVERIFIED -- insufficient n, not a negative finding (same convention as prereg-not-flat-second-wave-10-30-2026-09-05.json's extend_criterion) -- and the question stays open past 10-30.",
+  "n_needed": "n>=20 forward sole-blocked-on-filter-10 episodes (post-2026-09-05), matching this project's standing evidence_n advisory bar.",
+  "consumer": "2026-10-30 config-freeze checkpoint review; folded into analysis/recommendations/checkpoint-2026-09-29-inventory.json (class=expansion, ledger=postfix_gate_costing.py Part B) by this same fire.",
+  "revert": "Delete this file. No other artifact is created or modified by this prereg (no params.json, no filters.py, no scheduled task, no leaderboard edit).",
+  "contradicting_read_disclosed_2026_09_05": {
+    "by": "Fable orchestrator, same day, before commit",
+    "what": "gate_expiry_check.py G3 self-escalation costed the SAME cohort over the trailing window 2026-08-07..2026-09-03 at safe qty: n=46 episodes, net +$61.90, ex_best_day -$437.25 (<= 0) -> the instrument wrote GATE-EXPIRY YELLOW, not COST. The August-window read above (n=49, +$1,895.10, ex-best-day +$349.70) and the frozen read (n=10, +$580.70, ex-best +$96.00) differ by window and by qty convention.",
+    "meaning": "The COST verdict is WINDOW-DEPENDENT and concentrated in one day; it is not a stable edge claim. Treat this prereg as EXTEND-pending on the forward ledger, never as evidence to lift filter 10 at 10-30 on its own. Kill criteria below stand; the forward right-tail ledger decides."
+  }
+}

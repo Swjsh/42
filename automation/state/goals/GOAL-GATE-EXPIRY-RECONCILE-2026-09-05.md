@@ -40,14 +40,146 @@ now (quote before/after seconds); RED-proofed test with a fixture cohort.
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] G1 (WIP 2026-09-05 12:01 ET, Fable Saturday session a16e320c: one Sonnet chain -- other sessions do not pick up) -- costing runs (August + frozen windows) for filter-8-bear-sole and filter-10-bull-sole; cross-check vs gate-net-cost walk; numbers quoted in the goal file.
-- [~] G2 (WIP 2026-09-05 12:01 ET, Fable Saturday session a16e320c: one Sonnet chain -- other sessions do not pick up) -- verdict per gate (KEEP / COST + 10-30 prereg / INSUFFICIENT); Known-broken lines rewritten with $ (via the instrument, not by hand); inventory + regenerate + hygiene if COST.
-- [~] G3 (WIP 2026-09-05 12:01 ET, Fable Saturday session a16e320c: one Sonnet chain -- other sessions do not pick up) -- gate_expiry_check escalates to the costing when the proxy trips; runtime quoted; RED-proofed test.
+- [x] G1 (DONE: postfix_gate_costing.py Part B replayed for both cohorts, both windows, via `backtest/tools/g1_sole_blocker_costing_2026_09_05.py`; numbers + cross-check below.)
+- [x] G2 (DONE: filter-10-bull-sole = COST, 10-30 prereg filed + inventory row + checkpoint regenerated + hygiene 0 flagged; filter-8-bear-sole = INSUFFICIENT, no prereg needed; both Known-broken lines rewritten through gate_expiry_check.py's own writer, not by hand.)
+- [x] G3 (DONE: gate_expiry_check.py escalates to postfix_gate_costing.sole_blocker_cohort_costing the moment the proxy trips (>= floor), with an ex-best-day concentration safeguard added after a live self-check caught a naive net>0-only read passing on a single-day-driven cohort; runtime 3.0s -> 4.3-4.7s (+~1.4s for two-cohort escalation); 14-test RED-proofed guard, all green.)
+
+## G1 RESULTS (2026-09-05, `backtest/tools/g1_sole_blocker_costing_2026_09_05.py` -> `analysis/recommendations/gate-postfix-costing-sole-b8b10-2026-09-05.json`)
+
+Exactly postfix_gate_costing.py's Part B sim path (sole_blocker_rows -> cross-account dedupe via
+cluster_events -> replay_event -> walk_exit_manager, the same sound production exit-manager core
+gate_expiry_check.py's own nightly pass uses), combined safe+bold into one cross-account episode
+cohort per window (episodes_distinct, byte-identical to gate_expiry_check.mine_sole_blockers'
+dedupe) so no episode is double-counted across accounts.
+
+| Cohort | Window | n episodes | net $ (safe qty) | net $ (bold qty) | WR% | best_day_share | ex-best-day net $ (safe qty) |
+|---|---|---|---|---|---|---|---|
+| filter-8-bear-sole | August 08-03..08-28 | 42 | -$1,286.85 | -$2,131.90 | 26.2 | -0.224 | -$1,575.35 |
+| filter-8-bear-sole | frozen 08-31..09-05 | **5 (< floor 10)** | +$314.80 | +$521.80 | 60.0 | 1.0 | n/a (n below floor) |
+| filter-10-bull-sole | August 08-03..08-28 | 49 | +$1,895.10 | +$3,453.70 | 40.8 | 0.815 | +$349.70 |
+| filter-10-bull-sole | frozen 08-31..09-05 | 10 (meets floor) | +$580.70 | +$1,044.40 | 40.0 | 0.835 | +$96.00 |
+
+**Cross-check vs the real-fills gate walk** (`analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json`,
+`setup/scripts/gate_net_cost_table.py`): that walk's per-gate table covers `NOT_FLAT`,
+`SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY`, `SKIP_LATE_ENTRY`, `SKIP_MIN_PREMIUM_FLOOR`,
+`SKIP_STALE_TRIGGER`, `SKIP_STRUCTURE_VETO`, `min_triggers`, `require_confluence_or_sequence`,
+`settlement_cap` -- SKIP_*-verdict gates only. **Named overlap: NONE.** filter-8-bear-sole and
+filter-10-bull-sole are HOLD-verdict 11-filter-checklist sole-blocker cohorts, a structurally
+different refusal path the gate-net-cost walk was never scoped to mine (per its own doc:
+"the nightly gate-expiry instrument mines only SKIP_* verdicts ... had NO refusal-costing
+instrument at all" for the checklist -- exactly the gap postfix_gate_costing.py Part B and this
+goal close). **Delta: not applicable** -- there is no shared gate key to diff against; this is
+disclosed rather than silently skipped.
+
+## G2 VERDICTS
+
+**filter-10-bull-sole -> COST.** Both windows net-positive AND survive the ex-best-day
+concentration check (August ex-best-day +$349.70, frozen ex-best-day +$96.00 -- neither window's
+positive read is a single-day artifact). RED stays in STATUS.md, now with the $ figure instead of
+the bare proxy. Prereg filed:
+`analysis/recommendations/prereg-filter10-bull-sole-unblock-10-30-2026-09-05.json` (checkpoint
+2026-10-30, EXPANSION per the goal's routing rule -- lifting a filter admits more entries, never
+before 10-30 regardless of how positive the evidence reads). Inventory row
+`filter10-bull-sole-unblock` added to `analysis/recommendations/checkpoint-2026-09-29-inventory.json`
+(scorer `filter10_bull_sole_unblock`, registered in `setup/scripts/checkpoint_packet.py`'s
+`_SCORERS`); `checkpoint_packet.py` regenerated (scores INSUFFICIENT N -- correct, the prereg's own
+`status` field is still `FROZEN_BEFORE_ANY_RESULT`, no forward-scored sample yet); hygiene 0
+flagged.
+
+**filter-8-bear-sole -> INSUFFICIENT.** Frozen-window n=5 is below the floor (10) -- too few
+episodes to trust a $ read yet. Per the goal's own decision rule ("n below floor in the frozen
+window: say so, keep the August read as the prior"): the August prior is net-NEGATIVE ($-1,286.85
+safe / $-2,131.90 bold, WR 26.2%) -- refusals read as losers in the only window with enough data,
+but that read is not yet CONFIRMED (n=5 in the current frozen window cannot ratify it). No prereg
+filed (INSUFFICIENT does not open a 10-30 candidate -- there is nothing to lift yet). No inventory
+row (only COST verdicts get one, per the goal's DONE-WHEN).
+
+**Known-broken line rewrite (through the instrument, not by hand):** running
+`backtest/.venv/Scripts/python.exe backtest/autoresearch/gate_expiry_check.py --gate
+filter-8-bear-sole` (which also recomputes filter-10-bull-sole, both flagship watches) invoked G3's
+new escalation path live. Its OWN rolling 20-trading-day window (2026-08-07..2026-09-03, a third,
+self-updating window distinct from G1's fixed August/frozen split -- by design, since G3 exists to
+keep checking going forward, not to reproduce one ad hoc study) read net-positive-but-CONCENTRATED
+for BOTH cohorts (ex-best-day <= 0 -- one day's win exceeds the whole window's net), so both lines
+downgraded from bare-proxy RED to `GATE-EXPIRY YELLOW` (watch, not a confirmed COST) in STATUS.md's
+Known broken section -- written by `flag_status_md`, never hand-edited. This is a legitimate,
+disclosed divergence from G1/G2's fixed-window verdict for filter-10-bull-sole (COST, ratified,
+prereg stands): different measurement windows can and do read differently; the ratified prereg is
+built on G1's own named windows and is unaffected by G3's independent rolling-window watch. For
+filter-8-bear-sole, both lenses agree the gate is not a confirmed costing problem right now.
+
+## G3 ESCALATION WIRING
+
+`backtest/autoresearch/gate_expiry_check.py`: `sole_blocker_flagship_results` now takes an optional
+`escalate_ctx` (spy/spy_ts/trailing-window bounds, reusing the SAME SPY+VIX frame `main()` already
+loaded for the registry gates -- no second load). When a flagship's cheap NOT_REPLAYED proxy trips
+RED (n_cost >= floor), `escalate_sole_blocker_costing` calls the new
+`backtest/tools/postfix_gate_costing.sole_blocker_cohort_costing` (Part B's own sim path, extracted
+as a reusable primitive) over that trailing window and returns COST / KEEP / CONCENTRATED /
+INSUFFICIENT (the CONCENTRATED branch, added after a live self-check on this exact run caught a
+naive net>0-only condition passing bear-8/bull-10 despite one day carrying the whole positive read
+-- an ex-best-day safeguard now mirrors the same bar G2's own human verdict for bull-10 required).
+`compute_newly_escalated` fires a STATUS.md rewrite (via `flag_status_md`'s new `escalated` param,
+which finds and replaces the gate's existing Known-broken bullet rather than duplicating it) on a
+NOT_REPLAYED->REPLAYED transition OR on the replayed verdict itself moving run to run (a second live
+self-check caught the first version missing a COST->CONCENTRATED re-flag when costing was already
+REPLAYED both runs -- fixed and guarded). Fail-open throughout: an escalation exception falls back
+to the bare proxy reason plus a visible `[escalation failed: ...]` suffix, never crashes the run.
+
+**Runtime:** `--gate filter-8-bear-sole` before G3 wiring: 3.007s. After (both flagships escalate):
+4.3-4.7s across three live runs -- **+~1.4s** for two full cohort replays, well inside the nightly
+budget (the unfiltered nightly run already replays ~24 registry gates through the same
+walk_exit_manager path; two more cohorts is marginal).
+
+**Test:** `backtest/tests/test_gate_expiry_g3_escalation_2026_09_05.py` (14 tests) -- RED-proofed by
+construction: every test calls `sole_blocker_flagship_results(..., escalate_ctx=...)` or
+`flag_status_md(..., escalated=...)`, both new kwargs the pre-fix signatures do not accept (a
+pre-fix run fails with a hard TypeError, not a soft assertion mismatch). Covers: escalation called
+once with the trailing window (not a second invented one); COST/KEEP/CONCENTRATED/INSUFFICIENT
+verdict mapping; `escalate_ctx=None` byte-identical to pre-G3 behavior; fail-open on an escalation
+exception; `compute_newly_escalated`'s two trigger conditions (first-ever REPLAYED, and a REPLAYED
+verdict that itself changes) and its no-respam floor; `flag_status_md` rewriting an existing bullet
+in place (old proxy/costed line removed, new one written, unrelated lines untouched) including the
+"newly-RED AND newly-escalated" collision (written once, via the escalated path).
+Command + result: `cd backtest && ./.venv/Scripts/python.exe -m pytest
+tests/test_gate_expiry_g3_escalation_2026_09_05.py -q -p no:cacheprovider` -> `14 passed in 1.03s`.
+Full related suite (pre-existing gate_expiry_check + postfix_gate_costing tests, unmodified):
+`./.venv/Scripts/python.exe -m pytest tests/ -k "gate_expiry or postfix_gate_costing" -q -p
+no:cacheprovider` -> `92 passed in 5.95s` (no regressions).
+
+## CHECKPOINT_PACKET.PY NOTE
+
+A previous worker's uncommitted partial edit (`_score_filter10_bull_sole_unblock`, ~41 lines) was
+found defined but never registered in `_SCORERS`, and the matching inventory row's `scorer` field
+was a prose string that would never dispatch to it (silent UNKNOWN). Finished coherently rather than
+reverted: registered the scorer, fixed the inventory row's `scorer` field to
+`filter10_bull_sole_unblock` (kept the original prose as an additive `scorer_detail` field, nothing
+lost), regenerated the packet (`filter10-bull-sole-unblock  INSUFFICIENT N  n=0` -- correct, matches
+the prereg's still-FROZEN status), and ran hygiene (0 flagged).
 
 ## J-DECISIONS
 - None (any lift is a 10-30 expansion decided by the packet).
 
 ## PROGRESS LOG
 - {now} ET -- authored by Fable (Saturday morning session).
+- 2026-09-05 14:40:13 ET -- Sonnet worker (session a16e320c): G1/G2/G3 all DONE. Finished the
+  prior worker's partial checkpoint_packet.py scorer edit (registered + inventory row scorer field
+  fixed, regenerated, hygiene 0 flagged). Added `postfix_gate_costing.sole_blocker_cohort_costing`
+  (reusable Part B primitive) and wired gate_expiry_check.py's sole-blocker flagship watches to
+  escalate to it on proxy-trip, with a concentration safeguard added after a live self-check caught
+  a naive positive-net read passing a single-day-driven cohort. Ran the live instrument three times
+  end to end (baseline 3.0s -> COST/RED -> CONCENTRATED/YELLOW once the safeguard landed) --
+  STATUS.md's Known-broken lines for both flagships are now instrument-written $ verdicts, not bare
+  proxies. filter-10-bull-sole COST verdict + 10-30 prereg + inventory row + checkpoint regen +
+  hygiene all confirmed already correct from G1/G2's ad hoc dual-window study (unaffected by G3's
+  separate rolling-window watch). 14-test RED-proofed guard for G3, all green; 92/92 related tests
+  green, no regressions.
+
 ## HONEST STATE
-Queued. Nothing started.
+G1/G2/G3 all DONE and verified this session (commands + output quoted above and in the final
+report). UNVERIFIED / worth a second look: G3's own rolling-window concentration read
+(CONCENTRATED, best_day_share 3.9-8.1x) is noisy on a ~40-episode trailing sample -- it is a
+self-updating WATCH, not a ratified verdict, and should not be read as contradicting G2's
+fixed-window COST ratification for filter-10-bull-sole (different window, disclosed above). Nothing
+in this goal touched a FROZEN_TRADING_PATH file; nothing armed live money; STATUS.md was edited only
+by gate_expiry_check.py's own writer, verified via git diff.

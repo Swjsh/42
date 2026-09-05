@@ -136,6 +136,60 @@ def sole_blocker_rows(holds: list[dict], bkey: str, filt: int) -> list[dict]:
     return [r for r in holds if (r.get(bkey) or []) == [filt]]
 
 
+def sole_blocker_cohort_costing(door: str, filt: int, start: dt.date, end: dt.date,
+                                 holds_by_account: dict[str, list[dict]],
+                                 spy: pd.DataFrame, spy_ts: pd.Series) -> dict:
+    """GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G3: the standing (non-one-off) costed replay for
+    ONE sole-blocker cohort (door, filt) over [start, end] -- byte-identical Part B sim path to
+    mine()/g1_sole_blocker_costing_2026_09_05.py's `cohort_for_window` (sole_blocker_rows
+    selector -> cross-account dedupe via cluster_events -> replay_event -> walk_exit_manager),
+    extracted here so gate_expiry_check.py's nightly pass can invoke it directly the moment its
+    cheap NOT_REPLAYED proxy trips (>= floor), instead of a bare-proxy RED sitting unratified
+    for days (GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 origin: exactly that, 3 nights, filter-8-
+    bear-sole / filter-10-bull-sole). `holds_by_account` is the caller's own armed/HOLD row
+    slice (already account-split) -- this function does no decision-log mining of its own so it
+    stays a pure costing primitive, callable from either the CLI (`mine`) or the nightly
+    escalation path with whatever window/rows the caller already has in hand.
+
+    Reports safe-qty exit-shape only (the CONFIRMED-setup, min-qty tier this instrument's
+    floor/cost_money language was written against -- same choice g1's driver made for its own
+    headline number); bold-qty is available via the caller re-deriving from the same
+    distinct_events if ever needed, not duplicated here to keep this primitive single-purpose."""
+    bkey, side, lvl_key = DOORS[door]
+    spy_by_date, ribbon_lookup = _replay_context(spy)
+    grab = _sound_replay_module()
+    account_cfg = grab.account_config()
+
+    all_events_for_dedupe = []
+    for holds in holds_by_account.values():
+        for r in sole_blocker_rows(holds, bkey, filt):
+            ev = dict(r)
+            ev["side"] = side
+            if r.get(lvl_key) is not None:
+                ev["trigger_level_exact"] = r[lvl_key]
+            all_events_for_dedupe.append(ev)
+    distinct_events = cluster_events(all_events_for_dedupe, EVENT_CLUSTER_GAP_MINUTES)
+    sims_safe = [replay_event(ev, spy, spy_ts, spy_by_date, ribbon_lookup, account_cfg["safe"])
+                 for ev in distinct_events]
+    ok_safe = [s for s in sims_safe if s["status"] == "ok"]
+    m_safe = window_metrics(ok_safe, start, end) if ok_safe else {"n": 0}
+
+    def _share(m: dict) -> float | None:
+        if m.get("n", 0) == 0 or not m.get("total_dollar"):
+            return None
+        if m["total_dollar"] == 0:
+            return 0.0
+        return round(m.get("best_day", 0.0) / m["total_dollar"], 3)
+
+    return {
+        "window": f"{start}..{end}",
+        "n_distinct_episodes": len(distinct_events),
+        "replayed_as_safe_qty_exit_shape": {**m_safe, "best_day_share": _share(m_safe)},
+        "replay_engine": REPLAY_ENGINE,
+        "replay_soundness": REPLAY_SOUNDNESS,
+    }
+
+
 def mine(start: dt.date, end: dt.date) -> dict:
     print("[postfix] loading SPY+VIX frame ...", flush=True)
     spy_raw, _vix = load_merged_spy_vix()

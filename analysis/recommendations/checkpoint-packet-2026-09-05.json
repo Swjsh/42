@@ -1,9 +1,9 @@
 {
-  "generated_at_et": "2026-09-05T08:06:36",
+  "generated_at_et": "2026-09-05T14:25:15",
   "generation_date": "2026-09-05",
   "generated_by": "setup/scripts/checkpoint_packet.py",
   "inventory_source": "analysis/recommendations/checkpoint-2026-09-29-inventory.json",
-  "row_count": 14,
+  "row_count": 15,
   "rows": [
     {
       "row_id": "tight-ladder-control-4-roundtrip-cap",
@@ -336,6 +336,28 @@
         "right_tail_ledger_resolution": "1min"
       },
       "note": "FROZEN_BEFORE_ANY_RESULT -- no forward-scored second-wave-refusal waves yet; n>=20 forward refusals (post-2026-09-05, matching the 60min/fresh-trigger/TP1-reached admission condition) is the frozen floor (kill_criteria). The right_tail_ledger n=30 figure is BACKWARD and unfiltered by the TP1-reached condition -- never citable as the forward bar. full_window/frozen_window numbers are read straight from GATE-NET-COST-2026-09-05.json's NOT_FLAT dedup-to-waves row, not re-walked here."
+    },
+    {
+      "row_id": "filter10-bull-sole-unblock",
+      "prereg_path": "analysis/recommendations/prereg-filter10-bull-sole-unblock-10-30-2026-09-05.json",
+      "ledger_path": "analysis/recommendations/gate-postfix-costing-sole-b8b10-2026-09-05.json (backward); core-decisions.jsonl HOLD rows sole-blocked on bull filter 10 (forward accrual)",
+      "classification": "expansion",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "Do bull-side sole-blocker-on-filter-10 refusals have positive expectancy net of the losers they also refused, in both the August and frozen windows, surviving a drop-best-day concentration check?",
+      "decision_rule_verbatim": "GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 G2 (2026-09-05): August window n=49, net +$1,895.10 (safe qty) / +$3,453.70 (bold qty), WR 40.8%, best_day_share 0.815, ex-best-day still positive (+$349.70). Frozen window n=10 (meets floor), net +$580.70 (safe qty) / +$1,044.40 (bold qty), best_day_share 0.835, ex-best-day still positive (+$96.00). Verdict: COST -- refusals are winners net in both windows; RED stays in STATUS.md Known broken with the $ quoted; prereg filed for 10-30, kill criteria on the forward right-tail/postfix ledger (frozen net <=0 OR concentration >=0.5 OR ex-best-day net <=0, n>=20).",
+      "reversible_action": "Remove filter 10 from the bull door blocker list in backtest/lib/filters.py (FROZEN_TRADING_PATH -- no edit before 10-30). EXPANSION, so even a clean positive-evidence finding waits for 10-30.",
+      "verdict": "INSUFFICIENT N",
+      "n": 0,
+      "numbers": {
+        "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION -- lifting a filter admits MORE entries)",
+        "august_window_net_dollars_safe_qty": 1895.1,
+        "august_window_n": 49,
+        "august_window_best_day_share": 0.815,
+        "frozen_window_net_dollars_safe_qty": 580.7,
+        "frozen_window_n": 10,
+        "frozen_window_best_day_share": 0.835
+      },
+      "note": "FROZEN_BEFORE_ANY_RESULT -- no forward-scored sole-blocked-on-filter-10 sample yet; n>=20 forward episodes (post-2026-09-05) is the frozen floor (kill_criteria). august_window/frozen_window numbers above are the BACKWARD read this prereg was filed on (G1's postfix_gate_costing.py Part B replay), never citable as the forward bar."
     }
   ]
 }
