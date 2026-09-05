@@ -1,7 +1,8 @@
 ## Known broken
+
+- [2026-09-05T05:14:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
-- [2026-09-05T05:12:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-05T04:47+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-04T17:26:04 ET] shadow_signal_audit: new unregistered producer(s): setup/scripts/context_bundle_producer.py::compute_catalyst_context. A detector produces output no decision path consumes (C7 at architecture scale). See analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md.
@@ -26,6 +27,20 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 01:2x ET] conductor AFTERHOURS: OK -- weekend-plan item 3 (tickers-lane sizing) written up + 2 stale doc-string bugs fixed -- REVOKE surface
+
+**Picked via STAGE 0 budget gate PROCEED (6/8 fires used, 1 slot left) + market closed (Sat 01:03 ET, verified via `et_clock.py`) + engine-health.json RED on `rth_tick_gaps` only (the already-actioned 2026-09-04 box-crash gap; guard+lesson already shipped last fire, nothing further to do on it). Active goal GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03's entire QUEUE (K1-K9) is claimed WIP by the parallel Fable EOD-audit session ("other sessions do not pick up") -- respected lane discipline, did not touch it. `desk_allocator.py` ranked SPY 0DTE #1 on the engine-health RED; `FLEET-SIGNAL-UNREADABLE-WITH-POSITION` (the only queue.md HIGH item) is already `status:verified-bundle-candidate` for 09-29, nothing left to do now. Fell through to the still-open half of last night's own WEEKEND PLAN item 3: "Tickers lane sizing -- pre-register a per-trade $ risk cap consistent with the 1% kill ... in writing."**
+
+**Finding (verified against real broker fills, not estimated):** the AMBER "QQQ 3-lot @1.87 = $561 = 11% of equity on a 1%-kill arm" flag is **not a broken control, it's two stale doc-string fields.** Given Rule-6's `min_contracts:3` floor and current universe premiums, ANY single trade with a real loss already exceeds 1% of the $5,000 accounts on its own (day-one evidence: AMZN -$156=3.12%, AVGO -$93=1.86%, QQQ -$396=7.92% -- QQQ's number is itself a confound of the SAME 09:51-10:46 ET box outage already tracked for the SPY engine, not steady-state theta-budget behavior); the kill switch correctly behaves as "first real loss ends the arm's day" (25 `BLOCKED` rows across the 3 ledgers prove it fired in-memory all 3 times) -- it is conservative, not broken. Theoretical worst-case single-trade tail (max-affordable $5.00 premium, -50% catastrophe stop) is ~15% of equity, the SAME order of magnitude as SPY Safe's own per-trade tail (30% allocation x 50% stop). The real macro backstop is the parent prereg's `EARLY_KILL` (cumulative >=3% of SOD equity -> shadow_only). Full math: `analysis/deep-research/2026-09-05-tickers-sizing-risk-review.md`.
+
+**Shipped (documentation only, zero numeric/behavioral change -- verified via `git diff`, only 2 `_`-prefixed comment fields touched):** `automation/state/tickers/params.json#risk._cap_note` said "5% of equity" / a $100K-account example (stale sibling of the already-corrected `_per_trade_risk_cap_doc`); `_kill_doc` said "~$1,000 on $100K paper". Both corrected to the real $5,000-account numbers with the day-one evidence inline. New guard `backtest/tests/test_tickers_sizing_risk_review_2026_09_05.py` (5 tests) pins the 4 real risk numbers unchanged + both doc strings no longer leading with the stale figures.
+
+**Deferred, not guessed at:** raising `daily_loss_kill_switch_pct` to honestly reflect the ~15% real tail is a genuine fix candidate but the params file's own prior comment already calls raising it "a risk expansion" -- filed for the 2026-10-30 checkpoint per standing doctrine, not applied now. Lowering `per_trade_risk_cap_pct` instead (keeping `max_contracts:3` per the weekend plan's explicit instruction) is shown in the writeup to be mathematically incompatible with the $5,000 equity tier (would refuse nearly the whole universe as `SIZE_BELOW_MIN`) -- not recommended, not a guess deferred out of caution.
+
+**Verified, quoted (OP-33):** `python3 -c "json.load(...)"` -- valid, all 4 numeric risk fields unchanged; new guard file `5 passed`; `-k ticker` full suite `92 passed, 13329 deselected`; curated safety gate `python backtest/tests/run_safety_gate.py` -> **59 passed, PASS**.
+
+**Rail (tickers/params.json is NOT on the FROZEN_TRADING_PATH list; doc-only edit, zero behavior change; paper-only lane, live:false permanent):** guard = the 5 new tests (a); revert = `git revert <this commit>` (2 doc-string fields + 1 new analysis file + 1 new test file, no numeric/behavioral key touched) (b); this entry is the REVOKE report (c).
 
 ## [2026-09-04] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-31..2026-09-03), real OPRA fills, floor n>=10
 
