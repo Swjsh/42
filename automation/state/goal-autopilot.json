@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 07:38 ET",
-  "action": "closed_ladder_empty",
-  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
-  "active_goal_id": null,
-  "next_item": null,
+  "checked_at_et": "2026-09-05 07:41 ET",
+  "action": "opened",
+  "reason": "opened next eligible ladder entry",
+  "active_goal_id": "GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05",
+  "next_item": "W1 -- Write the prereg with the numbers pulled fresh from analysis/gate-net-cost/GATE-NET-COST-",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -112,9 +112,21 @@
       "state": "done",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05",
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
     }
   ],
-  "last_opened": "GOAL-RIG-HYGIENE-2026-09-05",
+  "last_opened": "GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05",
   "last_closed": "GOAL-RIG-HYGIENE-2026-09-05",
   "error": null
 }

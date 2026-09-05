@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-RIG-HYGIENE-2026-09-05",
-  "active": false,
-  "opened_at_et": "2026-09-05T07:21:22",
+  "id": "GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05",
+  "active": true,
+  "opened_at_et": "2026-09-05T07:41:53",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-RIG-HYGIENE-2026-09-05.md",
-  "queue_id": "GOAL-RIG-HYGIENE-2026-09-05",
+  "file": "automation/state/goals/GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05.md",
+  "queue_id": "GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 07:38 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }
