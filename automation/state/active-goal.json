@@ -1,10 +1,10 @@
 {
-  "id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+  "id": "GOAL-SILENT-RIG-2026-09-05",
   "active": true,
-  "opened_at_et": "2026-09-05T12:01:20",
-  "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-RIG-SIGNAL-HYGIENE-2026-09-05.md",
-  "queue_id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+  "opened_at_et": "2026-09-05T14:31:33",
+  "expires_at_et": "2026-09-12",
+  "file": "automation/state/goals/GOAL-SILENT-RIG-2026-09-05.md",
+  "queue_id": "GOAL-SILENT-RIG-2026-09-05",
   "max_continuations_per_session": 3,
   "last_next_item": null
 }

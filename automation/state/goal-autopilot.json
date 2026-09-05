@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 12:01 ET",
-  "action": "opened",
-  "reason": "opened next eligible ladder entry",
-  "active_goal_id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
-  "next_item": "H1 -- Known-broken upsert keeps the stamp on unchanged payload + wake watcher keys on content hash; 2 RED-proofed tests; watermark quoted stable across two engine_health runs.",
+  "checked_at_et": "2026-09-05 14:31 ET",
+  "action": "closed_opened",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": "GOAL-SILENT-RIG-2026-09-05",
+  "next_item": "R1 -- Fable: review L1 table, apply triggers, re-enable tasks in stages watching the hook log; J decides the tickers lane.",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -126,16 +126,22 @@
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
-      "id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+      "id": "GOAL-SILENT-RIG-2026-09-05",
       "state": "active",
       "eligible": true,
       "why": "ok"
     },
     {
+      "id": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
       "id": "GOAL-GATE-EXPIRY-RECONCILE-2026-09-05",
       "state": "queued",
-      "eligible": true,
-      "why": "ok"
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-WAVE-DAY-CONDITIONS-2026-09-05",
@@ -162,7 +168,7 @@
       "why": "not before 2026-09-15 (today 2026-09-05)"
     }
   ],
-  "last_opened": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
-  "last_closed": "GOAL-OPRA-1MIN-COVERAGE-2026-09-05",
+  "last_opened": "GOAL-SILENT-RIG-2026-09-05",
+  "last_closed": "GOAL-RIG-SIGNAL-HYGIENE-2026-09-05",
   "error": null
 }
