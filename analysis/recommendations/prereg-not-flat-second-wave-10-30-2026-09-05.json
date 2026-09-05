@@ -1,0 +1,86 @@
+{
+  "id": "PREREG-NOT-FLAT-SECOND-WAVE-10-30-2026-09-05",
+  "prereg_id": "PREREG-NOT-FLAT-SECOND-WAVE-10-30-2026-09-05",
+  "frozen_at_et": "2026-09-05",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)",
+  "filed_by": "Sonnet worker, GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05 W1",
+  "opened_from": "GOAL-GATE-NET-COST's close (Fable EOD-audit 2026-09-05): NOT_FLAT (one position at a time; a second wave while the first is still open is refused) reads as the largest 'cost' line in the gate-net-cost table -- but the honest number is concentrated in one day and reverses in the frozen window, so the question is preregistered rather than re-derived from the 08-04 anecdote.",
+  "config_freeze_note": "CONFIG FREEZE 2026-08-31 -> 2026-10-30 (project_september_clean_window_plan_2026_08_29.md): this file is a PREREG ONLY. No params.json / strategies.py / exit_manager.py / heartbeat.md / heartbeat_core.py / risk_gate edit is made by this filing. It freezes the question, the instrument, and the kill/extend criteria BEFORE any change is proposed.",
+  "evidence_this_prereg_is_built_on": {
+    "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json, `gate_rows_deduped_to_waves` row where gate=='NOT_FLAT' (dedup across bold-2/risky-1/risky-3/safe-2/safe-3), read fresh this session.",
+    "definition_used": "net_dollars = sum(realized_if_taken_dollars) over all walk_ok rows for the gate, using the walked (real exit-shape) realized outcome, not the peak-multiple ceiling -- same definition the goal's own table documents and this prereg reuses without re-deriving.",
+    "full_window_2026_08_01_to_today": {
+      "n_arm_rows": 142,
+      "n_waves": 99,
+      "n_waves_peak_ge_1p3x": 66,
+      "winners_dollars": 18685.0,
+      "n_winners": 60,
+      "losers_dollars": -11142.0,
+      "n_losers": 82,
+      "net_dollars": 7543.0,
+      "best_day": "2026-08-04",
+      "best_day_dollars": 4784.0,
+      "ex_best_day_net_dollars": 2759.0,
+      "best_day_share_of_net": 0.634,
+      "verdict": "COSTING"
+    },
+    "frozen_window_2026_08_31_to_today": {
+      "n_arm_rows": 19,
+      "n_waves": 14,
+      "n_waves_peak_ge_1p3x": 4,
+      "winners_dollars": 1384.0,
+      "n_winners": 4,
+      "losers_dollars": -2015.0,
+      "n_losers": 15,
+      "net_dollars": -631.0,
+      "best_day": "2026-09-03",
+      "best_day_dollars": 343.0,
+      "ex_best_day_net_dollars": -974.0,
+      "verdict": "EARNING"
+    },
+    "per_arm_full_window_net_dollars": {
+      "bold-2": 542.0,
+      "risky-1": 3686.0,
+      "risky-3": 889.0,
+      "safe-2": 786.0,
+      "safe-3": 1640.0
+    },
+    "per_arm_frozen_window_net_dollars": {
+      "bold-2": 89.0,
+      "risky-1": -239.0,
+      "risky-3": 0.0,
+      "safe-2": -268.0,
+      "safe-3": -213.0
+    },
+    "reading": "The headline +$7,543/99-wave full-window number is real but 63.4% of it is one day (2026-08-04, +$4,784); ex-that-day the full window is +$2,759, still positive but far thinner. The frozen (config-freeze, 2026-08-31-onward) window -- the honest forward-looking slice -- reads NEGATIVE at -$631 net (4 of 5 arms individually negative or flat: only bold-2 +$89), i.e. refusing the second wave EARNED money in the frozen window even though it COST money in the full backward window. This is exactly the shape the goal opened to freeze: a headline number driven by one anecdote, reversing sign once the anecdote is excluded from the live-decision window.",
+    "right_tail_ledger_second_wave_presence": {
+      "source": "analysis/right-tail/ledger.jsonl (per date/arm `second_wave_summary.present` flag, produced nightly by right_tail_capture.py)",
+      "n_present_true_rows_all_time": 30,
+      "n_total_rows": 244,
+      "note": "This is BACKWARD evidence of how often a second independent wave was even available to refuse (a >=60min-gap fresh two-trigger ENTER after the first position reached TP1) -- it is NOT yet a forward-scored second-wave-refusal P&L ledger; that forward accrual starts from this prereg's filing date (2026-09-05) per the kill_criteria n-floor below."
+    }
+  },
+  "hypothesis": "H1: a SECOND independent wave (>= 60 minutes after the first entry, on a fresh two-trigger ENTER_BULL/ENTER_BEAR signal, with the first position at or past TP1) taken as a separate minimum-size lot while the first runner is still open has positive expectancy net of the extra catastrophe exposure it introduces (two concurrent option positions instead of one).",
+  "what_this_is_NOT": [
+    "NOT averaging down and NOT adding to the SAME position -- memory C31 ('J's 667 real trades: 1-2 lots +$4,576 / 3+ lots -$17,461 / scaled-in -$327/trade -- killer is sizing-UP/adding, not flat count') and the standing guard `fb.is_flat_spy_options` (pinned by `backtest/tests/test_never_average_down_2026_07_20.py`) both govern adding TO an open position on the SAME trigger -- this hypothesis is explicitly a NEW, independently-triggered wave on a NEW two-trigger ENTER signal, not a re-entry or size-up on the existing runner.",
+    "NOT a change to params.json, strategies.py, exit_manager.py, heartbeat.md, heartbeat_core.py, or risk_gate -- config freeze holds through 2026-10-30. NOT_FLAT stays a hard refusal until a checkpoint proposal (if any) is separately ratified.",
+    "NOT permission to widen anything before 2026-10-30 -- this is a pre-registration, not a proposal to ship.",
+    "NOT a claim the full-window +$7,543 number is wrong -- it is real and disclosed above; the prereg exists because it is concentrated (63.4% one day) and the frozen forward-looking window reads the opposite sign."
+  ],
+  "the_spec": {
+    "current_shape_under_test": "NOT_FLAT gate: one open SPY 0DTE options position per account at a time; any second signal while a position is open is refused outright, regardless of the first position's stage (TP1 hit or not) or the gap since the first entry.",
+    "candidate_finite_change": "Admit a second wave as a SEPARATE minimum-size lot (never adding to the open position) ONLY when ALL of: (a) >= 60 minutes have elapsed since the first entry, (b) a fresh two-trigger ENTER_BULL/ENTER_BEAR fires independently of the first position's trigger, (c) the first position has reached TP1 (de-risked before a second concurrent exposure opens).",
+    "instrument": "analysis/right-tail/ledger.jsonl (per-date/arm `second_wave_summary.present`/`gap_minutes_from_first` fields, the >=60min + fresh-trigger gate this hypothesis's admission condition already matches) PLUS setup/scripts/gate_net_cost_walk.py's NOT_FLAT walked rows (analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json, `gate_rows_deduped_to_waves` NOT_FLAT row) for the dollar expectancy. Both are existing, already-built instruments; this prereg reuses them, it does not extend either.",
+    "unit_of_measure": "per second-wave refusal event: realized_if_taken_dollars (the walked, real-exit-shape outcome) had the refused second wave instead been taken as a separate minimum-size lot."
+  },
+  "kill_criteria": {
+    "primary_kill": "frozen-window net_dollars <= 0 (config-freeze window, 2026-08-31-onward, on the forward-accruing right-tail-ledger second-wave-refusal sample) evaluated at n>=20 second-wave refusals.",
+    "concentration_kill": "top-day concentration (best single wave-day's dollar contribution / total net_dollars, matching this table's own best_day_share_of_net convention, e.g. the full-window's disclosed 0.634) >= 0.5, evaluated at the same n>=20 floor.",
+    "either_kill_closes_the_candidate": "Either failure alone (frozen net <=0 OR ex-best-day net <=0 OR top-day concentration >=0.5, all three read from the same n>=20 forward sample) is sufficient to KILL; the candidate proceeds to a 2026-10-30 checkpoint SHADOW-FILE proposal only if none of the three fire.",
+    "ex_best_day_kill": "ex-best-day net_dollars <= 0 on the same forward n>=20 sample (the goal's DONE-WHEN names this as a third, independent leg of the kill bar alongside frozen-window net and top-day concentration)."
+  },
+  "extend_criterion": "If n<20 forward second-wave refusals (the admission condition -- >=60min gap, fresh two-trigger ENTER, first position at/past TP1 -- is inherently rarer than a bare NOT_FLAT refusal; the ledger's all-time n_present_true count is 30 but that is BACKWARD and unfiltered by the TP1-reached condition) exist by 2026-10-30, the checkpoint reports UNVERIFIED -- insufficient n, not a negative finding (same convention as prereg-vix-bull-hard-cap-unblock-shadow-2026-09-05.json's extend_criterion) -- and the question stays open past 10-30.",
+  "n_needed": "n>=20 forward second-wave refusals (post-2026-09-05, matching the admission condition (a)-(c) above) on the right-tail ledger, matching this project's standing evidence_n advisory bar.",
+  "consumer": "2026-10-30 config-freeze checkpoint review + GOAL-NOT-FLAT-SECOND-WAVE-PREREG-2026-09-05's DONE-WHEN clause; folded into analysis/recommendations/checkpoint-2026-09-29-inventory.json (class=expansion, ledger=right-tail/gate-net-cost) per W2.",
+  "revert": "Delete this file. No other artifact is created or modified by this prereg (no params.json, no scheduled task, no leaderboard edit, no strategies.py/heartbeat_core.py edit)."
+}
