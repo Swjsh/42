@@ -89,3 +89,46 @@ blocked a losing OTM+wide-stop config now blocks a winner under ITM+managed exit
 purely n=2: the statistical base is thin (as was the original ratification). But OP-22 says block ONLY
 if blocking *still* beats not-blocking — and it demonstrably does not. The honest read: this gate's
 evidence went stale when the engine changed under it, and it now costs ~$471 to keep.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: SHADOW-FILED-CANDIDATE** (prereg + shadow instrument to be registered by K9;
+NOT a watcher-only candidate, and not eligible for a straight KILL — see below)
+
+Unlike the other four members of the K5 "older watcher-gate family" this is not a watcher
+promotion candidate — it is a proposed **live-engine filter change** (`params.json
+vix_entry_thresholds.bull_hard_cap` 18.0→22.0 + matching `backtest/lib/filters.py:805` constant +
+`heartbeat.md` filter 9), so OP-21's watcher-promotion gate does not apply to it. Its own
+evidence is real and un-contradicted: EC-invariant (−1,379 both BASE/CAND), real-fills −$471
+FULL and −$471 OOS from keeping the block, 2 confirmed bull winners suppressed, anchor
+no-regression PASS (all deltas $0 on every J source-of-truth day), gym 97/98 PASS
+(1 KNOWN_FLAKY_LIVE_SOURCE excluded). The only weakness the candidate's own author flags is n=2
+(thin statistical base for the two winners the block suppresses).
+
+Under this goal's **CONFIG FREEZE (2026-08-31 → 2026-10-30)**, a `params.json`/`heartbeat.md` edit
+is explicitly out of scope regardless of evidence quality — "a candidate whose verdict implies an
+actual gate/knob change ships as a prereg for the 10-30 checkpoint, never live now." That is a
+SHADOW-FILED path, not a KILL: the evidence doesn't fail, the freeze blocks shipping it. Filing it
+as a forward $0 shadow instrument (continue tracking VIX 18-22 bull setups the current
+hard-cap suppresses, without touching the live cap) also directly answers the n=2 thinness
+objection by accumulating more evidence ahead of the 10-30 checkpoint instead of ratifying on n=2
+alone.
+
+**K9 handoff:** register a prereg JSON under `analysis/recommendations/` (e.g.
+`vix-bull-hard-cap-unblock-shadow-prereg-2026-09-05.json`) citing this candidate file + the
+−$471/−$471/n=2 numbers above, plus a scheduled shadow task (`install-vix-bull-hard-cap-unblock
+-shadow.ps1` / `Gamma_VixBullHardCapUnblockShadow`) that logs, at $0 cost and without touching
+`params.json`, any SPY bull 0DTE setup with VIX in [18,22) that the current hard-cap would
+suppress — building the n>2 sample this candidate needs before the 10-30 checkpoint decision.
+
+**Evidence:**
+- Candidate's own real-fills A/B: −$471 FULL, −$471 OOS, 2 winners suppressed, anchor deltas all $0.
+- Gym: `python crypto/validators/runner.py` → 97/98 PASS, quoted in the candidate file.
+- CONFIG FREEZE text: this goal's own `automation/state/goals/GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03.md` OPERATING RULES.
+
+**Commands run:**
+```
+grep -n "VIX_BULL_HARD_CAP_UNBLOCK" strategy/candidates/_LEADERBOARD.md
+```
+No `params.json`/`heartbeat.md`/generated-surface edit made; no prereg/task actually registered
+here (K9's job per this goal's queue split) — this section only records the verdict.

@@ -52,3 +52,44 @@ The pre-merge gate requires the candidate to pass the gym validators, walk-forwa
 ## Pre-existing leaderboard impact
 
 The candidate complements the existing leaderboard candidates, as it removes wrong-way trades without affecting the winning trades.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced — cited number is borrowed from an
+unrelated candidate, not this file's own result)**
+
+Leaderboard rank 46 ("Auto-promoted by reviewer", `inferred edge_capture=$25000 >= 771`, `TBD`/
+`TBD` OOS/WF, `67/67 PASS` test-only, filed 2026-06-30). This file's OP-20 disclosure #3 states
+"The out-of-sample test result is positive, with a Sharpe ratio of 4.728" and the Confidence
+section repeats "based on the positive out-of-sample test result." That exact figure — 4.728 —
+is NOT this candidate's own result: it is the real-fills-A/B Sharpe ratio reported for the
+DIFFERENT, genuinely-validated leaderboard candidate **★ STRUCTURE_VETO_DIR_VS_TREND**
+(`strategy/candidates/2026-06-26-160000-structure-veto-direction-vs-trend.md`, filed 4 days
+earlier, backed by guard `backtest/tests/test_structure_veto.py` 29/29 PASS and 30+ real
+`_analysis/` files) — row text: "sharpe 4.34→**4.73**". This file (a same-day, near-identically-
+named `chef-nemo` free-tier DRAFT with the mechanism described only in generic prose, no
+distinguishing parameters, no script name) has copy-pasted that number as if it were its own
+independent test. No genuine OOS/WF evidence exists for THIS candidate file — the one number it
+cites belongs to a different candidate. This is the clearest case of auto-promotion theatre in
+the K7 batch.
+
+**Evidence:**
+- This file's line 39: "Sharpe ratio of 4.728" — matches ★ STRUCTURE_VETO_DIR_VS_TREND's leaderboard
+  row Sharpe "4.73" (rounding of 4.728), not an independent test of this file's own mechanism.
+- `strategy/candidates/_LEADERBOARD.md` row ★: Sharpe base 4.340 → **4.728** (candidate) — same
+  digits, different candidate, filed 2026-06-26 not 2026-06-30.
+- `ls strategy/candidates/_analysis/ | grep -i "structure-veto-dir-vs-trend"` → 30+ files, all
+  confirmed (by reading their "Expected impact" sections, e.g.
+  `2026-07-08-walk-forward-validation-of-structure-veto-dir-vs-trend-on-20.md`) to reference the
+  ★ candidate's 2025-01-02..2026-06-18 real-fills A/B baseline, not this rank-46 draft.
+
+**Commands run:**
+```
+grep -n "STRUCTURE_VETO_DIR_VS_TREND" strategy/candidates/_LEADERBOARD.md
+sed -n '35,42p' strategy/candidates/2026-06-30-chef-nemo-structure-veto-dir-vs-trend.md
+head -20 strategy/candidates/_analysis/2026-07-08-walk-forward-validation-of-structure-veto-dir-vs-trend-on-20.md
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made. Note: this rank-46 file is
+distinct from the ★-ranked candidate that K3 (a parallel worker on this same goal) is separately
+adjudicating — no overlap, this KILL applies only to the rank-46 draft.

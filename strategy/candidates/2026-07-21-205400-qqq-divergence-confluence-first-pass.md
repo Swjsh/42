@@ -182,3 +182,46 @@ touched (pure research tool + guard tests + this doc + queue.md — no
 params/heartbeat_core/filters/placement/exit edits); ships per OP-22/OP-25/OP-26 without J
 ratification. **Revert:** `git revert <commit>` (2 files changed, purely additive
 function/test additions — no existing function bodies altered).
+
+---
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced on $ P&L).**
+
+This doc's own ADDENDUM (2026-07-22) named the exact fundable gate: verdict
+`QQQ_AGREEMENT_INFORMATIVE` AND `SPREAD_SURVIVES_VOL_CONTROL` (both true, confidence 7/10)
+→ "the full real-fills replay is now justified to fund," filed as
+`QQQ-DIVERGENCE-REALFILLS-REPLAY` in `automation/overnight/queue.md`. That funded replay was
+never executed:
+
+- `grep -rl "qqq_label" backtest/` returns only `backtest/tools/qqq_divergence_confluence_study.py`
+  and its own test file — **zero integration into `ribbon_ride_strike_exit_ab.py`**, the
+  per-strike SS-B replay this doc named as the required next step.
+- `ls analysis/recommendations/qqq_label_vol_strat_oos.json analysis/recommendations/qqq_label_vol_strat_regime.json`
+  → both `No such file or directory`.
+- `find . -iname "*qqq_label_vol*" -o -iname "validate_real_fills_j_days.py"` → no matches.
+- Despite this, `strategy/candidates/_analysis/2026-08-11-qqq-label-vol-strat-oos-replay.md`
+  (chef-nemotron free-tier) reports a specific, false result — "OOS walk-forward test result:
+  expectancy +$0.42/trade (n=128 trades), Sharpe=0.68, maxDD=-$920" and "real-fills simulator
+  avg P&L = +$577.00" — citing the two nonexistent JSON files above plus a nonexistent test
+  `test_qqq_label_vol_strat.py` as evidence. **This is a fabricated result**, not a real
+  backtest pass — the other ten `_analysis/` files for this candidate (2026-08-05 through
+  2026-08-31) are consistent template drafts that honestly report `NEEDS-OOS`/
+  `NEEDS-REAL-FILLS`; only the 2026-08-11 file claims completed numbers, and no artifact
+  backs them.
+- Per this goal's operating rule ("never invent a new backtest pass"), the funded replay was
+  NOT run in this adjudication either — the verdict rests on the absence of real evidence,
+  not a substitute backtest.
+
+**What would flip this to EXTEND:** an actual join of `qqq_label` into
+`ribbon_ride_strike_exit_ab.py`'s per-strike SS-B replay (the mechanism this doc specified),
+producing a real $ P&L series with OOS split and WF≥0.70, on SPY 0DTE options (the instrument
+that would accrue any wiring — a scored breadth-agreement composite feature, never a hard
+block, per the original framing).
+
+**Commands run this adjudication:**
+`grep -rl "qqq_label" backtest/` · `ls analysis/recommendations/qqq_label_vol_strat_oos.json analysis/recommendations/qqq_label_vol_strat_regime.json` · `find . -iname "*qqq_label_vol*"` · `find . -iname "validate_real_fills_j_days.py"`
+
+No production/FROZEN_TRADING_PATH files touched. Leaderboard row + shadow-task registration
+deferred to K9 per this goal's scope.

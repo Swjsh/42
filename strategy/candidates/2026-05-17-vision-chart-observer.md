@@ -274,3 +274,56 @@ _Wrapper: `setup/scripts/run-chart-vision-observer.ps1`._
 _Grader: `backtest/autoresearch/vision_observer_grader.py`._
 _Design doc: `markdown/specs/VISION-OBSERVER-PROTOCOL.md`._
 _Doctrine basis: CLAUDE.md OP-3 / OP-11 / OP-20 / OP-21 / OP-22 / OP-26 / OP-27._
+
+---
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced — observation pipeline is dead, not
+"needs more time").**
+
+This candidate's own promotion gate (OP-21) requires ≥20 trading days AND ≥50 DIVERGED-graded
+ticks before any vision-veto proposal can even be evaluated. The observer has been running
+since first live fire 2026-05-19 — **110 calendar days, 60 daily scorecard files** exist
+(`analysis/vision-vs-heartbeat-2026-05-18.json` through `...-2026-09-04.json`). Aggregated
+across all 60:
+
+- `total_paired_ticks` summed across every file = **82**
+- `diverged_graded_n` summed across every file = **0** (every single day, `null` or 0)
+
+After 5.5x the required observation window, the grader has produced **zero** DIVERGED-and-
+graded ticks — the exact population this candidate's H1 hypothesis needs to test. This is
+not a thin sample awaiting more days; it is a pipeline that has never once produced its
+target unit of evidence. The earlier checkpoint,
+`strategy/candidates/_analysis/2026-05-23-vision-observation-analysis-first-50.md`, already
+flagged confidence 0/10 at day 5 ("insufficient data has been accumulated... require
+approximately 50 observations") — nothing since resolved that; the pipeline output confirms
+it never will at the current cadence/pairing logic.
+
+**Root cause (one sentence):** either the vision-capture cadence or the tick-pairing logic
+(`pair_observations` by `tick_id` within date) is starving the DIVERGED-graded bucket —
+`total_paired_ticks`=82 over 110 days (~0.75/day) is itself far below the ~50 ticks/day this
+candidate's own confidence section estimated, so the underlying capture wrapper is very
+likely not firing at the assumed cadence. Diagnosing and fixing that wrapper is out of this
+adjudication's scope (assess, not fix) — flagging as a discovered issue, not resolving it
+here.
+
+**Commands run this adjudication:**
+```
+python -c "
+import json, glob
+files = sorted(glob.glob('analysis/vision-vs-heartbeat-*.json'))
+tot_paired=0; tot_diverged_graded=0
+for fp in files:
+    d = json.load(open(fp, encoding='utf-8'))
+    agg = d.get('aggregate', {})
+    tot_paired += agg.get('total_paired_ticks',0) or 0
+    tot_diverged_graded += agg.get('diverged_graded_n',0) or 0
+print(len(files), tot_paired, tot_diverged_graded)
+"
+```
+→ `60 82 0`
+
+No production/FROZEN_TRADING_PATH files touched. Leaderboard row update deferred to K9. A
+`spawn_task` was filed separately flagging the dead/starved vision-observer capture pipeline
+for someone to diagnose (out of this goal's scope).

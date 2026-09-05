@@ -53,3 +53,45 @@ This candidate requires the following pre-merge gates to pass:
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the STRUCTURE_VETO_DIRECTION_VS_TREND candidate, which also incorporates a structure-based veto. However, this candidate has a more straightforward mechanism and may be easier to implement and evaluate.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced)** — covers BOTH leaderboard rows that
+point at this file: **rank 42** and **rank 43** (`_LEADERBOARD.md` lists both as
+`[2026-06-27-chef-nemo-structure-veto-enabled]` — a duplicate row pointing to the same file, not
+two distinct candidates; both get the same verdict here).
+
+Both rows: "Auto-promoted by reviewer", `inferred edge_capture=$25000 >= 771`, `TBD`/`TBD`
+OOS/WF, `67/67 PASS` test-only, filed 2026-06-28. Grepped this file directly: `## OP-20
+disclosures` item 3 states verbatim "This candidate has not been tested out-of-sample and
+requires further evaluation to determine its effectiveness in unseen market conditions" and the
+Pre-merge gate section lists "OOS testing with a walk-forward optimization" as still-pending
+future work — confirming no OOS/WF number exists anywhere in the file itself.
+
+Searched `strategy/candidates/_analysis/` for this candidate's own slug
+("structure-veto-enabled"); the only direct hit is
+`2026-08-01-structure-veto-enabled-regime-stratified-oos.md`. Read it: its "Expected impact"
+section explicitly reuses the ★-ranked STRUCTURE_VETO_DIR_VS_TREND candidate's real-fills A/B
+(2025-01-02..2026-06-18, the one with the guard `backtest/tests/test_structure_veto.py` 29/29
+PASS and the actual production diff spec) as its baseline, rather than backtesting THIS
+"structure-veto-enabled" draft independently — this file's mechanism ("structure_veto is a
+binary flag that, when enabled, applies... to all trades") is a generic stub with no
+candidate-specific parameters distinct from the ★ candidate. No independent OOS/WF evidence for
+THIS auto-promoted draft exists; the one analysis file naming it borrows another candidate's
+numbers rather than producing its own.
+
+**Evidence:**
+- `grep -in "out-of-sample\|walk-forward"` on this file → confirms "has not been tested
+  out-of-sample" verbatim.
+- `strategy/candidates/_analysis/2026-08-01-structure-veto-enabled-regime-stratified-oos.md` →
+  reuses the ★ candidate's 2025-01-02..2026-06-18 real-fills baseline, not an independent test of
+  this draft.
+
+**Commands run:**
+```
+grep -in "walk-forward\|OOS\|out-of-sample" strategy/candidates/2026-06-27-chef-nemo-structure-veto-enabled.md
+ls strategy/candidates/_analysis/ | grep -i "structure-veto-enabled"
+grep -n "STRUCTURE_VETO_DIR_VS_TREND" strategy/candidates/_LEADERBOARD.md
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made.

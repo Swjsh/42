@@ -190,3 +190,40 @@ This file makes no code changes. Post-write validator run not required for this 
 
 *Filed by Chef persona 2026-05-21. DRAFT only. Rule 9 applies — J ratification required before any production change.*
 *OP-21 gate: NOT met. This is a monitoring note, not a promotion proposal.*
+
+---
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced; OP-21 gate unmet).**
+
+This candidate's own OP-21 checklist scored 1/5 met at filing (only "3+ historical
+observations that would have won"); the other four — 3+ live J-confirmed wins,
+positive full-backfill expectancy, per-confidence-tier expectancy, J ratification — were
+all unmet. 107 days later none has moved:
+
+- **Full-backfill expectancy still negative:** the candidate's own number, aggregate
+  -$1,128 over 289 graded observations, is the only backfill number that exists anywhere
+  in this candidate's trail — no later file recomputes it on a larger sample.
+- **0/3 live J-confirmed wins**, still — this gate requires J's own live trading, which
+  no autonomous research fire can produce, and nothing in the record shows it happened.
+- The one follow-up analysis found (`_analysis/2026-06-22-bullish-watcher-pm-gate-session-based-wrpl.md`,
+  chef-nemotron) restates this candidate's own AM/PM split verbatim (AM WR=43.9%/-$1,756,
+  PM WR=65.6%/+$628, N=61) and explicitly flags `NEEDS-OOS`/`NEEDS-REAL-FILLS` — it adds no
+  new data, no walk-forward, no larger N.
+- Current `automation/state/watcher-observations.jsonl` is a rotating window (493 lines
+  total, `wc -l` verified), not a cumulative archive — only 5 `bullish_watcher` rows visible
+  (2026-09-02/03), too few to re-verify the N≥100 PM-observation target this candidate set
+  for itself. The rotating-window design means this candidate's own stated path to
+  confidence (accumulate PM observations to N≥100) is not even measurable from current
+  state without a separate archival pipeline — a structural gap, not evidence of progress.
+
+No confidence-tier discriminator was ever built (bull_score pinned at 11, `n_triggers>=3`
+never met — a structural limitation this doc itself diagnosed and nothing since has fixed).
+
+**Commands run this adjudication:**
+`grep -ril "bullish_watcher.*pm.gate\|BULLISH_WATCHER_PM_GATE" strategy/candidates/_analysis/`
+· `wc -l automation/state/watcher-observations.jsonl` → 493
+· counted `watcher_name`-matched `bullish` rows in that file → 5 (2026-09-02/03 only)
+
+No production/FROZEN_TRADING_PATH files touched. Leaderboard row update deferred to K9.

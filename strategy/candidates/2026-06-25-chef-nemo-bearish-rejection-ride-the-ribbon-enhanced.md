@@ -56,3 +56,37 @@ Enhanced BEARISH_REJECTION_RIDE_THE_RIBBON setup with additional filters to impr
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The enhanced filters may improve the overall performance of the strategy and increase the edge capture.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced)**
+
+Leaderboard rank 38 ("Auto-promoted by reviewer", `inferred edge_capture=$25000 >= 771`, `TBD`/
+`TBD` OOS/WF columns, `67/67 PASS` test-only, filed 2026-06-25). Grepped this file directly:
+`## OP-20 disclosures` states verbatim "3. **Out-of-sample test result:** NEEDS-OOS (not done)"
+and the Pre-merge gate section states "* Walk-forward: NEEDS-WALK-FORWARD (not done)" — the
+candidate's own text confirms no OOS/WF number exists anywhere in it. Searched
+`strategy/candidates/_analysis/` for any file matching this candidate's slug
+("bearish-rejection-ride-the-ribbon-enhanced"); zero hits — no independent backtest artifact was
+ever produced for this candidate specifically (the many `bearish-rejection-ride-the-ribbon-*`
+analysis files that DO exist there are about the base BEARISH_REJECTION_RIDE_THE_RIBBON setup and
+the `v14_enhanced` watcher naming, not this "-enhanced" filter candidate — confirmed by reading
+their content, not by name similarity alone).
+
+The reviewer that promoted this row to the leaderboard (`analysis/kitchen-review/
+2026-06-28T1045-review.md`) did not evaluate this specific file for PROMOTE — only a sibling
+filed the same day. This candidate's leaderboard entry reflects a `TBD` verdict that was never
+actually resolved. No OOS/WF evidence exists at any layer: not in the candidate file, not in
+`_analysis/`, not in any auto-review artifact.
+
+**Evidence:**
+- `grep -n "NEEDS-OOS\|NEEDS-WALK-FORWARD"` on this file → both present verbatim.
+- `ls strategy/candidates/_analysis/ | grep -i "bearish-rejection-ride-the-ribbon-enhanced"` → 0 results.
+
+**Commands run:**
+```
+grep -in "walk-forward\|OOS\|out-of-sample" strategy/candidates/2026-06-25-chef-nemo-bearish-rejection-ride-the-ribbon-enhanced.md
+ls strategy/candidates/_analysis/ | grep -i "bearish-rejection-ride-the-ribbon-enhanced"
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made.

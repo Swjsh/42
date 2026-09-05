@@ -65,3 +65,41 @@ Given the historical WR of 100% in this subset (deduped N=18), we expect to easi
 ## Pre-existing leaderboard impact
 
 This candidate complements the existing V14E_BEAR_ONLY_GATE (rank 3) by providing a higher-confidence subset. It does not conflict with any existing candidates. It may serve as a fast-track promotion path for the V14E bear edge if the historical performance holds in live accumulation.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (0/15 live accumulation target reached — fast-track path never advanced)**
+
+This candidate (rank 28, filed 2026-06-15) is an explicit sub-tier fast-track of rank 3
+(V14E_BEAR_ONLY_GATE, itself KILLED this session for 0/3 live J wins — see that file's
+2026-09-05 adjudication). Its own promotion path is narrower but structurally the same OP-21
+watch-first gate: "accumulate N>=15 live high-conf bear obs in VIX_MODERATE, WR>=75%, >=8
+distinct dates → WATCH-STABLE." The candidate's own OP-20 disclosures already flag this as
+incomplete at filing: "Out-of-sample: NEEDS-OOS (walk-forward held-out window not yet
+performed)" and "Real-fills: NEEDS-REAL-FILLS (not yet performed)."
+
+3.5+ months after filing, `automation/state/watcher-promotion-snapshot.json` (2026-05-21, the
+only aggregated promotion snapshot on disk, predates this candidate but tracks the same
+`v14_enhanced_watcher`) shows `live.live_wins_graded: 0`, `ready_for_promotion: false`. No newer
+snapshot exists, the leaderboard row (28) is still `NEEDS-MORE-DATA`, and the current
+`automation/state/watcher-observations.jsonl` (493 rows, checked 2026-09-05) shows only 4 total
+`v14_enhanced_watcher` observations of ANY kind — nowhere near the N=15 target for this specific
+high-conf + VIX_MODERATE sub-tier. The candidate's own "~2 obs/week, ~7-8 weeks to gate" estimate
+has been exceeded by roughly 3x elapsed time with no recorded advance. This is a KILL of the
+promotion candidate for lack of any forward progress toward its own stated N=15 bar, not a
+rejection of the underlying WR=100%/N=18 historical read.
+
+**Evidence:**
+- Candidate's own text: "Out-of-sample: NEEDS-OOS", "Real-fills: NEEDS-REAL-FILLS", target
+  N>=15 live obs / WR>=75% / >=8 distinct dates.
+- `automation/state/watcher-promotion-snapshot.json` → `v14_enhanced_watcher.live.live_wins_graded = 0`.
+- `automation/state/watcher-observations.jsonl` → 4 total `v14_enhanced_watcher` rows (2026-09-05), far short of N=15.
+
+**Commands run:**
+```
+grep -n "V14E_BEAR_HIGH_CONF_VIX_MODERATE_GATE" strategy/candidates/_LEADERBOARD.md
+wc -l automation/state/watcher-observations.jsonl
+python -c "import json; rows=[json.loads(l) for l in open('automation/state/watcher-observations.jsonl',encoding='utf-8') if l.strip()]; print(sum(1 for r in rows if r.get('watcher')=='v14_enhanced_watcher'))"
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made.

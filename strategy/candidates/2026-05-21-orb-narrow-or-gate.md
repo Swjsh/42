@@ -188,3 +188,42 @@ Q2-2026 concentration: **16%** (vs 45% raw) — concentration concern resolved.
 
 **The gate decision stands. Promotion to PROMISING confirmed on deduped evidence.**
 Real-fills (OPRA, N=22) are unaffected by dedup — OPRA-based, not watcher-grader based.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (0/3 live J wins — OP-21 gate never cleared; "Blocked" text confirmed accurate)**
+
+Leaderboard row 4 (rank 4, filed 2026-05-21) itself already states: "PROMISING — GATE DEPLOYED +
+INTEGRATION SPEC FILED (2026-05-24). Blocked: OP-21 0/3 live J wins." Cross-checked this claim
+against `markdown/doctrine/DOCTRINE-ARCHIVE.md` OP-21 ("Watch-First Promotion Path", lines
+157-166) rather than assuming it's accurate: OP-21 promotion requires ALL of 3+ historical
+would-have-won observations + **3+ live observations confirmed by J** + positive expectancy over
+16-month full backfill + per-confidence-tier expectancy + per-quality scorecard + J's explicit
+ratification. "0/3 live J wins" is a direct, correctly-cited reference to that 3-live-win clause
+— the row's own text is accurate, not an assumption.
+
+This candidate cleared the historical + walk-forward + real-fills legs (WF PASS OOS/IS=0.667,
+N=22 OPRA real-fills WR=81.8%) but has produced ZERO of the required 3 J-confirmed live wins in
+the 3.5+ months since the 2026-05-24 integration spec was filed. `automation/state/
+watcher-promotion-snapshot.json` (2026-05-21) shows `orb_watcher`: `live.live_wins_graded: 0`,
+`ready_for_promotion: false`. No newer snapshot exists and the leaderboard status has not
+advanced past PROMISING. This is exactly the "effectively KILLED-by-inaction" pattern the goal
+flagged — the gate is fully built and specced but has sat un-actioned on the OP-21 live-win gate
+for over three months with no forward movement.
+
+**Evidence:**
+- Leaderboard row 4 text: "Blocked: OP-21 0/3 live J wins" — confirmed correctly cites OP-21's
+  3-live-win requirement (`markdown/doctrine/DOCTRINE-ARCHIVE.md` lines 157-166).
+- `automation/state/watcher-promotion-snapshot.json` → `orb_watcher.live.live_wins_graded = 0`,
+  `ready_for_promotion = false`.
+- Integration spec (`_analysis/2026-05-24-orb-heartbeat-integration-spec.md`) filed 2026-05-24,
+  no evidence of any subsequent live-win grading event.
+
+**Commands run:**
+```
+grep -n "ORB_NARROW_OR_GATE" strategy/candidates/_LEADERBOARD.md
+grep -n "OP-21" markdown/doctrine/DOCTRINE-ARCHIVE.md
+python -c "import json; d=json.load(open('automation/state/watcher-promotion-snapshot.json',encoding='utf-8')); print([w for w in d['watchers'] if 'orb' in w['watcher_name'].lower()])"
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made.

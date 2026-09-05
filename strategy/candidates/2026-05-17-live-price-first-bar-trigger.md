@@ -260,3 +260,35 @@ before ratification review.**
 _Smoke test: `backtest/autoresearch/v15_3_live_price_trigger_smoke.py` (7/7 PASS as of 2026-05-17)._
 _Heartbeat draft: `automation/prompts/heartbeat-v15.3-draft.md`._
 _Underlying forensic: `journal/2026-05-15.md` Strategic Review §6 "Lesson of the day"._
+
+---
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced).**
+
+This candidate's own "Next steps" (2026-05-17) named the required Stage-2 SPY backtest
+(`python backtest/run.py --start 2025-01-01 --end 2026-05-15 --label v15.3_live_price --real-fills`)
+as the gate before ratification review. 111 days later, that backtest still has not run.
+`strategy/candidates/_analysis/` contains 38 files touching this candidate between
+2026-05-21 and 2026-09-04 (today-1) — every one inspected is a chef-nemotron free-tier
+template carrying `NEEDS-OOS`/`NEEDS-REAL-FILLS` placeholders, not a completed pass:
+
+- `2026-09-04-live-price-first-bar-trigger.md` (most recent, filed 2026-07-21 draft
+  re-surfaced): confidence **3/10** — "No Stage-1 backtest results available... Leaderboard
+  notes show only 19 total events in 77 days with premarket data (6 bearish, 13 bullish)."
+- `2026-09-03-walk-forward-validation-of-live-price-first-bar-trigger-on-n.md`: confidence
+  **2/10** — "We have no backtest results to date. The candidate has only passed smoke
+  tests... The walk-forward on non-J days has not been run."
+
+Both files are speculative ("we would run...", "would require...") rather than reports of
+completed work — no actual Stage-1/Stage-2 backtest output, no WF ratio, no real-fills
+number exists anywhere in this candidate's evidence trail beyond the original single-event
+smoke test (7/7 PASS on the mechanic, zero historical P&L). The premarket-data coverage gap
+disclosed at filing (only 77/342 trading days have usable premarket bars) is the likely
+root blocker and was never resolved.
+
+**Commands run this adjudication:**
+`grep -ril "live.price.first.bar\|v15_3_first_bar\|LIVE_PRICE_FIRST_BAR_TRIGGER" strategy/candidates/_analysis/` (38 hits, all inspected as template drafts)
+
+No production/FROZEN_TRADING_PATH files touched. Leaderboard row update deferred to K9.

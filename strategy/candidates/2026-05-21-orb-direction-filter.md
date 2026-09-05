@@ -110,3 +110,33 @@ Before implementing:
 ---
 
 *Filed by Gamma overnight autonomous session. DRAFT only. No production changes.*
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (0/3 live J wins — OP-21 gate never cleared)**
+
+Leaderboard row 5 (rank 5, filed 2026-05-21) is watcher-only ("N/A watcher-only" in the OP-16
+column) — same OP-21 promotion path as sibling candidates ORB_NARROW_OR_GATE and
+V14E_BEAR_ONLY_GATE. `markdown/doctrine/DOCTRINE-ARCHIVE.md` OP-21 requires 3+ live observations
+**confirmed by J** before promotion out of watcher-only, in addition to the historical/WF/real-fills
+legs this candidate already cleared (WF PASS: OOS/IS Sharpe ratio=2.916; real-fills v2
+chart-stop N=10 WR=90%). `automation/state/watcher-promotion-snapshot.json` (2026-05-21) shows
+`orb_watcher.live.live_wins_graded = 0`, `ready_for_promotion = false`; no newer snapshot exists
+and the leaderboard status has stayed NEEDS-MORE-DATA/PROMISING-adjacent for 3.5+ months with no
+recorded live-win confirmation event. Watcher change (`ORB_DIRECTION_FILTER = "long"`) already
+shipped as OP-22 engine-benefit (2026-05-21) and continues accumulating observations — that part
+is unaffected — but the candidate's promotion path is dead by the same inaction pattern as its
+siblings.
+
+**Evidence:**
+- `markdown/doctrine/DOCTRINE-ARCHIVE.md` lines 157-166 (OP-21 text, 3-live-win clause).
+- `automation/state/watcher-promotion-snapshot.json` → `orb_watcher.live.live_wins_graded = 0`.
+- Leaderboard row 5 status unchanged since 2026-05-21 filing.
+
+**Commands run:**
+```
+grep -n "ORB_DIRECTION_FILTER" strategy/candidates/_LEADERBOARD.md
+grep -n "OP-21" markdown/doctrine/DOCTRINE-ARCHIVE.md
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made.

@@ -60,3 +60,32 @@ The TRENDLINE_BREAKOUT_FILTER will require the following pre-merge gates to pass
 ## Pre-existing leaderboard impact
 
 The TRENDLINE_BREAKOUT_FILTER is expected to complement the existing leaderboard candidates, particularly the BEARISH_REJECTION_RIDE_THE_RIBBON setup. The filter's ability to identify high-probability trendline breakouts is expected to improve the overall performance of the engine.
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (no OOS/WF evidence ever produced)**
+
+Leaderboard rank 45 ("Auto-promoted by reviewer", `inferred edge_capture=$25000 >= 771`, `TBD`/
+`TBD` OOS/WF, `67/67 PASS` test-only, filed 2026-06-30). This file's own "Out-of-sample test
+result" line ("tested on an out-of-sample dataset of 50 trendline breakouts, with a success rate
+of 80%") and "Walk-forward validation: 90/100 PASS" line cite no script, no dataset file, no
+`_analysis/` artifact, and no reproducible command — the "50 trendline breakouts" and "90/100"
+numbers appear nowhere else in the repo. Searched `strategy/candidates/_analysis/` for this
+candidate's own slug ("trendline-breakout-filter"); zero hits.
+
+Same auto-promotion-theatre pattern as sibling ranks 38/42/43/44/46: a free-tier LLM-generated
+DRAFT asserts test results in prose with no backing artifact, and gets marked
+NEEDS-MORE-DATA/PROMOTE without independent verification. No genuine OOS/WF evidence exists.
+
+**Evidence:**
+- This file's OP-20 disclosure #3 and Pre-merge gate section → unsourced "80% success" and
+  "90/100 PASS" claims, no cited artifact.
+- `ls strategy/candidates/_analysis/ | grep -i "trendline-breakout-filter"` → 0 results.
+
+**Commands run:**
+```
+grep -in "walk-forward\|OOS\|out-of-sample" strategy/candidates/2026-06-30-chef-nemo-trendline-breakout-filter.md
+ls strategy/candidates/_analysis/ | grep -i "trendline-breakout-filter"
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made.

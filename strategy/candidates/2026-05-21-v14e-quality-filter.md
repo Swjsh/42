@@ -227,3 +227,41 @@ trading gate (per OP-16 regime durability standard). Accumulate live V14E VIX_MO
 N=156 unique bars). Long-only is negative (WR=50.3%, P&L=-$1,098). The structural
 argument holds on deduped data. Gate already live in watcher: `V14E_DIRECTION_FILTER="bear"`
 (v35 gym validator confirmed 70/70 PASS).
+
+## ADJUDICATION 2026-09-05
+
+**Verdict: KILLED (0/3 live J wins — OP-21 gate never cleared)**
+
+This candidate (leaderboard rank 3, filed 2026-05-21) is watcher-only per its own row text
+("N/A watcher-only, no OP-16 anchor days affected"). `markdown/doctrine/DOCTRINE-ARCHIVE.md`
+OP-21 ("Watch-First Promotion Path") requires ALL of: 3+ historical would-have-won observations
++ **3+ live observations confirmed by J** + positive expectancy over 16-month full backfill +
+per-confidence-tier expectancy positive + per-quality scorecard + J's explicit ratification —
+before any promotion out of watcher-only.
+
+`automation/state/watcher-promotion-snapshot.json` (generated 2026-05-21, the only aggregated
+promotion-tracking snapshot on disk for this watcher family) shows `v14_enhanced_watcher`:
+`overall_status: "OBSERVE_ONLY"`, `live.live_wins_graded: 0`, `ready_for_promotion: false`. No
+newer snapshot exists, and the leaderboard row itself has not moved off `PROMISING` since
+2026-05-21 — 3.5+ months with zero recorded progress toward the 3-live-win bar. The current
+`automation/state/watcher-observations.jsonl` (493 rows total, checked 2026-09-05) shows only 4
+`v14_enhanced_watcher` rows — the retention-capped ledger has since pruned the historical 338
+live obs cited in the 2026-05-21 snapshot, so live-obs *volume* since filing is UNVERIFIED, but
+the win-confirmation gate (which requires J's explicit sign-off, not passive accumulation) has
+no record of ever being cleared.
+
+**Evidence:**
+- OP-21 text quoted above from `markdown/doctrine/DOCTRINE-ARCHIVE.md` lines 157-166.
+- `automation/state/watcher-promotion-snapshot.json` → `v14_enhanced_watcher.live.live_wins_graded = 0`, `ready_for_promotion = false`.
+- Leaderboard row 3 (`strategy/candidates/_LEADERBOARD.md`) unchanged status since 2026-05-21.
+
+**Commands run:**
+```
+grep -n "V14E_BEAR_ONLY_GATE" strategy/candidates/_LEADERBOARD.md
+python -c "import json; d=json.load(open('automation/state/watcher-promotion-snapshot.json',encoding='utf-8')); print([w for w in d['watchers'] if 'v14e' in w['display_name'].lower()])"
+wc -l automation/state/watcher-observations.jsonl
+```
+
+No `params.json`/`heartbeat.md`/generated-surface edits made. This is a KILL of the promotion
+*candidate*; the watcher itself keeps running unaffected (OP-22 engine-benefit change already
+shipped 2026-05-21, out of scope here).
