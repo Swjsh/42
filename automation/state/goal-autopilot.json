@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 01:29 ET",
-  "action": "closed_opened",
+  "checked_at_et": "2026-09-05 01:57 ET",
+  "action": "closed_ladder_empty",
   "reason": "queue fully terminal (no bare '- [ ] ' item left)",
-  "active_goal_id": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
-  "next_item": "Z1 \u2014 Inventory: for every trading day 2026-08-31 \u2192 today, run the existing",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -37,12 +37,12 @@
     },
     {
       "id": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
-  "last_closed": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
+  "last_closed": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
   "error": null
 }
