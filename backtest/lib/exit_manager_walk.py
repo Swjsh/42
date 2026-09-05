@@ -19,7 +19,17 @@ plan_exit_actions`) tick-by-tick over ANY uniform-cadence bar series (1-minute f
 real fills, 5-minute for historical backtests where only 5-min OPRA is cached) instead of
 re-deriving exit decisions via simulate_trade_real's parallel (and shown-divergent) walk.
 
-FILL-PRICE CONVENTION -- ⚠️ ITS STATED JUSTIFICATION IS FALSE. CORRECTED 2026-08-12, NOT YET FIXED.
+FILL-PRICE CONVENTION -- ⚠️ ITS STATED JUSTIFICATION IS FALSE. CORRECTED 2026-08-12.
+STEP-1 PLUMBING ADDED 2026-08-13 (commit 3b47506c), INERT BY DEFAULT -- see _fill_price's own
+docstring below for the `exit_slippage`/`all_exits_market` kwargs. STEP 1's A-only delta was
+PUBLISHED 2026-09-05: analysis/whole-engine-null/2026-09-02-flagon.json (via
+backtest/tools/whole_engine_null_flagon_research.py, re-run this session) -- on the V9 P1
+population (n=121 real fills replayed), all_exits_market=True moved replay_total_dollars from
+$2,298.25 to $1,477.00 (MORE pessimistic, confirming the "always optimistic, never
+conservative" direction below; see that file for the full before/after). THE DEFAULT REMAINS
+UNCHANGED (all_exits_market=False, DEFAULT_EXIT_SLIPPAGE=0.02) -- flipping it is explicitly
+deferred to the prereg's STEP-2 commit (2c->1c re-baseline + fee model, together, per
+mandatory_order_of_operations) so this fix cannot land ahead of, or without, that pairing.
 
 WHAT THE CODE DOES: limit-style triggers (TP1, premium/catastrophe stop, profit-lock floor
 breach, runner_target, trail, be_stop) fill EXACTLY at the triggered premium level with ZERO

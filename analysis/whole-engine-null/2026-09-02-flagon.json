@@ -8,8 +8,8 @@
   "all_exits_market_false": {
     "overall_verdict": "PASS",
     "mechanical_verdict": "PASS",
-    "p1_total_pnl": 2863.0,
-    "p1_n_trades": 133,
+    "p1_total_pnl": 3597.0,
+    "p1_n_trades": 149,
     "v9_sign_agreement_rate": 0.8926,
     "v9_harness_reliable": true,
     "v9_magnitude_fidelity": {
@@ -54,8 +54,8 @@
   "all_exits_market_true": {
     "overall_verdict": "PASS",
     "mechanical_verdict": "PASS",
-    "p1_total_pnl": 2863.0,
-    "p1_n_trades": 133,
+    "p1_total_pnl": 3597.0,
+    "p1_n_trades": 149,
     "v9_sign_agreement_rate": 0.8926,
     "v9_harness_reliable": true,
     "v9_magnitude_fidelity": {
