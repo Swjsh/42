@@ -424,6 +424,7 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
         ? `${autonomy.awake ? "Awake" : "Quiet"}${(autonomy.quiet as Record<string, unknown>)?.active ? " — quiet hours" : ""}`
           + (kitchenTrustGate ? ` — Kitchen ${kitchenTrustGate}${kitchenFabRate != null ? ` (${(kitchenFabRate * 100).toFixed(1)}%)` : ""}` : "")
           + (checkpointPacket ? ` — Checkpoint ${checkpointPacket.met ?? 0}✓/${checkpointPacket.not_met ?? 0}✗/${checkpointPacket.insufficient_n ?? 0}⋯` : "")
+          + (checkpointPacket?.packages_total ? ` — packages ready ${checkpointPacket.packages_ready ?? 0}/${checkpointPacket.packages_total}` : "")
         : "NO DATA",
       freshness: freshLabel(autonomy),
       detail: (kitchenTrustGate || checkpointPacket) ? (
@@ -445,6 +446,15 @@ export function ProducerTiles({ data }: { data: CockpitPayload }) {
               {" / "}
               <span className="font-medium text-[var(--gc-text)]">{(checkpointPacket.insufficient_n as number) ?? 0} insufficient</span>
               {(checkpointPacket.provisional as number) ? <> {" / "}<span className="font-medium text-[var(--gc-text)]">{checkpointPacket.provisional as number} provisional</span></> : null}
+              {(checkpointPacket.packages_total as number) ? (
+                <>
+                  {" — "}
+                  packages ready{" "}
+                  <span className="font-medium text-[var(--gc-text)]">
+                    {(checkpointPacket.packages_ready as number) ?? 0}/{checkpointPacket.packages_total as number}
+                  </span>
+                </>
+              ) : null}
               {" — "}
               <a href={`/${(checkpointPacket.file_0929 as string) ?? ""}`} className="underline hover:text-[var(--gc-text)]">09-29</a>
               {" · "}

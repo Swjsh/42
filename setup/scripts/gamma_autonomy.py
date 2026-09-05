@@ -415,6 +415,12 @@ def build(now: dt.datetime | None = None) -> dict:
             for r in rows2:
                 v = r.get("verdict") or "UNKNOWN"
                 counts[v] = counts.get(v, 0) + 1
+            # GOAL-CHECKPOINT-REDUCTION-PACKAGES-2026-09-05 K4, additive: reduction rows
+            # now carry package/package_ready (checkpoint_packet.py K3) -- roll that up
+            # too so the Autopilot/Checkpoint tile can show "packages ready n/m" without
+            # re-deriving package readiness here.
+            reduction_rows2 = [r for r in rows2 if r.get("classification") == "reduction"]
+            packages_ready = sum(1 for r in reduction_rows2 if r.get("package_ready") is True)
             checkpoint_packet = {
                 "generated_at_et": praw2.get("generated_at_et"),
                 "generation_date": praw2.get("generation_date"),
@@ -424,6 +430,8 @@ def build(now: dt.datetime | None = None) -> dict:
                 "insufficient_n": counts.get("INSUFFICIENT N", 0),
                 "provisional": counts.get("PROVISIONAL", 0),
                 "unknown": counts.get("UNKNOWN", 0),
+                "packages_ready": packages_ready,
+                "packages_total": len(reduction_rows2),
                 "file_0929": "markdown/planning/CHECKPOINT-2026-09-29.md",
                 "file_1030": "markdown/planning/CHECKPOINT-2026-10-30.md",
             }

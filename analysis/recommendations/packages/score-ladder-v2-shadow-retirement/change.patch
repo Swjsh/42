@@ -1,0 +1,101 @@
+diff --git a/backtest/tools/score_ladder_rung_shadow_nightly.py b/backtest/tools/score_ladder_rung_shadow_nightly.py
+index 284a2f7a..3d0ef2f6 100644
+--- a/backtest/tools/score_ladder_rung_shadow_nightly.py
++++ b/backtest/tools/score_ladder_rung_shadow_nightly.py
+@@ -80,11 +80,23 @@ LEDGER_OUT = ROOT / "analysis" / "arm-ladder" / "ladder-rung-shadow-ledger.jsonl
+ FORWARD_BAR = {"min_sessions": 10, "extras_net_gt": 0.0, "no_session_worse_than": -500.0,
+                "negative_session_avg_no_worse_than": -300.0, "qty": lrr.QTY_LEDGER}
+ 
++# RETIRED 2026-09-29 (analysis/recommendations/packages/score-ladder-v2-shadow-retirement/):
++# packet row `score-ladder-v2-shadow-retirement` read RULE MET on 2026-09-05 -- KILLED,
++# extras net -$13,760 (risky-1) / -$13,435 (risky-3-era) over 28 sessions
++# (analysis/recommendations/prereg-score-ladder-v2-2026-08-07.json). This instrument no
++# longer writes to its ledger; the scheduled task is unregistered by the package's
++# apply.ps1. Revert: git revert the retirement commit + re-run setup/install-ladder-rung-shadow.ps1.
++RETIRED = True
++
+ 
+ def run_for_date(date_iso: str, retally: bool = False) -> int:
+     """Replay LANE 1's frozen rule for ONE date on real OPRA, append per-arm rows. Returns
+     0 always (fail-open) -- a no-data date (weekend/holiday, or a day whose safe-account
+     ledger hasn't landed yet) is a silent no-op, not an error."""
++    if RETIRED:
++        print(f"[ladder-rung-shadow] RETIRED 2026-09-29 -- no-op for {date_iso}, "
++              "ledger frozen. See analysis/recommendations/packages/score-ladder-v2-shadow-retirement/README.md")
++        return 0
+     core = lrr.load_core_rows(date_iso)
+     if not core:
+         print(f"[ladder-rung-shadow] no safe-account core rows for {date_iso} -- no-op "
+diff --git a/setup/install-ladder-rung-shadow.ps1 b/setup/install-ladder-rung-shadow.ps1
+index 01d3c392..47f961b8 100644
+--- a/setup/install-ladder-rung-shadow.ps1
++++ b/setup/install-ladder-rung-shadow.ps1
+@@ -1,5 +1,13 @@
+ #requires -Version 5.1
+ <#
++.RETIRED 2026-09-29
++  RETIRED by analysis/recommendations/packages/score-ladder-v2-shadow-retirement/ --
++  packet row `score-ladder-v2-shadow-retirement` read RULE MET 2026-09-05 (KILLED: extras
++  net -$13,760 risky-1 / -$13,435 risky-3-era over 28 sessions). This installer now ONLY
++  unregisters Gamma_LadderRungShadow and exits -- it no longer (re)registers the task.
++  Revert (re-enable the instrument): git revert the retirement commit, which restores the
++  Register-ScheduledTask block below, then re-run this script.
++
+ .SYNOPSIS
+   Install Gamma_LadderRungShadow -- the $0 nightly forward clock for the HELD
+   SCORE-LADDER-RUNG patch (LANE 1, single-demerit, bull-only, rungs risky-3=7/risky-1=8;
+@@ -46,51 +54,10 @@
+ # run-py-venv-hidden-2026-08-17.log). Live state was already on this wiring (2026-08-13
+ # imperative patch); this template was drifted (CryptoTwin-class regression) until now.
+ $ErrorActionPreference = "Stop"
+-$WorkDir = "C:\Users\jackw\Desktop\42"
+-$ScriptsDir = Join-Path $WorkDir "setup\scripts"
+ $TaskName = "Gamma_LadderRungShadow"
+ 
+-# System pythonw (GUI-subsystem, windowless) + run_py_venv_hidden.py puts the backtest
+-# venv's site-packages on PYTHONPATH so pandas/numpy still resolve.
+-$sysPythonw = "C:\Users\jackw\AppData\Local\Programs\Python\Python313\pythonw.exe"
+-if (-not (Test-Path $sysPythonw)) {
+-    Write-Error "system pythonw not found at $sysPythonw"
+-    exit 1
+-}
+-
+-$runExeHidden    = Join-Path $ScriptsDir "run_exe_hidden.vbs"
+-$runPyVenvHidden = Join-Path $ScriptsDir "run_py_venv_hidden.py"
+-$worker          = Join-Path $WorkDir "backtest\tools\score_ladder_rung_shadow_nightly.py"
+-
+-foreach ($p in @($runExeHidden, $runPyVenvHidden, $worker)) {
+-    if (-not (Test-Path $p)) { Write-Error "Required file missing: $p"; exit 1 }
+-}
+-
+ Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+ 
+-# wscript //nologo run_exe_hidden.vbs <sys-pythonw> run_py_venv_hidden.py <...nightly.py>
+-$action = New-ScheduledTaskAction `
+-    -Execute "wscript.exe" `
+-    -Argument "//nologo `"$runExeHidden`" `"$sysPythonw`" `"$runPyVenvHidden`" `"$worker`""
+-
+-# 14:40 LOCAL (Mountain) = 16:40 ET weekdays -- after spy_5m cache lands (~16:16 ET) and
+-# same-day OPRA unlocks (~16:21 ET). Weekdays only (0DTE has nothing to tally on weekends).
+-$trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday,Tuesday,Wednesday,Thursday,Friday -At "14:40"
+-
+-$settings = New-ScheduledTaskSettingsSet `
+-    -StartWhenAvailable `
+-    -AllowStartIfOnBatteries `
+-    -DontStopIfGoingOnBatteries `
+-    -ExecutionTimeLimit (New-TimeSpan -Minutes 10)
+-
+-Register-ScheduledTask `
+-    -TaskName $TaskName `
+-    -Action $action `
+-    -Trigger $trigger `
+-    -Settings $settings `
+-    -Description "SCORE-LADDER-RUNG (LANE 1, prereg a780122e) $0 forward shadow clock after the 2026-08-07 HOLD decision -- CLOSE-EXECUTION-2026-08-07.md. Replays the frozen bull-only rung-7/8 admission rule against real core-decisions + real OPRA nightly, appends to analysis/arm-ladder/ladder-rung-shadow-ledger.jsonl. Zero trading-path effect -- analysis-only, no accounts.json touch, no order placement. Hidden wscript->venv-pythonw chain."
+-
+-Write-Output "OK: Registered $TaskName for 14:40 MT (16:40 ET) weekdays on the hidden chain"
+-Write-Output "    Worker:  $worker"
+-Write-Output "    Ledger:  analysis\arm-ladder\ladder-rung-shadow-ledger.jsonl"
+-Write-Output "    Test:    Start-ScheduledTask -TaskName $TaskName"
++Write-Output "OK: RETIRED -- $TaskName unregistered (no-op if it was already absent)."
++Write-Output "    This installer no longer registers the task. See:"
++Write-Output "    analysis\recommendations\packages\score-ladder-v2-shadow-retirement\README.md"
