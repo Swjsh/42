@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T08:42:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T09:11:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 05:11 ET] GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05 CLOSED -- fleet-gate-leak ledger now records min_triggers/confluence refusals (724 rows, counterfactual vs risky-3 fills); runner-vs-tape-peak prereg filed for 10-30; 5-min OPRA error bar measured: -$6.58 mean over 262 re-walked rows (stage-level: premium_stop -$52 mean, trail +$47 mean)
+The gate-net-cost table stands with its error bar. PARITY FINDING (unverified, not chased): three sources disagree on the core runner exit -- params.json runner_target 0.125 / profit_lock "fixed", strategies.py RIBBON_RIDE runner_target_pct 99.0 (= unconstrained, C30 dead knob) / trail 0.15, CLAUDE.md doctrine text "runner target 2.5x, trail 15 pct off HWM". Real runner exits in August were 2.5-3.3x via the trail, consistent with strategies.py. Next goal (GOAL-EXIT-SHAPE-PARITY) establishes the live truth from exit-state + code + fills, corrects the doctrine text, and extends the Rule-1 parity guard so the three can never drift silently again.
+
 
 ## [2026-09-05 04:42 ET] GOAL-GATE-NET-COST-2026-09-05 CLOSED -- netted against the losers they refused, the gates are NOT shaving the right tail
 355 refused (wave, arm, gate) rows walked through the real exit plan on OPRA bars (305 ok; walker reproduces a real 09-01 winner and loser within 4-7 pct). Full-window net (positive = refusing lost money): NOT_FLAT +$7,543 over 99 waves but 08-04 alone is $4,784 (>50 pct, one day); min-premium floor +$1,398 (frozen window -$788); fleet min_triggers +$516; confluence/sequence gate EARNING -$1,806; bullish-fill-bar-at-bear-entry EARNING -$296; structure veto / late-entry / settlement UNDERPOWERED (n<10). The $9,277 "ceiling" from the capture-gap goal collapses to roughly zero once refused losers are counted. The two 10-30 gate preregs now carry net-of-losers evidence (mechanism-1 -$1,290 full / +$369 frozen; mechanism-6 -$851 / -$780) and checkpoint_packet reads the net. Doctrine sub-section appended to edge-master-doctrine.md. Side fix: gate_expiry_check stop level is now side-aware (a put trade was being stopped on a bull level); the two GATE-EXPIRY REDs stay RED for an unrelated reason (sole-blocker path). Caveats: 5-min OPRA resolution (flattering, one-directional), 50 walk_error rows labeled.

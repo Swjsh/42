@@ -1,23 +1,121 @@
 {
  "prereg": "analysis/recommendations/prereg-fleet-gate-inheritance-2026-09-03.md",
- "generated_at_et": "2026-09-03T15:09:53.885104",
+ "generated_at_et": "2026-09-05T04:52:31.097550",
  "window": {
   "start_date": "2026-08-06",
   "in_sample_cutoff": "2026-09-03",
   "entry_window_sec": 300,
   "entry_window_basis": "fleet_rest arms read shared-signal.json on a ~3-min cadence vs core's 1-min write cadence (fill_latency.py); real fills resolve in ~0.1-0.2s once submitted (fleet_live.py ENTRY_CLAIM_TTL_SEC comment). 300s = ~1.7x margin over one full fleet read cycle; independently validated for this exact join at 600s with no count change (verify-fleet-gates-ledger-binding-check-2.md)."
  },
- "n_ticks_joined_since_start": 481,
+ "n_ticks_joined_since_start": 1213,
  "gate_arm_cells": [
   {
+   "gate": "MIN_TRIGGERS_GATE",
+   "cohort": "fleet_gate",
+   "gate_param_key": "min_triggers",
+   "refused_account": null,
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": "arm's OWN min_triggers/require_confluence_or_sequence gate_override refused this tick; real_fill answers whether the UNGATED sibling arm (risky-3) landed a real closed round trip of the matching option side in the same 300s window -- NOT a fill by this arm itself, which the gate already prevented by construction",
+   "n_ticks": 112,
+   "n_real_entries": 5,
+   "share": 0.0446,
+   "pnl": {
+    "n": 5,
+    "sum": 65.0,
+    "mean": 13.0,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 3,
+     "ci_lower_2.5": -110.0,
+     "ci_upper_97.5": 185.0
+    },
+    "top3_concentration_share": 0.7259
+   }
+  },
+  {
+   "gate": "MIN_TRIGGERS_GATE",
+   "cohort": "fleet_gate",
+   "gate_param_key": "min_triggers",
+   "refused_account": null,
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": "arm's OWN min_triggers/require_confluence_or_sequence gate_override refused this tick; real_fill answers whether the UNGATED sibling arm (risky-3) landed a real closed round trip of the matching option side in the same 300s window -- NOT a fill by this arm itself, which the gate already prevented by construction",
+   "n_ticks": 166,
+   "n_real_entries": 8,
+   "share": 0.0482,
+   "pnl": {
+    "n": 8,
+    "sum": 822.0,
+    "mean": 102.75,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 6,
+     "ci_lower_2.5": -83.6667,
+     "ci_upper_97.5": 393.125
+    },
+    "top3_concentration_share": 0.7605
+   }
+  },
+  {
+   "gate": "REQUIRE_CONFLUENCE_OR_SEQUENCE_GATE",
+   "cohort": "fleet_gate",
+   "gate_param_key": "require_confluence_or_sequence",
+   "refused_account": null,
+   "arm": "risky-1",
+   "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": "arm's OWN min_triggers/require_confluence_or_sequence gate_override refused this tick; real_fill answers whether the UNGATED sibling arm (risky-3) landed a real closed round trip of the matching option side in the same 300s window -- NOT a fill by this arm itself, which the gate already prevented by construction",
+   "n_ticks": 204,
+   "n_real_entries": 4,
+   "share": 0.0196,
+   "pnl": {
+    "n": 4,
+    "sum": -275.0,
+    "mean": -68.75,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 2,
+     "ci_lower_2.5": -75.0,
+     "ci_upper_97.5": -66.6667
+    },
+    "top3_concentration_share": 0.7673
+   }
+  },
+  {
+   "gate": "REQUIRE_CONFLUENCE_OR_SEQUENCE_GATE",
+   "cohort": "fleet_gate",
+   "gate_param_key": "require_confluence_or_sequence",
+   "refused_account": null,
+   "arm": "safe-3",
+   "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": "arm's OWN min_triggers/require_confluence_or_sequence gate_override refused this tick; real_fill answers whether the UNGATED sibling arm (risky-3) landed a real closed round trip of the matching option side in the same 300s window -- NOT a fill by this arm itself, which the gate already prevented by construction",
+   "n_ticks": 242,
+   "n_real_entries": 13,
+   "share": 0.0537,
+   "pnl": {
+    "n": 13,
+    "sum": -283.0,
+    "mean": -21.7692,
+    "ci": {
+     "n_boot": 2000,
+     "n_days_clustered": 5,
+     "ci_lower_2.5": -62.0,
+     "ci_upper_97.5": 12.2667
+    },
+    "top3_concentration_share": 0.3683
+   }
+  },
+  {
    "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": "require_bearish_fill_bar",
    "refused_account": "bold",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
-   "n_ticks": 87,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 91,
    "n_real_entries": 7,
-   "share": 0.0805,
+   "share": 0.0769,
    "pnl": {
     "n": 7,
     "sum": 66.0,
@@ -33,13 +131,15 @@
   },
   {
    "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": "require_bearish_fill_bar",
    "refused_account": "bold",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
-   "n_ticks": 87,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 91,
    "n_real_entries": 5,
-   "share": 0.0575,
+   "share": 0.0549,
    "pnl": {
     "n": 5,
     "sum": 862.0,
@@ -55,11 +155,13 @@
   },
   {
    "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": "require_bearish_fill_bar",
    "refused_account": "bold",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
-   "n_ticks": 87,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 91,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -72,11 +174,13 @@
   },
   {
    "gate": "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": "require_bearish_fill_bar",
    "refused_account": "bold",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
-   "n_ticks": 87,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 91,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -89,10 +193,12 @@
   },
   {
    "gate": "SKIP_BULL_1100_1200",
+   "cohort": "bypass",
    "gate_param_key": "block_bull_1100_1200",
    "refused_account": "safe",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 53,
    "n_real_entries": 8,
    "share": 0.1509,
@@ -111,10 +217,12 @@
   },
   {
    "gate": "SKIP_BULL_1100_1200",
+   "cohort": "bypass",
    "gate_param_key": "block_bull_1100_1200",
    "refused_account": "safe",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 53,
    "n_real_entries": 6,
    "share": 0.1132,
@@ -133,10 +241,12 @@
   },
   {
    "gate": "SKIP_BULL_1100_1200",
+   "cohort": "bypass",
    "gate_param_key": "block_bull_1100_1200",
    "refused_account": "safe",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 53,
    "n_real_entries": 0,
    "share": 0.0,
@@ -150,10 +260,12 @@
   },
   {
    "gate": "SKIP_BULL_1100_1200",
+   "cohort": "bypass",
    "gate_param_key": "block_bull_1100_1200",
    "refused_account": "safe",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 53,
    "n_real_entries": 8,
    "share": 0.1509,
@@ -172,10 +284,12 @@
   },
   {
    "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "cohort": "bypass",
    "gate_param_key": "block_conf_lvl_rec_afternoon",
    "refused_account": "bold",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 51,
    "n_real_entries": 3,
    "share": 0.0588,
@@ -194,10 +308,12 @@
   },
   {
    "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "cohort": "bypass",
    "gate_param_key": "block_conf_lvl_rec_afternoon",
    "refused_account": "bold",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 51,
    "n_real_entries": 0,
    "share": 0.0,
@@ -211,10 +327,12 @@
   },
   {
    "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "cohort": "bypass",
    "gate_param_key": "block_conf_lvl_rec_afternoon",
    "refused_account": "bold",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 51,
    "n_real_entries": 0,
    "share": 0.0,
@@ -228,10 +346,12 @@
   },
   {
    "gate": "SKIP_CONF_LVL_REC_AFTERNOON",
+   "cohort": "bypass",
    "gate_param_key": "block_conf_lvl_rec_afternoon",
    "refused_account": "bold",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 51,
    "n_real_entries": 4,
    "share": 0.0784,
@@ -250,10 +370,12 @@
   },
   {
    "gate": "SKIP_DOJI_ENTRY_BAR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 9,
    "n_real_entries": 1,
    "share": 0.1111,
@@ -267,10 +389,12 @@
   },
   {
    "gate": "SKIP_DOJI_ENTRY_BAR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 9,
    "n_real_entries": 0,
    "share": 0.0,
@@ -284,10 +408,12 @@
   },
   {
    "gate": "SKIP_DOJI_ENTRY_BAR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 9,
    "n_real_entries": 0,
    "share": 0.0,
@@ -301,10 +427,12 @@
   },
   {
    "gate": "SKIP_DOJI_ENTRY_BAR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 9,
    "n_real_entries": 0,
    "share": 0.0,
@@ -318,11 +446,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -335,11 +465,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -352,11 +484,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -369,11 +503,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -386,11 +522,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "risky-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -403,11 +541,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "risky-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -420,11 +560,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "safe-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -437,11 +579,13 @@
   },
   {
    "gate": "SKIP_LATE_ENTRY",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "safe-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
-   "n_ticks": 16,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 18,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -454,10 +598,12 @@
   },
   {
    "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 32,
    "n_real_entries": 4,
    "share": 0.125,
@@ -476,10 +622,12 @@
   },
   {
    "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 32,
    "n_real_entries": 1,
    "share": 0.0312,
@@ -493,10 +641,12 @@
   },
   {
    "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 32,
    "n_real_entries": 0,
    "share": 0.0,
@@ -510,10 +660,12 @@
   },
   {
    "gate": "SKIP_MIN_PREMIUM_FLOOR",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 32,
    "n_real_entries": 4,
    "share": 0.125,
@@ -532,10 +684,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 2,
    "n_real_entries": 0,
    "share": 0.0,
@@ -549,10 +703,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 2,
    "n_real_entries": 0,
    "share": 0.0,
@@ -566,10 +722,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 2,
    "n_real_entries": 0,
    "share": 0.0,
@@ -583,10 +741,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 2,
    "n_real_entries": 0,
    "share": 0.0,
@@ -600,10 +760,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "risky-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 1,
    "n_real_entries": 0,
    "share": 0.0,
@@ -617,10 +779,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "risky-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 1,
    "n_real_entries": 0,
    "share": 0.0,
@@ -634,10 +798,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "safe-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 1,
    "n_real_entries": 0,
    "share": 0.0,
@@ -651,10 +817,12 @@
   },
   {
    "gate": "SKIP_STALE_SIGHT",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "safe",
    "arm": "safe-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 1,
    "n_real_entries": 0,
    "share": 0.0,
@@ -668,10 +836,12 @@
   },
   {
    "gate": "SKIP_STALE_TRIGGER",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 5,
    "n_real_entries": 1,
    "share": 0.2,
@@ -685,10 +855,12 @@
   },
   {
    "gate": "SKIP_STALE_TRIGGER",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "risky-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 5,
    "n_real_entries": 1,
    "share": 0.2,
@@ -702,10 +874,12 @@
   },
   {
    "gate": "SKIP_STALE_TRIGGER",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-1",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 5,
    "n_real_entries": 0,
    "share": 0.0,
@@ -719,10 +893,12 @@
   },
   {
    "gate": "SKIP_STALE_TRIGGER",
+   "cohort": "bypass",
    "gate_param_key": null,
    "refused_account": "bold",
    "arm": "safe-3",
    "is_symmetric_gate_note": "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a safe/bold cohort divergence; do not read this cell as evidence of a leak",
+   "fleet_gate_counterfactual_note": null,
    "n_ticks": 5,
    "n_real_entries": 1,
    "share": 0.2,
@@ -736,13 +912,15 @@
   },
   {
    "gate": "SKIP_STRUCTURE_VETO",
+   "cohort": "bypass",
    "gate_param_key": "structure_veto_enabled",
    "refused_account": "safe",
    "arm": "risky-1",
    "is_symmetric_gate_note": null,
-   "n_ticks": 54,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 55,
    "n_real_entries": 5,
-   "share": 0.0926,
+   "share": 0.0909,
    "pnl": {
     "n": 5,
     "sum": 59.0,
@@ -758,13 +936,15 @@
   },
   {
    "gate": "SKIP_STRUCTURE_VETO",
+   "cohort": "bypass",
    "gate_param_key": "structure_veto_enabled",
    "refused_account": "safe",
    "arm": "risky-3",
    "is_symmetric_gate_note": null,
-   "n_ticks": 54,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 55,
    "n_real_entries": 1,
-   "share": 0.0185,
+   "share": 0.0182,
    "pnl": {
     "n": 1,
     "sum": -204.0,
@@ -775,11 +955,13 @@
   },
   {
    "gate": "SKIP_STRUCTURE_VETO",
+   "cohort": "bypass",
    "gate_param_key": "structure_veto_enabled",
    "refused_account": "safe",
    "arm": "safe-1",
    "is_symmetric_gate_note": null,
-   "n_ticks": 54,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 55,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -792,13 +974,15 @@
   },
   {
    "gate": "SKIP_STRUCTURE_VETO",
+   "cohort": "bypass",
    "gate_param_key": "structure_veto_enabled",
    "refused_account": "safe",
    "arm": "safe-3",
    "is_symmetric_gate_note": null,
-   "n_ticks": 54,
+   "fleet_gate_counterfactual_note": null,
+   "n_ticks": 55,
    "n_real_entries": 3,
-   "share": 0.0556,
+   "share": 0.0545,
    "pnl": {
     "n": 3,
     "sum": 64.0,
@@ -816,9 +1000,9 @@
  "control_cohort_by_arm": [
   {
    "arm": "risky-1",
-   "n_ticks": 222,
+   "n_ticks": 225,
    "n_real_entries": 14,
-   "share": 0.0631,
+   "share": 0.0622,
    "pnl": {
     "n": 14,
     "sum": 643.0,
@@ -834,9 +1018,9 @@
   },
   {
    "arm": "risky-3",
-   "n_ticks": 222,
+   "n_ticks": 225,
    "n_real_entries": 16,
-   "share": 0.0721,
+   "share": 0.0711,
    "pnl": {
     "n": 16,
     "sum": -559.0,
@@ -852,7 +1036,7 @@
   },
   {
    "arm": "safe-1",
-   "n_ticks": 222,
+   "n_ticks": 225,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -865,9 +1049,9 @@
   },
   {
    "arm": "safe-3",
-   "n_ticks": 222,
+   "n_ticks": 225,
    "n_real_entries": 13,
-   "share": 0.0586,
+   "share": 0.0578,
    "pnl": {
     "n": 13,
     "sum": -129.0,
@@ -905,9 +1089,9 @@
   {
    "arm": "risky-1",
    "band": "<15",
-   "n_ticks": 120,
+   "n_ticks": 129,
    "n_real_entries": 14,
-   "share": 0.1167,
+   "share": 0.1085,
    "pnl": {
     "n": 14,
     "sum": 824.0,
@@ -943,9 +1127,9 @@
   {
    "arm": "risky-3",
    "band": "<15",
-   "n_ticks": 120,
+   "n_ticks": 129,
    "n_real_entries": 5,
-   "share": 0.0417,
+   "share": 0.0388,
    "pnl": {
     "n": 5,
     "sum": -424.0,
@@ -976,7 +1160,7 @@
   {
    "arm": "safe-1",
    "band": "<15",
-   "n_ticks": 120,
+   "n_ticks": 129,
    "n_real_entries": 0,
    "share": 0.0,
    "pnl": {
@@ -1009,9 +1193,9 @@
   {
    "arm": "safe-3",
    "band": "<15",
-   "n_ticks": 120,
+   "n_ticks": 129,
    "n_real_entries": 8,
-   "share": 0.0667,
+   "share": 0.062,
    "pnl": {
     "n": 8,
     "sum": 998.0,
@@ -1457,9 +1641,9 @@
   "by_arm": {
    "risky-1": {
     "bypass": {
-     "n_ticks": 74,
+     "n_ticks": 83,
      "n_real_entries": 7,
-     "share": 0.0946,
+     "share": 0.0843,
      "pnl": {
       "n": 7,
       "sum": 32.0,
@@ -1474,9 +1658,9 @@
      }
     },
     "control": {
-     "n_ticks": 29,
+     "n_ticks": 32,
      "n_real_entries": 1,
-     "share": 0.0345,
+     "share": 0.0312,
      "pnl": {
       "n": 1,
       "sum": -65.0,
@@ -1488,7 +1672,7 @@
    },
    "risky-3": {
     "bypass": {
-     "n_ticks": 74,
+     "n_ticks": 83,
      "n_real_entries": 0,
      "share": 0.0,
      "pnl": {
@@ -1500,7 +1684,7 @@
      }
     },
     "control": {
-     "n_ticks": 29,
+     "n_ticks": 32,
      "n_real_entries": 0,
      "share": 0.0,
      "pnl": {
@@ -1514,7 +1698,7 @@
    },
    "safe-1": {
     "bypass": {
-     "n_ticks": 74,
+     "n_ticks": 83,
      "n_real_entries": 0,
      "share": 0.0,
      "pnl": {
@@ -1526,7 +1710,7 @@
      }
     },
     "control": {
-     "n_ticks": 29,
+     "n_ticks": 32,
      "n_real_entries": 0,
      "share": 0.0,
      "pnl": {
@@ -1540,9 +1724,9 @@
    },
    "safe-3": {
     "bypass": {
-     "n_ticks": 74,
+     "n_ticks": 83,
      "n_real_entries": 7,
-     "share": 0.0946,
+     "share": 0.0843,
      "pnl": {
       "n": 7,
       "sum": 457.0,
@@ -1557,9 +1741,9 @@
      }
     },
     "control": {
-     "n_ticks": 29,
+     "n_ticks": 32,
      "n_real_entries": 1,
-     "share": 0.0345,
+     "share": 0.0312,
      "pnl": {
       "n": 1,
       "sum": -65.0,
@@ -1575,7 +1759,7 @@
   "start_date": "2026-09-04",
   "min_forward_sessions": 20,
   "min_real_bypass_entries": 20,
-  "n_forward_sessions_elapsed": 0,
+  "n_forward_sessions_elapsed": 1,
   "decision_focus_arms": [
    "safe-3",
    "safe-1"
@@ -1605,5 +1789,5 @@
  "status": "ACCRUING",
  "decision_rule": "This ledger NEVER ships a trading-path change by itself. Once the forward bar (>= 20 forward sessions AND >= 20 real bypass entries) is met for a decision-focus arm, the FROZEN rule in analysis/recommendations/prereg-fleet-gate-inheritance-2026-09-03.md applies -- reaching the bar is permission to READ the verdict, never to ship regardless of the read.",
  "new_this_run": 0,
- "n_rows_total": 2192
+ "n_rows_total": 2964
 }

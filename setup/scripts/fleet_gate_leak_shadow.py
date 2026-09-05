@@ -167,6 +167,106 @@ GATE_TO_PARAM_KEY = {
     "SKIP_BULLISH_FILL_BAR_AT_BEAR_ENTRY": "require_bearish_fill_bar",
 }
 
+# ------------------------------------------------------------------------------------------
+# FLEET min_triggers / require_confluence_or_sequence refusals (T1, GOAL-RIGHT-TAIL-
+# FOLLOWUPS-2026-09-05). These are a SEPARATE gate family from the SKIP_* core safe/bold
+# cohorts above: they live on the FLEET arm's own `gate_override` (accounts.json), enforced
+# by `fleet_executor._gate_check`, and surface in that arm's OWN
+# `automation/state/fleet/{arm}/decisions.jsonl` as `action=="HOLD"` rows whose `reason`
+# is the literal f-string `f"gate: {gate_reason}"` (fleet_executor.py:741/949) where
+# gate_reason is EITHER `f"{len(triggers)} triggers < {min_trig}"` (min_triggers) OR the
+# literal `"requires confluence/sequence"` (require_confluence_or_sequence) -- see
+# `_gate_check` (fleet_executor.py ~600-618). No core_tick_id exists on this row shape
+# (`tick_id` is always null in the 870-row production sample checked 2026-09-05), so this
+# family keys its "core_tick_id" on the decision row's own `ts_et` instead -- unique enough
+# at 1 row/tick per arm, and consistent with every other row's dedup key (_row_key already
+# keys on (core_tick_id, arm, cohort, refused_account), so a distinct ts_et per arm is
+# sufficient to prevent double-counting on re-runs).
+#
+# COUNTERFACTUAL: unlike the SKIP_* cohort (where the OTHER core account is the natural
+# bypass comparison), a fleet arm whose OWN gate refused it cannot also have a real fill on
+# that exact tick -- the gate is why it didn't fill. The comparison this module uses instead
+# is each gated arm's UNGATED SIBLING: same shared-signal path (`build_shared_signal.py`),
+# same strategy registry, `gate_override={}` (accounts.json -- risky-3's normal lane carries
+# no min_triggers/require_confluence_or_sequence key, confirmed against the live file this
+# session). "Would this refusal have been a real, fillable trade?" is answered by asking
+# whether risky-3 (no selectivity gate at all) landed a REAL closed round trip of the
+# matching option side inside the SAME 300s entry window this module already uses and
+# justifies above for the SKIP_* join -- the ungated sibling reads the identical shared
+# signal on the identical read cadence, so the window's own justification (fleet_rest ~3min
+# read cadence + broker latency) applies unchanged.
+FLEET_GATE_ARMS = ("safe-3", "risky-1")            # arms whose gate_override carries either key
+FLEET_GATE_UNGATED_SIBLING = "risky-3"             # gate_override={} -- the shared counterfactual
+FLEET_GATE_DECISIONS_DIR = REPO / "automation" / "state" / "fleet"  # {arm}/decisions.jsonl
+FLEET_GATE_MIN_TRIGGERS_NAME = "MIN_TRIGGERS_GATE"
+FLEET_GATE_CONFLUENCE_NAME = "REQUIRE_CONFLUENCE_OR_SEQUENCE_GATE"
+FLEET_GATE_TO_PARAM_KEY = {
+    FLEET_GATE_MIN_TRIGGERS_NAME: "min_triggers",
+    FLEET_GATE_CONFLUENCE_NAME: "require_confluence_or_sequence",
+}
+
+
+def _classify_fleet_gate_reason(reason: "str | None") -> "tuple[str, str] | None":
+    """PURE: a decisions.jsonl `reason` string -> (gate_name, gate_param_key), or None if
+    it is not one of the two gates this instrument tracks (e.g. 'setup not EXCELLENT' /
+    'no spot in signal' / a clean-entry reason -- out of scope for T1, never guessed at)."""
+    if not isinstance(reason, str) or not reason.startswith("gate: "):
+        return None
+    inner = reason[len("gate: "):]
+    if "triggers <" in inner:
+        return (FLEET_GATE_MIN_TRIGGERS_NAME, "min_triggers")
+    if inner.strip() == "requires confluence/sequence":
+        return (FLEET_GATE_CONFLUENCE_NAME, "require_confluence_or_sequence")
+    return None
+
+
+def classify_fleet_gate_row(arm: str, row: dict) -> "dict | None":
+    """PURE: one fleet decisions.jsonl row for `arm` -> a 0-or-1 qualifying "fleet_gate"
+    event, in the SAME event shape `classify_tick` produces (so it flows through the
+    existing `assign_real_fills`/`finalize_row` pipeline unchanged). Only HOLD rows whose
+    reason matches `_classify_fleet_gate_reason` qualify; anything else (clean entries,
+    other hold reasons, missing side/ts_et) returns None."""
+    if row.get("action") != "HOLD":
+        return None
+    classified = _classify_fleet_gate_reason(row.get("reason"))
+    if classified is None:
+        return None
+    gate_name, gate_param_key = classified
+    direction = {"C": "BULL", "P": "BEAR"}.get(row.get("side"))
+    if direction is None:
+        return None
+    tick_dt = _parse_iso(row.get("ts_et"))
+    if tick_dt is None:
+        return None
+    if tick_dt.tzinfo is not None:
+        # fleet decisions.jsonl ts_et carries a "-04:00"/"-05:00" ET offset (unlike
+        # core-decisions.jsonl / fills-ledger.jsonl, both naive wall-clock ET) -- drop the
+        # tzinfo WITHOUT shifting the clock (it already reads local ET) so this stays
+        # comparable to the naive `entry_ts_et` values assign_real_fills receives from
+        # fills_fifo.mine_real_arm_fills; comparing aware-vs-naive datetimes raises
+        # TypeError otherwise (caught in production the first live run of this build).
+        tick_dt = tick_dt.replace(tzinfo=None)
+    core_tick_id = f"fleetgate:{arm}:{row.get('ts_et')}"
+    return {
+        "core_tick_id": core_tick_id, "tick_dt": tick_dt, "date_et": (row.get("ts_et") or "")[:10],
+        "vix": None, "cohort": "fleet_gate", "refused_account": None, "gate": gate_name,
+        "gate_param_key": gate_param_key, "is_symmetric_gate": None, "direction": direction,
+    }
+
+
+def build_fleet_gate_events(arm: str, decisions_rows: list[dict], min_date: str) -> list[dict]:
+    """PURE: one arm's full decisions.jsonl row list -> its qualifying fleet_gate events,
+    filtered to ts_et >= min_date (same window convention as `build_core_tick_pairs`)."""
+    out = []
+    for row in decisions_rows:
+        ts = row.get("ts_et") or ""
+        if ts < min_date:
+            continue
+        ev = classify_fleet_gate_row(arm, row)
+        if ev is not None:
+            out.append(ev)
+    return out
+
 
 # ------------------------------------------------------------------------------------------
 # ledger I/O (torn-last-line tolerant, matching every sibling shadow ledger)
@@ -433,7 +533,7 @@ def summarize(all_rows: list[dict], all_session_dates: list[str]) -> dict:
     by_gate_arm: dict[tuple, list[dict]] = collections.defaultdict(list)
     control_by_arm: dict[str, list[dict]] = collections.defaultdict(list)
     for r in all_rows:
-        if r["cohort"] == "bypass":
+        if r["cohort"] in ("bypass", "fleet_gate"):
             by_gate_arm[(r["gate"], r["refused_account"], r["arm"])].append(r)
         elif r["cohort"] == "control":
             control_by_arm[r["arm"]].append(r)
@@ -442,13 +542,22 @@ def summarize(all_rows: list[dict], all_session_dates: list[str]) -> dict:
     for (gate, refused_account, arm), rows in sorted(by_gate_arm.items(), key=lambda kv: kv[0]):
         cell = _cell_stats(rows)
         is_sym = rows[0].get("is_symmetric_gate")
+        cohort = rows[0]["cohort"]
         gate_arm_cells.append({
-            "gate": gate, "gate_param_key": GATE_TO_PARAM_KEY.get(gate),
+            "gate": gate, "cohort": cohort,
+            "gate_param_key": GATE_TO_PARAM_KEY.get(gate) or FLEET_GATE_TO_PARAM_KEY.get(gate),
             "refused_account": refused_account, "arm": arm,
             "is_symmetric_gate_note": (
                 "fires on BOTH accounts at these ticks -- shared session/time gate, NOT a "
                 "safe/bold cohort divergence; do not read this cell as evidence of a leak"
                 if is_sym else None),
+            "fleet_gate_counterfactual_note": (
+                f"arm's OWN min_triggers/require_confluence_or_sequence gate_override refused "
+                f"this tick; real_fill answers whether the UNGATED sibling arm "
+                f"({FLEET_GATE_UNGATED_SIBLING}) landed a real closed round trip of the matching "
+                f"option side in the same {ENTRY_WINDOW_SEC}s window -- NOT a fill by this arm "
+                "itself, which the gate already prevented by construction"
+                if cohort == "fleet_gate" else None),
             **cell,
         })
 
@@ -567,6 +676,25 @@ def run() -> dict:
         for arm in ARMS:
             round_trips = fills_fifo.mine_real_arm_fills(arm, ledger_path=FILLS_LEDGER)
             matched = assign_real_fills(events_master, round_trips, ENTRY_WINDOW_SEC)
+            for m in matched:
+                row = finalize_row(arm, m)
+                all_finalized.append(row)
+                if _row_key(row) not in existing_keys:
+                    new_rows.append(row)
+
+        # T1 (GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05): fleet min_triggers /
+        # require_confluence_or_sequence refusals -- own event source (each gated arm's OWN
+        # decisions.jsonl), own counterfactual (the ungated sibling's real fills), same row
+        # schema/dedup/ledger. See module docstring above FLEET_GATE_ARMS for the full
+        # justification. Fail-open per-arm: a missing/unreadable decisions.jsonl yields zero
+        # events for that arm, never an exception that kills the whole run.
+        sibling_round_trips = fills_fifo.mine_real_arm_fills(
+            FLEET_GATE_UNGATED_SIBLING, ledger_path=FILLS_LEDGER)
+        for arm in FLEET_GATE_ARMS:
+            decisions_path = FLEET_GATE_DECISIONS_DIR / arm / "decisions.jsonl"
+            fleet_gate_events = build_fleet_gate_events(
+                arm, _read_jsonl(decisions_path), WINDOW_START_DATE)
+            matched = assign_real_fills(fleet_gate_events, sibling_round_trips, ENTRY_WINDOW_SEC)
             for m in matched:
                 row = finalize_row(arm, m)
                 all_finalized.append(row)

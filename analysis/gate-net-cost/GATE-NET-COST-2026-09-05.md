@@ -80,3 +80,20 @@ N3 -- per-gate net-of-losers table, GOAL-GATE-NET-COST-2026-09-05. Built from `a
 
 - **fleet gate_override (`min_triggers`/`require_confluence_or_sequence`) is NOT tracked by `fleet-gate-leak-ledger.jsonl`** -- that ledger only instruments 4 other gates (`require_bearish_fill_bar`, `structure_veto_enabled`, `block_bull_1100_1200`, `block_conf_lvl_rec_afternoon`); the two selectivity gates this goal names were recovered instead from each fleet arm's own `decisions.jsonl` free-text `reason` strings (`"gate: 1 triggers < 2"`, `"gate: requires confluence/sequence"`) -- a real ledger-coverage gap, disclosed rather than papered over.
 - **filter 8 / filter 10** (bear/bull min-triggers volume-multiplier blockers) were NOT COMPUTED by N1's wave inventory (fire on the large majority of every tick regardless of ENTER-eligibility -- isolating the true refusal population needs a full `backtest/lib/filters.py` gate-stack replay, out of scope for this goal). The SIDE-TASK fix in this same session touches `gate_expiry_check.py`'s OWN separate sole-blocker instrument for filter-8/filter-10 (its `_stop_level_for_row` side-blind bug) -- that check remained RED after the fix (re-run below) for reasons independent of the fix (the sole-blocker path is a `NOT_REPLAYED` proxy that never calls `_stop_level_for_row`).
+
+## Error bar (T3, 1-min vs 5-min resolution bias)
+
+Of 305 rows N2 walked OK on 5-min OPRA bars, 262 already have a 1-minute OPRA cache on disk (`backtest/data/highres/`) -- re-walked via the SAME `walk_exit_manager` core (`gate_net_cost_walk._walk_entry`, `opt_df_resolution="1min"`), zero new fetch. 262 of those re-walked successfully.
+
+| Exit stage | n | mean $ delta (5min-1min) | median $ delta | 5min overstates | 5min understates | sign-consistency |
+|---|---|---|---|---|---|---|
+| premium_stop | 85 | $-52.46 | $-20.00 | 29 | 55 | 64.71% |
+| ribbon_flip | 19 | $-13.95 | $-18.00 | 5 | 14 | 73.68% |
+| structure_stop | 64 | $-9.47 | $-1.50 | 27 | 32 | 50.00% |
+| time_stop | 27 | $16.52 | $-3.00 | 13 | 14 | 51.85% |
+| trail | 67 | $47.15 | $19.00 | 39 | 26 | 58.21% |
+| **ALL STAGES** | 262 | $-6.58 | $-5.00 | 113 | 149 | 53.82% |
+
+Exit stage changed between the 5-min and 1-min walk on 40 of 262 rows.
+
+This section is APPENDED by `setup/scripts/gate_net_cost_resolution_bias.py` (T3, GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05) and is idempotent -- a re-run replaces this section in place rather than duplicating it.

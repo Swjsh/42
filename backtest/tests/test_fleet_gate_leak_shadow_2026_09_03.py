@@ -272,6 +272,10 @@ def _wired_fixtures(tmp_path, monkeypatch):
     monkeypatch.setattr(fgls, "FILLS_LEDGER", fills_path)
     monkeypatch.setattr(fgls, "ARMS", ("safe-3",))
     monkeypatch.setattr(fgls, "DECISION_FOCUS_ARMS", ("safe-3",))
+    # T1: isolate the fleet min_triggers/require_confluence_or_sequence source from the
+    # REAL automation/state/fleet/{arm}/decisions.jsonl files -- point it at an empty tmp
+    # dir so this fixture's runs stay deterministic and never touch production data.
+    monkeypatch.setattr(fgls, "FLEET_GATE_DECISIONS_DIR", tmp_path / "fleet_empty")
     return {"ledger": ledger, "summary": summary}
 
 
@@ -324,3 +328,178 @@ def test_run_summary_has_expected_shape(_wired_fixtures):
         assert key in out, key
     assert out["window"]["entry_window_sec"] == 300
     assert out["status"] in ("ACCRUING", "BAR_MET_AWAITING_VERDICT")
+
+
+# ---------------------------------------------------------------------------------
+# 6. T1 (GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05): fleet min_triggers /
+#    require_confluence_or_sequence refusals, sourced from each gated arm's OWN
+#    decisions.jsonl, counterfactualled against the ungated sibling's real fills.
+# ---------------------------------------------------------------------------------
+def _fleet_row(ts_et, action="HOLD", side="C", reason="gate: 1 triggers < 2"):
+    return {"ts_et": ts_et, "arm_id": "safe-3", "action": action, "side": side,
+            "reason": reason, "tick_id": None}
+
+
+def test_classify_fleet_gate_row_min_triggers():
+    row = _fleet_row("2026-08-12T14:16:02", reason="gate: 1 triggers < 2")
+    ev = fgls.classify_fleet_gate_row("safe-3", row)
+    assert ev is not None
+    assert ev["cohort"] == "fleet_gate"
+    assert ev["gate"] == fgls.FLEET_GATE_MIN_TRIGGERS_NAME
+    assert ev["gate_param_key"] == "min_triggers"
+    assert ev["direction"] == "BULL"
+    assert ev["refused_account"] is None
+
+
+def test_classify_fleet_gate_row_confluence():
+    row = _fleet_row("2026-08-12T14:17:02", side="P", reason="gate: requires confluence/sequence")
+    ev = fgls.classify_fleet_gate_row("risky-1", row)
+    assert ev is not None
+    assert ev["gate"] == fgls.FLEET_GATE_CONFLUENCE_NAME
+    assert ev["gate_param_key"] == "require_confluence_or_sequence"
+    assert ev["direction"] == "BEAR"
+
+
+def test_classify_fleet_gate_row_ignores_non_gate_holds():
+    """A HOLD for any OTHER reason ('no spot in signal', 'setup not EXCELLENT', a clean
+    ENTER, etc.) must never be misclassified as a min_triggers/confluence refusal --
+    T1's scope is EXACTLY these two gates, never guessed at from a partial string match."""
+    for reason in ("no spot in signal", "A+ gate: setup not EXCELLENT",
+                   "clean C entry (BASE)", "no sizing tier covers equity"):
+        row = _fleet_row("2026-08-12T14:18:02", reason=reason)
+        assert fgls.classify_fleet_gate_row("safe-3", row) is None, reason
+
+
+def test_classify_fleet_gate_row_strips_tz_offset_from_ts_et():
+    """Production fleet decisions.jsonl ts_et carries a '-04:00'/'-05:00' ET offset (unlike
+    core-decisions.jsonl / fills-ledger.jsonl, both naive) -- the event's tick_dt must come
+    back naive so it stays comparable to fills_fifo's naive entry_ts_et in assign_real_fills
+    (mixing aware/naive raises TypeError, caught against the real files this session)."""
+    row = _fleet_row("2026-08-12T14:16:02.657308-04:00")
+    ev = fgls.classify_fleet_gate_row("safe-3", row)
+    assert ev["tick_dt"].tzinfo is None
+    assert ev["tick_dt"].hour == 14 and ev["tick_dt"].minute == 16
+
+
+def test_classify_fleet_gate_row_none_on_non_hold_action():
+    row = _fleet_row("2026-08-12T14:19:02", action="ENTER_BULL", reason="gate: 1 triggers < 2")
+    assert fgls.classify_fleet_gate_row("safe-3", row) is None
+
+
+def test_build_fleet_gate_events_respects_min_date():
+    rows = [_fleet_row("2026-08-01T10:00:00"), _fleet_row("2026-08-06T10:00:00"),
+            _fleet_row("2026-08-10T10:00:00")]
+    events = fgls.build_fleet_gate_events("safe-3", rows, "2026-08-06")
+    assert len(events) == 2
+    assert all(e["date_et"] >= "2026-08-06" for e in events)
+
+
+def test_fleet_gate_events_flow_through_assign_real_fills_and_finalize(_wired_fixtures):
+    """End-to-end mini-check of the NEW counterfactual: a fleet_gate refusal whose
+    UNGATED SIBLING (risky-3) landed a real fill inside the window is real_fill=True; one
+    with no matching sibling fill is real_fill=False. Uses the pure pipeline directly
+    (assign_real_fills + finalize_row) -- run() itself is exercised separately below with
+    the sibling source wired via FILES on disk."""
+    events = fgls.build_fleet_gate_events(
+        "safe-3", [_fleet_row("2026-08-12T14:16:02", side="C")], fgls.WINDOW_START_DATE)
+    sibling_fill = [_rt("2026-08-12T14:16:30", "C", real_pnl=88.0)]
+    matched = fgls.assign_real_fills(events, sibling_fill, fgls.ENTRY_WINDOW_SEC)
+    row = fgls.finalize_row("safe-3", matched[0])
+    assert row["cohort"] == "fleet_gate"
+    assert row["real_fill"] is True
+    assert row["real_pnl"] == pytest.approx(88.0)
+
+    matched_empty = fgls.assign_real_fills(events, [], fgls.ENTRY_WINDOW_SEC)
+    row_empty = fgls.finalize_row("safe-3", matched_empty[0])
+    assert row_empty["real_fill"] is False
+
+
+def test_run_includes_fleet_gate_rows_with_sibling_counterfactual(tmp_path, monkeypatch):
+    """run() end-to-end: safe-3's decisions.jsonl carries one min_triggers refusal that a
+    real risky-3 (ungated sibling) fill would have captured, and one confluence refusal
+    with no matching sibling fill. Both must land in the ledger under cohort='fleet_gate',
+    with the correct real_fill verdict, WITHOUT double-counting against the SKIP_* bypass
+    cohort (core-decisions.jsonl fixture below is intentionally empty of qualifying pairs)."""
+    core_path = tmp_path / "core-decisions.jsonl"
+    core_path.write_text("", encoding="utf-8")
+    fills_path = tmp_path / "fills-ledger.jsonl"
+    fleet_dir = tmp_path / "fleet"
+    out_dir = tmp_path / "out"
+    ledger = out_dir / "fleet-gate-leak-ledger.jsonl"
+    summary = out_dir / "fleet-gate-leak-summary.json"
+
+    (fleet_dir / "safe-3").mkdir(parents=True)
+    safe3_rows = [
+        _fleet_row("2026-08-06T11:21:02", side="C", reason="gate: 1 triggers < 2"),
+        _fleet_row("2026-08-06T13:00:00", side="P", reason="gate: requires confluence/sequence"),
+    ]
+    (fleet_dir / "safe-3" / "decisions.jsonl").write_text(
+        "".join(json.dumps(r) + "\n" for r in safe3_rows), encoding="utf-8")
+    (fleet_dir / "risky-1").mkdir(parents=True)
+    (fleet_dir / "risky-1" / "decisions.jsonl").write_text("", encoding="utf-8")
+
+    fills = [
+        {"activity_id": "a1", "arm": "risky-3", "symbol": "SPY260806C00700000", "side": "buy",
+         "qty": 5.0, "price": 1.00, "date_et": "2026-08-06", "ts_et": "2026-08-06T11:22:00.000000",
+         "attribution": "engine"},
+        {"activity_id": "a2", "arm": "risky-3", "symbol": "SPY260806C00700000", "side": "sell",
+         "qty": 5.0, "price": 1.50, "date_et": "2026-08-06", "ts_et": "2026-08-06T11:30:00.000000",
+         "attribution": "engine"},
+    ]
+    fills_path.write_text("".join(json.dumps(f) + "\n" for f in fills), encoding="utf-8")
+
+    monkeypatch.setattr(fgls, "CORE_DECISIONS", core_path)
+    monkeypatch.setattr(fgls, "OUT_DIR", out_dir)
+    monkeypatch.setattr(fgls, "LEDGER", ledger)
+    monkeypatch.setattr(fgls, "SUMMARY", summary)
+    monkeypatch.setattr(fgls, "FILLS_LEDGER", fills_path)
+    monkeypatch.setattr(fgls, "ARMS", ())  # isolate: no SKIP_* core-decision rows to join
+    monkeypatch.setattr(fgls, "DECISION_FOCUS_ARMS", ())
+    monkeypatch.setattr(fgls, "FLEET_GATE_DECISIONS_DIR", fleet_dir)
+
+    out = fgls.run()
+    assert "error" not in out, out
+    rows = fgls._read_jsonl(ledger)
+    fleet_rows = [r for r in rows if r["cohort"] == "fleet_gate"]
+    assert len(fleet_rows) == 2
+    by_gate = {r["gate"]: r for r in fleet_rows}
+    assert by_gate[fgls.FLEET_GATE_MIN_TRIGGERS_NAME]["real_fill"] is True
+    assert by_gate[fgls.FLEET_GATE_MIN_TRIGGERS_NAME]["real_pnl"] == pytest.approx(250.0)
+    assert by_gate[fgls.FLEET_GATE_CONFLUENCE_NAME]["real_fill"] is False
+    assert all(r["arm"] == "safe-3" for r in fleet_rows)
+
+    cells = {c["gate"]: c for c in out["gate_arm_cells"] if c["arm"] == "safe-3"}
+    assert cells[fgls.FLEET_GATE_MIN_TRIGGERS_NAME]["cohort"] == "fleet_gate"
+    assert cells[fgls.FLEET_GATE_MIN_TRIGGERS_NAME]["fleet_gate_counterfactual_note"] is not None
+    assert cells[fgls.FLEET_GATE_MIN_TRIGGERS_NAME]["n_real_entries"] == 1
+
+
+def test_run_fleet_gate_rows_are_idempotent(tmp_path, monkeypatch):
+    core_path = tmp_path / "core-decisions.jsonl"
+    core_path.write_text("", encoding="utf-8")
+    fills_path = tmp_path / "fills-ledger.jsonl"
+    fills_path.write_text("", encoding="utf-8")
+    fleet_dir = tmp_path / "fleet"
+    (fleet_dir / "safe-3").mkdir(parents=True)
+    (fleet_dir / "safe-3" / "decisions.jsonl").write_text(
+        json.dumps(_fleet_row("2026-08-06T11:21:02")) + "\n", encoding="utf-8")
+    (fleet_dir / "risky-1").mkdir(parents=True)
+    (fleet_dir / "risky-1" / "decisions.jsonl").write_text("", encoding="utf-8")
+    out_dir = tmp_path / "out"
+    ledger = out_dir / "fleet-gate-leak-ledger.jsonl"
+
+    monkeypatch.setattr(fgls, "CORE_DECISIONS", core_path)
+    monkeypatch.setattr(fgls, "OUT_DIR", out_dir)
+    monkeypatch.setattr(fgls, "LEDGER", ledger)
+    monkeypatch.setattr(fgls, "SUMMARY", out_dir / "fleet-gate-leak-summary.json")
+    monkeypatch.setattr(fgls, "FILLS_LEDGER", fills_path)
+    monkeypatch.setattr(fgls, "ARMS", ())
+    monkeypatch.setattr(fgls, "DECISION_FOCUS_ARMS", ())
+    monkeypatch.setattr(fgls, "FLEET_GATE_DECISIONS_DIR", fleet_dir)
+
+    fgls.run()
+    n1 = len(fgls._read_jsonl(ledger))
+    out2 = fgls.run()
+    n2 = len(fgls._read_jsonl(ledger))
+    assert n1 == n2 == 1
+    assert out2["new_this_run"] == 0

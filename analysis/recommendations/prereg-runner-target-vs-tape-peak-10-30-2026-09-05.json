@@ -1,0 +1,87 @@
+{
+  "id": "PREREG-RUNNER-TARGET-VS-TAPE-PEAK-10-30-2026-09-05",
+  "prereg_id": "PREREG-RUNNER-TARGET-VS-TAPE-PEAK-10-30-2026-09-05",
+  "frozen_at_et": "2026-09-05",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)",
+  "filed_by": "Sonnet worker, T2 fire on GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05",
+  "opened_from": "GOAL-GATE-NET-COST's close (Fable EOD-audit 2026-09-05): a loose end noticed while reading analysis/right-tail/ledger.jsonl + its own CAPTURE-*.json day files for the gate-net-cost work -- realized runner exits sit systematically below the wave's own tape peak.",
+  "config_freeze_note": "CONFIG FREEZE 2026-08-31 -> 2026-10-30 (project_september_clean_window_plan_2026_08_29.md): this file is a PREREG ONLY. No params.json / strategies.py / exit_manager.py / heartbeat.md edit is made by this filing. It freezes the question, the instrument, and the kill/extend criteria BEFORE any change is proposed, so a 10-30 checkpoint review can act on frozen text rather than post-hoc reasoning.",
+  "evidence_this_prereg_is_built_on": {
+    "doctrine_text_cited_by_the_goal": "CLAUDE.md's live rule-version line: 'chandelier trailing profit-lock (arms at +5% favor, trails 15% off HWM), 09:35 ET entry gate ... runner target 2.5x' (v15.3 Safe core doctrine).",
+    "discrepancy_found_and_disclosed_not_resolved": "Read fresh this session, three DIFFERENT live sources disagree on the runner/trail shape, and reconciling them is OUT OF SCOPE for this prereg (a provenance question, not this hypothesis): (1) automation/state/params.json v15_profit_lock_trail_pct=0.125 (12.5%, WP-6 2026-06-21 tighten) with v15_profit_lock_mode='fixed' (NOT 'trailing') -- contradicts CLAUDE.md's own 'trails 15%'/'trailing' text; (2) automation/state/fleet/strategies.py RIBBON_RIDE's ExitShape (the shared signal every fleet arm trades, lines 123-143) sets trail_pct=0.15 (matches CLAUDE.md) but runner_target_pct=99.0 -- the strategy's OWN docstring calls this 'tgt-none (runner exits via structure/trail/EOD only)', i.e. the FLEET arms already run an effectively UNCONSTRAINED runner target, not the 2.5x CLAUDE.md's doctrine text names; (3) the ExitShape dataclass default (strategies.py:41-42) is runner_target_pct=2.5/trail_pct=0.125, matching CLAUDE.md's headline number but NOT what RIBBON_RIDE actually ships. UNVERIFIED which of these the LIVE core safe-2/bold-2 heartbeat path (a separate engine, heartbeat_core.py, not fleet_executor.py) actually reads at runtime -- flagged for a future session, not chased here.",
+    "right_tail_ledger_sample_computed_fresh_this_session": {
+      "source": "analysis/right-tail/CAPTURE-2026-*.json (36 waves clearing WAVE_THRESHOLD=1.3 across 2026-08-03..2026-09-04, per-wave `peak_multiple` on the underlying option's own tape) joined to every fleet/core arm's realized `exit_multiple` on that same wave (`wave_events[].exit_multiple`, taken=true only) -- the rolling `analysis/right-tail/ledger.jsonl` itself only persists the second-wave summary/capture_rate fields, not per-wave peak/exit detail, so this join reads the per-day CAPTURE-*.json files directly (the same producer, right_tail_capture.py, writes both).",
+      "all_34_taken_waves": "tape peak range 1.3133x-5.9011x; best realized exit (max across any arm that took the wave) range 0.7143x-4.9048x -- the realized exit is BELOW the tape peak on 27 of 34 waves (79%), roughly even on 2, and ABOVE it on 5 (arm entered at a WORSE fill basis than the wave's own signal-time entry_premium, or the wave's peak predates that arm's fill -- both are real, disclosed effects of comparing two different entry-price bases, not a data error).",
+      "reading": "in this top decile (peak>=2.9x, 8 waves total, 7 with >=1 arm taking the trade -- the 8th, 2026-08-18, had zero arms take it), tape peaks ran 2.97x-5.90x while the best realized exit on the 7 TAKEN waves ran 0.80x-2.95x -- only 2026-08-28 (bold-2, 2.9452x realized vs 2.9733x peak) approached its own wave's peak; the other 6 of 7 taken waves gave back 33-63% of the peak's multiple before any arm's exit locked in. This is materially the same shape the goal names ('waves peaking 2.9-5.4x while every arm's runner exits 2.0-3.3x') even though this session's own fresh pull differs at the edges (one exit at 0.80x, two peaks above 5.4x) -- the DIRECTION (peak > realized, by a wide margin, on 6 of 7 taken waves) is confirmed, the exact bounds are this session's own numbers, not re-quoted from memory.",
+      "top_decile_by_tape_peak_peak_ge_2.9x_n8_total_n7_taken": [
+        {
+          "date": "2026-08-04",
+          "tape_peak": 5.9011,
+          "best_realized_exit": 1.9478
+        },
+        {
+          "date": "2026-08-04",
+          "tape_peak": 5.4421,
+          "best_realized_exit": 2.0
+        },
+        {
+          "date": "2026-08-20",
+          "tape_peak": 5.3662,
+          "best_realized_exit": 1.9857
+        },
+        {
+          "date": "2026-09-03",
+          "tape_peak": 4.0,
+          "best_realized_exit": 2.1081
+        },
+        {
+          "date": "2026-08-11",
+          "tape_peak": 3.175,
+          "best_realized_exit": 0.8
+        },
+        {
+          "date": "2026-08-18",
+          "tape_peak": 3.0882,
+          "best_realized_exit": null,
+          "note": "no arm took this wave (0 taken)"
+        },
+        {
+          "date": "2026-08-04",
+          "tape_peak": 3.0137,
+          "best_realized_exit": 2.4737
+        },
+        {
+          "date": "2026-08-28",
+          "tape_peak": 2.9733,
+          "best_realized_exit": 2.9452
+        }
+      ]
+    }
+  },
+  "hypothesis": "H1: for waves in the right-tail ledger's own top decile by tape peak_multiple (peak_multiple >= 2.9x, the genuine 'right tail' this instrument exists to measure), a FINITE increase to the runner target and/or a wider give-back trail would capture a materially larger share of the tape's own peak_multiple, net of the give-back it costs on the OTHER waves in the same population that reverse before the wider target/trail would have exited them -- WITHOUT a net loss when scored over the full right-tail-ledger population (not just the top decile in isolation, which would cherry-pick the waves that happened to run and ignore the ones a wider stop would have bled on).",
+  "the_spec": {
+    "current_shape_under_test": "runner_target_pct=2.5x / trail_pct=0.15 (15% off HWM) per CLAUDE.md's doctrine text for the core v15.3 Safe/Bold engine -- the shape this hypothesis proposes to WIDEN. (The fleet RIBBON_RIDE registry entry already runs an effectively unconstrained target per the discrepancy noted above; if a future session confirms the core engine also runs unconstrained/0.125 rather than 2.5x/0.15, THIS hypothesis is moot for that path and only applies wherever a genuine 2.5x/0.15 shape is confirmed live.)",
+    "candidate_finite_changes": [
+      "runner_target_pct: 2.5x -> a fixed alternative in [3.0x, 4.0x] (still FINITE -- explicitly NOT 'remove the cap', which is the C30 dead-knob pattern below)",
+      "trail_pct: 0.15 -> a wider alternative in [0.20, 0.25] (give back more room before locking, on the theory that 0.15 off a fresh HWM cuts right-tail waves off before they finish running)"
+    ],
+    "instrument": "analysis/right-tail/ledger.jsonl (the rolling second-wave/capture_rate roll-up) PLUS its own per-day source, analysis/right-tail/CAPTURE-<date>.json (`waves[].peak_multiple` = tape peak; `arms.<arm>.wave_events[].exit_multiple`/`held_to_tp1`/`runner_ran` = realized exit), produced nightly by setup/scripts/right_tail_capture.py (Gamma_RightTailCapture, R3). This is the SAME instrument the goal names as already-built and reused, not a new one -- T2 files the question against it, T2 does not extend it (T1 is the only producer extension in this goal).",
+    "unit_of_measure": "per wave: tape peak_multiple vs the BEST realized exit_multiple achieved by any arm that took it (matching the join method used in evidence_this_prereg_is_built_on above)."
+  },
+  "kill_criteria": {
+    "primary_kill": "If, over the right-tail ledger's FULL population (not just the top-peak decile) at n>=20 forward waves post-10-30, the wider target/trail's simulated or forward-shadowed net P&L (winners' extra capture MINUS losers' extra give-back on waves that reverse before the wider shape would exit) is NOT positive at bootstrap CI-lower(2.5%) > 0, the candidate change is KILLED -- the C30 caveat below is exactly this failure mode, and this bar exists so the hypothesis cannot ship on the top-decile's cherry-picked upside alone.",
+    "concentration_kill": "If the primary bar's positive result is driven by <3 waves (top3_concentration_share >= 0.60 of the net delta, matching this repo's standing top3_concentration_share convention in fleet_gate_leak_shadow.py/tp1_r50 shadows), the result is a concentration artifact per BACKTESTING-PLAYBOOK.md 2.4 and the candidate is KILLED regardless of the aggregate sign.",
+    "either_kill_closes_the_candidate": "Either failure alone is sufficient to kill; both must pass to proceed to a 2026-10-30 checkpoint SHADOW-FILE proposal (a forward shadow instrument, not a live params.json change -- any live change still needs its OWN A/B per this project's standing eval-first gate, CLAUDE.md OP-11)."
+  },
+  "extend_criterion": "If n<20 forward waves exist by 2026-10-30 (right-tail waves clearing WAVE_THRESHOLD=1.3 are inherently rare -- this session's own 5-week pull found only 36), the checkpoint reports UNVERIFIED -- insufficient n, not a negative finding (same convention as prereg-vix-bull-hard-cap-unblock-shadow-2026-09-05.json's extend_criterion) -- and the question stays open past 10-30 rather than being force-closed on thin data.",
+  "c30_caveat": "CLAUDE.md's Lessons index C30 ('Unconstrained exit targets (runner never hits 5x in 0DTE) = dead knob', L24/148/176/291) is the exact failure mode this prereg is designed NOT to repeat: an UNCONSTRAINED or effectively-infinite runner target is a dead knob because it can never bind (the position exits some other way first, so 'raising' it changes nothing measurable) -- and this session's own read of automation/state/fleet/strategies.py found RIBBON_RIDE's fleet-side runner_target_pct is ALREADY 99.0 (functionally unconstrained), which is precisely a live instance of the C30 pattern, not a control this hypothesis can widen further. This prereg's candidate_finite_changes are therefore bounded to a NAMED FIXED alternative (3.0x-4.0x) and a NAMED wider trail (20-25%), never 'remove the target' or 'let it ride' -- any 10-30 proposal that instead proposes removing the fixed cap is out-of-spec for this filing and must be re-registered as its own prereg with its own kill criteria, because an unconstrained target is unfalsifiable by construction (C30) and cannot be evaluated by this file's kill bar.",
+  "what_this_is_NOT": [
+    "NOT a change to params.json, strategies.py, exit_manager.py, or any FROZEN_TRADING_PATH file -- config freeze holds through 2026-10-30.",
+    "NOT a claim that the core safe-2/bold-2 engine currently runs 2.5x/15% -- that is CLAUDE.md's doctrine TEXT; this session found the fleet-side registry entry and one params.json key both disagree with it, and did not resolve which is the actual live core-engine read path (flagged, not chased, per scope discipline).",
+    "NOT an evaluation of the fleet arms' RIBBON_RIDE runner_target_pct=99.0 shape specifically -- that is ALREADY a C30 unconstrained-target instance; this hypothesis is about a genuinely FIXED 2.5x-style target, wherever one is confirmed live.",
+    "NOT permission to widen anything before 2026-10-30 -- this is a pre-registration, not a proposal to ship."
+  ],
+  "n_needed": "n>=20 forward right-tail waves (peak_multiple >= WAVE_THRESHOLD 1.3, matching this project's standing evidence_n advisory bar) is the PRIMARY bar for the checkpoint read; below that, extend_criterion applies.",
+  "consumer": "2026-10-30 config-freeze checkpoint review + this goal's DONE-WHEN clause; folded into analysis/recommendations/checkpoint-2026-09-29-inventory.json (class=expansion, ledger=right-tail) per T4.",
+  "revert": "Delete this file. No other artifact is created or modified by this prereg (no params.json, no scheduled task, no leaderboard edit, no strategies.py edit)."
+}

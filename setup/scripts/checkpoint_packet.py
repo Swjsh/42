@@ -342,6 +342,33 @@ def _score_vix_bull_hard_cap_shadow(row: dict, today: str) -> dict:
     }
 
 
+def _score_runner_target_vs_tape_peak(row: dict, today: str) -> dict:
+    """T2/T4 (GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05): the prereg is FROZEN_BEFORE_ANY_RESULT
+    with n_needed>=20 forward right-tail waves (post-10-30, per its own kill_criteria) --
+    identical shape to `_score_spy_signal_weekly_lane` below, so this reuses that pattern
+    rather than inventing a new one."""
+    prereg_path = REPO / row["prereg_path"]
+    d = _read_json(prereg_path)
+    status = _status_field(d)
+    verdict = VERDICT_INSUFFICIENT_N
+    if status and TERMINAL_STATUS_RE.search(status or ""):
+        verdict = VERDICT_MET
+    elif status and ADJUDICATION_STATUS_RE.match(status or ""):
+        verdict = VERDICT_MET
+    return {
+        "verdict": verdict,
+        "n": 0,
+        "numbers": {"status": status,
+                    "top_decile_n": len((d.get("evidence_this_prereg_is_built_on") or {})
+                                         .get("right_tail_ledger_sample_computed_fresh_this_session", {})
+                                         .get("top_decile_by_tape_peak_peak_ge_2.9x_n8_total_n7_taken", []))},
+        "note": "FROZEN_BEFORE_ANY_RESULT -- no forward-scored waves yet; n>=20 forward "
+                "right-tail waves is the frozen floor (kill_criteria.primary_kill). The "
+                "top-decile n=7 sample in the prereg's own evidence section is BACKWARD-"
+                "looking (this session's fresh pull), never citable as the forward bar.",
+    }
+
+
 def _score_spy_signal_weekly_lane(row: dict, today: str) -> dict:
     prereg_path = REPO / row["prereg_path"]
     d = _read_json(prereg_path)
@@ -585,6 +612,7 @@ _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "fill_model_unification_step2": _score_fill_model_unification_step2,
     "tickers_theta_budget_cadence": _score_tickers_theta_budget_cadence,
     "catastrophe_cap_and_day_throttle": _score_catastrophe_cap_and_day_throttle,
+    "runner_target_vs_tape_peak": _score_runner_target_vs_tape_peak,
 }
 
 
