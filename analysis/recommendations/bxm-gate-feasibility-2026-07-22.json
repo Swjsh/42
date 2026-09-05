@@ -399,5 +399,30 @@
     "rvol_gate::elevated_gt_median: does NOT clear bar (verdict=DRY, expectancy=$-5.37, wf_stable=False)"
   ],
   "eval_bar_cleared": false,
-  "next_step": "small real-fills n (see n_total_trades_loaded) means this is a screening result, not a rejection -- re-run as the trade log grows; do not re-propose without new data"
+  "next_step": "small real-fills n (see n_total_trades_loaded) means this is a screening result, not a rejection -- re-run as the trade log grows; do not re-propose without new data",
+  "adjudication_2026_09_05": {
+    "verdict": "EXTEND",
+    "reason": "Screened-feasibility candidate filed 2026-07-22 at n=190 real trades (journal/trades.csv). Re-check via `wc -l journal/trades.csv` on 2026-09-05 shows 594 lines (593 trades excl. header) -- a 3.1x growth in the real-fills ledger since filing. The candidate's own text (`overall_verdict`: NO_CANDIDATE_CLEARS_BAR_YET) explicitly conditions any re-proposal on the ledger growing ('re-run as the ledger grows; do not re-propose without new data'). Per GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03 K6 instructions this crosses the bar for EXTEND rather than a blind KILL: growth is well beyond incremental (>3x), so the concentration/dryness failure mode cited at n=190 may or may not still hold at n=593 and needs an actual re-run before a final KILL/SHADOW-FILED call, not an assumption either way.",
+    "instrument": "Re-run this probe's own generation script (see `probe` field below / backtest/autoresearch/ scripts matching this candidate's slug) against the current journal/trades.csv (n=593) and re-derive per-candidate expectancy + walk-forward chronological half-split stability before any KILL or SHADOW-FILED verdict is final. Config freeze (2026-08-31 to 2026-10-30) means even a passing result files only as a prereg for the 10-30 checkpoint -- no live wiring now.",
+    "evidence": {
+      "filed_n_total_trades_loaded": 190,
+      "current_n_minus_header": 593,
+      "growth_factor": 3.12,
+      "filed_overall_verdict": "NO_CANDIDATE_CLEARS_BAR_YET"
+    },
+    "commands_run": [
+      "wc -l journal/trades.csv  # -> 594 (593 trades excl. header), 2026-09-05"
+    ]
+  },
+  "rerun_2026_09_05": {
+    "verdict": "KILLED",
+    "rerun_output": "analysis/recommendations/bxm-gate-feasibility-RERUN-2026-09-05.json",
+    "n_trades_loaded": 590,
+    "n_waves": 429,
+    "reason": "Re-ran bxm_gate_probe.py UNCHANGED against journal/trades.csv (n=590 rows / 429 waves, up from n=190 at filing), feature cache refreshed 04-01..09-04 via the free CBOE BXM_History.csv endpoint (no key -- yfinance ^BXM no longer resolves, CBOE is now the live free source for this series). Neither variant clears the bar: compressed-half DRY (exp -/usr/bin/bash.43/tr), elevated-half CONCENTRATED (exp 3.89/tr, top3day%=179.5%); neither walk-forward stable. Welch t-test kept-vs-dropped p=0.240, fails BH-FDR q=0.10 across the 8-variant family tested this session (0/8 reject). Supersedes the 2026-09-05 EXTEND adjudication above with a final KILL: the 3.1x ledger growth did not change the outcome.",
+    "commands_run": [
+      "curl https://cdn.cboe.com/api/global/us_indices/daily_prices/BXM_History.csv (free, no key)",
+      "python -m autoresearch.bxm_gate_probe (BXM_CSV repointed to refreshed cache; TRADES_CSV unchanged)"
+    ]
+  }
 }

@@ -531,5 +531,30 @@
     "slope_gate::steepening_gt_0: does NOT clear bar (verdict=CONCENTRATED, expectancy=$9.6, wf_stable=False)"
   ],
   "eval_bar_cleared": false,
-  "next_step": "small real-fills n (see n_total_trades_loaded) means this is a screening result, not a rejection -- re-run as the trade log grows; do not re-propose without new data. DGS3MO cached but unused this fire (inbox's own note flags it as a fold-in sub-series once built, not a separate candidate -- left for a future fire, not attempted here)."
+  "next_step": "small real-fills n (see n_total_trades_loaded) means this is a screening result, not a rejection -- re-run as the trade log grows; do not re-propose without new data. DGS3MO cached but unused this fire (inbox's own note flags it as a fold-in sub-series once built, not a separate candidate -- left for a future fire, not attempted here).",
+  "adjudication_2026_09_05": {
+    "verdict": "EXTEND",
+    "reason": "Screened-feasibility candidate filed 2026-07-22 at n=190 real trades (journal/trades.csv). Re-check via `wc -l journal/trades.csv` on 2026-09-05 shows 594 lines (593 trades excl. header) -- a 3.1x growth in the real-fills ledger since filing. The candidate's own text (`overall_verdict`: NO_CANDIDATE_CLEARS_BAR_YET) explicitly conditions any re-proposal on the ledger growing ('re-run as the ledger grows; do not re-propose without new data'). Per GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03 K6 instructions this crosses the bar for EXTEND rather than a blind KILL: growth is well beyond incremental (>3x), so the concentration/dryness failure mode cited at n=190 may or may not still hold at n=593 and needs an actual re-run before a final KILL/SHADOW-FILED call, not an assumption either way.",
+    "instrument": "Re-run this probe's own generation script (see `probe` field below / backtest/autoresearch/ scripts matching this candidate's slug) against the current journal/trades.csv (n=593) and re-derive per-candidate expectancy + walk-forward chronological half-split stability before any KILL or SHADOW-FILED verdict is final. Config freeze (2026-08-31 to 2026-10-30) means even a passing result files only as a prereg for the 10-30 checkpoint -- no live wiring now.",
+    "evidence": {
+      "filed_n_total_trades_loaded": 190,
+      "current_n_minus_header": 593,
+      "growth_factor": 3.12,
+      "filed_overall_verdict": "NO_CANDIDATE_CLEARS_BAR_YET"
+    },
+    "commands_run": [
+      "wc -l journal/trades.csv  # -> 594 (593 trades excl. header), 2026-09-05"
+    ]
+  },
+  "rerun_2026_09_05": {
+    "verdict": "KILLED",
+    "rerun_output": "analysis/recommendations/fred-yield-curve-gate-feasibility-RERUN-2026-09-05.json",
+    "n_trades_loaded": 590,
+    "n_waves": 429,
+    "reason": "Re-ran fred_yield_curve_probe.py UNCHANGED against journal/trades.csv (n=590 rows / 429 waves, up from n=190 at filing), feature cache refreshed 04-01..09-04 via the free FRED fredgraph.csv endpoint (no key, reconfirms the filing's own no-key finding). FLAGGED for /fable-too-good scrutiny: level_gate::steep_ge_median is the ONE variant (of 8 tested across all 3 families this session) whose pooled heuristic verdict reads CLEAN+wf_stable=True (exp 8.29/tr, top3day%=121.4%<150%). Root-caused as a script-logic artifact, not a real edge: the wf_stable check only tests the SIGN of each chronological half's expectancy, not concentration -- splitting it out shows BOTH halves are independently CONCENTRATED (first_half n=11 exp=58.45/tr top3day%=171.8%; second_half n=234 exp=1.70/tr top3day%=180.8%), and a Welch t-test on steep-vs-flat PnL gives p=0.107, which fails BH-FDR q=0.10 across the 8-variant family (0/8 reject). flat_lt_median is DRY (exp -.01/tr); slope_gate::steepening_gt_0 is CONCENTRATED (exp .42/tr, top3day%=279.9%). Final verdict KILLED, superseding the 2026-09-05 EXTEND adjudication above -- the 3.1x ledger growth surfaced one false-positive-looking variant, but it does not survive proper statistical scrutiny.",
+    "commands_run": [
+      "curl \"https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10,DGS2,DGS3MO\" (free, no key)",
+      "python -m autoresearch.fred_yield_curve_probe (FRED_CSV repointed to refreshed cache; TRADES_CSV unchanged)"
+    ]
+  }
 }

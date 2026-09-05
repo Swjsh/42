@@ -1,0 +1,122 @@
+{
+  "generated_at": "2026-09-05T05:42:28.287926+00:00",
+  "context": "GOAL-KITCHEN-KEEPERS 2026-09-05 owed re-adjudication: 3 EXTEND-flagged leaderboard rows (49-51) whose real-fills ledger grew from n=190 (2026-07-22 filing) to n=593 total rows (590 loaded by these probes' own header-validated loader; 594 incl. CSV header) / 429 wave-deduped independent samples (dedupe by (date,time_entry) -- up to 5 fleet arms can enter one signal seconds apart, project_engine_edge_right_tail_2026_08_18.md).",
+  "method": "Re-ran each candidate's OWN unchanged probe script (backtest/autoresearch/{vix1d_gate_probe,bxm_gate_probe,fred_yield_curve_probe}.py) against the grown journal/trades.csv, after refreshing each script's feature cache via the SAME free no-key data source used originally (CBOE daily-price CSV endpoints for VIX1D/VIX/BXM; FRED fredgraph.csv for DGS10/DGS2/DGS3MO), extended from 07-21/22 through 2026-09-04. Applied the canonical battery bar (markdown/research/BACKTESTING-PLAYBOOK.md: expectancy + OOS + WF>=0.70 + concentration/ex-best-day + BH-FDR where multiple bands are tested) on top of each probe's own heuristic verdict -- ran a Welch two-sample t-test (kept vs dropped per-trade PnL) for each of the 8 gate variants tested across the 3 families, and applied Benjamini-Hochberg FDR at q=0.10 across all 8. No paid APIs used; no orders placed; no params/doctrine/heartbeat/filters/CLAUDE touched.",
+  "bh_fdr_result": "0 of 8 gate variants (VIX1D x3, BXM x2, FRED x3) reject the null at q=0.10 after correction -- none of the 8 kept-vs-dropped splits is statistically distinguishable from noise.",
+  "rows": [
+    {
+      "candidate": "VIX1D_GATE_FEASIBILITY",
+      "leaderboard_rank": 49,
+      "script": "backtest/autoresearch/vix1d_gate_probe.py",
+      "original_filing": "analysis/recommendations/vix1d-gate-feasibility-2026-07-22.json (n=190 at filing)",
+      "rerun_output": "analysis/recommendations/vix1d-gate-feasibility-RERUN-2026-09-05.json",
+      "feature_cache_refreshed": "backtest/data/vix1d_vix30_daily_2026-04-20_2026-09-04.csv (free CBOE VIX1D_History.csv + VIX_History.csv, no key)",
+      "n_trades": 590,
+      "n_waves": 429,
+      "numbers": {
+        "level_gate::same_as_vix30_band_14_20": {
+          "n": 45,
+          "exp_per_trade_usd": 3.16,
+          "verdict": "CONCENTRATED",
+          "top3_day_pct": 1418.3,
+          "wf_stable": false,
+          "welch_p_kept_vs_dropped": 0.8882
+        },
+        "level_gate::widened_band_10_25": {
+          "n": 445,
+          "exp_per_trade_usd": -2.17,
+          "verdict": "DRY",
+          "top3_day_pct": -535.0,
+          "wf_stable": false,
+          "welch_p_kept_vs_dropped": 0.0196
+        },
+        "slope_gate::calm_le_neg2": {
+          "n": 581,
+          "exp_per_trade_usd": 5.85,
+          "verdict": "CONCENTRATED",
+          "top3_day_pct": 215.3,
+          "wf_stable": false,
+          "welch_p_kept_vs_dropped": 0.9855
+        }
+      },
+      "bh_fdr": "0/8 gate variants (all 3 families combined) reject the null at q=0.10 -- VIX1D's best p=0.0196 (widened_band_10_25, which is itself DRY) does not survive m=8 correction",
+      "verdict": "KILLED",
+      "verdict_reason": "All 3 pre-registered variants fail the canonical bar even at 3x the original n (190->590 rows / 429 waves): one CONCENTRATED-but-dry-adjacent, one outright DRY, one CONCENTRATED; none walk-forward stable; none statistically distinguishable from the dropped population after multiple-comparison correction."
+    },
+    {
+      "candidate": "BXM_GATE_FEASIBILITY",
+      "leaderboard_rank": 50,
+      "script": "backtest/autoresearch/bxm_gate_probe.py",
+      "original_filing": "analysis/recommendations/bxm-gate-feasibility-2026-07-22.json (n=190 at filing)",
+      "rerun_output": "analysis/recommendations/bxm-gate-feasibility-RERUN-2026-09-05.json",
+      "feature_cache_refreshed": "backtest/data/bxm_daily_2026-04-01_2026-09-04.csv (free CBOE BXM_History.csv, no key; yfinance ^BXM no longer resolves -- CBOE is the live free source now)",
+      "n_trades": 590,
+      "n_waves": 429,
+      "numbers": {
+        "rvol_gate::compressed_le_median": {
+          "n": 332,
+          "exp_per_trade_usd": -0.43,
+          "verdict": "DRY",
+          "top3_day_pct": -3804.2,
+          "wf_stable": false,
+          "welch_p_kept_vs_dropped": 0.2399
+        },
+        "rvol_gate::elevated_gt_median": {
+          "n": 258,
+          "exp_per_trade_usd": 13.89,
+          "verdict": "CONCENTRATED",
+          "top3_day_pct": 179.5,
+          "wf_stable": false,
+          "welch_p_kept_vs_dropped": 0.2399
+        }
+      },
+      "bh_fdr": "0/8 gate variants (all 3 families combined) reject the null at q=0.10 -- BXM's p=0.2399 is nowhere close",
+      "verdict": "KILLED",
+      "verdict_reason": "Compressed-half is DRY, elevated-half is CONCENTRATED; neither walk-forward stable; kept-vs-dropped difference is not significant even before multiple-comparison correction."
+    },
+    {
+      "candidate": "FRED_YIELD_CURVE_GATE_FEASIBILITY",
+      "leaderboard_rank": 51,
+      "script": "backtest/autoresearch/fred_yield_curve_probe.py",
+      "original_filing": "analysis/recommendations/fred-yield-curve-gate-feasibility-2026-07-22.json (n=190 at filing)",
+      "rerun_output": "analysis/recommendations/fred-yield-curve-gate-feasibility-RERUN-2026-09-05.json",
+      "feature_cache_refreshed": "backtest/data/fred_yield_curve_2026-04-01_2026-09-04.csv (free FRED fredgraph.csv, no key -- reconfirms the original filing's 'no API key needed' finding)",
+      "n_trades": 590,
+      "n_waves": 429,
+      "numbers": {
+        "level_gate::steep_ge_median": {
+          "n": 245,
+          "exp_per_trade_usd": 18.29,
+          "verdict": "CLEAN (pooled)",
+          "top3_day_pct": 121.4,
+          "wf_stable": true,
+          "welch_p_kept_vs_dropped": 0.1072,
+          "fable_too_good_finding": "The probe's own wf_stable check only tests SIGN of expectancy per half, not concentration. Splitting the walk-forward halves shows BOTH are independently CONCENTRATED: first_half n=11, exp=$158.45/tr, top3day%=171.8%; second_half n=234, exp=$11.70/tr, top3day%=180.8%. The pooled top3day%=121.4% (<150% threshold) is an artifact of averaging two fragile halves, not a robust edge."
+        },
+        "level_gate::flat_lt_median": {
+          "n": 345,
+          "exp_per_trade_usd": -3.01,
+          "verdict": "DRY",
+          "top3_day_pct": -618.3,
+          "wf_stable": false,
+          "welch_p_kept_vs_dropped": 0.1072
+        },
+        "slope_gate::steepening_gt_0": {
+          "n": 256,
+          "exp_per_trade_usd": 6.42,
+          "verdict": "CONCENTRATED",
+          "top3_day_pct": 279.9,
+          "wf_stable": true,
+          "welch_p_kept_vs_dropped": 0.9324
+        }
+      },
+      "bh_fdr": "0/8 gate variants (all 3 families combined) reject the null at q=0.10 -- FRED's best p=0.1072 (steep_ge_median / flat_lt_median, same two-sample test) does not survive m=8 correction",
+      "verdict": "KILLED",
+      "verdict_reason": "steep_ge_median superficially clears the probe script's own pooled heuristic (CLEAN + wf_stable=True) -- flagged and investigated per /fable-too-good because it was the ONE candidate of 8 that looked like it cleared. Root cause: the wf_stable check tests only the SIGN of each half's expectancy, not concentration, so two independently-fragile/CONCENTRATED halves (top3day% 171.8% and 180.8%, first half n=11) can pool into a nominally-CLEAN combined number. A Welch t-test on kept-vs-dropped PnL (p=0.107) does not distinguish the gated population from the ungated one, and fails BH-FDR at q=0.10 across the 8 variants tested this session. Real verdict is KILL, not the script's naive CLEAR."
+    }
+  ],
+  "unverified": [
+    "Welch t-test / BH-FDR is an ADDITION this session, not part of the original probes' own significance machinery (those only check n>=10 and top3day%>150%, no formal p-value) -- this is a stricter bar than the original filing used, applied consistently across all 3 candidates and disclosed here rather than silently swapped in.",
+    "n_waves=429 wave-dedup uses (date, time_entry) as the wave key on the FULL trades.csv population (not per-gate-partition dedup beyond what's shown per variant above) -- a full per-variant re-derivation of wave-level (not row-level) expectancy was judged out of scope for a KILL-confirming re-run (all 3 already fail on trade-level evidence); would be needed if any candidate had instead looked SHIP-worthy."
+  ]
+}
