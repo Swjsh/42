@@ -40,22 +40,22 @@ tickers theta_budget cadence; catastrophe-cap + day-throttle forward shadows (al
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] C1 -- Inventory the decisions: `analysis/recommendations/checkpoint-2026-09-29-inventory.json`
+- [~] C1 (WIP 2026-09-05 05:5x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Inventory the decisions: `analysis/recommendations/checkpoint-2026-09-29-inventory.json`
   listing every prereg whose status/text names the 09-29 or 10-30 checkpoint (grep both tokens
   across analysis/recommendations/), each tagged reduction | expansion | shadow-read | tooling, with
   the ledger file its rule reads. DONE-WHEN: the nine decisions above are all present; any extra
   ones found are listed too.
-- [ ] C2 -- `checkpoint_packet.py`: for each inventory row read the named ledger, compute the rule's
+- [~] C2 (WIP 2026-09-05 05:5x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- `checkpoint_packet.py`: for each inventory row read the named ledger, compute the rule's
   numbers as of today (reuse each prereg's own scorer where one exists -- stop_mode_shadow_ledger,
   day_throttle_shadow, right_tail_capture once R4 lands, etc.), emit verdict RULE MET / NOT MET /
   INSUFFICIENT N with the n. Fail-open per row (a broken scorer = one UNKNOWN row, never a crash).
   Tests with two fixture preregs, RED-proofed.
-- [ ] C3 -- Generate `markdown/planning/CHECKPOINT-2026-09-29.md` (and a `-2026-10-30.md` twin for
+- [~] C3 (WIP 2026-09-05 05:5x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Generate `markdown/planning/CHECKPOINT-2026-09-29.md` (and a `-2026-10-30.md` twin for
   the expansion rows); link both from markdown/planning/ROADMAP.md and markdown/README.md index;
   MAP.md routing entry via the generator, never by hand.
-- [ ] C4 -- Register `Gamma_CheckpointPacket` 23:30 ET daily (installer pattern, registry row,
+- [~] C4 (WIP 2026-09-05 05:5x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Register `Gamma_CheckpointPacket` 23:30 ET daily (installer pattern, registry row,
   guards green, State=Ready). DONE-WHEN quoted.
-- [ ] C5 -- Cockpit: the packet's verdict counts (met / not met / insufficient) render on the
+- [~] C5 (WIP 2026-09-05 05:5x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Cockpit: the packet's verdict counts (met / not met / insufficient) render on the
   Autonomy tile with a link to the file (headless screenshot quoted).
 
 ## J-DECISIONS
