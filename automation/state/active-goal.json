@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05",
-  "active": false,
-  "opened_at_et": "2026-09-05T06:27:42",
+  "id": "GOAL-RIG-HYGIENE-2026-09-05",
+  "active": true,
+  "opened_at_et": "2026-09-05T07:21:22",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05.md",
-  "queue_id": "GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05",
+  "file": "automation/state/goals/GOAL-RIG-HYGIENE-2026-09-05.md",
+  "queue_id": "GOAL-RIG-HYGIENE-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 07:19 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }
