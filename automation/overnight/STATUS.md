@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T11:20:01Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T11:38:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T07:15:52.162347] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1106 >= 0.05 (443/4005 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md. | since 2026-09-05 (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).
 - [2026-09-05 05:45:04 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsFull[nonzero_exit]
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 07:38 ET] GOAL-RIG-HYGIENE-2026-09-05 CLOSED -- keepalive now restarts the Kitchen daemon when idle AND its code is newer than its start (RED-proofed; daemon was busy all session so the restart is still pending its next idle 5-min tick); retention policy written (markdown/infra/RETENTION.md) and applied: 1,193 untracked generated files archived by MOVE into <dir>/_archive/YYYY-MM/, gitignore for pure-state dirs, guard test fails on any undocumented generated directory
+Evidence dirs untouched (right-tail, zero-enter, gate-net-cost, doctrine-parity, recommendations, kitchen-review reports). 168 keepalive/retention/kitchen tests green. UNVERIFIED: kitchen-status.json daemon_pid (23904) differs from the pid file (15576) -- orchestrator checking for a duplicate daemon now.
+
 
 ## [2026-09-05 07:20 ET] GOAL-KITCHEN-RUNNER-IN-LOOP-2026-09-05 CLOSED -- the Kitchen now executes the existing Stage-1 evaluator (overnight_grinder.evaluate_combo via kitchen_stage1_runner.py) BEFORE any model call; provenance is written by the daemon from the executed command; reviewer refuses anything not in the daemon run log
 3 live cycles via `kitchen_daemon.py run-once`: all PROVENANCE-OK, ~1.1 CPU-min each, paid-tier cost unchanged at $0. Runner failure -> RUNNER-FAILED, zero model calls, zero numbers. 129 kitchen/provenance tests green; KITCHEN-SPEC appended. UNVERIFIED: the 24/7 daemon (pid 15576) still runs the pre-ship code until its next restart (left alone -- it is inside a 6h grinder job); GOAL-RIG-HYGIENE adds restart-when-idle to the keepalive. usable_rate_since_ship on the coarse day-cut reads 0.0039 because it counts pre-fix files from today; the true post-ship number is 3/3.

@@ -39,8 +39,31 @@ if ($alive) {
             try { Stop-Process -Id $existingPid -Force -ErrorAction Stop } catch {}
             $alive = $false
         } else {
-            Write-TaskLog -TaskName $task -Message "OK daemon alive pid=$existingPid status_age=$([math]::Round($statAge,1))min"
-            exit 0
+            # GOAL-RIG-HYGIENE-2026-09-05 H1: alive + fresh status is not the whole story --
+            # if the daemon is IDLE right now and started before the newest edit to the
+            # scripts it imports, shipped code is sitting un-deployed. Never restart while
+            # busy (idle=false); the policy script enforces that itself.
+            $policyScript = Join-Path $WorkDir "setup\scripts\kitchen_daemon_restart_policy.py"
+            $decision = Invoke-PythonHidden -ScriptPath $policyScript -TaskName "$task-policy"
+            $shouldRestart = $false
+            $reason = "policy check failed or produced no output"
+            if ($decision.ExitCode -eq 0 -and $decision.Stdout) {
+                try {
+                    $parsed = $decision.Stdout | ConvertFrom-Json
+                    $shouldRestart = [bool]$parsed.restart
+                    $reason = $parsed.reason
+                } catch {
+                    $reason = "could not parse policy stdout: $($decision.Stdout)"
+                }
+            }
+            if ($shouldRestart) {
+                Write-TaskLog -TaskName $task -Message "IDLE+STALE-CODE pid=$existingPid reason=$reason -- killing for restart"
+                try { Stop-Process -Id $existingPid -Force -ErrorAction Stop } catch {}
+                $alive = $false
+            } else {
+                Write-TaskLog -TaskName $task -Message "OK daemon alive pid=$existingPid status_age=$([math]::Round($statAge,1))min policy=$reason"
+                exit 0
+            }
         }
     } else {
         Write-TaskLog -TaskName $task -Message "OK daemon alive pid=$existingPid (no status file yet)"

@@ -394,3 +394,31 @@ automation/state/tickers/tickers-*/
 automation/state/tickers/day-check-*.json
 automation/state/tickers/*-last-run.log
 automation/state/tickers/.lane.lock
+
+# === Added 2026-09-05: GOAL-RIG-HYGIENE-2026-09-05 H3 -- pure-state producer output ===
+# Policy source: markdown/infra/RETENTION.md. These are append-only logs the retention
+# sweep (setup/scripts/retention_sweep.py) archives into per-directory _archive/YYYY-MM/
+# subfolders -- the archive copies are pure regenerable state, never evidence, so the
+# working tree never needs them committed at all (they were never committed before the
+# archive move either -- this just stops them from resurfacing as "??" noise).
+analysis/manager/_archive/
+analysis/daily-brief/_archive/
+analysis/swarm-consult/_archive/
+analysis/free-model-audit/*/_archive/
+analysis/autopsies/_archive/
+analysis/eod/_archive/
+analysis/gym/_archive/
+analysis/participation-cascade/_archive/
+backtest/autoresearch/_state/_archive/
+automation/state/_archive/
+automation/state/crypto-twin/reviews/_archive/
+automation/state/claude-md-backups/_archive/
+
+# automation/state/archive/ is itself a pre-existing manual archive destination
+# (watcher-observations-autoheal rolls) -- pure state, never evidence.
+automation/state/archive/
+
+# analysis/deep-research scratch computation dumps (underscore-prefixed / *_result.json) --
+# intermediate outputs of ad-hoc analysis, not the cited research docs in the same directory.
+analysis/deep-research/_*.json
+analysis/deep-research/*_result.json
