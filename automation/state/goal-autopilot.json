@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 03:09 ET",
-  "action": "closed_opened",
+  "checked_at_et": "2026-09-05 03:31 ET",
+  "action": "closed_ladder_empty",
   "reason": "queue fully terminal (no bare '- [ ] ' item left)",
-  "active_goal_id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
-  "next_item": "C6 -- Hand-check (added by Fable 2026-09-05 06:1x ET): the C2 scorers are a first-pass read of each",
+  "active_goal_id": null,
+  "next_item": null,
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -49,18 +49,30 @@
     },
     {
       "id": "GOAL-CHECKPOINT-PACKET-2026-09-29",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-KITCHEN-INTEGRITY-2026-09-05",
       "state": "queued",
       "eligible": false,
       "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-FLEET-CAPTURE-GAP-2026-09-05",
+      "state": "queued",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-CHECKPOINT-REDUCTION-PACKAGES-2026-09-05",
+      "state": "queued",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     }
   ],
   "last_opened": "GOAL-CHECKPOINT-PACKET-2026-09-29",
-  "last_closed": "GOAL-RIGHT-TAIL-CAPTURE-2026-09-05",
+  "last_closed": "GOAL-CHECKPOINT-PACKET-2026-09-29",
   "error": null
 }
