@@ -1,127 +1,136 @@
 # RIGHT-TAIL CAPTURE -- backfill summary (GOAL-RIGHT-TAIL-CAPTURE-2026-09-05 R4)
 
 Backfilled 2026-08-01 -> 2026-09-04 (last trading day before today, Saturday
-2026-09-05), 25 trading weekdays, 0 errors. Writes:
+2026-09-05), 25 trading weekdays, **0 errors** (`python
+scratchpad/backfill_right_tail.py` this session: "backfilled 25/25 days, 0
+errors"). Writes:
 `analysis/right-tail/CAPTURE-<date>.json` (one per day, 25 files) +
 `analysis/right-tail/ledger.jsonl` (240 rows).
 
-**CORRECTION (2026-09-05, reader-truncation fix)**: this file originally
-claimed core-decisions.jsonl "has NO rows before 2026-08-26" and ran
-2026-08-01 -> 2026-08-25 in FLEET_FALLBACK mode on that basis. That claim was
-FALSE -- see `backtest/lib/right_tail_waves.py`'s module docstring for the
-full mechanism (a `_decisions_for_day` reader that filtered strictly on a
-`date` key `heartbeat_core.py` only started writing on 2026-08-25; every
-earlier row carries `ts_et` only and was silently excluded). The reader now
-falls back to `ts_et[:10]`, and 2026-08-01 -> 2026-08-25 (17 trading days)
-has been RE-BACKFILLED in the correct `CORE_SCORE` mode. Every table below
-reflects the re-backfilled numbers. `2026-08-26 -> 2026-09-04` was already
-correct (those rows do carry a `date` field) and is unchanged.
+**R4 ROOT-CAUSE FIX (2026-09-05, this fire)**: R4 was REOPENED because the
+CORE_SCORE wave detector did not reproduce edge-master-doctrine.md's "August
+2026 big-day anatomy" anchors (08-04 wrong times/peaks, 08-06 zero waves,
+08-13 1 of 3 waves). Root cause, confirmed by discriminating evidence
+against the real `core-decisions.jsonl` rows (`backtest/lib/
+right_tail_waves.py`'s module docstring has the full hypothesis table):
 
-## Wave source mode by date range
+1. **Wrong anchor.** The old test (`bull_score/bear_score >= 9, zero
+   blockers`) is not a discrete trigger -- once a ribbon reclaim fires, the
+   score/blockers fields stay >= 9 / empty for the REST of the session (they
+   encode "still admissible right now", not "a new trigger just fired"). The
+   real admission tick is `core-decisions.jsonl`'s own `verdict` field
+   (`ENTER_BULL`/`ENTER_BEAR`), which the old reader never looked at.
+2. **Wrong dedup.** `zero_enter_autopsy._dedup_by_bar` keeps the LAST row per
+   5-min bucket -- correct for its own job (grading a NO-ENTER day) but wrong
+   here: a bar with a real `09:56:03 ENTER_BULL` row often got a later
+   `10:00:04 HOLD` row (already-in-position blocker) in the SAME bucket,
+   silently overwriting the entry and producing the 7.0758x artifact (a
+   different bar/contract than the real entry).
+3. **Single-account undercount.** 2026-08-06's real `ENTER_BEAR` tick scored
+   `bear_score=8` (below the old threshold of 9) -- the score/blockers proxy
+   simply does not track the engine's own entry decision, which is why 08-06
+   showed 0 waves. Separately, 2026-08-27's 11:52 doctrine wave only exists
+   in the `bold` core account's own `ENTER_BULL` rows; a `safe`-only reader
+   misses it and reports the wrong, 39-minutes-later start (12:31) instead.
 
-- **2026-08-01 -> 2026-08-25** (17 trading days): `CORE_SCORE` mode (bear/
-  bull score >= 9, zero blockers, deduped to unique 5-min bars via
-  `zero_enter_autopsy._dedup_by_bar`) -- the literal mechanism the goal text
-  specified, now correctly selected for the whole backfill window.
-- **2026-08-26 -> 2026-09-04**: `CORE_SCORE` mode, unchanged.
-- `FLEET_FALLBACK` mode is a documented degrade path that no longer fires
-  anywhere in this backfill window -- every date in it has real
-  core-decisions.jsonl coverage. It remains available (and RED-proof tested)
-  for a genuinely missing day.
+**Fix**: `find_waves` now anchors CORE_SCORE eligibility directly on
+`verdict` in {ENTER_BULL, ENTER_BEAR} rows whose `setup` is the doctrine
+two-trigger ribbon shape (`BULLISH_RECLAIM_RIDE_THE_RIBBON` /
+`BEARISH_REJECTION_RIDE_THE_RIBBON`), unioned across both core accounts
+(`safe` + `bold`) -- no score threshold, no bar-dedup. RED-proofed:
+`backtest/tests/test_right_tail_waves.py` (10/10 green post-fix; the OLD
+fixture asserting the stale 10:00/13:00/13:35/15:40 numbers now fails
+against the fixed code, which is the RED-proof for this change).
 
-## The five August big days -- re-verified against the CORE_SCORE numbers
+## The five August big days -- re-verified against the fixed detector
 
-CORE_SCORE mode is anchored to the `safe` core account's own admission ticks
--- a genuinely different, independent eligibility source from the fleet
-arms' own admission gates the old FLEET_FALLBACK anchor used. It does NOT
-reproduce the same wave count/times/peaks the FLEET_FALLBACK-era numbers
-below (previously reported here) showed; this is evidence, not forced:
+| Day | Doctrine anchor | Detected start | Gap | Peak multiple | Meets 1.3x |
+|---|---|---|---|---|---|
+| 08-04 | 09:56 (cores) | 09:56:03 | 0 ticks | 5.4421x (tape truth; real runner exits capped at 3.29-3.34x -- see caveat below) | yes |
+| 08-04 | 12:28 (2nd wave) | 12:26:03 | 2 ticks early | 3.0137x (within 8-10% of the real 3.29x/3.34x runner exits) | yes |
+| 08-06 | 10:31-10:32 (bear) | 10:31:03 | 0 ticks | 1.8543x (inside the real fills' 1.325x-2.117x realized-exit range) | yes |
+| 08-13 | 09:51 (~2.0-2.2x) | 09:51:03 | 0 ticks | 1.875x | yes |
+| 08-13 | 14:36 (~2.0x) | 14:36:04 | 0 ticks | 1.7045x (15% off, borderline-in-tolerance) | yes |
+| 08-27 | 09:41 (1.3-1.6x realized) | 09:41:02 | 0 ticks | 2.8824x (tape truth; see caveat) | yes |
+| 08-27 | 11:52 (~2.0x) | 11:51:04 | 1 tick early | 1.9685x (1.6% off, tight) | yes |
+| 08-28 | 10:21 (~2.0x) | 10:21:02 | 0 ticks | 2.9733x (tape truth; see caveat) | yes |
 
-| Day | Doctrine shape | OLD (FLEET_FALLBACK, wrong mode) | NEW (CORE_SCORE, correct mode) |
-|---|---|---|---|
-| 08-04 | BULLISH_RECLAIM, gap-go, 09:41-10:22 wave + noon wave (12:28) | 4 waves, peaks 5.44x/5.90x/3.01x/1.83x | 4 waves at 10:00/13:00/13:35/15:40 ET, peaks 7.0758x/2.1849x/1.7091x/1.1011x (3 of 4 clear 1.3x). Per-arm: safe-2 3/3, bold-2 1/3, safe-3 3/3, risky-1 1/3. |
-| 08-06 | BEARISH_REJECTION mirror, range-chop | 1 wave (peak 1.85x) | **0 waves** -- no bar on 08-06 has bear_score>=9 with zero bear_blockers on the `safe` account after `_dedup_by_bar`'s last-occurrence-per-bar dedup. The doctrine-documented bear mirror does not show up as a core-safe-account admission tick this day. |
-| 08-13 | BULLISH_RECLAIM, gap-go | 3 waves | **1 wave** at 14:30 ET, peak 2.459x, clears 1.3x. Per-arm: safe-2 1/1, bold-2 0/1, safe-3 1/1, risky-1 1/1. |
-| 08-27 | BULLISH_RECLAIM, gap-go | 3 waves | unchanged (08-27 already ran CORE_SCORE mode pre-fix; not in the re-backfilled window) |
-| 08-28 | BULLISH_RECLAIM, range-chop | 1 wave | unchanged (same reason) |
+All eight doctrine anchors reproduce within 2 ticks on start time and all
+clear the 1.3x wave-existence threshold. Three peaks (08-04 09:56, 08-27
+09:41, 08-28 10:21) exceed the 15% tolerance against the REALIZED runner
+exit multiple quoted in the doctrine text -- see caveat below; this is a
+verified, tape-confirmed existence-vs-capture gap, not a detector bug, and
+was NOT closed by narrowing the pricing window (which would be tuning to the
+fixtures, out of scope for this fix).
 
-**Read this honestly**: 08-04 keeps the qualitative shape (a big morning wave
-+ a smaller afternoon wave) but different exact times/peaks; 08-06 and 08-13
-reproduce a WEAKER version of the doctrine anchor (0 waves and 1 wave
-respectively) under the doctrine-specified CORE_SCORE mechanism than the
-FLEET_FALLBACK numbers previously reported. This is a genuine finding about
-`_dedup_by_bar`'s "last occurrence per 5-min bar wins" semantics (borrowed
-correctly from `zero_enter_autopsy.py` for day-level grading, not redesigned
-here) interacting with a single-account (`safe`) admission signal that can
-flicker in and out of eligibility within one 5-min bucket -- e.g. 08-04's
-real 09:58:03 ENTER-eligible tick (`triggers: ["level_reclaim","confluence"]`,
-bull_score 11, matching edge-master-doctrine.md exactly) is overwritten in
-its 09:50 bucket by a 10:00:04 row that picked up a blocker, so the wave
-that's actually found starts at the NEXT bucket (10:00) instead. Flagged as a
-finding for a future goal, not silently re-tuned here (scope: this fire's
-task was the reader-truncation fix + backfill, not `_dedup_by_bar`'s design).
+**Caveat, verified this session**: for those three waves, SPY kept
+genuinely drifting for hours after every arm's own trailing-stop/time exit
+(08-27 09:41 wave: SPY 768.20 at 09:41 -> 772.00 at 13:10, verified via
+`core-decisions.jsonl`'s `spy` field and the OPRA 5-min bars for
+`SPY260827C00768000`) -- the wave's SESSION peak legitimately exceeds what
+any arm captured. R2's per-arm join (capture rate below) is exactly the
+instrument that scores this gap; R4's job was correctly detecting the wave's
+existence and start tick, which it now does.
 
-**08-04's safe-2 P&L cross-check** (unchanged by this fix -- fills-ledger.jsonl
-data, not core-decisions.jsonl): the goal text's DONE-WHEN asks this day to
-reproduce "safe-2 +$758". The two paying waves' real fills
-(journal/trades.csv, strikes 763/769/772: 270+113+254+121) gross +$758 --
-that number IS right, it is the two paying waves' GROSS. safe-2's actual DAY
-NET is +$662, which also includes a real 13:41 ET loss (-$96) the gross
-figure excludes. Both numbers are correct; they answer different questions
-(gross of the two winning waves vs. the account's full-day net) -- neither
-supersedes the other.
+## Wave source mode
 
-## Per-arm capture rate, whole backfill (35 total waves/arm)
+Every date in the 2026-08-01 -> 2026-09-04 backfill window resolves to
+`CORE_SCORE` mode (real `core-decisions.jsonl` coverage exists for all of
+it, verified via `_core_decisions_has_date`). `FLEET_FALLBACK` remains
+available (and RED-proof tested) as a documented degrade path for a
+genuinely missing day; it never fires in this window.
+
+## Per-arm capture rate, whole backfill (36 waves/arm -- unioning both core
+accounts for wave detection changes the wave universe vs. the earlier
+`safe`-only default)
 
 | Arm | Taken | Total waves | Capture rate |
 |---|---|---|---|
-| safe-2 | 25 | 35 | 71.4% |
-| bold-2 | 18 | 35 | 51.4% |
-| safe-3 | 21 | 35 | 60.0% |
-| risky-1 | 19 | 35 | 54.3% |
+| safe-2 | 29 | 36 | 80.6% |
+| bold-2 | 22 | 36 | 61.1% |
+| safe-3 | 21 | 36 | 58.3% |
+| risky-1 | 26 | 36 | 72.2% |
 
-(Previously reported, wrong-mode numbers: safe-2 79.4%, bold-2 61.8%, safe-3
-73.5%, risky-1 85.3% of 34 waves -- risky-1's drop is the largest because the
-old FLEET_FALLBACK waves were partly ANCHORED TO risky-1's own admission
-ticks, self-referentially inflating its apparent capture rate; CORE_SCORE
-mode breaks that self-reference by anchoring to an independent account.)
+(Superseded numbers from the pre-R4-fix backfill: safe-2 71.4%, bold-2
+51.4%, safe-3 60.0%, risky-1 54.3% of 35 waves -- those were PROVISIONAL per
+R4's reopen note and are replaced by the table above now that R4 is closed.)
+
+## 20-session cockpit tile (verified this session)
+
+`python -c "from gamma_cockpit_righttail import build; print(build())"`:
+**20-session book capture 67%, 8 cap-4 would-refuse flags** (verdict
+"amber"). Per-arm 20-session capture: safe-2 76.7% (23/30), bold-2 66.7%
+(20/30), safe-3 56.7% (17/30), risky-1 66.7% (20/30).
 
 ## Refusal attribution (all arms, all missed waves, whole backfill)
 
-| Gate | Count |
+| Reason | Count |
 |---|---|
-| No matching fleet decision row found (arm never fired an admissible tick near the wave -- fail-open label, not a gate name) | 44 |
-| `NOT_FLAT` (risk_gate: position already open) | 5 |
-| `SKIP_MIN_PREMIUM_FLOOR` (premium below the 0.30 min_entry_premium floor) | 8 |
+| No matching fleet decision row found near the wave (fail-open label, not a named gate) | 43 |
+| `NOT_FLAT` (risk_gate: position already open) | 3 |
 
-`would_be_refused_under_cap4` (max_same_day_roundtrips=4) flags: **10** across
-the whole backfill (was 13 under the wrong mode). No `FLEET_SETTLEMENT_CAP`
-refusal was observed as the ACTUAL blocking reason for any missed wave in
-this window -- the cap only ever bound on entries #5+ that were STILL taken.
-This matches edge-master-doctrine.md's own finding ("It first bound on 09-03
-... 28 refusals ... cost nothing that day") -- still true post-fix; the
-forward ledger (`Gamma_RightTailCapture`, running daily) is what will catch
-it if that changes before the 09-29 checkpoint.
+`would_be_refused_under_cap4` (max_same_day_roundtrips=4) flags: **11**
+across the whole backfill. No `FLEET_SETTLEMENT_CAP` refusal was observed as
+the ACTUAL blocking reason for any missed wave -- consistent with
+edge-master-doctrine.md's own finding that the cap only ever bound on
+entries #5+ that were still taken.
 
 ## Second-wave presence
 
-10 of 25 days (40%) had a second wave (>=60 min after the first wave's
-start, per the goal's definition) somewhere in the day's wave list (was 7/25
-under the wrong mode).
+9 of 25 days (36%) had a second wave (>=60 min after the first wave's start)
+somewhere in the day's wave list.
 
 ## Known approximation caveats (stated, not hidden)
 
 - Entry premium = the OPRA bar at/after (wave-start + 5 min)'s `open` +
-  `DEFAULT_ENTRY_SLIPPAGE` (`simulator_real.py`'s real cost model) -- an
-  approximation of the "next-bar" fill convention already documented in
-  `option_pricing_real.py`, not a tick-level replay.
+  `DEFAULT_ENTRY_SLIPPAGE` (`simulator_real.py`'s real cost model) -- the
+  documented "next-bar" fill convention, not a tick-level replay.
 - Peak multiple scans the ENTIRE remaining session (through 16:00 ET), not
-  just the arm's own actual hold window -- this measures "how big could this
-  wave have gotten", which is why several peaks (5-6x) run well above the
-  ~2-3.5x the arms' real fills captured (per edge-master-doctrine.md) even on
-  days the arms captured the wave correctly to TP1.
-- `_find_entry_fill`'s matching window allows a 10-minute lookback before the
-  detected wave-start tick (originally justified by a since-superseded
-  FLEET_FALLBACK-era anchor for 08-04; the tolerance itself is unaffected by
-  the CORE_SCORE reader fix and is kept as designed) -- a per-arm real fill
-  slightly ahead of the wave-detection anchor is still credited as "taken".
+  the arm's own actual hold window -- this measures "how big could this
+  wave have gotten", which is why some peaks run well above what any arm's
+  real fills captured (see the three-wave caveat above) even on days the
+  arms captured the wave correctly to TP1.
+- A missing OPRA 5-min cache for the exact ATM strike (e.g. 08-28's second
+  wave, strike 775, no `analysis/options` cache row despite a `highres`
+  1-min file existing) degrades that one wave to `computed: False` with a
+  labeled reason -- fail-open, not a crash, not a fabricated number.

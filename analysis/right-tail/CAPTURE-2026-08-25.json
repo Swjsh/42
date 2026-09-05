@@ -8,17 +8,17 @@
     {
       "date": "2026-08-25",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-25T13:10:00-04:00",
+      "start_tick_et": "2026-08-25T13:16:03",
       "side": "C",
-      "n_ticks_in_wave": 1,
+      "n_ticks_in_wave": 10,
       "computed": true,
       "symbol": "SPY260825C00765000",
       "strike": 765,
-      "entry_bar_et": "2026-08-25T13:15:00",
-      "entry_premium": 0.73,
+      "entry_bar_et": "2026-08-25T13:25:00",
+      "entry_premium": 0.59,
       "peak_high": 1.22,
       "peak_time_et": "2026-08-25T15:55:00",
-      "peak_multiple": 1.6712,
+      "peak_multiple": 2.0678,
       "meets_threshold": true
     }
   ],
@@ -27,18 +27,18 @@
       "wave_events": [
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-25T13:10:00-04:00",
+          "wave_start_et": "2026-08-25T13:16:03",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-25T13:16:04.672294",
           "entry_symbol": "SPY260825C00765000",
-          "latency_minutes": 6.1,
+          "latency_minutes": 0.0,
           "exit_multiple": 0.7143,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.6712
+          "peak_multiple_on_tape": 2.0678
         }
       ],
       "second_wave": {
@@ -53,13 +53,13 @@
       "wave_events": [
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-25T13:10:00-04:00",
+          "wave_start_et": "2026-08-25T13:16:03",
           "side": "C",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.6712
+          "peak_multiple_on_tape": 2.0678
         }
       ],
       "second_wave": {
@@ -74,18 +74,18 @@
       "wave_events": [
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-25T13:10:00-04:00",
+          "wave_start_et": "2026-08-25T13:16:03",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-25T13:17:06.906084",
           "entry_symbol": "SPY260825C00765000",
-          "latency_minutes": 7.1,
+          "latency_minutes": 1.1,
           "exit_multiple": 0.7059,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.6712
+          "peak_multiple_on_tape": 2.0678
         }
       ],
       "second_wave": {
@@ -100,18 +100,18 @@
       "wave_events": [
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-25T13:10:00-04:00",
+          "wave_start_et": "2026-08-25T13:16:03",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-25T13:17:08.384830",
           "entry_symbol": "SPY260825C00765000",
-          "latency_minutes": 7.1,
+          "latency_minutes": 1.1,
           "exit_multiple": 0.7059,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.6712
+          "peak_multiple_on_tape": 2.0678
         }
       ],
       "second_wave": {

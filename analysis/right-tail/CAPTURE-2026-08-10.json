@@ -2,39 +2,23 @@
   "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
   "schema_version": 1,
   "date": "2026-08-10",
-  "n_waves_all": 2,
-  "n_waves_meeting_threshold": 2,
+  "n_waves_all": 1,
+  "n_waves_meeting_threshold": 1,
   "waves": [
     {
       "date": "2026-08-10",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-07T15:55:00-04:00",
+      "start_tick_et": "2026-08-10T09:35:04",
       "side": "C",
-      "n_ticks_in_wave": 1,
+      "n_ticks_in_wave": 35,
       "computed": true,
       "symbol": "SPY260810C00773000",
       "strike": 773,
-      "entry_bar_et": "2026-08-10T09:30:00",
-      "entry_premium": 1.29,
+      "entry_bar_et": "2026-08-10T09:45:00",
+      "entry_premium": 1.02,
       "peak_high": 2.3,
       "peak_time_et": "2026-08-10T10:45:00",
-      "peak_multiple": 1.7829,
-      "meets_threshold": true
-    },
-    {
-      "date": "2026-08-10",
-      "source_mode": "core_score",
-      "start_tick_et": "2026-08-10T09:50:00-04:00",
-      "side": "C",
-      "n_ticks_in_wave": 3,
-      "computed": true,
-      "symbol": "SPY260810C00773000",
-      "strike": 773,
-      "entry_bar_et": "2026-08-10T09:55:00",
-      "entry_premium": 1.21,
-      "peak_high": 2.3,
-      "peak_time_et": "2026-08-10T10:45:00",
-      "peak_multiple": 1.9008,
+      "peak_multiple": 2.2549,
       "meets_threshold": true
     }
   ],
@@ -43,143 +27,105 @@
       "wave_events": [
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-07T15:55:00-04:00",
-          "side": "C",
-          "scored": true,
-          "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
-          "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.7829
-        },
-        {
-          "arm": "safe-2",
-          "wave_start_et": "2026-08-10T09:50:00-04:00",
+          "wave_start_et": "2026-08-10T09:35:04",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-10T09:56:54.685063",
           "entry_symbol": "SPY260810C00773000",
-          "latency_minutes": 6.9,
+          "latency_minutes": 21.8,
           "exit_multiple": 0.5948,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.9008
+          "peak_multiple_on_tape": 2.2549
         }
       ],
       "second_wave": {
-        "present": true,
-        "second_wave_start_et": "2026-08-10T09:50:00-04:00",
-        "gap_minutes_from_first": 3955.0
+        "present": false,
+        "reason": "fewer than 2 waves this day"
       },
-      "n_waves": 2,
+      "n_waves": 1,
       "n_taken": 1,
-      "capture_rate": 0.5
+      "capture_rate": 1.0
     },
     "bold-2": {
       "wave_events": [
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-07T15:55:00-04:00",
-          "side": "C",
-          "scored": true,
-          "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
-          "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.7829
-        },
-        {
-          "arm": "bold-2",
-          "wave_start_et": "2026-08-10T09:50:00-04:00",
+          "wave_start_et": "2026-08-10T09:35:04",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-10T09:57:32.934193",
           "entry_symbol": "SPY260810C00773000",
-          "latency_minutes": 7.5,
+          "latency_minutes": 22.5,
           "exit_multiple": 0.5537,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.9008
+          "peak_multiple_on_tape": 2.2549
         }
       ],
       "second_wave": {
-        "present": true,
-        "second_wave_start_et": "2026-08-10T09:50:00-04:00",
-        "gap_minutes_from_first": 3955.0
+        "present": false,
+        "reason": "fewer than 2 waves this day"
       },
-      "n_waves": 2,
+      "n_waves": 1,
       "n_taken": 1,
-      "capture_rate": 0.5
+      "capture_rate": 1.0
     },
     "safe-3": {
       "wave_events": [
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-07T15:55:00-04:00",
-          "side": "C",
-          "scored": true,
-          "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
-          "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.7829
-        },
-        {
-          "arm": "safe-3",
-          "wave_start_et": "2026-08-10T09:50:00-04:00",
+          "wave_start_et": "2026-08-10T09:35:04",
           "side": "C",
           "scored": true,
           "taken": true,
-          "entry_ts_et": "2026-08-10T09:58:06.275336",
+          "entry_ts_et": "2026-08-10T09:35:07.401705",
           "entry_symbol": "SPY260810C00773000",
-          "latency_minutes": 8.1,
-          "exit_multiple": 1.0159,
+          "latency_minutes": 0.1,
+          "exit_multiple": 0.9624,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.9008
+          "peak_multiple_on_tape": 2.2549
         }
       ],
       "second_wave": {
-        "present": true,
-        "second_wave_start_et": "2026-08-10T09:50:00-04:00",
-        "gap_minutes_from_first": 3955.0
+        "present": false,
+        "reason": "fewer than 2 waves this day"
       },
-      "n_waves": 2,
+      "n_waves": 1,
       "n_taken": 1,
-      "capture_rate": 0.5
+      "capture_rate": 1.0
     },
     "risky-1": {
       "wave_events": [
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-07T15:55:00-04:00",
+          "wave_start_et": "2026-08-10T09:35:04",
           "side": "C",
           "scored": true,
-          "taken": false,
-          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "taken": true,
+          "entry_ts_et": "2026-08-10T09:35:09.846722",
+          "entry_symbol": "SPY260810C00773000",
+          "latency_minutes": 0.1,
+          "exit_multiple": 0.9624,
+          "held_to_tp1": false,
+          "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.7829
-        },
-        {
-          "arm": "risky-1",
-          "wave_start_et": "2026-08-10T09:50:00-04:00",
-          "side": "C",
-          "scored": true,
-          "taken": false,
-          "refused_by_gate": "NOT_FLAT: risk_gate denied: PA3S9N1IV0A4: position already open (status='open') \u2014 flatten before a new entry (Rule 4: no adding without a new trigger)",
-          "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.9008
+          "peak_multiple_on_tape": 2.2549
         }
       ],
       "second_wave": {
         "present": false,
-        "reason": "no first wave taken this arm/day"
+        "reason": "fewer than 2 waves this day"
       },
-      "n_waves": 2,
-      "n_taken": 0,
-      "capture_rate": 0.0
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
     }
   }
 }

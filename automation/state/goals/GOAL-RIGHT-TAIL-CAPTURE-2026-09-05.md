@@ -54,7 +54,7 @@ with the five August big days reproducing the numbers already in edge-master-doc
 - [x] R3 (DONE 2026-09-05 02:30 ET, Gamma_RightTailCapture registered 16:20 ET weekdays, State=Ready verified via Get-ScheduledTask; `pytest tests/test_scheduled_tasks_doc.py tests/test_install_script_times_match_registry_2026_09_03.py tests/test_right_tail_waves.py` 10/10 green) -- Instrument + task: `setup/scripts/right_tail_capture.py --date`, installer
   `install-right-tail-capture.ps1` (hidden pythonw chain, venv, -Daily, 16:20 ET = 14:20 local),
   SCHEDULED-TASKS.md row, `test_scheduled_tasks_doc.py` + install-times guard green, State=Ready.
-- [ ] R4 (REOPENED 2026-09-05 05:4x ET by Fable: DONE-WHEN NOT MET -- after the date-key reader fix, CORE_SCORE mode finds 08-04 waves at 10:00 (7.08x) / 13:00 / 13:35, not the doctrine 09:56 (~2.0x) and 12:28 (~2.5x) entries; 08-06 (+$1,465 bear day) shows 0 waves; 08-13 shows 1 of 3. Per this item, a mismatch is a bug in R1/R2 (suspects: _dedup_by_bar reuse, ATM-contract/next-bar ask pricing producing the 7x, bear-side wave detection). Backfill numbers and the cockpit tile (65.4 pct) are PROVISIONAL until this reproduces.) -- Backfill 2026-08-01 -> today; write `analysis/right-tail/SUMMARY.md`.
+- [x] R4 (DONE 2026-09-05 ET, this fire -- root cause found and fixed: `pytest backtest/tests/test_right_tail_waves.py` 10/10 green, RED-proofed (old fixture asserting 10:00/13:00/13:35/15:40 fails against the fixed code). Root cause (one sentence): the old CORE_SCORE eligibility test (bull/bear score>=9, zero blockers, deduped last-occurrence-per-5min-bar) anchored on a persistent "still admissible" field instead of the engine's own one-shot `verdict` (ENTER_BULL/ENTER_BEAR) field, and read only the `safe` core account -- fixed by anchoring directly on `verdict` in {ENTER_BULL,ENTER_BEAR} + setup in the doctrine ribbon shape, unioned across both core accounts (safe+bold), no bar-dedup. All 8 doctrine anchors across the 5 big days now reproduce within 2 ticks and clear 1.3x (08-04 09:56 exact/12:26 2-tick-early; 08-06 10:31 exact; 08-13 09:51 exact/14:36 exact; 08-27 09:41 exact/11:51 1-tick-early; 08-28 10:21 exact) -- full table in analysis/right-tail/SUMMARY.md. Three peaks (08-04 09:56, 08-27 09:41, 08-28 10:21) legitimately exceed the doctrine-quoted REALIZED runner exit multiple because SPY kept drifting for hours after every arm's own exit (verified via core-decisions.jsonl `spy` field) -- a real existence-vs-capture gap flagged for R2, not a detector bug, and not closed by fixture-tuning the pricing window. Re-backfilled 2026-08-01->09-04 (25/25 days, 0 errors): whole-backfill capture safe-2 80.6%/bold-2 61.1%/safe-3 58.3%/risky-1 72.2% (36 waves/arm, union of both core accounts); cap-4 would-refuse flags 11. 20-session cockpit tile: 67% book capture / 8 cap-4 flags (verdict amber), verified via `gamma_cockpit_righttail.build()` and payload.json regeneration.) -- Backfill 2026-08-01 -> today; write `analysis/right-tail/SUMMARY.md`.
   rate, median latency, share of waves refused by each gate, second-wave refusal count). The five
   August big days must reproduce edge-master-doctrine.md's numbers; any mismatch is a bug in R1/R2,
   not a new finding.
@@ -97,6 +97,23 @@ with the five August big days reproducing the numbers already in edge-master-doc
   against the goal's own guessed numbers, both flagged rather than forced: core-decisions.jsonl
   has no rows before 2026-08-26 (fleet-decisions fallback used instead, documented); safe-2's
   08-04 net was +$662 not +$758.
+- 2026-09-05 ET (this fire) -- R4 closed: root-caused the CORE_SCORE detector's mismatch
+  against edge-master-doctrine.md via differential diagnosis (5 hypotheses: wrong anchor,
+  wrong contract/pricing, wrong dedup, bear-side detection, wrong window). Killed H2 (pricing
+  path) and H5 (window) with direct evidence; kept and fixed H1 (score/blockers is a
+  persistent-state field, not a one-shot trigger -- anchor on `verdict` instead), H3
+  (`_dedup_by_bar`'s last-occurrence-per-bar dedup silently swapped the real entry row for a
+  later HOLD row in the same 5-min bucket), and H4 (08-06's real ENTER_BEAR tick scored 8, one
+  point under the old threshold of 9 -- the proxy never tracked the engine's own decision).
+  Added a 3rd fix beyond the original hypothesis list: union both core accounts (safe+bold) --
+  08-27's 11:52 doctrine wave only exists in `bold`'s own admission rows. All 8 named doctrine
+  anchors across the 5 big days now reproduce within 2 ticks and clear 1.3x.
+  `backtest/tests/test_right_tail_waves.py` rewritten with real (not guessed) numbers, 10/10
+  green, RED-proofed against the pre-fix code. Re-backfilled 25/25 days, 0 errors; cockpit tile
+  regenerated (67% 20-session book capture, 8 cap-4 flags, verdict amber). Flagged (not forced):
+  3 of 8 anchors' peak multiples exceed doctrine's realized-exit numbers because SPY genuinely
+  kept drifting for hours past every arm's own exit that day -- a real existence-vs-capture
+  gap, in scope for R2/future work, not a remaining R4 bug.
 
 ## HONEST STATE
-R1-R3, R5, R6 built and registered (Gamma_RightTailCapture Ready; tile renders; prereg interim block appended). R4 is OPEN: the wave detector does not reproduce the five August doctrine days (08-04 times/peaks wrong, 08-06 zero waves, 08-13 1/3), so every capture rate, cap-4 flag count and the cockpit number are PROVISIONAL. Real fix landed on the way: conductor_outcome._decisions_for_day dropped every pre-08-25 core row (no `date` key) -- now falls back to ts_et.
+R1-R6 all DONE. R4's detector now anchors on the engine's own `verdict` field (ENTER_BULL/ENTER_BEAR + doctrine setup name) unioned across both core accounts, instead of a persistent score/blockers proxy that drifted off the real entry tick -- all 8 doctrine anchors across the 5 August big days reproduce within 2 ticks and clear 1.3x (backtest/tests/test_right_tail_waves.py 10/10 green, RED-proofed). Backfill + cockpit tile numbers (67% 20-session book capture, 8 cap-4 flags) are now final, not provisional. Three wave peaks legitimately exceed doctrine's quoted realized-exit numbers due to verified continued SPY drift after arms' own exits -- a flagged existence-vs-capture gap for R2, not a remaining detector bug.

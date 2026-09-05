@@ -8,49 +8,49 @@
     {
       "date": "2026-08-20",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-20T13:05:00-04:00",
+      "start_tick_et": "2026-08-20T12:56:03",
       "side": "P",
-      "n_ticks_in_wave": 1,
+      "n_ticks_in_wave": 24,
       "computed": true,
       "symbol": "SPY260820P00766000",
       "strike": 766,
-      "entry_bar_et": "2026-08-20T13:10:00",
-      "entry_premium": 0.88,
+      "entry_bar_et": "2026-08-20T13:05:00",
+      "entry_premium": 0.71,
       "peak_high": 3.81,
       "peak_time_et": "2026-08-20T15:55:00",
-      "peak_multiple": 4.3295,
+      "peak_multiple": 5.3662,
       "meets_threshold": true
     },
     {
       "date": "2026-08-20",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-20T13:55:00-04:00",
+      "start_tick_et": "2026-08-20T14:01:04",
       "side": "P",
-      "n_ticks_in_wave": 1,
+      "n_ticks_in_wave": 10,
       "computed": true,
       "symbol": "SPY260820P00765000",
       "strike": 765,
-      "entry_bar_et": "2026-08-20T14:00:00",
-      "entry_premium": 0.9,
+      "entry_bar_et": "2026-08-20T14:10:00",
+      "entry_premium": 1.53,
       "peak_high": 2.96,
       "peak_time_et": "2026-08-20T15:55:00",
-      "peak_multiple": 3.2889,
+      "peak_multiple": 1.9346,
       "meets_threshold": true
     },
     {
       "date": "2026-08-20",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-20T14:50:00-04:00",
+      "start_tick_et": "2026-08-20T14:56:03",
       "side": "P",
-      "n_ticks_in_wave": 4,
+      "n_ticks_in_wave": 30,
       "computed": true,
       "symbol": "SPY260820P00764000",
       "strike": 764,
-      "entry_bar_et": "2026-08-20T14:55:00",
-      "entry_premium": 0.81,
+      "entry_bar_et": "2026-08-20T15:05:00",
+      "entry_premium": 0.91,
       "peak_high": 1.9,
       "peak_time_et": "2026-08-20T15:55:00",
-      "peak_multiple": 2.3457,
+      "peak_multiple": 2.0879,
       "meets_threshold": true
     }
   ],
@@ -59,54 +59,54 @@
       "wave_events": [
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-20T13:05:00-04:00",
+          "wave_start_et": "2026-08-20T12:56:03",
           "side": "P",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-20T12:56:05.082022",
           "entry_symbol": "SPY260820P00766000",
-          "latency_minutes": -8.9,
+          "latency_minutes": 0.0,
           "exit_multiple": 1.9857,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 4.3295
+          "peak_multiple_on_tape": 5.3662
         },
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-20T13:55:00-04:00",
+          "wave_start_et": "2026-08-20T14:01:04",
           "side": "P",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-20T14:01:06.111347",
           "entry_symbol": "SPY260820P00765000",
-          "latency_minutes": 6.1,
+          "latency_minutes": 0.0,
           "exit_multiple": 1.5577,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 3.2889
+          "peak_multiple_on_tape": 1.9346
         },
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-20T14:50:00-04:00",
+          "wave_start_et": "2026-08-20T14:56:03",
           "side": "P",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-20T14:56:05.165269",
           "entry_symbol": "SPY260820P00764000",
-          "latency_minutes": 6.1,
+          "latency_minutes": 0.0,
           "exit_multiple": 0.8861,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": true,
-          "peak_multiple_on_tape": 2.3457
+          "peak_multiple_on_tape": 2.0879
         }
       ],
       "second_wave": {
         "present": true,
-        "second_wave_start_et": "2026-08-20T14:50:00-04:00",
-        "gap_minutes_from_first": 105.0
+        "second_wave_start_et": "2026-08-20T14:01:04",
+        "gap_minutes_from_first": 65.0
       },
       "n_waves": 3,
       "n_taken": 3,
@@ -116,49 +116,49 @@
       "wave_events": [
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-20T13:05:00-04:00",
+          "wave_start_et": "2026-08-20T12:56:03",
           "side": "P",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-20T13:16:07.394311",
           "entry_symbol": "SPY260820P00764000",
-          "latency_minutes": 11.1,
+          "latency_minutes": 20.1,
           "exit_multiple": 1.5294,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 4.3295
+          "peak_multiple_on_tape": 5.3662
         },
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-20T13:55:00-04:00",
+          "wave_start_et": "2026-08-20T14:01:04",
           "side": "P",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-20T14:03:08.635371",
           "entry_symbol": "SPY260820P00763000",
-          "latency_minutes": 8.1,
+          "latency_minutes": 2.1,
           "exit_multiple": 1.5,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 3.2889
+          "peak_multiple_on_tape": 1.9346
         },
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-20T14:50:00-04:00",
+          "wave_start_et": "2026-08-20T14:56:03",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 2.3457
+          "peak_multiple_on_tape": 2.0879
         }
       ],
       "second_wave": {
         "present": true,
-        "second_wave_start_et": "2026-08-20T14:50:00-04:00",
-        "gap_minutes_from_first": 105.0
+        "second_wave_start_et": "2026-08-20T14:01:04",
+        "gap_minutes_from_first": 65.0
       },
       "n_waves": 3,
       "n_taken": 2,
@@ -168,33 +168,33 @@
       "wave_events": [
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-20T13:05:00-04:00",
+          "wave_start_et": "2026-08-20T12:56:03",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 4.3295
+          "peak_multiple_on_tape": 5.3662
         },
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-20T13:55:00-04:00",
+          "wave_start_et": "2026-08-20T14:01:04",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 3.2889
+          "peak_multiple_on_tape": 1.9346
         },
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-20T14:50:00-04:00",
+          "wave_start_et": "2026-08-20T14:56:03",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 2.3457
+          "peak_multiple_on_tape": 2.0879
         }
       ],
       "second_wave": {
@@ -209,33 +209,33 @@
       "wave_events": [
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-20T13:05:00-04:00",
+          "wave_start_et": "2026-08-20T12:56:03",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 4.3295
+          "peak_multiple_on_tape": 5.3662
         },
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-20T13:55:00-04:00",
+          "wave_start_et": "2026-08-20T14:01:04",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 3.2889
+          "peak_multiple_on_tape": 1.9346
         },
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-20T14:50:00-04:00",
+          "wave_start_et": "2026-08-20T14:56:03",
           "side": "P",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 2.3457
+          "peak_multiple_on_tape": 2.0879
         }
       ],
       "second_wave": {

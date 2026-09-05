@@ -2,49 +2,120 @@
   "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
   "schema_version": 1,
   "date": "2026-08-06",
-  "n_waves_all": 0,
-  "n_waves_meeting_threshold": 0,
-  "waves": [],
+  "n_waves_all": 1,
+  "n_waves_meeting_threshold": 1,
+  "waves": [
+    {
+      "date": "2026-08-06",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-06T10:31:03",
+      "side": "P",
+      "n_ticks_in_wave": 8,
+      "computed": true,
+      "symbol": "SPY260806P00770000",
+      "strike": 770,
+      "entry_bar_et": "2026-08-06T10:40:00",
+      "entry_premium": 1.51,
+      "peak_high": 2.8,
+      "peak_time_et": "2026-08-06T12:15:00",
+      "peak_multiple": 1.8543,
+      "meets_threshold": true
+    }
+  ],
   "arms": {
     "safe-2": {
-      "wave_events": [],
+      "wave_events": [
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-06T10:31:03",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-06T10:31:53.827275",
+          "entry_symbol": "SPY260806P00770000",
+          "latency_minutes": 0.8,
+          "exit_multiple": 2.1172,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8543
+        }
+      ],
       "second_wave": {
         "present": false,
-        "reason": "no first wave taken this arm/day"
+        "reason": "fewer than 2 waves this day"
       },
-      "n_waves": 0,
-      "n_taken": 0,
-      "capture_rate": null
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
     },
     "bold-2": {
-      "wave_events": [],
+      "wave_events": [
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-06T10:31:03",
+          "side": "P",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8543
+        }
+      ],
       "second_wave": {
         "present": false,
         "reason": "no first wave taken this arm/day"
       },
-      "n_waves": 0,
+      "n_waves": 1,
       "n_taken": 0,
-      "capture_rate": null
+      "capture_rate": 0.0
     },
     "safe-3": {
-      "wave_events": [],
+      "wave_events": [
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-06T10:31:03",
+          "side": "P",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8543
+        }
+      ],
       "second_wave": {
         "present": false,
         "reason": "no first wave taken this arm/day"
       },
-      "n_waves": 0,
+      "n_waves": 1,
       "n_taken": 0,
-      "capture_rate": null
+      "capture_rate": 0.0
     },
     "risky-1": {
-      "wave_events": [],
+      "wave_events": [
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-06T10:31:03",
+          "side": "P",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-06T10:32:06.489113",
+          "entry_symbol": "SPY260806P00770000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 1.5854,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.8543
+        }
+      ],
       "second_wave": {
         "present": false,
-        "reason": "no first wave taken this arm/day"
+        "reason": "fewer than 2 waves this day"
       },
-      "n_waves": 0,
-      "n_taken": 0,
-      "capture_rate": null
+      "n_waves": 1,
+      "n_taken": 1,
+      "capture_rate": 1.0
     }
   }
 }

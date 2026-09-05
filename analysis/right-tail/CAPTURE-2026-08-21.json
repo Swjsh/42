@@ -2,55 +2,71 @@
   "_doc": "right_tail_capture.py output -- per-arm wave capture scoring for one day. Composes backtest/lib/right_tail_waves.find_waves + fills-ledger.jsonl + fleet decisions.jsonl. Read-only, $0, fail-open.",
   "schema_version": 1,
   "date": "2026-08-21",
-  "n_waves_all": 3,
-  "n_waves_meeting_threshold": 2,
+  "n_waves_all": 4,
+  "n_waves_meeting_threshold": 3,
   "waves": [
     {
       "date": "2026-08-21",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-21T11:30:00-04:00",
-      "side": "C",
-      "n_ticks_in_wave": 3,
+      "start_tick_et": "2026-08-21T09:51:04",
+      "side": "P",
+      "n_ticks_in_wave": 7,
       "computed": true,
-      "symbol": "SPY260821C00766000",
-      "strike": 766,
-      "entry_bar_et": "2026-08-21T11:35:00",
-      "entry_premium": 1.11,
-      "peak_high": 2.1,
-      "peak_time_et": "2026-08-21T11:50:00",
-      "peak_multiple": 1.8919,
-      "meets_threshold": true
-    },
-    {
-      "date": "2026-08-21",
-      "source_mode": "core_score",
-      "start_tick_et": "2026-08-21T12:20:00-04:00",
-      "side": "C",
-      "n_ticks_in_wave": 1,
-      "computed": true,
-      "symbol": "SPY260821C00766000",
-      "strike": 766,
-      "entry_bar_et": "2026-08-21T12:25:00",
-      "entry_premium": 0.97,
-      "peak_high": 1.16,
-      "peak_time_et": "2026-08-21T12:25:00",
-      "peak_multiple": 1.1959,
+      "symbol": "SPY260821P00765000",
+      "strike": 765,
+      "entry_bar_et": "2026-08-21T10:00:00",
+      "entry_premium": 1.4,
+      "peak_high": 1.44,
+      "peak_time_et": "2026-08-21T10:40:00",
+      "peak_multiple": 1.0286,
       "meets_threshold": false
     },
     {
       "date": "2026-08-21",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-21T13:25:00-04:00",
+      "start_tick_et": "2026-08-21T11:06:06",
       "side": "C",
-      "n_ticks_in_wave": 1,
+      "n_ticks_in_wave": 18,
       "computed": true,
       "symbol": "SPY260821C00766000",
       "strike": 766,
-      "entry_bar_et": "2026-08-21T13:30:00",
-      "entry_premium": 0.56,
+      "entry_bar_et": "2026-08-21T11:15:00",
+      "entry_premium": 0.78,
+      "peak_high": 2.1,
+      "peak_time_et": "2026-08-21T11:50:00",
+      "peak_multiple": 2.6923,
+      "meets_threshold": true
+    },
+    {
+      "date": "2026-08-21",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-21T12:26:03",
+      "side": "C",
+      "n_ticks_in_wave": 10,
+      "computed": true,
+      "symbol": "SPY260821C00766000",
+      "strike": 766,
+      "entry_bar_et": "2026-08-21T12:35:00",
+      "entry_premium": 0.83,
+      "peak_high": 1.09,
+      "peak_time_et": "2026-08-21T12:35:00",
+      "peak_multiple": 1.3133,
+      "meets_threshold": true
+    },
+    {
+      "date": "2026-08-21",
+      "source_mode": "core_score",
+      "start_tick_et": "2026-08-21T13:34:04",
+      "side": "C",
+      "n_ticks_in_wave": 2,
+      "computed": true,
+      "symbol": "SPY260821C00766000",
+      "strike": 766,
+      "entry_bar_et": "2026-08-21T13:40:00",
+      "entry_premium": 0.43,
       "peak_high": 0.86,
       "peak_time_et": "2026-08-21T15:45:00",
-      "peak_multiple": 1.5357,
+      "peak_multiple": 2.0,
       "meets_threshold": true
     }
   ],
@@ -59,158 +75,213 @@
       "wave_events": [
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-21T11:30:00-04:00",
+          "wave_start_et": "2026-08-21T11:06:06",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-21T12:26:11.227816",
           "entry_symbol": "SPY260821C00766000",
-          "latency_minutes": 56.2,
+          "latency_minutes": 80.1,
           "exit_multiple": 0.5729,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.8919
+          "peak_multiple_on_tape": 2.6923
         },
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-21T13:25:00-04:00",
+          "wave_start_et": "2026-08-21T12:26:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-21T12:26:11.227816",
+          "entry_symbol": "SPY260821C00766000",
+          "latency_minutes": 0.1,
+          "exit_multiple": 0.5729,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.3133
+        },
+        {
+          "arm": "safe-2",
+          "wave_start_et": "2026-08-21T13:34:04",
           "side": "C",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.5357
+          "peak_multiple_on_tape": 2.0
         }
       ],
       "second_wave": {
         "present": true,
-        "second_wave_start_et": "2026-08-21T13:25:00-04:00",
-        "gap_minutes_from_first": 115.0
+        "second_wave_start_et": "2026-08-21T12:26:03",
+        "gap_minutes_from_first": 80.0
       },
-      "n_waves": 2,
-      "n_taken": 1,
-      "capture_rate": 0.5
+      "n_waves": 3,
+      "n_taken": 2,
+      "capture_rate": 0.6667
     },
     "bold-2": {
       "wave_events": [
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-21T11:30:00-04:00",
+          "wave_start_et": "2026-08-21T11:06:06",
           "side": "C",
           "scored": true,
           "taken": true,
-          "entry_ts_et": "2026-08-21T11:37:06.229834",
+          "entry_ts_et": "2026-08-21T11:07:07.265596",
           "entry_symbol": "SPY260821C00768000",
-          "latency_minutes": 7.1,
-          "exit_multiple": 1.9459,
-          "held_to_tp1": false,
+          "latency_minutes": 1.0,
+          "exit_multiple": 2.4,
+          "held_to_tp1": true,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.8919
+          "peak_multiple_on_tape": 2.6923
         },
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-21T13:25:00-04:00",
+          "wave_start_et": "2026-08-21T12:26:03",
           "side": "C",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.5357
+          "peak_multiple_on_tape": 1.3133
+        },
+        {
+          "arm": "bold-2",
+          "wave_start_et": "2026-08-21T13:34:04",
+          "side": "C",
+          "scored": true,
+          "taken": false,
+          "refused_by_gate": "no matching fleet decision row found (fail-open)",
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 2.0
         }
       ],
       "second_wave": {
         "present": true,
-        "second_wave_start_et": "2026-08-21T13:25:00-04:00",
-        "gap_minutes_from_first": 115.0
+        "second_wave_start_et": "2026-08-21T12:26:03",
+        "gap_minutes_from_first": 80.0
       },
-      "n_waves": 2,
+      "n_waves": 3,
       "n_taken": 1,
-      "capture_rate": 0.5
+      "capture_rate": 0.3333
     },
     "safe-3": {
       "wave_events": [
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-21T11:30:00-04:00",
+          "wave_start_et": "2026-08-21T11:06:06",
           "side": "C",
           "scored": true,
           "taken": true,
-          "entry_ts_et": "2026-08-21T11:37:06.351653",
+          "entry_ts_et": "2026-08-21T11:07:06.718170",
           "entry_symbol": "SPY260821C00766000",
-          "latency_minutes": 7.1,
-          "exit_multiple": 1.2206,
+          "latency_minutes": 1.0,
+          "exit_multiple": 1.537,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.8919
+          "peak_multiple_on_tape": 2.6923
         },
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-21T13:25:00-04:00",
+          "wave_start_et": "2026-08-21T12:26:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-21T12:27:06.297806",
+          "entry_symbol": "SPY260821C00766000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 1.66,
+          "held_to_tp1": false,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.3133
+        },
+        {
+          "arm": "safe-3",
+          "wave_start_et": "2026-08-21T13:34:04",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-21T13:35:08.530673",
           "entry_symbol": "SPY260821C00766000",
-          "latency_minutes": 10.1,
+          "latency_minutes": 1.1,
           "exit_multiple": 3.9524,
           "held_to_tp1": true,
           "runner_ran": true,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.5357
+          "peak_multiple_on_tape": 2.0
         }
       ],
       "second_wave": {
         "present": true,
-        "second_wave_start_et": "2026-08-21T13:25:00-04:00",
-        "gap_minutes_from_first": 115.0
+        "second_wave_start_et": "2026-08-21T12:26:03",
+        "gap_minutes_from_first": 80.0
       },
-      "n_waves": 2,
-      "n_taken": 2,
+      "n_waves": 3,
+      "n_taken": 3,
       "capture_rate": 1.0
     },
     "risky-1": {
       "wave_events": [
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-21T11:30:00-04:00",
+          "wave_start_et": "2026-08-21T11:06:06",
           "side": "C",
           "scored": true,
           "taken": true,
-          "entry_ts_et": "2026-08-21T11:37:08.024405",
+          "entry_ts_et": "2026-08-21T11:07:08.905796",
           "entry_symbol": "SPY260821C00766000",
-          "latency_minutes": 7.1,
-          "exit_multiple": 1.4928,
+          "latency_minutes": 1.0,
+          "exit_multiple": 1.9252,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.8919
+          "peak_multiple_on_tape": 2.6923
         },
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-21T13:25:00-04:00",
+          "wave_start_et": "2026-08-21T12:26:03",
+          "side": "C",
+          "scored": true,
+          "taken": true,
+          "entry_ts_et": "2026-08-21T12:27:07.771069",
+          "entry_symbol": "SPY260821C00766000",
+          "latency_minutes": 1.1,
+          "exit_multiple": 2.0808,
+          "held_to_tp1": true,
+          "runner_ran": false,
+          "would_be_refused_under_cap4": false,
+          "peak_multiple_on_tape": 1.3133
+        },
+        {
+          "arm": "risky-1",
+          "wave_start_et": "2026-08-21T13:34:04",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-21T13:35:10.283096",
           "entry_symbol": "SPY260821C00766000",
-          "latency_minutes": 10.2,
+          "latency_minutes": 1.1,
           "exit_multiple": 4.9048,
           "held_to_tp1": true,
           "runner_ran": true,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.5357
+          "peak_multiple_on_tape": 2.0
         }
       ],
       "second_wave": {
         "present": true,
-        "second_wave_start_et": "2026-08-21T13:25:00-04:00",
-        "gap_minutes_from_first": 115.0
+        "second_wave_start_et": "2026-08-21T12:26:03",
+        "gap_minutes_from_first": 80.0
       },
-      "n_waves": 2,
-      "n_taken": 2,
+      "n_waves": 3,
+      "n_taken": 3,
       "capture_rate": 1.0
     }
   }

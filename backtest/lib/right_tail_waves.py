@@ -1,18 +1,64 @@
-"""right_tail_waves.py -- GOAL-RIGHT-TAIL-CAPTURE-2026-09-05 R1.
+"""right_tail_waves.py -- GOAL-RIGHT-TAIL-CAPTURE-2026-09-05 R1 (R4 fix).
 
-Defines and detects a "right-tail wave": an ENTER-eligible tick (the setup
-scored >= 9 on a side with zero blockers -- the same admission bar
-`zero_enter_autopsy.py` already reconstructs from `core-decisions.jsonl`)
-whose ATM contract's ask later prints >= 1.3x its entry premium (net of the
-backtest engine's real cost model) at some point later in the same RTH
-session.
+Defines and detects a "right-tail wave": a genuine core-engine ENTER event
+(`core-decisions.jsonl` row with `verdict` in {ENTER_BULL, ENTER_BEAR} and
+`setup` in {BULLISH_RECLAIM_RIDE_THE_RIBBON, BEARISH_REJECTION_RIDE_THE_RIBBON}
+-- the two-trigger ribbon reclaim/rejection shape edge-master-doctrine.md's
+"August 2026 big-day anatomy" names as the wave shape) whose ATM contract's
+ask later prints >= 1.3x its entry premium (net of the backtest engine's
+real cost model) at some point later in the same RTH session.
+
+ROOT-CAUSE FIX (2026-09-05, R4 reopen): the original CORE_SCORE eligibility
+test was `bull_score/bear_score >= 9 with zero blockers on that side`,
+deduped to unique 5-min bars via `zero_enter_autopsy._dedup_by_bar`
+("last occurrence per bar wins"). Two independent bugs in that definition,
+both discriminated against the real 2026-08-04/06/13 tape this session:
+
+  1. WRONG ANCHOR (kept H1): score>=9-no-blockers is NOT a discrete trigger
+     -- once the ribbon reclaim fires, bull_score/blockers stay >= 9/empty
+     for the REST of the session (the field encodes "would this side still
+     be admitted right now", not "did a new trigger just fire"). A one-shot
+     `verdict` check on `core-decisions.jsonl` is what actually marks the
+     admission tick: 2026-08-04 row `{"ts_et": "2026-08-04T09:56:03",
+     "verdict": "ENTER_BULL", "setup": "BULLISH_RECLAIM_RIDE_THE_RIBBON",
+     "triggers": ["level_reclaim", "confluence"]}` is the real wave start;
+     the score-threshold reader never looked at `verdict` at all.
+  2. WRONG DEDUP (kept H3): `_dedup_by_bar` keeps the LAST row per 5-min
+     `trigger_bar_et` bucket (correct for zero_enter_autopsy's OWN job --
+     grading a NO-ENTER day off the day's final read on a bar -- wrong here).
+     Ticks fire every ~1 min; a bar that had an ENTER_BULL row at :56/:57/:58
+     often gets a later HOLD row (already-in-position blocker) in the SAME
+     5-min bucket (e.g. 2026-08-04T10:00:04 HOLD, blockers=[11], bucket
+     09:50) that silently overwrote the entry row -- shifting the detected
+     start to 10:00 and, worse, letting the detector wander onto an
+     unrelated later bar/contract entirely (the 7.0758x artifact: bucket
+     "10:00" priced against a DIFFERENT bar's contract than the real 09:56
+     entry). Fix: don't dedup by bar at all for wave detection -- take every
+     verdict-ENTER row directly (episode-grouping in `_group_into_waves`
+     already collapses the resulting 1-min-cadence repeats of one real
+     entry into a single wave, using the FIRST such row as the start).
+  3. SINGLE-ACCOUNT UNDERCOUNT (kept H1's sibling): the two core accounts
+     ("safe", "bold") don't always admit the same tick -- 2026-08-27's
+     11:52 wave (edge-master-doctrine.md) only appears in the `bold`
+     account's own ENTER_BULL rows (11:51-11:59); `safe` sits it out and
+     doesn't re-admit until 12:31. A safe-only reader misses the doctrine
+     wave entirely and reports the wrong (much later) start. Fix: union
+     ENTER ticks across both core accounts (CORE_ACCOUNTS), same
+     reasoning as FLEET_REFERENCE_ARMS' existing union rationale below.
+
+  Discriminating checks + verdicts for H2 (contract/price-field) and H5
+  (window): H2 KILLED -- the entry/peak PRICING path (ATM strike, next-bar
+  open+slippage, high-over-window) was never the bug; re-run against the
+  corrected 09:56 anchor it reproduces doctrine's ~2.0x at TP1 directly. H5
+  KILLED -- the >=1.3x test already runs over the full entry->session-end
+  window; the wrong numbers were entirely a wrong-anchor artifact (bugs 1-2
+  above), not a windowing bug.
 
 TWO SOURCES, chosen per-date (composed, not reimplemented):
-  - CORE_SCORE mode: `core-decisions.jsonl` bear_score/bull_score >= 9 with no
-    blockers on that side, deduped to unique 5-min bars -- EXACTLY the
-    `zero_enter_autopsy._dedup_by_bar` / SCORE_THRESHOLD mechanism, reused via
-    import (not reimplemented). Used whenever core-decisions.jsonl actually
-    has rows for the requested date (checked via `ts_et`, not the `date`
+  - CORE_SCORE mode: `core-decisions.jsonl` `verdict` in
+    {ENTER_BULL, ENTER_BEAR} rows on `setup` in WAVE_SETUP_NAMES, unioned
+    across CORE_ACCOUNTS. Used whenever core-decisions.jsonl actually has
+    rows for the requested date (checked via `ts_et`, not the `date`
     field -- see the FLEET_FALLBACK entry below for why).
   - FLEET_FALLBACK mode: a documented DEGRADE PATH for a genuinely missing
     day only (e.g. `automation/state/fleet/<arm>/decisions.jsonl` for a date
@@ -31,14 +77,7 @@ TWO SOURCES, chosen per-date (composed, not reimplemented):
     they were silently excluded by a field-presence bug in the reader, not a
     data gap. Fix: `conductor_outcome._decisions_for_day` (via `_row_day`)
     now falls back to `ts_et[:10]` when `date` is absent, so any date with
-    real ts_et coverage correctly resolves to CORE_SCORE mode. 2026-08-04
-    reruns as CORE_SCORE mode: 4 waves at 10:00/13:00/13:35/15:40 ET, peaks
-    7.0758x/2.1849x/1.7091x/1.1011x (3 of 4 clear 1.3x) -- this does NOT
-    match the stale FLEET_FALLBACK-era "09:58 ~5.4x / 12:28 ~3.0x" numbers
-    this docstring and analysis/right-tail/SUMMARY.md previously quoted;
-    CORE_SCORE mode is anchored to the `safe` core account's own admission
-    ticks, a genuinely different eligibility source from the fleet arms' own
-    gates FLEET_FALLBACK used, not a further bug. Guard:
+    real ts_et coverage correctly resolves to CORE_SCORE mode. Guard:
     `backtest/tests/test_right_tail_waves.py::
     test_2026_08_04_core_decisions_has_date_is_true_never_fallback`.
 
@@ -89,12 +128,17 @@ except ImportError:  # pragma: no cover
 
 WAVE_THRESHOLD = 1.3
 WAVE_GAP_MINUTES = 30
-SCORE_THRESHOLD = co.ZERO_ENTER_SCORE_THRESHOLD  # 9, reused from conductor_outcome
 # NOTE (2026-09-05 correction): there is no fixed "core-decisions.jsonl min
 # date" constant here on purpose -- the previous CORE_DECISIONS_MIN_DATE
 # ("2026-08-26") encoded a false claim (see module docstring's FLEET_FALLBACK
 # entry) and has been removed. Whether a date has core coverage is decided
 # live per-date by `_core_decisions_has_date`, never by a hardcoded cutoff.
+# The two core accounts core-decisions.jsonl actually carries (verified:
+# `{r.get("account") for r in jsonl}` == {"safe", "bold"}). Unioned for
+# CORE_SCORE eligibility -- see module docstring bug #3 (2026-08-27's 11:52
+# doctrine wave only exists in `bold`'s own ENTER_BULL rows; a safe-only
+# reader misses it and reports the wrong, much-later 12:31 start instead).
+CORE_ACCOUNTS = ["safe", "bold"]
 # Every real-fills-era fleet arm this repo has run, UNIONED for eligibility (evidence,
 # 2026-09-05: safe-3 alone MISSED the entire 2026-08-06 bear-mirror big day -- 0 ENTER_BEAR
 # rows that day -- while risky-1/risky-3 each fired one; a single reference arm silently
@@ -123,30 +167,39 @@ def _core_decisions_has_date(day: str) -> bool:
     return bool(rows)
 
 
-def _eligible_ticks_core_score(day: str, account: str) -> list[dict[str, Any]]:
-    """CORE_SCORE mode: reuses zero_enter_autopsy's own dedup-by-bar +
-    score/blocker eligibility test (score >= 9, zero blockers on that side)."""
-    from zero_enter_autopsy import _decisions_for_day_account, _dedup_by_bar
+def _eligible_ticks_core_score(day: str, account: str | None) -> list[dict[str, Any]]:
+    """CORE_SCORE mode: every genuine ENTER admission tick on `day` --
+    `verdict` in {ENTER_BULL, ENTER_BEAR} and `setup` in WAVE_SETUP_NAMES --
+    unioned across CORE_ACCOUNTS (or restricted to one `account` when given,
+    e.g. for a single-account capture-scoring join). NOT deduped by bar and
+    NOT a score/blockers threshold test -- see module docstring bugs #1/#2
+    for why both of those produced the wrong wave anchor on real August
+    days. `_group_into_waves` collapses the resulting 1-min-cadence repeats
+    of one real entry into a single wave via its own gap-based episode
+    grouping, using the earliest tick as the wave start."""
+    from zero_enter_autopsy import _decisions_for_day_account
 
-    rows = _decisions_for_day_account(day, account)
-    by_bar = _dedup_by_bar(rows)
+    accounts = [account] if account else CORE_ACCOUNTS
     ticks: list[dict[str, Any]] = []
-    for tb in sorted(by_bar.keys()):
-        r = by_bar[tb]
-        for side, score_key, blockers_key in (
-            ("bull", "bull_score", "bull_blockers"),
-            ("bear", "bear_score", "bear_blockers"),
-        ):
-            score = r.get(score_key, 0) or 0
-            blockers = r.get(blockers_key) or []
-            if score >= SCORE_THRESHOLD and not blockers:
-                spy = r.get("spy")
-                if spy is None:
-                    continue
-                ticks.append({
-                    "ts": tb, "side": side, "spy": float(spy),
-                    "source": "core_score",
-                })
+    for acct in accounts:
+        rows = _decisions_for_day_account(day, acct)
+        for r in rows:
+            verdict = r.get("verdict")
+            if verdict not in ("ENTER_BULL", "ENTER_BEAR"):
+                continue
+            if r.get("setup") not in WAVE_SETUP_NAMES:
+                continue
+            ts = str(r.get("ts_et", "") or "")
+            if len(ts) < 16 or not ("09:35" <= ts[11:16] < "16:00"):
+                continue
+            spy = r.get("spy")
+            if spy is None:
+                continue
+            side = "bull" if verdict == "ENTER_BULL" else "bear"
+            ticks.append({
+                "ts": ts, "side": side, "spy": float(spy),
+                "source": f"core_score:{acct}",
+            })
     ticks.sort(key=lambda t: t["ts"])
     return ticks
 
@@ -276,10 +329,14 @@ def _price_wave(day: str, side: str, strike_spy: float, start_ts: str) -> dict[s
     }
 
 
-def find_waves(day: str, account: str = "safe") -> list[dict[str, Any]]:
+def find_waves(day: str, account: str | None = None) -> list[dict[str, Any]]:
     """Find every right-tail wave on `day`. Returns a list of wave dicts:
     {start_tick_et, side, source_mode, ...pricing fields from _price_wave}.
-    Never raises -- a missing/empty data source yields [] (fail-open)."""
+    `account` defaults to None -- union both CORE_ACCOUNTS (the tape-level
+    wave, per module docstring bug #3); pass a specific account (e.g.
+    "safe") to restrict eligibility to that account's own admission ticks
+    only, for a single-account capture-scoring join. Never raises -- a
+    missing/empty data source yields [] (fail-open)."""
     if _core_decisions_has_date(day):
         ticks = _eligible_ticks_core_score(day, account)
         source_mode = "core_score"

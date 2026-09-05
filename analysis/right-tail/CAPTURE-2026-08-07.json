@@ -8,33 +8,33 @@
     {
       "date": "2026-08-07",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-07T09:40:00-04:00",
+      "start_tick_et": "2026-08-07T09:46:03",
       "side": "C",
-      "n_ticks_in_wave": 1,
+      "n_ticks_in_wave": 10,
       "computed": true,
       "symbol": "SPY260807C00772000",
       "strike": 772,
-      "entry_bar_et": "2026-08-07T09:45:00",
-      "entry_premium": 1.56,
+      "entry_bar_et": "2026-08-07T09:55:00",
+      "entry_premium": 1.53,
       "peak_high": 2.3,
       "peak_time_et": "2026-08-07T11:25:00",
-      "peak_multiple": 1.4744,
+      "peak_multiple": 1.5033,
       "meets_threshold": true
     },
     {
       "date": "2026-08-07",
       "source_mode": "core_score",
-      "start_tick_et": "2026-08-07T12:00:00-04:00",
+      "start_tick_et": "2026-08-07T12:06:03",
       "side": "C",
-      "n_ticks_in_wave": 3,
+      "n_ticks_in_wave": 20,
       "computed": true,
       "symbol": "SPY260807C00773000",
       "strike": 773,
-      "entry_bar_et": "2026-08-07T12:05:00",
-      "entry_premium": 1.06,
-      "peak_high": 1.16,
-      "peak_time_et": "2026-08-07T12:05:00",
-      "peak_multiple": 1.0943,
+      "entry_bar_et": "2026-08-07T12:15:00",
+      "entry_premium": 0.96,
+      "peak_high": 1.11,
+      "peak_time_et": "2026-08-07T12:20:00",
+      "peak_multiple": 1.1563,
       "meets_threshold": false
     }
   ],
@@ -43,18 +43,18 @@
       "wave_events": [
         {
           "arm": "safe-2",
-          "wave_start_et": "2026-08-07T09:40:00-04:00",
+          "wave_start_et": "2026-08-07T09:46:03",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-07T09:46:34.266159",
           "entry_symbol": "SPY260807C00772000",
-          "latency_minutes": 6.6,
+          "latency_minutes": 0.5,
           "exit_multiple": 0.6946,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.4744
+          "peak_multiple_on_tape": 1.5033
         }
       ],
       "second_wave": {
@@ -69,13 +69,13 @@
       "wave_events": [
         {
           "arm": "bold-2",
-          "wave_start_et": "2026-08-07T09:40:00-04:00",
+          "wave_start_et": "2026-08-07T09:46:03",
           "side": "C",
           "scored": true,
           "taken": false,
           "refused_by_gate": "no matching fleet decision row found (fail-open)",
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.4744
+          "peak_multiple_on_tape": 1.5033
         }
       ],
       "second_wave": {
@@ -90,18 +90,18 @@
       "wave_events": [
         {
           "arm": "safe-3",
-          "wave_start_et": "2026-08-07T09:40:00-04:00",
+          "wave_start_et": "2026-08-07T09:46:03",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-07T09:47:06.574163",
           "entry_symbol": "SPY260807C00772000",
-          "latency_minutes": 7.1,
+          "latency_minutes": 1.1,
           "exit_multiple": 0.8346,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.4744
+          "peak_multiple_on_tape": 1.5033
         }
       ],
       "second_wave": {
@@ -116,18 +116,18 @@
       "wave_events": [
         {
           "arm": "risky-1",
-          "wave_start_et": "2026-08-07T09:40:00-04:00",
+          "wave_start_et": "2026-08-07T09:46:03",
           "side": "C",
           "scored": true,
           "taken": true,
           "entry_ts_et": "2026-08-07T09:47:07.965317",
           "entry_symbol": "SPY260807C00772000",
-          "latency_minutes": 7.1,
+          "latency_minutes": 1.1,
           "exit_multiple": 0.8571,
           "held_to_tp1": false,
           "runner_ran": false,
           "would_be_refused_under_cap4": false,
-          "peak_multiple_on_tape": 1.4744
+          "peak_multiple_on_tape": 1.5033
         }
       ],
       "second_wave": {

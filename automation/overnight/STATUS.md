@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T07:08:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T07:09:02Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05T02:13:32.982312] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1102 >= 0.05 (440/3994 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md.
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
@@ -28,6 +28,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 06:3x ET] GOAL-RIGHT-TAIL-CAPTURE-2026-09-05 CLOSED -- wave detector reproduces all 8 August doctrine anchors within 2 ticks; Gamma_RightTailCapture (16:20 ET) Ready; 25-day backfill valid; cockpit tile live
+Root cause of the earlier mismatch (one sentence): the detector anchored on bull/bear score >= 9 with zero blockers -- a state that stays true all session after a reclaim -- deduped last-row-per-5-min-bar (swapping the real 09:56 ENTER for a 10:00 HOLD, hence the 7.08x artifact) and read only the safe account; fixed to the engine's one-shot `verdict` ENTER_BULL/ENTER_BEAR unioned across safe+bold. Definition now: a genuine core ENTER tick on the ribbon-ride setups whose ATM contract later prints >= 1.3x its next-bar entry. Whole-window capture (36 waves, 08-01..09-04): safe-2 80.6%, risky-1 72.2%, bold-2 61.1%, safe-3 58.3%; cap-4 would-refuse flags 11; 20-session book capture 67% (amber). Existence-vs-capture gap is real: three waves ran 2.9-5.4x on the tape while every arm exited 2.0-3.3x. Second real fix landed on the way: conductor_outcome._decisions_for_day silently dropped every core row before 2026-08-25 (no `date` key) -> ts_et fallback, RED-proofed. Next: GOAL-CHECKPOINT-PACKET C6 hand-check now has a valid cap-4 ledger to read.
+
 
 ## [2026-09-05 06:1x ET] GOAL-CHECKPOINT-PACKET-2026-09-29 OPEN -- packet generator + Gamma_CheckpointPacket (23:30 ET, Ready) shipped; markdown/planning/CHECKPOINT-2026-09-29.md + -10-30.md are GENERATED nightly; C6 hand-check pending
 9 decisions inventoried (3 expansion -> 10-30, 2 reduction -> 09-29 eligible, 3 shadow-read, 1 tooling). First read: score-ladder shadow retirement RULE MET (n=38, reduction, 09-29 eligible); cap-4 PROVISIONAL (right-tail R4 open); f10 session reset / VIX-bull shadow / 1-2 DTE INSUFFICIENT N. Two rows read RULE NOT MET in a way that conflicts with the real-fills replay (the -$400 stop; catastrophe-cap+day-throttle shadows) -- scorer math is first-pass, so C6 hand-checks every MET/NOT-MET row before 09-28. Cockpit Autopilot tile shows the counts with links. Also tonight: right-tail capture instrument built (Gamma_RightTailCapture Ready) but its wave detector does not yet reproduce the August doctrine days -- R4 reopened, numbers PROVISIONAL, root-cause worker running.
