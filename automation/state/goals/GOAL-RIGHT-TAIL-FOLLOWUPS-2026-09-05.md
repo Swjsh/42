@@ -54,7 +54,7 @@ time-stop) and appended to GATE-NET-COST-2026-09-05.md so the net table carries 
   gate_net_cost_resolution_bias.py, re-walked 262 rows at 1-min OPRA resolution (n>>20), appended the
   Error bar section to GATE-NET-COST-2026-09-05.md/.json, verified idempotent. T4: added the T2 prereg
   to the checkpoint inventory + a new checkpoint_packet.py scorer, regenerated both CHECKPOINT-*.md.
-
+- 2026-09-05 05:11 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
 ## HONEST STATE
 - T1-T4 all DONE and verified this session (fresh command output quoted against each, not recalled).
 - Two real findings surfaced and DISCLOSED rather than silently fixed: (a) three live sources
@@ -66,3 +66,4 @@ time-stop) and appended to GATE-NET-COST-2026-09-05.md so the net table carries 
   gate_net_cost_resolution_bias.py, not silently coerced.
 - Nothing blocked, nothing deferred. Closing per this goal's OPERATING RULES (conductor_outcome +
   safety gate + the targeted pytest selection below still to run/quote in this same turn).
+AUTOPILOT CLOSE 2026-09-05 05:11 ET: queue fully terminal (no bare '- [ ] ' item left)
