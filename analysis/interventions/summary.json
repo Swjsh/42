@@ -1,6 +1,6 @@
 {
- "generated_at_et": "2026-08-28T17:29:35.185007",
- "date_et": "2026-08-28",
+ "generated_at_et": "2026-09-05T00:45:33.217155",
+ "date_et": "2026-09-05",
  "target_start_date": "2026-09-01",
  "target": "ZERO new SPY-0DTE interventions from target_start_date forward (J directive)",
  "all_time": {
@@ -27,11 +27,11 @@
   "by_arm": {},
   "realized_pnl": 0.0
  },
- "fully_engine_round_trips": 526,
+ "fully_engine_round_trips": 566,
  "crypto_excluded": {
-  "n_round_trips": 244,
+  "n_round_trips": 258,
   "by_category": {
-   "crypto_excluded": 244
+   "crypto_excluded": 258
   },
   "by_arm": {
    "safe-1": 26,
@@ -39,10 +39,28 @@
    "safe-3": 20,
    "risky-1": 15,
    "risky-3": 15,
-   "safe-2": 147
+   "safe-2": 161
   },
-  "realized_pnl": -2.49
+  "realized_pnl": -2.57
  },
+ "rescues": {
+  "n_round_trips": 2,
+  "by_category": {
+   "rescue_exit": 2
+  },
+  "by_arm": {
+   "bold-2": 1,
+   "safe-2": 1
+  },
+  "realized_pnl": 338.0
+ },
+ "rescues_today": {
+  "n_round_trips": 0,
+  "by_category": {},
+  "by_arm": {},
+  "realized_pnl": 0.0
+ },
+ "rescue_note": "a manual exit within engine_gaps.RESCUE_WINDOW_MIN (5m) of the END of a detected core-decisions.jsonl tick-gap on that account/day -- NOT counted against the Sept ZERO-intervention target (2026-09-05, 2026-09-04 blackout post-mortem).",
  "events": [
   {
    "date_et": "2026-06-26",

@@ -1212,6 +1212,89 @@ def check_early_close_today(et: datetime) -> dict:
     return _chk(name, "GREEN", f"normal {info['close']} ET close today", critical=False)
 
 
+def _prior_trading_day_str(et: datetime) -> Optional[str]:
+    """The most recent weekday strictly before `et`'s date, skipping known holidays.
+    Fail-open: None on any error (caller then just checks fewer days, never crashes)."""
+    try:
+        holidays = _load_holidays()
+        d = et.date() - timedelta(days=1)
+        for _ in range(10):  # generous bound -- never loops more than a long weekend
+            if d.weekday() < 5 and d.strftime("%Y-%m-%d") not in holidays:
+                return d.strftime("%Y-%m-%d")
+            d -= timedelta(days=1)
+        return None
+    except Exception:  # noqa: BLE001 -- never crash the beacon
+        return None
+
+
+def check_rth_tick_gaps(et: datetime) -> dict:
+    """RTH TICK-GAP DETECTOR (2026-09-05, post-mortem on the 2026-09-04 09:51-10:46 ET
+    power-outage blackout). The box lost power at 09:51 ET while safe-2/bold-2 held open
+    0DTE positions (entered 09:46 ET); core-decisions.jsonl has NO rows for either core
+    account 09:51:03 -> 10:46:15/16 ET -- a 55-minute hole in a 1-minute engine, during
+    RTH, while both accounts were exposed. J closed both positions from the Alpaca web
+    dashboard at 10:46:06/07 ET. Every EXISTING liveness check in this file
+    (check_engine_core) only asks "is the newest row fresh RIGHT NOW" -- by the time any
+    post-blackout fire ran, the engine had resumed on its own and the newest row read
+    fresh, so the interior hole was invisible (engine_health.py itself read GREEN all
+    day; monday_verify.py's fire-count check also read GREEN because SOME fires still
+    landed). This is the missing assertion: scan the WHOLE session (today once RTH has
+    started, plus the most recent prior trading day) for any >3min gap between
+    consecutive 'safe' rows -- the same "ask about the day, not the moment" discipline
+    as check_session_ran / check_levels_blind above, not a right-now snapshot.
+
+    Gap detection + the open-position flag are BOTH delegated to engine_gaps.py (shared
+    with intervention_counter.py's rescue_exit classification -- one gap definition, two
+    consumers, so they can never silently diverge). critical=True: a gap that overlapped
+    an open position is the same severity class as levels_blind (an engine blind while
+    exposed), so it can drive the fused verdict RED -- this NEVER trade-halts (nothing in
+    this file is on the live decision path). A quiet gap (no position open, e.g. after
+    EOD flatten or during a holding pattern with no fills at all) reports YELLOW, not
+    RED -- it is a genuine liveness hole worth surfacing but not a blackout-while-exposed
+    event. Fail-open: any import/read/parse error is a benign YELLOW, never a crash."""
+    name = "rth_tick_gaps"
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import engine_gaps as eg  # noqa: PLC0415 -- optional dep, fail open
+    except Exception as e:  # noqa: BLE001
+        return _chk(name, "YELLOW", f"engine_gaps module unavailable ({type(e).__name__})",
+                    critical=False)
+
+    today = et.strftime("%Y-%m-%d")
+    days = []
+    if et.weekday() < 5 and et >= et.replace(hour=9, minute=30, second=0, microsecond=0):
+        days.append(today)
+    prev_day = _prior_trading_day_str(et)
+    if prev_day and prev_day not in days:
+        days.append(prev_day)
+
+    if not days:
+        return _chk(name, "GREEN", "no RTH session to check yet today", critical=True)
+
+    try:
+        all_gaps = []
+        for day in days:
+            all_gaps.extend(eg.find_gaps_with_position_flag("safe", day))
+    except Exception as e:  # noqa: BLE001 -- never let a broken detector break the beacon
+        return _chk(name, "YELLOW", f"gap scan failed ({type(e).__name__})", critical=False)
+
+    checked = ", ".join(days)
+    if not all_gaps:
+        return _chk(name, "GREEN",
+                    f"no RTH gap >{eg.GAP_THRESHOLD_MIN:.0f}m on safe ({checked})", critical=True)
+
+    detail_lines = [
+        f"{g['start'].strftime('%Y-%m-%d %H:%M:%S')}->{g['end'].strftime('%H:%M:%S')} "
+        f"({g['duration_min']:.1f}m{', OPEN POSITION' if g['open_position'] else ''})"
+        for g in all_gaps
+    ]
+    any_open = any(g["open_position"] for g in all_gaps)
+    status = "RED" if any_open else "YELLOW"
+    return _chk(name, status,
+                f"{len(all_gaps)} RTH tick gap(s) on safe ({checked}): " + "; ".join(detail_lines),
+                critical=True)
+
+
 def check_position(name: str, path: Path) -> dict:
     data, err = _read_json(path)
     if data is None:
@@ -1273,6 +1356,12 @@ def build_report() -> dict:
         check_fleet_ticked(et),
         check_engine_core("heartbeat_safe", "safe", mkt, et),
         check_engine_core("heartbeat_bold", "bold", mkt, et),
+        # NEW 2026-09-05 (2026-09-04 blackout post-mortem): the two checks above are
+        # RIGHT-NOW staleness only -- blind to an interior gap that has already healed.
+        # This scans the whole session (today + most recent prior day) for any >3min
+        # hole in the safe account's tick cadence. RED if it overlapped an open
+        # position (blackout-while-exposed, the 2026-09-04 signature); YELLOW otherwise.
+        check_rth_tick_gaps(et),
         check_sight_beacon(mkt, now_utc),
         check_keepawake(mkt),
         check_watcher_feed(mkt, et),
@@ -1452,6 +1541,34 @@ def _maybe_remediate() -> None:
               file=sys.stderr)
 
 
+def _flag_rth_tick_gaps_known_broken(report: dict) -> bool:
+    """Surface a rth_tick_gaps RED on STATUS.md's '## Known broken' channel, using the
+    SAME shared de-duplicating writer roster_liveness.py already uses (status_known_
+    broken.upsert) -- not a new channel (this file previously had no STATUS.md writer
+    at all; the Discord transition-alert above is a SEPARATE existing mechanism this
+    reuses rather than duplicates). Clears the marker (upsert(..., None)) once the check
+    is no longer RED, so a healed gap does not sit in Known broken forever. Fail-open:
+    any import/write error is swallowed -- this must never break the beacon's own report."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import status_known_broken as skb  # noqa: PLC0415
+    except Exception as e:  # noqa: BLE001
+        print(f"[engine_health] status_known_broken unavailable: {e}", file=sys.stderr)
+        return False
+    gap_check = next((c for c in report.get("checks", []) if c.get("name") == "rth_tick_gaps"), None)
+    if gap_check is None or gap_check.get("status") != "RED":
+        try:
+            return skb.upsert("RTH-TICK-GAP:", None)
+        except Exception:  # noqa: BLE001 -- fail-open
+            return False
+    line = f"- [{report['checked_at_utc']}] RTH-TICK-GAP: {gap_check['detail']}"
+    try:
+        return skb.upsert("RTH-TICK-GAP:", line)
+    except Exception as e:  # noqa: BLE001 -- never let this break the beacon
+        print(f"[engine_health] status_known_broken write failed: {e}", file=sys.stderr)
+        return False
+
+
 def main(argv: Optional[list] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0] if __doc__ else "")
     ap.add_argument("--remediate", action="store_true", default=False,
@@ -1464,6 +1581,7 @@ def main(argv: Optional[list] = None) -> int:
     report = build_report()
     alerted = maybe_alert(report, prior_verdict, prior_reds)
     report["alerted"] = alerted
+    _flag_rth_tick_gaps_known_broken(report)
     _atomic_write(OUT_FILE, report)
     print(json.dumps(report, indent=2))
 

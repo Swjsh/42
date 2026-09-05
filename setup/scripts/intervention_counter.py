@@ -46,6 +46,19 @@ entry_activity_id) to split every non-fully-engine SPY-option round trip into:
                                 the audit named, tracked as its OWN count.
   - manual_entered_engine_exit: J opened it, the engine's own exit logic
                                 closed it (anomalous / unexpected -- flagged).
+  - rescue_exit               : the engine opened it (same shape as
+                                engine_entered_manual_exit) BUT the manual exit landed
+                                within engine_gaps.RESCUE_WINDOW_MIN minutes after the
+                                END of a detected engine_gaps tick-gap on that account/
+                                day (added 2026-09-05, 2026-09-04 blackout post-mortem:
+                                the box lost power 09:51-10:46 ET while safe-2/bold-2
+                                held open positions; J closed both from the Alpaca
+                                dashboard at 10:46 during the blackout -- a RESCUE, not
+                                J second-guessing a live engine). Reclassified OUT of
+                                engine_entered_manual_exit and OUT of is_intervention;
+                                tracked separately (`rescues` in the summary) so it never
+                                counts against the Sept ZERO-intervention target while
+                                staying fully visible.
 
 P&L: reports the ACTUAL realized P&L of intervention round trips (knowable,
 straight from the ledger's own FIFO pnl field). Does NOT fabricate a
@@ -81,7 +94,12 @@ KNOWN_BROKEN_MARKER = "## Known broken"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import broker_fills as bf  # noqa: E402 -- reused, PURE fifo_round_trips only, no network
+import engine_gaps as eg  # noqa: E402 -- shared RTH-gap detector, see rescue_exit below
 from et_clock import et_now  # noqa: E402
+
+# fills-ledger tags positions by fleet arm name; engine_gaps/core-decisions.jsonl use the
+# bare account label (CLAUDE.md Account context table) -- inverse of engine_gaps.ACCOUNT_TO_ARM.
+ARM_TO_ACCOUNT = {v: k for k, v in eg.ACCOUNT_TO_ARM.items()}
 
 
 def load_fills(path: Path = FILLS_PATH) -> list:
@@ -98,6 +116,26 @@ def load_fills(path: Path = FILLS_PATH) -> list:
             except ValueError:
                 continue
     return fills
+
+
+def _is_rescue(rt: dict) -> bool:
+    """True if this round trip's exit lands within engine_gaps.RESCUE_WINDOW_MIN minutes
+    after the END of a detected engine_gaps tick-gap for this account/day -- i.e. the
+    manual exit is presumptively a rescue during an engine blackout, not a second-guess
+    of a healthy engine. Fail-open: False on any unmapped arm / unparseable timestamp /
+    detector error -- a broken rescue-detector must never silently shrink the
+    intervention count."""
+    account = ARM_TO_ACCOUNT.get(rt.get("arm"))
+    if account is None:
+        return False
+    exit_dt = eg._parse_naive(rt.get("exit_ts_et"))
+    day = rt.get("date_et")
+    if exit_dt is None or not day:
+        return False
+    try:
+        return eg.is_rescue_exit(account, exit_dt, day)
+    except Exception:  # noqa: BLE001 -- fail-open, never inflate/deflate silently
+        return False
 
 
 def classify_round_trips(fills: list) -> list:
@@ -129,13 +167,20 @@ def classify_round_trips(fills: list) -> list:
         else:  # entry_attr != "engine" and exit_attr == "engine"
             category = "manual_entered_engine_exit"
 
+        is_rescue = False
+        if category == "engine_entered_manual_exit" and not is_crypto:
+            is_rescue = _is_rescue(rt)
+            if is_rescue:
+                category = "rescue_exit"
+
         out.append({
             **rt,
             "is_crypto": is_crypto,
             "entry_attribution": entry_attr,
             "exit_attribution": exit_attr,
             "category": category,
-            "is_intervention": category not in ("fully_engine", "crypto_excluded"),
+            "is_rescue": is_rescue,
+            "is_intervention": category not in ("fully_engine", "crypto_excluded", "rescue_exit"),
         })
     return out
 
@@ -152,8 +197,10 @@ def summarize(classified: list, now_et=None) -> dict:
     interventions = [r for r in classified if r["is_intervention"]]
     crypto_excluded = [r for r in classified if r["category"] == "crypto_excluded"]
     fully_engine = [r for r in classified if r["category"] == "fully_engine"]
+    rescues = [r for r in classified if r["category"] == "rescue_exit"]
     since_target = [r for r in interventions if r["date_et"] >= TARGET_START_DATE]
     today_interventions = [r for r in interventions if r["date_et"] == today]
+    today_rescues = [r for r in rescues if r["date_et"] == today]
 
     def _bucket(rows: list) -> dict:
         by_cat: dict = {}
@@ -188,6 +235,13 @@ def summarize(classified: list, now_et=None) -> dict:
         "today": _bucket(today_interventions),
         "fully_engine_round_trips": len(fully_engine),
         "crypto_excluded": _bucket(crypto_excluded),
+        "rescues": _bucket(rescues),
+        "rescues_today": _bucket(today_rescues),
+        "rescue_note": ("a manual exit within engine_gaps.RESCUE_WINDOW_MIN "
+                         f"({eg.RESCUE_WINDOW_MIN:.0f}m) of the END of a detected "
+                         "core-decisions.jsonl tick-gap on that account/day -- NOT counted "
+                         "against the Sept ZERO-intervention target (2026-09-05, "
+                         "2026-09-04 blackout post-mortem)."),
         "events": events,
         "counterfactual_pnl": None,
         "counterfactual_note": ("what the engine would have done on the SAME leg is NOT "
@@ -206,11 +260,14 @@ def one_liner(summary: dict) -> str:
     at = summary["all_time"]
     st = summary["since_target_start"]
     td = summary["today"]
+    rescues_today = summary.get("rescues_today", {}).get("n_round_trips", 0)
     flag = " <== NEW TODAY" if td["n_round_trips"] > 0 else ""
+    rescue_note = f", rescues today={rescues_today}" if rescues_today else ""
     return (f"[intervention-counter] {summary['date_et']}: all-time={at['n_round_trips']} "
             f"SPY-0DTE intervention round trip(s) (${at['realized_pnl']}), "
             f"since {summary['target_start_date']} (Sept target=ZERO)="
-            f"{st['n_round_trips']} (${st['realized_pnl']}), today={td['n_round_trips']}{flag}")
+            f"{st['n_round_trips']} (${st['realized_pnl']}), today={td['n_round_trips']}{flag}"
+            f"{rescue_note}")
 
 
 def _flag_status_md(summary: dict, status_md: Path = STATUS_MD) -> bool:
