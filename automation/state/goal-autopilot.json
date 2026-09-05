@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 14:31 ET",
-  "action": "closed_opened",
-  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "checked_at_et": "2026-09-05 14:44 ET",
+  "action": "noop",
+  "reason": "active goal has an open item",
   "active_goal_id": "GOAL-SILENT-RIG-2026-09-05",
-  "next_item": "R1 -- Fable: review L1 table, apply triggers, re-enable tasks in stages watching the hook log; J decides the tickers lane.",
+  "next_item": "R3 -- Fable: register Gamma_LaunchRate (daily 23:40 ET, system pythonw hidden chain) so launch_rate.py flags any market-closed hour > 60; re-enable ConductorWeekend after one watched fire proves the discord/MCP shim (hook log = proof); tickers lane = J's call.",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -152,8 +152,8 @@
     {
       "id": "GOAL-FUTURES-YELLOWS-2026-09-05",
       "state": "queued",
-      "eligible": true,
-      "why": "ok"
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-FIRST-FIRES-2026-09-08",
