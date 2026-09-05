@@ -1,16 +1,7 @@
-## [2026-09-04] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-31..2026-09-03), real OPRA fills, floor n>=10
-
-> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
-> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
-> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($2766.0); Bold_ATM_1+2=CONFIRM ($1229.0)
-> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
-> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
-
----
-
 ## Known broken
+- [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
-- [2026-09-05T04:57:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T05:12:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
 - [2026-09-05T04:47+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-04T17:26:04 ET] shadow_signal_audit: new unregistered producer(s): setup/scripts/context_bundle_producer.py::compute_catalyst_context. A detector produces output no decision path consumes (C7 at architecture scale). See analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md.
@@ -35,6 +26,16 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-04] RECENCY-CONFIRMATION (confirm-before-capital gate) — CONFIRMED on the freshest 25 trading days (2026-07-31..2026-09-03), real OPRA fills, floor n>=10
+
+> **Signal J wakes to (OP-25).** Weekly recency check (reusable `backtest/autoresearch/recency_check.py`, generalizes the Sunday fresh-revalidation; auto-reads OPRA cache last = 2026-09-03). The CONFIRM-BEFORE-CAPITAL gate: no live flip while an edge is RED; capital scaling waits for CONFIRM.
+> - **Live-tier verdicts:** #1 ATM (Safe-2)=CONFIRM; #1 ATM (Bold)=CONFIRM; #2 ATM=YELLOW; #4 ATM=YELLOW
+> - **Books:** Safe2_ATM_1+2+4=CONFIRM ($2766.0); Bold_ATM_1+2=CONFIRM ($1229.0)
+> - **edges_confirmed_on_recent = True** (any RED=False). CONFIRMED: #1 ATM (Safe-2), #1 ATM (Bold).
+> - Files: `automation/state/recency-confirmation.json`, `backtest/autoresearch/recency_check.py`.
+
+---
 
 ## [2026-09-05 01:4x ET] GOAL-PREREG-ADJUDICATION-2026-09-03 CLOSED -- 52/52 preregs carry a written verdict (21 KILL / 24 NULL / 7 EXTEND); hygiene 0 flagged; SHADOW board 0 unlabeled
 Fable orchestrating 4 Sonnet adjudication workers + a parallel conductor session (P2/P3). Commits 86488219 e52abc73 aec30513 847bda21 74a66077. Headline kills worth knowing: SCORE-LADDER-V2 forward shadow (n=28 sessions/arm, ladder extras net -$13,760 risky-3 / -$13,435 risky-1) -> retire the rung shadow at the 09-29 checkpoint; TRENDLINE-ENGINE-VALIDATION Cell B (bull-reclaim counterfactual n=2,411, -$27,378, p=0.0012); bull-requalification (n=24 real fills, WR 0%, -$885). Long-missing dynamic-exits null finally logged (CONTROL_HOLDS all 5). Engineering follow-up surfaced, not done: FILL-MODEL-UNIFICATION STEP 1 (exit_manager_walk.py slippage). Also shipped tonight: engine_health `rth_tick_gaps` (RED when a >3-min RTH gap overlaps an open position -> Known broken) + intervention_counter `rescue_exit` (2026-09-04: interventions 0, rescues 2) f9589c5e; tickers kill_tripped reporting fix + theta_budget cadence prereg a828470b. Next on the ladder (autopilot opened it): GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03.
@@ -378,88 +379,3 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 Commits b9c873ce (build) + 83d580b4 (round 2) on top of the research pack, spec v2 and the vendored ui-kit (44 licensed snippets from uiverse / 21st.dev / monet recipes). Verified this session: 269 guard tests + 2 xfail; cockpit_dom_check clean dark+light (tiles=26, sankey_ribbons=10, small_text=0, overflow_x=False); cockpit_exercise 13/13 with 0 console errors (headless CDP, no windows); routing map reads the last trading session end to end. Before/after captures sent to J. Round-3 polish in flight (em-dashes, 1440 px grid reflow, journal titles, light-mode ribbon glow). Revert: `git revert 83d580b4 b9c873ce`.
 
-## [2026-09-04 03:40 ET] AUTONOMY PROVEN END-TO-END + COCKPIT GLOW REBUILD LIVE (session 42-98, Fable)
-
-- **Goal-driven fires, no human:** conductor-outcomes.jsonl 05:09Z `GOAL-COCKPIT-REDESIGN-2026-09-03-R7`, 06:07Z `GOAL-TICKERS-LANE-2026-09-04/T6`, 06:45Z `.../T3+T5`; `goal_autopilot` closed COCKPIT-REDESIGN 01:19 ET and opened TICKERS-LANE from the ladder. DONE-WHEN (e) of GOAL-GAMMA-AUTONOMY met.
-- **Cockpit "Glow Command" shipped** `b9c873ce` (per J's AetherOps reference; vendored ui-kit `62254df7`; spec v2 `4d91ec5a`): nav rail, KPI cards w/ gradient tiles, fill-funnel Sankey routing map, Needs-you queue w/ chips, Army stage re-framed, agent health, glowing cost pulse, promo panel. Blind panel 7/7/7 "looks like reference" (baseline was 3/2/2); 269 guard tests + 2 xfail; DOM self-check clean both themes; headless exercise 15/15, 0 console errors. Round-2 fixes (funnel last-trading-day fallback, KPI delta chips, day-line labels, Army card clipping, health sparklines) in flight.
-- **Bug found by the first real night:** autopilot treated `[~]` (wip) as terminal and closed a goal three items were still being worked on — fix + RED-proofed test in flight. Filed: COMPANION-KEEPALIVE-PROBE-403 (keepalive probes /api/state without the token; 274 false 'not 200' rows/day).
-- Revoke: `git revert b9c873ce` restores the previous page; `git revert 5322e780 82184a74` removes the autopilot + ledger.
-
-## [2026-09-03T16:15:03 ET] NOT_EXERCISED -- monday_verify (WEEKEND-TWELVE Next-Twelve #6): mechanical sweep for 2026-09-03 -- 5 GREEN / 0 YELLOW / 0 RED / 1 NOT_EXERCISED
-
-**Mechanical checklist, not prose** (Next-Twelve #6: converts five pending-verifies into verified). Never blocks, never kills -- fail-open throughout; NOT_EXERCISED means the item's precondition never fired this run (C7: a check passing because nothing happened is not GREEN).
-
-| Item | Verdict | Expected | Observed |
-|---|---|---|---|
-| WS7 live watch | GREEN | Gamma_LiveWatch fires ~1/min 09:25-16:10 ET (~405 ticks). On the first REAL open position, live-watch.json (and the log's in_trade count) should reflect it within ~2 minutes of fill, and per REQUIRED_POSITION_FIELDS every position field should populate non-null. | 401 RTH fires logged (09:25-16:10 ET, vs ~405 expected), 81 tick(s) showed in_trade>0. 89 real fill(s) dated 2026-09-03: safe-2@09:41, bold-2@09:41, safe-2@09:42, bold-2@09:42, safe-3@09:42, risky-1@09:42, safe-2@09:43, bold-2@09:43, safe-2@09:44, bold-2@09:44, safe-2@09:45, bold-2@09:45, safe-2@09… |
-| WS6 regime stamp | GREEN | Gamma_RegimeStamp fires 08:22 ET weekdays (between Gamma_EmaSnapshot 08:20 and Gamma_Premarket 08:30): rebuilds regime-stamp.json and patches today-bias.json#regime_context, both dated the SAME session day, generated near 08:22 ET -- proving the first ORGANIC (truly scheduled) fire, not a manual re… | regime-stamp.json date=2026-09-03, generated_at_et=2026-09-03T08:40:02-04:00 (hhmm=08:40, in 08:15-08:40 window=True). today-bias.json date=2026-09-03, regime_context.stamp_date=2026-09-03 (present=True, dates_match=True). one_liner='Yesterday 2026-09-02 (Wed) = range-chop (range 0.62%, gap +0.10%,… |
-| WS3 level hysteresis | GREEN | Friday 2026-07-31 PRE-FIX worst case: level 743.25 present 331/386 core ticks, 14 appear/disappear flips (fixed-replay showed 386/386, 0 flips). Hysteresis N=5 is live in production since 2026-08-01; every level's worst flip count today should sit well under 14, with hysteresis_held firing whenever… | 386 safe core ticks, 80 distinct near-price levels. Worst: 761.32 flipped 6x (vs Friday PRE-FIX worst 743.25 @ 14x, present 331/386). 172 level-refresh run(s) logged (172 ok), hysteresis_held fired 101 time(s) across 16 distinct level(s). |
-| WS11 core recency | GREEN | Baseline frozen 2026-08-01 (25-trading-day rolling window ending 2026-07-31): bear RED n=10 exp=$-60.9/tr; bull UNDERPOWERED n=1 exp=$-295.0/tr. Watching whether n grows and/or either verdict moves as the rolling window advances past 2026-07-31. | run_date=2026-09-03 window_end=2026-09-02 (baseline window_end=2026-07-31, advanced=True). bear now: RED_CONCENTRATED n=31 (delta +21 vs baseline n=10) exp=$-1.77/tr, verdict_moved=True. bull now: GREEN_CONCENTRATED n=42 exp=$41.48/tr. live refresh attempted=True ok=True. |
-| Theta cockpit | GREEN | Gamma_ThetaClock fires ~1/min 09:30-16:00 ET (~390 ticks). Historically theta_per_contract_per_day_source == 'sqrt_time_decay_model_est' on 29/29 real ENTER rows checked pre-build (the Alpaca options-snapshots greeks endpoint has returned {} every time) -- this run tests whether that streak is STIL… | snapshot ts_et=2026-09-03T16:00:00 (fresh_today=True) accounts_checked=['safe-3', 'safe-2', 'risky-1', 'bold-2']. 242 theta-clock row(s) dated 2026-09-03 across 6 position(s); sources seen=['sqrt_time_decay_model_est']. broker_snapshot=0, sqrt_time_decay_model_est=242, unavailable=0. still sqrt_tim… |
-| WS1 preview diff | NOT_EXERCISED | MONDAY-PREVIEW-2026-08-03.md predicted, on a Friday-like tape: cores (safe-2/bold-2) 0 entries UNLESS block_elite_bull is flipped (still true/unapplied as of 2026-08-01); safe-3 ~1 fill; risky-1 ~2-4 fills (from 0 Friday -- 4 tradeable episodes / 32 in-window ENTER-plan ticks under the new bold_cor… | this preview is date-scoped to Monday 2026-08-03; checked date is 2026-09-03 -- diff not applicable. |
-
-Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scripts\python.exe setup\scripts\monday_verify.py --date 2026-09-03`. Guard: `backtest/tests/test_monday_verify_2026_08_01.py`.
-
----
-
-## Live watch
-
-- 2026-09-04 10:47:03 ET exit_actuator: FLAT_PRUNED SPY260904P00770000 on bold-2 after 2 consecutive broker-flat reads (stop_mode=structure, strategy=BEARISH_REJECTION_RIDE_THE_RIBBON) -- lifecycle closed outside this actuator's own sells (D5 guard, 2026-08-06)
-
-- 2026-09-04 10:47:02 ET exit_actuator: FLAT_PRUNED SPY260904P00772000 on safe-2 after 2 consecutive broker-flat reads (stop_mode=structure, strategy=BEARISH_REJECTION_RIDE_THE_RIBBON) -- lifecycle closed outside this actuator's own sells (D5 guard, 2026-08-06)
-- [2026-09-04T10:46:06 ET] DEAD-MANS-SWITCH FIRED :: bold-2 :: engine stale 55.0m :: closed ['SPY260904P00770000']
-
-- [2026-09-04T10:46:05 ET] DEAD-MANS-SWITCH FIRED :: safe-2 :: engine stale 55.0m :: closed ['SPY260904P00772000']
-
-
-- [2026-09-03T10:35:01 ET] THETA STALL :: risky-1 SPY260903C00768000 qty=5 :: est theta burn -9.45 vs est delta gain -325.00 over last 15min (mid=1.005, unrealized=-24.43%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T10:35:01 ET] THETA STALL :: safe-2 SPY260903C00768000 qty=3 :: est theta burn -5.40 vs est delta gain -195.00 over last 15min (mid=1.005, unrealized=-28.57%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T10:35:01 ET] THETA STALL :: safe-3 SPY260903C00768000 qty=5 :: est theta burn -9.45 vs est delta gain -325.00 over last 15min (mid=1.005, unrealized=-23.66%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T09:55:00 ET] THETA STALL :: safe-2 SPY260903C00770000 qty=3 :: est theta burn -5.10 vs est delta gain +0.00 over last 15min (mid=0.945, unrealized=-5.1%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T09:50:01 ET] THETA STALL :: risky-1 SPY260903C00770000 qty=5 :: est theta burn -5.05 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=-8.33%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-- [2026-09-03T09:50:01 ET] THETA STALL :: safe-3 SPY260903C00770000 qty=5 :: est theta burn -5.20 vs est delta gain +0.00 over last 15min (mid=0.985, unrealized=-11.71%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
-_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
-
----
-
-
-## Kitchen
-Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
-
-### BROKEN: self-check 2026-09-05T00:39:56
-- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
-- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
-- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
-
-### BROKEN: prereg-hygiene 2026-09-05T00:50:04
-- 3 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
-  - fleet-vwap-reclaim-extension-prereg-2026-08-04.json (age 32.2d via filename_date, status='KILL -- cohort net-negative at kill checkpoint per own frozen criterion', orphan=False)
-  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 30.2d via filename_date, status='NULL -- unrunnable as frozen (candidate-only, no commit ever cut) and matches the standing dead-runner-knob lesson', orphan=False)
-  - vwap-family-killcheck-prereg-2026-08-18.json (age 18.2d via frozen_at_et, status='NULL -- unrunnable as frozen, vwap_continuation disarmed with zero forward fills', orphan=False)
-- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-04T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
-  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
-  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
-  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-04T21:10:02Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
-  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
-  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-
-### BROKEN: trendline-headless-draw 2026-09-05 00:50 ET
-- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
-
-### BROKEN: prereg-hygiene 2026-09-05T00:51:29
-- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
-  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-04T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
-  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
-  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
-  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
-  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-04T21:10:02Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
-  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
-  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
-  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
-  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
