@@ -37,31 +37,31 @@ with the five August big days reproducing the numbers already in edge-master-doc
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] R1 -- Define the wave: write `backtest/lib/right_tail_waves.py::find_waves(date)` composing
+- [~] R1 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Define the wave: write `backtest/lib/right_tail_waves.py::find_waves(date)` composing
   `zero_enter_autopsy.py`'s per-bar table + the OPRA cache pricing path: a wave = first ENTER-eligible
   tick (score >= 9 either side, no blocker) whose ATM contract ask later prints >= 1.3x within the
   session; returns start tick, peak multiple, peak time, side. Validate by hand against 2026-08-04
   (waves at ~09:56 and ~12:28, both >= 1.9x) and 2026-09-02 (13 bull fills, all lost: expect waves
   present but peak < 1.3x, or none). DONE-WHEN: `pytest backtest/tests/test_right_tail_waves.py`
   green with those two fixtures, RED-proofed.
-- [ ] R2 -- Capture scoring per arm: join waves to `automation/state/fills-ledger.jsonl` (and
+- [~] R2 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Capture scoring per arm: join waves to `automation/state/fills-ledger.jsonl` (and
   `journal/trades.csv` for exit multiples): taken / missed / refused-by-gate, latency in ticks,
   held-to-TP1 bool, runner multiple. Refusal attribution reuses the gate ids already in
   core-decisions rows (`bear_blockers`/`bull_blockers`) and the fleet decisions' reason strings
   ("same-day entries", "1 triggers < 2", "requires confluence/sequence", "position already open").
   DONE-WHEN: 2026-08-04 reproduces safe-2 +$758 / risky-1 wave-2 refused-by-nothing (it was
   entry #5 -- flag it as `would_be_refused_under_cap4: true`).
-- [ ] R3 -- Instrument + task: `setup/scripts/right_tail_capture.py --date`, installer
+- [~] R3 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Instrument + task: `setup/scripts/right_tail_capture.py --date`, installer
   `install-right-tail-capture.ps1` (hidden pythonw chain, venv, -Daily, 16:20 ET = 14:20 local),
   SCHEDULED-TASKS.md row, `test_scheduled_tasks_doc.py` + install-times guard green, State=Ready.
-- [ ] R4 -- Backfill 2026-08-01 -> today; write `analysis/right-tail/SUMMARY.md` (per-arm capture
+- [~] R4 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Backfill 2026-08-01 -> today; write `analysis/right-tail/SUMMARY.md` (per-arm capture
   rate, median latency, share of waves refused by each gate, second-wave refusal count). The five
   August big days must reproduce edge-master-doctrine.md's numbers; any mismatch is a bug in R1/R2,
   not a new finding.
-- [ ] R5 -- Wire the 20-session capture rate + "waves refused by cap-4" count into the cockpit
+- [~] R5 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Wire the 20-session capture rate + "waves refused by cap-4" count into the cockpit
   payload (`setup/scripts/gamma_home.py` -> payload.json) AND confirm it renders on the Next
   /cockpit Autonomy/Engine tile (headless screenshot quoted). Computed-but-unrendered = not done.
-- [ ] R6 -- Append the forward ledger reading to
+- [~] R6 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Append the forward ledger reading to
   `analysis/recommendations/PREREG-TIGHT-LADDER-2026-08-28.md` under a dated "interim evidence"
   block (peeking record only; no config change) so the 09-29 checkpoint reads it directly.
 

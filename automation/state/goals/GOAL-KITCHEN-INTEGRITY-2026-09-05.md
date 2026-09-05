@@ -34,20 +34,20 @@ artifact are `UNVERIFIED-BY-CONSTRUCTION` and are never counted as evidence by a
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] I1 -- Retro-tag: `kitchen_provenance_audit.py --tag` appends a `<!-- PROVENANCE-MISSING: <missing paths> -->`
+- [~] I1 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Retro-tag: `kitchen_provenance_audit.py --tag` appends a `<!-- PROVENANCE-MISSING: <missing paths> -->`
   block (and `<!-- UNVERIFIED-BY-CONSTRUCTION -->` for NO-ARTIFACT-CITED) to each classified file;
   idempotent; dry-run first, quote counts, then apply. DONE-WHEN: re-run audit shows tag counts ==
   class counts.
-- [ ] I2 -- Leaderboard sweep: for every row, find its evidence files; if ALL are MISSING/NO-ARTIFACT
+- [~] I2 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Leaderboard sweep: for every row, find its evidence files; if ALL are MISSING/NO-ARTIFACT
   the Status cell becomes `UNSUPPORTED (provenance)`; write the row list to
   analysis/kitchen-review/leaderboard-provenance-sweep-2026-09-05.json. DONE-WHEN: quoted count.
-- [ ] I3 -- Prompt + reviewer: add the `provenance:` requirement to the chef/Nemotron prompt template
+- [~] I3 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Prompt + reviewer: add the `provenance:` requirement to the chef/Nemotron prompt template
   (find it via markdown/infra/KITCHEN-SPEC.md and setup/scripts/kitchen_*), reviewer rejects a
   verdict without it; guard test RED-proofed.
-- [ ] I4 -- Gate + render: `free_model_audit.py` marks the Kitchen touchpoint DEGRADED when the 30d
+- [~] I4 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Gate + render: `free_model_audit.py` marks the Kitchen touchpoint DEGRADED when the 30d
   rate >= 0.05; the rate + class counts render on the cockpit Autonomy tile (headless screenshot
   quoted); STATUS Known-broken line auto-managed by the audit (upsert/clear).
-- [ ] I5 -- Lesson: fold `_lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md`
+- [~] I5 (WIP 2026-09-05 04:3x ET, Fable EOD-audit session a16e320c: one Sonnet chain -- other sessions do not pick up) -- Lesson: fold `_lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md`
   into LESSONS-LEARNED.md (L310+) via the lesson-author path; add the L# to the CLAUDE.md OP-25 C7
   row (lesson-author is the only writer).
 
