@@ -71,16 +71,27 @@ from __future__ import annotations
 # a WindowsTerminal window on a real Start-ScheduledTask fire within 45s.
 import os as _os
 import sys as _sys
+import datetime as _dt
 from pathlib import Path as _Path
 if _os.path.basename(_sys.executable).lower().startswith("pythonw"):
     _log_dir = _Path(__file__).resolve().parents[2] / "automation" / "state" / "logs"
     _log_dir.mkdir(parents=True, exist_ok=True)
-    _sys.stdout = open(_log_dir / "crypto-twin-health.stdout.log", "a", buffering=1, encoding="utf-8")
-    _sys.stderr = open(_log_dir / "crypto-twin-health.stderr.log", "a", buffering=1, encoding="utf-8")
+    # DATED (2026-09-05 R2 resident-loop conversion): this process now optionally runs as a
+    # long-lived --loop (up to --duration-sec, default 24h) instead of a fresh 1-min spawn, so
+    # a single static filename would accumulate one giant append-only file across the process's
+    # whole lifetime instead of rolling daily like every other keepalive/log in this repo
+    # (quote-recorder-keepalive-{date}.log, crypto-grinder-keepalive-{date}.log). The date is
+    # fixed at process start (same convention those keepalives use) -- a loop that runs past
+    # midnight keeps writing to the file named for the day it started, which is acceptable
+    # (matches MAX_RUNTIME_S-bounded daily recycle design, see crypto_twin_keepalive.py).
+    _log_date = _dt.date.today().isoformat()
+    _sys.stdout = open(_log_dir / f"crypto-twin-health-{_log_date}.stdout.log", "a", buffering=1, encoding="utf-8")
+    _sys.stderr = open(_log_dir / f"crypto-twin-health-{_log_date}.stderr.log", "a", buffering=1, encoding="utf-8")
 # ==================================================================================
 
 import json
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -102,6 +113,19 @@ STATE = REPO / "automation" / "state"
 # TOP-LEVEL glance file -- deliberately a sibling of engine-health.json/
 # self-check-last.json, NOT under automation/state/crypto-twin/. See module docstring.
 HEALTH_PATH = STATE / "twin-health.json"
+
+# GOAL-SILENT-RIG-2026-09-05 R2: sentinel file for a clean --loop exit. Presence is checked
+# at the TOP of every iteration (before the next tick fires) so `touch`ing it always stops
+# the loop within one tick, never mid-tick. Never auto-created by this module -- an operator
+# (or Fable) creates/deletes it by hand; run_loop() only ever reads it.
+STOP_FILE = STATE / "crypto-twin.stop"
+
+# Default --loop cadence and bounded runtime -- unchanged tick rate (CADENCE-TUNE 2026-08-01,
+# see module docstring: 1-min cadence is twin doctrine, this is a process-SHAPE change only)
+# with a 24h bounded recycle mirroring quote_recorder.py's own MAX_RUNTIME_S convention (a
+# fresh process every day is simpler to reason about than one that runs forever).
+DEFAULT_LOOP_INTERVAL_SEC = 60
+DEFAULT_LOOP_DURATION_SEC = 24 * 3600
 
 
 # --- fail-open JSONL reader (shared by every counter below) ----------------------------
@@ -591,13 +615,138 @@ def run_tick_with_health(cfg: ctc.TwinConfig = ctc.TwinConfig(), *, live: bool =
     return {"row": row, "health": health, "soak_row": soak_row, "error": error_str}
 
 
+# --- resident loop (GOAL-SILENT-RIG-2026-09-05 R2) -----------------------------------------
+def run_loop(*, live: bool = False, interval_sec: int = DEFAULT_LOOP_INTERVAL_SEC,
+             duration_sec: int = DEFAULT_LOOP_DURATION_SEC, stop_file: Path = STOP_FILE,
+             health_path: Path = HEALTH_PATH, tick_fn=run_tick_with_health,
+             sleep_fn=time.sleep, monotonic_fn=time.monotonic,
+             log_fn=lambda msg: print(msg, file=sys.stderr)) -> int:
+    """ONE resident process that ticks `tick_fn` (defaults to run_tick_with_health, the exact
+    same call the old 1-min scheduled task made) on a drift-free schedule -- replaces
+    Gamma_CryptoTwin's "spawn a fresh Python process every minute, 24/7" shape with a single
+    long-lived process, per GOAL-SILENT-RIG-2026-09-05 R2 (largest remaining off-hours spawn
+    load on J's box: 1,440 process launches/day). Same tick function, same outputs
+    (decisions.jsonl / twin-health.json / soak-log.jsonl -- all still written by tick_fn
+    itself, this wrapper never touches them directly), same 1-min cadence by default.
+
+    DRIFT-FREE SCHEDULE: next tick fires at `start + n * interval_sec` (monotonic clock),
+    never `now + interval_sec` -- so a slow tick (network latency, GC pause) does not push
+    every subsequent tick later and cause the loop to slowly drift off a true 1-min cadence.
+    If a tick runs long enough to blow through one or more scheduled slots, those slots are
+    skipped (never double-fired back-to-back to "catch up") -- `next_due` is always strictly
+    in the future once computed to be <= the current monotonic time, matching the ONE thing
+    that matters here: ticks land close to once a minute, not that exactly N ticks happen in
+    N minutes.
+
+    PER-TICK EXCEPTION SAFETY (C7 -- log loudly, never silently): `tick_fn` in production is
+    run_tick_with_health, which already contractually never raises (see its own docstring --
+    "this function itself never raises; the only way to know it is unhealthy is to read what
+    it wrote down"). This loop wraps the call in its own try/except ANYWAY as defense in
+    depth -- if that contract is ever violated (a future edit, an injected test double), one
+    bad tick logs a loud LOOP TICK EXCEPTION line via `log_fn` and the loop keeps running;
+    it can never turn one tick's bug into the whole resident process dying (which would
+    silently stop ALL future ticks until the next keepalive fire, far worse than one missed
+    tick).
+
+    EXIT CONDITIONS, checked at the top of every iteration (never mid-tick):
+      1. `stop_file` exists -- an operator's clean-shutdown signal. Checked BEFORE firing the
+         next tick, so touching it always stops the loop within one tick, never leaves a tick
+         half-run.
+      2. `duration_sec` has elaped since `start` (0 = no limit) -- the bounded-recycle design
+         quote_recorder_keepalive.py's own docstring documents: "a wedged-but-alive process
+         can look 'up' forever" -- this loop instead exits cleanly every `duration_sec`
+         (default 24h) so the next keepalive fire always relaunches a genuinely fresh process,
+         never one that has been silently unhealthy for days.
+
+    Every clock/sleep/tick function is injectable (mirrors run_tick_with_health's own
+    injectable now_utc/now_et/raw_bars pattern) so this is testable in well under a second
+    with zero real sleeping and zero real ticks -- see
+    backtest/tests/test_crypto_twin_health_loop_2026_09_05.py.
+    """
+    start = monotonic_fn()
+    n_ticks = 0
+    n_errors = 0
+    deadline = start + duration_sec if duration_sec and duration_sec > 0 else None
+
+    while True:
+        if stop_file.exists():
+            log_fn(f"[crypto_twin_health] stop file present ({stop_file}) -- exiting after "
+                   f"{n_ticks} ticks ({n_errors} errors)")
+            return 0
+        now = monotonic_fn()
+        if deadline is not None and now >= deadline:
+            log_fn(f"[crypto_twin_health] duration_sec={duration_sec} elapsed -- exiting after "
+                   f"{n_ticks} ticks ({n_errors} errors), recycling for next keepalive fire")
+            return 0
+
+        try:
+            result = tick_fn(live=live, health_path=health_path)
+            action = (result.get("row") or {}).get("action") if isinstance(result, dict) else None
+            tick_error = result.get("error") if isinstance(result, dict) else None
+            if tick_error:
+                n_errors += 1
+                log_fn(f"[crypto_twin_health] LOOP TICK {n_ticks}: action={action} "
+                       f"error={tick_error}")
+        except Exception as e:  # noqa: BLE001 -- deliberate outermost catch: a resident loop
+            # must never die from one bad tick (C7). Defense in depth over tick_fn's own
+            # (contractually never-raising) internal catch-all -- see docstring above.
+            n_errors += 1
+            log_fn(f"[crypto_twin_health] LOOP TICK {n_ticks} EXCEPTION (never dying): "
+                   f"{type(e).__name__}: {e}")
+
+        n_ticks += 1
+
+        if stop_file.exists():
+            log_fn(f"[crypto_twin_health] stop file present ({stop_file}) -- exiting after "
+                   f"{n_ticks} ticks ({n_errors} errors)")
+            return 0
+
+        next_due = start + n_ticks * interval_sec
+        now = monotonic_fn()
+        sleep_for = next_due - now
+        if deadline is not None:
+            sleep_for = min(sleep_for, deadline - now)
+        if sleep_for > 0:
+            sleep_fn(sleep_for)
+
+
+def _tick_and_canary(*, live: bool, health_path: Path = HEALTH_PATH) -> dict:
+    """run_loop's production tick_fn: run_tick_with_health() PLUS the broker-canary piggyback
+    (queue.md 2026-07-11), byte-for-byte the same per-fire work main()'s --once path always
+    did -- the old spawn-per-minute task called both on every single fire, so under --loop
+    each internal tick must too (process SHAPE change only, per GOAL-SILENT-RIG-2026-09-05
+    R2's operating rule: same tick function, same outputs, same cadence)."""
+    result = run_tick_with_health(live=live, health_path=health_path)
+    try:
+        bc.probe()
+    except Exception:  # noqa: BLE001 -- the canary must never break the twin's own tick
+        pass
+    return result
+
+
 # --- CLI ------------------------------------------------------------------------------
 def main(argv: Optional[list[str]] = None) -> int:
     import argparse
     parser = argparse.ArgumentParser(
         description="Crypto Twin health-wrapped tick -- the Gamma_CryptoTwin scheduled-task entrypoint")
     parser.add_argument("--live", action="store_true", help="place real paper orders (default WATCH)")
+    parser.add_argument("--loop", action="store_true",
+                         help="run as a single RESIDENT process ticking every --loop-interval-sec "
+                              "instead of one process per tick (GOAL-SILENT-RIG-2026-09-05 R2)")
+    parser.add_argument("--loop-interval-sec", type=int, default=DEFAULT_LOOP_INTERVAL_SEC,
+                         help="--loop only: seconds between ticks, drift-free schedule (default 60, "
+                              "unchanged from the old 1-min scheduled-task cadence)")
+    parser.add_argument("--duration-sec", type=int, default=DEFAULT_LOOP_DURATION_SEC,
+                         help="--loop only: exit cleanly after N seconds so the next keepalive fire "
+                              "relaunches a fresh process (default 86400 = 24h daily recycle; 0 = no limit)")
+    parser.add_argument("--stop-file", default=str(STOP_FILE),
+                         help="--loop only: exit cleanly (checked every tick) once this file exists")
     args = parser.parse_args(argv)
+
+    if args.loop:
+        return run_loop(live=args.live, interval_sec=args.loop_interval_sec,
+                         duration_sec=args.duration_sec, stop_file=Path(args.stop_file),
+                         tick_fn=_tick_and_canary)
 
     result = run_tick_with_health(live=args.live)
 
