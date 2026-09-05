@@ -286,3 +286,15 @@ mostly fires on days whose winner never existed, not on days whose winner is sti
   pre-registered test.
 
 *Addendum 2 frozen 2026-08-28 evening ET, before window open.*
+
+
+---
+
+## Interim evidence (peeking record, NOT a config change) -- 2026-09-05 01:18 ET, Fable
+
+Replay of controls #4 and #5 on `journal/trades.csv` real fills 2026-08-01..09-04 (87 arm-days, entries grouped by date/arm/time_entry so TP1+runner count once; median 3 entries/arm-day, max 18, 15% of arm-days exceed 4):
+
+- Control #4 `max_same_day_roundtrips` 5->4 would have blocked 36 entries: net +$270 (winners +$2,297 / losers -$2,027). The blocked winners include the two largest single entries of August: 2026-08-04 risky-1 12:28 (+$651, entry #5) and risky-3 12:28 (+$788, #8), plus 08-05 risky-1 11:48 (+$347, #6). Excluding retired risky-3: winners ~+$1,485 vs losers ~-$638 given up. Forward window: first bound 2026-09-03 11:23 ET (28 refusals, safe-3 + risky-1, after their 4th entry); no >=1.3x wave was refused that day.
+- Control #5 `-$400/arm/day` realized stop would have blocked 8 entries: net -$1,601 (1 winner +$347 / 7 losers -$1,948). Fires only on 08-05, 08-07, 08-14 -- all losing days. Consistent with Addendum 2 S2.1.
+
+Per this prereg's own peeking rule nothing is changed. Checkpoint 2026-09-29 question, stated now: does the forward window show control #4 refusing any entry that would have exited >=1.3x? If yes, the churn control is costing the right tail the whole book depends on (edge-master-doctrine.md, August big-day anatomy) and 4->5 is reverted (one line, both params files, REVERT line already in the key's doc). If no, it stays.

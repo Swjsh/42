@@ -1,6 +1,6 @@
 ## Known broken
 
-- [2026-09-05T05:14:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05T05:26:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-05 02:3x ET] KITCHEN-FABRICATED-NUMBERS: Nemotron `_analysis/` files report backtest numbers citing artifacts that do not exist (qqq-label 08-11 replay, ~50 weekly-DTE 3/4-dte files, 09-04 base-engine near-dupe, leaderboard ranks 44-46). Found by 3 independent adjudication workers. Guard queued: provenance block + reviewer rejects missing artifacts. Lesson: _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md
 
 - [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
@@ -27,6 +27,11 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 01:18 ET] J's ask "why did we have high-winner days last month / are we set up for big wins again" -- ANSWERED, rig verified intact
+
+August was five days (top-5 = 2.8x the month; 111 fills >=1.3x made +$17,850, the other 207 lost -$14,286). Four of five were the same shape: ordinary two-trigger `BULLISH_RECLAIM_RIDE_THE_RIBBON` (level_reclaim + confluence) fired 09:41-10:22 ET on a gap-go/range-chop tape, held 19-48 min to the 2x TP1, runner to 2.5-3.5x, then a second 2x wave near noon; the same-day losers were 11:26-11:52 re-entries dying at ~0.85x. Per account = +$250-650 = one level trade, J's target. Setup, fleet gate (min_triggers 2 admits exactly that shape), exit shape (TP1 2x unchanged; safe-2 A/B never shipped), and tasks (quiet mode restored 00:17 ET, 168 Ready) all verified intact. ONE post-big-day change trades right tail for churn control: TIGHT-LADDER `max_same_day_roundtrips` 4 blocked 08-04 risky-1's +$651 noon wave in replay (36 entries, net +$270; -$400 stop blocks net -$1,601 = good). Recorded as interim evidence in the prereg; 09-29 checkpoint decides 4->5. Full write-up: markdown/doctrine/edge-master-doctrine.md "August 2026 big-day anatomy".
+
 
 ## [2026-09-05 01:2x ET] conductor AFTERHOURS: OK -- weekend-plan item 3 (tickers-lane sizing) written up + 2 stale doc-string bugs fixed -- REVOKE surface
 

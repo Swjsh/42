@@ -123,6 +123,13 @@ except Exception:  # noqa: BLE001
 
 from et_clock import et_now  # noqa: E402
 
+try:
+    from kitchen_provenance_audit import _candidate_files as _kitchen_candidate_files  # noqa: E402
+    from kitchen_provenance_audit import run_audit as _kitchen_run_audit  # noqa: E402
+except Exception:  # noqa: BLE001 -- this metric must never block the rest of the audit run
+    _kitchen_candidate_files = None
+    _kitchen_run_audit = None
+
 STATE = REPO / "automation" / "state"
 HISTORY = STATE / "free-model-audit-history.jsonl"
 BAR_STATE_PATH = STATE / "free-model-audit-state.json"
@@ -414,6 +421,45 @@ def save_bar_state(all_state: dict, path: Optional[Path] = None) -> None:
 
 
 # --------------------------------------------------------------------------------------------
+# Kitchen fabricated_artifact_rate -- deterministic metric, NOT a graded AUDIT_SUBJECT.
+# See _lesson-inbox/2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md: unlike the
+# subjects above (which grade an LLM's JUDGMENT against ground truth via replay/blind-Sonnet/
+# cross-check), "did the cited artifact exist on disk" needs no grading call at all -- disk
+# state IS ground truth. Piggybacks on setup/scripts/kitchen_provenance_audit.py's classifier
+# rather than re-implementing it (single source of truth for what counts as a citation).
+# --------------------------------------------------------------------------------------------
+
+KITCHEN_METRIC_WINDOW_DAYS = 30
+
+
+def kitchen_fabricated_artifact_rate(days: int = KITCHEN_METRIC_WINDOW_DAYS) -> Optional[dict]:
+    """PROVENANCE-MISSING / total-scored over the last `days` days of Kitchen candidate/
+    _analysis files, by file mtime. Returns None (never raises) if the provenance-audit
+    module is unavailable -- this metric must fail open, never block the rest of the audit.
+    """
+    if _kitchen_candidate_files is None or _kitchen_run_audit is None:
+        return None
+    try:
+        cutoff = datetime.now().astimezone() - timedelta(days=days)
+        recent = [
+            p for p in _kitchen_candidate_files()
+            if p.exists() and datetime.fromtimestamp(p.stat().st_mtime).astimezone() >= cutoff
+        ]
+        report = _kitchen_run_audit(recent)
+        return {
+            "window_days": days,
+            "files_scored": report["files_scored"],
+            "provenance_missing": report["totals"]["PROVENANCE-MISSING"],
+            "fabricated_artifact_rate": report["fabricated_artifact_rate"],
+            "computed_at": et_now().isoformat(),
+        }
+    except Exception as exc:  # noqa: BLE001 -- fail open
+        print(f"[free_model_audit] WARN kitchen_fabricated_artifact_rate failed: "
+             f"{type(exc).__name__}: {exc}", file=sys.stderr)
+        return None
+
+
+# --------------------------------------------------------------------------------------------
 # Scorecard renderer -- REUSES shadow_model_eval.py's markdown-scorecard pattern (per-model
 # summary table + tick-by-tick detail + verdict section), adapted to grading rows.
 # --------------------------------------------------------------------------------------------
@@ -652,6 +698,21 @@ def main() -> int:
         if result.get("status") not in ok_statuses:
             print(f"[free_model_audit] {subject}: FAILED status={result.get('status')}", file=sys.stderr)
             exit_code = 1
+
+    # Deterministic, $0, always-cheap -- runs every fire regardless of --subject/--force,
+    # since it is not on the per-subject cadence gate (no LLM grading involved).
+    kitchen_metric = kitchen_fabricated_artifact_rate()
+    if kitchen_metric is not None:
+        all_state = load_bar_state()
+        all_state["kitchen_fabricated_artifact_rate"] = kitchen_metric
+        save_bar_state(all_state)
+        print(f"[free_model_audit] kitchen_fabricated_artifact_rate="
+             f"{kitchen_metric['fabricated_artifact_rate']} "
+             f"({kitchen_metric['provenance_missing']}/{kitchen_metric['files_scored']} "
+             f"over {kitchen_metric['window_days']}d)")
+    else:
+        print("[free_model_audit] kitchen_fabricated_artifact_rate: UNAVAILABLE (provenance "
+             "audit module failed to load) -- not counted as a failure", file=sys.stderr)
     return exit_code
 
 

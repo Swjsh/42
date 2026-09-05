@@ -35,6 +35,10 @@ REVIEW_LOG = CANDIDATES_DIR / "_review-log.jsonl"
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 from run_minimax import call_minimax  # noqa: E402
 from kitchen_daemon import enqueue_task, MODEL_LADDER  # noqa: E402
+try:
+    from kitchen_provenance_audit import classify_file as _provenance_classify_file  # noqa: E402
+except Exception:  # noqa: BLE001 -- provenance audit must never block the reviewer
+    _provenance_classify_file = None
 
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
@@ -369,6 +373,26 @@ def _resolve_candidate(out_path_str: str) -> Optional[Path]:
     return candidate_file if candidate_file.exists() else None
 
 
+def _check_provenance(candidate_file: Path) -> tuple[str, list[str]]:
+    """Run the deterministic provenance audit on one candidate file.
+
+    Returns (status, missing_artifacts). status is one of PROVENANCE-OK,
+    PROVENANCE-MISSING, NO-ARTIFACT-CITED, NOT-A-VERDICT, or UNAVAILABLE (the
+    audit module failed to import / classify -- fail OPEN, never block the
+    reviewer on an audit-side error). See _lesson-inbox/
+    2026-09-05-kitchen-nemotron-fabricated-analysis-numbers.md for why this exists:
+    Nemotron _analysis/ verdicts cited runner outputs that never existed.
+    """
+    if _provenance_classify_file is None:
+        return "UNAVAILABLE", []
+    try:
+        result = _provenance_classify_file(candidate_file, repo_root=REPO)
+        return result.status, list(result.missing)
+    except Exception as exc:  # noqa: BLE001 -- fail open, log and move on
+        _log(f"WARN provenance audit failed for {candidate_file}: {type(exc).__name__}: {exc}")
+        return "UNAVAILABLE", []
+
+
 def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
     """OP-33: PROMOTE requires numeric scorecard evidence on disk; else cap at VALIDATE.
 
@@ -379,6 +403,14 @@ def _cap_promote_if_unevidenced(verdict: str, out_path: str) -> tuple[str, str]:
     candidate_file = _resolve_candidate(out_path)
     if candidate_file is None:
         return "VALIDATE", f"capped: candidate file not found: {out_path}"
+
+    # Provenance gate FIRST: a file that cites artifacts that don't exist on disk is a
+    # fabrication risk regardless of what the OP-16 edge_capture check finds (that check
+    # can itself be fooled by a fabricated-but-well-formed scorecard reference).
+    prov_status, prov_missing = _check_provenance(candidate_file)
+    if prov_status == "PROVENANCE-MISSING":
+        return "VALIDATE", f"capped:PROVENANCE-MISSING:{','.join(prov_missing[:5])}"
+
     text = candidate_file.read_text(encoding="utf-8", errors="replace")
     op16_ok, op16_reason = _check_op16_floor(candidate_file, text)
     if op16_ok:
@@ -467,7 +499,26 @@ def _write_review_digest(decisions: list[dict], digest: str, *, cost_usd: float,
 # ────────────────────────────────────────────────────────────────────────────
 
 
+def _refresh_provenance_corpus_report() -> None:
+    """Regenerate analysis/kitchen-review/{provenance-audit.json,PROVENANCE-AUDIT.md} on
+    the SAME cadence as this reviewer fire (Gamma_KitchenReviewer, every 2h) -- no new
+    scheduled task needed. Cheap ($0, deterministic, ~2s over the full corpus) and
+    fail-open: a crash here must never block the rest of the reviewer fire."""
+    try:
+        import kitchen_provenance_audit as _kpa  # noqa: E402
+        report = _kpa.run_audit()
+        _kpa.AUDIT_JSON.parent.mkdir(parents=True, exist_ok=True)
+        _kpa.AUDIT_JSON.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        _kpa._write_md(report)
+        t = report["totals"]
+        _log(f"provenance corpus refresh: OK={t['PROVENANCE-OK']} MISSING={t['PROVENANCE-MISSING']} "
+             f"NO-ARTIFACT={t['NO-ARTIFACT-CITED']} rate={report['fabricated_artifact_rate']}")
+    except Exception as exc:  # noqa: BLE001 -- fail open, never block the reviewer fire
+        _log(f"WARN provenance corpus refresh failed: {type(exc).__name__}: {exc}")
+
+
 def main() -> int:
+    _refresh_provenance_corpus_report()
     outputs = _collect_recent_outputs()
     _log(f"collected {len(outputs)} cook output(s) from last {REVIEW_WINDOW_HOURS}h")
     if not outputs:

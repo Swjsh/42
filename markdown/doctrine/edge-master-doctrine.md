@@ -362,3 +362,30 @@ Post-ladder the surviving bleed is entirely in **sub-1.0× exits** — trades th
 all, not winners handed back. That is the absorption problem, and it is what the day-throttle
 pre-reg already measures. **The exit side has had its fix; the open question is now entirely
 on the entry/regime side.**
+
+
+## August 2026 big-day anatomy -- why the winner days happened (Fable, 2026-09-05 01:18 ET; J's ask 2026-09-05)
+
+Source: `journal/trades.csv` real fills 2026-08-03..08-31 (318 fills, 20 sessions, 5 arms), `analysis/recommendations/day-type-labels.json`, `automation/state/core-decisions.jsonl`, `automation/state/fleet/*/decisions.jsonl`. Reproduce: `scratchpad big_days.py` logic = group fills by day/arm, exit multiple = exit_px/entry_px.
+
+**The month was five days.** Book +$3,564 over 20 sessions, median day +$184; the top five days sum to 2.8x the month (08-04 +$3,624, 08-27 +$1,897, 08-13 +$1,748, 08-06 +$1,465, 08-28 +$1,304). Take them away and August is -$6.5K. All 111 fills that exited at >=1.3x entry premium made +$17,850; the other 207 fills lost -$14,286. This is the right-tail edge already on record (SIGNATURE.md, 2026-08-18), re-confirmed on August alone.
+
+**What a big day looked like, every time (4 of 5 were the same shape):**
+1. `BULLISH_RECLAIM_RIDE_THE_RIBBON`, calls, on a gap-go archetype (08-04, 08-13, 08-27) or range-chop (08-28). The bear mirror did it once (08-06, puts, range-chop).
+2. Core ENTER rows carried exactly two triggers -- `['level_reclaim', 'confluence']` -- bull score 11 vs bear 4-6. Not a rare trigger stack: it is the ordinary two-trigger reclaim.
+3. The first wave fired early: 09:41-10:22 ET. Held 19-48 min to the ribbon_ride TP1 at ~2.0x (sell 66%); runners ran to 2.5-3.5x over 47-106 min.
+4. A second paying wave near noon (08-04 12:28, 08-27 11:52, 08-13 14:36) paid another ~2x. On 08-04 the noon wave alone was +$2,100 book.
+5. The losers on the same days were midday re-entries at 11:26-11:52 that died at 0.82-0.88x -- nibbled, not blown up. Big days are not clean days; they are days where the 2x waves outran the nibbles.
+6. Per account the big day was +$250..650 -- exactly J's $100-200/day/account target, delivered by ONE 2x level trade plus a runner, not by more trades. Five arms on one signal turned it into a $1.5-3.6K book day.
+
+**What could not have been pre-selected:** VIX at 09:35 was 14.4-16.0 and overnight gap ranged -2.65% to +0.06% across the five days; prior-day range 3.1-6.4. The day-type classifier's forward rule (prior_day_range < 6.57 = trade) is the only pre-open lever under test (`Gamma_DayTypeLabels`, forward since 09-04). Consistent with SIGNATURE.md section 3: the day is not pre-selectable, the edge is in taking the wave and holding to 2x.
+
+**Is the rig still set up to catch them? (checked 2026-09-05 01:18 ET)**
+- Setup + direction: `BULLISH_RECLAIM_RIDE_THE_RIBBON` fired on 09-02 (13 fills, all lost, -$699) and 09-03 (22 fills, +$734 book, wave 3 at 11:07-11:22 paid +$1,597 across safe-3/risky-1/bold). The trigger is alive; September has simply not yet printed a 09:41 wave that ran.
+- Fleet gate `min_triggers: 2 + require_confluence_or_sequence` (safe-3, risky-1): every big-day entry had exactly those two triggers, so the gate admits the big-day shape. It refused 09-01 and 09-04 on "1 triggers < 2" -- those were not big-day shapes.
+- Exit shape: ribbon_ride TP1 +100% / sell 66% / runner 2.5x is unchanged; the safe-2 exit A/B (tp1 0.5, structure stop) never shipped (no commit, `accounts.json` safe-2 has no exit_patch). Good -- a 0.5 TP1 would have halved safe-2's capture on every big day.
+- 08-29 TIGHT-LADDER controls, replayed on the same fills (see the prereg's interim-evidence section): the -$400/arm/day realized stop blocks 8 entries net -$1,601 (7 losers, 1 winner) -- it only ever fires on losing days, good. The `max_same_day_roundtrips` 5->4 cap blocks 36 entries net +$270 -- neutral in aggregate but it removes the noon second wave on arms that churned in the morning: 08-04 risky-1 12:28 (+$651, entry #5) and 08-05 risky-1 11:48 (+$347). On active arms (risky-3 retired) the cap gives up ~+$1,485 of winners to avoid ~-$638 of losers. It first bound on 09-03 at 11:23 ET (28 refusals on safe-3/risky-1 after their 4th entry) and cost nothing that day. This is the ONE post-big-day change that trades right-tail capture for churn control; it stays in force through its own forward window (freeze + the prereg's no-peeking rule) and is the first item on the 09-29 checkpoint agenda: if the forward window shows the cap refusing >=1.3x waves, revert 4->5 (one line in both params files).
+- risky-3 retired 08-28 (it was the biggest single-arm winner on 08-04/08-06 and the biggest loser on 08-28; net -$653 over its window). No other trading-path change since 08-28 touches entry admission or exit shape.
+- Operational: quiet mode restored the fleet at 00:17 ET (168 Ready / 19 Disabled, Gamma_Premarket + Gamma_HeartbeatCore + fleet Ready); level feed was fresh on 09-04 (22 levels). The 09-04 55-minute outage was a power loss, not engine.
+
+**Verdict:** the big days were the ordinary two-trigger bull reclaim taken early and held to 2x, multiplied across arms. Nothing that produced them has been removed. The only knob that could shave them is the 4-round-trip cap, and it is on the checkpoint agenda with its cost quantified.
