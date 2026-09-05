@@ -45,6 +45,7 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 ---
 
 ## Known broken
+- [2026-09-04T17:26:04 ET] shadow_signal_audit: new unregistered producer(s): setup/scripts/context_bundle_producer.py::compute_catalyst_context. A detector produces output no decision path consumes (C7 at architecture scale). See analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md.
 
 - [2026-09-04T16:20:02.472864] INTERVENTION-COUNTER: 2 NEW SPY-0DTE intervention round trip(s) today (engine_entered_manual_exit=2), realized $338.0 -- Sept target is ZERO. See analysis/interventions/summary.json.
 - [2026-09-04T09:43:17 ET] TICKERS-LANE FIRST FILL :: tickers-1 AMZN260904C00260000 qty 3 @ 0.79 -- REVOKE: set shadow_only true in automation/state/tickers/params.json
@@ -69,6 +70,36 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 00:02 ET] FABLE EOD AUDIT 2026-09-04 (all lanes) + WEEKEND PLAN (Sat 09-05 .. Mon 09-07 Labor Day, market closed)
+
+**Verdict: the rig was DARK 09:51-10:46 ET with two open SPY positions -- machine crash + Interactive-only tasks; no instrument flagged it.** Everything else today was net-positive.
+
+| Lane | Today | Verdict |
+|---|---|---|
+| SPY 0DTE cores | safe-2 +$212.85 (3x P772 1.29->2.00) / bold-2 +$124.75 (5x P770 0.62->0.87); entries 09:46 engine, exits 10:46 **J via dashboard** (`source:null`) | P&L fine / exits were RESCUES during a 55-min engine blackout |
+| SPY fleet safe-3 / risky-1 / risky-3 | 0 fills, ARM_GATE "1 triggers < 2" (7x); 323/330 ticks no setup; risky-3 0 rows | sat out (valid day) |
+| Tickers lane day one (tickers-1/2/3, $5K each) | AMZN -$156 / tickers-2 -$93 / QQQ -$396 = **-$645**, 1 fill each, all `theta_budget` exits overshooting the 30% cap (38-71%); 144 TICK_ERRORs root-caused + fixed `7ebbeeec` | AMBER: sizing mismatch -- QQQ 3-lot @1.87 = $561 at risk = 11% of equity on a 1%-kill arm |
+| Premarket | readiness YELLOW (engine_health only), 22 key levels, bias bullish, regime stamp 08:40 ET, scout+swarm ok | OK |
+| Drawing / TV | autodraw 16:05, trendlines 8 live (62-respect support 769.77 TESTING), J-drawn capture OK 23 candidates, CDP up | OK |
+| Futures | health RED on `no_stray_exposure`; broker n=3 -$93.75; last ENTER 09-01 | needs a look Sat |
+| Crypto twin | 976 decision rows, breaker not tripped (equity 9441 / 9461 SOD) | OK, gym-only |
+| Multi-1 / weekly-1 / kalshi-1 | multi level-states last 08-20; weekly shadow, earnings feed fresh 08:20; kalshi last tick 08-09 | dormant/shadow (as designed) |
+| Kitchen | daemon alive pid 12844; kitchen-status.json parsed as `{}` at 16:01 although the file is 5.2 KB -- UNVERIFIED which side is wrong | check Sat |
+| Build (34 commits) | tickers lane armed + reviewed + creds + day-check; cockpit v3 (shadcn) + 2 scroll/cmdk fixes; torn-read fix; autonomy-report producer; goal-autopilot wip fix | OK |
+
+**Blackout mechanism (verified):** System log: unexpected shutdown 07:51:05 local (Kernel-Power 41, EventLog 6008, no minidump), boot 08:01:13 local, user logon 08:45:55 local; first hidden-chain launch 08:46:01 local in BOTH runner logs; core-decisions gap 09:51:03->10:46:15 ET; 186/186 `Gamma_*` tasks are `LogonType=Interactive`. Instruments that missed it: engine-health GREEN 18:02, monday_verify WS7 GREEN at 347/405 fires, this file had no entry. Lesson filed: `_lesson-inbox/2026-09-04-machine-crash-interactive-logon-unmanaged-positions.md`.
+
+**Housekeeping found:** 161/186 tasks Disabled = quiet mode held past 23:00 by a fullscreen game (restore list includes the 3 Tickers tasks; they must read Ready before Tue 09-08 09:35 ET). Goal-autopilot was stuck on a `[~] T6` -- closed it this fire (evidence in the goal file). The 2 FULL-SUITE reds pass now (10 passed; torn-read fix `96535fb1`). 3,034 untracked generated files (analysis/manager 852, kitchen-review 326 ...) need a retention/gitignore pass. `.mcp.json` still runs the leaked PKWEWC/PKEZ6O keys -- **rotation (09-03 finding) is STILL OPEN, J-only.**
+
+### WEEKEND PLAN (ranked; 1-3 are the weekend)
+1. **Dead-box protection** -- (a) J: Windows auto sign-in + BIOS power-loss restart; (b) build the off-box dead-man (alert-only this weekend; flatten arming = kill-type reduction, 09-29 checkpoint); (c) engine-gap detector -> STATUS RED + guard test using today's ledger as fixture; (d) intervention counter learns `rescue_exit`.
+2. **J: rotate the six leaked Alpaca paper keys** (safe-2/bold-2 wired ones first), update `.mcp.json` + `fleet/secrets.json`, reload MCP, verify by readback.
+3. **Tickers lane sizing** -- pre-register a per-trade $ risk cap consistent with the 1% kill (or raise the kill to Rule-6 shape) in writing; keep max_contracts 3; re-check `theta_budget` overshoot after 15-20 fills. No SPY trading-path edits (freeze).
+4. Quiet-mode restore verification Sunday night: all 3 Tickers tasks + LiveWatch + GuardsNightly Ready before Tue 09:35 ET; Labor Day: EodFlattenCore/EarlyClose fire Mon -- confirm they no-op on the broker clock.
+5. Untracked-file retention pass (OP-22 consolidation) + futures `no_stray_exposure` RED + kitchen-status `{}`.
+6. Then the queued goals in ladder order: GOAL-PREREG-ADJUDICATION -> KITCHEN-KEEPERS-TO-SHADOW -> ZERO-ENTER-DAYS (autopilot opens the first on its next pass).
+
 
 - [2026-09-04 02:43 ET] TICKERS-LANE OPEN :: three DEDICATED non-SPY 0DTE paper accounts (Tickers-1 NVDA AAPL AMZN / Tickers-2 TSLA META AVGO / Tickers-3 QQQ IWM GLD) trade the PRODUCTION SPY scorer unmodified from 09:35 ET 2026-09-04 (J 00:4x ET: 'they trade tomorrow ... test everything thoroughly'). Tasks Ready: Gamma_TickersLane (07:35 LOCAL = 09:35 ET, PT2M to 14:55) · Gamma_TickersEodFlatten (14:52 ET) · Gamma_TickersDayCheck (09:40 + 15:05 ET, read-only verdict -> goal log + a TICKERS-DAY-CHECK RED line here if dark/not flat). Adversarial review before first session: 2 BLOCKERs (exit qty never broker truth; unconfirmed orders left resting) + 1 HIGH + 2 MED fixed, plus a broker-clock gate (Labor Day Monday). 4 shadow E2E probes on a real account, last on the merged build: creds -> verify -> pin -> clock(bypassed in probe) -> sweep/adopt -> funnel -> production scorer x9 -> exits -> sizing (clamp 3) -> SHADOW_ENTRY_PREVIEW NVDA 0DTE put x3 limit 1.23; nothing sent. CREDS LOADED + VERIFIED (J 03:5x ET: use the pasted paper keys as-is): tickers_verify.py 03:5x ET: tickers-1 PA39FKBSPLPR / tickers-2 PA3K6MNSXGE6 / tickers-3 PA3RBOSIUBTR -- equity $5,000 each, buying_power 20,000, options_approved_level 3, ACTIVE; account pins written. Accounts are $5K, NOT the $100K the prereg assumed -> affordability cap 0.05 -> 0.30 (Rule 6 Safe value; the qty clamp of 3 is the risk control), 1% daily kill kept ($50 = one losing 3-lot ends that arm's day). REVOKE: shadow_only:true in automation/state/tickers/params.json. Prereg (frozen before the executor): analysis/recommendations/prereg-tickers-lane-production-scorer-2026-09-04.json. Doc: markdown/planning/TICKERS-LANE.md. Goal: GOAL-TICKERS-LANE-2026-09-04.
 
@@ -471,7 +502,7 @@ written**. Fix path is proven, not speculative.
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
 
 ## Kitchen
-Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=grinder-python
 
 ### BROKEN: self-check 2026-09-04T09:39:56
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-04.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
@@ -568,3 +599,11 @@ Kitchen: alive, queue 42 pending, last cook 0 min ago, today $0.00, model=openro
 - RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-04.log shows 3 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-eod-flatten-aggressive.ps1 (exit=[124], 1x), run-eod-flatten.ps1 (exit=[1], 1x), run-scout-premarket.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-09-04T21:30:34+00:00
+- task: manager
+- date_et: 2026-09-04
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000

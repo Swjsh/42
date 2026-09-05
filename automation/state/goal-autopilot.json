@@ -1,0 +1,48 @@
+{
+  "checked_at_et": "2026-09-05 00:02 ET",
+  "action": "closed_opened",
+  "reason": "queue fully terminal (no bare '- [ ] ' item left)",
+  "active_goal_id": "GOAL-PREREG-ADJUDICATION-2026-09-03",
+  "next_item": "P1 \u2014 Freeze the worklist: copy the 49-item `no status field` list from",
+  "ladder": [
+    {
+      "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-TICKERS-LANE-2026-09-04",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-GAMMA-AUTONOMY-2026-09-03",
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
+    },
+    {
+      "id": "GOAL-PREREG-ADJUDICATION-2026-09-03",
+      "state": "active",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
+    },
+    {
+      "id": "GOAL-ZERO-ENTER-DAYS-2026-09-03",
+      "state": "queued",
+      "eligible": true,
+      "why": "ok"
+    }
+  ],
+  "last_opened": "GOAL-PREREG-ADJUDICATION-2026-09-03",
+  "last_closed": "GOAL-TICKERS-LANE-2026-09-04",
+  "error": null
+}
