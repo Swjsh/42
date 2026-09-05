@@ -44,7 +44,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] K1 — Freeze the worklist: parse `strategy/candidates/_LEADERBOARD.md` for every
+- [~] K1 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Freeze the worklist: parse `strategy/candidates/_LEADERBOARD.md` for every
   row whose Status column contains `PROMISING` or `NEEDS-MORE-DATA`, plus every file in
   `strategy/candidates/_analysis/` with an mtime in the last 30 days, into
   `analysis/multi-lane/evaluations/kitchen-keeper-worklist-2026-09-03.json` (rank/id,
@@ -52,12 +52,12 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   has_oos bool — computed by grepping the candidate's own file for `walk-forward`/`WF`/
   `OOS`). DONE-WHEN: file exists, row count matches a fresh grep count of the two
   source patterns.
-- [ ] K2 — Triage by age: split the K1 worklist into `age_days > 14` (must get a
+- [~] K2 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Triage by age: split the K1 worklist into `age_days > 14` (must get a
   verdict THIS goal) vs `age_days <= 14` (verdict optional, still queued as a Kitchen
   keeper). Only the first bucket blocks DONE-WHEN's final clause. Write the split back
   into the same JSON as an `age_bucket` field. DONE-WHEN: every row has a non-null
   `age_bucket`.
-- [ ] K3 — Adjudicate the STRUCTURE/VETO family (STRUCTURE_VETO_DIR_VS_TREND,
+- [~] K3 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Adjudicate the STRUCTURE/VETO family (STRUCTURE_VETO_DIR_VS_TREND,
   TRENDLINE_BREAK_CALL_VETO, and their `_analysis/` re-runs incl.
   `2026-09-03-structure-veto-dir-vs-trend-regime-stratification.md` and
   `2026-09-03-structure-veto-dir-vs-trend-validation.md`, both dated today). These
@@ -66,7 +66,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   WF≥0.70 from the cited guard `backtest/tests/test_structure_veto.py` (29/29 PASS) and
   file the SHADOW-FILED prereg + register the shadow task, or KILL citing the OOS-2026
   $0 delta as the failing number if WF doesn't clear 0.70 on re-check.
-- [ ] K4 — Adjudicate the WEEKLY_DTE_NOT_0DTE family (leaderboard "the night's headline"
+- [~] K4 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Adjudicate the WEEKLY_DTE_NOT_0DTE family (leaderboard "the night's headline"
   row: OOS exp/tr $36.34→$66.13 monotone across 0/1/2 DTE, DATA-GATED on
   `options_3dte/4dte` backfill per its own caveat). Check whether that backfill has
   landed since 2026-07-07 (`grep -l "3dte\|4dte" analysis/backtests/cache/*` or
@@ -74,7 +74,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   SHADOW-FILED; if not landed, this is legitimately still NEEDS-MORE-DATA and gets an
   explicit `age_bucket: blocked_on_data` note rather than a forced verdict, but must
   still cite what's missing.
-- [ ] K5 — Adjudicate the older watcher-gate family (V14E_BEAR_ONLY_GATE,
+- [~] K5 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Adjudicate the older watcher-gate family (V14E_BEAR_ONLY_GATE,
   ORB_NARROW_OR_GATE, ORB_DIRECTION_FILTER, VIX_BULL_HARD_CAP_UNBLOCK,
   V14E_BEAR_HIGH_CONF_VIX_MODERATE_GATE — all 2026-05-21 to 2026-06-26, all
   watcher-only per their own leaderboard notes). Cross-check ORB_NARROW_OR_GATE against
@@ -82,7 +82,7 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   0/3 live J wins" — this one may already be effectively KILLED-by-inaction; verify
   against `markdown/research/BACKTESTING-PLAYBOOK.md`'s OP-21 promotion gate text before
   writing the verdict rather than assuming.
-- [ ] K6 — Adjudicate the screened-feasibility family (VIX1D_GATE_FEASIBILITY,
+- [~] K6 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Adjudicate the screened-feasibility family (VIX1D_GATE_FEASIBILITY,
   BXM_GATE_FEASIBILITY, FRED_YIELD_CURVE_GATE_FEASIBILITY — all 2026-07-22, all
   explicitly "NEEDS-MORE-DATA (screened, not rejected)" in their own text with a named
   concentration/dryness failure per candidate). These already state their own failing
@@ -90,13 +90,13 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
   KILL-with-cited-number for each unless the real-fills ledger (`journal/trades.csv`,
   n=190 at filing) has grown enough since 2026-07-22 to re-run; check current n first
   via `wc -l journal/trades.csv` before deciding EXTEND vs KILL.
-- [ ] K7 — Adjudicate the auto-promoted-by-reviewer batch (ranks 38/42/43/44/45/46, all
+- [~] K7 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Adjudicate the auto-promoted-by-reviewer batch (ranks 38/42/43/44/45/46, all
   2026-06-25 to 2026-06-30, all `TBD`/`NEEDS-MORE-DATA` with only a 67/67 test-pass and
   no OOS number in the leaderboard row). These look like they never received a real
   Stage-2+ backtest — read each candidate's own `.md` file in `strategy/candidates/` to
   confirm no OOS number exists anywhere before defaulting all six to KILL for
   "no OOS/WF evidence ever produced" (cite the absence explicitly, not silently).
-- [ ] K8 — Adjudicate today's fresh Kitchen output (2026-09-03 `_analysis/` files:
+- [~] K8 (WIP 2026-09-05 01:5x ET, Fable EOD-audit session a16e320c: 4 Sonnet workers K1+K2 / K3+K4 / K5-K7 / K8 in parallel -- other sessions do not pick up) — Adjudicate today's fresh Kitchen output (2026-09-03 `_analysis/` files:
   `vwap-overnight-grinder-top-keeper`, `shotgun-scalper-stage2-top-keeper`,
   `top-keeper-shotgun-scalper-stage3-1`, `midday-vol-contraction-breakout-backtest`,
   `walk-forward-oos-test-preceding-30-days`, `weekly-dte-not-0dte-anchor-day-op-16
@@ -120,5 +120,6 @@ days (e.g. rank 3 V14E_BEAR_ONLY_GATE, 2026-05-21; rank I QQQ_DIVERGENCE_CONFLUE
 - 2026-09-03 18:07 ET — authored by Sonnet (A4 of GOAL-GAMMA-AUTONOMY); queued on the
   ladder, not yet opened.
 - 2026-09-05 00:57 ET — opened by goal_autopilot
+- 2026-09-05 01:5x ET — K1-K8 claimed WIP by the Fable EOD-audit session (4 Sonnet fan-outs; K9 after they land).
 ## HONEST STATE
 Queued. Nothing started.
