@@ -99,7 +99,18 @@ This is intentional. The system is designed so that a single losing trade doesn'
 
 ## Pre-entry liquidity gate (added 2026-05-07)
 
-Every entry must clear an `mcp__alpaca__get_option_snapshot` check on the candidate strike BEFORE order placement. Hard rejections:
+> **⚠️ DOC-DRIFT, corrected 2026-09-05 (DOCTRINE-CODE-PARITY-2026-09-05.md C22):** this section
+> was RETIRED as CONFIRMED_DEAD on 2026-08-29 (`automation/state/params.json#_liquidity_gate_section_RETIRED_2026_08_29`)
+> — the 6 keys it depends on (`bid_ask_spread_max_cents`/`bid_ask_spread_max_pct_of_mid`/
+> `delta_min_abs`/`delta_max_abs`/`open_interest_min`/`liquidity_strike_retries_max`) had ZERO
+> order-path consumers; `pre_order_gate.py` was never wired to read them, and
+> `setup/scripts/heartbeat_core.py:~2706` independently confirms `bid_ask_spread_max_cents` was
+> "a dead knob with zero consumers." **No hard liquidity rejection described below is actually
+> enforced today.** Kept verbatim for historical/WHY context only — do not read this as a live
+> safety net. Revert (re-enable): `git revert` the 2026-08-29 params.json retirement commit AND
+> wire `pre_order_gate.py` to the 6 keys (was never done, even before retirement).
+
+Every entry must clear an `mcp__alpaca__get_option_snapshot` check on the candidate strike BEFORE order placement. Hard rejections (NOT LIVE, see banner above):
 
 | Check | Threshold | Why |
 |---|---|---|

@@ -167,8 +167,8 @@
   {
    "row_id": "tp1-qty-fraction-safe-0-8",
    "prereg_path": "analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json",
-   "ledger_path": "analysis/recommendations/pk-2026-06-28-001-scorecard.json",
-   "scorer": "n/a -- UNAPPLIED-RATIFICATION refile, not a scored shadow",
+   "ledger_path": "analysis/recommendations/tp1-fraction-ab-2026-09-05.json",
+   "scorer": "tp1_qty_fraction_safe_0_8",
    "classification": "reduction",
    "classification_reason": "Applying tp1_qty_fraction=0.8 to the live ribbon_ride registry (from the shipped 0.667) means selling MORE at TP1 -- strictly LESS runner exposure, never more. Per goal routing rule this is a pure reduction, eligible for 09-29 rather than 10-30.",
    "checkpoint": "2026-09-29",

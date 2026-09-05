@@ -142,3 +142,34 @@ and the chandelier arm/trail numbers were already fully resolved by
 carries the corrected wording ("runner target UNCONSTRAINED (99.0×, trail-only, C30)",
 "tp1_qty_fraction 0.667 ribbon_ride all arms") as of this sweep's start; this doc does not re-edit
 that paragraph.
+
+## H1 follow-up (GOAL-TP1-FRACTION-AB-2026-09-05, 2026-09-05) — C15 scope closed
+
+C15 ("playbook.md / risk-rules.md cross-check") was left UNVERIFIED by the original sweep. This
+goal completed it. Two DOC-DRIFT findings, both corrected in-place:
+
+- **C21 — playbook.md chandelier trail + TP1 numbers stale.** Both `*_RIDE_THE_RIBBON` setups
+  claimed "trails 0.15 off the high-water mark" and "TP1 = +50% premium at qty fraction 0.667."
+  Live RIBBON_RIDE registry (`automation/state/fleet/strategies.py`, frozen dataclass literal,
+  takes no params argument — same mechanism EXIT-SHAPE-TRUTH already proved for the sibling
+  `tp1_qty_fraction`/runner-target claims): `trail_pct=0.125` (matches `params.json#v15_profit_lock_trail_pct`,
+  WP-6 2026-06-21), `tp1_premium_pct=1.0` (+100%, the SAME drift CLAUDE.md's own C07 already
+  flagged — playbook.md carried the identical stale number independently). Corrected in both
+  setups' text, 2026-09-05.
+- **C22 — risk-rules.md "Pre-entry liquidity gate" describes a dead gate as live.** The section's
+  6 keys (spread/delta-band/OI thresholds) were RETIRED as CONFIRMED_DEAD on 2026-08-29
+  (`params.json#_liquidity_gate_section_RETIRED_2026_08_29` — zero order-path consumers, never
+  wired into `pre_order_gate.py`; independently confirmed by `heartbeat_core.py`'s own "dead knob
+  with zero consumers" comment). risk-rules.md still presented it as an enforced hard-rejection
+  gate with no retirement note. A retirement banner was added 2026-09-05; the table is kept for
+  historical WHY-context only.
+
+Both corrections quoted in full in `analysis/doctrine-parity/claims-2026-09-05.json` C21/C22.
+Files touched: `markdown/0dte/playbook.md`, `markdown/0dte/risk-rules.md`,
+`analysis/doctrine-parity/claims-2026-09-05.json` (C15 verdict flipped from UNVERIFIED to
+"SCOPE COMPLETED"). No FROZEN_TRADING_PATH file touched (params.json read-only cited, not edited).
+
+
+## Orchestrator correction (2026-09-05 06:26 ET, Fable)
+
+C21's trail number was wrong in the H1 pass: it trusted `params.json#v15_profit_lock_trail_pct` (0.125), which EXIT-SHAPE-TRUTH.md had already shown is NOT read by the ribbon_ride path. The live literal is `automation/state/fleet/strategies.py:143` `trail_pct=0.15`. `markdown/0dte/playbook.md` re-corrected to 0.15 (both setups). Lesson: the truth order in this doc's own rules (fills > code > params doc > prose) must be applied per claim, not per file -- a params `_doc` is prose.

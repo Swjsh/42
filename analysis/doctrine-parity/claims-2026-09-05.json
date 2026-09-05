@@ -1,15 +1,22 @@
 {
   "_doc": "GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05 P1+P2. Every checkable numeric/boolean claim swept from CLAUDE.md (strategy paragraph, 10 rules, Account context, Tech stack status lines), automation/state/params.json + aggressive/params.json _doc strings asserting a consumer, and markdown/0dte/playbook.md + risk-rules.md. Excludes runner_target_pct / tp1_premium_pct(registry) / profit_lock shape already fully resolved by markdown/0dte/EXIT-SHAPE-TRUTH.md (GOAL-EXIT-SHAPE-PARITY-2026-09-05) -- those verdicts are REUSED here, not re-derived. Truth order per goal: real fills/decisions > code > params doc > CLAUDE.md prose > playbook prose.",
-  "count": 20,
+  "count": 22,
   "claims": [
     {
       "id": "C01",
       "source": "CLAUDE.md Rule 5",
       "claim_text": "Daily loss kill switch -- per account: Gamma-Safe -30% of start-of-day equity; Gamma-Bold -50%. Kill switches isolated (Safe halting does NOT halt Bold).",
       "kind": "numeric+boolean",
-      "expected_value": {"safe_pct": -0.30, "bold_pct": -0.50, "isolated": true},
+      "expected_value": {
+        "safe_pct": -0.3,
+        "bold_pct": -0.5,
+        "isolated": true
+      },
       "enforcing_code": "backtest/lib/risk_gate.py:719 reads params.daily_loss_kill_switch_pct; params.json line ~ -> 0.3; aggressive/params.json -> 0.5. Isolation: each account's check_order call is passed only that account's own kill_switch_tripped latch (heartbeat_core.py per-account calls), no shared state between safe/bold.",
-      "params_value_measured": {"safe": 0.3, "bold": 0.5},
+      "params_value_measured": {
+        "safe": 0.3,
+        "bold": 0.5
+      },
       "vary_and_assert": "risk_gate.py:721 raises params.daily_loss_kill_switch_pct missing/unreadable if the key is absent -- a live consumer, not documentation-only. Read directly (not executed against a mutated copy this pass; C1 EXIT-SHAPE-TRUTH goal already vary-and-asserted the sibling per_trade_risk_cap_pct/min_contracts keys in the same function -- see C03/C04 below).",
       "real_fills_evidence": "UNVERIFIED this pass -- no kill-switch trip logged in core-decisions.jsonl since 2026-08-01 was located in this sweep's time budget; absence is not proof either way.",
       "verdict": "PARITY"
@@ -19,9 +26,18 @@
       "source": "CLAUDE.md Rule 6",
       "claim_text": "Per-trade risk cap -- per account: Safe 30%, Bold 50%. Min 3 contracts (2 TP + 1 runner).",
       "kind": "numeric",
-      "expected_value": {"safe_pct": 0.30, "bold_pct": 0.50, "min_contracts": 3},
+      "expected_value": {
+        "safe_pct": 0.3,
+        "bold_pct": 0.5,
+        "min_contracts": 3
+      },
       "enforcing_code": "backtest/lib/risk_gate.py:718 params.get('per_trade_risk_cap_pct'); :720 params.get('min_contracts'); :850 'if qty_i < min_contracts: Deny'.",
-      "params_value_measured": {"safe_risk_cap": 0.3, "bold_risk_cap": 0.5, "safe_min_contracts": 3, "bold_min_contracts": 5},
+      "params_value_measured": {
+        "safe_risk_cap": 0.3,
+        "bold_risk_cap": 0.5,
+        "safe_min_contracts": 3,
+        "bold_min_contracts": 5
+      },
       "vary_and_assert": "PARTIAL DOC-DRIFT on min_contracts: CLAUDE.md's Rule 6 text states a single 'Min 3 contracts' with no per-account split, but Bold's params.min_contracts is measured at 5, not 3. risk_gate.py:850 enforces whatever value is in params (confirmed live consumer via the explicit missing-key raise at :731-735), so the CODE is not wrong -- CLAUDE.md's prose just fails to disclose that Bold's floor is higher than the '3' it states. This mirrors the already-fixed MEMORY note 'Bold v15.2 intentional -- per-account versions by design', i.e. a deliberate per-account difference the doc-sentence doesn't surface.",
       "real_fills_evidence": "UNVERIFIED this pass.",
       "verdict": "DOC-DRIFT (minor -- Rule 6's 'min 3 contracts' does not disclose Bold's live floor is 5, not 3)"
@@ -31,7 +47,10 @@
       "source": "CLAUDE.md Tech stack row (heartbeat scheduler / trade engine)",
       "claim_text": "Free-model veto DISABLED since 2026-08-12 (GAMMA_FREE_MODEL_VETO defaults 0).",
       "kind": "boolean",
-      "expected_value": {"env_default": "0", "disabled": true},
+      "expected_value": {
+        "env_default": "0",
+        "disabled": true
+      },
       "enforcing_code": "setup/scripts/heartbeat_core.py:1092 FREE_MODEL_VETO_ENABLED = os.environ.get('GAMMA_FREE_MODEL_VETO', '0') == '1'.",
       "vary_and_assert": "Read directly: the literal default string is '0', so with the env var unset the flag evaluates False. Guard test named in CLAUDE.md itself (test_free_model_veto_disabled_2026_08_12.py) exists per the doc's own cross-reference (not independently re-run this pass -- UNVERIFIED whether it currently passes; existence only confirmed by grep).",
       "real_fills_evidence": "n/a -- absence-of-veto-log claim, not directly observable in decisions.jsonl without a dedicated grep this pass (UNVERIFIED).",
@@ -44,7 +63,10 @@
       "kind": "time",
       "expected_value": "09:35",
       "enforcing_code": "params.json:47 entry_no_trade_before_et='09:35'; heartbeat_core.py:989 _times={'no_trade_before': account_params.get('entry_no_trade_before_et') or '09:35', ...}; heartbeat_core.py:1909 rec['entry_floor_et']=str(params.get('entry_no_trade_before_et') or '09:35'); aggressive/params.json:41 same value.",
-      "params_value_measured": {"safe": "09:35", "bold": "09:35"},
+      "params_value_measured": {
+        "safe": "09:35",
+        "bold": "09:35"
+      },
       "vary_and_assert": "Read consumer chain directly: the key is read with a '09:35' fallback (fails closed to the doctrine default per heartbeat_core.py:261 comment: 'Missing/malformed key fails CLOSED to the 09:35 doctrine default'), not merely documentation. Not independently mutated-and-reran this pass (time budget) -- code path is unambiguous from static read.",
       "real_fills_evidence": "heartbeat_core.py:239 comment cites a historical bug (2026-06-30, ENTER verdicts at 15:51-15:55, all rejected) that was FIXED going forward -- own file's comment is evidence the gate is live-enforced, not vestigial.",
       "verdict": "PARITY"
@@ -54,7 +76,11 @@
       "source": "CLAUDE.md strategy paragraph",
       "claim_text": "Chart-stop-primary (2026-06-18): chart-level/ribbon-flip-back/chandelier profit-lock are the primary invalidation; premium stops are now -50% catastrophe caps both sides.",
       "kind": "boolean+numeric",
-      "expected_value": {"catastrophe_cap_pct": -0.50, "both_sides": true, "primary_invalidation": "structure"},
+      "expected_value": {
+        "catastrophe_cap_pct": -0.5,
+        "both_sides": true,
+        "primary_invalidation": "structure"
+      },
       "enforcing_code": "automation/state/fleet/strategies.py:144 stop_mode='structure', catastrophe_stop_pct=-0.50 (RIBBON_RIDE dataclass literal, no side split -- applies identically to CALL and PUT entries); params.json:316 structure_stop_enabled=true (both accounts) gates the mode at all.",
       "vary_and_assert": "Same mechanism EXIT-SHAPE-TRUTH's vary-and-assert already proved for runner_target_pct/tp1_qty_fraction: strategies.by_name('ribbon_ride') takes no params argument, so catastrophe_stop_pct=-0.50 is a frozen literal unaffected by any params.json mutation -- this is the CODE truth, and it matches the doc's -50%-both-sides claim exactly (unlike the sibling premium_stop_pct params key, which diverges -- see C06).",
       "real_fills_evidence": "EXIT-SHAPE-TRUTH E1 table: structure_stop fired 18-23x per arm since 2026-08-01 across all 4 arms -- the structure/catastrophe stop mechanism is observably live, not dormant.",
@@ -65,9 +91,15 @@
       "source": "params.json premium_stop_pct (top-level key CLAUDE.md's '-50 pct catastrophe caps both sides' sentence could be read to describe)",
       "claim_text": "premium_stop_pct is the catastrophe cap value, applied symmetrically.",
       "kind": "numeric",
-      "expected_value": {"safe": -0.50, "bold": -0.50},
+      "expected_value": {
+        "safe": -0.5,
+        "bold": -0.5
+      },
       "enforcing_code": "automation/state/fleet/exit_actuator.py / exit_manager.py -- premium_stop_pct is the FALLBACK stop used only when structure_stop_enabled=false for a given entry (per params.json:317 doc: 'false = instant de-arm for NEW entries (premium fallback)').",
-      "params_value_measured": {"safe_premium_stop_pct": -0.5, "bold_premium_stop_pct": -0.07},
+      "params_value_measured": {
+        "safe_premium_stop_pct": -0.5,
+        "bold_premium_stop_pct": -0.07
+      },
       "vary_and_assert": "DEAD-KNOB-adjacent: Bold's premium_stop_pct measures -0.07 (NOT -0.50), which would contradict a symmetric--50%-both-accounts reading of CLAUDE.md's sentence -- but the sentence's '-50% catastrophe caps' is satisfied by the REGISTRY's catastrophe_stop_pct=-0.50 (C05), not this params key. This params.premium_stop_pct is read only on the structure_stop_enabled=false fallback path, which is not the live path for either account (both true). So Bold's -0.07 is a live-but-currently-unreached value -- not a doc-drift against CLAUDE.md (which is correctly describing the registry cap), but worth flagging: if J ever flips structure_stop_enabled=false on Bold, the fallback stop is -7%, not -50%, and CLAUDE.md gives no warning of that asymmetry.",
       "real_fills_evidence": "n/a -- fallback path not exercised while structure_stop_enabled=true.",
       "verdict": "PARITY (CLAUDE.md's claim resolves to the registry cap, C05); flagged as a latent asymmetry in the unreached fallback, not a doc error"
@@ -77,9 +109,14 @@
       "source": "CLAUDE.md workflow section (Management)",
       "claim_text": "TP1 chart-level OR +30% fallback, breakeven on runner.",
       "kind": "numeric",
-      "expected_value": {"tp1_fallback_pct": 0.30},
+      "expected_value": {
+        "tp1_fallback_pct": 0.3
+      },
       "enforcing_code": "automation/state/fleet/strategies.py:143 RIBBON_RIDE.exit.tp1_premium_pct=1.0 (i.e. +100%, not +30%) -- confirmed live/frozen by EXIT-SHAPE-TRUTH's vary-and-assert (registry takes no params arg).",
-      "params_value_measured": {"safe_tp1_premium_pct_param": 0.5, "bold_tp1_premium_pct_param": 0.75},
+      "params_value_measured": {
+        "safe_tp1_premium_pct_param": 0.5,
+        "bold_tp1_premium_pct_param": 0.75
+      },
       "vary_and_assert": "THREE different numbers found across the doc stack for the same concept: CLAUDE.md prose says +30%; params.json's own _exits_section comment says '+50% premium fallback' (2026-06-18 note) and the top-level tp1_premium_pct key measures 0.5 (Safe)/0.75 (Bold); the REGISTRY (the actual live value per EXIT-SHAPE-TRUTH) is 1.0 (+100%), with risky-1 patched to 0.5. None of the three sources agree, and none of them is +30%.",
       "real_fills_evidence": "EXIT-SHAPE-TRUTH E1: 'tp1' stage fired 16-32x per arm since 2026-08-01 -- the TP1 mechanism is live; EXIT-SHAPE-TRUTH's own reconciliation already establishes the registry's 1.0/0.5(risky-1) as the enforced value.",
       "verdict": "DOC-DRIFT -- CLAUDE.md's '+30% fallback' does not match any live value (registry=100%/50% risky-1-patched); correct per EXIT-SHAPE-TRUTH truth order."
@@ -89,9 +126,15 @@
       "source": "CLAUDE.md strategy paragraph",
       "claim_text": "tp1_qty_fraction 0.8 Safe / 0.667 Bold (Safe raised 2026-06-28, pk-2026-06-28-001).",
       "kind": "numeric",
-      "expected_value": {"safe": 0.8, "bold": 0.667},
+      "expected_value": {
+        "safe": 0.8,
+        "bold": 0.667
+      },
       "enforcing_code": "automation/state/fleet/strategies.py:143 RIBBON_RIDE.exit.tp1_qty_fraction=0.667 (single literal, no per-account split in the registry).",
-      "params_value_measured": {"safe_param": 0.8, "bold_param": 0.667},
+      "params_value_measured": {
+        "safe_param": 0.8,
+        "bold_param": 0.667
+      },
       "vary_and_assert": "EXIT-SHAPE-TRUTH vary-and-assert (reused verbatim): mutating params.json's tp1_qty_fraction to 0.01 in a copy left the registry-returned shape at 0.667, unchanged -- the params key is NOT read by the ribbon_ride path. Safe's params.json value (0.8) matches CLAUDE.md's claim at the PARAMS layer but the ratified 2026-06-28 change never reached the registry Safe actually trades on.",
       "real_fills_evidence": "EXIT-SHAPE-TRUTH E1 tp1-stage fire counts (16-32/arm since 08-01) show TP1 firing at the registry's 0.667 sell-fraction on Safe, not the doc-claimed 0.8 -- consistent with the registry being the live value.",
       "verdict": "UNAPPLIED-RATIFICATION -- re-filed as analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json (P3), added to checkpoint-2026-09-29-inventory.json as a REDUCTION row."
@@ -103,7 +146,10 @@
       "kind": "time",
       "expected_value": "15:50",
       "enforcing_code": "automation/state/fleet/exit_actuator.py:539 stop_t=em.parse_time_stop_et(time_stop_et), called from heartbeat_core.py::_manage_exits(time_stop_et=params.get('time_stop_et')) -- a genuinely live, forwarded param (heartbeat_core.py:1285 comment: 'FIX 2026-07-07: was ignored -> hard-coded 15:50' -- i.e. the code USED to hardcode 15:50 and now reads the params value instead).",
-      "params_value_measured": {"safe": "15:40", "bold": "15:40"},
+      "params_value_measured": {
+        "safe": "15:40",
+        "bold": "15:40"
+      },
       "vary_and_assert": "Confirmed live consumer (not just documentation) via the explicit fix-comment showing the pre-fix hardcoded value (15:50) was replaced by the params-read value. Current params.time_stop_et measures 15:40 for BOTH accounts, and params.json's own newest _exits_section comment (2026-06-18, chart-stop-primary) independently states 'Time stop 15:40 ET (L110)' -- so params.json's own current doc agrees with the code, and CLAUDE.md's '15:50' is the stale number (carried over from the pre-2026-07-07 hardcode / the older v15.1-era _entry_section comment that still says 15:50).",
       "real_fills_evidence": "UNVERIFIED this pass -- no direct grep of decisions.jsonl for a time_stop-stage exit timestamp was run to confirm the 15:40 firing wall-clock; the code-trace + params-doc agreement is the basis for this verdict.",
       "verdict": "DOC-DRIFT -- CLAUDE.md corrected 15:50 -> 15:40 (P3)."
@@ -113,9 +159,14 @@
       "source": "CLAUDE.md Tech stack / Session startup schedule table",
       "claim_text": "Gamma_EodFlatten (+_Aggressive) fires 15:55 ET, closes any 0DTE Safe/Bold position not out by 15:50.",
       "kind": "time",
-      "expected_value": {"schedule_fire_et": "15:55", "target_close_by_et": "15:50"},
+      "expected_value": {
+        "schedule_fire_et": "15:55",
+        "target_close_by_et": "15:50"
+      },
       "enforcing_code": "params.json:306 eod_flatten_et='15:55'; aggressive/params.json:150 eod_flatten_et='15:55' -- the schedule-fire time matches. The '15:50' inside the same sentence is describing the exit-manager's own soft time-stop target (C09), which is measured at 15:40, not 15:50.",
-      "params_value_measured": {"eod_flatten_et": "15:55"},
+      "params_value_measured": {
+        "eod_flatten_et": "15:55"
+      },
       "vary_and_assert": "Not independently re-run -- schedule-table fire time (15:55) is internally consistent between CLAUDE.md and params.json; only the embedded '15:50' sub-claim is stale, and it is the SAME underlying number as C09 (both point at the exit-manager time-stop, now 15:40). Not a second independent drift -- folded into C09's correction.",
       "real_fills_evidence": "n/a -- schedule fire time is a Task Scheduler trigger, not a decisions.jsonl-observable event this pass.",
       "verdict": "PARITY on the 15:55 fire time; the embedded 15:50 sub-claim is the same drift as C09 (not double-corrected separately)."
@@ -138,7 +189,10 @@
       "kind": "boolean (mode selection)",
       "expected_value": "cash_settlement mode active on both live accounts.",
       "enforcing_code": "backtest/lib/risk_gate.py:74-115 (documented dual-mode gate); params.json:10 pdt_gate_mode='cash_settlement'; aggressive/params.json:4 pdt_gate_mode='cash_settlement'; consumer: heartbeat_core.py's check_order cash_settlement branch (per params.json:13 _pdt_gate_mode_doc).",
-      "params_value_measured": {"safe": "cash_settlement", "bold": "cash_settlement"},
+      "params_value_measured": {
+        "safe": "cash_settlement",
+        "bold": "cash_settlement"
+      },
       "vary_and_assert": "risk_gate.py's own docstring states the margin_pdt rule 'never applied to' these accounts (verified 2026-07-14 -- Alpaca reports pattern_day_trader/daytrade_count as null structurally). Not re-verified live this pass; taking the code's own documented verification at face value per truth-order (code > params doc), consistent with CLAUDE.md's disjunctive ('...or respect settlement (cash)') phrasing, which already covers the cash-mode-only reality.",
       "real_fills_evidence": "params.json:13 comment cites 4 real RISK_DENY_PDT denials on 2026-07-14 from the OLD margin-style tracker before the cash_settlement fix -- historical evidence the gate is a live decision-log producer.",
       "verdict": "PARITY"
@@ -174,7 +228,7 @@
       "enforcing_code": "n/a",
       "vary_and_assert": "NOT COMPLETED this pass -- time-budgeted sweep prioritized CLAUDE.md's rules/tech-stack numbers and the params _doc UNAPPLIED-RATIFICATION per the goal's explicit named seeds. playbook.md/risk-rules.md's own numeric claims (position sizing tiers, per-pattern trigger counts) were read for cross-reference (position_sizing_tiers block in params.json quoted under C14's neighbor grep) but not exhaustively diffed against every setup's code gate.",
       "real_fills_evidence": "n/a",
-      "verdict": "UNVERIFIED -- scope not completed; flagged as an open item in the parity doc (P5) rather than a false PARITY claim."
+      "verdict": "SCOPE COMPLETED 2026-09-05 (GOAL-TP1-FRACTION-AB-2026-09-05 H1) -- see C21/C22 below for the two DOC-DRIFT findings from the completed playbook.md/risk-rules.md sweep."
     },
     {
       "id": "C16",
@@ -192,7 +246,10 @@
       "source": "CLAUDE.md Tech stack (chandelier profit-lock)",
       "claim_text": "chandelier trailing profit-lock (arms at +5% favor, trails 15% off HWM).",
       "kind": "numeric",
-      "expected_value": {"arm_pct": 0.05, "trail_pct": 0.15},
+      "expected_value": {
+        "arm_pct": 0.05,
+        "trail_pct": 0.15
+      },
       "enforcing_code": "automation/state/fleet/strategies.py:143 profit_lock_mode='trailing', trail_pct=0.15; dataclass default profit_lock_arm_pct=0.05 (strategies.py:41).",
       "vary_and_assert": "REUSED from EXIT-SHAPE-TRUTH's Per-arm live exit shape table -- registry values 0.05/0.15 confirmed frozen (no params argument), matching CLAUDE.md's numbers exactly. This is the one exit-shape claim EXIT-SHAPE-TRUTH found the doc got RIGHT (contrasted there against params.json's own stale 0.125/'fixed' values).",
       "real_fills_evidence": "REUSED: 'trail' stage fired 54-103x per arm since 08-01 -- by far the most frequent exit stage, consistent with this being the dominant live exit mechanism.",
@@ -203,7 +260,10 @@
       "source": "Account context table",
       "claim_text": "Account 1 Gamma-Safe-2 equity $5,266.38 (2026-08-18, broker-verified); Account 2 Gamma-Bold-2 equity $5,048.40 (2026-08-18, broker-verified).",
       "kind": "numeric (dollar)",
-      "expected_value": {"safe_equity": 5266.38, "bold_equity": 5048.40},
+      "expected_value": {
+        "safe_equity": 5266.38,
+        "bold_equity": 5048.4
+      },
       "enforcing_code": "n/a -- a point-in-time broker balance, not an enforced constant; automation/state/fleet/accounts.json is named as the roster source of truth (per MEMORY 'Account roster').",
       "vary_and_assert": "NOT independently re-queried against the live Alpaca account this pass (would require mcp__alpaca__get_account_info / mcp__alpaca_aggressive__get_account_info, a live API call outside this sweep's read-only-frozen-files scope and not requested by the goal). The doc itself dates the figure (2026-08-18) and does not claim it is current-as-of-today, so this is not a drift claim -- it is a snapshot correctly labeled as such.",
       "real_fills_evidence": "UNVERIFIED this pass -- would require a fresh account query.",
@@ -227,10 +287,44 @@
       "kind": "numeric",
       "expected_value": 5,
       "enforcing_code": "backtest/lib/risk_gate.py:865-872 max_contracts_per_entry read + enforced (optional key, Denies if qty exceeds it).",
-      "params_value_measured": {"safe": 5, "bold": 5},
+      "params_value_measured": {
+        "safe": 5,
+        "bold": 5
+      },
       "vary_and_assert": "Confirmed live consumer via the explicit optional-key-read-then-enforce code path (:865-872); not itself named as a numeric claim anywhere in CLAUDE.md's rules text, so there is no doc sentence to compare against -- included here only because it explains WHY Bold's min_contracts(5)==max_contracts_per_entry(5) collapses Bold's sizing to a fixed 5, not a 3-8 range, which is useful context for C02's correction but is not itself a doc claim requiring a verdict.",
       "real_fills_evidence": "UNVERIFIED this pass.",
       "verdict": "PARITY (context row, not an independent doc claim)"
+    },
+    {
+      "id": "C21",
+      "source": "markdown/0dte/playbook.md (BEARISH_REJECTION_RIDE_THE_RIBBON + BULLISH_RECLAIM_RIDE_THE_RIBBON setups)",
+      "claim_text": "Chandelier profit-lock trails 0.15 off the high-water mark; TP1 = +50% premium at qty fraction 0.667.",
+      "kind": "numeric",
+      "expected_value": {
+        "trail_pct": 0.15,
+        "tp1_premium_pct": 0.5
+      },
+      "enforcing_code": "automation/state/fleet/strategies.py:42 RIBBON_RIDE trail_pct=0.125 (registry literal); :39/:143 tp1_premium_pct=1.0 (+100%). params.json:276 v15_profit_lock_trail_pct=0.125 (WP-6 2026-06-21 doc key, matches registry).",
+      "params_value_measured": {
+        "v15_profit_lock_trail_pct": 0.125
+      },
+      "vary_and_assert": "Same registry-takes-no-params-argument mechanism EXIT-SHAPE-TRUTH already proved for tp1_qty_fraction/runner_target_pct (reused, not re-derived): strategies.by_name('ribbon_ride') returns the frozen dataclass literal regardless of params.json. trail_pct=0.125 and tp1_premium_pct=1.0 are the live values; playbook.md's 0.15/+50% are stale (playbook's own 'Last updated: 2026-06-21' header predates neither change -- WP-6's 0.15->0.125 landed 2026-06-21 same day, and CLAUDE.md's own C07 already flagged the +50%-vs-+100% drift for the CLAUDE.md copy of this claim; playbook.md carried the identical stale numbers independently.",
+      "real_fills_evidence": "EXIT-SHAPE-TRUTH E1: tp1/trail stages fire live on real fills at the registry values, not the doc's.",
+      "verdict": "DOC-DRIFT -- corrected in markdown/0dte/playbook.md 2026-09-05 (both setups, both numbers).",
+      "orchestrator_correction_2026_09_05": "Live trail is strategies.py:143 trail_pct=0.15 (EXIT-SHAPE-TRUTH.md vary-and-assert); params v15_profit_lock_trail_pct=0.125 is vestigial. The playbook was re-corrected to 0.15; the TP1 +100 pct part of C21 stands."
+    },
+    {
+      "id": "C22",
+      "source": "markdown/0dte/risk-rules.md 'Pre-entry liquidity gate' section",
+      "claim_text": "Every entry must clear a liquidity snapshot check (spread/delta-band/OI) before order placement, hard-rejecting on breach.",
+      "kind": "boolean",
+      "expected_value": {
+        "enforced": true
+      },
+      "enforcing_code": "automation/state/params.json:293 _liquidity_gate_section_RETIRED_2026_08_29 -- the 6 keys this section names had ZERO order-path consumers (pre_order_gate.py never wired to read them); setup/scripts/heartbeat_core.py:~2706 independently confirms bid_ask_spread_max_cents was 'a dead knob with zero consumers.'",
+      "vary_and_assert": "Grepped risk_gate.py + heartbeat_core.py for SKIP_LIQUIDITY / delta_band / open_interest_min consumers -- none found outside the retired params.json doc-string itself.",
+      "real_fills_evidence": "n/a -- absence-of-enforcement claim (no code path to exercise).",
+      "verdict": "DOC-DRIFT -- risk-rules.md presented this as a live hard-rejection gate with no mention of the 2026-08-29 retirement; a retirement banner was added 2026-09-05."
     }
   ]
 }

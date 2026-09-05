@@ -33,18 +33,30 @@ hand-checks (a real fill where the walker's control leg matches the recorded TP1
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] A1 (WIP 2026-09-05 12:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain A1-A4+H1 -- other sessions do not pick up) -- Entry set: every real ribbon_ride entry (core + fleet) since 2026-06-28 from the fills
-  ledger / journal, deduped to waves; per entry the recorded TP1 and runner exits. Quote counts per arm.
-- [~] A2 (WIP 2026-09-05 12:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain A1-A4+H1 -- other sessions do not pick up) -- Walker A/B: re-walk each entry with fraction 0.667 vs 0.8 (everything else the live shape,
-  incl. the trail on the remaining runner); hand-check 2 control legs vs recorded exits (10 pct).
-- [~] A3 (WIP 2026-09-05 12:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain A1-A4+H1 -- other sessions do not pick up) -- Stats: per arm net delta, ex-best-day, bootstrap CI-lower(2.5), share-of-waves-runner-beat-
-  TP1, and the same for the frozen window; write the .json/.md; apply the prereg's rule verbatim.
-- [~] A4 (WIP 2026-09-05 12:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain A1-A4+H1 -- other sessions do not pick up) -- Packet: `checkpoint_packet.py` reads the A/B file for the tp1 row (RED-proofed test);
-  regenerate CHECKPOINT files via the script; if RULE MET, scaffold the package (K2 scaffold) with
-  the patch to strategies.py's Safe-arm fraction (patch only, never applied), guard + README.
-- [ ] H1 -- Housekeeping: the sweep's UNVERIFIED C15 -- cross-check markdown/0dte/playbook.md and
-  risk-rules.md numbers against code/params the same way (append rows to
-  analysis/doctrine-parity/claims-2026-09-05.json and the parity doc; correct DOC-DRIFT).
+- [x] A1 (DONE 2026-09-05 06:2x ET, Sonnet session a16e320c) -- Entry set: 235 real ribbon_ride waves
+  since 2026-06-28 from journal/trades.csv (safe-2=49, bold-2=43, safe-3=67, risky-1=76), deduped by
+  (account, date, time_entry).
+- [x] A2 (DONE 2026-09-05 06:2x ET, Sonnet session a16e320c) -- Walker: setup/scripts/tp1_fraction_ab_walk.py
+  reuses gate_net_cost_walk.py/exit_manager_walk.py machinery, real fill override (strike/entry
+  premium/qty), fraction override only. All 235 waves walked OK, 0 errors. 2 hand-checks quoted
+  (safe-3 -$6.00 vs -$6.00, risky-1 -$10.00 vs -$10.00 -- both 0.0% deviation, premium_stop legs).
+- [x] A3 (DONE 2026-09-05 06:2x ET, Sonnet session a16e320c) -- analysis/recommendations/tp1-fraction-ab-2026-09-05.json
+  + .md written. safe-2 net delta $0.00 (mechanical no-op, int(qty*frac) truncation at qty=3);
+  safe-3 net delta -$182.00 both full and frozen windows, bootstrap CI-lower negative both windows.
+  Prereg gate-1 (OOS/full positive) fails for both Safe arms -> VERDICT: RULE NOT MET.
+- [x] A4 (DONE 2026-09-05 06:2x ET, Sonnet session a16e320c) -- RED-proofed
+  backtest/tests/test_checkpoint_packet_tp1_fraction_2026_09_05.py (2 tests, quoted RED against
+  the pre-fix 'no scorer registered' UNKNOWN state, GREEN after); registered
+  `_score_tp1_qty_fraction_safe_0_8` in checkpoint_packet.py's `_SCORERS`, pointed the inventory
+  row's `scorer` field at it. Regenerated CHECKPOINT files: row flips UNKNOWN -> RULE NOT MET, n=116.
+  RULE NOT MET -> no package scaffolded per OPERATING RULES (package only on RULE MET).
+  `git status --porcelain` on all FROZEN_TRADING_PATH files is empty (none touched).
+- [x] H1 (DONE 2026-09-05 06:3x ET, Sonnet session a16e320c) -- C15 scope closed: appended C21
+  (playbook.md chandelier trail 0.15->0.125, TP1 +50%->+100%, both *_RIDE_THE_RIBBON setups -- both
+  corrected in-file) and C22 (risk-rules.md "Pre-entry liquidity gate" describes a dead gate,
+  RETIRED 2026-08-29 per params.json, no retirement note -- banner added) to
+  analysis/doctrine-parity/claims-2026-09-05.json; C15's verdict flipped from UNVERIFIED to
+  "SCOPE COMPLETED"; rows appended to markdown/doctrine/DOCTRINE-CODE-PARITY-2026-09-05.md.
 
 ## J-DECISIONS
 - None. Application waits for 09-29 under Gamma-decides with a revert line.
@@ -52,5 +64,26 @@ hand-checks (a real fill where the walker's control leg matches the recorded TP1
 ## PROGRESS LOG
 - 2026-09-05 12:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 06:04 ET — opened by goal_autopilot
+- 2026-09-05 06:19 ET — closed by goal_autopilot: queue fully terminal (no bare '- [ ] ' item left)
+- 2026-09-05 06:4x ET -- Sonnet session a16e320c: confirms A1-A4+H1 all DONE. VERDICT: RULE NOT MET
+  (both Safe arms fail prereg gate-1). checkpoint_packet row flipped UNKNOWN->RULE NOT MET. 2
+  doc-drift corrections shipped (playbook.md, risk-rules.md). No FROZEN_TRADING_PATH file touched.
+  No commit made (harness default: commit only on explicit user ask).
+AUTOPILOT CLOSE 2026-09-05 06:19 ET: queue fully terminal (no bare '- [ ] ' item left)
+
 ## HONEST STATE
-Queued. Nothing started.
+1. VERIFIED this session: all 235 real ribbon_ride waves since 2026-06-28 walked through the live
+   exit shape at both fractions with 0 walk errors; 2 exact hand-checks (0.0% deviation) quoted;
+   checkpoint_packet.py's tp1 row confirmed flipped from UNKNOWN to RULE NOT MET (n=116) by running
+   the script fresh, output pasted in the report.
+2. VERDICT: RULE NOT MET. safe-2's real sizing (qty=3, 44/49 waves) makes the fraction change a
+   mechanical no-op (int(3*0.667)=int(3*0.8)=2); safe-3 shows a NEGATIVE net delta (-$182) in both
+   full and frozen windows with a negative bootstrap CI-lower. The 2026-06-28 ratification does not
+   transfer to the live structure-stop/chandelier shape -- confirms the prereg's own SHAPE_MISMATCH
+   kill-nail. Not applied; no package scaffolded (package is RULE-MET-only per this goal's own
+   OPERATING RULES).
+3. NOT independently re-derived: the original pk-2026-06-28-001 battery's WF-ratio/sub-window-
+   stability/anchor-no-regression gates (2-4 of 4) -- gate 1 already fails for both Safe arms, so
+   per the prereg's own gate ORDER the check stops there; computing gates 2-4 would be extra work
+   with no bearing on the verdict (and gates 3/4 would be ill-defined against safe-2's zero-variance
+   null). Flagged, not silently skipped.

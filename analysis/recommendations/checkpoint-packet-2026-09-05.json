@@ -1,5 +1,5 @@
 {
-  "generated_at_et": "2026-09-05T05:42:29",
+  "generated_at_et": "2026-09-05T06:23:42",
   "generation_date": "2026-09-05",
   "generated_by": "setup/scripts/checkpoint_packet.py",
   "inventory_source": "analysis/recommendations/checkpoint-2026-09-29-inventory.json",
@@ -274,16 +274,25 @@
     {
       "row_id": "tp1-qty-fraction-safe-0-8",
       "prereg_path": "analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json",
-      "ledger_path": "analysis/recommendations/pk-2026-06-28-001-scorecard.json",
+      "ledger_path": "analysis/recommendations/tp1-fraction-ab-2026-09-05.json",
       "classification": "reduction",
       "checkpoint": "2026-09-29",
       "frozen_hypothesis": "See prereg's pass_criterion_frozen field verbatim -- apply only if a fresh A/B re-clears the original pk-2026-06-28-001 gates (OOS positive, WF>=0.70, sub-window stable, anchor no-regression) scored against the ACTUAL shipped shape (structure-stop/chandelier), not the OTM-2/premium-stop/fixed-target shape the original scorecard measured.",
       "decision_rule_verbatim": "prereg kill_nails.SHAPE_MISMATCH: 'if a fresh re-score under the live shape does not clear the same 4 gates, the ratification does not transfer and this prereg is retired, not applied blind.'",
       "reversible_action": "Change automation/state/fleet/strategies.py RIBBON_RIDE.exit.tp1_qty_fraction from 0.667 to 0.8 for Safe-facing arms only (safe-2, safe-3) -- one-line, byte-identical, git-revertible. NOT applied by this filing; CONFIG FREEZE (this goal's operating rules) forbids any FROZEN_TRADING_PATH value change before 10-30/09-29 adjudication.",
-      "verdict": "UNKNOWN",
-      "n": null,
-      "numbers": {},
-      "note": "no scorer registered for 'n/a -- UNAPPLIED-RATIFICATION refile, not a scored shadow'",
+      "verdict": "RULE NOT MET",
+      "n": 116,
+      "numbers": {
+        "safe_2_net_delta": 0.0,
+        "safe_3_net_delta": -182.0,
+        "safe_2_n_waves": 49,
+        "safe_3_n_waves": 67,
+        "safe_2_boot_ci_lower": 0.0,
+        "safe_3_boot_ci_lower": -8.8209,
+        "safe_2_net_delta_frozen": 0.0,
+        "safe_3_net_delta_frozen": -182.0
+      },
+      "note": "prereg gate-1 (OOS/full positive) applied to both Safe arms; safe-2's delta is a mechanical no-op (int(qty*frac) truncation at qty=3), safe-3's is negative in both windows -- SHAPE_MISMATCH kill-nail confirmed, not applied.",
       "package": null,
       "package_ready": false
     }

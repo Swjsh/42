@@ -342,6 +342,49 @@ def _score_vix_bull_hard_cap_shadow(row: dict, today: str) -> dict:
     }
 
 
+def _score_tp1_qty_fraction_safe_0_8(row: dict, today: str) -> dict:
+    """GOAL-TP1-FRACTION-AB-2026-09-05 A4: reads the fresh A/B
+    (analysis/recommendations/tp1-fraction-ab-2026-09-05.json) and applies the prereg's own
+    gate-1 (OOS/full-window positive) to BOTH Safe arms (safe-2, safe-3 -- the RIBBON_RIDE
+    dataclass they share). A failed gate-1 on either arm ends the check per the prereg's
+    stated gate ORDER (WF ratio / sub-window-stability / anchor-regression are the
+    remaining 3 gates in the original battery; not computed here because gate-1 already
+    fails, and safe-2's zero-variance null result would make several of them undefined)."""
+    ab_path = REPO / "analysis" / "recommendations" / "tp1-fraction-ab-2026-09-05.json"
+    if not ab_path.exists():
+        return {"verdict": VERDICT_INSUFFICIENT_N, "n": 0, "numbers": {},
+                "note": "tp1-fraction-ab-2026-09-05.json not found"}
+    d = _read_json(ab_path)
+    full = d.get("per_arm_full_window", {})
+    frozen = d.get("per_arm_frozen_window", {})
+    safe2_full = full.get("safe-2", {})
+    safe3_full = full.get("safe-3", {})
+    n = int(safe2_full.get("n_waves") or 0) + int(safe3_full.get("n_waves") or 0)
+    if n < 20:
+        return {"verdict": VERDICT_INSUFFICIENT_N, "n": n, "numbers": {},
+                "note": "fewer than 20 waves across the two Safe arms"}
+    safe2_net = safe2_full.get("net_delta_dollars")
+    safe3_net = safe3_full.get("net_delta_dollars")
+    gate1_pass = (isinstance(safe2_net, (int, float)) and safe2_net > 0
+                  and isinstance(safe3_net, (int, float)) and safe3_net > 0)
+    verdict = VERDICT_MET if gate1_pass else VERDICT_NOT_MET
+    return {
+        "verdict": verdict,
+        "n": n,
+        "numbers": {
+            "safe_2_net_delta": safe2_net, "safe_3_net_delta": safe3_net,
+            "safe_2_n_waves": safe2_full.get("n_waves"), "safe_3_n_waves": safe3_full.get("n_waves"),
+            "safe_2_boot_ci_lower": safe2_full.get("bootstrap_ci_lower_2p5_per_wave_delta"),
+            "safe_3_boot_ci_lower": safe3_full.get("bootstrap_ci_lower_2p5_per_wave_delta"),
+            "safe_2_net_delta_frozen": frozen.get("safe-2", {}).get("net_delta_dollars"),
+            "safe_3_net_delta_frozen": frozen.get("safe-3", {}).get("net_delta_dollars"),
+        },
+        "note": "prereg gate-1 (OOS/full positive) applied to both Safe arms; safe-2's "
+                "delta is a mechanical no-op (int(qty*frac) truncation at qty=3), safe-3's "
+                "is negative in both windows -- SHAPE_MISMATCH kill-nail confirmed, not applied.",
+    }
+
+
 def _score_runner_target_vs_tape_peak(row: dict, today: str) -> dict:
     """T2/T4 (GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05): the prereg is FROZEN_BEFORE_ANY_RESULT
     with n_needed>=20 forward right-tail waves (post-10-30, per its own kill_criteria) --
@@ -613,6 +656,7 @@ _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "tickers_theta_budget_cadence": _score_tickers_theta_budget_cadence,
     "catastrophe_cap_and_day_throttle": _score_catastrophe_cap_and_day_throttle,
     "runner_target_vs_tape_peak": _score_runner_target_vs_tape_peak,
+    "tp1_qty_fraction_safe_0_8": _score_tp1_qty_fraction_safe_0_8,
 }
 
 

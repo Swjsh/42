@@ -64,13 +64,13 @@
 
 ### Stop
 - **Chart stop (PRIMARY invalidation):** SPY closes a 3-min candle **above** the rejected level + $0.50 buffer (params.json#chart_stop_buffer_dollars). The chart structure failing is the real invalidation — this is the primary stop. Ribbon-flip-back (opposite-stack + spread) is the secondary structural exit. Ribbon condition removed in v11 (tested worse).
-- **Chandelier profit-lock:** arms at +5% favor, trails 0.15 off the high-water mark (params.json) — locks gains as the move runs (v15).
+- **Chandelier profit-lock:** arms at +5% favor, trails **0.15** off the high-water mark (live registry literal `automation/state/fleet/strategies.py:143` `trail_pct=0.15`; params.json#v15_profit_lock_trail_pct 0.125 is NOT read by the ribbon_ride path -- see EXIT-SHAPE-TRUTH.md; a 2026-09-05 pass briefly wrote 0.125 here from that vestigial key, re-corrected same day) — locks gains as the move runs (v15).
 - **Premium stop (catastrophe cap only):** Safe = **−50%** (entry × 0.50, params.json#premium_stop_pct); Bold = **−7% bear** (aggressive params.json#premium_stop_pct_bear). This is a backstop catastrophe cap, NOT the primary stop — chart-stop-primary doctrine (C2). **Drift check: premarket Step 1a verifies prompt + params.json match.**
 - **Time stop:** Out by 15:50 ET. No 0DTE held into the close.
 
 ### Target / exit — RIDE THE RIBBON (primary management)
 
-Locked at TP1 = +50% premium (params.json#tp1_premium_pct) at qty fraction 0.667 (sell 2 of 3, params.json#tp1_qty_fraction) based on `scale-out-math.md` analysis. Banks meaningful profit; doesn't clip the natural runner. **TP1 fallback to chart-level (next Active/Carry tier level past entry, $1.50 min distance, no round numbers) per v11 ratification — whichever fires first.**
+Locked at TP1 = **+100% premium** (live RIBBON_RIDE registry value, `automation/state/fleet/strategies.py`; params.json#tp1_premium_pct's own 0.50/0.75 keys are NOT read by the ribbon_ride path -- same vary-and-assert as EXIT-SHAPE-TRUTH/CLAUDE.md C07, doc corrected 2026-09-05 per DOCTRINE-CODE-PARITY-2026-09-05.md C21) at qty fraction 0.667 (sell 2 of 3, live registry value -- the ratified 0.8 never reached the registry, see prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json) based on `scale-out-math.md` analysis. Banks meaningful profit; doesn't clip the natural runner. **TP1 fallback to chart-level (next Active/Carry tier level past entry, $1.50 min distance, no round numbers) per v11 ratification — whichever fires first.**
 
 **TP1 (sell 2 of 3 contracts, qty_fraction 0.667):** when **either** of these fires first —
 - Premium ≥ entry premium × 1.50 (i.e., +50% gain), OR
@@ -172,13 +172,13 @@ This caps both the upside and the downside, but it removes the "I was working an
 
 ### Stop
 - **Chart stop (PRIMARY invalidation):** SPY closes a 3-min candle **below** the reclaimed level + $0.50 buffer (params.json#chart_stop_buffer_dollars). The chart structure failing is the real invalidation — this is the primary stop. Ribbon-flip-back exit requires opposite-stack + 30c spread (params.json#ribbon_flip_back_*) — not just MIXED transition (chop = no real bias).
-- **Chandelier profit-lock:** arms at +5% favor, trails 0.15 off the high-water mark (params.json) — locks gains as the move runs (v15).
+- **Chandelier profit-lock:** arms at +5% favor, trails **0.15** off the high-water mark (live registry literal `automation/state/fleet/strategies.py:143` `trail_pct=0.15`; params.json#v15_profit_lock_trail_pct 0.125 is NOT read by the ribbon_ride path -- see EXIT-SHAPE-TRUTH.md; a 2026-09-05 pass briefly wrote 0.125 here from that vestigial key, re-corrected same day) — locks gains as the move runs (v15).
 - **Premium stop (catastrophe cap only):** Safe = **−50%** (entry × 0.50, params.json#premium_stop_pct); Bold = **−5% bull** (aggressive params.json#premium_stop_pct_bull). This is a backstop catastrophe cap, NOT the primary stop — chart-stop-primary doctrine (C2). **Drift check: premarket Step 1a verifies prompt + params.json match.**
 - **Time stop:** Out by 15:50 ET. No 0DTE held into the close.
 
 ### Target / exit — RIDE THE RIBBON (primary management)
 
-Same math as bearish version (`scale-out-math.md` analysis applies symmetrically). TP1 = +50% premium (params.json#tp1_premium_pct) at qty fraction 0.667.
+Same math as bearish version (`scale-out-math.md` analysis applies symmetrically). TP1 = **+100% premium** (live registry value, corrected 2026-09-05 -- see the bearish setup's note above) at qty fraction 0.667 (live registry; the ratified 0.8 never reached the registry).
 
 **TP1 (sell 2 of 3 contracts, qty_fraction 0.667):** when **either** of these fires first —
 - Premium ≥ entry premium × 1.50 (i.e., +50% gain), OR
