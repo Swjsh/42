@@ -11,3 +11,9 @@
 **Fix:** re-register every stub task to the system pythonw + `PYTHONPATH` through run_cmd_hidden.py (the pattern ~150 silent tasks already use); audit flag TASK_VENV_INTERPRETER + pytest guard on the live registry and the installers; window_leak_hook attributes each hide to processes created in the prior 3 s and upserts ONE Known-broken line per day when hides > 0; launch_rate.py flags any market-closed hour over 60 launches; SPY engine tasks narrowed to Mon-Fri market window; grinders presence-aware, below-normal, 2 workers. Goal: GOAL-SILENT-RIG-2026-09-05.
 
 **Theme rows:** C8 (headless Windows spawn = system pythonw), C7 (a hider that hides 700 windows a day and says nothing is silent failure), C34/C35 (built != shipped: the guard must read the LIVE registry).
+
+**Afternoon addenda (same day):**
+- The task-ACTION sweep was not enough: 12 launcher scripts (run-discord-responder.ps1, run-autoapply.ps1, run-tv-watchdog.ps1, ensure-discord-bridge-alive.ps1, ...) pick the stub INSIDE the script (`$venvPythonW = Join-Path ... .venv\Scripts\pythonw.exe`), so the 16:15 / 16:30 ET fires flashed 12 more windows after the actions were clean. Guard must scan every launcher, not only task actions and installers.
+- quiet_mode's restore re-enabled two tasks a human had turned off on purpose (CryptoTwin, TickersLane) -> `quiet-mode-never-restore.json`.
+- A window-leak hook that hides windows and says nothing is a silent failure (730/day for days): the hook now writes a daily Known-broken line and attributes each hide via an event-driven process-creation tracer (proc_trace).
+- A Bash-tool heredoc python from an early worker hung for 8.4 CPU-hours (pid 22036, `python3.exe -`), unreaped because the >5-min reaper does not match the WindowsApps python3 image. Workers: never leave a heredoc waiting on stdin; orchestrator: `Get-Process python*` CPU column is a cheap daily check.
