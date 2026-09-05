@@ -1,0 +1,38 @@
+{
+  "id": "PREREG-TP1-QTY-FRACTION-SAFE-0-8-10-30-2026-09-05",
+  "status": "FROZEN -- UNAPPLIED-RATIFICATION found by GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05. Not run as a shipping decision. Adjudicated on the 2026-10-30 menu only.",
+  "filed_by": "Sonnet session a16e320c, GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05 P3",
+  "filed_at_et": "2026-09-05T05:5x",
+  "original_ratification": {
+    "pk_id": "pk-2026-06-28-001",
+    "scorecard": "analysis/recommendations/pk-2026-06-28-001-scorecard.json",
+    "contender_label": "OTM-2:LR0:mt1:stop-8:tp+150%:sell80%:fixed",
+    "ratified_at": "2026-06-28T15:40:29Z (CLEARED, ALL_PASS gates true)",
+    "original_evidence_quoted": {
+      "is_metrics": {"edge_capture": 1692.39, "wf": 1.98, "n": 214, "expectancy": 23.78, "wr": 0.1215, "max_dd": -1162.6},
+      "full_window": {"n": 229, "edge_capture": 1692.39, "expectancy": 31.13, "wr": 0.1266, "max_dd": -1162.6, "total_dollar": 7128.74, "trading_days": 171, "wf_per_trade": 3.566},
+      "oos_split": {"OOS_n": 85, "OOS_exp": 56.86, "OOS_total": 4832.8, "wf_ratio": 3.566},
+      "quarter_positive_fraction": 0.833,
+      "gates": {"oos_positive": true, "wf_ge_0.70": true, "sub_window_stable_ge_0.60": true, "anchor_no_regression": true, "ALL_PASS": true}
+    },
+    "note": "This scorecard's own combo array is OTM-2 strike / -8% premium stop / tp+150%(1.5) fixed target -- i.e. it validated a DIFFERENT full exit shape (OTM-2, premium-mode stop, fixed 150% target) than what actually shipped. CLAUDE.md's changelog only ever cited this pk-id to justify ONE isolated knob out of that combo -- tp1_qty_fraction raised to 0.8 on Safe -- while the strike (ATM, not OTM-2), stop (structure, not -8% premium), and target (chandelier/trail, not fixed 150%) all diverged onto the later chart-stop-primary shape (2026-06-18). Whether an isolated tp1_qty_fraction=0.8 transfers to a structure-stop/ATM/chandelier shape it was never validated against is exactly the C29 risk (gates validated on one tier/shape do not transfer to another) -- this prereg does not assume it does."
+  },
+  "what_the_parity_sweep_found": {
+    "claim": "CLAUDE.md strategy paragraph: 'tp1_qty_fraction 0.8 Safe / 0.667 Bold (Safe raised 2026-06-28, pk-2026-06-28-001)'.",
+    "params_json_value": "automation/state/params.json tp1_qty_fraction = 0.8 (matches the doc claim at the params layer).",
+    "live_registry_value": "automation/state/fleet/strategies.py RIBBON_RIDE.exit.tp1_qty_fraction = 0.667 (hardcoded dataclass literal, no params argument) -- confirmed by markdown/0dte/EXIT-SHAPE-TRUTH.md's vary-and-assert (mutating params.json's tp1_qty_fraction to 0.01 in a copy left the registry's returned shape at 0.667, unchanged).",
+    "mechanism": "heartbeat_core.py's ribbon_ride entry path calls strategies.by_name('ribbon_ride').exit.to_dict() directly -- no params.json value is passed in. ribbon_ride is the entry that fires 5-6 of every 6 live trades on all four goal-relevant arms (safe-2, bold-2, safe-3, risky-1), so this is not an edge-case knob -- it is the dominant path.",
+    "verdict": "UNAPPLIED-RATIFICATION. The 2026-06-28 ratification (raise Safe's TP1 sell fraction to 0.8) reached params.json but never reached the ribbon_ride registry that actually executes."
+  },
+  "class": "REDUCTION, not expansion -- correcting the direction implied by the goal brief's generic template. Going from the live 0.667 (sell 66.7% at TP1, ride 33.3%) to the ratified 0.8 (sell 80% at TP1, ride 20%) means SELLING MORE at TP1, which REDUCES runner exposure (less size left to the trailing chandelier/structure stop after TP1). This is a risk-reduction direction, the opposite of the goal brief's default assumption that under-applying a sell-fraction increase 'means more runner exposure' -- here the knob that failed to apply was itself the size-down, so today's live shape already carries MORE runner exposure than doctrine intended, not less.",
+  "pass_criterion_frozen": "Apply tp1_qty_fraction=0.8 to the ribbon_ride registry entry (both Safe-facing arms, safe-2 and safe-3, which share the RIBBON_RIDE dataclass) ONLY if, on >=20 trading days after 2026-06-28 scored against the ACTUAL shipped shape (structure stop / ATM or per-setup-override strike / chandelier trail -- NOT the OTM-2/-8%/fixed-150% shape the pk-2026-06-28-001 scorecard measured), a fresh A/B re-validates the sell-more-at-TP1 direction under that shape. The original scorecard's gates (OOS positive, WF>=0.70, sub-window stable, anchor no-regression) are the bar; they must be re-cleared on the shape that will actually receive the change, not assumed to carry over per C29.",
+  "kill_nails": {
+    "SHAPE_MISMATCH": "the original pk-2026-06-28-001 evidence was scored against OTM-2/premium-stop/fixed-target, not the live structure-stop/chandelier shape -- if a fresh re-score under the live shape does not clear the same 4 gates, the ratification does not transfer and this prereg is retired, not applied blind.",
+    "BOLD_UNCHANGED": "Bold's 0.667 was never part of this ratification (pk-2026-06-28-001 combo names Safe only) and stays untouched regardless of this prereg's outcome.",
+    "UNPOWERED": "fewer than 20 post-2026-06-28 trading days scored under the live shape at adjudication -- park.",
+    "DOCTRINE": "this is a params/registry VALUE change on FROZEN_TRADING_PATH (strategies.py RIBBON_RIDE); it does not ship before 2026-10-30 per this goal's CONFIG FREEZE operating rule regardless of how the re-score reads."
+  },
+  "does_this_ship_anything": "No. Refiling only -- corrects an UNAPPLIED-RATIFICATION into a properly-scoped prereg with its original evidence attached and the shape-mismatch risk stated. Config freeze (this goal's operating rules) forbids applying it now even if the evidence looked clean.",
+  "consumer": "the 2026-10-30 shape-change menu; also tracked in analysis/recommendations/checkpoint-2026-09-29-inventory.json.",
+  "revoke": "delete this file"
+}

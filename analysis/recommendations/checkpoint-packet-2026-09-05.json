@@ -1,9 +1,9 @@
 {
-  "generated_at_et": "2026-09-05T04:35:27",
+  "generated_at_et": "2026-09-05T05:42:29",
   "generation_date": "2026-09-05",
   "generated_by": "setup/scripts/checkpoint_packet.py",
   "inventory_source": "analysis/recommendations/checkpoint-2026-09-29-inventory.json",
-  "row_count": 11,
+  "row_count": 13,
   "rows": [
     {
       "row_id": "tight-ladder-control-4-roundtrip-cap",
@@ -253,6 +253,39 @@
         "source": "analysis/gate-net-cost/GATE-NET-COST-2026-09-05.json (N3 net table)"
       },
       "note": "Forward-window count of missed waves still attributable to this mechanism after 2026-09-05, per this prereg's own extend_criterion. RULE MET is never emitted by this generic scorer -- the dry-run P&L replay in each prereg's kill_criterion/extend_criterion is a separate, not-yet-built step; INSUFFICIENT N / NOT MET only reflect the count gate. net_of_losers_dollars_* (when present) is the backfill-window NET read from GATE-NET-COST-2026-09-05.json, NOT the ceiling -- read it, not dollar_figure, when citing a $ number for this row."
+    },
+    {
+      "row_id": "runner-target-vs-tape-peak",
+      "prereg_path": "analysis/recommendations/prereg-runner-target-vs-tape-peak-10-30-2026-09-05.json",
+      "ledger_path": "analysis/right-tail/ledger.jsonl",
+      "classification": "expansion",
+      "checkpoint": "2026-10-30",
+      "frozen_hypothesis": "For right-tail-ledger waves in the top peak_multiple decile (>=2.9x), does a finite wider runner target/trail capture materially more of the tape peak net of the give-back it costs on the FULL wave population (not just the top decile)?",
+      "decision_rule_verbatim": "status: 'FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)'. kill_criteria.primary_kill requires bootstrap CI-lower(2.5%) > 0 on the FULL population at n>=20 forward waves; kill_criteria.concentration_kill requires top3_concentration_share < 0.60. Either failure kills. C30 caveat: candidate_finite_changes are explicitly bounded (never 'remove the target') because this session found RIBBON_RIDE's own fleet runner_target_pct is ALREADY 99.0/unconstrained -- a live C30 instance, not a control to widen further.",
+      "reversible_action": "None shipped -- prereg only, no params.json/strategies.py edit made by this filing (T2, GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05).",
+      "verdict": "INSUFFICIENT N",
+      "n": 0,
+      "numbers": {
+        "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)",
+        "top_decile_n": 8
+      },
+      "note": "FROZEN_BEFORE_ANY_RESULT -- no forward-scored waves yet; n>=20 forward right-tail waves is the frozen floor (kill_criteria.primary_kill). The top-decile n=7 sample in the prereg's own evidence section is BACKWARD-looking (this session's fresh pull), never citable as the forward bar."
+    },
+    {
+      "row_id": "tp1-qty-fraction-safe-0-8",
+      "prereg_path": "analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json",
+      "ledger_path": "analysis/recommendations/pk-2026-06-28-001-scorecard.json",
+      "classification": "reduction",
+      "checkpoint": "2026-09-29",
+      "frozen_hypothesis": "See prereg's pass_criterion_frozen field verbatim -- apply only if a fresh A/B re-clears the original pk-2026-06-28-001 gates (OOS positive, WF>=0.70, sub-window stable, anchor no-regression) scored against the ACTUAL shipped shape (structure-stop/chandelier), not the OTM-2/premium-stop/fixed-target shape the original scorecard measured.",
+      "decision_rule_verbatim": "prereg kill_nails.SHAPE_MISMATCH: 'if a fresh re-score under the live shape does not clear the same 4 gates, the ratification does not transfer and this prereg is retired, not applied blind.'",
+      "reversible_action": "Change automation/state/fleet/strategies.py RIBBON_RIDE.exit.tp1_qty_fraction from 0.667 to 0.8 for Safe-facing arms only (safe-2, safe-3) -- one-line, byte-identical, git-revertible. NOT applied by this filing; CONFIG FREEZE (this goal's operating rules) forbids any FROZEN_TRADING_PATH value change before 10-30/09-29 adjudication.",
+      "verdict": "UNKNOWN",
+      "n": null,
+      "numbers": {},
+      "note": "no scorer registered for 'n/a -- UNAPPLIED-RATIFICATION refile, not a scored shadow'",
+      "package": null,
+      "package_ready": false
     }
   ]
 }

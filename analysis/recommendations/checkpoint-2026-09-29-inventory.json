@@ -163,8 +163,22 @@
    "frozen_hypothesis": "For right-tail-ledger waves in the top peak_multiple decile (>=2.9x), does a finite wider runner target/trail capture materially more of the tape peak net of the give-back it costs on the FULL wave population (not just the top decile)?",
    "decision_rule_verbatim": "status: 'FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (EXPANSION)'. kill_criteria.primary_kill requires bootstrap CI-lower(2.5%) > 0 on the FULL population at n>=20 forward waves; kill_criteria.concentration_kill requires top3_concentration_share < 0.60. Either failure kills. C30 caveat: candidate_finite_changes are explicitly bounded (never 'remove the target') because this session found RIBBON_RIDE's own fleet runner_target_pct is ALREADY 99.0/unconstrained -- a live C30 instance, not a control to widen further.",
    "reversible_action": "None shipped -- prereg only, no params.json/strategies.py edit made by this filing (T2, GOAL-RIGHT-TAIL-FOLLOWUPS-2026-09-05)."
+  },
+  {
+   "row_id": "tp1-qty-fraction-safe-0-8",
+   "prereg_path": "analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json",
+   "ledger_path": "analysis/recommendations/pk-2026-06-28-001-scorecard.json",
+   "scorer": "n/a -- UNAPPLIED-RATIFICATION refile, not a scored shadow",
+   "classification": "reduction",
+   "classification_reason": "Applying tp1_qty_fraction=0.8 to the live ribbon_ride registry (from the shipped 0.667) means selling MORE at TP1 -- strictly LESS runner exposure, never more. Per goal routing rule this is a pure reduction, eligible for 09-29 rather than 10-30.",
+   "checkpoint": "2026-09-29",
+   "frozen_hypothesis": "See prereg's pass_criterion_frozen field verbatim -- apply only if a fresh A/B re-clears the original pk-2026-06-28-001 gates (OOS positive, WF>=0.70, sub-window stable, anchor no-regression) scored against the ACTUAL shipped shape (structure-stop/chandelier), not the OTM-2/premium-stop/fixed-target shape the original scorecard measured.",
+   "decision_rule_verbatim": "prereg kill_nails.SHAPE_MISMATCH: 'if a fresh re-score under the live shape does not clear the same 4 gates, the ratification does not transfer and this prereg is retired, not applied blind.'",
+   "reversible_action": "Change automation/state/fleet/strategies.py RIBBON_RIDE.exit.tp1_qty_fraction from 0.667 to 0.8 for Safe-facing arms only (safe-2, safe-3) -- one-line, byte-identical, git-revertible. NOT applied by this filing; CONFIG FREEZE (this goal's operating rules) forbids any FROZEN_TRADING_PATH value change before 10-30/09-29 adjudication."
   }
  ],
- "extras_found_not_in_named_nine": [],
- "count": 9
+ "extras_found_not_in_named_nine": [
+  "tp1-qty-fraction-safe-0-8 -- found by GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05, not one of the original nine named in GOAL-CHECKPOINT-PACKET-2026-09-29.md's DONE-WHEN; added per this goal's P3 instruction to fold into the checkpoint inventory."
+ ],
+ "count": 10
 }

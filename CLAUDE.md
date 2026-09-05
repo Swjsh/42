@@ -40,7 +40,7 @@ J's rules — Gamma enforces them, doesn't write them.
 3. **Defined stop on entry.** Premium stop or chart stop. Mechanical. Stated in journal *before* entry.
 4. **No adding without a NEW confirmed trigger.** "It's cheaper now" is not a trigger.
 5. **Daily loss kill switch — per account:** Gamma-Safe: −30% of start-of-day equity. Gamma-Bold: −50%. Kill switches are isolated — Safe halting does NOT halt Bold. Day closed for that account. No revenge trades.
-6. **Per-trade risk cap — per account:** Gamma-Safe: 30% of account equity. Gamma-Bold: 50%. Min 3 contracts (2 TP + 1 runner). Scale per [`markdown/0dte/risk-rules.md`](markdown/0dte/risk-rules.md).
+6. **Per-trade risk cap — per account:** Gamma-Safe: 30% of account equity. Gamma-Bold: 50%. Min contracts: Safe 3 / Bold 5 (2 TP + 1 runner; per-account, not universal — [doctrine-parity](markdown/doctrine/DOCTRINE-CODE-PARITY-2026-09-05.md) C02). Scale per [`markdown/0dte/risk-rules.md`](markdown/0dte/risk-rules.md).
 7. **PDT awareness.** Under $25K: 3 day-trades per rolling 5 business days (margin) or respect settlement (cash).
 8. **Journal every trade in real time.** Pre-trade thesis before order. Fill and exit recorded after.
 9. **No mid-session rule changes.** Rules update on weekends, in writing, with documented reason.
@@ -112,7 +112,7 @@ Lean Tier-1 soul file (this) + `markdown/<topic>/` mid-sized single-topic docs u
 | 08:00 · 08:05–16:00 /5min | Gamma_LaunchTV · Gamma_TvWatchdog | TV+CDP up & kept alive (the "no TV = no trades" fix); flags stale heartbeat |
 | 08:30 | Gamma_Premarket | Level audit, bias, hypothesis, levels drawn, journal seeded, pin check |
 | 09:30–15:55 /1min | Gamma_HeartbeatCore | **THE live trading engine** — both accounts. engine_cli score+gates + structure-veto + risk_gate (free-model veto OFF since 2026-08-12) |
-| 15:55 | Gamma_EodFlatten (+_Aggressive) | Closes any 0DTE Safe/Bold position not out by 15:50 |
+| 15:55 | Gamma_EodFlatten (+_Aggressive) | Closes any 0DTE Safe/Bold position not out by the 15:40 time-stop |
 
 Kitchen R&D fires (keepalive 5min · seeder :20 · reviewer 2h) and all other tasks → [`SCHEDULED-TASKS.md`](automation/state/SCHEDULED-TASKS.md).
 
@@ -124,7 +124,7 @@ Kitchen R&D fires (keepalive 5min · seeder :20 · reviewer 2h) and all other ta
 - **Setup:** must match a named playbook pattern; heartbeat confirms/denies live; trigger fires or no trade. Period.
 - **Pre-trade (before order):** strike/expiry/direction/entry/stop/target/qty + sizing math ($-risk, %acct, premium%); thesis → `journal/YYYY-MM-DD.md` first.
 - **Execution:** bracket via `mcp__alpaca__place_option_order`; fill → current-position.json + trades.csv + decisions.jsonl + journal.
-- **Management:** mechanical stop (never widen); TP1 chart-level OR +30% fallback, breakeven on runner; hard time-stop 15:50 ET; adding = fresh trigger, new leg.
+- **Management:** mechanical stop (never widen); TP1 chart-level or premium fallback (not a fixed 30% — [`EXIT-SHAPE-TRUTH.md`](markdown/0dte/EXIT-SHAPE-TRUTH.md)), breakeven on runner; hard time-stop 15:40 ET; adding = fresh trigger, new leg.
 - **Post-trade:** update trades.csv + decisions.jsonl + state; EOD-summary grades each; rule break → `journal/mistakes.md`.
 
 ---

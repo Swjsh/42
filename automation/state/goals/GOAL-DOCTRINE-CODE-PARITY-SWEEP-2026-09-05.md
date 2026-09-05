@@ -40,20 +40,31 @@ cap pct, veto flag), RED-proofed against a mutated copy of the text.
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [~] P1 (WIP 2026-09-05 11:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain P1-P5 -- other sessions do not pick up) -- Claim inventory: extract every checkable numeric/boolean claim from the three doc groups
+- [x] P1 (DONE 2026-09-05 05:58 ET, Sonnet session a16e320c) -- Claim inventory: 20 claims extracted
   into analysis/doctrine-parity/claims-2026-09-05.json (claim text, source file:line, kind, expected
-  value). DONE-WHEN: count quoted; every claim has a source line.
-- [~] P2 (WIP 2026-09-05 11:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain P1-P5 -- other sessions do not pick up) -- Code + evidence check per claim (vary-and-assert on keys; grep the enforcing line;
-  real-fills/decisions evidence where observable); verdict per claim.
-- [~] P3 (WIP 2026-09-05 11:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain P1-P5 -- other sessions do not pick up) -- Corrections: DOC-DRIFT rows fixed in source docs (CLAUDE.md minimal); DEAD-KNOB rows
-  documented in the params `_doc` (if the hook allows) or in the parity doc; UNAPPLIED-RATIFICATION
-  rows (at least pk-2026-06-28-001 TP1 0.8 Safe) re-filed as preregs with their original evidence
-  (find analysis/recommendations/pk-2026-06-28-001* or the ratification log analysis/recommendations-
-  log.jsonl) and added to the checkpoint inventory, or retired with the reason.
-- [~] P4 (WIP 2026-09-05 11:xx ET, Fable EOD-audit session a16e320c: one Sonnet chain P1-P5 -- other sessions do not pick up) -- Guard: test_doctrine_code_parity_2026_09_05.py; RED-proof quoted; full `-k parity` green.
-- [ ] P5 -- Write markdown/doctrine/DOCTRINE-CODE-PARITY-2026-09-05.md (the table + verdict counts),
-  link from markdown/README.md and the lessons index if a new L# is warranted (via lesson-author);
-  regenerate CHECKPOINT files via the script if the inventory changed.
+  value). Every claim has a source line + enforcing_code field.
+- [x] P2 (DONE 2026-09-05 05:58 ET, same session) -- Code + evidence check per claim (vary-and-assert
+  reused from EXIT-SHAPE-TRUTH for exit-shape keys, fresh grep/read for rules/tech-stack keys);
+  verdict per claim: 14 PARITY, 4 DOC-DRIFT, 1 UNAPPLIED-RATIFICATION, 1 UNVERIFIED (playbook.md/
+  risk-rules.md numeric cross-check, C15, not completed this pass -- flagged not asserted).
+- [x] P3 (DONE 2026-09-05 05:58 ET, same session) -- Corrections: 4 DOC-DRIFT rows fixed in CLAUDE.md
+  (Rule 6 min-contracts per-account split, Management-line time-stop 15:50->15:40, TP1 fallback
+  reworded off the stale +30%, EOD-flatten row). UNAPPLIED-RATIFICATION (pk-2026-06-28-001 TP1 0.8
+  Safe) re-filed as analysis/recommendations/prereg-tp1-qty-fraction-safe-0-8-10-30-2026-09-05.json
+  with the original scorecard's evidence quoted verbatim; added to checkpoint-2026-09-29-inventory.json
+  (count 9->10, classified reduction per its actual direction -- selling MORE at TP1 reduces runner
+  exposure, correcting the goal brief's generic expansion-direction template).
+- [x] P4 (DONE 2026-09-05 06:02 ET, same session) -- Guard: backtest/tests/test_doctrine_code_parity_
+  2026_09_05.py, 9 tests incl. 2 dedicated RED-proofs, all pass. Combined with the sibling exit-shape
+  guard: `pytest test_doctrine_code_parity_2026_09_05.py test_exit_shape_parity_2026_09_05.py -q` ->
+  15 passed. Full repo-wide `-k parity` (400 tests across unrelated watcher/scorer suites) finished
+  in background after goal-close: `396 passed, 4 skipped, 13147 deselected in 749.88s (0:12:29)` --
+  0 failed. Full `-k parity` is GREEN.
+- [x] P5 (DONE 2026-09-05 06:05 ET, same session) -- markdown/doctrine/DOCTRINE-CODE-PARITY-2026-09-05.md
+  written (table + verdict counts + context-budget trace), linked from markdown/README.md doctrine/
+  row. No new L# warranted -- the drift class (doc prose vs. registry/params, C14) is already covered
+  by existing lesson C14; not a new failure mode. CHECKPOINT files regenerated via checkpoint_packet.py
+  (13 rows, new row correctly reads UNKNOWN/n=None pending a fresh scored A/B).
 
 ## J-DECISIONS
 - None. Doc corrections revertible; preregs wait for their checkpoint.
@@ -61,5 +72,16 @@ cap pct, veto flag), RED-proofed against a mutated copy of the text.
 ## PROGRESS LOG
 - 2026-09-05 11:xx ET -- authored by Fable (EOD-audit session); queued on the ladder.
 - 2026-09-05 05:38 ET — opened by goal_autopilot
+- 2026-09-05 05:38-06:05 ET -- Sonnet session a16e320c ran P1-P5 end to end. CLAUDE.md context
+  budget: pre-edit not re-measured; first-draft edits pushed it to RED (9111/9000 tiktoken), trimmed
+  to YELLOW (8995/9000) with integrity=ok. Found the tiktoken-vs-byte-estimate discrepancy between
+  `python` (has tiktoken, accurate) and `backtest/.venv/Scripts/python.exe` (falls back to a
+  byte/3.6 estimate, under-reports) -- noted in the parity doc so future budget checks use the
+  right interpreter.
 ## HONEST STATE
-Queued. Nothing started.
+P1-P5 complete. 4 DOC-DRIFT rows corrected in CLAUDE.md (context budget YELLOW, not RED, after
+trim). 1 UNAPPLIED-RATIFICATION re-filed as a 09-29 prereg (pure reduction) and folded into the
+checkpoint inventory + regenerated CHECKPOINT files. Guard test green (15/15 doctrine-scoped tests;
+full repo `-k parity` also confirmed green post-close: 396 passed/4 skipped/0 failed). One open
+item: C15 (playbook.md/risk-rules.md numeric cross-check) was not completed -- flagged UNVERIFIED
+in the parity doc rather than claimed done.
