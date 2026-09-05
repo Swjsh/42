@@ -1,12 +1,10 @@
 {
-  "id": "GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05",
-  "active": false,
-  "opened_at_et": "2026-09-05T05:38:05",
+  "id": "GOAL-TP1-FRACTION-AB-2026-09-05",
+  "active": true,
+  "opened_at_et": "2026-09-05T06:04:01",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05.md",
-  "queue_id": "GOAL-DOCTRINE-CODE-PARITY-SWEEP-2026-09-05",
+  "file": "automation/state/goals/GOAL-TP1-FRACTION-AB-2026-09-05.md",
+  "queue_id": "GOAL-TP1-FRACTION-AB-2026-09-05",
   "max_continuations_per_session": 3,
-  "last_next_item": null,
-  "closed_at_et": "2026-09-05 06:02 ET",
-  "closed_reason": "queue fully terminal (no bare '- [ ] ' item left)"
+  "last_next_item": null
 }
