@@ -1,0 +1,61 @@
+{
+  "id": "PREREG-WAVE-DAY-CONDITIONS-10-30-2026-09-05",
+  "prereg_id": "PREREG-WAVE-DAY-CONDITIONS-10-30-2026-09-05",
+  "frozen_at_et": "2026-09-05",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (INFORMATIONAL)",
+  "class": "INFORMATIONAL",
+  "filed_by": "Sonnet worker, GOAL-WAVE-DAY-CONDITIONS-2026-09-05 W2",
+  "opened_from": "GOAL-WAVE-DAY-CONDITIONS-2026-09-05: J's standing question 'why did we have big winner days last month and are we set up to have them again' -- the rig side is answered (edge-master-doctrine.md's 'August 2026 big-day anatomy'); this prereg opens the market-condition side, using the honest W2 read over analysis/right-tail/WAVE-DAY-CONDITIONS-2026-09-05.md's n=25 (20 wave / 5 no-wave) backfill table.",
+  "config_freeze_note": "CONFIG FREEZE 2026-08-31 -> 2026-10-30 (project_september_clean_window_plan_2026_08_29.md): this file is a PREREG ONLY, class INFORMATIONAL. No params.json / strategies.py / exit_manager.py / heartbeat.md / heartbeat_core.py / risk_gate edit is made by this filing, and none is proposed even after evaluation -- INFORMATIONAL preregs never reach a trading-path change on their own; a SEPARATE 10-30-class prereg would be required before any gate could reference this finding.",
+  "evidence_this_prereg_is_built_on": {
+    "source": "analysis/right-tail/WAVE-DAY-CONDITIONS-2026-09-05.md (W1 table, 25 sessions 2026-08-03..2026-09-04, computed by setup/scripts/wave_day_conditions.py from cached SPY/VIX bars + key-levels-history + journal premarket bias lines), joined to backtest/lib/right_tail_waves.py's own wave label (>=1 genuine wave, analysis/right-tail/CAPTURE-<date>.json n_waves_meeting_threshold>=1).",
+    "n_wave_days": 20,
+    "n_no_wave_days": 5,
+    "n_total_sessions": 25,
+    "hypothesis_generator_caveat": "n=5 no-wave days is a hypothesis GENERATOR, never a filter or a gate on this evidence (goal file's own framing, and CLAUDE.md lesson C4 disclose-concentration). No threshold is proposed anywhere in this filing.",
+    "day_of_week_split": {
+      "no_wave_monday_share": "3/5 (60%) of no-wave days fell on Monday (2026-08-03, 08-24, 08-31)",
+      "wave_monday_share": "2/20 (10%) of wave days fell on Monday (2026-08-10, 08-17)",
+      "reading": "Monday is ~3x over-represented among no-wave days relative to its 1-in-5 weekday base rate -- the starkest single split in the W1 table, but built on only 5 no-wave days total (3 of which are Monday)."
+    },
+    "overnight_gap_pct_split": {
+      "wave_days": {"n": 20, "mean": 0.144, "median": 0.229, "min": -0.641, "max": 0.561},
+      "no_wave_days": {"n": 5, "mean": -0.056, "median": -0.103, "min": -0.254, "max": 0.296},
+      "reading": "Wave days lean toward a positive overnight gap (open above prior RTH close); no-wave days lean flat-to-negative. Ranges overlap substantially (e.g. 2026-08-19 WAVE at +0.391% sits beside 2026-08-03 no-wave at +0.296%) -- direction only, no clean cutoff."
+    },
+    "non_separating_conditions_disclosed": [
+      "first-15-min-range/ATR20 ratio: runs OPPOSITE the naive intuition (no-wave days mean 0.345 > wave days mean 0.246, n=20/4)",
+      "VIX 5-day slope: wave -0.127 vs no-wave -0.107 (n=20/5) -- no separation",
+      "prior-day close vs prior-day VWAP %: wave -0.026 vs no-wave +0.057 (n=19/5) -- fully overlapping ranges",
+      "distance of the 09:30 print to the nearest key-levels zone: wave 0.339 vs no-wave 0.332 (n=18/5) -- no separation",
+      "whether premarket bias called the direction: unusable at this n -- only 10/25 days have both a parseable bias and a resolved wave label (8 journal files carry no Bias: line at all)"
+    ],
+    "vix_open_vs_prior_close_secondary_lean": {
+      "wave_days": {"n": 20, "mean": 0.075, "median": -0.035},
+      "no_wave_days": {"n": 5, "mean": 0.344, "median": 0.210},
+      "reading": "Secondary/tertiary lean (no-wave days show a bigger VIX pop at the open) -- noted in the W1/W2 doc but NOT carried into this prereg's hypothesis to avoid diluting an already n=5-limited kill test with a third overlapping leg."
+    }
+  },
+  "hypothesis": "H: the top separating conditions from the W1/W2 backfill read -- (1) the session is NOT a Monday, and (2) the overnight gap is positive (today's RTH open above the prior trading day's RTH close) -- raise the odds of a wave day (>=1 genuine right-tail wave per backtest/lib/right_tail_waves.py) in the forward window, relative to the base rate observed in the 08-03..09-04 backfill (20/25 = 80% of all sessions, session-level; the two carried conditions are read directionally, not as a combined joint filter).",
+  "what_this_is_NOT": [
+    "NOT a threshold, filter, or gate proposal of any kind -- no numeric cutoff is proposed for gap% or any other condition; the DONE-WHEN explicitly forbids it and this filing does not violate that.",
+    "NOT a change to params.json, strategies.py, exit_manager.py, heartbeat.md, heartbeat_core.py, or risk_gate -- config freeze holds through 2026-10-30. This is class INFORMATIONAL: it cannot become trading-path-live even after evaluation without a separate, later prereg.",
+    "NOT a claim of statistical significance at n=5 no-wave days -- every reading above states its n and its full range; the goal explicitly bans reporting a p-value at this n.",
+    "NOT permission to pre-select which days to trade -- edge-master-doctrine.md's own August audit already found the day is not pre-selectable (VIX/gap ranged widely across the five $-outlier big days); this prereg tests a narrower, session-level directional lean, not a day-selection rule."
+  ],
+  "the_spec": {
+    "current_shape_under_test": "No pre-open condition currently gates or informs any trading-path decision -- the engine enters purely on the live two-trigger ribbon reclaim/rejection signal, unconditioned on day-of-week or overnight gap.",
+    "candidate_finite_change": "NONE proposed by this filing (INFORMATIONAL class). If the forward evaluation below finds the two carried conditions keep separating at n>=20, a SEPARATE 10-30-or-later prereg would be required to propose any trading-path use -- this filing only freezes the instrument and the read.",
+    "instrument": "setup/scripts/wave_day_conditions.py's daily premarket row (analysis/right-tail/wave-day-conditions.jsonl, appended by the Gamma_WaveDayConditions 09:20 ET task once Fable enables it) joined by date to analysis/right-tail/ledger.jsonl's wave label (written by the existing 16:20 ET Gamma_RightTailCapture fire). Both are existing, already-built/being-built instruments; this prereg reuses them.",
+    "unit_of_measure": "per forward session: (day_of_week != Monday) and (overnight_gap_pct > 0), each read independently, against that session's wave/no-wave label."
+  },
+  "kill_criteria": {
+    "primary_kill": "at n>=20 forward sessions (post-2026-09-05), NEITHER carried condition shows a directional split at least as large as its backfill read (Monday no-wave-share drops to <=20% of its backfill 60% overrepresentation gap, i.e. no longer meaningfully above the 1-in-5 base rate; OR wave-day mean overnight gap % is no longer positive while no-wave-day mean is no longer negative/flat) -- either condition failing to hold its direction alone is enough to KILL that specific leg; both legs failing kills the whole hypothesis.",
+    "either_kill_closes_the_candidate": "This is INFORMATIONAL -- 'kill' here means the observation is retired from further tracking, not that anything trading-path reverts (nothing trading-path was ever touched).",
+    "concentration_kill": "if >=50% of the forward wave-day count comes from a single calendar week (Lesson C4 disclose-concentration), the finding is flagged concentration-driven regardless of the raw split, and not carried forward as a generator hypothesis."
+  },
+  "extend_criterion": "If n<20 forward sessions have accrued by 2026-10-30, the checkpoint reports UNVERIFIED -- insufficient n, not a negative finding -- and the question stays open past 10-30, continuing to accrue via the same daily instrument.",
+  "n_needed": "n>=20 forward sessions (post-2026-09-05) with a resolved wave/no-wave label, matching this project's standing evidence_n advisory bar.",
+  "consumer": "2026-10-30 config-freeze checkpoint review; folds into analysis/recommendations/checkpoint-2026-09-29-inventory.json (class=informational, ledger=right-tail/wave-day-conditions) if/when that inventory is next regenerated. Never a trading-path consumer on its own -- INFORMATIONAL class requires a separate later prereg before any gate could reference it.",
+  "revert": "Delete this file. No other artifact is created or modified by this prereg (no params.json, no scheduled task enable, no leaderboard edit, no strategies.py/heartbeat_core.py edit). setup/scripts/wave_day_conditions.py and the Gamma_WaveDayConditions task (registered Disabled) persist independently of this prereg -- they are the W3 daily instrument, not created by this filing."
+}

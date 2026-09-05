@@ -84,6 +84,32 @@ def _top_costing_and_earning_gate() -> tuple[dict | None, dict | None]:
     return _shape(top_costing), _shape(top_earning)
 
 
+# GOAL-WAVE-DAY-CONDITIONS-2026-09-05 W3: additive field, does not change any existing
+# key's shape. Read-only, fail-open -- a missing/empty/corrupt wave-day-conditions.jsonl
+# degrades to None, never raises.
+WAVE_DAY_CONDITIONS_PATH = REPO / "analysis" / "right-tail" / "wave-day-conditions.jsonl"
+
+
+def _wave_day_conditions_latest() -> dict[str, Any] | None:
+    """Most recent row from wave_day_conditions.py's daily premarket instrument
+    (analysis/right-tail/wave-day-conditions.jsonl). None if the file is missing,
+    empty, or unreadable (Gamma_WaveDayConditions has not fired yet -- it is
+    registered DISABLED as of 2026-09-05, Fable enables after review)."""
+    try:
+        lines = WAVE_DAY_CONDITIONS_PATH.read_text(encoding="utf-8").splitlines()
+    except (FileNotFoundError, OSError):
+        return None
+    for ln in reversed(lines):
+        ln = ln.strip()
+        if not ln:
+            continue
+        try:
+            return json.loads(ln)
+        except json.JSONDecodeError:
+            continue
+    return None
+
+
 def build(path: Path | None = None, sessions: int = 20) -> dict[str, Any]:
     p = path or DEFAULT_PATH
     try:
@@ -94,6 +120,7 @@ def build(path: Path | None = None, sessions: int = 20) -> dict[str, Any]:
             "sessions_counted": 0, "per_arm": {}, "book_capture_rate": None,
             "cap4_would_refuse_count": 0,
             "top_costing_gate": None, "top_earning_gate": None,
+            "wave_day_conditions_latest": _wave_day_conditions_latest(),
             "say": f"NO DATA -- {p.name} not found (Gamma_RightTailCapture has not fired yet)",
         }
 
@@ -113,6 +140,7 @@ def build(path: Path | None = None, sessions: int = 20) -> dict[str, Any]:
             "sessions_counted": 0, "per_arm": {}, "book_capture_rate": None,
             "cap4_would_refuse_count": 0,
             "top_costing_gate": None, "top_earning_gate": None,
+            "wave_day_conditions_latest": _wave_day_conditions_latest(),
             "say": "NO DATA -- ledger is empty",
         }
 
@@ -171,6 +199,7 @@ def build(path: Path | None = None, sessions: int = 20) -> dict[str, Any]:
         "cap4_would_refuse_count": cap4_count,
         "top_costing_gate": top_costing_gate,
         "top_earning_gate": top_earning_gate,
+        "wave_day_conditions_latest": _wave_day_conditions_latest(),
         "say": say,
     }
 
