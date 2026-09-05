@@ -1,10 +1,10 @@
 {
-  "id": "GOAL-PREREG-ADJUDICATION-2026-09-03",
+  "id": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
   "active": true,
-  "opened_at_et": "2026-09-05T00:02:27",
+  "opened_at_et": "2026-09-05T00:57:07",
   "expires_at_et": "2026-09-19",
-  "file": "automation/state/goals/GOAL-PREREG-ADJUDICATION-2026-09-03.md",
-  "queue_id": "GOAL-PREREG-ADJUDICATION-2026-09-03",
+  "file": "automation/state/goals/GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03.md",
+  "queue_id": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
   "max_continuations_per_session": 3,
   "last_next_item": null
 }

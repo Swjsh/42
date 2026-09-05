@@ -9,13 +9,15 @@
 ---
 
 ## Known broken
+
+- [2026-09-05T04:57:00Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
+- [2026-09-05 00:51 ET] FULL-SUITE RED :: 13325 passed, 1 failed, 16 skipped (retry recovered 1) :: tests/test_repo_wide_account_ids_2026_08_18.py::test_no_tracked_markdown_names_a_phantom_pa_account :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
+- [2026-09-05T04:47+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-04T17:26:04 ET] shadow_signal_audit: new unregistered producer(s): setup/scripts/context_bundle_producer.py::compute_catalyst_context. A detector produces output no decision path consumes (C7 at architecture scale). See analysis/deep-research/SHADOW-SIGNAL-INVENTORY-2026-07-31.md.
 
 - [2026-09-04T16:20:02.472864] INTERVENTION-COUNTER: 2 NEW SPY-0DTE intervention round trip(s) today (engine_entered_manual_exit=2), realized $338.0 -- Sept target is ZERO. See analysis/interventions/summary.json.
 - [2026-09-04T09:43:17 ET] TICKERS-LANE FIRST FILL :: tickers-1 AMZN260904C00260000 qty 3 @ 0.79 -- REVOKE: set shadow_only true in automation/state/tickers/params.json
 - [2026-09-04 05:45:05 ET] TASK-OUTPUT-FRESHNESS: 1 finding(s): Gamma_GuardsNightly[missing_launch]
-- [2026-09-04 03:42 ET] FULL-SUITE RED :: 13309 passed, 2 failed, 13 skipped (retry recovered 7) :: tests/test_install_script_times_match_registry_2026_09_03.py::test_install_script_times_match_registry_outside_known_debt, tests/test_regime_early_classifier_guards.py::test_build_regime_early_classifier_walk_forward_no_leakage :: re-run: cd backtest && python -m pytest tests/ -q -m "not slow"
-- [2026-09-04T07:39+00:00] ROSTER-LIVENESS: 1 lane(s) permanently DEAD (404/archived): p::m. Roles are falling through to their next lane or the local floor. Repoint in automation/state/model-roster.json, then re-run setup/scripts/roster_liveness.py. See automation/state/roster-health.json.
 - [2026-09-03 19:00 ET] 🚨 SECRETS-ON-PUBLIC-REMOTE (SCOPE CORRECTED 19:17 ET: SIX Alpaca credentials, not two -- the repaired history scanner found four MORE, incl. THREE key+SECRET pairs = full API access, all reachable from origin/main) :: paper-key prefixes PKWEWC/PKEZ6O (safe-2, bold-2, commit b219a8cd) PLUS PK33+secret FxbJ (4 files, commits a1db803e/d0c8ac06, hardcoded as an env fallback default), PKGZ+secret 9Ezm (labelled 'safe' in atomic_bracket_guard.py), PKQM+secret ELWu (its own comment says rotated 2026-05-22, old value still public), PK7WRO (doc example in .claude/skills/github-audit/SKILL.md, real-key-shaped). NO LIVE-MONEY KEYS: every finding is PK-prefixed (paper) and zero AK-shaped (live) ids exist anywhere in history -- verified. All are readable in the PUBLIC repo's history: commit `b219a8cd` (authored 02:27 ET today by another session, file `backtest/_attic/scripts/mcp_audit_debug.py`) was PUSHED to origin/main at 18:38-18:39 ET tonight by the parallel session. The file is deleted at HEAD (`a127fa79`) but the blob remains reachable (`git show b219a8cd:...`). J-ONLY ACTION: rotate EVERY Alpaca paper key that has ever appeared in this repo's history (six, not two) in the Alpaca dashboard and update the gitignored `.mcp.json` + `automation/state/fleet/secrets.json`; optionally make the repo private while rotating. Do NOT force-push/rewrite history without J (276 documented revert SHAs). Guard shipped tonight so this cannot recur: pre-commit now scans STAGED content (`ef7e4aed`). Also found: `github_audit.py --history` CRASHES (UnicodeDecodeError cp1252 + None diff_output) so the history scan has never actually run -- fix filed. :: re-check: python setup/scripts/github_audit.py
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-8-bear-sole :: bear sole-[8] refused 106 bar-event(s), 44 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-8-bear-sole
 - [2026-09-02T23:45:49] GATE-EXPIRY RED :: filter-10-bull-sole :: bull sole-[10] refused 78 bar-event(s), 28 >= floor 10 read cost_money via the day's own P1 WIN (NOT_REPLAYED proxy -- directional smoke alarm, not a dollar costing verdict; a full replay via backtest/tools/postfix_gate_costing.py is the ratifying instrument) :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-10-bull-sole
@@ -33,6 +35,10 @@
 > because a session prepending a new entry pushes it down again. Restored to the top
 > 2026-09-02 and pinned by `backtest/tests/test_status_known_broken_preamble_2026_09_02.py`.
 > **Prepend new dated entries BELOW this block.**
+
+## [2026-09-05 01:4x ET] GOAL-PREREG-ADJUDICATION-2026-09-03 CLOSED -- 52/52 preregs carry a written verdict (21 KILL / 24 NULL / 7 EXTEND); hygiene 0 flagged; SHADOW board 0 unlabeled
+Fable orchestrating 4 Sonnet adjudication workers + a parallel conductor session (P2/P3). Commits 86488219 e52abc73 aec30513 847bda21 74a66077. Headline kills worth knowing: SCORE-LADDER-V2 forward shadow (n=28 sessions/arm, ladder extras net -$13,760 risky-3 / -$13,435 risky-1) -> retire the rung shadow at the 09-29 checkpoint; TRENDLINE-ENGINE-VALIDATION Cell B (bull-reclaim counterfactual n=2,411, -$27,378, p=0.0012); bull-requalification (n=24 real fills, WR 0%, -$885). Long-missing dynamic-exits null finally logged (CONTROL_HOLDS all 5). Engineering follow-up surfaced, not done: FILL-MODEL-UNIFICATION STEP 1 (exit_manager_walk.py slippage). Also shipped tonight: engine_health `rth_tick_gaps` (RED when a >3-min RTH gap overlaps an open position -> Known broken) + intervention_counter `rescue_exit` (2026-09-04: interventions 0, rescues 2) f9589c5e; tickers kill_tripped reporting fix + theta_budget cadence prereg a828470b. Next on the ladder (autopilot opened it): GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03.
+
 
 ## [2026-09-05 00:20 ET] conductor AFTERHOURS: OK -- GOAL-PREREG-ADJUDICATION P2 done, 10 exit/stop-mechanism preregs adjudicated (8 KILL, 2 NULL) -- REVOKE surface
 
@@ -416,3 +422,44 @@ _Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -
 
 ---
 
+
+## Kitchen
+Kitchen: alive, queue 51 pending, last cook 0 min ago, today $0.00, model=openrouter::nvidia/nemotron-3-super-120b-a12b:free
+
+### BROKEN: self-check 2026-09-05T00:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (3 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-08-31', '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04']; [YELLOW] broker_transport: 3/7 recent probe(s) show transport errors (rate 43%), 3 excluded as session-closed -- newest 2026-08-31T21:31:57 -> H2_SESSION_ARTIFACT; CME session_phase=WEEKEND (open=False, per futures_session/et_clock); broker-transport.jsonl: 76 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-04T15:30:37 connect/auth_or_permission_error; [RED] no_stray_exposure: 8 stray-exposure anomaly row(s) in the last 1 session(s) with anomaly rows -- 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:02 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES; 2026-09-03T00:43:03 unattributed_closing_fill MES
+- TASK-STALENESS RED: scheduled work is not running -- Gamma_FuturesBrokerProbe, Gamma_AutofireCards
+
+### BROKEN: prereg-hygiene 2026-09-05T00:50:04
+- 3 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
+  - fleet-vwap-reclaim-extension-prereg-2026-08-04.json (age 32.2d via filename_date, status='KILL -- cohort net-negative at kill checkpoint per own frozen criterion', orphan=False)
+  - prereg-runner-finite-tgt-candidate-2026-08-06.json (age 30.2d via filename_date, status='NULL -- unrunnable as frozen (candidate-only, no commit ever cut) and matches the standing dead-runner-knob lesson', orphan=False)
+  - vwap-family-killcheck-prereg-2026-08-18.json (age 18.2d via frozen_at_et, status='NULL -- unrunnable as frozen, vwap_continuation disarmed with zero forward fills', orphan=False)
+- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-04T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-04T21:10:02Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
+  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+
+### BROKEN: trendline-headless-draw 2026-09-05 00:50 ET
+- trendline_headless_draw failed -- RuntimeError: boom: unexpected chart-api failure
+
+### BROKEN: prereg-hygiene 2026-09-05T00:51:29
+- 20 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-04T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-04T21:10:02Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
+  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')

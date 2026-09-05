@@ -1,9 +1,9 @@
 {
-  "checked_at_et": "2026-09-05 00:02 ET",
+  "checked_at_et": "2026-09-05 00:57 ET",
   "action": "closed_opened",
   "reason": "queue fully terminal (no bare '- [ ] ' item left)",
-  "active_goal_id": "GOAL-PREREG-ADJUDICATION-2026-09-03",
-  "next_item": "P1 \u2014 Freeze the worklist: copy the 49-item `no status field` list from",
+  "active_goal_id": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
+  "next_item": "K1 \u2014 Freeze the worklist: parse `strategy/candidates/_LEADERBOARD.md` for every",
   "ladder": [
     {
       "id": "GOAL-COCKPIT-REDESIGN-2026-09-03",
@@ -25,13 +25,13 @@
     },
     {
       "id": "GOAL-PREREG-ADJUDICATION-2026-09-03",
-      "state": "active",
-      "eligible": true,
-      "why": "ok"
+      "state": "done",
+      "eligible": false,
+      "why": "no ## QUEUE section or no bare '- [ ] ' item"
     },
     {
       "id": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
-      "state": "queued",
+      "state": "active",
       "eligible": true,
       "why": "ok"
     },
@@ -42,7 +42,7 @@
       "why": "ok"
     }
   ],
-  "last_opened": "GOAL-PREREG-ADJUDICATION-2026-09-03",
-  "last_closed": "GOAL-TICKERS-LANE-2026-09-04",
+  "last_opened": "GOAL-KITCHEN-KEEPERS-TO-SHADOW-2026-09-03",
+  "last_closed": "GOAL-PREREG-ADJUDICATION-2026-09-03",
   "error": null
 }
