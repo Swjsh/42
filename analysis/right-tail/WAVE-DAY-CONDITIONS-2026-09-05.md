@@ -41,36 +41,49 @@
   all (auto-generated journals with no premarket narrative section that session);
   a few `key-levels-history` snapshots are missing a level list close enough to price.
   Every gap is fail-open (never a crash, never a fabricated number) per C7.
+- **Big day? (W5, added 2026-09-06)**: >= 1 right-tail wave on that date whose priced
+  `peak_multiple` (already computed per-wave in `CAPTURE-<date>.json`, independent of
+  whether it cleared the 1.3x `meets_threshold` gate) reached `BIG_DAY_THRESHOLD = 2.0`
+  (`wave_day_conditions.wave_label()`'s `big_day` field). This is a SECOND, narrower
+  outcome column alongside `Wave?` -- not a replacement. **It is NOT the same set as
+  `edge-master-doctrine.md`'s "August 2026 big-day anatomy" top-5 dollar-outlier days**
+  (08-04, 08-06, 08-13, 08-27, 08-28, ranked by book P&L, not by any single wave's peak
+  multiple): 4 of those 5 overlap this table's `big_day=true` set, but **08-06 does
+  NOT** -- its single wave that day peaked at only 1.85x (never crossed 2.0x on a
+  per-contract basis) despite being a top-5 $ day, presumably via sizing/multi-account
+  P&L rather than one contract's premium multiple. This table's `big_day` reads 14/25
+  sessions true (not 5) -- a real, disclosed mismatch between "a wave's price action
+  reached 2x" and "the day's book P&L ranked top-5" -- see W2.5 below.
 
 ## W1 -- per-day table (n=25: 20 wave / 5 no-wave, 2026-08-03..2026-09-04)
 
-| Date | DoW | Wave? | n_waves(meet/all) | Gap% | First15/ATR20 | VIX open-prior | VIX 5d slope | PriorClose-vs-VWAP% | Dist-to-zone | Bias | Bias correct? |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 2026-08-03 | Mon | no-wave | 0/0 | 0.296 | 0.442 | 0.210 | -0.594 | 0.351 | 0.02 | bullish | True |
-| 2026-08-04 | Tue | WAVE | 3/5 | 0.422 | 0.230 | -0.190 | -0.370 | 0.192 | 0.38 | bullish | True |
-| 2026-08-05 | Wed | WAVE | 1/1 | 0.536 | 0.207 | 0.790 | -0.918 | 0.321 | 0.71 | no_trade | n/a |
-| 2026-08-06 | Thu | WAVE | 1/1 | 0.048 | 0.238 | 0.230 | -0.410 | -0.374 | 0.03 | bearish | True |
-| 2026-08-07 | Fri | WAVE | 1/2 | 0.293 | 0.193 | -0.030 | -0.236 | -0.046 | 0.02 | bearish | False |
-| 2026-08-10 | Mon | WAVE | 1/1 | -0.029 | 0.151 | 0.530 | -0.070 | 0.096 | 0.22 | no_trade | n/a |
-| 2026-08-11 | Tue | WAVE | 2/2 | 0.194 | 0.237 | 0.070 | -0.218 | -0.030 | 0.43 | no_trade | n/a |
-| 2026-08-12 | Wed | WAVE | 2/5 | 0.561 | 0.331 | -0.410 | -0.254 | -0.159 | 0.10 | n/a | n/a |
-| 2026-08-13 | Thu | WAVE | 3/5 | 0.264 | 0.323 | 0.000 | -0.144 | 0.016 | 0.03 | n/a | n/a |
-| 2026-08-14 | Fri | WAVE | 1/4 | 0.098 | 0.127 | -0.050 | -0.120 | 0.065 | n/a | n/a | n/a |
-| 2026-08-17 | Mon | WAVE | 2/2 | 0.013 | 0.206 | 0.740 | -0.048 | -0.063 | n/a | n/a | n/a |
-| 2026-08-18 | Tue | WAVE | 2/2 | -0.510 | 0.231 | 0.630 | 0.102 | -0.175 | 0.33 | bearish | True |
-| 2026-08-19 | Wed | WAVE | 2/3 | 0.391 | 0.202 | -0.570 | 0.094 | -0.087 | 0.73 | bullish | True |
-| 2026-08-20 | Thu | WAVE | 3/3 | -0.420 | 0.276 | 0.900 | 0.296 | -0.081 | 1.33 | bearish | True |
-| 2026-08-21 | Fri | WAVE | 3/4 | 0.427 | 0.225 | -0.630 | 0.180 | -0.251 | 0.56 | no_trade | n/a |
-| 2026-08-24 | Mon | no-wave | 0/0 | -0.103 | 0.394 | 0.670 | 0.136 | -0.037 | 0.59 | no_trade | n/a |
-| 2026-08-25 | Tue | WAVE | 1/1 | 0.358 | 0.144 | -0.720 | -0.078 | -0.035 | 0.21 | bullish | True |
-| 2026-08-26 | Wed | no-wave | 0/2 | -0.141 | 0.313 | 0.190 | 0.096 | 0.056 | 0.19 | bullish | True |
-| 2026-08-27 | Thu | WAVE | 3/3 | 0.309 | 0.370 | -0.370 | -0.312 | 0.029 | 0.20 | bullish | True |
-| 2026-08-28 | Fri | WAVE | 1/3 | 0.088 | 0.255 | -0.040 | -0.156 | 0.119 | 0.18 | no_trade | n/a |
-| 2026-08-31 | Mon | no-wave | 0/0 | -0.254 | n/a | 0.850 | -0.192 | -0.207 | 0.25 | n/a | n/a |
-| 2026-09-01 | Tue | WAVE | 1/2 | -0.641 | 0.254 | 1.170 | 0.172 | n/a | 0.12 | n/a | n/a |
-| 2026-09-02 | Wed | WAVE | 1/4 | 0.126 | 0.247 | -0.200 | -0.016 | -0.068 | 0.24 | n/a | n/a |
-| 2026-09-03 | Thu | WAVE | 2/5 | 0.358 | 0.472 | -0.350 | -0.042 | 0.044 | 0.28 | n/a | n/a |
-| 2026-09-04 | Fri | no-wave | 0/3 | -0.079 | 0.232 | -0.200 | 0.020 | 0.121 | 0.61 | n/a | n/a |
+| Date | DoW | Wave? | Big day?(>=2x) | n_waves(meet/all) | Gap% | First15/ATR20 | VIX open-prior | VIX 5d slope | PriorClose-vs-VWAP% | Dist-to-zone | Bias | Bias correct? |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-08-03 | Mon | no-wave | no-big | 0/0 | 0.296 | 0.442 | 0.210 | -0.594 | 0.351 | 0.02 | bullish | True |
+| 2026-08-04 | Tue | WAVE | BIG | 3/5 | 0.422 | 0.230 | -0.190 | -0.370 | 0.192 | 0.38 | bullish | True |
+| 2026-08-05 | Wed | WAVE | no-big | 1/1 | 0.536 | 0.207 | 0.790 | -0.918 | 0.321 | 0.71 | no_trade | n/a |
+| 2026-08-06 | Thu | WAVE | no-big | 1/1 | 0.048 | 0.238 | 0.230 | -0.410 | -0.374 | 0.03 | bearish | True |
+| 2026-08-07 | Fri | WAVE | no-big | 1/2 | 0.293 | 0.193 | -0.030 | -0.236 | -0.046 | 0.02 | bearish | False |
+| 2026-08-10 | Mon | WAVE | BIG | 1/1 | -0.029 | 0.151 | 0.530 | -0.070 | 0.096 | 0.22 | no_trade | n/a |
+| 2026-08-11 | Tue | WAVE | BIG | 2/2 | 0.194 | 0.237 | 0.070 | -0.218 | -0.030 | 0.43 | no_trade | n/a |
+| 2026-08-12 | Wed | WAVE | no-big | 2/5 | 0.561 | 0.331 | -0.410 | -0.254 | -0.159 | 0.10 | n/a | n/a |
+| 2026-08-13 | Thu | WAVE | BIG | 3/5 | 0.264 | 0.323 | 0.000 | -0.144 | 0.016 | 0.03 | n/a | n/a |
+| 2026-08-14 | Fri | WAVE | no-big | 1/4 | 0.098 | 0.127 | -0.050 | -0.120 | 0.065 | n/a | n/a | n/a |
+| 2026-08-17 | Mon | WAVE | BIG | 2/2 | 0.013 | 0.206 | 0.740 | -0.048 | -0.063 | n/a | n/a | n/a |
+| 2026-08-18 | Tue | WAVE | BIG | 2/2 | -0.510 | 0.231 | 0.630 | 0.102 | -0.175 | 0.33 | bearish | True |
+| 2026-08-19 | Wed | WAVE | BIG | 2/3 | 0.391 | 0.202 | -0.570 | 0.094 | -0.087 | 0.73 | bullish | True |
+| 2026-08-20 | Thu | WAVE | BIG | 3/3 | -0.420 | 0.276 | 0.900 | 0.296 | -0.081 | 1.33 | bearish | True |
+| 2026-08-21 | Fri | WAVE | BIG | 3/4 | 0.427 | 0.225 | -0.630 | 0.180 | -0.251 | 0.56 | no_trade | n/a |
+| 2026-08-24 | Mon | no-wave | no-big | 0/0 | -0.103 | 0.394 | 0.670 | 0.136 | -0.037 | 0.59 | no_trade | n/a |
+| 2026-08-25 | Tue | WAVE | BIG | 1/1 | 0.358 | 0.144 | -0.720 | -0.078 | -0.035 | 0.21 | bullish | True |
+| 2026-08-26 | Wed | no-wave | no-big | 0/2 | -0.141 | 0.313 | 0.190 | 0.096 | 0.056 | 0.19 | bullish | True |
+| 2026-08-27 | Thu | WAVE | BIG | 3/3 | 0.309 | 0.370 | -0.370 | -0.312 | 0.029 | 0.20 | bullish | True |
+| 2026-08-28 | Fri | WAVE | BIG | 1/3 | 0.088 | 0.255 | -0.040 | -0.156 | 0.119 | 0.18 | no_trade | n/a |
+| 2026-08-31 | Mon | no-wave | no-big | 0/0 | -0.254 | n/a | 0.850 | -0.192 | -0.207 | 0.25 | n/a | n/a |
+| 2026-09-01 | Tue | WAVE | BIG | 1/2 | -0.641 | 0.254 | 1.170 | 0.172 | n/a | 0.12 | n/a | n/a |
+| 2026-09-02 | Wed | WAVE | no-big | 1/4 | 0.126 | 0.247 | -0.200 | -0.016 | -0.068 | 0.24 | n/a | n/a |
+| 2026-09-03 | Thu | WAVE | BIG | 2/5 | 0.358 | 0.472 | -0.350 | -0.042 | 0.044 | 0.28 | n/a | n/a |
+| 2026-09-04 | Fri | no-wave | no-big | 0/3 | -0.079 | 0.232 | -0.200 | 0.020 | 0.121 | 0.61 | n/a | n/a |
 
 ## W2 -- honest read (n=20 wave / n=5 no-wave; ranges disclosed, no threshold proposed)
 
@@ -131,3 +144,30 @@ primary hypothesis leg -- three overlapping legs would dilute an already n=5-lim
 kill test. No threshold is proposed for either carried condition; the prereg (`analysis/
 recommendations/prereg-wave-day-conditions-10-30-2026-09-05.json`) states the direction
 only and evaluates at n>=20 forward sessions per its own kill rule.
+
+## W2.5 -- big_day honest read (W5, added 2026-09-06; n=14 big_day / n=11 not, per-wave
+>=2.0x peak-multiple label -- NOT the doctrine top-5-dollar-day set, see method notes)
+
+**No condition separates big_day vs not either, and the splits are smaller than the
+wave/no-wave read above.** Re-running the same 6 continuous conditions (day-of-week
+included) against `big_day` instead of `wave`:
+
+| Condition | big_day (n) | not-big (n) | Read |
+|---|---|---|---|
+| Overnight gap % | n=14, mean +0.088, median +0.229 | n=11, mean +0.126, median +0.098 | Reversed vs the wave/no-wave lean (not-big is now *slightly* higher mean) -- no separation, opposite direction of W2's #2 lean. |
+| First15/ATR20 | n=14, mean 0.256, median 0.234 | n=10, mean 0.272, median 0.243 | Same "no separation, slightly opposite the naive intuition" shape as W2's #4. |
+| VIX open-vs-prior | n=14, mean +0.084, median -0.020 | n=11, mean +0.186, median +0.190 | Same DIRECTION as W2's #3 secondary lean (not-big leans toward a VIX pop at the open) but weaker/more overlapping. |
+| VIX 5-day slope | n=14, mean -0.042 | n=11, mean -0.226 | Both negative; not-big is more negative -- a lean, but overlapping ranges (-0.37..+0.30 vs -0.92..+0.14). |
+| Prior-close-vs-VWAP % | n=13, mean -0.018 | n=11, mean +0.002 | Near-identical, no separation. |
+| Distance to nearest zone | n=13, mean 0.385 | n=10, mean 0.276 | Overlapping, weak lean only. |
+| Day of week | big: Tue 5, Thu 4, Mon 2, Fri 2, Wed 1 | not-big: Wed 4, Mon 3, Fri 3, Thu 1 | Different shape from the wave/no-wave DOW lean (Monday was *3 of 5* no-wave days but is split 2 big / 3 not-big here) -- the wave/no-wave Monday lean does NOT carry over to big_day. |
+
+**Verdict: no condition in this table separates big_day from not-big at this n, and
+where a wave/no-wave lean existed (day-of-week, overnight gap%) it does not reproduce
+here (day-of-week lean vanishes; overnight-gap lean reverses direction).** This is
+disclosed, not hidden -- the two outcome labels (any wave >=1.3x vs any wave >=2.0x)
+are answering different questions and the W2 leans should NOT be assumed to transfer
+to the narrower/dollar-relevant one. **No threshold or gate is proposed for `big_day`**
+(same DONE-WHEN constraint as W2). This read is carried into the prereg's second
+outcome (`analysis/recommendations/prereg-wave-day-conditions-10-30-2026-09-05.json`)
+as an explicit "no separating condition found" disclosure, not a new hypothesis leg.

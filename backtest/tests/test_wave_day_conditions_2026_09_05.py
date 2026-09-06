@@ -133,3 +133,60 @@ def test_known_no_wave_day_joins_to_wave_false():
     info = w.wave_label(no_wave_date)
     assert info["n_waves_meeting_threshold"] == 0
     assert info["wave"] is False
+
+
+# GOAL-WAVE-DAY-CONDITIONS-2026-09-05 W5: second, narrower outcome label (big_day,
+# >=2.0x priced peak_multiple) -- RED-PROOF: pre-fix `wave_label()` had no `big_day`
+# key at all, so `info["big_day"]` would raise KeyError on every one of these.
+
+def test_known_august_2x_anchor_day_labels_big_day_true():
+    """2026-08-04 (doctrine's own worked example) has waves priced at 5.44x/5.90x/
+    3.01x peak_multiple in the real CAPTURE-2026-08-04.json on disk -- all comfortably
+    clear BIG_DAY_THRESHOLD=2.0. Must label big_day=True with a positive count, not
+    merely truthy via n_waves_meeting_threshold (a 1.3x-only day must NOT satisfy
+    this by accident -- see the next test)."""
+    capture_path = REPO / "analysis" / "right-tail" / f"CAPTURE-{KNOWN_WAVE_DATE}.json"
+    assert capture_path.exists(), f"fixture precondition missing: {capture_path}"
+
+    info = w.wave_label(KNOWN_WAVE_DATE)
+    assert info["big_day"] is True
+    assert info["n_waves_meeting_big_day_threshold"] >= 1
+    assert info["big_day_threshold"] == w.BIG_DAY_THRESHOLD
+    # the anchor day's own peak_multiples (from the real capture file) must include
+    # at least one value >= threshold -- proves the filter actually ran over real numbers.
+    import json as _json
+    raw = _json.loads(capture_path.read_text(encoding="utf-8"))
+    real_peaks = [wv.get("peak_multiple") for wv in raw.get("waves", []) if wv.get("computed")]
+    assert any(p is not None and p >= w.BIG_DAY_THRESHOLD for p in real_peaks)
+
+    row = w.build_row(KNOWN_WAVE_DATE)
+    assert row["wave"]["big_day"] is True
+
+
+def test_1p3x_only_day_does_not_satisfy_big_day():
+    """2026-08-06 is a real doctrine top-5 dollar day (edge-master-doctrine.md) whose
+    single wave peaked at 1.85x -- clears the 1.3x wave gate (wave=True) but must NOT
+    satisfy the narrower 2.0x big_day gate. Discriminates against a bug where big_day
+    is computed from n_waves_meeting_threshold (the 1.3x set) instead of its own
+    peak_multiple >= 2.0 filter -- the exact mismatch this goal's W5 item exists to
+    surface (doctrine's dollar-outlier days are not identical to any-wave->=2x-peak
+    days)."""
+    date_1p3x_only = "2026-08-06"
+    capture_path = REPO / "analysis" / "right-tail" / f"CAPTURE-{date_1p3x_only}.json"
+    assert capture_path.exists(), f"fixture precondition missing: {capture_path}"
+
+    info = w.wave_label(date_1p3x_only)
+    assert info["wave"] is True  # clears the 1.3x gate
+    assert info["big_day"] is False  # does NOT clear the 2.0x gate
+    assert info["n_waves_meeting_big_day_threshold"] == 0
+
+
+def test_missing_capture_file_degrades_big_day_to_null_with_reason():
+    """The far-future / no-coverage date must null out big_day alongside wave --
+    never crash, never silently default to False (which would be indistinguishable
+    from a real 'checked and no wave reached 2x' verdict)."""
+    info = w.wave_label(FAR_FUTURE_DATE)
+    assert info["big_day"] is None
+    assert info["n_waves_meeting_big_day_threshold"] is None
+    assert info["big_day_threshold"] == w.BIG_DAY_THRESHOLD
+    assert isinstance(info.get("reason"), str) and info["reason"]

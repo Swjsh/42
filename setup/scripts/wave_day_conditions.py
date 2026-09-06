@@ -58,6 +58,17 @@ try:
 except ImportError:  # pragma: no cover
     pd = None
 
+# GOAL-WAVE-DAY-CONDITIONS-2026-09-05 W5: second, narrower outcome label. The W1
+# `wave` label (>=1.3x, right_tail_waves.WAVE_THRESHOLD) matches 20/25 backfill
+# sessions -- too broad to speak to doctrine's "August 2026 big-day anatomy" (five
+# specific 2x-TP1 dollar-outlier days). `big_day` = >=1 wave whose priced peak_multiple
+# (already computed and stored per-wave in CAPTURE-<date>.json regardless of whether it
+# cleared the 1.3x gate) reaches BIG_DAY_THRESHOLD. No new pricing/detection -- reuses
+# the same CAPTURE file `wave_label()` already reads, just a different filter over the
+# same `peak_multiple` numbers. This is a second outcome column, not a replacement --
+# `wave`/`n_waves_meeting_threshold` are unchanged.
+BIG_DAY_THRESHOLD = 2.0
+
 OUT_PATH = REPO / "analysis" / "right-tail" / "wave-day-conditions.jsonl"
 RIGHT_TAIL_DIR = REPO / "analysis" / "right-tail"
 SPY_SIP_CACHE = BACKTEST / "data" / "spy_sip_cache"
@@ -389,20 +400,31 @@ def wave_label(date: str) -> dict[str, Any]:
     if not capture_path.exists():
         return {"wave": None, "n_waves_all": None, "n_waves_meeting_threshold": None,
                 "sides": None, "peak_multiples": None,
+                "big_day": None, "n_waves_meeting_big_day_threshold": None,
+                "big_day_threshold": BIG_DAY_THRESHOLD,
                 "reason": f"no {capture_path.name} (Gamma_RightTailCapture has not fired for this date yet)"}
     try:
         d = json.loads(capture_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return {"wave": None, "n_waves_all": None, "n_waves_meeting_threshold": None,
-                "sides": None, "peak_multiples": None, "reason": f"unreadable/corrupt {capture_path}"}
+                "sides": None, "peak_multiples": None,
+                "big_day": None, "n_waves_meeting_big_day_threshold": None,
+                "big_day_threshold": BIG_DAY_THRESHOLD,
+                "reason": f"unreadable/corrupt {capture_path}"}
     waves = d.get("waves", [])
     meeting = [w for w in waves if w.get("meets_threshold")]
+    big_day_waves = [w for w in waves
+                     if isinstance(w.get("peak_multiple"), (int, float))
+                     and w["peak_multiple"] >= BIG_DAY_THRESHOLD]
     return {
         "wave": len(meeting) >= 1,
         "n_waves_all": d.get("n_waves_all"),
         "n_waves_meeting_threshold": d.get("n_waves_meeting_threshold"),
         "sides": [w.get("side") for w in meeting],
         "peak_multiples": [w.get("peak_multiple") for w in meeting],
+        "big_day": len(big_day_waves) >= 1,
+        "n_waves_meeting_big_day_threshold": len(big_day_waves),
+        "big_day_threshold": BIG_DAY_THRESHOLD,
     }
 
 
