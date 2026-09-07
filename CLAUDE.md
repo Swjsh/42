@@ -274,7 +274,6 @@ These are non-negotiable, second only to the 10 rules above.
 
 ## Compact instructions
 
-> Anthropic's documented home for these (moved off a fake `settings.json` key 2026-08-29 — history: CHANGELOG.md).
 
 When compacting, preserve: the active goal + its next open QUEUE item; what was VERIFIED this
 session and the command output that proved it; open loops and what is blocked on whom; file paths
