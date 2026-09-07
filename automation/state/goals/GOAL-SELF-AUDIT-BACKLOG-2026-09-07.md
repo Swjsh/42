@@ -45,15 +45,22 @@ commit".
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
 
-- [ ] Triage the 2026-09-03T17:31:34 batch (12 lines, `new-gaps-flagged.md` line ~1699).
-      Notable candidates already scanned at open time (verify, don't assume): ROSTER-LIVENESS
-      `p::m` lane reported DEAD/404 -- check if it self-healed or needs a real fix or a
-      formal retirement; MCP_AUDIT_YELLOW (0 alpaca-mcp-server processes) -- check whether a
-      lightweight auto-restart is warranted or whether this is expected on this box's
-      current process model; gate-expiry RED auto-retry gap (filter-8-bear-sole /
-      filter-10-bull-sole) -- cross-check against the ALREADY-CLOSED
-      GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 before treating this as new work, it likely
-      duplicates that closed goal.
+- [x] Triage the 2026-09-03T17:31:34 batch (12 lines, `new-gaps-flagged.md` line ~1699).
+      DONE 2026-09-07 ~01:2x ET: full disposition in `new-gaps-flagged.md`'s TRIAGED marker.
+      0 lines needed a code change this pass. 4 duplicate/moot (ROSTER-LIVENESS p::m already
+      refuted as test pollution 09-05; MCP_AUDIT_YELLOW is a live already-tracked STATUS line;
+      gate-expiry auto-retry superseded by the closed GATE-EXPIRY-RECONCILE goal's smarter
+      dollar-verdict fix; dead-lane-healing is moot with no confirmed dead lane). 4 genuine
+      small follow-on LEADS filed (not built, budget): auto_commit_candidates.py proactive
+      pre-check (vs today's reactive-only guard), a consumer for the unconsumed per-minute
+      SPY tape, a kind==option/underlying stream-mixing audit in quote_recorder consumers,
+      an auto-prune for pre-rejected structure-classifier candidates. 1 low-severity doctrine
+      gap noted, not drafted (NOT_EXERCISED verdict has no formal OP yet).
+- [ ] Small follow-on leads from the 09-03 batch triage (file each as its own small item when
+      picked up, don't bundle): (a) auto_commit_candidates.py proactive pre-check; (b) wire or
+      remove the unconsumed per-minute SPY underlying tape reader; (c) audit quote_recorder
+      consumers for kind==option/underlying mixing; (d) structure_classifier_shadow.py
+      auto-prune for a candidate already pre-rejected by its own forward eval.
 - [ ] Triage the 2026-09-04T17:31:34 batch (12 lines, line ~1713). Notable candidates:
       "multi-tick state-accumulation bug class not closed" (bounce_history fix 7ebbeeec
       patched ONE instance -- is there a second known accumulator with the same defect
@@ -106,6 +113,18 @@ commit".
   (09-03/09-04/09-05) that need per-line triage rather than one root-cause fix.
   `conductor_outcome.py record` called for this fire's overall work (the trendline fix +
   this goal's authoring) -- see conductor-outcomes.jsonl.
+- 2026-09-07 ~01:2x ET (Stop-hook continuation 1/3): Triaged the 2026-09-03 batch (12
+  lines). 0 code changes -- 4 lines were duplicate/moot (ROSTER-LIVENESS p::m already
+  refuted as test pollution 2026-09-05; MCP_AUDIT_YELLOW is a live already-tracked STATUS
+  line, not new; gate-expiry auto-retry superseded by the closed GATE-EXPIRY-RECONCILE
+  goal's smarter dollar-verdict fix; dead-lane auto-healing is moot with no confirmed dead
+  lane), 4 are genuine small follow-on leads filed in this QUEUE (not built, low remaining
+  budget this fire): auto_commit_candidates.py proactive pre-check, an unconsumed
+  per-minute SPY tape reader, a quote_recorder kind-mixing consumer audit, a
+  structure-classifier-shadow auto-prune. 1 low-severity doctrine gap noted (no formal OP
+  for NOT_EXERCISED verdicts), not drafted. Full evidence in `new-gaps-flagged.md`'s
+  TRIAGED marker under the 09-03 batch. `conductor_outcome.py record` called for this
+  continuation.
 
 ## HONEST STATE
 As of goal open (2026-09-07 ~01:xx ET): 0 of the 3 remaining batches (09-03/09-04/09-05,
