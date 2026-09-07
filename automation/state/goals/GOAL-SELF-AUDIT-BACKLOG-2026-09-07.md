@@ -59,11 +59,29 @@ commit".
 - [x] Small follow-on leads from the 09-03 batch triage -- (a) DONE this fire (see PROGRESS
       LOG); (b)/(c)/(d) filed as their own separate items below per this line's own
       instruction not to bundle.
-- [ ] (b) Wire or remove the unconsumed per-minute SPY underlying tape reader (commit
-      ddb4e9d7) -- dead infrastructure, decide WIRE (build a consumer) or REMOVE.
-- [ ] (c) Audit quote_recorder consumers for kind==option/underlying stream-mixing (grep for
-      a `kind ==` filter in every consumer; confirm none double-counts option rows as
-      underlying rows).
+- [x] (b) Wire or remove the unconsumed per-minute SPY underlying tape reader (commit
+      ddb4e9d7). DONE 2026-09-07 ~05:4x ET (commit 79e1d8fa): WIRED into
+      release_blackout_shadow.py's quote-tape fallback path (`_quote_tape_underlying_move`)
+      -- fills `spy_move_1000_1001_dollars`, previously hardcoded None. Found + fixed a real
+      stream-mixing bug in the SAME spot while wiring: `_quote_tape_option_moves` had no
+      `kind` filter, so a kind="underlying" SPY row would have been swept into the
+      option-percent-move comparison. 6 new tests, RED-proofed live (5/33 failed pre-fix
+      with the exact signatures). See PROGRESS LOG.
+- [x] (c) Audit quote_recorder consumers for kind==option/underlying stream-mixing --
+      PARTIAL, scoped down (not full-repo). The ONE production/scheduled consumer
+      (`release_blackout_shadow.py`) is fixed as part of (b) above -- confirmed by grep it
+      was the only production script actually READING `kind`-tagged rows for comparison
+      logic (`trades_enriched.py`'s `load_quote_tape` indexes by `(date, arm, symbol)`,
+      structurally safe since underlying rows carry `arm=None` and never match a real
+      trade's key -- verified by reading the function, no fix needed).
+      NOT audited this pass (out of scope, low-risk): `backtest/tools/dissect_*.py` and
+      `fleetgates_*.py` -- 9 one-off analysis scripts from the 2026-09-03 money
+      investigation, already run once, outputs already reviewed/archived as markdown
+      reports; a stream-mixing bug there affects a report already filed, not live/repeating
+      infrastructure. Grep showed 0 `kind` filters in 7 of 9. If any of those scripts is
+      ever re-run, its own kind-filtering should be checked at that time -- filed as a
+      standing caution, not a new QUEUE item (see queue.md if this needs tracking longer
+      than this goal's own life).
 - [ ] (d) structure_classifier_shadow.py: confirm whether "no auto-prune for a pre-rejected
       candidate" is a real gap or moot-by-design (re-read prereg-structure-classifier-
       swap-2026-09-03.md section 5 condition 2 before touching -- the shadow task running
@@ -151,6 +169,24 @@ commit".
   their own separate QUEUE items per this line's own "don't bundle" instruction --
   NOT built this pass (each needs its own investigation before a fix, not guessable from the
   self-audit's one-line prose). `conductor_outcome.py record` called for this fire.
+- 2026-09-07 ~05:4x ET (Stop-hook continuation 1/3): Picked up lead (b) -- wire the unconsumed
+  per-minute SPY underlying tape. Investigated `release_blackout_shadow.py`'s quote-tape
+  fallback path first (the module's own docstring, written the SAME day as the tape's own
+  commit, already named the exact gap: "quote-tape carries no SPY underlying quote" hardcoded
+  `spy_move_1000_1001_dollars: None`). Wired `_quote_tape_underlying_move()` -- same
+  largest-poll-to-poll-jump methodology as the existing option metric, signed dollar move.
+  While wiring, found the ADJACENT real bug lead (c) was asking about: `_quote_tape_option_moves`
+  had no `kind` filter at all, so a kind="underlying" SPY row (mid ~770) would have been swept
+  into the option-percent comparison as a fake "option symbol". Fixed both in the same commit
+  (mechanically inseparable -- same function, same investigation). Audited the rest of lead
+  (c)'s scope: `trades_enriched.py`'s consumer is structurally safe by construction (indexes by
+  arm, underlying rows carry arm=None); 9 one-off `backtest/tools/dissect_*`/`fleetgates_*`
+  scripts NOT audited (already-run, already-archived reports, low ongoing risk) -- disposed as
+  a standing caution, not a new item. Guard: 6 new tests (33 total, was 27). RED-proofed live:
+  `git stash` of the production file -> 5/33 failed with the exact signatures -> pop -> 33/33
+  green. Broader release_blackout/release_gap_study suite 33 passed. Curated safety gate 59
+  passed. Commit `79e1d8fa` (verified not on FROZEN_TRADING_PATH before editing).
+  `conductor_outcome.py record` called for this continuation.
 
 ## HONEST STATE
 As of goal open (2026-09-07 ~01:xx ET): 0 of the 3 remaining batches (09-03/09-04/09-05,
