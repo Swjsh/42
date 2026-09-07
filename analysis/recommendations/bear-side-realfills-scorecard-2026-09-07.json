@@ -1,0 +1,138 @@
+{
+ "rule_id": "bear-side-realfills-scorecard-2026-09-07",
+ "kind": "PROPOSE (OP-11 scorecard; no params change)",
+ "population": "journal/trades.csv, live arms only (safe-3, safe-2, risky-1, bold-2 + legacy safe/bold labels), real paper fills, 2026-04-29..2026-09-04",
+ "setups": {
+  "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+   "all": {
+    "n": 246,
+    "total": 5287,
+    "expectancy": 21.49,
+    "wr": 0.394,
+    "pf": 1.54,
+    "worst": -468
+   },
+   "ex_best_day_2026-08-04": {
+    "n": 219,
+    "total": 3033,
+    "expectancy": 13.85,
+    "wr": 0.374,
+    "pf": 1.33,
+    "worst": -468
+   },
+   "by_month": {
+    "2026-05": {
+     "n": 3,
+     "total": 1356,
+     "expectancy": 452.0,
+     "wr": 0.333,
+     "pf": 10.42,
+     "worst": -99
+    },
+    "2026-06": {
+     "n": 19,
+     "total": -276,
+     "expectancy": -14.53,
+     "wr": 0.0,
+     "pf": 0.0,
+     "worst": -64
+    },
+    "2026-07": {
+     "n": 40,
+     "total": -20,
+     "expectancy": -0.5,
+     "wr": 0.175,
+     "pf": 0.97,
+     "worst": -177
+    },
+    "2026-08": {
+     "n": 149,
+     "total": 4162,
+     "expectancy": 27.93,
+     "wr": 0.517,
+     "pf": 1.62,
+     "worst": -468
+    },
+    "2026-09": {
+     "n": 35,
+     "total": 65,
+     "expectancy": 1.86,
+     "wr": 0.343,
+     "pf": 1.03,
+     "worst": -270
+    }
+   }
+  },
+  "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+   "all": {
+    "n": 91,
+    "total": 72,
+    "expectancy": 0.79,
+    "wr": 0.418,
+    "pf": 1.01,
+    "worst": -770
+   },
+   "ex_best_day_2026-08-04": {
+    "n": 91,
+    "total": 72,
+    "expectancy": 0.79,
+    "wr": 0.418,
+    "pf": 1.01,
+    "worst": -770
+   },
+   "by_month": {
+    "2026-04": {
+     "n": 1,
+     "total": 342,
+     "expectancy": 342.0,
+     "wr": 1.0,
+     "pf": null,
+     "worst": 342
+    },
+    "2026-05": {
+     "n": 3,
+     "total": 430,
+     "expectancy": 143.33,
+     "wr": 0.667,
+     "pf": 1.56,
+     "worst": -770
+    },
+    "2026-06": {
+     "n": 1,
+     "total": -237,
+     "expectancy": -237.0,
+     "wr": 0.0,
+     "pf": 0.0,
+     "worst": -237
+    },
+    "2026-07": {
+     "n": 27,
+     "total": -882,
+     "expectancy": -32.67,
+     "wr": 0.222,
+     "pf": 0.36,
+     "worst": -355
+    },
+    "2026-08": {
+     "n": 54,
+     "total": 371,
+     "expectancy": 6.87,
+     "wr": 0.5,
+     "pf": 1.15,
+     "worst": -270
+    },
+    "2026-09": {
+     "n": 5,
+     "total": 48,
+     "expectancy": 9.6,
+     "wr": 0.4,
+     "pf": 1.17,
+     "worst": -140
+    }
+   }
+  }
+ },
+ "finding": "BEARISH_REJECTION on live arms: n=91, total $72, expectancy $0.79/trade, PF 1.01, worst $-770; July 2026 n=27 PF 0.36 (-$882). It is dead weight with a real tail: contributes ~$0.8/trade against a go-live gate that needs $57-84/day/arm.",
+ "proposal": "PROPOSE (not applied): bench BEARISH_REJECTION from the live arms until a pre-registered A/B on real fills shows expectancy > $0 across >=2 sub-windows. OP-16 keeps both directions ACTIVE by doctrine; this is a REVOKE-surface proposal for J, filed per OP-11 eval-first. Counter-argument recorded: bear is the only hedge on down days (Aug PF 1.15), and n=91 is thin -- a bench is reversible.",
+ "generated_et": "2026-09-07T11:27:57"
+}
