@@ -95,23 +95,18 @@ commit".
       kill at 2026-10-30, or manual revert per S9) -- deliberately keeps running with a
       currently-failing condition #2 by design, per S5's frozen falsifier (not re-evaluated
       early). No code change; no regression risk.
-- [ ] Triage the 2026-09-04T17:31:34 batch (12 lines, line ~1713). Notable candidates:
-      "multi-tick state-accumulation bug class not closed" (bounce_history fix 7ebbeeec
-      patched ONE instance -- is there a second known accumulator with the same defect
-      shape, or was this speculative?); "no staleness watchdog on output files" (verify
-      against the fix already shipped 2026-09-05 self-audit batch#6, check_live_watch_liveness
-      -- likely a PARTIAL duplicate, scope what's still missing beyond live-watch.json);
-      "kill switch over-latches across all arms" (SPY-0DTE core: verify per-account isolation
-      in `backtest/lib/risk_gate.py::check_order` call sites -- a first-pass check this fire's
-      opening investigation already found the core function signature takes per-account
-      `kill_switch_tripped`/`sod_equity_f`/`equity_f`, consistent with isolation; confirm the
-      FLEET arms question is fully answered by the existing FLEET-KILL-SWITCH-NOT-LATCHED
-      queue item (built on branch `safety-bundle-2026-09-29`, awaiting the checkpoint) rather
-      than a new defect); "theta_budget model unvalidated / systematically overshooting" --
-      this is a genuine open question, freeze-compatible to MEASURE (not to fix/ship), file a
-      measurement-only script if none exists; "Alpaca greeks endpoint has never worked" (41/41
-      empty) -- confirm current status, decide DOCUMENT-AS-MODEL-ONLY vs a real integration
-      bug worth a queue item.
+- [x] Triage the 2026-09-04T17:31:34 batch (12 lines, line ~1713). DONE 2026-09-07 09:xx ET:
+      full 7-theme disposition in `new-gaps-flagged.md`'s TRIAGED marker. 1 real gap FOUND
+      AND FIXED (autonomy-report.json had no staleness detector -- only a self-heal; added to
+      `scheduled_task_staleness.TASK_OUTPUT_MAP`, 1 new guard test, RED-proofed). 6 themes
+      refuted-as-new or duplicate/already-tracked (multi-tick bug class was a one-off
+      fork-drift not a live class; kill-switch cross-arm question fully answered by the
+      already-built FLEET-KILL-SWITCH-NOT-LATCHED queue item; theta_budget overshoot already
+      tracked + measured; Alpaca greeks already adjudicated in the 09-02 batch; cockpit dual
+      source of truth refuted -- the old file is unreachable, not live; n=3 minimum-n concern
+      was a misread of an honestly-scoped day-one autopsy line, and the general convention is
+      already house style everywhere else). 2 small leads filed as LOW queue items
+      (COCKPIT-INDEX-HTML-ORPHAN, MULTI-TICK-ACCUMULATION-FUZZ-HARNESS), not built (budget).
 - [ ] Triage the 2026-09-05T17:31:21 batch (12 lines, line ~1727). Notable candidates:
       "status-preamble drift... pin with a CONTENT test" (extend
       `test_status_known_broken_preamble_2026_09_02.py` if it doesn't already assert content,
@@ -232,3 +227,17 @@ opening notes, which are investigation LEADS for the next fire, not verified dis
   `new-gaps-flagged.md`'s 09-03 batch as a dated ADDENDUM (append-only, did not rewrite the
   existing TRIAGED block). No code change -- read-only investigation, nothing to guard/revert.
   `conductor_outcome.py record` called for this fire.
+- 2026-09-07 09:xx ET (Stop-hook continuation 1/3): Triaged the 2026-09-04 batch (12 lines,
+  7 distinct themes). Live-checked every theme against current code (heartbeat_core.py's
+  bounce_history dict-shape, risk_gate.py::check_order's per-account signature, the actual
+  Next.js dashboard's routes, queue.md's existing FLEET-KILL-SWITCH-NOT-LATCHED and
+  TICKERS-THETA-BUDGET-OVERSHOOT items, the 09-02 batch's already-adjudicated Alpaca-greeks
+  disposition). Found and FIXED one real gap: `autonomy-report.json` (the 19-day-frozen file
+  from the audit's own example) had no staleness DETECTOR, only a self-heal -- added
+  `Gamma_Home` to `scheduled_task_staleness.TASK_OUTPUT_MAP` (commit pending), 1 new
+  RED-proofed guard test, verified against 1 pre-existing UNRELATED test failure in the same
+  file (confirmed present before my change too, not caused or fixed by this fire). The other
+  6 themes disposed as refuted-as-new or duplicate/already-tracked with evidence quoted in
+  `new-gaps-flagged.md`'s TRIAGED marker; 2 small genuine leads filed as LOW queue items
+  (not built, budget). Curated safety gate 59 passed. `conductor_outcome.py record` called
+  for this continuation.

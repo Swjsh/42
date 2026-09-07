@@ -693,6 +693,13 @@ TASK_OUTPUT_MAP: dict = {
     "Gamma_Tp1R50ForwardShadow": ("analysis/recommendations/tp1-r50-forward-shadow-summary.json", "generated_at_et"),
     "Gamma_TrendlineTightExitShadow": ("analysis/recommendations/trendline-tight-exit-shadow-summary.json", "generated_at_et"),
     "Gamma_PullbackHoldShadow": ("analysis/recommendations/pullback-hold-shadow-summary.json", "generated_at_et"),
+    # 2026-09-04 self-audit gap: autonomy-report.json sat frozen 19 days before anyone
+    # noticed (fixed by commit 3961257d -- Gamma_Home now regenerates it fail-open on
+    # every fire -- but that fix is a SELF-HEAL, not a DETECTOR; nothing was watching
+    # whether it actually happened). Wired here 2026-09-07 (GOAL-SELF-AUDIT-BACKLOG)
+    # using the SAME generic ran-but-output-didn't-move check every other row uses --
+    # no new logic, just closing the one file the audit line specifically named.
+    "Gamma_Home": ("automation/state/autonomy-report.json", "computed_at"),
 }
 
 

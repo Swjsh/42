@@ -221,6 +221,15 @@ def test_table_also_covers_the_earlier_forward_shadows():
     assert required.issubset(set(sts.TASK_OUTPUT_MAP))
 
 
+def test_table_covers_gamma_home_autonomy_report_2026_09_07():
+    """2026-09-04 self-audit gap: autonomy-report.json sat frozen 19 days with nothing
+    watching it -- the fix (3961257d) was a self-heal (Gamma_Home regenerates it fail-open
+    on every fire), not a detector. Closed by wiring the SAME generic ran-but-output-
+    didn't-move check every other TASK_OUTPUT_MAP row already uses."""
+    assert sts.TASK_OUTPUT_MAP.get("Gamma_Home") == (
+        "automation/state/autonomy-report.json", "computed_at")
+
+
 def test_fresh_output_is_green(tmp_path):
     out = tmp_path / "analysis" / "recommendations" / "thing.json"
     out.parent.mkdir(parents=True)
