@@ -155,7 +155,12 @@ def _upsert_impl(marker: str, line: Optional[str], status_path: Path) -> bool:
     except OSError:
         return False
     newline = _detect_newline(raw)
-    text = raw.decode("utf-8")
+    # BOM-TOLERANT (L317, 2026-09-07): decode with utf-8-sig so a leading BOM never turns
+    # the first line into "﻿## Known broken" (which fails _HEADING_LINE_RE and made
+    # every producer prepend a fresh heading -- STATUS.md reached THREE sections). Also
+    # strip any EMBEDDED BOM (a prior prepend) and its cp1252 mojibake form. Written back
+    # as plain utf-8, so the file self-heals on the next upsert.
+    text = raw.decode("utf-8-sig").replace("﻿", "").replace("ï»¿", "")
     # Normalize to '\n' internally so every regex/split below is newline-convention
     # -agnostic; the file's ORIGINAL convention is restored byte-for-byte on write.
     norm = text.replace("\r\n", "\n")

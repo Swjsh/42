@@ -332,8 +332,12 @@ def test_post_output_freshness_dedupes_across_repeated_fires(tmp_path):
     sts.post_output_freshness_status(report2, status_path=status)
     text = status.read_text(encoding="utf-8")
     assert text.count("TASK-OUTPUT-FRESHNESS:") == 1
-    assert "18:10:00 ET" in text
-    assert "17:55:00 ET" not in text  # the stale line was replaced, not stacked
+    # 2026-09-07 (test corrected, code unchanged): since GOAL-RIG-SIGNAL-HYGIENE H1
+    # (2026-09-05, test_status_known_broken_stamp_stability_2026_09_05.py) an UNCHANGED
+    # finding re-fired keeps its ORIGINAL stamp -- otherwise conductor_wake_watch sees a
+    # "new entry" on every tick. This test previously asserted the pre-09-05 behaviour.
+    assert "17:55:00 ET" in text  # original stamp kept for an unchanged finding
+    assert "18:10:00 ET" not in text  # not re-stamped, and definitely not stacked
 
 
 def test_post_output_freshness_clears_marker_when_all_green(tmp_path):
