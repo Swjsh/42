@@ -82,14 +82,19 @@ commit".
       ever re-run, its own kind-filtering should be checked at that time -- filed as a
       standing caution, not a new QUEUE item (see queue.md if this needs tracking longer
       than this goal's own life).
-- [ ] (d) structure_classifier_shadow.py: confirm whether "no auto-prune for a pre-rejected
-      candidate" is a real gap or moot-by-design (re-read prereg-structure-classifier-
-      swap-2026-09-03.md section 5 condition 2 before touching -- the shadow task running
-      forever collecting forward evidence toward a decision already known FALSE at freeze
-      may be intentional per that prereg's own §6, not a bug; "registry slot 169" in the
-      self-audit line referred to the scheduled-task registration count, not a candidate
-      registry -- verify there is no SEPARATE candidate registry elsewhere before concluding
-      there's nothing to prune).
+- [x] (d) structure_classifier_shadow.py: confirm whether "no auto-prune for a pre-rejected
+      candidate" is a real gap or moot-by-design. DONE 2026-09-07 09:xx ET: REFUTED,
+      moot-by-design. Full evidence in `new-gaps-flagged.md`'s 2026-09-07 ADDENDUM under the
+      09-03 batch's item (9). "Registry slot 169" = SCHEDULED-TASKS.md's table position at
+      registration, confirmed by reading SCHEDULED-TASKS.md (183 tasks currently) -- not a
+      candidate registry. The script's `candidates` var (L680/685) is the per-tick scan
+      population for the shadow ledger, not a pool of rejected proposals; `run()` (L672-710)
+      is a plain dedup-by-key append-only ledger builder -- nothing accumulates, so nothing
+      needs pruning. Confirmed no separate candidate registry exists anywhere in the script.
+      The prereg (S6/S9) already defines the instrument's full one-shot lifecycle (ratify or
+      kill at 2026-10-30, or manual revert per S9) -- deliberately keeps running with a
+      currently-failing condition #2 by design, per S5's frozen falsifier (not re-evaluated
+      early). No code change; no regression risk.
 - [ ] Triage the 2026-09-04T17:31:34 batch (12 lines, line ~1713). Notable candidates:
       "multi-tick state-accumulation bug class not closed" (bounce_history fix 7ebbeeec
       patched ONE instance -- is there a second known accumulator with the same defect
@@ -213,3 +218,17 @@ opening notes, which are investigation LEADS for the next fire, not verified dis
   worse than an honest skip. Left QUEUE untouched for a general-purpose/conductor-context
   session with full repo tool access to pick up next. `conductor_outcome.py record` called
   with drained=0 to keep the outcome ledger honest (no fabricated progress).
+- 2026-09-07 09:xx ET (conductor AFTERHOURS): engine-health.json RED is the same
+  already-actioned `rth_tick_gaps` 09-04 box-crash gap tracked since 2026-09-05 (self-clearing
+  once the 1-prior-trading-day lookback rolls past Labor Day to 09-09; multiple prior fires
+  already confirmed this is not new work) -- proceeded past STAGE 0 per that precedent.
+  Active goal resolved to this goal's next bare QUEUE item, (d). Live-checked the
+  structure-classifier-shadow "auto-prune" self-audit line against the actual prereg (S5/S6/S9)
+  and the actual script code (`run()` L672-710, `candidates` L680/685) -- REFUTED,
+  moot-by-design: no candidate registry exists, "registry slot 169" is the scheduled-task
+  table, the ledger is a plain dedup-by-key append builder, and the prereg's own frozen
+  lifecycle (one decision at 2026-10-30, or manual revert per S9) already accounts for why the
+  instrument keeps running with a currently-failing condition. Full disposition appended to
+  `new-gaps-flagged.md`'s 09-03 batch as a dated ADDENDUM (append-only, did not rewrite the
+  existing TRIAGED block). No code change -- read-only investigation, nothing to guard/revert.
+  `conductor_outcome.py record` called for this fire.
