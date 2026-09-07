@@ -157,6 +157,54 @@ def market_close_et(date_str: str, cal_path: Path = CAL_PATH, creds: Optional[di
     return None
 
 
+def _holidays_for_year(year: int, cal_path: Path = CAL_PATH, creds: Optional[dict] = None) -> Optional[set]:
+    """Cache-first holiday set for `year`, self-healing exactly like `market_close_et`'s
+    cache-then-refresh contract. Returns None only if BOTH the cache misses this year
+    AND a live refresh fails -- 'unknown', never a guessed empty set (an empty set would
+    read as 'no holidays this year', which is a false claim of certainty)."""
+    try:
+        data = json.loads(cal_path.read_text(encoding="utf-8"))
+        year_range = data.get("year_range") or ["", ""]
+        if any(str(year) in str(v) for v in year_range):
+            return {str(d) for d in data.get("holidays", [])}
+    except Exception:  # noqa: BLE001
+        pass
+    if refresh_calendar_from_alpaca(cal_path, year, creds=creds):
+        try:
+            data = json.loads(cal_path.read_text(encoding="utf-8"))
+            return {str(d) for d in data.get("holidays", [])}
+        except Exception:  # noqa: BLE001
+            return None
+    return None
+
+
+def is_trading_day(date_str: str, cal_path: Path = CAL_PATH, creds: Optional[dict] = None) -> Optional[bool]:
+    """Was/is `date_str` (YYYY-MM-DD) a trading day: a weekday that isn't a known
+    full-day holiday. Returns None (unknown) only if the holiday cache can't be
+    resolved for that date's year even after a live refresh attempt -- callers must
+    treat None as 'cannot tell', never as True or False.
+
+    WHY THIS EXISTS (self-audit 2026-09-06 batch, 12 gap-lines from one false alarm):
+    `Gamma_TrendlineShadow` fires literally every day, weekends and holidays included,
+    and asks 'give me today's bars'. On a day the market never opened there are none --
+    by the calendar, not by any pipeline defect -- but the script had no way to tell
+    'no session happened' from 'the session happened and the feed broke', so every
+    Sat/Sun/holiday logged a scary 'BLIND :: cumulative spy_5m file did not refresh'
+    line to STATUS.md and, on 2026-09-06, fed an entire self-audit batch's worth of
+    catastrophizing about a data pipeline that was never touched."""
+    try:
+        dt = datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return None
+    if dt.weekday() >= 5:  # Sat/Sun -- calendar fact, needs no cache lookup
+        return False
+    year = dt.year
+    holidays = _holidays_for_year(year, cal_path, creds)
+    if holidays is None:
+        return None
+    return date_str not in holidays
+
+
 def early_close_today(cal_path: Path = CAL_PATH, creds: Optional[dict] = None) -> Optional[dict]:
     """Visibility helper for engine_health's non-critical checks. Returns:
       {'early_close': True,  'close': 'HH:MM'}  -- today closes early

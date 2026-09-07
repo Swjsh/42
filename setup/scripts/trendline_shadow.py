@@ -522,6 +522,25 @@ def main() -> int:
     ap.add_argument("--date")
     ap.add_argument("--seed", action="store_true", help="replay every session in the bar file")
     a = ap.parse_args()
+    if a.date and not a.seed:
+        # A weekend/holiday has zero SPY bars BY CALENDAR, not by a broken producer.
+        # The daily scheduled fire (Gamma_TrendlineShadow, literally every day) used to
+        # ask "give me today's bars" on those dates and get the same empty-session
+        # SKIPPED path a genuine feed outage would produce, so run() below reported
+        # exit 2 -> STATUS.md "BLIND :: cumulative spy_5m file did not refresh" every
+        # Sat/Sun/holiday -- a false alarm (self-audit 2026-09-06 batch: 12 gap-lines
+        # of cascade speculation built on this one non-bug). Only a definite False
+        # short-circuits; None (calendar cache unresolvable) falls through to the
+        # normal path unchanged -- fail-open, never suppress a real miss on a guess.
+        try:
+            from market_calendar import is_trading_day
+            trading = is_trading_day(a.date)
+        except Exception:
+            trading = None
+        if trading is False:
+            print(f"[trendline-shadow] {a.date}: not a trading day (weekend/holiday) "
+                  f"-- no session expected, nothing to check")
+            return 0
     all_days = sorted(load_bars()["day"].unique())
     dates = all_days if a.seed else [a.date or all_days[-1]]
     return run(dates)
