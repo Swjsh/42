@@ -2,7 +2,7 @@
 
 > **Provenance:** distilled 2026-09-06 from a r/LucidProp thread ("They said I would never make it...", u/New_Variation_2548, ~190 comments, captured in full via Reddit RSS) plus a fact-check pass against Databento's pricing page the same day. The OP's *results* (one green August on a Lucid $50k flex account, calendar screenshots) are **UNVERIFIED and unverifiable** — screenshots, one month, a prop-firm sub with heavy survivorship. What is worth keeping is the **mechanism stack** the OP describes and the **reading list**, both of which are checkable against literature and data. Treat every claim below as a hypothesis with a kill criterion, per OP-33 and `GENERATIVE-LENS.md`.
 >
-> **Companion to [`market-structure-execution.md`](market-structure-execution.md)** (§5 order-flow proxies, §0 auction theory). That doc covers what Gamma can infer from *bars*; this doc covers what becomes testable once we have *trades / book* data on the futures lane, and how to get there at ~$0.
+> **Companion to [`market-structure-execution.md`](market-structure-execution.md)** (§5 order-flow proxies, §0 auction theory). That doc covers what Gamma can infer from *bars*; this doc covers what becomes testable with *trade-and-quote* data — which, as of 2026-09-06, we discovered we already have on SPY for **$0** (§2).
 >
 > **Why Gamma cares:** J's verified edge is levels + role-flips. The engine currently grades a level by round-number-ness, touch count, and a bar-volume absorption *proxy* (§5 there). Everything in this doc is about replacing that proxy with the real thing — and about killing the ideas that don't survive a null.
 
@@ -18,9 +18,9 @@ The OP trades NQ/ES, 2–3 discretionary trades per day, holds under 5 minutes, 
 | **Context** | "microstructure as the context" — learned from the CME matching engine + Larry Harris | Where in the queue/level structure the trade sits; what the matching engine does to resting vs aggressive orders. |
 | **Trigger** | "forced / trapped inventory as the entry trigger"; "I trade forced flow and cascades" | A burst of aggressor volume (stop run / liquidation) *into* a level that gets absorbed by the other side. Direction = the absorber. |
 | **Prerequisite 1** | "if sellers are being absorbed at a low, buyers are the informed flow" | Absorption detection from **big trades** (L1 prints), not footprint/CVD/delta/imbalance (OP explicitly rejects those). |
-| **Prerequisite 2** | "reload dynamics of the aggressor" — which side keeps replenishing | Iceberg / reload detection — needs MBO (order-level) data to see queue replenishment. |
+| **Prerequisite 2** | "reload dynamics of the aggressor" — which side keeps replenishing | Iceberg / reload detection — needs MBO (order-level) data. **We have no free MBO source → H7 blocked** (§2). |
 | **Charting** | Volume-based bars only, no time charts; Bookmap = instantaneous bid/ask; "Level 2 has a lot of noise" | Sample on a volume clock; use L1 + trades, treat depth as timing nuance, not signal. |
-| **Data** | Rithmic MBO via Lucid, "$30–40/mo, $13 if only CME pairs"; ATAS + Bookmap | MBO for icebergs/stop runs — OP calls this "still noise for retail, not necessarily an edge" but useful for *when* to enter/exit. |
+| **Data** | Rithmic MBO via Lucid, "$30–40/mo, $13 if only CME pairs"; ATAS + Bookmap | MBO for icebergs/stop runs — OP calls this "still noise for retail, not necessarily an edge" but useful for *when* to enter/exit. **We are not buying this** (§2); the trade+quote layer beneath it we already have free. |
 | **Rejected** | Options chain / GEX: "once market makers hedge, that information gets arbitraged away through the order flow" | **Direct contradiction of our W2 GEX forward-bank thesis** — see §4 H4. |
 | **Learning method** | Papers + books loaded into Claude/Codex, "dissect … without all the fluff"; YouTube "leaves out the deeper stuff" | The `paper-dissect` loop in §3. |
 
@@ -37,27 +37,37 @@ The OP trades NQ/ES, 2–3 discretionary trades per day, holds under 5 minutes, 
 | Absorption at a level predicts a reversal in the absorber's direction | **STRONG mechanism, MODERATE evidence at our horizon** | Osler's order-book work (already cited in `market-structure-execution.md` §1.3) shows take-profit clustering *is* absorption. Short-horizon predictive power of order-flow imbalance is core microstructure (Cont/Kukanov/Stoikov 2014). Whether it survives a 1–5 min entry latency is exactly hteecs's open question. |
 | Stop runs / forced flow cascade then mean-revert | **STRONG mechanism** | Osler: stop-loss clustering just past round numbers → fast moves after a break. Whether the *reversal* after the cascade is tradeable is the test. OP notes August "was good for mean reverting" — regime-dependent by his own account. |
 | Informed vs uninformed flow is separable from L1 prints | **FOLKLORE as stated, STRONG as literature** | Kyle (1985), Glosten–Milgrom (1985), Easley–O'Hara PIN, Easley–López de Prado–O'Hara VPIN (2012) all model this. Retail-grade separability from big-trade prints alone is unproven. |
-| Iceberg / reload detection needs MBO | **TRUE by construction** | Reload = same queue position refilled; only visible order-by-order. CME publishes MBO on MDP 3.0. Databento carries it (verified 2026-09-06, §2). |
-| GEX is arbitraged into futures order flow, no standalone edge | **UNVERIFIED — testable, and it collides with our own W2** | If true, GEX sign adds nothing *conditional on* order-flow imbalance. That is a clean incremental-information test once we hold both series (§4 H4). |
+| Iceberg / reload detection needs MBO | **TRUE by construction** | Reload = same queue position refilled; only visible order-by-order. Our free SIP feed is trade+quote, **not** order-by-order → H7 is blocked, no free source found (§2). |
+| GEX is arbitraged into order flow, no standalone edge | **UNVERIFIED — testable, and it collides with our own W2** | If true, GEX sign adds nothing *conditional on* order-flow imbalance. That is a clean incremental-information test once we hold both series (§4 H4). |
 | Volume bars beat time bars for these signals | **MODERATE** | Easley/López de Prado/O'Hara argue for the volume clock; practitioner consensus agrees. Cheap to test as a sampling choice, not a strategy. |
 | 88% win rate, 2–3 trades/day, one month | **UNVERIFIED, discount to zero** | A commenter's number, from screenshots. Irrelevant to the research program. |
 
-Two honest caveats before anyone gets excited: (1) the OP is discretionary; the research below asks whether the *mechanisms* are mechanizable, which is a different and harder question; (2) all of this lives on the **futures lane**, which is currently a simulated MES tick with no tick-grade data on disk (`futures/AUTONOMOUS-FUTURES-LANE.md`). The 0DTE lane sees SPY bars and an OPRA cache, no book.
+Two honest caveats before anyone gets excited: (1) the OP is discretionary; the research below asks whether the *mechanisms* are mechanizable, which is a different and harder question; (2) **the OP trades NQ/ES and we are testing on SPY** — the instrument our live 0DTE lane actually trades, and the one we have free trade data for. The mechanisms are exchange-agnostic (both are deep, level-driven equity-index markets) but a finding on SPY is evidence about SPY, not a verified transfer from his futures results.
 
 ---
 
 ## 2. Gap map — what Gamma has vs what the stack needs
 
+> **⚡ RESOLVED 2026-09-06 — the data blocker was never real. We already own the feed.** J ruled out any new spend ("either you find it free or it's dead"), so the futures/Databento path was dropped and the existing Alpaca key was probed instead. **Alpaca SIP returns the full consolidated tape for SPY — every individual trade AND the NBBO quote stream — on the key already in `.mcp.json`.** Verified live this session:
+>
+> - `GET /v2/stocks/SPY/trades?feed=sip` → per-trade price, **size**, exchange, condition codes, **nanosecond** timestamps
+> - `GET /v2/stocks/SPY/quotes?feed=sip` → bid/ask **with sizes** at each update (this is what makes aggressor classification possible)
+> - **History reaches back to at least 2016** (probed 2016 / 2021 / 2023 / 2024 / 2025 — all returned data)
+> - Volume: **2,251 trades in one RTH minute** → roughly 900k trades/day. Pull sample days, not years.
+>
+> **Consequence:** H1–H6 below all become runnable at **$0 on the instrument we actually trade** (SPY, the live 0DTE lane) instead of on a futures proxy we'd have had to buy. No new vendor, no J decision needed. The only casualty is H7 — see the MBO row.
+
 | Need | Gamma today | Gap | Cost to close |
 |---|---|---|---|
-| Trades + L1 quotes (TBBO) on ES/NQ/MES/MNQ | `backtest/data/futures/MES_1m_continuous.csv` (Databento 1m, one-time pull 2026-06-16; no API key exists now) | No trade-level data | Databento GLBX.MDP3 `tbbo`/`trades` schema. **$125 free credits on a fresh account, expire in 6 months** (databento.com/pricing, read 2026-09-06). Per-GB rate not disclosed on the page — use their calculator before pulling. |
-| MBO (order-by-order) for icebergs / reloads | none | none | Same dataset, `mbo` schema. Pricing page says MBO history is **"14 months"** per individual product. MBO is the heaviest schema — pull days, not months. |
+| Trades + quotes (the absorption inputs) | ✅ **HAVE IT** — Alpaca SIP `/trades` + `/quotes` on SPY, existing key, back to 2016 | none | **$0.** Write a fetch+cache tool alongside the existing OPRA fetchers. |
+| Same, on futures (ES/NQ/MES) | `backtest/data/futures/MES_1m_continuous.csv` — bars only | No trade-level futures data | Would cost money (Databento). **DROPPED per J 2026-09-06.** SPY is the live instrument anyway; ES and SPY track each other closely enough that mechanism findings transfer. |
+| MBO (order-by-order) for icebergs / reloads | none | **SIP is trade+quote, NOT order-by-order** — it cannot show queue refills | No free source found. **H7 is BLOCKED, not queued.** Honest read: the OP himself calls MBO "still noise for retail, not necessarily an edge," so this is the cheapest thing on the list to give up. |
 | Live L1 for the futures tick | Alpaca REST bars + TradingView CDP (`MES_5m_live.csv`) | No live prints | Out of scope until a backtest earns it (futures plan §5 rule). |
 | A validated absorption *proxy* from bars | `market-structure-execution.md` §5 "high volume + narrow range at a level" — **never calibrated against real absorption** | Unknown precision/recall | Free once trades data exists (§4 H6). This is the highest-leverage item: it upgrades an input the engine already uses. |
 | Reading base | Auction theory + Osler in `market-structure-execution.md` | No Harris, no Kyle/Glosten–Milgrom/VPIN, no CME matching-engine docs | $0, subscription-only LLM time (§3). |
 | GEX series | `Gamma_CboeOiBank` forward-banking daily since 2026-06-22 (backlog W2) | Nothing to test it *against* yet | H4 needs the futures trades data + this archive — both are on the path. |
 
-**Decision owed to J (net-new vendor account, CLAUDE.md §5):** creating a fresh Databento key to use the $125 free credits. The futures revival plan already flags this as a J decision (`FUTURES-REVIVAL-PLAN-2026-07-02.md` §5 item 4). Nothing in §4 that needs trades data starts until that is a yes.
+**No decision owed to J any more.** The Databento question is closed: J ruled out new spend 2026-09-06, and the SIP probe made it moot. Everything below runs on the existing key. **Nothing in this doc costs money.**
 
 ---
 
@@ -116,14 +126,14 @@ Every one gets the standard bar: real fills where applicable (C1), the **directi
 
 ### H6 (first, because it needs the least and upgrades an existing input) — Calibrate the bar-level absorption proxy against real absorption
 - **Claim:** "high volume + narrow range at a graded level" (companion doc §5) actually corresponds to aggressor volume being absorbed by resting size.
-- **Data:** MES `tbbo` for a sample of days that the SPY engine already has graded levels for (cross-instrument, ES ≈ SPY levels scaled).
+- **Data:** Alpaca SIP SPY trades + quotes on days the engine already has graded levels for. Same instrument, no proxy, no scaling.
 - **Test:** label each level-touch bar with true absorption (aggressor volume at the level ÷ price progress); measure precision/recall of the bar proxy; find the proxy threshold that maximizes agreement.
 - **Kill:** proxy AUC < 0.6 against the true label → stop calling it absorption in the engine; downgrade the lever.
 - **Payoff even on failure:** we learn whether an input the engine trusts today is real.
 
 ### H1 — Absorption-then-reversal at graded levels
 - **Claim:** at a level, a cluster of large aggressive prints with no price progress predicts a move in the absorber's direction over the next 5–15 minutes.
-- **Data:** MES/MNQ `trades` + `tbbo`. Big-trade threshold set by percentile of the day's print sizes, not a fixed number.
+- **Data:** SIP SPY trades + quotes. Classify each print as buyer- or seller-initiated (Lee-Ready: compare trade price to the prevailing NBBO midpoint). Big-trade threshold set by percentile of the day's print sizes, not a fixed number.
 - **Test:** event study on next-N-minute signed return vs matched non-absorption touches of the same level class. Direction-controlled null.
 - **Kill:** no excess return beyond the null at *any* N in 1–15 min, or excess that vanishes with a 30-second entry delay.
 
@@ -134,13 +144,13 @@ Every one gets the standard bar: real fills where applicable (C1), the **directi
 - **Kill:** the split does not separate outcomes beyond the null, or only separates in one regime (OP admits August was mean-reverting — regime-tag every day).
 
 ### H3 — OFI / aggression as a predictor *net of latency* (the hteecs test)
-- **Claim:** OFI (Cont et al.) predicts short-horizon price change on MES, but the usable edge after observation-plus-execution delay is what matters.
-- **Test:** regress forward return on OFI over windows 1–60 s; then re-run with entry delayed by 5 / 15 / 30 / 60 s. Report edge *as a function of delay.* Our futures tick is a heartbeat, not a colocated engine — pick the delay we can actually meet.
+- **Claim:** OFI (Cont et al.) predicts short-horizon price change on SPY, but the usable edge after observation-plus-execution delay is what matters. SIP quote sizes give the true OFI, not a proxy.
+- **Test:** regress forward return on OFI over windows 1–60 s; then re-run with entry delayed by 5 / 15 / 30 / 60 s. Report edge *as a function of delay.* Our heartbeat is not a colocated engine — pick the delay we can actually meet.
 - **Kill:** edge at our realistic delay ≤ null. This is the most likely outcome and the most important number to have on record, because it would close the "just read the order flow" idea for the engine with evidence instead of opinion.
 
 ### H4 — Does GEX add information *conditional on* order flow? (OP's claim vs our W2)
 - **Claim (OP):** dealer hedging is already in the order flow; GEX sign has no incremental value. **Claim (W2 / Baltussen et al. 2021):** short-gamma regime amplifies continuation.
-- **Data:** `journal/gex-archive/*-cboe.json` (banked daily since 2026-06-22) joined to MES trades on the same days.
+- **Data:** `journal/gex-archive/*-cboe.json` (banked daily since 2026-06-22) joined to SIP SPY trades on the same days. Both sides free and already on hand — **this one is runnable today.**
 - **Test:** predict next-30-min continuation from OFI alone vs OFI + zero-gamma-flip side. Likelihood-ratio / incremental R². One number settles a doctrinal dispute.
 - **Kill (of W2):** zero incremental information → W2 downgrades to advisory only. **Kill (of OP):** significant incremental information → OP's claim is wrong for our horizon.
 
@@ -149,13 +159,13 @@ Every one gets the standard bar: real fills where applicable (C1), the **directi
 - **Test:** re-run H1–H3 on volume bars sized to ~1 min of median RTH volume. Sampling choice only; no new features.
 - **Kill:** no improvement in signal-to-null ratio → stay on time bars (the whole engine is time-bar native).
 
-### H7 (needs MBO; last) — Iceberg / reload detection as a "who is defending" tell
+### H7 (BLOCKED — no free MBO source) — Iceberg / reload detection as a "who is defending" tell
 - **Claim:** queue replenishment at a level identifies the informed side before the absorption is visible in prints.
-- **Data:** MES `mbo` for ~10 selected days (heaviest schema; do not pull months). 
+- **Data:** order-by-order (MBO) feed. **We do not have one and found no free source** (SIP is trade+quote only). Parked unless H1 survives *and* produces too many signals to trade — only then is the OP's Q2/Q3 filter worth revisiting. 
 - **Test:** does reload count at a level, measured *before* the big-print cluster, predict the H1 outcome? If it only confirms what prints already show, it is redundant — the OP himself calls it "noise for retail."
 - **Kill:** no lead over H1's print-based signal.
 
-**Sequencing:** §3 items 1, 5, 7 → J decision on Databento key → pull `tbbo` for ~30 RTH days on MES (small, cheap) → H6 → H3 → H1/H2 → H4 (needs nothing extra) → H5 → H7 only if H1 survives.
+**Sequencing (all $0, no gate):** **H4 first — it needs zero new data** (GEX archive + SIP, both on hand) and settles a live doctrinal dispute. Then build the SIP trades/quotes cache tool → **H6** (calibrate the proxy the engine trusts today) → **H3** (the latency kill test) → H1/H2 → H5. H7 stays blocked. Reading ladder runs in parallel on the subscription.
 
 ---
 
@@ -163,7 +173,7 @@ Every one gets the standard bar: real fills where applicable (C1), the **directi
 
 - No new signal family enters the 0DTE lane from this doc. The 0DTE lane sees bars and OPRA; the mechanisms here need prints.
 - No live futures change. The futures lane stays on its simulated tick until a backtest clears the bar (`AUTONOMOUS-FUTURES-LANE.md`).
-- No vendor spend. The only money question is the Databento free-credit account, and that is J's call.
+- **No vendor spend at all.** The Databento path is dropped (J 2026-09-06); everything runs on the Alpaca key we already have.
 - No prop-firm anything. Lucid / Rithmic / ATAS / Bookmap are the OP's stack, not ours; they are recorded here for provenance only.
 
 ---

@@ -324,9 +324,9 @@ Framework shipped 2026-06-24. Registry seeded with everything learned to date (t
 
 > Full program, reading ladder, gap map and 7 ranked hypotheses live in [`markdown/trading-knowledge/microstructure-informed-flow.md`](../trading-knowledge/microstructure-informed-flow.md). Not a signal family — these are **inputs** (level grading, entry timing) plus one doctrinal test. Summary only here; do not duplicate.
 
-- **Blocker:** trades/TBBO data on MES. Databento fresh account = $125 free credits (verified 2026-09-06), **needs J's OK** (net-new vendor account, CLAUDE.md §5; futures plan §5 item 4).
+- **NO BLOCKER, NO COST (resolved 2026-09-06).** J ruled out new spend; the Databento/futures path is DROPPED. Probed the existing Alpaca key instead: **SIP returns full trade-level tape + NBBO quotes for SPY back to 2016** (`/v2/stocks/SPY/trades|quotes?feed=sip`, verified live). Every hypothesis below runs at $0 on the instrument we actually trade.
 - **H6 first ($0 after data):** calibrate the existing bar-level absorption proxy (`market-structure-execution.md` §5) against real absorption. Kill: AUC < 0.6 → the engine stops calling that input "absorption."
 - **H3 (the hteecs test):** OFI / aggression edge *as a function of entry delay*. Most likely a clean kill of "just read the order flow" for a heartbeat-speed engine — worth having on record.
 - **H4 (collides with W2):** does GEX zero-gamma side add information *conditional on* order-flow imbalance? Uses the `Gamma_CboeOiBank` archive already banking since 2026-06-22. One number resolves the OP's "GEX is arbitraged away" claim vs Baltussen et al.
-- **H1/H2/H5/H7:** absorption-then-reversal, forced-flow cascade split, volume-clock sampling, MBO iceberg/reload lead — sequenced after H6/H3, H7 only if H1 survives.
-- **Status:** QUEUED behind the Databento decision. Reading ladder items 1/5/7 can start now on subscription.
+- **H1/H2/H5:** absorption-then-reversal, forced-flow cascade split, volume-clock sampling — sequenced after H6/H3.
+- **Status:** UNBLOCKED, queued for build. Order: H4 (needs zero new data) → SIP trades/quotes cache tool → H6 → H3 → H1/H2 → H5. **H7 is BLOCKED** — no free order-by-order (MBO) source exists; SIP is trade+quote only.
