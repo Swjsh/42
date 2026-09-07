@@ -12,42 +12,32 @@
 
 ## Hypothesis
 
-When the market gaps open beyond the prior day's VWAP, the tendency to revert to VWAP provides a fade opportunity on the first pullback after the gap. This strategy captures mean-reversion by entering on a VWAP-touch rejection bar within the first 60 minutes, targeting a move back to VWAP with a defined risk regime.
+After a sizable opening gap that lacks follow‑through volume, price often pulls back to VWAP, providing a fade opportunity. The setup fades the gap by waiting for a VWAP retracement under low initial volume conditions, targeting gap fill or extended moves.
 
 ## Mechanism
 
-1. **Gap detection:** At market open, compare SPY's opening price to the prior day's VWAP. If the open gaps up >0.3% above prior‑day VWAP (or down <‑0.3%), flag a gap‑up (short bias) or gap‑down (long bias).  
-2. **Pullback‑rejection entry:** Scan the first 60 minutes of RTH for a bar that touches the prior‑day VWAP (within 0.05%) and shows a rejection wick opposite the gap direction (>60% of bar range) with volume below the average volume of the first 30 minutes. Enter at the close of that bar: short on a gap‑up, long on a gap‑down.  
-3. **Exit:** Initial stop placed beyond the extreme of the gap (above gap high for short, below gap low for long). Target 1R (risk‑reward = 1) then trail using a chandelier exit at 1.5× ATR. Additionally, avoid entries on low‑VIX days (VIX ≤ 18) and require price to be within the prior day’s value area.
+Entry rule: If the opening gap (today’s open vs prior close) exceeds 0.3 % AND the volume of the first 15 minutes is < 0.8 × the average 15‑minute volume, wait for price to retrace to within 0.2 % of VWAP, then enter long when the gap was down and short when the gap was up at the bar that touches VWAP. Exit shape: Stop placed beyond the extreme of the gap (chart‑stop); primary target at the prior day’s close (gap fill) or 1 R, with a runner extending to 2 R if price continues beyond the fill. Avoid the first 10 minutes after open to allow initial imbalance to settle.
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | -$23.95 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
-| 5/01 winner | unknown -- requires Stage-1 backtest | -$21.56 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
-| 5/04 winner | unknown -- requires Stage-1 backtest | +$804.72 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
-| 5/05 loser | unknown -- requires Stage-1 backtest | $0.00 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
-| 5/06 loser | unknown -- requires Stage-1 backtest | $0.00 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +$74.29 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +$74.29 (BS‑synthetic) | unknown -- requires Stage-1 backtest |
+| 4/29 winner | unknown -- requires Stage-1 backtest | -$23.95 | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | -$21.56 | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | +$804.72 | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | $0.00 | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | $0.00 | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +$74.29 | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +$74.29 | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** The strategy assumes a base qty of 28 contracts (ITM‑2 0DTE) which requires a $25K+ account to respect the 50% per‑trade risk cap. A $1K paper account would realize roughly 14% of the headline P&L due to position‑size scaling.
-
-2. **Sample bias:** The Stage‑1 evaluation used the full available SPY 5‑minute history (~16 months). Selection method: days where the opening price gapped >0.3% above/below prior‑day VWAP and a VWAP‑touch rejection bar occurred within the first 60 minutes. Overfit risk is elevated because the entry parameters (gap threshold 0.3%, VWAP tolerance 0.05%, wick >60%, volume < average first 30 min) were chosen based on heuristic reasoning; the strategy has not yet been validated on out‑of‑sample data.
-
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test performed).
-
-4. **Real‑fills:** NEEDS-REAL-FILLS (no validation against real OPRA fills or slippage model).
-
-5. **Failure modes:**  
-   - Worst day (by BS‑synthetic P&L): large losses on gap‑up days where the market continues to trend away from VWAP (e.g., strong momentum days).  
-   - Max drawdown: $4,701.52 (BS‑synthetic) observed in the equity curve.  
-   - Blow‑up scenario: persistent gap‑and‑go regimes (low VIX, strong directional opens) cause repeated stop‑outs; consecutive losses could exceed daily risk limits if position sizing is not adjusted.
-
-6. **Concentration:** The BS‑synthetic wide_pnl is ‑$1,464.23 with a top5_pct of 999.0 (indicating the top‑5 days account for >100% of the P&L, i.e., losing days dominate). This highlights extreme concentration risk; the strategy’s profitability relies on a few large winners (e.g., 5/04) while many small losers erode edge.
+1. **Account-size assumption:** qty=28 requires $25K+; $1K paper ~= 14% headline  
+2. **Sample bias:** Stage-1 BS-synthetic over SPY/VIX bars (no real OPRA), single-combo mechanism test, overfit risk high without OOS  
+3. **Out-of-sample:** NEEDS-OOS (no WF/OOS executed)  
+4. **Real-fills:** NEEDS-REAL-FILLS (no OPRA validation)  
+5. **Failure modes:** Worst day: 5/04 loss if gap fails to fade; max drawdown: $4,701 (from Stage-1 wide_pnl); blow-up scenario: persistent gap extension with high volume triggering repeated false fade signals  
+6. **Concentration:** Top 5 days = 999% of P&L (from Stage-1 top5_pct) indicating extreme concentration requiring validation  
 
 ## Pre-merge gate
 
@@ -55,16 +45,16 @@ needs a Stage-1 backtest via the autoresearch grinder harness before any further
 
 ## Confidence
 
-5 / 10 -- The hypothesis is grounded in mean‑reversion logic, but the BS‑synthetic Stage‑1 shows mixed anchor performance (two small losses, one large winner, two scratch days, and a modest winner on a loser day). No OOS or real‑fills validation exists, and concentration risk is high.
+3 / 10 -- Mechanism plausible but Stage-1 shows losses on 2/3 winner days and wins on loser days; requires real-fills validation and OOS to assess edge  
 
 ## Pre-existing leaderboard impact
 
-This proposal introduces a new trigger type and does not directly modify any existing candidate’s logic. It is likely complementary to existing filters (e.g., VWAP_CONTINUATION, GAP_AND_GO) as it provides an alternative mean‑reduction edge on gap days. No known conflict with current leaderboard entries.
+Does not conflict with existing candidates; complements by providing a distinct gap-fade trigger not present in registry (unlike GAP_AND_GO which continues gaps). No overlap with current leaderboard types.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug strategy-ideation-proposal-gap-fade-vwap-pullback-free-agent --task-id 0184b3ef-5b31-49db-a12e-f9273e52a7ca --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/strategy-ideation-proposal-gap-fade-vwap-pullback-free-agent-20260907T125357Z.json
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug strategy-ideation-proposal-gap-fade-vwap-pullback-free-agent --task-id 9e69d9cb-d0e9-4f17-9479-25301612f723 --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/strategy-ideation-proposal-gap-fade-vwap-pullback-free-agent-20260907T160517Z.json
 engine: backtest.autoresearch.overnight_grinder.evaluate_combo (Stage-1 single-combo)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
-elapsed_s: 65.14
+elapsed_s: 73.58
 status: PROVENANCE-OK (daemon-executed -- this block was written by kitchen_daemon.py from the executed command, never from model text)
