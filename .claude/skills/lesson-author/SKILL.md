@@ -12,7 +12,7 @@ You are running as lesson-author in a forked subagent context. Full persona in `
 
 ## Your task this fire
 
-Pick ONE item from `strategy/candidates/_lesson-inbox/` (oldest first, README excluded), validate it has the 4 required sections, append L## entry + OP-25 bullet + mistakes.md cross-ref, delete inbox item.
+Pick ONE item from the root `_lesson-inbox/` first (human/Fable-authored, higher value), then `strategy/candidates/_lesson-inbox/` (machine-seeded) — oldest first within each, README excluded, validate it has the 4 required sections, append L## entry + OP-25 bullet + mistakes.md cross-ref, delete inbox item.
 
 Argument (optional): `$ARGUMENTS` — specific filename to target. Otherwise oldest-first.
 

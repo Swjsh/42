@@ -658,6 +658,11 @@ def check_missing_launches(rows: list[dict], launched: set, window_start: dt.dat
         script = extract_script_from_args(row.get("argsRaw"))
         if not script or script in launched:
             continue
+        # A Disabled task cannot launch, so "no relay line" is the expected state, not a
+        # silent launch failure. Quiet mode / GOAL-SILENT-RIG disable scores of tasks whose
+        # LastRunTime still sits inside the window (2026-09-07: 3 of 13 findings were this).
+        if str(row.get("state") or "").strip().lower() in ("disabled", "1"):
+            continue
         last_run = _parse_dt(row.get("lastRun"))
         if last_run is None or is_never_ran(last_run):
             continue
