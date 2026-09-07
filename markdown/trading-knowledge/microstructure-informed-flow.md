@@ -1,0 +1,183 @@
+# MICROSTRUCTURE & INFORMED FLOW — research program (order matching, absorption, forced flow, game theory)
+
+> **Provenance:** distilled 2026-09-06 from a r/LucidProp thread ("They said I would never make it...", u/New_Variation_2548, ~190 comments, captured in full via Reddit RSS) plus a fact-check pass against Databento's pricing page the same day. The OP's *results* (one green August on a Lucid $50k flex account, calendar screenshots) are **UNVERIFIED and unverifiable** — screenshots, one month, a prop-firm sub with heavy survivorship. What is worth keeping is the **mechanism stack** the OP describes and the **reading list**, both of which are checkable against literature and data. Treat every claim below as a hypothesis with a kill criterion, per OP-33 and `GENERATIVE-LENS.md`.
+>
+> **Companion to [`market-structure-execution.md`](market-structure-execution.md)** (§5 order-flow proxies, §0 auction theory). That doc covers what Gamma can infer from *bars*; this doc covers what becomes testable once we have *trades / book* data on the futures lane, and how to get there at ~$0.
+>
+> **Why Gamma cares:** J's verified edge is levels + role-flips. The engine currently grades a level by round-number-ness, touch count, and a bar-volume absorption *proxy* (§5 there). Everything in this doc is about replacing that proxy with the real thing — and about killing the ideas that don't survive a null.
+
+---
+
+## 0. What the OP actually claims (the mechanism stack, stripped of fluff)
+
+The OP trades NQ/ES, 2–3 discretionary trades per day, holds under 5 minutes, sizes 1 NQ or 6–8 MNQ by stop distance, runs a separate conservative algo across 4 other accounts. Stack, in the OP's own layering:
+
+| Layer | OP's words | Translation into a testable object |
+|---|---|---|
+| **Framework** | "game theory as the basis" — informed vs uninformed flow; "if millions are using a system it must be broken or bluffed" | Classify participants by *who is absorbing whom* at a level. Crowded retail rules (ICT, fib) become the counterparty. |
+| **Context** | "microstructure as the context" — learned from the CME matching engine + Larry Harris | Where in the queue/level structure the trade sits; what the matching engine does to resting vs aggressive orders. |
+| **Trigger** | "forced / trapped inventory as the entry trigger"; "I trade forced flow and cascades" | A burst of aggressor volume (stop run / liquidation) *into* a level that gets absorbed by the other side. Direction = the absorber. |
+| **Prerequisite 1** | "if sellers are being absorbed at a low, buyers are the informed flow" | Absorption detection from **big trades** (L1 prints), not footprint/CVD/delta/imbalance (OP explicitly rejects those). |
+| **Prerequisite 2** | "reload dynamics of the aggressor" — which side keeps replenishing | Iceberg / reload detection — needs MBO (order-level) data to see queue replenishment. |
+| **Charting** | Volume-based bars only, no time charts; Bookmap = instantaneous bid/ask; "Level 2 has a lot of noise" | Sample on a volume clock; use L1 + trades, treat depth as timing nuance, not signal. |
+| **Data** | Rithmic MBO via Lucid, "$30–40/mo, $13 if only CME pairs"; ATAS + Bookmap | MBO for icebergs/stop runs — OP calls this "still noise for retail, not necessarily an edge" but useful for *when* to enter/exit. |
+| **Rejected** | Options chain / GEX: "once market makers hedge, that information gets arbitraged away through the order flow" | **Direct contradiction of our W2 GEX forward-bank thesis** — see §4 H4. |
+| **Learning method** | Papers + books loaded into Claude/Codex, "dissect … without all the fluff"; YouTube "leaves out the deeper stuff" | The `paper-dissect` loop in §3. |
+
+**The one book named** (posted twice as an image): **Larry Harris, *Trading and Exchanges: Market Microstructure for Practitioners*** (Oxford University Press, FMA Survey and Synthesis Series). Zero prior mentions of it anywhere in this repo as of 2026-09-06.
+
+**The best comment in the thread was a negative result**, not the OP's. u/hteecs, backtesting TBBO + MBO on NQ: *aggression had the most predictive power, but "by the time the aggression was observed sufficiently the price had already moved which destroyed the edge."* That is the latency-budget problem and it is the first thing any absorption/aggression study here must measure (§4 H3).
+
+---
+
+## 1. Skeptic pass — what survives contact with evidence
+
+| Claim | Status | Why |
+|---|---|---|
+| Absorption at a level predicts a reversal in the absorber's direction | **STRONG mechanism, MODERATE evidence at our horizon** | Osler's order-book work (already cited in `market-structure-execution.md` §1.3) shows take-profit clustering *is* absorption. Short-horizon predictive power of order-flow imbalance is core microstructure (Cont/Kukanov/Stoikov 2014). Whether it survives a 1–5 min entry latency is exactly hteecs's open question. |
+| Stop runs / forced flow cascade then mean-revert | **STRONG mechanism** | Osler: stop-loss clustering just past round numbers → fast moves after a break. Whether the *reversal* after the cascade is tradeable is the test. OP notes August "was good for mean reverting" — regime-dependent by his own account. |
+| Informed vs uninformed flow is separable from L1 prints | **FOLKLORE as stated, STRONG as literature** | Kyle (1985), Glosten–Milgrom (1985), Easley–O'Hara PIN, Easley–López de Prado–O'Hara VPIN (2012) all model this. Retail-grade separability from big-trade prints alone is unproven. |
+| Iceberg / reload detection needs MBO | **TRUE by construction** | Reload = same queue position refilled; only visible order-by-order. CME publishes MBO on MDP 3.0. Databento carries it (verified 2026-09-06, §2). |
+| GEX is arbitraged into futures order flow, no standalone edge | **UNVERIFIED — testable, and it collides with our own W2** | If true, GEX sign adds nothing *conditional on* order-flow imbalance. That is a clean incremental-information test once we hold both series (§4 H4). |
+| Volume bars beat time bars for these signals | **MODERATE** | Easley/López de Prado/O'Hara argue for the volume clock; practitioner consensus agrees. Cheap to test as a sampling choice, not a strategy. |
+| 88% win rate, 2–3 trades/day, one month | **UNVERIFIED, discount to zero** | A commenter's number, from screenshots. Irrelevant to the research program. |
+
+Two honest caveats before anyone gets excited: (1) the OP is discretionary; the research below asks whether the *mechanisms* are mechanizable, which is a different and harder question; (2) all of this lives on the **futures lane**, which is currently a simulated MES tick with no tick-grade data on disk (`futures/AUTONOMOUS-FUTURES-LANE.md`). The 0DTE lane sees SPY bars and an OPRA cache, no book.
+
+---
+
+## 2. Gap map — what Gamma has vs what the stack needs
+
+| Need | Gamma today | Gap | Cost to close |
+|---|---|---|---|
+| Trades + L1 quotes (TBBO) on ES/NQ/MES/MNQ | `backtest/data/futures/MES_1m_continuous.csv` (Databento 1m, one-time pull 2026-06-16; no API key exists now) | No trade-level data | Databento GLBX.MDP3 `tbbo`/`trades` schema. **$125 free credits on a fresh account, expire in 6 months** (databento.com/pricing, read 2026-09-06). Per-GB rate not disclosed on the page — use their calculator before pulling. |
+| MBO (order-by-order) for icebergs / reloads | none | none | Same dataset, `mbo` schema. Pricing page says MBO history is **"14 months"** per individual product. MBO is the heaviest schema — pull days, not months. |
+| Live L1 for the futures tick | Alpaca REST bars + TradingView CDP (`MES_5m_live.csv`) | No live prints | Out of scope until a backtest earns it (futures plan §5 rule). |
+| A validated absorption *proxy* from bars | `market-structure-execution.md` §5 "high volume + narrow range at a level" — **never calibrated against real absorption** | Unknown precision/recall | Free once trades data exists (§4 H6). This is the highest-leverage item: it upgrades an input the engine already uses. |
+| Reading base | Auction theory + Osler in `market-structure-execution.md` | No Harris, no Kyle/Glosten–Milgrom/VPIN, no CME matching-engine docs | $0, subscription-only LLM time (§3). |
+| GEX series | `Gamma_CboeOiBank` forward-banking daily since 2026-06-22 (backlog W2) | Nothing to test it *against* yet | H4 needs the futures trades data + this archive — both are on the path. |
+
+**Decision owed to J (net-new vendor account, CLAUDE.md §5):** creating a fresh Databento key to use the $125 free credits. The futures revival plan already flags this as a J decision (`FUTURES-REVIVAL-PLAN-2026-07-02.md` §5 item 4). Nothing in §4 that needs trades data starts until that is a yes.
+
+---
+
+## 3. Reading ladder + the paper-dissect loop ($0, subscription only)
+
+Order matters: mechanism first, then models, then the exchange's own rules. Every item ends with the *one question it must answer for us*.
+
+1. **Harris, *Trading and Exchanges* (2003).** The OP's only named source. Read for: trader taxonomy (informed / uninformed / liquidity / parasitic), how order-driven markets match, why stop orders create cascades, what "front-running the uninformed" looks like in a book. *Question for us: which of Harris's trader types is the counterparty at J's flipped levels?*
+2. **Osler — already in §1.3 of the companion doc.** Re-read with the absorption lens. *Question: does take-profit clustering explain the absorption we think we see in bar proxies?*
+3. **Kyle (1985) "Continuous Auctions and Insider Trading"; Glosten–Milgrom (1985).** The informed-flow models. *Question: what observable does informed flow leave in prints at a 1–5 minute horizon?*
+4. **Easley, López de Prado, O'Hara (2012) "Flow Toxicity and Liquidity in a High-Frequency World" (VPIN).** Volume-clock sampling + bulk classification of buy/sell volume. *Question: is VPIN on MES a usable regime input, and does volume-clock sampling sharpen H1–H3?*
+5. **Cont, Kukanov, Stoikov (2014) "The price impact of order book events."** Order Flow Imbalance (OFI) as a linear short-horizon predictor. *Question: what is the OFI-to-price lag on ES/NQ, and is it longer than our execution latency?* (This is hteecs's failure mode made quantitative.)
+6. **Bouchaud, Bonart, Donier, Gould, *Trades, Quotes and Prices* (2018)** and **Gould et al. (2013) "Limit order books" survey.** The empirical regularities: square-root impact, order-flow autocorrelation, queue dynamics. *Question: which regularities hold at MES tick size / queue depth?*
+7. **CME Group — Globex matching algorithms and the MDP 3.0 MBO spec.** ES/NQ are widely documented as FIFO ("F" algorithm) — **UNVERIFIED here: the CME page timed out on 2026-09-06; confirm before citing.** Also read CME's iceberg (display-quantity) order rules. *Question: what does a reload look like on the wire, exactly?*
+8. **Prop-firm / Rithmic MBO specifics** — only if we ever trade a funded account; irrelevant to the research.
+
+**The paper-dissect loop** (what the OP does with Claude/Codex, made repeatable): for each item → (a) one-page mechanism summary, no jargon; (b) the *observable* it predicts at our horizon and on our data; (c) one falsifiable hypothesis with a kill criterion; (d) append to §4 below, never a new file. Run it on the subscription; no API spend. A `paper-dissect` skill is worth writing only after the loop has been run by hand twice and the template is stable (CLAUDE.md §3: repeated question → instrument).
+
+---
+
+## 3b. "Game theory" — what the OP's core comment actually decomposes into
+
+J flagged this comment as the one to dig into (2026-09-06). Quoted in full for provenance:
+
+> "i divide the market into informed and uninformed flow, basically buyer flow and seller flow. anyone could be either. at an area of interest, i observe how the two interact with each other. if sellers are being absorbed at a low, i'd categorize the buyers as the informed flow since they're the ones doing the absorbing. that's my first prerequisite. this is just the tip of the iceberg, though, and absorption keeps happening everywhere. the way i differentiate which absorption is actually worth trading is a bit more nuanced. for that, i observe the reload dynamics of the aggressor and pick the side that appears to have the stronger edge, provided the threshold is good enough for me to take the trade."
+
+**It is not a strategy; it is three measurements and a threshold.** Written as quantities we can compute from prints + book at a level *L*:
+
+| # | OP's phrase | Quantity | Data needed |
+|---|---|---|---|
+| Q1 | "sellers are being absorbed at a low" | **Absorption ratio** at L: aggressor volume hitting the bid ÷ downward price progress (ticks) over the touch window. High volume, ~zero progress → absorbed. Sign tells you *who* is informed (the passive side). | trades + L1 (`tbbo`) |
+| Q2 | "reload dynamics of the aggressor" | **Aggressor persistence**: after each absorbed burst, does the *same* side come back (burst count, inter-burst interval, size trend)? A side that keeps reloading and keeps getting absorbed is the losing side of a war of attrition. | trades (bursts); `mbo` if you want to see the *passive* side's queue refills too |
+| Q3 | "pick the side that appears to have the stronger edge" | **Relative persistence**: passive refill rate at L vs aggressor reload rate. The side whose supply outlasts the other's demand is the one to trade with. | `mbo` for refills, trades for reloads |
+| T | "provided the threshold is good enough" | A cutoff on Q1×Q3 (and, for us, a latency budget — §4 H3). | — |
+
+**Why he calls this "game theory" and not "order flow":** each of Q1–Q3 is a *strategic interaction*, not a statistic about price. Absorption is one player revealing it is willing to hold a price; reloading is the other player testing whether that willingness is real or a bluff; the level breaks when the passive side runs out of ammunition (or was bluffing with icebergs that stop refilling). The literature has exact models for every piece:
+
+**Game-theory reading ladder** (citations from memory of the standard literature — **verify each before quoting a result**; the works themselves are canonical):
+
+1. **Kyle (1985)** — the informed trader's problem *is* a game: trade size chosen against a market maker who infers from order flow. Q1's "who is informed" is Kyle's λ in reverse.
+2. **Glosten–Milgrom (1985)** — sequential-trade game; the spread exists because the market maker loses to informed flow. The spread and its behavior at L are a direct read on how informed the counterparty thinks the flow is.
+3. **Parlour (1998) "Price Dynamics in Limit Order Markets"** and **Foucault, Kadan, Kandel (2005) "Limit Order Book as a Market for Immediacy"** — the *queue* is a game: join the queue (passive) vs cross the spread (aggressive), conditional on what everyone else does. Q3 (refill vs reload) is this game observed live.
+4. **Roşu (2009) "A Dynamic Model of the Limit Order Book"** — equilibrium of patient vs impatient traders; predicts when the book thins and price jumps. Reload exhaustion → break is this model's prediction.
+5. **Brunnermeier & Pedersen (2005) "Predatory Trading"** — *forced* sellers (liquidations, stop-outs) are prey; informed players front-run then provide liquidity. This is the OP's "forced flow and cascades" with a model attached: the absorber at the low after a cascade is the predator finishing the trade.
+6. **Osler (2003) "Currency Orders and Exchange Rate Dynamics"** — stop clustering just past round numbers is why the cascade is *predictable* in location. Already in the companion doc §1.3.
+7. **Foucault, Pagano, Röell, *Market Liquidity: Theory, Evidence, and Policy* (2013)** — the textbook that ties 1–5 together. Read after Harris, before the papers, if a single unified treatment is wanted.
+8. **The crowding argument** ("if millions are using a system it must be broken or bluffed") is a coordination-game claim: a public rule with predictable orders becomes the counterparty's information. Osler's evidence *is* the proof for stops; for ICT/fib-style rules it is folklore until someone measures order clustering at those prices. Cheap test for us: does volume cluster at "retail" levels (equal highs/lows, fib retracements) beyond round-number clustering? If yes, those are additional stop pools to grade.
+
+**What this adds to §4:** H1 = Q1 alone. H2 = Q1 after a cascade (Brunnermeier–Pedersen). **H7 = Q2/Q3, and it is the only hypothesis that needs MBO** — the OP is explicit that Q2/Q3 is what separates tradeable absorption from the "absorption that keeps happening everywhere." So if H1 survives but produces too many signals, H7 is the filter, and that is the point at which the MBO pull becomes worth its cost. Until then it stays last.
+
+---
+
+## 4. Hypotheses — ranked by (value to the live edge × testability × cost)
+
+Every one gets the standard bar: real fills where applicable (C1), the **direction-controlled null** (`STRATEGY-BACKLOG.md` 5b — random bars, side = the bar's own direction), IS/OOS split, multiple-testing haircut, and a stated latency budget. None of these is a strategy; they are **inputs** to the level-grading and entry-timing the engine already does.
+
+### H6 (first, because it needs the least and upgrades an existing input) — Calibrate the bar-level absorption proxy against real absorption
+- **Claim:** "high volume + narrow range at a graded level" (companion doc §5) actually corresponds to aggressor volume being absorbed by resting size.
+- **Data:** MES `tbbo` for a sample of days that the SPY engine already has graded levels for (cross-instrument, ES ≈ SPY levels scaled).
+- **Test:** label each level-touch bar with true absorption (aggressor volume at the level ÷ price progress); measure precision/recall of the bar proxy; find the proxy threshold that maximizes agreement.
+- **Kill:** proxy AUC < 0.6 against the true label → stop calling it absorption in the engine; downgrade the lever.
+- **Payoff even on failure:** we learn whether an input the engine trusts today is real.
+
+### H1 — Absorption-then-reversal at graded levels
+- **Claim:** at a level, a cluster of large aggressive prints with no price progress predicts a move in the absorber's direction over the next 5–15 minutes.
+- **Data:** MES/MNQ `trades` + `tbbo`. Big-trade threshold set by percentile of the day's print sizes, not a fixed number.
+- **Test:** event study on next-N-minute signed return vs matched non-absorption touches of the same level class. Direction-controlled null.
+- **Kill:** no excess return beyond the null at *any* N in 1–15 min, or excess that vanishes with a 30-second entry delay.
+
+### H2 — Forced-flow cascade → snap-back
+- **Claim:** a burst of aggressor volume through a level (stop run) that is then absorbed produces a tradeable reversal; without absorption it continues.
+- **Data:** same as H1, plus level breaks from the existing level refresher.
+- **Test:** two-way split: cascade+absorbed vs cascade+not-absorbed. The *difference* is the signal, not the cascade.
+- **Kill:** the split does not separate outcomes beyond the null, or only separates in one regime (OP admits August was mean-reverting — regime-tag every day).
+
+### H3 — OFI / aggression as a predictor *net of latency* (the hteecs test)
+- **Claim:** OFI (Cont et al.) predicts short-horizon price change on MES, but the usable edge after observation-plus-execution delay is what matters.
+- **Test:** regress forward return on OFI over windows 1–60 s; then re-run with entry delayed by 5 / 15 / 30 / 60 s. Report edge *as a function of delay.* Our futures tick is a heartbeat, not a colocated engine — pick the delay we can actually meet.
+- **Kill:** edge at our realistic delay ≤ null. This is the most likely outcome and the most important number to have on record, because it would close the "just read the order flow" idea for the engine with evidence instead of opinion.
+
+### H4 — Does GEX add information *conditional on* order flow? (OP's claim vs our W2)
+- **Claim (OP):** dealer hedging is already in the order flow; GEX sign has no incremental value. **Claim (W2 / Baltussen et al. 2021):** short-gamma regime amplifies continuation.
+- **Data:** `journal/gex-archive/*-cboe.json` (banked daily since 2026-06-22) joined to MES trades on the same days.
+- **Test:** predict next-30-min continuation from OFI alone vs OFI + zero-gamma-flip side. Likelihood-ratio / incremental R². One number settles a doctrinal dispute.
+- **Kill (of W2):** zero incremental information → W2 downgrades to advisory only. **Kill (of OP):** significant incremental information → OP's claim is wrong for our horizon.
+
+### H5 — Volume-clock vs time-clock sampling
+- **Claim:** H1–H3 signals are cleaner on volume bars.
+- **Test:** re-run H1–H3 on volume bars sized to ~1 min of median RTH volume. Sampling choice only; no new features.
+- **Kill:** no improvement in signal-to-null ratio → stay on time bars (the whole engine is time-bar native).
+
+### H7 (needs MBO; last) — Iceberg / reload detection as a "who is defending" tell
+- **Claim:** queue replenishment at a level identifies the informed side before the absorption is visible in prints.
+- **Data:** MES `mbo` for ~10 selected days (heaviest schema; do not pull months). 
+- **Test:** does reload count at a level, measured *before* the big-print cluster, predict the H1 outcome? If it only confirms what prints already show, it is redundant — the OP himself calls it "noise for retail."
+- **Kill:** no lead over H1's print-based signal.
+
+**Sequencing:** §3 items 1, 5, 7 → J decision on Databento key → pull `tbbo` for ~30 RTH days on MES (small, cheap) → H6 → H3 → H1/H2 → H4 (needs nothing extra) → H5 → H7 only if H1 survives.
+
+---
+
+## 5. What this does NOT change
+
+- No new signal family enters the 0DTE lane from this doc. The 0DTE lane sees bars and OPRA; the mechanisms here need prints.
+- No live futures change. The futures lane stays on its simulated tick until a backtest clears the bar (`AUTONOMOUS-FUTURES-LANE.md`).
+- No vendor spend. The only money question is the Databento free-credit account, and that is J's call.
+- No prop-firm anything. Lucid / Rithmic / ATAS / Bookmap are the OP's stack, not ours; they are recorded here for provenance only.
+
+---
+
+## Sources
+
+- Reddit thread: https://www.reddit.com/r/LucidProp/comments/1w3ew9o/they_said_i_would_never_make_it/ (captured via RSS 2026-09-06; ~190 entries)
+- Databento pricing (free credits, MBO retention): https://databento.com/pricing (read 2026-09-06)
+- Harris, L. (2003). *Trading and Exchanges: Market Microstructure for Practitioners.* Oxford University Press.
+- Kyle, A. (1985). Continuous Auctions and Insider Trading. *Econometrica.*
+- Glosten, L., Milgrom, P. (1985). Bid, Ask and Transaction Prices in a Specialist Market with Heterogeneously Informed Traders. *JFE.*
+- Easley, D., López de Prado, M., O'Hara, M. (2012). Flow Toxicity and Liquidity in a High-Frequency World. *RFS.*
+- Cont, R., Kukanov, A., Stoikov, S. (2014). The Price Impact of Order Book Events. *J. Financial Econometrics.*
+- Bouchaud, J-P., Bonart, J., Donier, J., Gould, M. (2018). *Trades, Quotes and Prices.* Cambridge University Press.
+- Gould, M. et al. (2013). Limit order books. *Quantitative Finance.*
+- Baltussen, Da, Lammers, Martens (2021). Hedging Demand and Market Intraday Momentum. *JFE.* (already cited in `STRATEGY-BACKLOG.md` W2)
+- CME Group Globex matching algorithms / MDP 3.0 MBO — **page fetch timed out 2026-09-06; re-verify before citing specifics.**
