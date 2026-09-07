@@ -1,0 +1,3010 @@
+{
+  "meta": {
+    "generated_at_utc": "2026-09-07T17:22:26.739357+00:00",
+    "trades_csv": "C:\\Users\\jackw\\Desktop\\42\\analysis\\j-webull\\trades-normalized.csv",
+    "sample": "J's real-money historical trades (INDEPENDENT of engine paper trades)",
+    "features": [
+      "sv_share_60s",
+      "sv_share_300s",
+      "big_share_60s",
+      "big_share_300s",
+      "absorb_300s",
+      "ret_sign_300s"
+    ],
+    "primary_feature": "big_share_300s",
+    "n_shuffle": 2000,
+    "rng_seed": 42,
+    "rth_window_et": "09:30-15:55",
+    "eligible_underlyings": [
+      "SPX",
+      "SPXW",
+      "SPY"
+    ]
+  },
+  "proxy_caveat": "SPX/SPXW options have no listed tape. SPY SIP tape is used as the flow proxy for ALL trades in this study, including SPX/SPXW rows, since SPY and SPX/SPXW track the same underlying index/ETF pair intraday. This is a deliberate methodological choice, not an oversight, and weakens the read for any SPX/SPXW-only subsplit.",
+  "direction_sign_rule": "bias bull=+1/bear=-1, fallback to right C=+1/P=-1 when bias missing/blank",
+  "filter_summary": {
+    "total_rows": 1099,
+    "wrong_underlying": 532,
+    "bad_timestamp": 0,
+    "outside_rth": 2,
+    "no_direction_signal": 0,
+    "missing_pnl": 1,
+    "kept": 564
+  },
+  "coverage": {
+    "eligible_trades": 564,
+    "covered_trades": 564,
+    "uncovered_trades": 0,
+    "failures": []
+  },
+  "disclosure": {
+    "n_feature_x_split_cells": 60,
+    "multiple_testing_caveat": "60 feature x split cells tested; splits overlap heavily (e.g. bias and size_band partitions are not independent of each other or of ALL). No single cell's p-value should be read as significant without correcting for this.",
+    "conditional_population_caveat": "J's real trades are pre-selected by his own discretionary judgment (playbook setups, levels, and market read), an entirely different selection process from the engine's mechanical filters. A replication here would be evidence the tape feature generalizes across selection processes; a null would be evidence the engine-trade lead is specific to the engine's own conditional population.",
+    "single_source_tape_caveat": "All tape is SPY SIP regardless of the traded underlying (see proxy_caveat)."
+  },
+  "results_by_split": {
+    "ALL": {
+      "n": 564,
+      "n_days": 221,
+      "n_winners": 233,
+      "top5_day_share_of_winners": 0.09871244635193133,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 564,
+          "auc": 0.49165618557369395,
+          "cross_trade_null_auc_95th_pctile": 0.5400483643011813,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5104054562192861,
+          "p_within_day_permutation": 0.2845,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0414533901533209,
+          "rho_between_day": -0.034680210047504045,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -30.77127659574468,
+                "feature_range": [
+                  -0.8951141113282921,
+                  -0.028996920198042963
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -24.75531914893617,
+                "feature_range": [
+                  -0.028493403086236962,
+                  0.09430992330620583
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -13.808510638297877,
+                "feature_range": [
+                  0.09446022932141054,
+                  0.8458829138925336
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": -0.01223202541272691,
+            "p": 0.7719226791925295
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 564,
+          "auc": 0.5159291002684024,
+          "cross_trade_null_auc_95th_pctile": 0.5406694500991922,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.520604748259274,
+          "p_within_day_permutation": 0.0855,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.07367374893355574,
+          "rho_between_day": -0.02116575207868482,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -17.787234042553198,
+                "feature_range": [
+                  -0.5989202532079153,
+                  -0.02119480293712676
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -32.44148936170213,
+                "feature_range": [
+                  -0.02071177689552248,
+                  0.05925672110996894
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -19.106382978723403,
+                "feature_range": [
+                  0.059307367681161134,
+                  0.8715945136000494
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": 0.026012092232453536,
+            "p": 0.5375733137846799
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 564,
+          "auc": 0.5022755857526289,
+          "cross_trade_null_auc_95th_pctile": 0.5414863270360333,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5100722222942572,
+          "p_within_day_permutation": 0.111,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.07345218713761303,
+          "rho_between_day": -0.10907135888626088,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -19.47872340425532,
+                "feature_range": [
+                  -0.9642178792583932,
+                  -0.07176866747692294
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -31.574468085106382,
+                "feature_range": [
+                  -0.06750833508195192,
+                  0.16000269160890923
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -18.281914893617024,
+                "feature_range": [
+                  0.1612713360800471,
+                  0.9349410552740851
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": -0.0037877132133935223,
+            "p": 0.9284827359953746
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 564,
+          "auc": 0.520726631484771,
+          "cross_trade_null_auc_95th_pctile": 0.5396742865293103,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5251280422182747,
+          "p_within_day_permutation": 0.0765,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.05734998671170809,
+          "rho_between_day": -0.032762513449459664,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -22.24468085106383,
+                "feature_range": [
+                  -0.7994123892347825,
+                  -0.04890093557120346
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -56.1063829787234,
+                "feature_range": [
+                  -0.04884497968798827,
+                  0.10912622305027368
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": 9.015957446808512,
+                "feature_range": [
+                  0.10928679240798184,
+                  0.9068189533925021
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": 0.044562803476318,
+            "p": 0.29074673837571835
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 562,
+          "auc": 0.5046766766244439,
+          "cross_trade_null_auc_95th_pctile": 0.5403942236194998,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.514227011231851,
+          "p_within_day_permutation": 0.133,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.04929904934855706,
+          "rho_between_day": -0.020322680882376317,
+          "tercile_pnl": {
+            "n": 562,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -24.57446808510639,
+                "feature_range": [
+                  -236301.70940132733,
+                  -426.47500000000406
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 187,
+                "mean_pnl": -16.8716577540107,
+                "feature_range": [
+                  -412.3432601880844,
+                  1373.2903225806351
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 187,
+                "mean_pnl": -25.77540106951872,
+                "feature_range": [
+                  1386.1860465116058,
+                  4097900.001028657
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 562,
+            "rho": 0.017683668689335075,
+            "p": 0.6757146934666464
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 564,
+          "auc": 0.5403057453677891,
+          "cross_trade_null_auc_95th_pctile": 0.5312812001607822,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.5302892781660464,
+          "p_within_day_permutation": 0.0105,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.1189072138862044,
+          "rho_between_day": 0.026960153697513707,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -29.79787234042553,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -6.4787234042553195,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -33.058510638297875,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": 0.05492992942609524,
+            "p": 0.19271033965509024
+          }
+        }
+      }
+    },
+    "bias=bear": {
+      "n": 272,
+      "n_days": 150,
+      "n_winners": 114,
+      "top5_day_share_of_winners": 0.13157894736842105,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 272,
+          "auc": 0.5031645569620253,
+          "cross_trade_null_auc_95th_pctile": 0.5583000222074174,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5262658227848102,
+          "p_within_day_permutation": 0.302,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0290967323801106,
+          "rho_between_day": -0.0047981186285123425,
+          "tercile_pnl": {
+            "n": 272,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 91,
+                "mean_pnl": -69.3956043956044,
+                "feature_range": [
+                  -0.6588369217671213,
+                  -0.02143298987749989
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 91,
+                "mean_pnl": -22.417582417582423,
+                "feature_range": [
+                  -0.021280215276596404,
+                  0.10568923121835105
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 90,
+                "mean_pnl": -27.9,
+                "feature_range": [
+                  0.10572273685329177,
+                  0.7586152859890306
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 272,
+            "rho": -0.006949947054226273,
+            "p": 0.9091625091116905
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 272,
+          "auc": 0.5514656895403065,
+          "cross_trade_null_auc_95th_pctile": 0.5605846102598268,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5307184099489229,
+          "p_within_day_permutation": 0.003,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.2364496228626594,
+          "rho_between_day": 0.0017093657329086353,
+          "tercile_pnl": {
+            "n": 272,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 91,
+                "mean_pnl": -60.53846153846154,
+                "feature_range": [
+                  -0.5989202532079153,
+                  -0.01978119101903068
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 91,
+                "mean_pnl": -36.747252747252745,
+                "feature_range": [
+                  -0.01911965745827852,
+                  0.06378568768024484
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 90,
+                "mean_pnl": -22.366666666666667,
+                "feature_range": [
+                  0.06499110634499676,
+                  0.7430354416893111
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 272,
+            "rho": 0.061292456398902746,
+            "p": 0.3138612702135419
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 272,
+          "auc": 0.49661336886520097,
+          "cross_trade_null_auc_95th_pctile": 0.5554130579613591,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5153258938485454,
+          "p_within_day_permutation": 0.215,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0303632599053003,
+          "rho_between_day": -0.07053100090308986,
+          "tercile_pnl": {
+            "n": 272,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 91,
+                "mean_pnl": -49.714285714285715,
+                "feature_range": [
+                  -0.8505785818182942,
+                  -0.06113573361220391
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 91,
+                "mean_pnl": -33.62637362637363,
+                "feature_range": [
+                  -0.05881577386053503,
+                  0.1781415086169568
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 90,
+                "mean_pnl": -36.466666666666676,
+                "feature_range": [
+                  0.18644485925974655,
+                  0.9349410552740851
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 272,
+            "rho": -0.0281438715709991,
+            "p": 0.6439991692286083
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 272,
+          "auc": 0.5576837663779702,
+          "cross_trade_null_auc_95th_pctile": 0.5570813901843216,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.535709526982012,
+          "p_within_day_permutation": 0.005,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.17026833026908939,
+          "rho_between_day": 0.008999589958557137,
+          "tercile_pnl": {
+            "n": 272,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 91,
+                "mean_pnl": -52.824175824175825,
+                "feature_range": [
+                  -0.7994123892347825,
+                  -0.04542686878122379
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 91,
+                "mean_pnl": -86.04395604395604,
+                "feature_range": [
+                  -0.044895150016130765,
+                  0.11264736134187832
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 90,
+                "mean_pnl": 19.677777777777784,
+                "feature_range": [
+                  0.11287404991928877,
+                  0.9068189533925021
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 272,
+            "rho": 0.08626652715761993,
+            "p": 0.1559462274976741
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 272,
+          "auc": 0.5322007550521874,
+          "cross_trade_null_auc_95th_pctile": 0.5594686875416388,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5245502998001332,
+          "p_within_day_permutation": 0.0235,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.11874285965054353,
+          "rho_between_day": -0.0007558811433961867,
+          "tercile_pnl": {
+            "n": 272,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 91,
+                "mean_pnl": -65.8021978021978,
+                "feature_range": [
+                  -90283.33333341544,
+                  -452.4761904762346
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 91,
+                "mean_pnl": -11.956043956043958,
+                "feature_range": [
+                  -426.47500000000406,
+                  1355.6037735848302
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 90,
+                "mean_pnl": -42.111111111111114,
+                "feature_range": [
+                  1359.3576775815566,
+                  4097900.001028657
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 272,
+            "rho": 0.048683023951211754,
+            "p": 0.42389758054476556
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 272,
+          "auc": 0.5334776815456362,
+          "cross_trade_null_auc_95th_pctile": 0.5485787252942482,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5334776815456362,
+          "p_within_day_permutation": 0.116,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.13226074534083232,
+          "rho_between_day": -0.053880443704555164,
+          "tercile_pnl": {
+            "n": 272,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 91,
+                "mean_pnl": -45.417582417582416,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 91,
+                "mean_pnl": 0.09890109890109874,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 90,
+                "mean_pnl": -74.91111111111111,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 272,
+            "rho": 0.05626555936398444,
+            "p": 0.3552706204641709
+          }
+        }
+      }
+    },
+    "bias=bull": {
+      "n": 292,
+      "n_days": 172,
+      "n_winners": 119,
+      "top5_day_share_of_winners": 0.15966386554621848,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 292,
+          "auc": 0.47894302229562347,
+          "cross_trade_null_auc_95th_pctile": 0.5596784378491281,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5018749696410356,
+          "p_within_day_permutation": 0.3045,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.027946622418991623,
+          "rho_between_day": -0.04256033358809651,
+          "tercile_pnl": {
+            "n": 292,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 98,
+                "mean_pnl": -2.7551020408163254,
+                "feature_range": [
+                  -0.8951141113282921,
+                  -0.03673531684330017
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 97,
+                "mean_pnl": -20.47422680412371,
+                "feature_range": [
+                  -0.036379303097810095,
+                  0.07505728808803479
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 97,
+                "mean_pnl": 0.8969072164948475,
+                "feature_range": [
+                  0.08367793355157171,
+                  0.8458829138925336
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 292,
+            "rho": -0.012247787055045957,
+            "p": 0.8349163517933397
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 292,
+          "auc": 0.48122601641812796,
+          "cross_trade_null_auc_95th_pctile": 0.557538738038568,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.520427939962112,
+          "p_within_day_permutation": 0.604,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.027350342886053355,
+          "rho_between_day": -0.03591425619952455,
+          "tercile_pnl": {
+            "n": 292,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 98,
+                "mean_pnl": 18.826530612244895,
+                "feature_range": [
+                  -0.5922649186848269,
+                  -0.021331846773096186
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 97,
+                "mean_pnl": -14.24742268041237,
+                "feature_range": [
+                  -0.02071177689552248,
+                  0.05695922540245972
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 97,
+                "mean_pnl": -27.1340206185567,
+                "feature_range": [
+                  0.05857470403818259,
+                  0.8715945136000494
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 292,
+            "rho": -0.012894157871292184,
+            "p": 0.826338853399259
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 292,
+          "auc": 0.5054160392480692,
+          "cross_trade_null_auc_95th_pctile": 0.5557414873463836,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5009982027493078,
+          "p_within_day_permutation": 0.0325,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.15163976017187597,
+          "rho_between_day": -0.07417962811934423,
+          "tercile_pnl": {
+            "n": 292,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 98,
+                "mean_pnl": 4.10204081632653,
+                "feature_range": [
+                  -0.9642178792583932,
+                  -0.07612242112967857
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 97,
+                "mean_pnl": -27.257731958762886,
+                "feature_range": [
+                  -0.07409336706851218,
+                  0.1381549504646408
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 97,
+                "mean_pnl": 0.7525773195876281,
+                "feature_range": [
+                  0.14054600606673406,
+                  0.6932231461403179
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 292,
+            "rho": 0.025308719201074303,
+            "p": 0.6666941006868519
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 292,
+          "auc": 0.4856948559770729,
+          "cross_trade_null_auc_95th_pctile": 0.5586583766454559,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5055156166512849,
+          "p_within_day_permutation": 0.2585,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0702168565465717,
+          "rho_between_day": -0.06616013941656708,
+          "tercile_pnl": {
+            "n": 292,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 98,
+                "mean_pnl": 9.724489795918364,
+                "feature_range": [
+                  -0.7668080781741534,
+                  -0.05575688562323424
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 97,
+                "mean_pnl": -34.07216494845361,
+                "feature_range": [
+                  -0.054145750299053996,
+                  0.10243280360996665
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 97,
+                "mean_pnl": 1.8865979381443299,
+                "feature_range": [
+                  0.10271024702624358,
+                  0.8652578602525802
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 292,
+            "rho": 0.006842565329926502,
+            "p": 0.9073152133320507
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 290,
+          "auc": 0.4777138925745737,
+          "cross_trade_null_auc_95th_pctile": 0.5569438301636443,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.50656297606762,
+          "p_within_day_permutation": 0.4795,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0528967517424725,
+          "rho_between_day": -0.04743656033701613,
+          "tercile_pnl": {
+            "n": 290,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 97,
+                "mean_pnl": 17.96907216494845,
+                "feature_range": [
+                  -236301.70940132733,
+                  -402.45901639347113
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 97,
+                "mean_pnl": -26.31958762886598,
+                "feature_range": [
+                  -380.25641025636816,
+                  1392.3380726692421
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 96,
+                "mean_pnl": -9.57291666666667,
+                "feature_range": [
+                  1412.7499999999466,
+                  378766.83417180466
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 290,
+            "rho": -0.00910879840770052,
+            "p": 0.877254527932027
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 292,
+          "auc": 0.5469228153689222,
+          "cross_trade_null_auc_95th_pctile": 0.5435711856997134,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.5754845290717443,
+          "p_within_day_permutation": 0.5945,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.004877865609534018,
+          "rho_between_day": 0.14049784615718747,
+          "tercile_pnl": {
+            "n": 292,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 98,
+                "mean_pnl": -8.16326530612245,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 97,
+                "mean_pnl": -13.783505154639172,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 97,
+                "mean_pnl": -0.3298969072165016,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 292,
+            "rho": 0.05439809681166965,
+            "p": 0.35431400376222344
+          }
+        }
+      }
+    },
+    "is_0dte=True": {
+      "n": 480,
+      "n_days": 194,
+      "n_winners": 205,
+      "top5_day_share_of_winners": 0.1073170731707317,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 480,
+          "auc": 0.4847716186252772,
+          "cross_trade_null_auc_95th_pctile": 0.5440753880266076,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5029277161862528,
+          "p_within_day_permutation": 0.247,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.05493662737013235,
+          "rho_between_day": -0.05757285519940968,
+          "tercile_pnl": {
+            "n": 480,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 160,
+                "mean_pnl": -27.075,
+                "feature_range": [
+                  -0.8951141113282921,
+                  -0.029136483845004023
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 160,
+                "mean_pnl": -22.931250000000002,
+                "feature_range": [
+                  -0.028996920198042963,
+                  0.0972213141549526
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 160,
+                "mean_pnl": -17.8625,
+                "feature_range": [
+                  0.10004838349502518,
+                  0.8458829138925336
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 480,
+            "rho": -0.017297196945075168,
+            "p": 0.7054285044497135
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 480,
+          "auc": 0.5231574279379158,
+          "cross_trade_null_auc_95th_pctile": 0.5443148558758315,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5267485587583148,
+          "p_within_day_permutation": 0.0735,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.07241982460136345,
+          "rho_between_day": 0.001536363829857904,
+          "tercile_pnl": {
+            "n": 480,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 160,
+                "mean_pnl": -9.7125,
+                "feature_range": [
+                  -0.5989202532079153,
+                  -0.01978119101903068
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 160,
+                "mean_pnl": -37.9,
+                "feature_range": [
+                  -0.019285790381707354,
+                  0.057455389631488565
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 160,
+                "mean_pnl": -20.256249999999998,
+                "feature_range": [
+                  0.058236465318818875,
+                  0.8715945136000494
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 480,
+            "rho": 0.014148291431513242,
+            "p": 0.7571839838196227
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 480,
+          "auc": 0.5029711751662971,
+          "cross_trade_null_auc_95th_pctile": 0.5465569844789356,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5021028824833703,
+          "p_within_day_permutation": 0.044,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.11980755670711733,
+          "rho_between_day": -0.12953977395742722,
+          "tercile_pnl": {
+            "n": 480,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 160,
+                "mean_pnl": -21.324999999999996,
+                "feature_range": [
+                  -0.9642178792583932,
+                  -0.0531317494600432
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 160,
+                "mean_pnl": -28.381249999999994,
+                "feature_range": [
+                  -0.05266156601009279,
+                  0.16912634585280165
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 160,
+                "mean_pnl": -18.162500000000005,
+                "feature_range": [
+                  0.17062737642585551,
+                  0.9349410552740851
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 480,
+            "rho": -0.0016762079953392655,
+            "p": 0.9707814957148228
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 480,
+          "auc": 0.5343325942350332,
+          "cross_trade_null_auc_95th_pctile": 0.5457250554323726,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5285729490022173,
+          "p_within_day_permutation": 0.021,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.07756958404322634,
+          "rho_between_day": -0.01385021795511835,
+          "tercile_pnl": {
+            "n": 480,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 160,
+                "mean_pnl": -24.0625,
+                "feature_range": [
+                  -0.7994123892347825,
+                  -0.05078093057486303
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 160,
+                "mean_pnl": -56.08125,
+                "feature_range": [
+                  -0.049431736924901784,
+                  0.10861441079528183
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 160,
+                "mean_pnl": 12.275,
+                "feature_range": [
+                  0.10912622305027368,
+                  0.9019455185598492
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 480,
+            "rho": 0.03983878998160475,
+            "p": 0.3838119103039605
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 478,
+          "auc": 0.5134101670687037,
+          "cross_trade_null_auc_95th_pctile": 0.5433574555525775,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5152684713660324,
+          "p_within_day_permutation": 0.061,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.042709308358994065,
+          "rho_between_day": -0.022575422313194593,
+          "tercile_pnl": {
+            "n": 478,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 160,
+                "mean_pnl": -17.325000000000006,
+                "feature_range": [
+                  -90283.33333341544,
+                  -412.3432601880844
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 159,
+                "mean_pnl": -17.955974842767297,
+                "feature_range": [
+                  -402.45901639347113,
+                  1322.967391304325
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 159,
+                "mean_pnl": -30.138364779874212,
+                "feature_range": [
+                  1325.2307692308157,
+                  4097900.001028657
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 478,
+            "rho": 0.0069340007181451805,
+            "p": 0.8798144643771
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 480,
+          "auc": 0.5489046563192904,
+          "cross_trade_null_auc_95th_pctile": 0.532940133037694,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.5372150776053215,
+          "p_within_day_permutation": 0.007,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.14031592307772578,
+          "rho_between_day": 0.03175143529937959,
+          "tercile_pnl": {
+            "n": 480,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 160,
+                "mean_pnl": -25.106250000000003,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 160,
+                "mean_pnl": -10.437499999999998,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 160,
+                "mean_pnl": -32.325,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 480,
+            "rho": 0.06650348614892418,
+            "p": 0.14571620814594893
+          }
+        }
+      }
+    },
+    "is_0dte=False": {
+      "n": 84,
+      "n_days": 44,
+      "n_winners": 28,
+      "top5_day_share_of_winners": 0.39285714285714285,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 84,
+          "auc": 0.5229591836734694,
+          "cross_trade_null_auc_95th_pctile": 0.6167410714285714,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.6033163265306123,
+          "p_within_day_permutation": 0.589,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.050238865749457705,
+          "rho_between_day": 0.1348060499319856,
+          "tercile_pnl": {
+            "n": 84,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 28,
+                "mean_pnl": -54.142857142857146,
+                "feature_range": [
+                  -0.5321747461863012,
+                  -0.02192364341495979
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 28,
+                "mean_pnl": -21.035714285714285,
+                "feature_range": [
+                  -0.01918572805884846,
+                  0.07016233352159892
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 28,
+                "mean_pnl": -2.5357142857142856,
+                "feature_range": [
+                  0.07401878551844927,
+                  0.6577679473000914
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 84,
+            "rho": 0.06099203177963193,
+            "p": 0.5815385788465502
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 84,
+          "auc": 0.4764030612244898,
+          "cross_trade_null_auc_95th_pctile": 0.607780612244898,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5255102040816326,
+          "p_within_day_permutation": 0.281,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.11313064530835981,
+          "rho_between_day": -0.06334899254813939,
+          "tercile_pnl": {
+            "n": 84,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 28,
+                "mean_pnl": -56.07142857142857,
+                "feature_range": [
+                  -0.3082692179981092,
+                  -0.028751382549414606
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 28,
+                "mean_pnl": -12.75,
+                "feature_range": [
+                  -0.027690904255995703,
+                  0.07170093508313347
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 28,
+                "mean_pnl": -8.892857142857144,
+                "feature_range": [
+                  0.07180979271400041,
+                  0.7037979815221798
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 84,
+            "rho": 0.07145099074848316,
+            "p": 0.5183615473437649
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 84,
+          "auc": 0.48278061224489793,
+          "cross_trade_null_auc_95th_pctile": 0.6160714285714286,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5892857142857143,
+          "p_within_day_permutation": 0.727,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.14242751333161405,
+          "rho_between_day": 0.08153530619832293,
+          "tercile_pnl": {
+            "n": 84,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 28,
+                "mean_pnl": -22.642857142857142,
+                "feature_range": [
+                  -0.8727610205756975,
+                  -0.09936469189121522
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 28,
+                "mean_pnl": -51.07142857142857,
+                "feature_range": [
+                  -0.09822356375872136,
+                  0.09726232683943127
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 28,
+                "mean_pnl": -4.000000000000004,
+                "feature_range": [
+                  0.10160254423565648,
+                  0.8171553545373076
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 84,
+            "rho": 0.008535239507010243,
+            "p": 0.9385789873445697
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 84,
+          "auc": 0.4534438775510204,
+          "cross_trade_null_auc_95th_pctile": 0.6103316326530612,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5235969387755102,
+          "p_within_day_permutation": 0.4385,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.0014692291598488285,
+          "rho_between_day": -0.17193644030111038,
+          "tercile_pnl": {
+            "n": 84,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 28,
+                "mean_pnl": -14.928571428571427,
+                "feature_range": [
+                  -0.6560667799687395,
+                  -0.021321206036086584
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 28,
+                "mean_pnl": -54.07142857142857,
+                "feature_range": [
+                  -0.019089002176562085,
+                  0.14485403223898355
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 28,
+                "mean_pnl": -8.714285714285715,
+                "feature_range": [
+                  0.1655735232509426,
+                  0.9068189533925021
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 84,
+            "rho": 0.054076766556277245,
+            "p": 0.6251580863771805
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 84,
+          "auc": 0.4534438775510204,
+          "cross_trade_null_auc_95th_pctile": 0.6167091836734694,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5267857142857143,
+          "p_within_day_permutation": 0.528,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.12592609627510296,
+          "rho_between_day": -0.0572868879980782,
+          "tercile_pnl": {
+            "n": 84,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 28,
+                "mean_pnl": -67.07142857142857,
+                "feature_range": [
+                  -236301.70940132733,
+                  -659.2605633802743
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 28,
+                "mean_pnl": 5.821428571428568,
+                "feature_range": [
+                  -596.0555555555329,
+                  1672.8245614035288
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 28,
+                "mean_pnl": -16.464285714285715,
+                "feature_range": [
+                  1674.9709189608325,
+                  72814.34878587606
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 84,
+            "rho": 0.05765083481959232,
+            "p": 0.6024398937494777
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 84,
+          "auc": 0.48214285714285715,
+          "cross_trade_null_auc_95th_pctile": 0.5892857142857143,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5357142857142857,
+          "p_within_day_permutation": 0.6825,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.05633798052113967,
+          "rho_between_day": 0.05592933259224625,
+          "tercile_pnl": {
+            "n": 84,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 28,
+                "mean_pnl": -39.0,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 28,
+                "mean_pnl": -25.678571428571427,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 28,
+                "mean_pnl": -13.035714285714286,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 84,
+            "rho": -0.03167971831102682,
+            "p": 0.7748239998877725
+          }
+        }
+      }
+    },
+    "is_family=True": {
+      "n": 564,
+      "n_days": 221,
+      "n_winners": 233,
+      "top5_day_share_of_winners": 0.09871244635193133,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 564,
+          "auc": 0.49165618557369395,
+          "cross_trade_null_auc_95th_pctile": 0.540281109396678,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.509952284013848,
+          "p_within_day_permutation": 0.259,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0414533901533209,
+          "rho_between_day": -0.034680210047504045,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -30.77127659574468,
+                "feature_range": [
+                  -0.8951141113282921,
+                  -0.028996920198042963
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -24.75531914893617,
+                "feature_range": [
+                  -0.028493403086236962,
+                  0.09430992330620583
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -13.808510638297877,
+                "feature_range": [
+                  0.09446022932141054,
+                  0.8458829138925336
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": -0.01223202541272691,
+            "p": 0.7719226791925295
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 564,
+          "auc": 0.5159291002684024,
+          "cross_trade_null_auc_95th_pctile": 0.5386441139478495,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5201976064209121,
+          "p_within_day_permutation": 0.0795,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.07367374893355574,
+          "rho_between_day": -0.02116575207868482,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -17.787234042553198,
+                "feature_range": [
+                  -0.5989202532079153,
+                  -0.02119480293712676
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -32.44148936170213,
+                "feature_range": [
+                  -0.02071177689552248,
+                  0.05925672110996894
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -19.106382978723403,
+                "feature_range": [
+                  0.059307367681161134,
+                  0.8715945136000494
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": 0.026012092232453536,
+            "p": 0.5375733137846799
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 564,
+          "auc": 0.5022755857526289,
+          "cross_trade_null_auc_95th_pctile": 0.5404911634661514,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.510204478560222,
+          "p_within_day_permutation": 0.104,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.07345218713761303,
+          "rho_between_day": -0.10907135888626088,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -19.47872340425532,
+                "feature_range": [
+                  -0.9642178792583932,
+                  -0.07176866747692294
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -31.574468085106382,
+                "feature_range": [
+                  -0.06750833508195192,
+                  0.16000269160890923
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -18.281914893617024,
+                "feature_range": [
+                  0.1612713360800471,
+                  0.9349410552740851
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": -0.0037877132133935223,
+            "p": 0.9284827359953746
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 564,
+          "auc": 0.520726631484771,
+          "cross_trade_null_auc_95th_pctile": 0.5405138544921748,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.523946163919972,
+          "p_within_day_permutation": 0.076,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.05734998671170809,
+          "rho_between_day": -0.032762513449459664,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -22.24468085106383,
+                "feature_range": [
+                  -0.7994123892347825,
+                  -0.04890093557120346
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -56.1063829787234,
+                "feature_range": [
+                  -0.04884497968798827,
+                  0.10912622305027368
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": 9.015957446808512,
+                "feature_range": [
+                  0.10928679240798184,
+                  0.9068189533925021
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": 0.044562803476318,
+            "p": 0.29074673837571835
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 562,
+          "auc": 0.5046766766244439,
+          "cross_trade_null_auc_95th_pctile": 0.5401104921924939,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5136425897178339,
+          "p_within_day_permutation": 0.1345,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.04929904934855706,
+          "rho_between_day": -0.020322680882376317,
+          "tercile_pnl": {
+            "n": 562,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -24.57446808510639,
+                "feature_range": [
+                  -236301.70940132733,
+                  -426.47500000000406
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 187,
+                "mean_pnl": -16.8716577540107,
+                "feature_range": [
+                  -412.3432601880844,
+                  1373.2903225806351
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 187,
+                "mean_pnl": -25.77540106951872,
+                "feature_range": [
+                  1386.1860465116058,
+                  4097900.001028657
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 562,
+            "rho": 0.017683668689335075,
+            "p": 0.6757146934666464
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 564,
+          "auc": 0.5403057453677891,
+          "cross_trade_null_auc_95th_pctile": 0.5302892781660464,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.5329668192368036,
+          "p_within_day_permutation": 0.014,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.1189072138862044,
+          "rho_between_day": 0.026960153697513707,
+          "tercile_pnl": {
+            "n": 564,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 188,
+                "mean_pnl": -29.79787234042553,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 188,
+                "mean_pnl": -6.4787234042553195,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 188,
+                "mean_pnl": -33.058510638297875,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 564,
+            "rho": 0.05492992942609524,
+            "p": 0.19271033965509024
+          }
+        }
+      }
+    },
+    "size_band=1-2": {
+      "n": 452,
+      "n_days": 197,
+      "n_winners": 193,
+      "top5_day_share_of_winners": 0.11398963730569948,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 452,
+          "auc": 0.4868665853121812,
+          "cross_trade_null_auc_95th_pctile": 0.5444455558445195,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5188368975933743,
+          "p_within_day_permutation": 0.487,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0040480036696405805,
+          "rho_between_day": 0.02484848081200477,
+          "tercile_pnl": {
+            "n": 452,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 151,
+                "mean_pnl": -2.039735099337751,
+                "feature_range": [
+                  -0.8951141113282921,
+                  -0.025734858840370686
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 151,
+                "mean_pnl": -14.2317880794702,
+                "feature_range": [
+                  -0.025479910714285715,
+                  0.09446022932141054
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 150,
+                "mean_pnl": -14.086666666666666,
+                "feature_range": [
+                  0.09689801474991172,
+                  0.8458829138925336
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 452,
+            "rho": -0.03376106424502179,
+            "p": 0.4739995707941954
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 452,
+          "auc": 0.5112329205593454,
+          "cross_trade_null_auc_95th_pctile": 0.5468361774061256,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5225418608838298,
+          "p_within_day_permutation": 0.138,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.05805207859356266,
+          "rho_between_day": 0.013942432710631957,
+          "tercile_pnl": {
+            "n": 452,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 151,
+                "mean_pnl": -12.496688741721858,
+                "feature_range": [
+                  -0.5922649186848269,
+                  -0.01882098932677095
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 151,
+                "mean_pnl": -17.920529801324502,
+                "feature_range": [
+                  -0.018123947947187594,
+                  0.060163968939416196
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 150,
+                "mean_pnl": 0.15333333333333787,
+                "feature_range": [
+                  0.06046036795048143,
+                  0.8715945136000494
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 452,
+            "rho": 0.022164845775234667,
+            "p": 0.6383664612844674
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 452,
+          "auc": 0.4971892692099946,
+          "cross_trade_null_auc_95th_pctile": 0.5425710684778042,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.512756316642327,
+          "p_within_day_permutation": 0.1915,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.056267109866565454,
+          "rho_between_day": -0.058384802826186605,
+          "tercile_pnl": {
+            "n": 452,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 151,
+                "mean_pnl": 2.966887417218542,
+                "feature_range": [
+                  -0.9642178792583932,
+                  -0.0661939372451693
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 151,
+                "mean_pnl": -17.880794701986755,
+                "feature_range": [
+                  -0.06113573361220391,
+                  0.15955579558495916
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 150,
+                "mean_pnl": -15.453333333333333,
+                "feature_range": [
+                  0.1612713360800471,
+                  0.9349410552740851
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 452,
+            "rho": -0.012674880557627853,
+            "p": 0.7881326292509325
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 452,
+          "auc": 0.5140136435473223,
+          "cross_trade_null_auc_95th_pctile": 0.5449046752155561,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5196951207313901,
+          "p_within_day_permutation": 0.091,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.06337747949286318,
+          "rho_between_day": -0.022885343258675393,
+          "tercile_pnl": {
+            "n": 452,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 151,
+                "mean_pnl": -19.026490066225165,
+                "feature_range": [
+                  -0.7668080781741534,
+                  -0.048318265247557945
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 151,
+                "mean_pnl": -29.311258278145694,
+                "feature_range": [
+                  -0.0458035503649351,
+                  0.10931240739724524
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 150,
+                "mean_pnl": 18.193333333333335,
+                "feature_range": [
+                  0.10955682299771279,
+                  0.9068189533925021
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 452,
+            "rho": 0.036313505832676,
+            "p": 0.4412097413733603
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 450,
+          "auc": 0.49920364508780063,
+          "cross_trade_null_auc_95th_pctile": 0.5436452894094878,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5065633757383924,
+          "p_within_day_permutation": 0.118,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.05103893649108435,
+          "rho_between_day": -0.04256655113169673,
+          "tercile_pnl": {
+            "n": 450,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 150,
+                "mean_pnl": -18.74,
+                "feature_range": [
+                  -236301.70940132733,
+                  -351.6583850931771
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 150,
+                "mean_pnl": -4.653333333333333,
+                "feature_range": [
+                  -343.78520465640116,
+                  1355.6037735848302
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 150,
+                "mean_pnl": -4.139999999999995,
+                "feature_range": [
+                  1359.3576775815566,
+                  4097900.001028657
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 450,
+            "rho": 0.017445553396914757,
+            "p": 0.7120719291874118
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 452,
+          "auc": 0.5415007902054534,
+          "cross_trade_null_auc_95th_pctile": 0.5336687538760078,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.5415007902054534,
+          "p_within_day_permutation": 0.0665,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.102331895937058,
+          "rho_between_day": 0.06919619301384498,
+          "tercile_pnl": {
+            "n": 452,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 151,
+                "mean_pnl": -21.304635761589402,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 151,
+                "mean_pnl": -7.271523178807947,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 150,
+                "mean_pnl": -1.699999999999993,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 452,
+            "rho": 0.056012808749336444,
+            "p": 0.2346426226215616
+          }
+        }
+      }
+    },
+    "size_band=3+": {
+      "n": 112,
+      "n_days": 86,
+      "n_winners": 40,
+      "top5_day_share_of_winners": 0.2,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 112,
+          "auc": 0.521875,
+          "cross_trade_null_auc_95th_pctile": 0.5909895833333333,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5305555555555556,
+          "p_within_day_permutation": 0.095,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.3396761678215858,
+          "rho_between_day": 0.0224322466958109,
+          "tercile_pnl": {
+            "n": 112,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 38,
+                "mean_pnl": -154.8684210526316,
+                "feature_range": [
+                  -0.6588369217671213,
+                  -0.04205160132819195
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 37,
+                "mean_pnl": -57.8918918918919,
+                "feature_range": [
+                  -0.03737771847734525,
+                  0.09091163174186155
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 37,
+                "mean_pnl": -11.837837837837847,
+                "feature_range": [
+                  0.09493423206855518,
+                  0.4934823091247672
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 112,
+            "rho": 0.06495040202320963,
+            "p": 0.49626506339916276
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 112,
+          "auc": 0.5340277777777778,
+          "cross_trade_null_auc_95th_pctile": 0.5951388888888889,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5631944444444444,
+          "p_within_day_permutation": 0.2675,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.21401200997384298,
+          "rho_between_day": 0.04591600495548794,
+          "tercile_pnl": {
+            "n": 112,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 38,
+                "mean_pnl": -75.23684210526316,
+                "feature_range": [
+                  -0.5989202532079153,
+                  -0.02667359953892223
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 37,
+                "mean_pnl": -43.67567567567569,
+                "feature_range": [
+                  -0.025880613385444878,
+                  0.058781678964779094
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 37,
+                "mean_pnl": -107.83783783783784,
+                "feature_range": [
+                  0.05905905905905906,
+                  0.7430354416893111
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 112,
+            "rho": 0.014671179782319002,
+            "p": 0.8779790791830595
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 112,
+          "auc": 0.5298611111111111,
+          "cross_trade_null_auc_95th_pctile": 0.5958506944444444,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5288194444444444,
+          "p_within_day_permutation": 0.047,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.4519657579381565,
+          "rho_between_day": 0.006022293502142416,
+          "tercile_pnl": {
+            "n": 112,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 38,
+                "mean_pnl": -117.36842105263158,
+                "feature_range": [
+                  -0.8752554624609824,
+                  -0.07615578107381386
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 37,
+                "mean_pnl": -76.86486486486487,
+                "feature_range": [
+                  -0.0745027942585793,
+                  0.16241432831656233
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 37,
+                "mean_pnl": -31.378378378378397,
+                "feature_range": [
+                  0.16264900966766677,
+                  0.6533082966842911
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 112,
+            "rho": 0.02670282852956576,
+            "p": 0.7798797656716633
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 112,
+          "auc": 0.5447916666666667,
+          "cross_trade_null_auc_95th_pctile": 0.5940972222222223,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5965277777777778,
+          "p_within_day_permutation": 0.517,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.0240048255741082,
+          "rho_between_day": 0.10818885646000466,
+          "tercile_pnl": {
+            "n": 112,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 38,
+                "mean_pnl": -23.13157894736842,
+                "feature_range": [
+                  -0.7994123892347825,
+                  -0.0515651362285644
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 37,
+                "mean_pnl": -162.13513513513513,
+                "feature_range": [
+                  -0.0512086452565632,
+                  0.10651971130493094
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 37,
+                "mean_pnl": -42.8918918918919,
+                "feature_range": [
+                  0.10861441079528183,
+                  0.9019455185598492
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 112,
+            "rho": 0.041967689240485155,
+            "p": 0.6604040908886999
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 112,
+          "auc": 0.5302083333333333,
+          "cross_trade_null_auc_95th_pctile": 0.5986631944444444,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5631944444444444,
+          "p_within_day_permutation": 0.3295,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.1862408556565698,
+          "rho_between_day": 0.060052993758577096,
+          "tercile_pnl": {
+            "n": 112,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 38,
+                "mean_pnl": -18.263157894736842,
+                "feature_range": [
+                  -90283.33333341544,
+                  -839.4740484429105
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 37,
+                "mean_pnl": -98.43243243243244,
+                "feature_range": [
+                  -769.8720930232436,
+                  1386.1860465116058
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 37,
+                "mean_pnl": -111.5945945945946,
+                "feature_range": [
+                  1481.065514759051,
+                  378766.83417180466
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 112,
+            "rho": 0.00714552657229103,
+            "p": 0.9403947348984364
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 112,
+          "auc": 0.5388888888888889,
+          "cross_trade_null_auc_95th_pctile": 0.5777777777777777,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5388888888888889,
+          "p_within_day_permutation": 0.1855,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.2731868962417575,
+          "rho_between_day": 0.035366479119565086,
+          "tercile_pnl": {
+            "n": 112,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 38,
+                "mean_pnl": -61.21052631578947,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 37,
+                "mean_pnl": -5.540540540540538,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 37,
+                "mean_pnl": -160.3783783783784,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 112,
+            "rho": 0.04655867426385258,
+            "p": 0.6259270602421725
+          }
+        }
+      }
+    },
+    "vwap_side=above": {
+      "n": 284,
+      "n_days": 149,
+      "n_winners": 110,
+      "top5_day_share_of_winners": 0.16363636363636364,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 284,
+          "auc": 0.48040752351097177,
+          "cross_trade_null_auc_95th_pctile": 0.559932079414838,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5259691745036572,
+          "p_within_day_permutation": 0.62,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.02440043165184439,
+          "rho_between_day": -0.012000549710963598,
+          "tercile_pnl": {
+            "n": 284,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 95,
+                "mean_pnl": -35.06315789473684,
+                "feature_range": [
+                  -0.8951141113282921,
+                  -0.038836789125010755
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 95,
+                "mean_pnl": -15.968421052631578,
+                "feature_range": [
+                  -0.03742866051215313,
+                  0.0938038106424716
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 94,
+                "mean_pnl": -20.79787234042553,
+                "feature_range": [
+                  0.09446022932141054,
+                  0.7081341444739883
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 284,
+            "rho": 0.014859573152598874,
+            "p": 0.8031076042884893
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 284,
+          "auc": 0.4830198537095089,
+          "cross_trade_null_auc_95th_pctile": 0.5588296760710554,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5312486938349007,
+          "p_within_day_permutation": 0.664,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.03411793153125712,
+          "rho_between_day": -0.03392608847033061,
+          "tercile_pnl": {
+            "n": 284,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 95,
+                "mean_pnl": -22.16842105263158,
+                "feature_range": [
+                  -0.5008838545574322,
+                  -0.019285790381707354
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 95,
+                "mean_pnl": -31.25263157894737,
+                "feature_range": [
+                  -0.01882098932677095,
+                  0.055228470014013195
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 94,
+                "mean_pnl": -18.382978723404257,
+                "feature_range": [
+                  0.05621830493920386,
+                  0.7430354416893111
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 284,
+            "rho": 0.009111891200189536,
+            "p": 0.8784911284239701
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 284,
+          "auc": 0.4844827586206897,
+          "cross_trade_null_auc_95th_pctile": 0.5589890282131661,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5147884012539184,
+          "p_within_day_permutation": 0.3455,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.06377495084302108,
+          "rho_between_day": -0.07492618519133448,
+          "tercile_pnl": {
+            "n": 284,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 95,
+                "mean_pnl": -39.294736842105266,
+                "feature_range": [
+                  -0.9642178792583932,
+                  -0.0783893797778944
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 95,
+                "mean_pnl": -12.421052631578947,
+                "feature_range": [
+                  -0.07804557464558269,
+                  0.16264900966766677
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 94,
+                "mean_pnl": -20.106382978723403,
+                "feature_range": [
+                  0.16584225373884146,
+                  0.9347430633413274
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 284,
+            "rho": 0.014410854750243703,
+            "p": 0.808937061864494
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 284,
+          "auc": 0.4911703239289446,
+          "cross_trade_null_auc_95th_pctile": 0.5605564263322883,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5272257053291536,
+          "p_within_day_permutation": 0.468,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.012322117925810411,
+          "rho_between_day": -0.05696908732424079,
+          "tercile_pnl": {
+            "n": 284,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 95,
+                "mean_pnl": -9.063157894736841,
+                "feature_range": [
+                  -0.7336972889766377,
+                  -0.05078093057486303
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 95,
+                "mean_pnl": -57.357894736842105,
+                "feature_range": [
+                  -0.049431736924901784,
+                  0.1005765377412997
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 94,
+                "mean_pnl": -5.244680851063829,
+                "feature_range": [
+                  0.10138328818454823,
+                  0.9068189533925021
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 284,
+            "rho": 0.025527964496859883,
+            "p": 0.6683763947072902
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 282,
+          "auc": 0.4838266384778013,
+          "cross_trade_null_auc_95th_pctile": 0.558142177589852,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5263213530655391,
+          "p_within_day_permutation": 0.583,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": -0.06483557824533628,
+          "rho_between_day": -0.03396539866814276,
+          "tercile_pnl": {
+            "n": 282,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 94,
+                "mean_pnl": -24.40425531914894,
+                "feature_range": [
+                  -236301.70940132733,
+                  -412.3432601880844
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 94,
+                "mean_pnl": -3.691489361702129,
+                "feature_range": [
+                  -380.25641025636816,
+                  1189.1191709844168
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 94,
+                "mean_pnl": -39.59574468085106,
+                "feature_range": [
+                  1208.0930232558746,
+                  165979.99999991508
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 282,
+            "rho": 0.015766630229864315,
+            "p": 0.7920826713893556
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 284,
+          "auc": 0.5310344827586206,
+          "cross_trade_null_auc_95th_pctile": 0.540282131661442,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5552246603970742,
+          "p_within_day_permutation": 0.468,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.018714316308135286,
+          "rho_between_day": 0.05719901743627224,
+          "tercile_pnl": {
+            "n": 284,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 95,
+                "mean_pnl": -49.38947368421053,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 95,
+                "mean_pnl": 0.9263157894736823,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 94,
+                "mean_pnl": -23.393617021276597,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 284,
+            "rho": 0.08354469761194484,
+            "p": 0.1602692005100759
+          }
+        }
+      }
+    },
+    "vwap_side=below": {
+      "n": 255,
+      "n_days": 142,
+      "n_winners": 111,
+      "top5_day_share_of_winners": 0.13513513513513514,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 255,
+          "auc": 0.4941191191191191,
+          "cross_trade_null_auc_95th_pctile": 0.559500125125125,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5131506506506507,
+          "p_within_day_permutation": 0.187,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.08465696913650451,
+          "rho_between_day": -0.05463442607353598,
+          "tercile_pnl": {
+            "n": 255,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 85,
+                "mean_pnl": -25.211764705882352,
+                "feature_range": [
+                  -0.6078709214602729,
+                  -0.021280215276596404
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 85,
+                "mean_pnl": -42.98823529411764,
+                "feature_range": [
+                  -0.020176422795682283,
+                  0.09493423206855518
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 85,
+                "mean_pnl": -3.376470588235294,
+                "feature_range": [
+                  0.09743614650938298,
+                  0.8458829138925336
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 255,
+            "rho": -0.04748401245008078,
+            "p": 0.4502732953569067
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 255,
+          "auc": 0.5359109109109109,
+          "cross_trade_null_auc_95th_pctile": 0.5595626876876877,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5176457707707707,
+          "p_within_day_permutation": 0.01,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.20104067906618325,
+          "rho_between_day": 0.016057859163414952,
+          "tercile_pnl": {
+            "n": 255,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 85,
+                "mean_pnl": -14.788235294117648,
+                "feature_range": [
+                  -0.5922649186848269,
+                  -0.023083769752319093
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 85,
+                "mean_pnl": -27.141176470588235,
+                "feature_range": [
+                  -0.022331398530177956,
+                  0.06201101599942774
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 85,
+                "mean_pnl": -29.647058823529413,
+                "feature_range": [
+                  0.06227016080833082,
+                  0.8715945136000494
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 255,
+            "rho": 0.014312763539662442,
+            "p": 0.8200775405412313
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 255,
+          "auc": 0.5096346346346347,
+          "cross_trade_null_auc_95th_pctile": 0.5587869119119119,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5212118368368368,
+          "p_within_day_permutation": 0.114,
+          "beats_within_day_null": false,
+          "rho_day_demeaned": 0.13516109063209109,
+          "rho_between_day": -0.0708541945903942,
+          "tercile_pnl": {
+            "n": 255,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 85,
+                "mean_pnl": -16.035294117647055,
+                "feature_range": [
+                  -0.8110811418296247,
+                  -0.05559731237900011
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 85,
+                "mean_pnl": -38.023529411764706,
+                "feature_range": [
+                  -0.0531317494600432,
+                  0.1612713360800471
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 85,
+                "mean_pnl": -17.51764705882353,
+                "feature_range": [
+                  0.16241432831656233,
+                  0.9349410552740851
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 255,
+            "rho": -0.03499467609612762,
+            "p": 0.5780433375124819
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 255,
+          "auc": 0.5398523523523524,
+          "cross_trade_null_auc_95th_pctile": 0.5578734984984984,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5271021021021021,
+          "p_within_day_permutation": 0.01,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.12674524901116616,
+          "rho_between_day": -0.007163934405777664,
+          "tercile_pnl": {
+            "n": 255,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 85,
+                "mean_pnl": -28.2,
+                "feature_range": [
+                  -0.7668080781741534,
+                  -0.04542686878122379
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 85,
+                "mean_pnl": -69.84705882352941,
+                "feature_range": [
+                  -0.044895150016130765,
+                  0.10912622305027368
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 85,
+                "mean_pnl": 26.470588235294116,
+                "feature_range": [
+                  0.10931240739724524,
+                  0.8652578602525802
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 255,
+            "rho": 0.042267396790389385,
+            "p": 0.501621597026918
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 255,
+          "auc": 0.5132632632632632,
+          "cross_trade_null_auc_95th_pctile": 0.5612518768768768,
+          "beats_cross_trade_null": false,
+          "within_day_null_auc_95th_pctile": 0.5063344594594594,
+          "p_within_day_permutation": 0.032,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.19753108733618419,
+          "rho_between_day": -0.04360462861225663,
+          "tercile_pnl": {
+            "n": 255,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 85,
+                "mean_pnl": -24.270588235294117,
+                "feature_range": [
+                  -90283.33333341544,
+                  -426.47500000000406
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 85,
+                "mean_pnl": -14.988235294117647,
+                "feature_range": [
+                  -402.45901639347113,
+                  1451.2434933485306
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 85,
+                "mean_pnl": -32.31764705882353,
+                "feature_range": [
+                  1479.0552275096588,
+                  4097900.001028657
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 255,
+            "rho": -0.0025424487808679065,
+            "p": 0.9677740324985613
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 255,
+          "auc": 0.5575262762762763,
+          "cross_trade_null_auc_95th_pctile": 0.5495495495495496,
+          "beats_cross_trade_null": true,
+          "within_day_null_auc_95th_pctile": 0.5256193693693694,
+          "p_within_day_permutation": 0.0,
+          "beats_within_day_null": true,
+          "rho_day_demeaned": 0.320441103714641,
+          "rho_between_day": -0.034488641488126366,
+          "tercile_pnl": {
+            "n": 255,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 85,
+                "mean_pnl": -15.364705882352947,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 85,
+                "mean_pnl": -10.035294117647059,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 85,
+                "mean_pnl": -46.17647058823528,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman_pnl": {
+            "n": 255,
+            "rho": 0.03973415548230992,
+            "p": 0.5276249327933491
+          }
+        }
+      }
+    }
+  },
+  "verdict": "NULL on ALL split: big_share_300s AUC=0.5207 does not clear AUC>0.5 with within-day p<0.05 on J's real trades -- the engine-trade lead does NOT replicate on this independent sample as tested (a fully acceptable outcome: it would mean the lead is a conditional-population artifact of the engine's own entry filters, not a general SPY tape property)"
+}
