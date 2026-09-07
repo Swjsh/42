@@ -56,11 +56,22 @@ commit".
       SPY tape, a kind==option/underlying stream-mixing audit in quote_recorder consumers,
       an auto-prune for pre-rejected structure-classifier candidates. 1 low-severity doctrine
       gap noted, not drafted (NOT_EXERCISED verdict has no formal OP yet).
-- [ ] Small follow-on leads from the 09-03 batch triage (file each as its own small item when
-      picked up, don't bundle): (a) auto_commit_candidates.py proactive pre-check; (b) wire or
-      remove the unconsumed per-minute SPY underlying tape reader; (c) audit quote_recorder
-      consumers for kind==option/underlying mixing; (d) structure_classifier_shadow.py
-      auto-prune for a candidate already pre-rejected by its own forward eval.
+- [x] Small follow-on leads from the 09-03 batch triage -- (a) DONE this fire (see PROGRESS
+      LOG); (b)/(c)/(d) filed as their own separate items below per this line's own
+      instruction not to bundle.
+- [ ] (b) Wire or remove the unconsumed per-minute SPY underlying tape reader (commit
+      ddb4e9d7) -- dead infrastructure, decide WIRE (build a consumer) or REMOVE.
+- [ ] (c) Audit quote_recorder consumers for kind==option/underlying stream-mixing (grep for
+      a `kind ==` filter in every consumer; confirm none double-counts option rows as
+      underlying rows).
+- [ ] (d) structure_classifier_shadow.py: confirm whether "no auto-prune for a pre-rejected
+      candidate" is a real gap or moot-by-design (re-read prereg-structure-classifier-
+      swap-2026-09-03.md section 5 condition 2 before touching -- the shadow task running
+      forever collecting forward evidence toward a decision already known FALSE at freeze
+      may be intentional per that prereg's own §6, not a bug; "registry slot 169" in the
+      self-audit line referred to the scheduled-task registration count, not a candidate
+      registry -- verify there is no SEPARATE candidate registry elsewhere before concluding
+      there's nothing to prune).
 - [ ] Triage the 2026-09-04T17:31:34 batch (12 lines, line ~1713). Notable candidates:
       "multi-tick state-accumulation bug class not closed" (bounce_history fix 7ebbeeec
       patched ONE instance -- is there a second known accumulator with the same defect
@@ -125,6 +136,21 @@ commit".
   for NOT_EXERCISED verdicts), not drafted. Full evidence in `new-gaps-flagged.md`'s
   TRIAGED marker under the 09-03 batch. `conductor_outcome.py record` called for this
   continuation.
+- 2026-09-07 05:3x ET (conductor AFTERHOURS): Picked up the top bare QUEUE item -- "small
+  follow-on leads from 09-03, don't bundle." Built lead (a): `auto_commit_candidates.py`'s
+  L242 guard used a bare `git commit`, which commits the WHOLE staged index -- a concurrent
+  session's foreign staged files (outside strategy/candidates/) would have been swept into
+  this script's auto-commit, with only the downstream pre-commit hook's REFUSE path as a
+  reactive backstop. Fixed proactively: inspect the full staged index before committing, log
+  any foreign paths (`FOREIGN_STAGED_EXCLUDED`, never silently dropped), and scope the commit
+  itself via pathspec (`git commit -- strategy/candidates`) so foreign files structurally
+  cannot ride along. 4 new tests (12 total, was 8); RED-proofed live via `git stash` of the
+  production file -> 3/12 failed with the exact missing-mechanism signature -> pop -> 12/12
+  green. Curated safety gate 59 passed. Commit `80102ce6` (not on FROZEN_TRADING_PATH,
+  verified against `setup/hooks/doctrine.py` before editing). Leads (b)/(c)/(d) filed as
+  their own separate QUEUE items per this line's own "don't bundle" instruction --
+  NOT built this pass (each needs its own investigation before a fix, not guessable from the
+  self-audit's one-line prose). `conductor_outcome.py record` called for this fire.
 
 ## HONEST STATE
 As of goal open (2026-09-07 ~01:xx ET): 0 of the 3 remaining batches (09-03/09-04/09-05,
@@ -139,3 +165,15 @@ watchdog than the 09-04 batch's broader "no staleness watchdog on ANY output fil
 GOAL-SILENT-RIG-2026-09-05 (CLOSED, covers the "nine-process load imbalance" description).
 Nothing here has been fixed or refuted yet for 09-03/09-04/09-05 beyond the QUEUE's own
 opening notes, which are investigation LEADS for the next fire, not verified dispositions.
+
+## PROGRESS LOG (cont.)
+- 2026-09-07 09:30 ET (Stop-hook continuation 1/3, fired mid-Scout-persona session): scope
+  mismatch, no work drained. This continuation landed inside a `scout` agent session
+  (`automation/scout/state/scout_output.json` fire, pre-market macro/calendar intel only --
+  its charter explicitly excludes code-audit/triage work, which is Analyst/Conductor
+  territory per `.claude/agents/scout.md`). Did not attempt the 09-04 batch triage (grepping
+  `risk_gate.py`, verifying Alpaca greeks endpoint status, etc.) from this persona/context --
+  doing so ungrounded would risk a shallow or wrong disposition on real trading-path claims,
+  worse than an honest skip. Left QUEUE untouched for a general-purpose/conductor-context
+  session with full repo tool access to pick up next. `conductor_outcome.py record` called
+  with drained=0 to keep the outcome ledger honest (no fabricated progress).
