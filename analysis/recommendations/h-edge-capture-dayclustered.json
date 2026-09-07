@@ -1,0 +1,210 @@
+{
+ "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+  "n": 337,
+  "days": 31,
+  "winners": 118,
+  "top5_day_share_of_winners": 0.602,
+  "feats": {
+   "big_share_300s": {
+    "auc": 0.6698,
+    "within_day_null_95": 0.6575,
+    "p_within_day": 0.011,
+    "rho_within_day": 0.1487,
+    "rho_between_day": 0.3289,
+    "tercile_pnl": {
+     "1": {
+      "mean": -6.0,
+      "sum": -674.0,
+      "count": 112
+     },
+     "2": {
+      "mean": 3.8,
+      "sum": 423.0,
+      "count": 112
+     },
+     "3": {
+      "mean": 54.3,
+      "sum": 6131.0,
+      "count": 113
+     }
+    }
+   },
+   "big_share_60s": {
+    "auc": 0.6237,
+    "within_day_null_95": 0.6365,
+    "p_within_day": 0.1435,
+    "rho_within_day": 0.052,
+    "rho_between_day": 0.1828,
+    "tercile_pnl": {
+     "1": {
+      "mean": 3.8,
+      "sum": 422.0,
+      "count": 112
+     },
+     "2": {
+      "mean": 2.9,
+      "sum": 326.0,
+      "count": 112
+     },
+     "3": {
+      "mean": 45.4,
+      "sum": 5132.0,
+      "count": 113
+     }
+    }
+   },
+   "absorb_300s": {
+    "auc": 0.6756,
+    "within_day_null_95": 0.6699,
+    "p_within_day": 0.0255,
+    "rho_within_day": 0.1081,
+    "rho_between_day": 0.1232,
+    "tercile_pnl": {
+     "1": {
+      "mean": 5.9,
+      "sum": 661.0,
+      "count": 112
+     },
+     "2": {
+      "mean": 18.8,
+      "sum": 2108.0,
+      "count": 112
+     },
+     "3": {
+      "mean": 27.5,
+      "sum": 3111.0,
+      "count": 113
+     }
+    }
+   },
+   "sv_share_300s": {
+    "auc": 0.6654,
+    "within_day_null_95": 0.6696,
+    "p_within_day": 0.073,
+    "rho_within_day": 0.1067,
+    "rho_between_day": 0.2263,
+    "tercile_pnl": {
+     "1": {
+      "mean": -14.8,
+      "sum": -1663.0,
+      "count": 112
+     },
+     "2": {
+      "mean": 46.1,
+      "sum": 5165.0,
+      "count": 112
+     },
+     "3": {
+      "mean": 21.0,
+      "sum": 2378.0,
+      "count": 113
+     }
+    }
+   }
+  }
+ },
+ "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+  "n": 136,
+  "days": 29,
+  "winners": 51,
+  "top5_day_share_of_winners": 0.647,
+  "feats": {
+   "big_share_300s": {
+    "auc": 0.651,
+    "within_day_null_95": 0.6336,
+    "p_within_day": 0.0105,
+    "rho_within_day": 0.2291,
+    "rho_between_day": 0.5052,
+    "tercile_pnl": {
+     "1": {
+      "mean": -22.3,
+      "sum": -1003.0,
+      "count": 45
+     },
+     "2": {
+      "mean": -38.2,
+      "sum": -1718.0,
+      "count": 45
+     },
+     "3": {
+      "mean": 67.0,
+      "sum": 3082.0,
+      "count": 46
+     }
+    }
+   },
+   "big_share_60s": {
+    "auc": 0.5257,
+    "within_day_null_95": 0.6235,
+    "p_within_day": 0.915,
+    "rho_within_day": -0.1245,
+    "rho_between_day": 0.1183,
+    "tercile_pnl": {
+     "1": {
+      "mean": 7.5,
+      "sum": 339.0,
+      "count": 45
+     },
+     "2": {
+      "mean": -39.5,
+      "sum": -1779.0,
+      "count": 45
+     },
+     "3": {
+      "mean": 39.2,
+      "sum": 1801.0,
+      "count": 46
+     }
+    }
+   },
+   "absorb_300s": {
+    "auc": 0.5822,
+    "within_day_null_95": 0.5661,
+    "p_within_day": 0.0105,
+    "rho_within_day": 0.2464,
+    "rho_between_day": 0.1147,
+    "tercile_pnl": {
+     "1": {
+      "mean": -10.3,
+      "sum": -463.0,
+      "count": 45
+     },
+     "2": {
+      "mean": -17.6,
+      "sum": -793.0,
+      "count": 45
+     },
+     "3": {
+      "mean": 38.6,
+      "sum": 1737.0,
+      "count": 45
+     }
+    }
+   },
+   "sv_share_300s": {
+    "auc": 0.5541,
+    "within_day_null_95": 0.5636,
+    "p_within_day": 0.101,
+    "rho_within_day": 0.1621,
+    "rho_between_day": 0.2531,
+    "tercile_pnl": {
+     "1": {
+      "mean": 0.3,
+      "sum": 14.0,
+      "count": 45
+     },
+     "2": {
+      "mean": -26.7,
+      "sum": -1202.0,
+      "count": 45
+     },
+     "3": {
+      "mean": 33.7,
+      "sum": 1549.0,
+      "count": 46
+     }
+    }
+   }
+  }
+ }
+}

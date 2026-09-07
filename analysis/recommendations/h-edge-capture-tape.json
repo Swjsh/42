@@ -1,0 +1,1102 @@
+{
+  "meta": {
+    "generated_at_utc": "2026-09-07T16:09:18.481078+00:00",
+    "trades_csv": "C:\\Users\\jackw\\Desktop\\42\\journal\\trades.csv",
+    "window_sec": 300,
+    "lookbacks_sec": [
+      60,
+      300
+    ],
+    "features": [
+      "sv_share_60s",
+      "sv_share_300s",
+      "big_share_60s",
+      "big_share_300s",
+      "absorb_300s",
+      "ret_sign_300s"
+    ],
+    "n_shuffle": 2000,
+    "rng_seed": 42,
+    "big_print_pctile": 95.0
+  },
+  "coverage": {
+    "total_trades": 592,
+    "covered_trades": 590,
+    "uncovered_trades": 2,
+    "failures": [
+      {
+        "idx": 460,
+        "date": "2026-08-19",
+        "time_entry": "16:36:07",
+        "reason": "empty_window"
+      },
+      {
+        "idx": 511,
+        "date": "2026-08-25",
+        "time_entry": "09:16:04",
+        "reason": "empty_window"
+      }
+    ]
+  },
+  "disclosure": {
+    "n_feature_x_setup_cells": 24,
+    "single_regime_caveat": "All trades are 2026-04-29..2026-09-04 (~4.5 months), a single volatility/trend regime. No claim generalizes beyond it without an out-of-regime replication.",
+    "conditional_population_caveat": "Entries were pre-selected by the engine's own setup filters. This measures whether tape ADDS separation ON TOP of that existing filter, not whether tape alone predicts SPY moves.",
+    "multiple_testing_caveat": "24 feature x setup cells tested; no single-cell p-value should be read as significant without correcting for this. The shuffle null's 95th percentile is per-cell, not FWER-corrected."
+  },
+  "results_by_setup": {
+    "BULLISH_RECLAIM_RIDE_THE_RIBBON": {
+      "n": 337,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 337,
+          "auc": 0.6204047674328612,
+          "null_auc_95th_pctile": 0.5546087764104944,
+          "beats_null": true,
+          "tercile_pnl": {
+            "n": 337,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 113,
+                "mean_pnl": 28.707964601769913,
+                "feature_range": [
+                  -0.8685098437448816,
+                  -0.1515559911786327
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 112,
+                "mean_pnl": -4.848214285714286,
+                "feature_range": [
+                  -0.1515559911786327,
+                  0.051690039554117224
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 112,
+                "mean_pnl": 28.383928571428573,
+                "feature_range": [
+                  0.054100766345997066,
+                  0.7037109144132555
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 337,
+            "rho": 0.07803214538382733,
+            "p": 0.15290723549873936
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 337,
+          "auc": 0.6653703273740422,
+          "null_auc_95th_pctile": 0.5543930423341846,
+          "beats_null": true,
+          "tercile_pnl": {
+            "n": 337,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 113,
+                "mean_pnl": -11.141592920353983,
+                "feature_range": [
+                  -0.6861784826943054,
+                  -0.05338794553246894
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 112,
+                "mean_pnl": 42.339285714285715,
+                "feature_range": [
+                  -0.05222255974078574,
+                  0.06817606067824424
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 112,
+                "mean_pnl": 21.401785714285715,
+                "feature_range": [
+                  0.06916867261580201,
+                  0.9044028416625531
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 337,
+            "rho": 0.11783441740631738,
+            "p": 0.030567750883351518
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 337,
+          "auc": 0.62369398653355,
+          "null_auc_95th_pctile": 0.5535571937156567,
+          "beats_null": true,
+          "tercile_pnl": {
+            "n": 337,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 113,
+                "mean_pnl": 3.2035398230088497,
+                "feature_range": [
+                  -0.921519536220955,
+                  -0.2477162815690489
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 112,
+                "mean_pnl": 4.910714285714286,
+                "feature_range": [
+                  -0.24287711938472295,
+                  0.0848014332636608
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 112,
+                "mean_pnl": 44.357142857142854,
+                "feature_range": [
+                  0.08819133034379671,
+                  0.7878227757724803
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 337,
+            "rho": 0.14291179427735334,
+            "p": 0.008607481969263817
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 337,
+          "auc": 0.6698397956814488,
+          "null_auc_95th_pctile": 0.5526313752805511,
+          "beats_null": true,
+          "tercile_pnl": {
+            "n": 337,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 113,
+                "mean_pnl": -6.256637168141593,
+                "feature_range": [
+                  -0.8181300962417145,
+                  -0.12264837148322093
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 112,
+                "mean_pnl": 6.803571428571429,
+                "feature_range": [
+                  -0.12071430414698975,
+                  0.11249198930341331
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 112,
+                "mean_pnl": 52.00892857142857,
+                "feature_range": [
+                  0.11249198930341331,
+                  0.9693834875255294
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 337,
+            "rho": 0.17197989428996008,
+            "p": 0.0015294082620139738
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 337,
+          "auc": 0.6755862549338286,
+          "null_auc_95th_pctile": 0.5550073523721074,
+          "beats_null": true,
+          "tercile_pnl": {
+            "n": 337,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 113,
+                "mean_pnl": 4.964601769911504,
+                "feature_range": [
+                  -162173.3333322517,
+                  -1010.4526131532823
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 112,
+                "mean_pnl": 20.116071428571427,
+                "feature_range": [
+                  -889.9833333332996,
+                  908.1666666666323
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 112,
+                "mean_pnl": 27.375,
+                "feature_range": [
+                  929.0000000008449,
+                  501609.99995483505
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 337,
+            "rho": 0.11810894827237367,
+            "p": 0.030179331448441912
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 337,
+          "auc": 0.4463083352681681,
+          "null_auc_95th_pctile": 0.5441142326445322,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 337,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 113,
+                "mean_pnl": 38.14159292035398,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 112,
+                "mean_pnl": -19.339285714285715,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 112,
+                "mean_pnl": 33.357142857142854,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 337,
+            "rho": -0.09468184404316177,
+            "p": 0.08263982332115048
+          }
+        }
+      }
+    },
+    "BEARISH_REJECTION_RIDE_THE_RIBBON": {
+      "n": 136,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 136,
+          "auc": 0.4196078431372549,
+          "null_auc_95th_pctile": 0.5845617070357555,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 136,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 46,
+                "mean_pnl": 22.934782608695652,
+                "feature_range": [
+                  -0.3504664293605008,
+                  -0.13031033638039735
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 45,
+                "mean_pnl": -24.0,
+                "feature_range": [
+                  -0.12664045103520158,
+                  0.008932923934031844
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 45,
+                "mean_pnl": 8.577777777777778,
+                "feature_range": [
+                  0.0198740802548737,
+                  0.6895804092688974
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 136,
+            "rho": -0.0994826188589815,
+            "p": 0.24919403996781667
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 136,
+          "auc": 0.5540945790080738,
+          "null_auc_95th_pctile": 0.5846597462514418,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 136,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 46,
+                "mean_pnl": -4.8478260869565215,
+                "feature_range": [
+                  -0.7436051345335783,
+                  -0.13691723799621175
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 45,
+                "mean_pnl": -22.0,
+                "feature_range": [
+                  -0.1344878724784725,
+                  0.011921003532422328
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 45,
+                "mean_pnl": 34.977777777777774,
+                "feature_range": [
+                  0.01798340570913687,
+                  0.35400214205071645
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 136,
+            "rho": 0.06922926859089851,
+            "p": 0.4232158766151447
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 136,
+          "auc": 0.5257208765859285,
+          "null_auc_95th_pctile": 0.5878950403690888,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 136,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 46,
+                "mean_pnl": 7.369565217391305,
+                "feature_range": [
+                  -0.6307013608494093,
+                  -0.19900908340214699
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 45,
+                "mean_pnl": -40.31111111111111,
+                "feature_range": [
+                  -0.19359727221064596,
+                  0.09011725293132328
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 45,
+                "mean_pnl": 40.8,
+                "feature_range": [
+                  0.09316489961651252,
+                  0.8434131490167037
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 136,
+            "rho": 0.041597012712505765,
+            "p": 0.6306366487350374
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 136,
+          "auc": 0.6509803921568628,
+          "null_auc_95th_pctile": 0.5831660899653979,
+          "beats_null": true,
+          "tercile_pnl": {
+            "n": 136,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 46,
+                "mean_pnl": -24.41304347826087,
+                "feature_range": [
+                  -0.8567365199761277,
+                  -0.21267438409023448
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 45,
+                "mean_pnl": -36.91111111111111,
+                "feature_range": [
+                  -0.21218832334186108,
+                  0.0289546604554034
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 45,
+                "mean_pnl": 69.88888888888889,
+                "feature_range": [
+                  0.02900586466046076,
+                  0.5972166998011929
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 136,
+            "rho": 0.21493886490306768,
+            "p": 0.011974250971058604
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 135,
+          "auc": 0.5821661998132587,
+          "null_auc_95th_pctile": 0.585795985060691,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 135,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 45,
+                "mean_pnl": -10.28888888888889,
+                "feature_range": [
+                  -345691.6666551909,
+                  -1447.1040189121345
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 45,
+                "mean_pnl": -17.622222222222224,
+                "feature_range": [
+                  -1278.1066666666666,
+                  193.8846982758389
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 45,
+                "mean_pnl": 38.6,
+                "feature_range": [
+                  195.67812798475597,
+                  172017.04545550194
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 135,
+            "rho": 0.08472500857947168,
+            "p": 0.32855940395111854
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 136,
+          "auc": 0.5670126874279123,
+          "null_auc_95th_pctile": 0.5670126874279123,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 136,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 46,
+                "mean_pnl": -14.326086956521738,
+                "feature_range": [
+                  -1.0,
+                  -1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 45,
+                "mean_pnl": 2.2666666666666666,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 45,
+                "mean_pnl": 20.4,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 136,
+            "rho": 0.09495604490085481,
+            "p": 0.2714917369809987
+          }
+        }
+      }
+    },
+    "VWAP_CONTINUATION": {
+      "n": 45,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 45,
+          "auc": 0.5150862068965517,
+          "null_auc_95th_pctile": 0.6519396551724138,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 45,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 15,
+                "mean_pnl": -61.06666666666667,
+                "feature_range": [
+                  -0.34472353828644026,
+                  -0.05980192341175145
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 15,
+                "mean_pnl": -33.733333333333334,
+                "feature_range": [
+                  -0.056540084388185655,
+                  0.04173699555009974
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 15,
+                "mean_pnl": 20.533333333333335,
+                "feature_range": [
+                  0.08587851750171585,
+                  0.32880685563612394
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 45,
+            "rho": 0.11118069964945652,
+            "p": 0.4671683381970972
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 45,
+          "auc": 0.40948275862068967,
+          "null_auc_95th_pctile": 0.6498383620689654,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 45,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 15,
+                "mean_pnl": -37.333333333333336,
+                "feature_range": [
+                  -0.1806878484583865,
+                  -0.08648367941355771
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 15,
+                "mean_pnl": 6.4,
+                "feature_range": [
+                  -0.0754101171317908,
+                  0.031363551870685506
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 15,
+                "mean_pnl": -43.333333333333336,
+                "feature_range": [
+                  0.03362955755679955,
+                  0.1870027912915087
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 45,
+            "rho": -0.18442218041467812,
+            "p": 0.22522018185397932
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 45,
+          "auc": 0.5,
+          "null_auc_95th_pctile": 0.6455280172413792,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 45,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 15,
+                "mean_pnl": -40.333333333333336,
+                "feature_range": [
+                  -0.538420204191295,
+                  -0.12792935928381557
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 15,
+                "mean_pnl": -19.133333333333333,
+                "feature_range": [
+                  -0.11640182547973828,
+                  0.1330072766312776
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 15,
+                "mean_pnl": -14.8,
+                "feature_range": [
+                  0.13984531310657866,
+                  0.49506789816583374
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 45,
+            "rho": 0.06754573957540701,
+            "p": 0.659311392193174
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 45,
+          "auc": 0.38146551724137934,
+          "null_auc_95th_pctile": 0.6487068965517241,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 45,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 15,
+                "mean_pnl": -42.86666666666667,
+                "feature_range": [
+                  -0.41862567811934903,
+                  -0.09553798740452901
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 15,
+                "mean_pnl": 11.933333333333334,
+                "feature_range": [
+                  -0.07962891231730375,
+                  0.06738437001594896
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 15,
+                "mean_pnl": -43.333333333333336,
+                "feature_range": [
+                  0.08477296896005136,
+                  0.2877985797288573
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 45,
+            "rho": -0.23459801881080275,
+            "p": 0.12085778847541362
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 45,
+          "auc": 0.44612068965517243,
+          "null_auc_95th_pctile": 0.650915948275862,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 45,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 15,
+                "mean_pnl": -16.933333333333334,
+                "feature_range": [
+                  -12809.047619073137,
+                  -781.308641975142
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 15,
+                "mean_pnl": -64.06666666666666,
+                "feature_range": [
+                  -736.6025641025362,
+                  630.0493668168685
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 15,
+                "mean_pnl": 6.733333333333333,
+                "feature_range": [
+                  872.3333333333003,
+                  7831.857142851546
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 45,
+            "rho": -0.1073571119947465,
+            "p": 0.4827163754459468
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 45,
+          "auc": 0.41271551724137934,
+          "null_auc_95th_pctile": 0.6066810344827587,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 45,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 15,
+                "mean_pnl": 30.6,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 15,
+                "mean_pnl": -94.73333333333333,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 15,
+                "mean_pnl": -10.133333333333333,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 45,
+            "rho": -0.22254434724397887,
+            "p": 0.14173494562064468
+          }
+        }
+      }
+    },
+    "REST_POOLED": {
+      "n": 72,
+      "features": {
+        "sv_share_60s": {
+          "n_valid": 72,
+          "auc": 0.36495535714285715,
+          "null_auc_95th_pctile": 0.6350446428571429,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 72,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 24,
+                "mean_pnl": -20.791666666666668,
+                "feature_range": [
+                  -0.6730589136727396,
+                  -0.0654410300657065
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 24,
+                "mean_pnl": 6.416666666666667,
+                "feature_range": [
+                  -0.055098269779942886,
+                  0.08250022174072807
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 24,
+                "mean_pnl": -48.291666666666664,
+                "feature_range": [
+                  0.08250022174072807,
+                  0.4555223947918389
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 72,
+            "rho": -0.16632197184942224,
+            "p": 0.16261329985729486
+          }
+        },
+        "sv_share_300s": {
+          "n_valid": 72,
+          "auc": 0.42075892857142855,
+          "null_auc_95th_pctile": 0.6306082589285713,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 72,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 24,
+                "mean_pnl": -9.625,
+                "feature_range": [
+                  -0.37038615465378166,
+                  -0.038236414981873613
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 24,
+                "mean_pnl": -21.166666666666668,
+                "feature_range": [
+                  -0.03496769214413123,
+                  0.07110205430412513
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 24,
+                "mean_pnl": -31.875,
+                "feature_range": [
+                  0.07461614727082719,
+                  0.436634317397629
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 72,
+            "rho": -0.1460568636951183,
+            "p": 0.22086888322575854
+          }
+        },
+        "big_share_60s": {
+          "n_valid": 72,
+          "auc": 0.46316964285714285,
+          "null_auc_95th_pctile": 0.6429129464285714,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 72,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 24,
+                "mean_pnl": -17.333333333333332,
+                "feature_range": [
+                  -0.8722748448297701,
+                  -0.13513734466971877
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 24,
+                "mean_pnl": -7.958333333333333,
+                "feature_range": [
+                  -0.13356733789026418,
+                  0.11561815336463224
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 24,
+                "mean_pnl": -37.375,
+                "feature_range": [
+                  0.11580865603644647,
+                  0.7565640758129021
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 72,
+            "rho": 0.0029938920704531634,
+            "p": 0.980087302038387
+          }
+        },
+        "big_share_300s": {
+          "n_valid": 72,
+          "auc": 0.5022321428571429,
+          "null_auc_95th_pctile": 0.6384207589285713,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 72,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 24,
+                "mean_pnl": -9.125,
+                "feature_range": [
+                  -0.5819797613586749,
+                  -0.03194261266767459
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 24,
+                "mean_pnl": -25.958333333333332,
+                "feature_range": [
+                  -0.03194261266767459,
+                  0.13476
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 24,
+                "mean_pnl": -27.583333333333332,
+                "feature_range": [
+                  0.13764474546646274,
+                  0.6494556836516477
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 72,
+            "rho": -0.05409930778921013,
+            "p": 0.6517411942206139
+          }
+        },
+        "absorb_300s": {
+          "n_valid": 72,
+          "auc": 0.4453125,
+          "null_auc_95th_pctile": 0.6344866071428571,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 72,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 24,
+                "mean_pnl": -1.2916666666666667,
+                "feature_range": [
+                  -131233.00000011935,
+                  -723.824175824171
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 24,
+                "mean_pnl": -30.833333333333332,
+                "feature_range": [
+                  -706.3294756394206,
+                  824.2558139535843
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 24,
+                "mean_pnl": -30.541666666666668,
+                "feature_range": [
+                  829.5188556567524,
+                  35708.90804601649
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 72,
+            "rho": -0.13227852169346288,
+            "p": 0.26801203542385493
+          }
+        },
+        "ret_sign_300s": {
+          "n_valid": 72,
+          "auc": 0.5223214285714286,
+          "null_auc_95th_pctile": 0.6026785714285714,
+          "beats_null": false,
+          "tercile_pnl": {
+            "n": 72,
+            "terciles": [
+              {
+                "tercile": 1,
+                "n": 24,
+                "mean_pnl": -30.0,
+                "feature_range": [
+                  -1.0,
+                  -1.0
+                ]
+              },
+              {
+                "tercile": 2,
+                "n": 24,
+                "mean_pnl": -21.666666666666668,
+                "feature_range": [
+                  -1.0,
+                  1.0
+                ]
+              },
+              {
+                "tercile": 3,
+                "n": 24,
+                "mean_pnl": -11.0,
+                "feature_range": [
+                  1.0,
+                  1.0
+                ]
+              }
+            ]
+          },
+          "spearman": {
+            "n": 72,
+            "rho": -0.036845024346647555,
+            "p": 0.7586355187190831
+          }
+        }
+      }
+    }
+  },
+  "verdict": "at least one feature x setup cell's real AUC exceeds its own shuffle-null 95th percentile"
+}

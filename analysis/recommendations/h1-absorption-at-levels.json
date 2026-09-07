@@ -1,0 +1,204 @@
+{
+  "rule_id": "h1-absorption-at-levels",
+  "kind": "detector-candidate-screen",
+  "generated_at": "2026-09-07T15:50:10.166854+00:00",
+  "hypotheses": {
+    "H1": "aggressive volume into a PD-level that is absorbed (little price progress) predicts the level HOLDING vs BREAKING",
+    "H6": "the engine's bar-proxy (high-vol + narrow-range) agrees with real tape-level absorption"
+  },
+  "detector_reused": "j_level_midday_probe AT-LEVEL (0.1%) + PDH/PDL/PDC, causal",
+  "days": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-13",
+    "2026-08-14",
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20",
+    "2026-08-21",
+    "2026-08-24",
+    "2026-08-25",
+    "2026-08-26",
+    "2026-08-27",
+    "2026-08-28",
+    "2026-08-31",
+    "2026-09-01",
+    "2026-09-02",
+    "2026-09-03",
+    "2026-09-04"
+  ],
+  "resolution_note": "touch detection on 5m bar closes (stated per task option); absorption features computed from full-resolution SIP tape in trailing 60s/300s windows ending at the touch bar's close timestamp",
+  "params": {
+    "AT_LEVEL_PCT": 0.1,
+    "WIN_START": "10:00:00",
+    "WIN_END": "15:30:00",
+    "DEDUP_MIN": 15,
+    "HOLD_MOVE_PCT": 0.1,
+    "BREAK_MOVE_PCT": 0.05,
+    "OUTCOME_WINDOW_MIN": 15,
+    "RETURN_WINDOW_MIN": 30,
+    "NULL_DRAWS_PER_DAY": 30,
+    "SEED": 20260907,
+    "BIG_PRINT_PCTL": 95.0
+  },
+  "real": {
+    "label": "real_at_level",
+    "n_events": 176,
+    "n_hold": 30,
+    "n_break": 65,
+    "n_neither": 81,
+    "auc_table": {
+      "absorption_ratio_60s": 0.5731,
+      "absorption_ratio_300s": 0.5213,
+      "into_level_share_60s": 0.5044,
+      "into_level_share_300s": 0.5408,
+      "big_print_share_60s": 0.6126,
+      "big_print_share_300s": 0.59,
+      "big_print_share_signed_60s": 0.4979,
+      "big_print_share_signed_300s": 0.4818
+    },
+    "bar_proxy_auc": 0.4923,
+    "tercile_returns": {
+      "absorption_ratio_60s": {
+        "n": 176,
+        "low": -6e-05,
+        "mid": -0.00028,
+        "high": -3e-05
+      },
+      "absorption_ratio_300s": {
+        "n": 176,
+        "low": -0.00016,
+        "mid": -6e-05,
+        "high": -0.00015
+      },
+      "into_level_share_60s": {
+        "n": 176,
+        "low": -0.00021,
+        "mid": 5e-05,
+        "high": -0.0002
+      },
+      "into_level_share_300s": {
+        "n": 176,
+        "low": -0.00025,
+        "mid": 0.0,
+        "high": -0.00013
+      },
+      "big_print_share_60s": {
+        "n": 176,
+        "low": -0.00021,
+        "mid": -6e-05,
+        "high": -0.0001
+      },
+      "big_print_share_300s": {
+        "n": 176,
+        "low": -0.00018,
+        "mid": 5e-05,
+        "high": -0.00024
+      },
+      "big_print_share_signed_60s": {
+        "n": 176,
+        "low": -0.00014,
+        "mid": -8e-05,
+        "high": -0.00014
+      },
+      "big_print_share_signed_300s": {
+        "n": 176,
+        "low": -9e-05,
+        "mid": -0.00022,
+        "high": -6e-05
+      }
+    },
+    "n_comparison_cells": 9
+  },
+  "null": {
+    "label": "null_random_timestamp",
+    "n_events": 600,
+    "n_hold": 28,
+    "n_break": 162,
+    "n_neither": 410,
+    "auc_table": {
+      "absorption_ratio_60s": 0.5229,
+      "absorption_ratio_300s": 0.5589,
+      "into_level_share_60s": 0.5983,
+      "into_level_share_300s": 0.4815,
+      "big_print_share_60s": 0.5643,
+      "big_print_share_300s": 0.5798,
+      "big_print_share_signed_60s": 0.5149,
+      "big_print_share_signed_300s": 0.4711
+    },
+    "bar_proxy_auc": 0.4969,
+    "tercile_returns": {
+      "absorption_ratio_60s": {
+        "n": 600,
+        "low": -4e-05,
+        "mid": -0.00015,
+        "high": 3e-05
+      },
+      "absorption_ratio_300s": {
+        "n": 600,
+        "low": -8e-05,
+        "mid": 2e-05,
+        "high": -9e-05
+      },
+      "into_level_share_60s": {
+        "n": 600,
+        "low": -0.0002,
+        "mid": -3e-05,
+        "high": 8e-05
+      },
+      "into_level_share_300s": {
+        "n": 600,
+        "low": -0.00012,
+        "mid": -1e-05,
+        "high": -2e-05
+      },
+      "big_print_share_60s": {
+        "n": 600,
+        "low": -0.00014,
+        "mid": -4e-05,
+        "high": 2e-05
+      },
+      "big_print_share_300s": {
+        "n": 600,
+        "low": -8e-05,
+        "mid": -2e-05,
+        "high": -5e-05
+      },
+      "big_print_share_signed_60s": {
+        "n": 600,
+        "low": -4e-05,
+        "mid": -7e-05,
+        "high": -4e-05
+      },
+      "big_print_share_signed_300s": {
+        "n": 600,
+        "low": -9e-05,
+        "mid": 5e-05,
+        "high": -0.00011
+      }
+    },
+    "n_comparison_cells": 9
+  },
+  "h6_bar_proxy_vs_absorption": {
+    "n": 95,
+    "proxy_vs_absorption_corr": 0.1214,
+    "bar_proxy_auc": 0.4923,
+    "absorption_ratio_300s_auc": 0.5213,
+    "better_predictor": "absorption_ratio_300s"
+  },
+  "multiple_comparisons_disclosure": {
+    "n_feature_x_window_cells_real": 18,
+    "note": "8 tape-feature/window cells + 1 bar-proxy cell, x2 (real+null) = 18 AUC comparisons; H1 threshold requires real-vs-null margin >=0.03 AND |real_auc-0.5|>=0.05 to count as a hit, precisely to guard against cherry-picking 1 of 18 cells that clears by chance."
+  },
+  "H1_verdict": "SIGNAL: 2 feature(s) beat null by >=0.03 AUC margin: [{'feature': 'absorption_ratio_60s', 'real_auc': 0.5731, 'null_auc': 0.5229}, {'feature': 'big_print_share_60s', 'real_auc': 0.6126, 'null_auc': 0.5643}]",
+  "H6_verdict": "bar-proxy vs absorption_ratio corr=0.1214; proxy AUC=0.4923 vs absorption AUC=0.5213; better=absorption_ratio_300s",
+  "caveats": [
+    "C6: all tape features computed only from trades with t_ns <= touch timestamp; outcomes computed only from bars strictly after the touch bar.",
+    "Touch detection resolution is 5m bar closes, not 1m \u2014 stated per task option; a touch could occur and reverse within a 5m bar without being detected.",
+    "20-day window is short; this is a screen, not a ratification-grade sample.",
+    "PDC side (support/resistance) inferred from 3-bar approach direction \u2014 a heuristic, not causal look-ahead, but coarser than PDH/PDL's fixed side.",
+    "Do not tune AT_LEVEL_PCT/HOLD/BREAK thresholds after seeing these outcomes \u2014 they are the j_level_midday_probe / task-spec values, unmodified."
+  ]
+}

@@ -132,6 +132,22 @@ Every one gets the standard bar: real fills where applicable (C1), the **directi
 - **Payoff even on failure:** we learn whether an input the engine trusts today is real.
 
 ### H1 — Absorption-then-reversal at graded levels
+
+> ## ⚠️ RESULT 2026-09-07 — H1 at PD-levels: NO EDGE at this sample. H6: the bar proxy is a COIN FLIP.
+> 176 PDH/PDL/PDC touches on the 20 cached sessions (HOLD 30 / BREAK 65 / NEITHER 81), 8 tape features × 2 windows vs a 600-draw direction-controlled null. Two 60s cells nominally clear (absorption_ratio 0.573 vs 0.523; big_print_share 0.613 vs 0.564) but n_HOLD=30, 18 comparisons, neither survives at 300s, and **tercile 30-min returns are all within ±3 bp and non-monotonic** — no tradeable magnitude. **H6:** the engine's "high-vol + narrow-range" proxy scored **AUC 0.492** for HOLD vs BREAK and correlates 0.12 with real absorption. It is doctrine prose only (not wired in `filters.py`/`level_strength.py` — verified), so nothing live is affected; **do not wire it.** → `analysis/recommendations/h1-absorption-at-levels.json`.
+>
+> ## ✅ THE ONE THAT SURVIVED — big-print alignment before the engine's OWN entries (edge-capture, OP-16)
+> Different question, same tape: for the engine's 590 covered trades (2026-04-29→09-04), does the 5 min of tape BEFORE entry separate winners from losers? Feature that survives: **`big_share_300s` = signed volume of the window's top-5%-size prints, aligned to trade direction, ÷ big-print volume.** Plain signed flow (`sv_share`) and the last-5-min return sign do NOT survive — it is specifically the *large* prints that carry it, which is the OP's "big trades, not CVD" claim.
+>
+> | Setup | n | AUC | within-day null 95th | p (within-day perm) | tercile mean $ (low→high) | top-tercile $ / total $ |
+> |---|---|---|---|---|---|---|
+> | BULLISH_RECLAIM | 337 | **0.670** | 0.658 | **0.011** | −6 / +4 / **+54** | 6,131 / 5,880 |
+> | BEARISH_REJECTION | 136 | **0.651** | 0.634 | **0.011** | −22 / −38 / **+67** | 3,082 / 361 |
+>
+> **In both setups the top tercile is the entire profit; the bottom two are flat-to-negative.** Null used is a *within-day* label permutation (2,000×), which preserves day clustering exactly — this matters because winners are day-concentrated (top-5 days = 60–65% of winners, C4) and the between-day rho is large (+0.33 / +0.51). The signal survives *inside* days. Two independent setups at p≈0.01 each; 8 cells in the re-check, 24 in the original.
+>
+> **Status: FORWARD-VALIDATE, not ship.** Owed before any gate: (a) live shadow ledger of `big_share_300s` at every real entry (Alpaca `/trades` last-5-min pull at decision time, ~3s, $0); (b) an independent sample — replay tape around J's real-money historical trades if timestamps exist; (c) single-regime + paper-fill caveats. Artifacts: `h_edge_capture_tape.py`, `h_edge_capture_dayclustered.py`, `analysis/recommendations/h-edge-capture-{tape,dayclustered}.json`.
+
 - **Claim:** at a level, a cluster of large aggressive prints with no price progress predicts a move in the absorber's direction over the next 5–15 minutes.
 - **Data:** SIP SPY trades + quotes. Classify each print as buyer- or seller-initiated (Lee-Ready: compare trade price to the prevailing NBBO midpoint). Big-trade threshold set by percentile of the day's print sizes, not a fixed number.
 - **Test:** event study on next-N-minute signed return vs matched non-absorption touches of the same level class. Direction-controlled null.
