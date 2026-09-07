@@ -134,5 +134,16 @@
  },
  "finding": "BEARISH_REJECTION on live arms: n=91, total $72, expectancy $0.79/trade, PF 1.01, worst $-770; July 2026 n=27 PF 0.36 (-$882). It is dead weight with a real tail: contributes ~$0.8/trade against a go-live gate that needs $57-84/day/arm.",
  "proposal": "PROPOSE (not applied): bench BEARISH_REJECTION from the live arms until a pre-registered A/B on real fills shows expectancy > $0 across >=2 sub-windows. OP-16 keeps both directions ACTIVE by doctrine; this is a REVOKE-surface proposal for J, filed per OP-11 eval-first. Counter-argument recorded: bear is the only hedge on down days (Aug PF 1.15), and n=91 is thin -- a bench is reversible.",
- "generated_et": "2026-09-07T11:27:57"
+ "generated_et": "2026-09-07T11:27:57",
+ "opportunity_cost_check_2026-09-07": {
+  "question": "do bear positions block bull triggers (one-position rule), making bear ACTIVELY costly rather than dead weight?",
+  "data": "automation/state/core-decisions.jsonl NOT_FLAT ticks (522) deduped to 201 distinct blocked triggers, joined to journal/trades.csv open intervals (safe+bold)",
+  "result": {
+   "bull_blocked_by_open_bear": 0,
+   "bull_blocked_by_open_bull": 86,
+   "bear_blocked_by_open_bear": 86,
+   "unmatched": 28
+  },
+  "verdict": "DEAD -- blocking is always same-side (ribbon gating means bull triggers do not fire while a bear position is open). Bear is dead weight, NOT actively costly. The 86 same-side blocks are re-triggers of an already-held move, not lost trades (adding is the C31 killer)."
+ }
 }
