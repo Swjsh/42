@@ -86,6 +86,7 @@ def test_quiet_below_threshold_no_add_or_commit(tmp_path, monkeypatch):
 def test_committed_at_threshold_adds_and_commits_scoped(tmp_path, monkeypatch):
     monkeypatch.setattr(acc, "LOG_PATH", tmp_path / "log.jsonl")
     lines = "\n".join([f" M strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
+    staged_names = "\n".join([f"strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
     calls = []
 
     def fake_run(args):
@@ -94,8 +95,10 @@ def test_committed_at_threshold_adds_and_commits_scoped(tmp_path, monkeypatch):
             return _fake_result(stdout=lines)
         if args[:2] == ["git", "add"]:
             return _fake_result()
-        if args[:3] == ["git", "diff", "--cached"]:
+        if args == ["git", "diff", "--cached", "--stat", "--", acc.CANDIDATES_PATH]:
             return _fake_result(stdout=" 10 files changed")
+        if args == ["git", "diff", "--cached", "--name-only"]:
+            return _fake_result(stdout=staged_names)
         if args[:2] == ["git", "commit"]:
             return _fake_result()
         raise AssertionError(f"unexpected git call: {args}")
@@ -109,6 +112,108 @@ def test_committed_at_threshold_adds_and_commits_scoped(tmp_path, monkeypatch):
     assert len(add_calls) == 1
     assert add_calls[0][-1] == acc.CANDIDATES_PATH  # never "-A", never "."
     assert len(commit_calls) == 1
+    # Proactive pre-check (2026-09-07): the commit itself is pathspec-scoped,
+    # not a bare `git commit` -- see test_commit_is_pathspec_scoped_to_candidates.
+    assert commit_calls[0][-2:] == ["--", acc.CANDIDATES_PATH]
+
+
+def test_commit_is_pathspec_scoped_to_candidates(tmp_path, monkeypatch):
+    """The L242 guard's bare `git commit` used to commit the WHOLE index --
+    if a concurrent session had ALSO staged files outside CANDIDATES_PATH,
+    they'd be swept into this script's auto-commit. The commit call must now
+    be pathspec-scoped so foreign staged files structurally cannot ride along.
+    """
+    monkeypatch.setattr(acc, "LOG_PATH", tmp_path / "log.jsonl")
+    lines = "\n".join([f" M strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
+    # A concurrent session has ALSO staged an unrelated file right now.
+    staged_names = "\n".join(
+        [f"strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)]
+        + ["setup/scripts/heartbeat_core.py"]
+    )
+
+    def fake_run(args):
+        if args[:2] == ["git", "status"]:
+            return _fake_result(stdout=lines)
+        if args[:2] == ["git", "add"]:
+            return _fake_result()
+        if args == ["git", "diff", "--cached", "--stat", "--", acc.CANDIDATES_PATH]:
+            return _fake_result(stdout=" 10 files changed")
+        if args == ["git", "diff", "--cached", "--name-only"]:
+            return _fake_result(stdout=staged_names)
+        if args[:2] == ["git", "commit"]:
+            return _fake_result()
+        raise AssertionError(f"unexpected git call: {args}")
+
+    with patch.object(acc, "_run", side_effect=fake_run) as mock_run:
+        rc = acc.main()
+
+    assert rc == 0
+    commit_call = [c.args[0] for c in mock_run.call_args_list if c.args[0][:2] == ["git", "commit"]][0]
+    assert commit_call[-2:] == ["--", acc.CANDIDATES_PATH], (
+        "commit must be pathspec-scoped -- a bare `git commit` here would "
+        "sweep up the concurrent session's staged heartbeat_core.py change"
+    )
+
+
+def test_foreign_staged_files_logged_not_silently_dropped(tmp_path, monkeypatch):
+    """A foreign staged file must be visible in the log, not silently ignored --
+    OP-25/C7: a preventer that hides what it excluded is itself a silent-failure gap."""
+    log_path = tmp_path / "log.jsonl"
+    monkeypatch.setattr(acc, "LOG_PATH", log_path)
+    lines = "\n".join([f" M strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
+    staged_names = "\n".join(
+        [f"strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)]
+        + ["backtest/lib/filters.py"]
+    )
+
+    def fake_run(args):
+        if args[:2] == ["git", "status"]:
+            return _fake_result(stdout=lines)
+        if args[:2] == ["git", "add"]:
+            return _fake_result()
+        if args == ["git", "diff", "--cached", "--stat", "--", acc.CANDIDATES_PATH]:
+            return _fake_result(stdout=" 10 files changed")
+        if args == ["git", "diff", "--cached", "--name-only"]:
+            return _fake_result(stdout=staged_names)
+        if args[:2] == ["git", "commit"]:
+            return _fake_result()
+        raise AssertionError(f"unexpected git call: {args}")
+
+    with patch.object(acc, "_run", side_effect=fake_run):
+        rc = acc.main()
+
+    assert rc == 0
+    logged = log_path.read_text(encoding="utf-8")
+    assert "FOREIGN_STAGED_EXCLUDED" in logged
+    assert "backtest/lib/filters.py" in logged
+
+
+def test_no_foreign_staged_files_no_exclusion_log(tmp_path, monkeypatch):
+    """The common case (nothing foreign staged) must not log a spurious exclusion event."""
+    log_path = tmp_path / "log.jsonl"
+    monkeypatch.setattr(acc, "LOG_PATH", log_path)
+    lines = "\n".join([f" M strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
+    staged_names = "\n".join([f"strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
+
+    def fake_run(args):
+        if args[:2] == ["git", "status"]:
+            return _fake_result(stdout=lines)
+        if args[:2] == ["git", "add"]:
+            return _fake_result()
+        if args == ["git", "diff", "--cached", "--stat", "--", acc.CANDIDATES_PATH]:
+            return _fake_result(stdout=" 10 files changed")
+        if args == ["git", "diff", "--cached", "--name-only"]:
+            return _fake_result(stdout=staged_names)
+        if args[:2] == ["git", "commit"]:
+            return _fake_result()
+        raise AssertionError(f"unexpected git call: {args}")
+
+    with patch.object(acc, "_run", side_effect=fake_run):
+        rc = acc.main()
+
+    assert rc == 0
+    logged = log_path.read_text(encoding="utf-8")
+    assert "FOREIGN_STAGED_EXCLUDED" not in logged
 
 
 def test_empty_stage_after_add_skips_commit(tmp_path, monkeypatch):
@@ -148,14 +253,17 @@ def test_git_commit_failure_eg_precommit_hook_reject_skips_quietly(tmp_path, mon
     """A safety-gate pre-commit hook rejection must never crash or retry-loop."""
     monkeypatch.setattr(acc, "LOG_PATH", tmp_path / "log.jsonl")
     lines = "\n".join([f" M strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
+    staged_names = "\n".join([f"strategy/candidates/x{i}.md" for i in range(acc.COMMIT_THRESHOLD)])
 
     def fake_run(args):
         if args[:2] == ["git", "status"]:
             return _fake_result(stdout=lines)
         if args[:2] == ["git", "add"]:
             return _fake_result()
-        if args[:3] == ["git", "diff", "--cached"]:
+        if args == ["git", "diff", "--cached", "--stat", "--", acc.CANDIDATES_PATH]:
             return _fake_result(stdout=" 10 files changed")
+        if args == ["git", "diff", "--cached", "--name-only"]:
+            return _fake_result(stdout=staged_names)
         if args[:2] == ["git", "commit"]:
             return _fake_result(returncode=1, stderr="[pre-commit] SAFETY GATE RED")
         raise AssertionError(f"unexpected git call: {args}")

@@ -93,19 +93,43 @@ def main() -> int:
             _log({"event": "SKIP", "reason": "nothing_staged_after_add", "raw_status_lines": n})
             return 0
 
+        # PROACTIVE PRE-CHECK (2026-09-07, small follow-on to the L242 guard --
+        # new-gaps-flagged.md 2026-09-03 item 5). Before this fix, the ONLY
+        # defense against this script's bare `git commit` sweeping up another
+        # concurrent session's staged files outside CANDIDATES_PATH was the
+        # downstream pre-commit hook's REFUSE path -- reactive, catching it
+        # only after an attempted commit. Inspect the FULL staged index (not
+        # just the CANDIDATES_PATH-scoped diff above) and scope the commit
+        # itself via pathspec, so foreign staged files structurally cannot be
+        # swept into this script's commit -- they stay staged, untouched, for
+        # their own owner to commit.
+        full_staged = _run(["git", "diff", "--cached", "--name-only"])
+        staged_paths = [p.strip() for p in full_staged.stdout.splitlines() if p.strip()]
+        foreign = [
+            p for p in staged_paths
+            if not p.replace("\\", "/").startswith(CANDIDATES_PATH + "/")
+        ]
+        if foreign:
+            _log({
+                "event": "FOREIGN_STAGED_EXCLUDED",
+                "foreign_count": len(foreign),
+                "foreign_sample": foreign[:10],
+            })
+
         msg = (
             f"chore: auto-commit {n} strategy/candidates/ changes "
             f"(auto_commit_candidates.py, L242 prevention guard)"
         )
         # COMMIT-SCOPED-ENFORCEMENT (2026-09-03): declare this fire as
         # automation + exactly what it means to commit, so the pre-commit
-        # hook's REFUSE path can catch it if the `git add` above absorbed
-        # another concurrent session's staged files outside CANDIDATES_PATH
-        # (this script's own commit is still a bare `git commit`, not
-        # pathspec-scoped -- the hook is what enforces the boundary here).
+        # hook's REFUSE path is still a backstop even though the commit below
+        # is now pathspec-scoped (defense in depth, not a replacement).
         os.environ["GAMMA_AUTO_COMMIT"] = "1"
         os.environ["GAMMA_COMMIT_PATHSPEC"] = CANDIDATES_PATH
-        commit = _run(["git", "commit", "-m", msg])
+        # Pathspec-scoped commit (the actual proactive fix): commits ONLY
+        # CANDIDATES_PATH changes even if the index also holds staged changes
+        # from another concurrent session.
+        commit = _run(["git", "commit", "-m", msg, "--", CANDIDATES_PATH])
         if commit.returncode != 0:
             _log({
                 "event": "SKIP",
