@@ -57,10 +57,7 @@ Account numbers below are **broker-verified live 2026-08-18**; `automation/state
 | **Account 1** | Gamma-Safe-2 (fleet `safe-2`) | `PA3POKNV46VG` | **$5,266.38 (2026-08-18, broker-verified)** | Conservative — ATM, 30% risk, CONFIRMED setups | `params.json` |
 | **Account 2** | Gamma-Bold-2 (fleet `bold-2`) | `PA3WEBXJU67N` | **$5,048.40 (2026-08-18, broker-verified)** | Aggressive — OTM-2 at this equity tier, 50% risk, ALL setups | `aggressive/params.json` |
 
-> ⚠️ **TP1 IS NOT A PER-ACCOUNT SETTING — it comes from the STRATEGY** (`ribbon_ride` hardcodes
-> +100%/sell-66%; per-arm overrides exist). **Read the arm's `exit-state.json` for live truth,
-> never this table.** Full correction + evidence: [`COST-RECOVERY-SIZING-2026-08-13.md`](analysis/recommendations/COST-RECOVERY-SIZING-2026-08-13.md#tp1-source-of-truth-correction-relocated-from-claudemd-2026-08-16-context-leanness-trim).
-
+> ⚠️ **TP1 comes from the STRATEGY, not the account** (`ribbon_ride` +100%/sell-66%; per-arm overrides). Live truth = the arm's `exit-state.json`, never this table. Evidence: [`COST-RECOVERY-SIZING-2026-08-13.md`](analysis/recommendations/COST-RECOVERY-SIZING-2026-08-13.md#tp1-source-of-truth-correction-relocated-from-claudemd-2026-08-16-context-leanness-trim).
 - **Goal:** Both accounts grow → $5K → $10K → $25K+. Dual-account experiment answers which risk profile compounds better at each tier. ⚠️ **$25K was PDT-derived, not a fixed target** — FINRA repealed the $25K margin day-trading floor 2026-06-04 and our accounts are verified on the new regime. Canonical destination + ordered gates: [`ROADMAP.md`](markdown/planning/ROADMAP.md).
 - **Live threshold (per account independently — reworded 2026-08-29 per Gamma-decides; revoke = `git revert`):** go-live gate GREEN — day-level bootstrap **PF CI-lower(2.5%) > 1.0 on as-traded AND ex-best-day AND cost-adjusted** over ≥20 scored trading days, plus operational guards green, reconciliation green, 0 rule breaks in window, prod-shadow green net of costs. Measured ONLY by `setup/scripts/go_live_gate.py`. WR is a diagnostic, NOT a bar — the validated engine is low-WR right-tail; the old WR≥45% bar measured a strategy shape this project killed (rationale: `analysis/deep-research/FABLE-FULL-REVIEW-2026-08-29.md` §3). `live_readiness.py` remains the per-trade diagnostic.
 - **Daily P&L target (J recorrected 2026-08-09):** $100–200/day **PER ACCOUNT**, not combined — one clean +30% level trade pays ONE account's day. Across the 4 active real-fills arms (safe-2, bold-2, safe-3, risky-1) that's ~$400–800/day book-wide, but the target is evaluated and reported per account first; a strong arm should never mask a weak one in an aggregate number. Never chase dollars via more trades/size. Full lens: [`FOCUS-DOCTRINE.md`](markdown/doctrine/FOCUS-DOCTRINE.md).
@@ -292,4 +289,3 @@ carrying the claim forward bare.
 
 All doctrine evolution in [CHANGELOG.md](CHANGELOG.md). Append new entries there — never inline in CLAUDE.md.
 
-- 2026-08-17: context-budget RED re-trimmed to YELLOW. Full entry: CHANGELOG.md.
