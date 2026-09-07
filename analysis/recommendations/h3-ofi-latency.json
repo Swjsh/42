@@ -1,0 +1,830 @@
+{
+  "hypothesis": "H3 \u2014 OFI/aggression predictive strength as a function of observation-to-entry delay (the hteecs latency test)",
+  "source_doc": "markdown/trading-knowledge/microstructure-informed-flow.md \u00a74 H3",
+  "generated_at_utc": "2026-09-07T05:12:06.192217+00:00",
+  "symbol": "SPY",
+  "data_source": "Alpaca SIP trades+quotes via backtest/tools/fetch_sip_tape.py (Lee-Ready signed); forward prices from the SAME trade tape (last trade at-or-before target timestamp), never from data after the target timestamp",
+  "cost": "$0 \u2014 Alpaca REST only, no LLM calls, pure Python",
+  "sample": {
+    "n_days": 20,
+    "dates_used": [
+      "2026-08-10",
+      "2026-08-11",
+      "2026-08-12",
+      "2026-08-13",
+      "2026-08-14",
+      "2026-08-17",
+      "2026-08-18",
+      "2026-08-19",
+      "2026-08-20",
+      "2026-08-21",
+      "2026-08-24",
+      "2026-08-25",
+      "2026-08-26",
+      "2026-08-27",
+      "2026-08-28",
+      "2026-08-31",
+      "2026-09-01",
+      "2026-09-02",
+      "2026-09-03",
+      "2026-09-04"
+    ],
+    "decision_grid_et": "every 15 min, 10:00-15:00 ET inclusive (excludes 09:30-10:00 open and last 15 min of RTH)",
+    "fetch_log": [
+      {
+        "day": "2026-08-10",
+        "n_trades": 536589,
+        "wall_seconds": 168.944
+      },
+      {
+        "day": "2026-08-11",
+        "n_trades": 501174,
+        "wall_seconds": 170.749
+      },
+      {
+        "day": "2026-08-12",
+        "n_trades": 468739,
+        "wall_seconds": 161.869
+      },
+      {
+        "day": "2026-08-13",
+        "n_trades": 478911,
+        "wall_seconds": 145.143
+      },
+      {
+        "day": "2026-08-14",
+        "n_trades": 453598,
+        "wall_seconds": 128.029
+      },
+      {
+        "day": "2026-08-17",
+        "n_trades": 503856,
+        "wall_seconds": 144.138
+      },
+      {
+        "day": "2026-08-18",
+        "n_trades": 538084,
+        "wall_seconds": 201.875
+      },
+      {
+        "day": "2026-08-19",
+        "n_trades": 489519,
+        "wall_seconds": 222.937
+      },
+      {
+        "day": "2026-08-20",
+        "n_trades": 574606,
+        "wall_seconds": 238.94
+      },
+      {
+        "day": "2026-08-21",
+        "n_trades": 463378,
+        "wall_seconds": 161.347
+      },
+      {
+        "day": "2026-08-24",
+        "n_trades": 463575,
+        "wall_seconds": 162.84
+      },
+      {
+        "day": "2026-08-25",
+        "n_trades": 437409,
+        "wall_seconds": 145.387
+      },
+      {
+        "day": "2026-08-26",
+        "n_trades": 421203,
+        "wall_seconds": 140.064
+      },
+      {
+        "day": "2026-08-27",
+        "n_trades": 481976,
+        "wall_seconds": 179.582
+      },
+      {
+        "day": "2026-08-28",
+        "n_trades": 538007,
+        "wall_seconds": 285.696
+      },
+      {
+        "day": "2026-08-31",
+        "n_trades": 506854,
+        "wall_seconds": 172.239
+      },
+      {
+        "day": "2026-09-01",
+        "n_trades": 545733,
+        "wall_seconds": 199.192
+      },
+      {
+        "day": "2026-09-02",
+        "n_trades": 408288,
+        "wall_seconds": 154.749
+      },
+      {
+        "day": "2026-09-03",
+        "n_trades": 511277,
+        "wall_seconds": 168.797
+      },
+      {
+        "day": "2026-09-04",
+        "n_trades": 457633,
+        "wall_seconds": 158.4
+      }
+    ],
+    "n_real_observations_rows": 16800,
+    "n_null_observations_rows": 800
+  },
+  "design": {
+    "lookbacks_sec": [
+      60,
+      300
+    ],
+    "horizons_min": [
+      1,
+      5,
+      15,
+      30
+    ],
+    "delays_sec": [
+      0,
+      5,
+      15,
+      30,
+      60
+    ],
+    "signal": "OFI = signed_volume / total_volume over (t-lookback, t], signed trades via Lee-Ready (quote-midpoint rule + tick-rule fallback), knowable at t only (no look-ahead)",
+    "null": "direction-controlled per STRATEGY-BACKLOG.md item 5b: 1 random decision point/day/lookback; null 'side' = sign of the bar's OWN backward-looking realized return over the same lookback window (no order-flow information) \u2014 isolates OFI's incremental info from directional drift",
+    "null_draws_per_day_per_lookback": 1,
+    "rng_seed": 20260906
+  },
+  "results": {
+    "cells": [
+      {
+        "lookback_sec": 60,
+        "delay_sec": 0,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0018287673,
+        "mean_fwdret_pos_minus_neg_ofi": -2.51106e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1570381921,
+        "mean_fwdret_pos_minus_neg_null": -5.46454e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 0,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0136979241,
+        "mean_fwdret_pos_minus_neg_ofi": -4.80644e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.0099563338,
+        "mean_fwdret_pos_minus_neg_null": -8.1287e-06
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 0,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0249299913,
+        "mean_fwdret_pos_minus_neg_ofi": -7.2546e-06,
+        "n_null": 20,
+        "corr_null_fwdret": -0.0647600606,
+        "mean_fwdret_pos_minus_neg_null": -9.3216e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 0,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0642877434,
+        "mean_fwdret_pos_minus_neg_ofi": -0.0001102167,
+        "n_null": 20,
+        "corr_null_fwdret": 0.0254022178,
+        "mean_fwdret_pos_minus_neg_null": 4.1128e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 5,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0264664575,
+        "mean_fwdret_pos_minus_neg_ofi": -1.49334e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.0011993458,
+        "mean_fwdret_pos_minus_neg_null": -5.602e-07
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 5,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0075286873,
+        "mean_fwdret_pos_minus_neg_ofi": -2.64326e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.0144061011,
+        "mean_fwdret_pos_minus_neg_null": 1.11341e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 5,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0154368612,
+        "mean_fwdret_pos_minus_neg_ofi": 7.968e-06,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1267875726,
+        "mean_fwdret_pos_minus_neg_null": -0.0001844478
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 5,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0562071314,
+        "mean_fwdret_pos_minus_neg_ofi": -9.11245e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.1093269455,
+        "mean_fwdret_pos_minus_neg_null": 0.000170447
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 15,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0476716819,
+        "mean_fwdret_pos_minus_neg_ofi": 1.06448e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1306667995,
+        "mean_fwdret_pos_minus_neg_null": -6.13636e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 15,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.004668342,
+        "mean_fwdret_pos_minus_neg_ofi": -7.1643e-06,
+        "n_null": 20,
+        "corr_null_fwdret": 0.021092059,
+        "mean_fwdret_pos_minus_neg_null": 1.37696e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 15,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0119975213,
+        "mean_fwdret_pos_minus_neg_ofi": 1.81697e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1167403709,
+        "mean_fwdret_pos_minus_neg_null": -0.0001713418
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 15,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0523125628,
+        "mean_fwdret_pos_minus_neg_ofi": -7.60664e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.1232037,
+        "mean_fwdret_pos_minus_neg_null": 0.0001902498
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 30,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.058948544,
+        "mean_fwdret_pos_minus_neg_ofi": 2.67501e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1931453392,
+        "mean_fwdret_pos_minus_neg_null": -0.0001071083
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 30,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0228971715,
+        "mean_fwdret_pos_minus_neg_ofi": -1.13913e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.0322006218,
+        "mean_fwdret_pos_minus_neg_null": 2.19395e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 30,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0073894849,
+        "mean_fwdret_pos_minus_neg_ofi": 3.131e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.0877383185,
+        "mean_fwdret_pos_minus_neg_null": -0.0001297575
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 30,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0548954386,
+        "mean_fwdret_pos_minus_neg_ofi": -8.19407e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.1458690825,
+        "mean_fwdret_pos_minus_neg_null": 0.0002246839
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 60,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0445254102,
+        "mean_fwdret_pos_minus_neg_ofi": 1.30919e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1264137778,
+        "mean_fwdret_pos_minus_neg_null": -6.13915e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 60,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0349034672,
+        "mean_fwdret_pos_minus_neg_ofi": -1.1922e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.0455195377,
+        "mean_fwdret_pos_minus_neg_null": 3.70269e-05
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 60,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0116889331,
+        "mean_fwdret_pos_minus_neg_ofi": 1.6653e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.0702701313,
+        "mean_fwdret_pos_minus_neg_null": -0.0001022194
+      },
+      {
+        "lookback_sec": 60,
+        "delay_sec": 60,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0603879886,
+        "mean_fwdret_pos_minus_neg_ofi": -6.79096e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.172436222,
+        "mean_fwdret_pos_minus_neg_null": 0.0002735453
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 0,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0353205663,
+        "mean_fwdret_pos_minus_neg_ofi": -1.203e-06,
+        "n_null": 20,
+        "corr_null_fwdret": 0.4020618187,
+        "mean_fwdret_pos_minus_neg_null": 0.0001719963
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 0,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0129043839,
+        "mean_fwdret_pos_minus_neg_ofi": -1.47502e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.3500472867,
+        "mean_fwdret_pos_minus_neg_null": 0.0003463185
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 0,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0207918379,
+        "mean_fwdret_pos_minus_neg_ofi": -4.7305e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.1006347463,
+        "mean_fwdret_pos_minus_neg_null": 0.00015511
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 0,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0325983295,
+        "mean_fwdret_pos_minus_neg_ofi": -0.0001493275,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1009318149,
+        "mean_fwdret_pos_minus_neg_null": -0.0001556902
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 5,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0429232448,
+        "mean_fwdret_pos_minus_neg_ofi": -1.39017e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.4225331934,
+        "mean_fwdret_pos_minus_neg_null": 0.0001923974
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 5,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0128560846,
+        "mean_fwdret_pos_minus_neg_ofi": -4.1782e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.3629125457,
+        "mean_fwdret_pos_minus_neg_null": 0.0003807168
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 5,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0342257663,
+        "mean_fwdret_pos_minus_neg_ofi": -5.70974e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.0494551017,
+        "mean_fwdret_pos_minus_neg_null": 8.25473e-05
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 5,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0231238322,
+        "mean_fwdret_pos_minus_neg_ofi": -0.0001356812,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1251757794,
+        "mean_fwdret_pos_minus_neg_null": -0.000194059
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 15,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0031625221,
+        "mean_fwdret_pos_minus_neg_ofi": -1.46672e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.2969360877,
+        "mean_fwdret_pos_minus_neg_null": 0.0001572756
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 15,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": 5.97934e-05,
+        "mean_fwdret_pos_minus_neg_ofi": -3.07168e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.4063102153,
+        "mean_fwdret_pos_minus_neg_null": 0.00038771
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 15,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0291769427,
+        "mean_fwdret_pos_minus_neg_ofi": -3.32771e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.0755648936,
+        "mean_fwdret_pos_minus_neg_null": 0.0001135262
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 15,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0341550766,
+        "mean_fwdret_pos_minus_neg_ofi": -0.0001379554,
+        "n_null": 20,
+        "corr_null_fwdret": -0.180559439,
+        "mean_fwdret_pos_minus_neg_null": -0.0002735935
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 30,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.017710192,
+        "mean_fwdret_pos_minus_neg_ofi": 6.5776e-06,
+        "n_null": 20,
+        "corr_null_fwdret": 0.307277163,
+        "mean_fwdret_pos_minus_neg_null": 0.0001734315
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 30,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.013482889,
+        "mean_fwdret_pos_minus_neg_ofi": -5.0668e-06,
+        "n_null": 20,
+        "corr_null_fwdret": 0.3123899092,
+        "mean_fwdret_pos_minus_neg_null": 0.0003512743
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 30,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0315904248,
+        "mean_fwdret_pos_minus_neg_ofi": -2.67502e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.016025232,
+        "mean_fwdret_pos_minus_neg_null": 2.74508e-05
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 30,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0262816074,
+        "mean_fwdret_pos_minus_neg_ofi": -0.0001062141,
+        "n_null": 20,
+        "corr_null_fwdret": -0.1787875183,
+        "mean_fwdret_pos_minus_neg_null": -0.0002889464
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 60,
+        "horizon_min": 1,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0638533436,
+        "mean_fwdret_pos_minus_neg_ofi": -2.93325e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.0783206719,
+        "mean_fwdret_pos_minus_neg_null": -3.19005e-05
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 60,
+        "horizon_min": 5,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0328900153,
+        "mean_fwdret_pos_minus_neg_ofi": -3.10983e-05,
+        "n_null": 20,
+        "corr_null_fwdret": 0.2383334918,
+        "mean_fwdret_pos_minus_neg_null": 0.0002454085
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 60,
+        "horizon_min": 15,
+        "n_real": 420,
+        "corr_ofi_fwdret": 0.0127836747,
+        "mean_fwdret_pos_minus_neg_ofi": -4.73992e-05,
+        "n_null": 20,
+        "corr_null_fwdret": -0.021896526,
+        "mean_fwdret_pos_minus_neg_null": -3.16781e-05
+      },
+      {
+        "lookback_sec": 300,
+        "delay_sec": 60,
+        "horizon_min": 30,
+        "n_real": 420,
+        "corr_ofi_fwdret": -0.0390448813,
+        "mean_fwdret_pos_minus_neg_ofi": -0.0001125286,
+        "n_null": 20,
+        "corr_null_fwdret": -0.2696592576,
+        "mean_fwdret_pos_minus_neg_null": -0.0004802609
+      }
+    ],
+    "delay_decay_summary": [
+      {
+        "lookback_sec": 60,
+        "horizon_min": 1,
+        "beats_null_by_delay": [
+          [
+            0,
+            false
+          ],
+          [
+            5,
+            true
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "stops_beating_null_after_delay_sec=5"
+      },
+      {
+        "lookback_sec": 60,
+        "horizon_min": 5,
+        "beats_null_by_delay": [
+          [
+            0,
+            true
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "stops_beating_null_after_delay_sec=0"
+      },
+      {
+        "lookback_sec": 60,
+        "horizon_min": 15,
+        "beats_null_by_delay": [
+          [
+            0,
+            false
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "never_beats_null_at_any_tested_delay"
+      },
+      {
+        "lookback_sec": 60,
+        "horizon_min": 30,
+        "beats_null_by_delay": [
+          [
+            0,
+            true
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "stops_beating_null_after_delay_sec=0"
+      },
+      {
+        "lookback_sec": 300,
+        "horizon_min": 1,
+        "beats_null_by_delay": [
+          [
+            0,
+            false
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "never_beats_null_at_any_tested_delay"
+      },
+      {
+        "lookback_sec": 300,
+        "horizon_min": 5,
+        "beats_null_by_delay": [
+          [
+            0,
+            false
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "never_beats_null_at_any_tested_delay"
+      },
+      {
+        "lookback_sec": 300,
+        "horizon_min": 15,
+        "beats_null_by_delay": [
+          [
+            0,
+            false
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            true
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "stops_beating_null_after_delay_sec=30"
+      },
+      {
+        "lookback_sec": 300,
+        "horizon_min": 30,
+        "beats_null_by_delay": [
+          [
+            0,
+            false
+          ],
+          [
+            5,
+            false
+          ],
+          [
+            15,
+            false
+          ],
+          [
+            30,
+            false
+          ],
+          [
+            60,
+            false
+          ]
+        ],
+        "headline": "never_beats_null_at_any_tested_delay"
+      }
+    ]
+  },
+  "disclosure": {
+    "multiple_comparisons": "2 lookbacks x 4 horizons x 5 delays = 40 cells tested (40 after merge); this report presents ALL cells, not a cherry-picked best one \u2014 do not treat any single strong cell as the headline without correcting for this search width",
+    "single_regime_caveat": "one 20-day window (2026-08-10..2026-09-04) is a single, recent SPY regime \u2014 no claim of stability across regimes (rate environment, realized vol regime, etc.) is made or implied",
+    "sample_size_caveat": "cells with n < 5 are reported as null (correlation/conditional-mean withheld) rather than a noisy point estimate; check per-cell n in results.cells before trusting any single number",
+    "not_tuned_for_signal": "lookbacks/horizons/delays were fixed BEFORE running (per markdown/trading-knowledge/microstructure-informed-flow.md \u00a74 H3 and the doc's pre-registered grid), not swept afterward to manufacture a positive result; a null result across the whole grid is reported as such, not discarded",
+    "verification": "counts and headline figures below are quoted directly from this script's own run output printed to stdout in the same session"
+  }
+}

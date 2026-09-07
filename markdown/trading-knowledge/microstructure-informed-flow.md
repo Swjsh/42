@@ -144,6 +144,34 @@ Every one gets the standard bar: real fills where applicable (C1), the **directi
 - **Kill:** the split does not separate outcomes beyond the null, or only separates in one regime (OP admits August was mean-reverting — regime-tag every day).
 
 ### H3 — OFI / aggression as a predictor *net of latency* (the hteecs test)
+
+> ## ❌ RESULT 2026-09-06 — **DEAD, and for a stronger reason than latency.** Ran on 20 SPY sessions (2026-08-10 → 09-04), ~9.6M real trades, 16,800 observations, $0. Artifacts: `analysis/recommendations/h3-ofi-latency.json`, `backtest/autoresearch/h3_ofi_latency.py`.
+>
+> **Order-flow imbalance has no forward-predictive power over SPY returns at ANY tested delay — including zero delay.**
+>
+> | | correlation with forward return |
+> |---|---|
+> | Best of all 40 cells (abs) | **0.064** |
+> | Median of all 40 cells (abs) | **0.026** |
+> | At 0s delay, 60s lookback, 1m horizon | **0.0018** |
+>
+> Grid was pre-registered, not swept: 2 lookbacks (60s, 300s) × 4 horizons (1/5/15/30 min) × 5 delays (0/5/15/30/60 s). All 40 cells reported, none cherry-picked.
+>
+> **The latency framing turned out to be the wrong question.** hteecs's report was that aggression predicted price until execution delay ate it. On SPY we never got that far: at **zero** delay — instantaneous, physically impossible execution — the correlation is already ~0.002. There is no edge for latency to destroy.
+>
+> **PIPELINE VALIDATED before accepting the null** (`h3_sanity_contemporaneous.py`, cached tape, zero API calls). A null result is worthless if the code is broken, so we checked that the pipeline detects the one relationship that MUST exist mechanically — aggressive buying lifting price *within* its own window:
+>
+> | Lookback | corr(OFI, contemporaneous return) | n |
+> |---|---|---|
+> | 60s | **+0.305** | 105 |
+> | 300s | **+0.273** | 105 |
+>
+> The pipeline sees the mechanical effect clearly and the forward effect not at all. **Interpretation: the information is already in the price by the time the window closes.** Order flow describes the move that just happened; it does not forecast the next one.
+>
+> **What is NOT trustworthy in the artifact:** the direction-controlled null ran only **1 draw/day/lookback → n=20 per cell** vs n=420 real. Null correlations swing −0.27 to +0.42, i.e. larger than the real signal purely from noise. So every `beats_null` / `stops_beating_null_after_delay_sec` verdict in the JSON headline is **unreliable and should be ignored** — the non-monotonic true/false patterns are the noise signature. The kill does not rest on them; it rests on the raw effect size being ~0 everywhere. If H3 is ever revisited, fix the null to ≥30 draws/day first.
+>
+> **SCOPE LIMIT — this does NOT kill H1.** The decision points were an arbitrary 15-minute clock grid (10:00–15:00 ET), so this tests **unconditional** order flow at random moments. The OP's actual claim is *conditional*: absorption **at an area of interest**. H1 tests that, and it remains open and untested.
+
 - **Claim:** OFI (Cont et al.) predicts short-horizon price change on SPY, but the usable edge after observation-plus-execution delay is what matters. SIP quote sizes give the true OFI, not a proxy.
 - **Test:** regress forward return on OFI over windows 1–60 s; then re-run with entry delayed by 5 / 15 / 30 / 60 s. Report edge *as a function of delay.* Our heartbeat is not a colocated engine — pick the delay we can actually meet.
 - **Kill:** edge at our realistic delay ≤ null. This is the most likely outcome and the most important number to have on record, because it would close the "just read the order flow" idea for the engine with evidence instead of opinion.
