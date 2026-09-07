@@ -28,7 +28,9 @@ session is COMPLETE (strictly before "today", or today at/after 16:00 ET):
      jsonl` (bid/ask ticks, ~20s polling cadence -- the largest single-poll-to-poll drop in a
      padded [09:55,10:05) ET window, since a strict minute-bucket comparison can straddle-miss
      a gap between two polls; see `_quote_tape_option_moves`'s own docstring for the concrete
-     case this was caught on. Option side only -- quote-tape carries no SPY underlying quote)
+     case this was caught on. SPY's own move is sourced the same way from the per-minute
+     underlying tape, kind="underlying" rows -- see `_quote_tape_underlying_move`'s docstring;
+     wired 2026-09-07, previously hardcoded None here before that consumer existed)
      for a date still within its ~3-day retention window, else `move_source="no_data"` --
      reported honestly, never guessed.
   2. **Rule application** to that day's REAL fills (`automation/state/fills-ledger.jsonl` via
@@ -220,6 +222,14 @@ def _quote_tape_option_moves(date_str: str) -> list[dict]:
     for t in ticks:
         sym = t.get("symbol")
         te = t.get("ts_et", "")
+        # kind==option/underlying stream-mixing guard (2026-09-07, self-audit 09-03#7/8):
+        # rows written before ddb4e9d7 (2026-09-03 ~14:31 ET) predate the "kind" field
+        # entirely (None -- these are option rows from before the schema change, kept),
+        # rows written after carry kind="option" for genuine option NBBO. A kind="underlying"
+        # SPY row must NEVER be treated as an option symbol here -- it has its own consumer,
+        # _quote_tape_underlying_move, below.
+        if t.get("kind") not in (None, "option"):
+            continue
         if sym and len(te) >= 19 and QUOTE_TAPE_WINDOW_START <= te[11:19] < QUOTE_TAPE_WINDOW_END:
             by_symbol[sym].append(t)
     out = []
@@ -237,6 +247,43 @@ def _quote_tape_option_moves(date_str: str) -> list[dict]:
                         "source": "quote_tape_adjacent_tick",
                         "window": f"{QUOTE_TAPE_WINDOW_START}-{QUOTE_TAPE_WINDOW_END}"})
     return out
+
+
+def _quote_tape_underlying_move(date_str: str) -> "Optional[float]":
+    """Wires the per-minute SPY underlying tape (quote_recorder.py, kind="underlying",
+    added ddb4e9d7 2026-09-03 -- same-day as this module, self-audit 09-03#7 flagged it as
+    an unconsumed reader) into this module's own quote-tape fallback path. Previously
+    `spy_move_1000_1001_dollars` was hardcoded None on the quote_tape branch with the
+    comment "quote-tape carries no SPY underlying quote" -- true when this module was first
+    written, false as of the same day's later commit; this closes that gap.
+
+    Same "largest single-poll-to-poll move inside the padded window" methodology as
+    `_quote_tape_option_moves` (quote-tape is ~20s-cadence, not a fixed 1-min grid -- see
+    that function's docstring for why a strict minute-bucket comparison can straddle-miss a
+    gap). Unlike the option case there is no inherent "adverse" direction for SPY itself, so
+    this returns the SIGNED move of the single largest-MAGNITUDE poll-to-poll jump in the
+    window (not the most-negative one) -- None if there are fewer than 2 usable ticks."""
+    ticks = _load_quote_tape_ticks(date_str)
+    if not ticks:
+        return None
+    rows = []
+    for t in ticks:
+        if t.get("kind") != "underlying" or t.get("symbol") != "SPY":
+            continue
+        te = t.get("ts_et", "")
+        if len(te) >= 19 and QUOTE_TAPE_WINDOW_START <= te[11:19] < QUOTE_TAPE_WINDOW_END:
+            rows.append(t)
+    rows.sort(key=lambda t: t.get("ts_et", ""))
+    prices = [r.get("mid") if r.get("mid") is not None else r.get("last") for r in rows]
+    prices = [p for p in prices if p is not None]
+    if len(prices) < 2:
+        return None
+    best_move = None
+    for prev, cur in zip(prices, prices[1:]):
+        move = cur - prev
+        if best_move is None or abs(move) > abs(best_move):
+            best_move = move
+    return round(best_move, 4) if best_move is not None else None
 
 
 def _load_moves_for_date(date_str: str) -> dict:
@@ -262,13 +309,14 @@ def _load_moves_for_date(date_str: str) -> dict:
             "worst_adverse_1000_1001_pct": (round(worst, 3) if worst is not None else None),
         }
     qt_moves = _quote_tape_option_moves(date_str)
-    if qt_moves:
-        worst = min(c["move_1000_1001_pct"] for c in qt_moves)
+    qt_spy_move = _quote_tape_underlying_move(date_str)
+    if qt_moves or qt_spy_move is not None:
+        worst = min((c["move_1000_1001_pct"] for c in qt_moves), default=None)
         return {
             "move_source": "quote_tape",
-            "spy_move_1000_1001_dollars": None,      # quote-tape carries no SPY underlying quote
+            "spy_move_1000_1001_dollars": qt_spy_move,  # wired 2026-09-07, was hardcoded None
             "option_moves": qt_moves,
-            "worst_adverse_1000_1001_pct": round(worst, 3),
+            "worst_adverse_1000_1001_pct": (round(worst, 3) if worst is not None else None),
         }
     return {"move_source": "no_data", "spy_move_1000_1001_dollars": None,
             "option_moves": [], "worst_adverse_1000_1001_pct": None}

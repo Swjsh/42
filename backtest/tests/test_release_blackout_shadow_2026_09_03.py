@@ -238,6 +238,100 @@ def test_load_moves_for_date_reports_no_data_honestly(tmp_path, monkeypatch):
     result = rbs._load_moves_for_date("2099-01-01")
     assert result["move_source"] == "no_data"
     assert result["worst_adverse_1000_1001_pct"] is None
+    assert result["spy_move_1000_1001_dollars"] is None
+
+
+# ===================================================================================
+# 4a. SPY underlying tape consumer (2026-09-07 -- self-audit 09-03#7: the per-minute
+# SPY underlying tape, quote_recorder.py kind="underlying" added ddb4e9d7, had NO
+# consumer; spy_move_1000_1001_dollars was hardcoded None on the quote_tape fallback
+# path with a now-stale "quote-tape carries no SPY underlying quote" comment)
+# ===================================================================================
+def test_quote_tape_underlying_move_recovers_the_largest_poll_to_poll_spy_jump(tmp_path, monkeypatch):
+    qtdir = tmp_path / "quote-tape"
+    qtdir.mkdir()
+    rows = [
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T09:59:45.000000", "mid": 770.10},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:48.000000", "mid": 770.20},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:01:10.000000", "mid": 769.35},  # the real jump
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:01:31.000000", "mid": 769.40},
+    ]
+    (qtdir / "2026-09-03.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    monkeypatch.setattr(rbs, "QUOTE_TAPE_DIR", qtdir)
+
+    move = rbs._quote_tape_underlying_move("2026-09-03")
+    assert move == pytest.approx(769.35 - 770.20, abs=0.001)  # signed, largest-magnitude jump
+
+
+def test_quote_tape_underlying_move_ignores_ticks_outside_the_padded_window(tmp_path, monkeypatch):
+    qtdir = tmp_path / "quote-tape"
+    qtdir.mkdir()
+    rows = [
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T09:31:00.000000", "mid": 700.00},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T09:32:00.000000", "mid": 750.00},  # huge, outside window
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:00.000000", "mid": 770.00},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:30.000000", "mid": 770.10},
+    ]
+    (qtdir / "2026-09-03.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    monkeypatch.setattr(rbs, "QUOTE_TAPE_DIR", qtdir)
+
+    move = rbs._quote_tape_underlying_move("2026-09-03")
+    assert move == pytest.approx(0.10, abs=0.001)  # only the in-window pair, not the +50 jump
+
+
+def test_quote_tape_underlying_move_none_below_2_ticks(tmp_path, monkeypatch):
+    qtdir = tmp_path / "quote-tape"
+    qtdir.mkdir()
+    rows = [{"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:00.000000", "mid": 770.00}]
+    (qtdir / "2026-09-03.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    monkeypatch.setattr(rbs, "QUOTE_TAPE_DIR", qtdir)
+
+    assert rbs._quote_tape_underlying_move("2026-09-03") is None
+
+
+def test_quote_tape_option_moves_excludes_underlying_kind_stream_mixing(tmp_path, monkeypatch):
+    """The kind==option/underlying stream-mixing guard: a kind="underlying" SPY row must
+    NEVER be treated as an option symbol by `_quote_tape_option_moves` -- it has its own
+    huge, non-option-shaped price (~770) that would otherwise pollute a min()-over-percent
+    comparison meant for option premiums."""
+    qtdir = tmp_path / "quote-tape"
+    qtdir.mkdir()
+    rows = [
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:00.000000", "mid": 770.00},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:30.000000", "mid": 750.00},  # -2.6%, would look "worse" than the real option move below if not excluded
+        {"kind": "option", "symbol": "SPY260903C00770000", "ts_et": "2026-09-03T10:00:48.000000", "mid": 0.735},
+        {"kind": "option", "symbol": "SPY260903C00770000", "ts_et": "2026-09-03T10:01:10.000000", "mid": 0.495},
+    ]
+    (qtdir / "2026-09-03.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    monkeypatch.setattr(rbs, "QUOTE_TAPE_DIR", qtdir)
+
+    moves = rbs._quote_tape_option_moves("2026-09-03")
+    assert len(moves) == 1
+    assert moves[0]["symbol"] == "SPY260903C00770000"  # SPY (underlying) never appears here
+    assert all(m["symbol"] != "SPY" for m in moves)
+
+
+def test_load_moves_for_date_wires_spy_dollars_from_quote_tape(tmp_path, monkeypatch):
+    """Previously hardcoded None -- confirms the real gap: the quote_tape fallback branch
+    now fills spy_move_1000_1001_dollars from the underlying tape instead of always None."""
+    qtdir = tmp_path / "quote-tape"
+    qtdir.mkdir()
+    rows = [
+        {"kind": "option", "symbol": "SPY260903C00770000", "ts_et": "2026-09-03T10:00:48.000000", "mid": 0.735},
+        {"kind": "option", "symbol": "SPY260903C00770000", "ts_et": "2026-09-03T10:01:10.000000", "mid": 0.495},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:00.000000", "mid": 770.00},
+        {"kind": "underlying", "symbol": "SPY", "ts_et": "2026-09-03T10:00:30.000000", "mid": 769.50},
+    ]
+    (qtdir / "2026-09-03.jsonl").write_text("\n".join(json.dumps(r) for r in rows), encoding="utf-8")
+    monkeypatch.setattr(rbs, "QUOTE_TAPE_DIR", qtdir)
+    monkeypatch.setattr(rgs, "OPT_CACHE_DIR", tmp_path / "empty-highres")
+    monkeypatch.setattr(rgs, "SPY_CACHE_DIR", tmp_path / "empty-spy-cache")
+    monkeypatch.setattr(rgs, "option_files_for_date", lambda d: [])
+    monkeypatch.setattr(rgs, "load_spy_bars", lambda d: None)
+
+    result = rbs._load_moves_for_date("2026-09-03")
+    assert result["move_source"] == "quote_tape"
+    assert result["spy_move_1000_1001_dollars"] == pytest.approx(-0.50, abs=0.001)
 
 
 # ===================================================================================
