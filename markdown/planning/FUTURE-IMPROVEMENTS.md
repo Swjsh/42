@@ -505,3 +505,16 @@ single-name catalysts in the tickers-lane universe (earnings dates already in Ga
 to the wave-day-conditions backfill (W6). Question it answers: do catalyst days carry a fatter SPY/QQQ
 right tail than the 20/5 split already measured? Kill if it does not separate like the other 6.
 No paid vendor, no new account.
+
+## ROBOTICS-CHAIN SHADOW ARM (queued 2026-09-08 14:25 ET, from J's "AI robotics stocks — trade them" directive)
+
+**Not a universe edit — a new shadow arm.** The chain is mapped and screened in
+[`../research/AI-ROBOTICS-SUPPLY-CHAIN.md`](../research/AI-ROBOTICS-SUPPLY-CHAIN.md). At the lane's 8% gate the only
+tradeable names outside the already-armed tickers universes are `ONDS BHP SIL AME` (+ `MU MRVL TSM ARM` tight but
+priced out at 3 lots); every pure robotics/minerals name fails on spread (MP 17%, SYM 21%, TER 27%, HUMN 41%).
+The multi lane's revive rule kill-lists "try more names", and the tickers arms are pre-registered mid-window, so
+the honest path is the tickers-lane template: **a new prereg + a `shadow_only` arm on the PRODUCTION scorer over
+that fixed 8-name set, WOULD_PLACE rows only, ≥20 signals / ≥15 sessions / random-entry null at MAX before any
+paper order.** $0, no new account (reuse a tickers key read-only). Executor work on a live lane → file at the
+2026-09-29 checkpoint as a non-risk shadow item, not before. Kill if the production scorer fires <20 signals in
+15 sessions on these names (the L199 shape). Revoke = delete this block.
