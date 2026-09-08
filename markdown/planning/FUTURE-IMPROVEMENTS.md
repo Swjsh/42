@@ -491,3 +491,17 @@ When starting any item:
 3. Update CHANGELOG.md row
 
 - **[2026-08-14] ENTRY-QUALITY program** — the engine's scores admit, nothing ranks; full diagnosis + 8-item ordered workplan + traps ledger: [`ENTRY-QUALITY-HANDOFF-2026-08-14.md`](ENTRY-QUALITY-HANDOFF-2026-08-14.md). Re-arm of equity-scaled sizing is gated on it.
+
+## CATALYST-DAY-TAG (queued 2026-09-08 09:18 ET, from J's "get in on the next NVDA-buys-Hugging-Face early" question)
+
+**Not a lane.** J's example has no tradable expression: target private; deal $12.9B = ~0.23% of NVDA cap;
+leak headline landed 02:30 ET overnight (Benzinga 2026-08-27T06:30Z) inside NVDA's earnings gap (+6.3%);
+confirmation day 09-03 NVDA +1.8% inside a 4% daily range. Pre-announcement informed-flow angles have
+already died 3x on our tape (big-print lead PARKED 09-07, H3 order-flow DEAD 09-06, winner_signature:
+day cannot be pre-selected). What survives is the generalisable bit: non-tape sources as DAY-TYPE
+context, not direction. **Shadow item ($0, prereg first):** tag each session with scheduled
+single-name catalysts in the tickers-lane universe (earnings dates already in Gamma_EarningsCalendar,
+8-K M&A via EDGAR full-text search, product events via Alpaca news) and add the tag as a 7th condition
+to the wave-day-conditions backfill (W6). Question it answers: do catalyst days carry a fatter SPY/QQQ
+right tail than the 20/5 split already measured? Kill if it does not separate like the other 6.
+No paid vendor, no new account.
