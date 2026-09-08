@@ -238,7 +238,19 @@ def run_cells(book, base, m5, label_prefix="") -> "tuple[list[dict], dict]":
 
 def main() -> int:
     print("[chop] loading population A (broker fills) ...")
-    book = L4.load_book()
+    # RUNNER FIX 2026-09-08 (not a prereg edit): load_book() reads the live,
+    # ever-growing fills-ledger.jsonl with no date bound. The prereg's
+    # trust_gate_must_reconcile numbers AND population A's bars source
+    # (spy_5m_2026-05-19_2026-08-06.csv, frozen in prereg "bars") are both
+    # pinned to the window ending Thu 2026-08-06 -- this battery scores the
+    # ORIGINAL motivating evidence, not a moving live window. Bound population
+    # A to that frozen window so the trust gate reconciles against the same
+    # ledger snapshot the prereg was written against. Root cause: one month of
+    # subsequent trading (accrued since the 2026-08-06 freeze) was silently
+    # flowing into an unbounded read; the three frozen anchor days (tue/wed/thu)
+    # still reconciled exactly, proving the reconstruction pipeline itself was
+    # never broken -- only the missing date bound was.
+    book = [p for p in L4.load_book() if p["date_et"] <= THU]
     base = L4.day_totals(book)
     dates = sorted(base)
     book_total = round(sum(base.values()), 2)
