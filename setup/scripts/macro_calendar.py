@@ -147,6 +147,21 @@ KNOWN_EVENTS_2026: list[dict[str, Any]] = [
         "notes": "Verified via web search 2026-07-09 -- direct BLS fetch returns HTTP 403 from this host.",
     },
     {
+        "date": "2026-09-10", "time_et": "08:30", "event": "PPI (August 2026 data)",
+        "type": "ppi_release", "severity": "med",
+        "source_url": "https://www.bls.gov/schedule/news_release/ppi.htm",
+        "notes": "Verified via web search 2026-09-08 (fedratecalc.com/ppi-release-date, usinflationcalculator.com "
+                 "release schedule) -- direct BLS fetch returns HTTP 403 from this host. Gap found by the "
+                 "2026-09-08 new-week readiness check: the list had no CPI/PPI after July.",
+    },
+    {
+        "date": "2026-09-11", "time_et": "08:30", "event": "CPI (August 2026 data)",
+        "type": "cpi_release", "severity": "high",
+        "source_url": "https://www.bls.gov/schedule/news_release/cpi.htm",
+        "notes": "Verified via web search 2026-09-08 (usinflationcalculator.com release schedule, "
+                 "financecalendar.com) -- direct BLS fetch returns HTTP 403 from this host.",
+    },
+    {
         "date": "2026-09-16", "time_et": "14:00", "event": "FOMC Rate Decision (Sep 2026 meeting)",
         "type": "fomc_decision", "severity": "high",
         "source_url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",

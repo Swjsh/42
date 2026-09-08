@@ -157,7 +157,11 @@ def test_no_network_call_in_scheduled_releases_and_generate() -> None:
 # 5. KNOWN_EVENTS_2026 (pre-existing hand-curated table) is untouched
 # --------------------------------------------------------------------------- #
 def test_known_events_2026_unchanged() -> None:
-    assert len(mc.KNOWN_EVENTS_2026) == 8
+    # Pin updated 2026-09-08 (new-week readiness check): two HAND entries added --
+    # PPI 2026-09-10 + CPI 2026-09-11 (Aug 2026 data), dates verified by web search.
+    # The pin's purpose is unchanged: the rule-based generator must never mutate
+    # this list, so any further change here must be a deliberate hand edit.
+    assert len(mc.KNOWN_EVENTS_2026) == 10
     types = [e["type"] for e in mc.KNOWN_EVENTS_2026]
     assert types == [
         "cpi_release",
@@ -167,6 +171,8 @@ def test_known_events_2026_unchanged() -> None:
         "gdp_release",
         "pce_release",
         "nfp_release",
+        "ppi_release",
+        "cpi_release",
         "fomc_decision",
     ]
     # None of the hand-curated entries carry a "source" key -- that key is new

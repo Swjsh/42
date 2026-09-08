@@ -369,7 +369,18 @@ def fetch_broker_snapshots() -> dict:
         import fleet_broker  # type: ignore
 
         creds = fleet_broker.load_creds()
-        return {alias: fleet_broker.get_account(c) for alias, c in creds.items()}
+        # 2026-09-08: secrets.json still carries creds for RETIRED arms (safe-1 = the
+        # old key on safe-2's account -> 401 every morning; risky-3). A retired arm can
+        # never place an order at open, so its dead key must not RED the pre-open verdict.
+        # Roster (accounts.json status=='retired') is the authority; fail-open to "skip none".
+        try:
+            import arm_roster  # type: ignore
+
+            retired = set(arm_roster.retired_arms())
+        except Exception:
+            retired = set()
+        return {alias: fleet_broker.get_account(c) for alias, c in creds.items()
+                if alias not in retired}
     except Exception:
         return {}
 
