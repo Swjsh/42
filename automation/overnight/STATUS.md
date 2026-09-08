@@ -25,8 +25,18 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 
 ---
 
+## Live watch
+
+- [2026-09-08T12:27:00 ET] THETA STALL :: bold-2 SPY260908P00766000 qty=5 :: est theta burn -5.10 vs est delta gain +0.00 over last 15min (mid=0.265, unrealized=-25.71%) -- ALERT ONLY, never auto-exits. detail: automation/state/theta-clock.json
+_Standing visibility-only flag surface (THETA COCKPIT, 2026-08-01 J directive) -- NOT a breakage list, no auto-exit ever. Producers append ONE loud line here on a NEW stalled-position threshold crossing; never re-fired for the same position. Producer: setup/scripts/theta_clock.py._
+
+---
+
 ## Known broken
 
+- [2026-09-08 19:08 ET] STRIKE-MATRIX-DOC-DRIFT-2026-09-08 :: analysis/deep-research/STRIKE-MATRIX-2026-08-18.md section 1.1 says core Bold uses V15_BOLD_CORE_TIERS (ATM at 2K-10K). LIVE: setup/scripts/heartbeat_core.py:2679 passes V15_BOLD_TIERS for account==bold -> OTM-2 at 2K-10K (comment 2670-2677: the ATM extension failed its kill criterion and was swapped back). The 2026-09-08 bold-2 fill 766P with SPY 767.65 (atm 768 minus 2) confirms OTM-2. CLAUDE.md is correct; the research doc is stale. Not a defect; correction queued as GOAL-LOSS-MECHANISMS L3.
+- [2026-09-08 19:08 ET] LOSS-MECHANISMS-READ-2026-09-08 :: -116 USD day read against the shadow ledgers BEFORE proposing anything. Day-throttle forward-only (>=08-18, 138 entries, 14 days): T-2 would have blocked 30 entries worth +512 USD (11 winners) and T-6 only 2 (-100 USD) -> NOT a lever; the pooled -2181 USD saved is pre-freeze risky-3 backfill. Conviction V-d1 stays KILL (one 0/8 anecdote on bold does not reopen it). Trendline-only rail HOLDING (n=41, -2.17/tr; rest-of-book -4.73/tr, WR 25 pct). Catastrophe cap pooled NULL (08-09) but splits by strike tier: cap saves bold-2 1260 USD and costs the ATM arms ~4000 USD vs hold-to-EOD (n=9/7/5, provisional) -> NEW prereg-catastrophe-cap-by-strike-tier-10-30 (EXPANSION, 10-30 only). The chop admissibility battery had NEVER been run -> Sonnet worker executing it now (marker CHOP-BATTERY-RUN). Goal GOAL-LOSS-MECHANISMS-2026-09-08 on the ladder. No config change (freeze).
+- [2026-09-08T13:30:03Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-08 08:52 ET] EOD-LLM-FLATTEN-LAYER-DEAD :: preopen eod_reality REDs are REAL: the two LLM defense-in-depth flatteners fail on every recent fire -- 09-04 Safe: 'Error: Exceeded USD budget (2)' exit=1 (after RECONCILE_FILL_APPENDED); 09-04 Bold: TIMEOUT after 120s, tree-killed 23 processes, exit=124; 09-07 (holiday) Safe wrote no START/END at all, Bold wrote no log. Position safety today rests on Gamma_EodFlattenCore (pure Python 15:52 ET, GREEN, NOOP x4 on 09-07) + Gamma_DeadMansSwitch (2-min, same box) -- both same-box, so a dead box with an open position is still the 09-04 exposure. Decision needed after-hours, not now: retire the two LLM tasks (they are the last claude --print fires on the money path and cost API $) or make them a no-LLM second Core pass. Off the trading path (16:55 ET).
 - [2026-09-08 08:52 ET] PREOPEN-RETIRED-ARM-FALSE-RED-2026-09-08 :: FIXED (REVOKE surface) -- preopen_readiness.py iterated every alias in fleet/secrets.json, including RETIRED safe-1 (old key on safe-2's account -> 'HTTP 401' -> critical RED every weekday since the 07-11 retirement) and risky-3. Now skips arm_roster.retired_arms() (fail-open to skip-none). Re-run 08:52 ET: broker aliases = bold-2 safe-3 risky-1 safe-2 weekly-1, all GREEN; remaining REDs are the two real ones below. REVOKE: git revert.
 - [2026-09-08 08:52 ET] MACRO-CALENDAR-GAP-2026-09-08 :: FIXED (REVOKE surface) -- setup/scripts/macro_calendar.py KNOWN_EVENTS_2026 had NO CPI/PPI/NFP after July (last hand entry NFP 08-07, then FOMC 09-16): Fri 09-04 NFP, this Thu 09-10 PPI 08:30 and Fri 09-11 CPI 08:30 were all invisible to premarket/today-bias (Friday's bias would have said 'no macro events today' on CPI day). Added PPI 09-10 (med) + CPI 09-11 (high), dates verified by web search (BLS 403s from this host). Live tick path unaffected: heartbeat_core reads no_trade_window ONLY from params.json (entry_no_trade_window_et), not from news.json/today-bias -- the calendar is premarket/analysis advisory (both windows end 09:00 ET anyway). Dry-run --date 2026-09-10/11 shows the events. REVOKE: git revert the commit. Root gap still open: the hand list is the only source (BLS fetch blocked) -- needs a monthly BLS-schedule refresh instrument or it goes stale again in October.
@@ -36,7 +46,6 @@ Full detail: `automation/state/monday-verify.json`. Re-run: `backtest\.venv\Scri
 - [2026-09-07T23:01:53] GATE-EXPIRY CLEARED :: filter-8-bear-sole :: bear sole-[8]: REPLAYED costing over 2026-08-10..2026-09-04 -- n=47 distinct episode(s), net $-414.05 (safe qty) -- refusals are LOSERS net (KEEP). RED clears -- ratifying instrument: backtest/tools/postfix_gate_costing.py :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-8-bear-sole
 - [2026-09-07T23:01:53] GATE-EXPIRY CLEARED :: filter-10-bull-sole :: bull sole-[10]: REPLAYED costing over 2026-08-10..2026-09-04 -- n=41 distinct episode(s), net $-131.10 (safe qty) -- refusals are LOSERS net (KEEP). RED clears -- ratifying instrument: backtest/tools/postfix_gate_costing.py :: re-check: backtest\.venv\Scripts\python.exe backtest\autoresearch\gate_expiry_check.py --gate filter-10-bull-sole
 - [2026-09-08T00:18:07.957858] KITCHEN_FABRICATED_ARTIFACT_RATE: DEGRADED -- 30d fabricated_artifact_rate=0.1105 >= 0.05 (462/4182 files, window=30d). See analysis/kitchen-review/PROVENANCE-AUDIT.md. | since 2026-09-05 (Stage-1-in-the-loop ship): usable_rate_since_ship=0.0039 (3863 files scored).
-- [2026-09-08T04:00:01Z] RTH-TICK-GAP: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)
 - [2026-09-07 local] LAUNCH-RATE: 8 market-closed hour(s) exceeded 60/hr on 2026-09-07 (worst=06:00 187 launches); top scripts: run-engine-health.ps1x542, run-sight-beacon.ps1x449, live_watch.pyx404, theta_clock.pyx388, run-fleet-executor.ps1x385
 - [2026-09-06T23:50:00 ET] MCP_AUDIT_YELLOW: safe=ok, bold=ok, tv=FAIL, mcp_procs=FAIL -- port 9222 unreachable -- URLError: <urlopen error [WinError 10061] No connection could be made ; 0 alpaca-mcp-server process(es) found
 
@@ -197,7 +206,7 @@ Goal QUEUE closed (all W1-W5 done); `goal_autopilot.py ensure` ran after and rep
 - TASK-STALENESS RED: scheduled work is not running -- Gamma_AutofireCards, Gamma_MacroCalendar, Gamma_EarningsCalendar, Gamma_FuturesPremarket2, Gamma_PremarketReadiness
 
 ## Kitchen
-Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=?
+Kitchen: alive, queue 17 pending, last cook 0 min ago, today $0.02, model=?
 
 ### BROKEN: self-check 2026-09-07T08:09:56
 - engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
@@ -371,3 +380,159 @@ Kitchen: alive, queue 23 pending, last cook 0 min ago, today $0.00, model=?
 - RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
 - FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (4 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04', '2026-09-07']; [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 78 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-07T13:15:02 connect/auth_or_permission_error
 - TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+- [09-08 09:00 ET] TvWatchdog: tv=healthy heartbeat=na levels_refresh=none fresh_heal=ran 
+- [09-08 09:30 ET] TvWatchdog: tv=healthy heartbeat=na levels_refresh=none fresh_heal=ran 
+
+### BROKEN: self-check 2026-09-08T09:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] fills_recency: isolated ENTER_REFUSED, not yet a pattern -- last ENTER 2026-09-01 (4 session(s) since in the read window); 1 ENTER_REFUSED row(s) across 1/5 recent session(s) ['2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04', '2026-09-07']; [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 78 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-07T13:15:02 connect/auth_or_permission_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T10:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 78 row(s), 59 transport-error, 4 broker-rejected; newest 2026-09-07T13:15:02 connect/auth_or_permission_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T10:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 80 row(s), 61 transport-error, 4 broker-rejected; newest 2026-09-08T10:25:38 connect/transport_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T11:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- ENGINE CANNOT ENTER: 100 ticks today, 0 ENTER, 5x SKIP_DOJI_ENTRY_BAR -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 81 row(s), 61 transport-error, 4 broker-rejected; newest 2026-09-08T10:30:29 connect/auth_or_permission_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T12:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- ENGINE CANNOT ENTER: 160 ticks today, 0 ENTER, 10x SKIP_DOJI_ENTRY_BAR -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 83 row(s), 63 transport-error, 4 broker-rejected; newest 2026-09-08T11:35:14 get_positions/transport_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T12:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- ENGINE CANNOT ENTER: 190 ticks today, 0 ENTER, 10x SKIP_DOJI_ENTRY_BAR -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 86 row(s), 65 transport-error, 5 broker-rejected, 1 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T12:01:11 tp1/transport_error_not_retried_ambiguous
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T13:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- ENGINE CANNOT ENTER: 220 ticks today, 0 ENTER, 10x SKIP_DOJI_ENTRY_BAR -- setups scored AND fired a trigger but every entry was gate-blocked by a NON-data-gated verdict. The engine is structurally sitting out (the 2026-06-30 zero-trade signature).
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 92 row(s), 71 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T12:46:26 stop/transport_error_not_retried_ambiguous
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T13:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 93 row(s), 72 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T13:10:38 connect/transport_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T14:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 94 row(s), 73 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T13:30:42 get_account_equity/transport_error
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T14:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 2 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 1x), run-kitchen-seeder.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 94 row(s), 73 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T13:30:42 get_account_equity/transport_error; [RED] broker_exit_pairing: 1 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718] (5 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T15:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 94 row(s), 73 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T13:30:42 get_account_equity/transport_error; [RED] broker_exit_pairing: 1 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718] (5 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T15:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=RTH (open=True, per futures_session/et_clock); broker-transport.jsonl: 96 row(s), 75 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T15:00:29 get_positions/transport_error; [RED] broker_exit_pairing: 1 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718] (5 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: eod-analytics eod-summary used free-tier model (free-tier-primary)
+- ts: 2026-09-08T20:00:06+00:00
+- task: eod-summary
+- date_et: 2026-09-08
+- route: free-tier-primary
+- ok: False
+- cost_usd: 0.0000
+- error: empty_content
+
+### BROKEN: self-check 2026-09-08T16:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 96 row(s), 75 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T15:00:29 get_positions/transport_error; [RED] broker_exit_pairing: 1 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718] (5 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: self-check 2026-09-08T16:39:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 4 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-kitchen-reviewer.ps1 (exit=[4294967295], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [RED] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=GLOBEX (open=True, per futures_session/et_clock); broker-transport.jsonl: 96 row(s), 75 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T15:00:29 get_positions/transport_error; [RED] broker_exit_pairing: 1 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718] (5 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### BROKEN: eod-analytics analyst used free-tier model (free-tier-primary)
+- ts: 2026-09-08T20:45:02+00:00
+- task: analyst
+- date_et: 2026-09-08
+- route: free-tier-primary
+- ok: False
+- cost_usd: 0.0000
+- error: empty_content
+[2026-09-08 16:45:XX] analyst: 2 trades audited, 0 rule breaks, 0 Chef items queued (book -$116.40, both bearish rejection legs stopped) -- see analysis/eod/2026-09-08.md
+
+### BROKEN: prereg-hygiene 2026-09-08T16:59:44
+- 1 prereg(s) FROZEN/NOT RUN + age>14d (0 of them orphan -- nothing references the filename; orphan is informational, not a flag requirement):
+  - bold-floor-rescue-prereg-2026-08-25.json (age 14.9d via frozen_at_et, status='FROZEN_PREREG', orphan=False)
+- 22 prereg(s) RESULT_EXISTS_STATUS_STALE (status still reads pending/frozen but a matching result file already exists -- age-independent, see PENDING_STATUS_RE):
+  - day-throttle-forward-prereg-2026-08-18.json -> day-throttle-shadow-summary.json (result mtime=2026-09-08T20:35:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - entry-improvement-variants-prereg-2026-08-05.json -> EOD-2026-08-05-ENTRIES.json (result mtime=2026-08-06T08:15:11Z, result verdict='{"question": "Was the 09:58 776C long a reasonable read that failed, or structurally wrong from the first tick?", "answer": "The DIRECTION was defensible. The LOCATION was not.", "direction_support": ', own status='FROZEN_PREREG')
+  - entry-quality-admissibility-prereg-2026-08-06.json -> ENTRY-QUALITY-2026-08-06.json (result mtime=2026-08-06T23:15:21Z, result verdict=None, own status='FROZEN_PREREG')
+  - entry-structure-forward-prereg-2026-08-06.json -> entry-structure-forward-2026-08-06.json (result mtime=2026-08-25T22:03:34Z, result verdict="the prereg's own forward_gates.verdict_ladder -- not re-invented here", own status='FROZEN_PREREG_FORWARD')
+  - lever-entry-count-prereg-2026-08-06.json -> LEVER-ENTRY-COUNT-2026-08-06.json (result mtime=2026-08-06T21:09:43Z, result verdict=None, own status='FROZEN_PREREG')
+  - loss-armed-budget-forward-prereg-2026-08-28.json -> loss-armed-budget-shadow-summary.json (result mtime=2026-09-08T20:55:01Z, result verdict=None, own status='FROZEN_PREREG_FORWARD')
+  - prereg-bold-strike-axis-2026-07-15.json -> bold-strike-axis-2026-07-15.json (result mtime=2026-07-15T23:19:35Z, result verdict='{"any_ship_ready": false, "ship_ready_cells": [], "winner": null, "null_result": true, "control_floor_collision": {"floor_clearance_rate": 0.4167, "floor_clearance_rate_afternoon": 0.3376, "note": "OT', own status='FROZEN')
+  - prereg-catalyst-direction-2026-09-03.json -> catalyst-direction-stageA.json (result mtime=2026-09-04T02:06:10Z, result verdict='{"_committed_in_advance": true, "PASS": "n >= 50 AND the signal\'s mean signed forward return beats the random-entry null MAX at the +30min headline horizon AND >= half the symbols individually show th', own status='FROZEN_BEFORE_ANY_RESULT')
+  - prereg-directional-gate-battery-2026-07-15.json -> directional-gate-battery-2026-07-15.json (result mtime=2026-07-15T23:33:41Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+  - prereg-expected-move-gate-2026-07-11.json -> expected-move-gate-result.json (result mtime=2026-07-14T13:23:51Z, result verdict=None, own status='FROZEN_PENDING_RUN')
+
+- [2026-09-08 21:00:02] gym-session (2026-09-08) → **YELLOW** :: see `automation\state\gym-scorecard-2026-09-08.json`
+### BROKEN: self-check 2026-09-08T17:09:56
+- engine-health RED: reds=['rth_tick_gaps: 1 RTH tick gap(s) on safe (2026-09-08, 2026-09-04): 2026-09-04 09:51:03->10:46:15 (55.2m, OPEN POSITION)']
+- PARTICIPATION DEGRADED (YELLOW): below daily-min target -- safe=1/2-4 bold=1/2-4
+- RUN-PS1-HIDDEN MASKED EXIT: run-ps1-hidden-2026-09-08.log shows 5 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- run-analyst-eod.ps1 (exit=[1], 1x), run-kitchen-reviewer.ps1 (exit=[4294967295], 2x), run-kitchen-seeder.ps1 (exit=[1], 1x), run-sight-beacon.ps1 (exit=[1], 1x). Check the named .ps1's own Invoke-Claude budget/timeout, or its underlying script's stderr log.
+- RUN-PY-VENV-HIDDEN MASKED EXIT: run-py-venv-hidden-2026-09-08.log shows 1 real non-zero exit(s) Task Scheduler's LastTaskResult can never see (outer wscript hop is still fire-and-forget) -- draw_key_levels.py (exit=[1], 1x). Check the named script's own stderr log for the real cause.
+- FUTURES-HEALTH RED: futures lane cannot be trusted to trade -- [YELLOW] broker_transport: 4/7 recent probe(s) show transport errors (rate 57%), 3 excluded as session-closed -- newest 2026-09-07T23:05:06 -> H3_TRANSPORT; CME session_phase=MAINTENANCE (open=False, per futures_session/et_clock); broker-transport.jsonl: 96 row(s), 75 transport-error, 5 broker-rejected, 4 NOT-RETRIED-AMBIGUOUS (possible unconfirmed order); newest 2026-09-08T15:00:29 get_positions/transport_error -- CME currently CLOSED per et_clock, capped at YELLOW (cannot confirm the transport is broken right now vs. simply idle); [RED] broker_exit_pairing: 1 ENTER(s) with NO matching journaled EXIT and not the currently-tracked open position -- 2026-09-08T12:00:02 order_ids=[1567718] (5 real ENTER row(s) in window, 7 journaled BROKER entry id(s), open-entry.json present)
+- TASK-STALENESS DEGRADED (YELLOW): Gamma_FeeRecalibrate, Gamma_WeeklyReview, Gamma_GateRecency, Gamma_BookEquityRefresh
+
+### INFO: eod-analytics manager used free-tier model (free-tier-primary)
+- ts: 2026-09-08T21:30:33+00:00
+- task: manager
+- date_et: 2026-09-08
+- route: free-tier-primary
+- ok: True
+- cost_usd: 0.0000
