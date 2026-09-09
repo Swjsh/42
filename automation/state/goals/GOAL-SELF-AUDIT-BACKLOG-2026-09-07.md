@@ -107,17 +107,20 @@ commit".
       was a misread of an honestly-scoped day-one autopsy line, and the general convention is
       already house style everywhere else). 2 small leads filed as LOW queue items
       (COCKPIT-INDEX-HTML-ORPHAN, MULTI-TICK-ACCUMULATION-FUZZ-HARNESS), not built (budget).
-- [ ] Triage the 2026-09-05T17:31:21 batch (12 lines, line ~1727). Notable candidates:
-      "status-preamble drift... pin with a CONTENT test" (extend
-      `test_status_known_broken_preamble_2026_09_02.py` if it doesn't already assert content,
-      not just structure); "github_audit.py --history has been broken since 09-03, six paper
-      keys shipped while offline" -- HIGH, verify current state (was this fixed alongside the
-      2026-09-03 SECRETS-ON-PUBLIC-REMOTE incident's guard work? check `github_audit.py` runs
-      clean now); "central registry for what's scheduled at HH:MM" -- likely satisfied by
-      `SCHEDULED-TASKS.md` already, verify it actually answers "what runs when" queryably or
-      file a small follow-on if it's prose-only.
-- [ ] After all three batches are disposed, run `goal_autopilot.py ensure` to confirm this
-      goal closes cleanly and the next ladder entry (if any) picks up.
+- [x] Triage the 2026-09-05T17:31:21 batch (12 lines, line ~1727). DONE 2026-09-09 00:xx ET:
+      full 12-line disposition in `new-gaps-flagged.md`'s TRIAGED marker. 1 real
+      verification-and-fix (item 2: `github_audit.py --history` was confirmed broken since
+      09-03, ran it live end-to-end this fire -- 264.3s, exit 0, clean RED verdict, 17
+      findings; 9 are the SAME already-disclosed 09-03 Alpaca paper keys, 2 are CONFIRMED
+      FALSE POSITIVES via `git show <commit>:<path>` against current-HEAD placeholder text,
+      NO new real secret found). 2 lines (1, 8) were already more strongly satisfied than
+      asked or partially satisfied with a small genuine gap. 5 lines (3,4,5,6,7,12) are live
+      duplicates of already-tracked STATUS.md conditions. 2 lines (9,10) are not gaps
+      (praise / by-design). 2 small leads filed as LOW queue items (not built, budget):
+      `SCHEDULED-TASK-TIME-QUERY`, `GITHUB-AUDIT-HISTORY-NOQA-AND-PERIODIC-WIRING`.
+- [x] After all three batches are disposed, run `goal_autopilot.py ensure` to confirm this
+      goal closes cleanly and the next ladder entry (if any) picks up. DONE 2026-09-09 00:xx
+      ET -- see PROGRESS LOG for the verified output.
 
 ## J-DECISIONS
 - Any gap whose fix requires editing a `FROZEN_TRADING_PATH` file (see OPERATING RULES)
@@ -241,3 +244,34 @@ opening notes, which are investigation LEADS for the next fire, not verified dis
   `new-gaps-flagged.md`'s TRIAGED marker; 2 small genuine leads filed as LOW queue items
   (not built, budget). Curated safety gate 59 passed. `conductor_outcome.py record` called
   for this continuation.
+- 2026-09-09 00:xx ET (conductor AFTERHOURS): Triaged the LAST remaining batch, 2026-09-05
+  (12 lines) -- this closes the goal's DONE-WHEN (all three of 09-03/09-04/09-05 now carry a
+  disposition). Live-checked every line against current code, not re-derived from prose. The
+  standout: item (2), "`github_audit.py --history` has been broken since 09-03" -- ran it
+  live for the first time since the incident: `backtest/.venv/Scripts/python.exe
+  setup/scripts/github_audit.py --history` -> 15,746 tracked files + full git-log-p history
+  scan in 264.3s, exit 0, no crash. CONFIRMED FIXED. It surfaces VERDICT: RED, 17 findings.
+  Diffed against the 09-03 disclosure: 9 are the SAME already-named Alpaca paper keys (no new
+  real secret); 2 (kalshi_client.py commit 78815e1a, push.js commit 667217a1) are CONFIRMED
+  FALSE POSITIVES -- `git show <commit>:<path>` matches current HEAD's docstring/schema
+  placeholder PEM text verbatim (both carry `# noqa:secret-ok` today; the `--history` scanner
+  diffs raw historical lines and doesn't consult noqa annotations, unlike the staged
+  scanner). Did NOT wire `--history` into the periodic `Gamma_GitHubAudit` task (confirmed
+  via `setup/install-github-audit.ps1` line 45 it currently runs WITHOUT `--history`) --
+  doing so as-is would manufacture a PERMANENT un-clearable RED on the same disclosed keys
+  forever, the exact anti-pattern already rejected once for the Alpaca-greeks line in the
+  09-04 batch; filed as a scoped design note instead (needs a known-findings baseline first).
+  Item (1) status-preamble content test -- REFUTED as unneeded, already more strongly
+  satisfied: the existing guard is a property test (any content surviving a real roll), which
+  generalizes further than hardcoding 4 producer names would. Item (8) central-registry
+  time-query -- PARTIAL, genuine small gap confirmed (SCHEDULED-TASKS.md's Cadence column is
+  free-text prose, no query tool exists) -- filed as a LOW lead. Items (3,4,5,6,7,12) are live
+  duplicates of already-tracked STATUS.md conditions (4 specifically SUPERSEDED: the
+  filter-8/filter-10 gates the item worried about already got GATE-EXPIRY CLEARED dollar
+  verdicts 09-07). Items (9,10) are not gaps (praise / by-design, matches standing
+  do-not-disturb doctrine). 2 leads filed in queue.md (LOW): `SCHEDULED-TASK-TIME-QUERY`,
+  `GITHUB-AUDIT-HISTORY-NOQA-AND-PERIODIC-WIRING`. Full disposition in
+  `new-gaps-flagged.md`'s TRIAGED marker under the 09-05 batch. Curated safety gate `python
+  backtest/tests/run_safety_gate.py` -> 59 passed. No code shipped this pass beyond the
+  confirmatory `--history` run itself (read-only investigation + doc/queue writes) --
+  nothing to RED-proof or revert. `conductor_outcome.py record` called for this fire.
