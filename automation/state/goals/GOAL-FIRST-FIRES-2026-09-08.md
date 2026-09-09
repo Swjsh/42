@@ -44,5 +44,6 @@ fix is off the trading path.
 - {now} ET -- queued by Fable (EOD-audit session) for the Tuesday conductor.
 - 2026-09-05 08:14 ET — opened by goal_autopilot
 - 2026-09-05 11:55 ET -- deferred back to queued by Fable: the ladder now carries not_before:2026-09-08, so the autopilot opens this on Tuesday, not on a Saturday fire that can only say "not yet".
+- 2026-09-09 00:25 ET — opened by goal_autopilot
 ## HONEST STATE
 Queued. Not before 2026-09-08 16:30 ET.
