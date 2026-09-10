@@ -63,13 +63,17 @@ clean 0-fail suite that isn't real (OP-33 -- suspicion scales with how good a nu
       (root cause ALREADY FOUND, not yet fixed: setup_dispatch.SetupDispatcher.
       _session_date_str reads self._payload, which the test's __new__-based
       instantiation never sets -- setup/scripts/setup_dispatch.py:589/619).
-- [ ] T3 -- STATUS.md Known-broken FULL-SUITE RED line corrected/closed with the real current state.
+- [x] T3 -- STATUS.md Known-broken FULL-SUITE RED line corrected in place (commit
+      8e391a59): 6/11 files fixed named, 2 files/5 tests still open named with root
+      causes, no new duplicate bullet.
 - [ ] T4 -- final full-suite re-run quoted, any remaining irreducible flake named explicitly.
 
 ## J-DECISIONS
 - None yet -- flag here if any disposition needs a frozen-path exception.
 
 ## PROGRESS LOG
+- 2026-09-10 06:2x ET -- continuation 1/3: T3 done, commit 8e391a59. Budget exhausted
+  ($9.72/$10) -- stopping here, T4 (final full-suite re-run) left for next fire.
 - 2026-09-10 05:47-06:1x ET -- conductor AFTERHOURS fire: T1 partial (12 named test IDs
   individually re-run, full-suite background run launched not yet finished), T2 6/11
   files triaged+fixed (commit ffb320e7): arm_roster_sweep (FIX), crypto_twin_reaper
