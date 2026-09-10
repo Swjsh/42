@@ -506,6 +506,17 @@ to the wave-day-conditions backfill (W6). Question it answers: do catalyst days 
 right tail than the 20/5 split already measured? Kill if it does not separate like the other 6.
 No paid vendor, no new account.
 
+**SPEC FILED 2026-09-10 (GOAL-LOSS-MECHANISMS-2026-09-08 L4):** `analysis/recommendations/prereg-catalyst-day-tag-w6-2026-09-10.json`.
+Earnings leg (tickers-lane mega_tech bucket: NVDA/AAPL/AMZN/TSLA/META/AVGO, yfinance, $0) has a real
+disclosed backward n over the 08-03..09-04 window: only 2 qualifying prints (NVDA AMC 08-26 -> reacts
+08-27; AVGO AMC 09-02 -> reacts 09-03), both WAVE+BIG (2/2, vs the 80%/56% backfill base rates) --
+n=2, a hypothesis fragment only, never cited as a separator. The 8-K M&A leg (EDGAR full-text search
+confirmed reachable, $0, but unrestricted queries return mostly micro-cap noise -- needs a validated
+mega-cap CIK filter, not built) and the Alpaca-news leg (endpoint already wired, no materiality
+classifier built/validated) are explicitly PARKED with reasons in the prereg, not silently dropped.
+Next bounded step: build `catalyst_8k_scan.py`'s CIK filter, or extend the earnings leg into a
+persisted daily field on `wave_day_conditions.py`'s `build_row()`.
+
 ## ROBOTICS-CHAIN SHADOW ARM (queued 2026-09-08 14:25 ET, from J's "AI robotics stocks — trade them" directive)
 
 **Not a universe edit — a new shadow arm.** The chain is mapped and screened in

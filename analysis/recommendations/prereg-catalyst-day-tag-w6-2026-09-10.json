@@ -1,0 +1,59 @@
+{
+  "id": "PREREG-CATALYST-DAY-TAG-W6-10-30-2026-09-10",
+  "prereg_id": "PREREG-CATALYST-DAY-TAG-W6-10-30-2026-09-10",
+  "frozen_at_et": "2026-09-10",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (INFORMATIONAL)",
+  "class": "INFORMATIONAL",
+  "filed_by": "conductor AFTERHOURS fire, GOAL-LOSS-MECHANISMS-2026-09-08 L4",
+  "opened_from": "markdown/planning/FUTURE-IMPROVEMENTS.md 'CATALYST-DAY-TAG' (queued 2026-09-08 09:18 ET, from J's 'get in on the next NVDA-buys-Hugging-Face early' question). That item explicitly rejected a tradable-signal framing ('Not a lane... pre-announcement informed-flow angles have already died 3x on our tape') and named the generalisable survivor: tag sessions with scheduled/disclosed catalysts as a 7th DAY-TYPE condition (W6) added to setup/scripts/wave_day_conditions.py's backfill, reusing the SAME wave/big_day labels the parent prereg (prereg-wave-day-conditions-10-30-2026-09-05.json) already measures. This is a context condition, never a direction/entry signal.",
+  "config_freeze_note": "CONFIG FREEZE 2026-08-31 -> 2026-10-30 (project_september_clean_window_plan_2026_08_29.md): this file is a PREREG ONLY, class INFORMATIONAL. No params.json / strategies.py / exit_manager.py / heartbeat.md / heartbeat_core.py / risk_gate edit is made or proposed by this filing -- INFORMATIONAL preregs never reach a trading-path change on their own.",
+  "scope_note_only_two_of_three_legs_built": "FUTURE-IMPROVEMENTS.md named THREE catalyst sources: (1) single-name earnings (Gamma_EarningsCalendar's universe), (2) 8-K M&A via EDGAR full-text search, (3) product events via Alpaca news. This filing FREEZES the definition and DISCLOSES a real backward n for leg (1) only. Legs (2) and (3) are explicitly PARKED below with reasons -- not silently dropped, not guessed at. A future prereg amendment (never this file rewritten) would extend the tag once those legs are built and validated.",
+  "leg_1_earnings_definition_and_evidence": {
+    "universe": "The tickers-lane mega_tech bucket (automation/state/tickers/params.json#universe.mega_tech): NVDA, AAPL, AMZN, TSLA, META, AVGO -- the same paper-trading universe named by the FUTURE-IMPROVEMENTS item, not an arbitrarily chosen watchlist.",
+    "source": "yfinance Ticker.get_earnings_dates() per symbol (the same vendor setup/scripts/earnings_calendar.py's lookup_yfinance_earnings() already uses for the weekly-options lane) -- $0, no key, network-verified reachable from this host 2026-09-10.",
+    "catalyst_day_rule": "A session is catalyst_day=true (earnings leg) if any mega_tech-bucket symbol reported earnings that morning (BMO, same session) OR the prior trading session after 16:00 ET (AMC -- the market-reacts day is the NEXT trading day, matching earnings_calendar.py's own classify_timing() convention).",
+    "backward_window": "Same 25-session backfill as the parent prereg's W1/W2 table: 2026-08-03..2026-09-04.",
+    "raw_earnings_prints_found_in_or_adjacent_to_window": [
+      {"symbol": "NVDA", "reported": "2026-08-26 16:00 ET (AMC)", "market_reacts_day": "2026-08-27"},
+      {"symbol": "AVGO", "reported": "2026-09-02 16:00 ET (AMC)", "market_reacts_day": "2026-09-03"}
+    ],
+    "disclosure_note": "Only 2 of the 6 mega_tech-bucket names print earnings inside this window at all -- AAPL/AMZN/TSLA/META's fiscal quarters do not land in Aug-Sep; NVDA and AVGO both have non-calendar fiscal years that do. This is a real feature of the window, not a filtering choice.",
+    "n_catalyst_days_earnings_leg": 2,
+    "n_non_catalyst_days": 23,
+    "wave_label_join": "Read directly from analysis/right-tail/WAVE-DAY-CONDITIONS-2026-09-05.md's existing table (no re-walk): 2026-08-27 = WAVE, BIG. 2026-09-03 = WAVE, BIG.",
+    "honest_read_n_2": "2/2 (100%) of earnings-leg catalyst days are WAVE and BIG, vs the backfill base rates of 20/25 (80%) wave and 14/25 (56%) big_day. This is a DIRECTIONAL LEAN AT N=2 ONLY -- explicitly NOT cited as a separator, NOT a threshold, and NOT strong enough to act as this prereg's forward hypothesis on its own (Lesson C4: n=2 is a hypothesis fragment, not evidence). It is disclosed here so the number exists and is not silently omitted, per this task's own 'n disclosed' requirement."
+  },
+  "leg_2_8k_ma_PARKED": {
+    "status": "PARKED, not built",
+    "what_was_tried_this_session": "EDGAR full-text search (https://efts.sec.gov/LATEST/search-index) is reachable from this host with a descriptive User-Agent header ($0, no key, verified 2026-09-10) -- a single day's unrestricted query for 'material definitive agreement' forms=8-K returned 41 hits, almost entirely small/micro-cap filers with no plausible SPY/QQQ tape impact.",
+    "why_parked": "Turning that into a usable signal requires a company-scale filter (e.g. S&P 100 / mega-cap CIK allowlist) that does not exist yet in this repo, plus a materiality classifier (an 8-K Item 1.01 for a $2M supply contract and a $50B acquisition both match the same free-text query). Building and VALIDATING that filter (which CIKs qualify, which item-types actually move the tape) is real, uncertain work -- shipping an unvalidated cap-filter here would produce a fabricated-looking n that this project's own OP-33/C7 discipline (kitchen fabricated-artifact-rate finding, 2026-09-10 STATUS.md, is the live cautionary example) explicitly warns against.",
+    "follow_up": "A future bounded fire should build setup/scripts/catalyst_8k_scan.py against a hand-maintained mega-cap CIK list (start from the tickers-lane + weekly-options universes' own tickers, which already have known CIKs), re-run against this SAME 25-day window, and amend this prereg's leg_2 block (never silently added elsewhere)."
+  },
+  "leg_3_alpaca_news_PARKED": {
+    "status": "PARKED, not built",
+    "why_parked": "Alpaca's news endpoint is already an available, wired credential (paper keys in .mcp.json) but this session did not build or validate a keyword/materiality classifier over it (e.g. distinguishing a genuine 'unveils new AI chip' headline from routine wire-service noise) -- same fabrication risk as leg 2 if shipped unvalidated.",
+    "follow_up": "A future bounded fire should build the classifier against a small hand-labeled sample first (confirm precision before trusting recall over the full window), then extend this prereg."
+  },
+  "hypothesis": "H (earnings-leg only, the only leg with real backward evidence): sessions tagged catalyst_day=true via the earnings leg show a HIGHER wave/big_day rate than the 20/25 (80%) wave / 14/25 (56%) big_day backfill base rates, at a forward n large enough to move past the n=2 hypothesis-fragment stage.",
+  "what_this_is_NOT": [
+    "NOT a threshold, filter, or gate proposal -- no numeric cutoff is proposed; INFORMATIONAL class only.",
+    "NOT a change to params.json, strategies.py, exit_manager.py, heartbeat.md, heartbeat_core.py, or risk_gate -- config freeze holds through 2026-10-30.",
+    "NOT a claim of statistical significance at n=2 -- the honest_read above states this explicitly and this filing bans citing it as confirming evidence anywhere else.",
+    "NOT a pre-announcement/informed-flow trading signal -- FUTURE-IMPROVEMENTS.md's own framing (and this project's 3 prior kills of that shape: big-print lead, H3 order-flow, winner_signature) is preserved; this tags DAY TYPE only, never direction or entry."
+  ],
+  "the_spec": {
+    "current_shape_under_test": "No pre-open condition currently gates or informs any trading-path decision; wave_day_conditions.py's existing 6 conditions (overnight gap, first15/ATR20, VIX conditions, prior-day close vs VWAP, day-of-week, distance-to-nearest-zone) plus the bias_called_direction leg are all read-only context, same as this proposed 7th (W6) condition would be.",
+    "candidate_finite_change": "NONE proposed by this filing (INFORMATIONAL class). If a future forward read (once legs 2/3 are built, or on a larger earnings-leg-only forward sample) finds a real separator, a SEPARATE 10-30-or-later prereg would be required before any trading-path use.",
+    "instrument_built_this_session": "NONE persisted as a scheduled/running instrument -- the n=2 backward read above was a one-time yfinance query, not a new daily-appending script. Building setup/scripts/catalyst_day_tag.py (adding a `catalyst_day` field to wave_day_conditions.py's build_row(), earnings-leg only, reusing yfinance the same way earnings_calendar.py does) is the natural next bounded step but is NOT done by this filing -- doing so was judged lower-value than disclosing the honest n=2 read and clearly parking legs 2/3 with reasons, given this fire's remaining budget.",
+    "unit_of_measure": "per session: catalyst_day (earnings leg) = true/false, joined to that session's wave/big_day label from analysis/right-tail/WAVE-DAY-CONDITIONS-2026-09-05.md or its jsonl successor."
+  },
+  "kill_criteria": {
+    "primary_kill": "at n>=15 forward earnings-leg catalyst days (post-2026-09-10, once the daily instrument above is built and running), catalyst_day's wave rate is no longer meaningfully above the 80% backfill base rate (i.e. within its own confidence interval of the base rate) -- kills the earnings-leg hypothesis.",
+    "concentration_kill": "if a single mega_tech name (e.g. only ever NVDA) supplies >=70% of forward catalyst_day sessions, the finding is flagged concentration-driven and not carried forward as a generator hypothesis (Lesson C4).",
+    "either_kill_closes_the_candidate": "This is INFORMATIONAL -- 'kill' means the observation is retired from tracking, not that anything trading-path reverts (nothing trading-path was ever touched)."
+  },
+  "extend_criterion": "If n<15 forward earnings-leg catalyst sessions have accrued by 2026-10-30 (very likely, given only 2 qualifying prints in the prior 25-session window and mega_tech's quarterly cadence), the checkpoint reports UNVERIFIED -- insufficient n, not a negative finding -- and the earnings leg stays open past 10-30. Legs 2/3 remain PARKED (not extend-tracked) until a future fire builds and validates them.",
+  "n_needed": "n>=15 forward earnings-leg catalyst sessions, matching this project's standing evidence_n advisory bar (lower than the parent prereg's n>=20 because catalyst days are rarer by construction -- disclosed here, not silently changed).",
+  "consumer": "2026-10-30 config-freeze checkpoint review; folds into analysis/recommendations/checkpoint-2026-09-29-inventory.json (class=informational) alongside the parent wave-day-conditions row when that inventory is next amended for this row. Never a trading-path consumer on its own.",
+  "revert": "Delete this file. No other artifact is created or modified by this prereg -- no params.json, no scheduled task, no code change (the n=2 read was a one-time interactive query, not a persisted script)."
+}
