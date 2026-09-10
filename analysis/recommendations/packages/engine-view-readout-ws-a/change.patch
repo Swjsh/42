@@ -1,0 +1,297 @@
+diff --git a/backtest/lib/filters.py b/backtest/lib/filters.py
+index 1f5bdd4f..66fa573b 100644
+--- a/backtest/lib/filters.py
++++ b/backtest/lib/filters.py
+@@ -755,6 +755,39 @@ def detect_wick_rejection_bearish(
+     return float(round(level, 2))
+ 
+ 
++def _trace_pivot_timestamps_et(window: pd.DataFrame, pivots: list) -> list:
++    """Best-effort ET timestamp per pivot in `pivots` (each a `(rel_idx, price)` tuple,
++    `rel_idx` relative to `window`).
++
++    `window` is the lookback slice `prior_bars.iloc[start:bar_idx]` computed inside
++    `detect_trendline_rejection_bearish`. The live and backtest `prior_bars` frames both
++    carry no timestamp column (heartbeat_core's `_build_payload` builds `bars_all` from
++    `[["open","high","low","close","volume"]]` only, and the backtest replay mirrors that
++    shape) -- so under every existing caller this returns `None` per pivot. heartbeat_core's
++    engine-view replay (WS-A, `_write_engine_view`) attaches a `timestamp_et` column to its
++    OWN copy of the prior-bars frame (sourced from the new `bar_ctx["prior_bars_timestamps_et"]`
++    parallel array) before calling this detector with `trace={}`, so only that call site ever
++    sees non-null values here. Read-only, never raises: a missing/malformed column degrades
++    to None per pivot rather than aborting the hot scoring path.
++    """
++    out: list = []
++    ts_col = None
++    for candidate in ("timestamp_et", "timestamp"):
++        if candidate in window.columns:
++            ts_col = candidate
++            break
++    for rel_idx, _price in pivots:
++        if ts_col is None or rel_idx < 0 or rel_idx >= len(window):
++            out.append(None)
++            continue
++        try:
++            val = window.iloc[rel_idx][ts_col]
++            out.append(str(val) if val is not None else None)
++        except Exception:  # noqa: BLE001 -- trace enrichment must never raise
++            out.append(None)
++    return out
++
++
+ def detect_trendline_rejection_bearish(
+     bar: pd.Series,
+     prior_bars: pd.DataFrame,
+@@ -763,6 +796,8 @@ def detect_trendline_rejection_bearish(
+     min_swings: int = 3,
+     proximity_pct: float = 0.0010,
+     require_decreasing: bool = True,
++    *,
++    trace: Optional[dict] = None,
+ ) -> Optional[float]:
+     """Detect rejection of a descending trendline (J's 5/1 setup).
+ 
+@@ -786,19 +821,40 @@ def detect_trendline_rejection_bearish(
+         min_swings: minimum pivots required (default 3 = real trendline, not noise)
+         proximity_pct: how close bar.high must come to the line (0.0008 = 0.08% = ~58c on SPY 720)
+         require_decreasing: if True, pivots must be strictly decreasing (descending trendline only)
++        trace: WS-A engine-view instrumentation (keyword-only, additive). When a dict is
++            passed, filled IN PLACE with the pivots/slope/intercept/trendline_price/
++            proximity/flags the engine was watching plus an `exit_reason` string on every
++            return path -- fields land before the corresponding rejection-criteria check, so
++            a no-fire tick still captures what the line looked like. Never affects the return
++            value, a branch, a threshold, or evaluation order. `None` (the default) is a
++            true no-op: the function is byte-identical to its pre-WS-A behavior.
+ 
+     Returns the trendline price at current bar (a "level") if rejection fires, else None.
+     Returning the price lets it integrate with the existing level-tied trigger logic.
+     """
++    if trace is not None:
++        trace.clear()
++        trace.update({
++            "pivots": [], "pivot_timestamps_et": [], "slope": None, "intercept": None,
++            "trendline_price": None, "proximity_dollars": None, "reached_line": False,
++            "closed_below": False, "is_red": False, "fired": False, "exit_reason": None,
++        })
++
+     if bar_idx < lookback_bars + 2:
++        if trace is not None:
++            trace["exit_reason"] = "insufficient_bar_idx"
+         return None
+     if prior_bars is None or len(prior_bars) < lookback_bars + 2:
++        if trace is not None:
++            trace["exit_reason"] = "insufficient_prior_bars"
+         return None
+ 
+     # Slice the lookback window (last `lookback_bars` bars before current bar)
+     start = max(0, bar_idx - lookback_bars)
+     window = prior_bars.iloc[start:bar_idx]
+     if len(window) < min_swings * 5:  # need enough room for sequential peak search
++        if trace is not None:
++            trace["exit_reason"] = "window_too_small"
+         return None
+ 
+     # SEQUENTIAL DESCENDING PEAKS algorithm (encoded for J's chart-reader pattern,
+@@ -824,11 +880,19 @@ def detect_trendline_rejection_bearish(
+         pos = search_start + rel_pos
+         val = float(highs[pos])
+         if require_decreasing and recent_pivots and val >= recent_pivots[-1][1]:
++            if trace is not None:
++                trace["pivots"] = list(recent_pivots)
++                trace["pivot_timestamps_et"] = _trace_pivot_timestamps_et(window, recent_pivots)
++                trace["exit_reason"] = "pivots_not_decreasing"
+             return None  # next selected peak isn't lower -- no descending trendline
+         recent_pivots.append((pos, val))
+         search_start = pos + MIN_BAR_SEPARATION
+ 
+     if len(recent_pivots) < min_swings:
++        if trace is not None:
++            trace["pivots"] = list(recent_pivots)
++            trace["pivot_timestamps_et"] = _trace_pivot_timestamps_et(window, recent_pivots)
++            trace["exit_reason"] = "insufficient_pivots"
+         return None
+ 
+     # Fit a line through the recent pivots: y = slope * x + intercept
+@@ -840,20 +904,37 @@ def detect_trendline_rejection_bearish(
+     sum_xy = sum(p[0] * p[1] for p in recent_pivots)
+     denom = n * sum_xx - sum_x * sum_x
+     if denom == 0:
++        if trace is not None:
++            trace["pivots"] = list(recent_pivots)
++            trace["pivot_timestamps_et"] = _trace_pivot_timestamps_et(window, recent_pivots)
++            trace["exit_reason"] = "degenerate_fit"
+         return None
+     slope = (n * sum_xy - sum_x * sum_y) / denom
+     intercept = (sum_y - slope * sum_x) / n
+ 
++    if trace is not None:
++        trace["pivots"] = list(recent_pivots)
++        trace["pivot_timestamps_et"] = _trace_pivot_timestamps_et(window, recent_pivots)
++        trace["slope"] = slope
++        trace["intercept"] = intercept
++
+     # For bearish trendline, slope must be negative (descending highs)
+     if require_decreasing and slope >= 0:
++        if trace is not None:
++            trace["exit_reason"] = "slope_not_negative"
+         return None
+ 
+     # Project line to the current bar's relative index in the window
+     current_rel_idx = len(window)  # current bar is one past the window
+     trendline_price = slope * current_rel_idx + intercept
+ 
++    if trace is not None:
++        trace["trendline_price"] = trendline_price
++
+     # Trendline must still be above current spot (otherwise it's irrelevant)
+     if trendline_price <= float(bar["close"]):
++        if trace is not None:
++            trace["exit_reason"] = "trendline_below_spot"
+         return None
+ 
+     # Rejection criteria:
+@@ -865,8 +946,19 @@ def detect_trendline_rejection_bearish(
+     closed_below = float(bar["close"]) < trendline_price
+     is_red = float(bar["close"]) < float(bar["open"])
+ 
++    if trace is not None:
++        trace["proximity_dollars"] = proximity_dollars
++        trace["reached_line"] = reached_line
++        trace["closed_below"] = closed_below
++        trace["is_red"] = is_red
++
+     if reached_line and closed_below and is_red:
++        if trace is not None:
++            trace["fired"] = True
++            trace["exit_reason"] = "fired"
+         return float(round(trendline_price, 2))
++    if trace is not None:
++        trace["exit_reason"] = "rejection_criteria_not_met"
+     return None
+ 
+ 
+diff --git a/setup/scripts/heartbeat_core.py b/setup/scripts/heartbeat_core.py
+index 18e9a611..9c6eaeca 100644
+--- a/setup/scripts/heartbeat_core.py
++++ b/setup/scripts/heartbeat_core.py
+@@ -70,6 +70,14 @@ if str(REPO) not in sys.path:
+ 
+ import pandas as pd  # noqa: E402
+ from ribbon import compute_ribbon as _ribbon_compute_df  # lib.ribbon — EXACT backtest ribbon  # noqa: E402
++# WS-A engine-view replay (2026-10-30 checkpoint, HELD -- see analysis/recommendations/
++# packages/engine-view-readout-ws-a/). Same sibling-import pattern as `ribbon` above:
++# backtest/lib is on sys.path (see the for-loop above), so this is the REAL scoring
++# module, not a copy -- _write_engine_view below replays the SAME detector the live gate
++# already called, never a second implementation.
++from filters import (  # noqa: E402
++    detect_trendline_rejection_bearish, TRENDLINE_LOOKBACK_BARS, TRENDLINE_MIN_SWINGS,
++)
+ 
+ 
+ def _nn(x):
+@@ -91,6 +99,11 @@ LEDGER = STATE / "core-decisions.jsonl"
+ # analysis/deep-research/WINNER-AUTOPSY-2026-07-31-1219.md (12:16:02.508 fleet read, 0.45s
+ # after the safe row / 0.5s before the bold row -- forfeited a full 3-min cadence slot).
+ TICK_MARKER = STATE / "core-decisions-tick.json"
++# WS-A ENGINE-VIEW READOUT (2026-10-30 checkpoint, HELD -- see analysis/recommendations/
++# packages/engine-view-readout-ws-a/). Single SHARED file across accounts (Safe/Bold tick
++# moments apart against materially identical chart inputs -- see the package README).
++# Written by _write_engine_view (fail-open, atomic temp+os.replace, never gates a tick).
++ENGINE_VIEW = STATE / "engine-view.json"
+ import os  # noqa: E402
+ import logging  # noqa: E402
+ 
+@@ -925,6 +938,12 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
+     active, multi = levels if levels is not None else _read_levels(spy)
+     bars_all = win[["open", "high", "low", "close", "volume"]].astype(float).to_dict("records")
+     prior = bars_all[: trig_idx + 1]  # scoring history THROUGH the trigger bar — no look-ahead
++    # WS-A (2026-10-30 checkpoint, HELD): a parallel ET-timestamp array for `prior`, since
++    # `prior` itself carries no timestamp column (by design -- it's the exact scoring input,
++    # unchanged). ONLY consumed by _write_engine_view's detector replay (never by score_bar/
++    # evaluate_gates/_derive_tier -- same "logged-only, decision-path-blind" contract as
++    # context_bundle above). Purely additive key on bar_ctx.
++    prior_bars_timestamps_et = [t.isoformat() for t in win["timestamp"].iloc[: trig_idx + 1]]
+     vol20 = float(win["volume"].iloc[max(0, trig_idx - 20):trig_idx].mean())
+     rng20 = float((win["high"] - win["low"]).iloc[max(0, trig_idx - 20):trig_idx].mean())
+     # first-hour-high supplement (orchestrator.py:922-945): max high of the trigger day's
+@@ -962,6 +981,7 @@ def _build_payload(df: pd.DataFrame, account_params: dict, *,
+         "bar": {"open": float(trig["open"]), "high": float(trig["high"]), "low": float(trig["low"]),
+                 "close": spy, "volume": float(trig["volume"])},
+         "prior_bars": prior,
++        "prior_bars_timestamps_et": prior_bars_timestamps_et,
+         "session_high": session_hi, "session_low": session_lo,
+         "ribbon_now": ribbon_now,
+         "ribbon_history": ribbon_series[max(0, trig_idx - 3):trig_idx + 1],
+@@ -1255,6 +1275,61 @@ def _write_tick_marker(core_tick_id: str, et: datetime,
+         pass
+ 
+ 
++def _write_engine_view(account: str, payload: dict, et: datetime) -> None:
++    """WS-A ("draw what you trade", HELD until the 2026-10-30 checkpoint -- see
++    analysis/recommendations/packages/engine-view-readout-ws-a/). Writes
++    automation/state/engine-view.json: what the trendline detector and the active levels
++    looked like AT the exact bar_ctx this tick's gate already scored.
++
++    READ-ONLY REPLAY, not a second scoring path: `detect_trendline_rejection_bearish` is
++    called again below with the SAME `bc["bar"]` / `bc["prior_bars"]` / `bc["bar_idx"]` the
++    gate already scored, purely to populate a `trace` dict via its WS-A `trace=` kwarg --
++    the return value is discarded and nothing here feeds back into `payload`, `verdict`,
++    or `rec`. Levels come off `_read_level_records` -- the SAME single parse the live
++    decision path already uses (never a third reader, L251/L294).
++
++    Mirrors _write_tick_marker's atomic-write pattern (temp file + os.replace) and its
++    fail-open contract: wrapped in its own try/except so any error here is swallowed,
++    never raised -- a missed/broken engine-view write can never cost or slow a tick.
++
++    Single SHARED file across accounts (not per-account): Safe and Bold tick moments apart
++    against materially identical chart inputs, so one file is the honest representation of
++    "what the chart looked like" rather than two near-duplicates -- see the package
++    README's schema note. The last account to tick this cycle owns the write.
++    """
++    try:
++        bc = payload["bar_ctx"]
++        prior_bars_df = pd.DataFrame(bc["prior_bars"])
++        prior_bars_ts = bc.get("prior_bars_timestamps_et") or []
++        if len(prior_bars_ts) == len(prior_bars_df):
++            prior_bars_df = prior_bars_df.copy()
++            prior_bars_df["timestamp_et"] = prior_bars_ts
++        trace: dict = {}
++        detect_trendline_rejection_bearish(
++            pd.Series(bc["bar"]), prior_bars_df, bc["bar_idx"],
++            lookback_bars=TRENDLINE_LOOKBACK_BARS, min_swings=TRENDLINE_MIN_SWINGS,
++            trace=trace,
++        )
++        spy = float(bc["bar"]["close"])
++        out = {
++            "schema_version": 1,
++            "generated_at_et": et.strftime("%Y-%m-%dT%H:%M:%S"),
++            "account": account,
++            "spy": spy,
++            "trendline": trace,
++            "levels": {
++                "records": _read_level_records(spy),
++                "active": list(bc.get("levels_active") or []),
++                "multi_day": list(bc.get("multi_day_levels") or []),
++            },
++        }
++        tmp = ENGINE_VIEW.with_name(ENGINE_VIEW.name + ".tmp")
++        tmp.write_text(json.dumps(out, default=str), encoding="utf-8")
++        os.replace(tmp, ENGINE_VIEW)
++    except Exception:  # noqa: BLE001 -- visibility instrument must never abort the tick
++        pass
++
++
+ def _ribbon_flip_fn(ribbon_stack: str):
+     """Return a ribbon_flip_back_fn for exit_actuator.manage_tick.
+     Fires when the ribbon reverses against the open position's direction:
+@@ -1750,6 +1825,10 @@ def run_account(account: str, core_tick_id: str | None = None) -> dict:
+            # 5-10 minutes (trig_idx = n-2 in _build_payload). Purely additive/visibility --
+            # answers "how stale was this row's spot" without a cross-reference investigation.
+            "trigger_bar_et": str(bc.get("timestamp_et"))}
++    # WS-A ENGINE-VIEW (2026-10-30 checkpoint, HELD): read-only replay off the payload this
++    # tick already scored -- see _write_engine_view's docstring. Self-contained try/except
++    # inside the callee; this call site adds no new failure mode to the tick.
++    _write_engine_view(account, payload, et)
+     # EXIT-MANAGEMENT PASS (flag-gated, default OFF -> byte-identical armed behavior).
+     # Manage every open position's scale-out FIRST (before evaluating a new entry), so a
+     # winner's TP1/runner or a stop is realized this tick. Places only when ARMED (live);
