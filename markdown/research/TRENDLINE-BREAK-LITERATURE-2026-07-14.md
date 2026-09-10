@@ -187,3 +187,412 @@ None of these require touching `trendline_engine.py`'s core detection logic — 
 - `analysis/backtests/trendline_break_retest_findings.md` — first-pass backtest, 2026-05-08
 - `backtest/autoresearch/results/trendline_age_analysis.txt` — age-bucket IS/OOS results
 - `backtest/autoresearch/trendline_tod_breakdown.py` — docstring confirms `midday_trendline_gate` already exists for a sibling setup
+
+
+---
+
+# PART 2 — Trendline CONSTRUCTION canon (external research, 2026-09-09)
+
+> Sonnet web-research crew, fired by Fable 2026-09-09 23:15 ET after J flagged the engine's `[GTL] [WICK] SUPPORT | touch x3` line as not touching 3 times while his own 08:30-ET-anchored line does. Part 1 above covers BREAKS; this part covers how a line is BUILT. Every rule cites a source; UNVERIFIED items are flagged in the last section. Plan that consumes this: [`KEY-LEVELS-CHART-READING-HANDOFF.md` §9](../0dte/KEY-LEVELS-CHART-READING-HANDOFF.md#9-ta-dial-in-work-order-2026-09-09).
+
+
+Context: engine's auto-fitted "support" line claims 3 touches it doesn't visibly have; trader's
+hand-drawn line anchored at 08:30 ET premarket wick low is the "real" lower boundary of a
+descending wedge. This report gathers sourced rules to encode a correct auto-fitter.
+
+---
+
+## 1. Trendline construction rules (classic + modern canon)
+
+**Edwards & Magee — *Technical Analysis of Stock Trends* (1948, later eds w/ Bassetti)**
+- RULE — Two points are the geometric minimum to draw a line; **a third touch is what confirms
+  it as valid** ("It takes two points to draw a trend line, and the third one confirms the
+  validity.") — restated across multiple secondary sources summarizing E&M; direct verbatim E&M
+  text not retrievable from a scanned/OCR source in this session, so treat the *exact wording* as
+  UNVERIFIED even though the *rule* is the standard attribution. Source: [Grokipedia trend line
+  page](https://grokipedia.com/page/Trend_line_(technical_analysis)), [CMT Association PDF —
+  "The Edwards & Magee Toolkit: Trendlines, Basing Points, Patterns"](https://cmtassociation.org/wp-content/uploads/2024/01/charlesbassetti-011911-1.pdf).
+- RULE — The lows (uptrend) or highs (downtrend) used as anchor points should be a "reasonable"
+  distance apart — too close and the line is not meaningfully validated; too far and it may not
+  reflect the current trend regime. Distance is timeframe- and volatility-dependent, not a fixed
+  number. Source: same summary material above (E&M attribution, paraphrased).
+- RULE — Steeper trendlines are less reliable / more easily penetrated than shallow ones — "the
+  steeper the trendline, the more easily it is penetrated," and chartists are warned against
+  drawing "unrealistic trendlines" off a single sharp spike. This phrasing appears directly in
+  Murphy (see §1 Murphy below) under a heading "The Relative Steepness of the Trendline," which
+  is itself continuing the Edwards & Magee tradition — Murphy's book explicitly builds on E&M.
+  Source: [archive.org full text of Murphy, *Technical Analysis of the Financial
+  Markets*](https://archive.org/stream/JohnJ.MurphyTechnicalAnalysisOfTheFinancialMarkets/John_J._Murphy_-_Technical_Analysis_Of_The_Financial_Markets_djvu.txt).
+
+**John Murphy — *Technical Analysis of the Financial Markets*, ch. 4 ("Basic Concepts of Trend")**
+- RULE — A valid trendline break requires **both** a percentage-penetration filter and a
+  time filter: commonly cited as price must **close roughly 3% beyond the line** and **stay
+  beyond it for two consecutive days** before the break is treated as confirmed, rather than
+  reacting to the first single-bar penetration. NOTE: I could not pull this exact clause
+  verbatim from the archive.org OCR text in this session (the full-text fetch returned the table
+  of contents entries "Internal Trend Lines" p.90 and "The Channel Line" p.80 but not body text
+  for the penetration-criteria passage), so the 3%/two-day figures are **UNVERIFIED against
+  primary text this session** — they are, however, widely and consistently attributed to Murphy
+  across independent secondary sources (see below), which is the standard citation used across
+  the TA literature for "Murphy's rule." Source (secondary, consistent attribution):
+  [finaccfundas.blogspot.com summary of Murphy's rules](https://finaccfundas.blogspot.com/2014/09/john-murphy-rules-of-technical-trading.html);
+  general TA teaching material repeats the same 3%/2-day formulation as "Murphy's penetration
+  criteria." Primary source to re-verify: Murphy, ch. 4, section on "Trend Line Violations."
+- RULE — Steepness matters: an extremely steep line drawn off an abnormal short-term spike is
+  "unrealistic" and should be redrawn once the market provides a second, more representative
+  pivot — directly supported by the phrase captured from the text: *"the steeper the trendline,
+  the more easily it is penetrated."* Source: [archive.org Murphy full
+  text](https://archive.org/stream/JohnJ.MurphyTechnicalAnalysisOfTheFinancialMarkets/John_J._Murphy_-_Technical_Analysis_Of_The_Financial_Markets_djvu.txt) (verbatim phrase confirmed).
+- RULE — **Internal trendlines** (ch. 4, p.90 per table of contents) — when the "ideal" line
+  drawn to the absolute extreme point cuts through a cluster of intervening prices, Murphy
+  teaches drawing the line through the area of *most* prices (an internal trendline) rather than
+  forcing it through the single extreme spike, accepting that the extreme point becomes an
+  overshoot/wick outlier rather than the anchor. NOTE: page/section existence confirmed via table
+  of contents; exact body wording not retrieved verbatim this session — treat as UNVERIFIED
+  detail, VERIFIED concept-existence. Source: [archive.org Murphy full
+  text](https://archive.org/stream/JohnJ.MurphyTechnicalAnalysisOfTheFinancialMarkets/John_J._Murphy_-_Technical_Analysis_Of_The_Financial_Markets_djvu.txt) TOC.
+- RULE — **Channel line** (ch. 4, p.80) — once a basic trendline (support in an uptrend, e.g.)
+  is drawn from two points, a parallel "return line" / channel line is projected off the single
+  most prominent opposite extreme (the highest high, for an ascending channel) to define the
+  channel's far boundary — this is the same construction Bulkowski calls a "3-point channel"
+  (see §1 Bulkowski below). Concept-existence confirmed via TOC; body text UNVERIFIED this
+  session.
+
+**Thomas Bulkowski — *Encyclopedia of Chart Patterns* / thepatternsite.com**
+- RULE — For rectangle-type / two-line patterns, price should touch **each** trendline **at
+  least twice** at distinct minor highs (top line) / minor lows (bottom line) before the pattern
+  is considered validly bounded. Source: [Bulkowski, "Up-Sloping
+  Trendlines"](https://thepatternsite.com/uptrendlines.html) and ["Down-Sloping
+  Trendlines"](https://thepatternsite.com/trenddown.html) (thepatternsite.com).
+- RULE — Up-sloping trendline: draw along the price *valleys* (lows); price should touch the
+  line and rise away from it without piercing it — a touch that pierces meaningfully is not a
+  clean touch. Down-sloping: draw along the price *peaks* (highs); same non-piercing
+  expectation. Source: [Bulkowski uptrendlines](https://thepatternsite.com/uptrendlines.html),
+  [Bulkowski down-trendlines](https://thepatternsite.com/trenddown.html).
+- RULE — **3-Point Channel method** — draw line AB through two peaks (or two troughs), extend it
+  into the future, then draw a second line *parallel* to AB through the single intervening
+  trough (or peak) C between A and B, and extend that parallel line — this is Bulkowski's
+  explicit channel-construction technique, directly analogous to Murphy's channel/return line.
+  Source: [Bulkowski, "Drawing 3 Point
+  Channels"](https://thepatternsite.com/3PointChannels.html).
+- RULE (chart-pattern "mirrors" concept) — Bulkowski's touch-counting for broadening/wedge
+  patterns explicitly tolerates a touch that falls slightly short of the line if it is "close
+  enough" — i.e., touch tolerance is a judgment band, not an exact-price hit. Source: search
+  summary of [Bulkowski, "Broadening
+  Bottoms"](https://thepatternsite.com/broadb.html) (a touch "falling a bit short of the line,
+  but close enough" is explicitly accepted as a valid touch in his pattern-identification
+  methodology).
+- STATS — Falling wedge (Bulkowski's Encyclopedia stats): breaks **upward 68%** of the time (not
+  100%); break-even failure rate for upward breaks is **26%** (i.e., 74% of upward breaks travel
+  ≥5% before reversing); **throwback rate 62%** (majority of breakouts retest the broken
+  trendline — supporting "wait for retest" over "chase the break"); measured-move target hit
+  rate **62%**; overall rank **31st of 39** bullish patterns (weak-to-mediocre, not a strong
+  edge). Source: [Bulkowski, "Falling Wedges"](https://thepatternsite.com/fallwedge.html).
+- STATS — Descending broadening wedge: overall rank 27/39 (up-breakout) and 29/36
+  (down-breakout); break-even failure rate 18% (up) / 35% (down); n=757 perfect trades studied;
+  downward breakouts are comparatively rare, most occur in bull markets with upward breaks.
+  Source: [Bulkowski, "Descending Broadening
+  Wedges"](https://thepatternsite.com/dbw.html).
+
+**Victor Sperandeo — *Trader Vic: Methods of a Wall Street Master* (the 1-2-3 rule)**
+- RULE — The **correct trendline in a downtrend** is drawn through exactly two points: (1) the
+  high that immediately *precedes* the absolute low of the move, and (2) the *first* high the
+  down-move started from — i.e., anchor at the extreme, then to the nearest preceding
+  countertrend high, NOT an arbitrary earlier high. Source: [3candlereversal.com summary of
+  Sperandeo's method](https://www.3candlereversal.com/post/victor-sperandeo-reversal-patterns/);
+  [mkatsanos.com, "Sperandeo's 1-2-3 System"](https://mkatsanos.com/sperandeos-1-2-3-system/).
+- RULE — **The line must never cross through intervening price** — if a straight line from
+  point 1 to the farthest candidate point 2 would cut through the chart (pass through price
+  bars), Sperandeo's method requires moving point 2 inward to the *next closer* high/low until
+  the line clears all intervening bars without crossing them. This is the literal answer to "the
+  line may not cut through bars" — Sperandeo makes it definitional, not optional. Source:
+  [mkatsanos.com](https://mkatsanos.com/sperandeos-1-2-3-system/); [instaforex.com, "Victor
+  Sperandeo Trading Method"](https://www.instaforex.com/knowledge_base/566-victor-sperandeo-trading-method).
+- RULE — **1-2-3 trend-change confirmation** (validation sequence, not just line-drawing): (1)
+  price breaks the trendline; (2) price retests the broken line/old extreme from the other side
+  and *fails* to re-cross it; (3) price then breaks the prior minor swing point in the new
+  direction. Only after all three does Sperandeo treat the trend as reversed — a single
+  trendline break alone is explicitly NOT sufficient confirmation. Source: [Bulkowski, "The 1-2-3
+  Trend Change"](https://thepatternsite.com/123tc.html) (Bulkowski's own treatment of Sperandeo's
+  rule); [roboforex.com blog on the 1-2-3
+  reversal](https://blog.roboforex.com/blog/2020/02/11/trading-like-sperandeo-1-2-3-reversal-and-2b-pattern/).
+
+**Al Brooks — *Trading Price Action Trends* / Brooks Trading Course**
+- RULE — A trend (channel) line needs only **two pushes** to draw — connect the first two swing
+  points and project the line forward; the **third touch is the trade signal** (watch for
+  reversal/reaction as price approaches the line a third time), functionally the same
+  2-draw/3-confirm logic as Edwards & Magee but framed as an active trading trigger rather than a
+  passive validity rule. Source: [Shortform summary of Brooks, *Trading Price Action
+  Trends*](https://www.shortform.com/summary/trading-price-action-trends-summary-al-brooks");
+  [Brooks Trading Course, "10 Best Price Action Trading
+  Patterns"](https://www.brookstradingcourse.com/price-action/10-best-price-action-trading-patterns/).
+- RULE — **Wedge = three pushes** (occasionally four or five) in the same direction with each
+  push showing diminishing momentum/overlap — Brooks explicitly counts *pushes*, not just two
+  trendline touches, as the pattern's defining structure; the standard trade is to fade the third
+  push with a stop beyond the wedge's extreme, or wait for the break of the near trendline.
+  Source: [Brooks Trading Course "10 best patterns"
+  page](https://www.brookstradingcourse.com/price-action/10-best-price-action-trading-patterns/);
+  [Shortform Brooks summary](https://www.shortform.com/summary/trading-price-action-trends-summary-al-brooks).
+- RULE — **Micro channel** — a run of consecutive same-direction candles with minimal overlap,
+  usually appearing near the edge of a range; Brooks treats a micro channel as a high-probability
+  continuation/breakout signal distinct from an ordinary trend channel, and warns that trying to
+  fade a micro channel early is low-probability. Source: [arongroups.co summary of Brooks on
+  trading ranges](https://arongroups.co/technical-analyze/al-brooks-trading-ranges/).
+- RULE — Brooks generally favors **body/close-based reads for trend structure and signal bars**
+  (his "signal bar" and "trend bar" definitions are close-relative-to-open based), while using
+  wick extremes mainly for stop placement — i.e., Brooks does NOT use a single consistent
+  wick-only or body-only convention for trendlines themselves; his emphasis is on reading bar
+  *closes* for momentum/trend-strength judgments. This is a general characterization from summary
+  sources, not a verbatim Brooks quote — UNVERIFIED at the sentence level, but consistent across
+  multiple independent secondary descriptions of his method.
+
+**Peter Brandt / Wyckoff**
+- No sourced material was found in this session specific to Peter Brandt's or Richard Wyckoff's
+  explicit trendline-construction rules (touches, tolerance, steepness). Wyckoff's own
+  contribution is mainly to trading-range/accumulation-distribution theory rather than a
+  distinct trendline-touch methodology, and no primary or secondary source surfaced in searches
+  this session with a citable, specific rule attributable to either. **Flag as a gap** — do not
+  encode anything under their names without further sourcing.
+
+---
+
+## 2. Wedge / channel definitions
+
+- RULE — **Falling (descending) wedge**: both boundary lines slope downward and converge; lower
+  highs AND lower lows, narrowing range. Bulkowski's stats (68% up-break rate, 62% throwback, 26%
+  break-even failure) are given above. Source: [Bulkowski, "Falling
+  Wedges"](https://thepatternsite.com/fallwedge.html).
+- RULE — **Descending broadening wedge** (diverging, not converging) is a separate pattern from
+  the falling wedge — lines slope down but *widen* apart rather than converge; distinctly worse
+  overall statistical rank (27–29th of 36–39). Source: [Bulkowski, "Descending Broadening
+  Wedges"](https://thepatternsite.com/dbw.html).
+- RULE — Brooks' wedge = **3 pushes** (see §1); the two boundary lines are chosen by connecting,
+  respectively, the sequence of push-highs and the sequence of push-lows — NOT by connecting
+  arbitrary highs/lows, but specifically the extremes of each of the 3 (or more) pushes. Source:
+  [Brooks Trading Course](https://www.brookstradingcourse.com/price-action/10-best-price-action-trading-patterns/).
+- RULE — On practitioner handling of "touching the top/bottom of the wedge": the throwback
+  statistic (62% for falling wedges, per Bulkowski) is explicitly cited by conservative traders
+  as the reason to **wait for the break + retest**, not fade every touch of the boundary — a
+  bare touch of the wedge boundary is a *lower-confidence* fade than a confirmed breakout +
+  successful retest. Source: [Bulkowski, "Falling
+  Wedges"](https://thepatternsite.com/fallwedge.html) (throwback-rate framing).
+- RULE — Channel construction (both Murphy's "return line" and Bulkowski's "3-point channel," and
+  Brooks' basic channel line) is convergent across sources: **draw the primary trendline off two
+  points, then draw the parallel/channel boundary off the single best opposite-extreme point** —
+  never independently curve-fit the second line to its own two points. Sources: as cited in §1
+  above (Murphy TOC, Bulkowski 3PointChannels, Brooks channel-line described in Shortform
+  summary).
+
+---
+
+## 3. Premarket / extended-hours data in intraday trendline/level construction
+
+- RULE — Premarket high/low levels (roughly 06:00–09:30 ET session, or the ES/Globex overnight
+  session before that) are treated as legitimate, commonly-watched key levels for SPY/ES day
+  trading — multiple independent practitioner sources describe marking the premarket/overnight
+  high and low as standard daily prep, on par with prior-day high/low. Source: [justintrading.com,
+  "Premarket High and Low in Futures: How to Use
+  Them"](https://justintrading.com/premarket-high-low-futures/); [navixa.io, "SPY Futures
+  Trading: Navigating Pre-Market Trends"](https://navixa.io/blog/spy-futures-trading-pre-market-trends);
+  ["Globex Breakout Strategy" description — marking the overnight session's high/low ahead of the
+  08:30 ET data releases and the 09:30 ET open](https://kr.tradingview.com/chart/ES1%21/IZ9gKAA5-Pre-Market-Levels-are-CRITICAL-in-Day-Trading-10X-Gains-For-Me)
+  (TradingView community chart-idea, practitioner-level not academic).
+- RULE — It is common and explicitly recommended practice for SPY/ES intraday traders to use
+  **ES futures' near-24-hour session** for overnight/premarket structure (since SPY itself only
+  trades premarket at low liquidity while ES trades continuously), then map those ES-derived
+  levels onto the SPY chart. Source: [futurestradingpro.substack.com, "Inside Day on ES/SPX:
+  Watch These Key Levels/Setups"](https://futurestradingpro.substack.com/p/inside-day-on-esspx-watch-these-key");
+  [navixa.io](https://navixa.io/blog/spy-futures-trading-pre-market-trends).
+- IMPLICATION for this engine — the trader's practice of anchoring the trendline at the 08:30 ET
+  premarket wick low is squarely inside standard practice (08:30 ET is explicitly called out
+  across multiple sources as the highest-volatility premarket moment, tied to scheduled economic
+  data releases, and is exactly the kind of "premarket wick extreme" practitioners mark as a key
+  level). No source found that argues premarket bars should be *excluded* from trendline/level
+  construction on SPY/ES — the debate found in this research is wick-vs-close (see §4), not
+  regular-hours-only vs. extended-hours-included.
+
+---
+
+## 4. Wick vs. body/close anchoring
+
+- RULE — Practitioner consensus (non-academic, but consistent across multiple independent
+  sources) frames this as a genuine, unresolved stylistic choice, not a settled rule: **wicks**
+  capture the true price extreme / every attempt the market made to move further, but are
+  vulnerable to being driven by a single emotional/liquidity-driven spike; **bodies/closes**
+  filter out that noise and better reflect where the market was willing to *transact* and hold,
+  at the cost of ignoring real (if brief) price extremes. Source: [Trade2Win forum discussion,
+  "Bodies or Wicks?"](https://www.trade2win.com/threads/bodies-or-wicks.174754/); [RSIwave, "How
+  to Draw Trend Lines Perfectly Every Time"](https://rsiwave.com/how-to-draw-trend-lines/);
+  [OnEquity, "Professional Guide to Drawing and Trading
+  Trendlines"](https://onequity.com/mastering-trendlines-how-to-draw-validate-and-trade-them-like-a-market-professional/).
+- RULE — A commonly recommended heuristic (not attributable to one named canonical author, but
+  repeated across secondary sources): **start with wicks; if the wick-based line is repeatedly
+  violated by closes but never violated by full candle bodies, switch to a body-based line** —
+  i.e., let the market tell you which anchoring the current regime respects. Source:
+  [OnEquity](https://onequity.com/mastering-trendlines-how-to-draw-validate-and-trade-them-like-a-market-professional/);
+  [RSIwave](https://rsiwave.com/how-to-draw-trend-lines/).
+- RULE — Al Brooks leans toward reading bar **bodies/closes** for trend-strength and signal-bar
+  judgments (his trend-bar/signal-bar vocabulary is close-relative-to-open), while still using
+  wick extremes for stop placement — i.e., Brooks does not treat "all-wick" as the default; he
+  mixes them by *purpose* (structure = close-based, risk = wick-based), which is a notably
+  different design than "never mix" — see §5 for what this implies for the engine's stated rule.
+- ON THE ENGINE'S "all-wick OR all-body, never mixed" rule — **no source found explicitly states
+  this as a formal rule.** It is a reasonable, internally-consistent engineering simplification
+  (pick one basis and stay consistent within a single line so the line's slope isn't
+  contaminated by mixing two different price series), and it is *compatible* with the
+  wick-then-switch-to-body heuristic above (which also switches the *whole* line's basis at once,
+  never point-by-point) — but it should be reported as an ENGINEERING CHOICE consistent with
+  practitioner heuristics, not a canon rule with a named source. Bulkowski, Murphy, and E&M all
+  discuss "touches" without specifying wick-only or body-only universally; Brooks explicitly uses
+  both, by purpose, in the same analysis.
+
+---
+
+## 5. Algorithmic trendline fitting (open literature / community scripts)
+
+- METHOD — **Pivot-based fitting (dominant approach)**: nearly every open-source
+  implementation (LuxAlgo "Trendlines with Breaks," the Python libs `trendln`/`pytrendline`,
+  academic papers) first reduces the bar series to **pivot highs/lows** (a zigzag/fractal-style
+  local-extrema filter over a lookback window), then fits lines only through pivot points — never
+  through every bar — because fitting through all bars (plain OLS regression) tends to produce a
+  line that doesn't track the actual reaction points traders react to. Source: [LuxAlgo
+  "Trendlines with Breaks" description — "calculates upward and downward sloping trendlines based
+  on pivot highs and lows over a customizable lookback
+  period"](https://www.luxalgo.com/library/indicator/trendlines-with-breaks/); [GregoryMorse/trendln
+  GitHub — "calculates support and resistance information including local extrema, average and
+  their trend lines"](https://github.com/GregoryMorse/trendln); [ednunezg/pytrendline
+  GitHub](https://github.com/ednunezg/pytrendline) — "pivot points are identified as local
+  maximum/minimum points... the algorithm speeds up if the search is narrowed to lines with pivot
+  points as one of the start/end points."
+- METHOD — **Slope-selection method varies** (this is the "how steep" question, made concrete):
+  LuxAlgo's default uses **ATR** (average true range) to pick a slope so the line's steepness
+  scales with recent volatility (a shallower slope in a quiet market, steeper in a volatile one)
+  rather than a fixed angle; alternatives offered are **standard deviation** (Stdev) of price, or
+  a **linear-regression** slope fit to the points. This directly operationalizes E&M/Murphy's
+  "steeper = less valid" concern into a numeric, volatility-normalized bound. Source: [LuxAlgo
+  "Trendlines with Breaks" library
+  page](https://www.luxalgo.com/library/indicator/trendlines-with-breaks/) (slope-method
+  description recovered via web search summary; direct doc page fetch failed —
+  `docs.mt.luxalgo.com` DNS error this session, so treat exact wording as **UNVERIFIED**,
+  concept as cross-confirmed by two independent search-result summaries).
+- METHOD — **Extremal/geometric fit vs. least-squares regression**: one line of academic/
+  engineering work (the "Evolutionary Optimized Stock Support-Resistance Line Detection" paper,
+  and the "brute-force on pivot points" approach described for at least one open-source project)
+  explicitly rejects plain linear regression across all closes in favor of either (a) an
+  **exhaustive/brute-force search over candidate pivot-point pairs** (worst case O(N³) checking
+  every point-pair-extension combination), scored by number of touches / total "respect," or (b)
+  an **evolutionary/optimization search** over line parameters (slope, intercept) maximizing a
+  fitness function that rewards touches and penalizes body/price violations. Regression-on-all-
+  closes is explicitly used as a *simpler baseline*, not the preferred production method, in the
+  sourced material. Source: [ResearchGate, "Evolutionary Optimized Stock Support-Resistance Line
+  Detection for Algorithmic Trading
+  Systems"](https://www.researchgate.net/publication/337423371_Evolutionary_Optimized_Stock_Support-Resistance_Line_Detection_for_Algorithmic_Trading_Systems)
+  (abstract: "Linear regression is applied to close prices of the last n days to detect the trend
+  line" as the baseline being improved upon); [MDPI, "Support Resistance Levels towards
+  Profitability in Intelligent Algorithmic Trading
+  Models"](https://www.mdpi.com/2227-7390/10/20/3888) (swing-high/swing-low detection via a
+  Depth/Deviation/Backstep zigzag-style function, closely mirroring the classic MetaTrader ZigZag
+  indicator's parameters).
+- METHOD — **Touch tolerance as a price-scaled band, not exact-price hit**: the sourced
+  literature and community scripts consistently score a "touch" as *near* the line within some
+  tolerance band (an ATR fraction, a percent-of-price band, or a fixed tick tolerance) rather than
+  requiring the bar to hit the line's exact computed price — this operationalizes Bulkowski's
+  "close enough" touch-tolerance judgment call (§1) into a numeric parameter. Source: general
+  characterization across [LuxAlgo](https://www.luxalgo.com/library/indicator/trendlines-with-breaks/),
+  [pytrendline](https://github.com/ednunezg/pytrendline) ("tuning parameters" mentioned in repo
+  description), and [MDPI paper](https://www.mdpi.com/2227-7390/10/20/3888) (Deviation parameter
+  in the zigzag). Exact tolerance formula not retrieved verbatim from any single source this
+  session for any one implementation — treat specific numeric defaults as UNVERIFIED without
+  reading each project's source code directly.
+- METHOD — **"Must not pass through price" as a hard constraint**: this is the single most
+  consistent design principle across both the classic canon (Sperandeo's explicit "move point 2
+  inward until the line clears the chart" rule, §1) and the algorithmic literature (the brute-
+  force/evolutionary search papers explicitly score or reject candidate lines that cut through
+  intervening bar bodies/wicks) — this is the strongest, most cross-source-agreed rule in this
+  entire research set. Source: Sperandeo rule as attributed above
+  ([mkatsanos.com](https://mkatsanos.com/sperandeos-1-2-3-system/)); algorithmic papers cited
+  above (candidate-line rejection on intervening-price violation is implicit in "brute-force...
+  scored by touches/respect" framing, and explicit in the evolutionary-optimization fitness-
+  function framing).
+- METHOD — **Breakout/break detection**: LuxAlgo and the general community convention define a
+  "break" as **price crossing the projected trendline** in real time (no repaint/backpaint), often
+  gated by a confirmation bar or ATR-scaled buffer rather than any single-tick cross — this is
+  the algorithmic analogue of Murphy's percent + two-day filter (§1), substituting a volatility-
+  scaled buffer + N-bar persistence for Murphy's fixed 3%/2-day numbers. Source: [LuxAlgo
+  "Trendlines with Breaks" description — "breakouts occur in real-time and are not subject to
+  backpainting"](https://www.luxalgo.com/library/indicator/trendlines-with-breaks/).
+
+---
+
+## Consensus vs. contested
+
+| Question | Consensus | Contested / varies |
+|---|---|---|
+| Minimum points to draw | 2 points (E&M, Brooks, Sperandeo, Bulkowski all agree) | — |
+| Minimum touches to call it "confirmed"/valid | 3rd touch confirms (E&M, Brooks — same number, different framing: E&M = validity, Brooks = trade signal) | Bulkowski's pattern-specific work sometimes only requires 2 touches per boundary for a *pattern* to exist, distinct from "confirmed trendline" |
+| Line may not cut through intervening price | Universal — the single most agreed-on rule (Sperandeo explicit; embedded implicitly in every algorithmic touch-scoring method) | — |
+| Touch must be exact price hit | No source requires exact-hit; "close enough" tolerance is explicit (Bulkowski) and implicit (all algo tolerance bands) | Exact tolerance *value* (ATR%, price%, ticks) is implementation-specific, no canonical number |
+| Steepness limit | Steeper = less valid / more easily broken (E&M/Murphy consensus); algorithmic tools operationalize via ATR/Stdev/linreg-scaled slope | No canonical numeric angle limit anywhere in classic canon — always relative/qualitative |
+| Break confirmation needs filter (not first touch) | Consensus that a bare cross shouldn't be acted on instantly — Murphy's 3%/2-day (attribution widely repeated but NOT verified verbatim this session), Sperandeo's full 1-2-3 sequence, LuxAlgo's no-repaint + buffer | Exact numeric filter differs by source/system; no single agreed threshold |
+| Wick vs. body/close anchoring | No consensus — genuinely contested; "pick one and be consistent, or switch by regime" is the closest thing to shared practitioner advice | Brooks mixes both by purpose (structure vs. stop) rather than choosing one; academic/algo tools mostly work off bar highs/lows (wick-equivalent) by default |
+| Premarket/extended-hours data inclusion for SPY/ES levels | Consensus: include it — premarket/overnight (ES/Globex) highs/lows are standard, widely-marked key levels, 08:30 ET explicitly called a high-volatility premarket moment | No source argues for excluding premarket data on SPY/ES specifically |
+| Channel/second line construction | Consensus across Murphy, Bulkowski, Brooks: draw primary line off 2 points, then parallel line off the single opposite extreme — never independently fit line 2 | — |
+| "All-wick OR all-body, never mixed" (the engine's stated rule) | Not found as a named canon rule anywhere | Best characterized as a reasonable engineering simplification, partially supported by the "wick-then-switch-to-body-as-regime-shifts" practitioner heuristic, but contradicted by Brooks' by-purpose mixing |
+
+---
+
+## What this implies for an auto-fitter (max 10 bullets)
+
+1. **Never emit a line that passes through any bar's body/wick** (whichever basis is chosen) —
+   this is the single most cross-source-agreed constraint; a "3-touch support" that visibly cuts
+   through bars is disqualified by every source in this research, not just the trader's eye test.
+2. **Require ≥3 touches to label a line "confirmed"**, not just draw-eligible; 2 touches is a
+   draft/candidate line, matching E&M/Brooks' 2-draws/3-confirms convention.
+3. **Score touches with a tolerance band** (ATR fraction or % of price), not exact-price
+   equality — Bulkowski's "close enough" and every algorithmic implementation found here agree a
+   touch is a proximity match, not a pixel-perfect hit.
+4. **Pick pivots first (zigzag/fractal local extrema over a lookback window), then fit lines
+   only through pivots** — never regress across every raw bar; this is the dominant design in
+   both community scripts and academic work, and is why the current auto-fitter's line likely
+   looks wrong: if it's fitting through arbitrary bars instead of validated pivot lows, a
+   "3-touch" claim can be an artifact of loose tolerance + non-pivot points.
+5. **Anchor the second (channel/opposite) line as a parallel line off the single most extreme
+   opposite point**, not as an independently-fit second regression line — matches Murphy's
+   channel line, Bulkowski's 3-point channel, and Brooks' channel construction.
+6. **Include premarket/extended-hours bars** in pivot/level detection for SPY 0DTE — this is
+   standard, sourced practice for SPY/ES, and the trader's 08:30 ET premarket-wick anchor is
+   textbook, not idiosyncratic.
+7. **Scale slope/steepness tolerance to recent volatility (ATR)** rather than a fixed angle —
+   operationalizes the qualitative "too steep = less valid" rule from E&M/Murphy into a testable
+   parameter, matching LuxAlgo's default design.
+8. **Gate "line broken" on a buffer + persistence filter**, not the first single-bar cross — the
+   spirit of Murphy's percent+2-day rule (numeric specifics unverified verbatim this session) and
+   Sperandeo's full 1-2-3 sequence both argue against reacting to first-touch penetration; an ATR-
+   scaled buffer + N-bar hold is the algorithmic-literature analogue.
+9. **Pick one basis (wick or body) per line and hold it for that line's lifetime**; the "never
+   mixed" rule the trader/engine already uses is not a canon citation but IS consistent with the
+   closest practitioner heuristic found (start wick, switch whole-line to body if regime
+   demands) — keep it, but label it as an engineering convention, not doctrine.
+10. **For a wedge specifically, require the two boundary lines to be built from the highs and
+    lows of the same sequence of ~3 pushes** (Brooks) with converging slopes (Bulkowski's falling
+    wedge definition) — a mislabeled wedge is often just two lines that happen to converge, not
+    a shared-push structure, which is a plausible second contributor to the "claims 3 touches but
+    doesn't visibly have them" complaint if the auto-fitter is pattern-matching convergence alone.
+
+---
+
+## Verification notes (what to re-check before hard-coding numbers)
+
+- Murphy's 3%/two-day penetration rule: **attribution is consistent across secondary sources but
+  not confirmed verbatim from primary text this session** (archive.org full-text fetch returned
+  TOC entries, not the specific penetration-rule paragraph). Before encoding "3%" or "2 days" as
+  literal constants, pull the physical/PDF copy of ch. 4 and quote the exact sentence.
+- Murphy's "internal trendline" and "channel line" sections (p.90, p.80) are confirmed to exist
+  by table of contents but body text was not retrieved verbatim this session.
+- LuxAlgo's exact ATR/Stdev/Linreg slope formula could not be fetched directly (`docs.mt.luxalgo.com`
+  DNS failure this session) — confirmed only via search-result summaries of two independent
+  pages; re-fetch `https://www.luxalgo.com/library/indicator/trendlines-with-breaks/` directly (not
+  the docs mirror) or open the Pine source on TradingView to get exact parameter names before
+  encoding.
+- No sourced material found for Peter Brandt or Wyckoff's specific trendline-touch rules — flagged
+  as a gap in this research, not encoded above.

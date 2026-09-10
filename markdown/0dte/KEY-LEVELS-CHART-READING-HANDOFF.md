@@ -521,3 +521,83 @@ boundaries: produces scorecards; J ratifies. NO auto-flip of production defaults
 ---
 
 _Evidence base: 4 read-only audits (level pipeline, engine eyes, Claude's eyes, validation surface) + a 219-day benchmark, all 2026-06-15. Benchmark code/results live in `analysis/level-quality/`. This plan changes nothing live; it makes level quality measurable, then improvable._
+
+
+---
+
+## 9. TA DIAL-IN work order (2026-09-09) — "too many lines; what is the engine actually acting on?"
+
+> Written 2026-09-09 ~23:30 ET by Fable 5.1 (judgment + plan only, per J: *"I don't want you to work on it. Plan it all out, then we flip to Opus."*). Evidence gathered fresh this session: live `draw_list` (68 shapes), `draw_get_properties` on the three lines J named, `automation/state/trendlines.json`, `chart_drawings.json`, a Sonnet read-only codebase audit, and two Sonnet web-research crews (canon docs: [`TRENDLINE-BREAK-LITERATURE` Part 2](../research/TRENDLINE-BREAK-LITERATURE-2026-07-14.md#part-2--trendline-construction-canon-external-research-2026-09-09) · [`INTRADAY-LEVELS-CANON`](../research/INTRADAY-LEVELS-CANON.md)). **Freeze:** shape-changing edits wait for 2026-10-30; everything marked NOW below is drawing / shadow / capture-only and does not change which trades are taken.
+
+### 9.1 Verdict
+
+**J cannot see what the engine trades because the engine never draws it.** The only trendline that gates an entry is fitted in-process, per tick, inside `backtest/lib/filters.py::detect_trendline_rejection_bearish` (pivot HIGHS, descending only, 60-bar lookback) and is never rendered. Every trendline on the chart — the `[GTL]` auto-lines, the 25 untagged lines back to May, J's own — is decoration relative to the entry gate. Levels: the gate reads only bare prices from `key-levels.json` within **$12** of spot; the chart draws up to **$15** and 14 lines, so the picture and the gate disagree by construction.
+
+### 9.2 The three lines J named — mechanism, verified
+
+| Line | What it is | Why it looks wrong |
+|---|---|---|
+| Red, 774.01 (09-03 13:45) → down-right, `[GTL] [WICK] RESISTANCE touch x5` (id `TJsQJS`) | engine auto-line, `Gamma_TrendlineHeadlessDraw` | J agrees it is good. Keep as the reference case for v2. |
+| Cyan, 767.53 (09-03 09:30) → 759.82, `[GTL] [WICK] SUPPORT touch x3` (id `5iZLKB`) | engine auto-line | **Touch count is inflated by construction:** a "touch" is any bar whose extreme is within `max($0.10, 0.15% × price)` ≈ **$1.15** of the line (`trendline_engine.py:324`); `PIVOT_K = 1` makes nearly every bar a pivot; closes *through* the line only cost −5 in score, they are not disqualifying (`_fit`, `:320-333`). Canon's single most-agreed rule — a line may not cut through intervening price (Sperandeo; every algo scorer) — is not enforced. |
+| Blue ray, **773.07 @ 09-03 08:30 ET** → 760.39, no label (id `UvNj5Q`) — J's line, lower wedge boundary | J hand-drawn | **Structurally impossible for the engine, twice:** (1) both fitters drop premarket bars (`compute_trendlines.py:143`, `trendline_engine.py:154`) so an 08:30 anchor cannot exist — canon says include premarket for SPY/ES, 08:30 ET is a named high-volatility moment; (2) `trendline_engine._fit` requires SUPPORT to ascend (`p2 <= p1 → continue`, `:311`) so a **descending support** (the lower rail of a falling wedge / channel) cannot be produced at all. |
+
+Two more defects found on the way (not J-visible, but they corrupt the ledger the redesign must measure against):
+
+- **Manual capture mislabels engine lines as J's and drops J's real line.** `compute_trendlines._load_manual_drawings` filters by TradingView *type* string `("trendline","trend line")` only (`:166`) — the engine's own `[GTL]` `trend_line`s pass and are written as `source: manual_chart_draw` (live `trendlines.json` lists `5iZLKB`/`TJsQJS` that way), while J's `ray` is rejected by the type filter. The correct population logic already exists in `j_drawn_lines_capture.py::_non_engine_trend_lines` (excludes `[GTL] ` by text) — two pipelines, one right.
+- **Nothing ever clears lines it did not draw.** `draw_key_levels.py` and `trendline_headless_draw.py` each remove only their own tag. The 23 untagged trendlines (anchors from 2026-05-08 onward), 4 rays, ~15 orange unlabeled premarket LLM lines, "Death Cross", "R at LOW", "*** 769.24 BROKEN now RESISTANCE ***" have **no producer in the repo** (grep-verified) — session-ephemeral `draw_shape` calls that accumulate forever. 68 shapes today = 37 horizontal + 25 trend_line + 4 ray + 1 rectangle + 1 horizontal_ray.
+
+### 9.3 What the engine ACTS on today (so the chart can show exactly that and nothing else)
+
+| Input | Path | Status |
+|---|---|---|
+| `key-levels.json` bare `price` within $12, non-expired | `heartbeat_core._read_levels` → `filters.py` level_rejection / reclaim / confluence / wick_rejection | **ACTED-ON** |
+| `role`/`multi_day` booleans | → `multi_day_levels` | ACTED-ON |
+| `tier`/`label`/`touches`/`memory_score` | `conviction.score_conviction` (`shadow_only=True`) | SHADOW |
+| In-process descending pivot-high trendline (60 bars, 3 swings, 0.10 % proximity) | `filters.py:758-870` | **ACTED-ON — never drawn** |
+| Bullish trendline reclaim | `filters.py:1101` | SHADOW |
+| BOS / CHoCH structure | `crypto/lib/market_structure.py` | ACTED-ON (veto input) |
+| `trendlines.json`, `trendlines-live.json`, `confluence-zones.json` | — | zero consumers (doctrine-noted) |
+| Every drawn shape, incl. J's | — | DECORATION to the gate |
+
+Level types emitted by `refresh_levels_intraday.py`: intraday swing/RTH high-low, PMH/PML, prior-day H/L/C, multi-week shelf, level-memory. **Missing vs canon tier-1:** initial balance / opening range, VWAP + SD bands, developing value area / POC, gamma walls (0DTE-specific). Live file today: 20 levels (12 res / 8 sup).
+
+### 9.4 Canon rules the redesign encodes (each cited in the research docs)
+
+1. Pivots first (zigzag / fractal extrema with ATR-scaled prominence), lines only through pivots — never score touches against raw bars.
+2. Touch tolerance = ATR fraction (~0.15–0.25 × 5m ATR), not 0.15 % of price. Emit the **touch ledger** (bar timestamps counted) with every line so a human can check the count.
+3. **Hard constraint:** zero closes through the line between first anchor and now. Wick-through allowed only inside the tolerance band.
+4. 2 pivots = DRAFT, 3rd touch = CONFIRMED. Only CONFIRMED lines are drawn.
+5. Include premarket bars (04:00–09:30 ET) for pivots and anchors; RTH-only stays for the *break* logic.
+6. Support may descend, resistance may ascend (channels / wedges exist). The second rail of a channel/wedge = parallel line off the single most-extreme opposite pivot, never an independent fit (Murphy / Bulkowski / Brooks).
+7. Wick-vs-body: keep J's all-wick-XOR-all-body rule per line as an engineering convention (canon is contested, not against it).
+8. Break = body close beyond line + buffer + persistence — already how `Trendline.status` works; do not regress it.
+9. Levels are ZONES (already doctrine): merge levels within the zone width (ATR-based, ~0.3–0.5 % of price for 5m work; canon quotes 0.5–1.5 % for swing) into one band; staleness is **event-driven** (broken-and-not-retested), not calendar-driven.
+10. Indicator minimalism: VWAP earns a slot; a 9-EMA ribbon + SMA 50/200 + Saty pivot ribbon on one 15m chart matches no named school (Brooks / Grimes). *Presented as canon, not as Gamma's aesthetic call — J decides the layout.*
+
+### 9.5 Workstreams (Opus = judgment items, Sonnet = builds; all NOW items are freeze-compatible)
+
+| # | Workstream | Owner | When | Deliverable · guard · revert |
+|---|---|---|---|---|
+| A | **Draw what you trade.** `heartbeat_core` writes `automation/state/engine-view.json` per tick: the in-process trendline it fitted (anchors, proximity band, status) + the ≤$12 active level set with the role/multi_day booleans the gate read. `trendline_headless_draw.py` gains a second tag `[GE]` (engine-acting) drawn solid; `[GTL]` shadow lines become dashed/thin or off by default. Purely additive read-out of values the gate already computed — no gate logic changes. | Sonnet | NOW | guard: engine-view fields == filters.py inputs on a replayed tick; revert = `git revert` |
+| B | **Chart hygiene sweep.** New `setup/scripts/chart_hygiene.py` (fired inside `Gamma_ChartAutoDraw`): (1) J-registry — any untagged shape captured once in `automation/state/j-shapes.json` is J's and is never touched; (2) untagged shapes NOT in the registry and older than 2 sessions, plus orphan `[G]`/`[GTL]` outside the band → removed; (3) draw band 15 → 12 to match the gate; (4) `draw_key_levels` merges levels within the zone width into one rectangle (zone) with weight = tier. Dry-run first, log every removal id+text to `analysis/chart-hygiene/{date}.jsonl`. Never `draw_clear`. | Sonnet | NOW | guard: registry shapes survive 100 mutation runs; revert = re-draw from ledger |
+| C | **Trendline fitter v2 (shadow).** New `backtest/lib/trendline_fit_v2.py` implementing §9.4 1–7. Bars = 04:00–16:00 ET 5m. Output = lines + touch ledger + draft/confirmed flag + channel rail. Validation = **reproduce J's hand-drawn lines**: `j-drawn-lines-ledger.jsonl` + tonight's `UvNj5Q` (773.07@1788438600 → 760.39@1788989400) as ground truth; metric = anchor within 1 × tolerance and slope within 10 % for ≥ 80 % of J's lines, AND v1's cyan line is NOT produced. Runs shadow beside v1 via `Gamma_TrendlineShadow`; the `filters.py` detector is untouched until 10-30. | Sonnet build → Opus reviews the ledger | NOW (shadow) | guard: J-line reproduction test; v1 untouched |
+| D | **One manual-capture pipeline.** `compute_trendlines._load_manual_drawings` delegates to `j_drawn_lines_capture._non_engine_trend_lines` (text-tag exclusion, include `ray` / `horizontal ray`), and `trendlines.json` stops labelling engine lines `manual_chart_draw`. | Sonnet | NOW (30-min fix) | guard: `[GTL]` line never `manual`; a `ray` is captured; revert = `git revert` |
+| E | **Canon levels as drawn context.** Add initial balance (09:30–10:30 H/L), opening range 5/15, VWAP ± 1σ/2σ, prior-day VWAP as **drawn** `[G]` zones with their own weight. Emitted into `key-levels.json` under a new `role: "context"` that `_read_levels` ignores (so the gate is unchanged) — flip to gate input is a 10-30 prereg. Gamma walls: only if a $0 source exists (C36 — check wired pipes first; no new vendor). | Sonnet | NOW (drawn) · 10-30 (gate) | guard: `_read_levels` output byte-identical with/without context rows |
+| F | **Opus judgment items.** (1) Ratify the tag taxonomy: `[GE]` = acts-on, `[G]` = level context, `[GTL]` = shadow fitter, untagged = J. (2) Read WS-C's ledger against J's lines and decide whether v2 replaces v1 in `filters.py` at 10-30 — prereg it now (`analysis/prereg/`) with the kill criterion: if v2-gated entries on the 40-day window are not ≥ v1 on ex-best-day PF, v1 stays. (3) Decide the zone-width constant from the ATR study (WS-C emits it). (4) Verify Murphy's 3 %/2-day rule from primary text before any constant is named after it (flagged UNVERIFIED by the crew). (5) Indicator layout — put the canon in front of J once, in one line, then implement whatever he says. | Opus | first Opus session | — |
+
+### 9.6 Order of operations (no time units — order only)
+
+D → B (dry-run, then apply) → A → C (shadow ledger accumulates) → E (drawn) → F(1,3,4) → F(2) prereg → 10-30 decision → F(2)/E gate flips ship or die.
+
+### 9.7 Definition of done
+
+- Opening the chart shows **one** solid engine layer (`[GE]`: the line + ≤ $12 zones the gate read on the last tick), J's own shapes untouched, everything else dashed or gone. Shape count on a normal day ≤ ~20 (from 68).
+- `trendlines.json` `manual` entries are J's lines only, rays included.
+- v2 shadow ledger reproduces J's blue 08:30-anchored line and does not reproduce the cyan `touch x3` line — quoted, not claimed.
+- Every drawn trendline carries its touch ledger in the label (`touch x3 @ 08:30, 10:15, 13:45`), so "it doesn't touch three times" is checkable in five seconds.
+
+### 9.8 Boundaries
+
+- No edit to `filters.py`, `heartbeat_core` gating, `refresh_levels_intraday` band/selection, or `params*.json` before 10-30 (freeze). WS-A adds a *read-out*, not a gate.
+- Never `draw_clear`. Never remove a shape in the J-registry. Never redraw during 09:30–15:55 ET beyond the existing 30-min cadence.
+- No new paid data vendor for gamma levels (OP-3 / C36).
