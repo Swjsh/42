@@ -35,6 +35,16 @@
 
 > **This section is the PREAMBLE and must stay above the first `## [2026-09-09 00:26 ET] conductor AFTERHOURS: OK -- GOAL-SELF-AUDIT-BACKLOG-2026-09-07 CLOSED (last batch triaged); github_audit.py --history confirmed FIXED, no new real secret -- REVOKE surface
 
+## [2026-09-10 01:22 ET] conductor AFTERHOURS (continuation 1/3): GOAL-LOSS-MECHANISMS-2026-09-08 CLOSED -- L4 catalyst-day-tag-w6 prereg filed, all 4 QUEUE items done -- REVOKE surface
+
+L4 filed `analysis/recommendations/prereg-catalyst-day-tag-w6-2026-09-10.json` (INFORMATIONAL, 10-30). Earnings leg (tickers-lane mega_tech bucket, yfinance, $0) discloses a real n=2 backward fragment: NVDA (AMC 08-26 -> reacts 08-27) and AVGO (AMC 09-02 -> reacts 09-03) both landed WAVE+BIG vs the 80%/56% backfill base rates -- explicitly flagged as a hypothesis fragment, never cited as a separator. The 8-K M&A leg (EDGAR full-text search confirmed reachable with a User-Agent header, $0, but unrestricted queries return mostly micro-cap noise needing a validated mega-cap CIK filter) and the Alpaca-news leg (endpoint wired, no materiality classifier built/validated) are explicitly PARKED with reasons rather than shipping a fabricated-looking n. `goal_autopilot.py` auto-closed the goal (queue fully terminal) and now reports `ladder_empty` -- **flagged for the next conductor fire to author the next research goal** (LADDER.md has no remaining eligible `[ ]` entry; GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 and GOAL-FUTURES-YELLOWS-2026-09-05 are both `queued` but their files lack a live `## QUEUE` bare item per the autopilot's own eligibility check, and GOAL-SEPT-MIDWINDOW-READ-2026-09-15 is gated `not_before:2026-09-15`).
+
+**Verified, quoted (OP-33):** `pytest tests/ -k checkpoint_packet` -> 33 passed (unchanged from the L1-L3 fire, confirming no regression from the L4 doc-only work). Curated safety gate -> 59 passed, PASS. `prereg_hygiene.py` -> 146 files, 0 malformed. Commit `a0232229`.
+
+**Rail (doc/prereg-only, zero FROZEN_TRADING_PATH touched):** guard = curated safety gate stayed green (a); revert = `git revert a0232229` (additive-only diff) (b); this entry is the REVOKE + goal-CLOSE report (c).
+
+---
+
 ## [2026-09-10 01:08 ET] conductor AFTERHOURS: OK -- GOAL-LOSS-MECHANISMS-2026-09-08 L1/L2/L3 closed (checkpoint-packet discovery gap fixed) -- REVOKE surface
 
 **Picked via STAGE 0 budget gate PROCEED ($0/$30, 0/8 fires) + market closed + engine-health.json YELLOW (only the already-tracked `rth_tick_gaps` + a new `duplicate_ticks` RED, both non-blocking per priority order since function-first (#1) is intact -- ENTERs are dispatching, only tick-log dedup on bold@14:53-14:54 -- and the active-goal pointer resolved directly to this goal's next QUEUE item, outranking desk_allocator/self-audit tiers per priority order.**
