@@ -86,6 +86,7 @@ from kitchen_stage1_runner import ENGINE_NOTE as STAGE1_ENGINE_NOTE  # noqa: E40
 # grinder keepalives (setup/scripts/crypto_grinder_keepalive.py). Never start
 # (or continue) a grinder while J is at the keyboard or in a fullscreen app.
 import presence_gate  # noqa: E402
+import _proc_table  # noqa: E402
 
 # Free lane-pool client (Groq/Cerebras/Gemini/OpenRouter + local Ollama floor).
 # Optional: cooks route through this first; if it is unavailable or fails, _run_task
@@ -1494,20 +1495,16 @@ def _existing_daemon_alive() -> bool:
         other_pid = int(payload.get("pid", -1))
         if other_pid <= 0 or other_pid == os.getpid():
             return False
-        # cross-platform liveness probe via WMI (Windows) or os.kill (POSIX)
+        # cross-platform liveness probe via _proc_table (Windows) or os.kill (POSIX)
         # Avoid os.kill on Windows — WinError 6 + CPython SystemError on stale handles
-        # Use WMIC CommandLine check, NOT tasklist — tasklist only checks PID existence
+        # Use a CommandLine check, NOT tasklist — tasklist only checks PID existence
         # and would match any process (e.g. svchost.exe) that reused a dead daemon's PID.
+        # (2026-09-09: wmic, the old source of this CommandLine check, was REMOVED by
+        # Windows 11 24H2+ -- _proc_table's PowerShell CIM query replaces it.)
         if sys.platform == "win32":
             try:
-                import subprocess as _sp
-                out = _sp.run(
-                    ["wmic", "process", "where", f"ProcessId={other_pid}",
-                     "get", "CommandLine", "/value"],
-                    capture_output=True, text=True, timeout=5,
-                    creationflags=_CREATE_NO_WINDOW,
-                )
-                return "kitchen_daemon.py" in out.stdout
+                cmdline = _proc_table.process_cmdline(other_pid)
+                return cmdline is not None and "kitchen_daemon.py" in cmdline
             except Exception:
                 return False
         else:

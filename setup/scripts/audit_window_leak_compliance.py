@@ -63,6 +63,10 @@ REPO = Path(__file__).resolve().parents[2]
 SCRIPTS_DIR = REPO / "setup" / "scripts"
 AUDIT_OUT = REPO / "automation" / "state" / "window-leak-compliance-audit.json"
 
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+import _proc_table  # noqa: E402
+
 # --- MCP-config window-leak check (3) -------------------------------------------------
 # stdio MCP servers must launch via the windowless pythonw shim, NOT a bare console
 # binary. Console-subsystem launchers (uvx/uv/node/npx/python/...) get a fresh conhost
@@ -758,14 +762,11 @@ HIDERS = [
 
 
 def _pid_cmdline(pid: int) -> str:
-    """Command line of a live PID, or "" if it is not running/unreadable."""
+    """Command line of a live PID, or "" if it is not running/unreadable.
+    2026-09-09: reads via _proc_table's PowerShell CIM query -- wmic was REMOVED by
+    Windows 11 24H2+."""
     try:
-        out = subprocess.check_output(
-            ["wmic", "process", "where", f"ProcessId={pid}", "get", "CommandLine",
-             "/FORMAT:LIST"],
-            stderr=subprocess.DEVNULL, timeout=10, creationflags=_CREATE_NO_WINDOW,
-        )
-        return out.decode("utf-8", errors="ignore")
+        return _proc_table.process_cmdline(pid) or ""
     except Exception:
         return ""
 

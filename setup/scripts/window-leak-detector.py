@@ -66,6 +66,11 @@ PID_FILE = STATE_DIR / "window-leak-detector.pid"
 ALLOW_FILE = STATE_DIR / "window-leak-allowlist.json"
 SUMMARY_FILE = STATE_DIR / "window-leak-summary.json"
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import _proc_table  # noqa: E402
+
 # Process image names we ALWAYS scrutinize -- if these have a visible top-level window
 # and aren't allowlisted, it's a real foot-gun (L41 violation).
 SUSPECT_IMAGES = {
@@ -179,19 +184,32 @@ def _enum_visible_top_windows() -> list[tuple[int, int, str]]:
     return results
 
 
-# === Process metadata via WMIC (one shot per leak, not per poll) =====================
+# === Process metadata via PowerShell CIM (one shot per leak, not per poll) =============
 
 def _process_metadata(pid: int) -> dict:
-    """Return {image_name, command_line, ppid} via WMIC (creationflags=CREATE_NO_WINDOW)."""
+    """Return {image_name, command_line, ppid} via _proc_table's PowerShell CIM query
+    (creationflags=CREATE_NO_WINDOW). 2026-09-09: replaces the old WMIC call -- wmic was
+    REMOVED by Windows 11 24H2+. Name/ParentProcessId are not exposed by
+    _proc_table.process_cmdline's single-value lookup, so this queries them directly via a
+    small dedicated CIM call rather than widening the shared module's return shape for one
+    caller."""
     try:
+        ps_cmd = (
+            f"$p = Get-CimInstance Win32_Process -Filter \"ProcessId={int(pid)}\"; "
+            "if ($null -ne $p) { "
+            "$c = $p.CommandLine; if ($null -eq $c) { $c = '' }; "
+            "$c = $c.Replace([string][char]13,' ').Replace([string][char]10,' '); "
+            "'Name=' + $p.Name + [string][char]10 + "
+            "'ParentProcessId=' + $p.ParentProcessId + [string][char]10 + "
+            "'CommandLine=' + $c }"
+        )
         out = subprocess.check_output(
-            ["wmic", "process", "where", f"ProcessId={pid}", "get",
-             "Name,ParentProcessId,CommandLine", "/FORMAT:LIST"],
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_cmd],
             stderr=subprocess.DEVNULL, timeout=3,
             creationflags=0x08000000,
         ).decode("utf-8", errors="ignore")
         parts: dict[str, str] = {}
-        for line in out.splitlines():
+        for line in out.replace("\r", "").splitlines():
             line = line.strip()
             if "=" in line:
                 k, _, v = line.partition("=")
@@ -202,7 +220,7 @@ def _process_metadata(pid: int) -> dict:
             "command_line": parts.get("CommandLine", "")[:500],
         }
     except Exception as e:
-        return {"image_name": "?", "ppid": 0, "command_line": f"wmic_err:{e}"[:200]}
+        return {"image_name": "?", "ppid": 0, "command_line": f"proc_table_err:{e}"[:200]}
 
 
 def _ancestry(pid: int, depth: int = 6) -> list[dict]:
@@ -346,9 +364,9 @@ def main() -> int:
             new_windows = [(h, p, t) for (h, p, t) in visible if (h, p) not in prev_keys]
 
             for hwnd, pid, title in new_windows:
-                # Fast path: WMIC is slow, only call for suspect-looking pids.
+                # Fast path: this call is slow, only call for suspect-looking pids.
                 # Cheap pre-filter via psutil-style check: read image_name from /proc-equivalent.
-                # No psutil dependency -> just call WMIC.
+                # No psutil dependency -> just call the PowerShell CIM lookup.
                 meta = _process_metadata(pid)
                 image = meta["image_name"]
                 if image not in SUSPECT_IMAGES:

@@ -9,7 +9,7 @@ mode (same file, same run_tick_with_health() tick function, same 1-min cadence, 
 unchanged) so ONE long-lived process now does what 1,440 short-lived ones used to do. This
 keepalive replaces the old Gamma_CryptoTwin 1-min task: it fires every 5 min, checks whether
 the resident loop process is still alive, and relaunches it if not -- copied directly from
-quote_recorder_keepalive.py's proven pattern (same pid-in-status-file + wmic cross-check
+quote_recorder_keepalive.py's proven pattern (same pid-in-status-file + process-table cross-check
 liveness test, same bounded--duration-sec daily recycle, same system-pythonw + PYTHONPATH
 launch shape).
 
@@ -31,7 +31,8 @@ status file the way quote_recorder.py does (twin-health.json already has an esta
 schema this file deliberately does not touch -- see crypto_twin_health.py's module docstring
 for why twin-health.json's shape is a hard contract for other readers). Instead this keepalive
 maintains ITS OWN pid file (crypto-twin-loop.pid, written on every successful launch) and
-cross-checks that pid against the live process table (via wmic, CREATE_NO_WINDOW) for the
+cross-checks that pid against the live process table (via _proc_table's PowerShell CIM
+query, CREATE_NO_WINDOW) for the
 literal `crypto_twin_health.py --loop` command line -- the same "never trust a bare pid
 number, a stale one can be recycled by Windows into an unrelated process" discipline
 quote_recorder_keepalive.py's own docstring documents.
@@ -43,7 +44,7 @@ exits cleanly on its own every day and the next 5-min keepalive fire relaunches 
 process -- identical bounded-recycle shape to quote_recorder_keepalive.py's MAX_RUNTIME_S.
 
 Guard: backtest/tests/test_crypto_twin_keepalive_2026_09_05.py (pure-logic relaunch-decision
-tests over a fake process-list function -- no real wmic/subprocess call, no real launch).
+tests over a fake process-list function -- no real subprocess call, no real launch).
 """
 from __future__ import annotations
 
@@ -68,6 +69,11 @@ import sys
 import time
 from pathlib import Path
 from typing import Optional
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import _proc_table  # noqa: E402
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 _DETACHED_PROCESS = 0x00000008
@@ -121,17 +127,15 @@ def _write_pid_file(pid: int, pid_file: Path = PID_FILE) -> None:
 
 
 def _live_process_lines() -> str:
-    """Real process-table read via wmic (CREATE_NO_WINDOW, no console flash). Isolated into
-    its own function so the pure relaunch-decision logic below (`should_relaunch`) never
-    needs a real subprocess call to be unit tested."""
-    return subprocess.check_output(
-        ["wmic", "process", "get", "ProcessId,CommandLine", "/FORMAT:LIST"],
-        stderr=subprocess.DEVNULL, timeout=10, creationflags=_CREATE_NO_WINDOW,
-    ).decode("utf-8", errors="ignore")
+    """Real process-table read via _proc_table's PowerShell CIM query (CREATE_NO_WINDOW, no
+    console flash; wmic was REMOVED by Windows 11 24H2+, 2026-09-09). Isolated into its
+    own function so the pure relaunch-decision logic below (`should_relaunch`) never needs a
+    real subprocess call to be unit tested."""
+    return _proc_table.process_table_text()
 
 
 def is_loop_process_line(line: str) -> bool:
-    """PURE: does one process-table line (a full wmic CommandLine value) belong to a live
+    """PURE: does one process-table line (a full CommandLine value) belong to a live
     `crypto_twin_health.py --loop` process? Requires BOTH markers so a plain
     `crypto_twin_health.py --live` one-shot (the OLD per-minute task action, which might
     briefly coexist while Fable stages the cutover) is never mistaken for the new resident
@@ -140,15 +144,15 @@ def is_loop_process_line(line: str) -> bool:
 
 
 def find_loop_pid(process_table_text: str) -> Optional[int]:
-    """PURE: parse a wmic '/FORMAT:LIST' CommandLine+ProcessId dump (blank-line-delimited
+    """PURE: parse a '/FORMAT:LIST'-shaped CommandLine+ProcessId dump (blank-line-delimited
     records) and return the ProcessId of the first record whose CommandLine matches
     is_loop_process_line, or None if no such record exists. Mirrors
-    quote_recorder_keepalive.py's own inline wmic-LIST parsing shape (see that file's
+    quote_recorder_keepalive.py's own inline LIST-parsing shape (see that file's
     `_recorder_alive`) but pulled out as a pure function so it is directly unit-testable
     without any real subprocess call."""
     current: dict[str, str] = {}
-    # wmic LIST ends every line with \r\r\n; str.splitlines() treats the lone \r as a line
-    # break and inserts a blank line BETWEEN fields, splitting every record before its
+    # The LIST shape ends every line with \r\r\n; str.splitlines() treats the lone \r as a
+    # line break and inserts a blank line BETWEEN fields, splitting every record before its
     # ProcessId is read (2026-09-05: 34 twin loops spawned, one per keepalive fire).
     for raw in process_table_text.replace("\r", "").split("\n"):
         line = raw.strip()
@@ -225,9 +229,9 @@ def launch_loop() -> "tuple[bool, Optional[int]]":
 def main() -> int:
     try:
         process_table_text = _live_process_lines()
-    except Exception as e:  # noqa: BLE001 -- a wmic read failure must not crash the keepalive;
+    except Exception as e:  # noqa: BLE001 -- a process-table read failure must not crash the keepalive;
         # treat it as "unknown" and attempt a launch anyway (fail toward availability, not
-        # toward silently leaving the twin dead because one wmic call hiccuped).
+        # toward silently leaving the twin dead because one process-table call hiccuped).
         _log(f"WARN: process-table read failed ({e}); attempting launch anyway")
         process_table_text = ""
 

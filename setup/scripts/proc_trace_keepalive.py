@@ -10,13 +10,13 @@ transient CIM error) -- this keepalive fires every 5 min via Gamma_ProcTraceKeep
 checks the live process table for a `proc_trace.py` process, and relaunches if none is
 found.
 
-LIVENESS CHECK: cross-checks the live process table (wmic, CREATE_NO_WINDOW) for the literal
+LIVENESS CHECK: cross-checks the live process table (_proc_table, CREATE_NO_WINDOW) for the literal
 `proc_trace.py` command-line marker -- never trusts a bare PID_FILE number alone (a stale pid
 can be recycled by Windows into an unrelated process), matching
 crypto_twin_keepalive.py/quote_recorder_keepalive.py's shared discipline.
 
 Guard: backtest/tests/test_proc_trace_keepalive_2026_09_05.py (pure-logic relaunch-decision
-tests over a fake process-list function -- no real wmic/subprocess call, no real launch).
+tests over a fake process-list function -- no real subprocess call, no real launch).
 """
 from __future__ import annotations
 
@@ -41,6 +41,11 @@ import sys
 import time
 from pathlib import Path
 from typing import Optional
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import _proc_table  # noqa: E402
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 _DETACHED_PROCESS = 0x00000008
@@ -78,12 +83,10 @@ def _write_pid_file(pid: int, pid_file: Path = PID_FILE) -> None:
 
 
 def _live_process_lines() -> str:
-    """Real process-table read via wmic (CREATE_NO_WINDOW, no console flash). Isolated so
-    the pure relaunch-decision logic below never needs a real subprocess call to be tested."""
-    return subprocess.check_output(
-        ["wmic", "process", "get", "ProcessId,CommandLine", "/FORMAT:LIST"],
-        stderr=subprocess.DEVNULL, timeout=10, creationflags=_CREATE_NO_WINDOW,
-    ).decode("utf-8", errors="ignore")
+    """Real process-table read via _proc_table's PowerShell CIM query (CREATE_NO_WINDOW, no
+    console flash; wmic was REMOVED by Windows 11 24H2+, 2026-09-09). Isolated so the pure
+    relaunch-decision logic below never needs a real subprocess call to be tested."""
+    return _proc_table.process_table_text()
 
 
 def is_tracer_process_line(line: str) -> bool:
@@ -95,12 +98,12 @@ def is_tracer_process_line(line: str) -> bool:
 
 
 def find_tracer_pid(process_table_text: str) -> Optional[int]:
-    """PURE: parse a wmic '/FORMAT:LIST' CommandLine+ProcessId dump (blank-line-delimited
+    """PURE: parse a '/FORMAT:LIST'-shaped CommandLine+ProcessId dump (blank-line-delimited
     records) and return the ProcessId of the first record whose CommandLine matches
     is_tracer_process_line, or None if no such record exists."""
     current: dict[str, str] = {}
-    # wmic LIST ends every line with \r\r\n; str.splitlines() treats the lone \r as a line
-    # break and splits every record before ProcessId (2026-09-05: 12 tracers spawned).
+    # The LIST shape ends every line with \r\r\n; str.splitlines() treats the lone \r as a
+    # line break and splits every record before ProcessId (2026-09-05: 12 tracers spawned).
     for raw in process_table_text.replace("\r", "").split("\n"):
         line = raw.strip()
         if not line:
@@ -167,7 +170,7 @@ def launch_tracer() -> "tuple[bool, Optional[int]]":
 def main() -> int:
     try:
         process_table_text = _live_process_lines()
-    except Exception as e:  # noqa: BLE001 -- treat a wmic hiccup as "unknown", attempt launch
+    except Exception as e:  # noqa: BLE001 -- treat a process-table hiccup as "unknown", attempt launch
         _log(f"WARN: process-table read failed ({e}); attempting launch anyway")
         process_table_text = ""
 

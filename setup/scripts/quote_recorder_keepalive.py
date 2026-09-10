@@ -57,6 +57,11 @@ import sys
 import time
 from pathlib import Path
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import _proc_table  # noqa: E402
+
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 _DETACHED_PROCESS = 0x00000008
 
@@ -83,8 +88,9 @@ def _log(msg: str) -> None:
 
 def _recorder_alive() -> tuple[bool, "int | None"]:
     """(alive?, pid). Reads the pid quote_recorder.py's own status file last wrote, then
-    cross-checks it against the live process table (via wmic, CREATE_NO_WINDOW) so a stale
-    pid number recycled by Windows into an unrelated process never falsely reads 'alive'."""
+    cross-checks it against the live process table (via _proc_table's PowerShell CIM query,
+    CREATE_NO_WINDOW; wmic was REMOVED by Windows 11 24H2+, 2026-09-09) so a stale pid number
+    recycled by Windows into an unrelated process never falsely reads 'alive'."""
     if not STATUS_FILE.exists():
         return False, None
     try:
@@ -92,16 +98,12 @@ def _recorder_alive() -> tuple[bool, "int | None"]:
     except Exception:
         return False, None
     try:
-        out = subprocess.check_output(
-            ["wmic", "process", "where", f"ProcessId={pid}", "get", "CommandLine", "/FORMAT:LIST"],
-            stderr=subprocess.DEVNULL, timeout=5,
-            creationflags=_CREATE_NO_WINDOW,
-        ).decode("utf-8", errors="ignore")
+        cmdline = _proc_table.process_cmdline(pid) or ""
         # "quote_recorder.py" (with extension) specifically -- a bare "quote_recorder"
         # substring also matches this keepalive's OWN filename (quote_recorder_keepalive.py)
         # and any test file naming pattern (test_quote_recorder_keepalive_*.py), which would
         # falsely read a totally unrelated live process as "the recorder is alive".
-        if "quote_recorder.py" in out:
+        if "quote_recorder.py" in cmdline:
             return True, pid
         return False, pid
     except Exception:

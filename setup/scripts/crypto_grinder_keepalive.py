@@ -38,6 +38,7 @@ LOG_FILE = LOG_DIR / f"crypto-grinder-keepalive-{dt.date.today().isoformat()}.lo
 # (re)launch the grinder while J is at the keyboard or in a fullscreen app.
 sys.path.insert(0, str(REPO / "setup" / "scripts"))
 import presence_gate  # noqa: E402
+import _proc_table  # noqa: E402
 
 # BELOW_NORMAL_PRIORITY_CLASS -- grinder must not compete with J for CPU when it
 # does run, on top of never opening a window.
@@ -55,31 +56,16 @@ def _log(msg: str) -> None:
 
 
 def _grinder_alive() -> tuple[bool, str]:
-    """Return (alive?, pid). Uses WMIC (creationflags=CREATE_NO_WINDOW)."""
+    """Return (alive?, pid). Uses _proc_table's PowerShell CIM query
+    (creationflags=CREATE_NO_WINDOW; wmic was REMOVED by Windows 11 24H2+, 2026-09-09)."""
     try:
-        out = subprocess.check_output(
-            ["wmic", "process", "where",
-             "(Name='python.exe' OR Name='pythonw.exe')",
-             "get", "ProcessId,CommandLine", "/FORMAT:LIST"],
-            stderr=subprocess.DEVNULL, timeout=10,
-            creationflags=_CREATE_NO_WINDOW,
-        ).decode("utf-8", errors="ignore")
-        current: dict[str, str] = {}
-        for raw in out.splitlines():
-            line = raw.strip()
-            if not line:
-                if current.get("CommandLine", "").find("live_grinder") >= 0:
-                    return True, current.get("ProcessId", "?")
-                current = {}
-                continue
-            if "=" in line:
-                k, _, v = line.partition("=")
-                current[k.strip()] = v.strip()
-        if current.get("CommandLine", "").find("live_grinder") >= 0:
-            return True, current.get("ProcessId", "?")
+        table = _proc_table.parse_process_table(_proc_table.process_table_text())
+        for pid, cmdline in table.items():
+            if "live_grinder" in cmdline:
+                return True, str(pid)
         return False, ""
     except Exception as e:
-        _log(f"WMIC check failed: {e}")
+        _log(f"process-table check failed: {e}")
         return False, ""
 
 

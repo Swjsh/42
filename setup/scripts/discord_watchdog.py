@@ -10,8 +10,9 @@ system pythonw.exe with venv PYTHONPATH set.
 
 HARDENING (2026-06-28, PID-reuse scar):
 - _pid_cmdline_match(): verifies the live PID's CommandLine contains the expected script
-  filename via `wmic process`.  A reused PID that belongs to a different process (e.g.
-  VSHelper) will NOT match and is treated as dead.  Fail-open: if wmic is unavailable
+  filename via `_proc_table.process_cmdline` (PowerShell CIM; wmic was REMOVED by
+  Windows 11 24H2+, 2026-09-09).  A reused PID that belongs to a different process (e.g.
+  VSHelper) will NOT match and is treated as dead.  Fail-open: if the process-table read is unavailable
   the check is skipped so a healthy bridge is never false-restarted.
 - _heartbeat_stale(): reads discord-bridge-heartbeat.json and flags the bridge as frozen
   if last_tick_at is older than BRIDGE_HEARTBEAT_STALE_MINUTES.  A frozen bridge (alive
@@ -38,6 +39,11 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import _proc_table  # noqa: E402
 
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 _DETACHED_PROCESS = 0x00000008
@@ -95,35 +101,23 @@ def _read_pid(pid_file: Path) -> int | None:
 def _pid_cmdline_match(pid: int, script_name: str) -> bool:
     """Return True if the process with *pid* has *script_name* in its CommandLine.
 
-    Uses ``wmic process`` to read the full command line.  If wmic is unavailable
-    or returns an error the function returns True (fail-open) so a healthy bridge
-    is never false-flagged as dead due to a tooling gap.
+    Uses ``_proc_table.process_cmdline`` (PowerShell CIM, CREATE_NO_WINDOW) to read the
+    full command line -- wmic was REMOVED by Windows 11 24H2+ (2026-09-09). If the
+    process-table read is unavailable or errors the function returns True (fail-open) so a
+    healthy bridge is never false-flagged as dead due to a tooling gap.
 
     This defends against PID reuse: a recycled PID pointing to an unrelated
     process (e.g. VSHelper) will not contain the bridge script name and will
     return False, causing the watchdog to treat it as dead.
     """
     try:
-        out = subprocess.check_output(
-            ["wmic", "process", "where", f"ProcessId={pid}", "get", "CommandLine", "/FORMAT:CSV"],
-            stderr=subprocess.DEVNULL,
-            timeout=10,
-            creationflags=_CREATE_NO_WINDOW,
-        ).decode("utf-8", errors="ignore")
-        # wmic CSV: first non-empty data line after the header has the CommandLine value.
-        for line in out.splitlines():
-            line = line.strip()
-            if not line or line.lower().startswith("node,"):
-                continue
-            # line is: Node,CommandLine,ProcessId  -- CommandLine is the second CSV field
-            parts = line.split(",", 2)
-            if len(parts) >= 2:
-                cmdline = parts[1]
-                return script_name in cmdline
-        # wmic returned no data rows for the PID (process gone).
-        return False
+        cmdline = _proc_table.process_cmdline(pid)
+        if cmdline is None:
+            # No live process at that pid (or an unreadable/empty CommandLine) -- process gone.
+            return False
+        return script_name in cmdline
     except FileNotFoundError:
-        # wmic not available (rare on modern Windows); fail-open.
+        # PowerShell not available (should never happen on Windows); fail-open.
         return True
     except subprocess.TimeoutExpired:
         return True  # fail-open

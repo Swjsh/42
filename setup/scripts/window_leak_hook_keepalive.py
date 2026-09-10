@@ -51,6 +51,11 @@ import sys
 import time
 from pathlib import Path
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import _proc_table  # noqa: E402
+
 _CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 _DETACHED_PROCESS = 0x00000008
 
@@ -85,12 +90,8 @@ def _hook_alive() -> "tuple[bool, int | None]":
     except Exception:
         return False, None
     try:
-        out = subprocess.check_output(
-            ["wmic", "process", "where", f"ProcessId={pid}", "get", "CommandLine", "/FORMAT:LIST"],
-            stderr=subprocess.DEVNULL, timeout=5,
-            creationflags=_CREATE_NO_WINDOW,
-        ).decode("utf-8", errors="ignore")
-        return (_CMDLINE_MARKER in out), pid
+        cmdline = _proc_table.process_cmdline(pid) or ""
+        return (_CMDLINE_MARKER in cmdline), pid
     except Exception:
         return False, pid
 

@@ -120,24 +120,20 @@ def test_heartbeat_stale_at_exact_threshold(tmp_path):
 
 # ---------------------------------------------------------------------------
 # 2. _pid_cmdline_match() -- CommandLine verification
+#
+# 2026-09-09: wmic was REMOVED by Windows 11 24H2+; _pid_cmdline_match() now reads via the
+# shared _proc_table.process_cmdline() (PowerShell CIM) instead of `wmic process ... /FORMAT:CSV`.
+# These tests mock _proc_table.process_cmdline directly (the new seam) rather than the old
+# wmic CSV subprocess output -- the BEHAVIORAL guarantees under test (script-name match,
+# PID-reuse rejection, fail-open on a tooling error, "no process" -> False) are unchanged.
 # ---------------------------------------------------------------------------
-
-def _fake_wmic_output(cmdline: str, pid: int = 12345) -> bytes:
-    """Build a fake wmic CSV output line for the given CommandLine."""
-    return (
-        f"\r\nNode,CommandLine,ProcessId\r\n"
-        f"TESTHOST,{cmdline},{pid}\r\n\r\n"
-    ).encode("utf-8")
-
 
 def test_pid_cmdline_match_returns_true_when_script_in_cmdline():
     """PID whose CommandLine contains the script name must match."""
     wdog = _import_watchdog()
     script_name = "discord-bridge.py"
-    fake_out = _fake_wmic_output(
-        f"C:\\Python313\\pythonw.exe C:\\Gamma\\setup\\scripts\\{script_name}"
-    )
-    with mock.patch("subprocess.check_output", return_value=fake_out):
+    fake_cmdline = f"C:\\Python313\\pythonw.exe C:\\Gamma\\setup\\scripts\\{script_name}"
+    with mock.patch.object(wdog._proc_table, "process_cmdline", return_value=fake_cmdline):
         result = wdog._pid_cmdline_match(12345, script_name)
     assert result is True, "Expected True: script name is in the CommandLine"
 
@@ -150,11 +146,11 @@ def test_pid_cmdline_match_returns_false_when_script_not_in_cmdline():
     """
     wdog = _import_watchdog()
     script_name = "discord-bridge.py"
-    fake_out = _fake_wmic_output(
+    fake_cmdline = (
         "C:\\Program Files\\Microsoft Visual Studio\\Common7\\IDE\\CommonExtensions\\"
         "Microsoft\\TeamFoundation\\Team Explorer\\VSHelper.exe"
     )
-    with mock.patch("subprocess.check_output", return_value=fake_out):
+    with mock.patch.object(wdog._proc_table, "process_cmdline", return_value=fake_cmdline):
         result = wdog._pid_cmdline_match(12345, script_name)
     assert result is False, (
         "Expected False: VSHelper CommandLine must not match 'discord-bridge.py' "
@@ -162,37 +158,38 @@ def test_pid_cmdline_match_returns_false_when_script_not_in_cmdline():
     )
 
 
-def test_pid_cmdline_match_fails_open_when_wmic_missing():
-    """If wmic is not available (FileNotFoundError) the check must fail-open (True).
+def test_pid_cmdline_match_fails_open_when_powershell_missing():
+    """If PowerShell is not available (FileNotFoundError) the check must fail-open (True).
 
     Fail-open prevents false-positives: we'd rather not restart a healthy bridge
     than incorrectly restart it because our tooling is absent.
     """
     wdog = _import_watchdog()
-    with mock.patch("subprocess.check_output", side_effect=FileNotFoundError("wmic not found")):
+    with mock.patch.object(
+        wdog._proc_table, "process_cmdline",
+        side_effect=FileNotFoundError("powershell not found"),
+    ):
         result = wdog._pid_cmdline_match(12345, "discord-bridge.py")
-    assert result is True, "wmic missing should fail-open (True), not false-restart"
+    assert result is True, "PowerShell missing should fail-open (True), not false-restart"
 
 
 def test_pid_cmdline_match_fails_open_on_timeout():
-    """If wmic times out the check must fail-open (True)."""
+    """If the process-table read times out the check must fail-open (True)."""
     wdog = _import_watchdog()
-    with mock.patch(
-        "subprocess.check_output",
-        side_effect=subprocess.TimeoutExpired(cmd="wmic", timeout=10),
+    with mock.patch.object(
+        wdog._proc_table, "process_cmdline",
+        side_effect=subprocess.TimeoutExpired(cmd="powershell", timeout=10),
     ):
         result = wdog._pid_cmdline_match(12345, "discord-bridge.py")
-    assert result is True, "wmic timeout should fail-open (True), not false-restart"
+    assert result is True, "process-table timeout should fail-open (True), not false-restart"
 
 
-def test_pid_cmdline_match_returns_false_for_empty_wmic_output():
-    """wmic returning no data rows (process gone) must return False."""
+def test_pid_cmdline_match_returns_false_for_empty_cmdline():
+    """No live process at that pid (process_cmdline returns None) must return False."""
     wdog = _import_watchdog()
-    # wmic emits only the header and blank lines when the PID is gone.
-    empty_out = b"\r\nNode,CommandLine,ProcessId\r\n\r\n"
-    with mock.patch("subprocess.check_output", return_value=empty_out):
+    with mock.patch.object(wdog._proc_table, "process_cmdline", return_value=None):
         result = wdog._pid_cmdline_match(99999, "discord-bridge.py")
-    assert result is False, "Empty wmic output (PID gone) must return False"
+    assert result is False, "No process at that pid (PID gone) must return False"
 
 
 # ---------------------------------------------------------------------------
