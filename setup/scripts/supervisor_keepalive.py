@@ -12,7 +12,7 @@ minutes regardless of whether anything is actually dead. This file does all 9 li
 checks + relaunches in ONE process, ONE 5-minute task -- 1 spawn per fire instead of 9.
 
 DESIGN: a registry of DaemonSpec entries. Each entry's `check()` is a PURE function over a
-single shared process-table snapshot (`build_process_table()`, one `wmic` subprocess call
+single shared process-table snapshot (`build_process_table()`, one PowerShell CIM subprocess call
 per run -- never a fresh subprocess per daemon) plus whatever small state file that daemon
 already maintains (a pid file / status json it already writes for its own purposes). Each
 entry's `spawn()` performs the actual relaunch. Where a sibling keepalive module
@@ -123,19 +123,38 @@ def _venv_env() -> dict:
 
 # ── ONE process-table read per run ──────────────────────────────────────────────────────
 
+# PowerShell CIM query emitting the exact `wmic /FORMAT:LIST` record shape that
+# parse_process_table() already parses (blank-line-delimited Key=Value records).
+# 2026-09-09: replaced `wmic`, which Windows 11 24H2+ REMOVED from the OS. On this box
+# the wmic call raised WinError 2, so live_process_table_text() yielded an empty table
+# and EVERY daemon read as dead -- the supervisor relaunched all 9 every 5 minutes,
+# accumulating 6 discord bridges (each re-sending every outbox row) and 6 watchers
+# (racing on the state .tmp file, each race queueing an @J error alert). That was the
+# root cause of the Discord spam. PowerShell CIM is the supported replacement.
+# Embedded newlines in a command line are flattened so they cannot split a record;
+# the replacement uses [char] codes rather than escapes to stay quoting-safe.
+_PS_NL = "[string][char]10"
+_PS_CR = "[string][char]13"
+_PS_PROCESS_TABLE = (
+    "Get-CimInstance Win32_Process | ForEach-Object { "
+    "$c = $_.CommandLine; if ($null -eq $c) { $c = '' }; "
+    "$c = $c.Replace(" + _PS_CR + ",' ').Replace(" + _PS_NL + ",' '); "
+    "'CommandLine=' + $c + " + _PS_NL + " + 'ProcessId=' + $_.ProcessId + " + _PS_NL + " }"
+)
+
 def live_process_table_text() -> str:
-    """Real process-table read via wmic (CREATE_NO_WINDOW, no console flash). The ONLY
+    """Real process-table read via PowerShell CIM (CREATE_NO_WINDOW, no console flash). The ONLY
     subprocess call every daemon's alive-check draws from -- isolated into its own function
     so the pure parsing/decision logic below never needs a real subprocess call to be unit
     tested."""
     return subprocess.check_output(
-        ["wmic", "process", "get", "ProcessId,CommandLine", "/FORMAT:LIST"],
-        stderr=subprocess.DEVNULL, timeout=10, creationflags=_CREATE_NO_WINDOW,
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", _PS_PROCESS_TABLE],
+        stderr=subprocess.DEVNULL, timeout=30, creationflags=_CREATE_NO_WINDOW,
     ).decode("utf-8", errors="ignore")
 
 
 def parse_process_table(text: str) -> dict[int, str]:
-    """PURE: parse a wmic '/FORMAT:LIST' CommandLine+ProcessId dump (blank-line-delimited
+    """PURE: parse a '/FORMAT:LIST'-shaped CommandLine+ProcessId dump (blank-line-delimited
     records, and the last record sometimes has no trailing blank line) into {pid: cmdline}.
     Mirrors the parsing shape crypto_twin_keepalive.find_loop_pid /
     proc_trace_keepalive.find_tracer_pid already use, generalized to keep every pid rather
@@ -151,7 +170,7 @@ def parse_process_table(text: str) -> dict[int, str]:
             return
         table[pid] = rec.get("CommandLine", "")
 
-    # wmic LIST ends every line with \r\r\n; str.splitlines() treats the lone \r as a line
+    # The LIST shape ends every line with \r\r\n; str.splitlines() treats the lone \r as a line
     # break and splits every record before ProcessId (2026-09-05 runaway: 34 twin loops).
     for raw in text.replace("\r", "").split("\n"):
         line = raw.strip()
