@@ -1158,3 +1158,56 @@ received an `amendments` entry only (its interim-look clause); `decision_rule` v
 **Disclosed limitation:** the harness reproduces only 16 of v1's 45 real entries (single-day bar frame
 vs production's continuous cross-day window). The P&L figures above come from the **real fills**, not
 from harness reproduction, so they stand; the 16/45 limits only the paired per-bar comparison.
+
+### 9.20 Attribution study — CORRECTS §9.19's headline. Verdict: underpowered (2026-09-10)
+
+#### 🔴 Correction to §9.19 first: "the trendline population is net negative −$271" was ONE TRADE
+
+Partitioning the same 45 real fills by trigger composition:
+
+| Bucket | N (days) | mean $/trade | total | ex-best-day CI-lower |
+|---|---|---|---|---|
+| **SOLE** — `trendline_rejection` alone | 44 (19) | **+$1.91** | **+$84** | 0.194 |
+| **CO_FIRING** — with another trigger | **1** | **−$355.00** | −$355 | n/a |
+| **NONE** — rest of book (4-arm) | 251 (40) | +$8.69 | — | 0.245 |
+| ALL_TL (= §9.19's population) | 45 | −$6.02 | **−$271** | 0.167 |
+
+`44 × $1.91 = $84.04`; `$84.04 − $355 = −$270.96` ≈ **−$271.** Exact.
+
+**So §9.19's headline number was produced entirely by a single −$355 trade.** The other 44 are
+collectively **positive**. I reported the as-traded figure as the story while my own frozen prereg
+says ex-best-day is the bar *precisely because this codebase's recurring failure is a result carried
+by one session* (C4/C24). I stated the attribution caveat and then led with the scary number anyway.
+**§9.19's Result 3 should be read as corrected here.**
+
+Also collapsed: the premise behind the caveat. `trendline_rejection` "can co-fire with
+confluence/level_reclaim" is *technically* true and *practically never happens* — **44 of 45 real
+trendline fills are SOLE.** Attribution was far cleaner than §9.19 assumed.
+
+#### Verdict: **underpowered — cannot distinguish.** No kill, no swap, no knob change.
+- **Nothing clears the go-live bar in any bucket** — SOLE ex-best-day CI-lower 0.194, rest-of-book
+  0.245, both far below 1.0. The book does not clear it either.
+- SOLE (+$1.91/tr) is **worse than the rest of the book** (+$8.69/tr) — but positive, not a bleeder.
+- **Block counterfactual (naive, no-replacement):** blocking SOLE makes the book **worse**
+  (+$1,911 → +$1,827). Blocking *all* trendline-carrying entries looks better (+$2,182) — but that
+  entire gain is the one CO_FIRING outlier, not SOLE. **Killing the trendline rail is not supported.**
+- **Drop-best-arm collapses everything.** The book's marginal edge lives in **risky-1**, not in the
+  trendline decomposition. A result that lives in one arm is not a result.
+
+#### 🚨 The finding that outranks the trendline question: our P&L pipelines disagree on SIGN
+Re-running `trendline_tier_rail.py --dry-run` fresh reproduced the 09-08 STATUS line exactly
+(**n=41, −$2.17/tr**). The same population definition through the attribution pipeline gives
+**n=44, +$1.91/tr**. Traced to the cent: **5 rows in `trades-enriched.jsonl` absent from the rail's
+`core-decisions.jsonl` + `fills-ledger.jsonl` join (net +$173)**, and **2 zero-P&L rows the rail has
+that `trades-enriched` lacks** — `44 − 5 + 2 = 41`, `$84 − $173 = −$89`. Fully accounted for, no
+mystery.
+
+**But two independent pipelines measuring an identical population disagree on the SIGN of the
+answer.** Every P&L number in this thread — §9.19's included — inherits that ambiguity. That is a
+measurement-layer defect and it is worth more than any fitter question: until it is settled, an edge
+read off either pipeline is unfalsifiable. **Next real work on this thread is reconciling the two
+joins, not drawing better lines.**
+
+**Artifacts:** `analysis/trendline-v2/attribution_study_2026_09_10.py`,
+`attribution_study_2026_09_10.json`, `RESULTS-2026-09-10-attribution-study.md`. Read-only, single
+process, run during RTH — the live engine is pure Python and spends zero Anthropic tokens.

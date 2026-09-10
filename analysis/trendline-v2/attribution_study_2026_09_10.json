@@ -1,0 +1,493 @@
+{
+  "_doc": "ATTRIBUTION STUDY -- does trendline_rejection carry its own weight? (2026-09-10)\n\nWork order: markdown/0dte/KEY-LEVELS-CHART-READING-HANDOFF.md (task text, this session).\nCloses the gap flagged in RESULTS-2026-09-10-trade-outcome-ab.md's caveat (a): that file's\nn=45 population is \"entries whose triggers list INCLUDES trendline_rejection\" -- it cannot\nsay whether trendline_rejection was load-bearing for the fill or just along for the ride.\n\nREAD-ONLY. Imports setup/scripts/go_live_gate.py and REUSES its statistical_criterion()\nverbatim (L251 -- never reimplement the bootstrap-PF-CI machinery). Writes nothing outside\nanalysis/trendline-v2/. Does not call go_live_gate.refresh_trades_enriched() or\nbuild_report() (the latter fetches live broker REST for the reconciliation criterion --\nout of scope and an unwanted network call for a read-only decomposition). Reads\nanalysis/trades-enriched.jsonl AS-IS off disk, same practice as the prior\nab_replay_2026_09_10.py study in this same directory.\n\nPOPULATION: every row in trades-enriched.jsonl with attribution==\"engine\" and\narm in go_live_gate.ACTIVE_ARMS (the 4 real-fills arms: safe-2, bold-2, safe-3, risky-1 --\nderived live from accounts.json, matches the work order's named roster). Real fills only\n(L50/L71); pnl_dollars is option P&L (L74/C3), never SPY-price P&L.\n\nDECOMPOSITION (exactly as specified, no second slicing -- p-hacking guard):\n  SOLE        triggers == [\"trendline_rejection\"]  (exactly this one trigger, nothing else)\n  CO_FIRING   \"trendline_rejection\" in triggers AND len(triggers) > 1\n  NONE        \"trendline_rejection\" not in triggers  (comparison baseline / rest of book)\n  ALL_TL      SOLE union CO_FIRING (every entry carrying the trigger at all -- this IS the\n              n=45 population from RESULTS-2026-09-10-trade-outcome-ab.md, reproduced here\n              as a consistency check on the SAME data source used there)\n\nEach bucket scored with go_live_gate.statistical_criterion(rows, arm_id=None) -- pools all\narms in that bucket into one CI (arm_id=None means \"scoped = rows\", per that function's own\ntop line). Per-trade P&L reported alongside (mean, net, n) since that is the unit the\n2026-09-08 STATUS.md trendline_tier_rail read used, and this file's job is to reconcile with\nthat read explicitly (see reconcile_with_status_2026_09_08 below).\n\nBLOCK COUNTERFACTUALS (naive -- see module docstring section in the results .md for the\nexplicit \"assumes nothing replaces the blocked trade\" caveat):\n  book_as_traded                  = statistical_criterion(ALL engine rows)\n  book_with_SOLE_blocked          = statistical_criterion(ALL engine rows MINUS SOLE)\n  book_with_ALL_TL_blocked        = statistical_criterion(ALL engine rows MINUS ALL_TL)\n  + drop-best-ARM variant of each (distinct from statistical_criterion's own drop-best-DAY):\n    removes the single arm contributing the most net pnl to that scenario's rows entirely,\n    then rescopes. A result that only survives on one arm is not a result (C4/C24).\n\nRECONCILIATION: setup/scripts/trendline_tier_rail.py is the source of the STATUS.md\n2026-09-08 \"n=41, -2.17/tr\" line (LOSS-MECHANISMS-READ-2026-09-08 entry). It uses the SAME\nstrict triggers==[\"trendline_rejection\"] shape as this file's SOLE bucket, but a DIFFERENT\npopulation: ARMS=(\"safe-2\",\"bold-2\") only (2 arms, not 4), sourced from\nautomation/state/core-decisions.jsonl + fills-ledger.jsonl via\nexit_shape_parity_study.reconstruct_positions (position-level P&L), not trades-enriched.jsonl\nround trips. This script re-derives a 2-arm-restricted cut of SOLE (safe-2+bold-2 only) from\ntrades-enriched.jsonl and reports whether it matches n=41/-$2.17 -- if it does not, the\nresidual is attributable to the join/position-reconstruction method, not the population\ndefinition, and this file says so rather than hiding the mismatch.\n\nUsage: backtest/.venv/Scripts/python.exe analysis/trendline-v2/attribution_study_2026_09_10.py\n",
+  "generated_by": "analysis/trendline-v2/attribution_study_2026_09_10.py",
+  "population_source": "analysis/trades-enriched.jsonl (as-is on disk, NOT refreshed this run -- read-only per task boundary)",
+  "active_arms_used": [
+    "safe-3",
+    "safe-2",
+    "risky-1",
+    "bold-2"
+  ],
+  "n_engine_rows_all_arms_all_triggers": 296,
+  "trigger_studied": "trendline_rejection",
+  "underpowered_threshold_n": 15,
+  "book_as_traded": {
+    "bucket": "BOOK_AS_TRADED",
+    "n": 296,
+    "underpowered_n_lt_15": false,
+    "n_trading_days": 43,
+    "date_range": [
+      "2026-06-26",
+      "2026-09-08"
+    ],
+    "net_pnl": 1911.0,
+    "mean_pnl_per_trade": 6.46,
+    "win_rate": 0.2804,
+    "per_arm_net_pnl": {
+      "bold-2": 94.0,
+      "risky-1": 1259.0,
+      "safe-3": 1233.0,
+      "safe-2": -675.0
+    },
+    "statistical_criterion": {
+      "insufficient_data": false,
+      "n_engine_trades": 296,
+      "n_trading_days": 43,
+      "as_traded": {
+        "n_days": 43,
+        "n_boot_valid": 20000,
+        "pf_point": 1.181,
+        "ci_lower_2.5": 0.414,
+        "ci_upper_97.5": 3.073,
+        "p_pf_le_1": 0.37,
+        "total_pnl": 1911.0
+      },
+      "ex_best_day": {
+        "n_days": 42,
+        "n_boot_valid": 20000,
+        "pf_point": 0.914,
+        "ci_lower_2.5": 0.318,
+        "ci_upper_97.5": 2.332,
+        "p_pf_le_1": 0.581,
+        "total_pnl": -908.0,
+        "dropped_day": "2026-08-04"
+      },
+      "cost_adjusted_fees_plus_2c_slip": {
+        "n_days": 43,
+        "n_boot_valid": 20000,
+        "pf_point": 1.167,
+        "ci_lower_2.5": 0.409,
+        "ci_upper_97.5": 3.026,
+        "p_pf_le_1": 0.38,
+        "total_pnl": 1774.82
+      },
+      "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+      "pass": false,
+      "distance": 0.682
+    }
+  },
+  "buckets": {
+    "SOLE": {
+      "bucket": "SOLE",
+      "n": 44,
+      "underpowered_n_lt_15": false,
+      "n_trading_days": 19,
+      "date_range": [
+        "2026-07-02",
+        "2026-09-08"
+      ],
+      "net_pnl": 84.0,
+      "mean_pnl_per_trade": 1.91,
+      "win_rate": 0.3409,
+      "per_arm_net_pnl": {
+        "bold-2": 8.0,
+        "safe-2": 76.0
+      },
+      "statistical_criterion": {
+        "insufficient_data": false,
+        "n_engine_trades": 44,
+        "n_trading_days": 19,
+        "as_traded": {
+          "n_days": 19,
+          "n_boot_valid": 20000,
+          "pf_point": 1.042,
+          "ci_lower_2.5": 0.304,
+          "ci_upper_97.5": 3.469,
+          "p_pf_le_1": 0.471,
+          "total_pnl": 84.0
+        },
+        "ex_best_day": {
+          "n_days": 18,
+          "n_boot_valid": 20000,
+          "pf_point": 0.787,
+          "ci_lower_2.5": 0.194,
+          "ci_upper_97.5": 2.701,
+          "p_pf_le_1": 0.664,
+          "total_pnl": -429.0,
+          "dropped_day": "2026-08-20"
+        },
+        "cost_adjusted_fees_plus_2c_slip": {
+          "n_days": 19,
+          "n_boot_valid": 20000,
+          "pf_point": 1.032,
+          "ci_lower_2.5": 0.3,
+          "ci_upper_97.5": 3.434,
+          "p_pf_le_1": 0.477,
+          "total_pnl": 64.89
+        },
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": 0.806
+      }
+    },
+    "CO_FIRING": {
+      "bucket": "CO_FIRING",
+      "n": 1,
+      "underpowered_n_lt_15": true,
+      "n_trading_days": 1,
+      "date_range": [
+        "2026-07-27",
+        "2026-07-27"
+      ],
+      "net_pnl": -355.0,
+      "mean_pnl_per_trade": -355.0,
+      "win_rate": 0.0,
+      "per_arm_net_pnl": {
+        "bold-2": -355.0
+      },
+      "statistical_criterion": {
+        "insufficient_data": false,
+        "n_engine_trades": 1,
+        "n_trading_days": 1,
+        "as_traded": null,
+        "ex_best_day": {
+          "dropped_day": "2026-07-27",
+          "n_days": 0,
+          "note": "n<2 after dropping best day -- CI not meaningful"
+        },
+        "cost_adjusted_fees_plus_2c_slip": null,
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": null
+      }
+    },
+    "NONE": {
+      "bucket": "NONE",
+      "n": 251,
+      "underpowered_n_lt_15": false,
+      "n_trading_days": 40,
+      "date_range": [
+        "2026-06-26",
+        "2026-09-03"
+      ],
+      "net_pnl": 2182.0,
+      "mean_pnl_per_trade": 8.69,
+      "win_rate": 0.2709,
+      "per_arm_net_pnl": {
+        "bold-2": 441.0,
+        "risky-1": 1259.0,
+        "safe-3": 1233.0,
+        "safe-2": -751.0
+      },
+      "statistical_criterion": {
+        "insufficient_data": false,
+        "n_engine_trades": 251,
+        "n_trading_days": 40,
+        "as_traded": {
+          "n_days": 40,
+          "n_boot_valid": 20000,
+          "pf_point": 1.234,
+          "ci_lower_2.5": 0.351,
+          "ci_upper_97.5": 3.342,
+          "p_pf_le_1": 0.357,
+          "total_pnl": 2182.0
+        },
+        "ex_best_day": {
+          "n_days": 39,
+          "n_boot_valid": 20000,
+          "pf_point": 0.932,
+          "ci_lower_2.5": 0.245,
+          "ci_upper_97.5": 2.51,
+          "p_pf_le_1": 0.564,
+          "total_pnl": -637.0,
+          "dropped_day": "2026-08-04"
+        },
+        "cost_adjusted_fees_plus_2c_slip": {
+          "n_days": 40,
+          "n_boot_valid": 20000,
+          "pf_point": 1.22,
+          "ci_lower_2.5": 0.347,
+          "ci_upper_97.5": 3.294,
+          "p_pf_le_1": 0.365,
+          "total_pnl": 2065.29
+        },
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": 0.755
+      }
+    },
+    "ALL_TL": {
+      "bucket": "ALL_TL",
+      "n": 45,
+      "underpowered_n_lt_15": false,
+      "n_trading_days": 19,
+      "date_range": [
+        "2026-07-02",
+        "2026-09-08"
+      ],
+      "net_pnl": -271.0,
+      "mean_pnl_per_trade": -6.02,
+      "win_rate": 0.3333,
+      "per_arm_net_pnl": {
+        "bold-2": -347.0,
+        "safe-2": 76.0
+      },
+      "statistical_criterion": {
+        "insufficient_data": false,
+        "n_engine_trades": 45,
+        "n_trading_days": 19,
+        "as_traded": {
+          "n_days": 19,
+          "n_boot_valid": 20000,
+          "pf_point": 0.886,
+          "ci_lower_2.5": 0.257,
+          "ci_upper_97.5": 2.976,
+          "p_pf_le_1": 0.586,
+          "total_pnl": -271.0
+        },
+        "ex_best_day": {
+          "n_days": 18,
+          "n_boot_valid": 20000,
+          "pf_point": 0.669,
+          "ci_lower_2.5": 0.167,
+          "ci_upper_97.5": 2.325,
+          "p_pf_le_1": 0.757,
+          "total_pnl": -784.0,
+          "dropped_day": "2026-08-20"
+        },
+        "cost_adjusted_fees_plus_2c_slip": {
+          "n_days": 19,
+          "n_boot_valid": 20000,
+          "pf_point": 0.878,
+          "ci_lower_2.5": 0.254,
+          "ci_upper_97.5": 2.947,
+          "p_pf_le_1": 0.591,
+          "total_pnl": -290.67
+        },
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": 0.833
+      }
+    }
+  },
+  "co_firing_partner_breakout": {
+    "confluence+level_rejection": {
+      "n": 1,
+      "underpowered": true,
+      "net_pnl": -355.0,
+      "mean_pnl_per_trade": -355.0,
+      "statistical_criterion": {
+        "insufficient_data": false,
+        "n_engine_trades": 1,
+        "n_trading_days": 1,
+        "as_traded": null,
+        "ex_best_day": {
+          "dropped_day": "2026-07-27",
+          "n_days": 0,
+          "note": "n<2 after dropping best day -- CI not meaningful"
+        },
+        "cost_adjusted_fees_plus_2c_slip": null,
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": null
+      }
+    }
+  },
+  "block_counterfactuals_NAIVE": {
+    "SOLE_blocked": {
+      "label": "block SOLE only",
+      "n_blocked": 44,
+      "n_remaining": 252,
+      "book_net_pnl_after_block": 1827.0,
+      "book_mean_pnl_per_trade_after_block": 7.25,
+      "statistical_criterion_after_block": {
+        "insufficient_data": false,
+        "n_engine_trades": 252,
+        "n_trading_days": 40,
+        "as_traded": {
+          "n_days": 40,
+          "n_boot_valid": 20000,
+          "pf_point": 1.189,
+          "ci_lower_2.5": 0.34,
+          "ci_upper_97.5": 3.168,
+          "p_pf_le_1": 0.382,
+          "total_pnl": 1827.0
+        },
+        "ex_best_day": {
+          "n_days": 39,
+          "n_boot_valid": 20000,
+          "pf_point": 0.898,
+          "ci_lower_2.5": 0.236,
+          "ci_upper_97.5": 2.383,
+          "p_pf_le_1": 0.594,
+          "total_pnl": -992.0,
+          "dropped_day": "2026-08-04"
+        },
+        "cost_adjusted_fees_plus_2c_slip": {
+          "n_days": 40,
+          "n_boot_valid": 20000,
+          "pf_point": 1.175,
+          "ci_lower_2.5": 0.336,
+          "ci_upper_97.5": 3.126,
+          "p_pf_le_1": 0.39,
+          "total_pnl": 1709.73
+        },
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": 0.764
+      },
+      "drop_best_arm": {
+        "arm_dropped": "risky-1",
+        "n_remaining_after_arm_drop": 165,
+        "net_pnl": 568.0,
+        "mean_pnl_per_trade": 3.44,
+        "statistical_criterion": {
+          "insufficient_data": false,
+          "n_engine_trades": 165,
+          "n_trading_days": 40,
+          "as_traded": {
+            "n_days": 40,
+            "n_boot_valid": 20000,
+            "pf_point": 1.086,
+            "ci_lower_2.5": 0.285,
+            "ci_upper_97.5": 2.958,
+            "p_pf_le_1": 0.45,
+            "total_pnl": 568.0
+          },
+          "ex_best_day": {
+            "n_days": 39,
+            "n_boot_valid": 20000,
+            "pf_point": 0.817,
+            "ci_lower_2.5": 0.181,
+            "ci_upper_97.5": 2.239,
+            "p_pf_le_1": 0.659,
+            "total_pnl": -1210.0,
+            "dropped_day": "2026-08-04"
+          },
+          "cost_adjusted_fees_plus_2c_slip": {
+            "n_days": 40,
+            "n_boot_valid": 20000,
+            "pf_point": 1.075,
+            "ci_lower_2.5": 0.282,
+            "ci_upper_97.5": 2.928,
+            "p_pf_le_1": 0.458,
+            "total_pnl": 500.69
+          },
+          "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+          "pass": false,
+          "distance": 0.819
+        }
+      }
+    },
+    "ALL_TL_blocked": {
+      "label": "block every trendline_rejection-carrying entry",
+      "n_blocked": 45,
+      "n_remaining": 251,
+      "book_net_pnl_after_block": 2182.0,
+      "book_mean_pnl_per_trade_after_block": 8.69,
+      "statistical_criterion_after_block": {
+        "insufficient_data": false,
+        "n_engine_trades": 251,
+        "n_trading_days": 40,
+        "as_traded": {
+          "n_days": 40,
+          "n_boot_valid": 20000,
+          "pf_point": 1.234,
+          "ci_lower_2.5": 0.351,
+          "ci_upper_97.5": 3.342,
+          "p_pf_le_1": 0.357,
+          "total_pnl": 2182.0
+        },
+        "ex_best_day": {
+          "n_days": 39,
+          "n_boot_valid": 20000,
+          "pf_point": 0.932,
+          "ci_lower_2.5": 0.245,
+          "ci_upper_97.5": 2.51,
+          "p_pf_le_1": 0.564,
+          "total_pnl": -637.0,
+          "dropped_day": "2026-08-04"
+        },
+        "cost_adjusted_fees_plus_2c_slip": {
+          "n_days": 40,
+          "n_boot_valid": 20000,
+          "pf_point": 1.22,
+          "ci_lower_2.5": 0.347,
+          "ci_upper_97.5": 3.294,
+          "p_pf_le_1": 0.365,
+          "total_pnl": 2065.29
+        },
+        "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+        "pass": false,
+        "distance": 0.755
+      },
+      "drop_best_arm": {
+        "arm_dropped": "risky-1",
+        "n_remaining_after_arm_drop": 164,
+        "net_pnl": 923.0,
+        "mean_pnl_per_trade": 5.63,
+        "statistical_criterion": {
+          "insufficient_data": false,
+          "n_engine_trades": 164,
+          "n_trading_days": 40,
+          "as_traded": {
+            "n_days": 40,
+            "n_boot_valid": 20000,
+            "pf_point": 1.147,
+            "ci_lower_2.5": 0.299,
+            "ci_upper_97.5": 3.182,
+            "p_pf_le_1": 0.412,
+            "total_pnl": 923.0
+          },
+          "ex_best_day": {
+            "n_days": 39,
+            "n_boot_valid": 20000,
+            "pf_point": 0.864,
+            "ci_lower_2.5": 0.191,
+            "ci_upper_97.5": 2.424,
+            "p_pf_le_1": 0.618,
+            "total_pnl": -855.0,
+            "dropped_day": "2026-08-04"
+          },
+          "cost_adjusted_fees_plus_2c_slip": {
+            "n_days": 40,
+            "n_boot_valid": 20000,
+            "pf_point": 1.136,
+            "ci_lower_2.5": 0.296,
+            "ci_upper_97.5": 3.141,
+            "p_pf_le_1": 0.42,
+            "total_pnl": 856.25
+          },
+          "criterion": "CI lower bound (2.5th pctile) > 1.0 on ALL THREE: as-traded, ex-best-day, cost-adjusted",
+          "pass": false,
+          "distance": 0.809
+        }
+      }
+    }
+  },
+  "reconciliation_with_status_2026_09_08": {
+    "status_md_quote_2026_09_08": "Trendline-only rail HOLDING (n=41, -2.17/tr; rest-of-book -4.73/tr, WR 25 pct).",
+    "fresh_rerun_this_session_trendline_tier_rail_dry_run": {
+      "n": 41,
+      "net_usd": -89.0,
+      "mean_usd": -2.17,
+      "win_rate": 0.3171,
+      "days": 20,
+      "days_positive": 7,
+      "drop_best_day_net_usd": -602.0,
+      "drop_best_day_mean_usd": -16.72,
+      "top_day": "2026-08-20",
+      "top3_share_of_net": -14.022
+    },
+    "fresh_rerun_matches_the_status_quote": true,
+    "this_study_SOLE_restricted_to_safe2_bold2_only": {
+      "n": 44,
+      "n_trading_days": 19,
+      "net_pnl": 84.0,
+      "mean_pnl_per_trade": 1.91,
+      "win_rate": 0.3409
+    },
+    "exact_match_to_rail": false,
+    "scope_differences_if_any": [
+      "trendline_tier_rail.py scores 2 arms only (safe-2, bold-2) -- this study's headline SOLE bucket scores all 4 real-fills arms (adds safe-3, risky-1). This reconciliation cut restricts to the same 2 arms to isolate that variable.",
+      "trendline_tier_rail.py sources automation/state/core-decisions.jsonl (action==PLACED rows) joined to fills-ledger.jsonl via exit_shape_parity_study.reconstruct_positions (position-level P&L, FIFO-free flat-to-flat reconstruction from raw fills). This study sources analysis/trades-enriched.jsonl (a separately-built round-trip ledger via trades_enriched.py, basis='flat_to_flat' per the sample row, fifo_trip-based). Both target the same real fills; a residual after arm-matching indicates the two pipelines' join/reconstruction logic disagree on trip boundaries for some subset, not a population-definition disagreement (both use the identical STRICT triggers==['trendline_rejection'] shape).",
+      "trendline_tier_rail has no explicit date floor; trades-enriched.jsonl's earliest row is 2026-06-26 -- if core-decisions.jsonl/fills-ledger.jsonl retain rows trades-enriched.jsonl's producer dropped (or vice versa) that is a further source of residual n."
+    ]
+  },
+  "limitations": [
+    "Naive block counterfactual: assumes a blocked entry simply does not happen and nothing replaces it (capital/PDT slot freed goes unused in this model). If the engine would plausibly have taken a different trade in that slot, this model does not capture it -- no replacement trade is evidenced or simulated here.",
+    "SOLE vs CO_FIRING is a STRUCTURAL partition of the trigger LIST on the fill, not a causal claim about which trigger was load-bearing for the entry decision -- for CO_FIRING entries specifically, the engine's actual gating logic (not measured here) may have required ALL listed triggers jointly, or any one of them may have been sufficient alone; this study cannot distinguish those cases from the ledger.",
+    "Real fills only, per L50/L71 -- no sim/BS-priced rows are used anywhere in this file. That also means no ranking-only counterfactual exists for trades the engine never took.",
+    "IS-only: 100% of rows are on/before today (2026-09-10); there is no forward/OOS window to check this decomposition against yet."
+  ]
+}
