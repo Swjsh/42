@@ -83,6 +83,18 @@ DECLARED_HARDCODED = {
         "retired risky-3 (2026-08-28) and safe-1 (2026-07-11) are deliberately included, not "
         "silently dropped -- their rows are expected near-zero and that absence is part of the "
         "disclosed record (module docstring lines 93-97, 2026-09-03).",
+    "right_tail_capture.py": "HISTORICAL/ACTIVE-ROSTER SNAPSHOT: GOAL-RIGHT-TAIL-CAPTURE-2026-09-05 "
+        "R2/R3 daily instrument (Gamma_RightTailCapture 16:20 ET), ARMS=[safe-2,bold-2,safe-3,"
+        "risky-1] matched arm_roster.active_arms() at write time (2026-09-05) and still does "
+        "(2026-09-10). Read-only, $0, fail-open per its own docstring; a future retirement would "
+        "silently stop scoring that arm rather than crash, which is an acceptable degrade for a "
+        "capture-rate instrument, not a live-trading hazard.",
+    "gamma_cockpit_righttail.py": "HISTORICAL/ACTIVE-ROSTER SNAPSHOT: GOAL-RIGHT-TAIL-"
+        "CAPTURE-2026-09-05 R5 cockpit tile builder, reads right_tail_capture.py's own ledger "
+        "and shares its ARMS list for the same reason -- see that entry.",
+    "capture_gap_attribution.py": "HISTORICAL/ACTIVE-ROSTER SNAPSHOT: GOAL-FLEET-CAPTURE-GAP-"
+        "2026-09-05 F1+F2, reads right_tail_capture.py's ledger and shares its ARMS list for the "
+        "same reason -- see that entry.",
 }
 
 

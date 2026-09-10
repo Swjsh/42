@@ -11,22 +11,52 @@ process shape ever fell inside the reaper's blast radius, soak data would go dar
 exactly like the historical grind-killer incidents this lesson is named after, and
 nobody would notice until the soak report came up suspiciously thin.
 
-TWO independent exemption layers, BOTH verified here against the REAL committed
-source (never hand-copied or assumed):
+2026-09-10 CORRECTION (FULL-SUITE-RED-TRIAGE-2026-09-10 goal, disposition
+STALE-ASSUMPTION): this file used to assert the installer launches the twin's inner
+tick process via backtest\\.venv\\Scripts\\pythonw.exe through a $pythonwVenv
+variable that was never actually defined in install-crypto-twin.ps1 (the var name
+was aspirational docstring text there, not real code, even before the change below).
+Separately, on 2026-09-03 the whole wiring family (key-levels-snapshot,
+fee-recalibrate, and crypto-twin among them) deliberately moved OFF venv-pythonw
+entirely for both hops -- venv-pythonw is CPython's venvwlauncher redirector, and
+because the venv's pyvenv.cfg has no GUI-variant executable= entry, any pandas
+import under it re-execs the base install's CONSOLE python.exe and leaks a
+console-host window (root cause PANDAS-CONSOLE-LEAK-ROOT-CAUSE, closed 2026-09-03,
+see install-fee-recalibrate.ps1's WIRING comment). The proven fix launches SYSTEM
+pythonw for both hops and activates the venv via --env PYTHONPATH=... instead. Net
+effect for this guard: layer 2's backtest\\.venv marker now only reaches the OUTER
+run_cmd_hidden.py relay process's own CommandLine (via its PYTHONPATH argv token) --
+the INNER child process run_cmd_hidden.py subprocess.run()s to actually execute
+crypto_twin_health.py carries no such substring (PYTHONPATH is an env var, not an
+argv token, on that hop). Layer 1 is therefore the ONLY exemption that covers the
+process that actually matters (the one ticking every 1 min), and it is unconditional
+(Name-filter omission, independent of any path string) -- which is why this was safe
+to correct as a test/docstring update rather than a functional rewrite of the
+live-registered task. Live-verified still working post-migration: twin-health.json
+shows 719 ticks on 2026-09-10 with soak-log.jsonl n_errors=0 every rolling hour.
 
-  1. PRIMARY -- Name-filter omission. Stop-StaleClaudeProcesses's CIM query only
-     asks Win32_Process for Name='claude.exe' OR 'node.exe' OR 'python.exe' OR
-     'uv.exe' OR 'uvx.exe'. 'pythonw.exe' -- what crypto_twin_health.py actually runs
-     under -- is not in that set at all, so the twin's process is never even fetched
-     by the reaper's query, independent of EXEMPT_DAEMONS string matching.
+TWO layers, verified here against the REAL committed source (never hand-copied or
+assumed) -- only the first is load-bearing for the inner tick process today:
 
-  2. DEFENSE IN DEPTH -- EXEMPT_DAEMONS path match. The installer launches the twin
-     via backtest\\.venv\\Scripts\\pythonw.exe (not system pythonw), so its
-     CommandLine also contains the literal substring 'backtest\\.venv', which IS one
-     of $EXEMPT_DAEMONS's existing entries (added for the mass_grind family, reused
+  1. PRIMARY (unconditional) -- Name-filter omission. Stop-StaleClaudeProcesses's CIM
+     query only asks Win32_Process for Name='claude.exe' OR 'node.exe' OR
+     'python.exe' OR 'uv.exe' OR 'uvx.exe'. 'pythonw.exe' -- what crypto_twin_health.py
+     actually runs under, on EITHER hop -- is not in that set at all, so the twin's
+     process (outer relay and inner tick alike) is never even fetched by the
+     reaper's query, independent of EXEMPT_DAEMONS string matching or which pythonw
+     binary is used.
+
+  2. DEFENSE IN DEPTH (outer hop only, since 2026-09-03) -- EXEMPT_DAEMONS path
+     match. The installer's --env PYTHONPATH=<repo>\\backtest\\.venv\\Lib\\
+     site-packages argument puts the literal substring 'backtest\\.venv' into the
+     OUTER run_cmd_hidden.py relay process's own CommandLine, which IS one of
+     $EXEMPT_DAEMONS's existing entries (added for the mass_grind family, reused
      here for free) -- verified via the same plain-substring semantics PowerShell's
      `-like "*backtest\\.venv*"` performs (backslash and dot are not `-like`
-     metacharacters, so this is a literal containment check, not a regex).
+     metacharacters, so this is a literal containment check, not a regex). This
+     layer does NOT reach the inner tick process's own CommandLine under the current
+     recipe; it is genuine but partial defense-in-depth, not a second unconditional
+     layer for the process that matters most.
 
 Pure file parsing (mirrors test_scheduled_tasks_doc.py / test_guard_cmd_popup_fix_
 ws6.py's static-source-text convention) -- runs anywhere, no Windows Task Scheduler
@@ -155,22 +185,29 @@ class TestInstallerCommandLineMatchesExemption:
         line = _find_line(_installer_text(), "$taskName")
         assert "Gamma_CryptoTwin" in line
 
-    def test_installer_pythonw_var_points_at_backtest_venv(self) -> None:
-        """$pythonwVenv (the actual interpreter that will run crypto_twin_health.py)
-        must resolve to the backtest venv path -- this is what puts the
-        'backtest\\.venv' substring into the spawned process's real CommandLine."""
-        line = _find_line(_installer_text(), "$pythonwVenv")
-        assert "backtest\\.venv\\Scripts\\pythonw.exe" in line, (
-            f"$pythonwVenv does not reference the backtest-venv pythonw path: {line}"
+    def test_installer_pythonpath_env_points_at_backtest_venv(self) -> None:
+        """$pythonPath (injected as the PYTHONPATH env var for both hops, per the
+        2026-09-03 VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON recipe) must resolve to
+        the backtest venv's site-packages -- this is what puts the 'backtest\\.venv'
+        substring into the OUTER relay process's real CommandLine (layer 2). There is
+        no $pythonwVenv variable in this script (see this test file's 2026-09-10
+        module-docstring correction) -- the recipe activates the venv via
+        environment, not via the venv's own pythonw launcher stub."""
+        line = _find_line(_installer_text(), "$pythonPath")
+        assert "backtest\\.venv\\Lib\\site-packages" in line, (
+            f"$pythonPath does not reference the backtest-venv site-packages: {line}"
         )
 
-    def test_installer_wscript_args_actually_uses_the_pythonw_var(self) -> None:
+    def test_installer_wscript_args_actually_uses_the_pythonpath_var(self) -> None:
         """$wscriptArgs (what becomes the task's real Arguments, and therefore the
-        spawned process's real CommandLine) must reference $pythonwVenv -- not some
-        other interpreter -- so the exempt-marker path genuinely flows through to
-        the live process, not just to an unused variable."""
+        spawned process's real CommandLine) must reference $pythonPath via a
+        PYTHONPATH env override -- not some unused variable -- so the layer-2
+        exempt-marker genuinely flows through to the OUTER relay process, and must
+        launch $script under $sysPythonw (the proven recipe's inner interpreter,
+        per install-fee-recalibrate.ps1's WIRING comment) with --live."""
         line = _find_line(_installer_text(), "$wscriptArgs")
-        assert "$pythonwVenv" in line
+        assert "PYTHONPATH=$pythonPath" in line
+        assert "$sysPythonw" in line
         assert "$script" in line
         assert "$vbs" in line
         assert "--live" in line

@@ -202,6 +202,33 @@ def test_fleet_arms_are_wired_never_fabricated(day_bars):
             assert d.would_place is False
 
 
+@pytest.mark.xfail(
+    reason=(
+        "FULL-SUITE-RED-TRIAGE-2026-09-10, disposition FLAKY (root cause verified live, not "
+        "guessed): engine_step.py's own module docstring (lines 28-42) discloses that "
+        "levels_active/multi_day_levels are reconstructed by filtering the CURRENT "
+        "automation/state/key-levels.json down to entries whose verified_at <= replay_day -- "
+        "there is no historical key-levels.json snapshot anywhere in this repo, so 'knowable "
+        "as of 2026-07-17' is only as stable as which pre-07-17 levels the LIVE rolling file "
+        "still retains today. Between 2026-08-29 (when this test was last verified green, "
+        "commit a9c157a9, 470 passed) and 2026-09-10 the key-levels.json file rolled forward "
+        "~12 days (Gamma_LevelRefresh runs continuously); re-run live this session with "
+        "ZoneInfo('America/New_York') (the test file's own import, not pytz) confirms "
+        "risky-1 now returns triggers=() / verdict=HOLD at both 11:35 and 12:05 ET, where it "
+        "returned ENTER_BEAR on 2026-08-29 -- a level that used to be knowable-as-of-07-17 no "
+        "longer survives in today's rolling file. accounts.json's gate_override.full_send is "
+        "unchanged (git log --since 2026-08-29 on accounts.json/build_shared_signal.py/"
+        "engine_step.py: 0 commits), day_bars for 2026-07-17 are unchanged (5-min OHLCV, "
+        "verified identical at 11:35/12:05), so this is NOT a gate-threading regression -- "
+        "it is the exact time-drift mechanism the module docstring already disclosed as a "
+        "'real, disclosed, partial approximation, not a wiring bug'. Quarantined here rather "
+        "than silently skipped or hand-fixed to a frozen build_shared_signal.py (September "
+        "freeze). Re-validate by re-running the full 5-min RTH sweep for a FRESH day near "
+        "today's date and re-pointing REPLAY_DAY/the sampled bars, or by building a "
+        "point-in-time key-levels snapshot store (bigger lift, out of this goal's scope)."
+    ),
+    strict=False,
+)
 def test_fleet_arms_reflect_their_own_gate_strictness(day_bars):
     """The fleet arms carry DIFFERENT gate_override strictness (safe-3/risky-1 =
     min_triggers=2+confluence-or-sequence) -- proves the wiring threads each arm's OWN

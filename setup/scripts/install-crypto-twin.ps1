@@ -45,37 +45,53 @@
   backtest/tests/test_crypto_twin_reaper_exemption.py). setup/scripts/_shared.ps1's
   Stop-StaleClaudeProcesses reaps stale claude.exe/node.exe/python.exe/uv.exe/uvx.exe
   processes referencing this repo every ~3-5 min unless EXEMPT_DAEMONS matches. TWO
-  independent exemption layers apply here:
-    1. PRIMARY (by construction): 'pythonw.exe' is NOT in Stop-StaleClaudeProcesses's
-       Win32_Process -Filter Name clause at all -- this task's spawned process is
-       therefore never even fetched by the reaper's query, independent of
-       EXEMPT_DAEMONS string matching.
-    2. DEFENSE IN DEPTH: the twin is launched via backtest\.venv\Scripts\pythonw.exe
-       (NOT system pythonw), so its CommandLine also contains the literal substring
-       'backtest\.venv', which IS one of $EXEMPT_DAEMONS's existing entries -- so if a
-       future edit ever widens the Name filter to include pythonw.exe, this task
-       stays exempt with zero further changes needed.
+  layers exist; only the first is now load-bearing for the actual tick process (see
+  2026-09-03 CORRECTION below):
+    1. PRIMARY (by construction, unconditional): 'pythonw.exe' is NOT in
+       Stop-StaleClaudeProcesses's Win32_Process -Filter Name clause at all -- this
+       task's spawned process (outer relay AND the inner crypto_twin_health.py child
+       run_cmd_hidden.py spawns) is therefore never even fetched by the reaper's
+       query, independent of EXEMPT_DAEMONS string matching or which pythonw binary
+       is used. This is the ONLY protection the inner tick process gets today.
+    2. DEFENSE IN DEPTH (OUTER hop only, since 2026-09-03 -- see correction below):
+       the OUTER run_cmd_hidden.py relay process's own CommandLine contains the
+       literal substring 'backtest\.venv' (via its `--env PYTHONPATH=...` argument),
+       which IS one of $EXEMPT_DAEMONS's existing entries. The INNER child process
+       run_cmd_hidden.py subprocess.run()s to actually execute crypto_twin_health.py
+       does NOT carry that substring in its own CommandLine (its argv is just
+       `<system-pythonw> crypto_twin_health.py --live`; PYTHONPATH is an env var, not
+       an argv token) -- so layer 2 no longer covers the inner process either. If a
+       future edit ever widens the Name filter to include pythonw.exe, layer 1 alone
+       would no longer save this task -- that would need a real design change, not a
+       config tweak, since neither hop's CommandLine reliably carries the marker for
+       the process that actually matters.
 
-  WIRING PATTERN (2026-08-07 CORRECTED -- see VBS-WRAPPER-EXIT-CODE-BLIND-SPOT drift
-  finding, queue.md): this task was migrated onto the run_cmd_hidden.py relay by
-  fix-venv-pythonw-console-leak.ps1 (commit 306e5075, "popup storm" fix), but THIS
-  install script's own template was never updated to match -- so the very next
-  legitimate re-run of install-crypto-twin.ps1 (af849657, the 2026-08-01 cadence-tune,
-  an ordinary maintenance edit unrelated to the relay fix) silently re-registered the
-  task with the OLD direct-wiring action, undoing the fix with zero error/log/visible
-  symptom (confirmed live 2026-08-07: task was back to bare venv-pythonw invocation).
-  This is the durable fix -- the relay wiring now lives at the SOURCE OF TRUTH so any
-  future legitimate re-run of this script (cadence tunes, trigger edits, etc.) can
-  never again regress it:
+  WIRING PATTERN (2026-09-03 CORRECTED -- VENV-PYTHONW-REDIRECTS-TO-CONSOLE-PYTHON,
+  queue.md recipe (a), status:recipe-proven, root cause PANDAS-CONSOLE-LEAK-ROOT-CAUSE):
+  backtest\.venv\Scripts\pythonw.exe is CPython's venvwlauncher redirector, but the
+  venv's pyvenv.cfg records only a console `executable=` path (no GUI variant) --
+  EVERY venv-pythonw launch of a script that imports pandas (crypto_twin_core does)
+  re-execs the base install's CONSOLE python.exe internally and leaks a console-host
+  window regardless of launcher mechanism or CREATE_NO_WINDOW (live-verified
+  2026-09-03 on a sibling task, see install-fee-recalibrate.ps1's WIRING comment for
+  the full investigation). Fix, already applied here (superseding the 2026-08-07
+  relay-migration note this docstring used to carry): launch the BASE system
+  pythonw.exe for BOTH hops and activate the backtest venv via environment
+  (PYTHONPATH=backtest\.venv\Lib\site-packages) instead of via the venv's own
+  launcher stub:
     wscript -> run_exe_hidden.vbs -> SYSTEM pythonw -> run_cmd_hidden.py --cwd <repo>
-      -- backtest\.venv\Scripts\pythonw.exe crypto_twin_health.py --live
+      --env PYTHONPATH=<repo>\backtest\.venv\Lib\site-packages
+      -- SYSTEM pythonw crypto_twin_health.py --live
+  There is no `$pythonwVenv` variable in this script (a prior version of this
+  docstring described one; it was aspirational text that never matched the code even
+  before the 2026-09-03 recipe existed -- see the FULL-SUITE-RED-TRIAGE-2026-09-10
+  goal's disposition for backtest/tests/test_crypto_twin_reaper_exemption.py).
   run_cmd_hidden.py runs the child SYNCHRONOUSLY and logs the real exit code to
   automation/state/logs/run-cmd-hidden-<date>.log (self_check.check_run_cmd_hidden_
-  masked_exit already reads it every ~30min, zero further wiring needed). backtest-venv
-  pythonw remains the INNER interpreter (crypto_twin_core imports exit_manager/
-  risk_gate/crypto.lib.* and needs pandas); system pythonw is only the OUTER relay hop
-  (stdlib-only, per run_cmd_hidden.py's own docstring either hop is safe -- system
-  matches the other 18 already-migrated tasks' convention).
+  masked_exit already reads it every ~30min, zero further wiring needed). Live-verified
+  working (this goal, 2026-09-10): automation/state/twin-health.json shows 719 ticks
+  today, soak-log.jsonl shows n_errors=0 across every rolling hour -- crypto_twin_core's
+  pandas import resolves fine under this env-activation pattern in production.
 
   CADENCE: `-Once` base trigger + `-RepetitionInterval 1min` (was 5min, see the
   2026-08-01 CADENCE-TUNE note above) + a ~10-year `-RepetitionDuration` -- the
@@ -145,7 +161,7 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description "CRYPTO TWIN -- 24/7 mechanism-validation training ground (J requirement 2026-07-10, markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md). Every 1 min, 24/7 (CADENCE-TUNE 2026-08-01, was 5 min -- see this script's docstring for the measured-latency + realized-vol evidence): crypto_twin_health.py --live wraps crypto_twin_core.run_tick() (SEE BTC/USD bars -> DECIDE ribbon+level trigger -> risk_gate -> ACT place -> manage exit_manager -> journal, T1/T2 tested 40/40) with error-capture, and writes automation/state/twin-health.json + automation/state/crypto-twin/soak-log.jsonl every tick (T3). T2's order path is LIVE (dedicated Alpaca paper account PA38EG1JTFBT, configured 2026-07-11). Reaper-exempt: pythonw.exe is outside Stop-StaleClaudeProcesses's Name filter, plus backtest\.venv path match as defense in depth (guard: test_crypto_twin_reaper_exemption.py). Built 2026-07-10, cadence-tuned 2026-08-01." `
+    -Description "CRYPTO TWIN -- 24/7 mechanism-validation training ground (J requirement 2026-07-10, markdown/planning/CRYPTO-TWIN-TRAINING-GROUND.md). Every 1 min, 24/7 (CADENCE-TUNE 2026-08-01, was 5 min -- see this script's docstring for the measured-latency + realized-vol evidence): crypto_twin_health.py --live wraps crypto_twin_core.run_tick() (SEE BTC/USD bars -> DECIDE ribbon+level trigger -> risk_gate -> ACT place -> manage exit_manager -> journal, T1/T2 tested 40/40) with error-capture, and writes automation/state/twin-health.json + automation/state/crypto-twin/soak-log.jsonl every tick (T3). T2's order path is LIVE (dedicated Alpaca paper account PA38EG1JTFBT, configured 2026-07-11). Reaper-exempt: pythonw.exe is outside Stop-StaleClaudeProcesses's Name filter (the only protection the inner tick process has since the 2026-09-03 venv-pythonw-console-leak fix moved both hops onto system pythonw; guard: test_crypto_twin_reaper_exemption.py). Built 2026-07-10, cadence-tuned 2026-08-01." `
     -Force | Out-Null
 
 $info = Get-ScheduledTask -TaskName $taskName | Get-ScheduledTaskInfo

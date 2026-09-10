@@ -19,6 +19,28 @@ happen on a routine future cadence/setting edit.
 
 Static source-parse only (no live Task Scheduler query) -- same precedent as
 test_install_script_relay_wiring_drift.py.
+
+2026-09-10 CORRECTION (FULL-SUITE-RED-TRIAGE-2026-09-10 goal, disposition
+STALE-ASSUMPTION): on 2026-09-03 the WHOLE wiring family (key-levels-snapshot,
+fee-recalibrate, crypto-twin, and this installer among them) deliberately moved OFF
+a dedicated `$pywVenv` = backtest\\.venv\\Scripts\\pythonw.exe variable entirely --
+root cause PANDAS-CONSOLE-LEAK-ROOT-CAUSE (closed 2026-09-03, see
+install-fee-recalibrate.ps1's WIRING comment): backtest\\.venv\\Scripts\\pythonw.exe
+is CPython's venvwlauncher redirector, but the venv's pyvenv.cfg has no GUI-variant
+executable= entry, so ANY heavy-import script launched through it re-execs the base
+install's CONSOLE python.exe and leaks a console-host window regardless of launcher
+mechanism or CREATE_NO_WINDOW. The proven fix (same one applied to crypto-twin, see
+test_crypto_twin_reaper_exemption.py's own 2026-09-10 correction) launches the BASE
+system pythonw ($pyw) for BOTH hops and activates the venv via
+`--env PYTHONPATH=<repo>\\backtest\\.venv\\Lib\\site-packages` instead of via a
+dedicated venv-pythonw variable. yfinance still resolves fine under this pattern --
+PYTHONPATH injects the venv's site-packages into sys.path regardless of which
+pythonw binary is running; live-verified 2026-09-10:
+automation/state/weekly/earnings-blackout.json (this script's real output) has
+generated_at 2026-09-09, i.e. the task ran successfully under the CURRENT (post-
+2026-09-03) wiring the night before this fire, not a stale pre-migration artifact.
+The tests below now assert the wiring that is actually live and actually working,
+not the pre-2026-09-03 $pywVenv convention.
 """
 from __future__ import annotations
 
@@ -39,10 +61,11 @@ def test_install_script_exists():
     assert _INSTALL_SCRIPT.exists()
 
 
-def test_inner_hop_uses_backtest_venv_pythonw():
+def test_inner_hop_uses_backtest_venv_via_pythonpath():
     """The action string that invokes earnings_calendar.py (via $script) must route
-    through the $pywVenv variable, not the bare system-Python313 $pyw variable, for
-    the INNER (last) interpreter hop."""
+    the backtest venv's site-packages onto PYTHONPATH -- the 2026-09-03 proven recipe
+    (see this file's module-docstring correction) -- so yfinance resolves under
+    EITHER hop's system pythonw. There is no dedicated $pywVenv variable any more."""
     src = _source()
     assert f'$script = Join-Path $repo "setup\\scripts\\{_TARGET_SCRIPT}"' in src.replace(
         "\r\n", "\n"
@@ -53,32 +76,42 @@ def test_inner_hop_uses_backtest_venv_pythonw():
     assert action_match, "could not locate the $action New-ScheduledTaskAction line"
     action_line = action_match.group(0)
 
-    assert "$pywVenv" in action_line, (
-        "$action does not reference $pywVenv at all -- this is the exact regression this "
-        "guard exists to catch (earnings_calendar.py imports yfinance, which only exists "
-        "in the backtest venv, never in system Python313)"
+    assert "PYTHONPATH=$pythonPath" in action_line, (
+        "$action does not inject PYTHONPATH=$pythonPath at all -- this is the exact "
+        "regression this guard exists to catch (earnings_calendar.py imports yfinance, "
+        "which only exists in the backtest venv, never in system Python313's own "
+        "site-packages)"
     )
     # The INNER hop is the interpreter immediately before $script (the last one in the
-    # -- <interp> <script> pair). Confirm $pywVenv, not $pyw, sits directly before $script.
+    # -- <interp> <script> pair). Under the 2026-09-03 recipe this is $pyw (system
+    # pythonw) for BOTH hops -- venv activation happens via PYTHONPATH, not via a
+    # dedicated venv-pythonw executable path.
     inner_pair = re.search(r'--\s*`"(\$\w+)`"\s*`"(\$\w+)`""', action_line)
     assert inner_pair, "could not find the trailing `-- <interp> <script>` pair in $action"
     inner_interp, inner_target = inner_pair.group(1), inner_pair.group(2)
     assert inner_target == "$script", f"unexpected inner target variable: {inner_target}"
-    assert inner_interp == "$pywVenv", (
-        f"inner hop uses {inner_interp}, not $pywVenv -- earnings_calendar.py needs the "
-        "backtest venv's yfinance package, system Python313 does not have it"
+    assert inner_interp == "$pyw", (
+        f"inner hop uses {inner_interp}, not $pyw -- expected the 2026-09-03 recipe's "
+        "system-pythonw-plus-PYTHONPATH pattern for both hops"
     )
 
 
-def test_venv_pythonw_variable_is_declared_and_checked():
-    """The script must resolve backtest-venv pythonw via a variable AND fail loudly
-    (Test-Path + throw) if it's missing, not silently fall through to system pythonw."""
+def test_pythonpath_variable_is_declared_and_checked():
+    """The script must resolve the backtest venv's site-packages via a variable, and
+    the interpreter that will actually run under it ($pyw) must fail loudly
+    (Test-Path + throw) if missing. NOTE: no install script in the 2026-09-03-migrated
+    family (crypto-twin, key-levels-snapshot, fee-recalibrate, this one) Test-Path-
+    guards the venv site-packages DIRECTORY itself -- a missing/broken venv would
+    still surface loudly (ModuleNotFoundError in the task's own exit code, caught by
+    self_check.py's run_cmd_hidden masked-exit check within ~30min) rather than
+    silently, so this test asserts the convention that is actually consistent across
+    the family rather than inventing a bar none of them clear."""
     src = _source()
-    assert re.search(r'\$pywVenv\s*=.*backtest\\\.venv\\Scripts\\pythonw\.exe', src), (
-        "no $pywVenv variable resolving backtest\\.venv\\Scripts\\pythonw.exe found"
+    assert re.search(r'\$pythonPath\s*=.*backtest\\\.venv\\Lib\\site-packages', src), (
+        "no $pythonPath variable resolving backtest\\.venv\\Lib\\site-packages found"
     )
-    assert re.search(r'Test-Path\s+\$pywVenv', src), (
-        "no Test-Path guard on $pywVenv -- a missing venv pythonw should throw at "
+    assert re.search(r'Test-Path\s+\$pyw\b', src), (
+        "no Test-Path guard on $pyw -- a missing system pythonw should throw at "
         "install time, not silently produce a broken task"
     )
 
