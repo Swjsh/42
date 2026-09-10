@@ -65,8 +65,23 @@ ET = pytz.timezone("America/New_York")
 # drawn under the old marker, so it is pinned by test_draw_key_levels.py.
 TAG = "[G] "
 
-DEFAULT_BAND_DOLLARS = 15.0
+# WS-B (2026-09-09, KEY-LEVELS-CHART-READING-HANDOFF.md §9.5 row B3): was 15.0 -- the gate
+# (`heartbeat_core._read_levels`, `abs(p - spy) <= 12`; same constant as
+# `refresh_levels_intraday.ACTIVE_BAND = 12.0`) only ever considers levels within $12 of
+# spot, so a chart drawn to $15 showed J up to 3 lines the engine structurally cannot act
+# on. This is a DRAW-SIDE constant only -- _read_levels/filters.py/refresh_levels_intraday
+# are untouched (config freeze through 2026-10-30).
+DEFAULT_BAND_DOLLARS = 12.0
 DEFAULT_MAX_LEVELS = 14
+
+# WS-B4 (2026-09-09): zone-merge feature flag. Merges levels within
+# ZONE_MERGE_WIDTH_DOLLARS of each other into ONE rectangle (weight = tier) instead of
+# drawing each as its own line. OFF by default so today's exact drawn output is
+# unchanged until a value ships -- ZONE_MERGE_WIDTH_DOLLARS is an OPEN Opus decision
+# (work order F(3)), pending an ATR study (WS-C). Do not pick a value here; when F(3)
+# ratifies one, set it and flip ZONE_MERGE_ENABLED, don't invent a number.
+ZONE_MERGE_ENABLED = False
+ZONE_MERGE_WIDTH_DOLLARS = None  # PLACEHOLDER -- awaiting F(3) ATR-study ratification
 
 COLOR_SUPPORT = "#26a69a"
 COLOR_RESISTANCE = "#ef5350"
@@ -153,6 +168,57 @@ def select_levels(
 
     picked.sort(key=lambda r: abs(r["distance"]))
     return picked[:max_levels]
+
+
+def merge_levels_into_zones(levels: list[dict], zone_width_dollars: float | None) -> list[dict]:
+    """WS-B4 (2026-09-09): collapse levels within `zone_width_dollars` of each other into
+    ONE zone record `{price (center), low, high, tier (=member count), role, label,
+    raw_label, distance, members}` instead of one line per level.
+
+    Pure/offline, unit-testable with no chart. NOT wired into `draw_levels()`'s rendering
+    yet -- there is no ratified `zone_width_dollars` (that is Opus work order item F(3),
+    pending WS-C's ATR study) and no rectangle-drawing primitive on the CDP path yet
+    either. `main()` calls this only when `ZONE_MERGE_ENABLED` is True, and refuses to
+    proceed (loud RuntimeError, never a silent wrong-shaped draw) while
+    `ZONE_MERGE_WIDTH_DOLLARS` is still the placeholder `None` -- see doctrine: level-
+    drawing edits ship behind a flag with default unchanged, and a half-wired enabled
+    flag must fail loud, not silently degrade (C7).
+
+    `zone_width_dollars is None` or an empty `levels` list is a no-op passthrough --
+    this is what makes the flag-off guard ("byte-identical to today's output") true even
+    if this function were ever called unconditionally by mistake.
+    """
+    if not levels or zone_width_dollars is None:
+        return list(levels)
+
+    ordered = sorted(levels, key=lambda lv: lv["price"])
+    zones: list[dict] = []
+    current: list[dict] = [ordered[0]]
+    for lv in ordered[1:]:
+        if abs(lv["price"] - current[-1]["price"]) <= zone_width_dollars:
+            current.append(lv)
+        else:
+            zones.append(_zone_from_members(current))
+            current = [lv]
+    zones.append(_zone_from_members(current))
+    return zones
+
+
+def _zone_from_members(members: list[dict]) -> dict:
+    prices = [m["price"] for m in members]
+    low, high = min(prices), max(prices)
+    center = round((low + high) / 2, 2)
+    return {
+        "price": center,
+        "low": round(low, 2),
+        "high": round(high, 2),
+        "tier": len(members),
+        "role": members[0].get("role"),
+        "label": ", ".join(m["label"] for m in members),
+        "raw_label": ", ".join(str(m.get("raw_label") or m["label"]) for m in members),
+        "distance": round(center - (members[0]["price"] - members[0].get("distance", 0.0)), 2),
+        "members": members,
+    }
 
 
 def line_text(level: dict) -> str:
@@ -363,6 +429,17 @@ def main(argv: list[str] | None = None) -> int:
                 out["legacy_%s" % ("removed" if (args.apply and not args.dry_run) else "candidates")] = legacy
 
             levels = select_levels(key_levels, spot, args.band, args.max_levels)
+            if ZONE_MERGE_ENABLED:
+                # Fail loud, never silent (C7): an enabled flag with no ratified width
+                # would otherwise silently hand draw_levels() zone-shaped dicts it does
+                # not know how to render as rectangles yet (F(3) is still open).
+                if ZONE_MERGE_WIDTH_DOLLARS is None:
+                    raise RuntimeError(
+                        "ZONE_MERGE_ENABLED=True but ZONE_MERGE_WIDTH_DOLLARS is still the "
+                        "F(3) placeholder (None) -- ratify the ATR-derived width before "
+                        "enabling this flag (markdown/0dte/KEY-LEVELS-CHART-READING-HANDOFF.md #9.5 row F)."
+                    )
+                levels = merge_levels_into_zones(levels, ZONE_MERGE_WIDTH_DOLLARS)
             out["selected"] = levels
             drawn = [] if args.clear_only else draw_levels(chart, levels, args.dry_run)
             out["drawn"] = drawn

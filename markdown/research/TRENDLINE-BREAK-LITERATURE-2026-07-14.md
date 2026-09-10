@@ -228,16 +228,16 @@ descending wedge. This report gathers sourced rules to encode a correct auto-fit
 - RULE — A valid trendline break requires **both** a percentage-penetration filter and a
   time filter: commonly cited as price must **close roughly 3% beyond the line** and **stay
   beyond it for two consecutive days** before the break is treated as confirmed, rather than
-  reacting to the first single-bar penetration. NOTE: I could not pull this exact clause
-  verbatim from the archive.org OCR text in this session (the full-text fetch returned the table
-  of contents entries "Internal Trend Lines" p.90 and "The Channel Line" p.80 but not body text
-  for the penetration-criteria passage), so the 3%/two-day figures are **UNVERIFIED against
-  primary text this session** — they are, however, widely and consistently attributed to Murphy
-  across independent secondary sources (see below), which is the standard citation used across
-  the TA literature for "Murphy's rule." Source (secondary, consistent attribution):
-  [finaccfundas.blogspot.com summary of Murphy's rules](https://finaccfundas.blogspot.com/2014/09/john-murphy-rules-of-technical-trading.html);
-  general TA teaching material repeats the same 3%/2-day formulation as "Murphy's penetration
-  criteria." Primary source to re-verify: Murphy, ch. 4, section on "Trend Line Violations."
+  reacting to the first single-bar penetration. **UPDATE 2026-09-09: primary text now reached —
+  see "Murphy 3%/2-day rule — provenance check (2026-09-09)" below.** Verdict:
+  VERIFIED-PRIMARY on the two numbers (3%, two days) and their existence in Murphy ch. 4
+  pp.71-72, but **the "both/AND" framing above is itself a mild misattribution** — Murphy
+  presents the percentage filter and the time filter as *alternative* filter types ("An
+  alternative to a price filter... is a time filter"), not a joint requirement. Do not carry
+  the "requires both" wording forward; see the provenance-check section for the exact quotes
+  and the SPY-timeframe scope finding. Original (superseded) secondary source used before
+  primary-text access: [finaccfundas.blogspot.com summary of Murphy's
+  rules](https://finaccfundas.blogspot.com/2014/09/john-murphy-rules-of-technical-trading.html).
 - RULE — Steepness matters: an extremely steep line drawn off an abnormal short-term spike is
   "unrealistic" and should be redrawn once the market provides a second, more representative
   pivot — directly supported by the phrase captured from the text: *"the steeper the trendline,
@@ -583,10 +583,13 @@ descending wedge. This report gathers sourced rules to encode a correct auto-fit
 
 ## Verification notes (what to re-check before hard-coding numbers)
 
-- Murphy's 3%/two-day penetration rule: **attribution is consistent across secondary sources but
-  not confirmed verbatim from primary text this session** (archive.org full-text fetch returned
-  TOC entries, not the specific penetration-rule paragraph). Before encoding "3%" or "2 days" as
-  literal constants, pull the physical/PDF copy of ch. 4 and quote the exact sentence.
+- Murphy's 3%/two-day penetration rule: **RESOLVED 2026-09-09 — primary text reached and quoted
+  verbatim, ch. 4 pp.71-72.** See "Murphy 3%/2-day rule — provenance check (2026-09-09)" below
+  for the full quotes, the misattribution nuance (Murphy presents them as alternatives, not a
+  joint AND-rule), and — the part that actually matters for Gamma — why the 3% figure does not
+  transfer to SPY 0DTE 5-minute bars (Murphy's own text: daily/weekly closes, longer-term lines
+  only, and he states the 3% figure itself doesn't even hold across all *daily* markets). Do
+  NOT encode "3%" as a literal SPY intraday constant off this citation.
 - Murphy's "internal trendline" and "channel line" sections (p.90, p.80) are confirmed to exist
   by table of contents but body text was not retrieved verbatim this session.
 - LuxAlgo's exact ATR/Stdev/Linreg slope formula could not be fetched directly (`docs.mt.luxalgo.com`
@@ -596,3 +599,163 @@ descending wedge. This report gathers sourced rules to encode a correct auto-fit
   encoding.
 - No sourced material found for Peter Brandt or Wyckoff's specific trendline-touch rules — flagged
   as a gap in this research, not encoded above.
+
+---
+
+## Murphy 3%/2-day rule — provenance check (2026-09-09)
+
+> Triggered by `KEY-LEVELS-CHART-READING-HANDOFF.md` §9.5 row F item 4: *"Verify Murphy's 3%/2-day
+> rule from primary text before any constant is named after it."* Prior crew (Part 2 above, 07-14
+> session) reached only the archive.org table of contents and graded the claim UNVERIFIED. This
+> pass downloaded the full OCR text file directly (`archive.org/download/.../..._djvu.txt`, 769KB,
+> 25,404 lines) instead of relying on a single WebFetch summarization pass, and grepped it locally
+> for `percent|penetrat|violat` — the passage was in the file the whole time, just past what the
+> prior single-fetch summarization surfaced.
+
+### Verdict: VERIFIED-PRIMARY (numbers + existence), with a SUPPORTED-SECONDARY-ONLY correction on the "combined AND-rule" framing, and a hard non-transfer finding for SPY 0DTE.
+
+### What the primary text actually says
+
+Source: John J. Murphy, *Technical Analysis of the Financial Markets* (New York Institute of
+Finance, copyright 1999, ISBN 0-7352-0066-1), Chapter 4 "Basic Concepts of Trend," section
+**"What Constitutes a Valid Breaking of a Trendline?"**, pp. 71-72 of the printed book (page
+headers appear verbatim in the OCR at the quoted boundaries below). Full text:
+[archive.org — Technical Analysis of the Financial Markets](https://archive.org/details/JohnJ.MurphyTechnicalAnalysisOfTheFinancialMarkets),
+direct OCR text: `.../John_J._Murphy_-_Technical_Analysis_Of_The_Financial_Markets_djvu.txt`.
+
+Verbatim (p.71-72):
+
+> "As a general rule, a close beyond the trendline is more significant than just an intraday
+> penetration. To go a step further, sometimes even a closing penetration is not enough. Most
+> technicians employ a variety of time and price filters in an attempt to isolate valid trendline
+> penetrations and eliminate bad signals or whipsaws. One example of a price filter is the 3%
+> penetration criteria. This price filter is used mainly for the breaking of longer term
+> trendlines, but requires that the trendline be broken, on a closing basis, by at least 3%.
+> (The 3% rule doesn't apply to some financial futures, such as the interest rate markets.)
+>
+> If, for example, gold prices broke a major up trendline at $400, prices would have to close
+> below that line by 3% of the price level where the line was broken (in this case, prices would
+> have to close $12 below the trendline, or at $388). Obviously, a $12 penetration criteria would
+> not be appropriate for shorter term trading. Perhaps a 1% criterion would serve better in such
+> cases. The percentage rule represents just one type of price filter. ...
+>
+> An alternative to a price filter (requiring that a trendline be broken by some predetermined
+> price increment or percentage amount) is a time filter. A common time filter is the two day
+> rule. In other words, to have a valid breaking of a trendline, prices must close beyond the
+> trendline for two successive days. To break an up trendline, therefore, prices must close under
+> the trendline two days in a row. A one day violation would not count. The 1-3% rule and the two
+> day rule are also applied to the breaking of important support and resistance levels, not just
+> to major trendlines. Another filter would require a Friday close beyond a major breakout point
+> to ensure a weekly signal."
+
+A second, independent occurrence of the same two filters appears in Chapter 5 (Head and Shoulders
+variations, p.122), confirming the wording is not a one-off:
+
+> "Most chartists require a close beyond a previous resistance peak instead of just an intraday
+> penetration. Second, a price filter of some type might be used. One such example is a
+> percentage penetration criterion (such as 1% or 3%). Third, the two day penetration rule could
+> be used as an example of a time filter. In other words, prices would have to close beyond the
+> top of the first peak for two consecutive days to signal a valid penetration."
+
+### Four findings from the primary text
+
+1. **Both numbers are real and correctly cited by secondary sources.** 3% (with 1% offered as the
+   variant "for shorter term trading") and two consecutive days are both Murphy's own words, with
+   a page-locatable example (gold at $400, 3% penetration, $12, close at $388).
+2. **They are presented as ALTERNATIVES, not a joint "AND" rule.** Murphy's own sentence: "An
+   alternative to a price filter... is a time filter." He lists price-filter, time-filter, and
+   "Friday close" as three separate optional filter types a chartist might pick ONE of — not a
+   compound "3% AND 2-day" gate. The secondary web literature (see below) collapses this into a
+   single joint rule ("these filters work together"). That collapsing is a genuine, if minor,
+   attribution drift: the individual numbers are correctly sourced; the "combined rule" framing
+   commonly repeated online is not what the primary text states. This document's own Part 2 section
+   1 Murphy bullet (above) previously repeated the same "requires both" framing before this check —
+   corrected in place, pointing here.
+3. **Explicitly scoped to longer-term daily-bar lines, and even there is not universal.** Murphy
+   says the 3% filter "is used mainly for the breaking of longer term trendlines" and states
+   outright that "the 3% rule doesn't apply to some financial futures, such as the interest rate
+   markets" — Murphy himself flags non-universality across markets. Every worked example in both
+   quoted passages ("two successive days," "two days in a row," "a Friday close... to ensure a
+   weekly signal") is stated in terms of daily closes; nothing in ch. 4 or ch. 5 discusses
+   intraday/5-minute bars for these specific figures (the only ch.-4 intraday mentions are about
+   NOT using a mere intraday touch/wick as the break signal at all, i.e. requiring a close — a
+   different point from the 3%/2-day figures themselves).
+4. **Book covers stocks and futures on daily/weekly charts; SPY 0DTE options on 5-minute bars are
+   outside the described scope entirely** — a different instrument class (listed equity index
+   options, not the underlying), a different expiry regime (0DTE — the "two successive days" time
+   filter is close to meaningless when the entire trade lifecycle is a single session), and a
+   two-orders-of-magnitude-finer bar resolution (5-minute vs. daily).
+
+### The arithmetic that actually matters for Gamma
+
+Murphy's worked example: gold at $400, 3% penetration required is $12 — and he calls that "not
+appropriate for shorter term trading" even for a timeframe still coarser than intraday. Applying
+the same 3% figure to SPY:
+
+- SPY at approximately $765 (the level referenced in this work order) times 3% equals
+  **$22.95, approximately $23**.
+- A $23 penetration filter applied to a 5-minute chart is not a noise filter — it is larger than
+  most entire SPY trading days (calm-to-normal RTH ranges commonly run a small single-digit to
+  low-teens dollar span; only outsized catalyst days such as CPI/FOMC/NFP push materially past
+  it). A "3% Murphy filter" applied literally to SPY 5-min bars would almost never fire, or would
+  only fire on the most extreme trend days — functionally useless as an intraday break-confirmation
+  gate.
+- The two-day time filter is equally non-transferable on its face: 0DTE means the position exists
+  for at most one session; "close beyond the line for two successive days" has no meaning inside a
+  single day's 5-minute bars.
+- **Conclusion: the rule is real, but it is a daily/weekly-bar, longer-term-trendline heuristic
+  that does not scale down to SPY 0DTE intraday structure by direct substitution.** Any intraday
+  analogue Gamma builds must be derived independently from ATR-scaled buffer plus N-bar
+  persistence (already flagged as the correct approach in Part 2 section 8 above, and consistent
+  with how the algorithmic/LuxAlgo literature already operationalizes "Murphy's spirit" for
+  intraday use) — not by dividing Murphy's 3%/$12/2-day daily-bar numbers down to intraday scale,
+  which has no textual basis in Murphy at all (he gives no formula for how the filter should
+  change by timeframe beyond "a 1% criterion would serve better" for "shorter term trading," still
+  describing a shorter-term daily trendline, not a 5-minute intraday one).
+
+### Secondary-literature comparison (attribution-drift check)
+
+- finaccfundas.blogspot.com and ajjacobson.us both reproduce Murphy's numbers (3%, two-day)
+  essentially correctly — ajjacobson.us's page is close to a direct paraphrase/transcription of
+  the same ch. 4 passage quoted above — consistent with primary text, not drift.
+- A general web-search synthesis pass (this session) characterized the two filters as working
+  "together" / being applied jointly — this is the specific compression identified in finding 2
+  above. It is a mild drift (numbers unchanged, relationship between them overstated), not a
+  fabrication.
+- No source found (primary or secondary) that claims Murphy wrote this rule for intraday bars,
+  options, or 0DTE instruments specifically — the "SPY 0DTE" framing is entirely Gamma's own
+  proposed application, not anything attributed to Murphy by anyone.
+
+### Full citation list
+
+1. John J. Murphy, *Technical Analysis of the Financial Markets*, New York Institute of Finance,
+   copyright 1999, ISBN 0-7352-0066-1, Ch. 4 "Basic Concepts of Trend," pp. 71-72 (section "What
+   Constitutes a Valid Breaking of a Trendline?") and Ch. 5, p. 122 ("Filters," Head and Shoulders
+   variations). Full OCR text fetched and grepped directly this session:
+   [archive.org/details/JohnJ.MurphyTechnicalAnalysisOfTheFinancialMarkets](https://archive.org/details/JohnJ.MurphyTechnicalAnalysisOfTheFinancialMarkets).
+2. [finaccfundas.blogspot.com — John Murphy's Patterns in a nutshell](https://finaccfundas.blogspot.com/2014/09/john-murphy-rules-of-technical-trading.html)
+   — secondary, numbers match primary.
+3. [ajjacobson.us — What Constitutes a Valid Breaking of a Trendline](https://www.ajjacobson.us/technical-analysis/what-constitutes-a-valid-breaking-of-a-trendline.html)
+   — secondary, near-verbatim reproduction of the same ch. 4 passage; numbers match primary.
+4. [stockdisciplines.com — Stock Trendline Penetrations](https://stockdisciplines.com/stock-trends-penetrations/)
+   — secondary, describes the two-day rule as "the most commonly applied method" for stocks
+   specifically (still daily-bar framing).
+
+### Grade and recommendation
+
+**Grade: VERIFIED-PRIMARY** for the 3% figure, the 1% variant, and the two-day figure (all
+confirmed verbatim against the primary text, ch. 4 pp.71-72 and ch. 5 p.122) — **downgraded on
+the combined-rule framing to SUPPORTED-SECONDARY-ONLY** (the "3% AND 2-day, applied together"
+version repeated in most web summaries, including this project's own prior Part 2 draft, is a
+mild compression of Murphy's actual "pick one filter type" framing) — and **the SPY-0DTE-intraday
+application is UNSUPPORTED BY THE PRIMARY TEXT AT ANY GRADE** (Murphy never discusses intraday
+bar filters for this rule; the numbers are explicitly daily/weekly and explicitly flagged by
+Murphy himself as needing to shrink for "shorter term trading," with no floor stated).
+
+**Recommendation: a constant may cite Murphy for the existence and shape of "percentage-filter OR
+time-filter, confirmed-close, not first-touch" break confirmation — but it must NOT carry
+Murphy's literal 3% or two-day figures, and should not be named e.g. `MURPHY_3PCT` or
+`MURPHY_2DAY`. Name it for what it actually is (an ATR-scaled buffer + N-bar persistence filter,
+per Part 2 section 8), and if a citation is wanted in a comment, cite it as "Murphy-style filter
+concept, re-derived for 5-min/0DTE scale — see TRENDLINE-BREAK-LITERATURE-2026-07-14.md" rather
+than naming the constant itself after Murphy.**

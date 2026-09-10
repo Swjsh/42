@@ -601,3 +601,376 @@ D → B (dry-run, then apply) → A → C (shadow ledger accumulates) → E (dra
 - No edit to `filters.py`, `heartbeat_core` gating, `refresh_levels_intraday` band/selection, or `params*.json` before 10-30 (freeze). WS-A adds a *read-out*, not a gate.
 - Never `draw_clear`. Never remove a shape in the J-registry. Never redraw during 09:30–15:55 ET beyond the existing 30-min cadence.
 - No new paid data vendor for gamma levels (OP-3 / C36).
+
+---
+
+### 9.9 ADDENDUM (2026-09-09, Opus execution session) — prior coverage WS-C must build on, not around
+
+> Written while executing §9.6's order (D → B → A → C → E → F). Recorded here rather than in a
+> new file per OP-22 (fold, don't accumulate). Every claim below was read from source this
+> session and is quoted, not recalled.
+
+**§9.5 row C says "New `backtest/lib/trendline_fit_v2.py`". That framing is wrong and would have
+produced a second implementation of a read that already exists (L251).** `backtest/lib/
+trendline_detector.py` (32 KB, 2026-08-09) already satisfies most of §9.4:
+
+| §9.4 rule | State in `trendline_detector.py` | Evidence |
+|---|---|---|
+| 1 — pivots first, never raw bars | **DONE** | `_fit_candidate` walks `same_kind_swings` only; `DEFAULT_PIVOT_WINDOW = 2` (`:124`). Pivot identification is not home-grown — it reuses `crypto.lib.trendlines.find_swing_points` (`:88`), the exact primitive `crypto.lib.market_structure.analyze_structure` itself calls, and window 2 *"matches `crypto/lib/market_structure.DEFAULT_WINDOW`"* (`:122`) |
+| 2b — emit the touch ledger | **DONE** | `_Candidate.touch_bar_indices`; plus `DEFAULT_MIN_BARS_BETWEEN_TOUCHES = 6` (`:131`, Tori "6+ candles between taps") and `DEFAULT_MIN_SPAN_BARS = 6` (`:137`) — spacing rules v1 lacks entirely |
+| 4 — 3 touches | **PARTIAL** | `DEFAULT_MIN_TOUCHES = 3` (`:126`); the DRAFT(2)/CONFIRMED(3) split is missing |
+| 6 — support may descend | **ALREADY POSSIBLE** | `_fit_candidate(require_slope: Literal["any","rising","falling"])` (`:288`) rejects on slope *only when the caller asks*. A descending support is a **caller config**, not a code gap — this is the single biggest divergence from `trendline_engine.py`'s hard `p2 <= p1 → continue` (`:311`) |
+| 7 — wick XOR body per line | **DONE** | `_body_view` (`:228`) / `_view_for_mode` (`:249`) with an `AnchorMode` |
+| 3 — zero closes through | **HALF DONE — the real gap** | the violation set IS computed (*"every CLOSED bar from anchor_a onward whose CLOSE broke through the line"*) but only **scored**: `score = len(touches) - VIOLATION_PENALTY * len(violations) + (i2 - i1) * SPAN_BONUS_WEIGHT`. Canon says a close through is **disqualifying**, not a penalty |
+
+**Genuine remaining gaps — the true WS-C scope:**
+
+1. **ATR-scaled tolerance.** `DEFAULT_TOUCH_TOLERANCE_DOLLARS = 0.20` (`:120`) is a fixed dollar
+   amount. Canon rule 2 wants ~0.15–0.25 × 5m ATR. **Fair warning — this constant is not
+   thoughtless:** its own comment ties it to J's *"levels are zones, not prices"* (2026-07-17) and
+   says *"this IS the zone width."* So WS-C is not correcting an oversight, it is making a
+   deliberate constant **adaptive** — the ATR study (F(3)) must show the fixed $0.20 is materially
+   wrong across regimes before the swap is justified, not merely that ATR-scaling is more
+   fashionable.
+2. **Closes-through disqualifying** (`max_close_violations=0` as an option), default preserving
+   today's scoring.
+3. **DRAFT vs CONFIRMED** status; only CONFIRMED is drawable.
+4. **Premarket bars 04:00–09:30 ET** — a *loader*-side gap (`bars_from_dataframe`, `:553` and its
+   callers), not a detector gap.
+5. **The parallel channel/wedge rail** — genuinely absent.
+
+**Revised instruction:** extend `trendline_detector.py`, each gap behind a parameter whose default
+reproduces today's exact behaviour, plus a thin "v2 profile" entry point that switches them on
+together. A separate module is acceptable only if it *imports* the detector rather than
+re-deriving pivots/touches/violations.
+
+**Prior art on WS-C's own acceptance test — read before rediscovering it:**
+
+- [`analysis/deep-research/2026-09-03-money/trendline-today-exhibit.md`](../../analysis/deep-research/2026-09-03-money/trendline-today-exhibit.md) `/.json` — a mechanical,
+  read-only attempt to reproduce J's 2026-09-03 rising support against this same detector. It
+  already establishes which of J's lines the detector can and cannot construct, and why: on 15m,
+  J's literal `08:15` anchor is **never a confirmed swing-low pivot even with full-day hindsight**
+  (`06:45`/`07:30` are lower and dominate the same fractal neighbourhood). That is the WS-C
+  metric's hardest case, already characterised.
+- [`analysis/recommendations/prereg-trendline-rising-support-human-anchor-2026-09-03.md`](../../analysis/recommendations/prereg-trendline-rising-support-human-anchor-2026-09-03.md) — FROZEN,
+  built and scheduled: `setup/scripts/trendline_human_anchor_shadow.py` +
+  `Gamma_TrendlineHumanAnchorShadow`, backfilled once, decision gated forward-only past
+  2026-10-30. If WS-C's shadow wiring would duplicate this fire, **piggyback on it — no new
+  scheduled task.**
+- `prereg-trendline-rising-support-v2-human-anchor-PROPOSAL-2026-09-03.md` is SUPERSEDED; read the
+  file above instead.
+
+### 9.10 RATIFIED (2026-09-09, Opus) — the drawing-tag taxonomy [F(1)]
+
+Four layers, one meaning each. This is decided, not proposed — implement against it.
+
+| Tag | Layer | Meaning | Drawn as |
+|---|---|---|---|
+| `[GE] ` | **acts-on** | The line and zones the gate actually read on the last tick. If it is not `[GE]`, it did not gate a trade. | **Solid**, full weight |
+| `[G] ` | level context | Key levels and (later, WS-E) canon context: IB, opening range, VWAP bands, prior-day VWAP | Zones, weight by tier |
+| `[GTL] ` | shadow fitter | The auto-fitted trendline lane. Shadow. Never gated a trade. | **Dashed / thin, or off by default** |
+| *(untagged)* | **J** | Anything a human drew. Registry-protected, never touched by any script. | As J drew it |
+
+Three rules that follow, and are not negotiable:
+
+1. **A tag is a claim about causality, not about who drew it.** `[GE]` means *this gated*. Nothing may
+   wear `[GE]` unless `heartbeat_core` wrote it into `engine-view.json` on a real tick. The whole
+   point of §9 is that J currently cannot tell decoration from decision; a loose `[GE]` recreates the
+   exact problem in a new coat of paint.
+2. **The prefix set lives in ONE place, imported, never copied.** Today `TAG` is defined twice —
+   `setup/scripts/draw_key_levels.py:66` (`"[G] "`) and `setup/scripts/trendline_headless_draw.py:81`
+   (`"[GTL] "`) — and `setup/scripts/j_drawn_lines_capture.py:69` already does the right thing by
+   importing rather than re-declaring. Every new consumer (WS-B hygiene, WS-D capture, WS-A engine
+   view) imports the same tuple. L251: two spellings of the same tag silently disagree, and the
+   thing that disagrees here is *what gets deleted off J's chart*.
+3. **Untagged is J by definition, and the default is KEEP.** No heuristic may promote an untagged
+   shape to deletable. If a producer wants its shapes cleanable, it tags them. An unrecognised shape
+   is a human being, not garbage.
+
+
+### 9.11 F-item resolution ledger (Opus session 2026-09-09) — append as each resolves
+
+| F | Item | State | Where it landed |
+|---|---|---|---|
+| F(1) | Ratify the tag taxonomy | ✅ **RATIFIED** | §9.10 above |
+| F(2) | Prereg the v2 → `filters.py` swap, with the kill criterion | ✅ **FROZEN** | [`prereg-trendline-fitter-v2-swap-10-30-2026-09-09.json`](../../analysis/recommendations/prereg-trendline-fitter-v2-swap-10-30-2026-09-09.json) — classified SHAPE CHANGE (10-30 only, never 09-29); metric = `go_live_gate.py::statistical_criterion()` reused verbatim; **DEFAULT = v1 stays** |
+| F(3) | Zone-width constant from the ATR study | ⚠️ **RE-SCOPED — see §9.13 B.** The premise was wrong: `zone_width`/`zone_width_provenance` already exist per-level, and `_zone_width()` explicitly forbids hand-picking (*"pending a pre-registered A/B study (never hand-picked)"*). Opus must NOT name a constant off WS-C's ATR distribution — the honest F(3) output is a **pre-registered A/B**, with the ATR study as its input. WS-B's merge uses each level's own `zone_width`, flag-OFF meanwhile |
+| F(4) | Verify Murphy 3 %/2-day from primary text | ✅ **RESOLVED — see verdict below** | [`TRENDLINE-BREAK-LITERATURE` § "Murphy 3%/2-day rule — provenance check (2026-09-09)"](../research/TRENDLINE-BREAK-LITERATURE-2026-07-14.md) |
+| F(5) | Indicator layout | ⏳ **WITH J** — one line, see below |
+
+#### F(4) verdict — the constant may NOT carry Murphy's name
+
+Primary text reached (archive.org full OCR of *Technical Analysis of the Financial Markets*, ch. 4
+pp. 71–72; the earlier crew's single fetch had only surfaced the table of contents). Three-part grade:
+
+- **VERIFIED-PRIMARY** — the 3 % figure, a 1 % variant, and the two-day figure are all Murphy's own
+  words, quoted verbatim with page numbers in the research doc.
+- **SUPPORTED-SECONDARY-ONLY** — the popular "3 % **AND** 2-day, applied together" framing is *not*
+  what Murphy wrote. He presents them as **alternatives**: *"An alternative to a price filter… is a
+  time filter."* Do not encode them as a joint requirement.
+- **UNSUPPORTED AT ANY GRADE for SPY 0DTE** — Murphy is describing daily/weekly closes on
+  longer-term trendlines, and disclaims universality even there (*"The 3% rule doesn't apply to some
+  financial futures…"*). **3 % of SPY at ~$765 is ~$23** — larger than most entire SPY sessions on a
+  5-minute chart. The number cannot transfer.
+
+**Consequence for §9.4 rule 8:** the break-confirmation constant is an **ATR-scaled buffer + N-bar
+persistence**, derived at 5-minute/0DTE scale, and must be named accordingly — e.g. a
+"Murphy-style filter concept, re-derived for 5m/0DTE", never `MURPHY_3PCT` / `MURPHY_2DAY`. A
+constant named for an authority that did not say it is a hallucinated citation with a code path
+attached; the naming rule is the guard against that.
+
+#### F(5) — the one line for J (layout is J's taste, not Gamma's)
+
+Canon says VWAP earns a permanent chart slot; and a **9-EMA ribbon + SMA 50/200 + Saty pivot ribbon
+on one 15m chart matches no named school** (Brooks / Grimes). That is the canon read, presented once
+as §9.4 rule 10 requires — **J names the layout he wants and it gets implemented verbatim.** Until
+then the current layout stands unchanged; nothing here is acted on unilaterally.
+
+### 9.12 Accuracy pass (Opus, 2026-09-09) — §9.2's v1 claims re-verified from source
+
+§9.2 was written by the previous session. J asked for an accuracy review, so every load-bearing v1
+claim was re-read from `backtest/autoresearch/trendline_engine.py` this session. **All four hold**,
+with the exact text now pinned so no future session has to take them on trust:
+
+| §9.2 claim | Verdict | Source line, read this session |
+|---|---|---|
+| `PIVOT_K = 1` makes nearly every bar a pivot | ✅ **CONFIRMED** | `:67` — `PIVOT_K = 1  # swing pivot = extreme of a +/-PIVOT_K window` |
+| Touch tolerance ≈ `max($0.10, 0.15 % × price)` | ✅ **CONFIRMED** | `:66` `TOL = 0.10`; the touch test is `abs(extreme - lv) <= max(TOL, 0.0015 * lv)` — 0.0015 = 0.15 % |
+| Closes through only cost −5, not disqualifying | ✅ **CONFIRMED verbatim** | `score = respect - 5 * violations + (i2 - i1) * 0.1` |
+| Support must ascend, so a descending support is impossible | ✅ **CONFIRMED** | `if kind == "support" and p2 <= p1: continue  # support must ascend through higher-lows` |
+
+Two refinements §9.2 did not capture:
+
+- **The touch walk is per-BAR, not per-pivot.** The respect/violation loop iterates every bar `j`
+  between the anchors and tests `px(bars[j])` — which is exactly why "touch x3" is inflated. This
+  *strengthens* §9.2's diagnosis rather than weakening it.
+- **v1 already enforces canon rule 7 (wick XOR body)** — by hard `assert` on both anchors sharing
+  one field (*"wick-only anchor invariant violated — both anchors of a {kind} line must be the SAME
+  wick field"*). So the wick/body rule is **not** a v1 gap; do not spend WS-C effort re-adding it.
+
+**Net:** the v1 defect list shortens to three real items — per-bar touch counting, non-disqualifying
+close-throughs, and the ascending-support-only constraint (plus the premarket exclusion, which is
+loader-side). Everything else §9.4 asks for already exists somewhere in the repo.
+
+### 9.13 Accuracy pass, part 2 — two defects **in the work order itself** (Opus, 2026-09-09)
+
+Found while scoping WS-E and F(3) against live code. Both were verified from source and from the
+live `automation/state/key-levels.json` (15 levels) this session.
+
+#### 🚨 A. WS-E's `role: "context"` design would BREAK THE FREEZE — do not build it as written
+
+§9.5 row E says context levels are *"emitted into `key-levels.json` under a new `role: "context"`
+that `_read_levels` ignores (so the gate is unchanged)."* **`_read_levels` would not ignore them.**
+
+- `heartbeat_core._read_level_records(spy)` — the single parse — filters on **exactly two things**:
+  `_level_expired(...)` and `abs(p - spy) <= 12`. **There is no role filter anywhere in it.**
+- `_read_levels` then appends **every** returned record to `active`:
+  `active.append(round(float(p), 2))`, unconditionally. Only the *second* list, `multi`, is
+  role-conditional.
+
+So a `role: "context"` row inside the $12 band would land straight in the gate's **active level
+list** and change which levels the engine trades against. That is precisely the class of change the
+config freeze exists to stop, and row E is labelled freeze-compatible "NOW" work. Building it as
+specified would have shipped a silent gate change under a "drawing only" label.
+
+**Corrected design — context levels do NOT go into `key-levels.json` at all.** Write them to a
+separate `automation/state/context-levels.json` that only the drawing path reads. Then:
+- `_read_levels` and `_read_level_records` need **zero code changes**, so the guard row E asks for
+  (*"`_read_levels` output byte-identical with/without context rows"*) is true by construction
+  rather than by a new filter added to a frozen path;
+- the 10-30 "flip to gate input" prereg becomes an explicit, reviewable merge of one file into
+  another, instead of a role string quietly acquiring meaning.
+
+#### B. F(3) is not "pick a zone-width constant" — the repo already pre-committed to a method
+
+`zone_width` and `zone_width_provenance` are **already per-level fields**, live on 11 of 15 levels:
+
+| provenance | count | width |
+|---|---|---|
+| `shelf_band_observed` | 8 | 0.80 (measured from the actual shelf band) |
+| `default_pre_ab` | 3 | ~0.38 (`max(ZONE_WIDTH_MIN, price × ZONE_WIDTH_PCT)`) |
+| *(absent)* | 4 | — |
+
+`refresh_levels_intraday._zone_width()` (`:294`) states the standing rule outright: *"This is a
+DEFAULT band pending a pre-registered A/B study (never hand-picked) — every level carries
+`zone_width_provenance='default_pre_ab'` so a future study knows which levels still run on the
+default vs a validated width."*
+
+**Consequences:**
+1. Opus must **not** hand-pick a global constant from WS-C's ATR distribution — that is exactly the
+   "never hand-picked" this code forbids. F(3)'s honest output is a **pre-registered A/B**, and the
+   ATR study is its input, not its verdict.
+2. **WS-B's zone merge must use each level's own `zone_width`** where present, falling back to
+   `_zone_width(price)` — never a single global number. Eight of fifteen live levels already carry
+   an *observed* width; collapsing those onto one constant would discard measured information in
+   favour of a guess.
+3. The four levels with no `zone_width` at all are a real gap worth closing separately.
+
+### 9.14 Accuracy pass, part 3 — §9.3's "zero consumers" row is wrong, and it is a delete-hazard
+
+§9.3's last table row reads: *"`trendlines.json`, `trendlines-live.json`, `confluence-zones.json` —
+zero consumers (doctrine-noted)."* Verified from source this session: **two of the three have live
+consumers.** They are all SHADOW consumers — no entry is gated — but "zero consumers" is the kind of
+claim that gets a file deleted or a producer switched off.
+
+| File | Actual consumers, read this session |
+|---|---|
+| `confluence-zones.json` | `heartbeat_core._read_confluence_zones()` (`:532`), **called at `:706` and `:731`** — feeds the conviction score's C7 zone stack |
+| `trendlines-live.json` | `heartbeat_core._read_shadow_trendlines()` (`:631`) → the `conviction_tl` SHADOW variant; **and `setup/scripts/confluence_producer.py:45` (`TREND_F`)**, which is what *produces* `confluence-zones.json` |
+| `trendlines.json` | `self_check.py:1029` D9 liveness guard; surfaced by `obsidian_vault_sync.py:959`. self_check's own note calls it *"SHADOW, zero code [consumers]"* — so for this file alone the §9.3 claim is roughly right |
+
+**Why this matters more than a footnote:** there is a **chain** — `trendline_engine` →
+`trendlines-live.json` → `confluence_producer.py` → `confluence-zones.json` → conviction C7. Acting
+on "zero consumers" by retiring `trendlines-live.json` (a tempting cleanup once WS-C's v2 exists)
+would silently empty the confluence zone map, and conviction C7 would degrade to 0 while still
+reporting a score. `_read_confluence_zones` **fails open by design** (returns `None` on
+missing/unreadable/stale), so the breakage would be **invisible** — no exception, no RED, just a
+quietly worse score. That is a C7-doctrine silent failure waiting to happen.
+
+**Corrected wording for §9.3:** the row should say **"zero GATE consumers; live SHADOW consumers
+exist — see §9.14 before retiring any of them."** WS-C in particular must not assume
+`trendlines-live.json` is free to replace: run `/fable-blast-radius` on that chain first.
+
+### 9.15 WS-D/WS-B verification + one bug Opus caught in review (2026-09-09)
+
+#### 🐛 Bug found in WS-D at review: `text: null` was being adopted as one of J's lines
+
+`_is_engine_tagged()` coerces `None → ""` (`t = text or ""`), so a drawing with `text: null`
+returned `False` and was **accepted as a hand-drawn line**. `read_chart_drawings.js` fails *soft* to
+`null` on any shape exposing neither `properties()` nor `getProperties()` — so an **unreadable
+ENGINE line was indistinguishable from an untagged one**, silently reinstating the exact defect WS-D
+exists to fix, while every counter still reported health. That is worse than the original bug,
+because the original was at least visible in `trendlines.json`.
+
+Discriminator that makes the fix safe: **J's real lines carry `""`, never `null`** — all 23 rows of
+`j-drawn-lines-ledger.jsonl` are `text: ""`. So `null` is never J and always "provenance unproven":
+dropped, and counted in its **own** bucket (`n_dropped_null_text`) so an unreadable-accessor failure
+is distinguishable from the old-schema one.
+
+**RED-proofed, not assumed** — with the check disabled the guard fails exactly as predicted:
+```
+FAILED test_drawing_with_null_text_is_dropped_not_treated_as_js
+FAILED test_empty_string_text_is_js_line_but_null_is_not
+2 failed, 5 passed     <- check disabled
+7 passed in 0.92s      <- check restored
+```
+
+#### ✅ WS-D's UNVERIFIED item is now RESOLVED — live chart, this session
+
+The agent correctly flagged the JS text accessor as unprovable offline. Run live via `ui_evaluate`
+against the real chart:
+
+```
+total=67  withProps=67  viaProperties=67  viaGetProperties=0
+nullText=0  emptyText=39  tagged=16
+sample: "[GTL] [WICK] SUPPORT | touch x3 | INTACT | 1788444600"
+        "[G] INTRADAY SWING LOW 762.28"   "PDH 776.85 (R)"
+```
+
+- The `properties()` accessor works on **67 / 67** shapes; the `getProperties()` fallback is never
+  needed on this build (keep it — it costs nothing and this is one TradingView release).
+- **`nullText = 0`** today. The guard above is still correct defensive coding, not dead code — it
+  converts a future accessor break from *silent misclassification* into a *loud counter*.
+- The `[GTL]` sample is J's cyan line, caught in the act: **`touch x3`** on the line he says does not
+  touch three times (§9.2).
+
+#### ✅ Two independent reads agree — the shape census reconciles exactly
+
+WS-B counted engine-tagged shapes via `tv_cdp.shape_text` (`getShapeById` path); the check above
+used `model.dataSources().properties()` — **completely different accessors, same answer: 16.**
+
+| Bucket | n | Source |
+|---|---|---|
+| Total shapes on chart | **68** | `draw_list` (Opus, this session) |
+| … of which line-tools | 67 | the 1 difference is `MLzAHd`, a `rectangle` — correctly outside the line-tool regex |
+| Engine-tagged (`[G]`/`[GTL]`) | **16** | agreed by **both** independent reads |
+| J's, registered | **52** | `68 − 16` ✓ — WS-B registry, `newly_registered=52` |
+| … empty text `""` | 39 | the classic untagged trendlines/rays |
+| … human-labelled text | 12 | `PDH 776.85 (R)`, `SHELF 754.71 - downside target` — the "orphan premarket LLM lines" of §9.2, correctly kept as J's |
+
+J's ray `UvNj5Q` is in the registry with anchors matching §9.5 exactly. **Combined regression suite:
+`75 passed in 28.59s`.**
+
+#### ⚠️ Expected, and correct: manual capture reads ZERO until the JS re-runs
+On the current on-disk `chart_drawings.json` (pre-`text` schema) `compute()` now returns
+`n_dropped_no_text=28`, i.e. **no manual lines at all**. That is the fail-loud design working: the
+snapshot cannot prove any line is J's. It self-heals on the next `trendline_manual.refresh()` tick
+(5-min RTH). It is called out here so nobody reads that zero tomorrow as "J drew nothing."
+
+### 9.16 WS-C returned a NULL: 0/24. Opus review — the null is real, and it agrees with prior art
+
+WS-C reported **0 of 24 of J's lines reproduced** against an 80 % bar, and correctly refused to tune
+until it passed. Because a 0 is exactly as suspicious as a 100, the result was attacked rather than
+accepted. **Two hypotheses were raised and both were falsified by measurement.**
+
+#### Hypothesis 1 — the anchor-match tolerance is absurdly tight. FALSIFIED as the cause.
+
+It *is* absurdly tight, and that is a genuine defect worth fixing:
+
+| | |
+|---|---|
+| 5m ATR across J's 24 lines | **$0.1134 – $0.5457** |
+| anchor-match bar actually used (`0.20 × 5m ATR`, floored at $0.01) | **$0.023 – $0.109** |
+| SPY tick / typical spread | $0.01 / ~$0.01–0.02 |
+
+A **2.3-cent** bar on a *hand-drawn* anchor is not a test a human can pass. The validator's floor was
+`max(0.20 × atr, 0.01)` — a one-cent floor is no floor. **But raising it changes nothing:**
+
+```
+floor=$0.01 -> n_pass 0     floor=$0.20 -> n_pass 0     floor=$0.50 -> n_pass 0
+floor=$0.10 -> n_pass 0     floor=$0.38 -> n_pass 0
+```
+*(floor confirmed propagated: `anchor_tol_floor: 0.5`, `tolerance_dollars` all $0.50)*
+
+#### Hypothesis 2 — anchor TIME is the binding constraint. Also FALSIFIED as the cause.
+
+Plausible, because **all 23 ledger rows carry `drift_detected: true`** — J's own capture pipeline
+flags that anchor *time* is not reliable to bar precision between the 5m and 15m reads (price
+identical, time differs by a non-constant offset), and 3 lines have **no bar within 600 s of anchor1
+at all** (nearest 840 s / 1200 s / 1290 s). Requiring a pivot within 600 s of a *drifted* timestamp
+tests the capture, not the fitter. Sweeping it:
+
+```
+600s -> 0     900s -> 0     1800s -> 1     3600s -> 1     7200s -> 1     21600s -> 1
+```
+Relaxing time from 10 min to **6 hours** buys exactly **one** line. Not the cause either.
+
+#### The verdict: the null is robust, and it is not new
+
+0/24 survives an ~8× loosening on price and a 36× loosening on time. **v2 is not failing to *match*
+J's lines; it is not *constructing* them at all** — while it does produce lines in general (9
+CONFIRMED for 2026-09-08). So J draws lines that a pivot-anchored, zero-close-through fitter does not
+produce.
+
+**That conclusion already exists in this repo, from a different implementation.**
+`analysis/deep-research/2026-09-03-money/trendline-today-exhibit.md` ran `backtest/lib/
+trendline_detector.py` — a completely separate fitter — at J's 2026-09-03 rising support and found it
+*"could not construct J's specific rising support line… on either 5m or 15m, with or without
+premarket bars"*, and that J's literal 08:15 anchor is **never a confirmed swing-low pivot even with
+full-day hindsight.** Two independent fitters, same answer. This is a **replication, not an anomaly.**
+
+#### What this actually means for the work order
+
+1. **Do NOT read 0/24 as "v2 is broken."** It is not evidence about v2's quality. It is evidence
+   about the *acceptance metric*.
+2. **"Reproduce J's hand-drawn lines" may be the wrong acceptance test.** It presumes J's lines are
+   pivot-constructible. Two implementations now say they are not. Either J anchors on something that
+   is not a fractal pivot (a zone edge, a body, a remembered level, an eyeballed best-fit), or the
+   ledger's drifted timestamps make exact reproduction unrecoverable in principle — §9.5's own
+   metric cannot distinguish those, which is its defect.
+3. **The honest next question is a fork, and it belongs to J** (see §9.17): is the goal to *replicate*
+   J's hand, or to build a line whose *breaks trade well*? Those need different tests entirely.
+4. **F(2)'s prereg is unaffected and its DEFAULT already handles this correctly:** clause (e)
+   requires the WS-C reproduction ledger to have passed its own bar. It did not. So under the frozen
+   rule as written, **v1 stays at 10-30** unless the metric itself is re-preregistered. That is the
+   prereg working as designed, not a problem to route around.
+5. **Correction to canon rule 2 (§9.4):** "0.15–0.25 × ATR" cannot mean **5-minute** ATR on SPY — that
+   yields a sub-spread band. The literature's fraction is of the ATR *on the timeframe being drawn*.
+   Any tolerance constant must be floored at the repo's own established zone width
+   (`TOUCH_TOLERANCE_USD` = `DEFAULT_TOUCH_TOLERANCE_DOLLARS` = **$0.20**), which is also the answer
+   F(3) was reaching for — and which the repo already reasoned its way to once.
+
+**Validator changes made at review** (so the sensitivity is measurable, not assumed): tolerance floor
+and anchor-time tolerance are now env-overridable (`GAMMA_V2_TOL_FLOOR`, `GAMMA_V2_TOL_ATR_FRACTION`,
+`GAMMA_V2_TIME_TOL_SEC`), floor default raised $0.01 → $0.20. Canonical re-run left on disk at
+`anchor_tol_floor: 0.2`, `anchor_time_tol_sec: 600`, `n_pass: 0`.

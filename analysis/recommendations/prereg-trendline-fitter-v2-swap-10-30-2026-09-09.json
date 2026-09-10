@@ -1,0 +1,68 @@
+{
+  "rule_id": "prereg-trendline-fitter-v2-swap-10-30-2026-09-09",
+  "title": "Should the canon-conformant trendline fitter (v2) replace the in-process fitter inside backtest/lib/filters.py::detect_trendline_rejection_bearish at the 2026-10-30 checkpoint?",
+  "status": "FROZEN_BEFORE_ANY_RESULT -- 10-30 checkpoint candidate (SHAPE CHANGE)",
+  "frozen_at_et": "2026-09-09 23:55 ET",
+  "frozen_by": "Opus, executing markdown/0dte/KEY-LEVELS-CHART-READING-HANDOFF.md section 9.5 row F item 2",
+  "freeze_proof": "This file's first commit timestamp. v2 DID NOT EXIST when this rule was written -- WS-C was still building it in a parallel agent. There is therefore no first-look to disclose and no way for the rule below to have been fitted to a result.",
+
+  "classification": "SHAPE CHANGE, not a risk reduction. Swapping the fitter changes WHICH entries fire, in both directions and by an unknown amount. Under the config freeze this is a 2026-10-30 item and is explicitly NOT eligible for the 2026-09-29 safety checkpoint, which admits pre-registered kill-type risk REDUCTIONS only.",
+
+  "what_is_being_swapped": {
+    "incumbent": "backtest/lib/filters.py::detect_trendline_rejection_bearish (:758-870) -- fitted in-process per tick: pivot HIGHS only, descending only, lookback_bars=60, min_swings=3, proximity_pct=0.0010, require_decreasing=True. This is the ONLY trendline that gates an entry anywhere in the system; every drawn line on the chart is decoration relative to it (work order section 9.1).",
+    "challenger": "the canon-conformant fitter WS-C is building -- per section 9.9 this is an EXTENSION of backtest/lib/trendline_detector.py, not a new parallel module: ATR-scaled touch tolerance, closes-through disqualifying (not merely score-penalised), DRAFT/CONFIRMED split, premarket bars 04:00-09:30 ET admitted, parallel channel/wedge rail, support-may-descend via require_slope=any.",
+    "not_in_scope": "detect_trendline_reclaim_bullish (:1101) stays SHADOW under every outcome of this prereg. Nothing here touches heartbeat_core gating, params*.json, exit logic, or sizing."
+  },
+
+  "populations": {
+    "window": "the 40-day scored window ending at the 2026-10-30 checkpoint",
+    "arms": "the real-fills arms only (safe-2, bold-2, safe-3, risky-1). Sim/BS-priced rows are ranking-only and may never decide this (L50/L71: real-fills is the only WR authority).",
+    "in_sample_note": "Every session on or before 2026-09-09 is an IN-SAMPLE PRIOR. It is reported honestly alongside the decision and never used to gate it. The decision reads forward sessions only.",
+    "counterfactual_construction": "v2-gated entries are produced by replaying the SAME sessions with only the fitter swapped -- every other gate, filter, sizing rule and exit rule held byte-identical. If a replay cannot hold everything else identical, this prereg is UNDECIDABLE and v1 stays (see decision_rule.DEFAULT)."
+  },
+
+  "metric_definition": {
+    "primary": "day-level bootstrap Profit Factor, 2.5th-percentile CI lower bound, computed by setup/scripts/go_live_gate.py::statistical_criterion() -- REUSED VERBATIM, not reimplemented (L251). That function already evaluates all three of as-traded, ex-best-day (single largest contributing day dropped) and cost-adjusted.",
+    "headline_gate_from_the_work_order": "ex-best-day PF is the named bar: if v2-gated entries on the 40-day window are not >= v1 on ex-best-day PF, v1 stays (work order section 9.5 row F item 2).",
+    "why_ex_best_day_is_the_bar": "C4/C24: this codebase's recurring failure is a result carried by one exceptional session. A fitter change that only wins with its best day included has not been shown to change anything.",
+    "wr_is_not_a_bar": "Win rate is a DIAGNOSTIC here, reported but never decisive. The validated engine is a low-WR right-tail (CLAUDE.md go-live gate rationale); a WR bar would measure a strategy shape this project already killed."
+  },
+
+  "decision_rule": {
+    "n_min_entries_per_variant": 15,
+    "n_min_scored_days": 20,
+    "ACT_swap_v2_into_filters": "ALL of: (a) n >= n_min on BOTH variants; (b) v2 ex-best-day PF CI-lower >= v1 ex-best-day PF CI-lower; (c) v2 does not regress the immutable J-edge anchor trades (OP-16 anti-regression -- re-score the anchors, winners must not turn into losses or non-entries); (d) v2 advantage is not concentrated in a single day or a single arm (drop-best-day AND drop-best-arm both survive); (e) the WS-C reproduction ledger passed its own bar (>=80 percent of J hand-drawn lines reproduced within 1x tolerance on anchor and 10 percent on slope, AND the cyan 5iZLKB touch-x3 line NOT reproduced).",
+    "KILL_v1_stays": "any one of (a)-(e) fails.",
+    "DEFAULT": "v1 STAYS. This prereg is written so that silence, ambiguity, an undecidable replay, or a missing WS-C ledger all resolve to NO SWAP. The incumbent does not have to win; the challenger has to.",
+    "no_partial_swap": "v2 either replaces the fitter for the bear detector or it does not. No per-arm, per-regime or per-time-of-day carve-outs -- those are new hypotheses needing their own preregs (C15: gates interact multiplicatively)."
+  },
+
+  "anti_gaming_clauses": [
+    "No re-reading of the decision before 2026-10-30. An interim look does not void the prereg but MUST be logged in this file as an amendment with its date, per the freeze convention.",
+    "No tuning v2 parameters after seeing the gated-entry result. The v2 parameter set is frozen by the WS-C reproduction ledger BEFORE this comparison runs; if a parameter is changed afterward, this prereg is void and a new one is required.",
+    "If the v2 result looks extraordinary (large PF lift, sudden clean win), run the /fable-too-good protocol BEFORE reporting: hunt the artifact first. Suspicion scales with how good it looks.",
+    "The chart-drawing work (WS-A/B/E) is NOT evidence for this prereg in any direction. Drawing what the engine trades changes visibility, not entries."
+  ],
+
+  "revert_line": "git revert <the swap commit>. The swap is a single call-site change inside detect_trendline_rejection_bearish; v1 fitter code is not deleted by this prereg under any outcome, so revert is one commit and restores byte-identical behaviour.",
+  "guard_required_before_swap": "a RED-proofed regression test pinning the incumbent behaviour on the anchor sessions, so that a future accidental change to the fitter fails loudly (C35: built+tested != shipped; graduated guards live in backtest/tests/test_graduated_guards.py).",
+  "invocation_note": "Any 10-30 application runs with GAMMA_FREEZE_OVERRIDE in the invocation, per the freeze protocol.",
+
+  "disclosure_OP20": {
+    "N": "TBD at read time -- both variant entry counts and scored-day counts are reported, never just the winner.",
+    "IS_vs_OOS": "sessions on or before 2026-09-09 are in-sample prior and reported separately; the decision reads forward sessions only.",
+    "null_baseline": "v1 as-is on the identical replayed sessions -- a paired comparison, not a comparison against no-trading.",
+    "known_confounds": "SPY price-space edge is not option-space edge (L74/C3): a fitter that improves line quality in price space can still lose in premium space through delta/theta/stop-misfire. The comparison is therefore run on OPTION P&L from real fills, never on SPY-price outcomes."
+  },
+
+  "links": {
+    "work_order": "markdown/0dte/KEY-LEVELS-CHART-READING-HANDOFF.md section 9",
+    "prior_coverage_addendum": "markdown/0dte/KEY-LEVELS-CHART-READING-HANDOFF.md section 9.9",
+    "canon_research": [
+      "markdown/research/TRENDLINE-BREAK-LITERATURE-2026-07-14.md",
+      "markdown/research/INTRADAY-LEVELS-CANON.md"
+    ],
+    "acceptance_prior_art": "analysis/deep-research/2026-09-03-money/trendline-today-exhibit.md",
+    "sibling_frozen_prereg": "analysis/recommendations/prereg-trendline-rising-support-human-anchor-2026-09-03.md"
+  }
+}

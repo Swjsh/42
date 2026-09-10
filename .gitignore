@@ -422,3 +422,12 @@ automation/state/archive/
 # intermediate outputs of ad-hoc analysis, not the cited research docs in the same directory.
 analysis/deep-research/_*.json
 analysis/deep-research/*_result.json
+
+# J's chart-shape registry (2026-09-09, WS-B). DECISION-GATING PROTECTIVE STATE: it decides
+# which shapes chart_hygiene.py may never remove. Untracked on purpose, same reasoning as
+# key-levels.json (C34): a tree-wide git op that restored an older copy would silently strip
+# registry protection from every shape J has drawn since that commit, and the sweep would then
+# be free to delete his lines. The live chart is the source of truth -- the registry must only
+# ever grow forward from a fresh capture, never be restored from history. Losing the file is
+# safe (it rebuilds on the next --capture-registry run); resurrecting a stale one is not.
+automation/state/j-shapes.json

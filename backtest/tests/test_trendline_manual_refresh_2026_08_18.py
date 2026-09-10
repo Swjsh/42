@@ -53,7 +53,12 @@ def _write_synthetic_csv(data_dir: Path, base_date: dt.date, n_bars: int = 25) -
 
 
 def _drawing(drawing_id: str, t1, p1: float, t2, p2: float) -> dict:
-    return {"id": drawing_id, "title": "trendline", "point_count": 2,
+    # `text: ""` (WS-D/D1, 2026-09-09): post-D1 chart_drawings.json snapshots always carry a
+    # `text` field; a non-engine-tagged empty string is what a real hand-drawn J line looks
+    # like. Omitting the key entirely now means "old-schema snapshot" and is dropped by
+    # compute_trendlines._load_manual_drawings (n_dropped_no_text) -- covered separately in
+    # test_manual_capture_pipeline_2026_09_09.py, not this file's scenario.
+    return {"id": drawing_id, "title": "trendline", "point_count": 2, "text": "",
             "points": [{"time": int(t1), "price": float(p1)}, {"time": int(t2), "price": float(p2)}]}
 
 
@@ -221,7 +226,9 @@ def test_refresh_chart_drawings_writes_expected_shape(tmp_path):
     assert on_disk == payload
     assert on_disk["count"] == 1
     assert on_disk["drawings"][0]["id"] == "ABC123"
-    assert on_disk["schema_version"] == 2
+    # v3 as of WS-D/D1 (2026-09-09) -- drawings[] now carries `text` so engine-tagged
+    # lines can be excluded from the manual set; this is a real schema bump, not v2.
+    assert on_disk["schema_version"] == 3
 
 
 def test_refresh_chart_drawings_raises_on_js_reported_failure(tmp_path):

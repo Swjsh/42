@@ -63,6 +63,7 @@ import pytz
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "backtest"))
+sys.path.insert(0, str(REPO_ROOT / "setup" / "scripts"))
 
 from lib.trendlines import (  # noqa: E402
     Trendline,
@@ -70,6 +71,19 @@ from lib.trendlines import (  # noqa: E402
     detect_trendlines,
     trendline_from_two_points,
 )
+from engine_shape_tags import ENGINE_TAG_PREFIXES  # noqa: E402 -- "[G] "/"[GTL] "/"[GE] ",
+# the ONE shared tuple of engine-tag prefixes (2026-09-09, WS-B chart hygiene sweep,
+# L251) -- imported, not re-derived. Text prefixes that mark a chart drawing as
+# ENGINE-drawn (never J's), regardless of the TradingView `title` string it happens to
+# share with a hand-drawn line (WS-D/D2, 2026-09-09 -- the defect this fixes: the
+# engine's own [GTL]-tagged lines have title "trendline" and were passing the old
+# title-only filter straight into "source": "manual_chart_draw").
+
+# Titles that can legitimately BE a trendline. "ray" is included: a 2-point ray is a
+# trendline that happens to extend past its anchors -- but a "horizontal ray" (1 point)
+# is a LEVEL, not a trendline, and is excluded by title text alone (never reaches this
+# tuple) as is any other 1-point shape via the existing point-count check below.
+MANUAL_TRENDLINE_TITLES = ("trendline", "trend line", "ray")
 
 ET = pytz.timezone("America/New_York")
 STATE_DIR = REPO_ROOT / "automation" / "state"
@@ -156,26 +170,111 @@ def _load_recent_bars(lookback_sessions: int) -> pd.DataFrame:
     return df
 
 
-def _load_manual_drawings() -> list[Trendline]:
+def _is_engine_tagged(text: str | None) -> bool:
+    t = text or ""
+    return any(t.startswith(prefix) for prefix in ENGINE_TAG_PREFIXES)
+
+
+def _load_manual_drawings() -> tuple[list[Trendline], dict[tuple[int, float, int, float], str], dict[str, int]]:
+    """Parse automation/state/chart_drawings.json ONCE into J's manual trendlines/rays.
+
+    SINGLE READER (L251 -- two implementations of the same read must never silently
+    disagree). Before this fix, this function built the Trendline list with a title-only
+    filter, and compute() separately re-parsed the SAME file with its OWN copy of that
+    filter just to build an id lookup keyed on anchor coordinates -- two accept/reject
+    decisions over the same data that could (and, for the engine-tag bug, did) drift
+    apart. Collapsed to one pass, one filter, one set of counters.
+
+    THE BUG THIS REPLACES (verified live 2026-09-09): the old filter accepted any drawing
+    whose TradingView `title` was "trendline"/"trend line" -- with no check on `text` at
+    all. The engine's OWN auto-drawn lines (trendline_headless_draw.py, TAG="[GTL] ")
+    ALSO have title "trendline", so they passed straight through and were written into
+    trendlines.json with source="manual_chart_draw" (live proof: entity ids 5iZLKB and
+    TJsQJS). Meanwhile J's hand-drawn RAYS (title "ray") were rejected outright by the
+    title check, even though a 2-point ray is exactly as much a trendline as a 2-point
+    "trendline" shape (a "horizontal ray", 1 point, is a LEVEL and stays excluded).
+
+    Returns (lines, id_lookup, counters):
+      lines      -- accepted Trendline objects, one per surviving 2-point drawing.
+      id_lookup  -- {(t1, round(p1,4), t2, round(p2,4)): chart_drawing_id}, keyed the same
+                    way compute()'s enrichment step already looks entries up.
+      counters   -- fail-loud visibility (doctrine: no silent zero can be mistaken for
+                    "J drew nothing"):
+        n_dropped_no_text     -- drawing has NO `text` key at all (a pre-D1/schema-v3
+                                  chart_drawings.json snapshot). Cannot prove such a
+                                  drawing isn't the engine's -> DROPPED, not trusted.
+        n_dropped_null_text   -- `text` present but null: the JS could not read the
+                                  shape's properties. Unprovable provenance -> DROPPED.
+                                  J's own lines carry "" (never null), so null is never J.
+        n_dropped_engine_tag  -- `text` starts with a known engine tag prefix.
+        n_rejected_title      -- title isn't trendline/trend line/ray at all.
+        n_rejected_point_count -- accepted title but not exactly 2 usable points.
+        n_rays_captured       -- accepted lines whose title was specifically "ray".
+    """
+    counters = {
+        "n_dropped_no_text": 0,
+        "n_dropped_null_text": 0,
+        "n_dropped_engine_tag": 0,
+        "n_rejected_title": 0,
+        "n_rejected_point_count": 0,
+        "n_rays_captured": 0,
+    }
     path = STATE_DIR / "chart_drawings.json"
     if not path.exists():
-        return []
+        return [], {}, counters
+
     payload = json.loads(path.read_text(encoding="utf-8"))
-    out: list[Trendline] = []
+    lines: list[Trendline] = []
+    id_lookup: dict[tuple[int, float, int, float], str] = {}
+
     for d in payload.get("drawings", []):
-        if (d.get("title") or "").lower() not in ("trendline", "trend line"):
+        title = (d.get("title") or "").strip().lower()
+        if title not in MANUAL_TRENDLINE_TITLES:
+            counters["n_rejected_title"] += 1
             continue
+
+        if "text" not in d:
+            # Old-schema snapshot (pre-D1/schema-v3): no way to prove this isn't an
+            # engine-drawn line. Fail loud by dropping + counting, never silently trust.
+            counters["n_dropped_no_text"] += 1
+            continue
+
+        if d.get("text") is None:
+            # `text: null` is the RUNTIME failure mode, and it is the dangerous one.
+            # read_chart_drawings.js fails SOFT to null on any shape that exposes neither
+            # properties() nor getProperties() -- so an unreadable ENGINE line arrives here
+            # indistinguishable from an untagged one. Treating null as "" would run it
+            # through _is_engine_tagged (which coerces None -> "") and classify it as J's,
+            # silently reinstating the exact defect D exists to fix while the counters still
+            # report health. J's real hand-drawn lines carry text "" (empty string), never
+            # null -- all 23 rows of analysis/recommendations/j-drawn-lines-ledger.jsonl are
+            # text: "". So null is never J and always "unproven": drop it, count it loudly.
+            counters["n_dropped_null_text"] += 1
+            continue
+
+        if _is_engine_tagged(d.get("text")):
+            counters["n_dropped_engine_tag"] += 1
+            continue
+
         pts = d.get("points") or []
         if len(pts) != 2:
+            counters["n_rejected_point_count"] += 1
             continue
         p1, p2 = pts
         t1, pr1 = p1.get("time"), p1.get("price")
         t2, pr2 = p2.get("time"), p2.get("price")
         if None in (t1, pr1, t2, pr2):
+            counters["n_rejected_point_count"] += 1
             continue
+
         line = trendline_from_two_points(int(t1), float(pr1), int(t2), float(pr2))
-        out.append(line)
-    return out
+        lines.append(line)
+        key = (int(t1), round(float(pr1), 4), int(t2), round(float(pr2), 4))
+        id_lookup[key] = d.get("id") or "manual_unknown"
+        if title == "ray":
+            counters["n_rays_captured"] += 1
+
+    return lines, id_lookup, counters
 
 
 def _enrich(line: Trendline, source: str, spot: float | None, now_ts: int, manual_id: str | None = None) -> dict:
@@ -288,30 +387,13 @@ def score_manual_significance(manual_lines: list[dict], bars: pd.DataFrame) -> t
 def compute(spot: float | None, lookback_sessions: int) -> dict:
     bars = _load_recent_bars(lookback_sessions)
     detected = detect_trendlines(bars)
-    manual_drawings = _load_manual_drawings()
+    manual_drawings, manual_id_lookup, manual_read_counters = _load_manual_drawings()
 
     now_et = dt.datetime.now(ET)
     now_ts = int(now_et.timestamp())
 
     if spot is None and not bars.empty:
         spot = float(bars["close"].iloc[-1])
-
-    # Read manual chart_drawings.json a second time for the IDs.
-    drawings_path = STATE_DIR / "chart_drawings.json"
-    manual_id_lookup: dict[tuple[int, float, int, float], str] = {}
-    if drawings_path.exists():
-        drawings = json.loads(drawings_path.read_text(encoding="utf-8")).get("drawings", [])
-        for d in drawings:
-            if (d.get("title") or "").lower() not in ("trendline", "trend line"):
-                continue
-            pts = d.get("points") or []
-            if len(pts) != 2:
-                continue
-            key = (
-                int(pts[0]["time"]), round(float(pts[0]["price"]), 4),
-                int(pts[1]["time"]), round(float(pts[1]["price"]), 4),
-            )
-            manual_id_lookup[key] = d.get("id") or "manual_unknown"
 
     # STALENESS FILTER (added 2026-08-06). Auto lines already get a +/-$5 proximity
     # filter below; manual ones got NONE, so J's May chart-draws were still being
@@ -402,6 +484,15 @@ def compute(spot: float | None, lookback_sessions: int) -> dict:
         "manual_count": len(manual_lines),
         "manual_significant_count": len(manual_significant),
         "auto_count": len(auto_lines),
+        # Manual-drawing READ counters (WS-D/D2, 2026-09-09) -- fail-loud visibility into
+        # _load_manual_drawings()'s accept/reject decisions, surfaced at top level so a
+        # zero here is never mistakable for "J drew nothing" vs. "everything got dropped".
+        "n_dropped_no_text": manual_read_counters["n_dropped_no_text"],
+        "n_dropped_null_text": manual_read_counters["n_dropped_null_text"],
+        "n_dropped_engine_tag": manual_read_counters["n_dropped_engine_tag"],
+        "n_rejected_title": manual_read_counters["n_rejected_title"],
+        "n_rejected_point_count": manual_read_counters["n_rejected_point_count"],
+        "n_rays_captured": manual_read_counters["n_rays_captured"],
         "manual": manual_lines,
         "manual_significant": manual_significant,
         "auto": auto_lines,
@@ -449,7 +540,11 @@ def main() -> int:
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"wrote {args.out} — {payload['manual_count']} manual "
-          f"({payload['manual_significant_count']} significant) + {payload['auto_count']} auto trendlines")
+          f"({payload['manual_significant_count']} significant) + {payload['auto_count']} auto trendlines "
+          f"[rays_captured={payload['n_rays_captured']} "
+          f"dropped_no_text={payload['n_dropped_no_text']} "
+          f"dropped_null_text={payload['n_dropped_null_text']} "
+          f"dropped_engine_tag={payload['n_dropped_engine_tag']}]")
     return 0
 
 

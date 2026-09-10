@@ -1,0 +1,1356 @@
+{
+  "summary": {
+    "n_lines": 24,
+    "n_pass": 0,
+    "pass_rate": 0.0,
+    "pass_bar": 0.8,
+    "meets_80pct_bar": false,
+    "cyan_excluded": true,
+    "overall_pass": false,
+    "anchor_time_tol_sec": 600,
+    "slope_tol_fraction": 0.1,
+    "tolerance_atr_fraction": 0.2,
+    "anchor_tol_floor": 0.2
+  },
+  "per_line": [
+    {
+      "entity_id": "5EWHJK",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-05-07 19:30",
+      "j_anchor1_price": 733.945,
+      "j_anchor2_et": "2026-05-11 04:00",
+      "j_anchor2_price": 738.919,
+      "note": "",
+      "atr_dollars": 0.1254,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.00515,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 0,
+      "near_misses_sample": [],
+      "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.125,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.965,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.965,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.965,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.965,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.755,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "u6xABx",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-05-07 11:00",
+      "j_anchor1_price": 736.1008,
+      "j_anchor2_et": "2026-05-08 04:15",
+      "j_anchor2_price": 729.7483,
+      "note": "",
+      "atr_dollars": 0.1134,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.03069,
+      "pivot_found_wick": false,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 3,
+      "near_misses_sample": [
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 122.8,
+          "j_slope_per_bar": -0.03069,
+          "candidate_slope_per_bar": 0.007
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 123.6,
+          "j_slope_per_bar": -0.03069,
+          "candidate_slope_per_bar": 0.00725
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 124.3,
+          "j_slope_per_bar": -0.03069,
+          "candidate_slope_per_bar": 0.00745
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 0.621,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 0.621,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "S3pkoW",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-05-11 09:45",
+      "j_anchor1_price": 737.4041,
+      "j_anchor2_et": "2026-05-11 13:00",
+      "j_anchor2_price": 740.5459,
+      "note": "",
+      "atr_dollars": 0.1254,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.08056,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 9,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 0.916,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 0.916,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 0.916,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 0.916,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 1.736,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 1.736,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 1.886,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 1.886,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "SlIpFL",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-05-13 09:45",
+      "j_anchor1_price": 741.0517,
+      "j_anchor2_et": "2026-05-14 15:15",
+      "j_anchor2_price": 745.4413,
+      "note": "",
+      "atr_dollars": 0.15,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.0124,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 0,
+      "near_misses_sample": [],
+      "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.768,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.768,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.768,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.708,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.708,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "dk6RTY",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-05-15 12:00",
+      "j_anchor1_price": 739.4821,
+      "j_anchor2_et": "2026-05-15 15:00",
+      "j_anchor2_price": 742.1225,
+      "note": "",
+      "atr_dollars": 0.1808,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.07334,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 7,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 0.372,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 0.372,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 1.168,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 1.168,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 1.168,
+          "tol": 0.2
+        },
+        {
+          "family": "body",
+          "kind": "support",
+          "reason": "slope",
+          "slope_diff_pct": 160.8,
+          "j_slope_per_bar": 0.07334,
+          "candidate_slope_per_bar": -0.0446
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.922,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.922,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.282,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.282,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "vFNohA",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-05-18 10:00",
+      "j_anchor1_price": 740.9904,
+      "j_anchor2_et": "2026-05-18 16:45",
+      "j_anchor2_price": 734.5674,
+      "note": "",
+      "atr_dollars": 0.2664,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.0793,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 6,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 2.39,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 2.39,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 0.425,
+          "tol": 0.2
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 0.425,
+          "tol": 0.2
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 84.8,
+          "j_slope_per_bar": -0.0793,
+          "candidate_slope_per_bar": -0.01203
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 86.4,
+          "j_slope_per_bar": -0.0793,
+          "candidate_slope_per_bar": -0.01082
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 1.69,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 1.69,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 1.26,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "S4rfUH",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-06-12 19:30",
+      "j_anchor1_price": 751.5106,
+      "j_anchor2_et": "2026-06-17 06:30",
+      "j_anchor2_price": 755.4129,
+      "note": "",
+      "atr_dollars": 0.2607,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.00304,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 0,
+      "near_misses_sample": [],
+      "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.989,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.989,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "ih40Fi",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-07-06 15:30",
+      "j_anchor1_price": 752.6084,
+      "j_anchor2_et": "2026-07-09 04:30",
+      "j_anchor2_price": 743.9395,
+      "note": "",
+      "atr_dollars": 0.1572,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.01184,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 9,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 93.3,
+          "j_slope_per_bar": -0.01184,
+          "candidate_slope_per_bar": -0.00079
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 91.8,
+          "j_slope_per_bar": -0.01184,
+          "candidate_slope_per_bar": -0.00097
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 90.7,
+          "j_slope_per_bar": -0.01184,
+          "candidate_slope_per_bar": -0.0011
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 89.8,
+          "j_slope_per_bar": -0.01184,
+          "candidate_slope_per_bar": -0.00121
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 0.298,
+          "tol": 0.2
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 0.298,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.148,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.148,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "bJD13y",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-07-14 08:15",
+      "j_anchor1_price": 747.6065,
+      "j_anchor2_et": "2026-07-14 12:30",
+      "j_anchor2_price": 752.0569,
+      "note": "",
+      "atr_dollars": 0.4015,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.08726,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 2,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "slope",
+          "slope_diff_pct": 47.3,
+          "j_slope_per_bar": 0.08726,
+          "candidate_slope_per_bar": 0.046
+        },
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "slope",
+          "slope_diff_pct": 45.3,
+          "j_slope_per_bar": 0.08726,
+          "candidate_slope_per_bar": 0.04773
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 5.013,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 5.013,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "7qQlMk",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-07-16 04:15",
+      "j_anchor1_price": 752.449,
+      "j_anchor2_et": "2026-07-17 19:45",
+      "j_anchor2_price": 740.9086,
+      "note": "",
+      "atr_dollars": 0.1716,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.02435,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 2,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 1.041,
+          "tol": 0.2
+        },
+        {
+          "family": "body",
+          "kind": "support",
+          "reason": "slope",
+          "slope_diff_pct": 103.5,
+          "j_slope_per_bar": -0.02435,
+          "candidate_slope_per_bar": -0.04954
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)"
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "eEKu8T",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-07-17 09:15",
+      "j_anchor1_price": 739.5935,
+      "j_anchor2_et": "2026-07-17 13:00",
+      "j_anchor2_price": 746.6622,
+      "note": "",
+      "atr_dollars": 0.1716,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.15708,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 0,
+      "near_misses_sample": [],
+      "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.502,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 5.067,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 5.067,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.647,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 4.972,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 4.972,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "rxMKYG",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-07-29 18:00",
+      "j_anchor1_price": 726.6296,
+      "j_anchor2_et": "2026-08-03 10:45",
+      "j_anchor2_price": 760.0113,
+      "note": "",
+      "atr_dollars": 0.1463,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.02467,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 1,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "slope",
+          "slope_diff_pct": 52.2,
+          "j_slope_per_bar": 0.02467,
+          "candidate_slope_per_bar": 0.03754
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 6.46,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 6.46,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 6.94,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "Ksverr",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-08-03 04:00",
+      "j_anchor1_price": 744.2606,
+      "j_anchor2_et": "2026-08-03 17:15",
+      "j_anchor2_price": 761.2479,
+      "note": "",
+      "atr_dollars": 0.1463,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.10684,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 1,
+      "near_misses_sample": [
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 6.149,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 5.989,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 6.039,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "cMvlXq",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-08-06 10:30",
+      "j_anchor1_price": 771.732,
+      "j_anchor2_et": "2026-08-06 14:00",
+      "j_anchor2_price": 767.96,
+      "note": "",
+      "atr_dollars": 0.2295,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.08981,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 2,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 67.5,
+          "j_slope_per_bar": -0.08981,
+          "candidate_slope_per_bar": -0.02916
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "slope",
+          "slope_diff_pct": 67.7,
+          "j_slope_per_bar": -0.08981,
+          "candidate_slope_per_bar": -0.02898
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.217,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.217,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.217,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.952,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.952,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "Db2tqP",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-08-06 17:15",
+      "j_anchor1_price": 767.6529,
+      "j_anchor2_et": "2026-08-07 15:30",
+      "j_anchor2_price": 773.2109,
+      "note": "",
+      "atr_dollars": 0.5457,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.02082,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 0,
+      "near_misses_sample": [],
+      "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.477,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "tYvbxj",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-08-12 09:45",
+      "j_anchor1_price": 773.7718,
+      "j_anchor2_et": "2026-08-12 12:45",
+      "j_anchor2_price": 771.8402,
+      "note": "",
+      "atr_dollars": 0.3825,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.05366,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 2,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 1.41,
+          "tol": 0.2
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 0.232,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 1.162,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "Y2Ti98",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-08-12 19:30",
+      "j_anchor1_price": 770.5128,
+      "j_anchor2_et": "2026-08-13 16:45",
+      "j_anchor2_price": 778.3373,
+      "note": "",
+      "result": "FAIL",
+      "reason": "no bar within 600s of anchor1 (nearest is 12000s away)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.617,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "5rlDCY",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-08-14 19:45",
+      "j_anchor1_price": 779.3424,
+      "j_anchor2_et": "2026-08-18 17:45",
+      "j_anchor2_price": 766.7844,
+      "note": "",
+      "result": "FAIL",
+      "reason": "no bar within 600s of anchor1 (nearest is 12900s away)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)"
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "TZI2x7",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-08-20 08:45",
+      "j_anchor1_price": 764.198,
+      "j_anchor2_et": "2026-08-20 14:15",
+      "j_anchor2_price": 767.6322,
+      "note": "",
+      "atr_dollars": 0.5089,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.05203,
+      "pivot_found_wick": true,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 2,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "support",
+          "reason": "slope",
+          "slope_diff_pct": 146.1,
+          "j_slope_per_bar": 0.05203,
+          "candidate_slope_per_bar": -0.02398
+        },
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 5.742,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)"
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "PTVDOn",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-08-21 18:30",
+      "j_anchor1_price": 767.673,
+      "j_anchor2_et": "2026-08-24 14:45",
+      "j_anchor2_price": 762.0143,
+      "note": "",
+      "result": "FAIL",
+      "reason": "no bar within 600s of anchor1 (nearest is 8400s away)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 3.243,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "uYXJOx",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-08-27 08:45",
+      "j_anchor1_price": 766.0341,
+      "j_anchor2_et": "2026-08-27 14:45",
+      "j_anchor2_price": 772.7294,
+      "note": "",
+      "atr_dollars": 0.4206,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.09299,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 0,
+      "near_misses_sample": [],
+      "reason": "no candidate pair had its i1 within time tolerance of anchor1 in either family/kind -- anchor1 bar exists but forms no v2 pivot matching that role, or every pair through it violates the hard zero-close-through constraint (rule 3)",
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 4.006,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 3.666,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "6DSy71",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-08-28 09:00",
+      "j_anchor1_price": 775.0658,
+      "j_anchor2_et": "2026-08-31 17:45",
+      "j_anchor2_price": 763.2967,
+      "note": "",
+      "atr_dollars": 0.5175,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.01215,
+      "pivot_found_wick": true,
+      "pivot_found_body": true,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 2,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 2.511,
+          "tol": 0.2
+        },
+        {
+          "family": "body",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 2.746,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 4.476,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 4.476,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 4.476,
+            "tol": 0.2
+          },
+          {
+            "family": "wick",
+            "kind": "resistance",
+            "reason": "anchor1_price",
+            "price_diff": 2.836,
+            "tol": 0.2
+          },
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 4.826,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "NnG0dP",
+      "j_shape": "rising",
+      "j_anchor1_et": "2026-09-03 06:15",
+      "j_anchor1_price": 762.0844,
+      "j_anchor2_et": "2026-09-03 15:00",
+      "j_anchor2_price": 774.5407,
+      "note": "",
+      "atr_dollars": 0.4028,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": 0.11863,
+      "pivot_found_wick": false,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 1,
+      "near_misses_sample": [
+        {
+          "family": "body",
+          "kind": "support",
+          "reason": "anchor1_price",
+          "price_diff": 2.396,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "alt_res15",
+      "canonical_attempt": {
+        "result": "FAIL",
+        "reason": [
+          {
+            "family": "body",
+            "kind": "support",
+            "reason": "anchor1_price",
+            "price_diff": 2.396,
+            "tol": 0.2
+          }
+        ]
+      },
+      "drift_detected_in_ledger": true
+    },
+    {
+      "entity_id": "UvNj5Q",
+      "j_shape": "falling",
+      "j_anchor1_et": "2026-09-03 08:30",
+      "j_anchor1_price": 773.07,
+      "j_anchor2_et": "2026-09-09 17:30",
+      "j_anchor2_price": 760.39,
+      "note": "tonight's line J named explicitly (handoff #9.5 row C): 2026-09-03 08:30 ET premarket anchor, descending support, lower rail of a falling wedge. Anchor2's timestamp (2026-09-09 17:30 ET) is a ray's slope-defining far point, not a literal touch -- checked by PROJECTION (see MATCH DEFINITION), not a required bar.",
+      "atr_dollars": 0.5117,
+      "tolerance_dollars": 0.2,
+      "j_slope_per_bar": -0.00691,
+      "pivot_found_wick": true,
+      "pivot_found_body": false,
+      "result": "FAIL",
+      "match": null,
+      "n_near_misses": 1,
+      "near_misses_sample": [
+        {
+          "family": "wick",
+          "kind": "resistance",
+          "reason": "anchor1_price",
+          "price_diff": 5.67,
+          "tol": 0.2
+        }
+      ],
+      "interpretation_used": "canonical_res5",
+      "drift_detected_in_ledger": false
+    }
+  ],
+  "cyan_check": {
+    "excluded": true,
+    "atr_dollars": 0.3633,
+    "tolerance_dollars": 0.2,
+    "confirmed_matches": [],
+    "any_valid_matches_incl_draft": []
+  },
+  "atr_zone_width_study": {
+    "0.15": {
+      "n": 5718,
+      "mean_dollars": 0.0783,
+      "median_dollars": 0.067,
+      "p10_dollars": 0.029,
+      "p90_dollars": 0.1421,
+      "mean_pct": 0.01044,
+      "median_pct": 0.00888
+    },
+    "0.2": {
+      "n": 5718,
+      "mean_dollars": 0.1044,
+      "median_dollars": 0.0894,
+      "p10_dollars": 0.0387,
+      "p90_dollars": 0.1895,
+      "mean_pct": 0.01392,
+      "median_pct": 0.01184
+    },
+    "0.25": {
+      "n": 5718,
+      "mean_dollars": 0.1305,
+      "median_dollars": 0.1117,
+      "p10_dollars": 0.0484,
+      "p90_dollars": 0.2369,
+      "mean_pct": 0.0174,
+      "median_pct": 0.0148
+    }
+  },
+  "atr_study_n_bars": 5732
+}

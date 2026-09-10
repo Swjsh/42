@@ -36,11 +36,14 @@ any code path. The chart's resolution is always restored to what it was before t
 touched it, verified before exit (including on error paths) -- symbol and layout are never
 touched at all.
 
-POPULATION: every `trend_line`-named shape whose text does NOT start with `"[GTL] "` (the
-sole existing engine trend-line tag, `trendline_headless_draw.TAG` -- imported, not
-copied, so the two producers can never drift out of sync on what "engine-drawn" means). A
-`horizontal_line` (key levels, `draw_key_levels.TAG` = "[G] ") is a different shape type,
-out of scope entirely.
+POPULATION (UPDATED 2026-09-09, WS-D/D3): every `trend_line`- OR `ray`-named shape (a
+`ray` is a 2-point line-tool like `trend_line`, it just extends past its anchors -- a
+1-point `ray`/`horizontal_ray` is a LEVEL, not a trendline, and is excluded) whose text
+does NOT start with any prefix in `engine_shape_tags.ENGINE_TAG_PREFIXES` -- the ONE
+shared tuple ("[GTL] "/"[G] "/"[GE] ", see that module) also consumed by
+compute_trendlines.py and chart_hygiene.py, so no producer can drift out of sync on what
+"engine-drawn" means. A `horizontal_line` (key levels) is a different shape type, out of
+scope entirely.
 
 FAIL-OPEN (C7): TradingView/CDP unreachable is the normal off-hours state ->
 `status=SKIPPED_TV_DOWN`, exit 0, never raises into the scheduler. An unexpected error is
@@ -66,7 +69,11 @@ for _p in (str(REPO), str(REPO / "backtest"), str(SCRIPTS_DIR), str(REPO / "back
         sys.path.insert(0, _p)
 
 from tv_cdp import TvChart, TvCdpError, CHART_API  # noqa: E402
-from trendline_headless_draw import TAG as ENGINE_TAG  # noqa: E402 -- "[GTL] ", imported not copied
+from engine_shape_tags import ENGINE_TAG_PREFIXES  # noqa: E402 -- "[G] "/"[GTL] "/"[GE] ",
+# the ONE shared tuple of engine-tag prefixes (2026-09-09, WS-B chart hygiene sweep, L251),
+# imported not re-derived -- same tuple automation/scripts/compute_trendlines.py (WS-D/D2)
+# and setup/scripts/chart_hygiene.py (WS-B) all consume, so a new engine producer's tag is
+# a ONE-LINE addition in engine_shape_tags.py, never three places that could drift apart.
 
 OUT_DIR = REPO / "analysis" / "recommendations"
 LEDGER = OUT_DIR / "j-drawn-lines-ledger.jsonl"
@@ -132,14 +139,29 @@ def _known_entity_ids(rows: list[dict]) -> set[str]:
 # chart reads -- all read-only, see module docstring SAFETY section
 # --------------------------------------------------------------------------------
 def _non_engine_trend_lines(chart: TvChart) -> list[dict]:
-    """[{id, name}] filtered to trend_line, text not starting with ENGINE_TAG."""
+    """[{id, name}] filtered to trend_line OR ray (2-point only), text not starting with
+    any known engine tag prefix (see ENGINE_TAG_PREFIXES).
+
+    WS-D/D3 (2026-09-09): a `ray` is a 2-point line-tool exactly like `trend_line` -- it
+    just extends past its anchors. J's real lower-wedge line (entity UvNj5Q, anchors
+    773.07 @ t=1788438600 -> 760.39 @ t=1788989400) is a ray and was being silently
+    dropped by the old `name != "trend_line"` hard filter. A `horizontal_ray` (1 point) is
+    a LEVEL, not a trendline, and is excluded here by the point-count check below -- it
+    was never in scope even before this fix (name != "trend_line" already excluded it; the
+    point-count check makes that exclusion explicit rather than incidental for the new
+    `ray` branch)."""
     out = []
     for s in chart.list_shapes():
-        if s.get("name") != "trend_line":
+        name = s.get("name")
+        if name not in ("trend_line", "ray"):
             continue
         text = chart.shape_text(s["id"]) or ""
-        if text.startswith(ENGINE_TAG):
+        if any(text.startswith(prefix) for prefix in ENGINE_TAG_PREFIXES):
             continue
+        if name == "ray":
+            pts = _get_points(chart, s["id"])
+            if not pts or len(pts) != 2:
+                continue
         out.append({"id": s["id"], "text": text})
     return out
 

@@ -11,13 +11,21 @@
  *
  * Returns:
  *   { success: true, count, drawings: [
- *     { id, title, point_count, points: [{ time, price }] }
+ *     { id, title, point_count, points: [{ time, price }], text }
  *   ] }
  *   - title is the reliable type discriminator: "horizontal line", "trendline",
  *     "horizontal ray", "trend line", "channel", "fib retracement", etc.
  *   - point.time is unix seconds; point.price is float USD
  *   - horizontal line has 1 point with time=null and price=<level>
  *   - trendline has 2 points with time/price for both anchors
+ *   - text (ADDED 2026-09-09, WS-D/D1): the shape's on-chart text override, or `null`
+ *     when unreadable/absent. This is the ONLY signal that lets a downstream reader tell
+ *     an engine-drawn line (text starts with a tag like "[GTL] " / "[G] ") apart from one
+ *     of J's own hand-drawn lines (text does not start with any engine tag, often "").
+ *     Read via the SAME accessor pattern proven live in tv_cdp.py::shape_text -- try
+ *     `properties()` first (more likely on a model.dataSources() object than on the
+ *     getShapeById() object tv_cdp.py reads), fall back to `getProperties()`, fail soft
+ *     to null on any shape that doesn't expose either -- NEVER throws out of the loop.
  *
  * On failure returns { success: false, error: <string> }.
  *
@@ -74,11 +82,29 @@
         let id = null;
         try { id = (typeof src.id === "function") ? src.id() : (src.id || null); } catch (e) {}
 
+        // text override -- see header comment. Try both property-accessor spellings,
+        // in the order more likely to succeed on a dataSources() object; fail soft.
+        let text = null;
+        try {
+          let p = null;
+          try { p = (typeof src.properties === "function") ? src.properties() : null; } catch (e) {}
+          if (!p) {
+            try { p = (typeof src.getProperties === "function") ? src.getProperties() : null; } catch (e2) {}
+          }
+          if (p) {
+            if (typeof p.text === "string") text = p.text;
+            else if (p.text && typeof p.text.value === "function") {
+              try { text = p.text.value(); } catch (e3) {}
+            }
+          }
+        } catch (eOuter) {}
+
         drawings.push({
           id: id,
           title: title,
           point_count: points.length,
           points: points,
+          text: text,
         });
       } catch (innerErr) {
         drawings.push({ error: String(innerErr) });

@@ -32,8 +32,8 @@ REUSE, NOT REINVENTION (L251: two implementations of the same read silently disa
     calls the SAME Runtime.evaluate mechanism tv_cdp.py already wraps.
   - The JS payload evaluated is automation/scripts/read_chart_drawings.js, VERBATIM -- the
     exact file the MCP ui_evaluate premarket path already uses (same shape in, same shape out:
-    {success, count, drawings:[{id, title, point_count, points:[{time, price}]}]}). One JS
-    reader, two transports (MCP for a live session, tv_cdp for headless).
+    {success, count, drawings:[{id, title, point_count, points:[{time, price}], text}]}). One
+    JS reader, two transports (MCP for a live session, tv_cdp for headless).
   - The age/distance staleness filter, the manual-line parsing, and the NEW higher-timeframe
     significance filter all live in automation/scripts/compute_trendlines.py (`compute()` /
     `_load_manual_drawings` / `score_manual_significance`) -- this module imports and calls
@@ -113,7 +113,13 @@ def refresh_chart_drawings(
         raise RuntimeError(f"read_chart_drawings.js reported failure: {err}")
 
     payload = {
-        "schema_version": 2,
+        # v3 (WS-D/D1, 2026-09-09): drawings[] now carries a `text` field (the shape's
+        # on-chart text override) so compute_trendlines._load_manual_drawings can tell
+        # engine-tagged lines apart from J's own hand-drawn ones. v2 snapshots have no
+        # `text` key at all -- a real schema difference, not a cosmetic bump -- so a
+        # consumer can distinguish "J drew nothing" from "this snapshot predates D1 and
+        # cannot prove anything either way".
+        "schema_version": 3,
         "purpose": "Snapshot of all line-tool drawings on the SPY chart. Read by trendline detection pipeline.",
         "as_of": et_now().isoformat(),
         "source": ("tv_cdp direct (intraday refresh via trendline_manual.refresh_chart_drawings, "
