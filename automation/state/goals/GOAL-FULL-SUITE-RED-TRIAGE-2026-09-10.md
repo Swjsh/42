@@ -48,8 +48,21 @@ clean 0-fail suite that isn't real (OP-33 -- suspicion scales with how good a nu
 
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
-- [ ] T1 -- fresh full-suite run, current fail list quoted (which of the original 19 still fail).
-- [ ] T2 -- each still-failing test: root cause + disposition (FIX/STALE-ASSUMPTION/FLAKY), fixed or filed.
+- [~] T1 -- individually re-ran all 12 named-in-STATUS test IDs (5 files); a background
+      `pytest tests/ -q -m "not slow"` full run was launched but did not complete within
+      this fire's budget -- next fire reads its output before re-deriving.
+- [~] T2 -- 6 of 11 files triaged+fixed/quarantined this fire (commit ffb320e7):
+      test_arm_roster_sweep_2026_09_02.py (FIX), test_crypto_twin_reaper_exemption.py
+      (STALE-ASSUMPTION), test_dojo_engine_step.py (FLAKY, xfail-quarantined),
+      test_earnings_calendar_install_wiring_2026_08_24.py (STALE-ASSUMPTION),
+      test_install_script_relay_wiring_drift.py (self-resolved by the crypto-twin fix).
+      REMAINING 2 files, 5 tests, NOT yet triaged: test_engine_liveness_guards.py's 4
+      parametrized test_engine_task_is_daily_recurring[Gamma_SightBeacon/HeartbeatCore/
+      FleetExecutor/HealthBeacon] cases (live Task Scheduler query -- needs
+      investigation) and test_gap_prior_close.py::test_dispatch_prior_close_fallback
+      (root cause ALREADY FOUND, not yet fixed: setup_dispatch.SetupDispatcher.
+      _session_date_str reads self._payload, which the test's __new__-based
+      instantiation never sets -- setup/scripts/setup_dispatch.py:589/619).
 - [ ] T3 -- STATUS.md Known-broken FULL-SUITE RED line corrected/closed with the real current state.
 - [ ] T4 -- final full-suite re-run quoted, any remaining irreducible flake named explicitly.
 
@@ -57,6 +70,13 @@ clean 0-fail suite that isn't real (OP-33 -- suspicion scales with how good a nu
 - None yet -- flag here if any disposition needs a frozen-path exception.
 
 ## PROGRESS LOG
+- 2026-09-10 05:47-06:1x ET -- conductor AFTERHOURS fire: T1 partial (12 named test IDs
+  individually re-run, full-suite background run launched not yet finished), T2 6/11
+  files triaged+fixed (commit ffb320e7): arm_roster_sweep (FIX), crypto_twin_reaper
+  (STALE-ASSUMPTION), dojo_engine_step (FLAKY/xfail), earnings_calendar_install_wiring
+  (STALE-ASSUMPTION), install_script_relay_wiring_drift (self-resolved). Remaining:
+  test_engine_liveness_guards.py x4 + test_gap_prior_close.py (root cause found:
+  self._payload unset, fix not applied). Budget-bounded stop -- next fire continues T2.
 - 2026-09-10 05:30 ET — opened by conductor AFTERHOURS fire after fixing the goal_autopilot
   stale-ladder-entry bug (reconcile_stale_done) that had left GOAL-GATE-EXPIRY-RECONCILE and
   GOAL-FUTURES-YELLOWS stuck `[ ]` since 2026-09-05 despite being fully done. Ladder was
