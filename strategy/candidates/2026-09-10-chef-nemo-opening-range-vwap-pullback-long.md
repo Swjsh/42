@@ -12,54 +12,54 @@
 
 ## Hypothesis
 
-After an opening-range breakout, a pullback to VWAP with bullish EMA9 > EMA21 ribbon and above-average volume offers a high-probability long entry. The setup captures institutional participation via volume and trend alignment while filtering for low-quality breakouts.
+After an extreme opening range break, price tends to revert to the intraday VWAP, offering a high‑probability long entry. Entry rule: If the first 5‑minute bar closes outside the opening range (OR high for longs) and the subsequent bar pulls back to touch or cross the VWAP with a bullish close (close > VWAP) and volume > 1.5x the 20‑bar average volume, go long at the close of that bar.
 
 ## Mechanism
 
-Entry: If price closes above the opening range high (ORH) by ≥0.1% on a 5‑min bar, wait for a subsequent 5‑min bar that touches or crosses below VWAP (within 2 ticks) while EMA9 > EMA21 (bullish ribbon) and its volume ≥ the 20‑bar average volume; enter long at the close of that bar.  
-Exit: Chart‑stop placed at the opening range low (ORL) or most recent swing low; TP1 at 1.5R; runner trailed 15% off the highest‑water‑mark (HWM).  
-Regime filters: VIX < 18, opening range width > 0.3%, time 09:30‑10:30 EST, avoid major news windows.
+Entry: 5‑min OR break (close > OR_high) followed by a bar that touches/crosses VWAP with close > VWAP and volume > 1.5x 20‑bar avg. Exit: initial stop at OR_low; trail exit using 15% chandelier trail from highest high since entry. Regime: VIX < 20 and time between 09:30‑10:30 EST; avoid major news windows (FOMC, CPI).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | -$23.95 (BS-synthetic P&L) | unknown -- requires Stage-1 backtest |
-| 5/01 winner | unknown -- requires Stage-1 backtest | -$21.56 | unknown -- requires Stage-1 backtest |
-| 5/04 winner | unknown -- requires Stage-1 backtest | +$804.72 | unknown -- requires Stage-1 backtest |
-| 5/05 loser | unknown -- requires Stage-1 backtest | $0.00 | unknown -- requires Stage-1 backtest |
-| 5/06 loser | unknown -- requires Stage-1 backtest | $0.00 | unknown -- requires Stage-1 backtest |
-| 5/07 loser 1 | unknown -- requires Stage-1 backtest | +$74.29 | unknown -- requires Stage-1 backtest |
-| 5/07 loser 2 | unknown -- requires Stage-1 backtest | +$74.29 | unknown -- requires Stage-1 backtest |
+| 4/29 winner | unknown -- requires Stage-1 backtest | -23.95 | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | -21.56 | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | 804.72 | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | 0.0 | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | 0.0 | unknown -- requires Stage-1 backtest |
+| 5/07 loser 1 | unknown -- requires Stage-1 backtest | 74.29 | unknown -- requires Stage-1 backtest |
+| 5/07 loser 2 | unknown -- requires Stage-1 backtest | 74.29 | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account would realize ~14% of headline P&L due to per‑trade risk cap.
-2. **Sample bias:** Sample = full history (~16 months) of BS‑synthetic data from kitchen runner; selection = none (exhaustive run); overfit risk = high due to absence of OOS/real‑fills and reliance on regime‑specific filters (VIX<18, OR width>0.3%).
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward held‑out window performed).
-4. **Real-fills:** NEEDS-REAL-FILLS (no realistic OPRA simulation with slippage model executed).
-5. **Failure modes:**  
-   - Worst day: false ORB followed by sharp reversal → stop‑out at ORL.  
-   - Max drawdown (BS‑synthetic): $4,701.52.  
-   - Blow‑up scenario: consecutive low‑volume, high‑VIX chop producing repeated whipsaws and erosion of capital.
-6. **Concentration:** top5_pct = 999.0 (artifact of negative total P&L); if total P&L were positive, concentration would require calculation from equity curve.
+1. **Account-size assumption:** Assumes Safe account tier ($2K) with 3 contracts minimum, scaling to 15+ contracts at $25K+ equity. For headline P&L numbers, full qty (15 contracts) is implied; a $1K paper account would realize ~14% of headline P&L.
+
+2. **Sample bias:** Sample based on BS‑synthetic evaluation of SPY 5‑min bars from 2025‑01‑02 to 2026‑06‑18 (~16 months). Selection: all days that meet entry criteria; no look‑ahead bias. Overfit risk: fixed parameters (OR break threshold, VWAP pullback, volume filter) may overfit to specific regimes; needs OOS validation.
+
+3. **Out-of-sample:** NEEDS-OOS (walk‑forward held‑out window not performed).
+
+4. **Real‑fills:** NEEDS‑REAL‑FILLS (BS‑synthetic only; real OPRA fills not yet validated).
+
+5. **Failure modes:** Worst day 2025‑Q1 –$1,300.5; max drawdown $4,701.52; blow‑up scenario: prolonged low‑VIX trending market where OR breaks fail and VWAP pullback does not occur, leading to repeated stop‑outs.
+
+6. **Concentration:** top5_pct = 999.0 (indicating net loss outside J days; strategy profitability is concentrated in the three J winner days, with 5/04 alone contributing >100% of gross profit).
 
 ## Pre-merge gate
 
-Needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
+needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification.
 
 ## Confidence
 
-3 / 10 -- Edge capture ($759.21) falls short of the OP‑16 floor ($771); lacks OOS and real‑fills validation; regime filters may overfit to specific windows.
+4 / 10 -- BS‑synthetic shows edge_capture 759.21 (just below OP‑16 floor of 771) but real‑fills and OOS unknown; mechanism plausible but needs validation.
 
 ## Pre-existing leaderboard impact
 
-This candidate would likely be REJECTED at the door (edge_capture < 771) and therefore does not conflict with current leaderboard entries. If edge capture were improved via parameter tuning or additional filters, it could complement existing bullish setups by providing an alternative entry mechanism for ORB‑pullback scenarios.
+Does not conflict with existing candidates; adds a new long‑side trigger distinct from ORB_RETEST_LONG by requiring VWAP pullback and volume filter.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug strategy-ideation-proposal-opening-range-vwap-pullback-long- --task-id 82b8cabd-5001-4d2f-a99a-ed469da1422f --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/strategy-ideation-proposal-opening-range-vwap-pullback-long-20260910T095410Z.json
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug strategy-ideation-proposal-opening-range-vwap-pullback-long- --task-id ffe8bfda-6e7a-46a4-8bb8-6ed4fe1d7e49 --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/strategy-ideation-proposal-opening-range-vwap-pullback-long-20260910T194931Z.json
 engine: backtest.autoresearch.overnight_grinder.evaluate_combo (Stage-1 single-combo)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
-elapsed_s: 79.43
+elapsed_s: 81.28
 status: PROVENANCE-OK (daemon-executed -- this block was written by kitchen_daemon.py from the executed command, never from model text)

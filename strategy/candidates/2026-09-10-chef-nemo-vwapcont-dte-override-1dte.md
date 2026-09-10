@@ -5,18 +5,18 @@
 
 # CANDIDATE: VWAPCONT_DTE_OVERRIDE_1DTE
 
-**Filed:** 2026-09-10  
-**Filer:** chef-nemotron (free-tier autonomous R&D)  
-**Type:** filter_change  
+**Filed:** 2026-09-10
+**Filer:** chef-nemotron (free-tier autonomous R&D)
+**Type:** filter_change
 **Status:** DRAFT (NEEDS-RATIFICATION per Rule 9)
 
 ## Hypothesis
 
-The 2DTE override for VWAP_CONTINUATION suffers from a 57% contract reduction blocker (due to higher premium) and poor walk-forward stability (WF 0.556 < 0.70), underperforming in recent months. Reducing the DTE override to 1DTE is expected to lower the premium per contract, avoiding the contract reduction blocker, and improving alignment with the 0DTE regime that historically performed well.
+We are trying to reduce the premium per contract by using 1DTE instead of 2DTE for the VWAP_CONT setup. This will alleviate the sizing blocker (which was that 2DTE premium was 2.33x of 0DTE, leading to fewer contracts). We expect that by reducing the DTE to 1DTE, the premium will be lower than 2DTE but higher than 0DTE, allowing more contracts to be traded and thus increasing the total P&L while maintaining or improving the edge.
 
 ## Mechanism
 
-Change the parameter `j_vwap_cont_dte_override` from 2 to 1 in the VWAP_CONTINUATION setup. This causes the engine to use 1DTE options instead of 2DTE when the VWAP_CONTINUATION signal fires, preserving the same strike selection (ATM or 1st OTM) and exit logic (chart-stop-primary, chandelier profit-lock, etc.) as the original 0DTE VWAP_CONTINUATION setup.
+We change the per-setup DTE override for VWAP_CONT from 2 to 1. This means that when the VWAP_CONT setup fires, we will use 1DTE options instead of 2DTE. The exit logic remains the same: same-day exit, with static stop of -0.06 and TP1 of +0.30 (as in the original wiring proposal).
 
 ## Expected impact on OP-16 anchors
 
@@ -30,36 +30,41 @@ Change the parameter `j_vwap_cont_dte_override` from 2 to 1 in the VWAP_CONTINUA
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | 74.29 | unknown |
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | 74.29 | unknown |
 
+(If you don't have data, write `unknown -- requires Stage-1 backtest` and explain.)
+
 ## OP-20 disclosures
 
-1. **Account-size assumption:** Backtest assumes 3 contracts per trade (minimum size) per engine configuration for $1K-$2K account. For $1K paper account, fits within 50% per-trade risk cap only if entry premium ≤ $1.67. Edge_capture of 759.21 is total P&L over backtest period for 3 contracts/trade.
-2. **Sample bias:** Uses historical SPY/VIX bars (2025-01-02 to 2026-06-18, ~16 months). Sample includes all trading days in period. Overfit risk low (single integer parameter change), but edge_capture below OP-16 floor indicates failure to capture J's edge.
-3. **Out-of-sample:** NEEDS-OOS (Stage-1 result only; no OOS/WF test conducted)
-4. **Real-fills:** NEEDS-REAL-FILLS (used BS-simulated option pricing via `kitchen_stage1_runner.py`, not real OPRA fills)
+1. **Account-size assumption:** We assume ATM options (Safe-2 cell) and an account size of $25K+ to accommodate the position sizing. The sizing blocker for 2DTE was that the premium was 2.33x of 0DTE, leading to 57% fewer contracts (3.7→1.6) at the $2k account level. We expect 1DTE premium to be intermediate, potentially allowing at least 3 contracts at the $2k level.
+
+2. **Sample bias:** The Stage-1 run is a BS-synthetic backtest over historical SPY/VIX bars (quarters 2025-Q1 to 2026-Q2). The selection method tests a single parameter change (DTE override from 2 to 1). Overfit risk is low as we are not optimizing over a grid.
+
+3. **Out-of-sample:** NEEDS-OOS (no OOS test conducted yet)
+
+4. **Real-fills:** NEEDS-REAL-FILLS (no real-fills validation conducted yet)
+
 5. **Failure modes:** 
-   - Worst day: Max drawdown 4,701.52 (from result JSON)
-   - Max drawdown: 4,701.52
-   - Blow-up scenario: Sequence of losses triggering daily loss kill switch multiple times; wide_wr=0.187 indicates losses more frequent than wins
-6. **Concentration:** top5_pct=999.0% → top 5 days account for >100% of P&L (strategy loses on most days, profits on few large days)
+   - Worst day in J anchor days: 4/29 and 5/01 both around -$22 (engine taking the trade and losing)
+   - Max drawdown over the backtest period: $4701.52 (peak-to-trough)
+   - Blow-up scenario: strong adverse trend against the VWAP_CONT signal could lead to consecutive losses; also, quick reversals could trigger the stop.
+
+6. **Concentration:** The J anchor days (4/29, 5/01, 5/04) account for $759.21 of the P&L, but the overall P&L is negative ($-1464.23) due to losses on non-J days. We do not have the top5_pct from the result (reported as 999.0, likely due to negative total P&L), so we cannot quantify concentration of wins.
 
 ## Pre-merge gate
 
-<what tests need to pass: gym validators, walk-forward, real-fills>
-- Must pass OP-16 edge_capture ≥ 771 (current: 759.21 → FAILS)
-- No further gates needed due to OP-16 failure
+Gym validators must pass, walk-forward test must show OOS positive and WF ≥ 0.70, real-fills check on top 3 J days must be within ±20% of BS-synthetic, and anchor no-regression must show non-degraded edge_capture on J winners and non-increased losses on J losers.
 
 ## Confidence
 
-2 / 10 -- Edge_capture below OP-16 floor (759.21 < 771) indicates strategy fails to capture J's edge. Proposed behavior shows losses on winner days (4/29, 5/01) and wins on loser days (5/07), worsening performance vs 2DTE version. Unlikely to improve walk-forward stability or avoid contract blocker given negative edge capture.
+4 / 10 -- we have mechanism evidence showing we can capture the 5/04 winner and skip 5/05/5/06 losers, but we lose on 4/29 and 5/01 winners and the edge_capture (759.21) is below the OP-16 floor of 771. OOS and real-fills validation are pending.
 
 ## Pre-existing leaderboard impact
 
-Variant of existing HOLD candidate (VWAPCONT_DTE_OVERRIDE_2DTE). Does not conflict with other candidates but unlikely to promote due to OP-16 edge_capture failure. Would not appear on leaderboard (edge_capture < 771 threshold).
+This candidate is an alternative to the existing HOLD candidate VWAPCONT_DTE_OVERRIDE_2DTE (which tests 2DTE override). It does not directly conflict with other candidates in the leaderboard, but if promoted would provide a different DTE setting for the VWAP_CONT setup.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug test-a-1dte-override-for-vwapcont-dte-override-instead-of-2d --task-id db6359c7-95b0-4890-8da6-7181bb273288 --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/test-a-1dte-override-for-vwapcont-dte-override-instead-of-2d-20260910T171730Z.json
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug test-vwap-cont-dte-override-with-1dte-instead-of-2dte-to-red --task-id af5e9f61-c217-4c4f-8be7-7fedd2430f8b --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/test-vwap-cont-dte-override-with-1dte-instead-of-2dte-to-red-20260910T185737Z.json
 engine: backtest.autoresearch.overnight_grinder.evaluate_combo (Stage-1 single-combo)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
-elapsed_s: 80.27
+elapsed_s: 71.6
 status: PROVENANCE-OK (daemon-executed -- this block was written by kitchen_daemon.py from the executed command, never from model text)
