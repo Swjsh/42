@@ -106,9 +106,10 @@ reason in the goal file.
   Top-level RED is carried entirely by no_stray_exposure's not-yet-elapsed age window --
   dated reason: no_stray_exposure ages RED->GREEN on 2026-09-08 per ANOMALY_MAX_AGE_DAYS=5,
   assuming no new anomaly rows land before then.
-
+- 2026-09-10 05:35 ET — closed by goal_autopilot: goal file already fully terminal outside the autopilot's open flow -- ladder marker was never flipped
 ## HONEST STATE
 F1-F4 all DONE. One real off-path defect found+fixed (no_stray_exposure's age-out window never
 rolled forward without new anomaly rows -- fixed with a calendar-day cutoff, RED-proofed, 32/32
 futures_health tests green). F2/F3 adjudicated clean (no code defect). Top-level verdict is still
 RED post-fix because the age-out window (2026-09-08) hasn't elapsed yet -- expected, not new work.
+AUTOPILOT CLOSE 2026-09-10 05:35 ET: goal file already fully terminal outside the autopilot's open flow -- ladder marker was never flipped

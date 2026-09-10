@@ -57,6 +57,7 @@ CLI:
     python goal_autopilot.py ensure [--dry-run] [--now ISO] [--repo PATH] [--strict]
     python goal_autopilot.py status [--json]
     python goal_autopilot.py close-if-terminal [--dry-run] [--now ISO] [--repo PATH]
+    python goal_autopilot.py reconcile-stale-done [--dry-run] [--now ISO] [--repo PATH]
 
 Reused, not re-derived: `setup/hooks/doctrine.py::goal_next_open_item` /
 `goal_expired` (the exact parsers the conductor + Stop hook already trust) and
@@ -436,9 +437,15 @@ class Autopilot:
         return txt if txt is not None else ""
 
     # -- close -------------------------------------------------------------
-    def _close(self, active: dict, reason: str) -> str:
-        goal_id = str(active.get("id") or "")
-        file_rel = str(active.get("file") or "")
+    def _close_goal_artifacts(self, goal_id: str, file_rel: str, reason: str) -> None:
+        """Shared by `_close` (an actually-ACTIVE goal) and
+        `reconcile_stale_done` (a QUEUED `[ ]` goal whose file already went
+        fully terminal outside the autopilot's own open/close flow -- e.g. a
+        session did the work directly and never flipped the ladder marker).
+        Appends PROGRESS LOG + HONEST STATE to the goal file, flips its
+        LADDER.md marker to `[x]`, and flips any existing queue.md row to
+        done/expired. Never touches active-goal.json -- the caller decides
+        whether this goal WAS the active pointer."""
         ts = _human(self.now_et)
         progress_line = f"- {ts} — closed by goal_autopilot: {reason}"
         honest_para = f"AUTOPILOT CLOSE {ts}: {reason}"
@@ -448,13 +455,6 @@ class Autopilot:
             new_text = append_under_heading(new_text, "HONEST STATE", honest_para)
             if self.write:
                 _atomic_write(self.p.repo / file_rel, new_text)
-
-        new_active = dict(active)
-        new_active["active"] = False
-        new_active["closed_at_et"] = ts
-        new_active["closed_reason"] = reason
-        if self.write:
-            _write_json(self.p.active_goal, new_active)
 
         ladder_text = self._read_ladder()
         flipped = flip_ladder_marker(ladder_text, goal_id, "x")
@@ -470,7 +470,60 @@ class Autopilot:
             if not found:
                 self.events.append(f"WARN: no queue.md row found for {goal_id} to flip")
         self.events.append(f"closed {goal_id}: {reason}")
+
+    def _close(self, active: dict, reason: str) -> str:
+        goal_id = str(active.get("id") or "")
+        file_rel = str(active.get("file") or "")
+        self._close_goal_artifacts(goal_id, file_rel, reason)
+
+        ts = _human(self.now_et)
+        new_active = dict(active)
+        new_active["active"] = False
+        new_active["closed_at_et"] = ts
+        new_active["closed_reason"] = reason
+        if self.write:
+            _write_json(self.p.active_goal, new_active)
         return goal_id
+
+    def reconcile_stale_done(self) -> dict:
+        """Explicit, separate from `ensure()`/`close_if_terminal()` by design:
+        scan every QUEUED (`[ ]`) ladder entry whose goal file is ALREADY
+        fully terminal (every QUEUE marker x/B/B-J). `ensure()`'s own
+        `_open_next` treats such an entry as simply ineligible-to-open and
+        skips it forever (pinned by
+        test_skips_queued_entry_with_no_open_queue_item -- ensure() must
+        never silently close a goal it never opened, since a goal file that
+        looks done might just be a badly-authored template). This method is
+        the deliberate, explicit reconciliation step for the real case that
+        pins that test's assumption wrong in practice: a session did the
+        goal's work directly (bypassing the autopilot's open flow entirely)
+        and never flipped the ladder marker, so the entry is stuck `[ ]`
+        forever even though it is done (found live 2026-09-10:
+        GOAL-GATE-EXPIRY-RECONCILE-2026-09-05 and
+        GOAL-FUTURES-YELLOWS-2026-09-05, both fully [x] internally, neither
+        ever opened via active-goal.json, no queue.md row for either).
+        Never touches active-goal.json -- none of these were ever the active
+        pointer, so there is nothing to deactivate."""
+        ladder_text = self._read_ladder()
+        entries = parse_ladder(ladder_text)
+        closed: list[str] = []
+        for entry in entries:
+            if entry["marker"] != " ":
+                continue
+            goal_text = self._read_goal_text(entry["file"])
+            if goal_text is None or not goal_is_terminal(goal_text):
+                continue
+            reason = (
+                "goal file already fully terminal outside the autopilot's "
+                "open flow -- ladder marker was never flipped"
+            )
+            self._close_goal_artifacts(entry["id"], entry["file"], reason)
+            closed.append(entry["id"])
+        return {
+            "checked_at_et": _human(self.now_et),
+            "action": "reconciled" if closed else "noop",
+            "closed_ids": closed,
+        }
 
     # -- open --------------------------------------------------------------
     def _open_next(self) -> Optional[dict]:
@@ -732,6 +785,26 @@ def cmd_close_if_terminal(args: argparse.Namespace) -> int:
         return 0
 
 
+def cmd_reconcile_stale_done(args: argparse.Namespace) -> int:
+    repo = Path(args.repo).resolve() if args.repo else _DEFAULT_REPO
+    paths = Paths(repo)
+    now_et = _resolve_now(args)
+    try:
+        ap = Autopilot(paths, now_et, write=not args.dry_run)
+        result = ap.reconcile_stale_done()
+        print(f"{result['action']}: closed_ids={result['closed_ids']}")
+        if args.dry_run:
+            print("(dry-run -- no files written)")
+        for ev in ap.events:
+            print(f"  {ev}")
+        return 0
+    except Exception as exc:  # noqa: BLE001 -- fail-open is the whole point
+        print(f"error: {exc}")
+        if args.strict:
+            raise
+        return 0
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     repo = Path(args.repo).resolve() if args.repo else _DEFAULT_REPO
     paths = Paths(repo)
@@ -761,7 +834,7 @@ def _resolve_now(args: argparse.Namespace) -> dt.datetime:
 def main(argv: Optional[list[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("command", nargs="?", default="ensure",
-                        choices=["ensure", "status", "close-if-terminal"])
+                        choices=["ensure", "status", "close-if-terminal", "reconcile-stale-done"])
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--now", default=None, help="ISO ET datetime override (tests only)")
     parser.add_argument("--repo", default=None, help="Repo root override (tests only)")
@@ -774,6 +847,8 @@ def main(argv: Optional[list[str]] = None) -> int:
         return cmd_ensure(args)
     if args.command == "close-if-terminal":
         return cmd_close_if_terminal(args)
+    if args.command == "reconcile-stale-done":
+        return cmd_reconcile_stale_done(args)
     return cmd_status(args)
 
 

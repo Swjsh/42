@@ -174,7 +174,7 @@ the prereg's still-FROZEN status), and ran hygiene (0 flagged).
   hygiene all confirmed already correct from G1/G2's ad hoc dual-window study (unaffected by G3's
   separate rolling-window watch). 14-test RED-proofed guard for G3, all green; 92/92 related tests
   green, no regressions.
-
+- 2026-09-10 05:35 ET — closed by goal_autopilot: goal file already fully terminal outside the autopilot's open flow -- ladder marker was never flipped
 ## HONEST STATE
 G1/G2/G3 all DONE and verified this session (commands + output quoted above and in the final
 report). UNVERIFIED / worth a second look: G3's own rolling-window concentration read
@@ -183,3 +183,4 @@ self-updating WATCH, not a ratified verdict, and should not be read as contradic
 fixed-window COST ratification for filter-10-bull-sole (different window, disclosed above). Nothing
 in this goal touched a FROZEN_TRADING_PATH file; nothing armed live money; STATUS.md was edited only
 by gate_expiry_check.py's own writer, verified via git diff.
+AUTOPILOT CLOSE 2026-09-10 05:35 ET: goal file already fully terminal outside the autopilot's open flow -- ladder marker was never flipped
