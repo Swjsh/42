@@ -76,6 +76,22 @@ never reads `v15_strike_offset_per_tier` at all, it reads the hardcoded tables a
 discrepancy is between two DOCS (`params.json`'s ladder vs. reality), not between config and
 code.
 
+> **DATED CORRECTION (2026-09-10, GOAL-LOSS-MECHANISMS-2026-09-08 L3 — append-only, table above
+> left unchanged as the historical 2026-08-18 record):** the `V15_BOLD_CORE_TIERS` (ATM) row
+> above is **NO LONGER what core Bold trades.** It was shipped 2026-07-18 (commit `718e0809`)
+> under a standing falsification rail (`setup/scripts/bold_tier_rail.py`), the rail **TRIGGERED
+> NEGATIVE at n=25 fills 2026-08-20** (ATM tier -$808 WR 24% vs the prior OTM-3 tier's +$406 WR
+> 50%, `automation/state/bold-tier-rail.json` 2026-08-20T00:24 ET), and `heartbeat_core.py:2679`
+> was **reverted the same day** to `ss.V15_BOLD_TIERS if account == "bold" else ss.V15_SAFE_TIERS`
+> — i.e. core Bold is back to **OTM-2 at the `$2K–10K` tier** (the original `V15_BOLD_TIERS` row
+> in the table above), not the ATM row. Live confirmation: the 2026-09-08 bold-2 fill
+> `766P` with SPY at `767.65` prices to `atm 768 minus 2` = OTM-2, matching. CLAUDE.md's account
+> table is correct (never described the ATM extension as permanent); the STRIKE-MATRIX-DOC-DRIFT
+> finding that flagged this staleness is `automation/overnight/STATUS.md` 2026-09-08 19:08 ET.
+> To re-ship ATM: swap `heartbeat_core.py:2679` back to `ss.V15_BOLD_CORE_TIERS` AND
+> `j_intent_executor.py`'s tier pick, and re-run the auto-ratify gate first (per the code
+> comment at `heartbeat_core.py:2677`) — not done here, this is a doc correction only.
+
 ### 1.2 The per-setup override — genuinely params-driven, but pinned
 
 `heartbeat_core.py:1898` (`_SETUP_STRIKE_OVERRIDES`) maps each dispatcher setup name to 3 params

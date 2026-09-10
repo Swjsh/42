@@ -775,6 +775,74 @@ def _score_filter10_bull_sole_unblock(row: dict, today: str) -> dict:
     }
 
 
+# GOAL-LOSS-MECHANISMS-2026-09-08 L2: per-tier pool membership for the catastrophe-cap
+# strike-tier prereg. Matches the prereg's own `populations` field verbatim (ATM_pool =
+# arms whose live strike table resolves to offset 0: safe-2/safe-3/risky-1; OTM_pool =
+# bold-2 [confirmed OTM-2 via heartbeat_core.py:2679 + the 2026-09-08 766P/SPY767.65
+# fill] + risky-3). The prereg text says "re-resolve from crypto/lib/strike_selection.py
+# at read time, never hardcode" -- no live per-arm-to-tier-table resolver exists yet
+# (accounts.json has no strike-tier field; the mapping lives in heartbeat_core.py's
+# account==... branches), so this is a documented, sourced hardcode pending that
+# resolver being built, not a silent guess.
+_CATASTROPHE_CAP_ATM_POOL_ARMS = {"safe-2", "safe-3", "risky-1"}
+_CATASTROPHE_CAP_OTM_POOL_ARMS = {"bold-2", "risky-3"}
+
+
+def _score_catastrophe_cap_by_strike_tier(row: dict, today: str) -> dict:
+    """L2 (GOAL-LOSS-MECHANISMS-2026-09-08): wires prereg-catastrophe-cap-by-strike-
+    tier-10-30-2026-09-08.json into the checkpoint generator (it was FROZEN with no
+    matching inventory row, so it was invisible to every packet regen -- exactly the
+    'fix the generator, never the surface' gap the goal's L2 item named).
+
+    Splits catastrophe-cap-shadow-ledger.jsonl by ARM into the ATM/OTM pools above,
+    counting only FORWARD rows (date_et strictly after the prereg's own frozen_at_et
+    date) -- the pre-freeze disclosure look the prereg was built on must never leak
+    into its own forward evidence count. n_min_per_pool is read from the prereg's own
+    decision_rule (falls back to 15). The prereg's ACT branch additionally requires a
+    CAP_70 (-70%) counterfactual to clear 4 reused gates on the ATM pool alone; the
+    ledger has no `cap_70_counterfactual_pnl` column yet (only
+    `held_to_eod_counterfactual_pnl`), so that gate math is not attempted here --
+    verdict stays INSUFFICIENT_N even past n>=15 until that column exists, rather than
+    silently reporting NOT_MET/MET on a rule that cannot yet be evaluated."""
+    prereg_path = REPO / row["prereg_path"]
+    d = _read_json(prereg_path)
+    frozen_at = (d.get("frozen_at_et") or "")[:10]  # "2026-09-08 19:08 ET" -> "2026-09-08"
+    ledger_path = REPO / (row.get("ledger_path") or "analysis/recommendations/catastrophe-cap-shadow-ledger.jsonl")
+    rows = _read_jsonl(ledger_path) if ledger_path.exists() else []
+    forward = [r for r in rows if (r.get("date_et") or "") > frozen_at]
+    atm_fwd = [r for r in forward if r.get("arm") in _CATASTROPHE_CAP_ATM_POOL_ARMS]
+    otm_fwd = [r for r in forward if r.get("arm") in _CATASTROPHE_CAP_OTM_POOL_ARMS]
+    n_min = int((d.get("decision_rule") or {}).get("n_min_per_pool") or 15)
+    has_cap70_column = any("cap_70_counterfactual_pnl" in r for r in rows)
+    if len(atm_fwd) < n_min or not has_cap70_column:
+        verdict = VERDICT_INSUFFICIENT_N
+    else:
+        verdict = VERDICT_UNKNOWN  # gate math (CAP_70 vs G_AGGREGATE/G_MAJORITY/G_DROP_BEST/G_TAIL) not implemented here yet
+    return {
+        "verdict": verdict,
+        "n": len(atm_fwd),
+        "numbers": {
+            "atm_pool_forward_n": len(atm_fwd),
+            "otm_pool_forward_n": len(otm_fwd),
+            "n_min_per_pool": n_min,
+            "frozen_at_date": frozen_at,
+            "has_cap_70_counterfactual_column": has_cap70_column,
+            "total_ledger_rows": len(rows),
+        },
+        "note": (
+            "FROZEN_BEFORE_ANY_RESULT -- forward accrual only counts catastrophe-cap-"
+            "shadow-ledger.jsonl rows dated strictly after this prereg's own "
+            f"frozen_at_et ({frozen_at or 'unknown'}); the pre-freeze disclosure look "
+            "the prereg was filed on is excluded from n by construction. ATM pool needs "
+            "n>=15 forward cap fires AND a cap_70_counterfactual_pnl ledger column "
+            "(does not exist yet -- only held_to_eod_counterfactual_pnl is recorded) "
+            "before the ACT gate math can even be attempted; until then this row "
+            "correctly reports INSUFFICIENT_N rather than guessing NOT_MET/MET on a "
+            "rule that cannot yet be evaluated."
+        ),
+    }
+
+
 _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "capture_gap_mechanism": _score_capture_gap_mechanism,
     "tight_ladder_control4": _score_tight_ladder_control4,
@@ -790,6 +858,7 @@ _SCORERS: dict[str, Callable[[dict, str], dict]] = {
     "tp1_qty_fraction_safe_0_8": _score_tp1_qty_fraction_safe_0_8,
     "not_flat_second_wave": _score_not_flat_second_wave,
     "filter10_bull_sole_unblock": _score_filter10_bull_sole_unblock,
+    "catastrophe_cap_by_strike_tier": _score_catastrophe_cap_by_strike_tier,
 }
 
 
