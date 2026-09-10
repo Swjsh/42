@@ -1093,3 +1093,68 @@ Alpaca bars and drawing to a live chart.
 **Deliberate design note:** range families (IB, opening range) draw as a high/low **line pair**, not
 a filled rectangle — no zone primitive was invented while `ZONE_MERGE_ENABLED` remains unratified
 (F(3)). Flagged because the work order said "zones."
+
+### 9.19 The trade-outcome A/B — v2 is DEAD, and the real finding is about v1 (2026-09-10)
+
+J, on the whole TA dial-in: *"why would nothing you did touch the trading? it needs to be drawing us
+better tech analysis to trade off of."* He was right, and it forced the correct question. §9.16
+already showed "does v2 reproduce J's lines" was the wrong test. This asked the right one — **do
+either fitter's lines gate better trades** — by harness-level A/B (no edit to `filters.py`, no
+`GAMMA_FREEZE_OVERRIDE`) over **45 real, already-filled `trendline_rejection` bearish entries**,
+4 real-fills arms, **19 days, 2026-07-02 → 2026-09-08**.
+
+#### Result 1 — v2 is dead. Stop polishing it.
+**v2 fired on 0 of 45 real-fill bars** (0 of the 16 where the harness confirms v1 reproduces its own
+real entry). It is not a broken detector — a 5-day full scan shows it firing 0–9×/day *elsewhere* —
+it simply selects a **geometrically disjoint set of lines** from v1. That corroborates §9.16's 0/24
+from a completely independent angle. Every ACT clause of the frozen prereg fails; **v1 stays**.
+
+#### Result 2 — production's knobs are already the best cell. No cheap win.
+Sweeping the three existing v1 parameters one at a time against the same real-fill bars:
+```
+lookback_bars   40:-$1069   50:+$49   60:+$104 <-PROD   70:-$1007   80:-$700
+min_swings       2:-$4       3:+$104 <-PROD   4:+$160 (n=9, 7d)
+proximity_pct  .0005:+$10   .0010:+$104 <-PROD   .0015/.0020:-$60   .0030:-$268
+```
+No cell clears a material bar; every ex-best-day CI-lower stays under 0.1 and every N sits under the
+prereg's own 15-entry / 20-day minimums. The `proximity_pct` 0.0015–0.002 cells show a marginally
+higher *as-traded* CI-lower (0.169 vs 0.159) but **worse** total P&L (−$60 vs +$104) — textbook
+small-N noise. **No parameter change recommended, no new prereg warranted.**
+
+#### Result 3 — the uncomfortable one: the population we already trade is NET NEGATIVE
+`statistical_criterion()` (reused verbatim from `go_live_gate.py`) on v1's **real fills**:
+```
+as_traded:      ci_lower_2.5 = 0.257   pf_point 0.886   total_pnl  -$271.00
+ex_best_day:    ci_lower_2.5 = 0.167   pf_point 0.669   total_pnl  -$784.00  (dropped 2026-08-20)
+cost_adjusted:  ci_lower_2.5 = 0.254   pf_point 0.878   total_pnl  -$290.67
+WR diagnostic: 33.3% (15/45)
+```
+**Profit factor below 1 on all three cuts, and it gets materially worse when its single best day is
+removed.** So "better TA to trade off of" is not a drawing problem and not a fitter problem — on this
+evidence the bear-trendline setup itself may not carry edge.
+
+#### Three caveats that stop this from being a kill order today
+1. **Attribution is impure.** These are entries whose `triggers` list *includes* `trendline_rejection`
+   — an entry can carry it alongside `confluence` / `level_reclaim`. This is *"entries carrying the
+   trigger"*, **not** *"entries caused by the trigger."* A clean attribution study has not been run.
+2. **N is under the bar.** 19 scored days vs the prereg's own `n_min_scored_days: 20`.
+3. **Prior evidence points the other way on the relative question.** `STATUS.md`'s
+   `LOSS-MECHANISMS-READ-2026-09-08`: *"Trendline-only rail HOLDING (n=41, −2.17/tr; rest-of-book
+   −4.73/tr, WR 25 pct)."* Trendline-only is the **least bad** rail in the book. Killing it could
+   make the book worse, not better — that is the C15 trap (a gate that looks bad alone may be
+   carrying the book relative to its alternative).
+
+#### The next question, and its checkpoint
+Whether to **throttle or kill trendline-gated entries** is a **kill-type risk reduction**, which makes
+it eligible at the **2026-09-29** safety checkpoint — *not* 10-30, unlike the fitter swap. It needs
+its own prereg, guard, RED-proof and revert line, and above all a **clean single-trigger attribution
+study** to settle caveat 1 first. That study is the next piece of real work on this thread; it is
+freeze-compatible (read-only) and does not depend on any drawing work.
+
+**Artifacts:** `analysis/trendline-v2/ab_replay_2026_09_10.py`, `ab_replay_results_2026_09_10.json`,
+`param_sweep_results_2026_09_10.json`, `RESULTS-2026-09-10-trade-outcome-ab.md`. The frozen prereg
+received an `amendments` entry only (its interim-look clause); `decision_rule` verified byte-unchanged.
+
+**Disclosed limitation:** the harness reproduces only 16 of v1's 45 real entries (single-day bar frame
+vs production's continuous cross-day window). The P&L figures above come from the **real fills**, not
+from harness reproduction, so they stand; the 16/45 limits only the paired per-bar comparison.

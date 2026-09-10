@@ -64,5 +64,20 @@
     ],
     "acceptance_prior_art": "analysis/deep-research/2026-09-03-money/trendline-today-exhibit.md",
     "sibling_frozen_prereg": "analysis/recommendations/prereg-trendline-rising-support-human-anchor-2026-09-03.md"
-  }
+  },
+
+  "amendments": [
+    {
+      "date_et": "2026-09-10",
+      "type": "INTERIM_LOOK_IN_SAMPLE_PRIOR_ONLY -- does not void the prereg, logged per anti_gaming_clauses[0]",
+      "trigger": "J pushback 2026-09-10 ('why would nothing you did touch the trading?') -- work order item to score the fitter swap on TRADE OUTCOME, not line-reproduction fidelity.",
+      "what_ran": "harness-level (no filters.py/heartbeat_core.py edit, no GAMMA_FREEZE_OVERRIDE) paired replay of v1 vs v2 on the 45 real-fill trendline_rejection engine entries across the 4 real-fills arms, 2026-07-02..2026-09-08 (all IN-SAMPLE PRIOR, all before this prereg's forward window opens). statistical_criterion() from go_live_gate.py reused verbatim.",
+      "result_summary": "v2 fired on 0 of 45 real-fill bars (0 of 16 harness-verified-reproduced bars). v1 as-traded/ex-best-day/cost-adjusted PF CI-lower = 0.257/0.167/0.254 (fails its own >1.0 bar too, on this narrow single-trigger slice). v2 = insufficient_data (n=0), cannot be priced on real option P&L by construction. All 5 ACT_swap_v2_into_filters clauses (a)-(e) fail independently -> KILL_v1_stays, DEFAULT holds. Separate v1-only lookback_bars/min_swings/proximity_pct sensitivity sweep (own N, not conflated with this verdict): no cell clears a material bar over production defaults; no new prereg warranted.",
+      "decision_rule_changed": false,
+      "v2_parameters_tuned_after_seeing_result": false,
+      "evidence_file": "analysis/trendline-v2/RESULTS-2026-09-10-trade-outcome-ab.md",
+      "raw_output": ["analysis/trendline-v2/ab_replay_results_2026_09_10.json", "analysis/trendline-v2/param_sweep_results_2026_09_10.json"],
+      "forward_window_status": "NOT STARTED -- the prereg's 40-day scored window ends 2026-10-30 and has not begun as of this amendment's date. This amendment is a disclosed in-sample look, not the forward decision. The decision_rule and DEFAULT above are UNCHANGED by this amendment."
+    }
+  ]
 }

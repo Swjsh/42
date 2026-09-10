@@ -1,0 +1,106 @@
+{
+  "lookback_bars=40": {
+    "n_matched": 15,
+    "n_days": 9,
+    "as_traded_ci_lower": 0.03,
+    "ex_best_day_ci_lower": 0.005,
+    "total_pnl": -1069.0,
+    "insufficient_data": false
+  },
+  "lookback_bars=50": {
+    "n_matched": 14,
+    "n_days": 9,
+    "as_traded_ci_lower": 0.148,
+    "ex_best_day_ci_lower": 0.038,
+    "total_pnl": 49.0,
+    "insufficient_data": false
+  },
+  "lookback_bars=60": {
+    "n_matched": 16,
+    "n_days": 9,
+    "as_traded_ci_lower": 0.159,
+    "ex_best_day_ci_lower": 0.031,
+    "total_pnl": 104.0,
+    "insufficient_data": false
+  },
+  "lookback_bars=70": {
+    "n_matched": 11,
+    "n_days": 7,
+    "as_traded_ci_lower": 0.0,
+    "ex_best_day_ci_lower": 0.0,
+    "total_pnl": -1007.0,
+    "insufficient_data": false
+  },
+  "lookback_bars=80": {
+    "n_matched": 10,
+    "n_days": 7,
+    "as_traded_ci_lower": 0.0,
+    "ex_best_day_ci_lower": 0.0,
+    "total_pnl": -700.0,
+    "insufficient_data": false
+  },
+  "min_swings=2": {
+    "n_matched": 3,
+    "n_days": 2,
+    "as_traded_ci_lower": 0.0,
+    "ex_best_day_ci_lower": null,
+    "total_pnl": -4.0,
+    "insufficient_data": false
+  },
+  "min_swings=3": {
+    "n_matched": 16,
+    "n_days": 9,
+    "as_traded_ci_lower": 0.159,
+    "ex_best_day_ci_lower": 0.031,
+    "total_pnl": 104.0,
+    "insufficient_data": false
+  },
+  "min_swings=4": {
+    "n_matched": 9,
+    "n_days": 7,
+    "as_traded_ci_lower": 0.058,
+    "ex_best_day_ci_lower": 0.0,
+    "total_pnl": 160.0,
+    "insufficient_data": false
+  },
+  "proximity_pct=0.0005": {
+    "n_matched": 12,
+    "n_days": 8,
+    "as_traded_ci_lower": 0.031,
+    "ex_best_day_ci_lower": 0.0,
+    "total_pnl": 10.0,
+    "insufficient_data": false
+  },
+  "proximity_pct=0.001": {
+    "n_matched": 16,
+    "n_days": 9,
+    "as_traded_ci_lower": 0.159,
+    "ex_best_day_ci_lower": 0.031,
+    "total_pnl": 104.0,
+    "insufficient_data": false
+  },
+  "proximity_pct=0.0015": {
+    "n_matched": 18,
+    "n_days": 11,
+    "as_traded_ci_lower": 0.169,
+    "ex_best_day_ci_lower": 0.085,
+    "total_pnl": -60.0,
+    "insufficient_data": false
+  },
+  "proximity_pct=0.002": {
+    "n_matched": 18,
+    "n_days": 11,
+    "as_traded_ci_lower": 0.169,
+    "ex_best_day_ci_lower": 0.085,
+    "total_pnl": -60.0,
+    "insufficient_data": false
+  },
+  "proximity_pct=0.003": {
+    "n_matched": 20,
+    "n_days": 11,
+    "as_traded_ci_lower": 0.16,
+    "ex_best_day_ci_lower": 0.084,
+    "total_pnl": -268.0,
+    "insufficient_data": false
+  }
+}

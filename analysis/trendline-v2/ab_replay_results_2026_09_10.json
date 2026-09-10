@@ -1,0 +1,822 @@
+{
+  "summary": {
+    "n_entries_total": 45,
+    "n_ok_bar_lookup": 45,
+    "n_v1_reproduces_real_entry": 16,
+    "n_v2_also_fires_same_bar": 0,
+    "n_paired_v1_and_v2_both_fire": 0,
+    "n_v1_fires_v2_does_not_regression_candidates": 16
+  },
+  "rows": [
+    {
+      "date": "2026-07-02",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-07-02T12:51:28.535543",
+      "pnl_dollars": 290.0,
+      "trigger_level": null,
+      "bar_idx": 105,
+      "bar_label_et": "2026-07-02 12:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-02",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-07-02T09:31:03.860318",
+      "pnl_dollars": -60.0,
+      "trigger_level": null,
+      "bar_idx": 65,
+      "bar_label_et": "2026-07-02 09:30:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-02",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-02T12:51:13.622420",
+      "pnl_dollars": -69.0,
+      "trigger_level": null,
+      "bar_idx": 105,
+      "bar_label_et": "2026-07-02 12:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-02",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-02T09:30:37.909057",
+      "pnl_dollars": -66.0,
+      "trigger_level": null,
+      "bar_idx": 65,
+      "bar_label_et": "2026-07-02 09:30:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-17",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-07-17T13:51:32.001364",
+      "pnl_dollars": 191.0,
+      "trigger_level": 745.98,
+      "bar_idx": 118,
+      "bar_label_et": "2026-07-17 13:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 4,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-17",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-17T14:49:42.993511",
+      "pnl_dollars": -56.0,
+      "trigger_level": 744.22,
+      "bar_idx": 129,
+      "bar_label_et": "2026-07-17 14:45:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 4,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-17",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-17T13:01:19.033833",
+      "pnl_dollars": 241.0,
+      "trigger_level": 747.25,
+      "bar_idx": 108,
+      "bar_label_et": "2026-07-17 13:00:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 1,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-20",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-20T14:01:31.781989",
+      "pnl_dollars": -24.0,
+      "trigger_level": 744.92,
+      "bar_idx": 120,
+      "bar_label_et": "2026-07-20 14:00:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-21",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-21T14:58:18.838663",
+      "pnl_dollars": 0.0,
+      "trigger_level": 748.55,
+      "bar_idx": 131,
+      "bar_label_et": "2026-07-21 14:55:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 4,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-27",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-07-27T12:57:31.071602",
+      "pnl_dollars": -355.0,
+      "trigger_level": 737.72,
+      "bar_idx": 107,
+      "bar_label_et": "2026-07-27 12:55:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-07-27",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-07-27T13:31:55.159761",
+      "pnl_dollars": -162.0,
+      "trigger_level": 737.72,
+      "bar_idx": 114,
+      "bar_label_et": "2026-07-27 13:30:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-05",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-05T11:49:07.326182",
+      "pnl_dollars": -255.0,
+      "trigger_level": 772.33,
+      "bar_idx": 93,
+      "bar_label_et": "2026-08-05 11:45:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 772.44,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-06",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-06T10:31:53.827275",
+      "pnl_dollars": 375.0,
+      "trigger_level": 771.5,
+      "bar_idx": 78,
+      "bar_label_et": "2026-08-06 10:30:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-11",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-11T13:32:01.316225",
+      "pnl_dollars": -145.0,
+      "trigger_level": 771.0,
+      "bar_idx": 114,
+      "bar_label_et": "2026-08-11 13:30:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-11",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-11T14:07:47.082933",
+      "pnl_dollars": 297.0,
+      "trigger_level": 771.36,
+      "bar_idx": 121,
+      "bar_label_et": "2026-08-11 14:05:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 771.18,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-11",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-11T11:54:38.732269",
+      "pnl_dollars": -145.0,
+      "trigger_level": 772.26,
+      "bar_idx": 94,
+      "bar_label_et": "2026-08-11 11:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-11",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-11T13:45:09.004475",
+      "pnl_dollars": 195.0,
+      "trigger_level": 771.45,
+      "bar_idx": 117,
+      "bar_label_et": "2026-08-11 13:45:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 771.44,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-11",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-11T11:51:52.273727",
+      "pnl_dollars": -63.0,
+      "trigger_level": 772.26,
+      "bar_idx": 94,
+      "bar_label_et": "2026-08-11 11:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-12",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-12T13:50:28.185117",
+      "pnl_dollars": -35.0,
+      "trigger_level": 773.29,
+      "bar_idx": 118,
+      "bar_label_et": "2026-08-12 13:50:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 772.84,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-12",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-12T13:56:24.241554",
+      "pnl_dollars": -15.0,
+      "trigger_level": 773.29,
+      "bar_idx": 119,
+      "bar_label_et": "2026-08-12 13:55:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-12",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-12T11:27:03.152073",
+      "pnl_dollars": -6.0,
+      "trigger_level": 772.39,
+      "bar_idx": 89,
+      "bar_label_et": "2026-08-12 11:25:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-12",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-12T11:31:05.751142",
+      "pnl_dollars": 15.0,
+      "trigger_level": 772.41,
+      "bar_idx": 90,
+      "bar_label_et": "2026-08-12 11:30:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 772.14,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-13T12:41:07.804423",
+      "pnl_dollars": -200.0,
+      "trigger_level": 776.7,
+      "bar_idx": 104,
+      "bar_label_et": "2026-08-13 12:40:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-13",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-13T12:41:05.543854",
+      "pnl_dollars": -69.0,
+      "trigger_level": 776.7,
+      "bar_idx": 104,
+      "bar_label_et": "2026-08-13 12:40:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-14",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-14T12:58:07.285938",
+      "pnl_dollars": -160.0,
+      "trigger_level": 776.3,
+      "bar_idx": 106,
+      "bar_label_et": "2026-08-14 12:55:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 776.3,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 4,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-14",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-14T12:14:05.840525",
+      "pnl_dollars": -18.0,
+      "trigger_level": 776.58,
+      "bar_idx": 97,
+      "bar_label_et": "2026-08-14 12:10:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-14",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-14T12:56:05.435713",
+      "pnl_dollars": -90.0,
+      "trigger_level": 776.3,
+      "bar_idx": 106,
+      "bar_label_et": "2026-08-14 12:55:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 776.3,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 4,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-17",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-17T13:06:05.529770",
+      "pnl_dollars": 360.0,
+      "trigger_level": 775.09,
+      "bar_idx": 108,
+      "bar_label_et": "2026-08-17 13:05:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 775.02,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-18",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-18T14:40:07.375332",
+      "pnl_dollars": 80.0,
+      "trigger_level": 768.52,
+      "bar_idx": 128,
+      "bar_label_et": "2026-08-18 14:40:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 768.32,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 6,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-18",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-18T14:36:05.214352",
+      "pnl_dollars": 82.0,
+      "trigger_level": 768.52,
+      "bar_idx": 127,
+      "bar_label_et": "2026-08-18 14:35:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 6,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-20",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-20T14:03:08.635371",
+      "pnl_dollars": 85.0,
+      "trigger_level": 764.96,
+      "bar_idx": 120,
+      "bar_label_et": "2026-08-20 14:00:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 764.96,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-20",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-20T13:16:07.394311",
+      "pnl_dollars": 90.0,
+      "trigger_level": 766.64,
+      "bar_idx": 111,
+      "bar_label_et": "2026-08-20 13:15:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 766.19,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-20",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-20T14:56:05.165269",
+      "pnl_dollars": -27.0,
+      "trigger_level": 763.84,
+      "bar_idx": 131,
+      "bar_label_et": "2026-08-20 14:55:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 763.96,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-20",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-20T14:01:06.111347",
+      "pnl_dollars": 174.0,
+      "trigger_level": 764.96,
+      "bar_idx": 120,
+      "bar_label_et": "2026-08-20 14:00:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 764.96,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-20",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-20T12:56:05.082022",
+      "pnl_dollars": 191.0,
+      "trigger_level": 766.63,
+      "bar_idx": 107,
+      "bar_label_et": "2026-08-20 12:55:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 2,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-21",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-21T09:52:07.744220",
+      "pnl_dollars": -175.0,
+      "trigger_level": 766.15,
+      "bar_idx": 70,
+      "bar_label_et": "2026-08-21 09:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-21",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-21T09:51:06.206866",
+      "pnl_dollars": -189.0,
+      "trigger_level": 766.15,
+      "bar_idx": 70,
+      "bar_label_et": "2026-08-21 09:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-08-28T13:01:09.414885",
+      "pnl_dollars": -215.0,
+      "trigger_level": 770.27,
+      "bar_idx": 106,
+      "bar_label_et": "2026-08-28 13:00:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 770.07,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-08-28",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-08-28T13:01:10.558570",
+      "pnl_dollars": -270.0,
+      "trigger_level": 770.27,
+      "bar_idx": 106,
+      "bar_label_et": "2026-08-28 13:00:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 770.07,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-09-01",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-09-01T14:44:07.383162",
+      "pnl_dollars": -140.0,
+      "trigger_level": 761.28,
+      "bar_idx": 128,
+      "bar_label_et": "2026-09-01 14:40:00-04:00",
+      "v1_reproduces": true,
+      "v1_projected_price": 760.58,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-09-01",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-09-01T14:49:05.392539",
+      "pnl_dollars": -120.0,
+      "trigger_level": 761.28,
+      "bar_idx": 129,
+      "bar_label_et": "2026-09-01 14:45:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-09-01",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-09-01T13:21:04.879394",
+      "pnl_dollars": 338.0,
+      "trigger_level": 762.39,
+      "bar_idx": 112,
+      "bar_label_et": "2026-09-01 13:20:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 3,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-09-03",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-09-03T13:51:05.109740",
+      "pnl_dollars": -30.0,
+      "trigger_level": 773.18,
+      "bar_idx": 118,
+      "bar_label_et": "2026-09-03 13:50:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-09-08",
+      "arm": "bold-2",
+      "entry_ts_et": "2026-09-08T11:01:05.139814",
+      "pnl_dollars": -95.0,
+      "trigger_level": 769.0,
+      "bar_idx": 84,
+      "bar_label_et": "2026-09-08 11:00:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    },
+    {
+      "date": "2026-09-08",
+      "arm": "safe-2",
+      "entry_ts_et": "2026-09-08T13:31:04.005810",
+      "pnl_dollars": -21.0,
+      "trigger_level": 767.58,
+      "bar_idx": 114,
+      "bar_label_et": "2026-09-08 13:30:00-04:00",
+      "v1_reproduces": false,
+      "v1_projected_price": null,
+      "v2_fires": false,
+      "v2_detail": {
+        "fired": false,
+        "lines_checked": 0,
+        "fired_lines": []
+      },
+      "status": "OK"
+    }
+  ]
+}
