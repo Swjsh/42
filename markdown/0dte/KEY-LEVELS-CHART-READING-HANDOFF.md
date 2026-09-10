@@ -697,6 +697,8 @@ Three rules that follow, and are not negotiable:
 | F(3) | Zone-width constant from the ATR study | ⚠️ **RE-SCOPED — see §9.13 B.** The premise was wrong: `zone_width`/`zone_width_provenance` already exist per-level, and `_zone_width()` explicitly forbids hand-picking (*"pending a pre-registered A/B study (never hand-picked)"*). Opus must NOT name a constant off WS-C's ATR distribution — the honest F(3) output is a **pre-registered A/B**, with the ATR study as its input. WS-B's merge uses each level's own `zone_width`, flag-OFF meanwhile |
 | F(4) | Verify Murphy 3 %/2-day from primary text | ✅ **RESOLVED — see verdict below** | [`TRENDLINE-BREAK-LITERATURE` § "Murphy 3%/2-day rule — provenance check (2026-09-09)"](../research/TRENDLINE-BREAK-LITERATURE-2026-07-14.md) |
 | F(5) | Indicator layout | ⏳ **WITH J** — one line, see below |
+| — | WS-A state writer | ⛔ **HELD to 2026-10-30** (§9.17). Frozen-path hook blocked it; override NOT used. Verified diff staged at `analysis/recommendations/packages/engine-view-readout-ws-a/` |
+| — | WS-A2 `[GE]` chart layer | ⛔ **BLOCKED by the above** — it renders `engine-view.json`, which does not exist until A1 applies |
 
 #### F(4) verdict — the constant may NOT carry Murphy's name
 
@@ -974,3 +976,120 @@ full-day hindsight.** Two independent fitters, same answer. This is a **replicat
 and anchor-time tolerance are now env-overridable (`GAMMA_V2_TOL_FLOOR`, `GAMMA_V2_TOL_ATR_FRACTION`,
 `GAMMA_V2_TIME_TOL_SEC`), floor default raised $0.01 → $0.20. Canonical re-run left on disk at
 `anchor_tol_floor: 0.2`, `anchor_time_tol_sec: 600`, `n_pass: 0`.
+
+### 9.17 WS-A is HELD to 2026-10-30 — and §9.8's "WS-A adds a read-out, not a gate" was wrong
+
+#### What happened
+WS-A's state writer needs two edits to files on `setup/hooks/doctrine.py::FROZEN_TRADING_PATH` —
+`backtest/lib/filters.py` and `setup/scripts/heartbeat_core.py`. The doctrine hook **hard-blocked**
+them. The agent **refused to use `GAMMA_FREEZE_OVERRIDE`** and escalated instead of self-authorising.
+That was the right call and it caught an error in the Opus scoping that sent it.
+
+#### The Opus scoping error, stated plainly
+The WS-A spec asserted the trace-sink edit was *"deliberate and bounded: the freeze bars changes to
+which trades are taken, and a keyword-only parameter defaulting to `None` … changes nothing about
+which trades are taken."* **That is not what the freeze protects.** `markdown/infra/DOCTRINE-HOOKS.md`
+names the real mechanism:
+
+> *"A trading-path edit **silently invalidates `go_live_gate.py`'s 20-day score** — the most expensive
+> available mistake between those dates."*
+
+The freeze protects the **score**, not merely the behaviour. A provably return-identical edit still
+moves a file on the scored path inside the window whose entire value is that nothing on it moved.
+Behavioural neutrality is not the test; **untouchedness** is. §9.8's assurance that "WS-A adds a
+read-out, not a gate" is therefore not a freeze exemption, and should not be read as one.
+
+#### The ruling
+
+| | |
+|---|---|
+| **Verdict** | **HELD to 2026-10-30.** Not applied, not overridden. |
+| **Why not 09-29** | The 09-29 checkpoint admits **pre-registered kill-type risk REDUCTIONS only**. WS-A is additive instrumentation — neither a risk reduction nor eligible on that date. Both options the agent offered named 09-29; **both were wrong on the date**, and that correction is the point of this section. |
+| **Why not override** | `GAMMA_FREEZE_OVERRIDE`'s documented scope is exactly those pre-registered reductions. Stretching it to cover instrumentation is the same failure mode as naming a constant after an authority who did not say it (§9.11 F(4)) — a documented mechanism bent past its stated meaning. |
+
+#### What ships instead of a stall
+The verified diff is staged on the shared surface as a checkpoint package —
+`analysis/recommendations/packages/engine-view-readout-ws-a/` (scaffolded by
+`setup/scripts/checkpoint_package.py`: `README.md`, `apply.ps1` which refuses without the override,
+`guard_test.py`, `change.patch`). Held work still lands where the next session finds it (C35);
+applying at 10-30 is a one-minute job, not a redesign.
+
+**The design is already verified, on real data, before being held:**
+```
+[GUARD1] compared=11286 fired=1191 none=10095      <- trace=None vs trace={}, zero mismatches
+[GUARD1] exit_reason histogram: {'insufficient_pivots': 6296,
+         'rejection_criteria_not_met': 2095, 'trendline_below_spot': 1587,
+         'pivots_not_decreasing': 117}
+11 passed in 2.00s
+records: 14  active: 14  multi: 14   parity active: True   parity multi: True
+```
+Pre-existing quirk found and deliberately NOT fixed (it is on the frozen path): `slope_not_negative`
+is mathematically unreachable — pivot selection is "max of a shrinking subset", so the OLS slope can
+never be positive, and ties are caught earlier by `pivots_not_decreasing`.
+
+#### Consequence for WS-A2 and the §9.7 definition of done
+**A2 (the `[GE]` chart layer) cannot ship before 10-30 either** — it renders `engine-view.json`, which
+does not exist until A1 applies. So §9.7's headline outcome (*"opening the chart shows ONE solid
+engine layer"*) is **not reachable inside the freeze**, by construction. What IS reachable now, and
+has shipped: J's shapes protected by the registry, engine lines no longer mislabelled as his, the
+draw band matched to the gate, and the `[GTL]` shadow lane correctly labelled as shadow.
+
+### 9.18 WS-E shipped on the corrected design + one defect Opus caught (2026-09-10)
+
+Built to §9.13 A, **not** to row E's original wording. Context levels never touch
+`key-levels.json`: new producer `setup/scripts/context_levels.py` → a separate
+`automation/state/context-levels.json`, read only by `setup/scripts/draw_context_levels.py`.
+`heartbeat_core.py`, `filters.py`, `refresh_levels_intraday.py`, `params*.json` — **zero edits.**
+
+**The freeze guard is not vacuous — it has a bite test:**
+```
+test_read_levels_byte_identical_with_and_without_context_levels_file PASSED
+test_bite_merging_context_rows_into_key_levels_json_DOES_change_gate_output PASSED
+```
+The bite proves the point of §9.13 A empirically: merging a context row into `key-levels.json`
+(row E's **original** design) *does* change `_read_levels`' active list. Keeping it in a separate
+file does not. The defect was real, and the corrected design provably avoids it.
+
+**All 5 families emitted — including gamma walls, which the work order expected to be skipped.**
+C36 paid off: `Gamma_CboeOiBank` (registered 2026-06-22, **$0**, free CBOE CDN) was **already wired
+and banking**. Verified by Opus: `BANKED 40530 contracts (native_gamma=True) -> journal/gex-archive/
+2026-09-08-cboe.json`. No new vendor, no new fetch — a thin adapter into the existing
+`gex_regime.compute_gex_regime`, reading only the local archive. Checking the wired free pipes first
+is exactly what C36 asks for.
+
+Every level carries `zone_width` **and** `zone_width_provenance` (`ib_or_range_observed`,
+`vwap_sigma_observed`, or the ratified `default_pre_ab` fallback imported from
+`refresh_levels_intraday`) — nothing hand-picked, per §9.13 B.
+
+#### 🐛 Defect caught at review: gamma walls had no staleness bound
+
+`_latest_cboe_archive()` returns the newest archive **at or before** the session date with **no lower
+bound**. The agent stamped `stale: true` and appended a warning to the source string — good — but a
+*two-week-old* archive would still be **drawn**, merely flagged. Gamma walls are a fast-decaying
+OI-positioning read; a stale wall is not "stale context", it is a **wrong line on J's chart** — the
+precise disease §9 exists to cure.
+
+**Not hypothetical.** `journal/gex-archive/` has **no file for 2026-09-05 or 2026-09-09**, and
+`known-gaps.json` records neither, so the banker misses days *silently*. (Two earlier gaps ARE
+documented there, both `mechanism: scheduled_task_did_not_fire`, both unbackfillable — the CBOE CDN
+is current-day-only, so a missed day is gone forever.)
+
+Fix: `MAX_ARCHIVE_STALENESS_DAYS = 4` (covers a Fri-bank → Tue-read long weekend) — beyond it, emit
+**nothing** and record the reason, rather than a quietly-wrong level. Walls now also carry
+`staleness_days` as a **number**, not just a bool. RED-proofed:
+```
+1 failed, 10 passed   <- cap disabled
+63 passed in 1.51s    <- cap restored, full regression incl. draw_key_levels,
+                         chart_hygiene, level_compiler_v2, audit_fix_heartbeat
+```
+The **root cause is UNFIXED and flagged** to `automation/overnight/STATUS.md ## Known broken` as
+`CBOE-OI-BANK-SILENT-MISSES`: a daily $0 producer that misses days without raising. The staleness cap
+is a blast shield, not a repair.
+
+**UNVERIFIED:** `context_levels.main()` and `draw_context_levels.py`'s live TradingView path were not
+exercised end-to-end this session (import-sanity only). Verify by running the producer against real
+Alpaca bars and drawing to a live chart.
+
+**Deliberate design note:** range families (IB, opening range) draw as a high/low **line pair**, not
+a filled rectangle — no zone primitive was invented while `ZONE_MERGE_ENABLED` remains unratified
+(F(3)). Flagged because the work order said "zones."
