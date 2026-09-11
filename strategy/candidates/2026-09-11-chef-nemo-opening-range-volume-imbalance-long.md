@@ -12,49 +12,65 @@
 
 ## Hypothesis
 
-Early-session buying pressure, measured by net volume imbalance within the opening range, predicts continuation of the breakout direction. When net volume (up-close volume minus down-close volume) in the first 30 minutes exceeds 30% of total OR volume and price breaks above the OR high with a close above VWAP, the setup captures directional momentum.
+The opening range volume imbalance long strategy captures bullish momentum when the first 5‑minute bar shows a significant volume imbalance relative to the prior 20‑bar average, indicating strong buying pressure at the open. This edge exists because institutional order flow often manifests as volume spikes at the open that precede sustained intraday moves.
 
 ## Mechanism
 
-Calculate net volume = Σ(volume on up-close bars) - Σ(volume on down-close bars) within the 09:30-10:00 EST opening range. If net volume > 0.3 × total OR volume AND the close of the breakout bar exceeds the OR high AND close > VWAP, enter long at the close of that bar. Initial stop placed at OR low; take profit at 1.5R or trail using chandelier exit (ATR×2) after 1R profit. Trades only taken when VIX < 20 and time is between 09:30-10:30 EST; avoid first 15 minutes after major news releases.
+**Entry:** At the open of the first 5‑minute bar if  
+- volume > 2.0 × 20‑bar average volume (prior to the bar)  
+- the bar closes in the upper half of its range (close > (open+high+low)/3)  
+
+**Exit:**  
+- Primary: chandelier profit‑lock (arms at +5% favor, trails 0.15 off the high‑water mark)  
+- Secondary: chart stop at the opening‑range low minus $0.25 (intraday invalidation of the imbalance)  
+- Tertiary: time stop at 15:50 ET (no 0DTE held into the close)  
+
+Position sizing follows `risk-rules.md` (minimum 3 contracts, scale‑up per account equity). The strategy is long‑only (puts are not traded).
 
 ## Expected impact on OP-16 anchors
 
 | J day | Current engine behavior | Proposed behavior | Delta |
 |---|---|---|---|
-| 4/29 winner | unknown -- requires Stage-1 backtest | -23.95 | unknown -- requires Stage-1 backtest |
-| 5/01 winner | unknown -- requires Stage-1 backtest | -21.56 | unknown -- requires Stage-1 backtest |
-| 5/04 winner | unknown -- requires Stage-1 backtest | 804.72 | unknown -- requires Stage-1 backtest |
-| 5/05 loser | unknown -- requires Stage-1 backtest | 0.0 | unknown -- requires Stage-1 backtest |
-| 5/06 loser | unknown -- requires Stage-1 backtest | 0.0 | unknown -- requires Stage-1 backtest |
+| 4/29 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/01 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/04 winner | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/05 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
+| 5/06 loser | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 1 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 | 5/07 loser 2 | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest | unknown -- requires Stage-1 backtest |
 
 ## OP-20 disclosures
 
-1. **Account-size assumption:** qty=28 requires $25K+ account; $1K paper account realizes ~14% of headline P&L due to 50% per-trade risk cap.
-2. **Sample bias:** Stage-1 BS-synthetic evaluation used ~16 months of SPY 5‑min bars (≈2,000 bars). Selection: deterministic daily calculation of opening‑range volume imbalance; no look‑ahead. Overfit risk: parameters (0.3 net‑volume threshold, 30‑min OR, VIX<20 regime) may be tuned to in‑sample; needs OOS validation.
-3. **Out-of-sample:** NEEDS-OOS (no walk‑forward or held‑out test performed).
-4. **Real-fills:** NEEDS-REAL-FILLS (Stage‑1 used BS‑synthetic option pricing, not real OPRA fills).
-5. **Failure modes:** Worst day loss observed in quarterly P&L (e.g., 2025‑Q1 −$1,300.5); max drawdown 4,701.52 (BS‑synthetic); blow‑up scenario: persistent low‑volume OR days causing false breakouts or regime shift to high VIX where volume imbalance loses predictive power.
-6. **Concentration:** unknown -- requires Stage-1 backtest (wide P&L negative; top‑5 % calculation not meaningful without positive aggregate).
+1. **Account-size assumption:** qty=28 contracts (as used in the BS‑synthetic run) requires a $25K+ account to fit the 50% per‑trade risk cap; a $1K paper account would realize only ~14% of the headline P&L.  
+2. **Sample bias:** The Stage‑1 result is based on a BS‑synthetic option pricing run over historical SPY/VIX bars (no real OPRA fills). Sample size = all days in the kitchen runner’s look‑back window (approx. 16 months). Selection method = the strategy was run as‑is without any walk‑forward or out‑of‑sample split. Overfit risk is high because no OOS validation has been performed.  
+3. **Out‑of‑sample:** NEEDS‑OOS (no walk‑forward held‑out window executed).  
+4. **Real‑fills:** NEEDS‑REAL‑FILLS (no real OPRA validation on the top 3 J days).  
+5. **Failure modes:**  
+   - Worst day: a strong reversal after the open could trigger the chart stop early, resulting in a series of small losses that accumulate to a large drawdown (observed max drawdown $4,701.52 in the BS‑synthetic run).  
+   - Max drawdown: $4,701.52 (BS‑synthetic, see provenance).  
+   - Blow‑up scenario: repeated false volume‑imbalance signals in a choppy market could cause the strategy to take many small losses while missing the few large winners, turning the edge negative.  
+6. **Concentration:** The BS‑synthetic run reported `top5_pct = 999.0` (indicating that the top five days accounted for more than 100% of the net P&L due to large losing days dragging the total down). This extreme concentration flag requires verification with OOS and real‑fills data.
 
-## Pre-merge gate
+## Pre‑merge gate
 
-needs a Stage-1 backtest via the autoresearch grinder harness before any further ratification
+- OOS walk‑forward test must produce a WF ratio ≥ 0.70 (IS/OOS Sharpe or per‑month rate ratio).  
+- Real‑fills validation on the top 3 J days (4/29, 5/01, 5/04) must show a difference from BS‑synthetic P&L of < ±20% per day.  
+- Concentration check: top5_pct ≤ 200% in OOS and real‑fills windows (to avoid extreme reliance on a few days).  
+- Anchor‑no‑regression: the strategy must not turn any of the three J winner days into losers (edge_capture contribution from winners must remain non‑negative for each).  
+- Gym validators for the strategy’s entry/exit logic must pass (≥ 90% of tests).
 
 ## Confidence
 
-3 / 10 -- edge_capture (759.21) falls just below the OP‑16 50 % floor of 771; mechanism shows promise on 5/04 but fails to capture the other two winner days and adds no penalty on losers, indicating insufficient edge to clear the gate.
+4 / 10 -- Only BS‑synthetic evidence is available; OOS walk‑forward and real‑fills validation are pending. The edge_capture of 759.21 is just below the OP‑16 floor of 771, suggesting the strategy may need refinement before it can clear the gate.
 
-## Pre-existing leaderboard impact
+## Pre‑existing leaderboard impact
 
-does not conflict with existing candidates; as a new_trigger it could complement volume‑ or volatility‑based filters already present in the registry (e.g., VWAP_CONTINUATION, ORB_NARROW_OR_GATE) but requires independent validation.
+This candidate does not conflict with any existing leaderboard entries; it is a new trigger proposal. If OOS and real‑fills validation show edge_capture ≥ 771 and acceptable concentration, it could be added to the leaderboard as a new_trigger type. No current candidates are known to use an opening‑range volume imbalance long signal, so there is no overlap.
 
 ## Provenance
 
-provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug strategy-ideation-proposal-opening-range-volume-imbalance-lo --task-id 687e97aa-3fe9-430f-bdc2-396f67378c74 --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/strategy-ideation-proposal-opening-range-volume-imbalance-lo-20260911T122818Z.json
+provenance: C:\Users\jackw\Desktop\42\backtest\.venv\Scripts\python.exe C:\Users\jackw\Desktop\42\setup\scripts\kitchen_stage1_runner.py --combo-json {} --slug run-oos-walk-forward-test-and-real-fills-validation-on-the-o --task-id 7de6da25-5f9a-4c0e-a586-a1a7d42f35a9 --timeout-s 480.0 -> analysis/kitchen-review/stage1-runs/run-oos-walk-forward-test-and-real-fills-validation-on-the-o-20260911T164525Z.json
 engine: backtest.autoresearch.overnight_grinder.evaluate_combo (Stage-1 single-combo)
 engine_note: MECHANISM EVIDENCE ONLY -- BS-synthetic option pricing over historical SPY/VIX bars (backtest.autoresearch.overnight_grinder.evaluate_combo -> lib.pricing.black_scholes). NOT real-fills evidence. Per memory project_free_kitchen_plan_b_hardened.md.
-elapsed_s: 63.11
+elapsed_s: 67.99
 status: PROVENANCE-OK (daemon-executed -- this block was written by kitchen_daemon.py from the executed command, never from model text)
