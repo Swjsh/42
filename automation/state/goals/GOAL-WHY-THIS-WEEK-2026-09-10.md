@@ -109,12 +109,14 @@ strike tier do not transfer to another.
 ## QUEUE
 [ ] todo   [~] wip   [x] done   [B] blocked   [B-J] blocked on J
 
-- [ ] W1 -- light the diagnostic layer: every dark producer load-bearing for W2-W6 either
-      running with fresh output quoted, or root-caused in one sentence and filed. Start with
-      Gamma_TradeAutopsy, Gamma_ZeroEnterAutopsy, Gamma_RegimeAttribution, Gamma_DayTypeLabels,
-      Gamma_RightTailCapture, Gamma_FleetGateLeakShadow, Gamma_StructureClassifierShadow.
-- [ ] W2 -- root-cause 09-09's 5 ENTER -> 0 accepted -> 0 fills in one sentence; guard it, or
-      prove the refusal was correct and name the gate. Flag severity explicitly.
+- [x] W1 -- **CLOSED: 10 of 11 producers were ALREADY LIT** (fresh same-day output, 14:00-16:00
+      ET timestamps quoted). 1 genuinely broken (Gamma_RefusedSetupLedger) -> fixed + verified.
+      2 real residual defects named (below). The '47 findings' headline was largely artifact.
+- [x] W2 -- **CLOSED: correct refusal, NOT a defect.** All 5 bold-2 enters hit the validated
+      `min_entry_premium` floor (761P priced $0.11-$0.18 vs the $0.30 floor); safe refused the
+      same setup 5x on structure-veto. No order was ever submitted. Guard green this session
+      (`test_min_entry_premium_floor.py` 11 passed). Not unique, not new, no silent-swallow
+      pattern anywhere 08-24 onward. Null fix -- nothing shipped.
 - [ ] W3 -- structure-veto x BEARISH_REJECTION net-$ verdict across the frozen window,
       wave-deduped, split by structure state: EARNING / COSTING / UNDERPOWERED with n.
 - [x] W4 -- **VERDICT: VARIANCE, not regime-break.** Done 2026-09-10 23:03:47 Thursday EDT. Numbers below.
@@ -124,7 +126,10 @@ strike tier do not transfer to another.
       window) and whether that decline is (a) market conditions, (b) a gate/config change,
       or (c) silent execution loss (see W2). Only (b)/(c) are actionable, and only as
       pre-registered 09-29/10-30 packages.
-- [ ] W6 -- name and price the safe-2 vs safe-3 spread mechanism in dollars.
+- [~] W6 -- PARTIAL: shared-wave decomposition done (n=25, arms near-identical -> mechanics do
+      NOT explain the gap). **BLOCKED on a measurement reconciliation** (ledger +$1,117 vs
+      gate -$654 for safe-2) that must be resolved before any 'safe-2 is the losing arm' claim
+      is trusted. See W6 RESULT.
 
 ## PROGRESS LOG
 
@@ -205,3 +210,133 @@ that test and is killed on sight (L168/C31).
    "this week was bad". W4 says the week needs no explaining.
 3. **W5 must not propose loosening anything to raise WR.** The WR is normal. The lever is
    at-bats.
+
+
+---
+
+## W6 PARTIAL -- safe-2 vs safe-3 (orchestrator, 2026-09-10 23:06:27 Thursday EDT)
+
+### What I set out to price
+The audit headline said safe-2 is net **−$654** (PF 0.817) over 32 days while safe-3 is
+**+$1,233** (PF 1.514) over 28 days on the same signal -- and since the arms differ ONLY by
+sizing/gates/stop, some specific mechanical difference should account for it.
+
+### Finding 1 -- on shared signals the two arms are near-identical
+The clean test is waves where BOTH arms entered (same 10-min bucket = same market event),
+which holds selection constant and isolates sizing/strike/exit. **n = 25 shared waves:**
+
+- safe-2 **+$132** · safe-3 **+$272** · spread **+$140 total across 25 waves**
+- The spread is dominated by 3 outliers: 08-07 b72 (−$305 vs safe-2), 09-03 b58 (−$126 vs
+  safe-2), 08-27 b58 (+$147 to safe-3). Strip those and the arms are a coin-flip apart.
+- Strikes are usually IDENTICAL on shared waves (K763/K769/K772/K777/K778 all match); entry
+  premiums differ by pennies. The "safe-2 ATM vs safe-3 tight-ladder" hypothesis does **not**
+  show up on common trades at all.
+
+**Verdict on the mechanism question: UNDERPOWERED / mechanics-not-implicated.** Whatever
+separates these arms in the gate's numbers, it is **not** how they size, strike or exit the
+same signal. The divergence lives in **selection** (safe-2 solo: 70 waves +$985; safe-3 solo:
+42 waves +$681) and in the differing measurement windows.
+
+### Finding 2 -- ⚠️ a measurement discrepancy I could NOT reconcile, and it undercuts my own audit headline
+Counting the full trade ledger:
+
+| arm | ledger legs | ledger net | gate says |
+|---|---:|---:|---|
+| safe-2 | 148 | **+$1,117** | **−$654** (94 engine trades, 32 days) |
+| safe-3 | 91 | +$953 | +$1,233 (67 engine trades, 28 days) |
+
+**safe-2 is net POSITIVE on the full ledger and net NEGATIVE in the gate's window.** These are
+different populations (gate counts engine-attributed trades over its own scoring window; the
+ledger includes backfilled/manual/other-window rows) so the two are not contradictory on their
+face -- but **I could not reproduce the gate's −$654 from the ledger this fire**, and my
+attribution filter returned 0 engine-tagged rows for every arm, meaning the `attribution`
+field is not where I assumed it is.
+
+**Consequence -- correcting my own audit:** the statement *"safe-2, the flagship conservative
+arm, is net negative over 32 days"* is the **gate's** number for the **gate's** window and
+population. It should NOT be repeated as "safe-2 is the losing arm" until the reconciliation
+below lands. A too-bad-to-be-true number gets the same artifact hunt as a too-good one.
+
+### Blocking item for the next fire (W6 continuation)
+Reconcile ledger↔gate for safe-2: find where `go_live_gate.py` sources `n_engine_trades`,
+reproduce the −$654 exactly, and state in one sentence what the ledger's extra 54 legs /
++$1,771 are (window, attribution, or double-count). **Until that reconciles, no per-arm
+conclusion and no per-arm package.**
+
+### Bonus, feeding W5 (from W2's exec-status census, 08-24 onward)
+`NOT_FLAT` is the single largest consumer of ENTER verdicts -- 09-03: 43 of 81; 08-27: 29 of
+40. That is the one-position-at-a-time cap eating at-bats on exactly the high-signal days, and
+it is a **structural participation limiter, not a loss mechanism**. This is now the strongest
+lead for W5's "why are at-bats down" question. `RISK_DENY_SETTLEMENT` (12 on 09-03) is a
+second, smaller one. Both are measurement-only tonight -- freeze holds.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:06:27 Thursday EDT -- W2 CLOSED by Sonnet worker (correct refusal, null fix, guard green).
+  W4 CLOSED (VARIANCE). W6 PARTIAL: shared-wave mechanics ruled out (n=25); blocked on a
+  ledger-vs-gate reconciliation that also forces a correction to the audit's safe-2 headline.
+  W1/W3 workers still running. Nothing shipped to the trading path; freeze intact.
+
+
+---
+
+## W1 RESULT -- the diagnostic layer was mostly already lit (2026-09-10 23:07:31 Thursday EDT)
+
+### ⚠️ CORRECTION to this goal's own opening premise
+The goal header says *"47 task-freshness findings ... precisely the instruments that would
+explain this week are dark."* **That was overstated.** Checked directly:
+
+**10 of the 11 load-bearing producers were already producing fresh same-day output**, with
+14:00–16:00 ET timestamps today: `trade-autopsy-last.json` (16:20, `net_pnl: -790.0` — matches
+Thursday's known loss), `ZERO-ENTER-2026-09-10.json` (14:10, 24KB), `day-type-labels.json`
+(15:20, 63KB), `CAPTURE-2026-09-10.json` (14:20), `fleet-gate-leak-summary.json` (15:50, 43KB),
+`structure-classifier-shadow-summary.json` (15:55), `conviction-c4-sidecar-summary.json`
+(15:40), `entry-location-trend-summary.json` (15:30, 66KB), `self-audit/new-gaps-flagged.md`
+(15:32, 203KB).
+
+Two separate artifacts inflated the headline:
+1. The `Disabled` state visible on all 11 tonight is the **documented 18:00–23:00 ET quiet-mode
+   hold**, which self-resolved on schedule (`Gamma_QuietMode --status` → `quiet_active: false,
+   restored_count: 140/140, updated_at: 2026-09-10T23:02:08 ET`). Not breakage.
+2. The freshness scan that produced the 47 findings runs at **05:45 ET — before the day's
+   producer fires** — so it flags same-day staleness that the day then resolves.
+
+**The diagnostic layer was not the reason this week was hard to explain.** Recorded so the
+next session does not re-chase it.
+
+### Real defects found (2) -- both are C7 "silent success is failure"
+1. **`Gamma_RefusedSetupLedger` was genuinely dark** — `analysis/refusals/` did not exist. Its
+   14:20 ET fire logged `launching:` → `exit=0` in 8 seconds having written nothing, while the
+   same command run interactively took much longer (network bar-fetches) and wrote correctly.
+   **FIXED by direct run** (never by firing the task — J's standing rule): `refused_setup_ledger.py
+   --backfill 1 --fetch --score` → `2026-09-10: 37 episode(s)`, plus `2026-09-09.json` backfilled.
+   Exact mechanism of the fast no-op **NOT pinned** (suspected fetch stall / early return under
+   the hidden-pythonw launch context, which the code does not log). **Deliberately not
+   guess-fixed.** → Watch tomorrow's 14:20 fire; if it silently no-ops again, that is the guard
+   to write. UNVERIFIED as permanently fixed.
+2. **`Gamma_TradeAutopsy`'s `exit_shape_parity_study` is silently blind** — `HTTP 403 Forbidden`
+   on option-bar fetches for dates as old as 09-02 / 09-03 / 09-08, contradicting
+   `refused_setup_ledger.py`'s docstring claim that historical bars are not OPRA-gated. **The
+   task still exits 0**, so Task Scheduler reads green while the component is dark on multiple
+   recent dates. Root cause unconfirmed (vendor key / rate-limit vs a genuine same-day-only
+   gate). **This matters to W6**, which needs clean per-trade bar pricing.
+
+### Effect on the rest of the goal
+- **W3 fully unblocked** — `structure-classifier-shadow-summary.json` is fresh and populated.
+- **W6 has fresh data** (trade-autopsy, entry-location-trend, conviction-c4-sidecar,
+  fleet-gate-leak) **but inherits defect #2's pricing blindness** — factor it into the
+  ledger-vs-gate reconciliation rather than assuming clean bars.
+- **W4 does NOT depend on the UNTAGGED regime attribution.** W1 flags `regime-attribution.json`
+  as `"status": "UNTAGGED" ... "2026-09-10 is not in the archetype library"`. W4's verdict was
+  derived from the engine's own realised daily P&L distribution and its realised 2-day windows,
+  **not** from archetype tags, so the verdict stands as written. The regime *cross-check*
+  (is this week's tape a known losing archetype?) remains unavailable until
+  `backtest/tools/build_day_archetypes.py` is rebuilt — that is a nice-to-have, not a blocker,
+  and it is explicitly NOT a reason to reopen W4.
+
+## PROGRESS LOG
+
+- 2026-09-10 23:07:31 Thursday EDT -- W1 CLOSED. Corrected this goal's own '47 dark instruments' premise:
+  10/11 were already lit; 1 fixed (RefusedSetupLedger, mechanism unpinned, flagged for
+  tomorrow's fire); 2 real silent-degradation defects named. W3 unblocked. W4 confirmed
+  independent of the UNTAGGED regime data. No trading-path edits; freeze intact.

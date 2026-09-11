@@ -1,7 +1,7 @@
 {
  "_meta": {
   "date": "2026-09-01",
-  "generated_at_et": "2026-09-01T15:56:59",
+  "generated_at_et": "2026-09-02T16:20:11",
   "builder": "setup/scripts/refused_setup_ledger.py",
   "shadow_only": "MEASUREMENT ONLY -- never places, arms, or edits a gate.",
   "min_score": 6,
@@ -10,37 +10,37 @@
   "unscored_note": "episodes with scored=false have NO recorded option bars for their contract -- an honest null, not a zero"
  },
  "n_episodes": 43,
- "n_scored": 0,
+ "n_scored": 43,
  "by_binding_blocker": {
   "ribbon_not_bull": {
    "episodes": 23,
-   "scored": 0,
-   "usd": 0.0
+   "scored": 23,
+   "usd": 54.75
   },
   "vix_gate_17.30_rising": {
    "episodes": 20,
-   "scored": 0,
-   "usd": 0.0
+   "scored": 20,
+   "usd": 46.2
   },
   "buyer_pressure": {
    "episodes": 12,
-   "scored": 0,
-   "usd": 0.0
+   "scored": 12,
+   "usd": 67.3
   },
   "breakdown_bar": {
    "episodes": 2,
-   "scored": 0,
-   "usd": 0.0
+   "scored": 2,
+   "usd": -14.3
   },
   "ribbon_not_bear": {
    "episodes": 2,
-   "scored": 0,
-   "usd": 0.0
+   "scored": 2,
+   "usd": -8.1
   },
   "volume_divergence": {
    "episodes": 1,
-   "scored": 0,
-   "usd": 0.0
+   "scored": 1,
+   "usd": -3.05
   }
  },
  "episodes": [
@@ -68,8 +68,20 @@
    "level": null,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "09:36",
+    "entry_px": 1.35,
+    "exit_t": "09:42",
+    "exit_px": 1.39,
+    "exit_kind": "chandelier_trail",
+    "pct": 3.3,
+    "per_contract_usd": 4.4,
+    "mfe_pct": 91.9,
+    "mae_pct": -89.6,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -95,8 +107,20 @@
    "level": null,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "09:36",
+    "entry_px": 1.35,
+    "exit_t": "09:42",
+    "exit_px": 1.39,
+    "exit_kind": "chandelier_trail",
+    "pct": 3.3,
+    "per_contract_usd": 4.4,
+    "mfe_pct": 91.9,
+    "mae_pct": -89.6,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -123,8 +147,20 @@
    "level": 761.48,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "10:04",
+    "entry_px": 1.18,
+    "exit_t": "10:07",
+    "exit_px": 1.53,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 35.4,
+    "mfe_pct": 136.4,
+    "mae_pct": -91.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -151,8 +187,20 @@
    "level": 761.48,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "10:04",
+    "entry_px": 1.18,
+    "exit_t": "10:07",
+    "exit_px": 1.53,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 35.4,
+    "mfe_pct": 136.4,
+    "mae_pct": -91.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -179,8 +227,20 @@
    "level": 764.0,
    "would_be_strike": 764,
    "would_be_contract": "SPY260901C00764000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00764000",
+    "entry_t": "10:36",
+    "entry_px": 1.11,
+    "exit_t": "10:39",
+    "exit_px": 1.04,
+    "exit_kind": "chandelier_trail",
+    "pct": -6.6,
+    "per_contract_usd": -7.3,
+    "mfe_pct": 9.9,
+    "mae_pct": -99.1,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -207,8 +267,20 @@
    "level": 764.0,
    "would_be_strike": 764,
    "would_be_contract": "SPY260901C00764000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00764000",
+    "entry_t": "10:36",
+    "entry_px": 1.11,
+    "exit_t": "10:39",
+    "exit_px": 1.04,
+    "exit_kind": "chandelier_trail",
+    "pct": -6.6,
+    "per_contract_usd": -7.3,
+    "mfe_pct": 9.9,
+    "mae_pct": -99.1,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -235,8 +307,20 @@
    "level": 764.3,
    "would_be_strike": 764,
    "would_be_contract": "SPY260901P00764000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00764000",
+    "entry_t": "10:41",
+    "entry_px": 0.93,
+    "exit_t": "10:47",
+    "exit_px": 0.86,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.7,
+    "per_contract_usd": -7.15,
+    "mfe_pct": 383.9,
+    "mae_pct": -44.1,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -263,8 +347,20 @@
    "level": 764.3,
    "would_be_strike": 764,
    "would_be_contract": "SPY260901P00764000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00764000",
+    "entry_t": "10:41",
+    "entry_px": 0.93,
+    "exit_t": "10:47",
+    "exit_px": 0.86,
+    "exit_kind": "chandelier_trail",
+    "pct": -7.7,
+    "per_contract_usd": -7.15,
+    "mfe_pct": 383.9,
+    "mae_pct": -44.1,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -291,8 +387,20 @@
    "level": 763.38,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901C00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00763000",
+    "entry_t": "11:04",
+    "entry_px": 0.99,
+    "exit_t": "11:32",
+    "exit_px": 1.08,
+    "exit_kind": "chandelier_trail",
+    "pct": 9.0,
+    "per_contract_usd": 8.95,
+    "mfe_pct": 91.9,
+    "mae_pct": -98.0,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -319,8 +427,20 @@
    "level": 763.38,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901C00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00763000",
+    "entry_t": "11:04",
+    "entry_px": 0.99,
+    "exit_t": "11:32",
+    "exit_px": 1.08,
+    "exit_kind": "chandelier_trail",
+    "pct": 9.0,
+    "per_contract_usd": 8.95,
+    "mfe_pct": 91.9,
+    "mae_pct": -98.0,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -347,8 +467,20 @@
    "level": 763.16,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901C00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00763000",
+    "entry_t": "11:21",
+    "entry_px": 0.97,
+    "exit_t": "11:31",
+    "exit_px": 1.26,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 29.1,
+    "mfe_pct": 95.9,
+    "mae_pct": -97.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -375,8 +507,20 @@
    "level": 763.16,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901C00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00763000",
+    "entry_t": "11:21",
+    "entry_px": 0.97,
+    "exit_t": "11:31",
+    "exit_px": 1.26,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 29.1,
+    "mfe_pct": 95.9,
+    "mae_pct": -97.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -401,8 +545,20 @@
    "level": 764.3,
    "would_be_strike": 765,
    "would_be_contract": "SPY260901C00765000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00765000",
+    "entry_t": "11:51",
+    "entry_px": 0.51,
+    "exit_t": "11:54",
+    "exit_px": 0.52,
+    "exit_kind": "chandelier_trail",
+    "pct": 1.7,
+    "per_contract_usd": 0.85,
+    "mfe_pct": 19.6,
+    "mae_pct": -98.0,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -427,8 +583,20 @@
    "level": 764.3,
    "would_be_strike": 765,
    "would_be_contract": "SPY260901C00765000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00765000",
+    "entry_t": "11:51",
+    "entry_px": 0.51,
+    "exit_t": "11:54",
+    "exit_px": 0.52,
+    "exit_kind": "chandelier_trail",
+    "pct": 1.7,
+    "per_contract_usd": 0.85,
+    "mfe_pct": 19.6,
+    "mae_pct": -98.0,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -455,8 +623,20 @@
    "level": 764.59,
    "would_be_strike": 765,
    "would_be_contract": "SPY260901P00765000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00765000",
+    "entry_t": "11:56",
+    "entry_px": 1.12,
+    "exit_t": "11:59",
+    "exit_px": 1.08,
+    "exit_kind": "chandelier_trail",
+    "pct": -3.6,
+    "per_contract_usd": -4.05,
+    "mfe_pct": 390.2,
+    "mae_pct": -6.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -483,8 +663,20 @@
    "level": 764.59,
    "would_be_strike": 765,
    "would_be_contract": "SPY260901P00765000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00765000",
+    "entry_t": "11:56",
+    "entry_px": 1.12,
+    "exit_t": "11:59",
+    "exit_px": 1.08,
+    "exit_kind": "chandelier_trail",
+    "pct": -3.6,
+    "per_contract_usd": -4.05,
+    "mfe_pct": 390.2,
+    "mae_pct": -6.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -511,8 +703,20 @@
    "level": 763.16,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901P00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00763000",
+    "entry_t": "12:21",
+    "entry_px": 1.14,
+    "exit_t": "12:28",
+    "exit_px": 1.08,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.3,
+    "per_contract_usd": -6.05,
+    "mfe_pct": 209.6,
+    "mae_pct": -31.6,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -539,8 +743,20 @@
    "level": 763.16,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901P00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00763000",
+    "entry_t": "12:21",
+    "entry_px": 1.14,
+    "exit_t": "12:28",
+    "exit_px": 1.08,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.3,
+    "per_contract_usd": -6.05,
+    "mfe_pct": 209.6,
+    "mae_pct": -31.6,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -567,8 +783,20 @@
    "level": 762.67,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901C00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00763000",
+    "entry_t": "12:26",
+    "entry_px": 0.63,
+    "exit_t": "12:30",
+    "exit_px": 0.59,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.6,
+    "per_contract_usd": -3.5,
+    "mfe_pct": 30.2,
+    "mae_pct": -96.8,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -595,8 +823,20 @@
    "level": 762.67,
    "would_be_strike": 763,
    "would_be_contract": "SPY260901C00763000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00763000",
+    "entry_t": "12:26",
+    "entry_px": 0.63,
+    "exit_t": "12:30",
+    "exit_px": 0.59,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.6,
+    "per_contract_usd": -3.5,
+    "mfe_pct": 30.2,
+    "mae_pct": -96.8,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -621,8 +861,20 @@
    "level": 761.64,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:06",
+    "entry_px": 0.98,
+    "exit_t": "13:10",
+    "exit_px": 0.94,
+    "exit_kind": "chandelier_trail",
+    "pct": -3.7,
+    "per_contract_usd": -3.65,
+    "mfe_pct": 164.3,
+    "mae_pct": -38.8,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -647,8 +899,20 @@
    "level": 761.64,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:06",
+    "entry_px": 0.98,
+    "exit_t": "13:10",
+    "exit_px": 0.94,
+    "exit_kind": "chandelier_trail",
+    "pct": -3.7,
+    "per_contract_usd": -3.65,
+    "mfe_pct": 164.3,
+    "mae_pct": -38.8,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -675,8 +939,20 @@
    "level": 761.64,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "13:11",
+    "entry_px": 0.77,
+    "exit_t": "13:16",
+    "exit_px": 0.74,
+    "exit_kind": "chandelier_trail",
+    "pct": -4.0,
+    "per_contract_usd": -3.05,
+    "mfe_pct": 13.0,
+    "mae_pct": -87.0,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -701,8 +977,20 @@
    "level": 761.64,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "13:11",
+    "entry_px": 0.77,
+    "exit_t": "13:16",
+    "exit_px": 0.74,
+    "exit_kind": "chandelier_trail",
+    "pct": -4.0,
+    "per_contract_usd": -3.05,
+    "mfe_pct": 13.0,
+    "mae_pct": -87.0,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -727,8 +1015,20 @@
    "level": 762.14,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:24",
+    "entry_px": 0.95,
+    "exit_t": "13:25",
+    "exit_px": 1.23,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 28.5,
+    "mfe_pct": 172.6,
+    "mae_pct": -36.8,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -753,8 +1053,20 @@
    "level": 762.14,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:24",
+    "entry_px": 0.95,
+    "exit_t": "13:25",
+    "exit_px": 1.23,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 28.5,
+    "mfe_pct": 172.6,
+    "mae_pct": -36.8,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -779,8 +1091,20 @@
    "level": 761.32,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "13:31",
+    "entry_px": 0.74,
+    "exit_t": "13:36",
+    "exit_px": 0.72,
+    "exit_kind": "chandelier_trail",
+    "pct": -2.4,
+    "per_contract_usd": -1.75,
+    "mfe_pct": 14.9,
+    "mae_pct": -86.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -805,8 +1129,20 @@
    "level": 762.15,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:41",
+    "entry_px": 0.65,
+    "exit_t": "13:46",
+    "exit_px": 0.85,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 19.5,
+    "mfe_pct": 298.5,
+    "mae_pct": -7.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -831,8 +1167,20 @@
    "level": 762.15,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:41",
+    "entry_px": 0.65,
+    "exit_t": "13:46",
+    "exit_px": 0.85,
+    "exit_kind": "tp1",
+    "pct": 30.0,
+    "per_contract_usd": 19.5,
+    "mfe_pct": 298.5,
+    "mae_pct": -7.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -857,8 +1205,20 @@
    "level": 761.49,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:59",
+    "entry_px": 0.76,
+    "exit_t": "14:03",
+    "exit_px": 0.7,
+    "exit_kind": "chandelier_trail",
+    "pct": -8.3,
+    "per_contract_usd": -6.3,
+    "mfe_pct": 240.8,
+    "mae_pct": -14.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -883,8 +1243,20 @@
    "level": 761.49,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901P00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00762000",
+    "entry_t": "13:59",
+    "entry_px": 0.76,
+    "exit_t": "14:03",
+    "exit_px": 0.7,
+    "exit_kind": "chandelier_trail",
+    "pct": -8.3,
+    "per_contract_usd": -6.3,
+    "mfe_pct": 240.8,
+    "mae_pct": -14.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -909,8 +1281,20 @@
    "level": 761.48,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "14:11",
+    "entry_px": 0.46,
+    "exit_t": "14:13",
+    "exit_px": 0.42,
+    "exit_kind": "chandelier_trail",
+    "pct": -9.5,
+    "per_contract_usd": -4.35,
+    "mfe_pct": 17.4,
+    "mae_pct": -78.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -935,8 +1319,20 @@
    "level": 761.48,
    "would_be_strike": 762,
    "would_be_contract": "SPY260901C00762000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00762000",
+    "entry_t": "14:11",
+    "entry_px": 0.46,
+    "exit_t": "14:13",
+    "exit_px": 0.42,
+    "exit_kind": "chandelier_trail",
+    "pct": -9.5,
+    "per_contract_usd": -4.35,
+    "mfe_pct": 17.4,
+    "mae_pct": -78.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -962,8 +1358,20 @@
    "level": 761.41,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901P00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00761000",
+    "entry_t": "14:31",
+    "entry_px": 0.71,
+    "exit_t": "14:35",
+    "exit_px": 0.71,
+    "exit_kind": "chandelier_trail",
+    "pct": 0.6,
+    "per_contract_usd": 0.4,
+    "mfe_pct": 145.1,
+    "mae_pct": -57.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -989,8 +1397,20 @@
    "level": 761.41,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901P00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00761000",
+    "entry_t": "14:31",
+    "entry_px": 0.71,
+    "exit_t": "14:35",
+    "exit_px": 0.71,
+    "exit_kind": "chandelier_trail",
+    "pct": 0.6,
+    "per_contract_usd": 0.4,
+    "mfe_pct": 145.1,
+    "mae_pct": -57.7,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1017,8 +1437,20 @@
    "level": 760.73,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901C00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00761000",
+    "entry_t": "14:36",
+    "entry_px": 0.58,
+    "exit_t": "14:45",
+    "exit_px": 0.29,
+    "exit_kind": "catastrophe_cap",
+    "pct": -50.0,
+    "per_contract_usd": -29.0,
+    "mfe_pct": 56.9,
+    "mae_pct": -55.2,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1045,8 +1477,20 @@
    "level": 760.73,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901C00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00761000",
+    "entry_t": "14:36",
+    "entry_px": 0.58,
+    "exit_t": "14:45",
+    "exit_px": 0.29,
+    "exit_kind": "catastrophe_cap",
+    "pct": -50.0,
+    "per_contract_usd": -29.0,
+    "mfe_pct": 56.9,
+    "mae_pct": -55.2,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1071,8 +1515,20 @@
    "level": 761.2,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901C00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00761000",
+    "entry_t": "15:16",
+    "entry_px": 0.77,
+    "exit_t": "15:18",
+    "exit_px": 0.72,
+    "exit_kind": "chandelier_trail",
+    "pct": -6.2,
+    "per_contract_usd": -4.75,
+    "mfe_pct": 18.2,
+    "mae_pct": -51.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1097,8 +1553,20 @@
    "level": 761.2,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901C00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00761000",
+    "entry_t": "15:16",
+    "entry_px": 0.77,
+    "exit_t": "15:18",
+    "exit_px": 0.72,
+    "exit_kind": "chandelier_trail",
+    "pct": -6.2,
+    "per_contract_usd": -4.75,
+    "mfe_pct": 18.2,
+    "mae_pct": -51.9,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1123,8 +1591,20 @@
    "level": 761.32,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901P00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00761000",
+    "entry_t": "15:21",
+    "entry_px": 0.45,
+    "exit_t": "15:23",
+    "exit_px": 0.42,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.6,
+    "per_contract_usd": -2.5,
+    "mfe_pct": 42.2,
+    "mae_pct": -33.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1149,8 +1629,20 @@
    "level": 761.32,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901P00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901P00761000",
+    "entry_t": "15:21",
+    "entry_px": 0.45,
+    "exit_t": "15:23",
+    "exit_px": 0.42,
+    "exit_kind": "chandelier_trail",
+    "pct": -5.6,
+    "per_contract_usd": -2.5,
+    "mfe_pct": 42.2,
+    "mae_pct": -33.3,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1175,8 +1667,20 @@
    "level": 760.76,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901C00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00761000",
+    "entry_t": "15:46",
+    "entry_px": 0.57,
+    "exit_t": "15:49",
+    "exit_px": 0.63,
+    "exit_kind": "chandelier_trail",
+    "pct": 10.4,
+    "per_contract_usd": 5.9,
+    "mfe_pct": 29.8,
+    "mae_pct": -17.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   },
   {
    "date": "2026-09-01",
@@ -1201,8 +1705,20 @@
    "level": 760.76,
    "would_be_strike": 761,
    "would_be_contract": "SPY260901C00761000",
-   "scored": false,
-   "score_result": null
+   "scored": true,
+   "score_result": {
+    "contract": "SPY260901C00761000",
+    "entry_t": "15:46",
+    "entry_px": 0.57,
+    "exit_t": "15:49",
+    "exit_px": 0.63,
+    "exit_kind": "chandelier_trail",
+    "pct": 10.4,
+    "per_contract_usd": 5.9,
+    "mfe_pct": 29.8,
+    "mae_pct": -17.5,
+    "basis": "recorded 1m OPRA bars; v15 exits; NO slippage/commission modelled"
+   }
   }
  ]
 }

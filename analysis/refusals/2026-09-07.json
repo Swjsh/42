@@ -1,0 +1,16 @@
+{
+ "_meta": {
+  "date": "2026-09-07",
+  "generated_at_et": "2026-09-08T16:20:07",
+  "builder": "setup/scripts/refused_setup_ledger.py",
+  "shadow_only": "MEASUREMENT ONLY -- never places, arms, or edits a gate.",
+  "min_score": 6,
+  "min_triggers": 1,
+  "ticks_read": 0,
+  "unscored_note": "episodes with scored=false have NO recorded option bars for their contract -- an honest null, not a zero"
+ },
+ "n_episodes": 0,
+ "n_scored": 0,
+ "by_binding_blocker": {},
+ "episodes": []
+}

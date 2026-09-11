@@ -1,7 +1,7 @@
 {
  "_meta": {
   "date": "2026-08-31",
-  "generated_at_et": "2026-09-01T15:56:59",
+  "generated_at_et": "2026-09-01T16:20:13",
   "builder": "setup/scripts/refused_setup_ledger.py",
   "shadow_only": "MEASUREMENT ONLY -- never places, arms, or edits a gate.",
   "min_score": 6,
