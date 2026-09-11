@@ -1810,6 +1810,27 @@ Net: 1 line (2) got a REAL verification-and-fix -- the scanner itself was confir
 - Mid-day pings: The heartbeat.md system (Haiku) runs on a schedule. If the supervisor is spinning but not producing, the heartbeat will still ping — creating a false sense of health while the trading engine is dark. J gets pings saying "all [...]
 - Game interruption: Zero. The system is already not trading. The worst case is it *thinks* it's trading.
 
+<!-- TRIAGED 2026-09-11 ~02:5x ET conductor AFTERHOURS. All 12 lines are downstream hypothetical
+cascades built on 3 premises that were transient or already fixed by later fires -- live-checked
+each premise fresh this fire, not re-derived from the batch's own prose:
+(1) "MCP unreachable" -- port 9222 is only up 08:00-16:00 ET by design (Gamma_LaunchTV); the
+09-10T23:50 MCP_AUDIT_YELLOW STATUS.md line is an intermittent overnight condition (mcp_procs=FAIL
+while market closed), not a persistent lockout -- the 09-10 trading-day fill_funnel is GREEN
+(3 fills/3 exits across 4 arms), so MCP was reachable when it mattered.
+(2) "Gamma_ThetaClock dead" -- STALE, live-verified: `Get-ScheduledTaskInfo` shows LastRunTime
+2026-09-10 14:00, LastTaskResult=0, NumberOfMissedRuns=0, NextRunTime 2026-09-11 07:30 -- healthy
+now, self-resolved (or was a transient state this batch caught mid-outage) before this fire.
+(3) "Trendline blind 09-05/09-06" -- CONFIRMED ALREADY FIXED same night this batch was written:
+the 2026-09-07 ~01:xx ET DONE marker two batches up in this file (market_calendar.is_trading_day()
+guard, RED-proofed, commit) closes this exact premise -- it was a weekend-calendar false alarm,
+not a feed outage.
+With all 3 premises resolved, none of the 12 downstream catastrophizing lines (lockout cascade,
+heartbeat desync, financial exposure, kitchen-contamination, concentration-amplification, window
+popups, mid-day false-health pings) describe a condition that occurred -- no lockout, no
+undetected loss beyond the already-tracked $338 intervention line, event materialized in this
+window. No code change; disposition recorded. Guard: none needed (doc-only bookkeeping, no
+FROZEN_TRADING_PATH file touched). This marker is the REVOKE report. -->
+
 ## 2026-09-08T17:33:06 -- 12 new gap(s) Gamma self-identified
 - OP‑25 (recency‑confirmation gate) relies on fresh OPRA fills to set the CONFIRM‑BEFORE‑CAPITAL flag. With WS7 NOT_EXERCISED, the gate is based on stale or zero‑fill data, potentially allowing capital scaling to proceed on an unconfirmed [...]
 - Theta‑stall alert fatigue Repeated “THETA STALL” lines accumulate in theta‑clock.json, degrading signal‑to‑noise and causing operators to ignore genuine alerts.
@@ -1824,6 +1845,34 @@ Net: 1 line (2) got a REAL verification-and-fix -- the scanner itself was confir
 - EOD LLM flatteners fail 100% of time Both `safe` and `bold` LLM defense-in-depth flatteners exit=1 on every fire (budget exceeded, timeout/process-kill). Pure Python `Gamma_EodFlattenCore` exists as fallback but is same-box infrastructure; [...]
 - RTH tick gap with open position 55.2-minute gap on 2026-09-04 from 09:51:03 to 10:46:15 while an open position held. Tick data collection halted during active exposure, meaning critical price moves were missed in the real-fill window.
 
+<!-- TRIAGED 2026-09-11 ~02:5x ET conductor AFTERHOURS. Live-checked all 12 lines against current
+code/state, not re-derived from the batch's own prose:
+(1) OP-25 recency gate "stale/zero-fill" concern -- STALE, RESOLVED: the 2026-09-10 STATUS.md
+RECENCY-CONFIRMATION entry CONFIRMED the gate on 25 fresh real-OPRA trading days (2026-08-04..
+2026-09-08, n>=10 floor) -- capital scaling was never proceeding on unconfirmed data; the batch's
+own concern was answered the same night by a different fire.
+(2) Theta-stall alert fatigue, (6) Game-interruption/THETA-STALL cosmetic complaint -- both
+by-design: the alert is documented as loud-line-only, no auto-exit; ThetaClock itself verified
+healthy (see 09-07 batch triage above). Not a gap, a design description.
+(3) LLM cost creep, (9) LLM reliability erosion, (10) "EOD LLM flatteners fail 100%" -- all THREE
+are DUPLICATES of the single already-tracked STATUS.md 2026-09-08 08:52 ET EOD-LLM-LAYER-DEAD
+line (decision-needed-after-hours, still open, not re-flagged here to avoid triple-bookkeeping the
+same finding).
+(4) Regime-stamp drift, (7) Position-safety cross-lane aggregator -- both speculative, no concrete
+instance cited in the batch; engine-health.json already carries both accounts' position status
+per tick, so a narrow real gap (one aggregated view across futures/tickers/multi lanes too) may
+exist but is unconfirmed -- filed as a LOW lead, not a confirmed defect.
+(5) Self-improvement starvation (same OP-25 root) -- resolved by (1) above, fills are occurring.
+(8) Macro-calendar single point of failure -- DUPLICATE, already disclosed open in STATUS.md
+2026-09-08 08:52 ET (BLS fetch blocked, hand-list is the only source, needs a monthly refresh
+instrument).
+(11) RTH tick gap 55.2min on 2026-09-04 with an open position -- this is the well-documented
+2026-09-04 machine-crash incident (box crash 09:51 ET, J's 10:46 exits were manual rescues,
+covered by this session's own persistent memory record) -- root cause already known, not a fresh
+gap in the tick-collection code itself.
+No code change; disposition recorded. Guard: none needed (doc-only). This marker is the REVOKE
+report. -->
+
 ## 2026-09-10T17:32:05 -- 12 new gap(s) Gamma self-identified
 - Window/popup storms: Without active monitoring of the CBOE OI gap, the system continues operating with incomplete risk inputs. When the gap finally surfaces (e.g., a major OI spike that was missed), the system may place trades based on [...]
 - Lockout/redemption cascade: The full-suite red triage indicates 6/11 files failed. If additional gaps emerge (especially around high-volatility days like 09-05/09-09), the system could reach a state where no risk checks fire, causing [...]
@@ -1837,3 +1886,56 @@ Net: 1 line (2) got a REAL verification-and-fix -- the scanner itself was confir
 - Provenance Tracking and Artifact Validation Every generated file should have a verifiable provenance (how it was generated, from what inputs, with what code version) and the system should validate that the artifact exists and is correct [...]
 - Model Roster Health Monitor with Auto-Failover The system should continuously monitor the health of each model in the roster (response time, error rate) and automatically switch to the next available model if one fails, without human [...]
 - Automated Macro Calendar Updates The system should have a scheduled job that fetches the latest macroeconomic calendar from a trusted source (e.g., BLS API) and updates the internal calendar, with a fallback to the last known good version [...]
+
+<!-- TRIAGED 2026-09-11 ~02:5x ET conductor AFTERHOURS. Live-checked all 12 lines against current
+code/state, not re-derived from the batch's own prose:
+(1) Window/popup storms tied to CBOE OI gap -- non-sequitur combination of two unrelated tracked
+issues (window-leak tracking is a separate instrument; CBOE OI gap is STATUS.md 09-10 00:35 ET,
+already mitigated with a staleness cap). Not a new gap.
+(2) Lockout/redemption cascade re: "full-suite red 6/11" -- STALE, RESOLVED same session: the
+original 19-failure/11-file signature this line refers to is now fully closed
+(GOAL-FULL-SUITE-RED-TRIAGE-2026-09-10, T1-T4 done, commit e28d2db9) -- a DIFFERENT, independent
+8-failure signature surfaced after that close and is tracked separately as queue.md
+T-FULL-SUITE-RED-2026-09-11 (not this batch's concern).
+(3) Operational blindness re: gamma-wall/CBOE OI -- DUPLICATE of the same CBOE-OI-BANK-SILENT-MISSES
+line as (1), already tracked+mitigated.
+(4) Trendline shadow blindness 09-06 -- DUPLICATE, already fixed 2026-09-07 (market_calendar.
+is_trading_day() guard, see the 09-07 batch triage above in this file).
+(5) "Gamma_SelfAudit[missing_launch]" -- VERIFIED STALE, live-checked fresh this fire:
+`Get-ScheduledTaskInfo -TaskName Gamma_SelfAudit` -> LastRunTime 2026-09-10 (yesterday),
+LastTaskResult=0, NumberOfMissedRuns=0; unattended-health.json shows status=GREEN, "last run 9.2h
+ago (daily trigger)". Not missing -- ran clean. Same self-heals-between-fires class documented
+repeatedly in this project (DressRehearsal, GuardsFull, etc.) except here there was nothing to fix.
+(6) "Gamma_ProfitLockV2Shadow[missing_launch]" -- VERIFIED PARTIALLY STALE, live-checked: task
+State=Ready, LastRunTime 2026-09-10, LastTaskResult=0, NumberOfMissedRuns=0, NextRunTime scheduled
+today -- not missing_launch. The one real (already-known, non-functional) finding is
+unattended-health.json's own YELLOW "claimed by no unit in unattended-registry.json" -- an
+ownership-bookkeeping gap, not a broken task. Downgraded, not closed.
+(7) "Task Health Monitor with Auto-Restart" proposal -- PARTIAL real gap, confirmed by grep: no
+`engine_self_healer.py`-equivalent auto-re-enable script or scheduled task exists in this repo
+today (searched `setup/scripts/*.py` for self_heal/SelfHeal, zero hits). Detection is mature
+(unattended_health.py, self_check.py, engine-health.json) but every "found a Disabled task,
+re-enabled it" fix in this project's history (DressRehearsal 09-08, GuardsFull/GymSession/
+EodDeepDive/EodFullAudit 09-08) was a MANUAL conductor action, never automatic. Filed as a genuine
+LOW-priority lead for a future fire, not closed as duplicate.
+(8) "Data Freshness Monitor with Auto-Recovery" -- mostly satisfied: `Gamma_StateFreshnessRemediate`
+(referenced STATUS.md 2026-09-03 01:14 ET, confirmed registered) already pairs with
+state_freshness_audit.py for this exact purpose. DUPLICATE.
+(9) "Automated Test Gate" -- satisfied: the pre-commit hook + `tests/run_safety_gate.py` (59-test
+curated gate, runs on every commit per this session's own fires) + guard_runner_full already block/
+flag on RED. No PR-merge flow exists in this solo repo for "prevent merging" to apply literally.
+By design, not a gap.
+(10) "Provenance Tracking and Artifact Validation" -- satisfied for its stated domain: Kitchen
+outputs already carry KITCHEN_FABRICATED_ARTIFACT_RATE tracking + `PROVENANCE-AUDIT.md`.
+DUPLICATE.
+(11) "Model Roster Health Monitor with Auto-Failover" -- satisfied: `roster_liveness.py` +
+`model-roster.json` already implement detection + fallback-lane failover (STATUS.md 09-08T10:40
+line shows a dead lane actively falling through to its next role). DUPLICATE.
+(12) "Automated Macro Calendar Updates" -- DUPLICATE, already tracked open in STATUS.md 09-08
+08:52 ET (BLS fetch blocked from this host, hand-list is the only source, root gap explicitly
+flagged as unfixed).
+Net: 10 of 12 lines are stale/duplicate of already-tracked or already-fixed conditions; 1 line (7,
+auto-restart capability) is a genuine narrow LOW lead now filed for a future fire; 1 line (6) is
+downgraded from missing_launch to the pre-existing registry-ownership YELLOW. No code change; no
+FROZEN_TRADING_PATH file touched. This marker is the REVOKE report. -->
+
