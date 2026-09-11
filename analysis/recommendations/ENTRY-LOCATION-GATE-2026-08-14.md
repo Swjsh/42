@@ -145,3 +145,87 @@ which is the definition of a post-hoc pattern. It needs its own frozen prereg be
 **RESULT (2026-08-14, after that prereg was frozen and run):** NOT-RUN, all 16 cells — and the
 BULL side, which generated the hypothesis, runs OPPOSITE to it. See
 [`ENTRY-RANGE-CONTEXT-2026-08-14.md`](ENTRY-RANGE-CONTEXT-2026-08-14.md).
+
+---
+
+## UPDATE 2026-09-11 (fold, OP-22) — the BULL population that made this NOT-RUN is now n=133
+
+**Trigger:** 3 consecutive red days (09-08 −$116, 09-10 −$790, 09-11 −$619; 09-09 had no
+options fills). J: "what are we gonna do about it to learn and make money."
+
+### What the 3 red days actually share — follow-through, not regime
+
+Per-entry SPY excursion, 60-minute horizon from entry (fav = in the trade's direction),
+measured off Alpaca 5m RTH bars 2026-08-18..2026-09-11, joined to real fills:
+
+| | n | median FAV | median ADV | % entries ≥$0.80 FAV | % ≥$1.20 |
+|---|---|---|---|---|---|
+| GREEN days | 100 | **$1.16** | $0.60 | **61%** | 47% |
+| RED days | 63 | **$0.43** | $0.88 | **17%** | 11% |
+
+On red days the tape simply does not follow through after our entry. This is the cleanest
+separator found; it is a *description* of the loss, and the search for a **predictive** version
+of it is where the three kills below happened.
+
+### THREE CANDIDATE FIXES TESTED AND KILLED THIS SESSION
+
+1. **Morning chop/efficiency gate — KILLED.** Efficiency ratio over 09:30–11:00
+   (|net| / path, 5m closes) does not separate: GREEN median **0.211** vs RED **0.193**
+   (n=16 traded days). A morning-price-action stand-down filter has no signal here.
+2. **Loosen the structure stop — KILLED (this was my first hypothesis; the data refused it).**
+   Replay of today's 5 entry events against their actual `trigger_level_exact`: base rule
+   (1 closed 5m bar beyond level) captured **−2.31** SPY total; 2-consecutive-close
+   confirmation **−2.01**; a $0.25 buffer **−3.59** (worse). Widening does not rescue the day
+   because SPY was *lower than the entry price* 9–99 min after **all five** entries.
+3. **Entry-gap (spot−level) day-level gate — KILLED.** Median gap by day vs day P&L over 23
+   traded days: GREEN 0.267 vs RED 0.202 — and broken outright by 2026-07-29 (gap 0.13,
+   **+$1,341**) and 2026-08-13 (gap 0.09, **+$1,748**). Consistent with C20 / L102 / L219.
+
+### What today's tape says the problem actually is — entry LOCATION
+
+All 5 bull entries fired with spot within pennies of the reclaimed level, into a **$2.72**
+RTH range, and SPY finished below every one of them:
+
+| entry ET | spot | `trigger_level_exact` | gap | fills P&L |
+|---|---|---|---|---|
+| 10:01 | 766.27 | 765.48 | 0.79 | −$417 |
+| 10:51 | 764.73 | 764.63 | **0.10** | −$374 |
+| 13:06 | 765.64 | 765.48 | 0.16 | +$175 |
+| 13:26 | 766.17 | 766.08 | **0.09** | −$32 |
+| 13:51 | 765.90 | 765.78 | **0.12** | −$21 |
+
+Mechanism, one sentence: **`BULLISH_RECLAIM_RIDE_THE_RIBBON` fires the moment price crosses
+back above the level, so by construction spot ≈ level, and the v15.3 structure stop
+(`exit_manager.py:140` — first CLOSED 5m bar beyond `trigger_level`) then sits inside a single
+bar's noise** — today's 5m bars averaged ~$0.30 range against a $0.09–$0.12 stop. The 5 fills
+all exited at +5:00 to +5:01 across four arms simultaneously, which is the expected signature:
+`trigger_level` comes from the SHARED producer (`build_shared_signal.py`), so **all arms exit
+on the same bar close regardless of their risk profile — on the exit side the 4-arm fleet is
+~1 sample, not 4.** That materially thins the evidence base behind the go-live gate.
+
+Kill #2 above means the answer is NOT to widen that stop. The live question is whether the
+engine should be buying the reclaim *extension* at all, versus J's own stated structure
+(zones + wait-for-return): today J's rising support ray `q6rYVR` sat at ~765.0 and was touched
+five consecutive 5m bars 14:30–14:55, while every engine entry was ~$1 ABOVE it.
+
+### THE ACTIONABLE FINDING: this doc's own bull-side test is no longer blocked
+
+The 2026-08-14 verdict above records the bull side as **NOT-RUN, n=29**, below the
+pre-registered n≥30 floor — i.e. *"the question J actually asked — why did we buy calls at the
+top? — cannot be answered by this population."* **That is no longer true.**
+
+Distinct bull entry EVENTS (date + entry minute + strike, real fills) since the
+`engine-fullhist-replay-2026-07-23` population cutoff: **133**, across 22 trading days
+2026-07-28 → 2026-09-11 (279 raw fill rows across arms). That is **4.4× the n≥30 floor**.
+
+**Next action (filed as `BULL-ENTRY-LOCATION-RERUN-2026-09-11` in `automation/overnight/queue.md`):**
+re-run `backtest/autoresearch/entry_location_gate_2026_08_14.py` against the extended
+population under the SAME frozen prereg (`prereg-entry-location-gate-2026-08-14.json`) — same
+cells, same BH-FDR q=0.10, same blocked-winner accounting. No new hypothesis, no new knob: the
+test was already designed and frozen; it was only ever starved of n. Report ALL cells per
+prereg. This is measurement only and is freeze-compatible; any resulting gate is a prereg for
+the 2026-10-30 window, NOT a September change.
+
+**Caveat on this update:** excursion and replay numbers are SPY-dollar terms off 5m bars, not
+option P&L — the 13:06 cell made +$175 in premium while SPY closed −$0.30 from entry (intrabar
+TP1). SPY terms are the right unit for *entry location*; they are not a P&L claim.
