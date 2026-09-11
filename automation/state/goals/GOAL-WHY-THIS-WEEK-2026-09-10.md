@@ -127,7 +127,7 @@ strike tier do not transfer to another.
       window) and whether that decline is (a) market conditions, (b) a gate/config change,
       or (c) silent execution loss (see W2). Only (b)/(c) are actionable, and only as
       pre-registered 09-29/10-30 packages.
-- [x] W6 -- **CLOSED. Reconciled: the GATE was right, safe-2 IS net negative in engine terms
+- [x] W6 -- **CLOSED (diagnosis phase). Reconciled: the GATE was right, safe-2 IS net negative in engine terms
       (-$675 over 95 engine trips). My +$1,117 ledger figure was inflated by 12 PRE-ENGINE
       April-June legs worth +$1,587. Mechanism = SELECTION, not sizing/strike/exit.**
 
@@ -482,3 +482,145 @@ any re-pricing study.
   right, the CSV was inflated by 12 pre-engine legs (+$1,587). My earlier withdrawal of the
   audit's safe-2 claim is REVERSED. Mechanism = selection, not mechanics. **ALL SIX ITEMS
   (W1-W6) NOW CLOSED.** No trading-path edits all session; freeze intact.
+
+
+---
+
+## ⛔ REOPENED 2026-09-10 23:18:09 Thursday EDT -- J: "you only worked for like 10 minute bro"
+
+**He is right and the critique is precise.** W1-W6 closed in ~25 minutes because **five of the
+six were DIAGNOSTIC** (is anything broken? was the week abnormal?). The half J actually asked
+for -- **"how to improve it"** -- was delivered as a *specification* (W5's RANK 1/2/3) rather
+than as *executed work*. Writing "measure what NOT_FLAT costs" is not measuring what NOT_FLAT
+costs. OP-22 "good enough is a valid terminal state" applies to a question that has been
+ANSWERED, not to one that has been well-described; using it to exit early is the
+accumulate-not-compound failure the OP exists to prevent.
+
+**Corrective:** the RANK 1-3 items become executed queue items with numeric deliverables, plus
+the selection question W6 named and walked away from. These are genuinely multi-hour.
+
+## QUEUE -- PHASE 2 (execution, not specification)
+
+- [ ] W7 -- **EXECUTE the NOT_FLAT counterfactual** (W5 RANK 1, the single biggest lever).
+      For every ENTER verdict refused with NOT_FLAT across the full decisions history, price
+      what that wave would have done under the refusing arm's OWN strike-selection and exit
+      rules. Deliverable: net $ that the one-position cap cost or saved, wave-deduped, split
+      by (a) whether the arm's open position was itself a winner and (b) day archetype.
+      A NET-EARNING result kills the participation thesis outright -- that is a real outcome.
+      Shadow/measurement only; concurrency is a risk EXPANSION so nothing ships before 10-30.
+- [ ] W8 -- **ANSWER the safe-2 solo-selection question** W6 named and deferred. safe-2 takes
+      70 solo waves, safe-3 42; on the 25 SHARED waves they are near-identical, so the entire
+      -$675 vs +$953 gap lives in solo selection. What does safe-2 take that safe-3 declines,
+      is that population systematically worse, and WHICH gate/threshold admits it? Name the
+      discriminator in one sentence with the $ attached.
+- [ ] W9 -- **Put a real error bar on the participation claim.** "-34%, Aug 4.30 -> frozen
+      2.83 waves/day" rests on n=6 frozen-window days and is currently PROVISIONAL. Compute
+      waves/day across the full engine era with a proper interval; test whether the decline is
+      distinguishable from noise. If it is NOT, say so and strike the claim -- it is currently
+      load-bearing for W5 RANK 1 and must not stay unfalsified.
+- [ ] W10 -- **Pin the RefusedSetupLedger no-op mechanism.** W1 fixed the symptom by running
+      the script directly but explicitly did NOT root-cause the 8-second exit-0-writing-nothing
+      fire. Instrument it so tomorrow's 14:20 fire produces evidence either way, then write the
+      RED-proofed guard. Freeze-safe (observability).
+
+
+- [ ] W11 -- **Fix the TradeAutopsy 403-blind component.** `exit_shape_parity_study` gets
+      `HTTP 403 Forbidden` on option-bar fetches back to 2026-09-02 while the task exits 0 and
+      Task Scheduler reads green. This BLOCKS any re-pricing study (W7 and W8 both need clean
+      per-trade bars). C7 silent-degradation. Freeze-safe (observability).
+- [x] W12 -- **ANSWERED: UNDERSAMPLED, not disproven. See W12 RESULT.** Original: **The concentration question -- the real go-live blocker, and nobody has asked it.**
+      Book is +$2,027 as-traded over 42 days but **-$792 ex-best-day** (PF 0.924). Drop ONE day
+      (2026-08-04) and the entire edge is gone. Is the right tail REAL AND RARE (a genuine
+      fat-tailed edge that needs n to express, which is fine) or is it ONE LUCKY DAY wearing a
+      strategy costume (which means there is no edge and the gate will never pass)? This is the
+      question that decides whether this engine is worth continuing to run. Answer with the
+      tail's repeatability across months/regimes, not with a single summary statistic.
+
+
+---
+
+## W12 RESULT -- the concentration question (orchestrator, 2026-09-10 23:22:13 Thursday EDT)
+
+**VERDICT: the edge is NOT disproven, but it is NOT established either — it is UNDERSAMPLED,
+and the go-live gate's RED is the correct reading of exactly that. The cure is n, not tuning.
+This is the strongest argument yet for leaving the freeze alone.**
+
+### The numbers (engine-attributed, `trades-enriched.jsonl` @ `attribution == "engine"`)
+
+| scope | trips | days | net | **ex-top-1-day** | ex-top-3-days |
+|---|---:|---:|---:|---:|---:|
+| all arms (incl. retired safe-1, risky-3) | 419 | 47 | **+$349** | **−$3,275** | −$6,920 |
+| **active 4 arms** (safe-2/bold-2/safe-3/risky-1) | 300 | 44 | **+$1,121** | **−$1,698** | −$5,414 |
+
+Per-arm, engine era: safe-3 **+$953** · risky-1 **+$939** · bold-2 **−$96** · safe-2 **−$675**.
+
+**Whole-era book is +$349 across all arms — statistically indistinguishable from zero.** Note
+this differs from the go-live gate's +$2,027 because the gate scores its own 42-day trailing
+window; the full engine era (47 days from 2026-06-26) includes a negative June/early-July.
+
+### Trip-level: the average trade is a small loser
+- **Mean exit multiple 0.98x of premium paid. Median 0.86x.** The typical trip returns *less*
+  than it cost, before fees.
+- Only **17.7%** of trips reach ≥1.3x (the memory-defined right-tail threshold); **5.5%** reach
+  ≥2.0x; **0.5%** reach ≥3.0x.
+- **This is structurally correct for a right-tail strategy** — it is *supposed* to pay for many
+  small losses with few large wins. The shape is not the problem. The question is whether the
+  large wins arrive often enough, and that is what the data cannot yet say.
+
+### The tail is real but its FREQUENCY is unestablished
+Big days by month (engine era):
+
+| month | days | net | best day | days > +$500 | days > +$1,000 |
+|---|---:|---:|---:|---:|---:|
+| 2026-06 | 3 | −$539 | −$15 | 0 | 0 |
+| 2026-07 | 19 | −$1,367 | +$1,341 | 2 | 1 |
+| **2026-08** | 20 | **+$3,048** | **+$3,624** | **7** | **5** |
+| 2026-09 | 5 | −$793 | +$734 | 1 | 0 |
+
+Top 5 days: 08-04 (+$3,624), 08-27 (+$1,897), 08-13 (+$1,748), 08-06 (+$1,465), 07-29 (+$1,341).
+
+**So it is NOT literally "one lucky day"** — there are ~5 tail days spanning late July and
+August. **But every one of them falls in a single 6-week stretch**; June and September produced
+none. With 44 trading days you cannot distinguish *"a genuine fat tail that fires ~monthly"*
+from *"one favourable regime cluster."* Both hypotheses fit this data equally well.
+
+### And the best day is ONE market event, not independent confirmation
+Decomposing 2026-08-04's +$3,624 into waves:
+- **09:50 bucket: +$2,350** — bold-2, risky-1, risky-3 (x3), safe-2, safe-3 **all bought the
+  identical contract `SPY260804C00763000`**
+- **12:20 bucket: +$2,192** — risky-1, risky-3, safe-2, safe-3 all on `SPY260804C00769000`
+- the other 6 waves that day were net negative
+
+**The single largest contribution to the engine's lifetime P&L is TWO market events, each
+counted 4-7 times because 4-7 arms took the same signal.** Arms are risk profiles on one
+signal, not independent strategies — so per-arm agreement on a winning day is **replication,
+not evidence**. Anyone reading per-arm totals as four confirmations is double-counting.
+
+### What this means — and why it argues FOR the freeze, not against it
+1. **The gate is not broken and is not being unlucky. It is correctly refusing to certify an
+   undersampled edge.** CI-lower ≤ 1.0 with the sign flipping on any single day removed is the
+   textbook signature of insufficient n, and it is precisely what the bootstrap is built to
+   detect. **The gate working as designed is good news about the instrument, not bad news
+   about the strategy.**
+2. **No amount of parameter tuning fixes this.** Tuning on 44 days where 5 days carry the
+   result is overfitting to those 5 days by construction (C4). The only input that changes the
+   answer is **more independent days**.
+3. **Therefore: run it unchanged and accumulate n.** That is exactly what the config freeze
+   (→ 2026-10-30) already enforces. **This week's loss is not a reason to touch anything —
+   it is one more sample, which is the thing we actually need.**
+4. **Stop reading per-arm totals as independent evidence.** Wave-dedupe first, always.
+
+### The falsifiable version, for the 10-30 checkpoint
+If the tail is real at roughly the August rate (~5 tail days per 20), the next ~30 trading days
+should produce **~5-7 more days > +$500**. If the coming month produces **zero or one**, the
+"August was a regime cluster" hypothesis gains decisively and a kill conversation is warranted.
+**Pre-registering that now, before seeing the data, is the whole point.**
+
+## PROGRESS LOG
+
+- 2026-09-10 23:22:13 Thursday EDT -- W12 ANSWERED (orchestrator). Whole-engine-era book is +$349 (all arms) /
+  +$1,121 (active 4); ex-top-1-day it is NEGATIVE in both scopes. Mean trip returns 0.98x
+  premium. The tail exists (~5 days) but is confined to one 6-week stretch, and the best day
+  is 2 market events replicated across 4-7 arms. Verdict: UNDERSAMPLED -- the gate's RED is
+  correct, tuning cannot fix it, only n can. Falsifiable 10-30 test pre-registered.
+  W7/W8/W9/W10/W11 workers still running.
