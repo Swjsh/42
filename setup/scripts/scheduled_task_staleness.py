@@ -192,7 +192,24 @@ def tolerance_minutes(row: dict) -> tuple[float, str]:
 
     Returns (minutes, basis) -- the basis string is carried into the report so a reader can
     see WHY a bar was applied rather than having to trust a bare number.
+
+    WEEKLY MUST WIN OVER A REPETITION BURST (regression 2026-09-11): a bounded repeater
+    used to be read as "really a daily task with a burst inside it" REGARDLESS of the
+    trigger's own schedule type. That was true the day it was written (only daily tasks
+    had repetition bursts), but the 2026-09-03 self-heal-window fix gave two genuinely
+    WEEKLY tasks (Gamma_GateRecency, Gamma_WeeklyReview) the same PT15M/PT30M burst for
+    catch-up purposes -- and since `triggerKind` was never consulted before the repeater
+    branch, both got a ~25.5h daily bar and went RED every day of the week except Sunday
+    (self_check BROKEN, 2026-09-11 00:39 ET). A weekly (or monthly) trigger's cadence
+    bar must be checked FIRST; a bounded burst layered on top of it is a catch-up window,
+    not a redefinition of how often the task is expected to run.
     """
+    kind = (row.get("triggerKind") or "").lower()
+    if "weekly" in kind:
+        return 9 * 1440.0, "weekly trigger (bar = 9 days, unaffected by any self-heal burst)"
+    if "monthly" in kind:
+        return 40 * 1440.0, "monthly trigger (bar = 40 days, unaffected by any self-heal burst)"
+
     rep = parse_iso_duration_minutes(row.get("repeat"))
     if rep:
         window = parse_iso_duration_minutes(row.get("repeatFor"))
@@ -210,10 +227,8 @@ def tolerance_minutes(row: dict) -> tuple[float, str]:
         # sustained gap matters.
         return max(rep * 4, 30.0), f"repeating every {rep:g}m (bar = 4 intervals, min 30m)"
 
-    kind = (row.get("triggerKind") or "").lower()
-    if "weekly" in kind:
-        # 7 days + 2 days slack: one skipped week is a finding, a late Sunday is not.
-        return 9 * 1440.0, "weekly trigger (bar = 9 days)"
+    # NOTE: weekly/monthly already returned above -- `kind` is still in scope from the top
+    # of this function, no need to re-read row.get("triggerKind") here.
     if "daily" in kind:
         # 36h catches ONE missed nightly fire. Two missed nights is what went unnoticed
         # for 48 hours on 2026-08-31; 48h+ bars would have stayed silent through it.

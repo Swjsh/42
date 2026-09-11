@@ -210,6 +210,33 @@ def test_unbounded_repeater_keeps_the_tight_bar():
     assert "idle by design" not in basis
 
 
+def test_weekly_trigger_with_selfheal_burst_keeps_the_weekly_bar():
+    """Regression 2026-09-11: Gamma_GateRecency/Gamma_WeeklyReview both went RED in
+    self_check every day of the week except Sunday. Root cause: the 2026-09-03 fix
+    gave each a PT15M/PT30M self-heal repetition burst layered on top of their
+    underlying WEEKLY CalendarTrigger -- but tolerance_minutes() checked `rep` BEFORE
+    `triggerKind`, so ANY bounded repeater (regardless of the trigger's real Weekly/
+    Daily schedule) fell into the "really a daily task with a burst" branch, giving a
+    ~25.5h bar to a task that is only SUPPOSED to run once a week. Live evidence:
+    both tasks last ran ~78h before this fire and were flagged RED even though
+    NumberOfMissedRuns == 0 and NextRunTime was the following Sunday as designed.
+    A weekly cadence must keep its weekly (9-day) bar even with a self-heal burst on top.
+    """
+    tol, basis = sts.tolerance_minutes(
+        _row(triggerKind="MSFT_TaskWeeklyTrigger", repeat="PT15M", repeatFor="PT30M"))
+    assert tol >= 7 * 1440
+    assert "weekly" in basis.lower()
+
+    # 78h idle -- the real observed GateRecency/WeeklyReview value on 2026-09-11 -- must
+    # read GREEN, not RED.
+    out = sts.classify_task(
+        _row(triggerKind="MSFT_TaskWeeklyTrigger", repeat="PT15M", repeatFor="PT30M",
+             missedRuns=0, lastRun=_ago(78 * 60)),
+        now=NOW,
+    )
+    assert out["verdict"] == "GREEN"
+
+
 def test_never_ran_sentinel_is_unknown_not_a_26_year_staleness():
     """Windows stamps 1999-11-30 for 'never ran'. Read literally that is 234,553 hours, and
     the first cut of this script reported exactly that for two tasks registered the day
