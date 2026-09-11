@@ -331,3 +331,96 @@ n=235, mean $5.89, WR 28.5%. `prox<=0.10` gated mean −$43.24 vs kept +$26.31, 
 
 Nothing armed. Config freeze (to 2026-10-30) untouched — this is measurement only, filed as a
 prereg result for the 10-30 window per the original ship_rule.
+
+---
+
+## FOLLOWTHROUGH-HEADROOM-2026-09-11 (separate prereg, folded here as its nearest living doc)
+
+Prereg: `analysis/recommendations/prereg-followthrough-headroom-2026-09-11.json`, frozen and
+committed (`dbe35ce7`) **before** `backtest/autoresearch/followthrough_headroom_2026_09_11.py`
+existed. Question: does a CAUSAL feature at entry predict FAV60 follow-through? Primary
+hypothesis: HEADROOM — distance to the nearest OPPOSING level (the obstacle ahead), explicitly
+declared **not** a repeat of this doc's own prox/run study (which measured distance to the
+extreme *behind* the entry — opposite geometry).
+
+### The hard part, resolved before computing anything
+
+F1/F2 need the level set as it stood *before* each entry. Three candidate sources were checked:
+
+| source | verdict |
+|---|---|
+| `automation/state/core-decisions.jsonl` `levels_active` (live production, per-tick, real-time) | **USED** — the only genuine as-of log found. First non-empty row `2026-07-28T09:30:05`; key absent entirely before `2026-07-27T22:45:52` (checked directly, not inferred). |
+| `analysis/swarm-benchmark/replay-*/key-levels.json` | **REJECTED** — self-labelled `"replay_mode": true`, `protocol_version: "...(replay-mode algorithmic)"`. An algorithmic recomputation for a benchmark tool, not the level state that was actually live. Using it would be exactly the undeclared proxy the prereg forbids. |
+| `journal/*.md` dailies | **REJECTED** — earliest file `2026-04-29`, and no structured programmatic level list even where present. |
+
+**Consequence, stated up front:** F1/F2 can only be computed for entries dated **>= 2026-07-28**.
+The original 191-trade replay population (2025-01-06..2026-07-21) is excluded from F1/F2
+*entirely* — a window-wide absence of any historical level log, not a per-entry gap. F3/F4/F5
+need no level state and ran over the full 388-row population (same population as this doc's own
+2026-09-11 extension update, same `features_floor()` causal-alignment helper, reused verbatim —
+not rebuilt).
+
+### Result: population n=388 (C=153 / P=235), 24-cell closed family
+
+Exclusions: `no_causal_features`=20 (bar-coverage, identical mechanism to this doc's earlier
+update), `headroom_predates_2026_07_28`=181, `headroom_no_levels_row`=3 (date has coverage but
+no logged tick before that specific entry minute), `headroom_no_opposing_level`=15 (entry sat
+beyond every logged level on that side — no resistance/support left in the active set).
+
+11 of 24 cells reached n_gated>=30 AND n_kept>=30 (MIN_CELL_N both sides, no band pooling); 13
+NOT-RUN. BH-FDR q=0.10 run across the full 11-cell measured family via
+`backtest/lib/canonical_battery.py`'s `bh_fdr`/`one_sample_p` (not reimplemented).
+
+| cell | n_g / n_k | $gated | $kept | p | required (BH rank) | FAV60 agree? | G3 blocked-winner | counts |
+|---|---|---|---|---|---|---|---|---|
+| C `F1_headroom_abs<=0.25` | 41/66 | +47.10 | −25.80 | 0.130 | 0.027 | NO | $4,966 blocked-winner | NO |
+| P `F1_headroom_abs<=0.25` | 40/42 | +6.33 | −31.52 | 0.311 | 0.055 | NO | $2,659 blocked-winner | NO |
+| C `F1_headroom_abs<=0.5` | 60/47 | +26.27 | −28.68 | 0.149 | 0.036 | NO | $6,252 blocked-winner | NO |
+| C `F2_headroom_atr<=0.5` | 30/36 | +35.67 | −6.42 | 0.501 | 0.073 | yes | $3,823 blocked-winner | NO |
+| P `F3_er_prior30<=0.15` | 42/162 | +8.02 | +13.23 | 0.865 | 0.100 | yes | $2,866 blocked-winner | NO |
+| C `F3_er_prior30<=0.3` | 30/75 | +57.84 | +17.65 | 0.601 | 0.091 | yes | $5,376 blocked-winner | NO |
+| P `F3_er_prior30<=0.3` | 84/120 | +20.25 | +6.49 | 0.580 | 0.082 | NO | $6,932 blocked-winner | NO |
+| C `F5_range_used>=0.7` | 61/90 | +132.92 | −38.92 | **0.00184** | 0.00909 | yes | $12,097 vs $3,989 avoided | **NO — G3 refuted** |
+| P `F5_range_used>=0.7` | 119/108 | +11.38 | −7.65 | 0.412 | 0.064 | yes | $11,705 blocked-winner | NO |
+| C `F5_range_used>=0.9` | 33/118 | +135.06 | +1.26 | 0.120 | 0.018 | yes | $6,710 blocked-winner | NO |
+| P `F5_range_used>=0.9` | 83/144 | +27.08 | −11.94 | 0.175 | 0.045 | yes | $9,100 blocked-winner | NO |
+
+`F4_atr_prior12` (dead-tape gate, <=$0.20/$0.30 over the prior 12 5m bars) never reaches
+MIN_CELL_N on either side (max n_gated=14/388) — real-fill entries essentially never occur in
+that low-ATR band. NOT-RUN on all 4 cells, not a null on the hypothesis itself.
+
+### Verdict: NULL. Zero survivors. Kill condition 1 (headroom) TRIGGERED.
+
+**HEADROOM is DEAD as pre-registered.** All 4 measured F1/F2 cells fail BH-FDR by a wide
+margin (best p=0.130 against a required 0.027-0.073) — logging this as a null per the prereg's
+own instruction, not softened, not re-swept at new bands. Where headroom is measurable at all
+(2026-07-28 onward only), tight headroom did **not** predict worse follow-through; if anything
+the sign runs the other way (gated_mean > kept_mean in 3 of 4 F1/F2 cells) — the same
+"engine's own entry selection already screens this" shape this doc's bull prox/run study found
+in August, on a different feature. Kill condition 2 (every cell's gated_mean > kept_mean,
+book-wide) does **not** trigger — F3 `P<=0.15` runs the hypothesized direction (gated worse) —
+so the global "losses are elsewhere" statement cannot be made from this study alone, only the
+narrower headroom-specific version above.
+
+One cell, `C F5_range_used>=0.7`, is BH-FDR significant (p=0.00184, comfortably inside its
+0.00909 threshold) and passes G_drop3 (sign preserved after dropping the 3 largest-|pnl|
+trades) and G_oos (IS +159.22 vs kept, OOS +184.05 vs kept — same sign, chronological median
+split). **It is still not a survivor**: G3's blocked-winner rule refutes it —
+$12,097 of blocked-winner dollars against only $3,989 of avoided-loser dollars if this cohort
+were gated. Framed plainly: entries occurring after the day's range was already ≥70% spent
+performed *better*, not worse, which is the opposite of what a "day's range spent = dead tape,
+gate it" veto assumes — so the correct action on this evidence is "do not gate here," not
+"gate here." Flagging as a directionally-interesting observation for a possible *separate*,
+freshly-preregistered study (requiring rather than excluding this state) — not actionable
+under this prereg's closed cell family, and no new threshold was added or swept per that
+constraint.
+
+### Files written
+
+- `backtest/autoresearch/followthrough_headroom_2026_09_11.py` (new runner)
+- `analysis/recommendations/followthrough-headroom-2026-09-11.json` (raw, all 24 cells)
+- this section (OP-22 append — no new dated one-off markdown)
+
+Nothing armed. Config freeze (to 2026-10-30) untouched — measurement only, exactly as the
+prereg's `freeze_compliance` block requires. `automation/overnight/queue.md` and
+`analysis/deep-research/` not touched (owned by the concurrent ARM-EXIT-DEGENERACY session).
